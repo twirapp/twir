@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/gopool"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/satont/twir/apps/bots/types"
 	"go.uber.org/zap"
@@ -29,6 +30,7 @@ type HandlersOpts struct {
 	BotClient  *types.BotClient
 	ParserGrpc parser.ParserClient
 	EventsGrpc events.EventsClient
+	TokensGrpc tokens.TokensClient
 }
 
 type Handlers struct {
@@ -39,6 +41,7 @@ type Handlers struct {
 	parserGrpc parser.ParserClient
 	eventsGrpc events.EventsClient
 	redis      redis.Client
+	tokensGrpc tokens.TokensClient
 
 	workersPool *gopool.Pool
 
@@ -81,6 +84,7 @@ func CreateHandlers(opts *HandlersOpts) *Handlers {
 		redis:            redisClient,
 		eventsGrpc:       opts.EventsGrpc,
 		workersPool:      workersPool,
+		tokensGrpc:       opts.TokensGrpc,
 	}
 
 	prometheus.Register(greetingsCounter)

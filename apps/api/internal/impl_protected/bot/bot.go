@@ -12,9 +12,9 @@ import (
 	botsGrtpc "github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twitchtv/twirp"
+	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"net/http"
 )
 
 type Bot struct {
@@ -24,7 +24,7 @@ type Bot struct {
 func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotInfo, error) {
 	dashboardId, ok := ctx.Value("dashboardId").(string)
 	if !ok || dashboardId == "" {
-		return nil, twirp.NewError(twirp.ErrorCode(http.StatusBadRequest), "no dashboardId provided")
+		return nil, twirp.NewError(twirp.Internal, "no dashboardId provided")
 	}
 
 	dbUser := &model.Users{}
@@ -97,6 +97,13 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 		return nil, fmt.Errorf("cannot get bot info: %w", err)
 	}
 
+	go func() {
+		err := c.Db.Model(&model.Channels{}).Where("id = ?", dbUser.ID).Update(`"isBotMod"`, result.IsMod).Error
+		if err != nil {
+			zap.S().Error(err)
+		}
+	}()
+
 	return result, nil
 }
 
@@ -142,6 +149,7 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
 				BotId:    dbChannel.BotID,
 				UserName: twitchUsers.Data.Users[0].Login,
+				UserId:   twitchUsers.Data.Users[0].ID,
 			},
 		)
 	} else {
@@ -149,6 +157,7 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
 				BotId:    dbChannel.BotID,
 				UserName: twitchUsers.Data.Users[0].Login,
+				UserId:   twitchUsers.Data.Users[0].ID,
 			},
 		)
 	}

@@ -27,7 +27,6 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/bots/internal/bots/handlers"
-	"github.com/satont/twir/apps/bots/pkg/utils"
 	"github.com/satont/twir/apps/bots/types"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -92,6 +91,9 @@ func newBot(opts *ClientOpts) *types.BotClient {
 	client.Client = irc.NewClient(me.Login, "")
 	client.TwitchUser = &me
 	client.Client.Capabilities = []string{irc.TagsCapability, irc.MembershipCapability, irc.CommandsCapability}
+	client.RateLimiters.Channels = types.ChannelsMap{
+		Items: make(map[string]*types.Channel),
+	}
 
 	botHandlers := handlers.CreateHandlers(
 		&handlers.HandlersOpts{
@@ -101,6 +103,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			BotClient:  &client,
 			ParserGrpc: opts.ParserGrpc,
 			EventsGrpc: eventsGrpc,
+			TokensGrpc: tokensGrpc,
 		},
 	)
 
@@ -117,7 +120,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 
 			twitchClient.SetUserAccessToken(token.AccessToken)
 
-			joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
+			//joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
 			client.Client.SetIRCToken(fmt.Sprintf("oauth:%s", token.AccessToken))
 			meReq, err := twitchClient.GetUsers(
 				&helix.UsersParams{
@@ -220,6 +223,7 @@ func newBot(opts *ClientOpts) *types.BotClient {
 			)
 			client.OnUserNoticeMessage(botHandlers.OnNotice)
 			client.OnUserJoinMessage(botHandlers.OnUserJoin)
+			joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
 
 			if err = client.Connect(); err != nil {
 				opts.Logger.Sugar().Error(err)
@@ -238,15 +242,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 		panic(err)
 	}
 
-	botClient.RateLimiters.Channels = types.ChannelsMap{
-		Items: make(map[string]*types.Channel),
-	}
-
-	twitchUsers := []helix.User{}
-	twitchUsersMU := sync.Mutex{}
-
-	botChannels := []model.Channels{}
-
+	var botChannels []model.Channels
 	db.
 		Where(
 			`"botId" = ? AND "isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
@@ -255,16 +251,19 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 			false,
 			false,
 		).Find(&botChannels)
-
 	channelsChunks := lo.Chunk(botChannels, 100)
-	wg := sync.WaitGroup{}
+
+	var twitchUsers []helix.User
+	var twitchUsersMU sync.Mutex
+	var wg sync.WaitGroup
 	wg.Add(len(channelsChunks))
 
 	for _, chunk := range channelsChunks {
 		go func(chunk []model.Channels) {
 			defer wg.Done()
 			usersIds := lo.Map(
-				chunk, func(item model.Channels, _ int) string {
+				chunk,
+				func(item model.Channels, _ int) string {
 					return item.ID
 				},
 			)
@@ -285,49 +284,7 @@ func joinChannels(db *gorm.DB, cfg *cfg.Config, logger *zap.Logger, botClient *t
 
 	wg.Wait()
 
-	wg = sync.WaitGroup{}
-
 	for _, u := range twitchUsers {
-		wg.Add(1)
-		go func(u helix.User) {
-			defer wg.Done()
-
-			dbUser := model.Users{}
-			err := db.Where("id = ?", u.ID).Preload("Token").Find(&dbUser).Error
-			if err != nil {
-				return
-			}
-			isMod := false
-
-			if dbUser.ID != "" && dbUser.Token != nil {
-				botModRequest, err := twitchClient.GetModerators(
-					&helix.GetModeratorsParams{
-						BroadcasterID: u.ID,
-						UserIDs:       []string{botClient.Model.ID},
-					},
-				)
-
-				if err != nil || botModRequest.ResponseCommon.StatusCode != 200 {
-					isMod = false
-				}
-
-				if len(botModRequest.Data.Moderators) == 1 {
-					isMod = true
-				}
-			}
-
-			limiter := utils.CreateBotLimiter(isMod)
-
-			botClient.RateLimiters.Channels.Lock()
-			botClient.RateLimiters.Channels.Items[u.Login] = &types.Channel{
-				IsMod:   isMod,
-				Limiter: limiter,
-			}
-			botClient.RateLimiters.Channels.Unlock()
-
-			botClient.Join(u.Login)
-		}(u)
+		botClient.Join(u.Login)
 	}
-
-	wg.Wait()
 }

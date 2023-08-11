@@ -20,17 +20,17 @@ type NewBotsOpts struct {
 	ParserGrpc parser.ParserClient
 }
 
-type BotsService struct {
+type Service struct {
 	Instances map[string]*types.BotClient
 }
 
-func NewBotsService(opts *NewBotsOpts) *BotsService {
-	service := BotsService{
+func NewBotsService(opts *NewBotsOpts) *Service {
+	service := Service{
 		Instances: make(map[string]*types.BotClient),
 	}
 	mu := sync.Mutex{}
 
-	bots := []model.Bots{}
+	var bots []model.Bots
 	err := opts.DB.
 		Preload("Token").
 		Preload("Channels").

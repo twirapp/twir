@@ -13,8 +13,6 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/twir/apps/bots/internal/bots"
-	"github.com/satont/twir/apps/bots/pkg/utils"
-	"github.com/satont/twir/apps/bots/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"go.uber.org/zap"
@@ -24,7 +22,7 @@ import (
 
 type GrpcImplOpts struct {
 	Db          *gorm.DB
-	BotsService *internalBots.BotsService
+	BotsService *internalBots.Service
 	Logger      *zap.Logger
 	Cfg         *cfg.Config
 }
@@ -33,7 +31,7 @@ type botsGrpcServer struct {
 	bots.UnimplementedBotsServer
 
 	db          *gorm.DB
-	botsService *internalBots.BotsService
+	botsService *internalBots.Service
 	logger      *zap.Logger
 	cfg         *cfg.Config
 }
@@ -150,15 +148,7 @@ func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest
 		return nil, errors.New("bot not found")
 	}
 
-	rateLimitedChannel := bot.RateLimiters.Channels.Items[data.UserName]
-	if rateLimitedChannel == nil {
-		bot.RateLimiters.Channels.Lock()
-		defer bot.RateLimiters.Channels.Unlock()
-		limiter := utils.CreateBotLimiter(false)
-		bot.RateLimiters.Channels.Items[data.UserName] = &types.Channel{
-			Limiter: limiter,
-		}
-	}
+	delete(bot.RateLimiters.Channels.Items, data.UserName)
 	bot.Join(data.UserName)
 	return &emptypb.Empty{}, nil
 }
