@@ -1,29 +1,30 @@
 syntax = "proto3";
 option go_package = "tsuwari/grpc/bots";
 package bots;
-import "google/protobuf/empty.proto"; 
+import "google/protobuf/empty.proto";
 
 service Bots {
-  rpc DeleteMessage(DeleteMessagesRequest) returns (google.protobuf.Empty) {}
-  rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty) {}
-  rpc Join(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
-  rpc Leave(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
+	rpc DeleteMessage(DeleteMessagesRequest) returns (google.protobuf.Empty) {}
+	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty) {}
+	rpc Join(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
+	rpc Leave(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
 }
 
 message DeleteMessagesRequest {
-  string channelId = 1;
-  string channelName = 2;
-  repeated string messageIds = 3;
+	string channelId = 1;
+	string channelName = 2;
+	repeated string messageIds = 3;
 }
 
 message SendMessageRequest {
-  string channelId = 1;
-  optional string channelName = 2;
-  string message = 3;
-  optional bool isAnnounce = 4;
+	string channelId = 1;
+	optional string channelName = 2;
+	string message = 3;
+	optional bool isAnnounce = 4;
 }
 
 message JoinOrLeaveRequest {
-  string botId = 2;
-  string userName = 3;
+	string botId = 2;
+	string userName = 3;
+	string user_id = 4;
 }

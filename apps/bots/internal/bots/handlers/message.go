@@ -19,39 +19,47 @@ func (c *Handlers) OnMessage(msg *Message) {
 	// this need to be first because if we have no user in db it will produce many bugs
 	messages.IncrementUserMessages(c.db, msg.User.ID, msg.Channel.ID)
 
-	c.workersPool.Submit(
-		func() {
-			splittedMsg := strings.Split(msg.Message, " ")
-			isReplyCommand := len(splittedMsg) >= 2 && strings.HasPrefix(splittedMsg[0], "@") &&
-				strings.HasPrefix(splittedMsg[1], "!")
+	var dbChannel model.Channels
+	if err := c.db.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {
+		zap.S().Error(err)
+		return
+	}
 
-			if strings.HasPrefix(msg.Message, "!") || isReplyCommand {
-				if isReplyCommand {
-					msg.Message = strings.Join(splittedMsg[1:], " ")
+	if dbChannel.IsBotMod {
+		c.workersPool.Submit(
+			func() {
+				splittedMsg := strings.Split(msg.Message, " ")
+				isReplyCommand := len(splittedMsg) >= 2 && strings.HasPrefix(splittedMsg[0], "@") &&
+					strings.HasPrefix(splittedMsg[1], "!")
+
+				if strings.HasPrefix(msg.Message, "!") || isReplyCommand {
+					if isReplyCommand {
+						msg.Message = strings.Join(splittedMsg[1:], " ")
+					}
+
+					c.handleCommand(msg, userBadges)
 				}
+			},
+		)
 
-				c.handleCommand(msg, userBadges)
-			}
-		},
-	)
+		c.workersPool.Submit(
+			func() {
+				c.handleGreetings(msg, userBadges)
+			},
+		)
 
-	c.workersPool.Submit(
-		func() {
-			c.handleGreetings(msg, userBadges)
-		},
-	)
+		c.workersPool.Submit(
+			func() {
+				c.handleKeywords(msg, userBadges)
+			},
+		)
 
-	c.workersPool.Submit(
-		func() {
-			c.handleKeywords(msg, userBadges)
-		},
-	)
-
-	c.workersPool.Submit(
-		func() {
-			c.handleEmotes(msg)
-		},
-	)
+		c.workersPool.Submit(
+			func() {
+				c.handleEmotes(msg)
+			},
+		)
+	}
 
 	c.workersPool.Submit(
 		func() {

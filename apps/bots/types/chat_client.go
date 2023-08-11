@@ -14,6 +14,7 @@ import (
 type Channel struct {
 	IsMod   bool
 	Limiter ratelimiting.SlidingWindow
+	ID      string
 }
 
 type ChannelsMap struct {

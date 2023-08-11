@@ -24,7 +24,7 @@ import (
 
 type GrpcImplOpts struct {
 	Db          *gorm.DB
-	BotsService *internalBots.BotsService
+	BotsService *internalBots.Service
 	Logger      *zap.Logger
 	Cfg         *cfg.Config
 }
@@ -33,7 +33,7 @@ type botsGrpcServer struct {
 	bots.UnimplementedBotsServer
 
 	db          *gorm.DB
-	botsService *internalBots.BotsService
+	botsService *internalBots.Service
 	logger      *zap.Logger
 	cfg         *cfg.Config
 }
@@ -157,6 +157,7 @@ func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest
 		limiter := utils.CreateBotLimiter(false)
 		bot.RateLimiters.Channels.Items[data.UserName] = &types.Channel{
 			Limiter: limiter,
+			ID:      data.UserId,
 		}
 	}
 	bot.Join(data.UserName)

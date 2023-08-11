@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func UserUpdate(db *gorm.DB, botsService *bots.BotsService, data []byte) {
+func UserUpdate(db *gorm.DB, botsService *bots.Service, data []byte) {
 	userStruct := &pubsub.UserUpdateMessage{}
 	if err := json.Unmarshal(data, userStruct); err != nil {
 		fmt.Println(err)

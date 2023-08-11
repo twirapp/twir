@@ -33,7 +33,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 			opts.Interceptor.NewCacheInterceptor(
 				interceptors.CacheOpts{
 					CacheMethod:       "BotInfo",
-					CacheDuration:     10 * time.Second,
+					CacheDuration:     5 * time.Second,
 					ClearMethods:      []string{"BotJoinPart"},
 					WithChannelHeader: true,
 					CastTo: func() any {
