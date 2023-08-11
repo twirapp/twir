@@ -22,7 +22,7 @@ import Team from '../components/index/Team.astro';
 		<Integrations />
 	</section>
 	<section id="reviews">
-		<Reviews client:load />
+		<Reviews client:only="vue" />
 	</section>
 	<section id="team">
 		<Team />

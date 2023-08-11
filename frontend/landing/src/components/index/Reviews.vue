@@ -1,11 +1,10 @@
 <script lang="ts" setup>
-import { Fade } from '@egjs/flicking-plugins';
+import { AutoPlay } from '@egjs/flicking-plugins';
 import Flicking from '@egjs/vue3-flicking';
 import { type TwitchUser } from '@twir/grpc/generated/api/api/twitch';
 import { onMounted, ref, computed } from 'vue';
 
-
-const plugins = [new Fade()];
+const plugins = [new AutoPlay({ stopOnHover: true })];
 
 const reviews = [
 {
@@ -27,19 +26,11 @@ const reviews = [
     rating: 4,
   },
 	{
-		id: '155644238',
-		username: 'le_xot',
+		id: '48385787',
+		username: 'promotive',
 		roles: ['Streamer'],
-		comment: 'Twir combines a simple and clear interface, extensive customization and integration options, making this bot an indispensable assistant on my broadcasts.',
-		avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/423e40e6-9534-46ac-9ed8-5714657dd03b-profile_image-70x70.png',
-		rating: 5,
-	},
-	{
-		id: '155644238',
-		username: 'le_xot',
-		roles: ['Streamer'],
-		comment: 'Twir combines a simple and clear interface, extensive customization and integration options, making this bot an indispensable assistant on my broadcasts.',
-		avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/423e40e6-9534-46ac-9ed8-5714657dd03b-profile_image-70x70.png',
+		comment: 'Been using the bot since 2017, now evolved to a huge and feature-rich bot, with all the right features and needs for any streamer. It has everything you need to easily automate your chat, the functionality is very advanced.',
+		avatarUrl: 'https://static-cdn.jtvnw.net/jtv_user_pictures/6808c622-2cf0-4319-a2ac-d91ae5212928-profile_image-70x70.png',
 		rating: 5,
 	},
 	{
@@ -93,45 +84,48 @@ const mappedReviews = computed(() => {
 		</div>
 	</div>
 
-	<Flicking
-		:options="{
-			align: 'center',
-			moveType: 'snap',
-			circular: true,
-			circularFallback: 'bound',
-		}"
-		:plugins="plugins"
-		class="cursor-grab mb-20"
-	>
-		<div v-for="review of mappedReviews" :key="review.id" class="gap-5 p-6 rounded-[12px] bg-[#24242780] border-[#393A3E] inline-flex flex-col border select-none slider-review-card">
-			<div class="flex justify-between">
-				<div class="flex items-center gap-4">
-					<img :src="review.avatarUrl" class="w-11 h-11 rounded-full" />
-					<div class="flex flex-col">
-						<a
-							class="text-lg text-white font-semibold"
-							:href="'https://twitch.tv/' + review.username"
-							target="_blank"
-						>
-							@{{ review.username }}
-						</a>
-						<span class="text-sm text-stone-400">{{ review.roles.join(', ') }}</span>
+	<div class="wrapper">
+		<Flicking
+			:options="{
+				align: 'center',
+				renderOnlyVisible: true,
+				moveType: 'snap',
+				circular: true,
+				circularFallback: 'bound',
+			}"
+			:plugins="plugins"
+			class="cursor-grab mb-20"
+		>
+			<div v-for="review of mappedReviews" :key="review.id" class="panel gap-5 p-6 rounded-[12px] bg-[#24242780] border-[#393A3E] inline-flex flex-col border select-none slider-review-card">
+				<div class="flex justify-between">
+					<div class="flex items-center gap-4">
+						<img :src="review.avatarUrl" class="w-11 h-11 rounded-full" />
+						<div class="flex flex-col">
+							<a
+								class="text-lg text-white font-semibold"
+								:href="'https://twitch.tv/' + review.username"
+								target="_blank"
+							>
+								@{{ review.username }}
+							</a>
+							<span class="text-sm text-stone-400">{{ review.roles.join(', ') }}</span>
+						</div>
 					</div>
-				</div>
 
 				<!-- <div class="flex gap-1">
 					<img v-for="(_, index) of Array(review.rating)" :key="index" :src="RatingStarFilled" />
 					<img v-for="(_, index) of Array(5 - review.rating)" :key="index" :src="RatingStarFilled" />
 				</div> -->
+				</div>
+				<span class="text-base text-stone-400 line-clamp-4 text-ellipsis" :alt="review.comment">
+					{{ review.comment }}
+				</span>
 			</div>
-			<span class="text-base text-stone-400 line-clamp-5" :alt="review.comment">
-				{{ review.comment }}
-			</span>
-		</div>
-	</Flicking>
+		</Flicking>
+	</div>
 </template>
 
-<style scoped>
+<style>
 @import '@egjs/vue3-flicking/dist/flicking.css';
 
 .slider-review-card {
