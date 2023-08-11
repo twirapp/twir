@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/index/Hero.astro';
-import Stats from '../components/index/Stats.astro';
+import Stats from '../components/index/Stats.vue';
 import Features from '../components/index/Features.astro';
 import Integrations from '../components/index/Integrations.astro';
 import Reviews from '../components/index/Reviews.vue';
 import Team from '../components/index/Team.astro';
+import Footer from '../components/index/Footer.astro';
 ---
 
 <Layout title="Twir - Main page">
@@ -22,9 +23,29 @@ import Team from '../components/index/Team.astro';
 		<Integrations />
 	</section>
 	<section id="reviews">
-		<Reviews client:only="vue" />
+		<Reviews client:load />
 	</section>
 	<section id="team">
 		<Team />
 	</section>
+	<section id="footer">
+		<Footer />
+	</section>
 </Layout>
+
+<script>
+  const hrefs = document.querySelectorAll<HTMLElement>('[data-section]');
+
+  hrefs.forEach((href) => {
+    href.addEventListener('click', (e) => {
+			e.preventDefault();
+
+			const target = document.getElementById(href.dataset['section'].slice(1))
+			const sectionY = window.scrollY - target.getBoundingClientRect().top;
+
+			target.scrollIntoView({
+				behavior: 'smooth',
+			});
+    });
+  });
+</script>

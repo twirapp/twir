@@ -1,7 +1,6 @@
 ---
-import Logo from '../../../assets/TwirInCircle.svg';
-import DialogTail from '../../../assets/dialog-tail.svg';
-import DialogAvatar from '../../../assets/dialog-avatar.png';
+import Logo from '../../../assets/TwirInCircle.svg?component';
+import DialogAvatar from '../../../assets/dialog-avatar.svg?component';
 
 const messages = [
 	{
@@ -50,9 +49,8 @@ const messages = [
 <div class="flex flex-col h-[540px] justify-end gap-[12px]">
 	{messages.map((item) => (
 		<div class="flex items-end gap-[16px]">
-			{item.sender === 'bot' &&
-				<img src={Logo} class="h-8 w-8"/>}
-			{item.sender === 'user' && <img src={DialogAvatar} class="h-8 w-8"/>}
+			{item.sender === 'bot' && <Logo class="h-8 w-8" />}
+			{item.sender === 'user' && <DialogAvatar class="h-8 w-8"/>}
 			<div class="w-full">
 				{item.type === 'message' &&
 					<div

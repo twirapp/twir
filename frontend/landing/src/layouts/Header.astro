@@ -2,24 +2,7 @@
 import Profile from '../components/Profile.vue';
 import { Icon } from 'astro-icon';
 
-const navItems: { href: string; label: string }[] = [
-  {
-    href: '#',
-    label: 'Features',
-  },
-  {
-    href: '#',
-    label: 'Reviews',
-  },
-  {
-    href: '#',
-    label: 'Team',
-  },
-  {
-    href: '#',
-    label: 'Pricing',
-  },
-];
+import { navLinks } from '../components/navLinks.js'
 ---
 
 <header class="bg-[#09090B]/25">
@@ -31,16 +14,9 @@ const navItems: { href: string; label: string }[] = [
 					<span class="text-2xl font-semibold text-white">Twir</span>
 				</div>
 				<nav class="inline-flex gap-x-1">
-      {
-        navItems.map((item) => (
-									<a
-										href={item.href}
-										class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors "
-									>
-           {item.label}
-									</a>
-        ))
-      }
+				{navLinks.map((item) => <a data-section={item.href} href={item.href} class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors">
+					{item.label}
+				</a>)}
 				</nav>
 			</div>
 
