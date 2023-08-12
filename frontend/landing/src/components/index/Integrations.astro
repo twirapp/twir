@@ -21,16 +21,16 @@ const integrations = [
 ]
 ---
 
-<div class="bg-[#17171A]">
+<div class="bg-[#17171A]" id="integrations">
 	<div class="container mx-auto">
-		<div class="px-[32px] pb-[100px]">
-			<div class="flex flex-col flex-wrap items-center text-center gap-[20px]">
-				<Cube style="position: relative; bottom: -110px" />
-				<span class="text-4xl text-white font-bold">Bot has a built-in API for the most necessary apps</span>
-				<span class="text-xl text-[#ADB0B8] font-normal">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
+		<div class="px-[32px] pb-[100px] pt-[140px]">
+			<div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
+				<Cube class="absolute -top-24" />
+				<span class="text-4xl text-white font-bold z-10 max-w-2xl leading-[1.1] tracking-tight">Bot has a built-in API for the most necessary apps</span>
+				<span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
 			</div>
 			<div class="flex flex-wrap justify-center mt-[64px] gap-[32px]">
-				{integrations.map((i) => <i.icon style="width: 70px; height: 70px" />)}
+				{integrations.map((i) => <i.icon />)}
 			</div>
 		</div>
 	</div>
