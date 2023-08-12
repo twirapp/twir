@@ -1,0 +1,34 @@
+---
+import { type Response } from '@twir/grpc/generated/api/api/stats';
+import { unProtectedClient } from '../../api/twirp.js';
+
+let r: Response
+
+try {
+	const { response } = await unProtectedClient.getStats({}, { timeout: 5000 });
+	r = response
+} catch {}
+
+const formatter = Intl.NumberFormat('en-US', {
+  notation: "compact",
+  maximumFractionDigits: 1
+});
+
+const stats = {
+	'Users': formatter.format(r?.users ?? 0),
+	'Channels': formatter.format(r?.channels ?? 0),
+	'Commands': formatter.format(r?.commands ?? 0),
+	'Messages': formatter.format(r?.messages ?? 0),
+}
+---
+
+<div class="bg-[#17171A] px-[32px] py-[20px]">
+	<div class="container mx-auto">
+		<div class="flex justify-center flex-wrap gap-[32px]">
+			{Object.entries(stats).map((([key, value]) => <div class="flex flex-col items-center gap-[12px] min-w-[200px]">
+				<span class="font-semibold text-6xl text-white stats-count" data-stats-count={value.toString()}>{value}</span>
+				<span class="font-normal text-lg text-[#ADB0B8]">{key}</span>
+			</div>))}
+		</div>
+	</div>
+</div>
