@@ -20,11 +20,6 @@ type ChatItem =
 
 const messages: ChatItem[] = [
   {
-    type: 'redemption',
-    title: 'Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
-    input: 'Satont',
-  },
-  {
     sender: 'bot',
     message: 'melkam disabled chat for Satont for 5 minutes',
     type: 'message',
@@ -55,6 +50,11 @@ const messages: ChatItem[] = [
     type: 'message',
   },
   {
+    type: 'redemption',
+    title: 'Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
+    input: 'Satont',
+  },
+  {
     sender: 'bot',
     message: '✅ Title succesfully changed.',
     type: 'message',
@@ -82,11 +82,11 @@ const messages: ChatItem[] = [
 ];
 ---
 
-<div>
+<div class="px-5 md:px-9 overflow-hidden">
   <div
-    class="container py-20 lg:py-28 px-5 md:px-9 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-20 before:-rotate-[30deg] overflow-hidden before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8">
+    class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8">
     <div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
-      <div class="flex flex-col items-start">
+      <div class="flex flex-col items-start w-full">
         <button
           class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow">
           🚀 View latest updates
@@ -108,18 +108,18 @@ const messages: ChatItem[] = [
 
         <div class="pt-[48px] w-full inline-flex flex-col xs:flex-row gap-3">
           <button
-            class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center">
+            class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center whitespace-nowrap">
             Learn more
           </button>
           <HeroStartButton client:load />
         </div>
       </div>
       <div
-        class="flex flex-col justify-end gap-[12px] w-full md:w-auto max-h-[540px] max-w-md overflow-hidden relative -top-5"
+        class="flex flex-col justify-end gap-[12px] w-full max-h-[540px] xl:max-w-lg relative -top-5"
         style="-webkit-mask-image: linear-gradient(0deg, #D9D9D9 75%, rgba(217, 217, 217, 0) 100%)">
         {
           messages.map((item) => (
-            <div class="flex items-start gap-[16px]">
+            <div class="flex items-start gap-[16px] w-full">
               {item.type === 'message' && item.sender === 'bot' && (
                 <TwirInCircle class="w-9 h-9 flex-shrink-0" />
               )}
@@ -150,7 +150,7 @@ const messages: ChatItem[] = [
               {item.type === 'redemption' && (
                 <div
                   class="
-										font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/20 gap-2 rounded-md relative w-full
+										font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full
 									">
                   <span class="text-sm leading-normal text-white/90" set:html={item.title} />
                   <span class="font-semibold">{item.input}</span>

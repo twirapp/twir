@@ -5,25 +5,25 @@ import { Icon } from 'astro-icon';
 import { navLinks } from '../components/navLinks.js';
 ---
 
-<header class="bg-[#09090B]/25">
+<header class="bg-[#09090B]/25 sm:px-8 px-4">
   <div class="lg:container">
-    <div class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4 sm:px-8 px-4">
+    <div class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4">
       <div class="flex items-center gap-[12px]">
-				<Icon name="TwirLogo" size="36px" />
-				<span class="text-2xl font-semibold text-white">Twir</span>
-			</div>
-			<nav class="md:inline-flex gap-x-2 hidden ">
-				{
-					navLinks.map((item) => (
-						<a
-							data-section={item.href}
-							href={item.href}
-							class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#393A3E] rounded-md focus-visible:text-[#D5D8DF]">
-							{item.label}
-						</a>
-					))
-				}
-			</nav>
+        <Icon name="TwirLogo" size="36px" />
+        <span class="text-2xl font-semibold text-white">Twir</span>
+      </div>
+      <nav class="md:inline-flex gap-x-2 hidden">
+        {
+          navLinks.map((item) => (
+            <a
+              data-section={item.href}
+              href={item.href}
+              class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#393A3E] rounded-md focus-visible:text-[#D5D8DF]">
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
 
       <Profile client:load />
     </div>
