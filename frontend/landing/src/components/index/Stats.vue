@@ -17,11 +17,9 @@ const stats = computed(() => {
 onMounted(() => {
 	if (typeof window === 'undefined') return;
 	const numberFormatter = new Intl.NumberFormat(navigator.language, { notation: 'compact' });
-  const spans = document.querySelectorAll('[data-stats-count]');
+  const spans = document.querySelectorAll<HTMLElement>('[data-stats-count]');
   spans.forEach((s) => {
-		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-		// @ts-ignore
-    s.innerText = numberFormatter.format(Number(s.dataset['statsCount'] ?? 0));
+    s.innerText = numberFormatter.format(Number(s.dataset.statsCount ?? 0));
   });
 });
 </script>

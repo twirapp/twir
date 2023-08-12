@@ -41,7 +41,6 @@ import Footer from '../components/index/Footer.astro';
 			e.preventDefault();
 
 			const target = document.getElementById(href.dataset['section'].slice(1))
-			const sectionY = window.scrollY - target.getBoundingClientRect().top;
 
 			target.scrollIntoView({
 				behavior: 'smooth',
