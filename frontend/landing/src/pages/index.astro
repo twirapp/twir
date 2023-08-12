@@ -39,6 +39,7 @@ import Footer from '../components/index/Footer.astro';
   hrefs.forEach((href) => {
     href.addEventListener('click', (e) => {
 			e.preventDefault();
+			console.log(href)
 
 			const target = document.getElementById(href.dataset['section'].slice(1))
 

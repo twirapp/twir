@@ -1,5 +1,7 @@
 ---
 import TwirInCircle from '../../assets/TwirInCircle.svg?component'
+import Telegram from '../../assets/social/telegram.svg?component'
+import Discord from '../../assets/social/discord.svg?component'
 
 import { navLinks } from '../navLinks.js'
 ---
@@ -19,7 +21,15 @@ import { navLinks } from '../navLinks.js'
 		<div class="mt-12 border-t border-stone-600">
 			<div class="flex justify-between p-8 text-stone-400">
 				<div>© {new Date().getFullYear()} Twir. All rights reserved.</div>
-				<div>asd</div>
+				<div class="flex gap-8">
+					<div class="flex gap-[14px]">
+						<a href="https://t.me/twirapp" target="_blank"><Telegram class="w-6 h-6" /></a>
+						<a href="https://discord.gg/Q9NBZq3zVV" target="_blank"><Discord class="w-6 h-6" /></a>
+					</div>
+					<!-- <div>
+						terms, privacy there
+					</div> -->
+				</div>
 			</div>
 		</div>
 	</div>
