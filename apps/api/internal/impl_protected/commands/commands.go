@@ -113,7 +113,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 	dashboardId := ctx.Value("dashboardId").(string)
 	command := &model.ChannelsCommands{
 		ID:           uuid.New().String(),
-		Name:         request.Name,
+		Name:         strings.ToLower(request.Name),
 		Cooldown:     null.IntFrom(int64(request.Cooldown)),
 		CooldownType: request.CooldownType,
 		Enabled:      request.Enabled,
@@ -195,7 +195,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		return nil, twirp.NewError(twirp.NotFound, "command not found")
 	}
 
-	cmd.Name = request.Command.Name
+	cmd.Name = strings.ToLower(request.Command.Name),
 	cmd.Cooldown = null.IntFrom(int64(request.Command.Cooldown))
 	cmd.CooldownType = request.Command.CooldownType
 	cmd.Enabled = request.Command.Enabled
