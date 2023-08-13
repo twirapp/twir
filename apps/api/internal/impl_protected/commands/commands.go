@@ -195,7 +195,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 		return nil, twirp.NewError(twirp.NotFound, "command not found")
 	}
 
-	cmd.Name = strings.ToLower(request.Command.Name),
+	cmd.Name = strings.ToLower(request.Command.Name)
 	cmd.Cooldown = null.IntFrom(int64(request.Command.Cooldown))
 	cmd.CooldownType = request.Command.CooldownType
 	cmd.Enabled = request.Command.Enabled
