@@ -41,7 +41,7 @@ func New(
 		db:                db,
 		logger:            logger,
 		Timers:            store,
-		handler:           handler.New(db, logger, store, parserGrpc, botsGrpcClient),
+		handler:           handler.New(db, logger, store, parserGrpc, botsGrpcClient, cfg),
 	}
 }
 

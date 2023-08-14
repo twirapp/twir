@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
+	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -135,6 +136,14 @@ func (c *Timers) TimersDelete(
 		Delete(&model.ChannelsTimers{}).
 		Error; err != nil {
 		return nil, err
+	}
+
+	if _, err := c.Grpc.Timers.RemoveTimerFromQueue(
+		ctx, &timersGrpc.Request{
+			TimerId: request.Id,
+		},
+	); err != nil {
+		zap.S().Error(err)
 	}
 
 	return &emptypb.Empty{}, nil
