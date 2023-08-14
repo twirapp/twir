@@ -4,19 +4,18 @@ import (
 	"context"
 	"github.com/satont/twir/apps/timers/internal/types"
 	cfg "github.com/satont/twir/libs/config"
+	"golang.org/x/exp/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 
 	"github.com/go-co-op/gocron"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type Handler struct {
 	db         *gorm.DB
-	logger     *zap.Logger
 	store      types.Store
 	parserGrpc parser.ParserClient
 	botsGrpc   bots.BotsClient
@@ -25,13 +24,12 @@ type Handler struct {
 
 func New(
 	db *gorm.DB,
-	logger *zap.Logger,
 	store types.Store,
 	parserGrpc parser.ParserClient,
 	botsGrpc bots.BotsClient,
 	config *cfg.Config,
 ) *Handler {
-	return &Handler{db: db, logger: logger, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc, config: config}
+	return &Handler{db: db, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc, config: config}
 }
 
 func (c *Handler) Handle(j gocron.Job) {
@@ -39,7 +37,7 @@ func (c *Handler) Handle(j gocron.Job) {
 
 	stream := model.ChannelsStreams{}
 	if err := c.db.Where(`"userId" = ?`, t.Model.ChannelID).Find(&stream).Error; err != nil {
-		c.logger.Sugar().Error(err)
+		slog.Error(err.Error(), "userId", t.Model.ChannelID)
 		return
 	}
 
@@ -87,7 +85,7 @@ func (c *Handler) Handle(j gocron.Job) {
 			},
 		)
 		if err != nil {
-			c.logger.Sugar().Error(err)
+			slog.Error(err.Error(), "name", t.Model.Name, "userId", t.Model.ChannelID)
 			return
 		}
 	}
@@ -109,6 +107,6 @@ func (c *Handler) Handle(j gocron.Job) {
 		Error
 
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		slog.Error(err.Error(), "name", t.Model.Name, "userId", t.Model.ChannelID)
 	}
 }

@@ -208,5 +208,14 @@ func (c *Timers) TimersEnableOrDisable(
 		return nil, err
 	}
 
+	grpcRequest := &timersGrpc.Request{
+		TimerId: entity.ID,
+	}
+	if entity.Enabled {
+		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+	} else {
+		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+	}
+
 	return c.convertEntity(entity), nil
 }

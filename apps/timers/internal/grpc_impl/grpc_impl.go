@@ -2,6 +2,7 @@ package grpc_impl
 
 import (
 	"context"
+	"go.uber.org/fx"
 
 	"github.com/satont/twir/apps/timers/internal/scheduler"
 	"github.com/satont/twir/apps/timers/internal/types"
@@ -12,12 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type TimersGrpcServerOpts struct {
-	Db        *gorm.DB
-	Logger    *zap.Logger
-	Scheduler *scheduler.Scheduler
-}
-
 type TimersGrpcServer struct {
 	timers.UnimplementedTimersServer
 
@@ -26,10 +21,16 @@ type TimersGrpcServer struct {
 	scheduler *scheduler.Scheduler
 }
 
-func New(opts *TimersGrpcServerOpts) *TimersGrpcServer {
+type TimersGrpcServerOpts struct {
+	fx.In
+
+	Db        *gorm.DB
+	Scheduler *scheduler.Scheduler
+}
+
+func New(opts TimersGrpcServerOpts) timers.TimersServer {
 	return &TimersGrpcServer{
 		db:        opts.Db,
-		logger:    opts.Logger,
 		scheduler: opts.Scheduler,
 	}
 }
@@ -39,7 +40,11 @@ func (c *TimersGrpcServer) AddTimerToQueue(
 	data *timers.Request,
 ) (*emptypb.Empty, error) {
 	timer := &model.ChannelsTimers{}
-	if err := c.db.Where(`"id" = ?`, data.TimerId).Preload("Responses").Take(timer).Error; err != nil {
+	if err := c.db.
+		WithContext(ctx).
+		Where(`"id" = ?`, data.TimerId).
+		Preload("Responses").
+		Take(timer).Error; err != nil {
 		c.logger.Sugar().Error(err)
 		return &emptypb.Empty{}, nil
 	}

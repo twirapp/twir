@@ -1,7 +1,10 @@
 package scheduler
 
 import (
-	"fmt"
+	"context"
+	model "github.com/satont/twir/libs/gomodels"
+	"go.uber.org/fx"
+	"golang.org/x/exp/slog"
 	"time"
 
 	"github.com/satont/twir/apps/timers/internal/handler"
@@ -12,7 +15,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 
 	"github.com/go-co-op/gocron"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +22,6 @@ type Scheduler struct {
 	internalScheduler *gocron.Scheduler
 	cfg               *cfg.Config
 	db                *gorm.DB
-	logger            *zap.Logger
 	Timers            types.Store
 	handler           *handler.Handler
 }
@@ -28,25 +29,62 @@ type Scheduler struct {
 func New(
 	cfg *cfg.Config,
 	db *gorm.DB,
-	logger *zap.Logger,
 	parserGrpc parser.ParserClient,
 	botsGrpcClient bots.BotsClient,
+	lc fx.Lifecycle,
 ) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
 	store := make(types.Store)
-	return &Scheduler{
+	s := &Scheduler{
 		internalScheduler: scheduler,
 		cfg:               cfg,
 		db:                db,
-		logger:            logger,
 		Timers:            store,
-		handler:           handler.New(db, logger, store, parserGrpc, botsGrpcClient, cfg),
+		handler:           handler.New(db, store, parserGrpc, botsGrpcClient, cfg),
 	}
+
+	lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				var timers []model.ChannelsTimers
+				err := db.Model(&model.ChannelsTimers{}).
+					Where("1 = 1").
+					Update("lastTriggerMessageNumber", 0).
+					Error
+				if err != nil {
+					return err
+				}
+				err = db.Preload("Responses").Preload("Channel").Find(&timers).Error
+
+				if err != nil {
+					return err
+				} else {
+					for _, timer := range timers {
+						if timer.Channel != nil && (!timer.Channel.IsEnabled || timer.Channel.IsBanned) {
+							continue
+						}
+
+						if timer.Enabled {
+							err = s.AddTimer(&types.Timer{Model: &timer, SendIndex: 0})
+							if err != nil {
+								slog.Error(err.Error(), "name", timer.Name, "channelId", timer.ChannelID)
+							}
+						}
+					}
+				}
+
+				return nil
+			},
+			OnStop: nil,
+		},
+	)
+
+	return s
 }
 
 func (c *Scheduler) AddTimer(timer *types.Timer) error {
-	c.internalScheduler.RemoveByTag(timer.Model.ID)
+	c.RemoveTimer(timer.Model.ID)
 
 	var unit time.Duration
 
@@ -64,18 +102,11 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 		Millisecond().
 		DoWithJobDetails(c.handler.Handle)
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		slog.Error(err.Error())
 		return err
 	}
 
-	c.logger.Info(
-		fmt.Sprintf(
-			"Queued timer %s#%s for %s channel.",
-			timer.Model.Name,
-			timer.Model.ID,
-			timer.Model.ChannelID,
-		),
-	)
+	slog.Info("Queued timer", "name", timer.Model.Name, "id", timer.Model.ID, "channelId", timer.Model.ChannelID)
 
 	return nil
 }
@@ -83,18 +114,13 @@ func (c *Scheduler) AddTimer(timer *types.Timer) error {
 func (c *Scheduler) RemoveTimer(id string) error {
 	err := c.internalScheduler.RemoveByTag(id)
 
-	c.logger.Sugar().Info(
-		fmt.Sprintf(
-			"Removed timer %s.",
-			id,
-		),
-	)
-
-	delete(c.Timers, id)
-
 	if err != nil {
 		return err
 	}
+
+	slog.Info("Removed timer", "id", id)
+
+	delete(c.Timers, id)
 
 	return nil
 }
