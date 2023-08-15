@@ -49,6 +49,8 @@ services:
       - --api
       - --tracing=true
       - --tracing.jaeger.localAgentHostPort=jaeger:6831
+      - --experimental.plugins.cloudflarewarp.modulename=github.com/BetterCorp/cloudflarewarp
+      - --experimental.plugins.cloudflarewarp.version=v1.3.0
     networks:
       - traefik-public
   jaeger:
