@@ -2,60 +2,46 @@ package handler
 
 import (
 	"context"
-
 	"github.com/satont/twir/apps/timers/internal/types"
+	cfg "github.com/satont/twir/libs/config"
+	"golang.org/x/exp/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 
 	"github.com/go-co-op/gocron"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type Handler struct {
 	db         *gorm.DB
-	logger     *zap.Logger
 	store      types.Store
 	parserGrpc parser.ParserClient
 	botsGrpc   bots.BotsClient
+	config     *cfg.Config
 }
 
 func New(
 	db *gorm.DB,
-	logger *zap.Logger,
 	store types.Store,
 	parserGrpc parser.ParserClient,
 	botsGrpc bots.BotsClient,
+	config *cfg.Config,
 ) *Handler {
-	return &Handler{db: db, logger: logger, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc}
+	return &Handler{db: db, store: store, parserGrpc: parserGrpc, botsGrpc: botsGrpc, config: config}
 }
 
 func (c *Handler) Handle(j gocron.Job) {
 	t := c.store[j.Tags()[0]]
 
-	streamData := model.ChannelsStreams{}
-
-	err := c.db.Where(`"userId" = ?`, t.Model.ChannelID).First(&streamData).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		c.logger.Sugar().Error(err)
-		return
-	}
-
-	if t.Model.MessageInterval > 0 &&
-		t.Model.LastTriggerMessageNumber-int32(
-			streamData.ParsedMessages,
-		)+t.Model.MessageInterval > 0 {
-		return
-	}
-
 	stream := model.ChannelsStreams{}
+	if err := c.db.Where(`"userId" = ?`, t.Model.ChannelID).Find(&stream).Error; err != nil {
+		slog.Error(err.Error(), "userId", t.Model.ChannelID)
+		return
+	}
 
-	err = c.db.Where(`"userId" = ?`, t.Model.ChannelID).First(&stream).Error
-
-	if err != nil {
-		c.logger.Sugar().Error(err)
+	if stream.ID == "" && c.config.AppEnv == "production" {
 		return
 	}
 
@@ -72,7 +58,8 @@ func (c *Handler) Handle(j gocron.Job) {
 	}
 
 	req, err := c.parserGrpc.ParseTextResponse(
-		context.Background(), &parser.ParseTextRequestData{
+		context.Background(),
+		&parser.ParseTextRequestData{
 			Sender: &parser.Sender{
 				Id:          "",
 				Name:        "bot",
@@ -87,17 +74,20 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
-	for i := 0; i < len(req.Responses); i++ {
-		message := req.Responses[i]
-
-		c.botsGrpc.SendMessage(
-			context.Background(), &bots.SendMessageRequest{
-				ChannelId:   stream.UserId,
+	for _, message := range req.Responses {
+		_, err = c.botsGrpc.SendMessage(
+			context.Background(),
+			&bots.SendMessageRequest{
+				ChannelId:   t.Model.ChannelID,
 				ChannelName: &stream.UserLogin,
 				Message:     message,
 				IsAnnounce:  &timerResponse.IsAnnounce,
 			},
 		)
+		if err != nil {
+			slog.Error(err.Error(), "name", t.Model.Name, "userId", t.Model.ChannelID)
+			return
+		}
 	}
 
 	nextIndex := t.SendIndex + 1
@@ -108,15 +98,15 @@ func (c *Handler) Handle(j gocron.Job) {
 		t.SendIndex = 0
 	}
 
-	t.Model.LastTriggerMessageNumber = int32(streamData.ParsedMessages)
+	t.Model.LastTriggerMessageNumber = int32(stream.ParsedMessages)
 
 	err = c.db.
 		Model(&model.ChannelsTimers{}).
 		Where(`"id" = ?`, t.Model.ID).
-		Updates(model.ChannelsTimers{LastTriggerMessageNumber: int32(streamData.ParsedMessages)}).
+		Updates(model.ChannelsTimers{LastTriggerMessageNumber: int32(stream.ParsedMessages)}).
 		Error
 
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		slog.Error(err.Error(), "name", t.Model.Name, "userId", t.Model.ChannelID)
 	}
 }

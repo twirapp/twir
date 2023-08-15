@@ -4,24 +4,25 @@ go 1.20
 
 require (
 	github.com/go-co-op/gocron v1.17.1
-	github.com/samber/do v1.6.0
 	github.com/satont/twir/libs/config v0.0.0
 	github.com/satont/twir/libs/gomodels v0.0.0
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
+	go.uber.org/fx v1.20.0
 	go.uber.org/zap v1.24.0
+	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 	google.golang.org/grpc v1.55.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.1
 )
 
 require (
-	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgx/v5 v5.4.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
+	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/goleak v1.1.12 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/net v0.11.0 // indirect
@@ -47,7 +48,5 @@ require (
 replace github.com/satont/twir/libs/config => ../../libs/config
 
 replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-
-replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
 replace github.com/satont/twir/libs/grpc => ../../libs/grpc

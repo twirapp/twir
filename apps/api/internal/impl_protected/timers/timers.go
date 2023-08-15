@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
+	"go.uber.org/zap"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -137,6 +138,14 @@ func (c *Timers) TimersDelete(
 		return nil, err
 	}
 
+	if _, err := c.Grpc.Timers.RemoveTimerFromQueue(
+		ctx, &timersGrpc.Request{
+			TimerId: request.Id,
+		},
+	); err != nil {
+		zap.S().Error(err)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -197,6 +206,15 @@ func (c *Timers) TimersEnableOrDisable(
 	entity.Enabled = request.Enabled
 	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
 		return nil, err
+	}
+
+	grpcRequest := &timersGrpc.Request{
+		TimerId: entity.ID,
+	}
+	if entity.Enabled {
+		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+	} else {
+		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
 	}
 
 	return c.convertEntity(entity), nil

@@ -86,30 +86,30 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	}
 
 	channel := model.Channels{}
-	err := c.db.Where("id = ?", data.ChannelId).Find(&channel).Error
+	err := c.db.WithContext(ctx).Where("id = ?", data.ChannelId).Find(&channel).Error
 	if err != nil {
 		c.logger.Sugar().Error(err)
-		return &emptypb.Empty{}, nil
+		return nil, err
 	}
 
 	if channel.ID == "" {
-		return &emptypb.Empty{}, nil
+		return nil, errors.New("channel is empty")
 	}
 
 	bot, ok := c.botsService.Instances[channel.BotID]
 	if !ok {
-		return &emptypb.Empty{}, nil
+		return nil, errors.New("cannot find bot associated with this channel id")
 	}
 
 	tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-	twitchClient, err := twitch.NewBotClient(bot.Model.ID, *c.cfg, tokensGrpc)
+	twitchClient, err := twitch.NewBotClientWithContext(ctx, bot.Model.ID, *c.cfg, tokensGrpc)
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
 
 	channelName := data.ChannelName
 
-	if channelName == nil {
+	if channelName == nil || *channelName == "" {
 		usersReq, err := twitchClient.GetUsers(
 			&helix.UsersParams{
 				IDs: []string{data.ChannelId},
@@ -117,10 +117,10 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		)
 		if err != nil {
 			c.logger.Sugar().Error(err)
-			return &emptypb.Empty{}, nil
+			return nil, err
 		}
 		if len(usersReq.Data.Users) == 0 {
-			return &emptypb.Empty{}, nil
+			return nil, errors.New("channel not found")
 		}
 		channelName = &usersReq.Data.Users[0].Login
 	}
@@ -128,13 +128,16 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	data.Message = strings.ReplaceAll(data.Message, "\n", " ")
 
 	if data.IsAnnounce != nil && *data.IsAnnounce {
-		twitchClient.SendChatAnnouncement(
+		_, err = twitchClient.SendChatAnnouncement(
 			&helix.SendChatAnnouncementParams{
 				BroadcasterID: channel.ID,
 				ModeratorID:   channel.BotID,
 				Message:       data.Message,
 			},
 		)
+		if err != nil {
+			c.logger.Sugar().Error(err)
+		}
 	} else {
 		bot.SayWithRateLimiting(*channelName, data.Message, nil)
 	}
