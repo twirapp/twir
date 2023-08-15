@@ -1,7 +1,6 @@
 package scheduler
 
 import (
-	"context"
 	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/fx"
 	"golang.org/x/exp/slog"
@@ -27,11 +26,11 @@ type Scheduler struct {
 }
 
 func New(
+	lc fx.Lifecycle,
 	cfg *cfg.Config,
 	db *gorm.DB,
 	parserGrpc parser.ParserClient,
 	botsGrpcClient bots.BotsClient,
-	lc fx.Lifecycle,
 ) *Scheduler {
 	scheduler := gocron.NewScheduler(time.UTC)
 	scheduler.StartAsync()
@@ -44,41 +43,32 @@ func New(
 		handler:           handler.New(db, store, parserGrpc, botsGrpcClient, cfg),
 	}
 
-	lc.Append(
-		fx.Hook{
-			OnStart: func(ctx context.Context) error {
-				var timers []model.ChannelsTimers
-				err := db.Model(&model.ChannelsTimers{}).
-					Where("1 = 1").
-					Update("lastTriggerMessageNumber", 0).
-					Error
+	var timers []model.ChannelsTimers
+	err := db.Model(&model.ChannelsTimers{}).
+		Where("1 = 1").
+		Update("lastTriggerMessageNumber", 0).
+		Error
+	if err != nil {
+		slog.Error(err.Error())
+	}
+	err = db.Preload("Responses").Preload("Channel").Find(&timers).Error
+
+	if err != nil {
+		slog.Error(err.Error())
+	} else {
+		for _, timer := range timers {
+			if timer.Channel != nil && (!timer.Channel.IsEnabled || timer.Channel.IsBanned) {
+				continue
+			}
+
+			if timer.Enabled {
+				err = s.AddTimer(&types.Timer{Model: &timer, SendIndex: 0})
 				if err != nil {
-					return err
+					slog.Error(err.Error(), "name", timer.Name, "channelId", timer.ChannelID)
 				}
-				err = db.Preload("Responses").Preload("Channel").Find(&timers).Error
-
-				if err != nil {
-					return err
-				} else {
-					for _, timer := range timers {
-						if timer.Channel != nil && (!timer.Channel.IsEnabled || timer.Channel.IsBanned) {
-							continue
-						}
-
-						if timer.Enabled {
-							err = s.AddTimer(&types.Timer{Model: &timer, SendIndex: 0})
-							if err != nil {
-								slog.Error(err.Error(), "name", timer.Name, "channelId", timer.ChannelID)
-							}
-						}
-					}
-				}
-
-				return nil
-			},
-			OnStop: nil,
-		},
-	)
+			}
+		}
+	}
 
 	return s
 }

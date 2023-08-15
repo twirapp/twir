@@ -5,6 +5,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"go.uber.org/fx"
+	"golang.org/x/exp/slog"
 	"net"
 	"time"
 
@@ -56,7 +57,7 @@ func main() {
 			scheduler.New,
 		),
 		fx.Invoke(
-			scheduler.New,
+			func(*scheduler.Scheduler) {},
 			func(g timersgrpc.TimersServer) error {
 				lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TIMERS_SERVER_PORT))
 				if err != nil {
@@ -70,6 +71,7 @@ func main() {
 					),
 				)
 				timersgrpc.RegisterTimersServer(grpcServer, g)
+				slog.Info("Grpc server started")
 				return grpcServer.Serve(lis)
 			},
 		),

@@ -3,12 +3,12 @@ package grpc_impl
 import (
 	"context"
 	"go.uber.org/fx"
+	"golang.org/x/exp/slog"
 
 	"github.com/satont/twir/apps/timers/internal/scheduler"
 	"github.com/satont/twir/apps/timers/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/timers"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -17,7 +17,6 @@ type TimersGrpcServer struct {
 	timers.UnimplementedTimersServer
 
 	db        *gorm.DB
-	logger    *zap.Logger
 	scheduler *scheduler.Scheduler
 }
 
@@ -45,7 +44,7 @@ func (c *TimersGrpcServer) AddTimerToQueue(
 		Where(`"id" = ?`, data.TimerId).
 		Preload("Responses").
 		Take(timer).Error; err != nil {
-		c.logger.Sugar().Error(err)
+		slog.Error(err.Error())
 		return &emptypb.Empty{}, nil
 	}
 	c.scheduler.AddTimer(
