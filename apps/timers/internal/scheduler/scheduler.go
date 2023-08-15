@@ -91,7 +91,7 @@ func New(opts Opts) *Scheduler {
 func (c *Scheduler) AddTimer(timer types.Timer) error {
 	c.RemoveTimer(timer.Model.ID)
 
-	c.Timers[timer.Model.ID] = timer
+	c.Timers[timer.Model.ID] = &timer
 
 	s := c.internalScheduler.Tag(timer.Model.ID).Every(int(timer.Model.TimeInterval))
 	if c.cfg.AppEnv != "production" {

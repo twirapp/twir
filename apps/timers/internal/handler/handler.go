@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"github.com/satont/twir/apps/timers/internal/types"
 	cfg "github.com/satont/twir/libs/config"
 	"golang.org/x/exp/slog"
@@ -45,6 +46,7 @@ func (c *Handler) Handle(j gocron.Job) {
 		return
 	}
 
+	fmt.Println("curr", t.SendIndex)
 	var timerResponse *model.ChannelsTimersResponses
 	for index, r := range t.Model.Responses {
 		if index == t.SendIndex {
@@ -97,6 +99,8 @@ func (c *Handler) Handle(j gocron.Job) {
 	} else {
 		t.SendIndex = 0
 	}
+
+	fmt.Println("setted to", t.SendIndex)
 
 	t.Model.LastTriggerMessageNumber = int32(stream.ParsedMessages)
 

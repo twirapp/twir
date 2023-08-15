@@ -10,6 +10,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
+	"golang.org/x/exp/slog"
 
 	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/twir/apps/bots/internal/bots"
@@ -138,10 +139,13 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		if err != nil {
 			c.logger.Sugar().Error(err, zap.String("channelId", channel.ID))
 		} else if announceReq.ErrorMessage != "" {
-			c.logger.Sugar().Error(
+			slog.Error(
 				"cannot do announce "+announceReq.ErrorMessage,
-				zap.String("channelId", channel.ID),
-				zap.String("message", data.Message),
+				slog.String("error", announceReq.Error),
+				slog.String("channelId", channel.ID),
+				slog.String("botId", channel.BotID),
+				slog.String("message", data.Message),
+				slog.Int("code", announceReq.StatusCode),
 			)
 		}
 	} else {

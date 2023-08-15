@@ -8,4 +8,4 @@ type Timer struct {
 	SendIndex int
 }
 
-type Store map[string]Timer
+type Store map[string]*Timer
