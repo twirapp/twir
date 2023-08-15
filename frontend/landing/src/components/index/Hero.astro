@@ -1,21 +1,166 @@
 ---
-import Chat from './hero/Chat.astro';
-import Promote from './hero/Promote.astro';
+import { Icon } from 'astro-icon';
+import HeroStartButton from './heroStartButton.vue';
+
+import TwirInCircle from '../../assets/TwirInCircle.svg?component';
+import ChatMessageTail from '../../assets/chat-message-tail.svg?component';
+import TwitchAvatar from '../TwitchAvatar.astro';
+
+type ChatItem =
+  | {
+      type: 'redemption';
+      title: string;
+      input: string;
+    }
+  | {
+      type: 'message';
+      sender: 'bot' | 'user';
+      message: string;
+    };
+
+const messages: ChatItem[] = [
+  {
+    sender: 'bot',
+    message: 'melkam disabled chat for Satont for 5 minutes',
+    type: 'message',
+  },
+  {
+    sender: 'user',
+    message: '!skip',
+    type: 'message',
+  },
+  {
+    sender: 'bot',
+    message: 'Song skipped, now playing “Mother Mother — Arms Tonite”',
+    type: 'message',
+  },
+  {
+    sender: 'user',
+    message: '!song',
+    type: 'message',
+  },
+  {
+    sender: 'bot',
+    message: 'Linkin Park — Numb',
+    type: 'message',
+  },
+  {
+    sender: 'user',
+    message: '!title Playling League of Legends with my friend',
+    type: 'message',
+  },
+  {
+    type: 'redemption',
+    title: 'Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
+    input: 'Satont',
+  },
+  {
+    sender: 'bot',
+    message: '✅ Title succesfully changed.',
+    type: 'message',
+  },
+  {
+    sender: 'user',
+    message: '!song',
+    type: 'message',
+  },
+  {
+    sender: 'bot',
+    message: 'Linkin Park — Numb',
+    type: 'message',
+  },
+  {
+    sender: 'user',
+    message: '!title Playling League of Legends with my friend',
+    type: 'message',
+  },
+  {
+    sender: 'bot',
+    message: '✅ Title succesfully changed.',
+    type: 'message',
+  },
+];
 ---
 
-<div class="hero">
-	<div class="container py-20">
-		<div class="flex justify-between flex-wrap items-center px-8 gap-[60px]">
-			<Promote />
-			<Chat />
-		</div>
-	</div>
-</div>
+<div class="px-5 md:px-9 overflow-hidden">
+  <div
+    class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8">
+    <div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
+      <div class="flex flex-col items-start w-full">
+        <button
+          class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow">
+          🚀 View latest updates
+          <Icon
+            name="ArrowRight"
+            class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0"
+            stroke-linecap="round"
+          />
+        </button>
+        <h1
+          class="pt-4 lg:text-[64px] text-[min(48px,11vw)] font-bold text-white tracking-tight leading-[1.2] max-w-2xl">
+          Engage your audience like never before
+        </h1>
 
-<style>
-	.hero {
-		background:
-			url(../../assets/bg-image-15.svg),
-			#09090b 0px -0.187px / 100% 100.03% no-repeat;
-	}
-</style>
+        <p class="pt-6 max-w-xl text-[#ADB0B8] lg:text-[20px] text-[min(18px,5vw)] leading-normal">
+          Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their
+          channel to the next level.
+        </p>
+
+        <div class="pt-[48px] w-full inline-flex flex-col xs:flex-row gap-3">
+          <button
+            class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center whitespace-nowrap">
+            Learn more
+          </button>
+          <HeroStartButton client:load />
+        </div>
+      </div>
+      <div
+        class="flex flex-col justify-end gap-[12px] w-full max-h-[540px] xl:max-w-lg relative -top-5"
+        style="-webkit-mask-image: linear-gradient(0deg, #D9D9D9 75%, rgba(217, 217, 217, 0) 100%)">
+        {
+          messages.map((item) => (
+            <div class="flex items-start gap-[16px] w-full">
+              {item.type === 'message' && item.sender === 'bot' && (
+                <TwirInCircle class="w-9 h-9 flex-shrink-0" />
+              )}
+              {item.type === 'message' && item.sender === 'user' && (
+                <TwitchAvatar class="h-9 w-9 flex-shrink-0" />
+              )}
+              {item.type === 'message' && (
+                <div
+                  class:list={[
+                    'flex flex-col px-[16px] py-[10px] rounded-lg rounded-tl-none text-white relative',
+                    {
+                      'bg-[#534FDB]': item.sender === 'bot',
+                      'bg-[#232427]': item.sender === 'user',
+                    },
+                  ]}>
+                  <ChatMessageTail
+                    class:list={[
+                      'absolute h-[21px] top-0 -left-[10px]',
+                      {
+                        'fill-[#534FDB]': item.sender === 'bot',
+                        'fill-[#232427]': item.sender === 'user',
+                      },
+                    ]}
+                  />
+                  {item.message}
+                </div>
+              )}
+              {item.type === 'redemption' && (
+                <div
+                  class="
+										font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full
+									">
+                  <span class="text-sm leading-normal text-white/90" set:html={item.title} />
+                  <span class="font-semibold">{item.input}</span>
+                  <span class="absolute bg-[#4C47F5] w-[2px] rounded-sm h-[calc(100%-24px)] left-0" />
+                </div>
+              )}
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</div>

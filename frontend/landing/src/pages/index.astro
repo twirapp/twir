@@ -1,36 +1,36 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Hero from '../components/index/Hero.astro';
-import Stats from '../components/index/Stats.astro';
 import Features from '../components/index/Features.astro';
 import Integrations from '../components/index/Integrations.astro';
 import Reviews from '../components/index/Reviews.vue';
 import Team from '../components/index/Team.astro';
 import Footer from '../components/index/Footer.astro';
+import StatsList from '../components/index/StatsList.vue';
 ---
 
 <Layout title="Twir - Main page">
-	<section id="hero">
-		<Hero />
-	</section>
-	<section id="stats">
-		<Stats />
-	</section>
-	<section id="features">
-		<Features />
-	</section>
-	<section id="integrations">
-		<Integrations />
-	</section>
-	<section id="reviews">
-		<Reviews client:load />
-	</section>
-	<section id="team">
-		<Team />
-	</section>
-	<section id="footer">
-		<Footer />
-	</section>
+  <section id="hero">
+    <Hero />
+  </section>
+  <section id="stats">
+    <StatsList client:idle />
+  </section>
+  <section id="features">
+    <Features />
+  </section>
+  <section id="integrations">
+    <Integrations />
+  </section>
+  <section id="reviews">
+    <Reviews client:load />
+  </section>
+  <section id="team">
+    <Team />
+  </section>
+  <section id="footer">
+    <Footer />
+  </section>
 </Layout>
 
 <script>
@@ -38,14 +38,14 @@ import Footer from '../components/index/Footer.astro';
 
   hrefs.forEach((href) => {
     href.addEventListener('click', (e) => {
-			e.preventDefault();
-			console.log(href)
+      e.preventDefault();
+      console.log(href);
 
-			const target = document.getElementById(href.dataset['section'].slice(1))
+      const target = document.getElementById(href.dataset['section'].slice(1));
 
-			target.scrollIntoView({
-				behavior: 'smooth',
-			});
+      target.scrollIntoView({
+        behavior: 'smooth',
+      });
     });
   });
 </script>
