@@ -1,6 +1,6 @@
 <template>
-	<div class="bg-[#17171A] w-full px-5 py-6">
-		<Flicking
+	<div class="bg-[#17171A] px-5 py-6 gap-32 flex flex-wrap justify-center">
+		<!-- <Flicking
 			:plugins="plugins"
 			:options="{
 				panelsPerView,
@@ -10,22 +10,21 @@
 				circularFallback: 'bound',
 			}"
 			class="flex w-full max-w-5xl mx-auto cursor-grab select-none"
-		>
-			<div v-for="item in stats" :key="item.key" class="inline-flex flex-col items-center justify-center w-full">
-				<span class="font-semibold lg:text-6xl text-[min(40px,11vw)] text-white leading-[1.2] tracking-tight">
-					{{ item.value }}
-				</span>
-				<span class="text-[#ADB0B8] lg:text-lg lg:mt-2 leading-normal whitespace-nowrap">
-					{{ item.key }}
-				</span>
-			</div>
-		</Flicking>
+		> -->
+		<div v-for="item in stats" :key="item.key" class="inline-flex flex-col items-center justify-center">
+			<span class="font-semibold lg:text-6xl text-[min(40px,11vw)] text-white leading-[1.2] tracking-tight">
+				{{ item.value }}
+			</span>
+			<span class="text-[#ADB0B8] lg:text-lg lg:mt-2 leading-normal whitespace-nowrap">
+				{{ item.key }}
+			</span>
+		</div>
+		<!-- </Flicking> -->
 	</div>
 </template>
 
 <script lang="ts" setup>
 import { AutoPlay } from '@egjs/flicking-plugins';
-import Flicking from '@egjs/vue3-flicking';
 import { type Response } from '@twir/grpc/generated/api/api/stats';
 import { useWindowSize } from '@vueuse/core';
 import { computed } from 'vue';

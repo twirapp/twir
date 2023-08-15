@@ -2,12 +2,13 @@ import { config } from '@twir/config';
 import { APIRoute } from 'astro';
 import Redis from 'ioredis';
 
-const redis = new Redis(config.REDIS_URL);
+const { REDIS_URL, DISCORD_FEEDBACK_URL } = config;
+
+const redis = new Redis(REDIS_URL);
 
 const internalError = new Response(JSON.stringify({ error: 'internal error, contact developers in discord' }), { status: 500 });
 
 export const post: APIRoute = async ({ request }) => {
-	const { DISCORD_FEEDBACK_URL } = import.meta.env;
 	if (!DISCORD_FEEDBACK_URL) {
 		console.error('No env setted');
 		return internalError;
