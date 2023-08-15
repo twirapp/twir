@@ -172,30 +172,3 @@ jobs:
           file: ./tools/pg-backup/Dockerfile
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/twir/postgres-backup:latest
-
-  pg-bouncer:
-    name: Build pg-bouncer
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@master
-
-      - name: Login to Container Registry
-        uses: docker/login-action@v1.14.1
-        with:
-          registry: ${{ secrets.DOCKER_REGISTRY }}
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: Build pg-bouncer docker
-        uses: docker/build-push-action@v2
-        with:
-          builder: ${{ steps.buildx.outputs.name }}
-          context: ./tools/pg-bouncer
-          push: true
-          file: ./tools/pg-bouncer/Dockerfile
-          tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/twir/pg-bouncer:latest
