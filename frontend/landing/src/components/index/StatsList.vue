@@ -6,6 +6,8 @@
 				panelsPerView,
 				align: 'next',
 				bound: true,
+				circular: true,
+				circularFallback: 'bound',
 			}"
 			class="flex w-full max-w-5xl mx-auto cursor-grab select-none"
 		>
