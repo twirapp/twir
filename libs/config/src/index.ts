@@ -35,4 +35,5 @@ export const config = cleanEnv(process.env, {
   SPOTIFY_CLIENT_ID: str({ default: '' }),
   SPOTIFY_CLIENT_SECRET: str({ default: '' }),
   ODESLI_API_KEY: str({ default: '' }),
+	DISCORD_FEEDBACK_URL: str({ default: '' }),
 });

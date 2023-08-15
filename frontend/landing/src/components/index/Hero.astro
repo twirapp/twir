@@ -21,42 +21,27 @@ type ChatItem =
 const messages: ChatItem[] = [
   {
     sender: 'bot',
-    message: 'melkam disabled chat for Satont for 5 minutes',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!skip',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: 'Song skipped, now playing “Mother Mother — Arms Tonite”',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!song',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: 'Linkin Park — Numb',
+    message: 'Message from timer: follow to my socials!',
     type: 'message',
   },
   {
     sender: 'user',
     message: '!title Playling League of Legends with my friend',
+    type: 'message',
+  },
+	{
+    sender: 'bot',
+    message: '✅ Title succesfully changed.',
     type: 'message',
   },
   {
     type: 'redemption',
-    title: 'Получает награду: Таймаут неугодного чаттерса(1000 🪙)',
+    title: '<b>melkam</b> activated channel reward: timeout chatter(1000 🪙)',
     input: 'Satont',
   },
-  {
+	{
     sender: 'bot',
-    message: '✅ Title succesfully changed.',
+    message: 'melkam disabled chat for <b>Satont</b> for 5 minutes',
     type: 'message',
   },
   {
@@ -71,12 +56,12 @@ const messages: ChatItem[] = [
   },
   {
     sender: 'user',
-    message: '!title Playling League of Legends with my friend',
+    message: '!category LOL',
     type: 'message',
   },
   {
     sender: 'bot',
-    message: '✅ Title succesfully changed.',
+    message: '✅ Category changed to League of Legends.',
     type: 'message',
   },
 ];
@@ -87,15 +72,18 @@ const messages: ChatItem[] = [
     class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8">
     <div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
       <div class="flex flex-col items-start w-full">
-        <button
-          class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow">
+        <a
+          class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow"
+					href="https://discord.gg/Q9NBZq3zVV"
+					target="_blank"
+				>
           🚀 View latest updates
           <Icon
             name="ArrowRight"
             class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0"
             stroke-linecap="round"
           />
-        </button>
+        </a>
         <h1
           class="pt-4 lg:text-[64px] text-[min(48px,11vw)] font-bold text-white tracking-tight leading-[1.2] max-w-2xl">
           Engage your audience like never before
@@ -144,7 +132,7 @@ const messages: ChatItem[] = [
                       },
                     ]}
                   />
-                  {item.message}
+                  <span set:html={item.message} />
                 </div>
               )}
               {item.type === 'redemption' && (

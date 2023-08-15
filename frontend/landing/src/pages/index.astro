@@ -23,7 +23,7 @@ import StatsList from '../components/index/StatsList.vue';
     <Integrations />
   </section>
   <section id="reviews">
-    <Reviews client:load />
+    <Reviews client:idle />
   </section>
   <section id="team">
     <Team />
@@ -39,7 +39,6 @@ import StatsList from '../components/index/StatsList.vue';
   hrefs.forEach((href) => {
     href.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log(href);
 
       const target = document.getElementById(href.dataset['section'].slice(1));
 

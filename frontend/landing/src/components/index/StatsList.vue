@@ -65,7 +65,9 @@ const stats = [
 const { width: windowWidth } = useWindowSize();
 
 const panelsPerView = computed(() => {
-  if (windowWidth.value < 410) {
+	if (windowWidth.value === Infinity) {
+		return 4;
+	} else if (windowWidth.value < 410) {
     return 1;
   } else if (windowWidth.value < 568) {
     return 2;
