@@ -196,6 +196,6 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: ./tools/pg-bouncer
           push: true
-          file: Dockerfile
+          file: ./tools/pg-bouncer/Dockerfile
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/twir/pg-bouncer:latest
