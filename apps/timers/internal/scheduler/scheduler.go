@@ -91,22 +91,16 @@ func New(opts Opts) *Scheduler {
 func (c *Scheduler) AddTimer(timer types.Timer) error {
 	c.RemoveTimer(timer.Model.ID)
 
-	var unit time.Duration
-
-	if c.cfg.AppEnv != "production" {
-		unit = time.Second
-	} else {
-		unit = time.Minute
-	}
-
 	c.Timers[timer.Model.ID] = timer
 
-	_, err := c.internalScheduler.
-		Every(int(unit * time.Duration(timer.Model.TimeInterval) / time.Millisecond)).
-		Tag(timer.Model.ID).
-		Millisecond().
-		DoWithJobDetails(c.handler.Handle)
-	if err != nil {
+	s := c.internalScheduler.Tag(timer.Model.ID).Every(int(timer.Model.TimeInterval))
+	if c.cfg.AppEnv != "production" {
+		s = s.Second()
+	} else {
+		s = s.Minute()
+	}
+
+	if _, err := s.DoWithJobDetails(c.handler.Handle); err != nil {
 		slog.Error(err.Error())
 		return err
 	}

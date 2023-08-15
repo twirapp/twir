@@ -138,7 +138,11 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		if err != nil {
 			c.logger.Sugar().Error(err, zap.String("channelId", channel.ID))
 		} else if announceReq.ErrorMessage != "" {
-			c.logger.Sugar().Error(announceReq.ErrorMessage, zap.String("channelId", channel.ID))
+			c.logger.Sugar().Error(
+				"cannot do announce "+announceReq.ErrorMessage,
+				zap.String("channelId", channel.ID),
+				zap.String("message", data.Message),
+			)
 		}
 	} else {
 		bot.SayWithRateLimiting(*channelName, data.Message, nil)
