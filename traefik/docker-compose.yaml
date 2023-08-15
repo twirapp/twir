@@ -30,6 +30,7 @@ services:
         # - traefik.http.routers.traefik-public-https.tls.certresolver=le
         - traefik.http.routers.traefik-public-http.middlewares=admin-auth
         - traefik.http.services.traefik-public.loadbalancer.server.port=8080
+        - "traefik.http.middlewares.cloudflarewarp.plugin.cloudflarewarp.disableDefault=false"
     volumes:
       # Add Docker as a mounted volume, so that Traefik can read the labels of other services
       - /var/run/docker.sock:/var/run/docker.sock:ro
