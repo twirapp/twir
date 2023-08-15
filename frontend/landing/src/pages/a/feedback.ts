@@ -1,6 +1,8 @@
+import { config } from '@twir/config';
 import { APIRoute } from 'astro';
+import Redis from 'ioredis';
 
-const db = new Set<string>();
+const redis = new Redis(config.REDIS_URL);
 
 const internalError = new Response(JSON.stringify({ error: 'internal error, contact developers in discord' }), { status: 500 });
 
@@ -17,7 +19,9 @@ export const post: APIRoute = async ({ request }) => {
 		return internalError;
 	}
 
-	if (db.has(realIp)) {
+	const realIpRedisKey = `landing:feedback-limit:${realIp}`;
+
+	if (await redis.exists(realIpRedisKey)) {
 		return new Response(JSON.stringify({ error: 'You already sent an review.' }), { status: 429 });
 	}
 
@@ -49,13 +53,10 @@ export const post: APIRoute = async ({ request }) => {
 
 	if (!discordReq.ok) {
 		console.log(await discordReq.text());
-		return new Response(JSON.stringify({ error: 'cannot send info, this is unexpected' }), { status: 500 });
+		return internalError;
 	}
 
-	db.add(realIp);
-	setTimeout(() => {
-		db.delete(realIp);
-	}, 1 * 60 * 60 * 1000);
+	await redis.set(realIpRedisKey, realIpRedisKey, 'EX', 1 * 60 * 60);
 
 	return new Response(JSON.stringify({}), { status: 201 });
 };

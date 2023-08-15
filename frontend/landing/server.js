@@ -6,6 +6,11 @@ import Fastify from 'fastify';
 
 import { handler as ssrHandler } from './dist/server/entry.mjs';
 
+// eslint-disable-next-line no-undef
+process
+	.on('uncaughtException', console.error)
+	.on('unhandledRejection', console.error);
+
 const app = Fastify({ logger: true });
 
 await app
@@ -15,10 +20,5 @@ await app
 	.register(fastifyMiddie);
 app.use(ssrHandler);
 
-app.listen({ port: 3005 }).then(() => 'Server started');
 
-
-// eslint-disable-next-line no-undef
-process
-	.on('uncaughtException', console.error)
-	.on('unhandledRejection', console.error);
+await app.listen({ port: 3005 });
