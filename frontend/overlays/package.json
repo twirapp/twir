@@ -8,7 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@protobuf-ts/twirp-transport": "^2.9.0",
+    "@protobuf-ts/twirp-transport": "^2.9.1",
     "@twir/grpc": "workspace:^",
     "obs-websocket-js": "^5.0.3",
     "react": "^18.2.0",

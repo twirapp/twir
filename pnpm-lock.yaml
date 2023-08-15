@@ -159,8 +159,8 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3(monaco-editor@0.35.0)(vue@3.3.4)
       '@protobuf-ts/twirp-transport':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       '@tabler/icons-vue':
         specifier: ^2.24.0
         version: 2.24.0(vue@3.3.4)
@@ -208,8 +208,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.4(vite@4.4.3)
       '@protobuf-ts/runtime-rpc':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       '@vite-pwa/assets-generator':
         specifier: ^0.0.4
         version: 0.0.4
@@ -314,8 +314,8 @@ importers:
   frontend/overlays:
     dependencies:
       '@protobuf-ts/twirp-transport':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       '@twir/grpc':
         specifier: workspace:^
         version: link:../../libs/grpc
@@ -357,8 +357,8 @@ importers:
   frontend/public-page:
     dependencies:
       '@protobuf-ts/twirp-transport':
-        specifier: ^2.9.0
-        version: 2.9.0
+        specifier: ^2.9.1
+        version: 2.9.1
       '@tabler/icons-vue':
         specifier: ^2.28.0
         version: 2.28.0(vue@3.3.4)
@@ -2992,30 +2992,13 @@ packages:
     hasBin: true
     dev: false
 
-  /@protobuf-ts/runtime-rpc@2.9.0:
-    resolution: {integrity: sha512-h2S86+u2cNJACjzbBubbjKmNrnXkTmJ9yJHW4t7ZVS9xdV1C68blsVIh3Su4ghR8Nlj0459FuIUTsjWR8hA/7g==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.0
-
   /@protobuf-ts/runtime-rpc@2.9.1:
     resolution: {integrity: sha512-pzO20J6s07LTWcj8hKAXh/dAacU5HIVir6SANKXXH8G0pn0VIIB4FFECq5Hbv25/8PQoOGZ7iApq/DMHaSjGhg==}
     dependencies:
       '@protobuf-ts/runtime': 2.9.1
-    dev: false
-
-  /@protobuf-ts/runtime@2.9.0:
-    resolution: {integrity: sha512-DnJtLZFMglADv9jiawBmg0RaET4a6fNSAaAHuU6Ovw2ZhJ23ehIY0NrlYLS0Lc8HRH0S5rkLI1QF1A1h8uKUnA==}
 
   /@protobuf-ts/runtime@2.9.1:
     resolution: {integrity: sha512-ZTc8b+pQ6bwxZa3qg9/IO/M/brRkvr0tic9cSGgAsDByfPrtatT2300wTIRLDk8X9WTW1tT+FhyqmcrbMHTeww==}
-    dev: false
-
-  /@protobuf-ts/twirp-transport@2.9.0:
-    resolution: {integrity: sha512-EsV2JG+Ysn6OBub8XiyZJy7owYTRZgKRK8mQDUDUvGSejvo2l2BGQcfo9yn/0y5K0Zs4dnxa0PwtLYF6zPmuIQ==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.0
-      '@protobuf-ts/runtime-rpc': 2.9.0
-    dev: false
 
   /@protobuf-ts/twirp-transport@2.9.1:
     resolution: {integrity: sha512-I0IRAoQwnm6ZzORc9kwDDHu3adRscGCwJ89QDe0KQ1wgONTZLqErrMWOvIroQEfocgstp+LXU185D0k60uMSKw==}
