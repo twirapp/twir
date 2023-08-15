@@ -41,6 +41,24 @@ services:
         constraints:
           - node.role == manager
 
+  pg-bouncer:
+    image: registry.satont.ru/twir/pg-bouncer
+    secrets:
+      - tsuwari_postgres_user
+      - tsuwari_postgres_password
+      - tsuwari_postgres_db
+    networks:
+      - tsuwari
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
   postgres-backup:
     build:
       context: .
