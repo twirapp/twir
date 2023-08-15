@@ -23,10 +23,10 @@
     }
   },
   "dependencies": {
-    "@protobuf-ts/plugin": "^2.9.0",
-    "@protobuf-ts/runtime": "^2.9.0",
-    "@protobuf-ts/runtime-rpc": "^2.9.0",
-    "@protobuf-ts/twirp-transport": "^2.9.0",
+    "@protobuf-ts/plugin": "^2.9.1",
+    "@protobuf-ts/runtime": "^2.9.1",
+    "@protobuf-ts/runtime-rpc": "^2.9.1",
+    "@protobuf-ts/twirp-transport": "^2.9.1",
     "grpc-tools": "^1.11.3",
     "long": "^5.2.1",
     "nice-grpc": "^2.0.1",

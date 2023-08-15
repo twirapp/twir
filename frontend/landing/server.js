@@ -15,7 +15,7 @@ await app
 	.register(fastifyMiddie);
 app.use(ssrHandler);
 
-app.listen({ port: 3005 });
+app.listen({ port: 3005 }).then(() => 'Server started');
 
 
 // eslint-disable-next-line no-undef
