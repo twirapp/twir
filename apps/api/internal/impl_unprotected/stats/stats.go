@@ -44,7 +44,7 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 	go func() {
 		defer wg.Done()
 		var count int64
-		c.Db.WithContext(ctx).Model(&model.Channels{}).Count(&count)
+		c.Db.WithContext(ctx).Model(&model.Channels{}).Where(`"isEnabled" = ?`, true).Count(&count)
 		statistic[1].Count = count
 	}()
 

@@ -1,0 +1,60 @@
+---
+import Github from '../../assets/social/github.svg?component'
+import Instagram from '../../assets/social/instagram.svg?component'
+import Telegram from '../../assets/social/telegram.svg?component'
+import Twitch from '../../assets/social/twitch.svg?component'
+
+const developers = [
+	{
+		username: 'Satont',
+		avatarUrl: 'https://cdn.7tv.app/emote/62c5c34724fb1819d9f08b4d/4x.webp',
+		description: 'Founder and Backend, Frontend developer',
+		social: {
+			telegram: 'https://t.me/satont',
+			github: 'https://github.com/satont'
+		},
+	},
+	{
+		username: 'MelKam',
+		description: 'UI-UX Designer, Frontend developer',
+		avatarUrl: 'https://avatars.githubusercontent.com/u/51422045?v=4',
+		social: {
+			twitch: 'https://www.twitch.tv/mellkam',
+			telegram: 'https://t.me/mellkam',
+			github: 'https://github.com/MellKam/',
+			instagram: 'https://www.instagram.com/mel._.kam/'
+		},
+	}
+]
+---
+
+<div class="container py-[72px] team">
+	<div class="flex flex-col gap-3 p-5">
+		<h3 class="font-semibold text-[#B0ADFF] text-base uppercase">Our team</h3>
+		<h1 class="text-white text-5xl font-bold">Great developers and big community</h1>
+	</div>
+
+	<div class="pt-16 flex gap-8">
+		{developers.map(d => <div class="flex gap-6">
+			<img src={d.avatarUrl} class="w-20 h-20 rounded-full" />
+			<div class="flex flex-col">
+				<span class="font-semibold text-white text-lg">{d.username}</span>
+				<span class="font-normal mt-1 text-[#ADB0B8] text-base">{d.description}</span>
+				<div class="flex mt-4 gap-4">
+					{Object.keys(d.social).map(s => <a href={d.social[s]} target="_blank">
+						{s === 'twitch' && <Twitch />}
+						{s === 'telegram' && <Telegram />}
+						{s === 'github' && <Github />}
+						{s === 'instagram' && <Instagram />}
+					</a>)}
+				</div>
+			</div>
+		</div>)}
+	</div>
+</div>
+
+<style>
+.team {
+	background-image: radial-gradient(50% 50.00% at 50% 50%, #181F4E 0%, rgba(9,9,11,0.00) 100%);
+}
+</style>

@@ -3,10 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "target": "es2020",
-    "module": "commonjs",
+    "module": "ES6",
     "moduleResolution": "node",
     "incremental": true,
-    "composite": true,
+    "composite": true
   },
   "exclude": [
     "./dist"

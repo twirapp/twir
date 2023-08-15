@@ -1,0 +1,108 @@
+---
+import Header from './Header.astro';
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+
+const description =
+  'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.';
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="twir, twir bot, tsuwari, twitch bot, tsuwari bot" />
+    <meta name="author" content="Satont, me@satont.ru" />
+
+    <meta property="og:title" content={title} />
+    <meta property="og:url" content="/" />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="" />
+    <title>{title}</title>
+
+    <link
+      rel="preload"
+      href="/fonts/Inter-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/Inter-Medium.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/Inter-SemiBold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="preload"
+      href="/fonts/Inter-Bold.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin="anonymous"
+    />
+    <style is:global>
+      @tailwind base;
+      @tailwind components;
+      @tailwind utilities;
+
+      :root {
+        color-scheme: dark;
+      }
+
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-Regular.woff2') format('woff2'),
+          url('/fonts/Inter-Regular.woff') format('woff');
+        font-weight: 400;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-Medium.woff2') format('woff2'),
+          url('/fonts/Inter-Medium.woff') format('woff');
+        font-weight: 500;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-SemiBold.woff2') format('woff2'),
+          url('/fonts/Inter-SemiBold.woff') format('woff');
+        font-weight: 600;
+        font-style: normal;
+      }
+
+      @font-face {
+        font-family: 'Inter';
+        src: url('/fonts/Inter-Bold.woff2') format('woff2'),
+          url('/fonts/Inter-Bold.woff') format('woff');
+        font-weight: 700;
+        font-style: normal;
+      }
+    </style>
+  </head>
+  <body class="bg-[#09090B] overflow-x-hidden">
+    <span
+      class="absolute content-[''] w-[120vw] h-[482px] rounded-full pointer-events-none bg-[radial-gradient(50%_50%_at_50%_50%,_#1F1232_0%,_rgba(9,9,11,0.00)_100%)] -z-20 -top-[220px] right-0 left-0 mx-auto"
+    ></span>
+
+    <Header />
+    <slot />
+  </body>
+</html>

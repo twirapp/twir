@@ -1,0 +1,14 @@
+<svg width="183" height="185" viewBox="0 0 183 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<g id="icons/cube">
+		<path id="Icon"
+					d="M152.5 53.9583L91.5 23.125L30.5 53.9583M152.5 53.9583L91.5 84.7917M152.5 53.9583V131.042L91.5 161.875M91.5 84.7917L30.5 53.9583M91.5 84.7917V161.875M30.5 53.9583V131.042L91.5 161.875"
+					stroke="url(#paint0_linear_893_2696)" stroke-width="3" stroke-linejoin="round"/>
+	</g>
+	<defs>
+		<linearGradient id="paint0_linear_893_2696" x1="91.5001" y1="23.125" x2="91.5001" y2="161.875"
+										gradientUnits="userSpaceOnUse">
+			<stop stop-color="#8488F9"/>
+			<stop offset="1" stop-color="#ADA1F4" stop-opacity="0"/>
+		</linearGradient>
+	</defs>
+</svg>
