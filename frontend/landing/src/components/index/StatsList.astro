@@ -1,0 +1,49 @@
+---
+import { type Response } from '@twir/grpc/generated/api/api/stats';
+
+import { unProtectedClient } from '../../api/twirp.js';
+
+let res: Response | undefined;
+
+try {
+	const { response } = await unProtectedClient.getStats({}, { timeout: 5000 });
+	res = response;
+} catch { /* ignore error */ }
+
+const formatter = Intl.NumberFormat('en-US', {
+	notation: 'compact',
+	maximumFractionDigits: 1,
+});
+
+const stats = [
+	{
+		key: 'Users',
+		value: formatter.format(res?.users ?? 0),
+	},
+	{
+		key: 'Channels',
+		value: formatter.format(res?.channels ?? 0),
+	},
+	{
+		key: 'Commands',
+		value:formatter.format(res?.commands ?? 0),
+	},
+	{
+		key: 'Messages',
+		value: formatter.format(res?.messages ?? 0),
+	},
+];
+---
+
+
+<div class="bg-[#17171A] px-5 py-6 gap-32 flex flex-wrap justify-center">
+	{stats.map((item) => <div class="inline-flex flex-col items-center justify-center">
+		<span class="font-semibold lg:text-6xl text-[min(40px,11vw)] text-white leading-[1.2] tracking-tight">
+			{item.value}
+		</span>
+		<span class="text-[#ADB0B8] lg:text-lg lg:mt-2 leading-normal whitespace-nowrap">
+			{item.key}
+		</span>
+	</div>)}
+</div>
+
