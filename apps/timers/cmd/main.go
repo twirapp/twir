@@ -57,7 +57,6 @@ func main() {
 			scheduler.New,
 		),
 		fx.Invoke(
-			func(*scheduler.Scheduler) {},
 			func(g timersgrpc.TimersServer) error {
 				lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TIMERS_SERVER_PORT))
 				if err != nil {

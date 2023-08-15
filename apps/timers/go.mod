@@ -3,7 +3,7 @@ module github.com/satont/twir/apps/timers
 go 1.20
 
 require (
-	github.com/go-co-op/gocron v1.17.1
+	github.com/go-co-op/gocron v1.31.1
 	github.com/satont/twir/libs/config v0.0.0
 	github.com/satont/twir/libs/gomodels v0.0.0
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000

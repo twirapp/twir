@@ -38,17 +38,17 @@ func (c *TimersGrpcServer) AddTimerToQueue(
 	ctx context.Context,
 	data *timers.Request,
 ) (*emptypb.Empty, error) {
-	timer := &model.ChannelsTimers{}
+	timer := model.ChannelsTimers{}
 	if err := c.db.
 		WithContext(ctx).
 		Where(`"id" = ?`, data.TimerId).
 		Preload("Responses").
-		Take(timer).Error; err != nil {
+		Take(&timer).Error; err != nil {
 		slog.Error(err.Error())
 		return &emptypb.Empty{}, nil
 	}
 	c.scheduler.AddTimer(
-		&types.Timer{
+		types.Timer{
 			Model:     timer,
 			SendIndex: 0,
 		},
