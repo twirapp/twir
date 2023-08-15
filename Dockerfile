@@ -225,7 +225,9 @@ RUN cd frontend/landing && \
 
 FROM node_prod_base as landing
 WORKDIR /app
-COPY --from=landing_builder /app /app
+COPY --from=landing_builder /app/frontend/landing /app/frontend/landing
+COPY --from=landing_builder /app/libs/config /app/libs/config
+COPY --from=landing_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@twir/landing", "start"]
 
 FROM builder as overlays_builder
