@@ -1,4 +1,4 @@
-go 1.21
+go 1.21.0
 
 use (
 	./apps/api
@@ -19,10 +19,10 @@ use (
 	./libs/gopool
 	./libs/grpc
 	./libs/integrations/spotify
+	./libs/logger
 	./libs/migrations
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
-	./libs/logger
 	./tools
 )

@@ -8,20 +8,32 @@ import (
 type Logger interface {
 	Info(input string, fields ...any)
 	Error(input string, fields ...any)
+	Debug(input string, fields ...any)
 }
 
 type logger struct {
 	log *slog.Logger
 }
 
-func New(env string) Logger {
+type Opts struct {
+	Env     string
+	Service string
+}
+
+func New(opts Opts) Logger {
 	var log *slog.Logger
 
-	switch env {
+	switch opts.Env {
 	case "development":
 		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
 	case "production":
 		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+	default:
+		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+	}
+
+	if opts.Service != "" {
+		log = log.With(slog.String("service", opts.Service))
 	}
 
 	return &logger{
@@ -35,4 +47,8 @@ func (c *logger) Info(input string, fields ...any) {
 
 func (c *logger) Error(input string, fields ...any) {
 	c.log.Error(input, fields...)
+}
+
+func (c *logger) Debug(input string, fields ...any) {
+	c.log.Debug(input, fields...)
 }

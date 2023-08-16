@@ -5,7 +5,7 @@
 	"scripts": {
 		"lint": "eslint --ext .ts,.vue apps/",
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"predev": "pnpm build:libs && pnpm cache-golang-deps",
+		"predev": "pnpm build:libs",
 		"dev": "go run ./tools/dev.go",
 		"build": "turbo run build --filter=!./apps/dota",
 		"build:libs": "turbo run build --filter=./libs/**",

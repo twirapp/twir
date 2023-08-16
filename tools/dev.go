@@ -68,10 +68,13 @@ func main() {
 		// nodemon --exec "go run ./cmd/main.go" --ext "go" --watch . --cwd ./apps/tokens
 		var command string
 		if app.Stack == "go" {
-			command = fmt.Sprintf(`pnpm nodemon --exec "go run" --ext "go" --watch . --cwd ./apps/%s ./cmd/main.go`, app.Name)
+			command = fmt.Sprintf(
+				`pnpm nodemon --exec "go run" --ext "go" --watch . --cwd ./apps/%s --signal SIGTERM cmd/main.go`,
+				app.Name,
+			)
 		} else if app.Stack == "node" {
 			command = fmt.Sprintf(
-				`pnpm nodemon --exec "cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy" --ext "ts" --watch . --cwd ./apps/%s src/index.ts`,
+				`pnpm nodemon --exec "cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy" --ext "ts" --watch . --cwd ./apps/%s --signal SIGTERM src/index.ts`,
 				app.Name,
 			)
 		} else {

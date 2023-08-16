@@ -50,3 +50,12 @@ func New() (*Config, error) {
 
 	return &newCfg, nil
 }
+
+func NewFx() Config {
+	config, err := New()
+	if err != nil {
+		panic(err)
+	}
+
+	return *config
+}
