@@ -7,4 +7,5 @@ message Response {
 	int64 channels = 2;
 	int64 commands = 3;
 	int64 messages = 4;
+	int64 used_emotes = 5;
 }

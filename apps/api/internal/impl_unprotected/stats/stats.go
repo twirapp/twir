@@ -30,9 +30,10 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 		{Name: "channels"},
 		{Name: "commands"},
 		{Name: "messages"},
+		{Name: "used_emotes"},
 	}
 
-	wg.Add(4)
+	wg.Add(5)
 
 	go func() {
 		defer wg.Done()
@@ -67,12 +68,20 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 		statistic[3].Count = result.N
 	}()
 
+	go func() {
+		defer wg.Done()
+		var count int64
+		c.Db.WithContext(ctx).Model(&model.ChannelEmoteUsage{}).Count(&count)
+		statistic[3].Count = count
+	}()
+
 	wg.Wait()
 
 	return &stats.Response{
-		Users:    statistic[0].Count,
-		Channels: statistic[1].Count,
-		Commands: statistic[2].Count,
-		Messages: statistic[3].Count,
+		Users:      statistic[0].Count,
+		Channels:   statistic[1].Count,
+		Commands:   statistic[2].Count,
+		Messages:   statistic[3].Count,
+		UsedEmotes: statistic[4].Count,
 	}, nil
 }
