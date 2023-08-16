@@ -23,5 +23,6 @@ use (
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
+	./libs/logger
 	./tools
 )
