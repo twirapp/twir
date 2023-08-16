@@ -6,7 +6,7 @@ import { unProtectedClient } from '../../api/twirp.js';
 let res: Response | undefined;
 
 try {
-	const { response } = await unProtectedClient.getStats({}, { timeout: 5000 });
+	const { response } = await unProtectedClient.getStats({}, { timeout: 1000 });
 	res = response;
 } catch { /* ignore error */
 }

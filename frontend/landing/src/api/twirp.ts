@@ -1,13 +1,13 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
 import { ProtectedClient, UnProtectedClient } from '@twir/grpc/generated/api/api.client';
 
-
 const host = process.env.HOSTNAME;
-const baseUrl = `${host?.startsWith('localhost') ? 'http' : 'https'}://${host}/api/v1`;
+const isDev = process.env.NODE_ENV === 'development';
+const baseUrl = `${host?.startsWith('localhost') ? 'http' : 'https'}://${isDev ? host : 'api'}/api/v1`;
 
 const transport = new TwirpFetchTransport({
-  baseUrl,
-  sendJson: process.env.NODE_ENV === 'development',
+	baseUrl,
+	sendJson: isDev,
 });
 
 export const protectedClient = new ProtectedClient(transport);
