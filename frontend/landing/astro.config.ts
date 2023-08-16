@@ -30,6 +30,39 @@ export default defineConfig({
 			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),
 			'import.meta.env.DISCORD_FEEDBACK_URL': JSON.stringify(config.DISCORD_FEEDBACK_URL),
 		},
+		server: {
+			proxy: {
+				'/api': {
+					target: 'http://127.0.0.1:3002',
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/api/, ''),
+					ws: true,
+				},
+				'/socket': {
+					target: 'http://127.0.0.1:3004',
+					changeOrigin: true,
+					ws: true,
+					rewrite: (path) => path.replace(/^\/socket/, ''),
+				},
+				'/p': {
+					target: 'http://127.0.0.1:3007',
+					changeOrigin: true,
+					ws: true,
+					// rewrite: (path) => path.replace(/^\/p/, ''),
+				},
+				'/overlays': {
+					target: 'http://127.0.0.1:3008',
+					changeOrigin: true,
+					ws: true,
+				},
+				'/dashboard': {
+					target: 'http://127.0.0.1:3006/dashboard',
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/dashboard/, ''),
+					ws: true,
+				},
+			},
+		},
 	},
 	server: {
 		port: 3005,

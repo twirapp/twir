@@ -16,11 +16,10 @@ github.com/satont/twir/libs/config v0.0.0-20230713153539-b2fe2b3b5757 h1:CxQve0B
 github.com/satont/twir/libs/config v0.0.0-20230713153539-b2fe2b3b5757/go.mod h1:QM3vtl/NmXZU6Dp7olJwBa7Y6j1OilBn79Dkbr9Yl+o=
 github.com/satont/twir/libs/crypto v0.0.0-20230713153539-b2fe2b3b5757 h1:6lL8bJT1zsHlpRmGWLzbGMFVNtE/UJXbA8ZuTX9qhiU=
 github.com/satont/twir/libs/crypto v0.0.0-20230713153539-b2fe2b3b5757/go.mod h1:lPpfCVORZYGU0xNeMGkoVDq52zV9x1zsuGaL2aN167A=
-golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1 h1:MGwJjxBy0HJshjDNfLsYO8xppfqWlA5ZT9OhtUUhTNw=
-golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1/go.mod h1:FXUEEKJgO7OQYeo8N01OfiKP8RXMtf6e8aTskBGqWdc=
+golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb h1:mIKbk8weKhSeLH2GmUTrvx8CjkyJmnU1wFmg59CUjFA=
 golang.org/x/mod v0.12.0 h1:rmsUpXtvNzj340zd98LZ4KntptpfRHwpFOHG188oHXc=
-golang.org/x/sys v0.10.0 h1:SqMFp9UcQJZa+pmYuAKjd9xq1f0j5rLcDIk0mj4qAsA=
-golang.org/x/tools v0.10.0 h1:tvDr/iQoUqNdohiYm0LmmKcBk+q86lb9EprIUFhHHGg=
+golang.org/x/sys v0.11.0 h1:eG7RXZHdqOJ1i+0lgLgCpSXAp6M3LYlAo6osgSi0xOM=
+golang.org/x/tools v0.12.0 h1:YW6HUoUmYBpwSgyaGaZq1fHjrBjX1rlpZ54T6mu2kss=
 lukechampine.com/uint128 v1.3.0 h1:cDdUVfRwDUDovz610ABgFD17nXD4/uDgVHl2sC3+sbo=
 modernc.org/cc/v3 v3.41.0 h1:QoR1Sn3YWlmA1T4vLaKZfawdVtSiGx8H+cEojbC7v1Q=
 modernc.org/ccgo/v3 v3.16.14 h1:af6KNtFgsVmnDYrWk3PQCS9XT6BXe7o3ZFJKkIKvXNQ=

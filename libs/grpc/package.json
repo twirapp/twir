@@ -7,7 +7,7 @@
 		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",
 		"build:cjs": "tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs",
 		"build:types": "tsc --emitDeclarationOnly --outDir dist/types",
-		"postbuild": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json"
+		"postbuild": "echo {\"type\": \"module\"} > ./dist/esm/package.json && echo {\"type\": \"commonjs\"} > ./dist/cjs/package.json"
   },
 	"exports": {
     "./*": {

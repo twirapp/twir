@@ -1,5 +1,5 @@
 FROM node:18-alpine as builder
-COPY --from=golang:1.20.1-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.21.0-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 

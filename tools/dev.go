@@ -42,7 +42,6 @@ func main() {
 	// order matters
 	apps := []App{
 		{Stack: "go", Name: "tokens", Port: servers.TOKENS_SERVER_PORT},
-		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
 		{Stack: "go", Name: "events", Port: servers.EVENTS_SERVER_PORT},
 		{Stack: "node", Name: "integrations", Port: servers.INTEGRATIONS_SERVER_PORT},
 		{Stack: "go", Name: "emotes-cacher", Port: servers.EMOTES_CACHER_SERVER_PORT},
@@ -50,6 +49,7 @@ func main() {
 		{Stack: "go", Name: "eventsub", Port: servers.EVENTSUB_SERVER_PORT},
 		{Stack: "node", Name: "eval", Port: servers.EVAL_SERVER_PORT},
 		{Stack: "go", Name: "bots", Port: servers.BOTS_SERVER_PORT},
+		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
 		{Stack: "go", Name: "watched", Port: servers.WATCHED_SERVER_PORT},
 		{Stack: "go", Name: "websockets", Port: servers.WEBSOCKET_SERVER_PORT},
 		{Stack: "go", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
@@ -65,12 +65,15 @@ func main() {
 
 	for _, app := range apps {
 		fmt.Println("Starting " + app.Name)
-
+		// nodemon --exec "go run ./cmd/main.go" --ext "go" --watch . --cwd ./apps/tokens
 		var command string
 		if app.Stack == "go" {
-			command = "reflex -s -r '\\.go$' -- go run ./cmd/main.go"
+			command = fmt.Sprintf(`pnpm nodemon --exec "go run" --ext "go" --watch . --cwd ./apps/%s ./cmd/main.go`, app.Name)
 		} else if app.Stack == "node" {
-			command = "reflex -s -r '\\.ts$' -- sh -c 'TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy src/index.ts'"
+			command = fmt.Sprintf(
+				`pnpm nodemon --exec "cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy" --ext "ts" --watch . --cwd ./apps/%s src/index.ts`,
+				app.Name,
+			)
 		} else {
 			command = "pnpm dev"
 		}
@@ -83,8 +86,6 @@ func main() {
 
 		if app.Stack == "frontend" {
 			cmd.Dir = fmt.Sprintf("./frontend/%s", app.Name)
-		} else {
-			cmd.Dir = fmt.Sprintf("./apps/%s", app.Name)
 		}
 
 		cmd.Stdin = os.Stdin
@@ -113,14 +114,14 @@ func main() {
 				break
 			} else {
 				time.Sleep(500 * time.Millisecond)
-				fmt.Println("Waiting " + app.Name + " to be ready...")
+				fmt.Print(".")
 			}
 		}
 	}
 
 	mainSignals := make(chan os.Signal, 1)
-	signal.Notify(mainSignals, syscall.SIGTERM, syscall.SIGINT)
-	<-mainSignals
+	signal.Notify(mainSignals, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+	fmt.Printf("\n%v signal recieved", <-mainSignals)
 	for _, process := range processes {
 		process.Signal(syscall.SIGTERM)
 	}

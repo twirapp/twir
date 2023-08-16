@@ -1,7 +1,7 @@
 FROM ubuntu:22.10
 
 ARG NODE_VERSION="18.12.1"
-ARG GO_VERSION="1.20.1"
+ARG GO_VERSION="1.21.0"
 ARG PNPM_VERSION="8"
 
 ARG TARGETARCH
@@ -33,5 +33,4 @@ RUN SHELL=/bin/bash pnpm setup
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
-    go install github.com/cespare/reflex@latest && \
     go install github.com/pressly/goose/v3/cmd/goose@latest

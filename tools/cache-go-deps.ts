@@ -8,7 +8,7 @@ const goWork = await readFile(resolve(process.cwd(), 'go.work'), 'utf-8');
 const packagesMatch = regexp.exec(goWork)![1];
 const packages = packagesMatch
 	.split('\n')
-	.map(p => p.replaceAll('\n', '').replaceAll('\t', ''))
+	.map(p => p.replaceAll('\n', '').replaceAll('\t', '').replaceAll('\r', ''))
 	.filter(p => Boolean(p));
 
 process.stdout.write('Caching golang deps');

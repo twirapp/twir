@@ -40,7 +40,7 @@ func main() {
 	cfg, err := cfg.New()
 
 	if err != nil || cfg == nil {
-		panic("Cannot load config of application")
+		panic("Cannot load config of application.")
 	}
 
 	if cfg.AppEnv == "development" {

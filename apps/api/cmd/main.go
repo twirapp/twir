@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
-	"github.com/satont/twir/libs/grpc/generated/scheduler"
-	"github.com/satont/twir/libs/grpc/generated/timers"
 	"net/http"
 	"time"
+
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/generated/timers"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"

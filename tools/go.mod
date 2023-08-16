@@ -1,6 +1,6 @@
 module github.com/satont/twir/tools
 
-go 1.20
+go 1.21
 
 replace github.com/satont/twir/libs/grpc => ../libs/grpc
 

@@ -5,7 +5,7 @@
 	"scripts": {
 		"lint": "eslint --ext .ts,.vue apps/",
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"predev": "pnpm build:libs",
+		"predev": "pnpm build:libs && pnpm cache-golang-deps",
 		"dev": "go run ./tools/dev.go",
 		"build": "turbo run build --filter=!./apps/dota",
 		"build:libs": "turbo run build --filter=./libs/**",
@@ -21,6 +21,7 @@
 		"eslint-plugin-import": "2.27.5",
 		"eslint-plugin-unused-imports": "^3.0.0",
 		"eslint-plugin-vue": "^9.15.1",
+		"nodemon": "^3.0.1",
 		"ts-node": "10.9.1",
 		"turbo": "1.6.3",
 		"typescript": "5.1.6"

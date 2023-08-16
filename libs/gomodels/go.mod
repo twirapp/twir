@@ -1,12 +1,12 @@
 module github.com/satont/twir/libs/gomodels
 
-go 1.20
+go 1.21
 
 require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.9
 	github.com/satori/go.uuid v1.2.0
-	gorm.io/gorm v1.25.1
+	gorm.io/gorm v1.25.3
 )
 
 require (
