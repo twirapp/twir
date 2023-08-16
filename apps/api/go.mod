@@ -1,18 +1,16 @@
 module github.com/satont/twir/apps/api
 
-go 1.21
+go 1.21.0
 
-replace github.com/satont/twir/libs/grpc => ../../libs/grpc
-
-replace github.com/satont/twir/libs/crypto => ../../libs/crypto
-
-replace github.com/satont/twir/libs/config => ../../libs/config
-
-replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-
-replace github.com/satont/twir/libs/twitch => ../../libs/twitch
-
-replace github.com/satont/twir/libs/types => ../../libs/types
+replace (
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/crypto => ../../libs/crypto
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/twitch => ../../libs/twitch
+	github.com/satont/twir/libs/types => ../../libs/types
+	github.com/satont/twir/libs/utils => ../../libs/utils
+)
 
 replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
 
@@ -66,6 +64,7 @@ require (
 	github.com/quic-go/qtls-go1-20 v0.3.2 // indirect
 	github.com/quic-go/quic-go v0.37.4 // indirect
 	github.com/refraction-networking/utls v1.4.3 // indirect
+	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	go.uber.org/dig v1.17.0 // indirect

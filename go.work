@@ -25,4 +25,5 @@ use (
 	./libs/twitch
 	./libs/types
 	./tools
+	libs/utils
 )

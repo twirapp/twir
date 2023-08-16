@@ -2,6 +2,7 @@ package stats
 
 import (
 	"context"
+	"github.com/satont/twir/libs/utils"
 	"sync"
 
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -14,24 +15,14 @@ type Stats struct {
 	*impl_deps.Deps
 }
 
-type statsItem struct {
-	Count int64  `json:"count"`
-	Name  string `json:"name"`
-}
-
 type statsNResult struct {
 	N int64
 }
 
 func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response, error) {
 	wg := sync.WaitGroup{}
-	statistic := []statsItem{
-		{Name: "users"},
-		{Name: "channels"},
-		{Name: "commands"},
-		{Name: "messages"},
-		{Name: "used_emotes"},
-	}
+
+	s := utils.NewSyncMap[int64]()
 
 	wg.Add(5)
 
@@ -39,14 +30,14 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 		defer wg.Done()
 		var count int64
 		c.Db.WithContext(ctx).Model(&model.Users{}).Count(&count)
-		statistic[0].Count = count
+		s.Add("users", count)
 	}()
 
 	go func() {
 		defer wg.Done()
 		var count int64
 		c.Db.WithContext(ctx).Model(&model.Channels{}).Where(`"isEnabled" = ?`, true).Count(&count)
-		statistic[1].Count = count
+		s.Add("channels", count)
 	}()
 
 	go func() {
@@ -56,7 +47,7 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 			Where("module = ?", "CUSTOM").
 			Count(&count)
 
-		statistic[2].Count = count
+		s.Add("commands", count)
 	}()
 
 	go func() {
@@ -65,23 +56,23 @@ func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response
 		c.Db.WithContext(ctx).Model(&model.UsersStats{}).
 			Select("sum(messages) as n").
 			Scan(&result)
-		statistic[3].Count = result.N
+		s.Add("messages", result.N)
 	}()
 
 	go func() {
 		defer wg.Done()
 		var count int64
 		c.Db.WithContext(ctx).Model(&model.ChannelEmoteUsage{}).Count(&count)
-		statistic[3].Count = count
+		s.Add("used_emotes", count)
 	}()
 
 	wg.Wait()
 
 	return &stats.Response{
-		Users:      statistic[0].Count,
-		Channels:   statistic[1].Count,
-		Commands:   statistic[2].Count,
-		Messages:   statistic[3].Count,
-		UsedEmotes: statistic[4].Count,
+		Users:      s.Get("users"),
+		Channels:   s.Get("channels"),
+		Commands:   s.Get("commands"),
+		Messages:   s.Get("messages"),
+		UsedEmotes: s.Get("used_emotes"),
 	}, nil
 }
