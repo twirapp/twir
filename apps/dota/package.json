@@ -17,7 +17,7 @@
 		"ioredis": "5.2.4",
 		"lodash": "4.17.21",
 		"nice-grpc": "^2.0.1",
-		"protobufjs": "7.1.2",
+		"protobufjs": "7.2.4",
 		"reflect-metadata": "0.1.13",
 		"steam-user": "4.26.0",
 		"steamid": "2.0.0",

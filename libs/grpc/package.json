@@ -31,7 +31,7 @@
 		"long": "^5.2.1",
 		"nice-grpc": "^2.0.1",
 		"nice-grpc-common": "^2.0.0",
-		"protobufjs": "7.1.2",
+		"protobufjs": "7.2.4",
 		"ts-proto": "^1.135.0"
 	},
 	"devDependencies": {
