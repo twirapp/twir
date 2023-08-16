@@ -1,40 +1,40 @@
 {
-  "name": "@twir/grpc",
-  "scripts": {
+	"name": "@twir/grpc",
+	"scripts": {
 		"prebuild": "rm -rf dist generated",
 		"gen": "ts-node --transpileOnly gen.ts",
-    "build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
+		"build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
 		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",
 		"build:cjs": "tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs",
 		"build:types": "tsc --emitDeclarationOnly --outDir dist/types",
-		"postbuild": "echo {\"type\": \"module\"} > ./dist/esm/package.json && echo {\"type\": \"commonjs\"} > ./dist/cjs/package.json"
-  },
+		"postbuild": "echo '{\"type\": \"module\"}' > ./dist/esm/package.json && echo '{\"type\": \"commonjs\"}' > ./dist/cjs/package.json"
+	},
 	"exports": {
-    "./*": {
-      "import": "./dist/esm/*.js",
-      "require": "./dist/cjs/*.js"
+		"./*": {
+			"import": "./dist/esm/*.js",
+			"require": "./dist/cjs/*.js"
 		}
-  },
-  "typesVersions": {
-    "*": {
-      "*": [
-        "./dist/types/*.d.ts"
-      ]
-    }
-  },
-  "dependencies": {
-    "@protobuf-ts/plugin": "^2.9.1",
-    "@protobuf-ts/runtime": "^2.9.1",
-    "@protobuf-ts/runtime-rpc": "^2.9.1",
-    "@protobuf-ts/twirp-transport": "^2.9.1",
-    "grpc-tools": "^1.11.3",
-    "long": "^5.2.1",
-    "nice-grpc": "^2.0.1",
-    "nice-grpc-common": "^2.0.0",
-    "protobufjs": "7.1.2",
-    "ts-proto": "^1.135.0"
-  },
-  "devDependencies": {
-    "@grpc/grpc-js": "^1.8.3"
-  }
+	},
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/types/*.d.ts"
+			]
+		}
+	},
+	"dependencies": {
+		"@protobuf-ts/plugin": "^2.9.1",
+		"@protobuf-ts/runtime": "^2.9.1",
+		"@protobuf-ts/runtime-rpc": "^2.9.1",
+		"@protobuf-ts/twirp-transport": "^2.9.1",
+		"grpc-tools": "^1.11.3",
+		"long": "^5.2.1",
+		"nice-grpc": "^2.0.1",
+		"nice-grpc-common": "^2.0.0",
+		"protobufjs": "7.1.2",
+		"ts-proto": "^1.135.0"
+	},
+	"devDependencies": {
+		"@grpc/grpc-js": "^1.8.3"
+	}
 }
