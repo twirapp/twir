@@ -3,7 +3,7 @@ package seeds
 import (
 	"database/sql"
 	cfg "github.com/satont/twir/libs/config"
-	"golang.org/x/exp/slog"
+	"log/slog"
 )
 
 func CreateIntegrations(db *sql.DB, config *cfg.Config) error {

@@ -10,7 +10,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/twir/apps/bots/internal/bots"

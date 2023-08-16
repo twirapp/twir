@@ -4,7 +4,7 @@ import (
 	"context"
 	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/fx"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"time"
 
 	"github.com/satont/twir/apps/timers/internal/handler"

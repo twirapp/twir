@@ -5,7 +5,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"go.uber.org/fx"
-	"golang.org/x/exp/slog"
+	"log/slog"
 	"net"
 	"time"
 

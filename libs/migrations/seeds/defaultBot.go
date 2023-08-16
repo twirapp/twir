@@ -8,8 +8,8 @@ import (
 	"github.com/lib/pq"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/crypto"
-	"golang.org/x/exp/slog"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 )

@@ -3,7 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"go.uber.org/fx"
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	"github.com/satont/twir/apps/timers/internal/scheduler"
 	"github.com/satont/twir/apps/timers/internal/types"

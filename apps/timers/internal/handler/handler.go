@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/satont/twir/apps/timers/internal/types"
 	cfg "github.com/satont/twir/libs/config"
-	"golang.org/x/exp/slog"
+	"log/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
