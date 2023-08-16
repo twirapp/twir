@@ -41,7 +41,7 @@ func main() {
 		),
 		fx.NopLogger,
 		fx.Invoke(
-			queue.New,
+			//queue.New,
 			grpc_server.New,
 		),
 	).Run()
