@@ -29,7 +29,7 @@ type GrpcImplOpts struct {
 	Cfg         *cfg.Config
 }
 
-type botsGrpcServer struct {
+type BotsGrpcServer struct {
 	bots.UnimplementedBotsServer
 
 	db          *gorm.DB
@@ -38,8 +38,8 @@ type botsGrpcServer struct {
 	cfg         *cfg.Config
 }
 
-func NewServer(opts *GrpcImplOpts) *botsGrpcServer {
-	return &botsGrpcServer{
+func NewServer(opts *GrpcImplOpts) *BotsGrpcServer {
+	return &BotsGrpcServer{
 		db:          opts.Db,
 		botsService: opts.BotsService,
 		logger:      opts.Logger,
@@ -47,7 +47,7 @@ func NewServer(opts *GrpcImplOpts) *botsGrpcServer {
 	}
 }
 
-func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMessagesRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMessagesRequest) (*emptypb.Empty, error) {
 	channel := model.Channels{}
 	err := c.db.Where("id = ?", data.ChannelId).Find(&channel).Error
 	if err != nil {
@@ -82,7 +82,7 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 	return &emptypb.Empty{}, nil
 }
 
-func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessageRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessageRequest) (*emptypb.Empty, error) {
 	if data.Message == "" {
 		c.logger.Sugar().Error(
 			"empty message",
@@ -167,7 +167,7 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 	return &emptypb.Empty{}, nil
 }
 
-func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
 		return nil, errors.New("bot not found")
@@ -178,7 +178,7 @@ func (c *botsGrpcServer) Join(ctx context.Context, data *bots.JoinOrLeaveRequest
 	return &emptypb.Empty{}, nil
 }
 
-func (c *botsGrpcServer) Leave(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) Leave(ctx context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
 		return nil, errors.New("bot not found")
