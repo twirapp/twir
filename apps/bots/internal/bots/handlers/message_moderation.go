@@ -2,12 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
-	"github.com/samber/do"
-	"github.com/satont/twir/apps/bots/internal/di"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
@@ -46,7 +44,7 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 
 	settings := []model.ChannelsModerationSettings{}
 	if err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID, true).Find(&settings).Error; err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot find moderation settings", slog.Any("err", err))
 		return false
 	}
 
@@ -70,8 +68,7 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 		res := function(&prsrs, &s, msg, badges)
 
 		if res != nil {
-			tokensGrpc := do.MustInvoke[tokens.TokensClient](di.Provider)
-			twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, *c.cfg, tokensGrpc)
+			twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, c.cfg, c.tokensGrpc)
 			if err != nil {
 				return false
 			}
@@ -86,10 +83,10 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 				)
 
 				if res.StatusCode != 200 {
-					c.logger.Sugar().Info(res.ErrorMessage)
+					c.logger.Error("cannot delete message", slog.String("err", res.ErrorMessage))
 				}
 				if err != nil {
-					c.logger.Sugar().Error(err)
+					c.logger.Error("cannot delete message", slog.Any("err", err))
 				}
 			} else {
 				if res.Time != nil {
@@ -98,7 +95,7 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 							BroadcasterID: msg.Channel.ID,
 							ModeratorId:   c.BotClient.Model.ID,
 							Body: helix.BanUserRequestBody{
-								Duration: int(*res.Time),
+								Duration: *res.Time,
 								Reason:   res.Message,
 								UserId:   msg.User.ID,
 							},
@@ -106,10 +103,20 @@ func (c *Handlers) moderateMessage(msg Message, badges []string) bool {
 					)
 
 					if res.StatusCode != 200 {
-						c.logger.Sugar().Info(res.ErrorMessage)
+						c.logger.Error(
+							"cannot ban user",
+							slog.String("err", res.ErrorMessage),
+							slog.String("userId", msg.User.ID),
+							slog.String("channelId", msg.Channel.ID),
+						)
 					}
 					if err != nil {
-						c.logger.Sugar().Error(err)
+						c.logger.Error(
+							"cannot ban user",
+							slog.Any("err", err),
+							slog.String("userId", msg.User.ID),
+							slog.String("channelId", msg.Channel.ID),
+						)
 					}
 				}
 			}

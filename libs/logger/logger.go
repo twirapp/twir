@@ -25,11 +25,28 @@ func New(opts Opts) Logger {
 
 	switch opts.Env {
 	case "development":
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		log = slog.New(
+			slog.NewTextHandler(
+				os.Stdout,
+				&slog.HandlerOptions{
+					Level: slog.LevelDebug, AddSource: true,
+				},
+			),
+		)
 	case "production":
-		log = slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo}))
+		log = slog.New(
+			slog.NewJSONHandler(
+				os.Stdout,
+				&slog.HandlerOptions{Level: slog.LevelInfo, AddSource: true},
+			),
+		)
 	default:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		log = slog.New(
+			slog.NewTextHandler(
+				os.Stdout,
+				&slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true},
+			),
+		)
 	}
 
 	if opts.Service != "" {

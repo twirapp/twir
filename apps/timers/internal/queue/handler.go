@@ -75,7 +75,6 @@ func (c *Queue) handle(t *timer) {
 			slog.String("timerId", t.ID),
 			slog.String("channelId", t.ChannelID),
 			slog.String("text", response.Text),
-			slog.Any("error", err),
 			slog.String("timerName", t.Name),
 		)
 	}

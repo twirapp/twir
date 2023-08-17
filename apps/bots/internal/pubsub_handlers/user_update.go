@@ -1,26 +1,24 @@
-package handlers
+package pubsub_handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 
 	"github.com/satont/twir/libs/pubsub"
 
-	"github.com/satont/twir/apps/bots/internal/bots"
 	model "github.com/satont/twir/libs/gomodels"
-	"gorm.io/gorm"
 )
 
-func UserUpdate(db *gorm.DB, botsService *bots.Service, data []byte) {
+func (c *handlers) userUpdate(data []byte) {
 	userStruct := &pubsub.UserUpdateMessage{}
 	if err := json.Unmarshal(data, userStruct); err != nil {
-		fmt.Println(err)
+		c.logger.Error("cannot unmarshal incoming data", slog.Any("err", err))
 		return
 	}
 
 	channel := model.Channels{}
-	if err := db.Where("id = ?", userStruct.UserID).Find(&channel).Error; err != nil {
-		fmt.Println(err)
+	if err := c.db.Where("id = ?", userStruct.UserID).Find(&channel).Error; err != nil {
+		c.logger.Error("cannot find channel", slog.String("userId", userStruct.UserID))
 		return
 	}
 
@@ -28,7 +26,7 @@ func UserUpdate(db *gorm.DB, botsService *bots.Service, data []byte) {
 		return
 	}
 
-	bot, isBotFound := botsService.Instances[channel.BotID]
+	bot, isBotFound := c.botsService.Instances[channel.BotID]
 	if !isBotFound {
 		return
 	}
@@ -38,6 +36,4 @@ func UserUpdate(db *gorm.DB, botsService *bots.Service, data []byte) {
 	} else {
 		bot.Depart(userStruct.UserName)
 	}
-
-	fmt.Printf("%+v\n", data)
 }

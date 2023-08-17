@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/satont/twir/libs/grpc/generated/events"
 
@@ -69,7 +70,7 @@ func (c *Handlers) handleGreetings(
 
 	res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot parse text response of greeting", slog.Any("req", requestStruct))
 		return
 	}
 

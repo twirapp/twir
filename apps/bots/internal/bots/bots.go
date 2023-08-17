@@ -1,6 +1,11 @@
 package bots
 
 import (
+	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
 	"sync"
 
 	cfg "github.com/satont/twir/libs/config"
@@ -9,24 +14,42 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/satont/twir/apps/bots/types"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type NewBotsOpts struct {
+type Opts struct {
+	fx.In
+
 	DB         *gorm.DB
-	Logger     *zap.Logger
-	Cfg        *cfg.Config
+	Logger     logger.Logger
+	Cfg        cfg.Config
 	ParserGrpc parser.ParserClient
+	TokensGrpc tokens.TokensClient
+	EventsGrpc events.EventsClient
+	
+	Redis *redis.Client
 }
 
 type Service struct {
 	Instances map[string]*types.BotClient
+
+	db         *gorm.DB
+	logger     logger.Logger
+	cfg        cfg.Config
+	parserGrpc parser.ParserClient
+	tokensGrpc tokens.TokensClient
+	eventsGrpc events.EventsClient
 }
 
-func NewBotsService(opts *NewBotsOpts) *Service {
-	service := Service{
-		Instances: make(map[string]*types.BotClient),
+func NewBotsService(opts Opts) *Service {
+	service := &Service{
+		Instances:  make(map[string]*types.BotClient),
+		db:         opts.DB,
+		logger:     opts.Logger,
+		cfg:        opts.Cfg,
+		parserGrpc: opts.ParserGrpc,
+		tokensGrpc: opts.TokensGrpc,
+		eventsGrpc: opts.EventsGrpc,
 	}
 	mu := sync.Mutex{}
 
@@ -41,21 +64,24 @@ func NewBotsService(opts *NewBotsOpts) *Service {
 	}
 
 	for _, bot := range bots {
-		b := bot
+		bot := bot
 		instance := newBot(
-			&ClientOpts{
+			ClientOpts{
 				DB:         opts.DB,
 				Cfg:        opts.Cfg,
 				Logger:     opts.Logger,
-				Model:      &b,
+				Model:      &bot,
 				ParserGrpc: opts.ParserGrpc,
+				TokensGrpc: opts.TokensGrpc,
+				EventsGrpc: opts.EventsGrpc,
+				Redis:      opts.Redis,
 			},
 		)
 
 		mu.Lock()
-		service.Instances[b.ID] = instance
+		service.Instances[bot.ID] = instance
 		mu.Unlock()
 	}
 
-	return &service
+	return service
 }

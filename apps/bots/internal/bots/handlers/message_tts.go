@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"go.uber.org/zap"
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v3"
@@ -25,7 +26,7 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 
 	err := query.Find(&settings).Error
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot find tts settings", zap.Any("err", err))
 		return
 	}
 
@@ -36,7 +37,7 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 	data := modules.TTSSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot unmarshall tts settings", zap.Any("err", err))
 		return
 	}
 
@@ -52,7 +53,7 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 		Find(&ttsCommand).
 		Error
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot find tts command", zap.Any("err", err))
 		return
 	}
 
@@ -109,6 +110,6 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 
 	_, err = c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Sugar().Error(err)
+		c.logger.Error("cannot process tts", zap.Any("err", err))
 	}
 }

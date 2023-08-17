@@ -114,11 +114,15 @@ services:
         - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
         - traefik.docker.network=traefik-public
+      update_config:
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 4
 
   bots:
     build:

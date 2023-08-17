@@ -14,7 +14,7 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 	moderatorBadge, _ := msg.User.Badges["moderator"]
 	broadcasterBadge, _ := msg.User.Badges["broadcaster"]
 
-	twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, *c.cfg, c.tokensGrpc)
+	twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, c.cfg, c.tokensGrpc)
 	if err != nil {
 		panic(err)
 	}

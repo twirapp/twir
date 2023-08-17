@@ -108,7 +108,7 @@ func main() {
 					logger.Sugar().Panic("failed to connect database", err)
 				}
 				d, _ := db.DB()
-				d.SetMaxOpenConns(20)
+				d.SetMaxOpenConns(5)
 				d.SetConnMaxIdleTime(1 * time.Minute)
 
 				lc.Append(
@@ -139,8 +139,10 @@ func main() {
 				fx.ParamTags(`group:"handlers"`),
 			),
 		),
+		fx.NopLogger,
 		fx.Invoke(
 			func(mux *http.ServeMux, sessionManager *scs.SessionManager) {
+				logger.Sugar().Info("Api started")
 				logger.Sugar().Panic(http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux)))
 			},
 		),

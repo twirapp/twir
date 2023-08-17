@@ -56,7 +56,7 @@ func main() {
 		panic("failed to connect database")
 	}
 	d, _ := db.DB()
-	d.SetMaxOpenConns(20)
+	d.SetMaxOpenConns(5)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
 	services := &internal.Services{

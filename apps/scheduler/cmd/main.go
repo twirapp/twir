@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	s "github.com/satont/twir/apps/scheduler/internal/services"
 	"github.com/satont/twir/apps/scheduler/internal/timers"
@@ -39,6 +40,9 @@ func main() {
 			Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 		},
 	)
+	d, _ := db.DB()
+	d.SetMaxOpenConns(5)
+	d.SetConnMaxIdleTime(1 * time.Minute)
 	if err != nil {
 		logger.Sugar().Error(err)
 		panic("failed to connect database")

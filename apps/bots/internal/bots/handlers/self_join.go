@@ -2,17 +2,14 @@ package handlers
 
 import (
 	"github.com/gempir/go-twitch-irc/v3"
+	"log/slog"
 )
 
 func (c *Handlers) OnSelfJoin(msg twitch.UserJoinMessage) {
-	c.logger.Sugar().
-		Infow(
-			"Joined channel",
-			"botId",
-			c.BotClient.Model.ID,
-			"botName",
-			c.BotClient.TwitchUser.Login,
-			"channel",
-			msg.Channel,
-		)
+	c.logger.Info(
+		"Joined channel",
+		slog.String("botId", c.BotClient.Model.ID),
+		slog.String("botName", c.BotClient.TwitchUser.Login),
+		slog.String("channel", msg.Channel),
+	)
 }

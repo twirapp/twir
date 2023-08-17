@@ -1,25 +1,24 @@
-package handlers
+package pubsub_handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 
 	"github.com/satont/twir/libs/pubsub"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"gorm.io/gorm"
 )
 
-func StreamsOffline(db *gorm.DB, data []byte) {
+func (c *handlers) streamsOffline(data []byte) {
 	streamOfflineStruct := &pubsub.StreamOfflineMessage{}
 	if err := json.Unmarshal(data, &streamOfflineStruct); err != nil {
-		fmt.Println(err)
+		c.logger.Error("cannot unmarshal incoming data", slog.Any("err", err))
 		return
 	}
 
 	channel := model.Channels{}
-	if err := db.Where("id = ?", streamOfflineStruct.ChannelID).Find(&channel).Error; err != nil {
-		fmt.Println(err)
+	if err := c.db.Where("id = ?", streamOfflineStruct.ChannelID).Find(&channel).Error; err != nil {
+		c.logger.Error("cannot find channel", slog.String("channelId", streamOfflineStruct.ChannelID))
 		return
 	}
 
