@@ -8,7 +8,8 @@ let res: Response | undefined;
 try {
 	const { response } = await unProtectedClient.getStats({}, { timeout: 1000 });
 	res = response;
-} catch { /* ignore error */
+} catch (e) {
+	console.error(e)
 }
 
 const formatter = Intl.NumberFormat('en-US', {
