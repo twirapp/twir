@@ -25,6 +25,7 @@ func (c *gormRepository) GetById(id string) (Channel, error) {
 
 	result.ID = channel.ID
 	result.Enabled = channel.IsEnabled
+	result.IsBotMod = channel.IsBotMod
 
 	return result, nil
 }

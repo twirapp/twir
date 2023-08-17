@@ -5,6 +5,7 @@ type Repository interface {
 }
 
 type Channel struct {
-	ID      string
-	Enabled bool
+	ID       string
+	Enabled  bool
+	IsBotMod bool
 }

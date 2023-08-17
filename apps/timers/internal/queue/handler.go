@@ -18,16 +18,21 @@ func (c *Queue) handle(t *timer) {
 	}
 
 	if !channel.Enabled {
-		c.logger.Debug("channel not enabled", slog.String("channelId", t.ChannelID))
+		c.logger.Info("channel not enabled", slog.String("channelId", t.ChannelID))
+		return
+	}
+
+	if !channel.IsBotMod {
+		c.logger.Info("bot is not moderator, response wont be sent", slog.String("channelId", t.ChannelID))
 		return
 	}
 
 	stream, err := c.streamsRepository.GetByChannelId(t.ChannelID)
 	if err != nil && errors.Is(err, streams.NotFound) && c.config.AppEnv != "development" {
-		c.logger.Debug("stream not found, probably channel is offline", slog.String("channelId", t.ChannelID))
+		c.logger.Info("stream not found, probably channel is offline", slog.String("channelId", t.ChannelID))
 		return
 	} else if err != nil && c.config.AppEnv != "development" {
-		c.logger.Error("error on getting stream", slog.String("channelId", t.ChannelID), slog.Any("error", err))
+		c.logger.Info("error on getting stream", slog.String("channelId", t.ChannelID), slog.Any("error", err))
 		return
 	}
 
@@ -41,7 +46,7 @@ func (c *Queue) handle(t *timer) {
 
 	// not found
 	if response.ID == "" || response.Text == "" {
-		c.logger.Debug(
+		c.logger.Info(
 			"timer text or id is empty",
 			slog.String("responseId", response.ID),
 			slog.String("timerId", t.ID),
