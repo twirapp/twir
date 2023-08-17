@@ -53,18 +53,30 @@ func (c *Queue) handle(t *timer) {
 			slog.String("channelId", t.ChannelID),
 			slog.Bool("isAnnounce", response.IsAnnounce),
 			slog.String("text", response.Text),
+			slog.String("timerName", t.Name),
 		)
 		return
 	}
 
 	// send
-	if err = c.sendMessage(stream, t.ChannelID, response.Text, response.IsAnnounce); err != nil {
+	err = c.sendMessage(stream, t.ChannelID, response.Text, response.IsAnnounce)
+	if err != nil {
 		c.logger.Error(
 			"cannot send message", slog.String("responseId", response.ID),
 			slog.String("timerId", t.ID),
 			slog.String("channelId", t.ChannelID),
 			slog.String("text", response.Text),
 			slog.Any("error", err),
+			slog.String("timerName", t.Name),
+		)
+	} else {
+		c.logger.Info(
+			"sent message", slog.String("responseId", response.ID),
+			slog.String("timerId", t.ID),
+			slog.String("channelId", t.ChannelID),
+			slog.String("text", response.Text),
+			slog.Any("error", err),
+			slog.String("timerName", t.Name),
 		)
 	}
 

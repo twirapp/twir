@@ -19,6 +19,7 @@ type TimerResponse struct {
 
 type Timer struct {
 	ID        string
+	Name      string
 	Responses []TimerResponse
 	ChannelID string
 	Interval  int

@@ -18,6 +18,7 @@ type gormRepository struct {
 func (c *gormRepository) convertEntity(entity model.ChannelsTimers) Timer {
 	result := Timer{
 		ID:        entity.ID,
+		Name:      entity.Name,
 		ChannelID: entity.ChannelID,
 		Interval:  int(entity.TimeInterval),
 	}
