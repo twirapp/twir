@@ -114,10 +114,11 @@ func (c *Queue) sendMessage(stream streams.Stream, channelId, text string, isAnn
 		_, err = c.botsGrpc.SendMessage(
 			ctx,
 			&bots.SendMessageRequest{
-				ChannelId:   channelId,
-				ChannelName: &stream.UserLogin,
-				Message:     message,
-				IsAnnounce:  &isAnnounce,
+				ChannelId:      channelId,
+				ChannelName:    &stream.UserLogin,
+				Message:        message,
+				IsAnnounce:     &isAnnounce,
+				SkipRateLimits: true,
 			},
 		)
 		if err != nil {

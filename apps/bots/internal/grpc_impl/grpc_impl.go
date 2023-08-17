@@ -161,7 +161,11 @@ func (c *BotsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 			)
 		}
 	} else {
-		bot.SayWithRateLimiting(*channelName, data.Message, nil)
+		if data.SkipRateLimits {
+			bot.Say(*channelName, data.Message)
+		} else {
+			bot.SayWithRateLimiting(*channelName, data.Message, nil)
+		}
 	}
 
 	return &emptypb.Empty{}, nil

@@ -21,6 +21,7 @@ message SendMessageRequest {
 	optional string channelName = 2;
 	string message = 3;
 	optional bool isAnnounce = 4;
+	bool skip_rate_limits = 5;
 }
 
 message JoinOrLeaveRequest {
