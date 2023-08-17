@@ -1,37 +1,51 @@
 ---
-import DonationAlerts from '../../assets/integrations/donationalerts.svg?component'
-import Faceit from '../../assets/integrations/faceit.svg?component'
-import OBS from '../../assets/integrations/obs.svg?component'
-import Spotify from '../../assets/integrations/spotify.svg?component'
-import StreamElements from '../../assets/integrations/streamelements.svg?component'
-import Streamlabs from '../../assets/integrations/streamlabs.svg?component'
-import Twitch from '../../assets/integrations/twitch.svg?component'
-import Vk from '../../assets/integrations/vk.svg?component'
-import Cube from '../../assets/cube.svg?component'
+import DonationAlerts from '../../assets/integrations/donationalerts.svg?component';
+import Faceit from '../../assets/integrations/faceit.svg?component';
+import OBS from '../../assets/integrations/obs.svg?component';
+import Spotify from '../../assets/integrations/spotify.svg?component';
+import StreamElements from '../../assets/integrations/streamelements.svg?component';
+import Streamlabs from '../../assets/integrations/streamlabs.svg?component';
+import Twitch from '../../assets/integrations/twitch.svg?component';
+import Vk from '../../assets/integrations/vk.svg?component';
+import Cube from '../../assets/cube.svg?component';
+import LastFm from '../../assets/integrations/lastfm.svg?component';
 
 const integrations = [
-	{ icon: DonationAlerts },
-	{ icon: Faceit },
-	{ icon: OBS },
-	{ icon: Spotify },
-	{ icon: StreamElements },
-	{ icon: Streamlabs },
-	{ icon: Twitch },
-	{ icon: Vk },
-]
+  { icon: DonationAlerts, label: 'Donation Allerts' },
+  { icon: Faceit, label: 'Faceit' },
+  { icon: OBS, label: 'OBS' },
+  { icon: Spotify, label: 'Spotify' },
+  { icon: StreamElements, label: 'Stream Elements' },
+  { icon: Streamlabs, label: 'Streamlabs' },
+  { icon: Twitch, label: 'Twitch' },
+  { icon: Vk, label: 'VK' },
+  { icon: LastFm, label: 'LastFM' },
+];
 ---
 
 <div class="bg-[#17171A]" id="integrations">
-	<div class="container mx-auto">
-		<div class="px-[32px] pb-[100px] pt-[140px]">
-			<div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
-				<Cube class="absolute -top-24" />
-				<span class="text-4xl text-white font-bold z-10 max-w-2xl leading-[1.1] tracking-tight">Bot has a built-in API for the most necessary apps</span>
-				<span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">Powerful, self-serve product and growth analytics to help you convert, engage, and retain more users. Trusted by over 4,000 startups.</span>
-			</div>
-			<div class="flex flex-wrap justify-center mt-[64px] gap-[32px]">
-				{integrations.map((i) => <i.icon />)}
-			</div>
-		</div>
-	</div>
+  <div class="container mx-auto">
+    <div class="px-[32px] pb-[100px] pt-[140px]">
+      <div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
+        <Cube class="absolute -top-[86px] h-[184px] w-[184px] stroke-[3]" aria-hidden />
+        <span class="text-4xl text-white font-bold z-10 max-w-2xl leading-[1.25] tracking-tight">
+          Power-up your stream with seamless integrations
+        </span>
+        <span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">
+          Connect with your favorite tools and platforms to supercharge your stream's performance
+          and engagement. Twir's integrations provide endless possibilities.
+        </span>
+      </div>
+      <div class="flex flex-wrap justify-center mt-[64px] gap-[24px]" role="list">
+        {
+          integrations.map((i) => (
+            <i.icon
+              class="md:h-[70px] md:w-[70px] fill-[#72757D] m-1 h-16 w-16"
+              aria-label={i.label}
+            />
+          ))
+        }
+      </div>
+    </div>
+  </div>
 </div>
