@@ -3,6 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/samber/do"
@@ -83,6 +84,12 @@ func (c *botsGrpcServer) DeleteMessage(ctx context.Context, data *bots.DeleteMes
 
 func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessageRequest) (*emptypb.Empty, error) {
 	if data.Message == "" {
+		c.logger.Sugar().Error(
+			"empty message",
+			zap.String("channelId", data.ChannelId),
+			zap.String("channelName", data.ChannelId),
+			zap.String("text", data.Message),
+		)
 		return &emptypb.Empty{}, errors.New("empty message")
 	}
 
@@ -138,6 +145,7 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 		)
 		if err != nil {
 			c.logger.Sugar().Error(err, zap.String("channelId", channel.ID))
+			return nil, err
 		} else if announceReq.ErrorMessage != "" {
 			slog.Error(
 				"cannot do announce "+announceReq.ErrorMessage,
@@ -146,6 +154,10 @@ func (c *botsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 				slog.String("botId", channel.BotID),
 				slog.String("message", data.Message),
 				slog.Int("code", announceReq.StatusCode),
+			)
+			return nil, fmt.Errorf(
+				"cannot do announce, channelId: %s, message: %s, err: %s", channel.ID, data.Message,
+				announceReq.ErrorMessage,
 			)
 		}
 	} else {
