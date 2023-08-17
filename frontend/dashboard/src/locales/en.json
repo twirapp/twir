@@ -275,7 +275,8 @@
 				"responseRequired": "Response text is required",
 				"responseLong": "Response is to long"
 			}
-		}
+		},
+		"limitExceeded": "Limit exceeded"
 	},
 	"roles": {
 		"modal": {

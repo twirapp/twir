@@ -2,6 +2,7 @@ package timers
 
 import (
 	"context"
+	"fmt"
 	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 	"go.uber.org/zap"
 
@@ -154,6 +155,19 @@ func (c *Timers) TimersCreate(
 	request *timers.CreateRequest,
 ) (*timers.Timer, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+
+	var currentCount int64
+	if err := c.Db.Model(&model.ChannelsTimers{}).Where(
+		`"channelId" = ?`,
+		dashboardId,
+	).Count(&currentCount).Error; err != nil {
+		return nil, fmt.Errorf("cannot get timers count time: %w", err)
+	}
+
+	if currentCount >= 10 {
+		return nil, fmt.Errorf("you cannot create more than 10 timers")
+	}
+
 	entity := &model.ChannelsTimers{
 		ID:              uuid.New().String(),
 		ChannelID:       dashboardId,

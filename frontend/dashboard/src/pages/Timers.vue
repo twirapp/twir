@@ -1,17 +1,8 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { type Timer } from '@twir/grpc/generated/api/api/timers';
 import { useThrottleFn } from '@vueuse/core';
-import {
-	type DataTableColumns,
-  NDataTable,
-  NSpace,
-  NTag,
-  NSwitch,
-  NButton,
-  NPopconfirm,
-  NModal,
-} from 'naive-ui';
+import { type DataTableColumns, NButton, NDataTable, NModal, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -116,7 +107,7 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 				},
 			);
 
-			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
+			return h(NSpace, {}, { default: () => [editButton, deleteButton] });
 		},
 	},
 ]);
@@ -124,20 +115,28 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 const showModal = ref(false);
 
 const editableTimer = ref<EditableTimer | null>(null);
+
 function openModal(t: EditableTimer | null) {
 	editableTimer.value = t;
 	showModal.value = true;
 }
+
 function closeModal() {
 	showModal.value = false;
 }
+
+const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 </script>
 
 <template>
 	<n-space justify="space-between" align="center">
 		<h2>Timers</h2>
-		<n-button secondary type="success" :disabled="!userCanManageTimers" @click="openModal(null)">
-			{{ t('sharedButtons.create') }}
+		<n-button
+			secondary type="success"
+			:disabled="!userCanManageTimers || timersLength >= 10"
+			@click="openModal(null)"
+		>
+			{{ timersLength >= 10 ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{ timersLength }}/10)
 		</n-button>
 	</n-space>
 	<n-data-table

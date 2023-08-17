@@ -6,8 +6,9 @@ import en from './locales/en.json';
 
 const locale = useLocalStorage('twirLocale', 'en');
 
+
 export const i18n = createI18n({
-  messages,
+	messages,
 	locale: locale.value,
 	fallbackLocale: 'en',
 });
@@ -15,6 +16,6 @@ export const i18n = createI18n({
 type Lang = typeof en
 
 declare module 'vue-i18n' {
-  export interface DefineLocaleMessage extends Lang {
-  }
+	export interface DefineLocaleMessage extends Lang {
+	}
 }

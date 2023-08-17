@@ -275,7 +275,8 @@
 				"responseRequired": "Текст ответа обязателен",
 				"responseLong": "Слишком длинный ответ"
 			}
-		}
+		},
+		"limitExceeded": "Достигнут лимит"
 	},
 	"roles": {
 		"modal": {
