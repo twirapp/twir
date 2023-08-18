@@ -207,13 +207,13 @@ func (c *TokensGrpcImpl) RequestBotToken(
 		db.Save(&bot.Token)
 	}
 
-	decryptedAcessToken, err := crypto.Decrypt(bot.Token.AccessToken, config.TokensCipherKey)
+	decryptedAccessToken, err := crypto.Decrypt(bot.Token.AccessToken, config.TokensCipherKey)
 	if err != nil {
 		return nil, err
 	}
 
 	return &tokens.Token{
-		AccessToken: decryptedAcessToken,
+		AccessToken: decryptedAccessToken,
 		Scopes:      bot.Token.Scopes,
 	}, nil
 }

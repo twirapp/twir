@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/satont/twir/libs/logger"
 	"log"
 	"net"
 	"os"
@@ -19,7 +20,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/servers"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -45,17 +45,14 @@ func main() {
 		)
 	}
 
-	var logger *zap.Logger
+	l := logger.New(
+		logger.Opts{
+			Env:     cfg.AppEnv,
+			Service: "tokens",
+		},
+	)
 
-	if cfg.AppEnv == "development" {
-		l, _ := zap.NewDevelopment()
-		logger = l
-	} else {
-		l, _ := zap.NewProduction()
-		logger = l
-	}
-
-	do.ProvideValue[zap.Logger](di.Provider, *logger)
+	do.ProvideValue[logger.Logger](di.Provider, l)
 
 	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 	if err != nil {
@@ -86,7 +83,7 @@ func main() {
 	tokens.RegisterTokensServer(grpcServer, grpc_impl.NewTokens())
 	go grpcServer.Serve(lis)
 
-	logger.Info("Tokens microservice started")
+	l.Info("Started")
 
 	exitSignal := make(chan os.Signal, 1)
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)

@@ -1,14 +1,14 @@
 module github.com/satont/twir/apps/tokens
 
-go 1.21
+go 1.21.0
 
-replace github.com/satont/twir/libs/config => ../../libs/config
-
-replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-
-replace github.com/satont/twir/libs/grpc => ../../libs/grpc
-
-replace github.com/satont/twir/libs/crypto => ../../libs/crypto
+replace (
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/crypto => ../../libs/crypto
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/logger => ../../libs/logger
+)
 
 require (
 	github.com/getsentry/sentry-go v0.23.0
@@ -20,7 +20,7 @@ require (
 	github.com/satont/twir/libs/crypto v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
-	go.uber.org/zap v1.25.0
+	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/postgres v1.5.2
@@ -44,10 +44,10 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/onsi/gomega v1.27.8 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/net v0.14.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect

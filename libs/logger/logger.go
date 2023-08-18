@@ -61,32 +61,24 @@ func New(opts Opts) Logger {
 	}
 }
 
-func (c *logger) Info(input string, fields ...any) {
+func (c *logger) handle(level slog.Level, input string, fields ...any) {
 	var pcs [1]uintptr
-	runtime.Callers(2, pcs[:])
-	r := slog.NewRecord(time.Now(), slog.LevelInfo, input, pcs[0])
+	runtime.Callers(3, pcs[:])
+	r := slog.NewRecord(time.Now(), level, input, pcs[0])
 	for _, f := range fields {
 		r.Add(f)
 	}
 	_ = c.log.Handler().Handle(context.Background(), r)
+}
+
+func (c *logger) Info(input string, fields ...any) {
+	c.handle(slog.LevelInfo, input, fields...)
 }
 
 func (c *logger) Error(input string, fields ...any) {
-	var pcs [1]uintptr
-	runtime.Callers(2, pcs[:])
-	r := slog.NewRecord(time.Now(), slog.LevelError, input, pcs[0])
-	for _, f := range fields {
-		r.Add(f)
-	}
-	_ = c.log.Handler().Handle(context.Background(), r)
+	c.handle(slog.LevelError, input, fields...)
 }
 
 func (c *logger) Debug(input string, fields ...any) {
-	var pcs [1]uintptr
-	runtime.Callers(2, pcs[:])
-	r := slog.NewRecord(time.Now(), slog.LevelDebug, input, pcs[0])
-	for _, f := range fields {
-		r.Add(f)
-	}
-	_ = c.log.Handler().Handle(context.Background(), r)
+	c.handle(slog.LevelDebug, input, fields...)
 }
