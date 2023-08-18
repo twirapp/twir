@@ -1,12 +1,12 @@
 # Development
 
-## Prerequirements
+## Pre requirements
 
 Before starting developing application you need these tools installed:
 
-#### All system wide dependencies provided by VSCode and Devcontainers
+#### All system-wide dependencies provided by VSCode and Devcontainers
 
-You can easy setup dependencies for project via installation of this deps:
+You can easy setup dependencies for project via installation of these deps:
 
 - [Docker](https://docs.docker.com/engine/)
 - [Visual Studio Code](https://code.visualstudio.com/)
@@ -19,13 +19,18 @@ npm i -g pnpm
 
 #### If you not using vscode
 
-Oh, dear... You need to check `.devcontainer/Dockerfile` file and check what i'm installed via `pacman` package manager
+Oh, dear... You need to check `.devcontainer/Dockerfile` file and check what i'm installed via package manager
 with versions from `docker-compose.dev.yml`. Also you need to check other tools installed in container (for example via
 go install).
 
 Sorry, i won't describe how to do that, because there is few deps, and they can be changed in anytime. I'm lazy update
 readme, but Dockerfile must be always up-to-date.
 
+Write command to run needed services
+```bash
+docker compose -f docker-compose.dev.yml up -d postgres redis tts
+```
+Notice, we omited `tsuwari` here, because it needed only for vscode.
 ### Next steps
 
 Well, now we are almost ready for developing project, just few steps.
@@ -51,25 +56,25 @@ pnpm dev
 
 And when everything starts open https://localhost:3005
 
-Swagger available at http://localhost:3005/api/swagger or http://localhost:3002/swagger
+#### Migrations
 
-#### Adding new entities, models (migrations)
-
-Migrations done via `typeorm`. So at first you always need to change `nodejs` entities, generate migrations, then
-describe `go` models
-
-##### Write `nodejs` models
-
-If you not familar with nodejs, you can check existed entities.
-
-1. Describe entity into `libs/typeorm/src/entities` folder. Also there is some example how i'm doing that
-2. Add entity classname to `libs/typeorm/src/index.ts` into `entities` array. Thats how `typeorm` working in ESM mode
-3. For generate migrations go to the typeorm folder `cd libs/typeorm` and
-   run `pnpm migration:generate -n NameForMigration`
-
+Migrations done via [goose](https://github.com/pressly/goose).
+1. Navigate to folder
+	```bash
+	cd libs/migrations/migrations
+	```
+2. Use command for create new migration
+	```bash
+	goose create new_migration_name sql
+	```
+3. Run new created migrations (optional)
+	```bash
+	cd libs/migrations
+	go run main.go
+	```
 ##### Write `go` models
 
-If you not familar with the go, you can check existed models.
+If you not familiar with the go, you can check existed models.
 
 1. Go to `libs/gomodels`
 2. Create new file and describe the go schema
@@ -77,9 +82,4 @@ If you not familar with the go, you can check existed models.
 
 ##### How to run migrations
 
-Migration runned automatically when you execute `task dev`, or you can run them manually via
-
-```bash
-cd libs/typeorm
-pnpm run deploy
-```
+Migration ran automatically when you execute `pnpm dev`, or you can run them manually via
