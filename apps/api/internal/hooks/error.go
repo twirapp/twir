@@ -2,15 +2,22 @@ package hooks
 
 import (
 	"context"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
+	"log/slog"
 )
 
-func NewLoggingServerHooks(logger *zap.Logger) *twirp.ServerHooks {
+func NewLoggingServerHooks(logger logger.Logger) *twirp.ServerHooks {
 	return &twirp.ServerHooks{
 		Error: func(ctx context.Context, twerr twirp.Error) context.Context {
 			method, _ := twirp.MethodName(ctx)
-			logger.Sugar().Errorw("Error in method", zap.String("method", method), zap.Error(twerr))
+			logger.Error(
+				"Error in method",
+				slog.String("method", method), slog.Any(
+					"err",
+					twerr,
+				),
+			)
 			return ctx
 		},
 	}

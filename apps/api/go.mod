@@ -7,6 +7,7 @@ replace (
 	github.com/satont/twir/libs/crypto => ../../libs/crypto
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
@@ -33,12 +34,13 @@ require (
 	github.com/satont/twir/libs/gomodels v0.0.0-20230617211209-79e3285c6910
 	github.com/satont/twir/libs/grpc v0.0.0-20230617211209-79e3285c6910
 	github.com/satont/twir/libs/integrations/spotify v0.0.0-20230713153539-b2fe2b3b5757
+	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-20230617211209-79e3285c6910
 	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.20.0
-	go.uber.org/zap v1.25.0
 	golang.org/x/sync v0.3.0
 	gorm.io/driver/postgres v1.5.2
 	gorm.io/gorm v1.25.3
@@ -64,10 +66,10 @@ require (
 	github.com/quic-go/qtls-go1-20 v0.3.2 // indirect
 	github.com/quic-go/quic-go v0.37.4 // indirect
 	github.com/refraction-networking/utls v1.4.3 // indirect
-	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	go.uber.org/dig v1.17.0 // indirect
+	go.uber.org/zap v1.25.0 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb // indirect
 	golang.org/x/mod v0.12.0 // indirect

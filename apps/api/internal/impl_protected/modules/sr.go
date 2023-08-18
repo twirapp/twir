@@ -3,6 +3,7 @@ package modules
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"strings"
 	"sync"
 
@@ -13,7 +14,6 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_sr"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -129,7 +129,10 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 
 			res, err := search.Next()
 			if err != nil {
-				zap.S().Error(err)
+				c.Logger.Error(
+					"cannot find",
+					slog.String("query", query),
+				)
 				return
 			}
 
@@ -137,7 +140,8 @@ func (c *Modules) ModulesSRSearchVideosOrChannels(
 			defer mu.Unlock()
 			if request.Type == modules_sr.GetSearchRequest_CHANNEL {
 				channels := lo.Map(
-					res.Channels, func(item *ytsearch.ChannelItem, _ int) *modules_sr.GetSearchResponse_Result {
+					res.Channels,
+					func(item *ytsearch.ChannelItem, _ int) *modules_sr.GetSearchResponse_Result {
 						thumb := getThumbNailUrl(item.Thumbnails[len(item.Thumbnails)-1].URL)
 						return &modules_sr.GetSearchResponse_Result{
 							Id:        item.ID,

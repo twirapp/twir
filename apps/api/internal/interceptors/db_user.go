@@ -2,10 +2,10 @@ package interceptors
 
 import (
 	"context"
+	"log/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
 )
 
 func (s *Service) getUserByApiKey(apiKey string) (*model.Users, error) {
@@ -50,7 +50,7 @@ func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 
 		dbUser, err := s.getUserByApiKey(castedApiKey)
 		if err != nil {
-			zap.S().Error(err)
+			s.logger.Error("get user by api key", slog.Any("err", err))
 			return nil, twirp.Internal.Error("internal error")
 		}
 		if dbUser == nil {

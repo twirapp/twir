@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"github.com/satont/twir/libs/logger"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -26,34 +28,29 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
-	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
-	logger, _ := zap.NewDevelopment()
-	zap.ReplaceGlobals(logger)
-
 	fx.New(
-		fx.WithLogger(
-			func() fxevent.Logger {
-				l, _ := zap.NewDevelopment()
-				return &fxevent.ZapLogger{Logger: l}
-			},
-		),
+		fx.NopLogger,
 		fx.Provide(
-			func() *zap.Logger {
-				return logger
-			},
 			func() *cfg.Config {
 				config, err := cfg.New()
 				if err != nil {
 					panic(err)
 				}
 				return config
+			},
+			func(config *cfg.Config) logger.Logger {
+				return logger.New(
+					logger.Opts{
+						Env:     config.AppEnv,
+						Service: "api",
+					},
+				)
 			},
 			func(c *cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(c.AppEnv)
@@ -79,10 +76,10 @@ func main() {
 			func(c *cfg.Config) timers.TimersClient {
 				return clients.NewTimers(c.AppEnv)
 			},
-			func(config *cfg.Config, lc fx.Lifecycle) *redis.Client {
+			func(config *cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
 				if err != nil {
-					logger.Sugar().Panic(err)
+					return nil, err
 				}
 				client := redis.NewClient(redisOpts)
 				lc.Append(
@@ -93,19 +90,19 @@ func main() {
 					},
 				)
 
-				return client
+				return client, nil
 			},
 			func(r *redis.Client) *scs.SessionManager {
 				return sessions.New(r)
 			},
-			func(config *cfg.Config, lc fx.Lifecycle) *gorm.DB {
+			func(config *cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
 				db, err := gorm.Open(
 					postgres.Open(config.DatabaseUrl), &gorm.Config{
 						Logger: gormLogger.Default.LogMode(gormLogger.Silent),
 					},
 				)
 				if err != nil {
-					logger.Sugar().Panic("failed to connect database", err)
+					return nil, err
 				}
 				d, _ := db.DB()
 				d.SetMaxOpenConns(5)
@@ -119,7 +116,7 @@ func main() {
 					},
 				)
 
-				return db
+				return db, nil
 			},
 			interceptors.New,
 			impl_protected.New,
@@ -141,9 +138,12 @@ func main() {
 		),
 		fx.NopLogger,
 		fx.Invoke(
-			func(mux *http.ServeMux, sessionManager *scs.SessionManager) {
-				logger.Sugar().Info("Api started")
-				logger.Sugar().Panic(http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux)))
+			func(mux *http.ServeMux, sessionManager *scs.SessionManager, l logger.Logger) {
+				l.Info("Started")
+				l.Error(
+					"Crashed",
+					slog.Any("err", http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux))),
+				)
 			},
 		),
 	).Run()

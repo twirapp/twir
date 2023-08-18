@@ -3,11 +3,11 @@ package interceptors
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	json "github.com/bytedance/sonic"
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
 )
 
 type CacheOpts struct {
@@ -62,7 +62,7 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				castedData := option.CastTo()
 				unmarshalErr := json.Unmarshal(cached, castedData)
 				if unmarshalErr != nil {
-					zap.S().Error(unmarshalErr)
+					s.logger.Error("cannot unmarshal", slog.Any("err", unmarshalErr))
 					return nil, unmarshalErr
 				}
 
@@ -74,11 +74,11 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 			if err == nil {
 				bytes, marshallErr := json.Marshal(result)
 				if marshallErr != nil {
-					zap.S().Error(marshallErr)
+					s.logger.Error("cannot unmarshall", slog.Any("err", err))
 				} else {
 					redisSetErr := s.redis.Set(ctx, cacheKey, bytes, option.CacheDuration).Err()
 					if redisSetErr != nil {
-						zap.S().Error(redisSetErr)
+						s.logger.Error("cannot set redis cache", slog.Any("err", err))
 					}
 				}
 			}

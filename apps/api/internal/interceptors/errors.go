@@ -2,11 +2,11 @@ package interceptors
 
 import (
 	"context"
+	"log/slog"
 
 	"gorm.io/gorm"
 
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
 )
 
 func (s *Service) Errors(next twirp.Method) twirp.Method {
@@ -14,7 +14,7 @@ func (s *Service) Errors(next twirp.Method) twirp.Method {
 		resp, err := next(ctx, req)
 
 		if err != nil && err != gorm.ErrRecordNotFound {
-			zap.S().Error(err)
+			s.logger.Error("unexpected error", slog.Any("err", err))
 		}
 		return resp, err
 	}

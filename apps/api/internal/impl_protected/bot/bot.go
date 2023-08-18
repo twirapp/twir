@@ -12,9 +12,9 @@ import (
 	botsGrtpc "github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twitchtv/twirp"
-	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log/slog"
 )
 
 type Bot struct {
@@ -98,16 +98,22 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 	}
 
 	go func() {
-		err := c.Db.Model(&model.Channels{}).Where("id = ?", dbUser.ID).Update(`"isBotMod"`, result.IsMod).Error
+		err := c.Db.Model(&model.Channels{}).Where("id = ?", dbUser.ID).Update(
+			`"isBotMod"`,
+			result.IsMod,
+		).Error
 		if err != nil {
-			zap.S().Error(err)
+			c.Logger.Error("cannot update channel", slog.String("channelId", dbUser.ID))
 		}
 	}()
 
 	return result, nil
 }
 
-func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (*emptypb.Empty, error) {
+func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest) (
+	*emptypb.Empty,
+	error,
+) {
 	dashboardId, ok := ctx.Value("dashboardId").(string)
 	if !ok || dashboardId == "" {
 		return nil, twirp.Internal.Error("no dashboardId provided")

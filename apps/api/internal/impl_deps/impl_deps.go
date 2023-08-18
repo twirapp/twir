@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
@@ -30,4 +31,5 @@ type Deps struct {
 	Db             *gorm.DB
 	Grpc           *Grpc
 	SessionManager *scs.SessionManager
+	Logger         logger.Logger
 }

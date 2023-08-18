@@ -17,6 +17,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -44,6 +45,8 @@ type Opts struct {
 	ParserGrpc       parser.ParserClient
 	SchedulerGrpc    scheduler.SchedulerClient
 	TimersGrpc       timers.TimersClient
+
+	Logger logger.Logger
 }
 
 func New(opts Opts) *UnProtected {
@@ -60,6 +63,7 @@ func New(opts Opts) *UnProtected {
 			Scheduler:    opts.SchedulerGrpc,
 			Timers:       opts.TimersGrpc,
 		},
+		Logger: opts.Logger,
 	}
 
 	return &UnProtected{

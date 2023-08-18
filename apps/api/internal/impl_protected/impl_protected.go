@@ -29,6 +29,7 @@ import (
 	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -68,6 +69,7 @@ type Opts struct {
 	WebsocketsGrpc   websockets.WebsocketClient
 	SchedulerGrpc    scheduler.SchedulerClient
 	TimersGrpc       timersGrpc.TimersClient
+	Logger           logger.Logger
 }
 
 func New(opts Opts) *Protected {
@@ -85,6 +87,7 @@ func New(opts Opts) *Protected {
 			Scheduler:    opts.SchedulerGrpc,
 			Timers:       opts.TimersGrpc,
 		},
+		Logger: opts.Logger,
 	}
 
 	return &Protected{

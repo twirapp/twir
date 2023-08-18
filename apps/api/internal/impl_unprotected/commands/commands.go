@@ -2,7 +2,7 @@ package commands
 
 import (
 	"context"
-	"go.uber.org/zap"
+	"log/slog"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -40,7 +40,7 @@ func (c *Commands) GetChannelCommands(
 						Find(&roles).Error
 
 					if err != nil {
-						zap.S().Error(err)
+						c.Logger.Error("cannot get roles", slog.Any("err", err))
 					}
 				}
 

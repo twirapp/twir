@@ -3,7 +3,8 @@ package webhooks
 import (
 	"encoding/json"
 	"github.com/google/uuid"
-	"go.uber.org/zap"
+	"github.com/satont/twir/libs/logger"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -21,12 +22,14 @@ type DonatelloOpts struct {
 	Redis      *redis.Client
 	Db         *gorm.DB
 	EventsGrpc events.EventsClient
+	Logger     logger.Logger
 }
 
 type Donatello struct {
 	redis      *redis.Client
 	db         *gorm.DB
 	eventsGrpc events.EventsClient
+	l          logger.Logger
 }
 
 func NewDonatello(opts DonatelloOpts) handlers.IHandler {
@@ -34,6 +37,7 @@ func NewDonatello(opts DonatelloOpts) handlers.IHandler {
 		redis:      opts.Redis,
 		db:         opts.Db,
 		eventsGrpc: opts.EventsGrpc,
+		l:          opts.Logger,
 	}
 }
 
@@ -98,7 +102,7 @@ func (c *Donatello) Handler() http.Handler {
 					CreatedAt: time.Now(),
 				},
 			).Error; err != nil {
-				zap.S().Error(err)
+				c.l.Error("cannot create event", slog.Any("err", err))
 			}
 
 			_, err := c.eventsGrpc.Donate(

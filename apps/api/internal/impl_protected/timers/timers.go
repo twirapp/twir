@@ -3,16 +3,15 @@ package timers
 import (
 	"context"
 	"fmt"
-	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
-	"go.uber.org/zap"
-
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/timers"
+	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
+	"log/slog"
 )
 
 type Timers struct {
@@ -96,7 +95,8 @@ func (c *Timers) TimersUpdate(
 			}
 
 			entity.Responses = lo.Map(
-				request.Timer.Responses, func(r *timers.CreateData_Response, _ int) *model.ChannelsTimersResponses {
+				request.Timer.Responses,
+				func(r *timers.CreateData_Response, _ int) *model.ChannelsTimersResponses {
 					return &model.ChannelsTimersResponses{
 						ID:         uuid.New().String(),
 						Text:       r.Text,
@@ -144,7 +144,7 @@ func (c *Timers) TimersDelete(
 			TimerId: request.Id,
 		},
 	); err != nil {
-		zap.S().Error(err)
+		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
 	}
 
 	return &emptypb.Empty{}, nil

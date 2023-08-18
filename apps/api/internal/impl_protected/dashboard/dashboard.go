@@ -9,8 +9,8 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/dashboard"
 	"github.com/satont/twir/libs/twitch"
-	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log/slog"
 	"sync"
 )
 
@@ -25,7 +25,10 @@ func (c *Dashboard) GetDashboardStats(
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	var stream model.ChannelsStreams
-	if err := c.Db.WithContext(ctx).Where(`"userId" = ?`, dashboardId).Find(&stream).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Where(
+		`"userId" = ?`,
+		dashboardId,
+	).Find(&stream).Error; err != nil {
 		return nil, fmt.Errorf("failed to get stream: %w", err)
 	}
 
@@ -52,9 +55,17 @@ func (c *Dashboard) GetDashboardStats(
 			},
 		)
 		if err != nil {
-			zap.S().Error(err)
+			c.Logger.Error(
+				"cannot get followers",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", err),
+			)
 		} else if followsReq.ErrorMessage != "" {
-			zap.S().Error(followsReq.ErrorMessage)
+			c.Logger.Error(
+				"cannot get followers",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", followsReq.ErrorMessage),
+			)
 		} else {
 			followersCount = uint32(followsReq.Data.Total)
 		}
@@ -68,9 +79,17 @@ func (c *Dashboard) GetDashboardStats(
 			},
 		)
 		if err != nil {
-			zap.S().Error(err)
+			c.Logger.Error(
+				"cannot get channel information",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", err),
+			)
 		} else if infoReq.ErrorMessage != "" {
-			zap.S().Error(infoReq.ErrorMessage)
+			c.Logger.Error(
+				"cannot get channel information",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", infoReq.ErrorMessage),
+			)
 		} else if len(infoReq.Data.Channels) > 0 {
 			channelCategoryId = infoReq.Data.Channels[0].GameID
 			channelTitle = infoReq.Data.Channels[0].Title
@@ -86,9 +105,17 @@ func (c *Dashboard) GetDashboardStats(
 			},
 		)
 		if err != nil {
-			zap.S().Error(err)
+			c.Logger.Error(
+				"cannot get subscriptions",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", err),
+			)
 		} else if subsReq.ErrorMessage != "" {
-			zap.S().Error(subsReq.ErrorMessage)
+			c.Logger.Error(
+				"cannot get subscriptions",
+				slog.String("channelId", dashboardId),
+				slog.Any("err", subsReq.ErrorMessage),
+			)
 		} else {
 			subs = uint32(subsReq.Data.Total)
 		}
