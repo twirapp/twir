@@ -1,17 +1,20 @@
-package messages
+package handlers
 
 import (
 	model "github.com/satont/twir/libs/gomodels"
-	"go.uber.org/zap"
+	"log/slog"
 
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
-func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
+func (c *Handlers) incrementUserMessages(userId, channelId string) {
 	stream := model.ChannelsStreams{}
-	if err := db.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
-		zap.S().Error(err)
+	if err := c.db.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
+		c.logger.Error(
+			"cannot get channel stream",
+			slog.Any("err", err),
+			slog.String("channelId", channelId),
+		)
 		return
 	}
 
@@ -20,12 +23,17 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 	}
 
 	user := model.Users{}
-	err := db.
+	err := c.db.
 		Where(`"id" = ?`, userId).
 		Preload("Stats", `"userId" = ? AND "channelId" = ?`, userId, channelId).
 		Find(&user).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot find user",
+			slog.Any("err", err),
+			slog.String("channelId", channelId),
+			slog.String("userId", userId),
+		)
 		return
 	}
 
@@ -37,25 +45,40 @@ func IncrementUserMessages(db *gorm.DB, userId, channelId string) {
 		user.IsTester = false
 		user.Stats = createStats(userId, channelId)
 
-		if err := db.Create(&user).Error; err != nil {
-			zap.S().Error(err)
+		if err := c.db.Create(&user).Error; err != nil {
+			c.logger.Error(
+				"cannot create user",
+				slog.Any("err", err),
+				slog.String("channelId", channelId),
+				slog.String("channelId", userId),
+			)
 			return
 		}
 	} else {
 		if user.Stats == nil {
 			newStats := createStats(userId, channelId)
-			err := db.Create(newStats).Error
+			err := c.db.Create(newStats).Error
 			if err != nil {
-				zap.S().Error(err, newStats)
+				c.logger.Error(
+					"cannot create user stats",
+					slog.Any("err", err),
+					slog.String("channelId", channelId),
+					slog.String("channelId", userId),
+				)
 			}
 		} else {
-			err := db.
+			err := c.db.
 				Model(&user.Stats).
 				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).
 				Update("messages", user.Stats.Messages+1).
 				Error
 			if err != nil {
-				zap.S().Error(err)
+				c.logger.Error(
+					"cannot update user",
+					slog.Any("err", err),
+					slog.String("channelId", channelId),
+					slog.String("channelId", userId),
+				)
 			}
 		}
 	}

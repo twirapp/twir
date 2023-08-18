@@ -1,17 +1,14 @@
-package messages
+package handlers
 
 import (
-	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
-
-	"gorm.io/gorm"
 )
 
-func StoreMessage(
-	db *gorm.DB,
+func (c *Handlers) storeMessage(
 	messageId, channelId, userId, userName, text string,
 	canBeDeleted bool,
 ) {
@@ -25,8 +22,12 @@ func StoreMessage(
 		CreatedAt:    time.Now().UTC(),
 	}
 
-	err := db.Create(&entity).Error
+	err := c.db.Create(&entity).Error
 	if err != nil {
-		fmt.Println(err)
+		c.logger.Error(
+			"cannot save user message to db",
+			slog.String("channelId", channelId),
+			slog.Group("user", slog.String("id", userId), slog.String("name", userName)),
+		)
 	}
 }

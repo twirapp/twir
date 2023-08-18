@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"regexp"
 	"strings"
 	"sync"
@@ -19,10 +20,14 @@ func (c *Handlers) handleKeywords(
 	msg *Message,
 	userBadges []string,
 ) {
-	keywords := []model.ChannelsKeywords{}
+	var keywords []model.ChannelsKeywords
 	err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID, true).Find(&keywords).Error
 	if err != nil {
-		fmt.Println(err)
+		c.logger.Error(
+			"cannot get keywords",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 		return
 	}
 
@@ -94,11 +99,15 @@ func (c *Handlers) handleKeywords(
 
 				res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
 				if err != nil {
-					fmt.Println(err)
+					c.logger.Error(
+						"cannot parse keyword response",
+						slog.Any("err", err),
+						slog.String("channelId", msg.Channel.ID),
+					)
 					return
 				}
 
-				c.eventsGrpc.KeywordMatched(
+				_, err = c.eventsGrpc.KeywordMatched(
 					context.Background(), &events.KeywordMatchedMessage{
 						BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 						KeywordId:       k.ID,
@@ -109,13 +118,21 @@ func (c *Handlers) handleKeywords(
 						UserDisplayName: msg.User.DisplayName,
 					},
 				)
+				if err != nil {
+					c.logger.Error(
+						"cannot send keywords matched event",
+						slog.Any("err", err),
+						slog.String("channelId", msg.Channel.ID),
+						slog.String("userId", msg.User.ID),
+					)
+				}
 
 				for _, r := range res.Responses {
-					validateResposeErr := ValidateResponseSlashes(r)
-					if validateResposeErr != nil {
+					validateResponseErr := ValidateResponseSlashes(r)
+					if validateResponseErr != nil {
 						c.BotClient.SayWithRateLimiting(
 							msg.Channel.Name,
-							validateResposeErr.Error(),
+							validateResponseErr.Error(),
 							nil,
 						)
 					} else {
@@ -133,7 +150,14 @@ func (c *Handlers) handleKeywords(
 			}
 
 			query["usages"] = k.Usages + timesInMessage
-			c.db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(query)
+			err = c.db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(query).Error
+			if err != nil {
+				c.logger.Error(
+					"cannot update keyword usages",
+					slog.Any("err", err),
+					slog.String("channelId", msg.Channel.ID),
+				)
+			}
 		}(k)
 	}
 

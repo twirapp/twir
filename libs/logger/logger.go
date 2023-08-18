@@ -1,8 +1,12 @@
 package logger
 
 import (
+	"context"
+	"fmt"
 	"log/slog"
 	"os"
+	"runtime"
+	"time"
 )
 
 type Logger interface {
@@ -59,13 +63,22 @@ func New(opts Opts) Logger {
 }
 
 func (c *logger) Info(input string, fields ...any) {
-	c.log.Info(input, fields...)
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:])
+	r := slog.NewRecord(time.Now(), slog.LevelInfo, fmt.Sprintf(input, fields...), pcs[0])
+	_ = c.log.Handler().Handle(context.Background(), r)
 }
 
 func (c *logger) Error(input string, fields ...any) {
-	c.log.Error(input, fields...)
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:])
+	r := slog.NewRecord(time.Now(), slog.LevelError, fmt.Sprintf(input, fields...), pcs[0])
+	_ = c.log.Handler().Handle(context.Background(), r)
 }
 
 func (c *logger) Debug(input string, fields ...any) {
-	c.log.Debug(input, fields...)
+	var pcs [1]uintptr
+	runtime.Callers(2, pcs[:])
+	r := slog.NewRecord(time.Now(), slog.LevelDebug, fmt.Sprintf(input, fields...), pcs[0])
+	_ = c.log.Handler().Handle(context.Background(), r)
 }

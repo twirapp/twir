@@ -6,15 +6,12 @@ import (
 )
 
 func ValidateResponseSlashes(response string) error {
-	if !strings.HasPrefix(response, "/") || strings.HasPrefix(response, "/me") || strings.HasPrefix(
-		response,
-		"/announce",
-	) {
+	if !strings.HasPrefix(response, "/") || strings.HasPrefix(response, "/me") {
 		return nil
 	} else if strings.HasPrefix(response, "/") {
-		return errors.New("Slash commands except /me and /announce is disallowed. This response wont be ever sended.")
+		return errors.New("slash commands except /me and is disallowed. This response won't be ever sent")
 	} else if strings.HasPrefix(response, ".") {
-		return errors.New(`Message cannot start from "." symbol.`)
+		return errors.New(`message cannot start from "." symbol`)
 	} else {
 		return nil
 	}

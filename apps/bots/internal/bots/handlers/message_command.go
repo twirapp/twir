@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
@@ -45,6 +46,7 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 
 	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
+		c.logger.Error("cannot process command", slog.Any("err", err))
 		return
 	}
 
@@ -62,16 +64,16 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 		}
 	} else {
 		for _, r := range res.Responses {
-			validateResposeErr := ValidateResponseSlashes(r)
+			validateResponseErr := ValidateResponseSlashes(r)
 
 			if r == "" || r == " " {
 				continue
 			}
 
-			if validateResposeErr != nil {
+			if validateResponseErr != nil {
 				c.BotClient.SayWithRateLimiting(
 					msg.Channel.Name,
-					validateResposeErr.Error(),
+					validateResponseErr.Error(),
 					nil,
 				)
 			} else {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -16,7 +17,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 		viewers := message.MsgParams["msg-param-viewerCount"]
 		intViewers, _ := strconv.Atoi(viewers)
 
-		c.db.Create(
+		if err := c.db.Create(
 			&model.ChannelsEventsListItem{
 				ID:        uuid.New().String(),
 				ChannelID: message.RoomID,
@@ -29,8 +30,14 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 					RaidedFromUserName:    message.MsgParams["msg-param-login"],
 				},
 			},
-		)
-		c.eventsGrpc.Raided(
+		).Error; err != nil {
+			c.logger.Error(
+				"cannot create raid entity",
+				slog.String("channelId", message.RoomID),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
+		if _, err := c.eventsGrpc.Raided(
 			context.Background(), &events.RaidedMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
 				UserName:        message.MsgParams["msg-param-login"],
@@ -38,13 +45,19 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 				Viewers:         int64(intViewers),
 				UserId:          message.MsgParams["user-id"],
 			},
-		)
+		); err != nil {
+			c.logger.Error(
+				"cannot fire raid event",
+				slog.String("channelId", message.RoomID),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
 	}
 
 	if message.Tags["msg-id"] == "sub" {
 		level := getSubPlan(message.MsgParams["msg-param-sub-plan"])
 
-		c.db.Create(
+		if err := c.db.Create(
 			&model.ChannelsEventsListItem{
 				ID:        uuid.New().String(),
 				ChannelID: message.RoomID,
@@ -56,8 +69,14 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 					SubLevel:           level,
 				},
 			},
-		)
-		c.eventsGrpc.Subscribe(
+		).Error; err != nil {
+			c.logger.Error(
+				"cannot create sub entity",
+				slog.String("channelId", message.RoomID),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
+		if _, err := c.eventsGrpc.Subscribe(
 			context.Background(), &events.SubscribeMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
 				UserName:        message.Tags["login"],
@@ -65,7 +84,13 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 				Level:           level,
 				UserId:          message.MsgParams["user-id"],
 			},
-		)
+		); err != nil {
+			c.logger.Error(
+				"cannot fire sub event",
+				slog.String("channelId", message.RoomID),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
 	}
 
 	if message.Tags["msg-id"] == "resub" {
@@ -73,7 +98,7 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 		months, _ := strconv.Atoi(message.MsgParams["msg-param-streak-months"])
 		streak, _ := strconv.Atoi(message.MsgParams["msg-param-cumulative-months"])
 
-		c.db.Create(
+		if err := c.db.Create(
 			&model.ChannelsEventsListItem{
 				ID:        uuid.New().String(),
 				ChannelID: message.RoomID,
@@ -87,8 +112,14 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 					ReSubMonths:          message.MsgParams["msg-param-cumulative-months"],
 				},
 			},
-		)
-		c.eventsGrpc.ReSubscribe(
+		).Error; err != nil {
+			c.logger.Error(
+				"cannot create resub entity",
+				slog.String("channelId", message.RoomID),
+				slog.String("userLogin", message.Tags["login"]),
+			)
+		}
+		if _, err := c.eventsGrpc.ReSubscribe(
 			context.Background(), &events.ReSubscribeMessage{
 				BaseInfo:        &events.BaseInfo{ChannelId: message.RoomID},
 				UserName:        message.Tags["login"],
@@ -100,13 +131,20 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 				Level:           level,
 				UserId:          message.MsgParams["user-id"],
 			},
-		)
+		); err != nil {
+			c.logger.Error(
+				"cannot fire resub entity",
+				slog.String("channelId", message.RoomID),
+				slog.String("userLogin", message.Tags["login"]),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
 	}
 
 	if message.Tags["msg-id"] == "subgift" {
 		level := getSubPlan(message.MsgParams["msg-param-sub-plan"])
 
-		c.db.Create(
+		if err := c.db.Create(
 			&model.ChannelsEventsListItem{
 				ID:        uuid.New().String(),
 				ChannelID: message.RoomID,
@@ -120,7 +158,13 @@ func (c *Handlers) OnNotice(message irc.UserNoticeMessage) {
 					SubGiftTargetUserDisplayName: message.MsgParams["msg-param-recipient-display-name"],
 				},
 			},
-		)
+		).Error; err != nil {
+			c.logger.Error(
+				"cannot create subgift entity",
+				slog.String("channelId", message.RoomID),
+				slog.String("userId", message.MsgParams["user-id"]),
+			)
+		}
 		c.eventsGrpc.SubGift(
 			context.Background(), &events.SubGiftMessage{
 				BaseInfo:          &events.BaseInfo{ChannelId: message.RoomID},

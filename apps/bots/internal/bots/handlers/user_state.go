@@ -7,7 +7,7 @@ import (
 	"github.com/satont/twir/apps/bots/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"go.uber.org/zap"
+	"log/slog"
 )
 
 func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
@@ -25,7 +25,7 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 
 	twitchReq, err := twitchClient.GetUsers(&helix.UsersParams{Logins: []string{msg.Channel}})
 	if len(twitchReq.Data.Users) == 0 {
-		zap.S().Error("user not found on twitch", zap.String("userName", msg.Channel))
+		c.logger.Error("user not found on twitch", slog.String("userName", msg.Channel))
 		return
 	}
 
@@ -43,7 +43,15 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 			`"isBotMod"`,
 			isMod,
 		).Error; err != nil {
-			zap.S().Error(err)
+			c.logger.Error(
+				"cannot update isMod",
+				slog.Any("err", err),
+				slog.Group(
+					"channel",
+					slog.String("id", twitchReq.Data.Users[0].ID),
+					slog.String("login", twitchReq.Data.Users[0].Login),
+				),
+			)
 		}
 	}()
 }

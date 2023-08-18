@@ -3,13 +3,13 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
@@ -21,7 +21,14 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		Where(`"userLogin" = ?`, message.Channel).
 		Find(stream).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot get channel stream",
+			slog.Any("err", err),
+			slog.String(
+				"login",
+				message.Channel,
+			),
+		)
 		return
 	}
 
@@ -35,7 +42,14 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		Where("login = ?", message.User).
 		Find(ignoredUser).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot get ignored user",
+			slog.Any("err", err),
+			slog.String(
+				"login",
+				message.User,
+			),
+		)
 		return
 	}
 
@@ -47,7 +61,11 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 
 	res, err := c.redis.Get(ctx, redisKey).Result()
 	if err != nil && err != redis.Nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot first join",
+			slog.Any("err", err),
+			slog.String("login", message.User),
+		)
 		return
 	}
 
@@ -63,9 +81,13 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 			UserName: message.User,
 		},
 	)
-
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot fire first join to events",
+			slog.Any("err", err),
+			slog.String("login", message.User),
+			slog.String("channelId", stream.UserId),
+		)
 	}
 
 	_, err = c.redis.Set(
@@ -76,6 +98,11 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 	).Result()
 
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(
+			"cannot set first join to redis",
+			slog.Any("err", err),
+			slog.String("login", message.User),
+			slog.String("channelId", stream.UserId),
+		)
 	}
 }

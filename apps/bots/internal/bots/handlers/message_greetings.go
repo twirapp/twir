@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -10,7 +9,6 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/parser"
-	"gorm.io/gorm"
 )
 
 func (c *Handlers) handleGreetings(
@@ -20,7 +18,7 @@ func (c *Handlers) handleGreetings(
 	stream := &model.ChannelsStreams{}
 	err := c.db.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error
 	if err != nil {
-		fmt.Println(err)
+		c.logger.Error("cannot get stream", slog.Any("err", err))
 		return
 	}
 
@@ -37,14 +35,19 @@ func (c *Handlers) handleGreetings(
 			false,
 			true,
 		).
-		First(&entity).
+		Find(&entity).
 		Error
-
-	if err != nil && err == gorm.ErrRecordNotFound {
+	if err != nil {
+		c.logger.Error(
+			"cannot get greeting",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+			slog.String("userId", msg.User.ID),
+		)
 		return
 	}
-	if err != nil {
-		fmt.Println(err)
+
+	if entity.ID == "" {
 		return
 	}
 
@@ -75,11 +78,11 @@ func (c *Handlers) handleGreetings(
 	}
 
 	for _, r := range res.Responses {
-		validateResposeErr := ValidateResponseSlashes(r)
-		if validateResposeErr != nil {
+		validateResponseErr := ValidateResponseSlashes(r)
+		if validateResponseErr != nil {
 			c.BotClient.SayWithRateLimiting(
 				msg.Channel.Name,
-				validateResposeErr.Error(),
+				validateResponseErr.Error(),
 				nil,
 			)
 		} else {
@@ -91,13 +94,15 @@ func (c *Handlers) handleGreetings(
 		}
 	}
 
-	c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
+	if err = c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
 		map[string]any{
 			"processed": true,
 		},
-	)
+	).Error; err != nil {
+		c.logger.Error("cannot update greeting", slog.Any("err", err))
+	}
 
-	c.eventsGrpc.GreetingSended(
+	_, err = c.eventsGrpc.GreetingSended(
 		context.Background(), &events.GreetingSendedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 			UserId:          msg.User.ID,
@@ -106,4 +111,5 @@ func (c *Handlers) handleGreetings(
 			GreetingText:    entity.Text,
 		},
 	)
+	c.logger.Error("cannot send greetings event", slog.Any("err", err))
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -22,6 +23,11 @@ func (c *Handlers) handleEmotes(msg *Message) {
 		fmt.Sprintf("emotes:channel:%s:*", msg.Channel.ID),
 	).Result()
 	if err != nil {
+		c.logger.Error(
+			"cannot get emotes",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 		return
 	}
 
@@ -57,7 +63,11 @@ func (c *Handlers) handleEmotes(msg *Message) {
 	).Error
 
 	if err != nil {
-		fmt.Println(err)
+		c.logger.Error(
+			"cannot create emotes",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 	}
 }
 

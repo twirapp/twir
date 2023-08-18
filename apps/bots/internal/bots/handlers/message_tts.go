@@ -3,7 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"go.uber.org/zap"
+	"log/slog"
 	"strings"
 
 	"github.com/gempir/go-twitch-irc/v3"
@@ -26,7 +26,11 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 
 	err := query.Find(&settings).Error
 	if err != nil {
-		c.logger.Error("cannot find tts settings", zap.Any("err", err))
+		c.logger.Error(
+			"cannot find tts settings",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 		return
 	}
 
@@ -37,7 +41,11 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 	data := modules.TTSSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
-		c.logger.Error("cannot unmarshall tts settings", zap.Any("err", err))
+		c.logger.Error(
+			"cannot unmarshall tts settings",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 		return
 	}
 
@@ -53,7 +61,11 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 		Find(&ttsCommand).
 		Error
 	if err != nil {
-		c.logger.Error("cannot find tts command", zap.Any("err", err))
+		c.logger.Error(
+			"cannot find tts command",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
 		return
 	}
 
@@ -74,6 +86,8 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 
 	msgText.WriteString(" " + msg.Message)
 
+	text := msgText.String()
+
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
@@ -87,7 +101,7 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 		},
 		Message: &parser.Message{
 			Id:   msg.ID,
-			Text: msgText.String(),
+			Text: text,
 			Emotes: lo.Map(
 				msg.Emotes, func(item *twitch.Emote, _ int) *parser.Message_Emote {
 					return &parser.Message_Emote{
@@ -110,6 +124,10 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 
 	_, err = c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Error("cannot process tts", zap.Any("err", err))
+		c.logger.Error(
+			"cannot process tts", slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+			slog.String("message", text),
+		)
 	}
 }
