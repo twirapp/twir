@@ -2,7 +2,7 @@
 import { IconVariable } from '@tabler/icons-vue';
 import { NText, NInput, NInputGroup, NButton, NPopselect } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
-import { computed, VNodeChild, h, FunctionalComponent } from 'vue';
+import { computed, VNodeChild, h, FunctionalComponent, ref } from 'vue';
 
 import { useAllVariables } from '@/api/index.js';
 
@@ -22,6 +22,8 @@ defineSlots<{
 }>();
 
 const allVariables = useAllVariables();
+const search = ref('');
+
 const selectVariables = computed<SelectMixedOption[]>(() => {
 	const variables = allVariables.data?.value;
 	if (!variables) return [];
@@ -38,7 +40,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})),
+			})).filter(v => v.value.includes(search.value)),
 		},
 		{
 			type: 'group',
@@ -48,10 +50,11 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})),
+			})).filter(v => v.value.includes(search.value)),
 		},
 	];
 });
+
 function renderVariableSelectLabel(option: {
 	type: string,
 	label: string,
@@ -117,6 +120,9 @@ function appendOptionToText(option: SelectMixedOption) {
 			<n-button style="height:auto">
 				<IconVariable />
 			</n-button>
+			<template #action>
+				<n-input v-model:value="search" placeholder="Search..." size="small" />
+			</template>
 		</n-popselect>
 	</n-input-group>
 </template>
