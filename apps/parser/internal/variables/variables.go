@@ -62,6 +62,8 @@ func New(opts *Opts) *Variables {
 			faceit.ScoreWins,
 			faceit.TrendExtended,
 			faceit.TrendSimple,
+			faceit.Gain,
+			faceit.Lose,
 			keywords.Counter,
 			random.Number,
 			random.OnlineUser,
@@ -108,7 +110,11 @@ func New(opts *Opts) *Variables {
 	return variables
 }
 
-func (c *Variables) ParseVariablesInText(ctx context.Context, parseCtx *types.ParseContext, input string) string {
+func (c *Variables) ParseVariablesInText(
+	ctx context.Context,
+	parseCtx *types.ParseContext,
+	input string,
+) string {
 	wg := &sync.WaitGroup{}
 	mu := &sync.Mutex{}
 

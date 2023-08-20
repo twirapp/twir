@@ -18,9 +18,16 @@ type FaceitMatch struct {
 	RawIsWin string `json:"i10"`
 }
 
+type FaceitEstimateGainLose struct {
+	Gain int
+	Lose int
+}
+
 type FaceitResult struct {
-	FaceitUser *FaceitUser
-	Matches    []*FaceitMatch `json:"matches"`
+	FaceitUser   *FaceitUser
+	Matches      []*FaceitMatch `json:"matches"`
+	EstimateGain int
+	EstimateLose int
 }
 
 type FaceitGame struct {

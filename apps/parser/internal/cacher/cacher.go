@@ -2,13 +2,6 @@ package cacher
 
 import (
 	"context"
-	"errors"
-	"fmt"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
-
 	"github.com/imroc/req/v3"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -17,6 +10,8 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"strings"
+	"sync"
 )
 
 type locks struct {
@@ -174,186 +169,6 @@ func (c *cacher) GetEnabledChannelIntegrations(ctx context.Context) []*model.Cha
 	}
 
 	return c.cache.channelIntegrations
-}
-
-type faceitMatchesResponse []*types.FaceitMatch
-
-// GetFaceitLatestMatches implements types.VariablesCacher
-func (c *cacher) GetFaceitLatestMatches(ctx context.Context) ([]*types.FaceitMatch, error) {
-	c.locks.faceitMatches.Lock()
-	defer c.locks.faceitMatches.Unlock()
-
-	if c.cache.faceitData == nil || c.cache.faceitData.FaceitUser == nil {
-		faceitUser, err := c.GetFaceitUserData(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		c.cache.faceitData.FaceitUser = faceitUser
-	}
-
-	if c.cache.faceitData.Matches != nil {
-		return c.cache.faceitData.Matches, nil
-	}
-
-	reqResult := faceitMatchesResponse{}
-
-	_, err := req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetSuccessResult(&reqResult).
-		Get(
-			fmt.Sprintf(
-				"https://api.faceit.com/stats/api/v1/stats/time/users/%s/games/%s?size=30",
-				c.cache.faceitData.FaceitUser.PlayerId,
-				c.cache.faceitData.FaceitUser.FaceitGame.Name,
-			),
-		)
-
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return nil, err
-	}
-
-	var matches []*types.FaceitMatch
-	stream := c.GetChannelStream(ctx)
-	if stream == nil {
-		return matches, nil
-	}
-	startedDate := stream.StartedAt.UnixMilli()
-
-	for i, match := range reqResult {
-		matchCreatedAt := time.UnixMilli(match.UpdateAt).UnixMilli()
-
-		if matchCreatedAt < startedDate {
-			continue
-		}
-
-		if i+1 > len(reqResult)-1 {
-			break
-		}
-
-		val := false
-		if match.RawIsWin == "1" {
-			val = true
-		}
-		match.IsWin = val
-
-		if i+1 >= len(reqResult)-1 {
-			break
-		}
-
-		prevMatch := reqResult[i+1]
-		if prevMatch == nil || prevMatch.Elo == nil || match.Elo == nil {
-			continue
-		}
-
-		prevElo, pErr := strconv.Atoi(*prevMatch.Elo)
-		currElo, cErr := strconv.Atoi(*match.Elo)
-
-		if pErr != nil || cErr != nil {
-			continue
-		}
-
-		var eloDiff int
-		if *prevMatch.Elo > *match.Elo {
-			eloDiff = -(prevElo - currElo)
-		} else {
-			eloDiff = currElo - prevElo
-		}
-
-		newMatchEloDiff := strconv.Itoa(eloDiff)
-		match.EloDiff = &newMatchEloDiff
-		matches = append(matches, match)
-	}
-
-	c.cache.faceitData.Matches = matches
-
-	return matches, nil
-}
-
-// GetFaceitTodayEloDiff implements types.VariablesCacher
-func (c *cacher) GetFaceitTodayEloDiff(ctx context.Context, matches []*types.FaceitMatch) int {
-	if matches == nil {
-		return 0
-	}
-
-	sum := lo.Reduce(
-		matches, func(agg int, item *types.FaceitMatch, _ int) int {
-			if item.EloDiff == nil {
-				return agg
-			}
-			v, err := strconv.Atoi(*item.EloDiff)
-			if err != nil {
-				return agg
-			}
-			return agg + v
-		}, 0,
-	)
-
-	return sum
-}
-
-// GetFaceitUserData implements types.VariablesCacher
-func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, error) {
-	c.locks.faceitUserData.Lock()
-	defer c.locks.faceitUserData.Unlock()
-
-	if c.cache.faceitData != nil && c.cache.faceitData.FaceitUser != nil {
-		return c.cache.faceitData.FaceitUser, nil
-	}
-
-	c.cache.faceitData = &types.FaceitResult{}
-
-	integrations := c.GetEnabledChannelIntegrations(ctx)
-
-	if integrations == nil {
-		return nil, errors.New("no enabled integrations")
-	}
-
-	integration, ok := lo.Find(
-		integrations, func(i *model.ChannelsIntegrations) bool {
-			return i.Integration.Service == "FACEIT" && i.Enabled
-		},
-	)
-
-	if !ok {
-		return nil, errors.New("faceit integration not enabled")
-	}
-
-	var game string = *integration.Data.Game
-
-	if integration.Data.Game == nil {
-		game = "csgo"
-	}
-
-	data := &types.FaceitUserResponse{}
-	resp, err := req.C().EnableForceHTTP1().R().
-		SetContext(ctx).
-		SetBearerAuthToken(integration.Integration.APIKey.String).
-		SetSuccessResult(data).
-		Get("https://open.faceit.com/data/v4/players/" + *integration.Data.UserId)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode == 404 {
-		return nil, errors.New(
-			"user not found on faceit. Please make sure you typed correct nickname",
-		)
-	}
-
-	if data.Games[game] == nil {
-		return nil, errors.New(game + " game not found in faceit response.")
-	}
-
-	data.Games[game].Name = game
-
-	c.cache.faceitData.FaceitUser = &types.FaceitUser{
-		FaceitGame: *data.Games[game],
-		PlayerId:   data.PlayerId,
-	}
-
-	return c.cache.faceitData.FaceitUser, nil
 }
 
 // GetFollowAge implements types.VariablesCacher
