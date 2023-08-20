@@ -16,7 +16,6 @@ volumes:
 services:
   prometheus:
     image: prom/prometheus:v2.40.1
-    container_name: prometheus
     volumes:
       - ./dockprom/prometheus:/etc/prometheus
       - tsuwari-prometheus-data:/prometheus
@@ -42,7 +41,6 @@ services:
 
   alertmanager:
     image: prom/alertmanager:v0.24.0
-    container_name: alertmanager
     volumes:
       - ./dockprom/alertmanager:/etc/alertmanager
     command:
@@ -63,7 +61,6 @@ services:
 
   nodeexporter:
     image: prom/node-exporter:v1.4.0
-    container_name: nodeexporter
     volumes:
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
@@ -83,7 +80,6 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.46.0
-    container_name: cadvisor
     privileged: true
     devices:
       - /dev/kmsg:/dev/kmsg
@@ -107,7 +103,6 @@ services:
 
   grafana:
     image: grafana/grafana:9.2.4
-    container_name: grafana
     volumes:
       - tsuwari-grafana-data:/var/lib/grafana
       - ./dockprom/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
