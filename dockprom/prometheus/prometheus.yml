@@ -34,18 +34,18 @@ scrape_configs:
     static_configs:
       - targets: ['pushgateway:9091']
 
-  - job_name: 'tsuwari-parser'
+  - job_name: 'twir-parser'
     dns_sd_configs:
       - names:
-          - 'tasks.tsuwari_parser'
+          - 'tasks.twir_parser'
         type: 'A'
         port: 3000
     metrics_path: '/metrics'
 
-  - job_name: 'tsuwari-bots'
+  - job_name: 'twir-bots'
     dns_sd_configs:
       - names:
-          - 'tasks.tsuwari_bots'
+          - 'tasks.twir_bots'
         type: 'A'
         port: 3000
     metrics_path: '/metrics'
@@ -56,12 +56,3 @@ alerting:
       static_configs:
         - targets:
             - 'alertmanager:9093'
-#  - job_name: 'nginx'
-#    scrape_interval: 10s
-#    static_configs:
-#      - targets: ['nginxexporter:9113']
-
-#  - job_name: 'aspnetcore'
-#    scrape_interval: 10s
-#    static_configs:
-#      - targets: ['eventlog-proxy:5000', 'eventlog:5000']

@@ -28,14 +28,17 @@ services:
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
     restart: unless-stopped
-    expose:
-      - 9090
     networks:
       - monitor-net
       - tsuwari
       - traefik-public
     labels:
       org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.twir-prometheus.rule: Host(`prometheus.twir.app`)
+      traefik.http.routers.twir-prometheus.middlewares: admin-auth
+      traefik.http.services.twir-prometheus.loadbalancer.server.port: 9090
+      traefik.docker.network: traefik-public
 
   alertmanager:
     image: prom/alertmanager:v0.24.0
@@ -46,14 +49,17 @@ services:
       - '--config.file=/etc/alertmanager/config.yml'
       - '--storage.path=/alertmanager'
     restart: unless-stopped
-    expose:
-      - 9093
     networks:
       - monitor-net
       - tsuwari
       - traefik-public
     labels:
       org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.twir-alertmanager.rule: Host(`alertmanager.twir.app`)
+      traefik.http.routers.twir-alertmanager.middlewares: admin-auth
+      traefik.http.services.twir-alertmanager.loadbalancer.server.port: 9093
+      traefik.docker.network: traefik-public
 
   nodeexporter:
     image: prom/node-exporter:v1.4.0
@@ -68,8 +74,6 @@ services:
       - '--path.sysfs=/host/sys'
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     restart: unless-stopped
-    expose:
-      - 9100
     networks:
       - monitor-net
       - tsuwari
@@ -88,16 +92,18 @@ services:
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker:/var/lib/docker:ro
-      #- /cgroup:/cgroup:ro #doesn't work on MacOS only for Linux
     restart: unless-stopped
-    expose:
-      - 8080
     networks:
       - monitor-net
       - tsuwari
       - traefik-public
     labels:
       org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.twir-cadvisor.rule: Host(`cadvisor.twir.app`)
+      traefik.http.routers.twir-cadvisor.middlewares: admin-auth
+      traefik.http.services.twir-cadvisor.loadbalancer.server.port: 8080
+      traefik.docker.network: traefik-public
 
   grafana:
     image: grafana/grafana:9.2.4
@@ -106,10 +112,6 @@ services:
       - tsuwari-grafana-data:/var/lib/grafana
       - ./dockprom/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
       - ./dockprom/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-    environment:
-      - GF_SECURITY_ADMIN_USER=${ADMIN_USER:-admin}
-      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
-      - GF_USERS_ALLOW_SIGN_UP=false
     restart: unless-stopped
     expose:
       - 3000
@@ -119,36 +121,8 @@ services:
       - traefik-public
     labels:
       org.label-schema.group: "monitoring"
-
-  pushgateway:
-    image: prom/pushgateway:v1.4.3
-    container_name: pushgateway
-    restart: unless-stopped
-    expose:
-      - 9091
-    networks:
-      - monitor-net
-      - tsuwari
-      - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
-
-  caddy:
-    image: caddy:2.6.2
-    container_name: caddy
-    ports:
-      - "35648:3000"
-      - "21394:9090"
-    volumes:
-      - ./dockprom/caddy:/etc/caddy
-    environment:
-      - ADMIN_USER=${ADMIN_USER}
-      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
-      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}
-    restart: unless-stopped
-    networks:
-      - monitor-net
-      - tsuwari
-      - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
+      traefik.enable: true
+      traefik.http.routers.twir-grafana.rule: Host(`grafana.twir.app`)
+      traefik.http.routers.twir-grafana.middlewares: admin-auth
+      traefik.http.services.twir-grafana.loadbalancer.server.port: 3000
+      traefik.docker.network: traefik-public

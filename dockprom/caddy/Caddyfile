@@ -1,11 +1,11 @@
 :3000 {
-    reverse_proxy grafana:3000  
+    reverse_proxy grafana:3000
 }
 
 :8080 {
     basicauth /* {
         {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
-    }    
+    }
     reverse_proxy cadvisor:8080
 }
 
@@ -23,9 +23,3 @@
     reverse_proxy alertmanager:9093
 }
 
-:9091 {
-    basicauth /* {
-        {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
-    }    
-    reverse_proxy pushgateway:9091
-}
