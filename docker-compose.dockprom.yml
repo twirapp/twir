@@ -1,4 +1,4 @@
-version: '2.1'
+version: '3.9'
 
 networks:
   monitor-net:
@@ -31,13 +31,17 @@ services:
       - monitor-net
       - tsuwari
       - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
-      traefik.enable: true
-      traefik.http.routers.twir-prometheus.rule: Host(`prometheus.twir.app`)
-      traefik.http.routers.twir-prometheus.middlewares: admin-auth
-      traefik.http.services.twir-prometheus.loadbalancer.server.port: 9090
-      traefik.docker.network: traefik-public
+    deploy:
+      labels:
+        org.label-schema.group: "monitoring"
+        traefik.enable: true
+        traefik.http.routers.twir-prometheus.rule: Host(`prometheus.twir.app`)
+        traefik.http.routers.twir-prometheus.middlewares: admin-auth
+        traefik.http.services.twir-prometheus.loadbalancer.server.port: 9090
+        traefik.docker.network: traefik-public
+      placement:
+        constraints:
+          - node.role == manager
 
   alertmanager:
     image: prom/alertmanager:v0.24.0
@@ -51,13 +55,17 @@ services:
       - monitor-net
       - tsuwari
       - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
-      traefik.enable: true
-      traefik.http.routers.twir-alertmanager.rule: Host(`alertmanager.twir.app`)
-      traefik.http.routers.twir-alertmanager.middlewares: admin-auth
-      traefik.http.services.twir-alertmanager.loadbalancer.server.port: 9093
-      traefik.docker.network: traefik-public
+    deploy:
+      labels:
+        org.label-schema.group: "monitoring"
+        traefik.enable: true
+        traefik.http.routers.twir-alertmanager.rule: Host(`alertmanager.twir.app`)
+        traefik.http.routers.twir-alertmanager.middlewares: admin-auth
+        traefik.http.services.twir-alertmanager.loadbalancer.server.port: 9093
+        traefik.docker.network: traefik-public
+      placement:
+        constraints:
+          - node.role == manager
 
   nodeexporter:
     image: prom/node-exporter:v1.4.0
@@ -75,8 +83,9 @@ services:
       - monitor-net
       - tsuwari
       - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
+    deploy:
+      labels:
+        org.label-schema.group: "monitoring"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.46.0
@@ -93,13 +102,17 @@ services:
       - monitor-net
       - tsuwari
       - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
-      traefik.enable: true
-      traefik.http.routers.twir-cadvisor.rule: Host(`cadvisor.twir.app`)
-      traefik.http.routers.twir-cadvisor.middlewares: admin-auth
-      traefik.http.services.twir-cadvisor.loadbalancer.server.port: 8080
-      traefik.docker.network: traefik-public
+    deploy:
+      labels:
+        org.label-schema.group: "monitoring"
+        traefik.enable: true
+        traefik.http.routers.twir-cadvisor.rule: Host(`cadvisor.twir.app`)
+        traefik.http.routers.twir-cadvisor.middlewares: admin-auth
+        traefik.http.services.twir-cadvisor.loadbalancer.server.port: 8080
+        traefik.docker.network: traefik-public
+      placement:
+        constraints:
+          - node.role == manager
 
   grafana:
     image: grafana/grafana:9.2.4
@@ -114,10 +127,14 @@ services:
       - monitor-net
       - tsuwari
       - traefik-public
-    labels:
-      org.label-schema.group: "monitoring"
-      traefik.enable: true
-      traefik.http.routers.twir-grafana.rule: Host(`grafana.twir.app`)
-      traefik.http.routers.twir-grafana.middlewares: admin-auth
-      traefik.http.services.twir-grafana.loadbalancer.server.port: 3000
-      traefik.docker.network: traefik-public
+    deploy:
+      labels:
+        org.label-schema.group: "monitoring"
+        traefik.enable: true
+        traefik.http.routers.twir-grafana.rule: Host(`grafana.twir.app`)
+        traefik.http.routers.twir-grafana.middlewares: admin-auth
+        traefik.http.services.twir-grafana.loadbalancer.server.port: 3000
+        traefik.docker.network: traefik-public
+      placement:
+        constraints:
+          - node.role == manager
