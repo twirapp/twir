@@ -38,6 +38,7 @@ func NewFiles(opts Opts) handlers.IHandler {
 		&minio.Options{
 			Creds:  credentials.NewStaticV4(opts.Config.S3AccessToken, opts.Config.S3SecretToken, ""),
 			Region: opts.Config.S3Region,
+			Secure: opts.Config.AppEnv == "production",
 		},
 	)
 	if err != nil {
