@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"log"
 	"net"
 	"net/http"
@@ -88,6 +89,9 @@ func main() {
 	youTubeNameSpace := youtube.NewYouTube(services)
 	http.HandleFunc("/youtube", youTubeNameSpace.HandleRequest)
 
+	alertsNameSpace := alerts.NewAlerts(services)
+	http.HandleFunc("/alerts", alertsNameSpace.HandleRequest)
+
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.WEBSOCKET_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -101,6 +105,7 @@ func main() {
 					TTS:     ttsNamespace,
 					OBS:     obsNamespace,
 					YouTube: youTubeNameSpace,
+					Alerts:  alertsNameSpace,
 				},
 			},
 		),

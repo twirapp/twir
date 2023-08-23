@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
 	IconActivity,
+	IconBell,
 	IconBox,
 	IconCalendarEvent,
 	IconClipboardCopy,
@@ -20,17 +21,18 @@ import {
 } from '@tabler/icons-vue';
 import { useMagicKeys } from '@vueuse/core';
 import {
-	type MenuOption,
 	type MenuDividerOption,
-	NMenu,
-	NCard,
-	NSpin,
-	NSpace,
+	type MenuOption,
 	NAvatar,
-	NText,
+	NCard,
+	NMenu,
 	NScrollbar,
+	NSpace,
+	NSpin,
+	NText,
+NBadge,
 } from 'naive-ui';
-import { h, ref, onMounted, computed, watch } from 'vue';
+import { computed, h, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
 
 import DashboardMenu from './dashboardsMenu.vue';
@@ -56,6 +58,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	const canViewVariabls = useUserAccessFlagChecker('VIEW_VARIABLES');
 	const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
 	const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
+	const canViewAlerts = useUserAccessFlagChecker('VIEW_ALERTS');
 
 	return [
 		{
@@ -68,6 +71,13 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
 			disabled: !canViewIntegrations.value,
+		},
+		{
+			label: 'Alerts',
+			icon: renderIcon(IconBell),
+			path: '/dashboard/alerts',
+			disabled: !canViewAlerts.value,
+			isNew: true,
 		},
 		{
 			label: 'Events',
@@ -168,7 +178,10 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 					path: item.path,
 				},
 			},
-			{ default: () => item.label },
+			{ default: () => item.isNew
+				? h(NBadge, { type: 'info', value: 'new', processing: true, offset: [17, 5] }, { default: () => item.label })
+				: item.label,
+			},
 		),
 		children: item.children?.map((child) => ({
 			...child,
@@ -197,9 +210,9 @@ const { Ctrl_k } = useMagicKeys({
 	passive: false,
 	onEventFired(e) {
 		if (e.ctrlKey && e.key === 'k' && e.type === 'keydown') {
-      e.preventDefault();
+			e.preventDefault();
 		}
-  },
+	},
 });
 
 watch(Ctrl_k, (v) => {
@@ -222,7 +235,9 @@ const selectedDashboard = computed(() => {
 </script>
 
 <template>
-	<div style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)">
+	<div
+		style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)"
+	>
 		<n-scrollbar trigger="none">
 			<n-menu
 				v-if="!isDashboardsMenu"
@@ -238,7 +253,10 @@ const selectedDashboard = computed(() => {
 			<n-card style="cursor: pointer;" size="small" @click="isDashboardsMenu = !isDashboardsMenu">
 				<n-spin v-if="!selectedDashboard || isProfileLoading" />
 				<n-space v-else align="center">
-					<n-avatar style="display: flex; align-self: center;" :src="selectedDashboard.profileImageUrl" />
+					<n-avatar
+						style="display: flex; align-self: center;"
+						:src="selectedDashboard.profileImageUrl"
+					/>
 					<n-space v-if="!isCollapsed" vertical style="gap: 0; width: 100%">
 						<n-text>{{ selectedDashboard.displayName }}</n-text>
 						<n-text style="font-size: 12px;">

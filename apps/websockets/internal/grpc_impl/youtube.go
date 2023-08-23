@@ -7,12 +7,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (c *grpcImpl) YoutubeAddSongToQueue(
+func (c *GrpcImpl) YoutubeAddSongToQueue(
 	ctx context.Context, msg *websockets.YoutubeAddSongToQueueRequest,
 ) (*emptypb.Empty, error) {
 	return c.sockets.YouTube.AddSongToQueue(ctx, msg)
 }
-func (c *grpcImpl) YoutubeRemoveSongToQueue(
+func (c *GrpcImpl) YoutubeRemoveSongToQueue(
 	ctx context.Context, msg *websockets.YoutubeRemoveSongFromQueueRequest,
 ) (*emptypb.Empty, error) {
 	return c.sockets.YouTube.RemoveSongFromQueue(ctx, msg)

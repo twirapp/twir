@@ -63,16 +63,21 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 				}
 			},
 		).Else(nil),
+		AlertId: cmd.AlertID.Ptr(),
 	}
 }
 
-func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*commands.CommandsGetAllResponse, error) {
+func (c *Commands) CommandsGetAll(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*commands.CommandsGetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	var cmds []model.ChannelsCommands
 	err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("name desc").
 		Preload("Responses").
 		Preload("Group").
 		Group(`"id"`).
@@ -90,7 +95,10 @@ func (c *Commands) CommandsGetAll(ctx context.Context, _ *emptypb.Empty) (*comma
 	}, nil
 }
 
-func (c *Commands) CommandsGetById(ctx context.Context, request *commands.GetByIdRequest) (*commands.Command, error) {
+func (c *Commands) CommandsGetById(
+	ctx context.Context,
+	request *commands.GetByIdRequest,
+) (*commands.Command, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
@@ -109,7 +117,10 @@ func (c *Commands) CommandsGetById(ctx context.Context, request *commands.GetByI
 	return c.convertDbToRpc(cmd), nil
 }
 
-func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateRequest) (*commands.Command, error) {
+func (c *Commands) CommandsCreate(
+	ctx context.Context,
+	request *commands.CreateRequest,
+) (*commands.Command, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	command := &model.ChannelsCommands{
 		ID:           uuid.New().String(),
@@ -144,6 +155,7 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 		RequiredUsedChannelPoints: int(request.RequiredUsedChannelPoints),
 		Responses:                 make([]*model.ChannelsCommandsResponses, 0, len(request.Responses)),
 		GroupID:                   null.StringFromPtr(request.GroupId),
+		AlertID:                   null.StringFromPtr(request.AlertId),
 	}
 
 	for _, res := range request.Responses {
@@ -168,7 +180,10 @@ func (c *Commands) CommandsCreate(ctx context.Context, request *commands.CreateR
 	return c.convertDbToRpc(command), nil
 }
 
-func (c *Commands) CommandsDelete(ctx context.Context, request *commands.DeleteRequest) (*emptypb.Empty, error) {
+func (c *Commands) CommandsDelete(
+	ctx context.Context,
+	request *commands.DeleteRequest,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	err := c.Db.
 		WithContext(ctx).
@@ -181,7 +196,10 @@ func (c *Commands) CommandsDelete(ctx context.Context, request *commands.DeleteR
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequest) (*commands.Command, error) {
+func (c *Commands) CommandsUpdate(
+	ctx context.Context,
+	request *commands.PutRequest,
+) (*commands.Command, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	cmd := &model.ChannelsCommands{}
 	err := c.Db.
@@ -234,6 +252,7 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 	cmd.RequiredUsedChannelPoints = int(request.Command.RequiredUsedChannelPoints)
 	cmd.GroupID = null.StringFromPtr(request.Command.GroupId)
 	cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(request.Command.Responses))
+	cmd.AlertID = null.StringFromPtr(request.Command.AlertId)
 
 	for _, res := range request.Command.Responses {
 		if res.Text == "" {
@@ -251,7 +270,11 @@ func (c *Commands) CommandsUpdate(ctx context.Context, request *commands.PutRequ
 
 	txErr := c.Db.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
-			if err = tx.Delete(&model.ChannelsCommandsResponses{}, `"commandId" = ?`, cmd.ID).Error; err != nil {
+			if err = tx.Delete(
+				&model.ChannelsCommandsResponses{},
+				`"commandId" = ?`,
+				cmd.ID,
+			).Error; err != nil {
 				return err
 			}
 

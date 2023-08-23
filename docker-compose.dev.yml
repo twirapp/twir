@@ -14,10 +14,10 @@ services:
     volumes:
       - .:/workspace:cached
     ports:
-        - "3005:3005"
+      - "3005:3005"
     depends_on:
-        - postgres
-        - redis
+      - postgres
+      - redis
     networks:
       - tsuwari-dev
     links:
@@ -68,9 +68,23 @@ services:
     networks:
       - tsuwari-dev
 
+  minio:
+    image: quay.io/minio/minio
+    command: server /data --console-address ":9090"
+    restart: "always"
+    ports:
+      - "8000:9000"
+      - "8090:9090"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio-password
+    volumes:
+      - minio-data:/data
+
 volumes:
   redis-data:
   postgres-data:
+  minio-data:
 
 networks:
   tsuwari-dev:

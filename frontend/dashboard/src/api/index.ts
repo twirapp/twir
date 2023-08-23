@@ -9,3 +9,4 @@ export * from './youtubeSearch.js';
 export * from './modules/index.js';
 export * from './overlays/index.js';
 export * from './dashboard.js';
+export * from './files.js';

@@ -9,7 +9,8 @@
 		"settings": "Settings",
 		"login": "Login",
 		"logout": "Logout",
-		"edit": "Edit"
+		"edit": "Edit",
+		"select": "Select"
 	},
 	"sharedTexts": {
 		"saved": "Saved",
@@ -109,6 +110,9 @@
 					"divider": "Other",
 					"commandGroup": "Group of command"
 				}
+			},
+			"alert": {
+				"label": "Select alert, which will be triggered on command usage"
 			}
 		}
 	},
@@ -125,7 +129,7 @@
 		"notLoggedIn": "Not logged in"
 	},
 	"events": {
-		"delay": "Delay",
+		"delay": "Delay (seconds)",
 		"repeat": "Repeat times",
 		"onlineOnly": "Execute only when stream is online",
 		"type": "Type",
@@ -147,7 +151,8 @@
 				"source": "OBS Source",
 				"audioSource": "OBS Audio source"
 			},
-			"values": "Values"
+			"values": "Values",
+			"triggerAlert": "Trigger alert"
 		},
 		"variables": {
 			"userName": "Name of the user who triggered the event",
@@ -323,6 +328,14 @@
 		"validations": {
 			"userName": "User is required",
 			"textRequired": "Response is required"
+		}
+	},
+	"alerts": {
+		"title": "Alerts",
+		"info": "You can create alert, and then assign it to command/event. Do not forget insert alerts overlay into OBS.",
+		"name": "Name",
+		"validations": {
+			"name": "Name cannot be empty and bigger then 30 symbols"
 		}
 	}
 }

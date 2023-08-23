@@ -98,6 +98,9 @@ export const PERMISSIONS_FLAGS = {
 
 	VIEW_EVENTS: 'Can view events',
 	MANAGE_EVENTS: 'Can manage events',
+
+	VIEW_ALERTS: 'Can view alerts',
+	MANAGE_ALERTS: 'Can manage alerts',
 };
 
 export type PermissionsType = keyof typeof PERMISSIONS_FLAGS

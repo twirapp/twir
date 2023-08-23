@@ -7,12 +7,13 @@ import { useI18n } from 'vue-i18n';
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	description: string;
 	title: string;
 	overlayLink?: string;
 	icon: FunctionalComponent;
-}>();
+	showSettings: boolean
+}>(), { showSettings: true });
 
 defineEmits<{
 	openSettings: [];
@@ -40,7 +41,7 @@ const { data: profile } = useProfile();
 		</template>
 
 		<template #footer>
-			<n-button :disabled="!userCanEditOverlays" secondary size="large" @click="$emit('openSettings')">
+			<n-button v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large" @click="$emit('openSettings')">
 				<span>{{ t('sharedButtons.settings') }}</span>
 				<IconSettings />
 			</n-button>

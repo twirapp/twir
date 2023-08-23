@@ -20,15 +20,18 @@ import {
 	NAvatar,
 	NButton,
 	useThemeVars,
+	NModal,
 } from 'naive-ui';
 import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
+
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
 
 import {
+useAlertsManager,
 	useCommandsManager,
 	useEventsManager,
 	useKeywordsManager,
@@ -37,6 +40,7 @@ import {
 	useTwitchRewards,
 	useVariablesManager,
 } from '@/api/index.js';
+import AlertModal from '@/components/alerts/list.vue';
 
 const themeVars = useThemeVars();
 const selectedTabBackground = computed(() => themeVars.value.cardColor);
@@ -259,6 +263,11 @@ async function save() {
 
 	emits('saved');
 }
+
+const manager = useAlertsManager();
+const { data: alerts } = manager.getAll({});
+
+const showAlertModal = ref(false);
 </script>
 
 <template>
@@ -405,7 +414,7 @@ async function save() {
 						</n-grid-item>
 						<n-grid-item :span="1">
 							<n-form-item :label="t('events.delay')">
-								<n-input-number v-model:value="currentOperation.delay" :min="0" :max="10" />
+								<n-input-number v-model:value="currentOperation.delay" :min="0" :max="1800" />
 							</n-form-item>
 						</n-grid-item>
 						<n-grid-item :span="1">
@@ -506,6 +515,27 @@ async function save() {
 						</n-grid-item>
 
 						<n-grid-item
+							v-if="currentOperation.type === 'TRIGGER_ALERT'"
+							:span="2"
+						>
+							<n-form-item :label="t('events.operations.triggerAlert')">
+								<div style="display: flex; gap: 10px; width: 90%">
+									<n-button block type="info" @click="showAlertModal = true">
+										{{ alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select') }}
+									</n-button>
+									<n-button
+										:disabled="!currentOperation!.target"
+										text
+										type="error"
+										@click="currentOperation!.target = undefined"
+									>
+										<IconTrash />
+									</n-button>
+								</div>
+							</n-form-item>
+						</n-grid-item>
+
+						<n-grid-item
 							v-if="currentOperation.type.endsWith('VARIABLE')"
 							:span="2"
 						>
@@ -527,4 +557,32 @@ async function save() {
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
+
+	<n-modal
+		v-model:show="showAlertModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		title="Select alert"
+		class="modal"
+		:style="{
+			width: '1000px',
+			top: '50px',
+		}"
+		:on-close="() => showAlertModal = false"
+	>
+		<alert-modal
+			:with-select="true"
+			@select="(id) => {
+				if (!currentOperation) return;
+				currentOperation.target = id
+				showAlertModal = false
+			}"
+			@delete="(id) => {
+				if (currentOperation && id === currentOperation.target) {
+					currentOperation.target = undefined
+				}
+			}"
+		/>
+	</n-modal>
 </template>

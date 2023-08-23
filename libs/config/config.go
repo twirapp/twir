@@ -24,6 +24,11 @@ type Config struct {
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl      string `required:"false" default:"localhost:7000" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
+	S3Host             string `required:"false" envconfig:"S3_HOST"`
+	S3Bucket           string `required:"false" envconfig:"S3_BUCKET"`
+	S3Region           string `required:"false" envconfig:"S3_REGION"`
+	S3AccessToken      string `required:"false" envconfig:"S3_ACCESS_TOKEN"`
+	S3SecretToken      string `required:"false" envconfig:"S3_SECRET_TOKEN"`
 }
 
 func New() (*Config, error) {

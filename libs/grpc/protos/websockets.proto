@@ -4,95 +4,102 @@ package websockets;
 option go_package = "tsuwari/grpc/websockets";
 
 service Websocket {
-  rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
-  rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
+	rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
+	rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
 
-  rpc ObsCheckIsUserConnected(ObsCheckUserConnectedRequest) returns (ObsCheckUserConnectedResponse) {}
-  rpc ObsSetScene(ObsSetSceneMessage) returns (google.protobuf.Empty) {}
-  rpc ObsToggleSource(ObsToggleSourceMessage) returns (google.protobuf.Empty) {}
-  rpc ObsToggleAudio(ObsToggleAudioMessage) returns (google.protobuf.Empty) {}
-  rpc ObsAudioSetVolume(ObsAudioSetVolumeMessage) returns (google.protobuf.Empty) {}
-  rpc ObsAudioIncreaseVolume(ObsAudioIncreaseVolumeMessage) returns (google.protobuf.Empty) {}
-  rpc ObsAudioDecreaseVolume(ObsAudioDecreaseVolumeMessage) returns (google.protobuf.Empty) {}
-  rpc ObsAudioEnable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
-  rpc ObsAudioDisable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
-  rpc ObsStopStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
-  rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
+	rpc ObsCheckIsUserConnected(ObsCheckUserConnectedRequest) returns (ObsCheckUserConnectedResponse) {}
+	rpc ObsSetScene(ObsSetSceneMessage) returns (google.protobuf.Empty) {}
+	rpc ObsToggleSource(ObsToggleSourceMessage) returns (google.protobuf.Empty) {}
+	rpc ObsToggleAudio(ObsToggleAudioMessage) returns (google.protobuf.Empty) {}
+	rpc ObsAudioSetVolume(ObsAudioSetVolumeMessage) returns (google.protobuf.Empty) {}
+	rpc ObsAudioIncreaseVolume(ObsAudioIncreaseVolumeMessage) returns (google.protobuf.Empty) {}
+	rpc ObsAudioDecreaseVolume(ObsAudioDecreaseVolumeMessage) returns (google.protobuf.Empty) {}
+	rpc ObsAudioEnable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
+	rpc ObsAudioDisable(ObsAudioDisableOrEnableMessage) returns (google.protobuf.Empty) {}
+	rpc ObsStopStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
+	rpc ObsStartStream(ObsStopOrStartStream) returns (google.protobuf.Empty) {}
 
-  rpc TextToSpeechSay(TTSMessage) returns (google.protobuf.Empty) {}
-  rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
+	rpc TextToSpeechSay(TTSMessage) returns (google.protobuf.Empty) {}
+	rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
+
+	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
-  string channelId = 1;
-  string entityId = 2;
+	string channelId = 1;
+	string entityId = 2;
 }
 
 message YoutubeRemoveSongFromQueueRequest {
-  string channelId = 1;
-  string entityId = 2;
+	string channelId = 1;
+	string entityId = 2;
 }
 
 message ObsSetSceneMessage {
-  string channelId = 1;
-  string sceneName = 2;
+	string channelId = 1;
+	string sceneName = 2;
 }
 
 message ObsToggleSourceMessage {
-  string channelId = 1;
-  string sourceName = 2;
+	string channelId = 1;
+	string sourceName = 2;
 }
 
 message ObsToggleAudioMessage {
-  string channelId = 1;
-  string audioSourceName = 2;
+	string channelId = 1;
+	string audioSourceName = 2;
 }
 
 message ObsAudioSetVolumeMessage {
-  string channelId = 1;
-  string audioSourceName = 2;
-  uint32 volume = 3;
+	string channelId = 1;
+	string audioSourceName = 2;
+	uint32 volume = 3;
 }
 
 message ObsAudioIncreaseVolumeMessage {
-  string channelId = 1;
-  string audioSourceName = 2;
-  uint32 step = 3;
+	string channelId = 1;
+	string audioSourceName = 2;
+	uint32 step = 3;
 }
 
 message ObsAudioDecreaseVolumeMessage {
-  string channelId = 1;
-  string audioSourceName = 2;
-  uint32 step = 3;
+	string channelId = 1;
+	string audioSourceName = 2;
+	uint32 step = 3;
 }
 
 message ObsAudioDisableOrEnableMessage {
-  string channelId = 1;
-  string audioSourceName = 2;
+	string channelId = 1;
+	string audioSourceName = 2;
 }
 
 message ObsStopOrStartStream {
-  string channelId = 1;
+	string channelId = 1;
 }
 
 message TTSMessage {
-  string channelId = 1;
-  string text = 2;
-  string voice = 3;
-  string rate = 4;
-  string pitch = 5;
-  string volume = 6;
+	string channelId = 1;
+	string text = 2;
+	string voice = 3;
+	string rate = 4;
+	string pitch = 5;
+	string volume = 6;
 }
 
 message TTSSkipMessage {
-  string channelId = 1;
+	string channelId = 1;
 }
 
 
 message ObsCheckUserConnectedRequest {
-  string user_id = 1;
+	string user_id = 1;
 }
 
 message ObsCheckUserConnectedResponse {
-  bool state = 1;
+	bool state = 1;
+}
+
+message TriggerAlertRequest {
+	string channel_id = 1;
+	string alert_id = 2;
 }

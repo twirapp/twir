@@ -17,6 +17,12 @@ export const OPERATIONS: Record<string, Operation> = {
 		color: 'success',
 	},
 
+	TRIGGER_ALERT: {
+		name: 'Trigger alert',
+		additionalValues: ['target'],
+		color: 'success',
+	},
+
 	BANS: {
 		name: 'Bans, Timeouts',
 		type: 'group',

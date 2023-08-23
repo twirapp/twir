@@ -1,32 +1,34 @@
 <script setup lang='ts'>
 import { IconArrowNarrowDown, IconArrowNarrowUp, IconPlus, IconShieldHalfFilled, IconTrash } from '@tabler/icons-vue';
 import {
-    type FormInst,
-    type FormItemRule,
-    type FormRules,
-    NAlert,
-    NButton,
-    NCard,
-    NDivider,
-    NDynamicInput,
-    NDynamicTags,
-    NForm,
-    NFormItem,
-    NGrid,
-    NGridItem,
-    NInput,
-    NInputGroup,
-    NInputGroupLabel,
-    NInputNumber,
-    NSelect,
-    NSpace,
-    NSwitch,
-    NText,
+	type FormInst,
+	type FormItemRule,
+	type FormRules,
+	NAlert,
+	NButton,
+	NCard,
+	NDivider,
+	NDynamicInput,
+	NDynamicTags,
+	NForm,
+	NFormItem,
+	NGrid,
+	NGridItem,
+	NInput,
+	NInputGroup,
+	NInputGroupLabel,
+	NInputNumber,
+	NSelect,
+	NSpace,
+	NSwitch,
+	NText,
+	NModal,
 } from 'naive-ui';
 import { computed, onMounted, reactive, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
+import { useCommandsGroupsManager, useCommandsManager, useRolesManager, useAlertsManager } from '@/api/index.js';
+import AlertModal from '@/components/alerts/list.vue';
 import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
@@ -62,6 +64,7 @@ const formValue = reactive<EditableCommand>({
   enabled: true,
   groupId: undefined,
   module: 'CUSTOM',
+	alertId: undefined,
 });
 
 onMounted(() => {
@@ -86,6 +89,7 @@ onMounted(() => {
     formValue.enabled = props.command.enabled;
     formValue.groupId = props.command.groupId;
     formValue.module = props.command.module;
+		formValue.alertId = props.command.alertId;
   }
 });
 
@@ -177,6 +181,12 @@ async function save() {
 
   emits('close');
 }
+
+const manager = useAlertsManager();
+const { data: alerts } = manager.getAll({});
+const selectedAlert = computed(() => alerts.value?.alerts.find(a => a.id === formValue.alertId));
+
+const showAlertModal = ref(false);
 </script>
 
 <template>
@@ -454,10 +464,48 @@ async function save() {
 			/>
 		</n-form-item>
 
+		<n-form-item :label="t('commands.modal.alert.label')" path="groupId">
+			<div style="display: flex; gap: 10px; width: 90%">
+				<n-button block type="info" @click="showAlertModal = true">
+					{{ selectedAlert?.name ?? t('sharedButtons.select') }}
+				</n-button>
+				<n-button :disabled="!formValue.alertId" text type="error" @click="formValue.alertId = undefined">
+					<IconTrash />
+				</n-button>
+			</div>
+		</n-form-item>
+
 		<n-button secondary type="success" block @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
+
+	<n-modal
+		v-model:show="showAlertModal"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		title="Select alert"
+		class="modal"
+		:style="{
+			width: '1000px',
+			top: '50px',
+		}"
+		:on-close="() => showAlertModal = false"
+	>
+		<alert-modal
+			:with-select="true"
+			@select="(id) => {
+				formValue.alertId = id
+				showAlertModal = false
+			}"
+			@delete="(id) => {
+				if (id === formValue.alertId) {
+					formValue.alertId = undefined
+				}
+			}"
+		/>
+	</n-modal>
 </template>
 
 <style scoped>

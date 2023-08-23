@@ -186,3 +186,14 @@ export const useRolesManager = () => createCrudManager({
 	getOne: null,
 	invalidateAdditionalQueries: ['commands'],
 });
+
+export const useAlertsManager = () => createCrudManager({
+	queryKey: 'alerts',
+	getAll: protectedApiClient?.alertsGetAll,
+	update: protectedApiClient?.alertsUpdate,
+	create: protectedApiClient?.alertsCreate,
+	patch: null,
+	deleteOne: protectedApiClient?.alertsDelete,
+	getOne: null,
+	invalidateAdditionalQueries: ['alerts'],
+});

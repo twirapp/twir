@@ -81,6 +81,16 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'VIEW_EVENTS' },
 				},
 				{
+					path: '/dashboard/alerts',
+					component: () => import('./pages/Alerts.vue'),
+					meta: { neededPermission: 'VIEW_ALERTS' },
+				},
+				{
+					path: '/dashboard/files',
+					component: () => import('./pages/Files.vue'),
+					// meta: { neededPermission: 'VIEW_EVENTS' },
+				},
+				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('./pages/NoAccess.vue'),

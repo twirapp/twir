@@ -1,7 +1,9 @@
 package grpc_impl
 
 import (
+	"context"
 	"fmt"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"sort"
 	"strconv"
 	"strings"
@@ -103,7 +105,11 @@ func (c *EventsGrpcImplementation) processFilters(
 	return true
 }
 
-func (c *EventsGrpcImplementation) processOperations(channelId string, event model.Event, data internal.Data) {
+func (c *EventsGrpcImplementation) processOperations(
+	channelId string,
+	event model.Event,
+	data internal.Data,
+) {
 	streamerApiClient, err := twitch.NewUserClient(channelId, *c.services.Cfg, c.services.TokensGrpc)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
@@ -165,7 +171,11 @@ operationsLoop:
 			switch operation.Type {
 			case model.OperationSendMessage:
 				if operation.Input.Valid {
-					operationError = processor.SendMessage(channelId, operation.Input.String, operation.UseAnnounce)
+					operationError = processor.SendMessage(
+						channelId,
+						operation.Input.String,
+						operation.UseAnnounce,
+					)
 				}
 			case model.OperationBan, model.OperationUnban:
 				if !operation.Input.Valid {
@@ -264,7 +274,10 @@ operationsLoop:
 					continue
 				}
 
-				operationError = processor.ObsAudioSetVolume(operation.Target.String, operation.Input.String)
+				operationError = processor.ObsAudioSetVolume(
+					operation.Target.String,
+					operation.Input.String,
+				)
 			case model.OperationObsStartStream, model.OperationObsStopStream:
 				operationError = processor.ObsStartOrStopStream(operation.Type)
 			case model.OperationChangeVariable:
@@ -272,7 +285,10 @@ operationsLoop:
 					continue
 				}
 
-				operationError = processor.ChangeVariableValue(operation.Target.String, operation.Input.String)
+				operationError = processor.ChangeVariableValue(
+					operation.Target.String,
+					operation.Input.String,
+				)
 			case model.OperationIncrementVariable, model.OperationDecrementVariable:
 				if !operation.Target.Valid {
 					continue
@@ -321,6 +337,17 @@ operationsLoop:
 					operation.Type,
 					operation.Target.String,
 					operation.Input.String,
+				)
+			case model.OperationTriggerAlert:
+				if !operation.Target.Valid {
+					continue
+				}
+				c.services.WebsocketsGrpc.TriggerAlert(
+					context.TODO(),
+					&websockets.TriggerAlertRequest{
+						ChannelId: channelId,
+						AlertId:   operation.Target.String,
+					},
 				)
 			}
 

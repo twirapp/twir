@@ -68,6 +68,7 @@ const (
 	OperationTTSSwitchAutoRead        EventOperationType = "TTS_SWITCH_AUTOREAD"
 	OperationTTSEnableAutoRead        EventOperationType = "TTS_ENABLE_AUTOREAD"
 	OperationTTSDisableAutoRead       EventOperationType = "TTS_DISABLE_AUTOREAD"
+	OperationTriggerAlert             EventOperationType = "TRIGGER_ALERT"
 )
 
 type EventOperation struct {

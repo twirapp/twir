@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"strings"
 	"time"
 
@@ -98,10 +99,10 @@ func (c *parserGrpcServer) ProcessCommand(
 	if cmd.Cmd.CooldownType == cooldownGlobal && cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
-		rErr := c.services.Redis.Get(context.TODO(), key).Err()
+		rErr := c.services.Redis.Get(ctx, key).Err()
 
 		if rErr == redis.Nil {
-			c.services.Redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else if rErr != nil {
 			c.services.Logger.Sugar().Error(rErr)
 			return &parser.ProcessCommandResponse{}, errors.New("error while setting redis cooldown for command")
@@ -113,10 +114,10 @@ func (c *parserGrpcServer) ProcessCommand(
 	if cmd.Cmd.CooldownType == cooldownPerUser && cmd.Cmd.Cooldown.Int64 > 0 &&
 		c.shouldCheckCooldown(data.Sender.Badges) {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
-		rErr := c.services.Redis.Get(context.TODO(), key).Err()
+		rErr := c.services.Redis.Get(ctx, key).Err()
 
 		if rErr == redis.Nil {
-			c.services.Redis.Set(context.TODO(), key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
 		} else if rErr != nil {
 			zap.S().Error(rErr)
 			return nil, errors.New("error while setting redis cooldown for command")
@@ -137,10 +138,20 @@ func (c *parserGrpcServer) ProcessCommand(
 		return nil, errors.New("have no permissions")
 	}
 
+	if cmd.Cmd.AlertID.Valid {
+		defer c.services.GrpcClients.WebSockets.TriggerAlert(
+			ctx, &websockets.TriggerAlertRequest{
+				ChannelId: cmd.Cmd.ChannelID,
+				AlertId:   cmd.Cmd.AlertID.String,
+			},
+		)
+	}
+
 	result := c.commands.ParseCommandResponses(ctx, cmd, data)
 
 	defer c.services.GrpcClients.Events.CommandUsed(
-		context.Background(), &events.CommandUsedMessage{
+		ctx,
+		&events.CommandUsedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
 			CommandId:       cmd.Cmd.ID,
 			CommandName:     cmd.Cmd.Name,
@@ -203,7 +214,11 @@ func (c *parserGrpcServer) GetDefaultCommands(
 	_ context.Context,
 	_ *emptypb.Empty,
 ) (*parser.GetDefaultCommandsResponse, error) {
-	list := make([]*parser.GetDefaultCommandsResponse_DefaultCommand, 0, len(c.commands.DefaultCommands))
+	list := make(
+		[]*parser.GetDefaultCommandsResponse_DefaultCommand,
+		0,
+		len(c.commands.DefaultCommands),
+	)
 
 	for _, v := range c.commands.DefaultCommands {
 		cmd := &parser.GetDefaultCommandsResponse_DefaultCommand{

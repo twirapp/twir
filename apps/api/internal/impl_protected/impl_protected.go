@@ -4,6 +4,7 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
+	"github.com/satont/twir/apps/api/internal/impl_protected/alerts"
 	"github.com/satont/twir/apps/api/internal/impl_protected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
@@ -12,6 +13,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
 	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
+	"github.com/satont/twir/apps/api/internal/impl_protected/files"
 	"github.com/satont/twir/apps/api/internal/impl_protected/greetings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/keywords"
@@ -52,6 +54,8 @@ type Protected struct {
 	*build_in_variables.BuildInVariables
 	*dashboard.Dashboard
 	*twitch.Twitch
+	*files.Files
+	*alerts.Alerts
 }
 
 type Opts struct {
@@ -108,5 +112,7 @@ func New(opts Opts) *Protected {
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},
+		Files:            files.New(d),
+		Alerts:           &alerts.Alerts{Deps: d},
 	}
 }
