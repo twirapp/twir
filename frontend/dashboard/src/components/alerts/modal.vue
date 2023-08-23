@@ -1,6 +1,17 @@
 <script setup lang="ts">
-import { IconTrash, IconPlayerPlay } from '@tabler/icons-vue';
-import { type FormItemRule, type FormInst, type FormRules, NForm, NSpace, NFormItem, NInput, NButton, NModal, NSlider } from 'naive-ui';
+import { IconPlayerPlay, IconTrash } from '@tabler/icons-vue';
+import {
+	type FormInst,
+	type FormItemRule,
+	type FormRules,
+	NButton,
+	NForm,
+	NFormItem,
+	NInput,
+	NModal,
+	NSlider,
+	NSpace,
+} from 'naive-ui';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -72,9 +83,16 @@ const selectedAudio = computed(() => files.value?.files.find(f => f.id === formV
 const showAudioModal = ref(false);
 
 const { data: profile } = useProfile();
+
 async function testAudio() {
 	if (!selectedAudio.value?.id || !profile.value) return;
-	const req = await fetch(`${window.location.origin}/cdn/twir/channels/${profile.value.selectedDashboardId}/${selectedAudio.value.id}`);
+
+	const query = new URLSearchParams({
+		channel_id: profile.value.selectedDashboardId,
+		file_id: selectedAudio.value.id,
+	});
+
+	const req = await fetch(`${window.location.origin}/api/files/?${query}`);
 	if (!req.ok) {
 		console.error(await req.text());
 		return;
@@ -100,7 +118,10 @@ async function testAudio() {
 					<n-button block type="info" @click="showAudioModal = true">
 						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
 					</n-button>
-					<n-button :disabled="!formValue.audioId" text type="error" @click="formValue.audioId = undefined">
+					<n-button
+						:disabled="!formValue.audioId" text type="error"
+						@click="formValue.audioId = undefined"
+					>
 						<IconTrash />
 					</n-button>
 					<n-button :disabled="!formValue.audioId" text type="info" @click="testAudio">

@@ -303,11 +303,6 @@ services:
         - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
         - traefik.http.services.twir-landing.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
-        
-        - traefik.http.routers.twir-cdn.rule=Host(`twir.app`) && PathPrefix(`/cdn`)
-        - traefik.http.routers.twir-cdn.middlewares=cdn-stripprefix
-        - traefik.http.services.twir-cdn.loadbalancer.servers[0].url=https://storage.yandexcloud.net
-        - traefik.http.middlewares.cdn-stripprefix.stripprefix.prefixes=/cdn
 
   dashboard:
     build:

@@ -62,7 +62,11 @@ export const Alerts: React.FC = () => {
 	}, []);
 
 	const playAudio = async (channelId: string, audioId: string, volume: number) => {
-		const req = await fetch(`${window.location.origin}/cdn/twir/channels/${channelId}/${audioId}`);
+		const query = new URLSearchParams({
+			channel_id: channelId,
+			file_id: audioId,
+		});
+		const req = await fetch(`${window.location.origin}/api/files/?${query}`);
 		if (!req.ok) {
 			console.error(await req.text());
 			return;

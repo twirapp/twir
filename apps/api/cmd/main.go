@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/libs/logger"
 	"log/slog"
 	"net/http"
@@ -125,6 +126,7 @@ func main() {
 			handlers.AsHandler(twirp_handlers.NewUnProtected),
 			handlers.AsHandler(webhooks.NewDonateStream),
 			handlers.AsHandler(webhooks.NewDonatello),
+			handlers.AsHandler(files.NewFiles),
 			fx.Annotate(
 				func(handlers []handlers.IHandler) *http.ServeMux {
 					mux := http.NewServeMux()
