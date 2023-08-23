@@ -9,7 +9,7 @@ const { t } = useI18n();
 
 <template>
 	<n-alert type="info">
-		{{ t('alerts.info') }}
+		<span v-html="t('alerts.info')" />
 	</n-alert>
 	<list />
 </template>

@@ -332,7 +332,7 @@
 	},
 	"alerts": {
 		"title": "Alerts",
-		"info": "You can create alert, and then assign it to command/event. Do not forget insert alerts overlay into OBS.",
+		"info": "You can create alert, and then assign it to command/event. Do not forget insert <a style='color: #fff' href='/dashboard/overlays'>alerts overlay</a> into OBS.",
 		"name": "Name",
 		"validations": {
 			"name": "Name cannot be empty and bigger then 30 symbols"
