@@ -14,7 +14,6 @@ import (
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"log"
 	"log/slog"
 )
 
@@ -51,7 +50,7 @@ func New(deps *impl_deps.Deps) *Files {
 		if err != nil {
 			exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
 			if errBucketExists != nil && !exists {
-				log.Fatalln(err)
+				deps.Logger.Error("Cannot create bucket", slog.Any("err", err))
 			}
 		} else {
 			deps.Logger.Info("Successfully created bucket", slog.String("name", bucketName))
@@ -77,7 +76,7 @@ func New(deps *impl_deps.Deps) *Files {
 	}`,
 		)
 		if err != nil {
-			log.Fatalln(err)
+			deps.Logger.Error("cannot set policy", slog.Any("err", err))
 		} else {
 			deps.Logger.Info("Bucket policy was set")
 		}
