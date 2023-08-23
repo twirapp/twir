@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
@@ -104,7 +105,7 @@ func (c *Files) FilesUpload(ctx context.Context, req *files.UploadRequest) (
 		return nil, twirp.NewError(twirp.OutOfRange, "File cannot be bigger than 10mb")
 	}
 
-	if len(req.Name) > 100 {
+	if utf8.RuneCountInString(req.Name) > 100 {
 		return nil, twirp.NewError(twirp.OutOfRange, "File name is too long")
 	}
 

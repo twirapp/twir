@@ -2,6 +2,9 @@ package alerts
 
 import (
 	"context"
+	"log/slog"
+	"unicode/utf8"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -10,7 +13,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/api/alerts"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
 )
 
 type Alerts struct {
@@ -58,7 +60,7 @@ func (c *Alerts) AlertsCreate(ctx context.Context, req *alerts.CreateRequest) (
 	*alerts.Alert,
 	error,
 ) {
-	if len(req.Name) > 30 {
+	if utf8.RuneCountInString(req.Name) > 30 {
 		return nil, twirp.NewError(twirp.OutOfRange, "Alert name is too long")
 	}
 
