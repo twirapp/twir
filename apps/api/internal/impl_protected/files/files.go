@@ -33,6 +33,7 @@ func New(deps *impl_deps.Deps) *Files {
 			&minio.Options{
 				Creds:  credentials.NewStaticV4(deps.Config.S3AccessToken, deps.Config.S3SecretToken, ""),
 				Region: deps.Config.S3Region,
+				Secure: deps.Config.AppEnv == "production",
 			},
 		)
 		if err != nil {
