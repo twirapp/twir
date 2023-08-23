@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"log/slog"
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -14,7 +17,6 @@ import (
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"log/slog"
 )
 
 type Files struct {
@@ -92,6 +94,8 @@ func New(deps *impl_deps.Deps) *Files {
 // 10MB
 const bytesRestriction = (1 << 20) * 10
 
+var acceptedMimeTypes = []string{"audio", "image"}
+
 func (c *Files) FilesUpload(ctx context.Context, req *files.UploadRequest) (
 	*files.FileMeta,
 	error,
@@ -102,6 +106,12 @@ func (c *Files) FilesUpload(ctx context.Context, req *files.UploadRequest) (
 
 	if len(req.Name) > 100 {
 		return nil, twirp.NewError(twirp.OutOfRange, "File name is too long")
+	}
+
+	if !lo.SomeBy(acceptedMimeTypes, func(t string) bool {
+		return strings.HasPrefix(req.Mimetype, t)
+	}) {
+		return nil, twirp.NewError(twirp.OutOfRange, "Wrong file type")
 	}
 
 	dashboardId := ctx.Value("dashboardId").(string)
@@ -123,7 +133,7 @@ func (c *Files) FilesUpload(ctx context.Context, req *files.UploadRequest) (
 	}
 
 	if filesSize.N+len(req.Content) > bytesRestriction*10 {
-		return nil, twirp.NewError(twirp.OutOfRange, "Limit reached")
+		return nil, twirp.NewError(twirp.OutOfRange, "Limit of storage reached")
 	}
 
 	fileEntity := model.ChannelFile{

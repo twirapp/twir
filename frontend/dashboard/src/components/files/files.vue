@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RpcError } from '@protobuf-ts/runtime-rpc';
 import { IconArchive } from '@tabler/icons-vue';
 import { FileMeta } from '@twir/grpc/generated/api/api/files';
 import {
@@ -13,6 +14,7 @@ import {
 	NText,
 	NUpload,
 	NUploadDragger,
+useMessage,
 } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -25,10 +27,6 @@ const { t } = useI18n();
 
 const uploader = useFileUpload();
 const deleter = userFileDelete();
-
-async function upload(f: File) {
-	await uploader.mutateAsync(f);
-}
 
 const { data: files } = useFiles();
 
@@ -76,11 +74,24 @@ onMounted(() => {
 
 const audios = computed(() => files.value?.files.filter(f => f.mimetype.startsWith('audio')) ?? []);
 
-
 defineEmits<{
 	select: [id: string],
 	delete: [id: string]
 }>();
+
+const message = useMessage();
+
+async function upload(f: File) {
+	if (!f.type.startsWith(activeTab.value.accept.split('*').at(0)!)) return;
+
+	try {
+		await uploader.mutateAsync(f);
+	} catch (error) {
+		if (error instanceof RpcError) {
+			message.error(error.message);
+		}
+	}
+}
 </script>
 
 <template>
