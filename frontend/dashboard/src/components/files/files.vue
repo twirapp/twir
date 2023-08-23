@@ -1,11 +1,23 @@
 <script setup lang="ts">
 import { IconArchive } from '@tabler/icons-vue';
 import { FileMeta } from '@twir/grpc/generated/api/api/files';
-import { NIcon, NText, NUpload, NUploadDragger, NCard, NGrid, NGridItem, NButton, NDivider, NSpin, NAlert } from 'naive-ui';
+import {
+	NAlert,
+	NButton,
+	NCard,
+	NDivider,
+	NGrid,
+	NGridItem,
+	NIcon,
+	NSpin,
+	NText,
+	NUpload,
+	NUploadDragger,
+} from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useFileUpload, useFiles, userFileDelete } from '@/api/index.js';
+import { useFiles, useFileUpload, userFileDelete } from '@/api/index.js';
 import { convertBytesToSize } from '@/helpers/convertBytesToSize.js';
 
 
@@ -27,7 +39,11 @@ const uploadedFilesSize = computed(() => {
 });
 
 const computeFileUrl = (f: FileMeta) => {
-	return `${window.location.origin}/cdn/twir/channels/${f.channelId}/${f.id}`;
+	const query = new URLSearchParams({
+		channel_id: f.channelId,
+		file_id: f.id,
+	});
+	return `${window.location.origin}/api/files/?${query}`;
 };
 
 const props = withDefaults(defineProps<{
