@@ -175,6 +175,8 @@ func (c *Dashboard) convertType(t model.ChannelEventListItemType) dashboard.Even
 		return dashboard.EventType_CHAT_CLEAR
 	case model.ChannelEventListItemTypeRedemptionCreated:
 		return dashboard.EventType_REDEMPTION_CREATED
+	case model.ChannelEventListItemTypeChannelBan:
+		return dashboard.EventType_CHANNEL_BAN
 	default:
 		return 0
 	}
@@ -233,6 +235,12 @@ func (c *Dashboard) GetDashboardEventsList(ctx context.Context, _ *emptypb.Empty
 				FirstUserMessageUserName:        entity.Data.FirstUserMessageUserName,
 				FirstUserMessageUserDisplayName: entity.Data.FirstUserMessageUserDisplayName,
 				FirstUserMessageMessage:         entity.Data.FirstUserMessageMessage,
+				BanReason:                       entity.Data.BanReason,
+				BanEndsInMinutes:                entity.Data.BanEndsInMinutes,
+				BannedUserName:                  entity.Data.BannedUserName,
+				BannedUserLogin:                 entity.Data.BannedUserLogin,
+				ModeratorName:                   entity.Data.ModeratorName,
+				ModeratorDisplayName:            entity.Data.ModeratorDisplayName,
 			},
 			CreatedAt: fmt.Sprint(entity.CreatedAt.UnixMilli()),
 		}

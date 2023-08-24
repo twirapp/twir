@@ -6,6 +6,7 @@ import { NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
 import { computed } from 'vue';
 
 import Card from './card.vue';
+import Ban from './events/ban.vue';
 import ChatClear from './events/chatClear.vue';
 import Donate from './events/donate.vue';
 import FirstUserMessage from './events/firstUserMessage.vue';
@@ -21,7 +22,7 @@ import { useDashboardEvents } from '@/api/index.js';
 const { data: events, isLoading, refetch } = useDashboardEvents();
 useIntervalFn(refetch, 1000);
 
-const enabledEvents = useLocalStorage<number[]>('twirEventsWidgetFilter', Object.values(EventType).filter(t => typeof t === 'number') as number[]);
+const enabledEvents = useLocalStorage<number[]>('twirEventsWidgetFilterv2', Object.values(EventType).filter(t => typeof t === 'number') as number[]);
 const filteredEvents = computed(() => events.value?.events.filter(e => {
 	return enabledEvents.value.includes(e.type);
 }) ?? []);
@@ -62,6 +63,10 @@ const enabledEventsOptions = [
 	{
 		label: 'Reward activated',
 		value: 8,
+	},
+	{
+		label: 'Ban/timeout',
+		value: 9,
 	},
 ];
 </script>
@@ -145,6 +150,16 @@ const enabledEventsOptions = [
 						:user-name="event.data!.redemptionUserName"
 						:user-display-name="event.data!.redemptionUserDisplayName"
 						:cost="event.data!.redemptionCost"
+					/>
+					<Ban
+						v-if="event.type === EventType.CHANNEL_BAN"
+						:created-at="event.createdAt"
+						:ends-in="event.data!.banEndsInMinutes"
+						:moderator-user-login="event.data!.moderatorName"
+						:moderator-user-name="event.data!.moderatorDisplayName"
+						:reason="event.data!.banReason"
+						:user-login="event.data!.bannedUserLogin"
+						:user-name="event.data!.bannedUserName"
 					/>
 				</template>
 			</TransitionGroup>

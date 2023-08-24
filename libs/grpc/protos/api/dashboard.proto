@@ -26,6 +26,7 @@ enum EventType {
 	FIRST_USER_MESSAGE = 6;
 	CHAT_CLEAR = 7;
 	REDEMPTION_CREATED = 8;
+	CHANNEL_BAN = 9;
 }
 
 message EventData {
@@ -72,6 +73,14 @@ message EventData {
 	string first_user_message_user_name = 28;
 	string first_user_message_user_display_name = 29;
 	string first_user_message_message = 30;
+
+	string ban_reason = 31;
+	string ban_ends_in_minutes = 32;
+	string banned_user_name = 33;
+	string banned_user_login = 34;
+
+	string moderator_name = 35;
+	string moderator_display_name = 36;
 }
 
 message DashboardEventsList {

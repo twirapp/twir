@@ -2,16 +2,12 @@ package grpc_impl
 
 import (
 	"context"
-	"fmt"
-	"math"
-	"strings"
-	"time"
-
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"strings"
 )
 
 type EventsGrpcImplementation struct {
@@ -541,9 +537,6 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	_ context.Context,
 	msg *events.ChannelBanMessage,
 ) (*emptypb.Empty, error) {
-	t, _ := time.Parse(time.RFC3339, msg.EndsAt)
-	banEndsIn := t.Sub(time.Now().UTC())
-
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -552,12 +545,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 			ModeratorDisplayName: msg.ModeratorUserName,
 			ModeratorName:        msg.ModeratorUserLogin,
 			BanReason:            msg.Reason,
-			BanEndsInMinutes: lo.If(msg.IsPermanent, "permanent").Else(
-				fmt.Sprintf(
-					"%v",
-					math.Round(banEndsIn.Minutes()),
-				),
-			),
+			BanEndsInMinutes:     msg.EndsAt,
 		},
 		model.EventChannelBan,
 	)

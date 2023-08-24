@@ -23,6 +23,7 @@ const (
 	ChannelEventListItemTypeFirstUserMessage                           = "FIRST_USER_MESSAGE"
 	ChannelEventListItemTypeChatClear                                  = "CHAT_CLEAR"
 	ChannelEventListItemTypeRedemptionCreated                          = "REDEMPTION_CREATED"
+	ChannelEventListItemTypeChannelBan                                 = "CHANNEL_BAN"
 )
 
 type ChannelsEventsListItemData struct {
@@ -71,6 +72,16 @@ type ChannelsEventsListItemData struct {
 	FirstUserMessageUserName        string `json:"firstUserMessageUserName,omitempty"`
 	FirstUserMessageUserDisplayName string `json:"firstUserMessageUserDisplayName,omitempty"`
 	FirstUserMessageMessage         string `json:"firstUserMessageMessage,omitempty"`
+
+	//
+	ModeratorName        string `json:"moderatorName"`
+	ModeratorDisplayName string `json:"moderatorDisplayName"`
+
+	//
+	BanReason        string `json:"banReason"`
+	BanEndsInMinutes string `json:"banEndsInMinutes"`
+	BannedUserName   string `json:"bannedUserName"`
+	BannedUserLogin  string `json:"bannedUserLogin"`
 }
 
 func (a ChannelsEventsListItemData) Value() (driver.Value, error) {
