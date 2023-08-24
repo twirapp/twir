@@ -34,6 +34,7 @@ func NewHandler(services *types.Services) *Handler {
 	manager.HandleChannelPredictionProgress = myHandler.handleChannelPredictionProgress
 	manager.HandleChannelPredictionLock = myHandler.handleChannelPredictionLock
 	manager.HandleChannelPredictionEnd = myHandler.handleChannelPredictionEnd
+	manager.HandleChannelBan = myHandler.handleBan
 
 	return myHandler
 }

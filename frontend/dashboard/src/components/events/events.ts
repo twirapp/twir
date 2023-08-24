@@ -17,6 +17,7 @@ import {
 	IconStar,
 	IconPick,
 	IconGift,
+	IconUserCancel,
 } from '@tabler/icons-vue';
 import { FunctionalComponent } from 'vue';
 
@@ -214,5 +215,11 @@ export const EVENTS: Record<string, TwirEvent> = {
 				],
 			},
 		},
+	},
+
+	CHANNEL_BAN: {
+		name: 'User banned/timeouted',
+		icon: IconUserCancel,
+		variables: ['moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
 	},
 };

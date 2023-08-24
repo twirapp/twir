@@ -2,7 +2,6 @@ package grpc_impl
 
 import (
 	"context"
-	"fmt"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"sort"
 	"strconv"
@@ -115,7 +114,7 @@ func (c *EventsGrpcImplementation) processOperations(
 		c.services.Logger.Sugar().Error(err)
 		return
 	}
-	fmt.Println("on", event.OnlineOnly)
+
 	// won't process stream if event setted to online only streams and stream is offline
 	if event.OnlineOnly {
 		stream := &model.ChannelsStreams{}

@@ -2,7 +2,10 @@ package grpc_impl
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"strings"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal"
@@ -23,7 +26,10 @@ func NewEvents(services *internal.Services) *EventsGrpcImplementation {
 	}
 }
 
-func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) Follow(
+	_ context.Context,
+	msg *events.FollowMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -37,7 +43,10 @@ func (c *EventsGrpcImplementation) Follow(_ context.Context, msg *events.FollowM
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) Subscribe(_ context.Context, msg *events.SubscribeMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) Subscribe(
+	_ context.Context,
+	msg *events.SubscribeMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -127,7 +136,10 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) Raided(_ context.Context, msg *events.RaidedMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) Raided(
+	_ context.Context,
+	msg *events.RaidedMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -159,7 +171,10 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) StreamOnline(_ context.Context, msg *events.StreamOnlineMessage) (
+func (c *EventsGrpcImplementation) StreamOnline(
+	_ context.Context,
+	msg *events.StreamOnlineMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	go c.processEvent(
@@ -174,7 +189,10 @@ func (c *EventsGrpcImplementation) StreamOnline(_ context.Context, msg *events.S
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) StreamOffline(_ context.Context, msg *events.StreamOfflineMessage) (
+func (c *EventsGrpcImplementation) StreamOffline(
+	_ context.Context,
+	msg *events.StreamOfflineMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	go c.processEvent(
@@ -186,7 +204,10 @@ func (c *EventsGrpcImplementation) StreamOffline(_ context.Context, msg *events.
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGiftMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) SubGift(
+	_ context.Context,
+	msg *events.SubGiftMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -201,7 +222,10 @@ func (c *EventsGrpcImplementation) SubGift(_ context.Context, msg *events.SubGif
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) ChatClear(_ context.Context, msg *events.ChatClearMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) ChatClear(
+	_ context.Context,
+	msg *events.ChatClearMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
@@ -211,7 +235,10 @@ func (c *EventsGrpcImplementation) ChatClear(_ context.Context, msg *events.Chat
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) Donate(_ context.Context, msg *events.DonateMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) Donate(
+	_ context.Context,
+	msg *events.DonateMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -246,7 +273,10 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) GreetingSended(_ context.Context, msg *events.GreetingSendedMessage) (
+func (c *EventsGrpcImplementation) GreetingSended(
+	_ context.Context,
+	msg *events.GreetingSendedMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	go c.processEvent(
@@ -263,7 +293,10 @@ func (c *EventsGrpcImplementation) GreetingSended(_ context.Context, msg *events
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) PollBegin(_ context.Context, msg *events.PollBeginMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) PollBegin(
+	_ context.Context,
+	msg *events.PollBeginMessage,
+) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
@@ -284,7 +317,10 @@ func (c *EventsGrpcImplementation) PollBegin(_ context.Context, msg *events.Poll
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) PollProgress(_ context.Context, msg *events.PollProgressMessage) (
+func (c *EventsGrpcImplementation) PollProgress(
+	_ context.Context,
+	msg *events.PollProgressMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	totalVotes := lo.Reduce(
@@ -314,7 +350,10 @@ func (c *EventsGrpcImplementation) PollProgress(_ context.Context, msg *events.P
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) PollEnd(_ context.Context, msg *events.PollEndMessage) (*emptypb.Empty, error) {
+func (c *EventsGrpcImplementation) PollEnd(
+	_ context.Context,
+	msg *events.PollEndMessage,
+) (*emptypb.Empty, error) {
 	totalVotes := lo.Reduce(
 		msg.Info.Choices, func(acc int, item *events.PollInfo_Choice, _ int) int {
 			return acc + int(item.Votes)
@@ -406,7 +445,10 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) PredictionLock(_ context.Context, msg *events.PredictionLockMessage) (
+func (c *EventsGrpcImplementation) PredictionLock(
+	_ context.Context,
+	msg *events.PredictionLockMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	totalPoints := lo.Reduce(
@@ -436,7 +478,10 @@ func (c *EventsGrpcImplementation) PredictionLock(_ context.Context, msg *events
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) PredictionEnd(_ context.Context, msg *events.PredictionEndMessage) (
+func (c *EventsGrpcImplementation) PredictionEnd(
+	_ context.Context,
+	msg *events.PredictionEndMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	totalPoints := lo.Reduce(
@@ -487,6 +532,34 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 			UserName: msg.UserName,
 		},
 		model.EventStreamFirstUserJoin,
+	)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) ChannelBan(
+	_ context.Context,
+	msg *events.ChannelBanMessage,
+) (*emptypb.Empty, error) {
+	t, _ := time.Parse(time.RFC3339, msg.EndsAt)
+	banEndsIn := t.Sub(time.Now().UTC())
+
+	go c.processEvent(
+		msg.BaseInfo.ChannelId,
+		internal.Data{
+			UserName:             msg.UserLogin,
+			UserDisplayName:      msg.UserName,
+			ModeratorDisplayName: msg.ModeratorUserName,
+			ModeratorName:        msg.ModeratorUserLogin,
+			BanReason:            msg.Reason,
+			BanEndsInMinutes: lo.If(msg.IsPermanent, "permanent").Else(
+				fmt.Sprintf(
+					"%v",
+					math.Round(banEndsIn.Minutes()),
+				),
+			),
+		},
+		model.EventChannelBan,
 	)
 
 	return &emptypb.Empty{}, nil

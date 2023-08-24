@@ -77,6 +77,13 @@ type Data struct {
 	PredictionTotalChannelPoints int               `json:"predictionTotalChannelPoints"`
 	PredictionWinner             PredictionOutCome `json:"predictionWinner"`
 	//
+
+	ModeratorName        string `json:"moderatorName"`
+	ModeratorDisplayName string `json:"moderatorDisplayName"`
+
+	// ban
+	BanReason        string `json:"banReason"`
+	BanEndsInMinutes string `json:"banEndsInMinutes"`
 }
 
 type PredictionOutCome struct {

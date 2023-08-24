@@ -45,6 +45,7 @@ const (
 	EventTypePredictionEnd                    = "PREDICTION_END"
 	EventTypePredictionLock                   = "PREDICTION_LOCK"
 	EventStreamFirstUserJoin                  = "STREAM_FIRST_USER_JOIN"
+	EventChannelBan                           = "CHANNEL_BAN"
 )
 
 type Event struct {

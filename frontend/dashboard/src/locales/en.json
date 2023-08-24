@@ -196,7 +196,11 @@
 				"totalUsers": "Total users who voted for winner option",
 				"totalPoints": "Total used channel points for winner option",
 				"topUsers": "Top 10 users who voted for winner option"
-			}
+			},
+			"moderatorName": "Moderator login, who triggered action",
+			"moderatorDisplayName": "Moderator display name, who triggered action",
+			"banReason": "Reason of ban",
+			"banEndsInMinutes": "Ban in minutes, or \"permanent\" if permanent ban"
 		}
 	},
 	"overlays": {

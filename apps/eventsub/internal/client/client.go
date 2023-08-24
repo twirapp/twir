@@ -37,7 +37,11 @@ func NewClient(
 	}
 
 	var channels []model.Channels
-	err := services.Gorm.Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).Find(&channels).Error
+	err := services.Gorm.Where(
+		`"isEnabled" = ? and "isBanned" = ?`,
+		true,
+		false,
+	).Find(&channels).Error
 	if err != nil {
 		return nil, err
 	}
@@ -130,6 +134,10 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 			Condition: channelCondition,
 		},
 		"channel.prediction.end": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.ban": {
 			Version:   "1",
 			Condition: channelCondition,
 		},
