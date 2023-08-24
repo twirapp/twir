@@ -5,12 +5,18 @@ import {
   NInput,
   NButton,
 } from 'naive-ui';
+import { type Size } from 'naive-ui/es/input/src/interface.js';
 
 import { copyToClipBoard } from '@/helpers/index.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	text: string,
-}>();
+	type?: 'password' | 'text',
+	size: Size
+}>(), {
+	type: 'text',
+	size: 'small',
+});
 
 const { start: copyStart, isPending } = useTimeout(2000, { controls: true, immediate: false });
 
@@ -22,8 +28,8 @@ async function copy() {
 
 <template>
 	<n-input-group>
-		<n-input type="text" size="small" :value="text" disabled />
-		<n-button size="small" type="primary" @click="copy">
+		<n-input :type="type" show-password-on="click" size="small" :value="text" disabled />
+		<n-button :size="size" type="primary" @click="copy">
 			<span v-if="!isPending">Copy</span>
 			<span v-else>Copied</span>
 		</n-button>

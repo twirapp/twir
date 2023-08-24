@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/lib/pq"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"strconv"
 	"time"
 
@@ -68,6 +70,8 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 
 	// youtube song requests
 	c.handleYoutubeSongRequests(event)
+
+	c.handleAlerts(event)
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
@@ -240,4 +244,33 @@ func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 	}
 
 	return
+}
+
+func (c *Handler) handleAlerts(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
+	alert := model.ChannelAlert{}
+
+	if err := c.services.Gorm.Where(
+		"channel_id = ? AND reward_ids && ?",
+		event.BroadcasterUserID,
+		pq.StringArray{event.Reward.ID},
+	).Find(&alert).Error; err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	if alert.ID == "" {
+		return
+	}
+
+	_, err := c.services.Grpc.WebSockets.TriggerAlert(
+		context.TODO(),
+		&websockets.TriggerAlertRequest{
+			ChannelId: event.BroadcasterUserID,
+			AlertId:   alert.ID,
+		},
+	)
+
+	if err != nil {
+		zap.S().Error(err)
+	}
 }

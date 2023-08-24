@@ -7,12 +7,16 @@ message Alert {
 	string name = 2;
 	optional string audio_id = 3;
 	int32 audio_volume = 4;
+	repeated string command_ids = 5;
+	repeated string reward_ids = 6;
 }
 
 message CreateRequest {
 	string name = 1;
 	optional string audio_id = 2;
 	int32 audio_volume = 3;
+	repeated string command_ids = 4;
+	repeated string reward_ids = 5;
 }
 
 message RemoveRequest {
@@ -28,6 +32,8 @@ message UpdateRequest {
 	string name = 2;
 	optional string audio_id = 3;
 	int32 audio_volume = 4;
+	repeated string command_ids = 5;
+	repeated string reward_ids = 6;
 }
 
 message GetOneRequest {

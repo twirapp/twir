@@ -11,13 +11,16 @@ import {
 	NModal,
 	NSlider,
 	NSpace,
+	NDivider,
+	NSelect,
 } from 'naive-ui';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { type EditableAlert } from './types.js';
+import rewardsSelector from '../rewardsSelector.vue';
 
-import { useAlertsManager, useFiles, useProfile } from '@/api';
+import { useAlertsManager, useCommandsManager, useFiles, useProfile } from '@/api';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
 
@@ -34,6 +37,8 @@ const formValue = ref<EditableAlert>({
 	name: '',
 	audioId: undefined,
 	audioVolume: 100,
+	commandIds: [],
+	rewardIds: [],
 });
 
 onMounted(() => {
@@ -100,6 +105,12 @@ async function testAudio() {
 
 	await playAudio(await req.arrayBuffer(), formValue.value.audioVolume);
 }
+
+const commandsManager = useCommandsManager();
+const { data: commands } = commandsManager.getAll({});
+const commandsSelectOptions = computed(() => commands.value?.commands
+	.map(c => ({ label: c.name, value: c.id }),
+));
 </script>
 
 <template>
@@ -112,6 +123,18 @@ async function testAudio() {
 			<n-form-item label="Name" path="name" show-require-mark>
 				<n-input v-model:value="formValue.name" :maxlength="30" />
 			</n-form-item>
+
+			<n-divider />
+
+			<n-form-item label="Commands for trigger" path="commandIds">
+				<n-select v-model:value="formValue.commandIds" filterable multiple :options="commandsSelectOptions" />
+			</n-form-item>
+
+			<n-form-item label="Rewards for trigger" path="rewardIds">
+				<rewardsSelector v-model="formValue.rewardIds" multiple />
+			</n-form-item>
+
+			<n-divider />
 
 			<n-form-item label="Audio">
 				<div style="display: flex; gap: 10px; width: 85%">

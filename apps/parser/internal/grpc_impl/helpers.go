@@ -10,13 +10,13 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *parserGrpcServer) shouldCheckCooldown(badges []string) bool {
+func (c *ParserGrpcServer) shouldCheckCooldown(badges []string) bool {
 	return !lo.Contains(badges, "BROADCASTER") &&
 		!lo.Contains(badges, "MODERATOR") &&
 		!lo.Contains(badges, "SUBSCRIBER")
 }
 
-func (c *parserGrpcServer) isUserHasPermissionToCommand(
+func (c *ParserGrpcServer) isUserHasPermissionToCommand(
 	ctx context.Context,
 	userId,
 	channelId string,

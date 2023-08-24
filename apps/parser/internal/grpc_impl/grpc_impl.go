@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/lib/pq"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"strings"
 	"time"
@@ -39,7 +40,7 @@ var (
 	)
 )
 
-type parserGrpcServer struct {
+type ParserGrpcServer struct {
 	parser.UnimplementedParserServer
 
 	services  *services.Services
@@ -51,15 +52,15 @@ func NewServer(
 	services *services.Services,
 	commands *commands.Commands,
 	variables *variables.Variables,
-) *parserGrpcServer {
-	return &parserGrpcServer{
+) *ParserGrpcServer {
+	return &ParserGrpcServer{
 		services:  services,
 		commands:  commands,
 		variables: variables,
 	}
 }
 
-func (c *parserGrpcServer) ProcessCommand(
+func (c *ParserGrpcServer) ProcessCommand(
 	ctx context.Context,
 	data *parser.ProcessCommandRequest,
 ) (*parser.ProcessCommandResponse, error) {
@@ -138,14 +139,27 @@ func (c *parserGrpcServer) ProcessCommand(
 		return nil, errors.New("have no permissions")
 	}
 
-	if cmd.Cmd.AlertID.Valid {
-		defer c.services.GrpcClients.WebSockets.TriggerAlert(
+	defer func() {
+		alert := model.ChannelAlert{}
+		if err := c.services.Gorm.WithContext(ctx).Where(
+			"channel_id = ? AND command_ids && ?",
+			data.Channel.Id,
+			pq.StringArray{cmd.Cmd.ID},
+		).Find(&alert).Error; err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		if alert.ID == "" {
+			return
+		}
+		c.services.GrpcClients.WebSockets.TriggerAlert(
 			ctx, &websockets.TriggerAlertRequest{
-				ChannelId: cmd.Cmd.ChannelID,
-				AlertId:   cmd.Cmd.AlertID.String,
+				ChannelId: data.Channel.Id,
+				AlertId:   alert.ID,
 			},
 		)
-	}
+	}()
 
 	result := c.commands.ParseCommandResponses(ctx, cmd, data)
 
@@ -165,7 +179,7 @@ func (c *parserGrpcServer) ProcessCommand(
 	return result, nil
 }
 
-func (c *parserGrpcServer) ParseTextResponse(
+func (c *ParserGrpcServer) ParseTextResponse(
 	ctx context.Context,
 	data *parser.ParseTextRequestData,
 ) (*parser.ParseTextResponseData, error) {
@@ -210,7 +224,7 @@ func (c *parserGrpcServer) ParseTextResponse(
 	}, nil
 }
 
-func (c *parserGrpcServer) GetDefaultCommands(
+func (c *ParserGrpcServer) GetDefaultCommands(
 	_ context.Context,
 	_ *emptypb.Empty,
 ) (*parser.GetDefaultCommandsResponse, error) {
@@ -240,9 +254,9 @@ func (c *parserGrpcServer) GetDefaultCommands(
 	}, nil
 }
 
-func (c *parserGrpcServer) GetDefaultVariables(
-	ctx context.Context,
-	data *emptypb.Empty,
+func (c *ParserGrpcServer) GetDefaultVariables(
+	_ context.Context,
+	_ *emptypb.Empty,
 ) (*parser.GetVariablesResponse, error) {
 	vars := lo.FilterMap(
 		lo.Values(c.variables.Store),

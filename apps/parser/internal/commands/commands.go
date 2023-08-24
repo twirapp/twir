@@ -99,7 +99,10 @@ func New(opts *Opts) *Commands {
 	return ctx
 }
 
-func (c *Commands) GetChannelCommands(ctx context.Context, channelId string) ([]*model.ChannelsCommands, error) {
+func (c *Commands) GetChannelCommands(
+	ctx context.Context,
+	channelId string,
+) ([]*model.ChannelsCommands, error) {
 	var cmds []*model.ChannelsCommands
 
 	err := c.services.Gorm.
@@ -126,7 +129,10 @@ type FindByMessageResult struct {
 // Splitting chat message by spaces, then
 // read message from end to start, and delete one word from end while message gets empty,
 // or we found a command in message
-func (c *Commands) FindChannelCommandInInput(input string, cmds []*model.ChannelsCommands) *FindByMessageResult {
+func (c *Commands) FindChannelCommandInInput(
+	input string,
+	cmds []*model.ChannelsCommands,
+) *FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
 
@@ -245,7 +251,8 @@ func (c *Commands) ParseCommandResponses(
 					ID:    e.Id,
 					Count: e.Count,
 					Positions: lo.Map(
-						e.Positions, func(p *parser.Message_EmotePosition, _ int) *types.ParseContextEmotePosition {
+						e.Positions,
+						func(p *parser.Message_EmotePosition, _ int) *types.ParseContextEmotePosition {
 							return &types.ParseContextEmotePosition{
 								Start: p.Start,
 								End:   p.End,

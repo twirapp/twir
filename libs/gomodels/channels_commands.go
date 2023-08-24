@@ -40,8 +40,6 @@ type ChannelsCommands struct {
 	RequiredMessages          int `gorm:"column:requiredMessages;type:INT4;default:0;" json:"requiredMessages"`
 	RequiredUsedChannelPoints int `gorm:"column:requiredUsedChannelPoints;type:INT4;default:0;" json:"requiredUsedChannelPoints"`
 
-	AlertID null.String `gorm:"column:alert_id;type:TEXT;"                    json:"alert_id"`
-
 	Channel   *Channels                    `gorm:"foreignKey:ChannelID"                             json:"-"`
 	Responses []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                             json:"responses"`
 	GroupID   null.String                  `gorm:"column:groupId;type:UUID" json:"groupId"`

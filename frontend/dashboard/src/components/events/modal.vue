@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
 import {
-	type SelectOption,
 	type FormInst,
 	type FormItemRule,
 	type FormRules,
@@ -17,18 +16,18 @@ import {
 	NDivider,
 	NSwitch,
 	NAlert,
-	NAvatar,
 	NButton,
 	useThemeVars,
 	NModal,
 } from 'naive-ui';
-import { h, computed, onMounted, ref, watch, nextTick, type VNodeChild } from 'vue';
+import { computed, onMounted, ref, watch, nextTick } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
 
 import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
+
 
 import {
 useAlertsManager,
@@ -37,10 +36,10 @@ useAlertsManager,
 	useKeywordsManager,
 	useObsOverlayManager,
 	useProfile,
-	useTwitchRewards,
 	useVariablesManager,
 } from '@/api/index.js';
 import AlertModal from '@/components/alerts/list.vue';
+import rewardsSelector from '@/components/rewardsSelector.vue';
 
 const themeVars = useThemeVars();
 const selectedTabBackground = computed(() => themeVars.value.cardColor);
@@ -185,22 +184,6 @@ const commandsSelectOptions = computed(() => {
 	})) ?? [];
 });
 
-const { data: rewardsData, isLoading: isRewardsLoading, isError: isRewardsError } = useTwitchRewards();
-const rewardsSelectOptions = computed(() => {
-	return rewardsData.value?.rewards.map(r => ({
-		value: r.id,
-		label: r.title,
-		image: r.image?.url4X,
-	})) ?? [];
-});
-const renderRewardTag = (option: SelectOption & { image?: string }): VNodeChild => {
-	return h(NSpace, { align: 'center' }, {
-		default: () => [
-			h(NAvatar, { src: option.image, round: true, size: 'small', style: 'display: flex;' }),
-			h(NText, { }, { default: () =>  option.label }),
-		],
-	});
-};
 
 const keywordsManager = useKeywordsManager();
 const { data: keywordsData, isLoading: isKeywordsLoading } = keywordsManager.getAll({});
@@ -310,15 +293,7 @@ const showAlertModal = ref(false);
 						required
 						path="rewardId"
 					>
-						<n-select
-							v-model:value="formValue.rewardId"
-							size="large"
-							:options="rewardsSelectOptions"
-							:placeholder="t('events.targetTwitchReward')"
-							:loading="isRewardsLoading"
-							:render-label="renderRewardTag"
-							:disabled="isRewardsError"
-						/>
+						<rewards-selector v-model="formValue.rewardId" />
 					</n-form-item>
 
 					<n-form-item

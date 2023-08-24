@@ -25,6 +25,8 @@ func (c *Alerts) convertEntity(entity model.ChannelAlert) *alerts.Alert {
 		Name:        entity.Name,
 		AudioId:     entity.AudioID.Ptr(),
 		AudioVolume: int32(entity.AudioVolume),
+		CommandIds:  entity.CommandIDS,
+		RewardIds:   entity.RewardIDS,
 	}
 }
 
@@ -71,6 +73,8 @@ func (c *Alerts) AlertsCreate(ctx context.Context, req *alerts.CreateRequest) (
 		Name:        req.Name,
 		AudioID:     null.StringFromPtr(req.AudioId),
 		AudioVolume: int(req.AudioVolume),
+		CommandIDS:  req.CommandIds,
+		RewardIDS:   req.RewardIds,
 	}
 
 	if err := c.Db.WithContext(ctx).Create(&entity).Error; err != nil {
@@ -134,6 +138,9 @@ func (c *Alerts) AlertsUpdate(ctx context.Context, req *alerts.UpdateRequest) (
 	entity.Name = req.Name
 	entity.AudioID = null.StringFromPtr(req.AudioId)
 	entity.AudioVolume = int(req.AudioVolume)
+	entity.CommandIDS = req.CommandIds
+	entity.RewardIDS = req.RewardIds
+
 	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
 		c.Logger.Error(
 			"cannot update alert",
