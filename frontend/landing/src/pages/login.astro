@@ -1,22 +1,8 @@
 ---
-// import LoginPage from '../components/login.vue';
 import LoginPage from '../components/login.vue';
+import Layout from '../layouts/Layout.astro';
 ---
 
-<LoginPage client:only="vue"/>
-
-<!-- {error && <div class="flex h-screen select-none">
-	<div class="m-auto flex flex-col items-center space-y-5 text-center text-white">
-		<h1 class="font-bold text-7xl">
-			Oops!
-		</h1>
-		<p class="text-lg text-gray-70 inline-block">
-			{error}
-		</p>
-		<div class="inline-grid grid-flow-col gap-x-2">
-			<a href="/" class="flex px-[18px] py-[10px] items-center gap-[8px] bg-[#5D58F5] rounded-lg  font-semibold text-white text-base">
-				Back to home
-			</a>
-		</div>
-	</div>
-</div>} -->
+<Layout title="Twir - Login" showHeader={false}>
+	<LoginPage client:only="vue" />
+</Layount>

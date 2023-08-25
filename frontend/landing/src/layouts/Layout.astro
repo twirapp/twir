@@ -2,9 +2,10 @@
 import Header from './Header.astro';
 interface Props {
   title: string;
+	showHeader?: boolean
 }
 
-const { title } = Astro.props;
+const { title, showHeader = true } = Astro.props;
 
 const description =
   'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.';
@@ -103,7 +104,7 @@ const description =
       class="absolute content-[''] w-[120vw] h-[482px] rounded-full pointer-events-none bg-[radial-gradient(50%_50%_at_50%_50%,_#1F1232_0%,_rgba(9,9,11,0.00)_100%)] -z-20 -top-[220px] right-0 left-0 mx-auto"
     ></span>
 
-    <Header />
+		{showHeader && <Header />}
     <slot />
   </body>
 </html>
