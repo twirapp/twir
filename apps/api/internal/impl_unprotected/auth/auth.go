@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"time"
 
@@ -24,7 +25,10 @@ type Auth struct {
 	TwitchScopes []string
 }
 
-func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*auth.GetLinkResponse, error) {
+func (c *Auth) AuthGetLink(
+	ctx context.Context,
+	request *auth.GetLinkRequest,
+) (*auth.GetLinkResponse, error) {
 	if request.State == "" {
 		return nil, twirp.NewError(twirp.ErrorCode(400), "no state provided")
 	}
@@ -51,7 +55,10 @@ func (c *Auth) AuthGetLink(ctx context.Context, request *auth.GetLinkRequest) (*
 	return &auth.GetLinkResponse{Link: url}, nil
 }
 
-func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (*emptypb.Empty, error) {
+func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (
+	*emptypb.Empty,
+	error,
+) {
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create twitch client: %w", err)
@@ -101,14 +108,6 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	if err != nil {
 		return nil, fmt.Errorf("ecnrypt user refres token: %w", err)
 	}
-	tokenData := model.Tokens{
-		ID:                  uuid.New().String(),
-		AccessToken:         accessToken,
-		RefreshToken:        refreshToken,
-		ExpiresIn:           int32(tokens.Data.ExpiresIn),
-		ObtainmentTimestamp: time.Now().UTC(),
-		Scopes:              tokens.Data.Scopes,
-	}
 
 	if dbUser.ID == "" {
 		newUser := &model.Users{
@@ -129,6 +128,14 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		dbUser = newUser
 	}
 
+	tokenData := model.Tokens{
+		ID:                  uuid.New().String(),
+		AccessToken:         accessToken,
+		RefreshToken:        refreshToken,
+		ExpiresIn:           int32(tokens.Data.ExpiresIn),
+		ObtainmentTimestamp: time.Now().UTC(),
+		Scopes:              tokens.Data.Scopes,
+	}
 	if dbUser.TokenID.Valid {
 		tokenData.ID = dbUser.TokenID.String
 	}
@@ -136,7 +143,10 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	if err := c.Db.WithContext(ctx).Save(tokenData).Error; err != nil {
 		return nil, fmt.Errorf("cannot update user token: %w", err)
 	}
-	dbUser.Token = &tokenData
+
+	if err := c.Db.WithContext(ctx).Debug().Save(&tokenData).Error; err != nil {
+		return nil, fmt.Errorf("cannot update db user: %w", err)
+	}
 
 	dbUser.TokenID = sql.NullString{
 		String: dbUser.Token.ID,
@@ -173,6 +183,12 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	c.SessionManager.Put(ctx, "dbUser", &dbUser)
 	c.SessionManager.Put(ctx, "twitchUser", &twitchUser)
 	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
+
+	c.Grpc.EventSub.SubscribeToEvents(
+		ctx, &eventsub.SubscribeToEventsRequest{
+			ChannelId: dbUser.ID,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
@@ -23,6 +24,7 @@ type Grpc struct {
 	Websockets   websockets.WebsocketClient
 	Scheduler    scheduler.SchedulerClient
 	Timers       timers.TimersClient
+	EventSub     eventsub.EventSubClient
 }
 
 type Deps struct {

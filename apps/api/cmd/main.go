@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/satont/twir/apps/api/internal/files"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/logger"
 	"log/slog"
 	"net/http"
@@ -76,6 +77,9 @@ func main() {
 			},
 			func(c *cfg.Config) timers.TimersClient {
 				return clients.NewTimers(c.AppEnv)
+			},
+			func(c *cfg.Config) eventsub.EventSubClient {
+				return clients.NewEventSub(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
