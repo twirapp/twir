@@ -82,7 +82,10 @@ var SrCommand = &types.DefaultCommand{
 
 		if *parsedSettings.AcceptOnlyWhenOnline {
 			stream := &model.ChannelsStreams{}
-			parseCtx.Services.Gorm.WithContext(ctx).Where(`"userId" = ?`, parseCtx.Channel.ID).First(stream)
+			parseCtx.Services.Gorm.WithContext(ctx).Where(
+				`"userId" = ?`,
+				parseCtx.Channel.ID,
+			).First(stream)
 			if stream.ID == "" {
 				result.Result = append(result.Result, parsedSettings.Translations.AcceptOnlineWhenOnline)
 				return result
@@ -205,18 +208,26 @@ func validate(
 ) error {
 
 	alreadyRequestedSong := &model.RequestedSong{}
-	services.Gorm.WithContext(ctx).Where(`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`, song.Id, channelId).
+	services.Gorm.WithContext(ctx).Where(
+		`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`,
+		song.Id,
+		channelId,
+	).
 		Find(&alreadyRequestedSong)
 
 	if alreadyRequestedSong.ID != "" {
 		return errors.New(settings.Translations.Song.AlreadyInQueue)
 	}
 
-	if channelId == userId {
-		return nil
-	}
+	//if channelId == userId {
+	//	return nil
+	//}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *services.Config, services.GrpcClients.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(
+		ctx,
+		*services.Config,
+		services.GrpcClients.Tokens,
+	)
 	if err != nil {
 		return err
 	}
@@ -295,7 +306,7 @@ func validate(
 		return errors.New(message)
 	}
 
-	songDuration := time.Duration(song.Duration) * time.Millisecond
+	songDuration := time.Duration(song.Duration) * time.Second
 	if settings.Song.MaxLength != 0 && int(math.Round(songDuration.Minutes())) > settings.Song.MaxLength {
 		message := fasttemplate.ExecuteString(
 			settings.Translations.Song.MaxLength,
