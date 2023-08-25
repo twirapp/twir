@@ -220,6 +220,6 @@ export const EVENTS: Record<string, TwirEvent> = {
 	CHANNEL_BAN: {
 		name: 'User banned/timeouted',
 		icon: IconUserCancel,
-		variables: ['moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
+		variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
 	},
 };
