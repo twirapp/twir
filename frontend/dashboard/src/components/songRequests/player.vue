@@ -59,6 +59,7 @@ const playNext = () => {
 
 const isPlaying = ref(false);
 const sliderTime = ref(0);
+const volume = useLocalStorage('twirPlayerVolume', 10);
 
 onMounted(() => {
 	if (!player.value) return;
@@ -72,6 +73,7 @@ onMounted(() => {
 
 	plyr.value.on('play', () => {
 		isPlaying.value = true;
+		plyr.value!.volume = volume.value / 100;
 		emits('playing');
 	});
 
@@ -127,7 +129,7 @@ onUnmounted(() => {
 
 const playerDisplay = useLocalStorage<string>('twirPlayerIsHidden', 'block');
 const isMuted = useLocalStorage('twirPlayerIsMuted', false);
-const volume = useLocalStorage('twirPlayerVolume', 10);
+
 watch(volume, (value) => {
 	if (!plyr.value) return;
 
