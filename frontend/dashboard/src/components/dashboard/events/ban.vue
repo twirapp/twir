@@ -21,7 +21,10 @@ defineProps<{
 	<Base :icon="IconUserCancel" :created-at="createdAt">
 		<template #leftContent>
 			<div style="display: flex; flex-direction: column">
-				<span>{{ createUserName(moderatorUserLogin, moderatorUserName) }} <b style="font-size: 11px">banned</b> {{ createUserName(userLogin, userName) }} for {{ endsIn }}</span>
+				<span>
+					{{ createUserName(moderatorUserLogin, moderatorUserName) }}
+					<b style="font-size: 11px">banned</b> {{ createUserName(userLogin, userName) }}
+					for {{ endsIn }} {{ endsIn != 'permanent' ? 'minutes' : '' }}</span>
 				<span style="font-size: 11px">{{ reason }}</span>
 			</div>
 		</template>
