@@ -6,7 +6,11 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.Data, eventType model.EventType) error {
+func (c *EventsGrpcImplementation) processEvent(
+	channelId string,
+	data internal.Data,
+	eventType model.EventType,
+) error {
 	var dbEntities []model.Event
 
 	err := c.services.DB.
@@ -46,8 +50,8 @@ func (c *EventsGrpcImplementation) processEvent(channelId string, data internal.
 		}
 
 		if entity.Type == model.EventTypeKeywordMatched &&
-			data.RewardID != "" &&
-			entity.RewardID.Valid &&
+			data.KeywordID != "" &&
+			entity.KeywordID.Valid &&
 			data.KeywordID != entity.KeywordID.String {
 			continue
 		}
