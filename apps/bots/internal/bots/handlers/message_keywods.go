@@ -78,6 +78,7 @@ func (c *Handlers) handleKeywords(
 
 			query := make(map[string]any)
 
+			var responses []string
 			if !isOnCooldown && k.Response != "" {
 				requestStruct := &parser.ParseTextRequestData{
 					Channel: &parser.Channel{
@@ -104,50 +105,51 @@ func (c *Handlers) handleKeywords(
 						slog.Any("err", err),
 						slog.String("channelId", msg.Channel.ID),
 					)
-					return
 				}
 
-				_, err = c.eventsGrpc.KeywordMatched(
-					context.Background(), &events.KeywordMatchedMessage{
-						BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
-						KeywordId:       k.ID,
-						KeywordName:     k.Text,
-						KeywordResponse: strings.Join(res.Responses, " "),
-						UserId:          msg.User.ID,
-						UserName:        msg.User.Name,
-						UserDisplayName: msg.User.DisplayName,
-					},
+				responses = res.Responses
+			}
+
+			_, err = c.eventsGrpc.KeywordMatched(
+				context.Background(), &events.KeywordMatchedMessage{
+					BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
+					KeywordId:       k.ID,
+					KeywordName:     k.Text,
+					KeywordResponse: strings.Join(responses, " "),
+					UserId:          msg.User.ID,
+					UserName:        msg.User.Name,
+					UserDisplayName: msg.User.DisplayName,
+				},
+			)
+			if err != nil {
+				c.logger.Error(
+					"cannot send keywords matched event",
+					slog.Any("err", err),
+					slog.String("channelId", msg.Channel.ID),
+					slog.String("userId", msg.User.ID),
 				)
-				if err != nil {
-					c.logger.Error(
-						"cannot send keywords matched event",
-						slog.Any("err", err),
-						slog.String("channelId", msg.Channel.ID),
-						slog.String("userId", msg.User.ID),
+			}
+
+			for _, r := range responses {
+				validateResponseErr := ValidateResponseSlashes(r)
+				if validateResponseErr != nil {
+					c.BotClient.SayWithRateLimiting(
+						msg.Channel.Name,
+						validateResponseErr.Error(),
+						nil,
+					)
+				} else {
+					c.BotClient.SayWithRateLimiting(
+						msg.Channel.Name,
+						r,
+						lo.If(k.IsReply, &msg.ID).Else(nil),
 					)
 				}
-
-				for _, r := range res.Responses {
-					validateResponseErr := ValidateResponseSlashes(r)
-					if validateResponseErr != nil {
-						c.BotClient.SayWithRateLimiting(
-							msg.Channel.Name,
-							validateResponseErr.Error(),
-							nil,
-						)
-					} else {
-						c.BotClient.SayWithRateLimiting(
-							msg.Channel.Name,
-							r,
-							lo.If(k.IsReply, &msg.ID).Else(nil),
-						)
-					}
-				}
-
-				query["cooldownExpireAt"] = time.Now().
-					Add(time.Duration(k.Cooldown) * time.Second).
-					UTC()
 			}
+
+			query["cooldownExpireAt"] = time.Now().
+				Add(time.Duration(k.Cooldown) * time.Second).
+				UTC()
 
 			query["usages"] = k.Usages + timesInMessage
 			err = c.db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(query).Error
