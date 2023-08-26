@@ -76,10 +76,14 @@ func (c *Handlers) handleKeywords(
 				isOnCooldown = k.CooldownExpireAt.Time.After(time.Now().UTC())
 			}
 
+			if isOnCooldown {
+				return
+			}
+
 			query := make(map[string]any)
 
 			var responses []string
-			if !isOnCooldown && k.Response != "" {
+			if k.Response != "" {
 				requestStruct := &parser.ParseTextRequestData{
 					Channel: &parser.Channel{
 						Id:   msg.Channel.ID,
@@ -111,7 +115,8 @@ func (c *Handlers) handleKeywords(
 			}
 
 			_, err = c.eventsGrpc.KeywordMatched(
-				context.Background(), &events.KeywordMatchedMessage{
+				context.Background(),
+				&events.KeywordMatchedMessage{
 					BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 					KeywordId:       k.ID,
 					KeywordName:     k.Text,
