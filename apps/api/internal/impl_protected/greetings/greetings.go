@@ -122,7 +122,8 @@ func (c *Greetings) GreetingsEnableOrDisable(
 	entity := &model.ChannelsGreetings{}
 	err := c.Db.
 		WithContext(ctx).
-		Find(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).Error
+		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
+		Find(entity).Error
 	if err != nil {
 		return nil, err
 	}
