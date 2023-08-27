@@ -30,7 +30,7 @@ func (c *Auth) AuthGetLink(
 	request *auth.GetLinkRequest,
 ) (*auth.GetLinkResponse, error) {
 	if request.State == "" {
-		return nil, twirp.NewError(twirp.ErrorCode(400), "no state provided")
+		return nil, twirp.NewError("400", "no state provided")
 	}
 
 	twitchClient, err := helix.NewClientWithContext(
@@ -149,7 +149,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	}
 
 	dbUser.TokenID = sql.NullString{
-		String: dbUser.Token.ID,
+		String: tokenData.ID,
 		Valid:  true,
 	}
 
@@ -185,7 +185,8 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
 
 	c.Grpc.EventSub.SubscribeToEvents(
-		ctx, &eventsub.SubscribeToEventsRequest{
+		ctx,
+		&eventsub.SubscribeToEventsRequest{
 			ChannelId: dbUser.ID,
 		},
 	)
