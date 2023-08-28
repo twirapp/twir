@@ -14,7 +14,7 @@ defineSlots<{
 withDefaults(defineProps<{
 	contentStyle?: CSSProperties
 }>(), {
-	contentStyle: () => ({ padding: '5px'}),
+	contentStyle: () => ({ padding: '0px' }),
 });
 
 const widgets = useWidgets();
