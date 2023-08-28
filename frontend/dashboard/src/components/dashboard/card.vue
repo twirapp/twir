@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { IconGripVertical, IconEyeOff } from '@tabler/icons-vue';
 import { NCard, NButton } from 'naive-ui';
-import { useAttrs } from 'vue';
+import { type CSSProperties, useAttrs } from 'vue';
 
 import { useWidgets, type WidgetItem } from './widgets.js';
 
@@ -12,9 +12,9 @@ defineSlots<{
 }>();
 
 withDefaults(defineProps<{
-	contentStyle?: string
+	contentStyle?: CSSProperties
 }>(), {
-	contentStyle: 'padding: 0px;',
+	contentStyle: () => ({ padding: '5px'}),
 });
 
 const widgets = useWidgets();

@@ -36,7 +36,7 @@ const chatUrl = computed(() => {
 </script>
 
 <template>
-	<card content-style="margin-bottom: 10px; padding: 0px">
+	<card :content-style="{ 'margin-bottom': '10px', padding: '0px' }">
 		<template #header-extra>
 			<n-button size="small" text @click="toggleTheme">
 				<IconSun v-if="chatTheme === 'dark'" color="orange" />
