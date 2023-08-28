@@ -11,6 +11,12 @@ defineSlots<{
 	'header-extra'?: any
 }>();
 
+withDefaults(defineProps<{
+	contentStyle?: string
+}>(), {
+	contentStyle: 'padding: 0px;',
+});
+
 const widgets = useWidgets();
 
 const attrs = useAttrs() as { item: WidgetItem, [x: string]: unknown };
@@ -29,7 +35,7 @@ const hideItem = () => {
 			footer: 'soft'
 		}"
 		header-style="padding: 5px;"
-		content-style="padding: 0px;"
+		:content-style="contentStyle"
 		style="width: 100%; height: 100%"
 		v-bind="$attrs"
 	>
@@ -56,4 +62,3 @@ const hideItem = () => {
 		</template>
 	</n-card>
 </template>
-./widgets.js

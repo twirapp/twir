@@ -9,7 +9,8 @@
 		"dev": "go run ./tools/dev.go",
 		"build": "turbo run build --filter=!./apps/dota",
 		"build:libs": "turbo run build --filter=./libs/**",
-		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts"
+		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts",
+		"caddy": "caddy reverse-proxy --from twir.satont.localhost --to 127.0.0.1:3005"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {
