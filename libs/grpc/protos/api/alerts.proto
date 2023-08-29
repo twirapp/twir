@@ -9,6 +9,8 @@ message Alert {
 	int32 audio_volume = 4;
 	repeated string command_ids = 5;
 	repeated string reward_ids = 6;
+	repeated string greetings_ids = 7;
+	repeated string keywords_ids = 8;
 }
 
 message CreateRequest {
@@ -17,6 +19,8 @@ message CreateRequest {
 	int32 audio_volume = 3;
 	repeated string command_ids = 4;
 	repeated string reward_ids = 5;
+	repeated string greetings_ids = 6;
+	repeated string keywords_ids = 7;
 }
 
 message RemoveRequest {
@@ -34,6 +38,8 @@ message UpdateRequest {
 	int32 audio_volume = 4;
 	repeated string command_ids = 5;
 	repeated string reward_ids = 6;
+	repeated string greetings_ids = 7;
+	repeated string keywords_ids = 8;
 }
 
 message GetOneRequest {

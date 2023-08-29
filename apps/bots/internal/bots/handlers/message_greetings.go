@@ -4,7 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/lib/pq"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"go.uber.org/zap"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
@@ -52,6 +55,30 @@ func (c *Handlers) handleGreetings(
 	}
 
 	defer c.greetingsCounter.Inc()
+
+	defer func() {
+		alert := model.ChannelAlert{}
+		if err := c.db.Where(
+			"channel_id = ? AND greetings_ids && ?",
+			msg.Channel.ID,
+			pq.StringArray{entity.ID},
+		).Find(&alert).Error; err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		if alert.ID == "" {
+			return
+		}
+
+		c.websocketsGrpc.TriggerAlert(
+			context.Background(),
+			&websockets.TriggerAlertRequest{
+				ChannelId: msg.Channel.ID,
+				AlertId:   alert.ID,
+			},
+		)
+	}()
 
 	requestStruct := &parser.ParseTextRequestData{
 		Channel: &parser.Channel{

@@ -9,7 +9,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/lib/pq"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"go.uber.org/zap"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
@@ -165,6 +168,29 @@ func (c *Handlers) handleKeywords(
 					slog.String("channelId", msg.Channel.ID),
 				)
 			}
+
+			defer func() {
+				alert := model.ChannelAlert{}
+				if err := c.db.Where(
+					"channel_id = ? AND keywords_ids && ?",
+					msg.Channel.ID,
+					pq.StringArray{k.ID},
+				).Find(&alert).Error; err != nil {
+					zap.S().Error(err)
+					return
+				}
+
+				if alert.ID == "" {
+					return
+				}
+				c.websocketsGrpc.TriggerAlert(
+					context.Background(),
+					&websockets.TriggerAlertRequest{
+						ChannelId: msg.Channel.ID,
+						AlertId:   alert.ID,
+					},
+				)
+			}()
 		}(k)
 	}
 

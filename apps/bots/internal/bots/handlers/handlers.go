@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 
 	"github.com/satont/twir/apps/bots/types"
@@ -22,25 +23,27 @@ type BotInstance struct {
 }
 
 type Opts struct {
-	DB         *gorm.DB
-	Logger     logger.Logger
-	Cfg        cfg.Config
-	BotClient  *types.BotClient
-	ParserGrpc parser.ParserClient
-	EventsGrpc events.EventsClient
-	TokensGrpc tokens.TokensClient
-	Redis      *redis.Client
+	DB             *gorm.DB
+	Logger         logger.Logger
+	Cfg            cfg.Config
+	BotClient      *types.BotClient
+	ParserGrpc     parser.ParserClient
+	EventsGrpc     events.EventsClient
+	TokensGrpc     tokens.TokensClient
+	WebsocketsGrpc websockets.WebsocketClient
+	Redis          *redis.Client
 }
 
 type Handlers struct {
-	db         *gorm.DB
-	logger     logger.Logger
-	BotClient  *types.BotClient
-	cfg        cfg.Config
-	parserGrpc parser.ParserClient
-	eventsGrpc events.EventsClient
-	redis      *redis.Client
-	tokensGrpc tokens.TokensClient
+	db             *gorm.DB
+	logger         logger.Logger
+	BotClient      *types.BotClient
+	cfg            cfg.Config
+	parserGrpc     parser.ParserClient
+	eventsGrpc     events.EventsClient
+	redis          *redis.Client
+	tokensGrpc     tokens.TokensClient
+	websocketsGrpc websockets.WebsocketClient
 
 	workersPool *gopool.Pool
 
@@ -82,6 +85,7 @@ func CreateHandlers(opts *Opts) *Handlers {
 		eventsGrpc:       opts.EventsGrpc,
 		workersPool:      workersPool,
 		tokensGrpc:       opts.TokensGrpc,
+		websocketsGrpc:   opts.WebsocketsGrpc,
 	}
 
 	prometheus.Register(greetingsCounter)

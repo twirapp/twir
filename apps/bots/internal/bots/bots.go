@@ -1,12 +1,14 @@
 package bots
 
 import (
+	"sync"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
-	"sync"
 
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/parser"
@@ -20,13 +22,14 @@ import (
 type Opts struct {
 	fx.In
 
-	DB         *gorm.DB
-	Logger     logger.Logger
-	Cfg        cfg.Config
-	ParserGrpc parser.ParserClient
-	TokensGrpc tokens.TokensClient
-	EventsGrpc events.EventsClient
-	
+	DB             *gorm.DB
+	Logger         logger.Logger
+	Cfg            cfg.Config
+	ParserGrpc     parser.ParserClient
+	TokensGrpc     tokens.TokensClient
+	EventsGrpc     events.EventsClient
+	WebsocketsGrpc websockets.WebsocketClient
+
 	Redis *redis.Client
 }
 
@@ -67,14 +70,15 @@ func NewBotsService(opts Opts) *Service {
 		bot := bot
 		instance := newBot(
 			ClientOpts{
-				DB:         opts.DB,
-				Cfg:        opts.Cfg,
-				Logger:     opts.Logger,
-				Model:      &bot,
-				ParserGrpc: opts.ParserGrpc,
-				TokensGrpc: opts.TokensGrpc,
-				EventsGrpc: opts.EventsGrpc,
-				Redis:      opts.Redis,
+				DB:             opts.DB,
+				Cfg:            opts.Cfg,
+				Logger:         opts.Logger,
+				Model:          &bot,
+				ParserGrpc:     opts.ParserGrpc,
+				TokensGrpc:     opts.TokensGrpc,
+				EventsGrpc:     opts.EventsGrpc,
+				WebsocketsGrpc: opts.WebsocketsGrpc,
+				Redis:          opts.Redis,
 			},
 		)
 

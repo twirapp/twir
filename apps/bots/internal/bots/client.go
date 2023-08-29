@@ -3,12 +3,14 @@ package bots
 import (
 	"context"
 	"fmt"
-	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/utils"
 	"log/slog"
 	"sync"
 	"time"
+
+	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/utils"
 
 	"github.com/google/uuid"
 
@@ -34,14 +36,15 @@ import (
 )
 
 type ClientOpts struct {
-	DB         *gorm.DB
-	Cfg        cfg.Config
-	Logger     logger.Logger
-	Model      *model.Bots
-	ParserGrpc parser.ParserClient
-	TokensGrpc tokens.TokensClient
-	EventsGrpc events.EventsClient
-	Redis      *redis.Client
+	DB             *gorm.DB
+	Cfg            cfg.Config
+	Logger         logger.Logger
+	Model          *model.Bots
+	ParserGrpc     parser.ParserClient
+	TokensGrpc     tokens.TokensClient
+	EventsGrpc     events.EventsClient
+	WebsocketsGrpc websockets.WebsocketClient
+	Redis          *redis.Client
 }
 
 func newBot(opts ClientOpts) *types.BotClient {
@@ -91,21 +94,26 @@ func newBot(opts ClientOpts) *types.BotClient {
 
 	client.Client = irc.NewClient(me.Login, "")
 	client.TwitchUser = &me
-	client.Client.Capabilities = []string{irc.TagsCapability, irc.MembershipCapability, irc.CommandsCapability}
+	client.Client.Capabilities = []string{
+		irc.TagsCapability,
+		irc.MembershipCapability,
+		irc.CommandsCapability,
+	}
 	client.RateLimiters.Channels = types.ChannelsMap{
 		Items: make(map[string]*types.Channel),
 	}
 
 	botHandlers := handlers.CreateHandlers(
 		&handlers.Opts{
-			DB:         opts.DB,
-			Logger:     opts.Logger,
-			Cfg:        opts.Cfg,
-			BotClient:  &client,
-			ParserGrpc: opts.ParserGrpc,
-			EventsGrpc: opts.EventsGrpc,
-			TokensGrpc: opts.TokensGrpc,
-			Redis:      opts.Redis,
+			DB:             opts.DB,
+			Logger:         opts.Logger,
+			Cfg:            opts.Cfg,
+			BotClient:      &client,
+			ParserGrpc:     opts.ParserGrpc,
+			EventsGrpc:     opts.EventsGrpc,
+			TokensGrpc:     opts.TokensGrpc,
+			WebsocketsGrpc: opts.WebsocketsGrpc,
+			Redis:          opts.Redis,
 		},
 	)
 
@@ -122,7 +130,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 
 			twitchClient.SetUserAccessToken(token.AccessToken)
 
-			//joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
+			// joinChannels(opts.DB, opts.Cfg, opts.Logger, &client)
 			client.Client.SetIRCToken(fmt.Sprintf("oauth:%s", token.AccessToken))
 			meReq, err := twitchClient.GetUsers(
 				&helix.UsersParams{

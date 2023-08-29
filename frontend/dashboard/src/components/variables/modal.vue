@@ -132,7 +132,7 @@ const selectOptions: Array<SelectOption> = [
 			</n-form-item>
 		</n-space>
 		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
-			{{ t('sharedTexts.save') }}
+			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
 </template>

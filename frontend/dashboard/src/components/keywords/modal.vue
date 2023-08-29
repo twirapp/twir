@@ -152,7 +152,7 @@ const rules: FormRules = {
 			</n-grid>
 
 			<n-button secondary type="success" block @click="save">
-				{{ t('sharedTexts.save') }}
+				{{ t('sharedButtons.save') }}
 			</n-button>
 		</n-space>
 	</n-form>

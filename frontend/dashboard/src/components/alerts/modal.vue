@@ -20,7 +20,13 @@ import { useI18n } from 'vue-i18n';
 import { type EditableAlert } from './types.js';
 import rewardsSelector from '../rewardsSelector.vue';
 
-import { useAlertsManager, useCommandsManager, useFiles, useProfile } from '@/api';
+import {
+	useAlertsManager,
+	useCommandsManager,
+	useFiles,
+	useGreetingsManager, useKeywordsManager,
+	useProfile, useTwitchGetUsers,
+} from '@/api';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
 
@@ -39,6 +45,8 @@ const formValue = ref<EditableAlert>({
 	audioVolume: 100,
 	commandIds: [],
 	rewardIds: [],
+	greetingsIds: [],
+	keywordsIds: [],
 });
 
 onMounted(() => {
@@ -111,6 +119,24 @@ const { data: commands } = commandsManager.getAll({});
 const commandsSelectOptions = computed(() => commands.value?.commands
 	.map(c => ({ label: c.name, value: c.id }),
 ));
+
+const greetingsManager = useGreetingsManager();
+const { data: greetings } = greetingsManager.getAll({});
+const greetingsUsersIds = computed(() => greetings.value?.greetings.map(g => g.userId) ?? []);
+const { data: twitchUsers } = useTwitchGetUsers({ ids: greetingsUsersIds });
+const greetingsSelectOptions = computed(() => {
+	if (!greetingsUsersIds.value.length || !twitchUsers.value?.users.length) return [];
+	return greetings.value?.greetings.map(g => {
+		const twitchUser = twitchUsers.value.users.find(u => u.id === g.userId);
+		return { label: twitchUser?.login ?? g.userId, value: g.id };
+	});
+});
+
+const keywordsManager = useKeywordsManager();
+const { data: keywords } = keywordsManager.getAll({});
+const keywordsSelectOptions = computed(() => keywords.value?.keywords
+	.map(k => ({ label: k.text, value: k.id })),
+);
 </script>
 
 <template>
@@ -132,6 +158,14 @@ const commandsSelectOptions = computed(() => commands.value?.commands
 
 			<n-form-item label="Rewards for trigger" path="rewardIds">
 				<rewardsSelector v-model="formValue.rewardIds" multiple />
+			</n-form-item>
+
+			<n-form-item label="Keywords for trigger" path="rewardIds">
+				<n-select v-model:value="formValue.keywordsIds" filterable multiple :options="keywordsSelectOptions" />
+			</n-form-item>
+
+			<n-form-item label="Greetings for trigger" path="rewardIds">
+				<n-select v-model:value="formValue.greetingsIds" filterable multiple :options="greetingsSelectOptions" />
 			</n-form-item>
 
 			<n-divider />

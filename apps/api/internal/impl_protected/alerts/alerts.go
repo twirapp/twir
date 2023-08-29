@@ -21,12 +21,14 @@ type Alerts struct {
 
 func (c *Alerts) convertEntity(entity model.ChannelAlert) *alerts.Alert {
 	return &alerts.Alert{
-		Id:          entity.ID,
-		Name:        entity.Name,
-		AudioId:     entity.AudioID.Ptr(),
-		AudioVolume: int32(entity.AudioVolume),
-		CommandIds:  entity.CommandIDS,
-		RewardIds:   entity.RewardIDS,
+		Id:           entity.ID,
+		Name:         entity.Name,
+		AudioId:      entity.AudioID.Ptr(),
+		AudioVolume:  int32(entity.AudioVolume),
+		CommandIds:   entity.CommandIDS,
+		RewardIds:    entity.RewardIDS,
+		GreetingsIds: entity.GreetingsIDS,
+		KeywordsIds:  entity.KeywordsIDS,
 	}
 }
 
@@ -68,13 +70,15 @@ func (c *Alerts) AlertsCreate(ctx context.Context, req *alerts.CreateRequest) (
 
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := model.ChannelAlert{
-		ID:          uuid.New().String(),
-		ChannelID:   dashboardId,
-		Name:        req.Name,
-		AudioID:     null.StringFromPtr(req.AudioId),
-		AudioVolume: int(req.AudioVolume),
-		CommandIDS:  req.CommandIds,
-		RewardIDS:   req.RewardIds,
+		ID:           uuid.New().String(),
+		ChannelID:    dashboardId,
+		Name:         req.Name,
+		AudioID:      null.StringFromPtr(req.AudioId),
+		AudioVolume:  int(req.AudioVolume),
+		CommandIDS:   req.CommandIds,
+		RewardIDS:    req.RewardIds,
+		GreetingsIDS: req.GreetingsIds,
+		KeywordsIDS:  req.KeywordsIds,
 	}
 
 	if err := c.Db.WithContext(ctx).Create(&entity).Error; err != nil {
@@ -140,6 +144,8 @@ func (c *Alerts) AlertsUpdate(ctx context.Context, req *alerts.UpdateRequest) (
 	entity.AudioVolume = int(req.AudioVolume)
 	entity.CommandIDS = req.CommandIds
 	entity.RewardIDS = req.RewardIds
+	entity.GreetingsIDS = req.GreetingsIds
+	entity.KeywordsIDS = req.KeywordsIds
 
 	if err := c.Db.WithContext(ctx).Save(entity).Error; err != nil {
 		c.Logger.Error(
