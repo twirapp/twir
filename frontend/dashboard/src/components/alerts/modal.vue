@@ -153,14 +153,15 @@ const commandsSelectOptions = computed(() => commands.value?.commands
 				</div>
 			</n-form-item>
 
-			<n-form-item label="Audio Volume">
+			<n-form-item :label="`Audio Volume (${formValue.audioVolume})`">
 				<n-slider
 					v-model:value="formValue.audioVolume"
-					show-tooltip
 					:step="1"
 					:min="1"
 					:max="100"
-					:marks="{ 1: '1', 50: '50', 100: '100' }"
+					:marks="{ 1: '1', 100: '100' }"
+					:show-tooltip="false"
+					:tooltip="false"
 				/>
 			</n-form-item>
 
