@@ -1,8 +1,9 @@
 package handlers
 
 import (
-	model "github.com/satont/twir/libs/gomodels"
 	"log/slog"
+
+	model "github.com/satont/twir/libs/gomodels"
 
 	uuid "github.com/satori/go.uuid"
 )
@@ -15,10 +16,6 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 			slog.Any("err", err),
 			slog.String("channelId", channelId),
 		)
-		return
-	}
-
-	if stream.ID == "" {
 		return
 	}
 
@@ -66,7 +63,7 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 					slog.String("channelId", userId),
 				)
 			}
-		} else {
+		} else if stream.ID != "" {
 			err := c.db.
 				Model(&user.Stats).
 				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).

@@ -10,6 +10,9 @@ const routes = [
 	{
 		name: 'Song requests',
 	},
+	{
+		name: 'TTS Settings',
+	},
 ];
 
 </script>
@@ -25,7 +28,6 @@ const routes = [
 				'bg-neutral-700': router.currentRoute.value.name !== r.name
 			}"
 			@click="() => {
-				console.log(r.name)
 				router.push({ name: r.name })
 			}"
 		>

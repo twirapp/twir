@@ -23,6 +23,11 @@ const router = createRouter({
 					path: '/p/:channelName/songs-requests',
 					component: () => import('./pages/SongRequests.vue'),
 				},
+				{
+					name: 'TTS Settings',
+					path: '/p/:channelName/tts-settings',
+					component: () => import('./pages/TTSSettings.vue'),
+				},
 			],
 		},
 	],

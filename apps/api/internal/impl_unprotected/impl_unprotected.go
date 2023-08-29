@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/songs"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/stats"
+	"github.com/satont/twir/apps/api/internal/impl_unprotected/tts"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -30,6 +31,7 @@ type UnProtected struct {
 	*auth.Auth
 	*modules.Modules
 	*songs.Songs
+	*tts.Tts
 }
 
 type Opts struct {
@@ -107,5 +109,6 @@ func New(opts Opts) *UnProtected {
 		Songs: &songs.Songs{
 			Deps: d,
 		},
+		Tts: &tts.Tts{Deps: d},
 	}
 }
