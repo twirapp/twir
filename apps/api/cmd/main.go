@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/satont/twir/apps/api/internal/files"
-	"github.com/satont/twir/libs/grpc/generated/eventsub"
-	"github.com/satont/twir/libs/logger"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/getsentry/sentry-go"
+	"github.com/satont/twir/apps/api/internal/files"
+	"github.com/satont/twir/libs/grpc/generated/eventsub"
+	"github.com/satont/twir/libs/logger"
 
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"github.com/satont/twir/libs/grpc/generated/timers"
@@ -46,11 +48,25 @@ func main() {
 				}
 				return config
 			},
-			func(config *cfg.Config) logger.Logger {
+			func(config *cfg.Config) (*sentry.Client, error) {
+				if config.SentryDsn == "" {
+					return nil, nil
+				}
+
+				s, err := sentry.NewClient(
+					sentry.ClientOptions{
+						Dsn: config.SentryDsn,
+					},
+				)
+
+				return s, err
+			},
+			func(config *cfg.Config, s *sentry.Client) logger.Logger {
 				return logger.New(
 					logger.Opts{
 						Env:     config.AppEnv,
 						Service: "api",
+						Sentry:  s,
 					},
 				)
 			},

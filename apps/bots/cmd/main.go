@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
@@ -15,18 +17,31 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/fx"
-	"net/http"
 )
 
 func main() {
 	fx.New(
 		fx.Provide(
 			cfg.NewFx,
-			func(config cfg.Config) logger.Logger {
+			func(config cfg.Config) (*sentry.Client, error) {
+				if config.SentryDsn == "" {
+					return nil, nil
+				}
+
+				s, err := sentry.NewClient(
+					sentry.ClientOptions{
+						Dsn: config.SentryDsn,
+					},
+				)
+
+				return s, err
+			},
+			func(config cfg.Config, s *sentry.Client) logger.Logger {
 				return logger.New(
 					logger.Opts{
 						Env:     config.AppEnv,
 						Service: "timers",
+						Sentry:  s,
 					},
 				)
 			},

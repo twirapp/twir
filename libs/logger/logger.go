@@ -6,6 +6,8 @@ import (
 	"os"
 	"runtime"
 	"time"
+
+	"github.com/getsentry/sentry-go"
 )
 
 type Logger interface {
@@ -16,11 +18,16 @@ type Logger interface {
 
 type logger struct {
 	log *slog.Logger
+
+	service string
+	sentry  *sentry.Client
 }
 
 type Opts struct {
 	Env     string
 	Service string
+
+	Sentry *sentry.Client
 }
 
 func New(opts Opts) Logger {
@@ -57,7 +64,9 @@ func New(opts Opts) Logger {
 	}
 
 	return &logger{
-		log: log,
+		log:     log,
+		sentry:  opts.Sentry,
+		service: opts.Service,
 	}
 }
 
@@ -77,6 +86,24 @@ func (c *logger) Info(input string, fields ...any) {
 
 func (c *logger) Error(input string, fields ...any) {
 	c.handle(slog.LevelError, input, fields...)
+
+	if c.sentry != nil {
+		scope := sentry.NewScope()
+
+		for _, f := range fields {
+			casted, ok := f.(slog.Attr)
+			if !ok {
+				continue
+			}
+
+			scope.SetExtra(casted.Key, casted.Value.Any())
+		}
+
+		scope.SetTag("service", c.service)
+		scope.SetExtra("service", c.service)
+
+		c.sentry.CaptureMessage(input, &sentry.EventHint{}, scope)
+	}
 }
 
 func (c *logger) Debug(input string, fields ...any) {
