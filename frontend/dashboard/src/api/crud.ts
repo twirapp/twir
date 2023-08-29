@@ -112,7 +112,7 @@ export const useCommandsManager = () => createCrudManager({
 	patch: protectedApiClient?.commandsEnableOrDisable,
 	deleteOne: protectedApiClient?.commandsDelete,
 	getOne: protectedApiClient?.commandsGetById,
-	invalidateAdditionalQueries: ['commands/groups'],
+	invalidateAdditionalQueries: ['commands/groups', 'alerts'],
 });
 
 export const useCommandsGroupsManager = () => createCrudManager({
@@ -195,5 +195,4 @@ export const useAlertsManager = () => createCrudManager({
 	patch: null,
 	deleteOne: protectedApiClient?.alertsDelete,
 	getOne: null,
-	invalidateAdditionalQueries: ['alerts'],
 });

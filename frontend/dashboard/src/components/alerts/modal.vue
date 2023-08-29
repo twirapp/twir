@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { IconPlayerPlay, IconTrash } from '@tabler/icons-vue';
 import {
-	type FormInst,
-	type FormItemRule,
-	type FormRules,
-	NButton,
-	NForm,
-	NFormItem,
-	NInput,
-	NModal,
-	NSlider,
-	NSpace,
-	NDivider,
-	NSelect,
+  type FormInst,
+  type FormItemRule,
+  type FormRules,
+  NButton,
+  NForm,
+  NFormItem,
+  NInput,
+  NModal,
+  NSlider,
+  NSpace,
+  NDivider,
+  NSelect,
 } from 'naive-ui';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -21,52 +21,52 @@ import { type EditableAlert } from './types.js';
 import rewardsSelector from '../rewardsSelector.vue';
 
 import {
-	useAlertsManager,
-	useCommandsManager,
-	useFiles,
-	useGreetingsManager, useKeywordsManager,
-	useProfile, useTwitchGetUsers,
+  useAlertsManager,
+  useCommandsManager,
+  useFiles,
+  useGreetingsManager, useKeywordsManager,
+  useProfile, useTwitchGetUsers,
 } from '@/api';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
 
 const props = defineProps<{
-	alert?: EditableAlert | null
+  alert?: EditableAlert | null
 }>();
 const emits = defineEmits<{
-	close: []
+  close: []
 }>();
 
 const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableAlert>({
-	id: '',
-	name: '',
-	audioId: undefined,
-	audioVolume: 100,
-	commandIds: [],
-	rewardIds: [],
-	greetingsIds: [],
-	keywordsIds: [],
+  id: '',
+  name: '',
+  audioId: undefined,
+  audioVolume: 100,
+  commandIds: [],
+  rewardIds: [],
+  greetingsIds: [],
+  keywordsIds: [],
 });
 
 onMounted(() => {
-	if (!props.alert) return;
-	formValue.value = structuredClone(toRaw(props.alert));
+  if (!props.alert) return;
+  formValue.value = structuredClone(toRaw(props.alert));
 });
 
 const { t } = useI18n();
 
 const rules: FormRules = {
-	name: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: string) => {
-			if (!value || !value.length || value.length > 30) {
-				return new Error(t('alerts.validations.name'));
-			}
+  name: {
+    trigger: ['input', 'blur'],
+    validator: (_: FormItemRule, value: string) => {
+      if (!value || !value.length || value.length > 30) {
+        return new Error(t('alerts.validations.name'));
+      }
 
-			return true;
-		},
-	},
+      return true;
+    },
+  },
 };
 
 const manager = useAlertsManager();
@@ -74,21 +74,21 @@ const creator = manager.create;
 const updater = manager.update;
 
 async function save() {
-	if (!formRef.value || !formValue.value) return;
-	await formRef.value.validate();
+  if (!formRef.value || !formValue.value) return;
+  await formRef.value.validate();
 
-	const data = formValue.value;
+  const data = formValue.value;
 
-	if (data.id) {
-		await updater.mutateAsync({
-			...data,
-			id: data.id!,
-		});
-	} else {
-		await creator.mutateAsync(data);
-	}
+  if (data.id) {
+    await updater.mutateAsync({
+      ...data,
+      id: data.id!,
+    });
+  } else {
+    await creator.mutateAsync(data);
+  }
 
-	emits('close');
+  emits('close');
 }
 
 const { data: files } = useFiles();
@@ -98,44 +98,44 @@ const showAudioModal = ref(false);
 const { data: profile } = useProfile();
 
 async function testAudio() {
-	if (!selectedAudio.value?.id || !profile.value) return;
+  if (!selectedAudio.value?.id || !profile.value) return;
 
-	const query = new URLSearchParams({
-		channel_id: profile.value.selectedDashboardId,
-		file_id: selectedAudio.value.id,
-	});
+  const query = new URLSearchParams({
+    channel_id: profile.value.selectedDashboardId,
+    file_id: selectedAudio.value.id,
+  });
 
-	const req = await fetch(`${window.location.origin}/api/files/?${query}`);
-	if (!req.ok) {
-		console.error(await req.text());
-		return;
-	}
+  const req = await fetch(`${window.location.origin}/api/files/?${query}`);
+  if (!req.ok) {
+    console.error(await req.text());
+    return;
+  }
 
-	await playAudio(await req.arrayBuffer(), formValue.value.audioVolume);
+  await playAudio(await req.arrayBuffer(), formValue.value.audioVolume);
 }
 
 const commandsManager = useCommandsManager();
 const { data: commands } = commandsManager.getAll({});
 const commandsSelectOptions = computed(() => commands.value?.commands
-	.map(c => ({ label: c.name, value: c.id }),
-));
+    .map(c => ({ label: c.name, value: c.id })),
+);
 
 const greetingsManager = useGreetingsManager();
 const { data: greetings } = greetingsManager.getAll({});
 const greetingsUsersIds = computed(() => greetings.value?.greetings.map(g => g.userId) ?? []);
 const { data: twitchUsers } = useTwitchGetUsers({ ids: greetingsUsersIds });
 const greetingsSelectOptions = computed(() => {
-	if (!greetingsUsersIds.value.length || !twitchUsers.value?.users.length) return [];
-	return greetings.value?.greetings.map(g => {
-		const twitchUser = twitchUsers.value.users.find(u => u.id === g.userId);
-		return { label: twitchUser?.login ?? g.userId, value: g.id };
-	});
+  if (!greetingsUsersIds.value.length || !twitchUsers.value?.users.length) return [];
+  return greetings.value?.greetings.map(g => {
+    const twitchUser = twitchUsers.value.users.find(u => u.id === g.userId);
+    return { label: twitchUser?.login ?? g.userId, value: g.id };
+  });
 });
 
 const keywordsManager = useKeywordsManager();
 const { data: keywords } = keywordsManager.getAll({});
 const keywordsSelectOptions = computed(() => keywords.value?.keywords
-	.map(k => ({ label: k.text, value: k.id })),
+    .map(k => ({ label: k.text, value: k.id })),
 );
 </script>
 
@@ -153,7 +153,13 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			<n-divider />
 
 			<n-form-item label="Commands for trigger" path="commandIds">
-				<n-select v-model:value="formValue.commandIds" filterable multiple :options="commandsSelectOptions" />
+				<n-select
+					v-model:value="formValue.commandIds"
+					:fallback-option="false"
+					filterable
+					multiple
+					:options="commandsSelectOptions"
+				/>
 			</n-form-item>
 
 			<n-form-item label="Rewards for trigger" path="rewardIds">
@@ -161,11 +167,23 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			</n-form-item>
 
 			<n-form-item label="Keywords for trigger" path="rewardIds">
-				<n-select v-model:value="formValue.keywordsIds" filterable multiple :options="keywordsSelectOptions" />
+				<n-select
+					v-model:value="formValue.keywordsIds"
+					:fallback-option="false"
+					filterable
+					multiple
+					:options="keywordsSelectOptions"
+				/>
 			</n-form-item>
 
 			<n-form-item label="Greetings for trigger" path="rewardIds">
-				<n-select v-model:value="formValue.greetingsIds" filterable multiple :options="greetingsSelectOptions" />
+				<n-select
+					v-model:value="formValue.greetingsIds"
+					:fallback-option="false"
+					filterable
+					multiple
+					:options="greetingsSelectOptions"
+				/>
 			</n-form-item>
 
 			<n-divider />
