@@ -14,19 +14,19 @@ import { useWidgets } from '@/components/dashboard/widgets.js';
 const widgets = useWidgets();
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible));
 const dropdownOptions = computed(() => {
-	return widgets.value
-		.filter((v) => !v.visible)
-		.map((v) => ({ label: v.i, key: v.i }));
+  return widgets.value
+      .filter((v) => !v.visible)
+      .map((v) => ({ label: v.i, key: v.i }));
 });
 
 const addWidget = (key: string) => {
-	const item = widgets.value.find(v => v.i === key);
-	if (!item) return;
+  const item = widgets.value.find(v => v.i === key);
+  if (!item) return;
 
-	const widgetsLength = visibleWidgets.value.length;
+  const widgetsLength = visibleWidgets.value.length;
 
-	item.visible = true;
-	item.x = (widgetsLength * 2) % 12;
+  item.visible = true;
+  item.x = (widgetsLength * 2) % 12;
   item.y = widgetsLength + 12;
 };
 
@@ -38,7 +38,7 @@ const statsBackground = computed(() => theme.value.tabColor);
 	<div style="display: flex; width: 100%;" :style="{ 'background-color': statsBackground }">
 		<Stats />
 	</div>
-	<div style="display: flex; width: 100%; height: 100%; gap: 5px; margin-top: 10px">
+	<div style="width: 100%; height: 100%;">
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
@@ -61,10 +61,10 @@ const statsBackground = computed(() => theme.value.tabColor);
 				<Events v-if="item.i === 'Events'" :item="item" class="item" />
 			</GridItem>
 		</GridLayout>
-		<div v-if="dropdownOptions.length" style="padding-right: 10px; padding-top: 10px;">
+		<div v-if="dropdownOptions.length" style="position: fixed; bottom: 10px; right: 25px">
 			<n-dropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
-				<n-button block dashed type="success" style="width: 100%; height: 100%; padding: 5px">
-					<IconPencilPlus style="width: 30px; height: 30px" />
+				<n-button block circle type="info" style="width: 100%; height: 100%; padding: 5px;">
+					<IconPencilPlus style="width: 45px; height: 45px;" />
 				</n-button>
 			</n-dropdown>
 		</div>
@@ -77,6 +77,6 @@ const statsBackground = computed(() => theme.value.tabColor);
 }
 
 .item {
-	height: 100%;
+  height: 100%;
 }
 </style>
