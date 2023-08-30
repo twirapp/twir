@@ -25,7 +25,7 @@ const channelId = computed<string>(() => {
   return profile.value.id;
 });
 
-const { data: channelSettings, isError: isChannelError } = useTTSChannelSettings(channelId);
+const { data: channelSettings } = useTTSChannelSettings(channelId);
 const { data: usersSettings } = useTTSUsersSettings(channelId);
 
 const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? []);
