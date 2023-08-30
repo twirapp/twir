@@ -62,7 +62,7 @@ services:
 
   tts:
     restart: unless-stopped
-    image: aculeasis/rhvoice-rest:amd64
+    image: aculeasis/rhvoice-rest
     ports:
       - "7000:8080"
     networks:

@@ -487,7 +487,7 @@ services:
       replicas: 2
 
   tts:
-    image: aculeasis/rhvoice-rest:amd64
+    image: aculeasis/rhvoice-rest
     networks:
       - tsuwari
     deploy:
