@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/twir/libs/logger"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/satont/twir/libs/logger"
 
 	"github.com/getsentry/sentry-go"
 	goredislib "github.com/go-redis/redis/v9"
@@ -41,6 +42,7 @@ func main() {
 				Environment:      cfg.AppEnv,
 				Debug:            true,
 				TracesSampleRate: 1.0,
+				AttachStacktrace: true,
 			},
 		)
 	}

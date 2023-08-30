@@ -55,7 +55,8 @@ func main() {
 
 				s, err := sentry.NewClient(
 					sentry.ClientOptions{
-						Dsn: config.SentryDsn,
+						Dsn:              config.SentryDsn,
+						AttachStacktrace: true,
 					},
 				)
 
