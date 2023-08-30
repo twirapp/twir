@@ -2,22 +2,27 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useProfile, useTTSChannelSettings, useTTSUsersSettings, useTwitchGetUsers } from '@/api/index.js';
+import {
+  useProfile,
+  useTTSChannelSettings,
+  useTTSUsersSettings,
+  useTwitchGetUsers,
+} from '@/api/index.js';
 
 const route = useRoute();
 const channelName = computed<string>(() => {
-	if (typeof route.params.channelName != 'string') {
-		return '';
-	}
-	return route.params.channelName;
+  if (typeof route.params.channelName != 'string') {
+    return '';
+  }
+  return route.params.channelName;
 });
 
 const { data: profile } = useProfile(channelName);
 
 const channelId = computed<string>(() => {
-	if (!profile.value) return '';
+  if (!profile.value) return '';
 
-	return profile.value.id;
+  return profile.value.id;
 });
 
 const { data: channelSettings, isError: isChannelError } = useTTSChannelSettings(channelId);
@@ -27,16 +32,16 @@ const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId)
 const { data: users } = useTwitchGetUsers(usersIds);
 
 const usersWithProfiles = computed(() => {
-	return users.value?.users.map(u => {
-		const settings = usersSettings.value?.settings.find(s => s.userId === u.id);
-		if (!settings) return;
+  return users.value?.users.map(u => {
+    const settings = usersSettings.value?.settings.find(s => s.userId === u.id);
+    if (!settings) return;
 
-		return {
-			name: u.displayName,
-			avatar: u.profileImageUrl,
-			...settings,
-		};
-	}).filter(Boolean) ?? [];
+    return {
+      name: u.displayName,
+      avatar: u.profileImageUrl,
+      ...settings,
+    };
+  }).filter(Boolean) ?? [];
 });
 </script>
 
@@ -61,51 +66,29 @@ const usersWithProfiles = computed(() => {
 				</tr>
 			</thead>
 			<tbody class="divide-y divide-neutral-600 border-t border-neutral-600 bg-neutral-700">
-				<tr class="bg-[#24222296] text-center">
-					<th colspan="5" class="px-6 py-4 uppercase">
-						Channel
+				<tr v-if="channelSettings" class="border-b border-purple-400 hover:bg-neutral-600">
+					<th class="px-6 py-4">
+						<img :src="profile?.profileImageUrl" class="rounded-full w-8 h-8" alt="avatar" />
+					</th>
+					<th class="px-6 py-4">
+						{{ profile?.login }}
+					</th>
+					<th class="px-6 py-4">
+						{{ channelSettings.voice }}
+					</th>
+					<th class="px-6 py-4">
+						{{ channelSettings.rate }}
+					</th>
+					<th class="px-6 py-4">
+						{{ channelSettings.pitch }}
 					</th>
 				</tr>
 
-				<tr class="hover:bg-neutral-600">
-					<template v-if="isChannelError || !channelSettings">
-						<th colspan="5" class="px-6 py-4">
-							Not configured
-						</th>
-					</template>
-					<template v-else>
-						<th class="px-6 py-4">
-							<img :src="profile?.profileImageUrl" class="rounded-full w-8 h-8" alt="avatar" />
-						</th>
-						<th class="px-6 py-4">
-							{{ profile?.login }}
-						</th>
-						<th class="px-6 py-4">
-							{{ channelSettings.voice }}
-						</th>
-						<th class="px-6 py-4">
-							{{ channelSettings.rate }}
-						</th>
-						<th class="px-6 py-4">
-							{{ channelSettings.pitch }}
-						</th>
-					</template>
-				</tr>
 
-
-				<tr class="bg-[#24222296] text-center">
-					<th colspan="5" class="px-6 py-4 uppercase">
-						Users
-					</th>
-				</tr>
-
-				<tr v-if="!usersWithProfiles.length" class="hover:bg-neutral-600">
-					<th colspan="5" class="px-6 py-4">
-						Not configured
-					</th>
-				</tr>
-
-				<tr v-for="(user, index) of usersWithProfiles" v-else :key="index" class="hover:bg-neutral-600">
+				<tr
+					v-for="(user, index) of usersWithProfiles" :key="index"
+					class="hover:bg-neutral-600"
+				>
 					<th class="px-6 py-4">
 						<img :src="user!.avatar" class="rounded-full w-8 h-8" alt="avatar" />
 					</th>
