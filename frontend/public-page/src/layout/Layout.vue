@@ -5,7 +5,7 @@ import Profile from './Profile.vue';
 
 <template>
 	<div class="flex flex-col space-y-[30px] w-[100%]">
-		<div class="flex justify-between">
+		<div class="flex justify-between flex-wrap gap-y-5">
 			<div>
 				<Profile />
 			</div>

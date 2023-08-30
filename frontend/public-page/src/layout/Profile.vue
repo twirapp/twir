@@ -7,18 +7,18 @@ import { useProfile } from '@/api/index.js';
 const router = useRouter();
 
 const channelName = computed<string>(() => {
-	if (typeof router.currentRoute.value.params.channelName != 'string') {
-		return '';
-	}
-	return router.currentRoute.value.params.channelName;
+  if (typeof router.currentRoute.value.params.channelName != 'string') {
+    return '';
+  }
+  return router.currentRoute.value.params.channelName;
 });
 
 const { data: profile, isLoading } = useProfile(channelName);
 
 watch(profile, (v) => {
-	if (!v) return;
+  if (!v) return;
 
-	window.document.title = `Twir - ${v.displayName}`;
+  window.document.title = `Twir - ${v.displayName}`;
 });
 </script>
 

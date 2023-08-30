@@ -4,21 +4,21 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 const routes = [
-	{
-		name: 'Commands',
-	},
-	{
-		name: 'Song requests',
-	},
-	{
-		name: 'TTS Settings',
-	},
+  {
+    name: 'Commands',
+  },
+  {
+    name: 'Song requests',
+  },
+  {
+    name: 'TTS Settings',
+  },
 ];
 
 </script>
 
 <template>
-	<div class="flex items-center h-full">
+	<div class="flex flex-wrap items-center h-full">
 		<button
 			v-for="r of routes"
 			:key="r.name"
