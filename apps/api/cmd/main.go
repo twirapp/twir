@@ -165,7 +165,7 @@ func main() {
 				l.Info("Started")
 				l.Error(
 					"Crashed",
-					slog.Any("err", http.ListenAndServe(":3002", sessionManager.LoadAndSave(mux))),
+					slog.Any("err", http.ListenAndServe("0.0.0.0:3002", sessionManager.LoadAndSave(mux))),
 				)
 			},
 		),
