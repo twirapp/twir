@@ -22,7 +22,6 @@ jobs:
             parser,
             scheduler,
             timers,
-            watched,
             websockets,
             tokens,
             emotes-cacher,

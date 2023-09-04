@@ -109,15 +109,6 @@ FROM go_prod_base as tokens
 COPY --from=tokens_builder /app/apps/tokens/out /bin/tokens
 CMD ["/bin/tokens"]
 
-FROM builder as watched_builder
-RUN cd apps/watched && \
-    go mod download && \
-    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
-
-FROM go_prod_base as watched
-COPY --from=watched_builder /app/apps/watched/out /bin/watched
-CMD ["/bin/watched"]
-
 FROM builder as scheduler_builder
 RUN cd apps/scheduler && \
     go mod download && \
