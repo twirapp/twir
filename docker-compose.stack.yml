@@ -141,27 +141,6 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  watched:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: watched
-    image: registry.satont.ru/twir/watched:latest
-    secrets:
-      - tsuwari_doppler_token
-    networks:
-      - tsuwari
-    deploy:
-      update_config:
-        parallelism: 4
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      mode: replicated
-      replicas: 2
-
   parser:
     build:
       context: .
