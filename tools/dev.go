@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -36,8 +37,35 @@ func migrate() {
 	}
 }
 
+func caddy(withCaddy *bool) {
+	if withCaddy == nil || !*withCaddy {
+		return
+	}
+
+	cmd := exec.Command(
+		"sh",
+		"-c",
+		"caddy reverse-proxy --from twir.satont.localhost --to 127.0.0.1:3005",
+	)
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	go func() {
+		err := cmd.Run()
+		if err != nil {
+			panic(err)
+		}
+	}()
+}
+
 func main() {
+	withCaddy := flag.Bool("caddy", false, "start caddy server?")
+	flag.Parse()
+
 	migrate()
+	caddy(withCaddy)
 
 	// order matters
 	apps := []App{
@@ -111,7 +139,11 @@ func main() {
 		}
 
 		for {
-			conn, _ := net.DialTimeout("tcp", net.JoinHostPort("", fmt.Sprintf("%v", app.Port)), 5*time.Second)
+			conn, _ := net.DialTimeout(
+				"tcp",
+				net.JoinHostPort("", fmt.Sprintf("%v", app.Port)),
+				5*time.Second,
+			)
 			if conn != nil {
 				conn.Close()
 				break
