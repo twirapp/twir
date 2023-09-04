@@ -6,10 +6,11 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
 
-	"github.com/gofrs/uuid"
 	"github.com/nicklaw5/helix/v2"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -48,7 +49,7 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 	ctx context.Context,
 	data *watched.Request,
 ) (*emptypb.Empty, error) {
-	twitchClient, err := twitch.NewBotClient(data.BotId, *c.cfg, c.tokensGrpc)
+	twitchClient, err := twitch.NewBotClientWithContext(ctx, data.BotId, *c.cfg, c.tokensGrpc)
 	if err != nil {
 		c.logger.Sugar().Error(err)
 		return nil, errors.New("cannot create api for bot")
@@ -82,83 +83,96 @@ func (c *WatchedGrpcServer) IncrementByChannelId(
 
 				chatters = append(chatters, req.Data.Chatters...)
 
-				if req.Data.Pagination.Cursor == "" || len(req.Data.Chatters) == 0 {
+				if len(req.Data.Chatters) == 0 {
 					break
 				}
 
 				cursor = req.Data.Pagination.Cursor
-			}
 
-			chattersWg := sync.WaitGroup{}
-			for _, chatter := range chatters {
-				if chatter.UserID == "" {
-					continue
+				chattersIds := lo.Map(
+					chatters, func(item helix.ChatChatter, _ int) string {
+						return item.UserID
+					},
+				)
+				var existedChatters []model.Users
+				if err := c.db.
+					WithContext(ctx).
+					Where(`"users"."id" IN ?`, chattersIds).
+					Joins("Stats", c.db.Where(&model.UsersStats{ChannelID: channel}), channel).
+					Find(&existedChatters).
+					Error; err != nil {
+					c.logger.Sugar().Error(err)
+					return
 				}
-				chattersWg.Add(1)
 
-				go func(chatter helix.ChatChatter) {
-					defer chattersWg.Done()
-					user := model.Users{}
-					err := c.db.
-						Where(`"users"."id" = ?`, chatter.UserID).
-						Preload("Stats", `"channelId" = ?`, channel).
-						Find(&user).Error
-					if err != nil {
-						c.logger.Sugar().Error(err)
-						return
+				usersForCreate := make([]model.Users, 0, len(chatters))
+				for _, chatter := range chatters {
+					if chatter.UserID == "" {
+						continue
 					}
 
-					if user.ID == "" {
-						apiKey, _ := uuid.NewV4()
-						statsId, _ := uuid.NewV4()
-						newUser := &model.Users{
+					var existedChatter *model.Users
+					for _, item := range existedChatters {
+						if item.ID == chatter.UserID {
+							existedChatter = &item
+							break
+						}
+					}
+
+					if existedChatter == nil {
+						newUser := model.Users{
 							ID:     chatter.UserID,
-							ApiKey: apiKey.String(),
+							ApiKey: uuid.New().String(),
 							Stats: &model.UsersStats{
-								ID:        statsId.String(),
+								ID:        uuid.New().String(),
 								UserID:    chatter.UserID,
 								ChannelID: channel,
-								Messages:  0,
 								Watched:   0,
 							},
 						}
-
-						if err := c.db.Create(&newUser).Error; err != nil {
-							c.logger.Sugar().Error(err)
-						}
-					} else if user.Stats == nil {
-						statsId, _ := uuid.NewV4()
-						err := c.db.Create(
-							&model.UsersStats{
-								ID:        statsId.String(),
-								UserID:    chatter.UserID,
-								ChannelID: channel,
-								Messages:  0,
-								Watched:   0,
-							},
-						).Error
-						if err != nil {
-							c.logger.Sugar().Error(err)
-						}
+						usersForCreate = append(usersForCreate, newUser)
 					} else {
-						time := 5 * time.Minute
-
-						err := c.db.
-							Model(&model.UsersStats{}).
-							Where("id = ?", user.Stats.ID).
-							Updates(
-								map[string]any{
-									"watched": user.Stats.Watched + time.Milliseconds(),
+						if existedChatter.Stats == nil {
+							err := c.db.Create(
+								&model.UsersStats{
+									ID:        uuid.New().String(),
+									UserID:    chatter.UserID,
+									ChannelID: channel,
+									Watched:   0,
 								},
 							).Error
-						if err != nil {
-							c.logger.Sugar().Error(err)
+							if err != nil {
+								c.logger.Sugar().Error(err)
+							}
+						} else {
+							incTime := 5 * time.Minute
+
+							err := c.db.
+								Model(&model.UsersStats{}).
+								Where("id = ?", existedChatter.Stats.ID).
+								Updates(
+									map[string]any{
+										"watched": existedChatter.Stats.Watched + incTime.Milliseconds(),
+									},
+								).Error
+							if err != nil {
+								c.logger.Sugar().Error(err)
+							}
 						}
 					}
-				}(chatter)
-			}
+				}
 
-			chattersWg.Wait()
+				if len(usersForCreate) > 0 {
+					err := c.db.Create(&usersForCreate).Error
+					if err != nil {
+						c.logger.Sugar().Error(err)
+					}
+				}
+
+				if req.Data.Pagination.Cursor == "" {
+					break
+				}
+			}
 		}(channel)
 	}
 
