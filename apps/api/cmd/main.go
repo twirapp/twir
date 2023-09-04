@@ -34,7 +34,6 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	gormLogger "gorm.io/gorm/logger"
 )
 
 func main() {
@@ -119,9 +118,7 @@ func main() {
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
 				db, err := gorm.Open(
-					postgres.Open(config.DatabaseUrl), &gorm.Config{
-						Logger: gormLogger.Default.LogMode(gormLogger.Silent),
-					},
+					postgres.Open(config.DatabaseUrl),
 				)
 				if err != nil {
 					return nil, err
