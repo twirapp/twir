@@ -3,16 +3,17 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
-	"github.com/satont/twir/libs/grpc/generated/scheduler"
-	"github.com/satont/twir/libs/grpc/servers"
-	"google.golang.org/grpc"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
+	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/satont/twir/libs/grpc/servers"
+	"google.golang.org/grpc"
 
 	s "github.com/satont/twir/apps/scheduler/internal/services"
 	"github.com/satont/twir/apps/scheduler/internal/timers"
@@ -61,10 +62,9 @@ func main() {
 
 	services := &types.Services{
 		Grpc: &types.GrpcServices{
-			Emotes:  clients.NewEmotesCacher(cfg.AppEnv),
-			Parser:  parserGrpc,
-			Tokens:  clients.NewTokens(cfg.AppEnv),
-			Watched: clients.NewWatched(cfg.AppEnv),
+			Emotes: clients.NewEmotesCacher(cfg.AppEnv),
+			Parser: parserGrpc,
+			Tokens: clients.NewTokens(cfg.AppEnv),
 		},
 		Gorm:     db,
 		Config:   cfg,
