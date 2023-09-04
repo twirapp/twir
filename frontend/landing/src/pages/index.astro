@@ -6,7 +6,7 @@ import Integrations from '../components/index/Integrations.astro';
 import Reviews from '../components/index/Reviews.vue';
 import Team from '../components/index/Team.astro';
 import Footer from '../components/index/Footer.astro';
-import StatsList from '../components/index/StatsList.astro';
+import StatsList from '../components/index/StatsList.vue';
 ---
 
 <Layout title="Twir - Main page">
@@ -14,7 +14,7 @@ import StatsList from '../components/index/StatsList.astro';
 		<Hero/>
 	</section>
 	<section id="stats">
-		<StatsList/>
+		<StatsList client:load/>
 	</section>
 	<section id="features">
 		<Features/>
