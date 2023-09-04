@@ -10,7 +10,6 @@ use (
 	./apps/scheduler
 	./apps/timers
 	./apps/tokens
-	./apps/watched
 	./apps/websockets
 	./apps/ytsr
 	./libs/config

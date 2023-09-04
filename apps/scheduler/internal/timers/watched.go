@@ -7,8 +7,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/scheduler/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/watched"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func NewWatched(ctx context.Context, services *types.Services) {
@@ -22,40 +22,15 @@ func NewWatched(ctx context.Context, services *types.Services) {
 				ticker.Stop()
 				return
 			case <-ticker.C:
-				var streams []model.ChannelsStreams
-				err := services.Gorm.
-					Preload("Channel").
-					Find(&streams).
-					Error
+				incrementWatchedExpr := services.Gorm.
+					Model(&model.UsersStats{}).
+					Where(`"userId" IN (?)`, services.Gorm.Table("users_online").Select(`"userId"`))
+
+				err := incrementWatchedExpr.
+					WithContext(ctx).
+					Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
 				if err != nil {
 					zap.S().Error(err)
-				} else {
-					groups := lo.GroupBy(
-						streams, func(item model.ChannelsStreams) string {
-							return item.Channel.BotID
-						},
-					)
-
-					for botId, streams := range groups {
-						chunks := lo.Chunk(streams, 100)
-
-						for _, chunk := range chunks {
-							var channelsIds []string
-							for _, stream := range chunk {
-								channelsIds = append(channelsIds, stream.Channel.ID)
-							}
-
-							_, err := services.Grpc.Watched.IncrementByChannelId(
-								ctx, &watched.Request{
-									BotId:      botId,
-									ChannelsId: channelsIds,
-								},
-							)
-							if err != nil {
-								zap.S().Error(err)
-							}
-						}
-					}
 				}
 			}
 		}

@@ -5,17 +5,15 @@ import (
 	"sync"
 	"time"
 
-	"gorm.io/gorm"
-
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	loParallel "github.com/samber/lo/parallel"
 	"github.com/satont/twir/apps/scheduler/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 func NewOnlineUsers(ctx context.Context, services *types.Services) {
@@ -29,136 +27,163 @@ func NewOnlineUsers(ctx context.Context, services *types.Services) {
 				ticker.Stop()
 				return
 			case <-ticker.C:
-
-				var streams []*model.ChannelsStreams
-				err := services.Gorm.Preload("Channel").Find(&streams).Error
-				if err != nil {
-					zap.S().Error(err)
-					return
-				}
-
-				streamsWg := &sync.WaitGroup{}
-				for _, stream := range streams {
-					if stream.Channel != nil && (!stream.Channel.IsEnabled || stream.Channel.IsBanned) {
-						continue
-					}
-
-					streamsWg.Add(1)
-
-					twitchClient, err := twitch.NewUserClient(stream.UserId, *services.Config, services.Grpc.Tokens)
-					if err != nil {
-						zap.S().Error(err)
-						streamsWg.Done()
-						continue
-					}
-
-					go func(broadcasterId string) {
-						defer streamsWg.Done()
-						var chatters []helix.ChatChatter
-						cursor := ""
-						for {
-							req, err := twitchClient.GetChannelChatChatters(
-								&helix.GetChatChattersParams{
-									BroadcasterID: broadcasterId,
-									ModeratorID:   broadcasterId,
-									After:         cursor,
-								},
-							)
-							if err != nil {
-								zap.S().Error(err)
-							} else {
-								chatters = append(chatters, req.Data.Chatters...)
-								if req.Data.Pagination.Cursor == "" {
-									break
-								}
-							}
-						}
-
-						chattersChunks := lo.Chunk(chatters, 1000)
-
-						err = services.Gorm.Where(`"channelId" = ?`, broadcasterId).Delete(&model.UsersOnline{}).Error
-						if err != nil {
-							zap.S().Error(err)
-							return
-						}
-
-						loParallel.ForEach(
-							chattersChunks, func(chunk []helix.ChatChatter, _ int) {
-								dbChatters := make([]*model.Users, 0, len(chunk))
-								err = services.Gorm.
-									Where(
-										`"id" IN ?`,
-										lo.Map(
-											chunk, func(chatter helix.ChatChatter, _ int) string {
-												return chatter.UserID
-											},
-										),
-									).
-									Find(&dbChatters).
-									Error
-
-								if err != nil {
-									zap.S().Error(err)
-									return
-								}
-
-								var usersForCreate []*model.Users
-								var usersOnlineForCreate []*model.UsersOnline
-
-								for _, chatter := range chunk {
-									isExists := lo.SomeBy(
-										dbChatters, func(item *model.Users) bool {
-											return item.ID == chatter.UserID
-										},
-									)
-									if !isExists {
-										usersForCreate = append(
-											usersForCreate, &model.Users{
-												ID:     chatter.UserID,
-												ApiKey: uuid.New().String(),
-												Stats: &model.UsersStats{
-													ID:        uuid.New().String(),
-													ChannelID: broadcasterId,
-													UserID:    chatter.UserID,
-												},
-											},
-										)
-									}
-
-									usersOnlineForCreate = append(
-										usersOnlineForCreate, &model.UsersOnline{
-											ID:        uuid.New().String(),
-											ChannelId: broadcasterId,
-											UserId:    null.StringFrom(chatter.UserID),
-											UserName:  null.StringFrom(chatter.UserLogin),
-										},
-									)
-								}
-
-								err = services.Gorm.Transaction(
-									func(tx *gorm.DB) error {
-										err = tx.CreateInBatches(usersForCreate, 1000).Error
-										if err != nil {
-											return err
-										}
-
-										err = tx.CreateInBatches(usersOnlineForCreate, 1000).Error
-										if err != nil {
-											return err
-										}
-
-										return nil
-									},
-								)
-								if err != nil {
-									zap.S().Error(err)
-								}
-							},
-						)
-					}(stream.UserId)
-				}
-				streamsWg.Wait()
+				updateOnlineUsers(ctx, services)
 			}
 		}
 	}()
+}
+
+func updateOnlineUsers(ctx context.Context, services *types.Services) {
+	streams, err := getStreams(ctx, services)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	var wg sync.WaitGroup
+	for _, stream := range streams {
+		if shouldSkipStream(stream) {
+			continue
+		}
+		wg.Add(1)
+		go func(broadcasterID string) {
+			defer wg.Done()
+			updateStreamUsers(ctx, broadcasterID, services)
+		}(stream.UserId)
+	}
+	wg.Wait()
+}
+
+func getStreams(ctx context.Context, services *types.Services) ([]*model.ChannelsStreams, error) {
+	var streams []*model.ChannelsStreams
+	err := services.Gorm.WithContext(ctx).Preload("Channel").Find(&streams).Error
+	return streams, err
+}
+
+func shouldSkipStream(stream *model.ChannelsStreams) bool {
+	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.IsBanned)
+}
+
+func updateStreamUsers(ctx context.Context, broadcasterID string, services *types.Services) {
+	twitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		broadcasterID,
+		*services.Config,
+		services.Grpc.Tokens,
+	)
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	var cursor string
+
+	for {
+		params := &helix.GetChatChattersParams{
+			BroadcasterID: broadcasterID,
+			ModeratorID:   broadcasterID,
+			After:         cursor,
+			First:         "1000",
+		}
+		req, err := twitchClient.GetChannelChatChatters(params)
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+		if req.ErrorMessage != "" {
+			zap.S().Error(req.ErrorMessage)
+			return
+		}
+
+		chatters := req.Data.Chatters
+
+		if len(chatters) == 0 {
+			return
+		}
+
+		usersIdsForRequest := lo.Map(
+			chatters, func(chatter helix.ChatChatter, _ int) string {
+				return chatter.UserID
+			},
+		)
+
+		err = services.Gorm.WithContext(ctx).Transaction(
+			func(tx *gorm.DB) error {
+				var existedUsers []model.Users
+				if err := tx.
+					Select("id").
+					Where("id IN ?", usersIdsForRequest).
+					Find(&existedUsers).Error; err != nil {
+					return err
+				}
+				var usersForCreate []model.Users
+				for _, chatter := range chatters {
+					_, chatterExists := lo.Find(
+						existedUsers, func(user model.Users) bool {
+							return user.ID == chatter.UserID
+						},
+					)
+					if !chatterExists {
+						usersForCreate = append(
+							usersForCreate,
+							model.Users{
+								ID:     chatter.UserID,
+								ApiKey: uuid.New().String(),
+								Stats: &model.UsersStats{
+									ID:        uuid.New().String(),
+									UserID:    chatter.UserID,
+									ChannelID: broadcasterID,
+								},
+							},
+						)
+					}
+				}
+
+				if err := tx.Where(
+					`"channelId" = ?`,
+					broadcasterID,
+				).Delete(&model.UsersOnline{}).Error; err != nil {
+					return err
+				}
+
+				onlineChattersForCreate := make([]model.UsersOnline, 0, len(chatters))
+				for _, chatter := range chatters {
+					onlineChattersForCreate = append(
+						onlineChattersForCreate,
+						model.UsersOnline{
+							ID:        uuid.New().String(),
+							ChannelId: broadcasterID,
+							UserId:    null.StringFrom(chatter.UserID),
+							UserName:  null.StringFrom(chatter.UserLogin),
+						},
+					)
+				}
+
+				if len(usersForCreate) > 0 {
+					if err := tx.Create(&usersForCreate).Error; err != nil {
+						return err
+					}
+				}
+
+				if len(onlineChattersForCreate) > 0 {
+					if err := tx.Create(&onlineChattersForCreate).Error; err != nil {
+						return err
+					}
+				}
+
+				return nil
+			},
+		)
+
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		if req.Data.Pagination.Cursor == "" {
+			return
+		}
+
+		cursor = req.Data.Pagination.Cursor
+	}
 }

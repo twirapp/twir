@@ -78,7 +78,6 @@ func main() {
 		{Stack: "node", Name: "eval", Port: servers.EVAL_SERVER_PORT},
 		{Stack: "go", Name: "bots", Port: servers.BOTS_SERVER_PORT},
 		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
-		{Stack: "go", Name: "watched", Port: servers.WATCHED_SERVER_PORT},
 		{Stack: "go", Name: "websockets", Port: servers.WEBSOCKET_SERVER_PORT},
 		{Stack: "go", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
 		{Stack: "go", Name: "api", Port: 3002},
