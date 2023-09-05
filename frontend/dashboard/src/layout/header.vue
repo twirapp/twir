@@ -2,15 +2,15 @@
 import { IconLogout, IconMenu2, IconMoon, IconSun } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
 import {
-  type DropdownOption,
-  NAvatar,
-  NButton,
-  NDivider,
-  NDropdown,
-  NSpace,
-  NSpin,
-  NText,
-  useThemeVars,
+	type DropdownOption,
+	NAvatar,
+	NButton,
+	NDivider,
+	NDropdown,
+	NSpace,
+	NSpin,
+	NText,
+	useThemeVars,
 } from 'naive-ui';
 import { computed, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -23,7 +23,7 @@ import { renderIcon } from '@/helpers/index.js';
 import { useTheme } from '@/hooks/index.js';
 
 defineProps<{
-  toggleSidebar: () => void;
+	toggleSidebar: () => void;
 }>();
 
 const { theme, toggleTheme } = useTheme();
@@ -33,17 +33,17 @@ const discordIconColor = computed(() => themeVars.value.textColor2);
 
 const logout = useLogout();
 const profileOptions: DropdownOption[] = [{
-  label: 'Logout',
-  key: 'logout',
-  icon: renderIcon(IconLogout),
-  props: {
-    onClick: () => {
-      logout.mutate();
-    },
-    style: {
-      // 'background-color': 'red',
-    },
-  },
+	label: 'Logout',
+	key: 'logout',
+	icon: renderIcon(IconLogout),
+	props: {
+		onClick: () => {
+			logout.mutate();
+		},
+		style: {
+			// 'background-color': 'red',
+		},
+	},
 }];
 
 const { data: profileData, isLoading: isProfileLoading } = useProfile();
@@ -53,17 +53,17 @@ const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
 const localStorageLocale = useLocalStorage('twirLocale', 'en');
 
 const selectedUserId = computed(() => {
-  return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';
+	return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';
 });
 const selectedDashboardTwitchUser = useTwitchGetUsers({
-  ids: selectedUserId,
+	ids: selectedUserId,
 });
 
 const openDiscord = () => window.open('https://discord.gg/Q9NBZq3zVV', '_blank');
 const publicPageHref = computed<string>(() => {
-  if (!profileData.value || !selectedDashboardTwitchUser.data.value?.users.length) return '';
+	if (!profileData.value || !selectedDashboardTwitchUser.data.value?.users.length) return '';
 
-  return `${window.location.origin}/p/${selectedDashboardTwitchUser.data.value.users.at(0)!.login}`;
+	return `${window.location.origin}/p/${selectedDashboardTwitchUser.data.value.users.at(0)!.login}`;
 });
 
 const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/assets/icons/flags/${code}.svg?component`));
@@ -75,12 +75,14 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 			<n-button text @click="toggleSidebar">
 				<IconMenu2 />
 			</n-button>
-			<n-space align="center" style="gap: 8px; margin-left: 5px;">
-				<Logo style="width: 25px; height: 25px; display: flex" />
-				<n-text strong style="font-size: 20px;">
-					Twir
-				</n-text>
-			</n-space>
+			<a href="/" style="text-decoration: none">
+				<n-space align="center" style="gap: 8px; margin-left: 5px;">
+					<Logo style="width: 25px; height: 25px; display: flex" />
+					<n-text strong style="font-size: 20px;">
+						Twir
+					</n-text>
+				</n-space>
+			</a>
 		</div>
 
 		<div>
@@ -134,24 +136,24 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 
 <style scoped>
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-left: 10px;
-  margin-right: 10px;
-  height: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-left: 10px;
+	margin-right: 10px;
+	height: 100%;
 }
 
 .header > div {
-  display: flex;
-  justify-content: flex-start;
-  gap: 5px;
-  align-items: center;
+	display: flex;
+	justify-content: flex-start;
+	gap: 5px;
+	align-items: center;
 }
 
 .profile {
-  display: flex;
-  gap: 5px;
-  align-items: center;
+	display: flex;
+	gap: 5px;
+	align-items: center;
 }
 </style>
