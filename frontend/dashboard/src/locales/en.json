@@ -10,7 +10,9 @@
 		"login": "Login",
 		"logout": "Logout",
 		"edit": "Edit",
-		"select": "Select"
+		"select": "Select",
+		"cancel": "Cancel",
+		"confirm": "Confirm"
 	},
 	"sharedTexts": {
 		"saved": "Saved",
@@ -383,6 +385,22 @@
 		"8ball": {
 			"description": "Ask the magic 8ball a question and it will answer you.",
 			"answers": "Answers"
+		}
+	},
+	"community": {
+		"users": {
+			"table": {
+				"user": "User",
+				"watchedTime": "Watched time",
+				"messages": "Messages",
+				"usedEmotes": "Used emotes",
+				"usedChannelPoints": "Used channel points"
+			},
+			"total": "Total {total} users",
+			"reset": {
+				"button": "Reset",
+				"resetQuestion": "Are you sure you wan't to reset {title}?"
+			}
 		}
 	}
 }

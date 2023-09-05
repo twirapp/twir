@@ -9,8 +9,9 @@ import {
   NButton,
   NPopconfirm,
 } from 'naive-ui';
-import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
+import type { TableBaseColumn } from 'naive-ui/es/data-table/src/interface';
 import { ref, computed, h } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import {
 	useCommunityUsers,
@@ -22,6 +23,7 @@ import {
 	CommunityResetStatsField,
 } from '@/api/index.js';
 
+const { t } = useI18n();
 const communityManager = useCommunityUsers();
 
 const usersOpts = ref<GetCommunityUsersOpts>({
@@ -40,7 +42,7 @@ const twitchUsers = useTwitchGetUsers({
 });
 
 const HOUR = 1000 * 60 * 60;
-const columns = ref<Array<TableColumn>>([
+const columns = ref<Array<TableBaseColumn & { resetableKey?: CommunityResetStatsField }>>([
 	{
 		title: '',
 		key: 'avatar',
@@ -55,7 +57,7 @@ const columns = ref<Array<TableColumn>>([
 		},
 	},
 	{
-		title: 'User',
+		title: t('community.users.table.user'),
 		key: 'id',
 		render(row) {
 			const twitchUser = twitchUsers.data.value?.users.find((user) => user.id === row.id);
@@ -63,31 +65,35 @@ const columns = ref<Array<TableColumn>>([
 		},
 	},
 	{
-		title: 'Watched time',
+		title: t('community.users.table.watchedTime'),
 		key: 'watched',
 		render(row) {
 			return `${(Number(row.watched) / HOUR).toFixed(1)}h`;
 		},
 		sorter: true,
 		sortOrder: 'descend',
+		resetableKey: CommunityResetStatsField.Watched,
 	},
 	{
-		title: 'Messages',
+		title: t('community.users.table.messages'),
 		key: 'messages',
 		sorter: true,
 		sortOrder: false,
+		resetableKey: CommunityResetStatsField.Messages,
 	},
 	{
-		title: 'Used emotes',
+		title: t('community.users.table.usedEmotes'),
 		key: 'emotes',
 		sorter: true,
 		sortOrder: false,
+		resetableKey: CommunityResetStatsField.Emotes,
 	},
 	{
-		title: 'Used channel points',
+		title: t('community.users.table.usedChannelPoints'),
 		key: 'usedChannelPoints',
 		sorter: true,
 		sortOrder: false,
+		resetableKey: CommunityResetStatsField.UsedChannelPoints,
 	},
 ]);
 
@@ -97,7 +103,7 @@ const paginationOptions = computed<PaginationProps>(() => {
 		pageSize: usersOpts.value.limit,
 		itemCount: users.data?.value?.totalUsers ?? 0,
 		prefix ({ itemCount }) {
-			return `Total ${itemCount}`;
+			return t('community.users.total', { total: itemCount });
 		},
 	};
 });
@@ -152,51 +158,33 @@ async function handleReset(field: CommunityResetStatsField) {
 </script>
 
 <template>
-  <n-space justify="space-between" style="margin-bottom: 15px;">
-    <n-space>
-      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Watched)">
-        <template #trigger>
-          <n-button secondary type="warning">
-            Reset watched
-          </n-button>
-        </template>
-        Are you sure?
-      </n-popconfirm>
-      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Messages)">
-        <template #trigger>
-          <n-button secondary type="warning">
-            Reset messages
-          </n-button>
-        </template>
-        Are you sure?
-      </n-popconfirm>
-      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.Emotes)">
-        <template #trigger>
-          <n-button secondary type="warning">
-            Reset emotes
-          </n-button>
-        </template>
-        Are you sure?
-      </n-popconfirm>
-      <n-popconfirm @positive-click="handleReset(CommunityResetStatsField.UsedChannelPoints)">
-        <template #trigger>
-          <n-button secondary type="warning">
-            Reset points
-          </n-button>
-        </template>
-        Are you sure?
-      </n-popconfirm>
-    </n-space>
-    <Pagination />
-  </n-space>
-  <n-data-table
-    :loading="users.isLoading.value || twitchUsers.isLoading.value"
-    :columns="columns as any"
-    :data="users.data.value?.users ?? []"
-    remote
-    @update:sorter="handleSorterChange"
-  />
-  <n-space justify="end" style="margin-top: 15px;">
-    <Pagination />
-  </n-space>
+	<n-space justify="space-between" style="margin-bottom: 15px;">
+		<n-space>
+			<n-popconfirm
+				v-for="item of columns.filter(c => c.resetableKey !== undefined)"
+				:key="item.resetableKey"
+				:negative-text="t('sharedButtons.cancel')"
+				:positive-text="t('sharedButtons.confirm')"
+				@positive-click="handleReset(item.resetableKey!)"
+			>
+				<template #trigger>
+					<n-button secondary type="warning">
+						{{ t('community.users.reset.button') }} {{ (item.title! as string).toLowerCase() }}
+					</n-button>
+				</template>
+				{{ t('community.users.reset.resetQuestion', { title: (item.title! as string).toLowerCase() }) }}
+			</n-popconfirm>
+		</n-space>
+		<Pagination />
+	</n-space>
+	<n-data-table
+		:loading="users.isLoading.value || twitchUsers.isLoading.value"
+		:columns="columns as any"
+		:data="users.data.value?.users ?? []"
+		remote
+		@update:sorter="handleSorterChange"
+	/>
+	<n-space justify="end" style="margin-top: 15px;">
+		<Pagination />
+	</n-space>
 </template>

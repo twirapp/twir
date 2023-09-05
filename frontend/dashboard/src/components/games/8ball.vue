@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 
 import Card from './card.vue';
 import Command from './command.vue';
+
 import { use8ballSettings, use8ballUpdateSettings } from '@/api/index.js';
 
 const isModalOpened = ref(false);
@@ -23,7 +24,7 @@ const formValue = ref({
 watch(settings, (v) => {
 	if (!v) return;
 
-	const raw = toRaw(v)
+	const raw = toRaw(v);
 	formValue.value.answers = raw.answers;
 	formValue.value.enabled = raw.enabled;
 });
