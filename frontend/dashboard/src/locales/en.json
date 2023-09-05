@@ -261,7 +261,7 @@
 			"port": "Port of OBS WebSocket server",
 			"connected": "Connected",
 			"notConnected": "Not connected",
-			"checkConnection": "Check connection",
+			"checkConnection": "Check connection"
 		},
 		"alerts": {
 			"description": "This overlay used to play configured alerts"
