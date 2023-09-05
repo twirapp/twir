@@ -1,0 +1,13 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/games";
+package api.games;
+
+message UpdateEightBallSettings {
+	repeated string answers = 1;
+	bool enabled = 2;
+}
+
+message EightBallSettingsResponse {
+	repeated string answers = 1;
+	bool enabled = 2;
+}

@@ -86,6 +86,11 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'VIEW_ALERTS' },
 				},
 				{
+					path: '/dashboard/games',
+					component: () => import('./pages/Games.vue'),
+					meta: { neededPermission: 'VIEW_GAMES' },
+				},
+				{
 					path: '/dashboard/files',
 					component: () => import('./pages/Files.vue'),
 					// meta: { neededPermission: 'VIEW_EVENTS' },

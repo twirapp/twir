@@ -9,7 +9,7 @@ import {
 	IconCommand,
 	IconDashboard,
 	IconDeviceDesktop,
-	IconDeviceDesktopAnalytics,
+	IconDeviceDesktopAnalytics, IconDeviceGamepad2,
 	IconHeadphones,
 	IconKey,
 	IconPencilPlus,
@@ -30,7 +30,7 @@ import {
 	NSpace,
 	NSpin,
 	NText,
-NBadge,
+	NBadge,
 } from 'naive-ui';
 import { computed, h, onMounted, ref, watch } from 'vue';
 import { RouterLink, useRouter } from 'vue-router';
@@ -59,6 +59,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
 	const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
 	const canViewAlerts = useUserAccessFlagChecker('VIEW_ALERTS');
+	const canViewGames = useUserAccessFlagChecker('VIEW_GAMES');
 
 	return [
 		{
@@ -96,6 +97,13 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconHeadphones),
 			path: '/dashboard/song-requests',
 			disabled: !canViewSongRequests.value,
+		},
+		{
+			label: 'Games',
+			icon: renderIcon(IconDeviceGamepad2),
+			path: '/dashboard/games',
+			disabled: !canViewSongRequests.value,
+			isNew: true,
 		},
 		{
 			label: 'Commands',
@@ -178,9 +186,15 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 					path: item.path,
 				},
 			},
-			{ default: () => item.isNew
-				? h(NBadge, { type: 'info', value: 'new', processing: true, offset: [17, 5] }, { default: () => item.label })
-				: item.label,
+			{
+				default: () => item.isNew
+					? h(NBadge, {
+						type: 'info',
+						value: 'new',
+						processing: true,
+						offset: [17, 5],
+					}, { default: () => item.label })
+					: item.label,
 			},
 		),
 		children: item.children?.map((child) => ({

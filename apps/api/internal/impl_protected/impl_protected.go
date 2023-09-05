@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/files"
+	"github.com/satont/twir/apps/api/internal/impl_protected/games"
 	"github.com/satont/twir/apps/api/internal/impl_protected/greetings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/keywords"
@@ -56,6 +57,7 @@ type Protected struct {
 	*twitch.Twitch
 	*files.Files
 	*alerts.Alerts
+	*games.Games
 }
 
 type Opts struct {
@@ -114,5 +116,6 @@ func New(opts Opts) *Protected {
 		Twitch:           &twitch.Twitch{Deps: d},
 		Files:            files.New(d),
 		Alerts:           &alerts.Alerts{Deps: d},
+		Games:            &games.Games{Deps: d},
 	}
 }

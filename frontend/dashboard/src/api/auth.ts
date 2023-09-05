@@ -101,6 +101,9 @@ export const PERMISSIONS_FLAGS = {
 
 	VIEW_ALERTS: 'Can view alerts',
 	MANAGE_ALERTS: 'Can manage alerts',
+
+	VIEW_GAMES: 'Can view games',
+	MANAGE_GAMES: 'Can manage games',
 };
 
 export type PermissionsType = keyof typeof PERMISSIONS_FLAGS
@@ -126,7 +129,9 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 
 export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
 	const profile = await queryClient.getQueryData(profileQueryKey) as Profile | null;
-	const { dashboards } = await queryClient.getQueryData(dashboardsQueryKey) as { dashboards: Dashboard[] };
+	const { dashboards } = await queryClient.getQueryData(dashboardsQueryKey) as {
+		dashboards: Dashboard[]
+	};
 
 	if (!dashboards || !profile || !profile.selectedDashboardId) return false;
 	if (profile.selectedDashboardId == profile.id) return true;

@@ -38,6 +38,7 @@ import "api/dashboard.proto";
 import "api/twitch_protected.proto";
 import "api/files.proto";
 import "api/alerts.proto";
+import "api/games.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
@@ -178,6 +179,9 @@ service Protected {
 	rpc AlertsCreate(api.alerts.CreateRequest) returns (api.alerts.Alert) {}
 	rpc AlertsUpdate(api.alerts.UpdateRequest) returns (api.alerts.Alert) {}
 	rpc AlertsDelete(api.alerts.RemoveRequest) returns (google.protobuf.Empty) {}
+
+	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (api.games.EightBallSettingsResponse) {}
+	rpc GamesUpdateEightBallSettings(api.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

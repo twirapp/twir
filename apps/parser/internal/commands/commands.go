@@ -12,6 +12,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
+	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
@@ -84,6 +85,7 @@ func New(opts *Opts) *Commands {
 			sr_youtube.SrCommand,
 			sr_youtube.SrListCommand,
 			sr_youtube.WrongCommand,
+			games.EightBall,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

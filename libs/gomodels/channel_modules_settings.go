@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+
 	"github.com/guregu/null"
 )
 
@@ -47,12 +48,14 @@ func emptize(slice []string) []string {
 }
 
 func (s *BlackListYoutubeSettings) MarshalJSON() ([]byte, error) {
-	return json.Marshal(BlackListYoutubeSettings{
-		UsersIds:     emptize(s.UsersIds),
-		SongsIds:     emptize(s.SongsIds),
-		ChannelsIds:  emptize(s.ChannelsIds),
-		ArtistsNames: emptize(s.ArtistsNames),
-	})
+	return json.Marshal(
+		BlackListYoutubeSettings{
+			UsersIds:     emptize(s.UsersIds),
+			SongsIds:     emptize(s.SongsIds),
+			ChannelsIds:  emptize(s.ChannelsIds),
+			ArtistsNames: emptize(s.ArtistsNames),
+		},
+	)
 }
 
 type YoutubeSettings struct {
@@ -62,4 +65,20 @@ type YoutubeSettings struct {
 	User                    UserYoutubeSettings      `json:"user"                    validate:"required"`
 	Song                    SongYoutubeSettings      `json:"song"                    validate:"required"`
 	BlackList               BlackListYoutubeSettings `json:"blacklist"               validate:"required"`
+}
+
+type EightBallSettings struct {
+	Answers []string `validate:"required" json:"answers"`
+	Enabled bool     `json:"enabled"`
+}
+
+type RussianRouletteSetting struct {
+	Enabled               bool `json:"enabled"`
+	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
+	TimeoutSeconds        int  `json:"timeoutTime"`
+	DecisionSeconds       int  `json:"decisionTime"`
+
+	InitMessage    string `json:"initMessage"`
+	SurviveMessage string `json:"surviveMessage"`
+	DeathMessage   string `json:"deathMessage"`
 }

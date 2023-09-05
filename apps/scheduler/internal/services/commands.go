@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -10,7 +12,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"sync"
 )
 
 type Commands struct {
@@ -49,8 +50,11 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 		for _, command := range defaultCommands.List {
 			// skip if command exists
 			if lo.SomeBy(
-				channel.Commands, func(c *model.ChannelsCommands) bool {
-					return c.DefaultName == c.DefaultName
+				channel.Commands, func(c model.ChannelsCommands) bool {
+					if !c.Default {
+						return false
+					}
+					return c.DefaultName.String == command.Name
 				},
 			) {
 				continue

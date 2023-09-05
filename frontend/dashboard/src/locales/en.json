@@ -342,5 +342,11 @@
 		"validations": {
 			"name": "Name cannot be empty and bigger then 30 symbols"
 		}
+	},
+	"games": {
+		"8ball": {
+			"description": "Ask the magic 8ball a question and it will answer you.",
+			"answers": "Answers"
+		}
 	}
 }

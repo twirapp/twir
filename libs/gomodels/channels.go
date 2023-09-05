@@ -23,8 +23,8 @@ type Channels struct {
 	IsBotMod       bool   `gorm:"column:isBotMod;type:BOOL;" json:"isBotMod"`
 	BotID          string `gorm:"column:botId;type:TEXT;"                        json:"botId"`
 
-	Commands []*ChannelsCommands `gorm:"foreignKey:ChannelID" json:"-"`
-	Roles    []*ChannelRole      `gorm:"foreignKey:ChannelID" json:"-"`
+	Commands []ChannelsCommands `gorm:"foreignKey:ChannelID" json:"-"`
+	Roles    []*ChannelRole     `gorm:"foreignKey:ChannelID" json:"-"`
 }
 
 func (c *Channels) TableName() string {
