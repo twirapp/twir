@@ -230,10 +230,12 @@ async function sendFeedBack() {
 					placeholder="Write your feedback"
 					rows="6"
 					class="p-2 rounded-md shadow-sm outline-none"
-					maxlength="170"
+					maxlength="200"
 					autocomplete="off"
 				/>
-				<span class="absolute px-2 py-1 text-xs text-white bg-[#5D58F5] rounded right-2 bottom-2">{{ reviewForm.message.length }}/200</span>
+				<span class="absolute px-2 py-1 text-xs text-white bg-[#5D58F5] rounded right-2 bottom-2">{{
+					reviewForm.message.length
+				}}/200</span>
 			</fieldset>
 			<div class="flex justify-end gap-2">
 				<button
@@ -275,7 +277,7 @@ async function sendFeedBack() {
 
 .reviews-bg {
 	background: radial-gradient(ellipse at top, #270a3b, transparent),
-		radial-gradient(ellipse at bottom, #000, transparent);
+	radial-gradient(ellipse at bottom, #000, transparent);
 }
 
 #feedback-dialog::backdrop {
