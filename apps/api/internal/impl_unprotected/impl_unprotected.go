@@ -75,9 +75,7 @@ func New(opts Opts) *UnProtected {
 		Twitch: &twitch.Twitch{
 			Deps: d,
 		},
-		Stats: &stats.Stats{
-			Deps: d,
-		},
+		Stats: stats.New(d),
 		Commands: &commands.Commands{
 			Deps: d,
 		},

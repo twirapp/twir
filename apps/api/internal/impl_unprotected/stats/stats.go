@@ -2,6 +2,8 @@ package stats
 
 import (
 	"context"
+	"time"
+
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/stats"
@@ -11,69 +13,82 @@ import (
 
 type Stats struct {
 	*impl_deps.Deps
+
+	cache *stats.Response
 }
 
 type statsNResult struct {
 	N int64
 }
 
-func (c *Stats) GetStats(ctx context.Context, _ *emptypb.Empty) (*stats.Response, error) {
-	s := utils.NewSyncMap[int64]()
+func New(deps *impl_deps.Deps) *Stats {
+	s := &Stats{
+		Deps:  deps,
+		cache: &stats.Response{},
+	}
 
+	go s.cacheCounts()
+	ticker := time.NewTicker(5 * time.Minute)
+	go func() {
+		for range ticker.C {
+			s.cacheCounts()
+		}
+	}()
+
+	return s
+}
+
+func (c *Stats) cacheCounts() {
 	wg := utils.NewGoroutinesGroup()
 
 	wg.Go(
 		func() {
 			var count int64
-			c.Db.WithContext(ctx).Model(&model.Users{}).Count(&count)
-			s.Add("users", count)
+			c.Db.Model(&model.Users{}).Count(&count)
+			c.cache.Users = count
 		},
 	)
 
 	wg.Go(
 		func() {
 			var count int64
-			c.Db.WithContext(ctx).Model(&model.Channels{}).Where(`"isEnabled" = ?`, true).Count(&count)
-			s.Add("channels", count)
+			c.Db.Model(&model.Channels{}).Where(`"isEnabled" = ?`, true).Count(&count)
+			c.cache.Channels = count
 		},
 	)
 
 	wg.Go(
 		func() {
 			var count int64
-			c.Db.WithContext(ctx).Model(&model.ChannelsCommands{}).
+			c.Db.Model(&model.ChannelsCommands{}).
 				Where("module = ?", "CUSTOM").
 				Count(&count)
 
-			s.Add("commands", count)
+			c.cache.Commands = count
 		},
 	)
 
 	wg.Go(
 		func() {
 			result := statsNResult{}
-			c.Db.WithContext(ctx).Model(&model.UsersStats{}).
+			c.Db.Model(&model.UsersStats{}).
 				Select("sum(messages) as n").
 				Scan(&result)
-			s.Add("messages", result.N)
+			c.cache.Messages = result.N
 		},
 	)
 
 	wg.Go(
 		func() {
 			var count int64
-			c.Db.WithContext(ctx).Model(&model.ChannelEmoteUsage{}).Count(&count)
-			s.Add("used_emotes", count)
+			c.Db.Model(&model.ChannelEmoteUsage{}).Count(&count)
+			c.cache.UsedEmotes = count
 		},
 	)
 
 	wg.Wait()
+}
 
-	return &stats.Response{
-		Users:      s.Get("users"),
-		Channels:   s.Get("channels"),
-		Commands:   s.Get("commands"),
-		Messages:   s.Get("messages"),
-		UsedEmotes: s.Get("used_emotes"),
-	}, nil
+func (c *Stats) GetStats(_ context.Context, _ *emptypb.Empty) (*stats.Response, error) {
+	return c.cache, nil
 }
