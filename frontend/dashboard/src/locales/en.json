@@ -26,8 +26,31 @@
 		"response": "Response",
 		"userName": "User name"
 	},
+	"sidebar": {
+		"dashboard": "Dashboard",
+		"commands": {
+			"label": "Commands",
+			"custom": "Custom",
+			"stats": "Stats",
+			"moderation": "Moderation",
+			"songs": "Songs",
+			"manage": "Manage"
+		},
+		"integrations": "Integrations",
+		"events": "Events",
+		"overlays": "Overlays",
+		"songRequests": "Song requests",
+		"timers": "Timers",
+		"roles": "Permissions",
+		"keywords": "Keywords",
+		"variables": "Variables",
+		"greetings": "Greetings",
+		"alerts": "Alerts",
+		"games": "Games",
+		"users": "Users"
+	},
 	"deleteConfirmation": {
-		"text": "Are you sure you want delete this thing?",
+		"text": "Are you sure you want to delete this thing?",
 		"cancel": "Cancel",
 		"confirm": "Confirm"
 	},
@@ -344,6 +367,7 @@
 		}
 	},
 	"games": {
+		"command": "Command",
 		"8ball": {
 			"description": "Ask the magic 8ball a question and it will answer you.",
 			"answers": "Answers"

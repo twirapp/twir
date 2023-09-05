@@ -27,7 +27,7 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 <template>
 	<card :title="title" :icon="icon">
 		<template #content>
-			<p>Ask the magic 8ball a question and it will answer you.</p>
+			<p>{{ description }}</p>
 		</template>
 		<template #footer>
 			<n-button

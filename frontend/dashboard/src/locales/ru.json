@@ -25,6 +25,29 @@
 		"response": "Ответ",
 		"userName": "Имя пользователя"
 	},
+	"sidebar": {
+		"dashboard": "Панель управления",
+		"commands": {
+			"label": "Команды",
+			"custom": "Пользовательские",
+			"stats": "Статистика",
+			"moderation": "Модерация",
+			"songs": "Песни",
+			"manage": "Управление"
+		},
+		"integrations": "Интеграции",
+		"events": "События",
+		"overlays": "Оверлеи",
+		"songRequests": "Заказ песен",
+		"timers": "Таймеры",
+		"roles": "Права",
+		"keywords": "Ключевые слова",
+		"variables": "Переменные",
+		"greetings": "Приветствия",
+		"alerts": "Оповещения",
+		"games": "Игры",
+		"users": "Пользователи"
+	},
 	"deleteConfirmation": {
 		"text": "Вы уверены, что хотите удалить это?",
 		"cancel": "Отмена",
@@ -323,6 +346,13 @@
 		"validations": {
 			"userName": "Имя пользователя обязателено",
 			"textRequired": "Ответ обязателен"
+		}
+	},
+	"games": {
+		"command": "Команда",
+		"8ball": {
+			"description": "Задайте вопрос волшебному шарику, и он ответит вам.",
+			"answers": "Ответы"
 		}
 	}
 }

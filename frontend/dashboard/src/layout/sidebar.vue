@@ -33,6 +33,7 @@ import {
 	NBadge,
 } from 'naive-ui';
 import { computed, h, onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterLink, useRouter } from 'vue-router';
 
 import DashboardMenu from './dashboardsMenu.vue';
@@ -45,6 +46,8 @@ defineProps<{
 }>();
 
 const router = useRouter();
+
+const { t } = useI18n();
 
 const activeKey = ref<string | null>('/');
 const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
@@ -63,111 +66,111 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 
 	return [
 		{
-			label: 'Dashboard',
+			label: t('sidebar.dashboard'),
 			icon: renderIcon(IconDashboard),
 			path: '/dashboard',
 		},
 		{
-			label: 'Integrations',
+			label: t('sidebar.integrations'),
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
 			disabled: !canViewIntegrations.value,
 		},
 		{
-			label: 'Alerts',
+			label: t('sidebar.alerts'),
 			icon: renderIcon(IconBell),
 			path: '/dashboard/alerts',
 			disabled: !canViewAlerts.value,
 			isNew: true,
 		},
 		{
-			label: 'Events',
+			label: t('sidebar.events'),
 			icon: renderIcon(IconCalendarEvent),
 			path: '/dashboard/events',
 			disabled: !canViewEvents.value,
 		},
 		{
-			label: 'OBS Overlays',
+			label: t('sidebar.overlays'),
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/overlays',
 			disabled: !canViewOverlays.value,
 		},
 		{
-			label: 'Song Requests',
+			label: t('sidebar.songRequests'),
 			icon: renderIcon(IconHeadphones),
 			path: '/dashboard/song-requests',
 			disabled: !canViewSongRequests.value,
 		},
 		{
-			label: 'Games',
+			label: t('sidebar.games'),
 			icon: renderIcon(IconDeviceGamepad2),
 			path: '/dashboard/games',
-			disabled: !canViewSongRequests.value,
+			disabled: !canViewGames.value,
 			isNew: true,
 		},
 		{
-			label: 'Commands',
+			label: t('sidebar.commands.label'),
 			icon: renderIcon(IconCommand),
 			disabled: !canViewCommands.value,
 			children: [
 				{
-					label: 'Custom',
+					label: t('sidebar.commands.custom'),
 					icon: renderIcon(IconPencilPlus),
 					path: '/dashboard/commands/custom',
 				},
 				{
-					label: 'Stats',
+					label: t('sidebar.commands.stats'),
 					icon: renderIcon(IconDeviceDesktopAnalytics),
 					path: '/dashboard/commands/stats',
 				},
 				{
-					label: 'Moderation',
+					label: t('sidebar.commands.moderation'),
 					icon: renderIcon(IconSword),
 					path: '/dashboard/commands/moderation',
 				},
 				{
-					label: 'Songs',
+					label: t('sidebar.commands.songs'),
 					icon: renderIcon(IconPlaylist),
 					path: '/dashboard/commands/songs',
 				},
 				{
-					label: 'Manage',
+					label: t('sidebar.commands.manage'),
 					icon: renderIcon(IconClipboardCopy),
 					path: '/dashboard/commands/manage',
 				},
 			],
 		},
 		{
-			label: 'Users',
+			label: t('sidebar.users'),
 			icon: renderIcon(IconUsers),
 			path: '/dashboard/community/users',
 		},
 		{
-			label: 'Permissions',
+			label: t('sidebar.roles'),
 			icon: renderIcon(IconShieldHalfFilled),
 			path: '/dashboard/community/roles',
 			disabled: !canViewRoles.value,
 		},
 		{
-			label: 'Timers',
+			label: t('sidebar.timers'),
 			icon: renderIcon(IconClockHour7),
 			path: '/dashboard/timers',
 			disabled: !canViewTimers.value,
 		},
 		{
-			label: 'Keywords',
+			label: t('sidebar.keywords'),
 			icon: renderIcon(IconKey),
 			path: '/dashboard/keywords',
 			disabled: !canViewKeywords.value,
 		},
 		{
-			label: 'Variables',
+			label: t('sidebar.variables'),
 			icon: renderIcon(IconActivity),
 			path: '/dashboard/variables',
 			disabled: !canViewVariabls.value,
 		},
 		{
-			label: 'Greetings',
+			label: t('sidebar.greetings'),
 			icon: renderIcon(IconSpeakerphone),
 			path: '/dashboard/greetings',
 			disabled: !canViewGreetings.value,
@@ -284,5 +287,9 @@ const selectedDashboard = computed(() => {
 </template>
 
 <style scoped>
-
+:deep(.n-menu-item-content-header) {
+	align-self: stretch;
+	display: flex;
+	align-items: center;
+}
 </style>
