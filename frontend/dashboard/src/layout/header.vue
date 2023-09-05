@@ -26,6 +26,7 @@ defineProps<{
 	toggleSidebar: () => void;
 }>();
 
+const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
 const { theme, toggleTheme } = useTheme();
 
 const themeVars = useThemeVars();
@@ -33,7 +34,7 @@ const discordIconColor = computed(() => themeVars.value.textColor2);
 
 const logout = useLogout();
 const profileOptions: DropdownOption[] = [{
-	label: 'Logout',
+	label: t('navbar.logout'),
 	key: 'logout',
 	icon: renderIcon(IconLogout),
 	props: {
@@ -47,8 +48,6 @@ const profileOptions: DropdownOption[] = [{
 }];
 
 const { data: profileData, isLoading: isProfileLoading } = useProfile();
-
-const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
 
 const localStorageLocale = useLocalStorage('twirLocale', 'en');
 
@@ -87,7 +86,7 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 
 		<div>
 			<n-button tag="a" tertiary target="_blank" :href="publicPageHref">
-				Public page
+				{{ t('navbar.publicPage') }}
 			</n-button>
 			<n-button
 				tertiary

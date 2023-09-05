@@ -49,6 +49,10 @@
 		"games": "Games",
 		"users": "Users"
 	},
+	"navbar": {
+		"logout": "Logout",
+		"publicPage": "Public page"
+	},
 	"deleteConfirmation": {
 		"text": "Are you sure you want to delete this thing?",
 		"cancel": "Cancel",
@@ -252,7 +256,15 @@
 			}
 		},
 		"obs": {
-			"description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
+			"description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events.",
+			"address": "Address of OBS WebSocket server",
+			"port": "Port of OBS WebSocket server",
+			"connected": "Connected",
+			"notConnected": "Not connected",
+			"checkConnection": "Check connection",
+		},
+		"alerts": {
+			"description": "This overlay used to play configured alerts"
 		}
 	},
 	"songRequests": {
