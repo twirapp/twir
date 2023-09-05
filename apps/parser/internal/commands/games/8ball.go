@@ -27,20 +27,20 @@ var EightBall = &types.DefaultCommand{
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
 			return &types.CommandsHandlerResult{
-				Result: []string{"Seems like 8ball not configured"},
+				Result: []string{},
 			}
 		}
 
 		var parsedSettings model.EightBallSettings
 		if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
 			return &types.CommandsHandlerResult{
-				Result: []string{"Seems like 8ball not configured"},
+				Result: []string{},
 			}
 		}
 
 		if !parsedSettings.Enabled {
 			return &types.CommandsHandlerResult{
-				Result: []string{"Seems like 8ball not enabled"},
+				Result: []string{},
 			}
 		}
 
