@@ -38,7 +38,7 @@ async function save() {
 		answers: formValue.value.answers,
 		enabled: formValue.value.enabled,
 	});
-	notifications.success('Success');
+	notifications.success(t('sharedTexts.saved'));
 }
 </script>
 

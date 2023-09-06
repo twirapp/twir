@@ -11,3 +11,25 @@ message EightBallSettingsResponse {
 	repeated string answers = 1;
 	bool enabled = 2;
 }
+
+message RussianRoulleteSettingsResponse {
+	bool enabled = 1;
+	bool can_be_used_by_moderator = 2;
+	int32 timeout_seconds = 3;
+	int32 decision_seconds = 4;
+	string init_message = 5;
+	string survive_message = 6;
+	string death_message = 7;
+	int32 charged_bullets = 8;
+}
+
+message UpdateRussianRoulleteSettings {
+	bool enabled = 1;
+	bool can_be_used_by_moderator = 2;
+	int32 timeout_seconds = 3;
+	int32 decision_seconds = 4;
+	string init_message = 5;
+	string survive_message = 6;
+	string death_message = 7;
+	int32 charged_bullets = 8;
+}

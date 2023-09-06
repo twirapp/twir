@@ -77,6 +77,7 @@ type RussianRouletteSetting struct {
 	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
 	TimeoutSeconds        int  `json:"timeoutTime"`
 	DecisionSeconds       int  `json:"decisionTime"`
+	ChargedBullets        int  `json:"chargedBullets"`
 
 	InitMessage    string `json:"initMessage"`
 	SurviveMessage string `json:"surviveMessage"`

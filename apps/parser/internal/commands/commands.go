@@ -86,6 +86,7 @@ func New(opts *Opts) *Commands {
 			sr_youtube.SrListCommand,
 			sr_youtube.WrongCommand,
 			games.EightBall,
+			games.RussianRoulette,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

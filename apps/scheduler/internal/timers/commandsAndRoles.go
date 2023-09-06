@@ -2,11 +2,12 @@ package timers
 
 import (
 	"context"
+	"time"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/scheduler/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/zap"
-	"time"
 )
 
 func NewCommandsAndRoles(ctx context.Context, services *types.Services) {

@@ -3,6 +3,7 @@
 import { NGrid, NGridItem } from 'naive-ui';
 
 import EightBall from '@/components/games/8ball.vue';
+import RussianRoulette from '@/components/games/russianRoulette.vue';
 </script>
 
 <template>
@@ -18,6 +19,10 @@ import EightBall from '@/components/games/8ball.vue';
 		<n-grid cols="1 m:2" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<EightBall />
+			</n-grid-item>
+
+			<n-grid-item :span="1">
+				<RussianRoulette />
 			</n-grid-item>
 		</n-grid>
 	</div>

@@ -182,6 +182,8 @@ service Protected {
 
 	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (api.games.EightBallSettingsResponse) {}
 	rpc GamesUpdateEightBallSettings(api.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
+	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (api.games.RussianRoulleteSettingsResponse) {}
+	rpc GamesUpdateRouletteSettings(api.games.UpdateRussianRoulleteSettings) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

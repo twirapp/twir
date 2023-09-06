@@ -53,14 +53,25 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 	if res.KeepOrder != nil && !*res.KeepOrder {
 		for _, response := range res.Responses {
 			r := response
+			err := ValidateResponseSlashes(r)
+
 			if r == "" || r == " " {
 				continue
 			}
-			go c.BotClient.SayWithRateLimiting(
-				msg.Channel.Name,
-				r,
-				lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
-			)
+
+			if err != nil {
+				go c.BotClient.SayWithRateLimiting(
+					msg.Channel.Name,
+					err.Error(),
+					nil,
+				)
+			} else {
+				go c.BotClient.SayWithRateLimiting(
+					msg.Channel.Name,
+					r,
+					lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+				)
+			}
 		}
 	} else {
 		for _, r := range res.Responses {
