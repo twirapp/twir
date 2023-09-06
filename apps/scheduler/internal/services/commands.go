@@ -50,10 +50,8 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 		for _, command := range defaultCommands.List {
 			// skip if command exists
 			if lo.SomeBy(
-				channel.Commands, func(c model.ChannelsCommands) bool {
-					if !c.Default {
-						return false
-					}
+				channel.Commands,
+				func(c model.ChannelsCommands) bool {
 					return c.DefaultName.String == command.Name
 				},
 			) {
