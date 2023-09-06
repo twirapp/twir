@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/parser"
+	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -100,6 +101,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 				WithContext(ctx).
 				Create(newCmd).
 				Error; err != nil {
+				zap.S().Error("cannot create default command", zap.Error(err), zap.Any("command", newCmd))
 				return err
 			}
 		}
