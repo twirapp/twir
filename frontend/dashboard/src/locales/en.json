@@ -239,7 +239,7 @@
 		"copied": "Copied link url, paste it in obs as browser source",
 		"tts": {
 			"description": "Play audios in your OBS with some set of preconfigured voices. You can use that overlay via commands, or on events",
-			"eventsHint": "Hint: you can use events system to trigger tts on reward. ",
+			"eventsHint": "Hint: you can use events system to trigger tts on reward.",
 			"allowUsersChooseVoice": "Allow users use different voices in main (!tts) command",
 			"doNotReadEmoji": "Do not read emoji",
 			"doNotReadTwitchEmotes": "Do not read Twitch emotes, including 7tv, FFZ, BTTV",
@@ -409,7 +409,7 @@
 			"total": "Total {total} users",
 			"reset": {
 				"button": "Reset",
-				"resetQuestion": "Are you sure you wan't to reset {title}?"
+				"resetQuestion": "Are you sure you want to reset {title}?"
 			}
 		}
 	}
