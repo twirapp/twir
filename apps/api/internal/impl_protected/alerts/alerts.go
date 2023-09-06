@@ -119,7 +119,7 @@ func (c *Alerts) AlertsUpdate(ctx context.Context, req *alerts.UpdateRequest) (
 	*alerts.Alert,
 	error,
 ) {
-	if len(req.Name) > 30 {
+	if utf8.RuneCountInString(req.Name) > 30 {
 		return nil, twirp.NewError(twirp.OutOfRange, "Alert name is too long")
 	}
 
