@@ -5,6 +5,7 @@ import { intervalToDuration } from 'date-fns';
 import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown, useThemeVars, NCard } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, watchEffect } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useStats } from './stats.js';
 import ChannelInfo from './statsChannelInfo.vue';
@@ -45,13 +46,13 @@ const statsItems = computed(() => {
 	const u = uptime.value;
 
 	const items: Record<string, any> = {
-		Uptime: u ?? 'Offline',
-		Viewers: s.viewers,
-		Followers: s.followers,
-		Messages: s.chatMessages,
-		'Used emotes': s.usedEmotes,
-		'Requested songs': s.requestedSongs,
-		'Subs': s.subs,
+		uptime: u ?? '',
+		viewers: s.viewers,
+		followers: s.followers,
+		messages: s.chatMessages,
+		usedEmotes: s.usedEmotes,
+		requestedSongs: s.requestedSongs,
+		subs: s.subs,
 	};
 
 	return items;
@@ -68,7 +69,7 @@ watchEffect(() => {
 });
 
 const statsWidgets = useStats();
-const channelInfoWidget = computed(() => statsWidgets.value.find(v => v.i === 'Stats'));
+const channelInfoWidget = computed(() => statsWidgets.value.find(v => v.i === 'streamInfo'));
 const hideWidget = (key: string | number) => {
 	const item = statsWidgets.value.find(i => i.i === key);
 	if (!item) return;
@@ -93,6 +94,8 @@ const addWidget = (key: string) => {
 };
 
 const theme = useThemeVars();
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -117,7 +120,7 @@ const theme = useThemeVars();
 		</GridItem>
 
 		<GridItem
-			v-for="widget of statsWidgets.filter(w => w.visible && w.i !== 'Stats')"
+			v-for="widget of statsWidgets.filter(w => w.visible && w.i !== 'streamInfo')"
 			:key="widget.i"
 			:x="widget.x"
 			:y="widget.y"
@@ -138,7 +141,7 @@ const theme = useThemeVars();
 				<n-space vertical>
 					<div style="display: flex; justify-content: space-between;">
 						<div style="white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
-							<span>{{ widget.i }}</span>
+							<span>{{ t(`dashboard.statsWidgets.${widget.i}`) }}</span>
 						</div>
 						<n-button text @click="hideWidget(widget.i)">
 							<IconEyeOff />

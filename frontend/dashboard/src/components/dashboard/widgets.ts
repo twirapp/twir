@@ -1,7 +1,7 @@
 import { useLocalStorage } from '@vueuse/core';
 import { type LayoutItem } from 'grid-layout-plus';
 
-const version = '4';
+const version = '5';
 
 export type WidgetItem = LayoutItem & { visible: boolean }
 
@@ -11,7 +11,7 @@ export const useWidgets = () => useLocalStorage<WidgetItem[]>(`twirWidgetsPositi
 		y: 0,
 		w: 4,
 		h: 13,
-		i: 'Chat',
+		i: 'chat',
 		minW: 3,
 		minH: 8,
 		visible: true,
@@ -21,7 +21,7 @@ export const useWidgets = () => useLocalStorage<WidgetItem[]>(`twirWidgetsPositi
 		y: 0,
 		w: 4,
 		h: 4,
-		i: 'Bot',
+		i: 'bot',
 		minW: 3,
 		minH: 4,
 		visible: true,
@@ -31,7 +31,7 @@ export const useWidgets = () => useLocalStorage<WidgetItem[]>(`twirWidgetsPositi
 		y: 0,
 		w: 4,
 		h: 13,
-		i: 'Events',
+		i: 'events',
 		minW: 3,
 		minH: 8,
 		visible: true,
@@ -41,7 +41,7 @@ export const useWidgets = () => useLocalStorage<WidgetItem[]>(`twirWidgetsPositi
 		y: 4,
 		w: 4,
 		h: 9,
-		i: 'Stream',
+		i: 'stream',
 		minW: 3,
 		minH: 8,
 		visible: true,
