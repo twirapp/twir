@@ -47,6 +47,11 @@ SELECT id, settings FROM channels_modules_settings WHERE type = 'russian_roulett
 	}
 	defer rows.Close()
 
+	var forUpdate []struct {
+		id            string
+		settingsBytes []byte
+	}
+
 	// iterate over all modules settings
 	for rows.Next() {
 		var id string
@@ -55,40 +60,46 @@ SELECT id, settings FROM channels_modules_settings WHERE type = 'russian_roulett
 			return err
 		}
 
-		// unmarshal settings
-		var settings rouletteAddTumberSize20230907235511Old
-		if err := json.Unmarshal(settingsBytes, &settings); err != nil {
-			return err
-		}
-
-		// update settings
-		newSettingsBytes, err := json.Marshal(
-			&rouletteAddTumberSize20230907235511New{
-				Enabled:               settings.Enabled,
-				CanBeUsedByModerators: settings.CanBeUsedByModerators,
-				TimeoutSeconds:        settings.TimeoutSeconds,
-				DecisionSeconds:       settings.DecisionSeconds,
-				TumberSize:            6,
-				ChargedBullets:        settings.ChargedBullets,
-				InitMessage:           settings.InitMessage,
-				SurviveMessage:        settings.SurviveMessage,
-				DeathMessage:          settings.DeathMessage,
+		forUpdate = append(
+			forUpdate, struct {
+				id            string
+				settingsBytes []byte
+			}{
+				id:            id,
+				settingsBytes: settingsBytes,
 			},
 		)
+	}
+
+	for _, update := range forUpdate {
+		var oldSettings rouletteAddTumberSize20230907235511Old
+		if err := json.Unmarshal(update.settingsBytes, &oldSettings); err != nil {
+			return err
+		}
+
+		newSettings := rouletteAddTumberSize20230907235511New{
+			Enabled:               oldSettings.Enabled,
+			CanBeUsedByModerators: oldSettings.CanBeUsedByModerators,
+			TimeoutSeconds:        oldSettings.TimeoutSeconds,
+			DecisionSeconds:       oldSettings.DecisionSeconds,
+			TumberSize:            6,
+			ChargedBullets:        oldSettings.ChargedBullets,
+			InitMessage:           oldSettings.InitMessage,
+			SurviveMessage:        oldSettings.SurviveMessage,
+			DeathMessage:          oldSettings.DeathMessage,
+		}
+
+		newSettingsBytes, err := json.Marshal(newSettings)
 		if err != nil {
 			return err
 		}
 
-		// update settings
 		_, err = tx.ExecContext(
 			ctx,
-			"UPDATE channels_modules_settings SET settings = ? WHERE id = ?",
+			`UPDATE channels_modules_settings SET settings = $1 WHERE id = $2`,
 			newSettingsBytes,
-			id,
+			update.id,
 		)
-		if err != nil {
-			return err
-		}
 	}
 
 	return nil
