@@ -2,6 +2,10 @@ package cacher
 
 import (
 	"context"
+	"fmt"
+	"strings"
+	"sync"
+
 	"github.com/imroc/req/v3"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -10,8 +14,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"strings"
-	"sync"
 )
 
 type locks struct {
@@ -36,7 +38,7 @@ type cache struct {
 	dbUserStats *model.UsersStats
 
 	twitchSenderUser  *helix.User
-	twitchUserFollows map[string]*helix.UserFollow
+	twitchUserFollows map[string]*helix.ChannelFollow
 	twitchChannel     *helix.ChannelInformation
 
 	channelIntegrations []*model.ChannelsIntegrations
@@ -71,7 +73,7 @@ func NewCacher(opts *CacherOpts) types.DataCacher {
 		parseCtxText:    opts.ParseCtxText,
 		locks:           &locks{},
 		cache: &cache{
-			twitchUserFollows: make(map[string]*helix.UserFollow),
+			twitchUserFollows: make(map[string]*helix.ChannelFollow),
 		},
 	}
 }
@@ -172,7 +174,7 @@ func (c *cacher) GetEnabledChannelIntegrations(ctx context.Context) []*model.Cha
 }
 
 // GetFollowAge implements types.VariablesCacher
-func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.UserFollow {
+func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.ChannelFollow {
 	c.locks.twitchFollow.Lock()
 	defer c.locks.twitchFollow.Unlock()
 
@@ -180,8 +182,20 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		return c.cache.twitchUserFollows[userID]
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(
+	channel := model.Channels{}
+	err := c.services.Gorm.
+		WithContext(ctx).
+		Where(`"id" = ?`, c.parseCtxChannel.ID).
+		First(&channel).
+		Error
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+
+	twitchClient, err := twitch.NewBotClientWithContext(
 		ctx,
+		channel.BotID,
 		*c.services.Config,
 		c.services.GrpcClients.Tokens,
 	)
@@ -189,15 +203,22 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 		return nil
 	}
 
-	follow, err := twitchClient.GetUsersFollows(
-		&helix.UsersFollowsParams{
-			FromID: userID,
-			ToID:   c.parseCtxChannel.ID,
+	follow, err := twitchClient.GetChannelFollows(
+		&helix.GetChannelFollowsParams{
+			BroadcasterID: c.parseCtxChannel.ID,
+			UserID:        userID,
+			First:         0,
+			After:         "",
 		},
 	)
 
-	if err == nil && len(follow.Data.Follows) != 0 {
-		c.cache.twitchUserFollows[userID] = &follow.Data.Follows[0]
+	if follow.ErrorMessage != "" {
+		fmt.Println(follow.ErrorMessage)
+		return nil
+	}
+
+	if err == nil && len(follow.Data.Channels) != 0 {
+		c.cache.twitchUserFollows[userID] = &follow.Data.Channels[0]
 	}
 
 	return c.cache.twitchUserFollows[userID]

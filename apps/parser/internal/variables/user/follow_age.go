@@ -57,7 +57,8 @@ var FollowAge = &types.Variable{
 			result.Result = "not a follower"
 		} else {
 			result.Result = helpers.Duration(
-				follow.FollowedAt, &helpers.DurationOpts{
+				follow.Followed.Time,
+				&helpers.DurationOpts{
 					UseUtc: true,
 					Hide: helpers.DurationOptsHide{
 						Minutes: true,

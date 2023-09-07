@@ -59,8 +59,8 @@ var FollowSince = &types.Variable{
 		} else {
 			result.Result = fmt.Sprintf(
 				"%s (%.0f days)",
-				follow.FollowedAt.UTC().Format("2 January 2006"),
-				time.Now().UTC().Sub(follow.FollowedAt.UTC()).Hours()/24,
+				follow.Followed.Time.UTC().Format("2 January 2006"),
+				time.Now().UTC().Sub(follow.Followed.Time.UTC()).Hours()/24,
 			)
 		}
 
