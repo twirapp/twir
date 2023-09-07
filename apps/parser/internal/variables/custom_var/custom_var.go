@@ -26,7 +26,7 @@ var CustomVar = &types.Variable{
 		v := &model.ChannelsCustomvars{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
-			Where(`"channelId" = ? "name" = ?`, parseCtx.Channel.ID, variableData.Params).
+			Where(`"channelId" = ? AND "name" = ?`, parseCtx.Channel.ID, variableData.Params).
 			Find(v).Error
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
