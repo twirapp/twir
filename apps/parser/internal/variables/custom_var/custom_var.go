@@ -24,7 +24,10 @@ var CustomVar = &types.Variable{
 		}
 
 		v := &model.ChannelsCustomvars{}
-		err := parseCtx.Services.Gorm.Where(`"name" = ?`, variableData.Params).WithContext(ctx).Find(v).Error
+		err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Where(`"channelId" = ? "name" = ?`, parseCtx.Channel.ID, variableData.Params).
+			Find(v).Error
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
@@ -36,7 +39,8 @@ var CustomVar = &types.Variable{
 
 		if v.Type == model.CustomVarScript {
 			req, err := parseCtx.Services.GrpcClients.Eval.Process(
-				context.Background(), &eval.Evaluate{
+				ctx,
+				&eval.Evaluate{
 					Script: v.EvalValue,
 				},
 			)
