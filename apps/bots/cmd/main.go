@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/bots"
 	"github.com/satont/twir/apps/bots/internal/gorm"
 	"github.com/satont/twir/apps/bots/internal/grpc_impl"
+	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -93,6 +94,7 @@ func main() {
 					)
 				}
 			},
+			pubsub_handlers.New,
 			grpc_impl.NewServer,
 		),
 	).Run()
