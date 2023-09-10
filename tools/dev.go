@@ -71,7 +71,6 @@ func main() {
 	apps := []App{
 		{Stack: "go", Name: "tokens", Port: servers.TOKENS_SERVER_PORT},
 		{Stack: "go", Name: "events", Port: servers.EVENTS_SERVER_PORT},
-		{Stack: "node", Name: "integrations", Port: servers.INTEGRATIONS_SERVER_PORT},
 		{Stack: "go", Name: "emotes-cacher", Port: servers.EMOTES_CACHER_SERVER_PORT},
 		{Stack: "go", Name: "parser", Port: servers.PARSER_SERVER_PORT},
 		{Stack: "go", Name: "eventsub", Port: servers.EVENTSUB_SERVER_PORT},
@@ -80,6 +79,7 @@ func main() {
 		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
 		{Stack: "go", Name: "websockets", Port: servers.WEBSOCKET_SERVER_PORT},
 		{Stack: "go", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
+		{Stack: "node", Name: "integrations", Port: servers.INTEGRATIONS_SERVER_PORT},
 		{Stack: "go", Name: "api", Port: 3002},
 		{Stack: "go", Name: "scheduler", Port: servers.SCHEDULER_SERVER_PORT},
 		{Stack: "frontend", Name: "dashboard", Port: 3006},

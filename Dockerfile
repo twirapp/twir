@@ -187,6 +187,7 @@ WORKDIR /app
 COPY --from=integrations_builder /app/apps/integrations /app/apps/integrations
 COPY --from=integrations_builder /app/libs/config /app/libs/config
 COPY --from=integrations_builder /app/libs/grpc /app/libs/grpc
+COPY --from=integrations_builder /app/libs/pubsub /app/libs/pubsub
 CMD ["pnpm", "--filter=@twir/integrations", "start"]
 
 ### FRONTEND

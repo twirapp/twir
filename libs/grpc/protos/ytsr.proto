@@ -9,6 +9,7 @@ service Ytsr {
 
 message SearchRequest {
   string search = 1;
+	bool only_links = 2;
 }
 
 message SongAuthor {

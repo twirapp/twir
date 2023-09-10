@@ -100,4 +100,5 @@ message YouTubeSettings {
 	YouTubeSongSettings song = 8;
 	YouTubeDenyList deny_list = 9;
 	YouTubeTranslations translations = 10;
+	bool take_song_from_donation_messages = 11;
 }

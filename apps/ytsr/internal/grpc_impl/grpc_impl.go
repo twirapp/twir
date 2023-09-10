@@ -3,14 +3,15 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
-	"github.com/samber/lo"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/ytsr"
-	"go.uber.org/zap"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/samber/lo"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/ytsr"
+	"go.uber.org/zap"
 )
 
 type YtsrServer struct {
@@ -38,7 +39,10 @@ type internalSong struct {
 	youtubeQuery string
 }
 
-func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (*ytsr.SearchResponse, error) {
+func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
+	*ytsr.SearchResponse,
+	error,
+) {
 	var linkMatches []string
 
 	for _, part := range strings.Split(req.Search, " ") {
@@ -90,13 +94,17 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (*ytsr
 			}()
 		}
 		wg.Wait()
-	} else {
+	} else if !req.OnlyLinks {
 		internalSongs = append(
 			internalSongs,
 			internalSong{
 				youtubeQuery: req.Search,
 			},
 		)
+	}
+
+	if len(internalSongs) == 0 {
+		return &ytsr.SearchResponse{}, nil
 	}
 
 	var wg sync.WaitGroup

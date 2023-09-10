@@ -2,11 +2,12 @@ package webhooks
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/satont/twir/libs/logger"
 	"log/slog"
 	"net/http"
-	"time"
+
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/pubsub"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -23,6 +24,7 @@ type DonateStreamOpts struct {
 	Db         *gorm.DB
 	EventsGrpc events.EventsClient
 	Logger     logger.Logger
+	Config     *cfg.Config
 }
 
 type DonateStream struct {
@@ -30,14 +32,21 @@ type DonateStream struct {
 	db         *gorm.DB
 	eventsGrpc events.EventsClient
 	l          logger.Logger
+	pb         *pubsub.PubSub
 }
 
 func NewDonateStream(opts DonateStreamOpts) handlers.IHandler {
+	pb, err := pubsub.NewPubSub(opts.Config.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+
 	return &DonateStream{
 		redis:      opts.Redis,
 		db:         opts.Db,
 		eventsGrpc: opts.EventsGrpc,
 		l:          opts.Logger,
+		pb:         pb,
 	}
 }
 
@@ -80,8 +89,12 @@ func (c *DonateStream) Handler() http.Handler {
 			}
 
 			if body.Type == "confirm" {
-				value, err := c.redis.Get(r.Context(), "donate_stream_confirmation"+integration.ID).Result()
+				value, err := c.redis.Get(
+					r.Context(),
+					"donate_stream_confirmation"+integration.IntegrationID,
+				).Result()
 				if err != nil {
+					c.l.Error("cannot get confirmation from redis", slog.Any("err", err))
 					http.Error(w, "Internal error", http.StatusInternalServerError)
 					return
 				}
@@ -90,34 +103,19 @@ func (c *DonateStream) Handler() http.Handler {
 				return
 			}
 
-			if err := c.db.Create(
-				&model.ChannelsEventsListItem{
-					ID:        uuid.New().String(),
-					ChannelID: integration.ChannelID,
-					UserID:    "",
-					Type:      model.ChannelEventListItemTypeDonation,
-					Data: &model.ChannelsEventsListItemData{
-						DonationAmount:   body.Sum,
-						DonationCurrency: "RUB",
-						DonationMessage:  body.Message,
-						DonationUsername: body.Nickname,
-					},
-					CreatedAt: time.Now(),
-				},
-			).Error; err != nil {
-				c.l.Error("cannot create event", slog.Any("err", err))
+			integrationsMessage := &pbMessage{
+				TwitchUserId: integration.ChannelID,
+				Amount:       body.Sum,
+				Currency:     "RUB",
+				Message:      body.Message,
+				UserName:     body.Nickname,
+			}
+			integrationsNameBytes, err := json.Marshal(integrationsMessage)
+			if err != nil {
+				c.l.Error("cannot marshal message", slog.Any("err", err))
 			}
 
-			_, err := c.eventsGrpc.Donate(
-				r.Context(),
-				&events.DonateMessage{
-					BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
-					UserName: body.Nickname,
-					Amount:   body.Sum,
-					Currency: "RUB",
-					Message:  body.Message,
-				},
-			)
+			c.pb.Publish("donations:new", integrationsNameBytes)
 
 			if err != nil {
 				http.Error(w, "Internal error", http.StatusInternalServerError)

@@ -2,11 +2,12 @@ package webhooks
 
 import (
 	"encoding/json"
-	"github.com/google/uuid"
-	"github.com/satont/twir/libs/logger"
 	"log/slog"
 	"net/http"
-	"time"
+
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/pubsub"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -23,6 +24,7 @@ type DonatelloOpts struct {
 	Db         *gorm.DB
 	EventsGrpc events.EventsClient
 	Logger     logger.Logger
+	Config     *cfg.Config
 }
 
 type Donatello struct {
@@ -30,14 +32,21 @@ type Donatello struct {
 	db         *gorm.DB
 	eventsGrpc events.EventsClient
 	l          logger.Logger
+	pb         *pubsub.PubSub
 }
 
 func NewDonatello(opts DonatelloOpts) handlers.IHandler {
+	pb, err := pubsub.NewPubSub(opts.Config.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+
 	return &Donatello{
 		redis:      opts.Redis,
 		db:         opts.Db,
 		eventsGrpc: opts.EventsGrpc,
 		l:          opts.Logger,
+		pb:         pb,
 	}
 }
 
@@ -87,38 +96,19 @@ func (c *Donatello) Handler() http.Handler {
 				return
 			}
 
-			if err := c.db.Create(
-				&model.ChannelsEventsListItem{
-					ID:        uuid.New().String(),
-					ChannelID: integration.ChannelID,
-					UserID:    "",
-					Type:      model.ChannelEventListItemTypeDonation,
-					Data: &model.ChannelsEventsListItemData{
-						DonationAmount:   body.Amount,
-						DonationCurrency: body.Currency,
-						DonationMessage:  body.Message,
-						DonationUsername: body.ClientName,
-					},
-					CreatedAt: time.Now(),
-				},
-			).Error; err != nil {
-				c.l.Error("cannot create event", slog.Any("err", err))
+			integrationsMessage := &pbMessage{
+				TwitchUserId: integration.ChannelID,
+				Amount:       body.Amount,
+				Currency:     "RUB",
+				Message:      body.Message,
+				UserName:     body.ClientName,
+			}
+			integrationsNameBytes, err := json.Marshal(integrationsMessage)
+			if err != nil {
+				c.l.Error("cannot marshal message", slog.Any("err", err))
 			}
 
-			_, err := c.eventsGrpc.Donate(
-				r.Context(),
-				&events.DonateMessage{
-					BaseInfo: &events.BaseInfo{ChannelId: integration.ChannelID},
-					UserName: body.ClientName,
-					Amount:   body.Amount,
-					Currency: body.Currency,
-					Message:  body.Message,
-				},
-			)
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+			c.pb.Publish("donations:new", integrationsNameBytes)
 
 			w.WriteHeader(http.StatusOK)
 		},

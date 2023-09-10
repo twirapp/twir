@@ -322,10 +322,11 @@
       "deniedChannels": "Denied youtube channels",
       "deniedUsers": "Users, who can't request songs",
       "deniedSongs": "Denied songs for request",
+			"takeSongFromDonationMessage": "Takes song links from donation message",
       "users": {
         "maxRequests": "Maximum requests per user",
         "minimalWatchTime": "Minimal watch time for request song (minutes)",
-        "minimalMessages": "Minimal mininal messages for requesting song",
+        "minimalMessages": "Minimal messages for requesting song",
         "minimalFollowTime": "Minimal follow time for request song (minutes)"
       },
       "songs": {

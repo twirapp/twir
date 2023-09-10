@@ -9,6 +9,7 @@
 	"dependencies": {
 		"@twir/config": "workspace:*",
 		"@twir/grpc": "workspace:*",
+		"@twir/pubsub": "workspace:^",
 		"@twurple/api": "^5.2.7",
 		"@twurple/auth": "^5.2.7",
 		"centrifuge": "2.8.5",

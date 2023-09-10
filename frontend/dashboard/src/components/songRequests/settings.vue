@@ -2,24 +2,28 @@
 import type { YouTubeSettings } from '@twir/grpc/generated/api/api/modules_sr';
 import { useDebounce } from '@vueuse/core';
 import {
-  type SelectOption,
-  NTabs,
-  NTabPane,
-  NSpace,
-  NSwitch,
-  NText,
-  NInputNumber,
-  NForm,
-  NFormItem,
-  NSelect,
-  NAvatar,
-  NButton,
-useMessage,
+	type SelectOption,
+	NTabs,
+	NTabPane,
+	NSpace,
+	NSwitch,
+	NText,
+	NInputNumber,
+	NForm,
+	NFormItem,
+	NSelect,
+	NAvatar,
+	NButton,
+	useMessage,
 } from 'naive-ui';
 import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useTwitchRewards, useYoutubeVideoOrChannelSearch, YoutubeSearchType } from '@/api/index.js';
+import {
+	useTwitchRewards,
+	useYoutubeVideoOrChannelSearch,
+	YoutubeSearchType,
+} from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
 
@@ -35,6 +39,7 @@ const youtubeModuleUpdater = youtubeModuleManager.update();
 const formValue = ref<YouTubeSettings>({
 	enabled: true,
 	acceptOnlyWhenOnline: true,
+	takeSongFromDonationMessages: false,
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,
@@ -95,6 +100,7 @@ watch(youtubeModuleSettings, async (v) => {
 
 
 const message = useMessage();
+
 async function save() {
 	const data = unref(formValue);
 
@@ -193,6 +199,11 @@ const songsSearchOptions = computed(() => {
 					</n-space>
 
 					<n-space justify="space-between">
+						<n-text>{{ t('songRequests.settings.takeSongFromDonationMessage') }}</n-text>
+						<n-switch v-model:value="formValue.takeSongFromDonationMessages" />
+					</n-space>
+
+					<n-space justify="space-between">
 						<n-text>{{ t('songRequests.settings.onlineOnly') }}</n-text>
 						<n-switch v-model:value="formValue.acceptOnlyWhenOnline" />
 					</n-space>
@@ -202,11 +213,17 @@ const songsSearchOptions = computed(() => {
 						<n-switch v-model:value="formValue.announcePlay" />
 					</n-space>
 
-					<n-form-item :label="t('songRequests.settings.neededPercentageForskip')" path="neededVotesVorSkip">
+					<n-form-item
+						:label="t('songRequests.settings.neededPercentageForskip')"
+						path="neededVotesVorSkip"
+					>
 						<n-input-number v-model:value="formValue.neededVotesVorSkip" />
 					</n-form-item>
 
-					<n-form-item :label="t('songRequests.settings.channelReward')" path="channelPointsRewardId">
+					<n-form-item
+						:label="t('songRequests.settings.channelReward')"
+						path="channelPointsRewardId"
+					>
 						<n-select
 							v-model:value="formValue.channelPointsRewardId"
 							:loading="twitchRewards.isLoading.value"
@@ -219,7 +236,10 @@ const songsSearchOptions = computed(() => {
 						/>
 					</n-form-item>
 
-					<n-form-item :label="t('songRequests.settings.deniedChannels')" path="channelPointsRewardId">
+					<n-form-item
+						:label="t('songRequests.settings.deniedChannels')"
+						path="channelPointsRewardId"
+					>
 						<n-select
 							v-model:value="formValue.denyList!.channels"
 							:loading="selectedChannels.isLoading.value"
@@ -256,7 +276,10 @@ const songsSearchOptions = computed(() => {
 					:label="t('songRequests.settings.users.mininalFollowTime')"
 					path="user.minFollowTime"
 				>
-					<n-input-number v-model:value="formValue.user!.minFollowTime" :min="0" :max="99999999999999" />
+					<n-input-number
+						v-model:value="formValue.user!.minFollowTime" :min="0"
+						:max="99999999999999"
+					/>
 				</n-form-item>
 
 				<n-form-item :label="t('songRequests.settings.deniedUsers')">

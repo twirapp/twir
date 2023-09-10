@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"strings"
 	"time"
+
+	"github.com/lib/pq"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
