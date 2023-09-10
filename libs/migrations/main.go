@@ -3,13 +3,14 @@ package main
 import (
 	"database/sql"
 	"embed"
+
 	"github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 	"github.com/satont/twir/libs/config"
+	_ "github.com/satont/twir/libs/migrations/migrations"
 	"github.com/satont/twir/libs/migrations/seeds"
 )
 
-// TODO: add .go when there will be some go files in migrations
 //
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
