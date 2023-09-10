@@ -285,7 +285,11 @@
         "selectAll": "Select all",
         "undoSelection": "Undo selection",
         "empty": "No one's created their own customizations yet."
-      }
+      },
+			"tabs": {
+				"general": "General",
+				"usersSettings": "Users Settings"
+			}
     },
     "obs": {
       "description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events.",
@@ -336,7 +340,12 @@
         "maxLength": "Max length of song for request (minutes)",
         "minViews": "Minimal views on song for request"
       }
-    }
+    },
+		"tabs": {
+			"general": "General settings",
+			"users": "Users settings",
+			"songs": "Songs settings"
+		}
   },
   "timers": {
     "table": {
@@ -410,7 +419,19 @@
     "name": "Name",
     "validations": {
       "name": "Name cannot be empty and bigger then 30 symbols"
-    }
+    },
+		"trigger": {
+			"commands": "Commands for trigger",
+			"rewards": "Rewards for trigger",
+			"keywords": "Keywords for trigger",
+			"greetings": "Greetings for trigger"
+		},
+		"select": {
+			"audio": "Configure audio",
+			"image": "Configure image",
+			"text": "Configure text"
+		},
+		"audioVolume": "Audio volume ({volume}%)"
   },
   "games": {
     "command": "Command",
@@ -445,5 +466,10 @@
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
     }
-  }
+  },
+	"filePicker": {
+		"innerText": "Select or drop {type}",
+		"usedSpace": "Used {used} / {max} MB",
+		"emptyText": "No {type} uploaded"
+	}
 }

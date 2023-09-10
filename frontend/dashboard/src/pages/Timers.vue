@@ -130,7 +130,7 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 
 <template>
 	<n-space justify="space-between" align="center">
-		<h2>Timers</h2>
+		<h2>{{ t('sidebar.timers') }}</h2>
 		<n-button
 			secondary type="success"
 			:disabled="!userCanManageTimers || timersLength >= 10"

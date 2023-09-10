@@ -29,7 +29,11 @@ const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableVariable>({
 	type: VariableType.TEXT,
 	name: '',
-	evalValue: '',
+	evalValue: `// semicolons (;) matters, do not forget put them on end of statements.
+const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+const response = await request.json();
+// you should return value from your script
+return response.title;`,
 	description: '',
 	response: '',
 	id: '',
@@ -107,7 +111,7 @@ const selectOptions: Array<SelectOption> = [
 	>
 		<n-space vertical style="width: 100%">
 			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
-				<n-input v-model:value="formValue.name" />
+				<n-input v-model:value="formValue.name" :placeholder="t('sharedTexts.name')" />
 			</n-form-item>
 
 			<n-form-item :label="t('variables.type')" path="type" show-require-mark>
@@ -117,7 +121,7 @@ const selectOptions: Array<SelectOption> = [
 				/>
 			</n-form-item>
 
-			<n-form-item label="JavaScript" path="response">
+			<n-form-item :label="t('sharedTexts.response')" path="response">
 				<vue-monaco-editor
 					v-if="formValue.type === VariableType.SCRIPT"
 					v-model:value="formValue.evalValue"

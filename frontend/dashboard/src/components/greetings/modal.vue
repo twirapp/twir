@@ -99,7 +99,7 @@ const rules: FormRules = {
 					:initial-user-id="props.greeting?.userId"
 				/>
 			</n-form-item>
-			<n-form-item label="Text" path="text" show-require-mark>
+			<n-form-item :label="t('sharedTexts.response')" path="text" show-require-mark>
 				<text-with-variables v-model="formValue.text" />
 			</n-form-item>
 

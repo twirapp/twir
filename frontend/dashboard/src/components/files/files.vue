@@ -134,20 +134,27 @@ async function upload(f: File) {
 								</n-icon>
 							</div>
 							<n-text style="font-size: 13px">
-								Select or drop {{ activeTab.name.toLowerCase() }}
+								{{ t('filePicker.innerText', { type: activeTab.name.toLowerCase() }) }}
 							</n-text>
 						</div>
 						<n-spin v-else />
 					</n-upload-dragger>
 				</n-upload>
 
-				<n-text>Used {{ convertBytesToSize(uploadedFilesSize) }} / 100 MB</n-text>
+				<n-text>
+					{{
+						t('filePicker.usedSpace', {
+							used: convertBytesToSize(uploadedFilesSize),
+							max: 100
+						})
+					}}
+				</n-text>
 			</div>
 		</div>
 
 		<div v-if="activeTab.name === 'Audios'">
 			<n-alert v-if="!audios.length" type="info">
-				No audios uploaded
+				{{ t('filePicker.emptyText', { type: 'audios' }) }}
 			</n-alert>
 
 			<n-grid v-else cols="1 s:1 m:2 l:3" responsive="screen" :x-gap="8" :y-gap="8">
@@ -197,4 +204,3 @@ async function upload(f: File) {
 	padding-right: 5px;
 }
 </style>
-@/helpers/convertBytesToSize.js

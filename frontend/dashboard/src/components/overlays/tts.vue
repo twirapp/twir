@@ -52,13 +52,13 @@ const { t } = useI18n();
 			type="line"
 			pane-style="padding-top: 0px"
 		>
-			<n-tab-pane name="settings" tab="Settings">
+			<n-tab-pane name="settings" :tab="t('overlays.tts.tabs.general')">
 				<TTSSettings />
 			</n-tab-pane>
-			<n-tab-pane name="users" tab="Users settings">
+			<n-tab-pane name="users" :tab="t('overlays.tts.tabs.usersSettings')">
 				<UsersSettings />
 			</n-tab-pane>
-			<n-tab-pane name="commands" tab="Commands">
+			<n-tab-pane name="commands" :tab="t('sidebar.commands.label')">
 				<commands-list :commands="ttsCommands" :show-header="false" />
 			</n-tab-pane>
 		</n-tabs>

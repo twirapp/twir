@@ -192,7 +192,7 @@ const songsSearchOptions = computed(() => {
 			type="line"
 			animated
 		>
-			<n-tab-pane name="general" tab="General">
+			<n-tab-pane name="general" :tab="t('songRequests.tabs.general')">
 				<n-space vertical>
 					<n-space justify="space-between">
 						<n-text>{{ t("sharedTexts.enabled") }}</n-text>
@@ -270,7 +270,7 @@ const songsSearchOptions = computed(() => {
 				</n-space>
 			</n-tab-pane>
 
-			<n-tab-pane name="users" tab="Users">
+			<n-tab-pane name="users" :tab="t('songRequests.tabs.users')">
 				<n-form-item :label="t('songRequests.settings.users.maxRequests')" path="user.maxRequests">
 					<n-input-number v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
 				</n-form-item>
@@ -301,7 +301,7 @@ const songsSearchOptions = computed(() => {
 				</n-form-item>
 			</n-tab-pane>
 
-			<n-tab-pane name="songs" tab="Songs">
+			<n-tab-pane name="songs" :tab="t('songRequests.tabs.songs')">
 				<n-form-item :label="t('songRequests.settings.songs.maxRequests')">
 					<n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
 				</n-form-item>

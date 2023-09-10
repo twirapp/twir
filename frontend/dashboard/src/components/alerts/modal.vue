@@ -152,7 +152,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<n-divider />
 
-			<n-form-item label="Commands for trigger" path="commandIds">
+			<n-form-item :label="t('alerts.trigger.commands')" path="commandIds">
 				<n-select
 					v-model:value="formValue.commandIds"
 					:fallback-option="false"
@@ -162,11 +162,11 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 				/>
 			</n-form-item>
 
-			<n-form-item label="Rewards for trigger" path="rewardIds">
+			<n-form-item :label="t('alerts.trigger.rewards')" path="rewardIds">
 				<rewardsSelector v-model="formValue.rewardIds" multiple />
 			</n-form-item>
 
-			<n-form-item label="Keywords for trigger" path="rewardIds">
+			<n-form-item :label="t('alerts.trigger.keywords')" path="rewardIds">
 				<n-select
 					v-model:value="formValue.keywordsIds"
 					:fallback-option="false"
@@ -176,7 +176,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 				/>
 			</n-form-item>
 
-			<n-form-item label="Greetings for trigger" path="rewardIds">
+			<n-form-item :label="t('alerts.trigger.greetings')" path="rewardIds">
 				<n-select
 					v-model:value="formValue.greetingsIds"
 					:fallback-option="false"
@@ -188,7 +188,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<n-divider />
 
-			<n-form-item label="Audio">
+			<n-form-item :label="t('alerts.select.audio')">
 				<div style="display: flex; gap: 10px; width: 85%">
 					<n-button block type="info" @click="showAudioModal = true">
 						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
@@ -205,7 +205,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 				</div>
 			</n-form-item>
 
-			<n-form-item :label="`Audio Volume (${formValue.audioVolume})`">
+			<n-form-item :label="t('alerts.audioVolume', { volume: formValue.audioVolume })">
 				<n-slider
 					v-model:value="formValue.audioVolume"
 					:step="1"
@@ -217,13 +217,13 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 				/>
 			</n-form-item>
 
-			<n-form-item label="Image">
+			<n-form-item :label="t('alerts.select.image')">
 				<n-button block type="info" disabled>
 					Soon...
 				</n-button>
 			</n-form-item>
 
-			<n-form-item label="Text">
+			<n-form-item :label="t('alerts.select.text')">
 				<n-button block type="info" disabled>
 					Soon...
 				</n-button>
@@ -240,7 +240,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		title="Select audio"
+		:title="t('alerts.select.audio')"
 		class="modal"
 		:style="{
 			width: '1000px',
