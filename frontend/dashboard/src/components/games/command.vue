@@ -22,16 +22,18 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<h3>{{ t('games.command') }}</h3>
-	<div v-if="command" style="display: flex; gap: 5px;">
-		<n-button secondary type="success" @click="() => showCommandEditModal = true">
-			<div
-				style="display: flex; align-items: center; min-width: 80px; justify-content: space-between;"
-			>
-				<span>{{ command.name }}</span>
-				<IconPencil />
-			</div>
-		</n-button>
+	<div style="display: flex; flex-direction: column;">
+		<span>{{ t('games.command') }}</span>
+		<div v-if="command" style="display: flex; gap: 5px;">
+			<n-button secondary type="success" @click="() => showCommandEditModal = true">
+				<div
+					style="display: flex; align-items: center; min-width: 80px; justify-content: space-between;"
+				>
+					<span>{{ command.name }}</span>
+					<IconPencil />
+				</div>
+			</n-button>
+		</div>
 	</div>
 
 	<n-modal

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconBomb } from '@tabler/icons-vue';
-import type { UpdateRussianRouletteSettings } from '@twir/grpc/generated/api/api/games'
+import type { UpdateRussianRouletteSettings } from '@twir/grpc/generated/api/api/games';
 import { NModal, NInput, NInputNumber, NFormItem, NButton, NSwitch, NDivider, useMessage } from 'naive-ui';
 import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -71,12 +71,16 @@ async function save() {
 		content-style="padding: 10px; width: 100%"
 		style="width: 500px; max-width: calc(100vw - 40px)"
 	>
-		<div style="display: flex; flex-direction: column; gap: 4px; align-items: start;">
-			<span>{{ t('sharedTexts.enabled') }}</span>
-			<n-switch v-model:value="formValue.enabled" />
+		<div style="display: flex; gap: 24px;">
+			<div style="display: flex; flex-direction: column; gap: 4px; align-items: start;">
+				<span>{{ t('sharedTexts.enabled') }}</span>
+				<n-switch v-model:value="formValue.enabled" />
+			</div>
+
+			<Command name="roulette" />
 		</div>
 
-		<Command name="roulette" />
+		<n-divider />
 
 		<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px">
 			<n-form-item :label="t('games.russianRoulette.canBeUsedByModerator')">
@@ -84,11 +88,11 @@ async function save() {
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.tumberSize')">
-				<n-input-number v-model:value="formValue.tumberSize" :min="1" :max="formValue.tumberSize" />
+				<n-input-number v-model:value="formValue.tumberSize" :min="2" :max="100" />
 			</n-form-item>
 
-			<n-form-item :label="t('games.russianRoulette.chargedBullets')">
-				<n-input-number v-model:value="formValue.chargedBullets" :min="1" :max="formValue.tumberSize" />
+			<n-form-item :label="t('games.russianRoulette.chargedBullets', { tumberSize: formValue.tumberSize })">
+				<n-input-number v-model:value="formValue.chargedBullets" :min="1" :max="formValue.tumberSize-1" />
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.timeoutSeconds')">
