@@ -320,6 +320,7 @@
       "neededPercentageForskip": "Needed percentage of online users to skip song",
       "channelReward": "Channel reward for requesting song",
       "deniedChannels": "Denied youtube channels",
+			"deniedWords": "Denied words in song title and author",
       "deniedUsers": "Users, who can't request songs",
       "deniedSongs": "Denied songs for request",
 			"takeSongFromDonationMessage": "Takes song links from donation message",

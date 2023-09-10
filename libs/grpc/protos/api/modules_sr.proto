@@ -51,6 +51,7 @@ message YouTubeDenyList {
 	repeated string songs = 2;
 	repeated string channels = 3;
 	repeated string artists_names = 4;
+	repeated string words = 5;
 }
 
 message YouTubeUserTranslations {

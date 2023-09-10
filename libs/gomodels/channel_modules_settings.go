@@ -19,24 +19,25 @@ func (ChannelModulesSettings) TableName() string {
 }
 
 type UserYoutubeSettings struct {
-	MaxRequests  uint32 `validate:"required,lte=4294967295"           json:"maxRequests"`
-	MinWatchTime uint64 `validate:"required,lte=18446744073709551615" json:"minWatchTime"`
-	MinMessages  uint32 `validate:"required,lte=4294967295"           json:"minMessages"`
+	MaxRequests  uint32 `json:"maxRequests"`
+	MinWatchTime uint64 `json:"minWatchTime"`
+	MinMessages  uint32 `json:"minMessages"`
 	// in hours
-	MinFollowTime uint32 `validate:"required,lte=4294967295"           json:"minFollowTime"`
+	MinFollowTime uint32 `json:"minFollowTime"`
 }
 
 type SongYoutubeSettings struct {
-	MaxLength          uint32   `validate:"required,lte=4294967295"           json:"maxLength"`
-	MinViews           uint64   `validate:"required,lte=18446744073709551615" json:"minViews"`
-	AcceptedCategories []string `                                             json:"acceptedCategories"`
+	MaxLength          uint32   `json:"maxLength"`
+	MinViews           uint64   `json:"minViews"`
+	AcceptedCategories []string `json:"acceptedCategories"`
 }
 
 type BlackListYoutubeSettings struct {
-	UsersIds     []string `validate:"required" json:"usersIds"`
-	SongsIds     []string `validate:"required" json:"songsIds"`
-	ChannelsIds  []string `validate:"required" json:"channelsIds"`
-	ArtistsNames []string `validate:"required" json:"artistsNames"`
+	UsersIds     []string `json:"usersIds"`
+	SongsIds     []string `json:"songsIds"`
+	ChannelsIds  []string `json:"channelsIds"`
+	ArtistsNames []string `json:"artistsNames"`
+	Words        []string `json:"words"`
 }
 
 func emptize(slice []string) []string {

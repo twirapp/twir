@@ -14,6 +14,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_sr"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -66,6 +67,7 @@ func (c *Modules) ModulesSRGet(
 				Songs:        settings.DenyList.Songs,
 				Channels:     settings.DenyList.Channels,
 				ArtistsNames: settings.DenyList.ArtistsNames,
+				Words:        settings.DenyList.Words,
 			},
 			Translations: &modules_sr.YouTubeTranslations{
 				NowPlaying:           settings.Translations.NowPlaying,
@@ -190,6 +192,26 @@ func (c *Modules) ModulesSRUpdate(
 		return nil, err
 	}
 
+	if len(request.Data.DenyList.Users) > 300 {
+		return nil, twirp.NewError("400", "users list is too long")
+	}
+
+	if len(request.Data.DenyList.Songs) > 300 {
+		return nil, twirp.NewError("400", "songs list is too long")
+	}
+
+	if len(request.Data.DenyList.Channels) > 300 {
+		return nil, twirp.NewError("400", "channels list is too long")
+	}
+
+	if len(request.Data.DenyList.Words) > 300 {
+		return nil, twirp.NewError("400", "words list is too long")
+	}
+
+	if len(request.Data.DenyList.ArtistsNames) > 300 {
+		return nil, twirp.NewError("400", "artists names list is too long")
+	}
+
 	if entity.ID == "" {
 		entity.ID = uuid.New().String()
 	}
@@ -221,6 +243,7 @@ func (c *Modules) ModulesSRUpdate(
 			Songs:        request.Data.DenyList.Songs,
 			Channels:     request.Data.DenyList.Channels,
 			ArtistsNames: request.Data.DenyList.ArtistsNames,
+			Words:        request.Data.DenyList.Words,
 		},
 		Translations: modules.YouTubeTranslations{
 			NowPlaying:             request.Data.Translations.NowPlaying,

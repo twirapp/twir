@@ -49,6 +49,7 @@ const formValue = ref<YouTubeSettings>({
 		songs: [],
 		users: [],
 		channels: [],
+		words: [],
 	},
 	song: {
 		maxLength: 10,
@@ -251,6 +252,19 @@ const songsSearchOptions = computed(() => {
 							:clear-filter-after-select="false"
 							:render-label="renderSelectOption as any"
 							@search="(v) => channelsSearchValue = v"
+						/>
+					</n-form-item>
+
+					<n-form-item
+						:label="t('songRequests.settings.deniedWords')"
+						path="channelPointsRewardId"
+					>
+						<n-select
+							v-model:value="formValue.denyList!.words"
+							filterable
+							multiple
+							clearable
+							tag
 						/>
 					</n-form-item>
 				</n-space>

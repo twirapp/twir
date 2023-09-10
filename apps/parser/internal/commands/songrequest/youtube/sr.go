@@ -219,9 +219,9 @@ func validate(
 		return errors.New(settings.Translations.Song.AlreadyInQueue)
 	}
 
-	//if channelId == userId {
+	// if channelId == userId {
 	//	return nil
-	//}
+	// }
 
 	twitchClient, err := twitch.NewAppClientWithContext(
 		ctx,
@@ -234,6 +234,29 @@ func validate(
 
 	if song.IsLive {
 		return errors.New(settings.Translations.Song.Live)
+	}
+
+	if len(settings.DenyList.Words) > 0 {
+		for _, word := range settings.DenyList.Words {
+			if word == "" {
+				continue
+			}
+			if strings.Contains(strings.ToLower(song.Title), strings.ToLower(word)) {
+				return errors.New(settings.Translations.Song.Denied)
+			}
+		}
+
+		if song.Author != nil {
+			for _, word := range settings.DenyList.Words {
+				if word == "" {
+					continue
+				}
+
+				if strings.Contains(strings.ToLower(song.Author.Name), strings.ToLower(word)) {
+					return errors.New(settings.Translations.Song.Denied)
+				}
+			}
+		}
 	}
 
 	if len(settings.DenyList.Users) > 0 {
