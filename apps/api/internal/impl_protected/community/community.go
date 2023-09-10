@@ -41,10 +41,10 @@ func (c *Community) CommunityGetUsers(
 		sortBy = strings.ToLower(request.SortBy.String())
 	}
 
-	//orderBy := fmt.Sprintf(`"users_stats"."%s"`, sortBy)
-	//if request.SortBy == community.GetUsersRequest_Emotes {
+	// orderBy := fmt.Sprintf(`"users_stats"."%s"`, sortBy)
+	// if request.SortBy == community.GetUsersRequest_Emotes {
 	//	orderBy = "emotes"
-	//}
+	// }
 
 	query, args, err := squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar).
 		Select(`users_stats.*, COUNT("channels_emotes_usages"."id") AS "emotes"`).
@@ -55,6 +55,7 @@ func (c *Community) CommunityGetUsers(
 				squirrel.Eq{`"users_stats"."channelId"`: dashboardId},
 				squirrel.NotEq{`"users_stats"."userId"`: dashboardId},
 				squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
+				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
@@ -101,7 +102,7 @@ func (c *Community) CommunityGetUsers(
 		return nil, err
 	}
 
-	//totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
+	// totalPages := (totalStats + int64(request.Limit) - 1) / int64(request.Limit)
 
 	return &community.GetUsersResponse{
 		Users: lo.Map(
