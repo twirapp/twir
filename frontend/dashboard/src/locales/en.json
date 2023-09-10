@@ -424,7 +424,7 @@
 			"initMessage": "First message sended by bot, to announce trigger is pulled.",
 			"surviveMessage": "Message, if user survived.",
 			"deathMessage": "Message, if user lost and timeouted.",
-			"chargedBullets": "Charged bullets in revolver (size of tumber is 7). The bigger number - the biggest chance to die."
+			"chargedBullets": "Charged bullets in revolver (size of tumber is {{tumberSize}}). The bigger number - the biggest chance to die."
 		}
 	},
 	"community": {

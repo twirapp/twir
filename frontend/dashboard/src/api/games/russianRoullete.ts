@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import { UpdateRussianRoulleteSettings } from '@twir/grpc/generated/api/api/games';
+import type { UpdateRussianRouletteSettings } from '@twir/grpc/generated/api/api/games';
 
 import { protectedApiClient } from '@/api/twirp';
 
@@ -18,7 +18,7 @@ export const useRussianRouletteUpdateSettings = () => {
 
 	return useMutation({
 		mutationKey: key,
-		mutationFn: async (opts: UpdateRussianRoulleteSettings) => {
+		mutationFn: async (opts: UpdateRussianRouletteSettings) => {
 			const req = await protectedApiClient.gamesUpdateRouletteSettings(opts);
 			return req.response;
 		},

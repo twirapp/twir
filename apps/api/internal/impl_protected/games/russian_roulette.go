@@ -17,7 +17,7 @@ var rouletteType = "russian_roulette"
 func (c *Games) GamesGetRouletteSettings(
 	ctx context.Context,
 	_ *emptypb.Empty,
-) (*games.RussianRoulleteSettingsResponse, error) {
+) (*games.RussianRouletteSettingsResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := model.ChannelModulesSettings{}
@@ -34,12 +34,13 @@ func (c *Games) GamesGetRouletteSettings(
 		return nil, err
 	}
 
-	return &games.RussianRoulleteSettingsResponse{
+	return &games.RussianRouletteSettingsResponse{
 		Enabled:              settings.Enabled,
 		CanBeUsedByModerator: settings.CanBeUsedByModerators,
 		TimeoutSeconds:       int32(settings.TimeoutSeconds),
 		DecisionSeconds:      int32(settings.DecisionSeconds),
 		ChargedBullets:       int32(settings.ChargedBullets),
+		TumberSize:           int32(settings.TumberSize),
 		InitMessage:          settings.InitMessage,
 		SurviveMessage:       settings.SurviveMessage,
 		DeathMessage:         settings.DeathMessage,
@@ -50,7 +51,7 @@ var maxTimeoutTime = 24 * 7 * 2 * time.Hour
 
 func (c *Games) GamesUpdateRouletteSettings(
 	ctx context.Context,
-	req *games.UpdateRussianRoulleteSettings,
+	req *games.UpdateRussianRouletteSettings,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
@@ -60,6 +61,14 @@ func (c *Games) GamesUpdateRouletteSettings(
 
 	if req.DecisionSeconds > 60 {
 		return nil, twirp.NewError("400", "Max decision time is 60 seconds")
+	}
+
+	if req.TumberSize > 100 {
+		return nil, twirp.NewError("400", "Max tumber size is 100")
+	}
+
+	if req.ChargedBullets > req.TumberSize {
+		return nil, twirp.NewError("400", "Charged bullets can't be more than tumber size")
 	}
 
 	entity := model.ChannelModulesSettings{}
@@ -83,6 +92,7 @@ func (c *Games) GamesUpdateRouletteSettings(
 		TimeoutSeconds:        int(req.TimeoutSeconds),
 		DecisionSeconds:       int(req.DecisionSeconds),
 		ChargedBullets:        int(req.ChargedBullets),
+		TumberSize:            int(req.TumberSize),
 		InitMessage:           req.InitMessage,
 		SurviveMessage:        req.SurviveMessage,
 		DeathMessage:          req.DeathMessage,

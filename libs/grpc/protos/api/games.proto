@@ -12,7 +12,7 @@ message EightBallSettingsResponse {
 	bool enabled = 2;
 }
 
-message RussianRoulleteSettingsResponse {
+message RussianRouletteSettingsResponse {
 	bool enabled = 1;
 	bool can_be_used_by_moderator = 2;
 	int32 timeout_seconds = 3;
@@ -21,9 +21,10 @@ message RussianRoulleteSettingsResponse {
 	string survive_message = 6;
 	string death_message = 7;
 	int32 charged_bullets = 8;
+	int32 tumber_size = 9;
 }
 
-message UpdateRussianRoulleteSettings {
+message UpdateRussianRouletteSettings {
 	bool enabled = 1;
 	bool can_be_used_by_moderator = 2;
 	int32 timeout_seconds = 3;
@@ -32,4 +33,5 @@ message UpdateRussianRoulleteSettings {
 	string survive_message = 6;
 	string death_message = 7;
 	int32 charged_bullets = 8;
+	int32 tumber_size = 9;
 }

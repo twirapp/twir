@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IconBomb } from '@tabler/icons-vue';
+import type { UpdateRussianRouletteSettings } from '@twir/grpc/generated/api/api/games'
 import { NModal, NInput, NInputNumber, NFormItem, NButton, NSwitch, NDivider, useMessage } from 'naive-ui';
 import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -14,7 +15,7 @@ const isModalOpened = ref(false);
 const { data: settings } = useRussianRouletteSettings();
 const updater = useRussianRouletteUpdateSettings();
 
-const formValue = ref({
+const formValue = ref<UpdateRussianRouletteSettings>({
 	enabled: false,
 	canBeUsedByModerator: false,
 	timeoutSeconds: 60,
@@ -23,6 +24,7 @@ const formValue = ref({
 	initMessage: '{sender} has initiated a game of roulette. Is luck on their side?',
 	surviveMessage: '{sender} survives the game of roulette! Luck smiles upon them.',
 	deathMessage: `{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.`,
+	tumberSize: 6,
 });
 
 watch(settings, (v) => {
@@ -38,6 +40,7 @@ watch(settings, (v) => {
 	formValue.value.surviveMessage = raw.surviveMessage;
 	formValue.value.deathMessage = raw.deathMessage;
 	formValue.value.chargedBullets = raw.chargedBullets;
+	formValue.value.tumberSize = raw.tumberSize;
 });
 
 const { t } = useI18n();
@@ -80,8 +83,12 @@ async function save() {
 				<n-switch v-model:value="formValue.canBeUsedByModerator" />
 			</n-form-item>
 
+			<n-form-item :label="t('games.russianRoulette.tumberSize')">
+				<n-input-number v-model:value="formValue.tumberSize" :min="1" :max="formValue.tumberSize" />
+			</n-form-item>
+
 			<n-form-item :label="t('games.russianRoulette.chargedBullets')">
-				<n-input-number v-model:value="formValue.chargedBullets" :min="1" :max="6" />
+				<n-input-number v-model:value="formValue.chargedBullets" :min="1" :max="formValue.tumberSize" />
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.timeoutSeconds')">

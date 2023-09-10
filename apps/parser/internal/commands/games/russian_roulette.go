@@ -94,7 +94,7 @@ var RussianRoulette = &types.DefaultCommand{
 			return result
 		}
 
-		randomized := rand.Intn(8)
+		randomized := rand.Intn(parsedSettings.TumberSize + 1)
 		if randomized > parsedSettings.ChargedBullets {
 			result.Result = []string{surviveMessage}
 			return result
