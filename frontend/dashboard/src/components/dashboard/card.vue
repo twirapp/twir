@@ -2,6 +2,7 @@
 import { IconGripVertical, IconEyeOff } from '@tabler/icons-vue';
 import { NCard, NButton } from 'naive-ui';
 import { type CSSProperties, useAttrs } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useWidgets, type WidgetItem } from './widgets.js';
 
@@ -26,6 +27,8 @@ const hideItem = () => {
 	if (!item) return;
 	item.visible = false;
 };
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -42,7 +45,7 @@ const hideItem = () => {
 		<template #header>
 			<div class="widgets-draggable-handle" style="display: flex; align-items: center">
 				<IconGripVertical style="width: 20px; height: 20px;" />
-				{{ attrs.item.i }}
+				{{ t(`dashboard.widgets.${attrs.item.i}.title`) }}
 			</div>
 		</template>
 

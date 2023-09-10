@@ -55,10 +55,10 @@ const statsBackground = computed(() => theme.value.tabColor);
 				:min-h="item.minH"
 				drag-allow-from=".widgets-draggable-handle"
 			>
-				<Chat v-if="item.i === 'Chat'" :item="item" class="item" />
-				<Bot v-if="item.i === 'Bot'" :item="item" class="item" />
-				<Stream v-if="item.i === 'Stream'" :item="item" class="item" />
-				<Events v-if="item.i === 'Events'" :item="item" class="item" />
+				<Chat v-if="item.i === 'chat'" :item="item" class="item" />
+				<Bot v-if="item.i === 'bot'" :item="item" class="item" />
+				<Stream v-if="item.i === 'stream'" :item="item" class="item" />
+				<Events v-if="item.i === 'events'" :item="item" class="item" />
 			</GridItem>
 		</GridLayout>
 		<div v-if="dropdownOptions.length" style="position: fixed; bottom: 10px; right: 25px">

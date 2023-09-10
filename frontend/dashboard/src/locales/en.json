@@ -152,6 +152,36 @@
 			"notModerator": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {botName}</b>, otherwise bot won't send messages in chat.",
 			"leave": "Leave",
 			"join": "Join"
+		},
+		"statsWidgets": {
+			"streamInfo": {
+				"noTitle": "Cannot get title",
+				"noCategory": "Cannot get category",
+				"modalTitle": "Edit stream information",
+				"title": "Title",
+				"category": "Category"
+			},
+			"uptime": "Uptime",
+			"followers": "Followers",
+			"messages": "Messages",
+			"subs": "Subs",
+			"usedEmotes": "Used emotes",
+			"viewers": "Viewers",
+			"requestedSongs": "Requested songs"
+		},
+		"widgets": {
+			"chat": {
+				"title": "Chat"
+			},
+			"stream": {
+				"title": "Stream"
+			},
+			"events": {
+				"title": "Events"
+			},
+			"bot": {
+				"title": "Bot managment and information"
+			}
 		}
 	},
 	"integrations": {

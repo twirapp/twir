@@ -82,7 +82,7 @@ async function saveChannelInformation() {
 	const { title, categoryId } = form.value;
 	await informationUpdater.mutateAsync({ categoryId, title });
 	isEditInformationModalShowed.value = false;
-	messages.success('Channel information updated');
+	messages.success(t('sharedTexts.saved'));
 }
 
 </script>
@@ -99,10 +99,10 @@ async function saveChannelInformation() {
 			<div style="display: flex; justify-content: space-between; align-items: center">
 				<div style="display: flex; font-size:15px; flex-direction: column; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
 					<span style="font-size:15px;">
-						{{ props?.title || 'cannot get title' }}
+						{{ props?.title || t('dashboard.statsWidgets.streamInfo.noTitle') }}
 					</span>
 					<span style="font-size:15px;">
-						{{ props?.categoryName || 'cannot get category' }}
+						{{ props?.categoryName || t('dashboard.statsWidgets.streamInfo.noCategory') }}
 					</span>
 				</div>
 
@@ -117,18 +117,18 @@ async function saveChannelInformation() {
 		:bordered="false"
 		:segmented="true"
 		style="width: 500px"
-		title="Edit stream information"
+		:title="t('dashboard.statsWidgets.streamInfo.modalTitle')"
 	>
 		<n-form>
-			<n-form-item label="Title">
-				<n-input v-model:value="form.title" placeholder="channel title" />
+			<n-form-item :label="t('dashboard.statsWidgets.streamInfo.title')">
+				<n-input v-model:value="form.title" :placeholder="t('dashboard.statsWidgets.streamInfo.title')" />
 			</n-form-item>
 
-			<n-form-item label="Category">
+			<n-form-item :label="t('dashboard.statsWidgets.streamInfo.category')">
 				<n-select
 					v-model:value="form.categoryId"
 					filterable
-					placeholder="Search Songs"
+					placeholder="Search..."
 					:options="categoriesOptions"
 					remote
 					:render-label="renderCategory"
