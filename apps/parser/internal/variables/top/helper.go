@@ -61,6 +61,7 @@ func getTop(
 				squirrel.Eq{`"channelId"`: parseCtx.Channel.ID},
 				squirrel.NotEq{`"userId"`: channel.BotID},
 				squirrel.NotEq{`"userId"`: parseCtx.Channel.ID},
+				squirrel.Gt{"messages": 0},
 			},
 		).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
