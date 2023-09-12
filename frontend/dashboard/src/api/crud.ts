@@ -45,12 +45,13 @@ const createCrudManager = <
 			},
 		}),
 		getOne: opts.getOne
-			? (req: Parameters<typeof opts.getOne>[0]) => useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
+			? (req: Parameters<typeof opts.getOne>[0] & { isQueryDisabled?: boolean }) => useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
 				queryKey: [opts.queryKey],
 				queryFn: async () => {
 					const call = await opts.getOne!(req);
 					return call.response;
 				},
+				enabled: !req.isQueryDisabled,
 			})
 			: null,
 		deleteOne: useMutation({
@@ -195,4 +196,14 @@ export const useAlertsManager = () => createCrudManager({
 	patch: null,
 	deleteOne: protectedApiClient?.alertsDelete,
 	getOne: null,
+});
+
+export const useOverlaysRegistry = () => createCrudManager({
+	queryKey: 'registry/overlays',
+	getAll: protectedApiClient?.overlaysGetAll,
+	update: protectedApiClient?.overlaysUpdate,
+	create: protectedApiClient?.overlaysCreate,
+	patch: null,
+	deleteOne: protectedApiClient?.overlaysDelete,
+	getOne: protectedApiClient?.overlaysGetOne,
 });
