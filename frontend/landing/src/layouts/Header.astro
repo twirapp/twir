@@ -8,9 +8,17 @@ import { navLinks } from '../components/navLinks.js';
 <header class="bg-[#09090B]/25 sm:px-8 px-4">
   <div class="lg:container">
     <div class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4">
-      <div class="flex items-center gap-[12px]">
-        <Icon name="TwirLogo" size="36px" />
-        <span class="text-2xl font-semibold text-white">Twir</span>
+      <div class="flex items-center gap-[4px] divide-x-2">
+				<div class="flex items-center gap-[12px]">
+					<Icon name="TwirLogo" size="36px" />
+					<span class="text-2xl font-semibold text-white">Twir</span>
+				</div>
+
+				<div class="bg-red inline-block h-full"></div>
+
+				<span class="pl-2 text-sm">
+					Hosted by <a href="https://avoro.eu/" target="_blank" class="underline">avoro.eu</a>
+				</span>
       </div>
       <nav class="md:inline-flex gap-x-2 hidden">
         {
