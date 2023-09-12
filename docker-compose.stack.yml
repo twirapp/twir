@@ -76,7 +76,6 @@ services:
         delay: 30s
         max_attempts: 30
     healthcheck:
-      disable: true
       test: "exit 0"
 
   redis:
