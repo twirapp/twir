@@ -19,7 +19,7 @@ Just copy `docker-compose.stack.yml` to manager filesystem.
 ### Create network
 
 ```bash
-docker network create -d overlay --attachable tsuwari
+docker network create -d overlay --attachable twir
 ```
 
 ### Create secrets
@@ -27,15 +27,15 @@ docker network create -d overlay --attachable tsuwari
 1. Doppler
 
    ```bash
-   echo "token" | docker secret create tsuwari_doppler_token -
+   echo "token" | docker secret create twir_doppler_token -
    ```
 
 2. Postgres
 
    ```bash
-   echo "tsuwari" | docker secret create tsuwari_postgres_user -
-   echo "tsuwari" | docker secret create tsuwari_postgres_db -
-   echo "tsuwari" | docker secret create tsuwari_postgres_password -
+   echo "twir" | docker secret create twir_postgres_user -
+   echo "twir" | docker secret create twir_postgres_db -
+   echo "twir" | docker secret create twir_postgres_password -
    ```
 
 ### Deploy
@@ -43,15 +43,9 @@ docker network create -d overlay --attachable tsuwari
 This command will deploy services from stack to the cluster.
 
 ```bash
-docker stack deploy -c docker-compose.yml --with-registry-auth --prune tsuwari
+docker stack deploy -c docker-compose.yml --with-registry-auth --prune twir
 ```
 
 ### Update
 
 Same command as deploy
-
-# Monitoring
-
-```bash
-ADMIN_USER='admin' ADMIN_PASSWORD='admin' ADMIN_PASSWORD_HASH='$2a$14$1l.IozJx7xQRVmlkEQ32OeEEfP5mRxTpbDTCTcXRqn19gXD8YK1pO' docker compose -f docker-compose.dockprom.yml up -d
-```
