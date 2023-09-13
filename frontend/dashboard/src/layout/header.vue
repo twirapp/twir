@@ -85,7 +85,10 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 			<n-divider vertical />
 			<span>
 				Hosted by
-				<a href="https://avoro.eu/" target="_blank" style="text-decoration: underline; color: #fff">
+				<a
+					href="https://avoro.eu/cp/aff.php?aff=82" target="_blank"
+					style="text-decoration: underline; color: #fff"
+				>
 					avoro.eu
 				</a>
 			</span>
