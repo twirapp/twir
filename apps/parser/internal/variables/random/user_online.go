@@ -11,8 +11,9 @@ import (
 )
 
 var OnlineUser = &types.Variable{
-	Name:        "random.online.user",
-	Description: lo.ToPtr("Choose random online user"),
+	Name:                "random.online.user",
+	Description:         lo.ToPtr("Choose random online user"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

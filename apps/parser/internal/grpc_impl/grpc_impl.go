@@ -281,10 +281,11 @@ func (c *ParserGrpcServer) GetDefaultVariables(
 			}
 
 			return &parser.GetVariablesResponse_Variable{
-				Name:        v.Name,
-				Example:     example,
-				Description: desc,
-				Visible:     visible,
+				Name:                v.Name,
+				Example:             example,
+				Description:         desc,
+				Visible:             visible,
+				CanBeUsedInRegistry: v.CanBeUsedInRegistry,
 			}, true
 		},
 	)

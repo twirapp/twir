@@ -2,15 +2,17 @@ package faceit
 
 import (
 	"context"
+	"strconv"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 var Gain = &types.Variable{
-	Name:        "faceit.gain",
-	Description: lo.ToPtr("Faceit match gain elo"),
+	Name:                "faceit.gain",
+	Description:         lo.ToPtr("Faceit match gain elo"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context,
 		parseCtx *types.VariableParseContext,

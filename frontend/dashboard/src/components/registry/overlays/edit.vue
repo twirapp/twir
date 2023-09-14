@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { IconTrash, IconSettings } from '@tabler/icons-vue';
+import { IconTrash } from '@tabler/icons-vue';
 import { IconCopy } from '@tabler/icons-vue';
 import { IconDeviceFloppy } from '@tabler/icons-vue';
-import { type Overlay } from '@twir/grpc/generated/api/api/overlays';
-import { NInput, NFormItem, NButton, NCard, NDivider, useThemeVars, NInputNumber } from 'naive-ui';
+import { OverlayLayerType, type Overlay } from '@twir/grpc/generated/api/api/overlays';
+import { NInput, NFormItem, NButton, NDivider, NInputNumber } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Moveable from 'vue3-moveable';
 import type { OnDrag, OnResize } from 'vue3-moveable';
 
-import { convertOverlayLayerTypeToText } from './helpers.js';
+import HtmlLayer from './layers/html.vue';
 
-import { useOverlaysRegistry } from '@/api/index.js';
+import {
+	useOverlaysRegistry,
+} from '@/api/index.js';
 
 const route = useRoute();
 const overlayId = computed(() => {
@@ -50,17 +52,38 @@ watch(overlay, (v) => {
 	if (!v) return;
 
 	const raw = toRaw(v);
-	console.log(raw);
 
 	formValue.value.id = raw.id;
 	formValue.value.name = raw.name;
-	formValue.value.layers = raw.layers;
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	formValue.value.layers = raw.layers.map(l => ({
+		...l,
+		settings: l.settings ? {
+			...l.settings,
+			htmlOverlayHtml: decodeURI(l.settings!.htmlOverlayHtml),
+			htmlOverlayCss: decodeURI(l.settings!.htmlOverlayCss),
+			htmlOverlayJs: decodeURI(l.settings!.htmlOverlayJs),
+		} : {},
+	}));
 	formValue.value.width = raw.width;
 	formValue.value.height = raw.height;
 });
 
 async function save() {
 	const data = toRaw(formValue.value);
+
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	data.layers = data.layers.map(l => ({
+		...l,
+		settings: l.settings ? {
+			...l.settings,
+			htmlOverlayHtml: encodeURI(l.settings.htmlOverlayHtml),
+			htmlOverlayCss: encodeURI(l.settings.htmlOverlayCss),
+			htmlOverlayJs: encodeURI(l.settings.htmlOverlayJs),
+		} : {},
+	}));
 
 	if (data.id) {
 		await updater.mutateAsync({
@@ -71,9 +94,6 @@ async function save() {
 		await creator.mutateAsync(data);
 	}
 }
-
-const theme = useThemeVars();
-const activeLayourCardColor = computed(() => theme.value.infoColor);
 
 const currentlyFocused = ref(0);
 const focus = (index: number) => {
@@ -99,6 +119,10 @@ function onResize({ target, width, height, transform, index }: OnResize & EventW
 	formValue.value.layers[index].height = height;
 	formValue.value.layers[index].width = width;
 }
+
+const removeLayer = (index: number) => {
+	formValue.value.layers = formValue.value.layers.filter((_, i) => i != index);
+};
 </script>
 
 <template>
@@ -171,35 +195,43 @@ function onResize({ target, width, height, transform, index }: OnResize & EventW
 			<n-divider />
 
 			<div style="display: flex; flex-direction: column; gap: 12px; width: 100%">
-				<n-card
-					v-for="(layer, index) of formValue.layers" :key="index"
-					:title="convertOverlayLayerTypeToText(layer.type)"
-					style="cursor: pointer;"
-					:style="{
-						border: currentlyFocused === index ? `1px solid ${activeLayourCardColor}` : undefined
+				<template v-for="(layer, index) of formValue.layers">
+					<html-layer
+						v-if="layer.type === OverlayLayerType.HTML"
+						:key="index"
+						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
+						v-model:css="formValue.layers[index].settings!.htmlOverlayCss"
+						v-model:pollInterval="formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval"
+						:isFocused="currentlyFocused === index"
+						:layerIndex="index"
+						:type="layer.type"
+						@remove="removeLayer"
+						@focus="focus"
+					/>
+				</template>
+				<button
+					@click="() => {
+						formValue.layers.push({
+							id: '',
+							posX: 0,
+							posY: 0,
+							width: 200,
+							height: 200,
+							settings: {
+								htmlOverlayCss: '.text { color: red }',
+								htmlOverlayHtml: `<span class='text'>$(stream.uptime)</span>`,
+								htmlOverlayHtmlDataPollSecondsInterval: 5,
+								htmlOverlayJs: ''
+							},
+							createdAt: '',
+							overlayId: '',
+							type: OverlayLayerType.HTML,
+							updatedAt: ''
+						})
 					}"
-					@click="focus(index)"
 				>
-					<div style="display: flex; gap: 12px; width: 100%">
-						<n-button
-							style="flex: 1" secondary
-							@click="(e) => {
-								e.stopPropagation();
-							}"
-						>
-							<IconSettings />
-						</n-button>
-						<n-button
-							style="flex: 1" secondary type="error"
-							@click="(e) => {
-								e.stopPropagation();
-								formValue.layers = formValue.layers.filter((_, i) => i != index)
-							}"
-						>
-							<IconTrash />
-						</n-button>
-					</div>
-				</n-card>
+					plus
+				</button>
 			</div>
 		</div>
 	</div>

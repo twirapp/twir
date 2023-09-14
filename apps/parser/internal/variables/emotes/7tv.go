@@ -14,8 +14,9 @@ type sevenTVEmote struct {
 }
 
 var SevenTv = &types.Variable{
-	Name:        "emotes.7tv",
-	Description: lo.ToPtr("Emotes of channel from https://7tv.app"),
+	Name:                "emotes.7tv",
+	Description:         lo.ToPtr("Emotes of channel from https://7tv.app"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

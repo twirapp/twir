@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
+import { VariableType } from '@twir/grpc/generated/api/api/variables';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
@@ -8,6 +9,7 @@ type Variable = {
 	description?: string;
 	visible: boolean;
 	isBuiltIn: boolean;
+	canBeUsedInRegistry: boolean,
 }
 
 export const useAllVariables = () => {
@@ -28,6 +30,7 @@ export const useAllVariables = () => {
 					visible: true,
 					example: `$(customvar|${variable.name})`,
 					isBuiltIn: false,
+					canBeUsedInRegistry: variable.type !== VariableType.SCRIPT,
 				});
 			}
 
@@ -38,6 +41,7 @@ export const useAllVariables = () => {
 					visible: variable.visible,
 					example: variable.example,
 					isBuiltIn: true,
+					canBeUsedInRegistry: variable.canBeUsedInRegistry,
 				});
 			}
 

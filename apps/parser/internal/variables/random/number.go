@@ -12,9 +12,10 @@ import (
 )
 
 var Number = &types.Variable{
-	Name:        "random",
-	Description: lo.ToPtr("Random number from N to N"),
-	Example:     lo.ToPtr("random|1-100"),
+	Name:                "random",
+	Description:         lo.ToPtr("Random number from N to N"),
+	Example:             lo.ToPtr("random|1-100"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

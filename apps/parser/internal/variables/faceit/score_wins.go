@@ -9,8 +9,9 @@ import (
 )
 
 var ScoreWins = &types.Variable{
-	Name:        "faceit.score.wins",
-	Description: lo.ToPtr(`Faceit wins on stream`),
+	Name:                "faceit.score.wins",
+	Description:         lo.ToPtr(`Faceit wins on stream`),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

@@ -62,19 +62,23 @@ export const OverlaysRegistry: React.FC = () => {
 
 	useEffect(() => {
 		if (!lastMessage) return;
-		const parsedData = JSON.parse(lastMessage.data);
+		try {
+			const parsedData = JSON.parse(lastMessage.data);
 
-		if (parsedData.eventName === 'layers') {
-			setLayers(parsedData.layers);
-			for (const layer of parsedData.layers) {
-				if (layer.type === 'HTML') {
-					pollHtmlOverlayData(layer as Layer);
+			if (parsedData.eventName === 'layers') {
+				setLayers(parsedData.layers);
+				for (const layer of parsedData.layers) {
+					if (layer.type === 'HTML') {
+						pollHtmlOverlayData(layer as Layer);
+					}
 				}
 			}
-		}
 
-		if (parsedData.eventName === 'parsedLayerVariables') {
-			processParsedLayerVariables(parsedData);
+			if (parsedData.eventName === 'parsedLayerVariables') {
+				processParsedLayerVariables(parsedData);
+			}
+		} catch (e) {
+			console.error('cannot parse message', lastMessage.data);
 		}
 	}, [lastMessage]);
 
@@ -85,7 +89,6 @@ export const OverlaysRegistry: React.FC = () => {
 		setLayers((prevLayers) => {
 			return prevLayers.map((l) => {
 				if (l.id !== parsedData.layerId) return l;
-				console.log(l);
 				return {
 					...l,
 					htmlContent: parsedData.data,
@@ -138,7 +141,7 @@ export const OverlaysRegistry: React.FC = () => {
 						height: layer.height,
 					}}
 					className={'layer-' + layer.id}
-					dangerouslySetInnerHTML={{ __html: layer.htmlContent ?? '' }}
+					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? decodeURI(layer.htmlContent) : '' }}
 				/>
 			</Fragment>;
 		})}

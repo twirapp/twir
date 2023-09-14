@@ -8,8 +8,9 @@ import (
 )
 
 var TrendSimple = &types.Variable{
-	Name:        "faceit.trend.simple",
-	Description: lo.ToPtr(`Faceit latest matches trend in "WWW" format`),
+	Name:                "faceit.trend.simple",
+	Description:         lo.ToPtr(`Faceit latest matches trend in "WWW" format`),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

@@ -8,8 +8,9 @@ import (
 )
 
 var Title = &types.Variable{
-	Name:        "stream.title",
-	Description: lo.ToPtr("Stream title"),
+	Name:                "stream.title",
+	Description:         lo.ToPtr("Stream title"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

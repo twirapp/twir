@@ -9,9 +9,10 @@ import (
 )
 
 var Phrase = &types.Variable{
-	Name:        "random.phrase",
-	Description: lo.ToPtr("Random phrase from list"),
-	Example:     lo.ToPtr("random.phrase|Hi there|Kappa|Another Phrase"),
+	Name:                "random.phrase",
+	Description:         lo.ToPtr("Random phrase from list"),
+	Example:             lo.ToPtr("random.phrase|Hi there|Kappa|Another Phrase"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

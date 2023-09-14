@@ -14,9 +14,10 @@ import (
 )
 
 var EmotesUsers = &types.Variable{
-	Name:        "top.emotes.users",
-	Description: lo.ToPtr("Top users by emotes. Prints counts of used emotes"),
-	Example:     lo.ToPtr("top.emotes.users|10"),
+	Name:                "top.emotes.users",
+	Description:         lo.ToPtr("Top users by emotes. Prints counts of used emotes"),
+	Example:             lo.ToPtr("top.emotes.users|10"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

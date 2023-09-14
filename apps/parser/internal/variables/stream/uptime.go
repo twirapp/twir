@@ -9,8 +9,9 @@ import (
 )
 
 var Uptime = &types.Variable{
-	Name:        "stream.uptime",
-	Description: lo.ToPtr("Prints uptime of stream"),
+	Name:                "stream.uptime",
+	Description:         lo.ToPtr("Prints uptime of stream"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

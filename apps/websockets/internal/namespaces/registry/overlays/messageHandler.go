@@ -50,7 +50,7 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			c.services.Logger.Error(err)
 			return
 		}
-		
+
 		if layer.ID.String() == "" || layer.Overlay == nil {
 			c.services.Logger.Error("overlay not found")
 			return

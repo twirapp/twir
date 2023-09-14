@@ -9,8 +9,9 @@ import (
 )
 
 var Tier = &types.Variable{
-	Name:        "valorant.profile.tier",
-	Description: lo.ToPtr(`Tier in number, i.e "26"`),
+	Name:                "valorant.profile.tier",
+	Description:         lo.ToPtr(`Tier in number, i.e "26"`),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

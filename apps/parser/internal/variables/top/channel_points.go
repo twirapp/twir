@@ -11,9 +11,10 @@ import (
 )
 
 var ChannelPoints = &types.Variable{
-	Name:        "top.usedChannelPoints",
-	Description: lo.ToPtr("Top users by spent channel points"),
-	Example:     lo.ToPtr("top.usedChannelPoints|10"),
+	Name:                "top.usedChannelPoints",
+	Description:         lo.ToPtr("Top users by spent channel points"),
+	Example:             lo.ToPtr("top.usedChannelPoints|10"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

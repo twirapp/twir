@@ -12,9 +12,10 @@ import (
 )
 
 var Watched = &types.Variable{
-	Name:        "top.watched",
-	Description: lo.ToPtr("Top users by watch time"),
-	Example:     lo.ToPtr("top.watched|10"),
+	Name:                "top.watched",
+	Description:         lo.ToPtr("Top users by watch time"),
+	Example:             lo.ToPtr("top.watched|10"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

@@ -9,8 +9,9 @@ import (
 )
 
 var EloDiff = &types.Variable{
-	Name:        "faceit.todayEloDiff",
-	Description: lo.ToPtr("Faceit today elo earned"),
+	Name:                "faceit.todayEloDiff",
+	Description:         lo.ToPtr("Faceit today elo earned"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
