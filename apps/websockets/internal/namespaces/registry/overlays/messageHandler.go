@@ -3,6 +3,7 @@ package overlays
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -56,6 +57,12 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
+		text, err := url.QueryUnescape(layer.Settings.HtmlOverlayHTML)
+		if err != nil {
+			c.services.Logger.Error(err)
+			return
+		}
+
 		res, err := c.services.Grpc.Parser.ParseTextResponse(
 			context.TODO(),
 			&parser.ParseTextRequestData{
@@ -64,7 +71,7 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 					Id: layer.Overlay.ChannelID,
 				},
 				Message: &parser.Message{
-					Text: layer.Settings.HtmlOverlayHTML,
+					Text: text,
 				},
 				ParseVariables: lo.ToPtr(true),
 			},

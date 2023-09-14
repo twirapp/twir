@@ -41,10 +41,13 @@ const variables = computed(() => {
 	return [
 		...vars
 			.filter(v => v.canBeUsedInRegistry)
-			.map(v => ({
-				label: `$(${v.name}) - ${v.description || 'Your custom variable'}`,
-				value: `$(${v.name})`,
-			})),
+			.map(v => {
+				const name = `$(${v.isBuiltIn ? v.name : `customvar|${v.name}`})`;
+				return {
+					label: `${name} - ${v.description || 'Your custom variable'}`,
+					value: name,
+				};
+			}),
 		...k
 			.map(k => ({
 				label: `$(keywords.counter|${k.id}) - How many times "${k.text}" was used`,
