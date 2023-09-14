@@ -236,7 +236,7 @@ importers:
         version: 5.1.3
       vite:
         specifier: ^4.4.0
-        version: 4.4.3(@types/node@20.4.2)(sass@1.63.6)
+        version: 4.4.3(sass@1.63.6)
       vite-bundle-visualizer:
         specifier: ^0.8.1
         version: 0.8.1(rollup@2.79.1)
@@ -2988,7 +2988,7 @@ packages:
       vite: '>4.0.0 || ^3.0.0 || ^2.0.0'
     dependencies:
       '@plugin-web-update-notification/core': 1.6.4
-      vite: 4.4.3(@types/node@20.4.2)(sass@1.63.6)
+      vite: 4.4.3(sass@1.63.6)
     dev: true
 
   /@popperjs/core@2.11.8:
@@ -3514,7 +3514,7 @@ packages:
   /@types/resolve@1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 18.13.0
+      '@types/node': 20.4.2
 
   /@types/scheduler@0.16.3:
     resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
@@ -3765,7 +3765,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.4.3(@types/node@20.4.2)(sass@1.63.6)
+      vite: 4.4.3(sass@1.63.6)
       vue: 3.3.4
     dev: true
 
@@ -7072,7 +7072,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 18.13.0
+      '@types/node': 20.4.2
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -10740,7 +10740,7 @@ packages:
       debug: 4.3.4
       fast-glob: 3.3.0
       pretty-bytes: 6.1.1
-      vite: 4.4.3(@types/node@20.4.2)(sass@1.63.6)
+      vite: 4.4.3(sass@1.63.6)
       workbox-build: 7.0.0
       workbox-window: 7.0.0
     transitivePeerDependencies:
@@ -10787,7 +10787,7 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vite@4.4.3(@types/node@20.4.2)(sass@1.63.6):
+  /vite@4.4.3(sass@1.63.6):
     resolution: {integrity: sha512-IMnXQXXWgLi5brBQx/4WzDxdzW0X3pjO4nqFJAuNvwKtxzAmPzFE1wszW3VDpAGQJm3RZkm/brzRdyGsnwgJIA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -10815,7 +10815,6 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.2
       esbuild: 0.18.11
       postcss: 8.4.26
       rollup: 3.26.2

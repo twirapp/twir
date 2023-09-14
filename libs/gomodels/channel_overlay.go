@@ -12,6 +12,8 @@ type ChannelOverlay struct {
 	Name      string    `gorm:"column:name;type:TEXT;"  json:"name"`
 	CreatedAt time.Time `gorm:"column:created_at;data:timestamp;"  json:"createdAt"`
 	UpdatedAt time.Time `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`
+	Width     int       `gorm:"column:width;type:INTEGER;default:1920;"  json:"width"`
+	Height    int       `gorm:"column:height;type:INTEGER;default:1080;"  json:"height"`
 
 	Channel *Channels `gorm:"foreignKey:ChannelID" json:"channel"`
 

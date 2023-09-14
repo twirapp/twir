@@ -33,6 +33,8 @@ message Overlay {
 	string createdAt = 4;
 	string updatedAt = 5;
 	repeated OverlayLayer layers = 6;
+	int32 width = 7;
+	int32 height = 8;
 }
 
 message GetByIdRequest {
@@ -59,10 +61,14 @@ message CreateLayer {
 message CreateRequest {
 	string name = 1;
 	repeated CreateLayer layers = 2;
+	int32 width = 3;
+	int32 height = 4;
 }
 
 message UpdateRequest {
 	string id = 1;
 	string name = 2;
 	repeated CreateLayer layers = 3;
+	int32 width = 4;
+	int32 height = 5;
 }

@@ -117,10 +117,8 @@ export const OverlaysRegistry: React.FC = () => {
 
 	return <div ref={contentRef} style={{
 		// aspectRatio: '16 / 9',
-		// width: '1920px',
-		// height: '1080px',
-		position: 'relative',
-		maxHeight: '100vh',
+		width: '100%',
+		height: '100%',
 		// overflow: 'hidden',
 	}}>
 		{layers.filter(l => l.type === 'HTML').map((layer) => {

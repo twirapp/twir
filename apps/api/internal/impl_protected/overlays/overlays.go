@@ -68,6 +68,8 @@ func (c *Overlays) convertEntity(entity model.ChannelOverlay) *overlays.Overlay 
 		CreatedAt: fmt.Sprint(entity.CreatedAt.UnixMilli()),
 		UpdatedAt: fmt.Sprint(entity.UpdatedAt.UnixMilli()),
 		Layers:    layers,
+		Width:     int32(entity.Width),
+		Height:    int32(entity.Height),
 	}
 }
 
@@ -126,6 +128,14 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 
 	if utf8.RuneCountInString(req.Name) > 50 {
 		return nil, twirp.NewError(twirp.InvalidArgument, "name is too long")
+	}
+
+	if req.Width < 0 {
+		return nil, twirp.NewError(twirp.InvalidArgument, "width must be positive")
+	}
+
+	if req.Height < 0 {
+		return nil, twirp.NewError(twirp.InvalidArgument, "height must be positive")
 	}
 
 	var entity model.ChannelOverlay
@@ -215,6 +225,14 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 
 	if utf8.RuneCountInString(req.Name) > 50 {
 		return nil, twirp.NewError(twirp.InvalidArgument, "name is too long")
+	}
+
+	if req.Width < 0 {
+		return nil, twirp.NewError(twirp.InvalidArgument, "width must be positive")
+	}
+
+	if req.Height < 0 {
+		return nil, twirp.NewError(twirp.InvalidArgument, "height must be positive")
 	}
 
 	entity := model.ChannelOverlay{

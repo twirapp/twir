@@ -7,7 +7,9 @@ CREATE TABLE "channels_overlays"
 	"channel_id" text         NOT NULL REFERENCES "channels" ("id") ON DELETE CASCADE,
 	"name"       varchar(255) NOT NULL,
 	"created_at" timestamp    NOT NULL             DEFAULT now(),
-	"updated_at" timestamp    NOT NULL             DEFAULT now()
+	"updated_at" timestamp    NOT NULL             DEFAULT now(),
+	"height" 	 int          NOT NULL             DEFAULT 1080,
+	"width" 	 int          NOT NULL             DEFAULT 1920
 );
 
 CREATE TYPE "channels_overlays_layers_type" AS ENUM ('HTML');
