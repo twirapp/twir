@@ -24,7 +24,7 @@ var SrListCommand = &types.DefaultCommand{
 		result := &types.CommandsHandlerResult{}
 
 		url := fmt.Sprintf(
-			"%s://%s/p/%s/song-requests",
+			"%s://%s/p/%s/songs-requests",
 			lo.If(parseCtx.Services.Config.AppEnv == "development", "http").Else("https"),
 			parseCtx.Services.Config.HostName,
 			parseCtx.Channel.Name,
