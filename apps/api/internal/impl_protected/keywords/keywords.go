@@ -101,6 +101,7 @@ func (c *Keywords) KeywordsUpdate(ctx context.Context, request *keywords.PutRequ
 	keyword.CooldownExpireAt = null.Time{}
 	keyword.IsReply = request.Keyword.IsReply
 	keyword.IsRegular = request.Keyword.IsRegular
+	keyword.Usages = int(request.Keyword.Usages)
 
 	if err := c.Db.WithContext(ctx).Save(keyword).Error; err != nil {
 		return nil, err
