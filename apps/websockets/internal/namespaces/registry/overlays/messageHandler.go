@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"net/url"
 	"strings"
 
 	"github.com/goccy/go-json"
@@ -26,6 +25,18 @@ type overlayGetLayersMessage struct {
 type overlayGetLayersResponse struct {
 	EventName string                      `json:"eventName"`
 	Layers    []model.ChannelOverlayLayer `json:"layers"`
+}
+
+func textToBase64(text string) string {
+	return base64.StdEncoding.EncodeToString([]byte(text))
+}
+
+func base64ToText(text string) string {
+	bytes, err := base64.StdEncoding.DecodeString(text)
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
 }
 
 func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
@@ -58,11 +69,7 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			return
 		}
 
-		text, err := url.QueryUnescape(layer.Settings.HtmlOverlayHTML)
-		if err != nil {
-			c.services.Logger.Error(err)
-			return
-		}
+		text := base64ToText(layer.Settings.HtmlOverlayHTML)
 
 		res, err := c.services.Grpc.Parser.ParseTextResponse(
 			context.TODO(),
@@ -83,12 +90,10 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		}
 
 		responses := strings.Join(res.Responses, " ")
-		hash := base64.StdEncoding.EncodeToString([]byte(responses))
-
 		if err := session.Write(
 			[]byte(fmt.Sprintf(
 				`{"eventName":"parsedLayerVariables", "data": "%s", "layerId": "%s"}`,
-				hash,
+				textToBase64(responses),
 				layer.ID.String(),
 			)),
 		); err != nil {

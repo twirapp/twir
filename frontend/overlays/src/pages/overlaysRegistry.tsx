@@ -128,7 +128,7 @@ export const OverlaysRegistry: React.FC = () => {
 			return <Fragment key={layer.id}>
 				<style>
 					{`.layer-${layer.id} {
-						${decodeURI(layer.settings.htmlOverlayCss)}
+						${atob(layer.settings.htmlOverlayCss)}
 					}`}
 				</style>
 				<div

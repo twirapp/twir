@@ -472,5 +472,17 @@
 		"innerText": "Select or drop {type}",
 		"usedSpace": "Used {used} / {max} MB",
 		"emptyText": "No {type} uploaded"
+	},
+	"overlaysRegistry": {
+		"customWidth": "Custom width",
+		"customHeight": "Custom height",
+		"name": "Name of overlay",
+		"html": {
+			"updateInterval": "Interval, in which html variables will be updated",
+			"variablesAlert": {
+				"title": "You can use some variables in html, click the button for show available options",
+				"selectToCopy": "Select variable, to copy it to clipboard"
+			}
+		}
 	}
 }

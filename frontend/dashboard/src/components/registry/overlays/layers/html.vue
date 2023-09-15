@@ -2,6 +2,7 @@
 <script lang="ts" setup>
 import { NModal, NInputNumber, NFormItem, NAlert, NSelect, useMessage } from 'naive-ui';
 import { computed, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import BaseLayer, { type LayerProps } from './layer.vue';
 
@@ -60,6 +61,8 @@ const variables = computed(() => {
 			})),
 		];
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -79,12 +82,12 @@ const variables = computed(() => {
 		style="width: 50vw"
 	>
 		<div style="display: flex; flex-direction: column; gap: 20px">
-			<n-form-item label="Data update interval">
+			<n-form-item :label="t('overlaysRegistry.html.updateInterval')">
 				<n-input-number v-model:value="pollInterval" :min="5" :max="300" />
 			</n-form-item>
 
-			<n-alert type="info" title="You can use some variables in html, click the button for show available options">
-				Select to copy
+			<n-alert type="info" :title="t('overlaysRegistry.html.variablesAlert.title')">
+				{{ t('overlaysRegistry.html.variablesAlert.selectToCopy') }}
 				<n-select filterable :options="variables" @update:value="(v) => copyVariable(v)" />
 			</n-alert>
 

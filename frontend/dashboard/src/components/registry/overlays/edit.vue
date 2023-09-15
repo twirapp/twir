@@ -3,8 +3,9 @@ import { IconTrash } from '@tabler/icons-vue';
 import { IconCopy } from '@tabler/icons-vue';
 import { IconDeviceFloppy } from '@tabler/icons-vue';
 import { OverlayLayerType, type Overlay } from '@twir/grpc/generated/api/api/overlays';
-import { NInput, NFormItem, NButton, NDivider, NInputNumber } from 'naive-ui';
+import { NInput, NFormItem, NButton, NDivider, NInputNumber, NPopconfirm } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
 import Moveable from 'vue3-moveable';
 import type { OnDrag, OnResize } from 'vue3-moveable';
@@ -55,35 +56,13 @@ watch(overlay, (v) => {
 
 	formValue.value.id = raw.id;
 	formValue.value.name = raw.name;
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	formValue.value.layers = raw.layers.map(l => ({
-		...l,
-		settings: l.settings ? {
-			...l.settings,
-			htmlOverlayHtml: decodeURI(l.settings!.htmlOverlayHtml),
-			htmlOverlayCss: decodeURI(l.settings!.htmlOverlayCss),
-			htmlOverlayJs: decodeURI(l.settings!.htmlOverlayJs),
-		} : {},
-	}));
+	formValue.value.layers = raw.layers;
 	formValue.value.width = raw.width;
 	formValue.value.height = raw.height;
 });
 
 async function save() {
 	const data = toRaw(formValue.value);
-
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	data.layers = data.layers.map(l => ({
-		...l,
-		settings: l.settings ? {
-			...l.settings,
-			htmlOverlayHtml: encodeURI(l.settings.htmlOverlayHtml),
-			htmlOverlayCss: encodeURI(l.settings.htmlOverlayCss),
-			htmlOverlayJs: encodeURI(l.settings.htmlOverlayJs),
-		} : {},
-	}));
 
 	if (data.id) {
 		await updater.mutateAsync({
@@ -123,6 +102,8 @@ function onResize({ target, width, height, transform, index }: OnResize & EventW
 const removeLayer = (index: number) => {
 	formValue.value.layers = formValue.value.layers.filter((_, i) => i != index);
 };
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -171,25 +152,30 @@ const removeLayer = (index: number) => {
 		</div>
 		<div style="display: flex; gap: 4px; flex-direction: column;">
 			<n-button block secondary type="success" @click="save">
-				<IconDeviceFloppy /> Save
+				<IconDeviceFloppy /> {{ t('sharedButtons.save') }}
 			</n-button>
 			<n-button block secondary type="info">
-				<IconCopy /> Copy link
+				<IconCopy /> {{ t('overlays.copyOverlayLink') }}
 			</n-button>
-			<n-button block secondary type="error">
-				<IconTrash /> Delete
-			</n-button>
+			<n-popconfirm :negativeText="t('deleteConfirmation.cancel')" :positiveText="t('deleteConfirmation.confirm')">
+				<template #trigger>
+					<n-button block secondary type="error">
+						<IconTrash /> {{ t('sharedButtons.delete') }}
+					</n-button>
+				</template>
+				{{ t('deleteConfirmation.text') }}
+			</n-popconfirm>
 
-			<n-form-item label="Name">
-				<n-input v-model:value="formValue.name" placeholder="Overlay name" />
+			<n-form-item :label="t('overlaysRegistry.name')">
+				<n-input v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')" />
 			</n-form-item>
 
-			<n-form-item label="Custom width">
-				<n-input-number v-model:value="formValue.width" :min="50" placeholder="Custom width" />
+			<n-form-item :label="t('overlaysRegistry.customWidth')">
+				<n-input-number v-model:value="formValue.width" :min="50" :placeholder="t('overlaysRegistry.customWidth')" />
 			</n-form-item>
 
-			<n-form-item label="Custom height">
-				<n-input-number v-model:value="formValue.height" :min="50" placeholder="Custom height" />
+			<n-form-item :label="t('overlaysRegistry.customHeight')">
+				<n-input-number v-model:value="formValue.height" :min="50" :placeholder="t('overlaysRegistry.customHeight')" />
 			</n-form-item>
 
 			<n-divider />

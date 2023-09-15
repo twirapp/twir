@@ -2,6 +2,7 @@ package overlays
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"time"
 	"unicode/utf8"
@@ -37,6 +38,18 @@ func (c *Overlays) convertToDbType(t overlays.OverlayLayerType) model.ChannelOve
 	}
 }
 
+func textToBase64(text string) string {
+	return base64.StdEncoding.EncodeToString([]byte(text))
+}
+
+func base64ToText(text string) string {
+	bytes, err := base64.StdEncoding.DecodeString(text)
+	if err != nil {
+		return ""
+	}
+	return string(bytes)
+}
+
 func (c *Overlays) convertEntity(entity model.ChannelOverlay) *overlays.Overlay {
 	id := entity.ID.String()
 
@@ -46,9 +59,9 @@ func (c *Overlays) convertEntity(entity model.ChannelOverlay) *overlays.Overlay 
 			Id:   l.ID.String(),
 			Type: c.convertToRpcType(l.Type),
 			Settings: &overlays.OverlayLayerSettings{
-				HtmlOverlayHtml:                        l.Settings.HtmlOverlayHTML,
-				HtmlOverlayCss:                         l.Settings.HtmlOverlayCSS,
-				HtmlOverlayJs:                          l.Settings.HtmlOverlayJS,
+				HtmlOverlayHtml:                        base64ToText(l.Settings.HtmlOverlayHTML),
+				HtmlOverlayCss:                         base64ToText(l.Settings.HtmlOverlayCSS),
+				HtmlOverlayJs:                          base64ToText(l.Settings.HtmlOverlayJS),
 				HtmlOverlayHtmlDataPollSecondsInterval: int32(l.Settings.HtmlOverlayDataPollSecondsInterval),
 			},
 			OverlayId: id,
@@ -175,9 +188,9 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 					ID:   uuid.New(),
 					Type: c.convertToDbType(l.Type),
 					Settings: model.ChannelOverlayLayerSettings{
-						HtmlOverlayHTML:                    l.Settings.HtmlOverlayHtml,
-						HtmlOverlayCSS:                     l.Settings.HtmlOverlayCss,
-						HtmlOverlayJS:                      l.Settings.HtmlOverlayJs,
+						HtmlOverlayHTML:                    textToBase64(l.Settings.HtmlOverlayHtml),
+						HtmlOverlayCSS:                     textToBase64(l.Settings.HtmlOverlayCss),
+						HtmlOverlayJS:                      textToBase64(l.Settings.HtmlOverlayJs),
 						HtmlOverlayDataPollSecondsInterval: int(l.Settings.HtmlOverlayHtmlDataPollSecondsInterval),
 					},
 					OverlayID: entity.ID,
@@ -257,9 +270,9 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 					ID:   uuid.New(),
 					Type: c.convertToDbType(l.Type),
 					Settings: model.ChannelOverlayLayerSettings{
-						HtmlOverlayHTML:                    l.Settings.HtmlOverlayHtml,
-						HtmlOverlayCSS:                     l.Settings.HtmlOverlayCss,
-						HtmlOverlayJS:                      l.Settings.HtmlOverlayJs,
+						HtmlOverlayHTML:                    textToBase64(l.Settings.HtmlOverlayHtml),
+						HtmlOverlayCSS:                     textToBase64(l.Settings.HtmlOverlayCss),
+						HtmlOverlayJS:                      textToBase64(l.Settings.HtmlOverlayJs),
 						HtmlOverlayDataPollSecondsInterval: int(l.Settings.HtmlOverlayHtmlDataPollSecondsInterval),
 					},
 					OverlayID: entity.ID,
