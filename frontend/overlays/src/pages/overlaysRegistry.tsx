@@ -128,7 +128,7 @@ export const OverlaysRegistry: React.FC = () => {
 			return <Fragment key={layer.id}>
 				<style>
 					{`.layer-${layer.id} {
-						${layer.settings.htmlOverlayCss}
+						${decodeURI(layer.settings.htmlOverlayCss)}
 					}`}
 				</style>
 				<div
@@ -141,7 +141,7 @@ export const OverlaysRegistry: React.FC = () => {
 						height: layer.height,
 					}}
 					className={'layer-' + layer.id}
-					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? decodeURI(layer.htmlContent) : '' }}
+					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? atob(layer.htmlContent) : '' }}
 				/>
 			</Fragment>;
 		})}

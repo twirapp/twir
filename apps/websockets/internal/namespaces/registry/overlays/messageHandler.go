@@ -2,6 +2,7 @@ package overlays
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"strings"
@@ -82,10 +83,12 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		}
 
 		responses := strings.Join(res.Responses, " ")
+		hash := base64.StdEncoding.EncodeToString([]byte(responses))
+
 		if err := session.Write(
 			[]byte(fmt.Sprintf(
 				`{"eventName":"parsedLayerVariables", "data": "%s", "layerId": "%s"}`,
-				responses,
+				hash,
 				layer.ID.String(),
 			)),
 		); err != nil {

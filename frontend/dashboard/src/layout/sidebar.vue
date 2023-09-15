@@ -96,6 +96,13 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			disabled: !canViewOverlays.value,
 		},
 		{
+			label: t('sidebar.overlaysRegistry'),
+			icon: renderIcon(IconDeviceDesktop),
+			path: '/dashboard/registry/overlays',
+			disabled: !canViewOverlays.value,
+			isNew: true,
+		},
+		{
 			label: t('sidebar.songRequests'),
 			icon: renderIcon(IconHeadphones),
 			path: '/dashboard/song-requests',
