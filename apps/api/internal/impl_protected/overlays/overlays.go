@@ -46,6 +46,30 @@ func textToBase64(text string) string {
 	return base64.StdEncoding.EncodeToString([]byte(text))
 }
 
+func (c *Overlays) validateReq(
+	name string,
+	width, height int32,
+	layers []*overlays.CreateLayer,
+) error {
+	if utf8.RuneCountInString(name) > 30 {
+		return twirp.NewError(twirp.InvalidArgument, "name is too long")
+	}
+
+	if width < 0 {
+		return twirp.NewError(twirp.InvalidArgument, "width must be positive")
+	}
+
+	if height < 0 {
+		return twirp.NewError(twirp.InvalidArgument, "height must be positive")
+	}
+
+	if len(layers) > 15 {
+		return twirp.NewError(twirp.InvalidArgument, "too many layers")
+	}
+
+	return nil
+}
+
 func base64ToText(text string) string {
 	bytes, err := base64.StdEncoding.DecodeString(text)
 	if err != nil {
@@ -143,16 +167,9 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 ) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	if utf8.RuneCountInString(req.Name) > 50 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "name is too long")
-	}
-
-	if req.Width < 0 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "width must be positive")
-	}
-
-	if req.Height < 0 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "height must be positive")
+	err := c.validateReq(req.Name, req.Width, req.Height, req.Layers)
+	if err != nil {
+		return nil, err
 	}
 
 	var entity model.ChannelOverlay
@@ -168,7 +185,7 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 		return nil, twirp.NewError(twirp.NotFound, "not found")
 	}
 
-	err := c.Db.Transaction(
+	err = c.Db.Transaction(
 		func(tx *gorm.DB) error {
 			entity.Name = req.Name
 			entity.UpdatedAt = time.Now()
@@ -248,16 +265,9 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 ) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	if utf8.RuneCountInString(req.Name) > 50 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "name is too long")
-	}
-
-	if req.Width < 0 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "width must be positive")
-	}
-
-	if req.Height < 0 {
-		return nil, twirp.NewError(twirp.InvalidArgument, "height must be positive")
+	err := c.validateReq(req.Name, req.Width, req.Height, req.Layers)
+	if err != nil {
+		return nil, err
 	}
 
 	entity := model.ChannelOverlay{
@@ -266,7 +276,7 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 		Name:      req.Name,
 	}
 
-	err := c.Db.Transaction(
+	err = c.Db.Transaction(
 		func(tx *gorm.DB) error {
 			if err := tx.Save(&entity).Error; err != nil {
 				return err

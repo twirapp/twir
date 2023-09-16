@@ -70,6 +70,16 @@ const messages = useMessage();
 async function save() {
 	const data = toRaw(formValue.value);
 
+	if (!data.name || data.name.length > 30) {
+		messages.error(t('overlaysRegistry.validations.name'));
+		return;
+	}
+
+	if (!data.layers.length || data.layers.length > 15) {
+		messages.error(t('overlaysRegistry.validations.layers'));
+		return;
+	}
+
 	if (data.id) {
 		await updater.mutateAsync({
 			...data,
@@ -183,7 +193,7 @@ const copyUrl = async (id: string) => {
 			</n-button>
 
 			<n-form-item :label="t('overlaysRegistry.name')">
-				<n-input v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')" />
+				<n-input v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')" :maxlength="30" />
 			</n-form-item>
 
 			<n-form-item :label="t('overlaysRegistry.customWidth')">

@@ -483,6 +483,10 @@
 		"customHeight": "Custom height",
 		"name": "Name of overlay",
 		"createNewLayer": "Create new layer",
+		"validations": {
+			"name": "Name cannot be empty and bigger then 30 symbols",
+			"layers": "Layers cannot be empty and it cannot contain more then 15 layers"
+		},
 		"html": {
 			"description": "Allows you to use custom html, css, and bot variables",
 			"updateInterval": "Interval, in which html variables will be updated",
