@@ -183,7 +183,7 @@ const copyUrl = async (id: string) => {
 			</div>
 		</div>
 		<div style="display: flex; gap: 4px; flex-direction: column;">
-			<n-button block secondary type="success" @click="save">
+			<n-button :disabled="!formValue.name || !formValue.layers.length" block secondary type="success" @click="save">
 				<IconDeviceFloppy />
 				{{ t('sharedButtons.save') }}
 			</n-button>
