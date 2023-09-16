@@ -190,7 +190,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<n-form-item :label="t('alerts.select.audio')">
 				<div style="display: flex; gap: 10px; width: 85%">
-					<n-button block type="info" @click="showAudioModal = true">
+					<n-button style="overflow: hidden; text-wrap: nowrap;" block type="info" @click="showAudioModal = true">
 						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
 					</n-button>
 					<n-button
