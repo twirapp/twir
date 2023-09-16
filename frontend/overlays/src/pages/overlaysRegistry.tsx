@@ -31,6 +31,12 @@ export interface LayerSettings {
 	htmlOverlayJs: string
 }
 
+function fromBase64(str: string) {
+	return decodeURIComponent(atob(str).split('').map(function(c) {
+		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+	}).join(''));
+}
+
 export const OverlaysRegistry: React.FC = () => {
 	const [url, setUrl] = useState<string | null>(null);
 	const { apiKey, overlayId } = useParams();
@@ -64,6 +70,10 @@ export const OverlaysRegistry: React.FC = () => {
 		if (!lastMessage) return;
 		try {
 			const parsedData = JSON.parse(lastMessage.data);
+
+			if (parsedData.eventName === 'refreshOverlays') {
+				window.location.reload();
+			}
 
 			if (parsedData.eventName === 'layers') {
 				setLayers(parsedData.layers);
@@ -128,7 +138,7 @@ export const OverlaysRegistry: React.FC = () => {
 			return <Fragment key={layer.id}>
 				<style>
 					{`.layer-${layer.id} {
-						${atob(layer.settings.htmlOverlayCss)}
+						${fromBase64(layer.settings.htmlOverlayCss)}
 					}`}
 				</style>
 				<div
@@ -139,9 +149,13 @@ export const OverlaysRegistry: React.FC = () => {
 						left: layer.pos_x,
 						width: layer.width,
 						height: layer.height,
+						overflow: 'hidden',
+						// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+						// @ts-ignore
+						textWrap: 'nowrap',
 					}}
 					className={'layer-' + layer.id}
-					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? atob(layer.htmlContent) : '' }}
+					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? fromBase64(layer.htmlContent) : '' }}
 				/>
 			</Fragment>;
 		})}

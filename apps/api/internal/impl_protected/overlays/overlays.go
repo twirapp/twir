@@ -4,13 +4,17 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/overlays"
+	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -213,6 +217,14 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 		return nil, err
 	}
 
+	_, err = c.Grpc.Websockets.RefreshOverlays(
+		ctx,
+		&websockets.RefreshOverlaysRequest{ChannelId: dashboardId},
+	)
+	if err != nil {
+		c.Logger.Error("failed to refresh overlays", err)
+	}
+
 	return c.OverlaysGetOne(ctx, &overlays.GetByIdRequest{Id: req.Id})
 }
 
@@ -296,4 +308,31 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 	}
 
 	return c.OverlaysGetOne(ctx, &overlays.GetByIdRequest{Id: entity.ID.String()})
+}
+
+func (c *Overlays) OverlaysParseHtml(ctx context.Context, req *overlays.ParseHtmlOverlayRequest) (
+	*overlays.ParseHtmlOverlayResponse, error,
+) {
+	dashboardId := ctx.Value("dashboardId").(string)
+
+	res, err := c.Grpc.Parser.ParseTextResponse(
+		context.TODO(),
+		&parser.ParseTextRequestData{
+			Sender: &parser.Sender{},
+			Channel: &parser.Channel{
+				Id: dashboardId,
+			},
+			Message: &parser.Message{
+				Text: base64ToText(req.Html),
+			},
+			ParseVariables: lo.ToPtr(true),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &overlays.ParseHtmlOverlayResponse{
+		Html: textToBase64(strings.Join(res.Responses, " ")),
+	}, nil
 }

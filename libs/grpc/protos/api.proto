@@ -191,6 +191,7 @@ service Protected {
 	rpc OverlaysUpdate(api.overlays.UpdateRequest) returns (api.overlays.Overlay) {}
 	rpc OverlaysDelete(api.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc OverlaysCreate(api.overlays.CreateRequest) returns (api.overlays.Overlay) {}
+	rpc OverlaysParseHtml(api.overlays.ParseHtmlOverlayRequest) returns (api.overlays.ParseHtmlOverlayResponse) {}
 }
 
 // UnProtected

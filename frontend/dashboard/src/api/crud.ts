@@ -59,47 +59,50 @@ const createCrudManager = <
 				await opts.deleteOne(req);
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries([opts.queryKey]);
+				queryClient.refetchQueries([opts.queryKey]);
 
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
-					queryClient.invalidateQueries([queryKey]);
+					queryClient.refetchQueries([queryKey]);
 				}
 			},
 		}),
-		patch: opts.patch ? useMutation({
+		patch: opts.patch ? useMutation<Awaited<ReturnType<typeof opts.patch>['response']>, any, Parameters<typeof opts.patch>[0]>({
 			mutationFn: async (req: Parameters<typeof opts.patch>[0]) => {
-				await opts.patch!(req);
+				const r = await opts.patch!(req);
+				return r.response;
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries([opts.queryKey]);
+				queryClient.refetchQueries([opts.queryKey]);
 
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
-					queryClient.invalidateQueries([queryKey]);
+					queryClient.refetchQueries([queryKey]);
 				}
 			},
 		}) : null,
-		create: useMutation({
+		create: useMutation<Awaited<ReturnType<typeof opts.create>['response']>, any, Parameters<typeof opts.create>[0]>({
 			mutationFn: async (req: Parameters<typeof opts.create>[0]) => {
-				await opts.create(req);
+				const r = await opts.create(req);
+				return r.response;
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries([opts.queryKey]);
+				queryClient.refetchQueries([opts.queryKey]);
 
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
-					queryClient.invalidateQueries([queryKey]);
+					queryClient.refetchQueries([queryKey]);
 				}
 			},
 		}),
-		update: useMutation({
+		update: useMutation<Awaited<ReturnType<typeof opts.update>['response']>, any, Parameters<typeof opts.update>[0]>({
 			mutationFn: async (req: Parameters<typeof opts.update>[0]) => {
-				await opts.update(req);
-
-				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
-					queryClient.invalidateQueries([queryKey]);
-				}
+				const r = await opts.update(req);
+				return r.response;
 			},
 			onSuccess: () => {
-				queryClient.invalidateQueries([opts.queryKey]);
+				queryClient.refetchQueries([opts.queryKey]);
+
+				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
+					queryClient.refetchQueries([queryKey]);
+				}
 			},
 		}),
 	};

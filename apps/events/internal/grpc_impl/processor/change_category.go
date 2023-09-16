@@ -2,14 +2,21 @@ package processor
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/nicklaw5/helix/v2"
 )
 
 func (c *Processor) ChangeCategory(newCategory string) error {
+	hydratedCategory, err := c.HydrateStringWithData(newCategory, c.data)
+
+	if err != nil || len(hydratedCategory) == 0 {
+		return fmt.Errorf("cannot hydrate string %w", err)
+	}
+
 	searchCategory, err := c.streamerApiClient.SearchCategories(
 		&helix.SearchCategoriesParams{
-			Query: newCategory,
+			Query: hydratedCategory,
 		},
 	)
 	if err != nil {

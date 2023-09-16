@@ -23,6 +23,7 @@ service Websocket {
 	rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
+	rpc RefreshOverlays(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -102,4 +103,8 @@ message ObsCheckUserConnectedResponse {
 message TriggerAlertRequest {
 	string channel_id = 1;
 	string alert_id = 2;
+}
+
+message RefreshOverlaysRequest {
+	string channel_id = 1;
 }

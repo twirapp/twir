@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { IconTrash } from '@tabler/icons-vue';
 import { IconCopy } from '@tabler/icons-vue';
 import { IconDeviceFloppy } from '@tabler/icons-vue';
 import { OverlayLayerType, type Overlay } from '@twir/grpc/generated/api/api/overlays';
-import { NInput, NFormItem, NButton, NDivider, NInputNumber, NPopconfirm } from 'naive-ui';
+import { NInput, NFormItem, NButton, NDivider, NInputNumber, NModal, useMessage } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute } from 'vue-router';
@@ -11,10 +10,15 @@ import Moveable from 'vue3-moveable';
 import type { OnDrag, OnResize } from 'vue3-moveable';
 
 import HtmlLayer from './layers/html.vue';
+import HtmlLayerForm from './layers/htmlForm.vue';
 
 import {
-	useOverlaysRegistry,
+	useOverlaysRegistry, useProfile,
 } from '@/api/index.js';
+import NewSelector from '@/components/registry/overlays/newSelector.vue';
+import { copyToClipBoard } from '@/helpers';
+
+const { t } = useI18n();
 
 const route = useRoute();
 const overlayId = computed(() => {
@@ -31,7 +35,7 @@ const creator = overlaysManager.create;
 const updater = overlaysManager.update!;
 const { data: overlay, refetch } = overlaysManager.getOne!({
 	id: overlayId.value,
-	isQueryDisabled: !!overlayId.value,
+	isQueryDisabled: true,
 });
 
 watch(overlayId, (v) => {
@@ -61,6 +65,8 @@ watch(overlay, (v) => {
 	formValue.value.height = raw.height;
 });
 
+const messages = useMessage();
+
 async function save() {
 	const data = toRaw(formValue.value);
 
@@ -70,8 +76,18 @@ async function save() {
 			id: data.id,
 		});
 	} else {
-		await creator.mutateAsync(data);
+		const newOverlayData = await creator.mutateAsync(data);
+
+		const raw = toRaw(newOverlayData);
+
+		formValue.value.id = raw.id;
+		formValue.value.name = raw.name;
+		formValue.value.layers = raw.layers;
+		formValue.value.width = raw.width;
+		formValue.value.height = raw.height;
 	}
+
+	messages.success(t('sharedTexts.saved'));
 }
 
 const currentlyFocused = ref(0);
@@ -80,6 +96,7 @@ const focus = (index: number) => {
 };
 
 type EventWithLayerIndex = { index: number }
+
 function onDrag({ target, transform, index }: OnDrag & EventWithLayerIndex) {
 	focus(index);
 	target.style.transform = transform;
@@ -88,6 +105,7 @@ function onDrag({ target, transform, index }: OnDrag & EventWithLayerIndex) {
 	formValue.value.layers[index].posX = parseInt(x);
 	formValue.value.layers[index].posY = parseInt(y);
 }
+
 function onResize({ target, width, height, transform, index }: OnResize & EventWithLayerIndex) {
 	focus(index);
 
@@ -101,27 +119,35 @@ function onResize({ target, width, height, transform, index }: OnResize & EventW
 
 const removeLayer = (index: number) => {
 	formValue.value.layers = formValue.value.layers.filter((_, i) => i != index);
+	focus(-1);
 };
 
-const { t } = useI18n();
+const isOverlayNewModalOpened = ref(false);
+
+const userProfile = useProfile();
+const copyUrl = async (id: string) => {
+	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`);
+};
 </script>
 
 <template>
 	<div style="display: flex; max-width: 100%;">
 		<div style="width: 85%;">
-			<div class="container" :style="{ width: `${formValue.width}px`, height: `${formValue.height}px` }">
+			<div
+				class="container"
+				:style="{ width: `${formValue.width}px`, height: `${formValue.height}px` }"
+			>
 				<div v-for="(layer, index) of formValue.layers" :key="index">
-					<div
-						:id="'layer-' + index"
-						style="position: absolute;"
-						:style="{
-							transform: `translate(${layer.posX}px, ${layer.posY}px)`,
-							width: `${layer.width}px`,
-							height: `${layer.height}px`
-						}"
-					>
-						qwe
-					</div>
+					<HtmlLayer
+						v-if="layer.type === OverlayLayerType.HTML"
+						:posX="layer.posX"
+						:posY="layer.posY"
+						:width="layer.width"
+						:height="layer.height"
+						:index="index"
+						:text="layer.settings?.htmlOverlayHtml ?? ''"
+						:css="layer.settings?.htmlOverlayCss ?? ''"
+					/>
 					<Moveable
 						className="moveable"
 						:target="'#layer-' + index"
@@ -142,47 +168,51 @@ const { t } = useI18n();
 						@resize="(opts) => onResize({ ...opts, index })"
 						@click="focus(index)"
 					>
-						<!-- @render="(e) => {
-							e.target.style.cssText += e.cssText
-							e.moveable.getRect();
-						}" -->
 					</moveable>
 				</div>
 			</div>
 		</div>
 		<div style="display: flex; gap: 4px; flex-direction: column;">
 			<n-button block secondary type="success" @click="save">
-				<IconDeviceFloppy /> {{ t('sharedButtons.save') }}
+				<IconDeviceFloppy />
+				{{ t('sharedButtons.save') }}
 			</n-button>
-			<n-button block secondary type="info">
-				<IconCopy /> {{ t('overlays.copyOverlayLink') }}
+			<n-button block secondary type="info" :disabled="!formValue.id" @click="copyUrl(formValue.id)">
+				<IconCopy />
+				{{ t('overlays.copyOverlayLink') }}
 			</n-button>
-			<n-popconfirm :negativeText="t('deleteConfirmation.cancel')" :positiveText="t('deleteConfirmation.confirm')">
-				<template #trigger>
-					<n-button block secondary type="error">
-						<IconTrash /> {{ t('sharedButtons.delete') }}
-					</n-button>
-				</template>
-				{{ t('deleteConfirmation.text') }}
-			</n-popconfirm>
 
 			<n-form-item :label="t('overlaysRegistry.name')">
 				<n-input v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')" />
 			</n-form-item>
 
 			<n-form-item :label="t('overlaysRegistry.customWidth')">
-				<n-input-number v-model:value="formValue.width" :min="50" :placeholder="t('overlaysRegistry.customWidth')" />
+				<n-input-number
+					v-model:value="formValue.width" :min="50"
+					:placeholder="t('overlaysRegistry.customWidth')"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('overlaysRegistry.customHeight')">
-				<n-input-number v-model:value="formValue.height" :min="50" :placeholder="t('overlaysRegistry.customHeight')" />
+				<n-input-number
+					v-model:value="formValue.height" :min="50"
+					:placeholder="t('overlaysRegistry.customHeight')"
+				/>
 			</n-form-item>
 
 			<n-divider />
 
+			<n-button
+				secondary
+				type="success"
+				@click="isOverlayNewModalOpened = true"
+			>
+				{{ t('overlaysRegistry.createNewLayer') }}
+			</n-button>
+
 			<div style="display: flex; flex-direction: column; gap: 12px; width: 100%">
 				<template v-for="(layer, index) of formValue.layers">
-					<html-layer
+					<html-layer-form
 						v-if="layer.type === OverlayLayerType.HTML"
 						:key="index"
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
@@ -195,32 +225,18 @@ const { t } = useI18n();
 						@focus="focus"
 					/>
 				</template>
-				<button
-					@click="() => {
-						formValue.layers.push({
-							id: '',
-							posX: 0,
-							posY: 0,
-							width: 200,
-							height: 200,
-							settings: {
-								htmlOverlayCss: '.text { color: red }',
-								htmlOverlayHtml: `<span class='text'>$(stream.uptime)</span>`,
-								htmlOverlayHtmlDataPollSecondsInterval: 5,
-								htmlOverlayJs: ''
-							},
-							createdAt: '',
-							overlayId: '',
-							type: OverlayLayerType.HTML,
-							updatedAt: ''
-						})
-					}"
-				>
-					plus
-				</button>
 			</div>
 		</div>
 	</div>
+
+	<n-modal v-model:show="isOverlayNewModalOpened" style="width: 50vw" preset="card" :title="t('sharedButtons.create')">
+		<new-selector
+			@select="v => {
+				formValue.layers.push(v)
+				isOverlayNewModalOpened = false
+			}"
+		/>
+	</n-modal>
 </template>
 
 <style scoped>
