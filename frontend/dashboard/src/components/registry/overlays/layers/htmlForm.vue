@@ -1,6 +1,6 @@
 <!-- eslint-disable no-undef -->
 <script lang="ts" setup>
-import { NModal, NInputNumber, NFormItem, NAlert, NSelect, useMessage } from 'naive-ui';
+import { NModal, NInputNumber, NFormItem, NAlert, NSelect, useMessage, NSwitch } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -19,6 +19,7 @@ defineEmits<{
 const html = defineModel('html');
 const css = defineModel('css');
 const pollInterval = defineModel('pollInterval', { default: 5 });
+const periodicallyRefetchData = defineModel('periodicallyRefetchData');
 
 const showModal = ref(false);
 
@@ -82,6 +83,10 @@ const { t } = useI18n();
 		style="width: 50vw"
 	>
 		<div style="display: flex; flex-direction: column; gap: 20px">
+			<n-form-item :label="t('overlaysRegistry.html.periodicallyRefetchData')">
+				<n-switch v-model:value="periodicallyRefetchData" />
+			</n-form-item>
+
 			<n-form-item :label="t('overlaysRegistry.html.updateInterval')">
 				<n-input-number v-model:value="pollInterval" :min="5" :max="300" />
 			</n-form-item>

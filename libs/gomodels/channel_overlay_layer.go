@@ -10,16 +10,17 @@ import (
 )
 
 type ChannelOverlayLayer struct {
-	ID        uuid.UUID                   `gorm:"primary_key;column:id;type:UUID;"  json:"id"`
-	Type      ChannelOverlayType          `gorm:"column:type;type:TEXT;"  json:"type"`
-	Settings  ChannelOverlayLayerSettings `gorm:"column:settings;type:JSONB;"  json:"settings"`
-	OverlayID uuid.UUID                   `gorm:"column:overlay_id;type:UUID;"  json:"overlay_id"`
-	PosX      int                         `gorm:"column:pos_x;type:INTEGER;"  json:"pos_x"`
-	PosY      int                         `gorm:"column:pos_y;type:INTEGER;"  json:"pos_y"`
-	Width     int                         `gorm:"column:width;type:INTEGER;"  json:"width"`
-	Height    int                         `gorm:"column:height;type:INTEGER;"  json:"height"`
-	CreatedAt time.Time                   `gorm:"column:created_at;data:timestamp;"  json:"createdAt"`
-	UpdatedAt time.Time                   `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`
+	ID                      uuid.UUID                   `gorm:"primary_key;column:id;type:UUID;"  json:"id"`
+	Type                    ChannelOverlayType          `gorm:"column:type;type:TEXT;"  json:"type"`
+	Settings                ChannelOverlayLayerSettings `gorm:"column:settings;type:JSONB;"  json:"settings"`
+	OverlayID               uuid.UUID                   `gorm:"column:overlay_id;type:UUID;"  json:"overlay_id"`
+	PosX                    int                         `gorm:"column:pos_x;type:INTEGER;"  json:"pos_x"`
+	PosY                    int                         `gorm:"column:pos_y;type:INTEGER;"  json:"pos_y"`
+	Width                   int                         `gorm:"column:width;type:INTEGER;"  json:"width"`
+	Height                  int                         `gorm:"column:height;type:INTEGER;"  json:"height"`
+	CreatedAt               time.Time                   `gorm:"column:created_at;data:timestamp;"  json:"createdAt"`
+	UpdatedAt               time.Time                   `gorm:"column:updated_at;data:timestamp;"  json:"updatedAt"`
+	PeriodicallyRefetchData bool                        `gorm:"column:periodically_refetch_data;type:BOOLEAN"  json:"periodically_refetch_data"`
 
 	Overlay *ChannelOverlay `gorm:"foreignKey:OverlayID" json:"overlay"`
 }

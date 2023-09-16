@@ -34,7 +34,8 @@ const { t } = useI18n();
 						createdAt: '',
 						overlayId: '',
 						type: OverlayLayerType.HTML,
-						updatedAt: ''
+						updatedAt: '',
+						periodicallyRefetchData: true,
 					})
 				}"
 			>

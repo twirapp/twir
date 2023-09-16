@@ -24,6 +24,7 @@ message OverlayLayer {
 	int32 height = 8;
 	string createdAt = 9;
 	string updatedAt = 10;
+	bool periodically_refetch_data = 11;
 }
 
 message Overlay {
@@ -56,6 +57,7 @@ message CreateLayer {
 	int32 pos_y = 4;
 	int32 width = 5;
 	int32 height = 6;
+	bool periodically_refetch_data = 7;
 }
 
 message CreateRequest {

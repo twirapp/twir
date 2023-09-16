@@ -20,6 +20,7 @@ interface Layer {
 	createdAt: string
 	updatedAt: string
 	overlay: any
+	periodically_refetch_data: boolean;
 
 	htmlContent?: string;
 }
@@ -79,7 +80,7 @@ export const OverlaysRegistry: React.FC = () => {
 				setLayers(parsedData.layers);
 				for (const layer of parsedData.layers) {
 					if (layer.type === 'HTML') {
-						pollHtmlOverlayData(layer as Layer);
+						preparePollHtmlOverlayData(layer as Layer);
 					}
 				}
 			}
@@ -107,8 +108,7 @@ export const OverlaysRegistry: React.FC = () => {
 		});
 	}, [layers]);
 
-	const pollHtmlOverlayData = useCallback((l: Layer) => {
-		if (l.type !== 'HTML') return;
+	const preparePollHtmlOverlayData = useCallback((l: Layer) => {
 		if (l.settings.htmlOverlayDataPollSecondsInterval <= 0) return;
 
 		const getInfo = () => sendMessage(JSON.stringify({
@@ -118,6 +118,8 @@ export const OverlaysRegistry: React.FC = () => {
 			},
 		}));
 		getInfo();
+
+		if (!l.periodically_refetch_data) return;
 
 		const interval = setInterval(() => {
 			getInfo();

@@ -1,7 +1,8 @@
+<!-- eslint-disable vue/no-v-html -->
 <!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { useOverlaysParseHtml } from '@/api/registry';
 
@@ -13,16 +14,24 @@ const props = defineProps<{
 	height: number;
 	text: string;
 	css: string;
+	periodicallyRefetchData: boolean,
 }>();
 
 const fetcher = useOverlaysParseHtml();
 
 const exampleValue = ref('');
 
-useIntervalFn(async () => {
+const { pause, resume } = useIntervalFn(async () => {
 	const data = await fetcher.mutateAsync(props.text ?? '');
 	exampleValue.value = data ?? '';
-}, 1000, { immediate: true });
+}, 1000, { immediate: true, immediateCallback: true });
+
+watch(props, (p) => {
+	const v = p.periodicallyRefetchData;
+
+	if (!v) pause();
+	else resume();
+}, { immediate: true });
 </script>
 
 <template>

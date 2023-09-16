@@ -157,6 +157,7 @@ const copyUrl = async (id: string) => {
 						:index="index"
 						:text="layer.settings?.htmlOverlayHtml ?? ''"
 						:css="layer.settings?.htmlOverlayCss ?? ''"
+						:periodicallyRefetchData="layer.periodicallyRefetchData"
 					/>
 					<Moveable
 						className="moveable"
@@ -228,6 +229,7 @@ const copyUrl = async (id: string) => {
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
 						v-model:css="formValue.layers[index].settings!.htmlOverlayCss"
 						v-model:pollInterval="formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval"
+						v-model:periodicallyRefetchData="formValue.layers[index].periodicallyRefetchData"
 						:isFocused="currentlyFocused === index"
 						:layerIndex="index"
 						:type="layer.type"

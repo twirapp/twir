@@ -92,13 +92,14 @@ func (c *Overlays) convertEntity(entity model.ChannelOverlay) *overlays.Overlay 
 				HtmlOverlayJs:                          base64ToText(l.Settings.HtmlOverlayJS),
 				HtmlOverlayHtmlDataPollSecondsInterval: int32(l.Settings.HtmlOverlayDataPollSecondsInterval),
 			},
-			OverlayId: id,
-			PosX:      int32(l.PosX),
-			PosY:      int32(l.PosY),
-			Width:     int32(l.Width),
-			Height:    int32(l.Height),
-			CreatedAt: fmt.Sprint(l.CreatedAt.UnixMilli()),
-			UpdatedAt: fmt.Sprint(l.UpdatedAt.UnixMilli()),
+			OverlayId:               id,
+			PosX:                    int32(l.PosX),
+			PosY:                    int32(l.PosY),
+			Width:                   int32(l.Width),
+			Height:                  int32(l.Height),
+			CreatedAt:               fmt.Sprint(l.CreatedAt.UnixMilli()),
+			UpdatedAt:               fmt.Sprint(l.UpdatedAt.UnixMilli()),
+			PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 		}
 	}
 
@@ -214,11 +215,12 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 						HtmlOverlayJS:                      textToBase64(l.Settings.HtmlOverlayJs),
 						HtmlOverlayDataPollSecondsInterval: int(l.Settings.HtmlOverlayHtmlDataPollSecondsInterval),
 					},
-					OverlayID: entity.ID,
-					PosX:      int(l.PosX),
-					PosY:      int(l.PosY),
-					Width:     int(l.Width),
-					Height:    int(l.Height),
+					OverlayID:               entity.ID,
+					PosX:                    int(l.PosX),
+					PosY:                    int(l.PosY),
+					Width:                   int(l.Width),
+					Height:                  int(l.Height),
+					PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 				}
 
 				if err := tx.Save(&layer).Error; err != nil {
@@ -297,11 +299,12 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 						HtmlOverlayJS:                      textToBase64(l.Settings.HtmlOverlayJs),
 						HtmlOverlayDataPollSecondsInterval: int(l.Settings.HtmlOverlayHtmlDataPollSecondsInterval),
 					},
-					OverlayID: entity.ID,
-					PosX:      int(l.PosX),
-					PosY:      int(l.PosY),
-					Width:     int(l.Width),
-					Height:    int(l.Height),
+					OverlayID:               entity.ID,
+					PosX:                    int(l.PosX),
+					PosY:                    int(l.PosY),
+					Width:                   int(l.Width),
+					Height:                  int(l.Height),
+					PeriodicallyRefetchData: l.PeriodicallyRefetchData,
 				}
 
 				if err := tx.Save(&layer).Error; err != nil {

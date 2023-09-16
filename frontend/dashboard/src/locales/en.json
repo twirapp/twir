@@ -493,7 +493,8 @@
 			"variablesAlert": {
 				"title": "You can use some variables in html, click the button for show available options",
 				"selectToCopy": "Select variable, to copy it to clipboard"
-			}
+			},
+			"periodicallyRefetchData": "Periodically parse html data from server"
 		}
 	}
 }
