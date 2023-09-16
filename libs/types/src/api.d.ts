@@ -80,12 +80,14 @@ export interface YouTubeDenyList {
     songs: string[];
     channels: string[];
     artistsNames: string[];
+    words: string[];
 }
 export interface YouTubeSongSettings {
     minLength: number;
     maxLength: number;
     minViews: number;
     acceptedCategories: string[];
+    wordsDenyList: string[];
 }
 export interface YouTubeUserSettings {
     maxRequests: number;

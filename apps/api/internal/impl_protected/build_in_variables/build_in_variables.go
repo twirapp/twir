@@ -28,10 +28,11 @@ func (c *BuildInVariables) BuiltInVariablesGetAll(
 			variables.List,
 			func(item *parser.GetVariablesResponse_Variable, index int) *built_in_variables.Variable {
 				return &built_in_variables.Variable{
-					Name:        item.Name,
-					Example:     item.Example,
-					Description: item.Description,
-					Visible:     item.Visible,
+					Name:                item.Name,
+					Example:             item.Example,
+					Description:         item.Description,
+					Visible:             item.Visible,
+					CanBeUsedInRegistry: item.CanBeUsedInRegistry,
 				}
 			},
 		),

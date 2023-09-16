@@ -284,6 +284,7 @@ const showAlertModal = ref(false);
 							:options="commandsSelectOptions"
 							:placeholder="t('events.targetCommand')"
 							:loading="isCommandsLoading"
+							filterable
 						/>
 					</n-form-item>
 
@@ -307,6 +308,7 @@ const showAlertModal = ref(false);
 							:options="keywordsSelectOptions"
 							:placeholder="t('events.targetKeyword')"
 							:loading="isKeywordsLoading"
+							filterable
 						/>
 					</n-form-item>
 
@@ -379,7 +381,7 @@ const showAlertModal = ref(false);
 					<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
 						<n-grid-item :span="2">
 							<n-form-item :label="t('events.operations.name')" required>
-								<n-select v-model:value="currentOperation.type" :options="operationTypeSelectOptions" />
+								<n-select filterable v-model:value="currentOperation.type" :options="operationTypeSelectOptions" />
 							</n-form-item>
 						</n-grid-item>
 						<n-grid-item :span="1">

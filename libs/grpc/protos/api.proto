@@ -39,6 +39,7 @@ import "api/twitch_protected.proto";
 import "api/files.proto";
 import "api/alerts.proto";
 import "api/games.proto";
+import "api/overlays.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (api.auth.Profile) {}
@@ -184,6 +185,13 @@ service Protected {
 	rpc GamesUpdateEightBallSettings(api.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
 	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (api.games.RussianRouletteSettingsResponse) {}
 	rpc GamesUpdateRouletteSettings(api.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
+
+	rpc OverlaysGetAll(google.protobuf.Empty) returns (api.overlays.GetAllResponse) {}
+	rpc OverlaysGetOne(api.overlays.GetByIdRequest) returns (api.overlays.Overlay) {}
+	rpc OverlaysUpdate(api.overlays.UpdateRequest) returns (api.overlays.Overlay) {}
+	rpc OverlaysDelete(api.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc OverlaysCreate(api.overlays.CreateRequest) returns (api.overlays.Overlay) {}
+	rpc OverlaysParseHtml(api.overlays.ParseHtmlOverlayRequest) returns (api.overlays.ParseHtmlOverlayResponse) {}
 }
 
 // UnProtected

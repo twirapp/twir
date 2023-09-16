@@ -15,6 +15,7 @@ var Matches = &types.Variable{
 	Description: lo.ToPtr(
 		`Latest 5 matches trend, i.e "W(13/4) — Killjoy 12/4/10 | L(4/13) — Killjoy 4/12/10"`,
 	),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

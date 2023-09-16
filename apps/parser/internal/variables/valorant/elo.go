@@ -9,8 +9,9 @@ import (
 )
 
 var Elo = &types.Variable{
-	Name:        "valorant.profile.elo",
-	Description: lo.ToPtr(`Current elo, i.e "2419"`),
+	Name:                "valorant.profile.elo",
+	Description:         lo.ToPtr(`Current elo, i.e "2419"`),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

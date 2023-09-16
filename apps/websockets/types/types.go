@@ -3,12 +3,14 @@ package types
 import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/parser"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type GrpcClients struct {
-	Bots bots.BotsClient
+	Bots   bots.BotsClient
+	Parser parser.ParserClient
 }
 
 type Services struct {

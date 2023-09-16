@@ -9,8 +9,9 @@ import (
 )
 
 var LVL = &types.Variable{
-	Name:        "faceit.lvl",
-	Description: lo.ToPtr("Faceit Lvl"),
+	Name:                "faceit.lvl",
+	Description:         lo.ToPtr("Faceit Lvl"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

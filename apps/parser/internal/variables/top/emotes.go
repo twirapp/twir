@@ -18,9 +18,10 @@ type emote struct {
 }
 
 var Emotes = &types.Variable{
-	Name:        "top.emotes",
-	Description: lo.ToPtr("Top used emotes"),
-	Example:     lo.ToPtr("top.emotes|10"),
+	Name:                "top.emotes",
+	Description:         lo.ToPtr("Top used emotes"),
+	Example:             lo.ToPtr("top.emotes|10"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

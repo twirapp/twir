@@ -93,7 +93,17 @@ export const newRouter = (queryClient: QueryClient) => {
 				{
 					path: '/dashboard/files',
 					component: () => import('./pages/Files.vue'),
-					// meta: { neededPermission: 'VIEW_EVENTS' },
+				},
+				{
+					path: '/dashboard/registry/overlays',
+					component: () => import('./pages/OverlaysRegistry.vue'),
+					meta: { neededPermission: 'VIEW_OVERLAYS' },
+				},
+				{
+					name: 'RegistryOverlayEdit',
+					path: '/dashboard/registry/overlays/:id',
+					component: () => import('./components/registry/overlays/edit.vue'),
+					meta: { neededPermission: 'MANAGE_OVERLAYS' },
 				},
 				{
 					name: 'Forbidden',

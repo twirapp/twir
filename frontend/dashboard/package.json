@@ -24,7 +24,8 @@
     "vue": "^3.3.4",
     "vue-draggable-next": "^2.2.1",
     "vue-i18n": "^9.2.2",
-    "vue-router": "4"
+    "vue-router": "4",
+    "vue3-moveable": "^0.26.1"
   },
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^0.12.2",

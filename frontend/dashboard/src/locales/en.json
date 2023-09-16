@@ -41,6 +41,7 @@
     "integrations": "Integrations",
     "events": "Events",
     "overlays": "Overlays",
+		"overlaysRegistry": "Overlays registry",
     "songRequests": "Song requests",
     "timers": "Timers",
     "roles": "Permissions",
@@ -471,5 +472,28 @@
 		"innerText": "Select or drop {type}",
 		"usedSpace": "Used {used} / {max} MB",
 		"emptyText": "No {type} uploaded"
+	},
+	"overlaysRegistry": {
+		"description": "This system allows you to create custom confirugurable overlays for OBS. Currently it support only html overlays, but we'll add more for you. <3",
+		"noLayersCreated": {
+			"title": "Not configured",
+			"description": "Currently layers of overlays not created"
+		},
+		"customWidth": "Custom width",
+		"customHeight": "Custom height",
+		"name": "Name of overlay",
+		"createNewLayer": "Create new layer",
+		"validations": {
+			"name": "Name cannot be empty and bigger then 30 symbols",
+			"layers": "Layers cannot be empty and it cannot contain more then 15 layers"
+		},
+		"html": {
+			"description": "Allows you to use custom html, css, and bot variables",
+			"updateInterval": "Interval, in which html variables will be updated",
+			"variablesAlert": {
+				"title": "You can use some variables in html, click the button for show available options",
+				"selectToCopy": "Select variable, to copy it to clipboard"
+			}
+		}
 	}
 }

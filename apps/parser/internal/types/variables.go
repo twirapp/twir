@@ -20,12 +20,13 @@ type VariableHandler func(
 ) (*VariableHandlerResult, error)
 
 type Variable struct {
-	Name         string
-	Handler      VariableHandler
-	Description  *string
-	Example      *string
-	CommandsOnly bool
-	Visible      *bool
+	Name                string
+	Handler             VariableHandler
+	Description         *string
+	Example             *string
+	CommandsOnly        bool
+	Visible             *bool
+	CanBeUsedInRegistry bool
 }
 
 type VariableParseContext struct {

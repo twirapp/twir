@@ -8,8 +8,9 @@ import (
 )
 
 var Category = &types.Variable{
-	Name:        "stream.category",
-	Description: lo.ToPtr("Stream category"),
+	Name:                "stream.category",
+	Description:         lo.ToPtr("Stream category"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

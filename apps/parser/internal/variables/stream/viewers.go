@@ -9,8 +9,9 @@ import (
 )
 
 var Viewers = &types.Variable{
-	Name:        "stream.viewers",
-	Description: lo.ToPtr("Stream viewers"),
+	Name:                "stream.viewers",
+	Description:         lo.ToPtr("Stream viewers"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

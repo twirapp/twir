@@ -10,8 +10,9 @@ import (
 )
 
 var TrendExtended = &types.Variable{
-	Name:        "faceit.trend.extended",
-	Description: lo.ToPtr(`Faceit latest matches trend in "W +26 | L -23" format`),
+	Name:                "faceit.trend.extended",
+	Description:         lo.ToPtr(`Faceit latest matches trend in "W +26 | L -23" format`),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

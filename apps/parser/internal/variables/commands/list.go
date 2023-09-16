@@ -10,8 +10,9 @@ import (
 )
 
 var Variable = &types.Variable{
-	Name:        "commands.list",
-	Description: lo.ToPtr("Command list"),
+	Name:                "commands.list",
+	Description:         lo.ToPtr("Command list"),
+	CanBeUsedInRegistry: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

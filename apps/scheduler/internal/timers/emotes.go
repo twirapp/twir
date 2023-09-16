@@ -36,7 +36,8 @@ func NewEmotes(ctx context.Context, services *types.Services) {
 				} else {
 					for _, channel := range channels {
 						_, err = services.Grpc.Emotes.CacheChannelEmotes(
-							ctx, &emotes_cacher.Request{
+							ctx,
+							&emotes_cacher.Request{
 								ChannelId: channel.ID,
 							},
 						)

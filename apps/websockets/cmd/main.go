@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"log"
 	"net"
 	"net/http"
@@ -11,10 +10,13 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
-	"github.com/satont/twir/apps/websockets/internal/namespaces"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/satont/twir/apps/websockets/types"
@@ -30,7 +32,7 @@ import (
 )
 
 func main() {
-	//_, cancelAppCtx := context.WithCancel(context.Background())
+	// _, cancelAppCtx := context.WithCancel(context.Background())
 
 	cfg, err := config.New()
 	if err != nil {
@@ -76,11 +78,12 @@ func main() {
 		Logger: logger.Sugar(),
 		Redis:  rdb,
 		Grpc: &types.GrpcClients{
-			Bots: clients.NewBots(cfg.AppEnv),
+			Bots:   clients.NewBots(cfg.AppEnv),
+			Parser: clients.NewParser(cfg.AppEnv),
 		},
 	}
 
-	ttsNamespace := namespaces.NewNameSpace(services)
+	ttsNamespace := tts.NewTts(services)
 	http.HandleFunc("/tts", ttsNamespace.HandleRequest)
 
 	obsNamespace := obs.NewObs(services)
@@ -92,6 +95,9 @@ func main() {
 	alertsNameSpace := alerts.NewAlerts(services)
 	http.HandleFunc("/alerts", alertsNameSpace.HandleRequest)
 
+	overlaysRegistry := overlays.New(services)
+	http.HandleFunc("/registry/overlays", overlaysRegistry.HandleRequest)
+
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.WEBSOCKET_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -102,10 +108,11 @@ func main() {
 			&grpc_impl.GrpcOpts{
 				Services: services,
 				Sockets: &grpc_impl.Sockets{
-					TTS:     ttsNamespace,
-					OBS:     obsNamespace,
-					YouTube: youTubeNameSpace,
-					Alerts:  alertsNameSpace,
+					TTS:              ttsNamespace,
+					OBS:              obsNamespace,
+					YouTube:          youTubeNameSpace,
+					Alerts:           alertsNameSpace,
+					OverlaysRegistry: overlaysRegistry,
 				},
 			},
 		),
@@ -120,7 +127,7 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 
-	//cancelAppCtx()
+	// cancelAppCtx()
 	grpcServer.GracefulStop()
 	lis.Close()
 	d.Close()
