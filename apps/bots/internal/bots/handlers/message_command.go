@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
@@ -46,7 +45,6 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 
 	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Error("cannot process command", slog.Any("err", err))
 		return
 	}
 

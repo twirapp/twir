@@ -1,5 +1,12 @@
 <script setup lang='ts'>
-import { IconArrowNarrowDown, IconArrowNarrowUp, IconPlus, IconSquareCheck, IconSquare, IconTrash } from '@tabler/icons-vue';
+import {
+	IconArrowNarrowDown,
+	IconArrowNarrowUp,
+	IconPlus,
+	IconSquareCheck,
+	IconSquare,
+	IconTrash,
+} from '@tabler/icons-vue';
 import chunk from 'lodash.chunk';
 import {
 	type FormInst,
@@ -36,119 +43,121 @@ import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 const { t } = useI18n();
 
 const props = defineProps<{
-  command: EditableCommand | null
+	command: EditableCommand | null
 }>();
 
 const emits = defineEmits<{
-  close: []
+	close: []
 }>();
 
 const formRef = ref<FormInst | null>(null);
 const formValue = reactive<EditableCommand>({
-  name: '',
-  aliases: [],
-  responses: [],
-  description: '',
-  rolesIds: [],
-  deniedUsersIds: [],
-  allowedUsersIds: [],
-  requiredMessages: 0,
-  requiredUsedChannelPoints: 0,
-  requiredWatchTime: 0,
-  cooldown: 0,
-  cooldownType: 'GLOBAL',
-  isReply: true,
-  visible: true,
-  keepResponsesOrder: true,
-  onlineOnly: false,
-  enabled: true,
-  groupId: undefined,
-  module: 'CUSTOM',
+	name: '',
+	aliases: [],
+	responses: [],
+	description: '',
+	rolesIds: [],
+	deniedUsersIds: [],
+	allowedUsersIds: [],
+	requiredMessages: 0,
+	requiredUsedChannelPoints: 0,
+	requiredWatchTime: 0,
+	cooldown: 0,
+	cooldownType: 'GLOBAL',
+	isReply: true,
+	visible: true,
+	keepResponsesOrder: true,
+	onlineOnly: false,
+	enabled: true,
+	groupId: undefined,
+	module: 'CUSTOM',
+	cooldownRolesIds: [],
 });
 
 onMounted(() => {
-  if (props.command) {
-    formValue.id = props.command.id;
-    formValue.name = props.command.name;
-    formValue.aliases = props.command.aliases;
-    formValue.responses = props.command.responses;
-    formValue.description = props.command.description;
-    formValue.rolesIds = props.command.rolesIds;
-    formValue.deniedUsersIds = props.command.deniedUsersIds;
-    formValue.allowedUsersIds = props.command.allowedUsersIds;
-    formValue.requiredMessages = props.command.requiredMessages;
-    formValue.requiredUsedChannelPoints = props.command.requiredUsedChannelPoints;
-    formValue.requiredWatchTime = props.command.requiredWatchTime;
-    formValue.cooldown = props.command.cooldown;
-    formValue.cooldownType = props.command.cooldownType;
-    formValue.isReply = props.command.isReply;
-    formValue.visible = props.command.visible;
-    formValue.keepResponsesOrder = props.command.keepResponsesOrder;
-    formValue.onlineOnly = props.command.onlineOnly;
-    formValue.enabled = props.command.enabled;
-    formValue.groupId = props.command.groupId;
-    formValue.module = props.command.module;
-  }
+	if (props.command) {
+		formValue.id = props.command.id;
+		formValue.name = props.command.name;
+		formValue.aliases = props.command.aliases;
+		formValue.responses = props.command.responses;
+		formValue.description = props.command.description;
+		formValue.rolesIds = props.command.rolesIds;
+		formValue.deniedUsersIds = props.command.deniedUsersIds;
+		formValue.allowedUsersIds = props.command.allowedUsersIds;
+		formValue.requiredMessages = props.command.requiredMessages;
+		formValue.requiredUsedChannelPoints = props.command.requiredUsedChannelPoints;
+		formValue.requiredWatchTime = props.command.requiredWatchTime;
+		formValue.cooldown = props.command.cooldown;
+		formValue.cooldownType = props.command.cooldownType;
+		formValue.isReply = props.command.isReply;
+		formValue.visible = props.command.visible;
+		formValue.keepResponsesOrder = props.command.keepResponsesOrder;
+		formValue.onlineOnly = props.command.onlineOnly;
+		formValue.enabled = props.command.enabled;
+		formValue.groupId = props.command.groupId;
+		formValue.module = props.command.module;
+		formValue.cooldownRolesIds = props.command.cooldownRolesIds;
+	}
 });
 
 const rolesManager = useRolesManager();
 const roles = rolesManager.getAll({});
 const rolesSelectOptions = computed(() => {
-  if (!roles.data?.value) return [];
-  return roles.data.value.roles.map((role) => ({
-    label: role.name,
-    value: role.id,
-  }));
+	if (!roles.data?.value) return [];
+	return roles.data.value.roles.map((role) => ({
+		label: role.name,
+		value: role.id,
+	}));
 });
 
 const commandsGroupsManager = useCommandsGroupsManager();
 const commandsGroups = commandsGroupsManager.getAll({});
 const commandsGroupsOptions = computed(() => {
-  if (!commandsGroups.data?.value) return [];
-  return commandsGroups.data.value.groups.map((group) => ({
-    label: group.name,
-    value: group.id,
-  }));
+	if (!commandsGroups.data?.value) return [];
+	return commandsGroups.data.value.groups.map((group) => ({
+		label: group.name,
+		value: group.id,
+	}));
 });
 
 const nameValidator = (_: FormItemRule, value: string) => {
-  if (!value) {
-    return new Error(t('commands.modal.name.validations.empty'));
-  }
-  if (value.startsWith('!')) {
-    return new Error(t('commands.modal.name.validations.startsWith'));
-  }
-  if (value.length > 25) {
-    return new Error(t('commands.modal.name.validations.len'));
-  }
-  return true;
+	if (!value) {
+		return new Error(t('commands.modal.name.validations.empty'));
+	}
+	if (value.startsWith('!')) {
+		return new Error(t('commands.modal.name.validations.startsWith'));
+	}
+	if (value.length > 25) {
+		return new Error(t('commands.modal.name.validations.len'));
+	}
+	return true;
 };
 const rules: FormRules = {
-  name: [{
-    trigger: ['input', 'blur'],
-    validator: nameValidator,
-  }],
-  description: {
-    trigger: ['input', 'blur'],
-    validator: (_: FormItemRule, value: string) => {
-      if (value.length > 500) {
-        return new Error('Description cannot be longer than 500 characters');
-      }
-      return true;
-    },
-  },
-  responses: {
-    trigger: ['input', 'blur', 'focus'],
-    validator: (_: FormItemRule, value: string) => {
-      if (value.length === 0) {
-        return new Error(t('commands.modal.responses.validations.empty'));
-      }
-      if (value.length > 500) {
-        return new Error(t('commands.modal.responses.validations.len'));
-      }
-      return true;
-    },
-  },
+	name: [{
+		trigger: ['input', 'blur'],
+		validator: nameValidator,
+	}],
+	description: {
+		trigger: ['input', 'blur'],
+		validator: (_: FormItemRule, value: string) => {
+			if (value.length > 500) {
+				return new Error('Description cannot be longer than 500 characters');
+			}
+			return true;
+		},
+	},
+	responses: {
+		trigger: ['input', 'blur', 'focus'],
+		validator: (_: FormItemRule, value: string) => {
+			if (value.length === 0) {
+				return new Error(t('commands.modal.responses.validations.empty'));
+			}
+			if (value.length > 500) {
+				return new Error(t('commands.modal.responses.validations.len'));
+			}
+			return true;
+		},
+	},
 };
 
 const commandsManager = useCommandsManager();
@@ -156,28 +165,28 @@ const commandsCreate = commandsManager.create;
 const commandsUpdate = commandsManager.update;
 
 async function save() {
-  await formRef.value?.validate();
+	await formRef.value?.validate();
 
-  const rawData = toRaw(formValue);
-  const data = {
-    ...rawData,
-    responses: rawData.responses.map((r, i) => ({
-      ...r,
-      order: i,
-    })),
-    groupId: rawData.groupId === null ? undefined : rawData.groupId,
-  };
+	const rawData = toRaw(formValue);
+	const data = {
+		...rawData,
+		responses: rawData.responses.map((r, i) => ({
+			...r,
+			order: i,
+		})),
+		groupId: rawData.groupId === null ? undefined : rawData.groupId,
+	};
 
-  if (rawData.id) {
-    await commandsUpdate.mutateAsync({
-      id: rawData.id,
-      command: data,
-    });
-  } else {
-    await commandsCreate.mutateAsync(data);
-  }
+	if (rawData.id) {
+		await commandsUpdate.mutateAsync({
+			id: rawData.id,
+			command: data,
+		});
+	} else {
+		await commandsCreate.mutateAsync(data);
+	}
 
-  emits('close');
+	emits('close');
 }
 </script>
 
@@ -199,7 +208,10 @@ async function save() {
 			</n-grid-item>
 		</n-grid>
 		<n-form-item :label="t('commands.modal.description.label')" path="description">
-			<n-input v-model:value="formValue.description" placeholder="Description" type="textarea" autosize />
+			<n-input
+				v-model:value="formValue.description" placeholder="Description" type="textarea"
+				autosize
+			/>
 		</n-form-item>
 
 		<n-divider>
@@ -256,7 +268,10 @@ async function save() {
 					</div>
 				</template>
 			</n-dynamic-input>
-			<n-button dashed block style="margin-top:10px" @click="() => formValue.responses.push({ text: '' })">
+			<n-button
+				dashed block style="margin-top:10px"
+				@click="() => formValue.responses.push({ text: '' })"
+			>
 				<IconPlus />
 				{{ t('sharedButtons.create') }}
 			</n-button>
@@ -298,7 +313,6 @@ async function save() {
 				</n-button-group>
 			</div>
 		</n-form-item>
-
 
 
 		<n-form-item :label="t('commands.modal.permissions.deniedUsers')" path="deniedUsersIds">
@@ -400,6 +414,34 @@ async function save() {
 			</n-grid-item>
 		</n-grid>
 
+
+		<div style="display: flex; flex-direction: column; gap: 5px;">
+			<n-button-group
+				v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
+				:key="index"
+			>
+				<n-button
+					v-for="option of group"
+					:key="option.value"
+					:type="formValue.cooldownRolesIds.includes(option.value) ? 'success' : 'default'"
+					secondary
+					@click="() => {
+						if (formValue.cooldownRolesIds.includes(option.value)) {
+							formValue.cooldownRolesIds = formValue.cooldownRolesIds.filter(r => r !== option.value)
+						} else {
+							formValue.cooldownRolesIds.push(option.value)
+						}
+					}"
+				>
+					<template #icon>
+						<IconSquareCheck v-if="formValue.cooldownRolesIds.includes(option.value)" />
+						<IconSquare v-else />
+					</template>
+					{{ option.label }}
+				</n-button>
+			</n-button-group>
+		</div>
+
 		<n-divider>
 			{{ t('commands.modal.settings.divider') }}
 		</n-divider>
@@ -495,23 +537,23 @@ async function save() {
 
 <style scoped>
 .groups :deep(.create-button) {
-  display: none;
+	display: none;
 }
 
 .group-actions {
-  display: flex;
-  margin-left: 5px;
-  column-gap: 5px;
-  align-items: center
+	display: flex;
+	margin-left: 5px;
+	column-gap: 5px;
+	align-items: center
 }
 
 .grid-stats-item {
-  width: 100%;
+	width: 100%;
 }
 
 .settings-card-body {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
 }
 </style>

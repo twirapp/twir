@@ -98,8 +98,20 @@ func (c *ParserGrpcServer) ProcessCommand(
 		}
 	}
 
-	if cmd.Cmd.CooldownType == cooldownGlobal && cmd.Cmd.Cooldown.Int64 > 0 &&
-		c.shouldCheckCooldown(data.Sender.Badges) {
+	dbUser, _, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
+		ctx,
+		data.Sender.Id,
+		data.Channel.Id,
+		data.Sender.Badges,
+		cmd.Cmd,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	shouldCheckCooldown := c.shouldCheckCooldown(data.Sender.Badges, cmd.Cmd, userRoles)
+	fmt.Println("shouldCheckCooldown", shouldCheckCooldown)
+	if cmd.Cmd.CooldownType == cooldownGlobal && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
 		rErr := c.services.Redis.Get(ctx, key).Err()
 
@@ -113,8 +125,7 @@ func (c *ParserGrpcServer) ProcessCommand(
 		}
 	}
 
-	if cmd.Cmd.CooldownType == cooldownPerUser && cmd.Cmd.Cooldown.Int64 > 0 &&
-		c.shouldCheckCooldown(data.Sender.Badges) {
+	if cmd.Cmd.CooldownType == cooldownPerUser && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.Sender.Id)
 		rErr := c.services.Redis.Get(ctx, key).Err()
 
@@ -129,11 +140,12 @@ func (c *ParserGrpcServer) ProcessCommand(
 	}
 
 	hasPerm := c.isUserHasPermissionToCommand(
-		ctx,
 		data.Sender.Id,
 		data.Channel.Id,
-		data.Sender.Badges,
 		cmd.Cmd,
+		dbUser,
+		userRoles,
+		commandRoles,
 	)
 
 	if !hasPerm {

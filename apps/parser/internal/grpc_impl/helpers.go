@@ -3,25 +3,114 @@ package grpc_impl
 import (
 	"context"
 	"encoding/json"
-	"strings"
 	"time"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *ParserGrpcServer) shouldCheckCooldown(badges []string) bool {
-	return !lo.Contains(badges, "BROADCASTER") &&
+// var defaultBadges = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"}
+
+func (c *ParserGrpcServer) shouldCheckCooldown(
+	badges []string,
+	command *model.ChannelsCommands,
+	userRoles []model.ChannelRole,
+) bool {
+	if command.Cooldown.Int64 == 0 {
+		return false
+	}
+
+	if !lo.Contains(badges, "BROADCASTER") &&
 		!lo.Contains(badges, "MODERATOR") &&
-		!lo.Contains(badges, "SUBSCRIBER")
+		!lo.Contains(badges, "SUBSCRIBER") &&
+		!lo.Contains(badges, "VIP") {
+		return true
+	}
+
+	for _, role := range command.CooldownRolesIDs {
+		hasRoleForCheck := lo.SomeBy(
+			userRoles,
+			func(userRole model.ChannelRole) bool {
+				return userRole.ID == role
+			},
+		)
+		if !hasRoleForCheck {
+			continue
+		}
+
+		return true
+	}
+
+	return false
 }
 
-func (c *ParserGrpcServer) isUserHasPermissionToCommand(
+func (c *ParserGrpcServer) prepareCooldownAndPermissionsCheck(
 	ctx context.Context,
 	userId,
 	channelId string,
-	badges []string,
+	userBadges []string,
 	command *model.ChannelsCommands,
+) (
+	dbUser *model.Users,
+	channelRoles []model.ChannelRole,
+	userRoles []model.ChannelRole,
+	commandRoles []model.ChannelRole,
+	err error,
+) {
+	if err = c.services.Gorm.
+		WithContext(ctx).
+		Where(`"id" = ?`, userId).
+		Preload("Stats", `"channelId" = ? AND "userId" = ?`, channelId, userId).
+		First(&dbUser).Error; err != nil {
+		return
+	}
+
+	if err = c.services.Gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?`, channelId).
+		Preload("Users", `"userId" = ?`, userId).
+		Find(&channelRoles).Error; err != nil {
+		return
+	}
+
+	for _, role := range channelRoles {
+		userHasDbRole := lo.SomeBy(
+			role.Users,
+			func(user *model.ChannelRoleUser) bool {
+				return user.UserID == userId
+			},
+		)
+		hasBadge := lo.SomeBy(
+			userBadges,
+			func(badge string) bool {
+				return badge == role.Type.String()
+			},
+		)
+
+		if userHasDbRole || hasBadge {
+			userRoles = append(userRoles, role)
+		}
+
+		isCommandRole := lo.SomeBy(
+			command.RolesIDS, func(roleId string) bool {
+				return roleId == role.ID
+			},
+		)
+		if isCommandRole {
+			commandRoles = append(commandRoles, role)
+		}
+	}
+
+	return
+}
+
+func (c *ParserGrpcServer) isUserHasPermissionToCommand(
+	userId,
+	channelId string,
+	command *model.ChannelsCommands,
+	dbUser *model.Users,
+	userRoles []model.ChannelRole,
+	commandRoles []model.ChannelRole,
 ) bool {
 	if userId == channelId {
 		return true
@@ -31,56 +120,20 @@ func (c *ParserGrpcServer) isUserHasPermissionToCommand(
 		return true
 	}
 
-	dbUser := &model.Users{}
-	err := c.services.Gorm.
-		WithContext(ctx).
-		Where(`"id" = ?`, userId).
-		Preload("Stats", `"channelId" = ? AND "userId" = ?`, channelId, userId).
-		Find(dbUser).Error
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-	}
-
 	if dbUser.IsBotAdmin {
 		return true
 	}
 
-	var userRoles []*model.ChannelRole
-
-	err = c.services.Gorm.
-		WithContext(ctx).Model(&model.ChannelRole{}).
-		Where(`"channelId" = ?`, channelId).
-		Preload("Users", `"userId" = ?`, userId).
-		Find(&userRoles).
-		Error
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return false
-	}
-
-	var commandRoles []*model.ChannelRole
-
-	mappedCommandsRoles := lo.Map(
-		command.RolesIDS, func(id string, _ int) string {
-			return id
-		},
-	)
-	err = c.services.Gorm.
-		WithContext(ctx).Where(`"id" IN ?`, mappedCommandsRoles).Find(&commandRoles).Error
-	if err != nil {
-		c.services.Logger.Sugar().Error(err)
-		return false
-	}
-
 	for _, role := range commandRoles {
-		if role.Type == model.ChannelRoleTypeCustom {
-			continue
-		}
+		userHasRole := lo.SomeBy(
+			userRoles,
+			func(userRole model.ChannelRole) bool {
+				return userRole.ID == role.ID
+			},
+		)
 
-		for _, badge := range badges {
-			if strings.EqualFold(role.Type.String(), badge) {
-				return true
-			}
+		if userHasRole {
+			return true
 		}
 	}
 
@@ -131,9 +184,7 @@ func (c *ParserGrpcServer) isUserHasPermissionToCommand(
 		// check role restriction by stats
 		for _, role := range commandRoles {
 			settings := &model.ChannelRoleSettings{}
-			err = json.Unmarshal(role.Settings, settings)
-			if err != nil {
-				c.services.Logger.Sugar().Error(err)
+			if err := json.Unmarshal(role.Settings, settings); err != nil {
 				return false
 			}
 
