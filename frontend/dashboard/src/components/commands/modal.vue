@@ -1,5 +1,6 @@
 <script setup lang='ts'>
-import { IconArrowNarrowDown, IconArrowNarrowUp, IconPlus, IconShieldHalfFilled, IconTrash } from '@tabler/icons-vue';
+import { IconArrowNarrowDown, IconArrowNarrowUp, IconPlus, IconSquareCheck, IconSquare, IconTrash } from '@tabler/icons-vue';
+import chunk from 'lodash.chunk';
 import {
 	type FormInst,
 	type FormItemRule,
@@ -22,6 +23,7 @@ import {
 	NSpace,
 	NSwitch,
 	NText,
+	NButtonGroup,
 } from 'naive-ui';
 import { computed, onMounted, reactive, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -269,38 +271,49 @@ async function save() {
 		</n-divider>
 
 		<n-form-item :label="t('commands.modal.permissions.name')" path="rolesIds">
-			<n-select
-				v-model:value="formValue.rolesIds"
-				multiple
-				:options="rolesSelectOptions"
-				:loading="roles.isLoading.value"
-				:placeholder="t('commands.modal.permissions.placeholder')"
-			>
-				<template #arrow>
-					<IconShieldHalfFilled />
-				</template>
-			</n-select>
+			<div style="display: flex; flex-direction: column; gap: 5px;">
+				<n-button-group
+					v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
+					:key="index"
+				>
+					<n-button
+						v-for="option of group"
+						:key="option.value"
+						:type="formValue.rolesIds.includes(option.value) ? 'success' : 'default'"
+						secondary
+						@click="() => {
+							if (formValue.rolesIds.includes(option.value)) {
+								formValue.rolesIds = formValue.rolesIds.filter(r => r !== option.value)
+							} else {
+								formValue.rolesIds.push(option.value)
+							}
+						}"
+					>
+						<template #icon>
+							<IconSquareCheck v-if="formValue.rolesIds.includes(option.value)" />
+							<IconSquare v-else />
+						</template>
+						{{ option.label }}
+					</n-button>
+				</n-button-group>
+			</div>
 		</n-form-item>
 
-		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-			<n-grid-item :span="1">
-				<n-form-item :label="t('commands.modal.permissions.deniedUsers')" path="deniedUsersIds">
-					<twitch-users-multiple
-						v-model="formValue.deniedUsersIds"
-						:initial-users-ids="formValue.deniedUsersIds"
-					/>
-				</n-form-item>
-			</n-grid-item>
 
-			<n-grid-item :span="1">
-				<n-form-item :label="t('commands.modal.permissions.allowedUsers')" path="allowedUsersIds">
-					<twitch-users-multiple
-						v-model="formValue.allowedUsersIds"
-						:initial-users-ids="formValue.allowedUsersIds"
-					/>
-				</n-form-item>
-			</n-grid-item>
-		</n-grid>
+
+		<n-form-item :label="t('commands.modal.permissions.deniedUsers')" path="deniedUsersIds">
+			<twitch-users-multiple
+				v-model="formValue.deniedUsersIds"
+				:initial-users-ids="formValue.deniedUsersIds"
+			/>
+		</n-form-item>
+
+		<n-form-item :label="t('commands.modal.permissions.allowedUsers')" path="allowedUsersIds">
+			<twitch-users-multiple
+				v-model="formValue.allowedUsersIds"
+				:initial-users-ids="formValue.allowedUsersIds"
+			/>
+		</n-form-item>
 
 		<n-divider>
 			{{ t('commands.modal.restrictions.name') }}
@@ -446,12 +459,32 @@ async function save() {
 		</n-divider>
 
 		<n-form-item :label="t('commands.modal.settings.other.commandGroup')" path="groupId">
-			<n-select
-				v-model:value="formValue.groupId"
-				:options="commandsGroupsOptions"
-				clearable
-				:fallback-option="undefined"
-			/>
+			<div style="display: flex; flex-direction: column; gap: 5px;">
+				<n-button-group
+					v-for="(group, index) of chunk(commandsGroupsOptions.sort(), 4)"
+					:key="index"
+				>
+					<n-button
+						v-for="option of group"
+						:key="option.value"
+						:type="formValue.groupId === option.value ? 'success' : 'default'"
+						secondary
+						@click="() => {
+							if (formValue.groupId === option.value) {
+								formValue.groupId = undefined
+							} else {
+								formValue.groupId = option.value
+							}
+						}"
+					>
+						<template #icon>
+							<IconSquareCheck v-if="formValue.groupId === option.value" />
+							<IconSquare v-else />
+						</template>
+						{{ option.label }}
+					</n-button>
+				</n-button-group>
+			</div>
 		</n-form-item>
 
 		<n-button secondary type="success" block @click="save">

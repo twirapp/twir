@@ -176,6 +176,9 @@ importers:
       '@twir/grpc':
         specifier: workspace:^
         version: link:../../libs/grpc
+      '@types/lodash.chunk':
+        specifier: ^4.2.7
+        version: 4.2.7
       '@vueuse/components':
         specifier: ^10.2.1
         version: 10.2.1(vue@3.3.4)
@@ -188,6 +191,9 @@ importers:
       grid-layout-plus:
         specifier: ^1.0.2
         version: 1.0.2(vue@3.3.4)
+      lodash.chunk:
+        specifier: ^4.2.0
+        version: 4.2.0
       naive-ui:
         specifier: ^2.34.4
         version: 2.34.4(vue@3.3.4)
@@ -3447,6 +3453,12 @@ packages:
 
   /@types/lodash-es@4.17.7:
     resolution: {integrity: sha512-z0ptr6UI10VlU6l5MYhGwS4mC8DZyYer2mCoyysZtSF7p26zOX8UpbrV0YpNYLGS8K4PUFIyEr62IMFFjveSiQ==}
+    dependencies:
+      '@types/lodash': 4.14.191
+    dev: false
+
+  /@types/lodash.chunk@4.2.7:
+    resolution: {integrity: sha512-//tmaWHiANgToom/YYYKKqiCtlNz11fwYtMUUbaemNSbWTI+2zHtYW5nt1PHNCRWHPAJHHhn4UVFD9LKUFvatA==}
     dependencies:
       '@types/lodash': 4.14.191
     dev: false
@@ -7361,6 +7373,10 @@ packages:
 
   /lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
+
+  /lodash.chunk@4.2.0:
+    resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
+    dev: false
 
   /lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
