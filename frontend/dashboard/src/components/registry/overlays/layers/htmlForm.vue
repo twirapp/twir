@@ -1,6 +1,16 @@
 <!-- eslint-disable no-undef -->
 <script lang="ts" setup>
-import { NModal, NInputNumber, NFormItem, NAlert, NSelect, useMessage, NSwitch } from 'naive-ui';
+import {
+	NModal,
+	NInputNumber,
+	NFormItem,
+	NAlert,
+	NSelect,
+	useMessage,
+	NSwitch,
+	NTabs,
+	NTabPane,
+} from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -96,21 +106,28 @@ const { t } = useI18n();
 				<n-select filterable :options="variables" @update:value="(v) => copyVariable(v)" />
 			</n-alert>
 
-			<vue-monaco-editor
-				v-model:value="html"
-				theme="vs-dark"
-				height="500px"
-				language="html"
-				:options="{
-					readOnlyMessage: 'test'
-				}"
-			/>
-			<vue-monaco-editor
-				v-model:value="css"
-				theme="vs-dark"
-				height="500px"
-				language="css"
-			/>
+			<n-tabs type="segment">
+				<n-tab-pane name="HTML">
+					<vue-monaco-editor
+						v-model:value="html"
+						theme="vs-dark"
+						height="500px"
+						language="html"
+						:options="{
+							readOnlyMessage: 'test'
+						}"
+					/>
+				</n-tab-pane>
+
+				<n-tab-pane name="CSS">
+					<vue-monaco-editor
+						v-model:value="css"
+						theme="vs-dark"
+						height="500px"
+						language="css"
+					/>
+				</n-tab-pane>
+			</n-tabs>
 		</div>
 	</n-modal>
 </template>
