@@ -138,6 +138,8 @@ const userProfile = useProfile();
 const copyUrl = async (id: string) => {
 	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`);
 };
+
+const innerWidth = computed(() => window.innerWidth);
 </script>
 
 <template>
@@ -145,7 +147,11 @@ const copyUrl = async (id: string) => {
 		<div style="width: 85%;">
 			<div
 				class="container"
-				:style="{ width: `${formValue.width}px`, height: `${formValue.height}px` }"
+				:style="{
+					width: `${formValue.width}px`,
+					height: `${formValue.height}px`,
+					transform: `scale(${(innerWidth / formValue.width) * 0.7})`
+				}"
 			>
 				<div v-for="(layer, index) of formValue.layers" :key="index">
 					<HtmlLayer
@@ -255,7 +261,7 @@ const copyUrl = async (id: string) => {
 .container {
 	background-color: rgb(18, 18, 18);
 	transform-origin: 0px 0px;
-	transform: scale(0.7);
+
 	background-image: linear-gradient(45deg, rgb(34, 34, 34) 25%, transparent 25%), linear-gradient(135deg, rgb(34, 34, 34) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgb(34, 34, 34) 75%), linear-gradient(135deg, transparent 75%, rgb(34, 34, 34) 75%);
 	background-size: 20px 20px;
 	background-position: 0px 0px, 10px 0px, 10px -10px, 0px 10px;
