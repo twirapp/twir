@@ -74,14 +74,14 @@ type ChannelsEventsListItemData struct {
 	FirstUserMessageMessage         string `json:"firstUserMessageMessage,omitempty"`
 
 	//
-	ModeratorName        string `json:"moderatorName"`
-	ModeratorDisplayName string `json:"moderatorDisplayName"`
+	ModeratorName        string `json:"moderatorName,omitempty"`
+	ModeratorDisplayName string `json:"moderatorDisplayName,omitempty"`
 
 	//
-	BanReason        string `json:"banReason"`
-	BanEndsInMinutes string `json:"banEndsInMinutes"`
-	BannedUserName   string `json:"bannedUserName"`
-	BannedUserLogin  string `json:"bannedUserLogin"`
+	BanReason        string `json:"banReason,omitempty"`
+	BanEndsInMinutes string `json:"banEndsInMinutes,omitempty"`
+	BannedUserName   string `json:"bannedUserName,omitempty"`
+	BannedUserLogin  string `json:"bannedUserLogin,omitempty"`
 }
 
 func (a ChannelsEventsListItemData) Value() (driver.Value, error) {

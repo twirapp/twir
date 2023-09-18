@@ -9,11 +9,16 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/variables/donations/last_donate"
+	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate"
+	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate_stream"
+	"github.com/satont/twir/apps/parser/internal/variables/followers"
 	"github.com/satont/twir/apps/parser/internal/variables/keywords"
 	"github.com/satont/twir/apps/parser/internal/variables/random"
 	"github.com/satont/twir/apps/parser/internal/variables/sender"
 	"github.com/satont/twir/apps/parser/internal/variables/song"
 	"github.com/satont/twir/apps/parser/internal/variables/stream"
+	"github.com/satont/twir/apps/parser/internal/variables/subscribers"
 	"github.com/satont/twir/apps/parser/internal/variables/to_user"
 	"github.com/satont/twir/apps/parser/internal/variables/top"
 	"github.com/satont/twir/apps/parser/internal/variables/user"
@@ -96,6 +101,19 @@ func New(opts *Opts) *Variables {
 			user.SongsRequestedDuration,
 			user.EmotesTop,
 			user.Watched,
+			last_donate.Amount,
+			last_donate.Currency,
+			last_donate.UserName,
+			top_donate.UserName,
+			top_donate.Amount,
+			top_donate.Currency,
+			top_donate_stream.Amount,
+			top_donate_stream.Currency,
+			top_donate_stream.UserName,
+			followers.LatestFollowerUsername,
+			followers.Count,
+			subscribers.Count,
+			subscribers.LatestSubscriberUsername,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
