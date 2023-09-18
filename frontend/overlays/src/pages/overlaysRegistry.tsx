@@ -32,10 +32,12 @@ export interface LayerSettings {
 	htmlOverlayJs: string
 }
 
-function fromBase64(str: string) {
-	return decodeURIComponent(atob(str).split('').map(function(c) {
-		return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-	}).join(''));
+function fromBase64(binary: string) {
+	const bytes = new Uint8Array(binary.length);
+	for (let i = 0; i < bytes.length; i++) {
+		bytes[i] = binary.charCodeAt(i);
+	}
+	return String.fromCharCode(...new Uint16Array(bytes.buffer));
 }
 
 export const OverlaysRegistry: React.FC = () => {
