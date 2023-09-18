@@ -159,13 +159,13 @@ export const OverlaysRegistry: React.FC = () => {
 };
 
 
-function b64EncodeUnicode(str: string) {
-	return btoa(
-		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(match, p1) {
-			return String.fromCharCode(parseInt('0x' + p1));
-		}),
-	);
-}
+// function b64EncodeUnicode(str: string) {
+// 	return btoa(
+// 		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(_, p1) {
+// 			return String.fromCharCode(parseInt('0x' + p1));
+// 		}),
+// 	);
+// }
 
 function b64DecodeUnicode(str: string) {
 	return decodeURIComponent(

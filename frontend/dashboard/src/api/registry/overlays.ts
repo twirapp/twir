@@ -4,7 +4,7 @@ import { protectedApiClient } from '@/api/twirp';
 
 function b64EncodeUnicode(str: string) {
 	return btoa(
-		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(match, p1) {
+		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(_, p1) {
 			return String.fromCharCode(parseInt('0x' + p1));
 		}),
 	);
