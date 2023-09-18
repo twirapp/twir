@@ -1,6 +1,8 @@
+import { transform } from 'nested-css-to-flat';
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useWebSocket from 'react-use-websocket';
+
 
 declare global {
 	interface Window {
@@ -133,9 +135,9 @@ export const OverlaysRegistry: React.FC = () => {
 		{layers.filter(l => l.type === 'HTML').map((layer) => {
 			return <Fragment key={layer.id}>
 				<style>
-					{`.layer-${layer.id} {
+					{transform(`.layer-${layer.id} {
 						${b64DecodeUnicode(layer.settings.htmlOverlayCss)}
-					}`}
+					}`)}
 				</style>
 				<div
 					key={layer.id}
