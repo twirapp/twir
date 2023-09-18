@@ -22,7 +22,7 @@ type Config struct {
 	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
 	HostName           string `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
-	TTSServiceUrl      string `required:"false" default:"localhost:7000" envconfig:"TTS_SERVICE_URL"`
+	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
 	S3Host             string `required:"false" envconfig:"CDN_HOST"`
 	S3Bucket           string `required:"false" envconfig:"CDN_BUCKET"`

@@ -2,6 +2,7 @@ package obs
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
@@ -70,6 +71,7 @@ func (c *OBS) SendEvent(userId, eventName string, data any) error {
 	message := &types.WebSocketMessage{
 		EventName: eventName,
 		Data:      data,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)

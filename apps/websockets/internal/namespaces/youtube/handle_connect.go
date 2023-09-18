@@ -2,6 +2,7 @@ package youtube
 
 import (
 	"encoding/json"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
@@ -9,15 +10,15 @@ import (
 )
 
 func (c *YouTube) handleConnect(session *melody.Session) {
-	//const songs = await repository.find({
-	//where: {
+	// const songs = await repository.find({
+	// where: {
 	//	channelId,
 	//		deletedAt: IsNull(),
-	//},
-	//order: {
-	//queuePosition: 'asc',
-	//},
-	//});
+	// },
+	// order: {
+	// queuePosition: 'asc',
+	// },
+	// });
 
 	userId, _ := session.Get("userId")
 
@@ -36,6 +37,7 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 	outCome := &types.WebSocketMessage{
 		EventName: "currentQueue",
 		Data:      currentSongs,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(outCome)

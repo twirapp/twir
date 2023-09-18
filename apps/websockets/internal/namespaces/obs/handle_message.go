@@ -19,7 +19,9 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 		return
 	}
 
-	data := &types.WebSocketMessage{}
+	data := &types.WebSocketMessage{
+		CreatedAt: time.Now().UTC().String(),
+	}
 	err := json.Unmarshal(msg, data)
 	if err != nil {
 		c.services.Logger.Error(err)
@@ -133,6 +135,7 @@ func (c *OBS) handleRequestSettings(channelId string) {
 	outCome := &types.WebSocketMessage{
 		EventName: "settings",
 		Data:      obsSettings,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(outCome)

@@ -23,4 +23,5 @@ type Services struct {
 type WebSocketMessage struct {
 	EventName string `json:"eventName"`
 	Data      any    `json:"data"`
+	CreatedAt string `json:"createdAt"`
 }

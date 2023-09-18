@@ -3,6 +3,7 @@ package tts
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
@@ -14,6 +15,7 @@ func (c *TTS) Skip(ctx context.Context, msg *websockets.TTSSkipMessage) (*emptyp
 	message := &types.WebSocketMessage{
 		EventName: "skip",
 		Data:      msg,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)

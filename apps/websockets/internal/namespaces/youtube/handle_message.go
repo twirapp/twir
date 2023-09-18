@@ -27,7 +27,9 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 		return
 	}
 
-	data := &types.WebSocketMessage{}
+	data := &types.WebSocketMessage{
+		CreatedAt: time.Now().UTC().String(),
+	}
 	err := json.Unmarshal(msg, data)
 	if err != nil {
 		c.services.Logger.Error(err)
@@ -69,7 +71,7 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 	}
 
 	if data.EventName == "pause" {
-		//fmt.Println("get paused")
+		// fmt.Println("get paused")
 	}
 
 }
@@ -156,7 +158,11 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		message = strings.ReplaceAll(message, "{{songTitle}}", song.Title)
 		message = strings.ReplaceAll(message, "{{songLink}}", songLink)
 		message = strings.ReplaceAll(message, "{{orderedByName}}", song.OrderedByName)
-		message = strings.ReplaceAll(message, "{{orderedByDisplayName}}", song.OrderedByDisplayName.String)
+		message = strings.ReplaceAll(
+			message,
+			"{{orderedByDisplayName}}",
+			song.OrderedByDisplayName.String,
+		)
 
 		c.services.Grpc.Bots.SendMessage(
 			ctx, &bots.SendMessageRequest{

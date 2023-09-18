@@ -3,6 +3,7 @@ package overlays
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
@@ -49,6 +50,7 @@ func (c *Registry) SendEvent(channelId, eventName string, data any) error {
 	message := &types.WebSocketMessage{
 		EventName: eventName,
 		Data:      data,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)

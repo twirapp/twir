@@ -3,6 +3,7 @@ package youtube
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
@@ -25,6 +26,7 @@ func (c *YouTube) AddSongToQueue(_ context.Context, msg *websockets.YoutubeAddSo
 	message := &types.WebSocketMessage{
 		EventName: "newTrack",
 		Data:      song,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)

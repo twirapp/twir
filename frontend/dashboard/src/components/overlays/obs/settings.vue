@@ -15,14 +15,20 @@ import {
 	NSpace,
 	useMessage,
 } from 'naive-ui';
-import { ref, watch, toRaw } from 'vue';
+import { ref, toRaw, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useObsOverlayManager } from '@/api/index.js';
 
 const obsSettingsManager = useObsOverlayManager();
-const obsSettings = obsSettingsManager.getSettings();
+const { refetch, data: settings } = obsSettingsManager.getSettings();
 const obsSettingsUpdater = obsSettingsManager.updateSettings();
+
+onMounted(async () => {
+	const settings = await refetch();
+	if (!settings.data) return;
+	formValue.value = toRaw(settings.data);
+});
 
 const { t } = useI18n();
 
@@ -68,11 +74,6 @@ const rules: FormRules = {
 	},
 };
 
-watch(obsSettings.data, (v) => {
-	if (!v) return;
-	formValue.value = toRaw(v);
-}, { immediate: true });
-
 const message = useMessage();
 
 async function save() {
@@ -86,7 +87,7 @@ async function save() {
 }
 
 async function checkConnection() {
-	await obsSettings.refetch();
+	await refetch();
 }
 </script>
 
@@ -127,9 +128,9 @@ async function checkConnection() {
 			/>
 		</n-form-item>
 
-		<n-alert :type="obsSettings.data.value?.isConnected ? 'success' : 'error'" :bordered="false">
+		<n-alert :type="settings?.isConnected ? 'success' : 'error'" :bordered="false">
 			{{
-				obsSettings.data.value?.isConnected ? t('overlays.obs.connected') : t('overlays.obs.notConnected')
+				settings?.isConnected ? t('overlays.obs.connected') : t('overlays.obs.notConnected')
 			}}
 		</n-alert>
 

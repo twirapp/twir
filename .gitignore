@@ -29,3 +29,5 @@ main.~
 .idea
 !.vscode/extensions.json
 !traefik/*
+
+vite.config.ts.timestamp-*

@@ -2,10 +2,12 @@ package alerts
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
-	"net/http"
 )
 
 type Alerts struct {
@@ -43,6 +45,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 	message := &types.WebSocketMessage{
 		EventName: eventName,
 		Data:      data,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)

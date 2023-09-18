@@ -64,7 +64,7 @@ services:
     restart: unless-stopped
     image: aculeasis/rhvoice-rest
     ports:
-      - "7000:8080"
+      - "7001:8080"
     networks:
       - tsuwari-dev
 

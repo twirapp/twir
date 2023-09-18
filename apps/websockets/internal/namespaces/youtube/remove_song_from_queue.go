@@ -3,6 +3,7 @@ package youtube
 import (
 	"context"
 	"encoding/json"
+	"time"
 
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
@@ -24,6 +25,7 @@ func (c *YouTube) RemoveSongFromQueue(
 	message := &types.WebSocketMessage{
 		EventName: "removeTrack",
 		Data:      song,
+		CreatedAt: time.Now().UTC().String(),
 	}
 
 	bytes, err := json.Marshal(message)
