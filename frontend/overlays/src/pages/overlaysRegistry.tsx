@@ -32,14 +32,6 @@ export interface LayerSettings {
 	htmlOverlayJs: string
 }
 
-function fromBase64(binary: string) {
-	const bytes = new Uint8Array(binary.length);
-	for (let i = 0; i < bytes.length; i++) {
-		bytes[i] = binary.charCodeAt(i);
-	}
-	return String.fromCharCode(...new Uint16Array(bytes.buffer));
-}
-
 export const OverlaysRegistry: React.FC = () => {
 	const [url, setUrl] = useState<string | null>(null);
 	const { apiKey, overlayId } = useParams();
@@ -142,7 +134,7 @@ export const OverlaysRegistry: React.FC = () => {
 			return <Fragment key={layer.id}>
 				<style>
 					{`.layer-${layer.id} {
-						${fromBase64(layer.settings.htmlOverlayCss)}
+						${b64DecodeUnicode(layer.settings.htmlOverlayCss)}
 					}`}
 				</style>
 				<div
@@ -159,9 +151,29 @@ export const OverlaysRegistry: React.FC = () => {
 						textWrap: 'nowrap',
 					}}
 					className={'layer-' + layer.id}
-					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? fromBase64(layer.htmlContent) : '' }}
+					dangerouslySetInnerHTML={{ __html: layer.htmlContent ? b64DecodeUnicode(layer.htmlContent) : '' }}
 				/>
 			</Fragment>;
 		})}
 	</div>;
 };
+
+
+function b64EncodeUnicode(str: string) {
+	return btoa(
+		encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function toSolidBytes(match, p1) {
+			return String.fromCharCode(parseInt('0x' + p1));
+		}),
+	);
+}
+
+function b64DecodeUnicode(str: string) {
+	return decodeURIComponent(
+		atob(str)
+			.split('')
+			.map(function (c) {
+				return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+			})
+			.join(''),
+	);
+}
