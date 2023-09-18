@@ -2,8 +2,8 @@
 import { watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useOverlays } from '../sockets/overlays';
 import htmlLayer from '../components/htmlLayer.vue';
+import { useOverlays } from '../sockets/overlays';
 
 const route = useRoute();
 
@@ -38,7 +38,7 @@ watch(layers, (l) => {
 
 <style scoped>
 .container {
-	width: '100%';
-	height: '100%';
+	width: 100%;
+	height: 100%;
 }
 </style>

@@ -19,14 +19,14 @@ defineProps<{
 		}}
 	</component>
 	<div
+		:id="'layer' + layer.id"
 		style="position: absolute; overflow: hidden; 'text-wrap': 'nowrap'"
 		:style="{
-			top: layer.pos_y,
-			left: layer.pos_x,
-			width: layer.width,
-			height: layer.height,
+			top: `${layer.pos_y}px`,
+			left: `${layer.pos_x}px`,
+			width: `${layer.width}px`,
+			height: `${layer.height}px`,
 		}"
-		:id="'layer' + layer.id"
 		v-html="parsedData"
 	/>
 </template>
