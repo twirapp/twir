@@ -15,7 +15,7 @@ import (
 var CurrentSong = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "song",
-		Description: null.StringFrom(*currentsong.Song.Description),
+		Description: null.StringFrom(*currentsong.CurrentSong.Description),
 		RolesIDS:    pq.StringArray{},
 		Module:      "SONGS",
 		Visible:     true,
@@ -27,7 +27,7 @@ var CurrentSong = &types.DefaultCommand{
 			Result: []string{
 				fmt.Sprintf(
 					"$(%s)",
-					currentsong.Song.Name,
+					currentsong.CurrentSong.Name,
 				),
 			},
 		}

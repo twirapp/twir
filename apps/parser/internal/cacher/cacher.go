@@ -31,6 +31,8 @@ type locks struct {
 
 	valorantProfile sync.Mutex
 	valorantMatch   sync.Mutex
+
+	currentSong sync.Mutex
 }
 
 type cache struct {
@@ -47,6 +49,8 @@ type cache struct {
 
 	valorantProfile *types.ValorantProfile
 	valorantMatches []*types.ValorantMatch
+
+	currentSong *types.CurrentSong
 }
 
 type cacher struct {

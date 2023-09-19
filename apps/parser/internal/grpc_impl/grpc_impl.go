@@ -110,7 +110,6 @@ func (c *ParserGrpcServer) ProcessCommand(
 	}
 
 	shouldCheckCooldown := c.shouldCheckCooldown(data.Sender.Badges, cmd.Cmd, userRoles)
-	fmt.Println("shouldCheckCooldown", shouldCheckCooldown)
 	if cmd.Cmd.CooldownType == cooldownGlobal && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
 		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
 		rErr := c.services.Redis.Get(ctx, key).Err()

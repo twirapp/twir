@@ -8,7 +8,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/guregu/null"
-	req "github.com/imroc/req/v3"
+	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -48,7 +48,10 @@ func (c *Spotify) refreshToken() *error {
 	resp, err := req.R().
 		SetFormData(body).
 		SetResult(&data).
-		SetBasicAuth(c.integration.Integration.ClientID.String, c.integration.Integration.ClientSecret.String).
+		SetBasicAuth(
+			c.integration.Integration.ClientID.String,
+			c.integration.Integration.ClientSecret.String,
+		).
 		Post("https://accounts.spotify.com/api/token")
 
 	if err != nil || resp.StatusCode != 200 {
@@ -69,20 +72,34 @@ type SpotifyArtist struct {
 	Name string `json:"name"`
 }
 
+type SpotifyImage struct {
+	URL string `json:"url"`
+}
+
+type SpotifyAlbum struct {
+	Images []SpotifyImage `json:"images"`
+}
+
 type SpotifyTrack struct {
 	Artists []SpotifyArtist `json:"artists"`
 	Name    string          `json:"name"`
+	Album   SpotifyAlbum    `json:"album"`
 }
 
 type SpotifyResponse struct {
 	Track *SpotifyTrack `json:"item"`
 }
 
-func (c *Spotify) GetTrack() *string {
+type GetTrackResponse struct {
+	Name  string `json:"name"`
+	Image string `json:"image"`
+}
+
+func (c *Spotify) GetTrack() *GetTrackResponse {
 	data := SpotifyResponse{}
 	req, err := req.R().
 		SetBearerAuthToken(c.integration.AccessToken.String).
-		SetResult(&data).
+		SetSuccessResult(&data).
 		Get("https://api.spotify.com/v1/me/player/currently-playing")
 
 	if req.StatusCode == 401 && !c.isRetry {
@@ -105,13 +122,20 @@ func (c *Spotify) GetTrack() *string {
 		},
 	)
 
-	response := fmt.Sprintf(
+	name := fmt.Sprintf(
 		"%s — %s",
 		strings.Join(artistsMap, ", "),
 		data.Track.Name,
 	)
+	var imageUrl string
+	if len(data.Track.Album.Images) > 0 {
+		imageUrl = data.Track.Album.Images[0].URL
+	}
 
-	return &response
+	return &GetTrackResponse{
+		Name:  name,
+		Image: imageUrl,
+	}
 }
 
 type SpotifyProfile struct {
