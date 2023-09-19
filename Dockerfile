@@ -240,4 +240,4 @@ RUN cd libs/migrations && \
 FROM go_prod_base as migrations
 COPY --from=migrations_builder /app/libs/migrations/out /bin/migrations
 # add 10 seconds sleep
-CMD ["sh", "-c", "/bin/migrations && sleep 10"]
+CMD ["sh", "-c", "/bin/migrations & sleep 10"]
