@@ -1,12 +1,22 @@
 <script setup lang="ts">
 import { transform } from 'nested-css-to-flat';
+import { watch, nextTick, computed } from 'vue';
 
 import { Layer } from '../sockets/overlays';
 
-defineProps<{
+const props = defineProps<{
 	layer: Layer
 	parsedData?: string
 }>();
+
+const executeFunc = computed(() => {
+	return new Function(`${props.layer.settings.htmlOverlayJs}; onDataUpdate();`);
+});
+
+watch(() => props.parsedData, async () => {
+	await nextTick();
+	executeFunc.value?.();
+});
 </script>
 
 <template>

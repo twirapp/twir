@@ -62,6 +62,7 @@ export const useOverlays = (apiKey: string, overlayId: string) => {
 				settings: {
 					...l.settings,
 					htmlOverlayCss: b64DecodeUnicode(l.settings.htmlOverlayCss),
+					htmlOverlayJs: b64DecodeUnicode(l.settings.htmlOverlayJs),
 				},
 			}));
 		}

@@ -163,8 +163,10 @@ const innerWidth = computed(() => window.innerWidth);
 						:index="index"
 						:text="layer.settings?.htmlOverlayHtml ?? ''"
 						:css="layer.settings?.htmlOverlayCss ?? ''"
+						:js="layer.settings?.htmlOverlayJs ?? ''"
 						:periodicallyRefetchData="layer.periodicallyRefetchData"
 					/>
+
 					<Moveable
 						className="moveable"
 						:target="'#layer-' + index"
@@ -190,17 +192,26 @@ const innerWidth = computed(() => window.innerWidth);
 			</div>
 		</div>
 		<div style="display: flex; gap: 4px; flex-direction: column;">
-			<n-button :disabled="!formValue.name || !formValue.layers.length" block secondary type="success" @click="save">
+			<n-button
+				:disabled="!formValue.name || !formValue.layers.length" block secondary
+				type="success" @click="save"
+			>
 				<IconDeviceFloppy />
 				{{ t('sharedButtons.save') }}
 			</n-button>
-			<n-button block secondary type="info" :disabled="!formValue.id" @click="copyUrl(formValue.id)">
+			<n-button
+				block secondary type="info" :disabled="!formValue.id"
+				@click="copyUrl(formValue.id)"
+			>
 				<IconCopy />
 				{{ t('overlays.copyOverlayLink') }}
 			</n-button>
 
 			<n-form-item :label="t('overlaysRegistry.name')">
-				<n-input v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')" :maxlength="30" />
+				<n-input
+					v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')"
+					:maxlength="30"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('overlaysRegistry.customWidth')">
@@ -234,6 +245,7 @@ const innerWidth = computed(() => window.innerWidth);
 						:key="index"
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
 						v-model:css="formValue.layers[index].settings!.htmlOverlayCss"
+						v-model:js="formValue.layers[index].settings!.htmlOverlayJs"
 						v-model:pollInterval="formValue.layers[index].settings!.htmlOverlayHtmlDataPollSecondsInterval"
 						v-model:periodicallyRefetchData="formValue.layers[index].periodicallyRefetchData"
 						:isFocused="currentlyFocused === index"
@@ -247,7 +259,10 @@ const innerWidth = computed(() => window.innerWidth);
 		</div>
 	</div>
 
-	<n-modal v-model:show="isOverlayNewModalOpened" style="width: 50vw" preset="card" :title="t('sharedButtons.create')">
+	<n-modal
+		v-model:show="isOverlayNewModalOpened" style="width: 50vw" preset="card"
+		:title="t('sharedButtons.create')"
+	>
 		<new-selector
 			@select="v => {
 				formValue.layers.push(v)

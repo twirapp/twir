@@ -29,7 +29,12 @@ const { t } = useI18n();
 							htmlOverlayCss: '.text { color: red }',
 							htmlOverlayHtml: `<span class='text'>$(stream.uptime)</span>`,
 							htmlOverlayHtmlDataPollSecondsInterval: 5,
-							htmlOverlayJs: ''
+							htmlOverlayJs: `
+// will be triggered, when new overlay data comes from backend
+function onDataUpdate() {
+	console.log('updated')
+}
+							`
 						},
 						createdAt: '',
 						overlayId: '',

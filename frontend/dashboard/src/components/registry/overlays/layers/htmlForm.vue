@@ -28,6 +28,7 @@ defineEmits<{
 
 const html = defineModel('html');
 const css = defineModel('css');
+const js = defineModel('js');
 const pollInterval = defineModel('pollInterval', { default: 5 });
 const periodicallyRefetchData = defineModel('periodicallyRefetchData');
 
@@ -125,6 +126,15 @@ const { t } = useI18n();
 						theme="vs-dark"
 						height="500px"
 						language="css"
+					/>
+				</n-tab-pane>
+
+				<n-tab-pane name="JS">
+					<vue-monaco-editor
+						v-model:value="js"
+						theme="vs-dark"
+						height="500px"
+						language="javascript"
 					/>
 				</n-tab-pane>
 			</n-tabs>

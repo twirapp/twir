@@ -2,7 +2,7 @@
 <!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core';
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick, computed } from 'vue';
 
 import { useOverlaysParseHtml } from '@/api/registry';
 
@@ -14,6 +14,7 @@ const props = defineProps<{
 	height: number;
 	text: string;
 	css: string;
+	js: string
 	periodicallyRefetchData: boolean,
 }>();
 
@@ -25,6 +26,24 @@ const { pause, resume } = useIntervalFn(async () => {
 	const data = await fetcher.mutateAsync(props.text ?? '');
 	exampleValue.value = data ?? '';
 }, 1000, { immediate: true, immediateCallback: true });
+
+const executeFunc = computed(() => {
+	return new Function(`${props.js}; onDataUpdate();`);
+});
+
+watch(exampleValue, async () => {
+	await nextTick();
+	// calling user defined function
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+	executeFunc.value?.();
+});
+
+const componentKey = ref(0);
+
+watch(() => props.js, async () => {
+	componentKey.value += 1;
+}, { immediate: true });
 
 watch(props, (p) => {
 	const v = p.periodicallyRefetchData;
@@ -53,10 +72,7 @@ watch(props, (p) => {
 				}`
 			}}
 		</component>
+
 		<div :id="'layersExampleRender'+index" :style="css" v-html="exampleValue" />
 	</div>
 </template>
-
-<style scoped>
-
-</style>
