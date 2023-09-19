@@ -61,14 +61,20 @@ export const useOverlays = (apiKey: string, overlayId: string) => {
 				...l,
 				settings: {
 					...l.settings,
-					htmlOverlayCss: b64DecodeUnicode(l.settings.htmlOverlayCss),
-					htmlOverlayJs: b64DecodeUnicode(l.settings.htmlOverlayJs),
+					htmlOverlayCss: l.settings.htmlOverlayCss
+						? b64DecodeUnicode(l.settings.htmlOverlayCss)
+						: '',
+					htmlOverlayJs: l.settings.htmlOverlayJs
+						? b64DecodeUnicode(l.settings.htmlOverlayJs)
+						: '',
 				},
 			}));
 		}
 
 		if (parsedData.eventName === 'parsedLayerVariables') {
-			parsedLayersData.value[parsedData.layerId] = b64DecodeUnicode(parsedData.data);
+			parsedLayersData.value[parsedData.layerId] = parsedData.data
+				? b64DecodeUnicode(parsedData.data)
+				: '';
 		}
 
 		if (parsedData.eventName === 'refreshOverlays') {
