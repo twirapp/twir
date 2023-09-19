@@ -125,6 +125,7 @@ func (c *Overlays) OverlaysGetAll(ctx context.Context, _ *emptypb.Empty) (
 	if err := c.Db.
 		WithContext(ctx).
 		Preload("Layers").
+		Order("created_at DESC").
 		Find(&entities, "channel_id = ?", dashboardId).
 		Error; err != nil {
 		return nil, err
