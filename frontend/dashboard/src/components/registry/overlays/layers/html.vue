@@ -39,12 +39,6 @@ watch(exampleValue, async () => {
 	executeFunc.value?.();
 });
 
-const componentKey = ref(0);
-
-watch(() => props.js, async () => {
-	componentKey.value += 1;
-}, { immediate: true });
-
 watch(props, (p) => {
 	const v = p.periodicallyRefetchData;
 
