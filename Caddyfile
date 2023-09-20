@@ -4,6 +4,7 @@
 }
 
 :80 {
+	header Cache-Control "no-cache, no-store, must-revalidate"
 	root * /app
 	encode gzip
 	try_files {path} /index.html
