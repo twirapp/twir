@@ -73,7 +73,7 @@ const copyUrl = async (id: string) => {
 				</template>
 
 				<template #footer>
-					<div style="display: flex; gap: 8px">
+					<div style="display: flex; gap: 8px; flex-wrap: wrap">
 						<n-button
 							secondary
 							size="large"
