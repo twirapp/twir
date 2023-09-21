@@ -9,8 +9,6 @@ import {
   NLayoutSider,
   NConfigProvider,
 	NMessageProvider,
-	NDrawer,
-	NDrawerContent,
 } from 'naive-ui';
 import { computed, watch } from 'vue';
 import { RouterView } from 'vue-router';
@@ -55,7 +53,6 @@ watch(smallerOrEqualLg, (v) => {
 				</n-layout-header>
 				<n-layout has-sider style="height: calc(100vh - 65px)">
 					<n-layout-sider
-						v-if="!smallerOrEqualLg"
 						bordered
 						collapse-mode="width"
 						:collapsed-width="64"
@@ -68,11 +65,6 @@ watch(smallerOrEqualLg, (v) => {
 					>
 						<Sidebar :is-collapsed="isSidebarCollapsed" />
 					</n-layout-sider>
-					<n-drawer v-else v-model:show="storedDrawerValue" placement="left">
-						<n-drawer-content body-content-style="padding: 0px">
-							<Sidebar :is-collapsed="isSidebarCollapsed" />
-						</n-drawer-content>
-					</n-drawer>
 					<n-layout-content>
 						<router-view v-slot="{ Component, route }">
 							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
