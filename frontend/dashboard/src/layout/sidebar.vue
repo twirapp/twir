@@ -19,31 +19,25 @@ import {
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { useMagicKeys } from '@vueuse/core';
 import {
 	type MenuDividerOption,
 	type MenuOption,
-	NAvatar,
-	NCard,
 	NMenu,
 	NScrollbar,
-	NSpace,
-	NSpin,
-	NText,
 	NBadge,
 } from 'naive-ui';
-import { computed, h, onMounted, ref, watch } from 'vue';
+import { computed, h, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRouter } from 'vue-router';
 
-import DashboardMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
-import { useProfile, useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
 
 defineProps<{
 	isCollapsed: boolean
 }>();
+
 
 const router = useRouter();
 
@@ -182,9 +176,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			path: '/dashboard/greetings',
 			disabled: !canViewGreetings.value,
 		},
-		{
-			type: 'divider',
-		},
 	].map((item) => ({
 		...item,
 		key: item.path ?? item.label,
@@ -227,69 +218,20 @@ onMounted(async () => {
 	await router.isReady();
 	activeKey.value = router.currentRoute.value.path;
 });
-
-const isDashboardsMenu = ref(false);
-
-const { Ctrl_k } = useMagicKeys({
-	passive: false,
-	onEventFired(e) {
-		if (e.ctrlKey && e.key === 'k' && e.type === 'keydown') {
-			e.preventDefault();
-		}
-	},
-});
-
-watch(Ctrl_k, (v) => {
-	if (v) {
-		isDashboardsMenu.value = !isDashboardsMenu.value;
-	}
-});
-
-const { data: profile, isLoading: isProfileLoading } = useProfile();
-const selectedDashboardId = computed(() => profile.value?.selectedDashboardId ?? '');
-const foundTwitchUsers = useTwitchGetUsers({
-	ids: selectedDashboardId,
-});
-const selectedDashboard = computed(() => {
-	const twitchUser = foundTwitchUsers.data.value?.users.find(u => u.id === profile.value?.selectedDashboardId);
-	if (!twitchUser) return null;
-
-	return twitchUser;
-});
 </script>
 
 <template>
 	<div
-		style="display: flex; flex-direction: column; justify-content: space-between; height: calc(100vh - 43px)"
+		class="sidebar"
 	>
 		<n-scrollbar trigger="none">
 			<n-menu
-				v-if="!isDashboardsMenu"
 				v-model:value="activeKey"
 				:collapsed-width="64"
 				:collapsed-icon-size="22"
 				:options="menuOptions"
 			/>
-			<dashboard-menu v-else @dashboard-selected="isDashboardsMenu = !isDashboardsMenu" />
 		</n-scrollbar>
-
-		<div style="padding: 5px">
-			<n-card style="cursor: pointer;" size="small" @click="isDashboardsMenu = !isDashboardsMenu">
-				<n-spin v-if="!selectedDashboard || isProfileLoading" />
-				<n-space v-else align="center">
-					<n-avatar
-						style="display: flex; align-self: center;"
-						:src="selectedDashboard.profileImageUrl"
-					/>
-					<n-space v-if="!isCollapsed" vertical style="gap: 0; width: 100%">
-						<n-text>{{ selectedDashboard.displayName }}</n-text>
-						<n-text style="font-size: 12px;">
-							Manage dashboard
-						</n-text>
-					</n-space>
-				</n-space>
-			</n-card>
-		</div>
 	</div>
 </template>
 
@@ -298,5 +240,13 @@ const selectedDashboard = computed(() => {
 	align-self: stretch;
 	display: flex;
 	align-items: center;
+}
+
+.sidebar {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	height: calc(100vh - 65px);
+	width: 100%;
 }
 </style>

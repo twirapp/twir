@@ -1,12 +1,18 @@
 <script lang="ts" setup>
-import { type MenuOption, NAvatar, NInput, NMenu, NSpin } from 'naive-ui';
-import { computed, h, ref, watch } from 'vue';
+import { IconChevronRight } from '@tabler/icons-vue';
+import { useMagicKeys } from '@vueuse/core';
+import { NAvatar, NInput, NSpin, NScrollbar, useThemeVars, NDivider, NText, NPopover } from 'naive-ui';
+import { computed,  ref, watch } from 'vue';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
 const emits = defineEmits<{
 	dashboardSelected: []
 }>();
+
+const themeVars = useThemeVars();
+const blockColor = computed(() => themeVars.value.buttonColor2);
+const blockColor2 = computed(() => themeVars.value.buttonColor2Hover);
 
 const { data: profile, isLoading: isProfileLoading } = useProfile();
 const { data: dashboards, isLoading: isDashboardsLoading } = useDashboards();
@@ -45,7 +51,7 @@ watch(activeDashboard, async (v) => {
 
 const filterValue = ref('');
 
-const menuOptions = computed<MenuOption[]>(() => {
+const menuOptions = computed(() => {
 	return usersForSelect.data.value?.users
 		.filter(u => {
 			return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
@@ -56,23 +62,105 @@ const menuOptions = computed<MenuOption[]>(() => {
 				label: u.login === u.displayName.toLocaleLowerCase()
 					? u.displayName
 					: `${u.displayName} (${u.login})`,
-				icon: () => h(NAvatar, { src: u.profileImageUrl, round: true, size: 'small' }),
+				icon: u.profileImageUrl,
 			};
 		}) ?? [];
 });
 
+const isSelectDashboardPopoverOpened = ref(false);
+
+useMagicKeys({
+	passive: false,
+	onEventFired(e) {
+		if (e.key === 'k' && e.metaKey) {
+			isSelectDashboardPopoverOpened.value = !isSelectDashboardPopoverOpened.value;
+			e.preventDefault();
+		}
+	},
+});
 </script>
 
 <template>
-	<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
-	<div v-else>
-		<n-input v-model:value="filterValue" placeholder="Search" />
-		<n-menu
-			v-model:value="activeDashboard"
-			:collapsed-width="64"
-			:collapsed-icon-size="22"
-			:options="menuOptions"
-			:icon-size="35"
-		/>
-	</div>
+	<n-popover
+		placement="bottom-start"
+		trigger="manual"
+		:show="isSelectDashboardPopoverOpened"
+		:show-arrow="false"
+	>
+		<template #trigger>
+			<div
+				class="block"
+				style="cursor: pointer;"
+				@click="isSelectDashboardPopoverOpened = !isSelectDashboardPopoverOpened"
+			>
+				<n-avatar
+					style="display: flex; align-self: center; border-radius: 111px;"
+					:src="currentDashboard?.profileImageUrl"
+				/>
+				<n-text>{{ currentDashboard?.displayName }}</n-text>
+
+				<IconChevronRight
+					:style="{
+						transition: '0.2s transform ease',
+						transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
+					}"
+				/>
+			</div>
+		</template>
+		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
+		<div v-else>
+			<div style="display: flex; gap: 12px; padding: 6px;">
+				<n-avatar :src="currentDashboard?.profileImageUrl" round />
+				<div style="display: flex; flex-direction: column;">
+					<n-text depth="3" style="font-size: 12px;">
+						Managing user
+					</n-text>
+					<n-text>{{ currentDashboard?.login }}</n-text>
+				</div>
+			</div>
+
+			<n-divider style="margin-top: 3px; margin-bottom: 10px;" />
+
+			<n-scrollbar style="max-height: 400px;" trigger="none">
+				<div class="dashboards-menu">
+					<div
+						v-for="option of menuOptions"
+						:key="option.key"
+						secondary
+						class="item"
+						@click="activeDashboard = option.key"
+					>
+						<n-avatar :src="option.icon" round size="small" />
+						{{ option.label }}
+					</div>
+				</div>
+			</n-scrollbar>
+			<n-input v-if="menuOptions.length > 10" v-model:value="filterValue" placeholder="Search" />
+		</div>
+	</n-popover>
 </template>
+
+<style scoped>
+.dashboards-menu {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-right: 25px;
+	margin-bottom: 10px;
+}
+
+.dashboards-menu .item {
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	width: 100%;
+	background-color: v-bind(blockColor);
+	padding: 6px;
+	border-radius: 6px;
+	cursor: pointer;
+}
+
+.dashboards-menu .item:hover {
+	background-color: v-bind(blockColor2);
+}
+</style>

@@ -50,19 +50,21 @@ watch(smallerOrEqualLg, (v) => {
 	<n-config-provider :theme="themeStyles" style="height: 100%">
 		<n-message-provider>
 			<n-layout style="height: 100%">
-				<n-layout-header bordered style="height: 43px;">
+				<n-layout-header bordered style="height: 65px; width: 100%;">
 					<Header :toggleSidebar="toggleSidebar" />
 				</n-layout-header>
-				<n-layout has-sider style="height: calc(100vh - 43px)">
+				<n-layout has-sider style="height: calc(100vh - 65px)">
 					<n-layout-sider
 						v-if="!smallerOrEqualLg"
 						bordered
 						collapse-mode="width"
 						:collapsed-width="64"
 						:width="240"
+						show-trigger="arrow-circle"
 						:native-scrollbar="false"
 						:collapsed="isSidebarCollapsed"
 						:show-collapsed-content="false"
+						@update-collapsed="toggleSidebar"
 					>
 						<Sidebar :is-collapsed="isSidebarCollapsed" />
 					</n-layout-sider>
