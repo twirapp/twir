@@ -135,7 +135,7 @@ useMagicKeys({
 					</div>
 				</div>
 			</n-scrollbar>
-			<n-input v-if="menuOptions.length > 10" v-model:value="filterValue" placeholder="Search" />
+			<n-input v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10" v-model:value="filterValue" placeholder="Search" />
 		</div>
 	</n-popover>
 </template>
