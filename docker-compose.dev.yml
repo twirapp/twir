@@ -6,8 +6,8 @@ services:
       context: .
       dockerfile: .devcontainer/Dockerfile
       args:
-        GO_VERSION: "1.20.1"
-        NODE_VERSION: "18.12.1"
+        GO_VERSION: "1.21.0"
+        NODE_VERSION: "18"
         PNPM_VERSION: "8"
     command: sleep infinity
     user: tsuwari
