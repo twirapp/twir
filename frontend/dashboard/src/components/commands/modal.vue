@@ -32,7 +32,7 @@ import {
 	NText,
 	NButtonGroup,
 } from 'naive-ui';
-import { computed, onMounted, reactive, ref, toRaw } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
@@ -51,7 +51,7 @@ const emits = defineEmits<{
 }>();
 
 const formRef = ref<FormInst | null>(null);
-const formValue = reactive<EditableCommand>({
+const formValue = ref<EditableCommand>({
 	name: '',
 	aliases: [],
 	responses: [],
@@ -75,29 +75,9 @@ const formValue = reactive<EditableCommand>({
 });
 
 onMounted(() => {
-	if (props.command) {
-		formValue.id = props.command.id;
-		formValue.name = props.command.name;
-		formValue.aliases = props.command.aliases;
-		formValue.responses = props.command.responses;
-		formValue.description = props.command.description;
-		formValue.rolesIds = props.command.rolesIds;
-		formValue.deniedUsersIds = props.command.deniedUsersIds;
-		formValue.allowedUsersIds = props.command.allowedUsersIds;
-		formValue.requiredMessages = props.command.requiredMessages;
-		formValue.requiredUsedChannelPoints = props.command.requiredUsedChannelPoints;
-		formValue.requiredWatchTime = props.command.requiredWatchTime;
-		formValue.cooldown = props.command.cooldown;
-		formValue.cooldownType = props.command.cooldownType;
-		formValue.isReply = props.command.isReply;
-		formValue.visible = props.command.visible;
-		formValue.keepResponsesOrder = props.command.keepResponsesOrder;
-		formValue.onlineOnly = props.command.onlineOnly;
-		formValue.enabled = props.command.enabled;
-		formValue.groupId = props.command.groupId;
-		formValue.module = props.command.module;
-		formValue.cooldownRolesIds = props.command.cooldownRolesIds;
-	}
+	if (!props.command) return;
+
+	formValue.value = toRaw(props.command);
 });
 
 const rolesManager = useRolesManager();
@@ -167,7 +147,7 @@ const commandsUpdate = commandsManager.update;
 async function save() {
 	await formRef.value?.validate();
 
-	const rawData = toRaw(formValue);
+	const rawData = toRaw(formValue.value);
 	const data = {
 		...rawData,
 		responses: rawData.responses.map((r, i) => ({
@@ -188,6 +168,8 @@ async function save() {
 
 	emits('close');
 }
+
+const createButtonProps = { class: 'create-button' } as any;
 </script>
 
 <template>
@@ -224,7 +206,7 @@ async function save() {
 				v-model:value="formValue.responses"
 				class="groups"
 				placeholder="text"
-				:create-button-props="{ class: 'create-button' } as any"
+				:create-button-props="createButtonProps"
 			>
 				<template #default="{ value, index }">
 					<n-form-item
@@ -426,6 +408,7 @@ async function save() {
 					:type="formValue.cooldownRolesIds.includes(option.value) ? 'success' : 'default'"
 					secondary
 					@click="() => {
+						console.log(formValue.cooldownRolesIds, option.value)
 						if (formValue.cooldownRolesIds.includes(option.value)) {
 							formValue.cooldownRolesIds = formValue.cooldownRolesIds.filter(r => r !== option.value)
 						} else {
