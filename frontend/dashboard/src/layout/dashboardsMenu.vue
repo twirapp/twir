@@ -134,7 +134,7 @@ useMagicKeys({
 						:key="option.key"
 						secondary
 						class="item"
-						@click="select"
+						@click="select(option.key)"
 					>
 						<n-avatar :src="option.icon" round size="small" />
 						{{ option.label }}
