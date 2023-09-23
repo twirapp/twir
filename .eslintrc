@@ -108,6 +108,7 @@
     "vue/attribute-hyphenation": "off",
     "vue/html-self-closing": "off",
 		"vue/html-indent": ["error", "tab"],
+		"vue/no-v-text-v-html-on-component": "off",
 		"@typescript-eslint/no-unused-vars": "off",
 		"unused-imports/no-unused-imports": "error"
   },

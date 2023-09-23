@@ -5,6 +5,8 @@ import { NInput, NInputNumber, NInputGroup, NInputGroupLabel, NButton, NSwitch, 
 import { onMounted, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useUserAccessFlagChecker } from '@/api/index.js';
+
 const props = defineProps<{
 	alertMessage?: string
 	withCount?: boolean
@@ -13,6 +15,7 @@ const props = defineProps<{
 	defaultMessageText: string
 }>();
 
+const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 const enabled = defineModel<boolean>('enabled', { default: true });
 const messages = defineModel<Array<Message>>('messages');
 
@@ -24,6 +27,7 @@ onMounted(async () => {
 });
 
 function createMessage() {
+	if (!hasAccessToManageAlerts) return;
 	if (props.withCount) {
 		const latest = messages.value?.at(-1);
 		messages.value?.push({
@@ -36,6 +40,7 @@ function createMessage() {
 }
 
 function removeMessage(index: number) {
+	if (!hasAccessToManageAlerts) return;
 	messages.value = messages.value?.filter((_, i) => i !== index);
 }
 
@@ -64,13 +69,19 @@ const { t } = useI18n();
 			</n-input-group>
 
 			<n-input v-model:value="m.text" />
-			<n-button secondary type="error" @click="removeMessage(index)">
+			<n-button :disabled="!hasAccessToManageAlerts" secondary type="error" @click="removeMessage(index)">
 				<IconTrash />
 			</n-button>
 		</div>
 	</div>
 
-	<n-button block secondary type="success" :disabled="messages?.length === maxMessages" @click="createMessage">
+	<n-button
+		block
+		secondary
+		type="success"
+		:disabled="(messages?.length === maxMessages) || !hasAccessToManageAlerts"
+		@click="createMessage"
+	>
 		{{ t('sharedButtons.create') }} ({{ messages?.length }} / {{ maxMessages }})
 	</n-button>
 </template>

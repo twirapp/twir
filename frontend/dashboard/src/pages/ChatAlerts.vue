@@ -3,6 +3,7 @@ import { NCard, NTabs, NTabPane, useMessage, NButton } from 'naive-ui';
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useUserAccessFlagChecker } from '@/api/index.js';
 import { type ChatAlertsSettings } from '@/api/modules/index.js';
 import { useChatAlertsSettings, useChatAlertsSettingsUpdate } from '@/api/modules/index.js';
 import Settings from '@/components/chatAlerts/settings.vue';
@@ -79,6 +80,8 @@ async function save() {
 		message.error(t('sharedTexts.errorOnSave'));
 	}
 }
+
+const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 </script>
 
 <template>
@@ -87,7 +90,7 @@ async function save() {
 		segmented
 	>
 		<template #header-extra>
-			<n-button secondary type="success" @click="save">
+			<n-button secondary type="success" :disabled="!hasAccessToManageAlerts" @click="save">
 				{{ t('sharedButtons.save') }}
 			</n-button>
 		</template>
