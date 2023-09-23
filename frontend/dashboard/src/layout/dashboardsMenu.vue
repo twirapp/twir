@@ -69,6 +69,12 @@ const menuOptions = computed(() => {
 
 const isSelectDashboardPopoverOpened = ref(false);
 
+function select(key: string) {
+	activeDashboard.value = key;
+
+	isSelectDashboardPopoverOpened.value = false;
+}
+
 useMagicKeys({
 	passive: false,
 	onEventFired(e) {
@@ -128,7 +134,7 @@ useMagicKeys({
 						:key="option.key"
 						secondary
 						class="item"
-						@click="activeDashboard = option.key"
+						@click="select"
 					>
 						<n-avatar :src="option.icon" round size="small" />
 						{{ option.label }}
