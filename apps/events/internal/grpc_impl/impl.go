@@ -141,7 +141,8 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 }
 
 func (c *EventsGrpcImplementation) FirstUserMessage(
-	ctx context.Context, msg *events.FirstUserMessageMessage,
+	ctx context.Context,
+	msg *events.FirstUserMessageMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
@@ -152,6 +153,11 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 		},
 		model.EventTypeFirstUserMessage,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.FirstUserMessage(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }
