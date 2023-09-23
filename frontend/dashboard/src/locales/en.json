@@ -188,7 +188,8 @@
     }
   },
   "integrations": {
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+		"songServicesInfo": "Logging throught streaming services like <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, will automatically print your current playing song in chat when <b>!song</b> command is being used."
   },
   "events": {
     "delay": "Delay (seconds)",

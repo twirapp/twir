@@ -1,5 +1,6 @@
 <script setup lang='ts'>
-import { NTable } from 'naive-ui';
+import { NTable, NAlert } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 import Donatello from '@/components/integrations/donatello.vue';
 import Donatepay from '@/components/integrations/donatepay.vue';
@@ -11,10 +12,16 @@ import Spotify from '@/components/integrations/spotify.vue';
 import Streamlabs from '@/components/integrations/streamlabs.vue';
 import Valorant from '@/components/integrations/valorant.vue';
 import Vk from '@/components/integrations/vk.vue';
+
+const { t } = useI18n();
 </script>
 
 <template>
 	<div class="integrations">
+		<n-alert type="info" class="info">
+			<span v-html="t('integrations.songServicesInfo')" />
+		</n-alert>
+
 		<n-table :bordered="false" :single-line="false" size="large">
 			<thead style="display: none">
 				<tr>
@@ -42,9 +49,11 @@ import Vk from '@/components/integrations/vk.vue';
 <style>
 .integrations {
 	display: flex;
+	flex-direction: column;
 	justify-content: center;
 	align-items: center;
 	height: 100%;
+	width: 100%;
 }
 
 .integrations table {
@@ -64,5 +73,10 @@ import Vk from '@/components/integrations/vk.vue';
 	overflow: hidden;
 	text-overflow: ellipsis;
 	border-right: 0;
+}
+
+.info {
+	width: 50%;
+	margin-bottom: 15px
 }
 </style>
