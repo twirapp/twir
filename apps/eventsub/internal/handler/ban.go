@@ -3,19 +3,31 @@ package handler
 import (
 	"context"
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
-	"math"
-	"time"
+	"go.uber.org/zap"
 )
 
 func (c *Handler) handleBan(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelBan,
 ) {
+	zap.S().Infow(
+		"channel ban",
+		"channelId", event.BroadcasterUserID,
+		"channelName", event.BroadcasterUserLogin,
+		"userId", event.UserID,
+		"userName", event.UserLogin,
+		"moderatorName", event.ModeratorUserName,
+		"moderatorId", event.ModeratorUserID,
+	)
+
 	t, _ := time.Parse(time.RFC3339, event.EndsAt)
 	banEndsIn := t.Sub(time.Now().UTC())
 	endsAt := lo.If(event.IsPermanent, "permanent").Else(

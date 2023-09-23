@@ -13,6 +13,7 @@ const props = defineProps<{
 	countLabel?: string
 	maxMessages: number
 	defaultMessageText: string
+	minCount?: number
 }>();
 
 const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
@@ -45,16 +46,24 @@ function removeMessage(index: number) {
 }
 
 const { t } = useI18n();
+
+defineSlots<{
+	header?: any
+}>();
 </script>
 
 <template>
-	<div style="display: flex; gap: 4px; margin-top: 10px;">
-		<span>{{ t('sharedTexts.enabled') }}</span>
-		<n-switch v-model:value="enabled" />
+	<div style="display: flex; gap: 8px; flex-direction: column;">
+		<div style="display: flex; gap: 4px;">
+			<span>{{ t('sharedTexts.enabled') }}</span>
+			<n-switch v-model:value="enabled" />
+		</div>
+
+		<slot name="header" />
 	</div>
 
 	<n-alert v-if="alertMessage" type="info" title="Info" style="margin-top: 14px;">
-		{{ alertMessage }}
+		<span v-html="alertMessage" />
 	</n-alert>
 
 	<div class="messages">
@@ -64,8 +73,12 @@ const { t } = useI18n();
 			style="display: flex; gap: 14px"
 		>
 			<n-input-group v-if="withCount && countLabel" style="width: auto;">
-				<n-input-group-label>{{ countLabel }}</n-input-group-label>
-				<n-input-number v-if="withCount && countLabel" v-model:value="m.count" :min="1" :max="9999999" />
+				<n-input-group-label>{{ countLabel }} >=</n-input-group-label>
+				<n-input-number
+					v-model:value="m.count"
+					:min="minCount ?? 1"
+					:max="9999999"
+				/>
 			</n-input-group>
 
 			<n-input v-model:value="m.text" />

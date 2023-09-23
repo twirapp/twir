@@ -13,6 +13,7 @@ message ChatAlertsSettings {
 		ChatAlertsStreamOnline streamOnline = 8;
 		ChatAlertsStreamOffline streamOffline = 9;
 		ChatAlertsChatCleared chatCleared = 10;
+		ChatAlertsBan ban = 11;
 }
 
 message ChatAlertsFollowersSettings {
@@ -72,4 +73,10 @@ message ChatAlertsStreamOffline {
 message ChatAlertsChatCleared {
 		bool enabled = 1;
 		repeated ChatAlertsMessage messages = 2;
+}
+
+message ChatAlertsBan {
+	bool enabled = 1;
+	repeated ChatAlertsCountedMessage messages = 2;
+	repeated string ignore_timeout_from = 3;
 }

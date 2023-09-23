@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NCard, NTabs, NTabPane, useMessage, NButton } from 'naive-ui';
+import { NCard, NTabs, NTabPane, useMessage, NButton, NDynamicTags, NFormItem } from 'naive-ui';
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -49,6 +49,11 @@ const formValue = ref<Required<ChatAlertsSettings>>({
 	subscribers: {
 		enabled: true,
 		messages: [],
+	},
+	ban: {
+		enabled: false,
+		messages: [],
+		ignoreTimeoutFrom: [],
 	},
 });
 
@@ -229,6 +234,29 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 						${t('chatAlerts.randomedMessage')}
 					`"
 				/>
+			</n-tab-pane>
+
+			<n-tab-pane name="ban" tab="User banned">
+				<Settings
+					v-model:enabled="formValue.ban.enabled"
+					v-model:messages="formValue.ban.messages"
+					:max-messages="20"
+					default-message-text="How dare are you {userName}? Glad we have {moderatorName} to calm you down. Please sit {time} in prison for {reason}, and think about your behavior."
+					:count-label="t('chatAlerts.ban.countLabel')"
+					with-count
+					:min-count="0"
+					:alert-message="`
+						${t('chatAlerts.ban.alertInfo')}
+						${t('chatAlerts.randomMessageWithCount')}
+						${t('chatAlerts.replacedInfo', { vars: `{userName}, {moderatorName}, {time} - seconds or 'permanent', {reason}`})}
+					`"
+				>
+					<template #header>
+						<n-form-item :label="t('chatAlerts.ban.ignoreTimeoutFrom')" label-style="padding: 0">
+							<n-dynamic-tags v-model:value="formValue.ban.ignoreTimeoutFrom" :max="100" />
+						</n-form-item>
+					</template>
+				</Settings>
 			</n-tab-pane>
 		</n-tabs>
 	</n-card>

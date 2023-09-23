@@ -81,6 +81,11 @@ func (c *Modules) convertChatAlertsSettings(
 			Enabled:  entity.ChatCleared.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.ChatCleared.Messages),
 		},
+		Ban: &modules_chat_alerts.ChatAlertsBan{
+			Enabled:           entity.Ban.Enabled,
+			Messages:          c.convertChatAlertsCountedMessages(entity.Ban.Messages),
+			IgnoreTimeoutFrom: entity.Ban.IgnoreTimeoutFrom,
+		},
 	}
 }
 
@@ -198,6 +203,11 @@ func (c *Modules) ModulesChatAlertsUpdate(
 		ChatCleared: model.ChatAlertsChatCleared{
 			Enabled:  req.ChatCleared.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.ChatCleared.Messages),
+		},
+		Ban: model.ChatAlertsBan{
+			Enabled:           req.Ban.Enabled,
+			Messages:          c.chatAlertsRequestedCountedToDb(req.Ban.Messages),
+			IgnoreTimeoutFrom: req.Ban.IgnoreTimeoutFrom,
 		},
 	}
 

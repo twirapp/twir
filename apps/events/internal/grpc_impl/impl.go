@@ -589,10 +589,10 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 }
 
 func (c *EventsGrpcImplementation) ChannelBan(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.ChannelBanMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:             msg.UserLogin,
@@ -604,6 +604,11 @@ func (c *EventsGrpcImplementation) ChannelBan(
 		},
 		model.EventChannelBan,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Ban(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }

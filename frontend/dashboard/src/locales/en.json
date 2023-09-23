@@ -501,8 +501,13 @@
 		}
 	},
 	"chatAlerts": {
-		"randomedMessage": "Message will be randomed.",
-		"randomMessageWithCount": "Message will be randomed, if you did same count.",
-		"replacedInfo": "{vars} – will be replaced with actual information."
+		"randomedMessage": "Message will be randomed.<br>",
+		"randomMessageWithCount": "Message will be randomed for identical count.<br>",
+		"replacedInfo": "{vars} – will be replaced with actual information.<br>",
+		"ban": {
+			"alertInfo": "Set time to 0 to print message on permanent ban.<br>",
+			"countLabel": "Time (minutes)",
+			"ignoreTimeoutFrom": "Ignore timeouts from usernames"
+		}
 	}
 }

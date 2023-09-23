@@ -97,6 +97,7 @@ type ChatAlertsSettings struct {
 	StreamOnline     ChatAlertsStreamOnline      `json:"streamOnline"`
 	StreamOffline    ChatAlertsStreamOffline     `json:"streamOffline"`
 	ChatCleared      ChatAlertsChatCleared       `json:"chatCleared"`
+	Ban              ChatAlertsBan               `json:"ban"`
 }
 
 type ChatAlertsFollowersSettings struct {
@@ -156,4 +157,10 @@ type ChatAlertsStreamOffline struct {
 type ChatAlertsChatCleared struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsBan struct {
+	Enabled           bool                       `json:"enabled"`
+	Messages          []ChatAlertsCountedMessage `json:"messages"`
+	IgnoreTimeoutFrom []string                   `json:"ignoreTimeoutFrom"`
 }
