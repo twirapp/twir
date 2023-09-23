@@ -2,27 +2,15 @@
 import { IconVideo, IconSword, IconDiamond, IconUserDollar } from '@tabler/icons-vue';
 import type { Command } from '@twir/grpc/generated/api/api/commands_unprotected';
 import { FunctionalComponent, computed } from 'vue';
-import { useRoute } from 'vue-router';
 
-import { useCommands, useProfile } from '@/api/index.js';
+import { useCommands } from '@/api/index.js';
 
-const route = useRoute();
-const channelName = computed<string>(() => {
-	if (typeof route.params.channelName != 'string') {
-		return '';
-	}
-	return route.params.channelName;
-});
+const props = defineProps<{
+	channelId: string
+	channelName: string
+}>();
 
-const { data: profile } = useProfile(channelName);
-
-const channelId = computed<string | null>(() => {
-	if (!profile.value) return null;
-
-	return profile.value.id;
-});
-
-const { data: commands } = useCommands(channelId);
+const { data: commands } = useCommands(props.channelId);
 
 const commandsGroups = computed<Record<string, Command[]>>(() => {
 	if (!commands?.value?.commands.length) return {};

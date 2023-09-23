@@ -31,3 +31,5 @@ main.~
 !traefik/*
 
 vite.config.ts.timestamp-*
+
+.DS_STORE

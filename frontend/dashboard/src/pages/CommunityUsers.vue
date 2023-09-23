@@ -21,16 +21,20 @@ import {
 	useTwitchGetUsers,
 	useCommunityReset,
 	CommunityResetStatsField,
+	useProfile,
 } from '@/api/index.js';
 
 const { t } = useI18n();
 const communityManager = useCommunityUsers();
+
+const { data: profile } = useProfile();
 
 const usersOpts = ref<GetCommunityUsersOpts>({
 	page: 1,
 	limit: 100,
 	order: ComminityOrder.Desc,
 	sortBy: CommunitySortBy.Watched,
+	channelId: profile.value?.selectedDashboardId,
 });
 const users = communityManager.getAll(usersOpts);
 

@@ -13,6 +13,9 @@ const routes = [
   {
     name: 'TTS Settings',
   },
+	{
+    name: 'Users',
+  },
 ];
 
 </script>

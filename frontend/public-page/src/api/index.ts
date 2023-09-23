@@ -1,15 +1,9 @@
-import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
 import { useQuery } from '@tanstack/vue-query';
 import { type TwitchGetUsersResponse } from '@twir/grpc/generated/api/api/twitch';
-import { UnProtectedClient } from '@twir/grpc/generated/api/api.client';
-import { type ComputedRef, MaybeRef, type Ref, unref } from 'vue';
+import { MaybeRef, type Ref, unref } from 'vue';
 
-const transport = new TwirpFetchTransport({
-	baseUrl: `${window.location.origin}/api/v1`,
-	sendJson: import.meta.env.DEV,
-});
-
-const unprotectedClient = new UnProtectedClient(transport);
+export * from './community.js';
+import { unprotectedClient } from './twirp.js';
 
 export const useProfile = (userName: string | Ref<string>) => useQuery({
 	queryKey: ['profile', userName],
@@ -26,12 +20,12 @@ export const useProfile = (userName: string | Ref<string>) => useQuery({
 	},
 });
 
-export const useCommands = (channelId: ComputedRef<string | null>) => {
+export const useCommands = (channelId?: MaybeRef<string | null>) => {
 	return useQuery({
 		queryKey: ['commands', channelId],
 		queryFn: async () => {
 			const id = unref(channelId) as string;
-			if (!id) return;
+			if (!id) return { commands: [] };
 
 			const call = await unprotectedClient.getChannelCommands({
 				channelId: id,
@@ -42,7 +36,7 @@ export const useCommands = (channelId: ComputedRef<string | null>) => {
 	});
 };
 
-export const useSongsQueue = (channelId: ComputedRef<string | null>) => useQuery({
+export const useSongsQueue = (channelId: MaybeRef<string | null>) => useQuery({
 	queryKey: ['songsQueue', channelId],
 	queryFn: async () => {
 		const id = unref(channelId) as string;

@@ -24,14 +24,9 @@ const breakPoints = useBreakpoints(breakpointsTailwind);
 const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
 
 const storedSidebarValue = useLocalStorage('twirSidebarIsCollapsed', false);
-const storedDrawerValue = useLocalStorage('twirDrawerIsCollapsed', false);
 
 const toggleSidebar = () => {
-	if (smallerOrEqualLg.value) {
-		storedDrawerValue.value = !storedDrawerValue.value;
-	} else {
-		storedSidebarValue.value = !storedSidebarValue.value;
-	}
+	storedSidebarValue.value = !storedSidebarValue.value;
 };
 
 const isSidebarCollapsed = computed(() => {

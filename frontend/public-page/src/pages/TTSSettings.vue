@@ -1,32 +1,22 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRoute } from 'vue-router';
 
 import {
-  useProfile,
+useProfile,
   useTTSChannelSettings,
   useTTSUsersSettings,
   useTwitchGetUsers,
 } from '@/api/index.js';
 
-const route = useRoute();
-const channelName = computed<string>(() => {
-  if (typeof route.params.channelName != 'string') {
-    return '';
-  }
-  return route.params.channelName;
-});
+const props = defineProps<{
+	channelId: string
+	channelName: string
+}>();
 
-const { data: profile } = useProfile(channelName);
 
-const channelId = computed<string>(() => {
-  if (!profile.value) return '';
-
-  return profile.value.id;
-});
-
-const { data: channelSettings } = useTTSChannelSettings(channelId);
-const { data: usersSettings } = useTTSUsersSettings(channelId);
+const { data: profile } = useProfile(props.channelName);
+const { data: channelSettings } = useTTSChannelSettings(props.channelId);
+const { data: usersSettings } = useTTSUsersSettings(props.channelId);
 
 const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? []);
 const { data: users } = useTwitchGetUsers(usersIds);

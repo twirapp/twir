@@ -19,6 +19,7 @@ message GetUsersRequest {
 	uint32 page = 2;
  	Order order = 3;
 	SortBy sort_by = 4;
+	string channel_id = 5;
 }
 
 message GetUsersResponse {

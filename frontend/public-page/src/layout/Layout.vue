@@ -1,13 +1,20 @@
 <script setup lang="ts">
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+
 import Menu from './Menu.vue';
 import Profile from './Profile.vue';
+
+const router = useRouter();
+const channelName = computed(() => router.currentRoute.value.params?.channelName as string);
+const channelId = ref<string | undefined>();
 </script>
 
 <template>
 	<div class="flex flex-col space-y-[30px] w-[100%]">
 		<div class="flex justify-between flex-wrap gap-y-5">
 			<div>
-				<Profile />
+				<Profile @updateChannelId="(v) => channelId = v" />
 			</div>
 			<div>
 				<Menu />
@@ -15,8 +22,8 @@ import Profile from './Profile.vue';
 		</div>
 
 		<Transition>
-			<router-view v-slot="{ Component }">
-				<component :is="Component" />
+			<router-view v-if="channelId && channelName" v-slot="{ Component }">
+				<component :is="Component" :channelId="channelId" :channelName="channelName" />
 			</router-view>
 		</Transition>
 	</div>
@@ -25,7 +32,7 @@ import Profile from './Profile.vue';
 <style scoped>
 .v-enter-active,
 .v-leave-active {
-  transition: opacity 0.9s ease;
+  transition: opacity 0.5s ease;
 }
 
 .v-enter-from,

@@ -4,6 +4,10 @@ import { useRouter } from 'vue-router';
 
 import { useProfile } from '@/api/index.js';
 
+const emits = defineEmits<{
+	updateChannelId: [channelId: string]
+}>();
+
 const router = useRouter();
 
 const channelName = computed<string>(() => {
@@ -19,7 +23,9 @@ watch(profile, (v) => {
   if (!v) return;
 
   window.document.title = `Twir - ${v.displayName}`;
+	emits('updateChannelId', v.id);
 });
+
 </script>
 
 <template>

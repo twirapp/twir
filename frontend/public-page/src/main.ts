@@ -28,6 +28,11 @@ const router = createRouter({
 					path: '/p/:channelName/tts-settings',
 					component: () => import('./pages/TTSSettings.vue'),
 				},
+				{
+					name: 'Users',
+					path: '/p/:channelName/users',
+					component: () => import('./pages/Users.vue'),
+				},
 			],
 		},
 	],

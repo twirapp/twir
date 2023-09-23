@@ -6,7 +6,7 @@ import {
 } from '@twir/grpc/generated/api/api/community';
 import { Ref, isRef } from 'vue';
 
-import { protectedApiClient } from '@/api/twirp.js';
+import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js';
 
 export const enum ComminityOrder {
 	Desc = 'desc',
@@ -25,6 +25,7 @@ export type GetCommunityUsersOpts = {
 	page: number;
 	order: ComminityOrder;
 	sortBy: CommunitySortBy;
+	channelId?: string
 }
 
 const sortBy = {
@@ -41,15 +42,18 @@ export const useCommunityUsers = () => {
 			queryFn: async () => {
 				const rawOpts = isRef(opts) ? opts.value : opts;
 
+				if (!rawOpts.channelId) return;
+
 				const order = rawOpts.order === ComminityOrder.Desc
 					? GetUsersRequest_Order.Desc
 					: GetUsersRequest_Order.Asc;
 
-				const call = await protectedApiClient.communityGetUsers({
+				const call = await unprotectedApiClient.communityGetUsers({
 					limit: rawOpts.limit,
 					page: rawOpts.page,
 					order,
 					sortBy: sortBy[rawOpts.sortBy],
+					channelId: rawOpts.channelId,
 				});
 				return call.response;
 			},
