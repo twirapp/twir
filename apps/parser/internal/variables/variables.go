@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/followers"
 	"github.com/satont/twir/apps/parser/internal/variables/keywords"
 	"github.com/satont/twir/apps/parser/internal/variables/random"
+	"github.com/satont/twir/apps/parser/internal/variables/request"
 	"github.com/satont/twir/apps/parser/internal/variables/sender"
 	"github.com/satont/twir/apps/parser/internal/variables/song"
 	"github.com/satont/twir/apps/parser/internal/variables/stream"
@@ -115,6 +116,7 @@ func New(opts *Opts) *Variables {
 			followers.Count,
 			subscribers.Count,
 			subscribers.LatestSubscriberUsername,
+			request.Request,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
@@ -167,7 +169,9 @@ func (c *Variables) ParseVariablesInText(
 		c.goroutinesPool.Submit(
 			func() {
 				res, err := variable.Handler(
-					ctx, variablesParseCtx, &types.VariableData{
+					ctx,
+					variablesParseCtx,
+					&types.VariableData{
 						Key:    all,
 						Params: &params,
 					},
