@@ -85,3 +85,75 @@ type RussianRouletteSetting struct {
 	SurviveMessage string `json:"surviveMessage"`
 	DeathMessage   string `json:"deathMessage"`
 }
+
+type ChatAlertsSettings struct {
+	Followers        ChatAlertsFollowersSettings `json:"followers"`
+	Raids            ChatAlertsRaids             `json:"raids"`
+	Donations        ChatAlertsDonations         `json:"donations"`
+	Subscribers      ChatAlertsSubscribers       `json:"subscribers"`
+	Cheers           ChatAlertsCheers            `json:"cheers"`
+	Redemptions      ChatAlertsRedemptions       `json:"redemptions"`
+	FirstUserMessage ChatAlertsFirstUserMessage  `json:"firstUserMessage"`
+	StreamOnline     ChatAlertsStreamOnline      `json:"streamOnline"`
+	StreamOffline    ChatAlertsStreamOffline     `json:"streamOffline"`
+	ChatCleared      ChatAlertsChatCleared       `json:"chatCleared"`
+}
+
+type ChatAlertsFollowersSettings struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsCountedMessage struct {
+	Count int    `json:"count"`
+	Text  string `json:"text"`
+}
+
+type ChatAlertsMessage struct {
+	Text string `json:"text"`
+}
+
+type ChatAlertsRaids struct {
+	Enabled  bool                       `json:"enabled"`
+	Messages []ChatAlertsCountedMessage `json:"messages"`
+}
+
+type ChatAlertsDonations struct {
+	Enabled  bool                       `json:"enabled"`
+	Messages []ChatAlertsCountedMessage `json:"messages"`
+}
+
+type ChatAlertsSubscribers struct {
+	Enabled  bool                       `json:"enabled"`
+	Messages []ChatAlertsCountedMessage `json:"messages"`
+}
+
+type ChatAlertsCheers struct {
+	Enabled  bool                       `json:"enabled"`
+	Messages []ChatAlertsCountedMessage `json:"messages"`
+}
+
+type ChatAlertsRedemptions struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsFirstUserMessage struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsStreamOnline struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsStreamOffline struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}
+
+type ChatAlertsChatCleared struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+}

@@ -29,6 +29,7 @@ import "api/integrations_valorant.proto";
 import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
 import "api/modules_sr.proto";
+import "api/modules_chat_alerts.proto";
 
 import "api/rewards.proto";
 
@@ -134,6 +135,9 @@ service Protected {
 	rpc ModulesSRGet(google.protobuf.Empty) returns (api.modules_sr.GetResponse) {}
 	rpc ModulesSRSearchVideosOrChannels(api.modules_sr.GetSearchRequest) returns (api.modules_sr.GetSearchResponse) {}
 	rpc ModulesSRUpdate(api.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc ModulesChatAlertsGet(google.protobuf.Empty) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
+	rpc ModulesChatAlertsUpdate(api.modules_chat_alerts.ChatAlertsSettings) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
 
 	rpc RewardsGet(google.protobuf.Empty) returns (api.rewards.GetResponse) {}
 

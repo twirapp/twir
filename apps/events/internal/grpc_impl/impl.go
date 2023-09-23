@@ -2,12 +2,14 @@ package grpc_impl
 
 import (
 	"context"
+	"strings"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal"
+	"github.com/satont/twir/apps/events/internal/grpc_impl/chat_alerts"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"strings"
 )
 
 type EventsGrpcImplementation struct {
@@ -23,10 +25,10 @@ func NewEvents(services *internal.Services) *EventsGrpcImplementation {
 }
 
 func (c *EventsGrpcImplementation) Follow(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.FollowMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:        msg.UserName,
@@ -36,14 +38,19 @@ func (c *EventsGrpcImplementation) Follow(
 		model.EventTypeFollow,
 	)
 
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Follow(ctx, msg)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) Subscribe(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.SubscribeMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:        msg.UserName,
@@ -54,13 +61,19 @@ func (c *EventsGrpcImplementation) Subscribe(
 		model.EventTypeSubscribe,
 	)
 
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Subscribe(ctx, 1, msg.UserName, msg.BaseInfo.ChannelId)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.ReSubscribeMessage) (
-	*emptypb.Empty, error,
-) {
-	go c.processEvent(
+func (c *EventsGrpcImplementation) ReSubscribe(
+	ctx context.Context,
+	msg *events.ReSubscribeMessage,
+) (*emptypb.Empty, error) {
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:        msg.UserName,
@@ -74,13 +87,19 @@ func (c *EventsGrpcImplementation) ReSubscribe(_ context.Context, msg *events.Re
 		model.EventTypeResubscribe,
 	)
 
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Subscribe(ctx, int(msg.Months), msg.UserName, msg.BaseInfo.ChannelId)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) RedemptionCreated(
-	_ context.Context, msg *events.RedemptionCreatedMessage,
+	ctx context.Context,
+	msg *events.RedemptionCreatedMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:        msg.UserName,
@@ -93,6 +112,11 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 		},
 		model.EventTypeRedemptionCreated,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Redemption(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -117,7 +141,7 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 }
 
 func (c *EventsGrpcImplementation) FirstUserMessage(
-	_ context.Context, msg *events.FirstUserMessageMessage,
+	ctx context.Context, msg *events.FirstUserMessageMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
@@ -133,10 +157,10 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 }
 
 func (c *EventsGrpcImplementation) Raided(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.RaidedMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:        msg.UserName,
@@ -146,6 +170,11 @@ func (c *EventsGrpcImplementation) Raided(
 		},
 		model.EventTypeRaided,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Raid(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -168,12 +197,12 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 }
 
 func (c *EventsGrpcImplementation) StreamOnline(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.StreamOnlineMessage,
 ) (
 	*emptypb.Empty, error,
 ) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			StreamTitle:    msg.Title,
@@ -182,20 +211,30 @@ func (c *EventsGrpcImplementation) StreamOnline(
 		model.EventTypeStreamOnline,
 	)
 
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.StreamOnline(ctx, msg)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) StreamOffline(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.StreamOfflineMessage,
 ) (
 	*emptypb.Empty, error,
 ) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
 		model.EventTypeStreamOffline,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.StreamOffline(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -219,23 +258,28 @@ func (c *EventsGrpcImplementation) SubGift(
 }
 
 func (c *EventsGrpcImplementation) ChatClear(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.ChatClearMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{},
 		model.EventTypeOnChatClear,
 	)
 
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.ChatCleared(ctx, msg)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) Donate(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.DonateMessage,
 ) (*emptypb.Empty, error) {
-	go c.processEvent(
+	c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:       msg.UserName,
@@ -245,6 +289,11 @@ func (c *EventsGrpcImplementation) Donate(
 		},
 		model.EventTypeDonate,
 	)
+
+	chatAlerts, err := chat_alerts.New(msg.BaseInfo.ChannelId, c.services)
+	if err == nil {
+		chatAlerts.Donation(ctx, msg)
+	}
 
 	return &emptypb.Empty{}, nil
 }

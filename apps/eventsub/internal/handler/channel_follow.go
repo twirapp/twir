@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"time"
 
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/satont/twir/libs/grpc/generated/events"

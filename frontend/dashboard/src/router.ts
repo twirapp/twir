@@ -76,7 +76,12 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'VIEW_OVERLAYS' },
 				},
 				{
-					path: '/dashboard/events',
+					path: '/dashboard/events/chat-alerts',
+					component: () => import('./pages/ChatAlerts.vue'),
+					meta: { neededPermission: 'VIEW_EVENTS' },
+				},
+				{
+					path: '/dashboard/events/custom',
 					component: () => import('./pages/Events.vue'),
 					meta: { neededPermission: 'VIEW_EVENTS' },
 				},

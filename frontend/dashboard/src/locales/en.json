@@ -16,6 +16,7 @@
   },
   "sharedTexts": {
     "saved": "Saved",
+		"errorOnSave": "Error on saving {error}",
     "enabled": "Enabled",
     "status": "Status",
     "name": "Name",
@@ -40,6 +41,7 @@
     },
     "integrations": "Integrations",
     "events": "Events",
+		"chatAlerts": "Chat alerts",
     "overlays": "Overlays",
 		"overlaysRegistry": "Overlays registry",
     "songRequests": "Song requests",
@@ -496,5 +498,10 @@
 			},
 			"periodicallyRefetchData": "Periodically parse html data from server"
 		}
+	},
+	"chatAlerts": {
+		"randomedMessage": "Message will be randomed.",
+		"randomMessageWithCount": "Message will be randomed, if you did same count.",
+		"replacedInfo": "{vars} – will be replaced with actual information."
 	}
 }
