@@ -153,13 +153,13 @@ services:
       - twir_doppler_token
     deploy:
       update_config:
-        parallelism: 10
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       mode: replicated
-      replicas: 2
+      replicas: 6
       endpoint_mode: dnsrr
     networks:
       - twir
@@ -231,9 +231,9 @@ services:
       - twir_doppler_token
     deploy:
       update_config:
-        parallelism: 10
+        parallelism: 2
       mode: replicated
-      replicas: 2
+      replicas: 4
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
@@ -395,9 +395,9 @@ services:
       - twir
     deploy:
       update_config:
-        parallelism: 5
+        parallelism: 2
       mode: replicated
-      replicas: 2
+      replicas: 4
       restart_policy:
         condition: any
         delay: 30s
@@ -416,14 +416,14 @@ services:
       - twir
     deploy:
       update_config:
-        parallelism: 5
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 2
+      replicas: 4
 
   events:
     build:
@@ -437,14 +437,14 @@ services:
       - twir
     deploy:
       update_config:
-        parallelism: 5
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 2
+      replicas: 6
 
   ytsr:
     build:
@@ -458,14 +458,14 @@ services:
       - twir
     deploy:
       update_config:
-        parallelism: 5
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 2
+      replicas: 6
 
   tts:
     image: aculeasis/rhvoice-rest
@@ -480,7 +480,7 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
       mode: replicated
-      replicas: 2
+      replicas: 4
 
 
 volumes:
