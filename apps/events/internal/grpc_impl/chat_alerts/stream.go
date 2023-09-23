@@ -38,15 +38,15 @@ func (c *ChatAlerts) StreamOnline(ctx context.Context, req *events.StreamOnlineM
 }
 
 func (c *ChatAlerts) StreamOffline(ctx context.Context, req *events.StreamOfflineMessage) {
-	if !c.settings.StreamOnline.Enabled {
+	if !c.settings.StreamOffline.Enabled {
 		return
 	}
 
-	if len(c.settings.StreamOnline.Messages) == 0 {
+	if len(c.settings.StreamOffline.Messages) == 0 {
 		return
 	}
 
-	sample := lo.Sample(c.settings.StreamOnline.Messages)
+	sample := lo.Sample(c.settings.StreamOffline.Messages)
 
 	text := sample.Text
 	if text == "" {
