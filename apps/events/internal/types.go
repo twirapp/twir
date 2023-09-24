@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
@@ -11,6 +12,7 @@ import (
 
 type Services struct {
 	DB     *gorm.DB
+	Redis  *redis.Client
 	Logger *zap.Logger
 	Cfg    *cfg.Config
 
@@ -40,7 +42,7 @@ type Data struct {
 	StreamTitle    string `json:"streamTitle"`
 	StreamCategory string `json:"streamCategory"`
 	//
-	RewardID    string  `json:"-"'`
+	RewardID    string  `json:"-"`
 	RewardName  string  `json:"rewardName"`
 	RewardCost  string  `json:"rewardCost"`
 	RewardInput *string `json:"rewardInput"`

@@ -12,12 +12,22 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
+const banCooldownKey = "ban"
+
 func (c *ChatAlerts) Ban(ctx context.Context, req *events.ChannelBanMessage) {
 	if !c.settings.Ban.Enabled {
 		return
 	}
 
 	if len(c.settings.Ban.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		req.BaseInfo.ChannelId,
+		banCooldownKey,
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -77,5 +87,9 @@ func (c *ChatAlerts) Ban(ctx context.Context, req *events.ChannelBanMessage) {
 	)
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	if c.settings.Ban.Cooldown != 0 {
+		c.SetCooldown(ctx, req.BaseInfo.ChannelId, banCooldownKey, c.settings.Ban.Cooldown)
 	}
 }

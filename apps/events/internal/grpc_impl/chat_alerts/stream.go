@@ -9,12 +9,23 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
+const streamOnlineCooldownKey = "stream_online"
+const streamOfflineCooldownKey = "stream_offline"
+
 func (c *ChatAlerts) StreamOnline(ctx context.Context, req *events.StreamOnlineMessage) {
 	if !c.settings.StreamOnline.Enabled {
 		return
 	}
 
 	if len(c.settings.StreamOnline.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		req.BaseInfo.ChannelId,
+		streamOnlineCooldownKey,
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -35,6 +46,15 @@ func (c *ChatAlerts) StreamOnline(ctx context.Context, req *events.StreamOnlineM
 			SkipRateLimits: true,
 		},
 	)
+
+	if c.settings.StreamOnline.Cooldown != 0 {
+		c.SetCooldown(
+			ctx,
+			req.BaseInfo.ChannelId,
+			streamOnlineCooldownKey,
+			c.settings.StreamOnline.Cooldown,
+		)
+	}
 }
 
 func (c *ChatAlerts) StreamOffline(ctx context.Context, req *events.StreamOfflineMessage) {
@@ -43,6 +63,14 @@ func (c *ChatAlerts) StreamOffline(ctx context.Context, req *events.StreamOfflin
 	}
 
 	if len(c.settings.StreamOffline.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		req.BaseInfo.ChannelId,
+		streamOfflineCooldownKey,
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -61,4 +89,13 @@ func (c *ChatAlerts) StreamOffline(ctx context.Context, req *events.StreamOfflin
 			SkipRateLimits: true,
 		},
 	)
+
+	if c.settings.StreamOffline.Cooldown != 0 {
+		c.SetCooldown(
+			ctx,
+			req.BaseInfo.ChannelId,
+			streamOfflineCooldownKey,
+			c.settings.StreamOffline.Cooldown,
+		)
+	}
 }

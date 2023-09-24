@@ -44,46 +44,57 @@ func (c *Modules) convertChatAlertsSettings(
 		Followers: &modules_chat_alerts.ChatAlertsFollowersSettings{
 			Enabled:  entity.Followers.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.Followers.Messages),
+			Cooldown: int32(entity.Followers.Cooldown),
 		},
 		Raids: &modules_chat_alerts.ChatAlertsRaids{
 			Enabled:  entity.Raids.Enabled,
 			Messages: c.convertChatAlertsCountedMessages(entity.Raids.Messages),
+			Cooldown: int32(entity.Raids.Cooldown),
 		},
 		Donations: &modules_chat_alerts.ChatAlertsDonations{
 			Enabled:  entity.Donations.Enabled,
 			Messages: c.convertChatAlertsCountedMessages(entity.Donations.Messages),
+			Cooldown: int32(entity.Donations.Cooldown),
 		},
 		Subscribers: &modules_chat_alerts.ChatAlertsSubscribers{
 			Enabled:  entity.Subscribers.Enabled,
 			Messages: c.convertChatAlertsCountedMessages(entity.Subscribers.Messages),
+			Cooldown: int32(entity.Subscribers.Cooldown),
 		},
 		Cheers: &modules_chat_alerts.ChatAlertsCheers{
 			Enabled:  entity.Cheers.Enabled,
 			Messages: c.convertChatAlertsCountedMessages(entity.Cheers.Messages),
+			Cooldown: int32(entity.Cheers.Cooldown),
 		},
 		Redemptions: &modules_chat_alerts.ChatAlertsRedemptions{
 			Enabled:  entity.Redemptions.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.Redemptions.Messages),
+			Cooldown: int32(entity.Redemptions.Cooldown),
 		},
 		FirstUserMessage: &modules_chat_alerts.ChatAlertsFirstUserMessage{
 			Enabled:  entity.FirstUserMessage.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.FirstUserMessage.Messages),
+			Cooldown: int32(entity.FirstUserMessage.Cooldown),
 		},
 		StreamOnline: &modules_chat_alerts.ChatAlertsStreamOnline{
 			Enabled:  entity.StreamOnline.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.StreamOnline.Messages),
+			Cooldown: int32(entity.StreamOnline.Cooldown),
 		},
 		StreamOffline: &modules_chat_alerts.ChatAlertsStreamOffline{
 			Enabled:  entity.StreamOffline.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.StreamOffline.Messages),
+			Cooldown: int32(entity.StreamOffline.Cooldown),
 		},
 		ChatCleared: &modules_chat_alerts.ChatAlertsChatCleared{
 			Enabled:  entity.ChatCleared.Enabled,
 			Messages: c.convertChatAlertsMessages(entity.ChatCleared.Messages),
+			Cooldown: int32(entity.ChatCleared.Cooldown),
 		},
 		Ban: &modules_chat_alerts.ChatAlertsBan{
 			Enabled:           entity.Ban.Enabled,
 			Messages:          c.convertChatAlertsCountedMessages(entity.Ban.Messages),
+			Cooldown:          int32(entity.Ban.Cooldown),
 			IgnoreTimeoutFrom: entity.Ban.IgnoreTimeoutFrom,
 		},
 	}
@@ -167,46 +178,57 @@ func (c *Modules) ModulesChatAlertsUpdate(
 		Followers: model.ChatAlertsFollowersSettings{
 			Enabled:  req.Followers.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.Followers.Messages),
+			Cooldown: int(req.Followers.Cooldown),
 		},
 		Raids: model.ChatAlertsRaids{
 			Enabled:  req.Raids.Enabled,
 			Messages: c.chatAlertsRequestedCountedToDb(req.Raids.Messages),
+			Cooldown: int(req.Raids.Cooldown),
 		},
 		Donations: model.ChatAlertsDonations{
 			Enabled:  req.Donations.Enabled,
 			Messages: c.chatAlertsRequestedCountedToDb(req.Donations.Messages),
+			Cooldown: int(req.Donations.Cooldown),
 		},
 		Subscribers: model.ChatAlertsSubscribers{
 			Enabled:  req.Subscribers.Enabled,
 			Messages: c.chatAlertsRequestedCountedToDb(req.Subscribers.Messages),
+			Cooldown: int(req.Subscribers.Cooldown),
 		},
 		Cheers: model.ChatAlertsCheers{
 			Enabled:  req.Cheers.Enabled,
 			Messages: c.chatAlertsRequestedCountedToDb(req.Cheers.Messages),
+			Cooldown: int(req.Cheers.Cooldown),
 		},
 		Redemptions: model.ChatAlertsRedemptions{
 			Enabled:  req.Redemptions.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.Redemptions.Messages),
+			Cooldown: int(req.Redemptions.Cooldown),
 		},
 		FirstUserMessage: model.ChatAlertsFirstUserMessage{
 			Enabled:  req.FirstUserMessage.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.FirstUserMessage.Messages),
+			Cooldown: int(req.FirstUserMessage.Cooldown),
 		},
 		StreamOnline: model.ChatAlertsStreamOnline{
 			Enabled:  req.StreamOnline.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.StreamOnline.Messages),
+			Cooldown: int(req.StreamOnline.Cooldown),
 		},
 		StreamOffline: model.ChatAlertsStreamOffline{
 			Enabled:  req.StreamOffline.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.StreamOffline.Messages),
+			Cooldown: int(req.StreamOffline.Cooldown),
 		},
 		ChatCleared: model.ChatAlertsChatCleared{
 			Enabled:  req.ChatCleared.Enabled,
 			Messages: c.chatAlertsRequestedToDb(req.ChatCleared.Messages),
+			Cooldown: int(req.ChatCleared.Cooldown),
 		},
 		Ban: model.ChatAlertsBan{
 			Enabled:           req.Ban.Enabled,
 			Messages:          c.chatAlertsRequestedCountedToDb(req.Ban.Messages),
+			Cooldown:          int(req.Ban.Cooldown),
 			IgnoreTimeoutFrom: req.Ban.IgnoreTimeoutFrom,
 		},
 	}

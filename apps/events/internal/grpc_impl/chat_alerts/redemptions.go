@@ -9,12 +9,22 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
+const redemptionsCooldownKey = "redemptions"
+
 func (c *ChatAlerts) Redemption(ctx context.Context, req *events.RedemptionCreatedMessage) {
 	if !c.settings.Redemptions.Enabled {
 		return
 	}
 
 	if len(c.settings.Redemptions.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		req.BaseInfo.ChannelId,
+		"redemption",
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -36,4 +46,13 @@ func (c *ChatAlerts) Redemption(ctx context.Context, req *events.RedemptionCreat
 			SkipRateLimits: true,
 		},
 	)
+
+	if c.settings.Redemptions.Cooldown != 0 {
+		c.SetCooldown(
+			ctx,
+			req.BaseInfo.ChannelId,
+			redemptionsCooldownKey,
+			c.settings.Redemptions.Cooldown,
+		)
+	}
 }

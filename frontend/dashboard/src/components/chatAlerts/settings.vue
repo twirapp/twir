@@ -14,11 +14,13 @@ const props = defineProps<{
 	maxMessages: number
 	defaultMessageText: string
 	minCount?: number
+	minCooldown: number
 }>();
 
 const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 const enabled = defineModel<boolean>('enabled', { default: true });
 const messages = defineModel<Array<Message>>('messages');
+const cooldown = defineModel<number>('cooldown');
 
 onMounted(async () => {
 	await nextTick();
@@ -57,6 +59,16 @@ defineSlots<{
 		<div style="display: flex; gap: 4px;">
 			<span>{{ t('sharedTexts.enabled') }}</span>
 			<n-switch v-model:value="enabled" />
+		</div>
+
+		<div style="display: flex; gap: 4px; flex-direction: column;">
+			<span>{{ t('chatAlerts.cooldown') }}</span>
+			<n-input-number
+				v-model:value="cooldown"
+				:min="minCooldown"
+				:max="9999"
+				style="width: 10%"
+			/>
 		</div>
 
 		<slot name="header" />

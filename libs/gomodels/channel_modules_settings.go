@@ -103,6 +103,7 @@ type ChatAlertsSettings struct {
 type ChatAlertsFollowersSettings struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsCountedMessage struct {
@@ -117,50 +118,60 @@ type ChatAlertsMessage struct {
 type ChatAlertsRaids struct {
 	Enabled  bool                       `json:"enabled"`
 	Messages []ChatAlertsCountedMessage `json:"messages"`
+	Cooldown int                        `json:"cooldown"`
 }
 
 type ChatAlertsDonations struct {
 	Enabled  bool                       `json:"enabled"`
 	Messages []ChatAlertsCountedMessage `json:"messages"`
+	Cooldown int                        `json:"cooldown"`
 }
 
 type ChatAlertsSubscribers struct {
 	Enabled  bool                       `json:"enabled"`
 	Messages []ChatAlertsCountedMessage `json:"messages"`
+	Cooldown int                        `json:"cooldown"`
 }
 
 type ChatAlertsCheers struct {
 	Enabled  bool                       `json:"enabled"`
 	Messages []ChatAlertsCountedMessage `json:"messages"`
+	Cooldown int                        `json:"cooldown"`
 }
 
 type ChatAlertsRedemptions struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsFirstUserMessage struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsStreamOnline struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsStreamOffline struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsChatCleared struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }
 
 type ChatAlertsBan struct {
 	Enabled           bool                       `json:"enabled"`
 	Messages          []ChatAlertsCountedMessage `json:"messages"`
 	IgnoreTimeoutFrom []string                   `json:"ignoreTimeoutFrom"`
+	Cooldown          int                        `json:"cooldown"`
 }

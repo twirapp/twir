@@ -9,12 +9,22 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
+const followCooldownKey = "follow"
+
 func (c *ChatAlerts) Follow(ctx context.Context, req *events.FollowMessage) {
 	if !c.settings.Followers.Enabled {
 		return
 	}
 
 	if len(c.settings.Followers.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		req.BaseInfo.ChannelId,
+		followCooldownKey,
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -34,4 +44,8 @@ func (c *ChatAlerts) Follow(ctx context.Context, req *events.FollowMessage) {
 			SkipRateLimits: true,
 		},
 	)
+
+	if c.settings.Followers.Cooldown != 0 {
+		c.SetCooldown(ctx, req.BaseInfo.ChannelId, followCooldownKey, c.settings.Followers.Cooldown)
+	}
 }

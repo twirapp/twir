@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/events/internal"
 	"github.com/satont/twir/apps/events/internal/grpc_impl"
 	config "github.com/satont/twir/libs/config"
@@ -59,6 +60,12 @@ func main() {
 	d.SetMaxOpenConns(5)
 	d.SetConnMaxIdleTime(1 * time.Minute)
 
+	redisParams, err := redis.ParseURL(cfg.RedisUrl)
+	if err != nil {
+		panic(err)
+	}
+	redisClient := redis.NewClient(redisParams)
+
 	services := &internal.Services{
 		DB:             db,
 		Logger:         logger,
@@ -66,6 +73,7 @@ func main() {
 		BotsGrpc:       clients.NewBots(cfg.AppEnv),
 		TokensGrpc:     clients.NewTokens(cfg.AppEnv),
 		WebsocketsGrpc: clients.NewWebsocket(cfg.AppEnv),
+		Redis:          redisClient,
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.EVENTS_SERVER_PORT))

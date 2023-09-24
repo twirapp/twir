@@ -504,6 +504,7 @@
 		"randomedMessage": "Message will be randomed.<br>",
 		"randomMessageWithCount": "Message will be randomed for identical count.<br>",
 		"replacedInfo": "{vars} – will be replaced with actual information.<br>",
+		"cooldown": "Cooldown on message sending (seconds)",
 		"ban": {
 			"alertInfo": "Set time to 0 to print message on permanent ban.<br>",
 			"countLabel": "Time (minutes)",

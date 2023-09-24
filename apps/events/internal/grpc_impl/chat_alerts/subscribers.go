@@ -8,8 +8,22 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/bots"
 )
 
+const subscribeCooldownKey = "subscribe"
+
 func (c *ChatAlerts) Subscribe(ctx context.Context, months int, userName, channelId string) {
 	if !c.settings.Subscribers.Enabled {
+		return
+	}
+
+	if len(c.settings.Subscribers.Messages) == 0 {
+		return
+	}
+
+	if cooldowned, err := c.IsOnCooldown(
+		ctx,
+		channelId,
+		subscribeCooldownKey,
+	); err != nil || cooldowned {
 		return
 	}
 
@@ -29,4 +43,8 @@ func (c *ChatAlerts) Subscribe(ctx context.Context, months int, userName, channe
 			SkipRateLimits: true,
 		},
 	)
+
+	if c.settings.Subscribers.Cooldown != 0 {
+		c.SetCooldown(ctx, channelId, subscribeCooldownKey, c.settings.Subscribers.Cooldown)
+	}
 }

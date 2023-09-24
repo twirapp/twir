@@ -13,46 +13,57 @@ const formValue = ref<Required<ChatAlertsSettings>>({
 	chatCleared: {
 		enabled: true,
 		messages: [],
+		cooldown: 2,
 	},
 	cheers: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	donations: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	firstUserMessage: {
 		enabled: false,
 		messages: [],
+		cooldown: 2,
 	},
 	followers: {
 		enabled: true,
 		messages: [],
+		cooldown: 3,
 	},
 	raids: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	redemptions: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	streamOffline: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	streamOnline: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	subscribers: {
 		enabled: true,
 		messages: [],
+		cooldown: 0,
 	},
 	ban: {
 		enabled: false,
 		messages: [],
+		cooldown: 2,
 		ignoreTimeoutFrom: [],
 	},
 });
@@ -105,6 +116,8 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.followers.enabled"
 					v-model:messages="formValue.followers.messages"
+					v-model:cooldown="formValue.followers.cooldown"
+					:min-cooldown="3"
 					:max-messages="20"
 					default-message-text="Yay, there is new follower, say hello to {user}!"
 					:alert-message="`
@@ -118,7 +131,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.raids.enabled"
 					v-model:messages="formValue.raids.messages"
+					v-model:cooldown="formValue.raids.cooldown"
 					:max-messages="20"
+					:min-cooldown="0"
 					default-message-text="{user} raided us with {count} viewers PogChamp"
 					with-count
 					count-label="Viewers"
@@ -133,7 +148,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.donations.enabled"
 					v-model:messages="formValue.donations.messages"
+					v-model:cooldown="formValue.donations.cooldown"
 					:max-messages="20"
+					:min-cooldown="0"
 					with-count
 					count-label="Amount"
 					default-message-text="{user} just donated {count}{currency} and want to say us {message}"
@@ -148,7 +165,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.subscribers.enabled"
 					v-model:messages="formValue.subscribers.messages"
+					v-model:cooldown="formValue.subscribers.cooldown"
 					:max-messages="500"
+					:min-cooldown="0"
 					with-count
 					count-label="Months"
 					default-message-text="{user} just subscribed {month} months in a row"
@@ -177,7 +196,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.redemptions.enabled"
 					v-model:messages="formValue.redemptions.messages"
+					v-model:cooldown="formValue.redemptions.cooldown"
 					:max-messages="20"
+					:min-cooldown="0"
 					default-message-text="{user} activated {reward} reward"
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
@@ -190,7 +211,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.firstUserMessage.enabled"
 					v-model:messages="formValue.firstUserMessage.messages"
+					v-model:cooldown="formValue.firstUserMessage.cooldown"
 					:max-messages="20"
+					:min-cooldown="2"
 					default-message-text="{user} new on the channel! Say hello."
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
@@ -203,7 +226,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.streamOnline.enabled"
 					v-model:messages="formValue.streamOnline.messages"
+					v-model:cooldown="formValue.streamOnline.cooldown"
 					:max-messages="20"
+					:min-cooldown="0"
 					default-message-text="We're just online in {category} | {title}"
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
@@ -216,7 +241,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.streamOffline.enabled"
 					v-model:messages="formValue.streamOffline.messages"
+					v-model:cooldown="formValue.streamOffline.cooldown"
 					:max-messages="20"
+					:min-cooldown="0"
 					default-message-text="We're now offline, stay in touch, follow socials."
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
@@ -224,11 +251,13 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="chatClearted" tab="Chat cleared">
+			<n-tab-pane name="chatCleared" tab="Chat cleared">
 				<Settings
 					v-model:enabled="formValue.chatCleared.enabled"
 					v-model:messages="formValue.chatCleared.messages"
+					v-model:cooldown="formValue.chatCleared.cooldown"
 					:max-messages="20"
+					:min-cooldown="2"
 					default-message-text="Chat cleared, but who knows why? Kappa"
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
@@ -240,7 +269,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				<Settings
 					v-model:enabled="formValue.ban.enabled"
 					v-model:messages="formValue.ban.messages"
+					v-model:cooldown="formValue.ban.cooldown"
 					:max-messages="20"
+					:min-cooldown="2"
 					default-message-text="How dare are you {userName}? Glad we have {moderatorName} to calm you down. Please sit {time} in prison for {reason}, and think about your behavior."
 					:count-label="t('chatAlerts.ban.countLabel')"
 					with-count

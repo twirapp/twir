@@ -1,6 +1,10 @@
 package chat_alerts
 
 import (
+	"context"
+	"fmt"
+	"time"
+
 	"github.com/goccy/go-json"
 	"github.com/satont/twir/apps/events/internal"
 	model "github.com/satont/twir/libs/gomodels"
@@ -30,4 +34,40 @@ func New(channelId string, services *internal.Services) (*ChatAlerts, error) {
 		services: services,
 		settings: &parsedSettings,
 	}, nil
+}
+
+func (c *ChatAlerts) buildRedisCooldownKey(channelId, eventName string) string {
+	return fmt.Sprintf(
+		"channels:%s:chat_alerts_events:cooldowns:%s",
+		channelId,
+		eventName,
+	)
+}
+
+func (c *ChatAlerts) IsOnCooldown(ctx context.Context, channelId, eventName string) (
+	bool,
+	error,
+) {
+	exists, err := c.services.Redis.Exists(
+		ctx,
+		c.buildRedisCooldownKey(channelId, eventName),
+	).Result()
+	return exists == 1, err
+}
+
+func (c *ChatAlerts) SetCooldown(
+	ctx context.Context,
+	channelId, eventName string,
+	seconds int,
+) error {
+	if seconds == 0 {
+		return nil
+	}
+
+	return c.services.Redis.Set(
+		ctx,
+		c.buildRedisCooldownKey(channelId, eventName),
+		"",
+		time.Duration(seconds)*time.Second,
+	).Err()
 }
