@@ -22,6 +22,7 @@
     "grid-layout-plus": "^1.0.2",
     "lodash.chunk": "^4.2.0",
     "naive-ui": "^2.34.4",
+    "nested-css-to-flat": "^1.0.5",
     "plyr": "^3.7.8",
     "vue": "^3.3.4",
     "vue-draggable-next": "^2.2.1",

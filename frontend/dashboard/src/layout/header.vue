@@ -138,7 +138,7 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 	</div>
 </template>
 
-<style>
+<style scoped>
 .header {
 	height: 100%;
 	padding-top: 10px;

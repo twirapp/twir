@@ -2,6 +2,7 @@
 <!-- eslint-disable no-undef -->
 <script setup lang="ts">
 import { useIntervalFn } from '@vueuse/core';
+import { transform as transformNested } from 'nested-css-to-flat';
 import { ref, watch, nextTick, computed } from 'vue';
 
 import { useOverlaysParseHtml } from '@/api/registry';
@@ -61,12 +62,12 @@ watch(props, (p) => {
 	>
 		<component :is="'style'">
 			{{
-				`#layersExampleRender${index} {
+				transformNested(`#layersExampleRender${index} {
 					${css}
-				}`
+				}`)
 			}}
 		</component>
 
-		<div :id="'layersExampleRender'+index" :style="css" v-html="exampleValue" />
+		<div :id="'layersExampleRender'+index" style="width: 100%; height: 100%" v-html="exampleValue" />
 	</div>
 </template>

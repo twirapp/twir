@@ -169,4 +169,13 @@ useMagicKeys({
 .dashboards-menu .item:hover {
 	background-color: v-bind(blockColor2);
 }
+
+.block {
+	background-color: v-bind(blockColor);
+	display: flex;
+	gap: 16px;
+	padding: 16px;
+	border-radius: 10px;
+	align-items: center;
+}
 </style>
