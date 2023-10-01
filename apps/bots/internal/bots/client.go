@@ -119,13 +119,20 @@ func newBot(opts ClientOpts) *types.BotClient {
 
 	go func() {
 		for {
+			time.Sleep(500 * time.Millisecond)
+
+			tokenReqCtx, cancelTokenReqCtx := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancelTokenReqCtx()
+
 			token, err := opts.TokensGrpc.RequestBotToken(
-				context.Background(), &tokens.GetBotTokenRequest{
+				tokenReqCtx,
+				&tokens.GetBotTokenRequest{
 					BotId: opts.Model.ID,
 				},
 			)
 			if err != nil {
-				panic(err)
+				opts.Logger.Error(err.Error())
+				continue
 			}
 
 			twitchClient.SetUserAccessToken(token.AccessToken)
@@ -139,16 +146,16 @@ func newBot(opts ClientOpts) *types.BotClient {
 			)
 			if err != nil {
 				opts.Logger.Error("cannot get bot user", slog.Any("err", err))
-				return
+				continue
 			}
 			if meReq.ErrorMessage != "" {
 				opts.Logger.Error("cannot get bot user", slog.String("err", meReq.ErrorMessage))
-				return
+				continue
 			}
 
 			if len(meReq.Data.Users) == 0 {
 				opts.Logger.Error("No user found for bot", slog.String("botId", opts.Model.ID))
-				return
+				continue
 			}
 
 			client.OnConnect(botHandlers.OnConnect)
