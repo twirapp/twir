@@ -46,7 +46,9 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 
 	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Error("cannot process command", slog.Any("err", err))
+		if err.Error() != "command not found" {
+			c.logger.Error("cannot process command", slog.Any("err", err))
+		}
 		return
 	}
 
