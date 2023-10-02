@@ -6,7 +6,7 @@ import (
 )
 
 // raw: "25:4-8,10-14/22639:16-23"
-// messageText: йцу Kappa Kappa
+// messageText: йцу Kappa Kappa PogChamp
 func (c *Handlers) ParseEmotes(messageText, raw string) []MessageEmote {
 	var emotes []MessageEmote
 	if raw == "" {
