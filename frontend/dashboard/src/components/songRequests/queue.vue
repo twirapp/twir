@@ -37,7 +37,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 	{
 		title: '#',
 		key: 'position',
-		width: 25,
+		width: 50,
 		render(_, index) {
 			return index+1;
 		},
