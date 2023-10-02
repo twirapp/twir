@@ -14,20 +14,20 @@ import { useWidgets } from '@/components/dashboard/widgets.js';
 const widgets = useWidgets();
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible));
 const dropdownOptions = computed(() => {
-  return widgets.value
-      .filter((v) => !v.visible)
-      .map((v) => ({ label: v.i, key: v.i }));
+	return widgets.value
+		.filter((v) => !v.visible)
+		.map((v) => ({ label: v.i, key: v.i }));
 });
 
 const addWidget = (key: string) => {
-  const item = widgets.value.find(v => v.i === key);
-  if (!item) return;
+	const item = widgets.value.find(v => v.i === key);
+	if (!item) return;
 
-  const widgetsLength = visibleWidgets.value.length;
+	const widgetsLength = visibleWidgets.value.length;
 
-  item.visible = true;
-  item.x = (widgetsLength * 2) % 12;
-  item.y = widgetsLength + 12;
+	item.visible = true;
+	item.x = (widgetsLength * 2) % 12;
+	item.y = widgetsLength + 12;
 };
 
 const theme = useThemeVars();
@@ -38,7 +38,7 @@ const statsBackground = computed(() => theme.value.tabColor);
 	<div style="display: flex; width: 100%;" :style="{ 'background-color': statsBackground }">
 		<Stats />
 	</div>
-	<div style="width: 100%; height: 100%;">
+	<div style="width: 100%; height: 100%; padding-left: 5px;">
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
@@ -73,10 +73,10 @@ const statsBackground = computed(() => theme.value.tabColor);
 
 <style scoped>
 .vgl-layout {
-  width: 100%
+	width: 100%
 }
 
 .item {
-  height: 100%;
+	height: 100%;
 }
 </style>
