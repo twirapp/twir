@@ -37,7 +37,9 @@ func (c *Handlers) ParseEmotes(messageText, raw string) []MessageEmote {
 				},
 			)
 
-			emote.Name = messageText[start : end+1]
+			// take slice string by start and end
+
+			emote.Name = string([]rune(messageText)[start : end+1])
 		}
 
 		emotes = append(emotes, emote)
