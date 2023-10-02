@@ -6,13 +6,17 @@ import (
 	"log/slog"
 	"time"
 
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
-func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
+type OnUserJoinOpts struct {
+	Channel string
+	User    string
+}
+
+func (c *Handlers) OnUserJoin(message OnUserJoinOpts) {
 	ctx := context.Background()
 
 	stream := &model.ChannelsStreams{}

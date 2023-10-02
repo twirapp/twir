@@ -1,19 +1,22 @@
 package handlers
 
 import (
-	irc "github.com/gempir/go-twitch-irc/v3"
+	"log/slog"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/bots/pkg/utils"
 	"github.com/satont/twir/apps/bots/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"log/slog"
 )
 
-func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
-	moderatorBadge, _ := msg.User.Badges["moderator"]
-	broadcasterBadge, _ := msg.User.Badges["broadcaster"]
+type OnUserStateMessageOpts struct {
+	Moderator   string
+	Broadcaster string
+	Channel     string
+}
 
+func (c *Handlers) OnUserStateMessage(msg OnUserStateMessageOpts) {
 	twitchClient, err := twitch.NewBotClient(c.BotClient.Model.ID, c.cfg, c.tokensGrpc)
 	if err != nil {
 		panic(err)
@@ -21,7 +24,7 @@ func (c *Handlers) OnUserStateMessage(msg irc.UserStateMessage) {
 
 	delete(c.BotClient.RateLimiters.Channels.Items, msg.Channel)
 
-	isMod := moderatorBadge == 1 || broadcasterBadge == 1
+	isMod := msg.Moderator == "1" || msg.Broadcaster == "1"
 
 	twitchReq, err := twitchClient.GetUsers(&helix.UsersParams{Logins: []string{msg.Channel}})
 	if len(twitchReq.Data.Users) == 0 {

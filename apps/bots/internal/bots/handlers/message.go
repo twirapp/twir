@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"context"
-	"github.com/google/uuid"
-	model "github.com/satont/twir/libs/gomodels"
 	"log/slog"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/satont/twir/libs/grpc/generated/events"
 
@@ -144,9 +145,9 @@ func (c *Handlers) OnMessage(msg *Message) {
 	}
 }
 
-func createUserBadges(badges map[string]int) []string {
+func createUserBadges(badges map[string]string) []string {
 	userBadges := lo.MapToSlice(
-		badges, func(k string, _ int) string {
+		badges, func(k string, _ string) string {
 			return strings.ToUpper(k)
 		},
 	)

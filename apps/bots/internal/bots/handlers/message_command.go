@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"context"
+	"log/slog"
 
-	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
@@ -24,13 +24,14 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 			Id:   msg.ID,
 			Text: msg.Message,
 			Emotes: lo.Map(
-				msg.Emotes, func(item *twitch.Emote, _ int) *parser.Message_Emote {
+				msg.Emotes,
+				func(item MessageEmote, _ int) *parser.Message_Emote {
 					return &parser.Message_Emote{
 						Name:  item.Name,
 						Id:    item.ID,
 						Count: int64(item.Count),
 						Positions: lo.Map(
-							item.Positions, func(item twitch.EmotePosition, _ int) *parser.Message_EmotePosition {
+							item.Positions, func(item EmotePosition, _ int) *parser.Message_EmotePosition {
 								return &parser.Message_EmotePosition{
 									Start: int64(item.Start),
 									End:   int64(item.End),
@@ -45,6 +46,7 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 
 	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
+		c.logger.Error("cannot process command", slog.Any("err", err))
 		return
 	}
 

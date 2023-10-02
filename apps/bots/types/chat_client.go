@@ -1,12 +1,13 @@
 package types
 
 import (
+	"fmt"
 	"strings"
 	"sync"
 	"unicode/utf8"
 
+	"github.com/Adeithe/go-twitch/irc"
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
-	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -28,11 +29,29 @@ type RateLimiters struct {
 }
 
 type BotClient struct {
-	*irc.Client
+	Reader *irc.Client
+	Writer *irc.Conn
 
 	RateLimiters RateLimiters
 	Model        *model.Bots
 	TwitchUser   *helix.User
+}
+
+func (c *BotClient) Say(channel, text string) {
+	c.Writer.Say(channel, text)
+}
+
+func (c *BotClient) Reply(channel, text, messageId string) {
+	msg := fmt.Sprintf(
+		"@reply-parent-msg-id=%s PRIVMSG #%s :%s",
+		messageId,
+		channel,
+		text,
+	)
+
+	if err := c.Writer.SendRaw(msg); err != nil {
+		fmt.Println("reply error", err)
+	}
 }
 
 func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
@@ -57,7 +76,7 @@ func (c *BotClient) SayWithRateLimiting(channel, text string, replyTo *string) {
 	if replyTo != nil {
 		for _, part := range parts {
 			text = validateResponseSlashes(text)
-			c.Reply(channel, *replyTo, part)
+			c.Reply(channel, part, *replyTo)
 		}
 	} else {
 		for _, part := range parts {

@@ -12,7 +12,6 @@ require (
 	github.com/pressly/goose/v3 v3.13.4
 	github.com/satont/twir/libs/config v0.0.0-20230713153539-b2fe2b3b5757
 	github.com/satont/twir/libs/crypto v0.0.0-20230713153539-b2fe2b3b5757
-	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb
 )
 
 require (

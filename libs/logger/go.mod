@@ -5,6 +5,7 @@ go 1.21.0
 require github.com/getsentry/sentry-go v0.23.0
 
 require (
-	golang.org/x/sys v0.6.0 // indirect
-	golang.org/x/text v0.8.0 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
+	golang.org/x/sys v0.11.0 // indirect
+	golang.org/x/text v0.12.0 // indirect
 )
