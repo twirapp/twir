@@ -115,7 +115,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 
 	client.Reader.OnShardRawMessage(
 		func(i int, m irc.Message) {
-			if m.Command == "CLEARCHAT" {
+			if m.Command == "CLEARCHAT" && m.Tags["target-user-id"] == "" {
 				channelId := m.Tags["room-id"]
 				opts.DB.Create(
 					&model.ChannelsEventsListItem{
