@@ -17,7 +17,7 @@ export const enum CommunitySortBy {
 	Watched = 'watched',
 	Messages = 'messages',
 	Emotes = 'emotes',
-	UsedChannelPoints = 'used_channel_points',
+	UsedChannelPoints = 'usedChannelPoints',
 }
 
 export type GetCommunityUsersOpts = {
@@ -65,7 +65,7 @@ export const enum CommunityResetStatsField {
 	Watched = 'watched',
 	Messages = 'messages',
 	Emotes = 'emotes',
-	UsedChannelPoints = 'used_channel_points',
+	UsedChannelPoints = 'usedChannelPoints',
 }
 
 const resetFields = {
