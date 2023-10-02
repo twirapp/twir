@@ -86,7 +86,7 @@ onMounted(() => {
 	});
 
 	plyr.value.on('ended', () => {
-		if (!props.nextVideo) return;
+		// if (!props.nextVideo) return;
 		playNext();
 	});
 });
