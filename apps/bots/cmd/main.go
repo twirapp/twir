@@ -43,7 +43,7 @@ func main() {
 				return logger.New(
 					logger.Opts{
 						Env:     config.AppEnv,
-						Service: "timers",
+						Service: "bots",
 						Sentry:  s,
 					},
 				)

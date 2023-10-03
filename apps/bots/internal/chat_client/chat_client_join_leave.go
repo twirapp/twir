@@ -2,6 +2,7 @@ package chat_client
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	"github.com/samber/lo"
@@ -37,7 +38,12 @@ l:
 			break l
 		default:
 			if !reader.Connected {
-				time.Sleep(50 * time.Millisecond)
+				c.services.Logger.Info(
+					"Reader is not connected, waiting...",
+					slog.String("channel", channel),
+					slog.Int("reader", lo.IndexOf(c.Readers, reader)+1),
+				)
+				time.Sleep(500 * time.Millisecond)
 				continue
 			}
 
