@@ -40,6 +40,7 @@ func (c *ChatClient) Join(channel string) {
 		if reader.size < readerCapacity {
 			ok = true
 			c.readerJoin(reader, channel)
+			break
 		}
 	}
 
