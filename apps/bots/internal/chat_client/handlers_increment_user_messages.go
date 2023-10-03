@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"log/slog"
@@ -8,10 +8,10 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *Handlers) incrementUserMessages(userId, channelId string) {
+func (c *ChatClient) incrementUserMessages(userId, channelId string) {
 	stream := model.ChannelsStreams{}
-	if err := c.db.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
-		c.logger.Error(
+	if err := c.services.DB.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
+		c.services.Logger.Error(
 			"cannot get channel stream",
 			slog.Any("err", err),
 			slog.String("channelId", channelId),
@@ -20,12 +20,12 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 	}
 
 	user := model.Users{}
-	err := c.db.
+	err := c.services.DB.
 		Where(`"id" = ?`, userId).
 		Preload("Stats", `"userId" = ? AND "channelId" = ?`, userId, channelId).
 		Find(&user).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot find user",
 			slog.Any("err", err),
 			slog.String("channelId", channelId),
@@ -42,8 +42,8 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 		user.IsTester = false
 		user.Stats = createStats(userId, channelId)
 
-		if err := c.db.Create(&user).Error; err != nil {
-			c.logger.Error(
+		if err := c.services.DB.Create(&user).Error; err != nil {
+			c.services.Logger.Error(
 				"cannot create user",
 				slog.Any("err", err),
 				slog.String("channelId", channelId),
@@ -54,9 +54,9 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 	} else {
 		if user.Stats == nil {
 			newStats := createStats(userId, channelId)
-			err := c.db.Create(newStats).Error
+			err := c.services.DB.Create(newStats).Error
 			if err != nil {
-				c.logger.Error(
+				c.services.Logger.Error(
 					"cannot create user stats",
 					slog.Any("err", err),
 					slog.String("channelId", channelId),
@@ -64,13 +64,13 @@ func (c *Handlers) incrementUserMessages(userId, channelId string) {
 				)
 			}
 		} else if stream.ID != "" {
-			err := c.db.
+			err := c.services.DB.
 				Model(&user.Stats).
 				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).
 				Update("messages", user.Stats.Messages+1).
 				Error
 			if err != nil {
-				c.logger.Error(
+				c.services.Logger.Error(
 					"cannot update user",
 					slog.Any("err", err),
 					slog.String("channelId", channelId),

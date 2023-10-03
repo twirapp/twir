@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -11,19 +11,19 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *Handlers) handleEmotes(msg *Message) {
+func (c *ChatClient) handleEmotes(msg *Message) {
 	emotes := make(map[string]int)
 
 	for _, emote := range msg.Emotes {
 		emotes[emote.Name] = emote.Count
 	}
 
-	channelEmotes, err := c.redis.Keys(
+	channelEmotes, err := c.services.Redis.Keys(
 		context.Background(),
 		fmt.Sprintf("emotes:channel:%s:*", msg.Channel.ID),
 	).Result()
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get emotes",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -31,7 +31,7 @@ func (c *Handlers) handleEmotes(msg *Message) {
 		return
 	}
 
-	globalEmotes, err := c.redis.Keys(context.Background(), "emotes:global:*").Result()
+	globalEmotes, err := c.services.Redis.Keys(context.Background(), "emotes:global:*").Result()
 	if err != nil {
 		return
 	}
@@ -57,13 +57,13 @@ func (c *Handlers) handleEmotes(msg *Message) {
 		}
 	}
 
-	err = c.db.CreateInBatches(
+	err = c.services.DB.CreateInBatches(
 		emotesForCreate,
 		100,
 	).Error
 
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot create emotes",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),

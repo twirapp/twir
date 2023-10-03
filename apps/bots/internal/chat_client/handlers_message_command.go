@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
+func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
@@ -43,55 +43,40 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 		},
 	}
 
-	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
+	res, err := c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
 		return
 	}
 
 	if res.KeepOrder != nil && !*res.KeepOrder {
-		for _, response := range res.Responses {
-			r := response
-			err := ValidateResponseSlashes(r)
-
+		for _, r := range res.Responses {
 			if r == "" || r == " " {
 				continue
 			}
 
-			if err != nil {
-				go c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					err.Error(),
-					nil,
-				)
-			} else {
-				go c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					r,
-					lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
-				)
-			}
+			c.Say(
+				SayOpts{
+					Channel:   msg.Channel.Name,
+					Text:      r,
+					ReplyTo:   lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+					WithLimit: true,
+				},
+			)
 		}
 	} else {
 		for _, r := range res.Responses {
-			validateResponseErr := ValidateResponseSlashes(r)
-
 			if r == "" || r == " " {
 				continue
 			}
 
-			if validateResponseErr != nil {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					validateResponseErr.Error(),
-					nil,
-				)
-			} else {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					r,
-					lo.If(res.IsReply, &msg.ID).Else(nil),
-				)
-			}
+			go c.Say(
+				SayOpts{
+					Channel:   msg.Channel.Name,
+					Text:      r,
+					ReplyTo:   lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+					WithLimit: true,
+				},
+			)
 		}
 	}
 }

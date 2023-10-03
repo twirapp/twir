@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -12,16 +12,16 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/events"
 )
 
-func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
+func (c *ChatClient) onUserJoin(message irc.UserJoinMessage) {
 	ctx := context.Background()
 
 	stream := &model.ChannelsStreams{}
-	err := c.db.
+	err := c.services.DB.
 		WithContext(ctx).
 		Where(`"userLogin" = ?`, message.Channel).
 		Find(stream).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get channel stream",
 			slog.Any("err", err),
 			slog.String(
@@ -37,12 +37,12 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 	}
 
 	ignoredUser := &model.IgnoredUser{}
-	err = c.db.
+	err = c.services.DB.
 		WithContext(ctx).
 		Where("login = ?", message.User).
 		Find(ignoredUser).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get ignored user",
 			slog.Any("err", err),
 			slog.String(
@@ -59,9 +59,9 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 
 	redisKey := fmt.Sprintf("events:first-stream-user-join:%s:%s", stream.ID, message.User)
 
-	res, err := c.redis.Get(ctx, redisKey).Result()
+	res, err := c.services.Redis.Get(ctx, redisKey).Result()
 	if err != nil && err != redis.Nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot first join",
 			slog.Any("err", err),
 			slog.String("login", message.User),
@@ -73,7 +73,7 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		return
 	}
 
-	_, err = c.eventsGrpc.StreamFirstUserJoin(
+	_, err = c.services.EventsGrpc.StreamFirstUserJoin(
 		ctx, &events.StreamFirstUserJoinMessage{
 			BaseInfo: &events.BaseInfo{
 				ChannelId: stream.UserId,
@@ -82,7 +82,7 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		},
 	)
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot fire first join to events",
 			slog.Any("err", err),
 			slog.String("login", message.User),
@@ -90,7 +90,7 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 		)
 	}
 
-	_, err = c.redis.Set(
+	_, err = c.services.Redis.Set(
 		ctx,
 		redisKey,
 		message.User,
@@ -98,7 +98,7 @@ func (c *Handlers) OnUserJoin(message irc.UserJoinMessage) {
 	).Result()
 
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot set first join to redis",
 			slog.Any("err", err),
 			slog.String("login", message.User),

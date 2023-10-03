@@ -4,19 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
+	"net"
+	"strings"
+	"time"
+
+	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
-	"net"
-	"strings"
-	"time"
 
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
-	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/twir/apps/bots/internal/bots"
@@ -144,7 +146,10 @@ func (c *BotsGrpcServer) DeleteMessage(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *BotsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessageRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) SendMessage(
+	ctx context.Context,
+	data *bots.SendMessageRequest,
+) (*emptypb.Empty, error) {
 	if data.Message == "" {
 		c.logger.Error(
 			"empty message",
@@ -227,34 +232,41 @@ func (c *BotsGrpcServer) SendMessage(ctx context.Context, data *bots.SendMessage
 			)
 		}
 	} else {
-		if data.SkipRateLimits {
-			bot.Say(*channelName, data.Message)
-		} else {
-			bot.SayWithRateLimiting(*channelName, data.Message, nil)
-		}
+		bot.Say(
+			chat_client.SayOpts{
+				Channel:   *channelName,
+				Text:      data.Message,
+				ReplyTo:   nil,
+				WithLimit: !data.SkipRateLimits,
+			},
+		)
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (c *BotsGrpcServer) Join(_ context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) Join(_ context.Context, data *bots.JoinOrLeaveRequest) (
+	*emptypb.Empty,
+	error,
+) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
 		return nil, errors.New("bot not found")
 	}
 
-	delete(bot.RateLimiters.Channels.Items, data.UserName)
 	bot.Join(data.UserName)
 	return &emptypb.Empty{}, nil
 }
 
-func (c *BotsGrpcServer) Leave(_ context.Context, data *bots.JoinOrLeaveRequest) (*emptypb.Empty, error) {
+func (c *BotsGrpcServer) Leave(_ context.Context, data *bots.JoinOrLeaveRequest) (
+	*emptypb.Empty,
+	error,
+) {
 	bot, ok := c.botsService.Instances[data.BotId]
 	if !ok {
 		return nil, errors.New("bot not found")
 	}
 
-	delete(bot.RateLimiters.Channels.Items, data.UserName)
-	bot.Depart(data.UserName)
+	bot.Leave(data.UserName)
 	return &emptypb.Empty{}, nil
 }

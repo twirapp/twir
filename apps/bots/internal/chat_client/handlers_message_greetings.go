@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -14,14 +14,14 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleGreetings(
+func (c *ChatClient) handleGreetings(
 	msg *Message,
 	userBadges []string,
 ) {
 	stream := &model.ChannelsStreams{}
-	err := c.db.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error
+	err := c.services.DB.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error
 	if err != nil {
-		c.logger.Error("cannot get stream", slog.Any("err", err))
+		c.services.Logger.Error("cannot get stream", slog.Any("err", err))
 		return
 	}
 
@@ -30,7 +30,7 @@ func (c *Handlers) handleGreetings(
 	}
 
 	entity := model.ChannelsGreetings{}
-	err = c.db.
+	err = c.services.DB.
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
 			msg.Channel.ID,
@@ -41,7 +41,7 @@ func (c *Handlers) handleGreetings(
 		Find(&entity).
 		Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get greeting",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -54,11 +54,11 @@ func (c *Handlers) handleGreetings(
 		return
 	}
 
-	defer c.greetingsCounter.Inc()
+	defer greetingsCounter.Inc()
 
 	defer func() {
 		alert := model.ChannelAlert{}
-		if err := c.db.Where(
+		if err := c.services.DB.Where(
 			"channel_id = ? AND greetings_ids && ?",
 			msg.Channel.ID,
 			pq.StringArray{entity.ID},
@@ -71,7 +71,7 @@ func (c *Handlers) handleGreetings(
 			return
 		}
 
-		c.websocketsGrpc.TriggerAlert(
+		c.services.WebsocketsGrpc.TriggerAlert(
 			context.Background(),
 			&websockets.TriggerAlertRequest{
 				ChannelId: msg.Channel.ID,
@@ -98,38 +98,35 @@ func (c *Handlers) handleGreetings(
 		ParseVariables: lo.ToPtr(true),
 	}
 
-	res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
+	res, err := c.services.ParserGrpc.ParseTextResponse(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Error("cannot parse text response of greeting", slog.Any("req", requestStruct))
+		c.services.Logger.Error(
+			"cannot parse text response of greeting",
+			slog.Any("req", requestStruct),
+		)
 		return
 	}
 
 	for _, r := range res.Responses {
-		validateResponseErr := ValidateResponseSlashes(r)
-		if validateResponseErr != nil {
-			c.BotClient.SayWithRateLimiting(
-				msg.Channel.Name,
-				validateResponseErr.Error(),
-				nil,
-			)
-		} else {
-			c.BotClient.SayWithRateLimiting(
-				msg.Channel.Name,
-				r,
-				lo.If(entity.IsReply, &msg.ID).Else(nil),
-			)
-		}
+		c.Say(
+			SayOpts{
+				Channel:   msg.Channel.Name,
+				Text:      r,
+				ReplyTo:   lo.If(entity.IsReply, &msg.ID).Else(nil),
+				WithLimit: true,
+			},
+		)
 	}
 
-	if err = c.db.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
+	if err = c.services.DB.Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
 		map[string]any{
 			"processed": true,
 		},
 	).Error; err != nil {
-		c.logger.Error("cannot update greeting", slog.Any("err", err))
+		c.services.Logger.Error("cannot update greeting", slog.Any("err", err))
 	}
 
-	_, err = c.eventsGrpc.GreetingSended(
+	_, err = c.services.EventsGrpc.GreetingSended(
 		context.Background(), &events.GreetingSendedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 			UserId:          msg.User.ID,
@@ -138,5 +135,5 @@ func (c *Handlers) handleGreetings(
 			GreetingText:    entity.Text,
 		},
 	)
-	c.logger.Error("cannot send greetings event", slog.Any("err", err))
+	c.services.Logger.Error("cannot send greetings event", slog.Any("err", err))
 }

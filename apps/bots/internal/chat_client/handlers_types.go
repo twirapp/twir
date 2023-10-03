@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import "github.com/gempir/go-twitch-irc/v3"
 

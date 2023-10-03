@@ -1,15 +1,16 @@
-package handlers
+package chat_client
 
 import (
-	model "github.com/satont/twir/libs/gomodels"
 	"log/slog"
+
+	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *Handlers) removeUserFromLurkers(userId string) {
+func (c *ChatClient) removeUserFromLurkers(userId string) {
 	ignoredUser := &model.IgnoredUser{}
-	err := c.db.Where(`"id" = ?`, userId).Find(ignoredUser).Error
+	err := c.services.DB.Where(`"id" = ?`, userId).Find(ignoredUser).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot find lurker",
 			slog.Any("err", err),
 			slog.String("channelId", userId),
@@ -18,9 +19,9 @@ func (c *Handlers) removeUserFromLurkers(userId string) {
 	}
 
 	if ignoredUser.ID != "" {
-		err = c.db.Delete(ignoredUser).Error
+		err = c.services.DB.Delete(ignoredUser).Error
 		if err != nil {
-			c.logger.Error(
+			c.services.Logger.Error(
 				"cannot remove lurker",
 				slog.Any("err", err),
 				slog.String("channelId", userId),

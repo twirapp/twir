@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -13,20 +13,20 @@ import (
 	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
-func (c *Handlers) handleTts(msg *Message, userBadges []string) {
+func (c *ChatClient) handleTts(msg *Message, userBadges []string) {
 	if strings.HasPrefix(msg.Message, "!") {
 		return
 	}
 
 	settings := &model.ChannelModulesSettings{}
-	query := c.db.
+	query := c.services.DB.
 		Where(`"channelId" = ?`, msg.Channel.ID).
 		Where(`"userId" IS NULL`).
 		Where(`"type" = ?`, "tts")
 
 	err := query.Find(&settings).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot find tts settings",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -41,7 +41,7 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 	data := modules.TTSSettings{}
 	err = json.Unmarshal(settings.Settings, &data)
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot unmarshall tts settings",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -54,14 +54,14 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 	}
 
 	ttsCommand := &model.ChannelsCommands{}
-	err = c.db.
+	err = c.services.DB.
 		Where(`"channelId" = ?`, msg.Channel.ID).
 		Where(`"module" = ?`, "TTS").
 		Where(`"defaultName" = ?`, "tts").
 		Find(&ttsCommand).
 		Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot find tts command",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -122,9 +122,9 @@ func (c *Handlers) handleTts(msg *Message, userBadges []string) {
 		},
 	}
 
-	_, err = c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
+	_, err = c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot process tts", slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
 			slog.String("message", text),

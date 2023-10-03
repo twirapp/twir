@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -19,14 +19,17 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleKeywords(
+func (c *ChatClient) handleKeywords(
 	msg *Message,
 	userBadges []string,
 ) {
 	var keywords []model.ChannelsKeywords
-	err := c.db.Where(`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID, true).Find(&keywords).Error
+	err := c.services.DB.Where(
+		`"channelId" = ? AND "enabled" = ?`, msg.Channel.ID,
+		true,
+	).Find(&keywords).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get keywords",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -51,10 +54,12 @@ func (c *Handlers) handleKeywords(
 			if k.IsRegular {
 				regx, err := regexp.Compile(k.Text)
 				if err != nil {
-					c.BotClient.SayWithRateLimiting(
-						msg.Channel.Name,
-						fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
-						nil,
+					c.Say(
+						SayOpts{
+							Channel:   msg.Channel.Name,
+							Text:      fmt.Sprintf("regular expression is wrong for keyword %s", k.Text),
+							WithLimit: true,
+						},
 					)
 					return
 				}
@@ -72,7 +77,7 @@ func (c *Handlers) handleKeywords(
 				}
 			}
 
-			defer c.keywordsCounter.Inc()
+			defer keywordsCounter.Inc()
 
 			isOnCooldown := false
 			if k.Cooldown != 0 && k.CooldownExpireAt.Valid {
@@ -105,9 +110,9 @@ func (c *Handlers) handleKeywords(
 					ParseVariables: lo.ToPtr(true),
 				}
 
-				res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
+				res, err := c.services.ParserGrpc.ParseTextResponse(context.Background(), requestStruct)
 				if err != nil {
-					c.logger.Error(
+					c.services.Logger.Error(
 						"cannot parse keyword response",
 						slog.Any("err", err),
 						slog.String("channelId", msg.Channel.ID),
@@ -117,7 +122,7 @@ func (c *Handlers) handleKeywords(
 				responses = res.Responses
 			}
 
-			_, err = c.eventsGrpc.KeywordMatched(
+			_, err = c.services.EventsGrpc.KeywordMatched(
 				context.Background(),
 				&events.KeywordMatchedMessage{
 					BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
@@ -130,7 +135,7 @@ func (c *Handlers) handleKeywords(
 				},
 			)
 			if err != nil {
-				c.logger.Error(
+				c.services.Logger.Error(
 					"cannot send keywords matched event",
 					slog.Any("err", err),
 					slog.String("channelId", msg.Channel.ID),
@@ -139,20 +144,14 @@ func (c *Handlers) handleKeywords(
 			}
 
 			for _, r := range responses {
-				validateResponseErr := ValidateResponseSlashes(r)
-				if validateResponseErr != nil {
-					c.BotClient.SayWithRateLimiting(
-						msg.Channel.Name,
-						validateResponseErr.Error(),
-						nil,
-					)
-				} else {
-					c.BotClient.SayWithRateLimiting(
-						msg.Channel.Name,
-						r,
-						lo.If(k.IsReply, &msg.ID).Else(nil),
-					)
-				}
+				c.Say(
+					SayOpts{
+						Channel:   msg.Channel.Name,
+						Text:      r,
+						WithLimit: true,
+						ReplyTo:   lo.If(k.IsReply, &msg.ID).Else(nil),
+					},
+				)
 			}
 
 			query["cooldownExpireAt"] = time.Now().
@@ -160,9 +159,9 @@ func (c *Handlers) handleKeywords(
 				UTC()
 
 			query["usages"] = k.Usages + timesInMessage
-			err = c.db.Model(&k).Where("id = ?", k.ID).Select("*").Updates(query).Error
+			err = c.services.DB.Model(&k).Where("id = ?", k.ID).Select("*").Updates(query).Error
 			if err != nil {
-				c.logger.Error(
+				c.services.Logger.Error(
 					"cannot update keyword usages",
 					slog.Any("err", err),
 					slog.String("channelId", msg.Channel.ID),
@@ -171,7 +170,7 @@ func (c *Handlers) handleKeywords(
 
 			defer func() {
 				alert := model.ChannelAlert{}
-				if err := c.db.Where(
+				if err := c.services.DB.Where(
 					"channel_id = ? AND keywords_ids && ?",
 					msg.Channel.ID,
 					pq.StringArray{k.ID},
@@ -183,7 +182,7 @@ func (c *Handlers) handleKeywords(
 				if alert.ID == "" {
 					return
 				}
-				c.websocketsGrpc.TriggerAlert(
+				c.services.WebsocketsGrpc.TriggerAlert(
 					context.Background(),
 					&websockets.TriggerAlertRequest{
 						ChannelId: msg.Channel.ID,
