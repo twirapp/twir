@@ -3,6 +3,7 @@ package chat_client
 import (
 	"context"
 	"log/slog"
+	"strings"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
@@ -48,7 +49,7 @@ func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
 
 	res, err := c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		if err.Error() != "command not found" {
+		if strings.Contains(err.Error(), "command not found") {
 			c.services.Logger.Error("cannot process command", slog.Any("err", err))
 		}
 		return
