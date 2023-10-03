@@ -18,7 +18,7 @@ func (c *ChatClient) removeUserFromLurkers(userId string) {
 		return
 	}
 
-	if ignoredUser.ID != "" {
+	if ignoredUser.ID != "" && !ignoredUser.Force {
 		err = c.services.DB.Delete(ignoredUser).Error
 		if err != nil {
 			c.services.Logger.Error(
