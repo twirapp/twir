@@ -17,7 +17,6 @@ func (c *ChatClient) Leave(channel string) {
 	c.Writer.Depart(channel)
 
 	delete(c.RateLimiters.Channels.Items, channel)
-	c.services.Logger.Info("Leaving channel: " + channel)
 }
 
 func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
@@ -26,28 +25,30 @@ func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	reader.size++
 }
 
-const readerCapacity = 50
+const readerCapacity int8 = 50
 
 func (c *ChatClient) Join(channel string) {
 	c.joinMu.Lock()
 	defer c.joinMu.Unlock()
 
+	c.Leave(channel)
+
 	c.Writer.Join(channel)
 
-	var ok bool
-
-	for _, reader := range c.Readers {
-		if reader.size < readerCapacity {
-			ok = true
-			c.readerJoin(reader, channel)
-			break
+	var reader *BotClientIrc
+	for _, r := range c.Readers {
+		if r.size >= readerCapacity {
+			continue
 		}
+
+		reader = r
+		break
 	}
 
-	if ok {
-		return
+	if reader == nil {
+		reader = c.createReader()
+		c.Readers = append(c.Readers, reader)
 	}
 
-	reader := c.createReader()
 	c.readerJoin(reader, channel)
 }

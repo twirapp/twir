@@ -24,7 +24,6 @@ func (c *ChatClient) createReader() *BotClientIrc {
 		Client:          client,
 	}
 	shardId := len(c.Readers) + 1
-	c.Readers = append(c.Readers, reader)
 
 	go func() {
 	mainLoop:
