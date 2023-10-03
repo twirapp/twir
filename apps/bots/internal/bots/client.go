@@ -245,6 +245,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 			)
 			if err != nil {
 				opts.Logger.Error("cannot fetch token", slog.Any("err", err))
+				expiresIn = 5
 				return
 			}
 			expiresIn = newToken.ExpiresIn
