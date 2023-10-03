@@ -28,12 +28,13 @@ func (c *ChatClient) Leave(channel string) {
 
 func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
+	defer cancel()
 
 l:
 	for {
 		select {
 		case <-ctx.Done():
-			break
+			break l
 		default:
 			if !reader.Connected {
 				time.Sleep(50 * time.Millisecond)
@@ -43,7 +44,6 @@ l:
 			reader.Join(channel)
 			c.channelsToReader.Add(channel, reader)
 			reader.size++
-			cancel()
 			break l
 		}
 	}
