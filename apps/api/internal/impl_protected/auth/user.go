@@ -187,6 +187,12 @@ func (c *Auth) AuthGetDashboards(
 		}
 	}
 
+	dashboards = lo.UniqBy(
+		dashboards, func(dashboard *auth.Dashboard) string {
+			return dashboard.Id
+		},
+	)
+
 	return &auth.GetDashboardsResponse{
 		Dashboards: dashboards,
 	}, nil
