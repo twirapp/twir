@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"log/slog"
@@ -8,7 +8,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *Handlers) storeMessage(
+func (c *ChatClient) storeMessage(
 	messageId, channelId, userId, userName, text string,
 	canBeDeleted bool,
 ) {
@@ -22,9 +22,9 @@ func (c *Handlers) storeMessage(
 		CreatedAt:    time.Now().UTC(),
 	}
 
-	err := c.db.Create(&entity).Error
+	err := c.services.DB.Create(&entity).Error
 	if err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot save user message to db",
 			slog.String("channelId", channelId),
 			slog.Group("user", slog.String("id", userId), slog.String("name", userName)),

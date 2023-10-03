@@ -1,14 +1,15 @@
-package handlers
+package chat_client
 
 import (
 	"context"
 	"log/slog"
 
+	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
-func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
+func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,
@@ -25,13 +26,14 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 			Text: msg.Message,
 			Emotes: lo.Map(
 				msg.Emotes,
-				func(item MessageEmote, _ int) *parser.Message_Emote {
+				func(item *irc.Emote, _ int) *parser.Message_Emote {
 					return &parser.Message_Emote{
 						Name:  item.Name,
 						Id:    item.ID,
 						Count: int64(item.Count),
 						Positions: lo.Map(
-							item.Positions, func(item EmotePosition, _ int) *parser.Message_EmotePosition {
+							item.Positions,
+							func(item irc.EmotePosition, _ int) *parser.Message_EmotePosition {
 								return &parser.Message_EmotePosition{
 									Start: int64(item.Start),
 									End:   int64(item.End),
@@ -44,58 +46,43 @@ func (c *Handlers) handleCommand(msg *Message, userBadges []string) {
 		},
 	}
 
-	res, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
+	res, err := c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
 		if err.Error() != "command not found" {
-			c.logger.Error("cannot process command", slog.Any("err", err))
+			c.services.Logger.Error("cannot process command", slog.Any("err", err))
 		}
 		return
 	}
 
 	if res.KeepOrder != nil && !*res.KeepOrder {
-		for _, response := range res.Responses {
-			r := response
-			err := ValidateResponseSlashes(r)
-
+		for _, r := range res.Responses {
 			if r == "" || r == " " {
 				continue
 			}
 
-			if err != nil {
-				go c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					err.Error(),
-					nil,
-				)
-			} else {
-				go c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					r,
-					lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
-				)
-			}
+			c.Say(
+				SayOpts{
+					Channel:   msg.Channel.Name,
+					Text:      r,
+					ReplyTo:   lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+					WithLimit: true,
+				},
+			)
 		}
 	} else {
 		for _, r := range res.Responses {
-			validateResponseErr := ValidateResponseSlashes(r)
-
 			if r == "" || r == " " {
 				continue
 			}
 
-			if validateResponseErr != nil {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					validateResponseErr.Error(),
-					nil,
-				)
-			} else {
-				c.BotClient.SayWithRateLimiting(
-					msg.Channel.Name,
-					r,
-					lo.If(res.IsReply, &msg.ID).Else(nil),
-				)
-			}
+			go c.Say(
+				SayOpts{
+					Channel:   msg.Channel.Name,
+					Text:      r,
+					ReplyTo:   lo.If(res.IsReply, lo.ToPtr(msg.ID)).Else(nil),
+					WithLimit: true,
+				},
+			)
 		}
 	}
 }

@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"log/slog"
@@ -6,13 +6,13 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *Handlers) incrementStreamParsedMessages(channelId string) {
+func (c *ChatClient) incrementStreamParsedMessages(channelId string) {
 	stream := model.ChannelsStreams{}
-	if err := c.db.Where(`"userId" = ?`, channelId).Select(
+	if err := c.services.DB.Where(`"userId" = ?`, channelId).Select(
 		"ID",
 		"ParsedMessages",
 	).Find(&stream).Error; err != nil {
-		c.logger.Error(
+		c.services.Logger.Error(
 			"cannot get channel stream",
 			slog.Any("err", err),
 			slog.String("channelId", channelId),
@@ -21,11 +21,11 @@ func (c *Handlers) incrementStreamParsedMessages(channelId string) {
 	}
 
 	if stream.ID != "" {
-		if err := c.db.Model(&stream).Update(
+		if err := c.services.DB.Model(&stream).Update(
 			"parsedMessages",
 			stream.ParsedMessages+1,
 		).Error; err != nil {
-			c.logger.Error(
+			c.services.Logger.Error(
 				"cannot increment parsed messages",
 				slog.Any("err", err),
 				slog.String("channelId", channelId),

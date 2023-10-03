@@ -1,10 +1,12 @@
-package handlers
+package chat_client
+
+import irc "github.com/gempir/go-twitch-irc/v3"
 
 type MessageUser struct {
 	ID          string
 	Name        string
 	DisplayName string
-	Badges      map[string]string
+	Badges      map[string]int
 }
 
 type MessageChannel struct {
@@ -29,6 +31,6 @@ type Message struct {
 	Channel MessageChannel
 	User    MessageUser
 	Message string
-	Emotes  []MessageEmote
+	Emotes  []*irc.Emote
 	Tags    map[string]string
 }

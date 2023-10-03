@@ -1,4 +1,4 @@
-package handlers
+package chat_client
 
 import (
 	"context"
@@ -14,14 +14,14 @@ import (
 	"github.com/samber/lo"
 )
 
-func (c *Handlers) OnMessage(msg *Message) {
+func (c *ChatClient) onMessage(msg *Message) {
 	userBadges := createUserBadges(msg.User.Badges)
 	// this need to be first because if we have no user in db it will produce many bugs
 	c.incrementUserMessages(msg.User.ID, msg.Channel.ID)
 
 	var dbChannel model.Channels
-	if err := c.db.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {
-		c.logger.Error(
+	if err := c.services.DB.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {
+		c.services.Logger.Error(
 			"cannot get channel",
 			slog.Any("err", err),
 			slog.String("channelId", msg.Channel.ID),
@@ -102,7 +102,7 @@ func (c *Handlers) OnMessage(msg *Message) {
 	if msg.Tags["first-msg"] == "1" {
 		c.workersPool.Submit(
 			func() {
-				if err := c.db.Create(
+				if err := c.services.DB.Create(
 					&model.ChannelsEventsListItem{
 						ID:        uuid.New().String(),
 						ChannelID: msg.Channel.ID,
@@ -116,14 +116,14 @@ func (c *Handlers) OnMessage(msg *Message) {
 						},
 					},
 				).Error; err != nil {
-					c.logger.Error(
+					c.services.Logger.Error(
 						"cannot save first user message",
 						slog.Any("err", err),
 						slog.String("channelId", msg.Channel.ID),
 						slog.String("userId", msg.User.ID),
 					)
 				}
-				_, err := c.eventsGrpc.FirstUserMessage(
+				_, err := c.services.EventsGrpc.FirstUserMessage(
 					context.Background(), &events.FirstUserMessageMessage{
 						BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 						UserId:          msg.User.ID,
@@ -132,7 +132,7 @@ func (c *Handlers) OnMessage(msg *Message) {
 					},
 				)
 				if err != nil {
-					c.logger.Error(
+					c.services.Logger.Error(
 						"cannot fire first user message",
 						slog.Any("err", err),
 						slog.String("channelId", msg.Channel.ID),
@@ -145,9 +145,9 @@ func (c *Handlers) OnMessage(msg *Message) {
 	}
 }
 
-func createUserBadges(badges map[string]string) []string {
+func createUserBadges(badges map[string]int) []string {
 	userBadges := lo.MapToSlice(
-		badges, func(k string, _ string) string {
+		badges, func(k string, _ int) string {
 			return strings.ToUpper(k)
 		},
 	)

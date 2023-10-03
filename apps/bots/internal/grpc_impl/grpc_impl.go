@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
@@ -231,11 +232,14 @@ func (c *BotsGrpcServer) SendMessage(
 			)
 		}
 	} else {
-		if data.SkipRateLimits {
-			bot.Say(*channelName, data.Message)
-		} else {
-			bot.SayWithRateLimiting(*channelName, data.Message, nil)
-		}
+		bot.Say(
+			chat_client.SayOpts{
+				Channel:   *channelName,
+				Text:      data.Message,
+				ReplyTo:   nil,
+				WithLimit: !data.SkipRateLimits,
+			},
+		)
 	}
 
 	return &emptypb.Empty{}, nil
@@ -250,7 +254,6 @@ func (c *BotsGrpcServer) Join(_ context.Context, data *bots.JoinOrLeaveRequest) 
 		return nil, errors.New("bot not found")
 	}
 
-	delete(bot.RateLimiters.Channels.Items, data.UserName)
 	bot.Join(data.UserName)
 	return &emptypb.Empty{}, nil
 }
@@ -264,8 +267,6 @@ func (c *BotsGrpcServer) Leave(_ context.Context, data *bots.JoinOrLeaveRequest)
 		return nil, errors.New("bot not found")
 	}
 
-	delete(bot.RateLimiters.Channels.Items, data.UserName)
-	bot.Reader.Leave(data.UserName)
-	bot.Writer.Leave(data.UserName)
+	bot.Leave(data.UserName)
 	return &emptypb.Empty{}, nil
 }

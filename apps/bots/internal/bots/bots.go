@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -15,7 +16,6 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 
-	"github.com/satont/twir/apps/bots/types"
 	"gorm.io/gorm"
 )
 
@@ -34,7 +34,7 @@ type Opts struct {
 }
 
 type Service struct {
-	Instances map[string]*types.BotClient
+	Instances map[string]*chat_client.ChatClient
 
 	db         *gorm.DB
 	logger     logger.Logger
@@ -46,7 +46,7 @@ type Service struct {
 
 func NewBotsService(opts Opts) *Service {
 	service := &Service{
-		Instances:  make(map[string]*types.BotClient),
+		Instances:  make(map[string]*chat_client.ChatClient),
 		db:         opts.DB,
 		logger:     opts.Logger,
 		cfg:        opts.Cfg,

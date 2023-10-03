@@ -32,8 +32,8 @@ func (c *handlers) userUpdate(data []byte) {
 	}
 
 	if channel.IsEnabled {
-		bot.Reader.Join(userStruct.UserName)
+		bot.Join(userStruct.UserName)
 	} else {
-		bot.Reader.Leave(userStruct.UserName)
+		bot.Leave(userStruct.UserName)
 	}
 }
