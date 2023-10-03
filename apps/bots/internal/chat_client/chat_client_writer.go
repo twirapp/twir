@@ -55,14 +55,6 @@ func (c *ChatClient) CreateWriter() {
 				},
 			)
 
-			channels, err := c.getChannels()
-			if err != nil {
-				c.services.Logger.Error("cannot get channels", slog.Any("err", err))
-				return
-			}
-
-			client.Join(channels...)
-
 			connectResultCh := make(chan error)
 			go func() {
 				// Perform the connection attempt in a goroutine.
@@ -76,12 +68,12 @@ func (c *ChatClient) CreateWriter() {
 				case <-c.Writer.disconnectChann:
 					// Signal received, initiate disconnect and break the loop.
 					client.Disconnect()
-					c.services.Logger.Info("disconnected", slog.Any("err", err))
+					c.services.Logger.Info("writer disconnected", slog.Any("err", err))
 					break mainLoop
 				case err := <-connectResultCh:
 					// Handle the result of the connection attempt.
 					if err != nil {
-						c.services.Logger.Error("disconnected", slog.Any("err", err))
+						c.services.Logger.Error("writer disconnected", slog.Any("err", err))
 					}
 					break connLoop
 				}

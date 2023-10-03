@@ -160,7 +160,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 				case <-reader.disconnectChann:
 					// Signal received, initiate disconnect and break the loop.
 					client.Disconnect()
-					c.services.Logger.Info("disconnected")
+					c.services.Logger.Info("reader disconnected", slog.Int("shardId", shardId))
 					c.Readers = lo.Filter(
 						c.Readers,
 						func(item *BotClientIrc, _ int) bool {
@@ -171,7 +171,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 				case err := <-connectResultCh:
 					// Handle the result of the connection attempt.
 					if err != nil {
-						c.services.Logger.Error("disconnected", slog.Any("err", err))
+						c.services.Logger.Error("reader disconnected", slog.Any("err", err))
 					}
 					break connLoop
 				}
