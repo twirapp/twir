@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
@@ -25,13 +26,14 @@ func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
 			Text: msg.Message,
 			Emotes: lo.Map(
 				msg.Emotes,
-				func(item MessageEmote, _ int) *parser.Message_Emote {
+				func(item *irc.Emote, _ int) *parser.Message_Emote {
 					return &parser.Message_Emote{
 						Name:  item.Name,
 						Id:    item.ID,
 						Count: int64(item.Count),
 						Positions: lo.Map(
-							item.Positions, func(item EmotePosition, _ int) *parser.Message_EmotePosition {
+							item.Positions,
+							func(item irc.EmotePosition, _ int) *parser.Message_EmotePosition {
 								return &parser.Message_EmotePosition{
 									Start: int64(item.Start),
 									End:   int64(item.End),
@@ -47,7 +49,7 @@ func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
 	res, err := c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
 		if err.Error() != "command not found" {
-			c.logger.Error("cannot process command", slog.Any("err", err))
+			c.services.Logger.Error("cannot process command", slog.Any("err", err))
 		}
 		return
 	}

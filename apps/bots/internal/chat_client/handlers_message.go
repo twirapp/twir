@@ -145,9 +145,9 @@ func (c *ChatClient) onMessage(msg *Message) {
 	}
 }
 
-func createUserBadges(badges map[string]string) []string {
+func createUserBadges(badges map[string]int) []string {
 	userBadges := lo.MapToSlice(
-		badges, func(k string, _ string) string {
+		badges, func(k string, _ int) string {
 			return strings.ToUpper(k)
 		},
 	)
