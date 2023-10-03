@@ -28,6 +28,8 @@ func (c *ChatClient) Leave(channel string) {
 }
 
 func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
+	c.joinRateLimiter.Wait(context.TODO())
+
 	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(10*time.Second))
 	defer cancel()
 

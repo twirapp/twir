@@ -58,6 +58,7 @@ type ChatClient struct {
 	channelsToReader *utils.SyncMap[*BotClientIrc]
 	joinMu           *sync.Mutex
 	workersPool      *gopool.Pool
+	joinRateLimiter  ratelimiting.SlidingWindow
 
 	RateLimiters RateLimiters
 	Model        *model.Bots
@@ -91,6 +92,7 @@ type Opts struct {
 
 func New(opts Opts) *ChatClient {
 	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
+	joinRateLimiter, _ := ratelimiting.NewSlidingWindow(20, 10*time.Second)
 
 	twitchClient, err := twitch.NewBotClient(opts.Model.ID, opts.Cfg, opts.TokensGrpc)
 	if err != nil {
@@ -131,7 +133,8 @@ func New(opts Opts) *ChatClient {
 				Items: make(map[string]*Channel),
 			},
 		},
-		workersPool: gopool.NewPool(1000),
+		workersPool:     gopool.NewPool(1000),
+		joinRateLimiter: joinRateLimiter,
 	}
 	s.CreateWriter()
 
