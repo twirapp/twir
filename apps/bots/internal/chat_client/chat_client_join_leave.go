@@ -63,8 +63,6 @@ func (c *ChatClient) Join(channel string) {
 
 	c.Leave(channel)
 
-	c.Writer.Join(channel)
-
 	reader, ok := lo.Find(
 		c.Readers, func(r *BotClientIrc) bool {
 			return r.size < readerCapacity

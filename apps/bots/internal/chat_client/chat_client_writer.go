@@ -50,11 +50,6 @@ func (c *ChatClient) CreateWriter() {
 					c.onConnect("Writer")
 				},
 			)
-			client.OnSelfJoinMessage(
-				func(m irc.UserJoinMessage) {
-					c.onSelfJoin(m, "Writer")
-				},
-			)
 
 			connectResultCh := make(chan error)
 			go func() {
