@@ -4,13 +4,13 @@ import "sync"
 
 type SyncMap[T any] struct {
 	store map[string]T
-	mu    sync.Mutex
+	mu    *sync.Mutex
 }
 
 func NewSyncMap[T any]() *SyncMap[T] {
 	return &SyncMap[T]{
 		store: make(map[string]T),
-		mu:    sync.Mutex{},
+		mu:    &sync.Mutex{},
 	}
 }
 
