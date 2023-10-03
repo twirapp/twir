@@ -509,6 +509,18 @@
 			"alertInfo": "Set time to 0 to print message on permanent ban.<br>",
 			"countLabel": "Time (minutes)",
 			"ignoreTimeoutFrom": "Ignore timeouts from usernames"
+		},
+		"labels": {
+			"followers": "Followers",
+			"raids": "Raids",
+			"donations": "Donations",
+			"subscriptions": "Subscriptions",
+			"rewards": "Rewards",
+			"firstUserMessage": "First user message",
+			"streamOnline": "Stream online",
+			"streamOffline": "Stream offline",
+			"chatCleared": "Chat cleared",
+			"userBanned": "User banned"
 		}
 	}
 }

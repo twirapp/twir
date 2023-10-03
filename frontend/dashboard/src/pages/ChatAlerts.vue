@@ -112,7 +112,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 		</template>
 
 		<n-tabs type="line">
-			<n-tab-pane name="followers" tab="Followers">
+			<n-tab-pane name="followers" :tab="t('chatAlerts.labels.followers')">
 				<Settings
 					v-model:enabled="formValue.followers.enabled"
 					v-model:messages="formValue.followers.messages"
@@ -127,7 +127,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="raids" tab="Raids">
+			<n-tab-pane name="raids" :tab="t('chatAlerts.labels.raids')">
 				<Settings
 					v-model:enabled="formValue.raids.enabled"
 					v-model:messages="formValue.raids.messages"
@@ -144,7 +144,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="donations" tab="Donations">
+			<n-tab-pane name="donations" :tab="t('chatAlerts.labels.donations')">
 				<Settings
 					v-model:enabled="formValue.donations.enabled"
 					v-model:messages="formValue.donations.messages"
@@ -161,7 +161,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="subscriptions" tab="Subscriptions">
+			<n-tab-pane name="subscriptions" :tab="t('chatAlerts.labels.subscriptions')">
 				<Settings
 					v-model:enabled="formValue.subscribers.enabled"
 					v-model:messages="formValue.subscribers.messages"
@@ -192,7 +192,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane> -->
 
-			<n-tab-pane name="rewards" tab="Rewards">
+			<n-tab-pane name="rewards" :tab="t('chatAlerts.labels.rewards')">
 				<Settings
 					v-model:enabled="formValue.redemptions.enabled"
 					v-model:messages="formValue.redemptions.messages"
@@ -207,7 +207,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="firstUserMessage" tab="First user message">
+			<n-tab-pane name="firstUserMessage" :tab="t('chatAlerts.labels.firstUserMessage')">
 				<Settings
 					v-model:enabled="formValue.firstUserMessage.enabled"
 					v-model:messages="formValue.firstUserMessage.messages"
@@ -222,7 +222,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="streamOnline" tab="Stream Online">
+			<n-tab-pane name="streamOnline" :tab="t('chatAlerts.labels.streamOnline')">
 				<Settings
 					v-model:enabled="formValue.streamOnline.enabled"
 					v-model:messages="formValue.streamOnline.messages"
@@ -237,7 +237,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="streamOffline" tab="Stream Offline">
+			<n-tab-pane name="streamOffline" :tab="t('chatAlerts.labels.streamOffline')">
 				<Settings
 					v-model:enabled="formValue.streamOffline.enabled"
 					v-model:messages="formValue.streamOffline.messages"
@@ -251,7 +251,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="chatCleared" tab="Chat cleared">
+			<n-tab-pane name="chatCleared" :tab="t('chatAlerts.labels.chatCleared')">
 				<Settings
 					v-model:enabled="formValue.chatCleared.enabled"
 					v-model:messages="formValue.chatCleared.messages"
@@ -265,7 +265,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 				/>
 			</n-tab-pane>
 
-			<n-tab-pane name="ban" tab="User banned">
+			<n-tab-pane name="ban" :tab="t('chatAlerts.labels.userBanned')">
 				<Settings
 					v-model:enabled="formValue.ban.enabled"
 					v-model:messages="formValue.ban.messages"
