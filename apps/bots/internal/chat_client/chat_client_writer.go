@@ -46,6 +46,7 @@ func (c *ChatClient) CreateWriter() {
 
 			client.OnConnect(
 				func() {
+					c.Writer.Connected = true
 					c.onConnect("Writer")
 				},
 			)
@@ -68,11 +69,13 @@ func (c *ChatClient) CreateWriter() {
 				case <-c.Writer.disconnectChann:
 					// Signal received, initiate disconnect and break the loop.
 					client.Disconnect()
+					c.Writer.Connected = false
 					c.services.Logger.Info("writer disconnected", slog.Any("err", err))
 					break mainLoop
 				case err := <-connectResultCh:
 					// Handle the result of the connection attempt.
 					if err != nil {
+						c.Writer.Connected = false
 						c.services.Logger.Error("writer disconnected", slog.Any("err", err))
 					}
 					break connLoop

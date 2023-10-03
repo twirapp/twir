@@ -45,6 +45,7 @@ type BotClientIrc struct {
 	*irc.Client
 	size            int8
 	disconnectChann chan struct{}
+	Connected       bool
 }
 
 type ChatClient struct {
