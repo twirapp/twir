@@ -17,7 +17,7 @@ import (
 func (c *ChatClient) onMessage(msg *Message) {
 	userBadges := createUserBadges(msg.User.Badges)
 	// this need to be first because if we have no user in db it will produce many bugs
-	c.incrementUserMessages(msg.User.ID, msg.Channel.ID)
+	c.updateUserStats(msg.User.ID, msg.Channel.ID, userBadges)
 
 	var dbChannel model.Channels
 	if err := c.services.DB.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {

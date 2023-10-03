@@ -7,6 +7,9 @@ type UsersStats struct {
 	Messages          int32  `gorm:"column:messages;type:INT4;default:0;"            json:"messages" db:"messages"`
 	Watched           int64  `gorm:"column:watched;type:INT8;default:0;"             json:"watched" db:"watched"`
 	UsedChannelPoints int64  `gorm:"column:usedChannelPoints;type:INT8;default:0;"       json:"usedChannelPoints" db:"usedChannelPoints"`
+	IsMod             bool   `gorm:"column:is_mod;type:BOOL;default:false;"           json:"isMod" db:"isMod"`
+	IsVip             bool   `gorm:"column:is_vip;type:BOOL;default:false;"           json:"isVip" db:"isVip"`
+	IsSubscriber      bool   `gorm:"column:is_subscriber;type:BOOL;default:false;"    json:"isSubscriber" db:"isSubscriber"`
 
 	// internal, not db
 	Emotes int `gorm:"-" json:"emotes" db:"emotes"`

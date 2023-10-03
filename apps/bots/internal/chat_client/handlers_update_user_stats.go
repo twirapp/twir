@@ -3,12 +3,13 @@ package chat_client
 import (
 	"log/slog"
 
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *ChatClient) incrementUserMessages(userId, channelId string) {
+func (c *ChatClient) updateUserStats(userId, channelId string, badges []string) {
 	stream := model.ChannelsStreams{}
 	if err := c.services.DB.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
 		c.services.Logger.Error(
@@ -63,12 +64,19 @@ func (c *ChatClient) incrementUserMessages(userId, channelId string) {
 					slog.String("channelId", userId),
 				)
 			}
-		} else if stream.ID != "" {
-			err := c.services.DB.
+		} else {
+			query := c.services.DB.
 				Model(&user.Stats).
 				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).
-				Update("messages", user.Stats.Messages+1).
-				Error
+				Update("is_mod", lo.Contains(badges, "MODERATOR")).
+				Update("is_subscriber", lo.Contains(badges, "SUBSCRIBER")).
+				Update("is_vip", lo.Contains(badges, "VIP"))
+
+			if stream.ID != "" {
+				query.Update("messages", user.Stats.Messages+1)
+			}
+
+			err := query.Error
 			if err != nil {
 				c.services.Logger.Error(
 					"cannot update user",
