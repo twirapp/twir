@@ -1,10 +1,11 @@
 <script setup lang='ts'>
 import { IconCalendarPlus } from '@tabler/icons-vue';
-import { NCard, NGrid, NGridItem, NModal, NSkeleton, useThemeVars } from 'naive-ui';
+import { NCard, NGrid, NGridItem, NModal, NSkeleton, useThemeVars, NInput } from 'naive-ui';
 import { computed, ref, toRaw } from 'vue';
 
 import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/events/card.vue';
+import { getEventName } from '@/components/events/helpers.js';
 import Modal from '@/components/events/modal.vue';
 import type { EditableEvent } from '@/components/events/types.js';
 
@@ -31,41 +32,60 @@ function openSettings(id?: string) {
 
 	showModal.value = true;
 }
+
+const search = ref('');
+const events = computed(() => {
+	const s = search.value.toLocaleLowerCase();
+
+	return eventsList.value?.events.filter((e) => {
+		return getEventName(e.type).toLocaleLowerCase().includes(s)
+			|| e.description.toLocaleLowerCase().includes(s);
+	}) ?? [];
+});
 </script>
 
 <template>
-	<!-- <Transition appear mode="out-in"> -->
-	<n-grid v-if="isLoading" responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
-		<n-grid-item v-for="index in 6" :key="index" :span="1">
-			<n-card content-style="padding: 0px">
-				<n-skeleton height="300px" />
-			</n-card>
-		</n-grid-item>
-	</n-grid>
+	<div>
+		<n-grid v-if="isLoading" responsive="screen" cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
+			<n-grid-item v-for="index in 6" :key="index" :span="1">
+				<n-card content-style="padding: 0px">
+					<n-skeleton height="300px" />
+				</n-card>
+			</n-grid-item>
+		</n-grid>
 
-	<n-grid v-else responsive="screen" item-responsive cols="1 s:2 m:2 l:3" :x-gap="10" :y-gap="10">
-		<n-grid-item>
-			<n-card
-				class="new-event-card"
-				content-style="
+		<n-input v-model:value="search" clearable placeholder="Search..." style="width: 30%" />
+
+		<n-grid
+			v-if="!isLoading"
+			style="margin-top: 15px;"
+			responsive="screen"
+			item-responsive cols="1 s:2 m:2 l:3"
+			:x-gap="10"
+			:y-gap="10"
+		>
+			<n-grid-item>
+				<n-card
+					class="new-event-card"
+					content-style="
 						display: flex;
 						align-items: center;
 						justify-content: center;
 					"
-				:style="{
-					cursor: userCanManageEvents ? 'pointer' : 'not-allowed'
-				}"
-				embedded
-				@click="openSettings"
-			>
-				<IconCalendarPlus style="height: 80px; width: 80px;" />
-			</n-card>
-		</n-grid-item>
-		<n-grid-item v-for="event of eventsList!.events" :key="event.id">
-			<card :event="event" @open-settings="openSettings(event.id)" />
-		</n-grid-item>
-	</n-grid>
-	<!-- </Transition> -->
+					:style="{
+						cursor: userCanManageEvents ? 'pointer' : 'not-allowed'
+					}"
+					embedded
+					@click="openSettings"
+				>
+					<IconCalendarPlus style="height: 80px; width: 80px;" />
+				</n-card>
+			</n-grid-item>
+			<n-grid-item v-for="event of events" :key="event.id">
+				<card :event="event" @open-settings="openSettings(event.id)" />
+			</n-grid-item>
+		</n-grid>
+	</div>
 
 	<n-modal
 		v-model:show="showModal"
@@ -84,17 +104,6 @@ function openSettings(id?: string) {
 </template>
 
 <style scoped>
-.v-enter-active,
-.v-leave-active {
-	transition: all 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-	opacity: 0;
-	transform: scale(0.9);
-}
-
 .new-event-card {
 	/* height: 120px; */
 	height: 100%;

@@ -52,3 +52,5 @@ export const flatOperations = createFlat(OPERATIONS);
 export const getOperation = (type: string): Operation | undefined => {
 	return flatOperations[type];
 };
+
+export const getEventName = (eventType: string) => flatEvents[eventType]?.name ?? eventType;

@@ -4,7 +4,7 @@ import { useThrottleFn } from '@vueuse/core';
 import { NText, NButton, NTooltip, NTag, NRow, NSpace, NSwitch, NPopconfirm } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import { getOperation, flatEvents } from './helpers.js';
+import { getOperation, flatEvents, getEventName } from './helpers.js';
 import { EditableEvent } from './types.js';
 
 import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';
@@ -21,8 +21,6 @@ defineEmits<{
 const eventsManager = useEventsManager();
 const eventsPatcher = eventsManager.patch!;
 const eventsDeleter = eventsManager.deleteOne;
-
-const getEventName = (eventType: string) => flatEvents[eventType]?.name ?? eventType;
 
 const throttledSwitchState = useThrottleFn((v: boolean) => {
 	eventsPatcher.mutate({ id: props.event.id!, enabled: v });
