@@ -68,7 +68,7 @@ func NewBotsService(opts Opts) *Service {
 		panic(err)
 	}
 
-	joinRateLimiter, _ := ratelimiting.NewSlidingWindow(20, 10*time.Second)
+	joinRateLimiter, _ := ratelimiting.NewSlidingWindow(20, 15*time.Second)
 
 	for _, bot := range bots {
 		bot := bot
