@@ -96,6 +96,14 @@ func newBot(opts ClientOpts) *types.BotClient {
 		Items: make(map[string]*types.Channel),
 	}
 
+	joinOpts := joinChannelOpts{
+		db:         opts.DB,
+		config:     opts.Cfg,
+		logger:     opts.Logger,
+		botModel:   opts.Model,
+		tokensGrpc: opts.TokensGrpc,
+	}
+
 	botHandlers := handlers.CreateHandlers(
 		&handlers.Opts{
 			DB:             opts.DB,
@@ -187,52 +195,21 @@ func newBot(opts ClientOpts) *types.BotClient {
 			)
 		},
 	)
-	client.Reader.OnShardReconnect(
-		func(i int) {
-			channelNames := getChannelsNames(
-				joinChannelOpts{
-					db:         opts.DB,
-					config:     opts.Cfg,
-					logger:     opts.Logger,
-					botModel:   opts.Model,
-					tokensGrpc: opts.TokensGrpc,
-				},
-			)
-			if err := client.Reader.Join(channelNames...); err != nil {
-				opts.Logger.Error(
-					"cannot join channels on reader reconnect",
-					slog.Any("err", err),
-					slog.String("botName", me.Login),
-				)
-			}
+	client.Reader.OnShardLatencyUpdate(
+		func(i int, duration time.Duration) {
 			opts.Logger.Info(
-				"IRC reader re-connected",
-				slog.String("botName", me.Login),
+				"Shard latency update",
 				slog.Int("shardId", i),
+				slog.Duration(
+					"latency",
+					duration,
+				),
 			)
 		},
 	)
-
-	// writer events
-	client.Writer.OnReconnect(
-		func() {
-			channelNames := getChannelsNames(
-				joinChannelOpts{
-					db:         opts.DB,
-					config:     opts.Cfg,
-					logger:     opts.Logger,
-					botModel:   opts.Model,
-					tokensGrpc: opts.TokensGrpc,
-				},
-			)
-			if err := client.Writer.Join(channelNames...); err != nil {
-				opts.Logger.Error(
-					"cannot join channels on writer reconnect",
-					slog.Any("err", err),
-					slog.String("botName", me.Login),
-				)
-			}
-			opts.Logger.Info("IRC writer re-connected", slog.String("botName", me.Login))
+	client.Reader.OnShardReconnect(
+		func(_ int) {
+			joinChannels(joinOpts, client.Reader.Join)
 		},
 	)
 
@@ -249,25 +226,38 @@ func newBot(opts ClientOpts) *types.BotClient {
 			}
 		},
 	)
-
-	channelNames := getChannelsNames(
-		joinChannelOpts{
-			db:         opts.DB,
-			config:     opts.Cfg,
-			logger:     opts.Logger,
-			botModel:   opts.Model,
-			tokensGrpc: opts.TokensGrpc,
+	client.Writer.OnReconnect(
+		func() {
+			joinChannels(joinOpts, client.Writer.Join)
 		},
 	)
-	if err := client.Reader.Join(channelNames...); err != nil {
-		panic(err)
-	}
-	if err := client.Writer.Join(channelNames...); err != nil {
-		panic(err)
-	}
+
+	expiresIn := token.ExpiresIn
+
+	go func() {
+		for {
+			time.Sleep(time.Duration(expiresIn-60) * time.Second)
+			newToken, err := opts.TokensGrpc.RequestBotToken(
+				context.TODO(),
+				&tokens.GetBotTokenRequest{
+					BotId: opts.Model.ID,
+				},
+			)
+			if err != nil {
+				opts.Logger.Error("cannot fetch token", slog.Any("err", err))
+				return
+			}
+			expiresIn = newToken.ExpiresIn
+			client.Writer.SetLogin(me.Login, fmt.Sprintf("oauth:%s", newToken.AccessToken))
+			opts.Logger.Info("Updated writer token")
+		}
+	}()
+
+	joinChannels(joinOpts, client.Reader.Join)
+	joinChannels(joinOpts, client.Writer.Join)
+
 	opts.Logger.Info(
 		"IRC reader connected", slog.String("botName", me.Login),
-		slog.Int("channels", len(channelNames)),
 	)
 
 	// reader.OnShardMessage(onShardMessage)
@@ -299,7 +289,14 @@ type joinChannelOpts struct {
 }
 
 func getChannelsNames(opts joinChannelOpts) []string {
-	twitchClient, err := tokensLib.NewBotClient(opts.botModel.ID, opts.config, opts.tokensGrpc)
+	ctx, closeFunc := context.WithTimeout(context.TODO(), 10*time.Second)
+	defer closeFunc()
+	twitchClient, err := tokensLib.NewBotClientWithContext(
+		ctx,
+		opts.botModel.ID,
+		opts.config,
+		opts.tokensGrpc,
+	)
 	if err != nil {
 		panic(err)
 	}
@@ -338,7 +335,8 @@ func getChannelsNames(opts joinChannelOpts) []string {
 					},
 				)
 				if err != nil {
-					panic(err)
+					opts.logger.Error("cannot fetch users", slog.Any("err", err))
+					return
 				}
 				twitchUsersMU.Lock()
 				twitchUsers = append(twitchUsers, twitchUsersReq.Data.Users...)
@@ -373,4 +371,12 @@ func createPromCounter(user helix.User) prometheus.Counter {
 	prometheus.Register(messagesCounter)
 
 	return messagesCounter
+}
+
+func joinChannels(opts joinChannelOpts, joinFunc func(names ...string) error) {
+	channelsNames := getChannelsNames(opts)
+
+	if err := joinFunc(channelsNames...); err != nil {
+		opts.logger.Error("cannot join channels", slog.Any("error", err))
+	}
 }
