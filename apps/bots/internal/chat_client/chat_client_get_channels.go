@@ -28,7 +28,7 @@ func (c *ChatClient) getChannels() ([]string, error) {
 	channelsChunks := lo.Chunk(botChannels, 100)
 
 	var twitchUsers []helix.User
-	var twitchUsersMU sync.Mutex
+	var twitchUsersMu sync.Mutex
 
 	wg := utils.NewGoroutinesGroup()
 
@@ -52,9 +52,9 @@ func (c *ChatClient) getChannels() ([]string, error) {
 				if err != nil {
 					panic(err)
 				}
-				twitchUsersMU.Lock()
+				twitchUsersMu.Lock()
 				twitchUsers = append(twitchUsers, twitchUsersReq.Data.Users...)
-				twitchUsersMU.Unlock()
+				twitchUsersMu.Unlock()
 			},
 		)
 	}

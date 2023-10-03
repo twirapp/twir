@@ -2,6 +2,7 @@ package chat_client
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -137,6 +138,7 @@ func New(opts Opts) *ChatClient {
 		panic(err)
 	}
 
+	opts.Logger.Info(fmt.Sprintf("Joining %v channels", len(channels)))
 	for _, ch := range channels {
 		s.Join(ch)
 	}
