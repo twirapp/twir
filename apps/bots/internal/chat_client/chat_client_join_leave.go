@@ -25,7 +25,7 @@ func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	reader.size++
 }
 
-const readerCapacity int8 = 1
+const readerCapacity int8 = 50
 
 func (c *ChatClient) Join(channel string) {
 	c.joinMu.Lock()
