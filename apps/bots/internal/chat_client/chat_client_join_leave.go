@@ -1,27 +1,23 @@
 package chat_client
 
 func (c *ChatClient) Leave(channel string) {
-	clientReader, ok := c.channelsToReaders[channel]
-	if ok {
-		clientReader.size--
-		if clientReader.size == 0 {
-			clientReader.disconnectChann <- struct{}{}
-			delete(c.channelsToReaders, channel)
-		}
-	}
-
 	for _, r := range c.Readers {
 		r.Depart(channel)
+		r.size--
+
+		if r.size == 0 {
+			r.disconnectChann <- struct{}{}
+		}
 	}
 
 	c.Writer.Depart(channel)
 
 	delete(c.RateLimiters.Channels.Items, channel)
+	c.services.Logger.Info("Leave channel: " + channel)
 }
 
 func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	reader.Join(channel)
-	c.channelsToReaders[channel] = reader
 	reader.size++
 }
 

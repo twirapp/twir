@@ -52,7 +52,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 
 			client.OnConnect(
 				func() {
-					c.onConnect("Reader")
+					c.onConnect(fmt.Sprintf("Reader #%v", shardId))
 				},
 			)
 			client.OnSelfJoinMessage(

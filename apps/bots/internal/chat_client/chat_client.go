@@ -52,9 +52,8 @@ type ChatClient struct {
 	Writer  *BotClientIrc
 
 	// channelId:writer
-	channelsToReaders map[string]*BotClientIrc
-	joinMu            sync.Mutex
-	workersPool       *gopool.Pool
+	joinMu      sync.Mutex
+	workersPool *gopool.Pool
 
 	RateLimiters RateLimiters
 	Model        *model.Bots
@@ -106,8 +105,7 @@ func New(opts Opts) *ChatClient {
 	me := meReq.Data.Users[0]
 
 	s := &ChatClient{
-		joinMu:            sync.Mutex{},
-		channelsToReaders: make(map[string]*BotClientIrc),
+		joinMu: sync.Mutex{},
 		services: &services{
 			DB:             opts.DB,
 			Cfg:            opts.Cfg,
