@@ -61,8 +61,6 @@ type ChatClient struct {
 	TwitchUser   *helix.User
 }
 
-const readerCapacity = 50
-
 type services struct {
 	DB             *gorm.DB
 	Cfg            cfg.Config

@@ -49,7 +49,11 @@ func (c *ChatClient) CreateWriter() {
 					c.onConnect("Writer")
 				},
 			)
-			client.OnSelfJoinMessage(c.onSelfJoin)
+			client.OnSelfJoinMessage(
+				func(m irc.UserJoinMessage) {
+					c.onSelfJoin(m, "Writer")
+				},
+			)
 
 			channels, err := c.getChannels()
 			if err != nil {

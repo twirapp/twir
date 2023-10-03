@@ -23,6 +23,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 		disconnectChann: make(chan struct{}),
 		Client:          client,
 	}
+	shardId := len(c.Readers) + 1
 	c.Readers = append(c.Readers, reader)
 
 	go func() {
@@ -54,7 +55,11 @@ func (c *ChatClient) createReader() *BotClientIrc {
 					c.onConnect("Reader")
 				},
 			)
-			client.OnSelfJoinMessage(c.onSelfJoin)
+			client.OnSelfJoinMessage(
+				func(m irc.UserJoinMessage) {
+					c.onSelfJoin(m, fmt.Sprint(shardId))
+				},
+			)
 			client.OnUserStateMessage(
 				func(message irc.UserStateMessage) {
 					if message.User.ID == c.TwitchUser.ID && c.services.Cfg.AppEnv != "development" {
@@ -136,12 +141,6 @@ func (c *ChatClient) createReader() *BotClientIrc {
 			)
 			client.OnUserNoticeMessage(c.onNotice)
 			client.OnUserJoinMessage(c.onUserJoin)
-			client.OnConnect(
-				func() {
-					c.onConnect("Reader")
-				},
-			)
-			client.OnSelfJoinMessage(c.onSelfJoin)
 
 			if err != nil {
 				c.services.Logger.Error("cannot get channels", slog.Any("err", err))
