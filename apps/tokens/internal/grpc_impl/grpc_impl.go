@@ -215,5 +215,6 @@ func (c *TokensGrpcImpl) RequestBotToken(
 	return &tokens.Token{
 		AccessToken: decryptedAccessToken,
 		Scopes:      bot.Token.Scopes,
+		ExpiresIn:   bot.Token.ExpiresIn,
 	}, nil
 }

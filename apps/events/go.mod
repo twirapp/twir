@@ -12,8 +12,10 @@ replace (
 
 require (
 	github.com/getsentry/sentry-go v0.23.0
+	github.com/goccy/go-json v0.9.11
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nicklaw5/helix/v2 v2.24.0
+	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
@@ -30,8 +32,11 @@ require (
 )
 
 require (
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.4.3 // indirect

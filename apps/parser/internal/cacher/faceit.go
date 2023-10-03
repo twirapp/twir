@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
+	"strconv"
+	"time"
+
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"math"
-	"strconv"
-	"time"
 )
 
 type faceitMatchesResponse []*types.FaceitMatch
@@ -156,7 +157,7 @@ func (c *cacher) GetFaceitUserData(ctx context.Context) (*types.FaceitUser, erro
 	var game = *integration.Data.Game
 
 	if integration.Data.Game == nil {
-		game = "csgo"
+		game = "cs2"
 	}
 
 	data := &types.FaceitUserResponse{}

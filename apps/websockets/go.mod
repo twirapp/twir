@@ -11,6 +11,7 @@ replace (
 
 require (
 	github.com/getsentry/sentry-go v0.23.0
+	github.com/goccy/go-json v0.9.11
 	github.com/olahol/melody v1.1.1
 	github.com/redis/go-redis/v9 v9.0.5
 	github.com/samber/lo v1.38.1
@@ -29,6 +30,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

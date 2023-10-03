@@ -251,7 +251,10 @@ const createButtonProps = { class: 'create-button' } as any;
 				</template>
 			</n-dynamic-input>
 			<n-button
-				dashed block style="margin-top:10px"
+				dashed
+				block
+				style="margin-top:10px"
+				:disabled="formValue.responses.length >= 3"
 				@click="() => formValue.responses.push({ text: '' })"
 			>
 				<IconPlus />

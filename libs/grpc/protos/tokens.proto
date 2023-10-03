@@ -14,6 +14,7 @@ service Tokens {
 message Token {
   string accessToken = 1;
   repeated string scopes = 2;
+	int32 expires_in = 3;
 }
 
 message GetUserTokenRequest {

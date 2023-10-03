@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/parser"
@@ -103,13 +102,14 @@ func (c *ChatClient) handleTts(msg *Message, userBadges []string) {
 			Id:   msg.ID,
 			Text: text,
 			Emotes: lo.Map(
-				msg.Emotes, func(item *twitch.Emote, _ int) *parser.Message_Emote {
+				msg.Emotes,
+				func(item MessageEmote, _ int) *parser.Message_Emote {
 					return &parser.Message_Emote{
 						Name:  item.Name,
 						Id:    item.ID,
 						Count: int64(item.Count),
 						Positions: lo.Map(
-							item.Positions, func(item twitch.EmotePosition, _ int) *parser.Message_EmotePosition {
+							item.Positions, func(item EmotePosition, _ int) *parser.Message_EmotePosition {
 								return &parser.Message_EmotePosition{
 									Start: int64(item.Start),
 									End:   int64(item.End),
