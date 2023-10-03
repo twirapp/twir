@@ -21,6 +21,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/satont/twir/libs/utils"
 	"gorm.io/gorm"
 )
 
@@ -53,7 +54,7 @@ type ChatClient struct {
 	Writer  *BotClientIrc
 
 	// channelId:writer
-	channelsToReader map[string]*BotClientIrc
+	channelsToReader *utils.SyncMap[*BotClientIrc]
 	joinMu           sync.Mutex
 	workersPool      *gopool.Pool
 
@@ -108,7 +109,7 @@ func New(opts Opts) *ChatClient {
 
 	s := &ChatClient{
 		joinMu:           sync.Mutex{},
-		channelsToReader: make(map[string]*BotClientIrc),
+		channelsToReader: utils.NewSyncMap[*BotClientIrc](),
 		services: &services{
 			DB:             opts.DB,
 			Cfg:            opts.Cfg,

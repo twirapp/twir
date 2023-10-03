@@ -5,12 +5,12 @@ func (c *ChatClient) Leave(channel string) {
 		r.Depart(channel)
 	}
 
-	reader, ok := c.channelsToReader[channel]
+	reader, ok := c.channelsToReader.Get(channel)
 	if ok {
 		reader.size--
 		if reader.size == 0 {
 			reader.disconnectChann <- struct{}{}
-			delete(c.channelsToReader, channel)
+			c.channelsToReader.Delete(channel)
 		}
 	}
 
@@ -21,7 +21,7 @@ func (c *ChatClient) Leave(channel string) {
 
 func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	reader.Join(channel)
-	c.channelsToReader[channel] = reader
+	c.channelsToReader.Add(channel, reader)
 	reader.size++
 }
 

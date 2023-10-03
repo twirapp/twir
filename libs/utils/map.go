@@ -20,6 +20,16 @@ func (c *SyncMap[T]) Add(key string, value T) {
 	c.store[key] = value
 }
 
-func (c *SyncMap[T]) Get(key string) T {
-	return c.store[key]
+func (c *SyncMap[T]) Get(key string) (T, bool) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	v, ok := c.store[key]
+	return v, ok
+}
+
+func (c *SyncMap[T]) Delete(key string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.store, key)
 }
