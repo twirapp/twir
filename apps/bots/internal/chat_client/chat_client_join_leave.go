@@ -25,13 +25,13 @@ func (c *ChatClient) readerJoin(reader *BotClientIrc, channel string) {
 	reader.size++
 }
 
-const readerCapacity int8 = 50
+const readerCapacity int8 = 1
 
 func (c *ChatClient) Join(channel string) {
 	c.joinMu.Lock()
 	defer c.joinMu.Unlock()
 
-	c.Leave(channel)
+	// c.Leave(channel)
 
 	c.Writer.Join(channel)
 
