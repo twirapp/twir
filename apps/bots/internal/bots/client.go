@@ -199,7 +199,11 @@ func newBot(opts ClientOpts) *types.BotClient {
 				},
 			)
 			if err := client.Reader.Join(channelNames...); err != nil {
-				panic(err)
+				opts.Logger.Error(
+					"cannot join channels on reader reconnect",
+					slog.Any("err", err),
+					slog.String("botName", me.Login),
+				)
 			}
 			opts.Logger.Info(
 				"IRC reader re-connected",
@@ -222,7 +226,11 @@ func newBot(opts ClientOpts) *types.BotClient {
 				},
 			)
 			if err := client.Writer.Join(channelNames...); err != nil {
-				panic(err)
+				opts.Logger.Error(
+					"cannot join channels on writer reconnect",
+					slog.Any("err", err),
+					slog.String("botName", me.Login),
+				)
 			}
 			opts.Logger.Info("IRC writer re-connected", slog.String("botName", me.Login))
 		},
