@@ -1,6 +1,7 @@
 package types
 
 import (
+	"context"
 	"fmt"
 	"strings"
 	"sync"
@@ -9,6 +10,7 @@ import (
 	"github.com/Adeithe/go-twitch/irc"
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -29,12 +31,27 @@ type RateLimiters struct {
 }
 
 type BotClient struct {
-	Reader *irc.Client
-	Writer *irc.Conn
+	Reader      *irc.Client
+	Writer      *irc.Conn
+	JoinLimiter ratelimiting.SlidingWindow
 
 	RateLimiters RateLimiters
 	Model        *model.Bots
 	TwitchUser   *helix.User
+}
+
+func (c *BotClient) Join(channels ...string) error {
+	chunks := lo.Chunk(channels, 20)
+
+	ctx := context.Background()
+
+	for _, ch := range chunks {
+		c.JoinLimiter.Wait(ctx)
+		c.Reader.Join(ch...)
+		c.Writer.Join(ch...)
+	}
+
+	return nil
 }
 
 func (c *BotClient) Say(channel, text string) {

@@ -50,11 +50,14 @@ type ClientOpts struct {
 func newBot(opts ClientOpts) *types.BotClient {
 	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
 
+	joinLimiter, _ := ratelimiting.NewSlidingWindow(20, 10*time.Second)
+
 	client := types.BotClient{
 		RateLimiters: types.RateLimiters{
 			Global: globalRateLimiter,
 		},
-		Model: opts.Model,
+		JoinLimiter: joinLimiter,
+		Model:       opts.Model,
 	}
 
 	twitchClient, err := tokensLib.NewBotClient(opts.Model.ID, opts.Cfg, opts.TokensGrpc)
@@ -209,7 +212,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 	)
 	client.Reader.OnShardReconnect(
 		func(_ int) {
-			joinChannels(joinOpts, client.Reader.Join)
+			joinChannels(joinOpts, client.Join)
 		},
 	)
 
@@ -228,7 +231,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 	)
 	client.Writer.OnReconnect(
 		func() {
-			joinChannels(joinOpts, client.Writer.Join)
+			joinChannels(joinOpts, client.Join)
 		},
 	)
 
@@ -254,8 +257,7 @@ func newBot(opts ClientOpts) *types.BotClient {
 		}
 	}()
 
-	joinChannels(joinOpts, client.Reader.Join)
-	joinChannels(joinOpts, client.Writer.Join)
+	joinChannels(joinOpts, client.Join)
 
 	opts.Logger.Info(
 		"IRC reader connected", slog.String("botName", me.Login),

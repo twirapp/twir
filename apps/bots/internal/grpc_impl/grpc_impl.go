@@ -251,8 +251,7 @@ func (c *BotsGrpcServer) Join(_ context.Context, data *bots.JoinOrLeaveRequest) 
 	}
 
 	delete(bot.RateLimiters.Channels.Items, data.UserName)
-	bot.Reader.Join(data.UserName)
-	bot.Writer.Join(data.UserName)
+	bot.Join(data.UserName)
 	return &emptypb.Empty{}, nil
 }
 
