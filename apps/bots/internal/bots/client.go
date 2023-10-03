@@ -1,6 +1,7 @@
 package bots
 
 import (
+	ratelimiter "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -19,29 +20,31 @@ import (
 )
 
 type ClientOpts struct {
-	DB             *gorm.DB
-	Cfg            cfg.Config
-	Logger         logger.Logger
-	Model          *model.Bots
-	ParserGrpc     parser.ParserClient
-	TokensGrpc     tokens.TokensClient
-	EventsGrpc     events.EventsClient
-	WebsocketsGrpc websockets.WebsocketClient
-	Redis          *redis.Client
+	DB              *gorm.DB
+	Cfg             cfg.Config
+	Logger          logger.Logger
+	Model           *model.Bots
+	ParserGrpc      parser.ParserClient
+	TokensGrpc      tokens.TokensClient
+	EventsGrpc      events.EventsClient
+	WebsocketsGrpc  websockets.WebsocketClient
+	Redis           *redis.Client
+	JoinRateLimiter ratelimiter.SlidingWindow
 }
 
 func newBot(opts ClientOpts) *chat_client.ChatClient {
 	client := chat_client.New(
 		chat_client.Opts{
-			DB:             opts.DB,
-			Cfg:            opts.Cfg,
-			Logger:         opts.Logger,
-			Model:          opts.Model,
-			ParserGrpc:     opts.ParserGrpc,
-			TokensGrpc:     opts.TokensGrpc,
-			EventsGrpc:     opts.EventsGrpc,
-			WebsocketsGrpc: opts.WebsocketsGrpc,
-			Redis:          opts.Redis,
+			DB:              opts.DB,
+			Cfg:             opts.Cfg,
+			Logger:          opts.Logger,
+			Model:           opts.Model,
+			ParserGrpc:      opts.ParserGrpc,
+			TokensGrpc:      opts.TokensGrpc,
+			EventsGrpc:      opts.EventsGrpc,
+			WebsocketsGrpc:  opts.WebsocketsGrpc,
+			Redis:           opts.Redis,
+			JoinRateLimiter: opts.JoinRateLimiter,
 		},
 	)
 

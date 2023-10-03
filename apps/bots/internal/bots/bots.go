@@ -2,7 +2,9 @@ package bots
 
 import (
 	"sync"
+	"time"
 
+	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/libs/grpc/generated/events"
@@ -66,19 +68,22 @@ func NewBotsService(opts Opts) *Service {
 		panic(err)
 	}
 
+	joinRateLimiter, _ := ratelimiting.NewSlidingWindow(20, 10*time.Second)
+
 	for _, bot := range bots {
 		bot := bot
 		instance := newBot(
 			ClientOpts{
-				DB:             opts.DB,
-				Cfg:            opts.Cfg,
-				Logger:         opts.Logger,
-				Model:          &bot,
-				ParserGrpc:     opts.ParserGrpc,
-				TokensGrpc:     opts.TokensGrpc,
-				EventsGrpc:     opts.EventsGrpc,
-				WebsocketsGrpc: opts.WebsocketsGrpc,
-				Redis:          opts.Redis,
+				DB:              opts.DB,
+				Cfg:             opts.Cfg,
+				Logger:          opts.Logger,
+				Model:           &bot,
+				ParserGrpc:      opts.ParserGrpc,
+				TokensGrpc:      opts.TokensGrpc,
+				EventsGrpc:      opts.EventsGrpc,
+				WebsocketsGrpc:  opts.WebsocketsGrpc,
+				Redis:           opts.Redis,
+				JoinRateLimiter: joinRateLimiter,
 			},
 		)
 

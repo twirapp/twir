@@ -79,20 +79,20 @@ type services struct {
 }
 
 type Opts struct {
-	DB             *gorm.DB
-	Cfg            cfg.Config
-	Logger         logger.Logger
-	Model          *model.Bots
-	ParserGrpc     parser.ParserClient
-	TokensGrpc     tokens.TokensClient
-	EventsGrpc     events.EventsClient
-	WebsocketsGrpc websockets.WebsocketClient
-	Redis          *redis.Client
+	DB              *gorm.DB
+	Cfg             cfg.Config
+	Logger          logger.Logger
+	Model           *model.Bots
+	ParserGrpc      parser.ParserClient
+	TokensGrpc      tokens.TokensClient
+	EventsGrpc      events.EventsClient
+	WebsocketsGrpc  websockets.WebsocketClient
+	Redis           *redis.Client
+	JoinRateLimiter ratelimiting.SlidingWindow
 }
 
 func New(opts Opts) *ChatClient {
-	globalRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
-	joinRateLimiter, _ := ratelimiting.NewSlidingWindow(20, 10*time.Second)
+	globalChatRateLimiter, _ := ratelimiting.NewSlidingWindow(100, 30*time.Second)
 
 	twitchClient, err := twitch.NewBotClient(opts.Model.ID, opts.Cfg, opts.TokensGrpc)
 	if err != nil {
@@ -128,13 +128,13 @@ func New(opts Opts) *ChatClient {
 		TwitchUser: &me,
 		Model:      opts.Model,
 		RateLimiters: RateLimiters{
-			Global: globalRateLimiter,
+			Global: globalChatRateLimiter,
 			Channels: ChannelsRateLimiter{
 				Items: make(map[string]*Channel),
 			},
 		},
 		workersPool:     gopool.NewPool(1000),
-		joinRateLimiter: joinRateLimiter,
+		joinRateLimiter: opts.JoinRateLimiter,
 	}
 	s.CreateWriter()
 
