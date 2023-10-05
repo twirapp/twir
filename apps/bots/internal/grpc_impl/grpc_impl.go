@@ -236,7 +236,7 @@ func (c *BotsGrpcServer) SendMessage(
 			chat_client.SayOpts{
 				Channel:   *channelName,
 				Text:      data.Message,
-				ReplyTo:   nil,
+				ReplyTo:   data.ReplyTo,
 				WithLimit: !data.SkipRateLimits,
 			},
 		)

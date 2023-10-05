@@ -10,6 +10,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -64,12 +65,19 @@ var RussianRoulette = &types.DefaultCommand{
 			parseCtx.Sender.DisplayName,
 		)
 
+		replyTo := lo.IfF(
+			parseCtx.Command.IsReply, func() *string {
+				return &parseCtx.MessageId
+			},
+		).Else(nil)
+
 		_, err := parseCtx.Services.GrpcClients.Bots.SendMessage(
 			ctx, &bots.SendMessageRequest{
 				ChannelId:      parseCtx.Channel.ID,
 				ChannelName:    &parseCtx.Channel.Name,
 				Message:        initMessage,
 				SkipRateLimits: true,
+				ReplyTo:        replyTo,
 			},
 		)
 		if err != nil {
@@ -153,6 +161,7 @@ var RussianRoulette = &types.DefaultCommand{
 					ChannelName:    &parseCtx.Channel.Name,
 					Message:        deathMessage,
 					SkipRateLimits: true,
+					ReplyTo:        replyTo,
 				},
 			)
 			if err != nil {

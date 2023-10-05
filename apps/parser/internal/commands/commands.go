@@ -234,6 +234,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	parseCtx := &types.ParseContext{
+		MessageId: requestData.Message.Id,
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,

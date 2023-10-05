@@ -22,6 +22,7 @@ message SendMessageRequest {
 	string message = 3;
 	optional bool isAnnounce = 4;
 	bool skip_rate_limits = 5;
+	optional string reply_to = 6;
 }
 
 message JoinOrLeaveRequest {

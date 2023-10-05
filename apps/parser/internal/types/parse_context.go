@@ -30,9 +30,10 @@ type ParseContextEmote struct {
 }
 
 type ParseContext struct {
-	Channel *ParseContextChannel
-	Sender  *ParseContextSender
-	Emotes  []*ParseContextEmote
+	MessageId string
+	Channel   *ParseContextChannel
+	Sender    *ParseContextSender
+	Emotes    []*ParseContextEmote
 
 	Text      *string
 	IsCommand bool
