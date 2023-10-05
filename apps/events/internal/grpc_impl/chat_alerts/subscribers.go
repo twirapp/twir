@@ -28,6 +28,7 @@ func (c *ChatAlerts) Subscribe(ctx context.Context, months int, userName, channe
 	}
 
 	sample := c.takeCountedSample(months, c.settings.Subscribers.Messages)
+	sample = strings.ReplaceAll(sample, "{month}", fmt.Sprint(months))
 	sample = strings.ReplaceAll(sample, "{months}", fmt.Sprint(months))
 	sample = strings.ReplaceAll(sample, "{user}", userName)
 
