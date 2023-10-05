@@ -107,6 +107,20 @@ var RussianRoulette = &types.DefaultCommand{
 			result.Result = []string{surviveMessage}
 			return result
 		} else {
+			_, err = parseCtx.Services.GrpcClients.Bots.SendMessage(
+				ctx,
+				&bots.SendMessageRequest{
+					ChannelId:      parseCtx.Channel.ID,
+					ChannelName:    &parseCtx.Channel.Name,
+					Message:        deathMessage,
+					SkipRateLimits: true,
+					ReplyTo:        replyTo,
+				},
+			)
+			if err != nil {
+				return result
+			}
+
 			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
 			if parsedSettings.CanBeUsedByModerators && isModerator && parsedSettings.TimeoutSeconds > 0 {
 				_, err = twitchClient.RemoveChannelModerator(
@@ -152,20 +166,6 @@ var RussianRoulette = &types.DefaultCommand{
 					result.Result = []string{"internal error when trying to ban user"}
 					return result
 				}
-			}
-
-			_, err = parseCtx.Services.GrpcClients.Bots.SendMessage(
-				ctx,
-				&bots.SendMessageRequest{
-					ChannelId:      parseCtx.Channel.ID,
-					ChannelName:    &parseCtx.Channel.Name,
-					Message:        deathMessage,
-					SkipRateLimits: true,
-					ReplyTo:        replyTo,
-				},
-			)
-			if err != nil {
-				return result
 			}
 
 			result.Result = []string{}
