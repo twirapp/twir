@@ -88,6 +88,9 @@ func (c *Community) CommunityGetUsers(
 			&dbUser.ChannelID,
 			&dbUser.UserID,
 			&dbUser.UsedChannelPoints,
+			&dbUser.IsMod,
+			&dbUser.IsVip,
+			&dbUser.IsSubscriber,
 			&dbUser.Emotes,
 		)
 		if err != nil {
