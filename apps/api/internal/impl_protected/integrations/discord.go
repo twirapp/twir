@@ -61,7 +61,6 @@ func (c *Integrations) IntegrationsDiscordGetData(
 	if channelIntegration.Data == nil || channelIntegration.Data.UserId == nil {
 		return &integrations_discord.GetDataResponse{}, nil
 	}
-
 	return &integrations_discord.GetDataResponse{
 		Id:                       *channelIntegration.Data.UserId,
 		UserName:                 *channelIntegration.Data.UserName,
