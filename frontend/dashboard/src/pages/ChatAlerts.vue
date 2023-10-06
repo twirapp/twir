@@ -11,17 +11,17 @@ import Settings from '@/components/chatAlerts/settings.vue';
 
 const formValue = ref<Required<ChatAlertsSettings>>({
 	chatCleared: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 2,
 	},
 	cheers: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 	donations: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
@@ -31,32 +31,32 @@ const formValue = ref<Required<ChatAlertsSettings>>({
 		cooldown: 2,
 	},
 	followers: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 3,
 	},
 	raids: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 	redemptions: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 	streamOffline: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 	streamOnline: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 	subscribers: {
-		enabled: true,
+		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
