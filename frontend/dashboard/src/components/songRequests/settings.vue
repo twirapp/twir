@@ -37,7 +37,7 @@ const youtubeModuleSettings = computed(() => {
 const youtubeModuleUpdater = youtubeModuleManager.update();
 
 const formValue = ref<YouTubeSettings>({
-	enabled: true,
+	enabled: false,
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
 	channelPointsRewardId: '',
