@@ -9,22 +9,23 @@ import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
-  NForm,
-  NFormItem,
-  NInput,
-  NInputNumber,
-  NButton,
-  NSlider,
-  NGrid,
-  NGridItem,
-  NDynamicInput,
-  NDivider,
-  NSpace,
-  NTimeline,
-  NTimelineItem,
-  NCheckbox,
+	NForm,
+	NFormItem,
+	NInput,
+	NInputNumber,
+	NButton,
+	NSlider,
+	NGrid,
+	NGridItem,
+	NDynamicInput,
+	NDivider,
+	NSpace,
+	NTimeline,
+	NTimelineItem,
+	NCheckbox,
+	useThemeVars,
 } from 'naive-ui';
-import { ref, onMounted, toRaw } from 'vue';
+import { ref, onMounted, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTimersManager } from '@/api/index.js';
@@ -40,6 +41,9 @@ const emits = defineEmits<{
 const nowTime = new Date();
 
 const { t } = useI18n();
+
+const themeVars = useThemeVars();
+const configBackground = computed(() => themeVars.value.actionColor);
 
 const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableTimer>({
@@ -135,23 +139,48 @@ const sliderMarks = {
 	>
 		<n-space vertical style="width: 100%">
 			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
-				<n-input v-model:value="formValue.name" :placeholder="t('sharedTexts.name')" :maxlength="25" />
+				<n-input
+					v-model:value="formValue.name" :placeholder="t('sharedTexts.name')"
+					:maxlength="25"
+				/>
 			</n-form-item>
-			<n-form-item :label="t('timers.table.columns.intervalInMinutes')" path="timeInterval" show-require-mark>
-				<n-grid :cols="12" :x-gap="5">
-					<n-grid-item :span="10">
-						<n-slider
-							v-model:value="formValue.timeInterval"
-							:step="1"
-							:marks="sliderMarks"
-							:min="1"
-						/>
-					</n-grid-item>
-					<n-grid-item :span="2">
-						<n-input-number v-model:value="formValue.timeInterval" size="small" :min="1" :max="100" />
-					</n-grid-item>
-				</n-grid>
-			</n-form-item>
+
+			<div
+				:style="{ 'background-color': configBackground }"
+				style="border-radius: 11px; padding: 8px"
+			>
+				<n-form-item
+					:label="t('timers.table.columns.intervalInMinutes')" path="timeInterval"
+					show-require-mark
+				>
+					<n-grid :cols="12" :x-gap="5">
+						<n-grid-item :span="10">
+							<n-slider
+								v-model:value="formValue.timeInterval"
+								:step="1"
+								:marks="sliderMarks"
+								:min="1"
+							/>
+						</n-grid-item>
+						<n-grid-item :span="2">
+							<n-input-number
+								v-model:value="formValue.timeInterval" size="small" :min="1"
+								:max="100"
+							/>
+						</n-grid-item>
+					</n-grid>
+				</n-form-item>
+
+				<n-divider dashed style="padding: 0; margin: 0">
+					AND
+				</n-divider>
+
+				<n-form-item :label="t('timers.table.columns.intervalInMessages')">
+					<n-input-number v-model:value="formValue.messageInterval" :min="0" :max="5000" />
+				</n-form-item>
+			</div>
+
+
 			<!--      <n-form-item label="Interval in messages" path="messageInterval">-->
 			<!--        <n-input-number v-model:value="formValue.messageInterval" :min="0" :max="5000" />-->
 			<!--      </n-form-item>-->
@@ -167,7 +196,10 @@ const sliderMarks = {
 			>
 				<template #default="{ value, index }: { value: EditableTimerResponse, index: number }">
 					<n-space vertical style="width: 100%">
-						<n-form-item :path="`responses[${index}].text`" :rule="rules.responses" show-require-mark>
+						<n-form-item
+							:path="`responses[${index}].text`" :rule="rules.responses"
+							show-require-mark
+						>
 							<n-input
 								v-model:value="value.text"
 								type="textarea"
@@ -216,7 +248,8 @@ const sliderMarks = {
 				block
 				@click="() => formValue.responses.push({ text: '', isAnnounce: false })"
 			>
-				<IconPlus /> {{ t('sharedButtons.create') }}
+				<IconPlus />
+				{{ t('sharedButtons.create') }}
 			</n-button>
 
 			<n-divider />

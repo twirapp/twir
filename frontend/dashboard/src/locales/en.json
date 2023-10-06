@@ -355,7 +355,7 @@
     "table": {
       "columns": {
         "intervalInMinutes": "Interval in minutes",
-        "intervalInMessages": "Interval in messages"
+        "intervalInMessages": "Chat lines (set 0 for disable)"
       }
     },
     "modal": {

@@ -29,6 +29,7 @@ func (c *gormRepository) GetByChannelId(id string) (Stream, error) {
 	result.ID = entity.ID
 	result.UserLogin = entity.UserLogin
 	result.UserID = entity.UserId
+	result.ParsedMessages = entity.ParsedMessages
 
 	return result, nil
 }
