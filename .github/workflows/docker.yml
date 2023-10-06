@@ -28,6 +28,7 @@ jobs:
             events,
             ytsr,
             migrations,
+            discord,
           ]
     steps:
       - uses: actions/checkout@v3

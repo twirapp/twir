@@ -9,10 +9,10 @@ type CallFunc<
 > = (input: Req, options?: RpcOptions) => UnaryCall<Req, Res>;
 
 export const createIntegrationOauth = <
-		GetData extends CallFunc<any, any>,
-		GetAuthLink extends CallFunc<any, any>,
-		UsePostCode extends CallFunc<any, any>,
-		UseLogout extends CallFunc<any, any>,
+	GetData extends CallFunc<any, any>,
+	GetAuthLink extends CallFunc<any, any>,
+	UsePostCode extends CallFunc<any, any>,
+	UseLogout extends CallFunc<any, any>,
 >(opts: {
 	integrationName: string,
 	getData: GetData,
@@ -118,4 +118,12 @@ export const useDonationAlertsIntegration = () => createIntegrationOauth({
 	getAuthLink: protectedApiClient.integrationsDonationAlertsGetAuthLink,
 	usePostCode: protectedApiClient.integrationsDonationAlertsPostCode,
 	useLogout: protectedApiClient.integrationsDonationAlertsLogout,
+});
+
+export const useDiscordIntegration = () => createIntegrationOauth({
+	integrationName: 'discord',
+	getData: protectedApiClient.integrationsDiscordGetData,
+	getAuthLink: protectedApiClient.integrationsDiscordGetAuthLink,
+	usePostCode: protectedApiClient.integrationsDiscordPostCode,
+	useLogout: protectedApiClient.integrationsDiscordLogout,
 });

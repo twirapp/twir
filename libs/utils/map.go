@@ -33,3 +33,12 @@ func (c *SyncMap[T]) Delete(key string) {
 	defer c.mu.Unlock()
 	delete(c.store, key)
 }
+
+func (c *SyncMap[T]) GetAll() []T {
+	var result []T
+	for _, v := range c.store {
+		result = append(result, v)
+	}
+
+	return result
+}

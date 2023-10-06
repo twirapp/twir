@@ -14,6 +14,7 @@ type Logger interface {
 	Info(input string, fields ...any)
 	Error(input string, fields ...any)
 	Debug(input string, fields ...any)
+	WithComponent(name string) Logger
 }
 
 type logger struct {
@@ -108,4 +109,12 @@ func (c *logger) Error(input string, fields ...any) {
 
 func (c *logger) Debug(input string, fields ...any) {
 	c.handle(slog.LevelDebug, input, fields...)
+}
+
+func (c *logger) WithComponent(name string) Logger {
+	return &logger{
+		log:     c.log.With(slog.String("component", name)),
+		sentry:  c.sentry,
+		service: c.service,
+	}
 }

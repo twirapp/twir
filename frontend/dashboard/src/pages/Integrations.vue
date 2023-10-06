@@ -2,6 +2,7 @@
 import { NTable, NAlert } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
+import Discord from '@/components/integrations/discord.vue';
 import Donatello from '@/components/integrations/donatello.vue';
 import Donatepay from '@/components/integrations/donatepay.vue';
 import Donatestream from '@/components/integrations/donatestream.vue';
@@ -31,6 +32,7 @@ const { t } = useI18n();
 				</tr>
 			</thead>
 			<tbody>
+				<Discord />
 				<Spotify />
 				<Lastfm />
 				<Vk />

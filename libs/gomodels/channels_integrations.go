@@ -25,6 +25,12 @@ type ChannelsIntegrationsData struct {
 	UserName *string `json:"username,omitempty"`
 	Game     *string `json:"game,omitempty"`
 	UserId   *string `json:"userId,omitempty"`
+
+	DiscordGuilds                   []string `json:"discordGuilds,omitempty"`
+	DiscordChannels                 []string `json:"discordChannels,omitempty"`
+	DiscordNotificationShowTitle    bool     `json:"discordNotificationShowTitle,omitempty"`
+	DiscordNotificationShowCategory bool     `json:"discordNotificationShowCategory,omitempty"`
+	DiscordNotificationMessage      string   `json:"discordNotificationMessage,omitempty"`
 }
 
 type ChannelsIntegrations struct {

@@ -6,19 +6,24 @@ import {
 	useSpotifyIntegration,
 	useLastfmIntegration,
 	useVKIntegration,
-	useStreamlabsIntegration, useDonationAlertsIntegration, useFaceitIntegration, createIntegrationOauth,
+	useStreamlabsIntegration,
+	useDonationAlertsIntegration,
+	useFaceitIntegration,
+	createIntegrationOauth,
+	useDiscordIntegration,
 } from '@/api/index.js';
 
 const router = useRouter();
 const route = useRoute();
 
-const integrationsHooks: { [x: string]: ReturnType<typeof createIntegrationOauth>} = {
+const integrationsHooks: { [x: string]: ReturnType<typeof createIntegrationOauth> } = {
 	'spotify': useSpotifyIntegration(),
 	'lastfm': useLastfmIntegration(),
 	'vk': useVKIntegration(),
 	'streamlabs': useStreamlabsIntegration(),
 	'donationalerts': useDonationAlertsIntegration(),
 	'faceit': useFaceitIntegration(),
+	'discord': useDiscordIntegration(),
 };
 
 onMounted(() => {
@@ -46,7 +51,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div></div>
+	<div></div>
 </template>
 
 <style scoped lang='postcss'>

@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<{
 	authLink?: string,
 	icon: FunctionalComponent<any>
 	iconWidth?: number
+	iconColor?: string
 }>(), {
 	iconWidth: 30,
 	authLink: '',
@@ -33,7 +34,10 @@ const { t } = useI18n();
 		<td>
 			<n-tooltip trigger="hover" placement="left">
 				<template #trigger>
-					<component :is="props.icon" :width="props.iconWidth" class="icon" />
+					<component
+						:is="props.icon" :width="props.iconWidth" :style="{ fill: props.iconColor }"
+						class="icon"
+					/>
 				</template>
 				{{ name }}
 			</n-tooltip>
@@ -51,11 +55,17 @@ const { t } = useI18n();
 		</td>
 		<td>
 			<div class="actions">
-				<n-button v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary type="error" @click="logout">
+				<n-button
+					v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary
+					type="error" @click="logout"
+				>
 					<IconLogout />
 					{{ t('sharedButtons.logout') }}
 				</n-button>
-				<n-button v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary type="success" @click="login">
+				<n-button
+					v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary
+					type="success" @click="login"
+				>
 					<IconLogin />
 					{{ t('sharedButtons.login') }}
 				</n-button>

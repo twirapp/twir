@@ -38,6 +38,7 @@ const (
 	IntegrationServiceFaceit         IntegrationService = "FACEIT"
 	IntegrationServiceSpotify        IntegrationService = "SPOTIFY"
 	IntegrationServiceDonationAlerts IntegrationService = "DONATIONALERTS"
+	IntegrationServiceDiscord        IntegrationService = "DISCORD"
 	IntegrationServiceStreamLabs     IntegrationService = "STREAMLABS"
 	IntegrationServiceDonatePay      IntegrationService = "DONATEPAY"
 	IntegrationServiceDonatello      IntegrationService = "DONATELLO"

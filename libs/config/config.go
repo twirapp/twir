@@ -24,11 +24,16 @@ type Config struct {
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
-	S3Host             string `required:"false" envconfig:"CDN_HOST"`
-	S3Bucket           string `required:"false" envconfig:"CDN_BUCKET"`
-	S3Region           string `required:"false" envconfig:"CDN_REGION"`
-	S3AccessToken      string `required:"false" envconfig:"CDN_ACCESS_TOKEN"`
-	S3SecretToken      string `required:"false" envconfig:"CDN_SECRET_TOKEN"`
+
+	S3Host        string `required:"false" envconfig:"CDN_HOST"`
+	S3Bucket      string `required:"false" envconfig:"CDN_BUCKET"`
+	S3Region      string `required:"false" envconfig:"CDN_REGION"`
+	S3AccessToken string `required:"false" envconfig:"CDN_ACCESS_TOKEN"`
+	S3SecretToken string `required:"false" envconfig:"CDN_SECRET_TOKEN"`
+
+	DiscordClientID     string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
+	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
+	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
 }
 
 func New() (*Config, error) {
