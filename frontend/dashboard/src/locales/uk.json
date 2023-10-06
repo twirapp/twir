@@ -398,7 +398,7 @@
     "table": {
       "columns": {
         "intervalInMinutes": "Інтервал у хвилинах",
-        "intervalInMessages": "Інтервал у повідомленнях"
+        "intervalInMessages": "Інтервал у повідомленнях (встановіть 0, щоб вимкнути)"
       }
     },
     "modal": {
