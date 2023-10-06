@@ -11,7 +11,6 @@ import (
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/kr/pretty"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_discord"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -55,8 +54,12 @@ func (c *Integrations) IntegrationsDiscordGetData(
 		return nil, err
 	}
 
-	if channelIntegration.ID == "" || !channelIntegration.Enabled {
+	if channelIntegration.ID == "" {
 		return nil, errors.New("integration not found")
+	}
+
+	if channelIntegration.Data == nil || channelIntegration.Data.UserId == nil {
+		return &integrations_discord.GetDataResponse{}, nil
 	}
 
 	return &integrations_discord.GetDataResponse{
@@ -171,8 +174,6 @@ func (c *Integrations) IntegrationsDiscordPostCode(
 		return nil, errors.New("failed to get user info")
 	}
 
-	pretty.Println(getUserResult)
-
 	avatar := fmt.Sprintf(
 		"https://cdn.discordapp.com/avatars/%s/%s.png",
 		getUserResult.Id,
@@ -214,7 +215,12 @@ func (c *Integrations) IntegrationsDiscordLogout(
 		return nil, errors.New("integration not found")
 	}
 
-	if err := c.Db.WithContext(ctx).Delete(&channelIntegration).Error; err != nil {
+	channelIntegration.Enabled = false
+	channelIntegration.AccessToken = null.StringFrom("")
+	channelIntegration.RefreshToken = null.StringFrom("")
+	channelIntegration.Data = &model.ChannelsIntegrationsData{}
+
+	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
 		return nil, err
 	}
 
