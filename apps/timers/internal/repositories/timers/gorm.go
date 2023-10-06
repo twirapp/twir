@@ -17,10 +17,12 @@ type gormRepository struct {
 
 func (c *gormRepository) convertEntity(entity model.ChannelsTimers) Timer {
 	result := Timer{
-		ID:        entity.ID,
-		Name:      entity.Name,
-		ChannelID: entity.ChannelID,
-		Interval:  int(entity.TimeInterval),
+		ID:                       entity.ID,
+		Name:                     entity.Name,
+		ChannelID:                entity.ChannelID,
+		Interval:                 int(entity.TimeInterval),
+		LastTriggerMessageNumber: int(entity.LastTriggerMessageNumber),
+		MessageInterval:          int(entity.MessageInterval),
 	}
 
 	for _, r := range entity.Responses {
@@ -72,4 +74,34 @@ func (c *gormRepository) GetAll() ([]Timer, error) {
 	}
 
 	return result, nil
+}
+
+func (c *gormRepository) Update(id string, data Timer) error {
+	entity := model.ChannelsTimers{}
+
+	if err := c.db.Where("id = ?", id).Preload("Responses").Find(&entity).Error; err != nil {
+		return err
+	}
+
+	if entity.ID == "" {
+		return NotFoundError
+	}
+
+	// ID                       string
+	// Name                     string
+	// Responses                []TimerResponse
+	// ChannelID                string
+	// Interval                 int
+	// LastTriggerMessageNumber int32
+	// MessageInterval          int32
+
+	entity.TimeInterval = int32(data.Interval)
+	entity.LastTriggerMessageNumber = int32(data.LastTriggerMessageNumber)
+	entity.MessageInterval = int32(data.MessageInterval)
+
+	if err := c.db.Save(&entity).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

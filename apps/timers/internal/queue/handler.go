@@ -3,13 +3,15 @@ package queue
 import (
 	"context"
 	"errors"
+	"log/slog"
+
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
-	"log/slog"
 )
 
+// TODO: trigger that func by chat messages, not only by interval
 func (c *Queue) handle(t *timer) {
 	channel, err := c.channelsRepository.GetById(t.ChannelID)
 	if err != nil {
@@ -23,16 +25,35 @@ func (c *Queue) handle(t *timer) {
 	}
 
 	if !channel.IsBotMod {
-		c.logger.Info("bot is not moderator, response wont be sent", slog.String("channelId", t.ChannelID))
+		c.logger.Info(
+			"bot is not moderator, response wont be sent",
+			slog.String("channelId", t.ChannelID),
+		)
 		return
 	}
 
 	stream, err := c.streamsRepository.GetByChannelId(t.ChannelID)
 	if err != nil && errors.Is(err, streams.NotFound) && c.config.AppEnv != "development" {
-		c.logger.Info("stream not found, probably channel is offline", slog.String("channelId", t.ChannelID))
+		c.logger.Info(
+			"stream not found, probably channel is offline",
+			slog.String("channelId", t.ChannelID),
+		)
 		return
 	} else if err != nil && c.config.AppEnv != "development" {
-		c.logger.Info("error on getting stream", slog.String("channelId", t.ChannelID), slog.Any("error", err))
+		c.logger.Info(
+			"error on getting stream",
+			slog.String("channelId", t.ChannelID),
+			slog.Any("error", err),
+		)
+		return
+	}
+
+	// if (timer.triggerEveryMessage > 0 && (timer.triggeredAtMessages || 0) - linesParsed + timer.triggerEveryMessage > 0) {
+	// 	continue;
+	// } // not ready to trigger with messages
+
+	if t.Timer.MessageInterval != 0 &&
+		t.LastTriggerMessageNumber-stream.ParsedMessages+t.Timer.MessageInterval > 0 {
 		return
 	}
 
@@ -81,6 +102,8 @@ func (c *Queue) handle(t *timer) {
 
 	// set next index
 	nextIndex := t.LastResponse + 1
+
+	t.LastTriggerMessageNumber = stream.ParsedMessages
 
 	if nextIndex < len(t.Responses) {
 		t.LastResponse = nextIndex

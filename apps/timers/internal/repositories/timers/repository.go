@@ -9,6 +9,7 @@ var (
 type Repository interface {
 	GetById(id string) (Timer, error)
 	GetAll() ([]Timer, error)
+	Update(id string, data Timer) error
 }
 
 type TimerResponse struct {
@@ -18,9 +19,11 @@ type TimerResponse struct {
 }
 
 type Timer struct {
-	ID        string
-	Name      string
-	Responses []TimerResponse
-	ChannelID string
-	Interval  int
+	ID                       string
+	Name                     string
+	Responses                []TimerResponse
+	ChannelID                string
+	Interval                 int
+	LastTriggerMessageNumber int
+	MessageInterval          int
 }
