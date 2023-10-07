@@ -5,7 +5,6 @@ import (
 	"log/slog"
 
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -57,17 +56,19 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 				slog.Int("viewers", stream.ViewerCount),
 			),
 		)
-		err = c.store.Add(
-			ctx,
-			sended_messages_store.Message{
-				GuildID:   stream.UserId,
-				MessageID: stream.UserId,
-				ChannelID: stream.UserId,
-			},
-		)
+
+		onlineMessages, err := c.sendOnlineMessage(ctx, stream)
 		if err != nil {
-			c.logger.Error("Failed to add message to store", slog.Any("err", err))
+			c.logger.Error("Failed to send message", slog.Any("err", err))
 			continue
+		}
+
+		for _, m := range onlineMessages {
+			err = c.store.Add(ctx, m)
+			if err != nil {
+				c.logger.Error("Failed to add message to store", slog.Any("err", err))
+				continue
+			}
 		}
 	}
 
