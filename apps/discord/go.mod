@@ -9,6 +9,7 @@ replace (
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/satont/twir/libs/sentry => ../../libs/sentry
 )
 
 require (

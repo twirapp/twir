@@ -13,12 +13,14 @@ export const createIntegrationOauth = <
 	GetAuthLink extends CallFunc<any, any>,
 	UsePostCode extends CallFunc<any, any>,
 	UseLogout extends CallFunc<any, any>,
+	UpdateData extends CallFunc<any, any>,
 >(opts: {
 	integrationName: string,
 	getData: GetData,
 	getAuthLink: GetAuthLink,
 	usePostCode: UsePostCode,
 	useLogout: UseLogout,
+	updateData?: UpdateData,
 }) => {
 	for (const [key, value] of Object.entries(opts)) {
 		if (typeof value === 'function') {
@@ -67,6 +69,13 @@ export const createIntegrationOauth = <
 				queryClient.invalidateQueries([queryKey]);
 			},
 		}),
+		update: opts.updateData ? () => useMutation({
+			mutationKey: [`${queryKey}/update`],
+			mutationFn: async (req: Parameters<typeof opts.updateData>[0]) => {
+				const call = await opts.updateData!(req);
+				return call.response;
+			},
+		}) : undefined,
 	};
 };
 
@@ -126,4 +135,5 @@ export const useDiscordIntegration = () => createIntegrationOauth({
 	getAuthLink: protectedApiClient.integrationsDiscordGetAuthLink,
 	usePostCode: protectedApiClient.integrationsDiscordPostCode,
 	useLogout: protectedApiClient.integrationsDiscordLogout,
+	updateData: protectedApiClient.integrationsDiscordUpdate,
 });

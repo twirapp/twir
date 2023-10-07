@@ -2,22 +2,73 @@ package messages_updater
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *MessagesUpdater) process(ctx context.Context) {
 	c.logger.Info("Start updating messages")
 
-	messages := c.store.GetAll()
+	messages, err := c.store.GetAll(ctx)
+	if err != nil {
+		c.logger.Error("Failed to get messages", slog.Any("err", err))
+		return
+	}
+
 	streams := c.getStreams(ctx)
+	streams = lo.Filter(
+		streams,
+		func(stream model.ChannelsStreams, _ int) bool {
+			return stream.Channel != nil && stream.Channel.IsEnabled
+		},
+	)
+
+	// DELETE messages that are not in the streams, so memory do not leak
+	// for _, message := range messages {
+	// 	_, ok := lo.Find(
+	// 		streams,
+	// 		func(stream model.ChannelsStreams) bool {
+	// 			return stream.UserId == message.ChannelID
+	// 		},
+	// 	)
+	// 	if !ok {
+	// 		c.store.Delete(message.MessageID)
+	// 	}
+	// }
 
 	for _, stream := range streams {
-		// TODO: update message, channel becomes online
-		fmt.Println(stream)
+		_, err := c.store.Get(ctx, stream.UserId)
+		if err != nil {
+			continue
+		}
+
+		// TODO: send message, channel becomes online
+		c.logger.Info(
+			"Channel online, sending message",
+			slog.Group(
+				"channel",
+				slog.String("id", stream.UserId),
+				slog.String("name", stream.UserLogin),
+				slog.String("title", stream.Title),
+				slog.String("category", stream.GameName),
+				slog.Int("viewers", stream.ViewerCount),
+			),
+		)
+		err = c.store.Add(
+			ctx,
+			sended_messages_store.Message{
+				GuildID:   stream.UserId,
+				MessageID: stream.UserId,
+				ChannelID: stream.UserId,
+			},
+		)
+		if err != nil {
+			c.logger.Error("Failed to add message to store", slog.Any("err", err))
+			continue
+		}
 	}
 
 	for _, message := range messages {
@@ -26,13 +77,26 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 			func(stream model.ChannelsStreams) bool { return stream.UserId == message.ChannelID },
 		)
 		if !ok {
-			c.store.Delete(message.MessageID)
+			if err = c.store.Delete(ctx, message.MessageID); err != nil {
+				c.logger.Error("Failed to delete message from store", slog.Any("err", err))
+			}
 			// TODO: update message, channel becomes offline
+			slog.Info("channel is offline", slog.String("id", message.ChannelID))
 			continue
 		}
 
 		// TODO: update message, channel is still online, we need update values inside message embed
-		fmt.Println(stream)
+		c.logger.Info(
+			"channel is still online",
+			slog.Group(
+				"channel",
+				slog.String("id", stream.UserId),
+				slog.String("name", stream.UserLogin),
+				slog.String("title", stream.Title),
+				slog.String("category", stream.GameName),
+				slog.Int("viewers", stream.ViewerCount),
+			),
+		)
 	}
 }
 
@@ -40,7 +104,7 @@ func (c *MessagesUpdater) getStreams(
 	ctx context.Context,
 ) []model.ChannelsStreams {
 	var streams []model.ChannelsStreams
-	if err := c.db.WithContext(ctx).Find(&streams).Error; err != nil {
+	if err := c.db.WithContext(ctx).Preload("Channel").Find(&streams).Error; err != nil {
 		c.logger.Error("Failed to get streams", slog.Any("err", err))
 		return nil
 	}

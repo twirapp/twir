@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	cfg "github.com/satont/twir/libs/config"
 )
 
 type Logger interface {
@@ -29,6 +30,18 @@ type Opts struct {
 	Service string
 
 	Sentry *sentry.Client
+}
+
+func NewFx(opts Opts) func(config cfg.Config, sentry *sentry.Client) Logger {
+	return func(config cfg.Config, sentry *sentry.Client) Logger {
+		return New(
+			Opts{
+				Env:     config.AppEnv,
+				Service: opts.Service,
+				Sentry:  sentry,
+			},
+		)
+	}
 }
 
 func New(opts Opts) Logger {

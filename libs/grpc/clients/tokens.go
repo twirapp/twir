@@ -2,8 +2,9 @@ package clients
 
 import (
 	"fmt"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"log"
+
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 
 	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
@@ -17,7 +18,12 @@ func NewTokens(env string) tokens.TokensClient {
 	conn, err := grpc.Dial(
 		serverAddress,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"loadBalancingConfig": [{"%s":{}}]}`, roundrobin.Name)),
+		grpc.WithDefaultServiceConfig(
+			fmt.Sprintf(
+				`{"loadBalancingConfig": [{"%s":{}}]}`,
+				roundrobin.Name,
+			),
+		),
 	)
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)

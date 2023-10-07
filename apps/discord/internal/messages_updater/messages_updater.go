@@ -35,14 +35,20 @@ func New(opts Opts) *MessagesUpdater {
 		db:         opts.DB,
 		discord:    opts.Discord,
 		tokensGrpc: opts.TokensGrpc,
+		stopChan:   make(chan struct{}),
 	}
 
 	opts.LC.Append(
 		fx.Hook{
-			OnStart: func(ctx context.Context) error {
-				go updater.poll(ctx)
+			OnStart: func(_ context.Context) error {
+				go updater.poll()
 				updater.logger.Info("Messages updater is running")
 
+				return nil
+			},
+			OnStop: func(_ context.Context) error {
+				updater.stopChan <- struct{}{}
+				close(updater.stopChan)
 				return nil
 			},
 		},
@@ -59,9 +65,11 @@ type MessagesUpdater struct {
 	discord *discord_go.Discord
 
 	tokensGrpc tokens.TokensClient
+
+	stopChan chan struct{}
 }
 
-func (c *MessagesUpdater) poll(ctx context.Context) {
+func (c *MessagesUpdater) poll() {
 	ticker := time.NewTicker(
 		lo.If(
 			c.config.AppEnv != "production",
@@ -69,10 +77,13 @@ func (c *MessagesUpdater) poll(ctx context.Context) {
 		).Else(5 * time.Minute),
 	)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	for {
 		select {
-		case <-ctx.Done():
-			return
+		case <-c.stopChan:
+			cancel()
+			break
 		case <-ticker.C:
 			c.process(ctx)
 		}

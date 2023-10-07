@@ -24,6 +24,7 @@ use (
 	./libs/pubsub
 	./libs/twitch
 	./libs/types
+	./libs/sentry
 	./tools
 	libs/utils
 )
