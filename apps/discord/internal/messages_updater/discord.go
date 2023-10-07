@@ -11,7 +11,6 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/twitch"
 )
 
 func (c *MessagesUpdater) getChannelDiscordIntegration(
@@ -36,15 +35,7 @@ func (c *MessagesUpdater) sendOnlineMessage(
 		return nil, errors.New("discord integration is disabled")
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
-	if err != nil {
-		return nil, err
-	}
-
-	twitchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{IDs: []string{stream.UserId}})
-	if err != nil {
-		return nil, err
-	}
+	twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{stream.UserId}})
 	if len(twitchUsersReq.Data.Users) == 0 {
 		return nil, errors.New("user not found")
 	}
