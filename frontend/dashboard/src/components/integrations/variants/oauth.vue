@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<{
 	icon: FunctionalComponent<any>
 	iconWidth?: number
 	iconColor?: string
+	description?: string
 }>(), {
 	iconWidth: 30,
 	authLink: '',
@@ -43,15 +44,20 @@ const { t } = useI18n();
 			</n-tooltip>
 		</td>
 		<td>
-			<div v-if="data?.userName" class="profile">
-				<n-avatar :src="data.avatar" class="avatar" round />
-				<n-text>
-					{{ data.userName }}
-				</n-text>
+			<div style="flex; flex-direction: column">
+				<div>
+					<div v-if="data?.userName" class="profile">
+						<n-avatar :src="data.avatar" class="avatar" round />
+						<n-text>
+							{{ data.userName }}
+						</n-text>
+					</div>
+					<n-tag v-else :bordered="false" type="info">
+						{{ t('integrations.notLoggedIn') }}
+					</n-tag>
+				</div>
+				<span v-if="description" style="font-size: 11px">{{ description }}</span>
 			</div>
-			<n-tag v-else :bordered="false" type="info">
-				{{ t('integrations.notLoggedIn') }}
-			</n-tag>
 		</td>
 		<td>
 			<div class="actions">

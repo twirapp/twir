@@ -17,5 +17,6 @@ const { data: authLink } = manager.useAuthLink();
 		:authLink="authLink?.link"
 		:icon="IconDiscord"
 		icon-color="#5865F2"
+		description="Send live notifications to your Discord server."
 	/>
 </template>

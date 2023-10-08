@@ -10,6 +10,7 @@ import { useUserAccessFlagChecker } from '@/api/index.js';
 const props = defineProps<{
 	name: string,
 	save?: () => void | Promise<void>
+	description?: string
 }>();
 
 defineSlots<{
@@ -40,9 +41,14 @@ const { t } = useI18n();
 				{{ name }}
 			</n-tooltip>
 		</td>
-		<td></td>
 		<td>
-			<n-button :disabled="!userCanManageIntegrations" strong secondary type="info" @click="showSettings = true">
+			<span v-if="description">{{ description }}</span>
+		</td>
+		<td>
+			<n-button
+				:disabled="!userCanManageIntegrations" strong secondary type="info"
+				@click="showSettings = true"
+			>
 				<IconSettings />
 				{{ t('sharedButtons.settings') }}
 			</n-button>
