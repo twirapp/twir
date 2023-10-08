@@ -86,7 +86,7 @@ func (c *MessagesUpdater) poll() {
 		).Else(5 * time.Minute),
 	)
 
-	ctx, cancel := context.WithCancel(context.Background())
+	_, cancel := context.WithCancel(context.Background())
 
 	for {
 		select {
@@ -94,7 +94,7 @@ func (c *MessagesUpdater) poll() {
 			cancel()
 			break
 		case <-ticker.C:
-			c.process(ctx)
+			// c.process(ctx)
 		}
 	}
 }

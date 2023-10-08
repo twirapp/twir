@@ -4,15 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
-	"log/slog"
 	"net/url"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_discord"
+	"github.com/satont/twir/libs/grpc/generated/discord"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -31,7 +29,8 @@ func (c *Integrations) IntegrationsDiscordGetAuthLink(
 	q := u.Query()
 	q.Add("client_id", c.Config.DiscordClientID)
 	q.Add("response_type", "code")
-	q.Add("scope", "guilds guilds.members.read identify")
+	q.Add("permissions", "1497333180438")
+	q.Add("scope", "bot applications.commands")
 	q.Add("redirect_uri", redirectUrl)
 	u.RawQuery = q.Encode()
 
@@ -61,16 +60,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 	if channelIntegration.Data == nil || channelIntegration.Data.UserId == nil {
 		return &integrations_discord.GetDataResponse{}, nil
 	}
-	return &integrations_discord.GetDataResponse{
-		Id:                       *channelIntegration.Data.UserId,
-		UserName:                 *channelIntegration.Data.UserName,
-		Avatar:                   *channelIntegration.Data.Avatar,
-		Guilds:                   channelIntegration.Data.DiscordGuilds,
-		Channels:                 channelIntegration.Data.DiscordChannels,
-		NotificationShowTitle:    channelIntegration.Data.DiscordNotificationShowTitle,
-		NotificationShowCategory: channelIntegration.Data.DiscordNotificationShowCategory,
-		NotificationMessage:      channelIntegration.Data.DiscordNotificationMessage,
-	}, nil
+	return &integrations_discord.GetDataResponse{}, nil
 }
 
 func (c *Integrations) IntegrationsDiscordUpdate(
@@ -87,12 +77,6 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 		return nil, err
 	}
 
-	channelIntegration.Data.DiscordNotificationShowTitle = in.NotificationShowTitle
-	channelIntegration.Data.DiscordNotificationShowCategory = in.NotificationShowCategory
-	channelIntegration.Data.DiscordNotificationMessage = in.NotificationMessage
-	channelIntegration.Data.DiscordGuilds = in.Guilds
-	channelIntegration.Data.DiscordChannels = in.Channels
-
 	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
 		return nil, err
 	}
@@ -103,125 +87,112 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 type DiscordPostCodeResponse struct {
 	AccessToken  string `json:"access_token"`
 	TokenType    string `json:"token_type"`
-	ExpiresIn    int64  `json:"expires_in"`
 	RefreshToken string `json:"refresh_token"`
-	Scope        string `json:"scope"`
+	Guild        struct {
+		Id string `json:"id"`
+	} `json:"guild"`
 }
 
-type DiscordGetUserResponse struct {
-	Id            string `json:"id"`
-	Username      string `json:"username"`
-	Discriminator string `json:"discriminator"`
-	Avatar        string `json:"avatar"`
-}
-
-func (c *Integrations) IntegrationsDiscordPostCode(
+func (c *Integrations) IntegrationDiscordConnectGuild(
 	ctx context.Context,
-	in *integrations_discord.PostCodeRequest,
+	data *integrations_discord.PostCodeRequest,
 ) (*empty.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+	fmt.Println("dashboardId", dashboardId)
 
-	postResult := DiscordPostCodeResponse{}
-
+	res := DiscordPostCodeResponse{}
 	r, err := req.
-		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetHeader("Accept", "application/json").
 		SetBasicAuth(c.Config.DiscordClientID, c.Config.DiscordClientSecret).
-		SetSuccessResult(&postResult).
+		SetSuccessResult(&res).
 		SetFormData(
 			map[string]string{
 				"grant_type":   "authorization_code",
-				"code":         in.Code,
+				"code":         data.Code,
 				"redirect_uri": fmt.Sprintf("https://%s/dashboard/integrations/discord", c.Config.HostName),
 			},
 		).
 		Post("https://discord.com/api/oauth2/token")
 	if err != nil {
-		c.Logger.Error("failed to get access token", slog.Any("err", err))
-		return nil, err
+		return nil, fmt.Errorf("failed to get token: %w", err)
 	}
 	if !r.IsSuccessState() {
-		body, _ := io.ReadAll(r.Body)
-		c.Logger.Error("failed to get access token", slog.String("err", string(body)))
-		return nil, errors.New("failed to get access token")
+		return nil, fmt.Errorf("failed to get token: %s", r.String())
+	}
+	if res.Guild.Id == "" {
+		return nil, fmt.Errorf("failed to get guild id")
 	}
 
 	channelIntegration, err := c.getChannelIntegrationByService(
-		ctx, model.IntegrationServiceDiscord,
+		ctx,
+		model.IntegrationServiceDiscord,
 		dashboardId,
 	)
 	if err != nil {
-		c.Logger.Error("failed to get channel integration", slog.Any("err", err))
-		return nil, err
+		return nil, fmt.Errorf("failed to get channel integration: %w", err)
 	}
 
-	getUserResult := DiscordGetUserResponse{}
-
-	r, err = req.
-		SetHeader("Content-Type", "application/x-www-form-urlencoded").
-		SetHeader("Accept", "application/json").
-		SetBearerAuthToken(postResult.AccessToken).
-		SetSuccessResult(&getUserResult).
-		Get("https://discord.com/api/v10/users/@me")
-	if err != nil {
-		c.Logger.Error("failed to get user info", slog.Any("err", err))
-		return nil, err
-	}
-	if !r.IsSuccessState() {
-		body, _ := io.ReadAll(r.Body)
-		c.Logger.Error("failed to get user info", slog.String("err", string(body)))
-		return nil, errors.New("failed to get user info")
+	newData := &model.ChannelsIntegrationsData{
+		Discord: &model.ChannelIntegrationDataDiscord{},
 	}
 
-	avatar := fmt.Sprintf(
-		"https://cdn.discordapp.com/avatars/%s/%s.png",
-		getUserResult.Id,
-		getUserResult.Avatar,
+	if channelIntegration.Data != nil && channelIntegration.Data.Discord != nil {
+		newData = channelIntegration.Data
+	}
+
+	newData.Discord.Guilds = append(
+		newData.Discord.Guilds,
+		model.ChannelIntegrationDataDiscordGuild{
+			ID: res.Guild.Id,
+		},
 	)
 
-	channelIntegration.AccessToken = null.StringFrom(postResult.AccessToken)
-	channelIntegration.RefreshToken = null.StringFrom(postResult.RefreshToken)
-	channelIntegration.Enabled = true
-	channelIntegration.Data = &model.ChannelsIntegrationsData{
-		UserId:   &getUserResult.Id,
-		UserName: &getUserResult.Username,
-		Avatar:   &avatar,
-	}
-
+	channelIntegration.Data = newData
 	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
-		c.Logger.Error("failed to save channel integration", slog.Any("err", err))
-		return nil, err
-	}
-
-	return &empty.Empty{}, nil
-}
-
-func (c *Integrations) IntegrationsDiscordLogout(
-	ctx context.Context,
-	_ *empty.Empty,
-) (*empty.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
-
-	channelIntegration, err := c.getChannelIntegrationByService(
-		ctx, model.IntegrationServiceDiscord,
-		dashboardId,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if channelIntegration.ID == "" {
-		return nil, errors.New("integration not found")
-	}
-
-	channelIntegration.Enabled = false
-	channelIntegration.AccessToken = null.StringFrom("")
-	channelIntegration.RefreshToken = null.StringFrom("")
-	channelIntegration.Data = &model.ChannelsIntegrationsData{}
-
-	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to save channel integration: %w", err)
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (c *Integrations) IntegrationsDiscordDisconnectGuild(
+	ctx context.Context,
+	req *integrations_discord.DisconnectGuildMessage,
+) (*empty.Empty, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	fmt.Println("dashboardId", dashboardId)
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *Integrations) IntegrationsDiscordGetGuildChannels(
+	ctx context.Context,
+	req *integrations_discord.GetGuildChannelsRequest,
+) (
+	*integrations_discord.GetGuildChannelsResponse,
+	error,
+) {
+	channelsReq, err := c.Grpc.Discord.GetGuildChannels(
+		ctx, &discord.GetGuildChannelsRequest{
+			GuildId: req.GuildId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	channels := make([]*integrations_discord.GuildChannel, 0, len(channelsReq.Channels))
+	for _, channel := range channelsReq.Channels {
+		channels = append(
+			channels,
+			&integrations_discord.GuildChannel{
+				Id:   channel.Id,
+				Name: channel.Name,
+				Type: integrations_discord.ChannelType(channel.Type.Number()),
+			},
+		)
+	}
+
+	return &integrations_discord.GetGuildChannelsResponse{
+		Channels: channels,
+	}, nil
 }

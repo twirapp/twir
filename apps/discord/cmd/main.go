@@ -39,7 +39,7 @@ func main() {
 		fx.Invoke(
 			redis.New,
 			gorm.New,
-			discord_go.New,
+			// discord_go.New,
 			messages_updater.New,
 			grpc.New,
 		),

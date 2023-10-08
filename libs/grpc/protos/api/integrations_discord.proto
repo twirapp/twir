@@ -6,27 +6,50 @@ message GetAuthLink {
 	string link = 1;
 }
 
-message GetDataResponse {
-	string id = 1;
-	string user_name = 2;
-	string avatar = 3;
-	repeated string guilds = 4;
-	repeated string channels = 5;
-
-	bool notification_show_title = 6;
-	bool notification_show_category = 7;
-	string notification_message = 8;
-}
-
 message PostCodeRequest {
 	string code = 1;
 }
 
-message UpdateMessage {
-	repeated string guilds = 1;
-	repeated string channels = 2;
+message DiscordGuild {
+	string id = 1;
+	string name = 2;
+	string icon = 3;
 
-	bool notification_show_title = 3;
-	bool notification_show_category = 4;
-	string notification_message = 5;
+	bool live_notification_enabled = 4;
+	repeated string live_notification_channels_ids = 5;
+	bool live_notification_show_title = 6;
+	bool live_notification_show_category = 7;
+	string live_notification_message = 8;
+	string live_notification_additional_twitch_users_ids = 9;
+}
+
+message GetDataResponse {
+	repeated DiscordGuild guilds = 1;
+}
+
+message UpdateMessage {
+	repeated DiscordGuild guilds = 1;
+}
+
+message DisconnectGuildMessage {
+	string guild_id = 1;
+}
+
+enum ChannelType {
+	VOICE = 0;
+	TEXT = 1;
+}
+
+message GuildChannel {
+	string id = 1;
+	string name = 2;
+	ChannelType type = 3;
+}
+
+message GetGuildChannelsRequest {
+	string guild_id = 1;
+}
+
+message GetGuildChannelsResponse {
+	repeated GuildChannel channels = 1;
 }

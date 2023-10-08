@@ -7,9 +7,9 @@ replace (
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/utils => ../../libs/utils
-	github.com/satont/twir/libs/sentry => ../../libs/sentry
 )
 
 require (
@@ -27,9 +27,11 @@ require (
 )
 
 require (
-	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/andybalholm/brotli v1.0.5 // indirect
+	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gorilla/schema v1.2.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
@@ -39,9 +41,19 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
+	github.com/mattn/go-colorable v0.1.13 // indirect
+	github.com/mattn/go-isatty v0.0.19 // indirect
+	github.com/rs/xid v1.5.0 // indirect
+	github.com/rs/zerolog v1.29.1 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/switchupcb/disgo v1.10.1 // indirect
+	github.com/switchupcb/disgo/shard v0.0.0-20230730073530-349d45654529 // indirect
+	github.com/switchupcb/websocket v1.8.8 // indirect
+	github.com/valyala/bytebufferpool v1.0.0 // indirect
+	github.com/valyala/fasthttp v1.48.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
@@ -49,6 +61,7 @@ require (
 	golang.org/x/crypto v0.12.0 // indirect
 	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb // indirect
 	golang.org/x/net v0.14.0 // indirect
+	golang.org/x/sync v0.3.0 // indirect
 	golang.org/x/sys v0.11.0 // indirect
 	golang.org/x/text v0.12.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230815205213-6bfd019c3878 // indirect

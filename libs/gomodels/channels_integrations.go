@@ -18,6 +18,20 @@ var (
 	_ = uuid.UUID{}
 )
 
+type ChannelIntegrationDataDiscordGuild struct {
+	ID string `json:"id,omitempty"`
+
+	LiveNotificationEnabled      bool     `json:"liveNotificationEnabled,omitempty"`
+	LiveNotificationChannelsIds  []string `json:"liveNotificationChannelsIds,omitempty"`
+	LiveNotificationShowTitle    bool     `json:"liveNotificationShowTitle,omitempty"`
+	LiveNotificationShowCategory bool     `json:"liveNotificationShowCategory,omitempty"`
+	LiveNotificationMessage      string   `json:"liveNotificationMessage,omitempty"`
+}
+
+type ChannelIntegrationDataDiscord struct {
+	Guilds []ChannelIntegrationDataDiscordGuild `json:"guilds,omitempty"`
+}
+
 type ChannelsIntegrationsData struct {
 	Code     *string `json:"code,omitempty"`
 	Name     *string `json:"name,omitempty"`
@@ -26,11 +40,7 @@ type ChannelsIntegrationsData struct {
 	Game     *string `json:"game,omitempty"`
 	UserId   *string `json:"userId,omitempty"`
 
-	DiscordGuilds                   []string `json:"discordGuilds,omitempty"`
-	DiscordChannels                 []string `json:"discordChannels,omitempty"`
-	DiscordNotificationShowTitle    bool     `json:"discordNotificationShowTitle,omitempty"`
-	DiscordNotificationShowCategory bool     `json:"discordNotificationShowCategory,omitempty"`
-	DiscordNotificationMessage      string   `json:"discordNotificationMessage,omitempty"`
+	Discord *ChannelIntegrationDataDiscord `json:"discord,omitempty"`
 }
 
 type ChannelsIntegrations struct {

@@ -133,7 +133,7 @@ export const useDiscordIntegration = () => createIntegrationOauth({
 	integrationName: 'discord',
 	getData: protectedApiClient.integrationsDiscordGetData,
 	getAuthLink: protectedApiClient.integrationsDiscordGetAuthLink,
-	usePostCode: protectedApiClient.integrationsDiscordPostCode,
-	useLogout: protectedApiClient.integrationsDiscordLogout,
+	usePostCode: protectedApiClient.integrationDiscordConnectGuild,
+	useLogout: protectedApiClient.integrationsDiscordDisconnectGuild,
 	updateData: protectedApiClient.integrationsDiscordUpdate,
 });

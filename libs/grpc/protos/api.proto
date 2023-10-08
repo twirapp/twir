@@ -117,8 +117,9 @@ service Protected {
 	rpc IntegrationsDiscordGetAuthLink(google.protobuf.Empty) returns (api.integrations_discord.GetAuthLink) {}
 	rpc IntegrationsDiscordGetData(google.protobuf.Empty) returns (api.integrations_discord.GetDataResponse) {}
 	rpc IntegrationsDiscordUpdate(api.integrations_discord.UpdateMessage) returns (google.protobuf.Empty) {}
-	rpc IntegrationsDiscordPostCode(api.integrations_discord.PostCodeRequest) returns (google.protobuf.Empty) {}
-	rpc IntegrationsDiscordLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc IntegrationDiscordConnectGuild(api.integrations_discord.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDiscordDisconnectGuild(api.integrations_discord.DisconnectGuildMessage) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDiscordGetGuildChannels(api.integrations_discord.GetGuildChannelsRequest) returns (api.integrations_discord.GetGuildChannelsResponse) {}
 
 	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (api.integrations_valorant.GetResponse) {}
 	rpc IntegrationsValorantUpdate(api.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}

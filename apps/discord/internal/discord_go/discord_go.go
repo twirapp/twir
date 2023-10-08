@@ -5,10 +5,12 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/bwmarrin/discordgo"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	"github.com/switchupcb/disgo"
+	"github.com/switchupcb/disgo/shard"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -17,12 +19,14 @@ type Opts struct {
 	LC     fx.Lifecycle
 	Config cfg.Config
 	Logger logger.Logger
+	Db     *gorm.DB
 }
 
 type Discord struct {
-	*discordgo.Session
+	*disgo.Client
 
 	logger logger.Logger
+	db     *gorm.DB
 }
 
 func New(opts Opts) (*Discord, error) {
@@ -31,41 +35,62 @@ func New(opts Opts) (*Discord, error) {
 	}
 
 	log := opts.Logger.WithComponent("discord_session")
-
-	dgo, err := discordgo.New("Bot " + opts.Config.DiscordBotToken)
-	if err != nil {
-		return nil, err
+	discord := &Discord{
+		logger: log,
+		db:     opts.Db,
 	}
 
-	dgo.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
+	bot := &disgo.Client{
+		ApplicationID:  opts.Config.DiscordClientID,
+		Authentication: disgo.BotToken(opts.Config.DiscordBotToken),
+		Authorization:  &disgo.Authorization{},
+		Config:         disgo.DefaultConfig(),
+		Handlers:       &disgo.Handlers{},
+		Sessions:       disgo.NewSessionManager(),
+	}
+
+	bot.Config.Gateway.ShardManager = new(shard.InstanceShardManager)
+	// auto sharding
+	bot.Config.Gateway.ShardManager.SetNumShards(0)
+	s := bot.Config.Gateway.ShardManager
 
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := dgo.Open(); err != nil {
+				if err := attachListeners(discord); err != nil {
 					return err
 				}
 
-				log.Info(
-					"Discord bot is running",
-					slog.Group(
-						"bot",
-						slog.String("id", dgo.State.User.ID),
-						slog.String("name", dgo.State.User.Username),
-						slog.Bool("verified", dgo.State.User.Verified),
-					),
-				)
+				if err := s.Connect(bot); err != nil {
+					return err
+				}
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				return dgo.Close()
+				return s.Disconnect()
 			},
 		},
 	)
 
-	return &Discord{
-		Session: dgo,
-		logger:  log,
-	}, nil
+	discord.Client = bot
+
+	return discord, nil
+}
+
+func attachListeners(bot *Discord) error {
+	if err := bot.Handle(
+		disgo.FlagGatewayEventNameGuildDelete,
+		bot.handleGuildDelete,
+	); err != nil {
+		bot.logger.Error("failed to attach guild delete", slog.Any("error", err))
+		return err
+	}
+
+	if err := bot.Handle(disgo.FlagGatewayEventNameReady, bot.handleReady); err != nil {
+		bot.logger.Error("failed to attach ready", slog.Any("error", err))
+		return err
+	}
+
+	return nil
 }

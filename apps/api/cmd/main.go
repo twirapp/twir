@@ -8,6 +8,7 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/satont/twir/apps/api/internal/files"
+	"github.com/satont/twir/libs/grpc/generated/discord"
 	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/logger"
 
@@ -96,6 +97,9 @@ func main() {
 			},
 			func(c *cfg.Config) eventsub.EventSubClient {
 				return clients.NewEventSub(c.AppEnv)
+			},
+			func(c *cfg.Config) discord.DiscordClient {
+				return clients.NewDiscord(c.AppEnv)
 			},
 			func(config *cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
