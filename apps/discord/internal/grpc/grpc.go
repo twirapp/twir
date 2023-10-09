@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/discord"
 	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
+	"github.com/switchupcb/disgo"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -69,41 +70,44 @@ func (c *Impl) GetGuildChannels(
 	ctx context.Context,
 	req *discord.GetGuildChannelsRequest,
 ) (*discord.GetGuildChannelsResponse, error) {
-	// channelsReq, err := c.discord.GuildChannels(
-	// 	req.GuildId,
-	// 	discordgo.WithContext(ctx),
-	// )
-	// if err != nil {
-	// 	return nil, err
-	// }
-	//
-	// channels := make([]*discord.GuildChannel, 0, len(channelsReq))
-	// for _, channel := range channelsReq {
-	// 	var t discord.ChannelType
-	//
-	// 	switch channel.Type {
-	// 	case discordgo.ChannelTypeGuildText, discordgo.ChannelTypeGuildNews:
-	// 		t = discord.ChannelType_TEXT
-	// 	case discordgo.ChannelTypeGuildVoice:
-	// 		t = discord.ChannelType_VOICE
-	// 	default:
-	// 		t = -1
-	// 	}
-	//
-	// 	if t == -1 {
-	// 		continue
-	// 	}
-	//
-	// 	channels = append(
-	// 		channels, &discord.GuildChannel{
-	// 			Id:   channel.ID,
-	// 			Name: channel.Name,
-	// 			Type: t,
-	// 		},
-	// 	)
-	// }
+	channelsReq := disgo.GetGuildChannels{GuildID: req.GuildId}
+	channels, err := channelsReq.Send(c.discord.Client)
+	if err != nil {
+		return nil, err
+	}
+
+	resultedChannels := make([]*discord.GuildChannel, 0, len(channels))
+	for _, channel := range channels {
+		var t discord.ChannelType
+
+		switch *channel.Type {
+		case disgo.FlagChannelTypeGUILD_TEXT, disgo.FlagChannelTypeGUILD_ANNOUNCEMENT:
+			t = discord.ChannelType_TEXT
+		case disgo.FlagChannelTypeGUILD_VOICE:
+			t = discord.ChannelType_VOICE
+		default:
+			t = -1
+		}
+
+		if t == -1 {
+			continue
+		}
+
+		var name string
+		if channel.Name != nil {
+			name = **channel.Name
+		}
+
+		resultedChannels = append(
+			resultedChannels, &discord.GuildChannel{
+				Id:   channel.ID,
+				Name: name,
+				Type: t,
+			},
+		)
+	}
 
 	return &discord.GetGuildChannelsResponse{
-		Channels: nil,
+		Channels: resultedChannels,
 	}, nil
 }
