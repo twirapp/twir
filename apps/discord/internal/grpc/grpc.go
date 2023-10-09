@@ -80,6 +80,10 @@ func (c *Impl) GetGuildChannels(
 	for _, channel := range channels {
 		var t discord.ChannelType
 
+		if channel.Type == nil {
+			continue
+		}
+
 		switch *channel.Type {
 		case disgo.FlagChannelTypeGUILD_TEXT, disgo.FlagChannelTypeGUILD_ANNOUNCEMENT:
 			t = discord.ChannelType_TEXT
