@@ -20,7 +20,7 @@ message DiscordGuild {
 	bool live_notification_show_title = 6;
 	bool live_notification_show_category = 7;
 	string live_notification_message = 8;
-	string live_notification_additional_twitch_users_ids = 9;
+	repeated string live_notification_additional_twitch_users_ids = 9;
 }
 
 message GetDataResponse {

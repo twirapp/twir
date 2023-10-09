@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/imroc/req/v3"
@@ -60,7 +61,54 @@ func (c *Integrations) IntegrationsDiscordGetData(
 	if channelIntegration.Data == nil || channelIntegration.Data.UserId == nil {
 		return &integrations_discord.GetDataResponse{}, nil
 	}
-	return &integrations_discord.GetDataResponse{}, nil
+
+	guilds := make(
+		[]*integrations_discord.DiscordGuild,
+		0,
+		len(channelIntegration.Data.Discord.Guilds),
+	)
+	guildsWg := sync.WaitGroup{}
+	guildsMu := sync.Mutex{}
+	guildsWg.Add(len(channelIntegration.Data.Discord.Guilds))
+
+	for _, guild := range channelIntegration.Data.Discord.Guilds {
+		guildsWg.Add(1)
+
+		go func(guild model.ChannelIntegrationDataDiscordGuild) {
+			defer guildsWg.Done()
+
+			g, err := c.Grpc.Discord.GetGuildInfo(
+				ctx, &discord.GetGuildInfoRequest{
+					GuildId: guild.ID,
+				},
+			)
+			if err != nil {
+				return
+			}
+
+			guildsMu.Lock()
+			guilds = append(
+				guilds, &integrations_discord.DiscordGuild{
+					Id:                                       guild.ID,
+					Name:                                     g.Name,
+					Icon:                                     g.Icon,
+					LiveNotificationEnabled:                  guild.LiveNotificationEnabled,
+					LiveNotificationChannelsIds:              guild.LiveNotificationChannelsIds,
+					LiveNotificationShowTitle:                guild.LiveNotificationShowTitle,
+					LiveNotificationShowCategory:             guild.LiveNotificationShowCategory,
+					LiveNotificationMessage:                  guild.LiveNotificationMessage,
+					LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
+				},
+			)
+			guildsMu.Unlock()
+		}(guild)
+	}
+
+	guildsWg.Wait()
+
+	return &integrations_discord.GetDataResponse{
+		Guilds: guilds,
+	}, nil
 }
 
 func (c *Integrations) IntegrationsDiscordUpdate(

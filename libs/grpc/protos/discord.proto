@@ -5,6 +5,7 @@ import "google/protobuf/empty.proto";
 
 service Discord {
 	rpc GetGuildChannels(GetGuildChannelsRequest) returns (GetGuildChannelsResponse);
+	rpc GetGuildInfo(GetGuildInfoRequest) returns (GetGuildInfoResponse) {}
 }
 
 enum ChannelType {
@@ -24,4 +25,14 @@ message GuildChannel {
 
 message GetGuildChannelsResponse {
 	repeated GuildChannel channels = 1;
+}
+
+message GetGuildInfoRequest {
+	string guild_id = 1;
+}
+
+message GetGuildInfoResponse {
+	string id = 1;
+	string name = 2;
+	string icon = 3;
 }

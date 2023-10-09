@@ -129,11 +129,3 @@ export const useDonationAlertsIntegration = () => createIntegrationOauth({
 	useLogout: protectedApiClient.integrationsDonationAlertsLogout,
 });
 
-export const useDiscordIntegration = () => createIntegrationOauth({
-	integrationName: 'discord',
-	getData: protectedApiClient.integrationsDiscordGetData,
-	getAuthLink: protectedApiClient.integrationsDiscordGetAuthLink,
-	usePostCode: protectedApiClient.integrationDiscordConnectGuild,
-	useLogout: protectedApiClient.integrationsDiscordDisconnectGuild,
-	updateData: protectedApiClient.integrationsDiscordUpdate,
-});

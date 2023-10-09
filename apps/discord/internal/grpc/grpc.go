@@ -115,3 +115,25 @@ func (c *Impl) GetGuildChannels(
 		Channels: resultedChannels,
 	}, nil
 }
+
+func (c *Impl) GetGuildInfo(
+	ctx context.Context,
+	req *discord.GetGuildInfoRequest,
+) (*discord.GetGuildInfoResponse, error) {
+	guildReq := disgo.GetGuild{GuildID: req.GuildId}
+	guild, err := guildReq.Send(c.discord.Client)
+	if err != nil {
+		return nil, err
+	}
+
+	var icon string
+	if guild.Icon != nil {
+		icon = *guild.Icon
+	}
+
+	return &discord.GetGuildInfoResponse{
+		Id:   guild.ID,
+		Name: guild.Name,
+		Icon: icon,
+	}, nil
+}
