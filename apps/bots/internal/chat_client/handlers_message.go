@@ -19,10 +19,6 @@ func (c *ChatClient) onMessage(msg *Message) {
 	// this need to be first because if we have no user in db it will produce many bugs
 	c.updateUserStats(msg.User.ID, msg.Channel.ID, userBadges)
 
-	if msg.Channel.ID == "949768467" {
-		c.services.Logger.Info("message in bot admin channel", slog.Any("msg", msg))
-	}
-
 	var dbChannel model.Channels
 	if err := c.services.DB.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {
 		c.services.Logger.Error(
