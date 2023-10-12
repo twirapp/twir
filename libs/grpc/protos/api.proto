@@ -120,6 +120,7 @@ service Protected {
 	rpc IntegrationDiscordConnectGuild(api.integrations_discord.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsDiscordDisconnectGuild(api.integrations_discord.DisconnectGuildMessage) returns (google.protobuf.Empty) {}
 	rpc IntegrationsDiscordGetGuildChannels(api.integrations_discord.GetGuildChannelsRequest) returns (api.integrations_discord.GetGuildChannelsResponse) {}
+	rpc IntegrationsDiscordGetGuildInfo(api.integrations_discord.GetGuildInfoRequest) returns (api.integrations_discord.GetGuildInfoResponse) {}
 
 	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (api.integrations_valorant.GetResponse) {}
 	rpc IntegrationsValorantUpdate(api.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}

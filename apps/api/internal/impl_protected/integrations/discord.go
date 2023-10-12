@@ -4,14 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/url"
 	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/imroc/req/v3"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/integrations_discord"
 	"github.com/satont/twir/libs/grpc/generated/discord"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -47,7 +50,8 @@ func (c *Integrations) IntegrationsDiscordGetData(
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	channelIntegration, err := c.getChannelIntegrationByService(
-		ctx, model.IntegrationServiceDiscord,
+		ctx,
+		model.IntegrationServiceDiscord,
 		dashboardId,
 	)
 	if err != nil {
@@ -58,7 +62,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 		return nil, errors.New("integration not found")
 	}
 
-	if channelIntegration.Data == nil || channelIntegration.Data.UserId == nil {
+	if channelIntegration.Data == nil {
 		return &integrations_discord.GetDataResponse{}, nil
 	}
 
@@ -67,44 +71,48 @@ func (c *Integrations) IntegrationsDiscordGetData(
 		0,
 		len(channelIntegration.Data.Discord.Guilds),
 	)
-	guildsWg := sync.WaitGroup{}
 	guildsMu := sync.Mutex{}
-	guildsWg.Add(len(channelIntegration.Data.Discord.Guilds))
 
+	guildsGroup, gCtx := errgroup.WithContext(ctx)
 	for _, guild := range channelIntegration.Data.Discord.Guilds {
-		guildsWg.Add(1)
+		guild := guild
 
-		go func(guild model.ChannelIntegrationDataDiscordGuild) {
-			defer guildsWg.Done()
+		guildsGroup.Go(
+			func() error {
+				g, err := c.Grpc.Discord.GetGuildInfo(
+					gCtx, &discord.GetGuildInfoRequest{
+						GuildId: guild.ID,
+					},
+				)
+				if err != nil {
+					return err
+				}
 
-			g, err := c.Grpc.Discord.GetGuildInfo(
-				ctx, &discord.GetGuildInfoRequest{
-					GuildId: guild.ID,
-				},
-			)
-			if err != nil {
-				return
-			}
+				guildsMu.Lock()
+				guilds = append(
+					guilds,
+					&integrations_discord.DiscordGuild{
+						Id:                                       g.Id,
+						Name:                                     g.Name,
+						Icon:                                     g.Icon,
+						LiveNotificationEnabled:                  guild.LiveNotificationEnabled,
+						LiveNotificationChannelsIds:              guild.LiveNotificationChannelsIds,
+						LiveNotificationShowTitle:                guild.LiveNotificationShowTitle,
+						LiveNotificationShowCategory:             guild.LiveNotificationShowCategory,
+						LiveNotificationMessage:                  guild.LiveNotificationMessage,
+						LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
+					},
+				)
+				guildsMu.Unlock()
 
-			guildsMu.Lock()
-			guilds = append(
-				guilds, &integrations_discord.DiscordGuild{
-					Id:                                       guild.ID,
-					Name:                                     g.Name,
-					Icon:                                     g.Icon,
-					LiveNotificationEnabled:                  guild.LiveNotificationEnabled,
-					LiveNotificationChannelsIds:              guild.LiveNotificationChannelsIds,
-					LiveNotificationShowTitle:                guild.LiveNotificationShowTitle,
-					LiveNotificationShowCategory:             guild.LiveNotificationShowCategory,
-					LiveNotificationMessage:                  guild.LiveNotificationMessage,
-					LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
-				},
-			)
-			guildsMu.Unlock()
-		}(guild)
+				return nil
+			},
+		)
 	}
 
-	guildsWg.Wait()
+	if err := guildsGroup.Wait(); err != nil {
+		return nil, fmt.Errorf("failed to get guilds: %w", err)
+	}
 
 	return &integrations_discord.GetDataResponse{
 		Guilds: guilds,
@@ -179,22 +187,13 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 		return nil, fmt.Errorf("failed to get channel integration: %w", err)
 	}
 
-	newData := &model.ChannelsIntegrationsData{
-		Discord: &model.ChannelIntegrationDataDiscord{},
-	}
-
-	if channelIntegration.Data != nil && channelIntegration.Data.Discord != nil {
-		newData = channelIntegration.Data
-	}
-
-	newData.Discord.Guilds = append(
-		newData.Discord.Guilds,
+	channelIntegration.Data.Discord.Guilds = append(
+		channelIntegration.Data.Discord.Guilds,
 		model.ChannelIntegrationDataDiscordGuild{
 			ID: res.Guild.Id,
 		},
 	)
 
-	channelIntegration.Data = newData
 	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
 		return nil, fmt.Errorf("failed to save channel integration: %w", err)
 	}
@@ -208,6 +207,34 @@ func (c *Integrations) IntegrationsDiscordDisconnectGuild(
 ) (*empty.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	fmt.Println("dashboardId", dashboardId)
+
+	channelIntegration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDiscord,
+		dashboardId,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel integration: %w", err)
+	}
+
+	if channelIntegration.Data == nil || channelIntegration.Data.Discord == nil {
+		return nil, fmt.Errorf("failed to get channel integration data")
+	}
+
+	channelIntegration.Data.Discord.Guilds = lo.Filter(
+		channelIntegration.Data.Discord.Guilds,
+		func(guild model.ChannelIntegrationDataDiscordGuild, _ int) bool {
+			return guild.ID != req.GuildId
+		},
+	)
+
+	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
+		return nil, fmt.Errorf("failed to save channel integration: %w", err)
+	}
+
+	if _, err := c.Grpc.Discord.LeaveGuild(ctx, &discord.LeaveGuildRequest{}); err != nil {
+		c.Logger.Error("failed to leave guild", slog.Any("err", err))
+	}
 
 	return &emptypb.Empty{}, nil
 }
@@ -242,5 +269,25 @@ func (c *Integrations) IntegrationsDiscordGetGuildChannels(
 
 	return &integrations_discord.GetGuildChannelsResponse{
 		Channels: channels,
+	}, nil
+}
+
+func (c *Integrations) IntegrationsDiscordGetGuildInfo(
+	ctx context.Context,
+	req *integrations_discord.GetGuildInfoRequest,
+) (*integrations_discord.GetGuildInfoResponse, error) {
+	guildInfo, err := c.Grpc.Discord.GetGuildInfo(
+		ctx, &discord.GetGuildInfoRequest{
+			GuildId: req.GuildId,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get guild info: %w", err)
+	}
+
+	return &integrations_discord.GetGuildInfoResponse{
+		Id:   guildInfo.Id,
+		Name: guildInfo.Name,
+		Icon: guildInfo.Icon,
 	}, nil
 }

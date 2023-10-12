@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 import { IconSettings } from '@tabler/icons-vue';
 import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
-import { ref } from 'vue';
+import { onUnmounted, ref } from 'vue';
 import { FunctionalComponent } from 'vue/dist/vue.js';
 import { useI18n } from 'vue-i18n';
 
@@ -16,6 +16,7 @@ const props = defineProps<{
 defineSlots<{
 	icon: FunctionalComponent<any>
 	settings: FunctionalComponent<any>
+	content?: FunctionalComponent<any>
 }>();
 
 const showSettings = ref(false);
@@ -29,6 +30,8 @@ async function callSave() {
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
 
 const { t } = useI18n();
+
+onUnmounted(() => showSettings.value = false);
 </script>
 
 <template>
@@ -43,6 +46,7 @@ const { t } = useI18n();
 		</td>
 		<td>
 			<span v-if="description">{{ description }}</span>
+			<slot name="content" />
 		</td>
 		<td>
 			<n-button

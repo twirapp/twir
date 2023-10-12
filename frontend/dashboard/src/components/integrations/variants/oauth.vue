@@ -44,7 +44,7 @@ const { t } = useI18n();
 			</n-tooltip>
 		</td>
 		<td>
-			<div style="flex; flex-direction: column">
+			<div style="display: flex; flex-direction: column">
 				<div>
 					<div v-if="data?.userName" class="profile">
 						<n-avatar :src="data.avatar" class="avatar" round />

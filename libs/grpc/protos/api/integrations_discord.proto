@@ -53,3 +53,13 @@ message GetGuildChannelsRequest {
 message GetGuildChannelsResponse {
 	repeated GuildChannel channels = 1;
 }
+
+message GetGuildInfoRequest {
+	string guild_id = 1;
+}
+
+message GetGuildInfoResponse {
+	string id = 1;
+	string name = 2;
+	string icon = 3;
+}

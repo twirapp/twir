@@ -9,7 +9,8 @@ import {
 	useStreamlabsIntegration,
 	useDonationAlertsIntegration,
 	useFaceitIntegration,
-	createIntegrationOauth, useDiscordIntegration,
+	createIntegrationOauth,
+	useDiscordIntegration,
 } from '@/api/index.js';
 
 const router = useRouter();

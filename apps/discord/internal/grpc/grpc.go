@@ -14,6 +14,7 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Opts struct {
@@ -136,4 +137,16 @@ func (c *Impl) GetGuildInfo(
 		Name: guild.Name,
 		Icon: icon,
 	}, nil
+}
+
+func (c *Impl) LeaveGuild(
+	ctx context.Context,
+	req *discord.LeaveGuildRequest,
+) (*emptypb.Empty, error) {
+	leaveGuildReq := disgo.LeaveGuild{GuildID: req.GuildId}
+	if err := leaveGuildReq.Send(c.discord.Client); err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
 }
