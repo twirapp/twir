@@ -1,6 +1,9 @@
 <script setup lang='ts'>
 import { useQueries } from '@tanstack/vue-query';
-import { ChannelType, type GetDataResponse } from '@twir/grpc/generated/api/api/integrations_discord';
+import {
+	ChannelType,
+	type GetDataResponse,
+} from '@twir/grpc/generated/api/api/integrations_discord';
 import {
 	NTabs,
 	NTabPane,
@@ -8,11 +11,12 @@ import {
 	NAvatar,
 	NDivider,
 	NSelect,
-	NAlert,
 	NFormItem,
 	NSwitch,
+	useMessage,
 } from 'naive-ui';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useDiscordIntegration, getGuildChannelsFn } from '@/api/index.js';
 import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
@@ -20,12 +24,22 @@ import IntegrationWithSettings from '@/components/integrations/variants/withSett
 
 const manager = useDiscordIntegration();
 const { data: authLink } = manager.getConnectLink();
-const { data: discordIntegrationData, isError: isDataError } = manager.getData();
+const { data: discordIntegrationData, refetch: refetchDiscordData } = manager.getData();
 const guildDisconnect = manager.disconnectGuild();
+const updateSettings = manager.updateData();
+
 
 const formValue = ref<GetDataResponse>({
 	guilds: [],
 });
+
+const message = useMessage();
+const { t } = useI18n();
+
+async function saveSettings() {
+	await updateSettings.mutateAsync(formValue.value);
+	message.success(t('sharedTexts.saved'));
+}
 
 function connectGuild() {
 	if (!authLink.value?.link) return;
@@ -33,13 +47,15 @@ function connectGuild() {
 	window.location.replace(authLink.value.link);
 }
 
-const currentTab = ref<string | undefined>();
+const currentTab = ref<string>('');
 watch(discordIntegrationData, (v) => {
 	if (!v) return;
 	currentTab.value = v.guilds?.[0]?.name;
 	formValue.value = toRaw(v);
 });
-onMounted(() => {
+onMounted(async () => {
+	if (!discordIntegrationData.value) await refetchDiscordData();
+
 	currentTab.value = discordIntegrationData.value?.guilds?.[0]?.name;
 });
 
@@ -79,6 +95,7 @@ const liveChannelSelectorOptions = computed(() => {
 <template>
 	<integration-with-settings
 		name="Discord"
+		:save="saveSettings"
 	>
 		<template #icon>
 			<IconDiscord style="width: 30px; fill: #5865F2; display: flex" />
@@ -95,7 +112,6 @@ const liveChannelSelectorOptions = computed(() => {
 
 		<template #settings>
 			<n-tabs
-				v-if="!isDataError"
 				v-model:value="currentTab"
 				closable
 				tab-style="min-width: 80px;"
@@ -157,10 +173,6 @@ const liveChannelSelectorOptions = computed(() => {
 					</n-button>
 				</template>
 			</n-tabs>
-
-			<n-alert v-else>
-				no guilds
-			</n-alert>
 		</template>
 	</integration-with-settings>
 </template>

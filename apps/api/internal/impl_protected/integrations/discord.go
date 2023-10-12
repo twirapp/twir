@@ -121,16 +121,36 @@ func (c *Integrations) IntegrationsDiscordGetData(
 
 func (c *Integrations) IntegrationsDiscordUpdate(
 	ctx context.Context,
-	in *integrations_discord.UpdateMessage,
+	req *integrations_discord.UpdateMessage,
 ) (*empty.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	channelIntegration := model.ChannelsIntegrations{}
-	if err := c.Db.WithContext(ctx).Where(
-		`"channelId" = ?`,
+	channelIntegration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDiscord,
 		dashboardId,
-	).Find(&channelIntegration).Error; err != nil {
-		return nil, err
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get channel integration: %w", err)
+	}
+
+	newGuilds := make([]model.ChannelIntegrationDataDiscordGuild, 0, len(req.Guilds))
+	for _, guild := range req.Guilds {
+		newGuilds = append(
+			newGuilds,
+			model.ChannelIntegrationDataDiscordGuild{
+				ID:                           guild.Id,
+				LiveNotificationEnabled:      guild.LiveNotificationEnabled,
+				LiveNotificationChannelsIds:  guild.LiveNotificationChannelsIds,
+				LiveNotificationShowTitle:    guild.LiveNotificationShowTitle,
+				LiveNotificationShowCategory: guild.LiveNotificationShowCategory,
+				LiveNotificationMessage:      guild.LiveNotificationMessage,
+			},
+		)
+	}
+
+	channelIntegration.Data.Discord = &model.ChannelIntegrationDataDiscord{
+		Guilds: newGuilds,
 	}
 
 	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
@@ -187,15 +207,28 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 		return nil, fmt.Errorf("failed to get channel integration: %w", err)
 	}
 
-	channelIntegration.Data.Discord.Guilds = append(
-		channelIntegration.Data.Discord.Guilds,
-		model.ChannelIntegrationDataDiscordGuild{
-			ID: res.Guild.Id,
-		},
-	)
+	if channelIntegration.Data.Discord == nil {
+		channelIntegration.Data.Discord = &model.ChannelIntegrationDataDiscord{
+			Guilds: []model.ChannelIntegrationDataDiscordGuild{},
+		}
+	}
 
-	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
-		return nil, fmt.Errorf("failed to save channel integration: %w", err)
+	if !lo.SomeBy(
+		channelIntegration.Data.Discord.Guilds,
+		func(item model.ChannelIntegrationDataDiscordGuild) bool {
+			return item.ID == res.Guild.Id
+		},
+	) || channelIntegration.Data.Discord == nil {
+		channelIntegration.Data.Discord.Guilds = append(
+			channelIntegration.Data.Discord.Guilds,
+			model.ChannelIntegrationDataDiscordGuild{
+				ID: res.Guild.Id,
+			},
+		)
+
+		if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
+			return nil, fmt.Errorf("failed to save channel integration: %w", err)
+		}
 	}
 
 	return &emptypb.Empty{}, nil
