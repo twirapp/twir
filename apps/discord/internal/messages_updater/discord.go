@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 
@@ -117,29 +116,6 @@ func (c *MessagesUpdater) sendOnlineMessage(
 				},
 			)
 		}
-
-		for _, channelId := range guild.LiveNotificationChannelsIds {
-			msgReq := disgo.CreateMessage{
-				Content:   nil,
-				ChannelID: "",
-				Embeds:    []*disgo.Embed{&embed},
-			}
-			m, err := msgReq.Send(c.discord.Client)
-			if err != nil {
-				c.logger.Error("Failed to send message", slog.Any("err", err))
-				continue
-			}
-
-			sendedMessage = append(
-				sendedMessage,
-				sended_messages_store.Message{
-					GuildID:   *m.GuildID,
-					MessageID: m.ID,
-					ChannelID: stream.UserId,
-				},
-			)
-		}
-
 	}
 
 	return sendedMessage, nil
