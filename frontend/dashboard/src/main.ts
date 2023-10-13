@@ -1,6 +1,7 @@
 import './main.css';
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
+import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
@@ -21,6 +22,11 @@ const queryClient = new QueryClient({
 			retry: false,
 		},
 	},
+});
+
+broadcastQueryClient({
+	queryClient,
+	broadcastChannel: 'twir-dashboard',
 });
 
 VueQueryPlugin.install(app, {

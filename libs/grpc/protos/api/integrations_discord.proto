@@ -26,6 +26,7 @@ message DiscordGuild {
 	repeated GuildRole roles = 11;
 
 	string offline_notification_message = 12;
+	bool live_notification_show_viewers = 13;
 }
 
 message GetDataResponse {

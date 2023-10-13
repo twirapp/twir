@@ -25,6 +25,7 @@ type ChannelIntegrationDataDiscordGuild struct {
 	LiveNotificationChannelsIds  []string `json:"liveNotificationChannelsIds,omitempty"`
 	LiveNotificationShowTitle    bool     `json:"liveNotificationShowTitle,omitempty"`
 	LiveNotificationShowCategory bool     `json:"liveNotificationShowCategory,omitempty"`
+	LiveNotificationShowViewers  bool     `json:"liveNotificationShowViewers,omitempty"`
 	LiveNotificationMessage      string   `json:"liveNotificationMessage,omitempty"`
 	OfflineNotificationMessage   string   `json:"offlineNotificationMessage,omitempty"`
 }

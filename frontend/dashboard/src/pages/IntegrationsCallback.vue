@@ -16,37 +16,73 @@ const router = useRouter();
 const route = useRoute();
 
 const integrationsHooks: { [x: string]: {
-	usePostCode: (...args: any) => any,
+	manager: {
+		usePostCode: (...args: any) => any | Promise<any>,
+		getData?: () => {
+			refetch: (...args: any) => any | Promise<any>
+		}
+	},
+	closeWindow?: boolean,
 } } = {
-	'spotify': useSpotifyIntegration(),
-	'lastfm': useLastfmIntegration(),
-	'vk': useVKIntegration(),
-	'streamlabs': useStreamlabsIntegration(),
-	'donationalerts': useDonationAlertsIntegration(),
-	'faceit': useFaceitIntegration(),
-	'discord': useDiscordIntegration(),
+	'spotify': {
+		manager: useSpotifyIntegration(),
+	},
+	'lastfm': {
+		manager: useLastfmIntegration(),
+	},
+	'vk': {
+		manager: useVKIntegration(),
+	},
+	'streamlabs': {
+		manager: useStreamlabsIntegration(),
+	},
+	'donationalerts': {
+		manager: useDonationAlertsIntegration(),
+	},
+	'faceit': {
+		manager: useFaceitIntegration(),
+	},
+	'discord': {
+		manager: useDiscordIntegration(),
+		closeWindow: true,
+	},
 };
 
-onMounted(() => {
+onMounted(async () => {
 	const integrationName = route.params.integrationName;
 	if (!integrationName || typeof integrationName !== 'string') {
 		router.push({ name: 'Integrations' });
 		return;
 	}
 
-	const integrationHook = integrationsHooks[integrationName];
-	const postCodeHook = integrationHook?.usePostCode();
+	const integration = integrationsHooks[integrationName];
+	const postCodeHook = integration?.manager?.usePostCode();
+	const getDataHook = integration?.manager?.getData?.();
 
 	const { code, token } = route.query;
 	const incomingCode = code ?? token;
 
 	if (typeof incomingCode !== 'string' || !postCodeHook) {
-		router.push({ name: 'Integrations' });
+		if (integration?.closeWindow) {
+			if (getDataHook) {
+				await getDataHook.refetch({});
+			}
+			window.close();
+		} else {
+			router.push({ name: 'Integrations' });
+		}
 		return;
 	}
 
-	postCodeHook.mutateAsync({ code: incomingCode }).finally(() => {
-		router.push({ name: 'Integrations' });
+	postCodeHook.mutateAsync({ code: incomingCode }).finally(async () => {
+		if (integration?.closeWindow) {
+			if (getDataHook) {
+				await getDataHook.refetch({});
+			}
+			window.close();
+		} else {
+			router.push({ name: 'Integrations' });
+		}
 	});
 });
 </script>

@@ -3,7 +3,6 @@ package discord_go
 import (
 	"context"
 	"errors"
-	"log/slog"
 
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -45,8 +44,11 @@ func New(opts Opts) (*Discord, error) {
 		Authentication: disgo.BotToken(opts.Config.DiscordBotToken),
 		Authorization:  &disgo.Authorization{},
 		Config:         disgo.DefaultConfig(),
-		Handlers:       &disgo.Handlers{},
-		Sessions:       disgo.NewSessionManager(),
+		Handlers: &disgo.Handlers{
+			Ready:       []func(*disgo.Ready){discord.handleReady},
+			GuildDelete: []func(*disgo.GuildDelete){discord.handleGuildDelete},
+		},
+		Sessions: disgo.NewSessionManager(),
 	}
 
 	bot.Config.Gateway.ShardManager = new(shard.InstanceShardManager)
@@ -57,9 +59,6 @@ func New(opts Opts) (*Discord, error) {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if err := attachListeners(discord); err != nil {
-					return err
-				}
 
 				if err := s.Connect(bot); err != nil {
 					return err
@@ -76,21 +75,4 @@ func New(opts Opts) (*Discord, error) {
 	discord.Client = bot
 
 	return discord, nil
-}
-
-func attachListeners(bot *Discord) error {
-	if err := bot.Handle(
-		disgo.FlagGatewayEventNameGuildDelete,
-		bot.handleGuildDelete,
-	); err != nil {
-		bot.logger.Error("failed to attach guild delete", slog.Any("error", err))
-		return err
-	}
-
-	if err := bot.Handle(disgo.FlagGatewayEventNameReady, bot.handleReady); err != nil {
-		bot.logger.Error("failed to attach ready", slog.Any("error", err))
-		return err
-	}
-
-	return nil
 }

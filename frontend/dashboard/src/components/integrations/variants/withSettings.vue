@@ -7,12 +7,15 @@ import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	name: string,
-	save?: () => void | Promise<void>
-	description?: string
-	isLoading?: boolean
-}>();
+	save?: () => void | Promise<void>,
+	description?: string,
+	isLoading?: boolean,
+	modalWidth?: string,
+}>(), {
+	modalWidth: '600px',
+});
 
 defineSlots<{
 	icon: FunctionalComponent<any>
@@ -21,7 +24,6 @@ defineSlots<{
 }>();
 
 const showSettings = ref(false);
-const modalWidth = '600px';
 
 async function callSave() {
 	await props.save?.();
@@ -73,9 +75,8 @@ onUnmounted(() => showSettings.value = false);
 		class="modal"
 		:style="{
 			width: modalWidth,
-			position: 'fixed',
-			left: `calc(50% - ${modalWidth}/2)`,
-			top: '50px',
+			top: '5%',
+			bottom: '5%'
 		}"
 	>
 		<template #header>

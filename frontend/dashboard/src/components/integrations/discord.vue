@@ -1,4 +1,16 @@
 <script setup lang='ts'>
+import '@discord-message-components/vue/dist/style.css';
+
+import {
+	DiscordMessages,
+	DiscordMessage,
+	DiscordEmbed,
+	DiscordEmbedFields,
+	DiscordEmbedField,
+	DiscordMention,
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
+} from '@discord-message-components/vue';
 import { useQueries } from '@tanstack/vue-query';
 import {
 	ChannelType,
@@ -15,12 +27,16 @@ import {
 	NSwitch,
 	useMessage,
 	NMention,
+	NPopconfirm,
+	NAlert,
 } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useDiscordIntegration, getGuildChannelsFn } from '@/api/index.js';
+import TwirCircle from '@/../public/TwirInCircle.svg?url';
+import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
+import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
 import IntegrationWithSettings from '@/components/integrations/variants/withSettings.vue';
 
 const manager = useDiscordIntegration();
@@ -47,7 +63,9 @@ async function saveSettings() {
 function connectGuild() {
 	if (!authLink.value?.link) return;
 
-	window.location.replace(authLink.value.link);
+	window.open(authLink.value.link, 'Twir connect discord', 'width=800,height=600');
+
+	// window.location.replace(authLink.value.link);
 }
 
 const currentTab = ref<string>('');
@@ -57,11 +75,12 @@ watch(discordIntegrationData, (v) => {
 	formValue.value = toRaw(v);
 }, { immediate: true });
 
-async function disconnectGuildByName(guildName: string) {
-	const guild = discordIntegrationData.value?.guilds?.find((g: any) => g.name === guildName);
+async function disconnectGuildById(guildId: string) {
+	const guild = discordIntegrationData.value?.guilds?.find(g => g.id === guildId);
 	if (!guild) return;
 
-	await guildDisconnect.mutateAsync(guild.id);
+	await guildDisconnect.mutateAsync(guildId);
+	message.success('Disconnected');
 }
 
 const guildsChannelsQueries = computed(() => {
@@ -98,6 +117,19 @@ function getRolesMentionsOptions(guildId: string) {
 		value: r.name.replace('@', ''),
 	})) ?? [];
 }
+
+function getGuildRoleColorByName(guildId: string, roleName: string) {
+	const guild = discordIntegrationData.value?.guilds.find(g => g.id === guildId);
+	if (!guild) return;
+	const role = guild.roles.find(r => r.name === roleName.replace('@', ''));
+	if (!role || role.color === '0') return null;
+
+	const hexColor = Number(role.color).toString(16);
+
+	return `#${hexColor.padStart(6, '0')}`;
+}
+
+const { data: currentUser } = useProfile();
 </script>
 
 <template>
@@ -105,6 +137,7 @@ function getRolesMentionsOptions(guildId: string) {
 		name="Discord"
 		:save="saveSettings"
 		:isLoading="isDataLoading"
+		modal-width="80vw"
 	>
 		<template #icon>
 			<IconDiscord style="width: 30px; fill: #5865F2; display: flex" />
@@ -124,7 +157,6 @@ function getRolesMentionsOptions(guildId: string) {
 				v-model:value="currentTab"
 				closable
 				tab-style="min-width: 80px;"
-				@close="disconnectGuildByName"
 			>
 				<n-tab-pane
 					v-for="(guild, guildIndex) in formValue.guilds" :key="guild.id"
@@ -144,54 +176,148 @@ function getRolesMentionsOptions(guildId: string) {
 						</div>
 					</template>
 
-					<div class="block">
-						<span style="font-size: 16px">
-							Alerts
-						</span>
-						<n-divider style="margin: 0; margin-bottom: 5px" />
+					<div style="display: flex; flex-direction: column; gap: 12px">
+						<div class="block">
+							<div style="display: flex; flex-direction: column; gap: 8px; width: 50%">
+								<span style="font-size: 16px">
+									Alerts
+								</span>
+								<n-divider style="margin: 0; margin-bottom: 5px" />
 
-						<div class="switch">
-							<n-switch v-model:value="guild.liveNotificationEnabled" />
-							<span>Enabled</span>
+								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationEnabled" />
+									<span>Enabled</span>
+								</div>
+
+								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationShowTitle" />
+									<span>Show title of stream</span>
+								</div>
+
+								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationShowCategory" />
+									<span>Show category of stream</span>
+								</div>
+
+								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationShowViewers" />
+									<span>Show viewers</span>
+								</div>
+
+								<n-form-item label="Target channels" style="margin-top: 4px;">
+									<n-select
+										v-model:value="guild.liveNotificationChannelsIds"
+										multiple
+										clearable
+										filterable
+										:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
+										:max-tag-count="5"
+									/>
+								</n-form-item>
+
+								<n-form-item label="Stream online message" style="margin-top: 4px;">
+									<n-mention
+										v-model:value="guild.liveNotificationMessage"
+										type="textarea"
+										:options="getRolesMentionsOptions(guild.id)"
+										placeholder="The message twir will send when stream started"
+										:maxlength="5"
+									/>
+								</n-form-item>
+
+								<n-form-item label="Stream offline message" style="margin-top: 4px;">
+									<n-mention
+										v-model:value="guild.offlineNotificationMessage"
+										type="textarea"
+										:options="getRolesMentionsOptions(guild.id)"
+										placeholder="The message twir will send when stream goes offline"
+									/>
+								</n-form-item>
+
+								<n-alert type="info">
+									Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)
+								</n-alert>
+							</div>
+
+							<div style="width: 50%">
+								<DiscordMessages>
+									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirCircle">
+										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
+											<DiscordMention
+												v-if="m.startsWith('@')"
+												type="role"
+												:highlight="true"
+												:roleColor="getGuildRoleColorByName(guild.id, m.trim())"
+											>
+												{{ m.replace('@', '') }}
+											</DiscordMention>
+											<template v-else>
+												{{ m }}
+											</template>
+											{{ ' ' }}
+										</template>
+										<template #embeds>
+											<DiscordEmbed
+												embedTitle="Today we are doing amazing things!"
+												:url="`https://twitch.tv/${currentUser?.login}`"
+												:timestamp="new Date()"
+												:footerIcon="TwirCircle"
+												borderColor="#6441a5"
+												:thumbnail="currentUser?.avatar"
+												:image="StreamStarting"
+											>
+												<template #fields>
+													<DiscordEmbedFields>
+														<DiscordEmbedField
+															v-if="guild.liveNotificationShowTitle"
+															fieldTitle="Title"
+															inline
+														>
+															Today we are doing amazing things!
+														</DiscordEmbedField>
+														<DiscordEmbedField
+															v-if="guild.liveNotificationShowViewers"
+															fieldTitle="Viewers"
+															inline
+														>
+															5
+														</DiscordEmbedField>
+														<DiscordEmbedField
+															v-if="guild.liveNotificationShowCategory"
+															fieldTitle="Category"
+														>
+															Software and game development
+														</DiscordEmbedField>
+													</DiscordEmbedFields>
+												</template>
+
+												<template #footer>
+													TwirApp
+												</template>
+											</DiscordEmbed>
+										</template>
+									</DiscordMessage>
+								</DiscordMessages>
+							</div>
 						</div>
 
-						<div class="switch">
-							<n-switch v-model:value="guild.liveNotificationShowTitle" />
-							<span>Show title of stream</span>
+						<div class="block" style="display: flex; flex-direction: column; gap: 8px;">
+							<span style="font-size: 16px">
+								Danger zone
+							</span>
+							<n-divider style="margin: 0; margin-bottom: 5px" />
+
+							<n-popconfirm
+								:positive-text="t('deleteConfirmation.confirm')"
+								:negative-text="t('deleteConfirmation.cancel')"
+								@positive-click="() => disconnectGuildById(guild.id)"
+							>
+								<template #trigger>
+									<n-button type="error" secondary>Disconnect guild</n-button>
+								</template>
+								{{ t('deleteConfirmation.text') }}
+							</n-popconfirm>
 						</div>
-
-						<div class="switch">
-							<n-switch v-model:value="guild.liveNotificationShowCategory" />
-							<span>Show category of stream</span>
-						</div>
-
-						<n-form-item label="Target channels" style="margin-top: 4px;">
-							<n-select
-								v-model:value="guild.liveNotificationChannelsIds"
-								multiple
-								clearable
-								filterable
-								:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
-							/>
-						</n-form-item>
-
-						<n-form-item label="Stream online message" style="margin-top: 4px;">
-							<n-mention
-								v-model:value="guild.liveNotificationMessage"
-								type="textarea"
-								:options="getRolesMentionsOptions(guild.id)"
-								placeholder="The message twir will send when stream started"
-							/>
-						</n-form-item>
-
-						<n-form-item label="Stream offline message" style="margin-top: 4px;">
-							<n-mention
-								v-model:value="guild.offlineNotificationMessage"
-								type="textarea"
-								:options="getRolesMentionsOptions(guild.id)"
-								placeholder="The message twir will send when stream goes offline"
-							/>
-						</n-form-item>
 					</div>
 				</n-tab-pane>
 
@@ -216,7 +342,6 @@ function getRolesMentionsOptions(guildId: string) {
 </template>
 
 <style scoped>
-
 .switch {
 	display: flex;
 	gap: 8px;
@@ -227,8 +352,11 @@ function getRolesMentionsOptions(guildId: string) {
 	border-radius: 11px;
 	padding: 12px;
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
+	gap: 16px;
+}
+
+.discord-embed-image {
+	max-height: 300px;
 }
 
 .guild-avatar {

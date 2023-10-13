@@ -10,10 +10,12 @@
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
+    "@discord-message-components/vue": "^0.2.1",
     "@guolao/vue-monaco-editor": "^1.1.3",
     "@protobuf-ts/twirp-transport": "^2.9.1",
     "@tabler/icons-vue": "^2.34.0",
-    "@tanstack/vue-query": "^4.24.10",
+    "@tanstack/query-broadcast-client-experimental": "^4.36.1",
+    "@tanstack/vue-query": "^4.37.0",
     "@twir/grpc": "workspace:^",
     "@types/lodash.chunk": "^4.2.7",
     "@vueuse/components": "^10.2.1",

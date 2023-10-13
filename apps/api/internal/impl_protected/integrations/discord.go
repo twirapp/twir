@@ -123,6 +123,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 						LiveNotificationChannelsIds:              guild.LiveNotificationChannelsIds,
 						LiveNotificationShowTitle:                guild.LiveNotificationShowTitle,
 						LiveNotificationShowCategory:             guild.LiveNotificationShowCategory,
+						LiveNotificationShowViewers:              guild.LiveNotificationShowViewers,
 						LiveNotificationMessage:                  guild.LiveNotificationMessage,
 						LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
 						Channels:                                 channels,
@@ -171,6 +172,7 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 				LiveNotificationChannelsIds:  guild.LiveNotificationChannelsIds,
 				LiveNotificationShowTitle:    guild.LiveNotificationShowTitle,
 				LiveNotificationShowCategory: guild.LiveNotificationShowCategory,
+				LiveNotificationShowViewers:  guild.LiveNotificationShowViewers,
 				LiveNotificationMessage:      guild.LiveNotificationMessage,
 				OfflineNotificationMessage:   guild.OfflineNotificationMessage,
 			},
@@ -202,7 +204,6 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 	data *integrations_discord.PostCodeRequest,
 ) (*empty.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	fmt.Println("dashboardId", dashboardId)
 
 	res := DiscordPostCodeResponse{}
 	r, err := req.
@@ -253,6 +254,7 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 				ID:                           res.Guild.Id,
 				LiveNotificationShowTitle:    true,
 				LiveNotificationShowCategory: true,
+				LiveNotificationShowViewers:  true,
 			},
 		)
 
