@@ -9,14 +9,15 @@ import {
 	useStreamlabsIntegration,
 	useDonationAlertsIntegration,
 	useFaceitIntegration,
-	createIntegrationOauth,
 	useDiscordIntegration,
 } from '@/api/index.js';
 
 const router = useRouter();
 const route = useRoute();
 
-const integrationsHooks: { [x: string]: ReturnType<typeof createIntegrationOauth> } = {
+const integrationsHooks: { [x: string]: {
+	usePostCode: (...args: any) => any,
+} } = {
 	'spotify': useSpotifyIntegration(),
 	'lastfm': useLastfmIntegration(),
 	'vk': useVKIntegration(),

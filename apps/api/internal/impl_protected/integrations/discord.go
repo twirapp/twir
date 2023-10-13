@@ -127,6 +127,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 						LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
 						Channels:                                 channels,
 						Roles:                                    roles,
+						OfflineNotificationMessage:               guild.OfflineNotificationMessage,
 					},
 				)
 				guildsMu.Unlock()
@@ -171,6 +172,7 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 				LiveNotificationShowTitle:    guild.LiveNotificationShowTitle,
 				LiveNotificationShowCategory: guild.LiveNotificationShowCategory,
 				LiveNotificationMessage:      guild.LiveNotificationMessage,
+				OfflineNotificationMessage:   guild.OfflineNotificationMessage,
 			},
 		)
 	}
@@ -248,7 +250,9 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 		channelIntegration.Data.Discord.Guilds = append(
 			channelIntegration.Data.Discord.Guilds,
 			model.ChannelIntegrationDataDiscordGuild{
-				ID: res.Guild.Id,
+				ID:                           res.Guild.Id,
+				LiveNotificationShowTitle:    true,
+				LiveNotificationShowCategory: true,
 			},
 		)
 

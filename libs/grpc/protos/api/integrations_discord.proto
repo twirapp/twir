@@ -24,6 +24,8 @@ message DiscordGuild {
 
 	repeated GuildChannel channels = 10;
 	repeated GuildRole roles = 11;
+
+	string offline_notification_message = 12;
 }
 
 message GetDataResponse {

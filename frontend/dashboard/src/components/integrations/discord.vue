@@ -13,10 +13,10 @@ import {
 	NSelect,
 	NFormItem,
 	NSwitch,
-	NInput,
 	useMessage,
+	NMention,
 } from 'naive-ui';
-import { computed, onMounted, ref, toRaw, watch } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDiscordIntegration, getGuildChannelsFn } from '@/api/index.js';
@@ -27,12 +27,10 @@ const manager = useDiscordIntegration();
 const { data: authLink } = manager.getConnectLink();
 const {
 	data: discordIntegrationData,
-	refetch: refetchDiscordData,
 	isLoading: isDataLoading,
 } = manager.getData();
 const guildDisconnect = manager.disconnectGuild();
 const updateSettings = manager.updateData();
-
 
 const formValue = ref<GetDataResponse>({
 	guilds: [],
@@ -57,12 +55,7 @@ watch(discordIntegrationData, (v) => {
 	if (!v) return;
 	currentTab.value = v.guilds?.[0]?.name;
 	formValue.value = toRaw(v);
-});
-onMounted(async () => {
-	if (!discordIntegrationData.value) await refetchDiscordData();
-
-	currentTab.value = discordIntegrationData.value?.guilds?.[0]?.name;
-});
+}, { immediate: true });
 
 async function disconnectGuildByName(guildName: string) {
 	const guild = discordIntegrationData.value?.guilds?.find((g: any) => g.name === guildName);
@@ -90,11 +83,21 @@ const liveChannelSelectorOptions = computed(() => {
 
 		const channelsData = channels.data?.channels.filter(c => c.type === ChannelType.TEXT) ?? [];
 
-		result.push(channelsData.map(c => ({ label: c.name, value: c.id })));
+		result.push(channelsData.map(c => ({ label: `#${c.name}`, value: c.id })));
 	}
 
 	return result;
 });
+
+function getRolesMentionsOptions(guildId: string) {
+	const guild = discordIntegrationData.value?.guilds?.find((g) => g.id === guildId);
+	if (!guild) return [];
+
+	return guild.roles.map((r) => ({
+		label: r.name,
+		value: r.name.replace('@', ''),
+	})) ?? [];
+}
 </script>
 
 <template>
@@ -124,7 +127,7 @@ const liveChannelSelectorOptions = computed(() => {
 				@close="disconnectGuildByName"
 			>
 				<n-tab-pane
-					v-for="(guild, guildIndex) in discordIntegrationData?.guilds" :key="guild.id"
+					v-for="(guild, guildIndex) in formValue.guilds" :key="guild.id"
 					:name="guild.name"
 				>
 					<template #tab>
@@ -147,14 +150,24 @@ const liveChannelSelectorOptions = computed(() => {
 						</span>
 						<n-divider style="margin: 0; margin-bottom: 5px" />
 
-						<div style="display: flex; gap: 8px; align-items: start;">
-							<n-switch v-model:value="formValue.guilds.at(guildIndex)!.liveNotificationEnabled" />
+						<div class="switch">
+							<n-switch v-model:value="guild.liveNotificationEnabled" />
 							<span>Enabled</span>
+						</div>
+
+						<div class="switch">
+							<n-switch v-model:value="guild.liveNotificationShowTitle" />
+							<span>Show title of stream</span>
+						</div>
+
+						<div class="switch">
+							<n-switch v-model:value="guild.liveNotificationShowCategory" />
+							<span>Show category of stream</span>
 						</div>
 
 						<n-form-item label="Target channels" style="margin-top: 4px;">
 							<n-select
-								v-model:value="formValue.guilds.at(guildIndex)!.liveNotificationChannelsIds"
+								v-model:value="guild.liveNotificationChannelsIds"
 								multiple
 								clearable
 								filterable
@@ -162,14 +175,26 @@ const liveChannelSelectorOptions = computed(() => {
 							/>
 						</n-form-item>
 
-						<n-form-item label="Live announce message" style="margin-top: 4px;">
-							<n-input
-								v-model:value="formValue.guilds.at(guildIndex)!.liveNotificationMessage"
-								:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
+						<n-form-item label="Stream online message" style="margin-top: 4px;">
+							<n-mention
+								v-model:value="guild.liveNotificationMessage"
+								type="textarea"
+								:options="getRolesMentionsOptions(guild.id)"
+								placeholder="The message twir will send when stream started"
+							/>
+						</n-form-item>
+
+						<n-form-item label="Stream offline message" style="margin-top: 4px;">
+							<n-mention
+								v-model:value="guild.offlineNotificationMessage"
+								type="textarea"
+								:options="getRolesMentionsOptions(guild.id)"
+								placeholder="The message twir will send when stream goes offline"
 							/>
 						</n-form-item>
 					</div>
 				</n-tab-pane>
+
 				<template v-if="!discordIntegrationData?.guilds?.length" #prefix>
 					No guilds connected
 				</template>
@@ -191,6 +216,12 @@ const liveChannelSelectorOptions = computed(() => {
 </template>
 
 <style scoped>
+
+.switch {
+	display: flex;
+	gap: 8px;
+	align-items: start;
+}
 .block {
 	background-color: rgba(255, 255, 255, 0.06);
 	border-radius: 11px;

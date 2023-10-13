@@ -25,7 +25,6 @@ const modalWidth = '600px';
 
 async function callSave() {
 	await props.save?.();
-	showSettings.value = false;
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
