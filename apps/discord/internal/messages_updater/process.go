@@ -34,13 +34,15 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 	// 		},
 	// 	)
 	// 	if !ok {
-	// 		c.store.Delete(message.MessageID)
+	// 		c.store.Delete(ctx, message.MessageID)
+	// 		// TODO: set offline message
 	// 	}
 	// }
 
 	for _, stream := range streams {
 		_, err := c.store.Get(ctx, stream.UserId)
 		if err != nil {
+			c.logger.Error("Failed to get message from store", slog.Any("err", err))
 			continue
 		}
 
@@ -60,6 +62,10 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 		onlineMessages, err := c.sendOnlineMessage(ctx, stream)
 		if err != nil {
 			c.logger.Error("Failed to send message", slog.Any("err", err))
+			continue
+		}
+
+		if len(onlineMessages) == 0 {
 			continue
 		}
 

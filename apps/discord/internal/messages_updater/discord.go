@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 
@@ -18,8 +19,21 @@ func (c *MessagesUpdater) getChannelDiscordIntegration(
 	ctx context.Context,
 	channelId string,
 ) (*model.ChannelsIntegrations, error) {
+	discordIntegration := model.Integrations{}
+	err := c.db.WithContext(ctx).Where(
+		`service = ?`,
+		model.IntegrationServiceDiscord,
+	).First(&discordIntegration).Error
+	if err != nil {
+		return nil, err
+	}
+
 	integration := &model.ChannelsIntegrations{}
-	err := c.db.WithContext(ctx).Where(`"channelId" = ?`, channelId).First(integration).Error
+	err = c.db.WithContext(ctx).Where(
+		`"channelId" = ? AND "integrationId" = ?`,
+		channelId,
+		discordIntegration.ID,
+	).First(integration).Error
 	return integration, err
 }
 
@@ -32,8 +46,8 @@ func (c *MessagesUpdater) sendOnlineMessage(
 		return nil, err
 	}
 
-	if !settings.Enabled {
-		return nil, errors.New("discord integration is disabled")
+	if settings.Data.Discord == nil || len(settings.Data.Discord.Guilds) == 0 {
+		return nil, nil
 	}
 
 	twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{stream.UserId}})
@@ -52,6 +66,10 @@ func (c *MessagesUpdater) sendOnlineMessage(
 	thumbNailUrl = strings.Replace(thumbNailUrl, "{height}", fmt.Sprintf("%d", height), 1)
 
 	for _, guild := range settings.Data.Discord.Guilds {
+		if !guild.LiveNotificationEnabled {
+			continue
+		}
+
 		embed := disgo.Embed{
 			URL:       &twitchUrl,
 			Title:     &stream.Title,
@@ -73,18 +91,17 @@ func (c *MessagesUpdater) sendOnlineMessage(
 					time.Now().Unix(),
 				),
 			},
-			Fields: []*disgo.EmbedField{
-				{
-					Name:   "Category",
-					Value:  stream.GameName,
-					Inline: lo.ToPtr(false),
+			Fields: []*disgo.EmbedField{},
+		}
+
+		if guild.LiveNotificationShowTitle {
+			embed.Fields = append(
+				embed.Fields, &disgo.EmbedField{
+					Name:   "Title",
+					Value:  stream.Title,
+					Inline: lo.ToPtr(true),
 				},
-				{
-					Name:   "Viewers",
-					Value:  fmt.Sprintf("%d", stream.ViewerCount),
-					Inline: lo.ToPtr(false),
-				},
-			},
+			)
 		}
 
 		if guild.LiveNotificationShowViewers {
@@ -92,7 +109,7 @@ func (c *MessagesUpdater) sendOnlineMessage(
 				embed.Fields, &disgo.EmbedField{
 					Name:   "Viewers",
 					Value:  fmt.Sprintf("%d", stream.ViewerCount),
-					Inline: lo.ToPtr(false),
+					Inline: lo.ToPtr(true),
 				},
 			)
 		}
@@ -107,17 +124,30 @@ func (c *MessagesUpdater) sendOnlineMessage(
 			)
 		}
 
-		if guild.LiveNotificationShowTitle {
-			embed.Fields = append(
-				embed.Fields, &disgo.EmbedField{
-					Name:   "Title",
-					Value:  stream.Title,
-					Inline: lo.ToPtr(false),
+		for _, channel := range guild.LiveNotificationChannelsIds {
+			sendMsgReq := disgo.CreateMessage{
+				ChannelID: channel,
+				Embeds:    []*disgo.Embed{&embed},
+			}
+
+			if guild.LiveNotificationMessage != "" {
+				sendMsgReq.Content = &guild.LiveNotificationMessage
+			}
+
+			m, err := sendMsgReq.Send(c.discord.Client)
+			if err != nil {
+				c.logger.Error("Failed to send message", slog.Any("err", err))
+				continue
+			}
+			sendedMessage = append(
+				sendedMessage, sended_messages_store.Message{
+					MessageID: m.ID,
+					ChannelID: stream.UserId,
+					GuildID:   guild.ID,
 				},
 			)
 		}
 	}
 
 	return sendedMessage, nil
-	return nil, nil
 }
