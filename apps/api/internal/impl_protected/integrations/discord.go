@@ -88,6 +88,30 @@ func (c *Integrations) IntegrationsDiscordGetData(
 					return err
 				}
 
+				channels := make([]*integrations_discord.GuildChannel, 0, len(g.Channels))
+				for _, channel := range g.Channels {
+					channels = append(
+						channels,
+						&integrations_discord.GuildChannel{
+							Id:   channel.Id,
+							Name: channel.Name,
+							Type: integrations_discord.ChannelType(channel.Type.Number()),
+						},
+					)
+				}
+
+				roles := make([]*integrations_discord.GuildRole, 0, len(g.Roles))
+				for _, role := range g.Roles {
+					roles = append(
+						roles,
+						&integrations_discord.GuildRole{
+							Id:    role.Id,
+							Name:  role.Name,
+							Color: role.Color,
+						},
+					)
+				}
+
 				guildsMu.Lock()
 				guilds = append(
 					guilds,
@@ -101,6 +125,8 @@ func (c *Integrations) IntegrationsDiscordGetData(
 						LiveNotificationShowCategory:             guild.LiveNotificationShowCategory,
 						LiveNotificationMessage:                  guild.LiveNotificationMessage,
 						LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
+						Channels:                                 channels,
+						Roles:                                    roles,
 					},
 				)
 				guildsMu.Unlock()
@@ -318,9 +344,35 @@ func (c *Integrations) IntegrationsDiscordGetGuildInfo(
 		return nil, fmt.Errorf("failed to get guild info: %w", err)
 	}
 
+	channels := make([]*integrations_discord.GuildChannel, 0, len(guildInfo.Channels))
+	for _, channel := range guildInfo.Channels {
+		channels = append(
+			channels,
+			&integrations_discord.GuildChannel{
+				Id:   channel.Id,
+				Name: channel.Name,
+				Type: integrations_discord.ChannelType(channel.Type.Number()),
+			},
+		)
+	}
+
+	roles := make([]*integrations_discord.GuildRole, 0, len(guildInfo.Roles))
+	for _, role := range guildInfo.Roles {
+		roles = append(
+			roles,
+			&integrations_discord.GuildRole{
+				Id:    role.Id,
+				Name:  role.Name,
+				Color: role.Color,
+			},
+		)
+	}
+
 	return &integrations_discord.GetGuildInfoResponse{
-		Id:   guildInfo.Id,
-		Name: guildInfo.Name,
-		Icon: guildInfo.Icon,
+		Id:       guildInfo.Id,
+		Name:     guildInfo.Name,
+		Icon:     guildInfo.Icon,
+		Channels: channels,
+		Roles:    roles,
 	}, nil
 }

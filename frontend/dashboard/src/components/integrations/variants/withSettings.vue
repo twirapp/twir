@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { IconSettings } from '@tabler/icons-vue';
-import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
+import { NTooltip, NButton, NModal, NSpace, NSkeleton } from 'naive-ui';
 import { onUnmounted, ref } from 'vue';
 import { FunctionalComponent } from 'vue/dist/vue.js';
 import { useI18n } from 'vue-i18n';
@@ -11,6 +11,7 @@ const props = defineProps<{
 	name: string,
 	save?: () => void | Promise<void>
 	description?: string
+	isLoading?: boolean
 }>();
 
 defineSlots<{
@@ -36,27 +37,32 @@ onUnmounted(() => showSettings.value = false);
 
 <template>
 	<tr>
-		<td>
-			<n-tooltip trigger="hover" placement="left">
-				<template #trigger>
-					<slot name="icon" />
-				</template>
-				{{ name }}
-			</n-tooltip>
+		<td v-if="isLoading" colspan="3">
+			<n-skeleton height="40px" width="100%" :sharp="false" />
 		</td>
-		<td>
-			<span v-if="description">{{ description }}</span>
-			<slot name="content" />
-		</td>
-		<td>
-			<n-button
-				:disabled="!userCanManageIntegrations" strong secondary type="info"
-				@click="showSettings = true"
-			>
-				<IconSettings />
-				{{ t('sharedButtons.settings') }}
-			</n-button>
-		</td>
+		<template v-else>
+			<td>
+				<n-tooltip trigger="hover" placement="left">
+					<template #trigger>
+						<slot name="icon" />
+					</template>
+					{{ name }}
+				</n-tooltip>
+			</td>
+			<td>
+				<span v-if="description">{{ description }}</span>
+				<slot name="content" />
+			</td>
+			<td>
+				<n-button
+					:disabled="!userCanManageIntegrations" strong secondary type="info"
+					@click="showSettings = true"
+				>
+					<IconSettings />
+					{{ t('sharedButtons.settings') }}
+				</n-button>
+			</td>
+		</template>
 	</tr>
 
 	<n-modal

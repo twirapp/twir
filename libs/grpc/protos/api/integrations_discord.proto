@@ -21,6 +21,9 @@ message DiscordGuild {
 	bool live_notification_show_category = 7;
 	string live_notification_message = 8;
 	repeated string live_notification_additional_twitch_users_ids = 9;
+
+	repeated GuildChannel channels = 10;
+	repeated GuildRole roles = 11;
 }
 
 message GetDataResponse {
@@ -46,6 +49,12 @@ message GuildChannel {
 	ChannelType type = 3;
 }
 
+message GuildRole {
+	string id = 1;
+	string name = 2;
+	string color = 3;
+}
+
 message GetGuildChannelsRequest {
 	string guild_id = 1;
 }
@@ -62,4 +71,6 @@ message GetGuildInfoResponse {
 	string id = 1;
 	string name = 2;
 	string icon = 3;
+	repeated GuildChannel channels = 4;
+	repeated GuildRole roles = 5;
 }

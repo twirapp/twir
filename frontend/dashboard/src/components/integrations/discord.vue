@@ -13,6 +13,7 @@ import {
 	NSelect,
 	NFormItem,
 	NSwitch,
+	NInput,
 	useMessage,
 } from 'naive-ui';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
@@ -24,7 +25,11 @@ import IntegrationWithSettings from '@/components/integrations/variants/withSett
 
 const manager = useDiscordIntegration();
 const { data: authLink } = manager.getConnectLink();
-const { data: discordIntegrationData, refetch: refetchDiscordData } = manager.getData();
+const {
+	data: discordIntegrationData,
+	refetch: refetchDiscordData,
+	isLoading: isDataLoading,
+} = manager.getData();
 const guildDisconnect = manager.disconnectGuild();
 const updateSettings = manager.updateData();
 
@@ -96,6 +101,7 @@ const liveChannelSelectorOptions = computed(() => {
 	<integration-with-settings
 		name="Discord"
 		:save="saveSettings"
+		:isLoading="isDataLoading"
 	>
 		<template #icon>
 			<IconDiscord style="width: 30px; fill: #5865F2; display: flex" />
@@ -152,6 +158,13 @@ const liveChannelSelectorOptions = computed(() => {
 								multiple
 								clearable
 								filterable
+								:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
+							/>
+						</n-form-item>
+
+						<n-form-item label="Live announce message" style="margin-top: 4px;">
+							<n-input
+								v-model:value="formValue.guilds.at(guildIndex)!.liveNotificationMessage"
 								:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
 							/>
 						</n-form-item>

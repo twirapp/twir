@@ -12,6 +12,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/switchupcb/disgo"
 	"go.uber.org/fx"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -121,21 +122,73 @@ func (c *Impl) GetGuildInfo(
 	ctx context.Context,
 	req *discord.GetGuildInfoRequest,
 ) (*discord.GetGuildInfoResponse, error) {
-	guildReq := disgo.GetGuild{GuildID: req.GuildId}
-	guild, err := guildReq.Send(c.discord.Client)
-	if err != nil {
-		return nil, err
-	}
+	errWg, _ := errgroup.WithContext(ctx)
 
-	var icon string
-	if guild.Icon != nil {
-		icon = *guild.Icon
+	var guild *disgo.Guild
+	var guildIcon string
+	var guildChannels []*discord.GuildChannel
+	var guildRoles []*discord.Role
+
+	errWg.Go(
+		func() error {
+			guildReq := disgo.GetGuild{GuildID: req.GuildId}
+			var err error
+			disGuild, err := guildReq.Send(c.discord.Client)
+			if err != nil {
+				return err
+			}
+
+			if disGuild.Icon != nil {
+				guildIcon = *disGuild.Icon
+			}
+
+			guild = disGuild
+			return nil
+		},
+	)
+
+	errWg.Go(
+		func() error {
+			channels, err := c.GetGuildChannels(
+				ctx,
+				&discord.GetGuildChannelsRequest{GuildId: req.GuildId},
+			)
+			if err != nil {
+				return err
+			}
+
+			guildChannels = channels.Channels
+
+			return nil
+		},
+	)
+
+	errWg.Go(
+		func() error {
+			roles, err := c.GetGuildRoles(
+				ctx,
+				&discord.GetGuildRolesRequest{GuildId: req.GuildId},
+			)
+			if err != nil {
+				return err
+			}
+
+			guildRoles = roles.Roles
+
+			return nil
+		},
+	)
+
+	if err := errWg.Wait(); err != nil {
+		return nil, fmt.Errorf("failed to get guild info: %w", err)
 	}
 
 	return &discord.GetGuildInfoResponse{
-		Id:   guild.ID,
-		Name: guild.Name,
-		Icon: icon,
+		Id:       guild.ID,
+		Name:     guild.Name,
+		Icon:     guildIcon,
+		Channels: guildChannels,
+		Roles:    guildRoles,
 	}, nil
 }
 
@@ -149,4 +202,31 @@ func (c *Impl) LeaveGuild(
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (c *Impl) GetGuildRoles(ctx context.Context, req *discord.GetGuildRolesRequest) (
+	*discord.
+		GetGuildRolesResponse, error,
+) {
+	rolesReq := disgo.GetGuildRoles{GuildID: req.GuildId}
+	roles, err := rolesReq.Send(c.discord.Client)
+	if err != nil {
+		return nil, err
+	}
+
+	resultedRoles := make([]*discord.Role, 0, len(roles))
+
+	for _, role := range roles {
+		resultedRoles = append(
+			resultedRoles, &discord.Role{
+				Id:    role.ID,
+				Name:  role.Name,
+				Color: fmt.Sprint(role.Color),
+			},
+		)
+	}
+
+	return &discord.GetGuildRolesResponse{
+		Roles: resultedRoles,
+	}, nil
 }
