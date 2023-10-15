@@ -3,6 +3,7 @@ go 1.21.0
 use (
 	./apps/api
 	./apps/bots
+	./apps/discord
 	./apps/emotes-cacher
 	./apps/events
 	./apps/eventsub
@@ -12,7 +13,6 @@ use (
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
-	./apps/discord
 	./libs/config
 	./libs/crypto
 	./libs/gomodels
@@ -22,9 +22,9 @@ use (
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
+	./libs/sentry
 	./libs/twitch
 	./libs/types
-	./libs/sentry
 	./tools
 	libs/utils
 )

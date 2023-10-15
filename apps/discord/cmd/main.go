@@ -25,7 +25,7 @@ func main() {
 			sended_messages_store.New,
 			messages_updater.New,
 			discord_go.New,
-			twirsentry.NewFx,
+			twirsentry.NewFx(twirsentry.NewFxOpts{Service: "discord"}),
 			logger.NewFx(
 				logger.Opts{
 					Service: "discord",

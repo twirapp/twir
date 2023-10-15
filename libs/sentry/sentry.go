@@ -20,17 +20,30 @@ func New(dsn string) (*sentry.Client, error) {
 	return s, err
 }
 
-func NewFx(config cfg.Config) (*sentry.Client, error) {
-	if config.SentryDsn == "" {
-		return nil, nil
+type NewFxOpts struct {
+	Service string
+}
+
+func NewFx(opts NewFxOpts) func(config cfg.Config) (*sentry.Client, error) {
+	return func(config cfg.Config) (*sentry.Client, error) {
+		if config.SentryDsn == "" {
+			return nil, nil
+		}
+
+		tags := map[string]string{}
+
+		if opts.Service != "" {
+			tags["service"] = opts.Service
+		}
+
+		s, err := sentry.NewClient(
+			sentry.ClientOptions{
+				Dsn:              config.SentryDsn,
+				AttachStacktrace: true,
+				Tags:             tags,
+			},
+		)
+
+		return s, err
 	}
-
-	s, err := sentry.NewClient(
-		sentry.ClientOptions{
-			Dsn:              config.SentryDsn,
-			AttachStacktrace: true,
-		},
-	)
-
-	return s, err
 }

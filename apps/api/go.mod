@@ -8,10 +8,10 @@ replace (
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
-	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 )
 
 replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
@@ -21,8 +21,9 @@ require (
 	github.com/alexedwards/scs/goredisstore v0.0.0-20230327161757-10d4299e3b24
 	github.com/alexedwards/scs/v2 v2.5.1
 	github.com/bytedance/sonic v1.9.1
-	github.com/getsentry/sentry-go v0.23.0
-	github.com/goccy/go-json v0.9.11
+	github.com/getsentry/sentry-go v0.25.0
+	github.com/goccy/go-json v0.10.2
+	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.3.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.41.4
@@ -47,7 +48,7 @@ require (
 	go.uber.org/fx v1.20.0
 	golang.org/x/sync v0.3.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.3
+	gorm.io/gorm v1.25.4
 )
 
 require (
@@ -58,7 +59,6 @@ require (
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
-	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/pprof v0.0.0-20230811205829-9131a7e9cc17 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect

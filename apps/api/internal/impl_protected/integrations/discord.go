@@ -297,7 +297,11 @@ func (c *Integrations) IntegrationsDiscordDisconnectGuild(
 		return nil, fmt.Errorf("failed to save channel integration: %w", err)
 	}
 
-	if _, err := c.Grpc.Discord.LeaveGuild(ctx, &discord.LeaveGuildRequest{}); err != nil {
+	if _, err := c.Grpc.Discord.LeaveGuild(
+		ctx, &discord.LeaveGuildRequest{
+			GuildId: req.GuildId,
+		},
+	); err != nil {
 		c.Logger.Error("failed to leave guild", slog.Any("err", err))
 	}
 

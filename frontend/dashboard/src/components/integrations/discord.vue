@@ -68,6 +68,10 @@ function connectGuild() {
 	// window.location.replace(authLink.value.link);
 }
 
+const isConnectDisabled = computed(() => {
+	return (discordIntegrationData?.value?.guilds?.length || 0) >= 2;
+});
+
 const currentTab = ref<string>('');
 watch(discordIntegrationData, (v) => {
 	if (!v) return;
@@ -145,9 +149,9 @@ const { data: currentUser } = useProfile();
 
 		<template #content>
 			<div style="display: flex; flex-direction: column">
-				<span>Use this integration for setup live alerts into your discord guilds</span>
+				<span>{{ t('integrations.discord.description') }}</span>
 				<span style="font-size: 11px">
-					Connected {{ discordIntegrationData?.guilds?.length }} guilds
+					{{ t('integrations.discord.connectedGuilds', { count: discordIntegrationData?.guilds?.length ?? 0 }) }}
 				</span>
 			</div>
 		</template>
@@ -180,31 +184,31 @@ const { data: currentUser } = useProfile();
 						<div class="block">
 							<div style="display: flex; flex-direction: column; gap: 8px; width: 50%">
 								<span style="font-size: 16px">
-									Alerts
+									{{ t('integrations.discord.alerts.label') }}
 								</span>
 								<n-divider style="margin: 0; margin-bottom: 5px" />
 
 								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationEnabled" />
-									<span>Enabled</span>
+									<span>{{ t('sharedTexts.enabled') }}</span>
 								</div>
 
 								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationShowTitle" />
-									<span>Show title of stream</span>
+									<span>{{ t('integrations.discord.alerts.showTitle') }}</span>
 								</div>
 
 								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationShowCategory" />
-									<span>Show category of stream</span>
+									<span>{{ t('integrations.discord.alerts.showCategory') }}</span>
 								</div>
 
 								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationShowViewers" />
-									<span>Show viewers</span>
+									<span>{{ t('integrations.discord.alerts.showViewers') }}</span>
 								</div>
 
-								<n-form-item label="Target channels" style="margin-top: 4px;">
+								<n-form-item :label="t('integrations.discord.alerts.channelsSelect')" style="margin-top: 4px;">
 									<n-select
 										v-model:value="guild.liveNotificationChannelsIds"
 										multiple
@@ -215,27 +219,27 @@ const { data: currentUser } = useProfile();
 									/>
 								</n-form-item>
 
-								<n-form-item label="Stream online message" style="margin-top: 4px;">
+								<n-form-item :label="t('integrations.discord.alerts.streamOnlineLabel')" style="margin-top: 4px;">
 									<n-mention
 										v-model:value="guild.liveNotificationMessage"
 										type="textarea"
 										:options="getRolesMentionsOptions(guild.id)"
-										placeholder="The message twir will send when stream started"
+										:placeholder="t('integrations.discord.alerts.streamOnlinePlaceholder')"
 										:maxlength="5"
 									/>
 								</n-form-item>
 
-								<n-form-item label="Stream offline message" style="margin-top: 4px;">
+								<n-form-item :label="t('integrations.discord.alerts.streamOfflineLabel')" style="margin-top: 4px;">
 									<n-mention
 										v-model:value="guild.offlineNotificationMessage"
 										type="textarea"
 										:options="getRolesMentionsOptions(guild.id)"
-										placeholder="The message twir will send when stream goes offline"
+										:placeholder="t('integrations.discord.alerts.streamOfflinePlaceholder')"
 									/>
 								</n-form-item>
 
 								<n-alert type="info">
-									Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)
+									{{ t('integrations.discord.alerts.updateAlert') }}
 								</n-alert>
 							</div>
 
@@ -303,7 +307,7 @@ const { data: currentUser } = useProfile();
 
 						<div class="block" style="display: flex; flex-direction: column; gap: 8px;">
 							<span style="font-size: 16px">
-								Danger zone
+								{{ t('sharedTexts.dangerZone') }}
 							</span>
 							<n-divider style="margin: 0; margin-bottom: 5px" />
 
@@ -313,7 +317,9 @@ const { data: currentUser } = useProfile();
 								@positive-click="() => disconnectGuildById(guild.id)"
 							>
 								<template #trigger>
-									<n-button type="error" secondary>Disconnect guild</n-button>
+									<n-button type="error" secondary>
+										{{ t('integrations.discord.disconnectGuild') }}
+									</n-button>
 								</template>
 								{{ t('deleteConfirmation.text') }}
 							</n-popconfirm>
@@ -322,18 +328,18 @@ const { data: currentUser } = useProfile();
 				</n-tab-pane>
 
 				<template v-if="!discordIntegrationData?.guilds?.length" #prefix>
-					No guilds connected
+					{{ t('integrations.discord.noGuilds') }}
 				</template>
 
 				<template #suffix>
 					<n-button
-						:disabled="(discordIntegrationData?.guilds?.length || 0) >= 2"
+						:disabled="isConnectDisabled"
 						type="success"
 						size="small"
 						secondary
 						@click="connectGuild"
 					>
-						+ connect
+						{{ t('integrations.discord.connectGuild') }}
 					</n-button>
 				</template>
 			</n-tabs>

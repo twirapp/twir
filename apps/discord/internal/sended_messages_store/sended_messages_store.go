@@ -2,84 +2,166 @@ package sended_messages_store
 
 import (
 	"context"
-	"fmt"
-	"strings"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Message struct {
-	GuildID   string `redis:"guildId"`
-	MessageID string `redis:"messageId"`
-	ChannelID string `redis:"channelId"`
+	GuildID          string `redis:"guildId"`
+	MessageID        string `redis:"messageId"`
+	TwitchChannelID  string `redis:"channelId"`
+	DiscordChannelID string `redis:"discordChannelId"`
 }
 
 type SendedMessagesStore struct {
-	redis *redis.Client
+	db *gorm.DB
 }
 
 type Opts struct {
 	fx.In
 
-	Redis *redis.Client
+	DB *gorm.DB
 }
 
 func New(opts Opts) *SendedMessagesStore {
 	return &SendedMessagesStore{
-		redis: opts.Redis,
+		db: opts.DB,
 	}
-}
-
-func (c *SendedMessagesStore) buildMessageKey(id string) string {
-	return fmt.Sprintf("discord:sended_messages:%s", id)
 }
 
 func (c *SendedMessagesStore) Add(ctx context.Context, msg Message) error {
-	key := c.buildMessageKey(msg.MessageID)
-
-	if err := c.redis.HSet(ctx, key, msg).Err(); err != nil {
-		return err
+	entity := model.DiscordSendedNotification{
+		ID:               uuid.NewString(),
+		GuildID:          msg.GuildID,
+		MessageID:        msg.MessageID,
+		TwitchChannelID:  msg.TwitchChannelID,
+		DiscordChannelID: msg.DiscordChannelID,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
-
-	if err := c.redis.Expire(ctx, key, 24*time.Hour).Err(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.db.WithContext(ctx).Create(&entity).Error
 }
 
-func (c *SendedMessagesStore) Get(ctx context.Context, messageID string) (Message, error) {
+func (c *SendedMessagesStore) GetByMessageId(ctx context.Context, messageID string) (
+	Message,
+	error,
+) {
 	msg := Message{}
-	err := c.redis.HGetAll(ctx, c.buildMessageKey(messageID)).Scan(&msg)
-	return msg, err
+	entity := model.DiscordSendedNotification{}
+	err := c.db.WithContext(ctx).Where(
+		`"message_id" = ?`,
+		messageID,
+	).First(&entity).Error
+	if err != nil {
+		return msg, err
+	}
+
+	msg.GuildID = entity.GuildID
+	msg.MessageID = entity.MessageID
+	msg.TwitchChannelID = entity.TwitchChannelID
+	msg.DiscordChannelID = entity.DiscordChannelID
+
+	return msg, nil
 }
 
-func (c *SendedMessagesStore) Delete(ctx context.Context, messageID string) error {
-	return c.redis.Del(ctx, c.buildMessageKey(messageID)).Err()
+func (c *SendedMessagesStore) GetByChannelId(ctx context.Context, channelId string) (
+	[]Message,
+	error,
+) {
+	var result []Message
+	var entities []model.DiscordSendedNotification
+	err := c.db.WithContext(ctx).Where(
+		`"channel_id" = ?`,
+		channelId,
+	).Find(&entities).Error
+	if err != nil {
+		return result, err
+	}
+
+	for _, e := range entities {
+		result = append(
+			result,
+			Message{
+				GuildID:          e.GuildID,
+				MessageID:        e.MessageID,
+				TwitchChannelID:  e.TwitchChannelID,
+				DiscordChannelID: e.DiscordChannelID,
+			},
+		)
+	}
+
+	return result, nil
+}
+
+func (c *SendedMessagesStore) GetByGuildId(ctx context.Context, messageID string) (
+	[]Message,
+	error,
+) {
+	var result []Message
+	var entities []model.DiscordSendedNotification
+	err := c.db.WithContext(ctx).Where(
+		`"guild_id" = ?`,
+		messageID,
+	).Find(&entities).Error
+	if err != nil {
+		return result, err
+	}
+
+	for _, e := range entities {
+		result = append(
+			result, Message{
+				GuildID:          e.GuildID,
+				MessageID:        e.MessageID,
+				TwitchChannelID:  e.TwitchChannelID,
+				DiscordChannelID: e.DiscordChannelID,
+			},
+		)
+	}
+
+	return result, nil
+}
+
+func (c *SendedMessagesStore) DeleteByMessageId(ctx context.Context, messageID string) error {
+	return c.db.WithContext(ctx).Where(
+		`"message_id" = ?`,
+		messageID,
+	).Delete(&model.DiscordSendedNotification{}).Error
+}
+
+func (c *SendedMessagesStore) DeleteByChannelId(ctx context.Context, messageID string) error {
+	return c.db.WithContext(ctx).Where(
+		`"channel_id" = ?`,
+		messageID,
+	).Delete(&model.DiscordSendedNotification{}).Error
+}
+
+func (c *SendedMessagesStore) DeleteByGuildId(ctx context.Context, messageID string) error {
+	return c.db.WithContext(ctx).Where(
+		`"guild_id" = ?`,
+		messageID,
+	).Delete(&model.DiscordSendedNotification{}).Error
 }
 
 func (c *SendedMessagesStore) GetAll(ctx context.Context) ([]Message, error) {
-	iter := c.redis.Scan(ctx, 0, c.buildMessageKey("*"), 0).Iterator()
+	var entities []model.DiscordSendedNotification
 
-	var keys []string
-
-	for iter.Next(ctx) {
-		keys = append(keys, iter.Val())
-	}
-	if err := iter.Err(); err != nil {
+	err := c.db.WithContext(ctx).Find(&entities).Error
+	if err != nil {
 		return nil, err
 	}
 
-	var messages []Message
-	for _, key := range keys {
-		msgId := strings.Split(key, ":")[2]
-		msg, err := c.Get(ctx, msgId)
-		if err != nil {
-			return nil, err
+	messages := make([]Message, len(entities))
+	for i, entity := range entities {
+		messages[i] = Message{
+			GuildID:          entity.GuildID,
+			MessageID:        entity.MessageID,
+			TwitchChannelID:  entity.TwitchChannelID,
+			DiscordChannelID: entity.DiscordChannelID,
 		}
-		messages = append(messages, msg)
 	}
 
 	return messages, nil

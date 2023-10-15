@@ -5,12 +5,11 @@ import (
 	"log/slog"
 
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
 func (c *MessagesUpdater) process(ctx context.Context) {
-	c.logger.Info("Start updating messages")
-
 	messages, err := c.store.GetAll(ctx)
 	if err != nil {
 		c.logger.Error("Failed to get messages", slog.Any("err", err))
@@ -40,24 +39,15 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 	// }
 
 	for _, stream := range streams {
-		_, err := c.store.Get(ctx, stream.UserId)
-		if err != nil {
-			c.logger.Error("Failed to get message from store", slog.Any("err", err))
+		_, ok := lo.Find(
+			messages,
+			func(message sended_messages_store.Message) bool {
+				return message.TwitchChannelID == stream.UserId
+			},
+		)
+		if ok {
 			continue
 		}
-
-		// TODO: send message, channel becomes online
-		c.logger.Info(
-			"Channel online, sending message",
-			slog.Group(
-				"channel",
-				slog.String("id", stream.UserId),
-				slog.String("name", stream.UserLogin),
-				slog.String("title", stream.Title),
-				slog.String("category", stream.GameName),
-				slog.Int("viewers", stream.ViewerCount),
-			),
-		)
 
 		onlineMessages, err := c.sendOnlineMessage(ctx, stream)
 		if err != nil {
@@ -81,29 +71,25 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 	for _, message := range messages {
 		stream, ok := lo.Find(
 			streams,
-			func(stream model.ChannelsStreams) bool { return stream.UserId == message.ChannelID },
+			func(stream model.ChannelsStreams) bool { return stream.UserId == message.TwitchChannelID },
 		)
 		if !ok {
-			if err = c.store.Delete(ctx, message.MessageID); err != nil {
+			if err = c.processOffline(ctx, message.TwitchChannelID); err != nil {
+				c.logger.Error("Failed to process offline", slog.Any("err", err))
+				continue
+			}
+
+			if err = c.store.DeleteByMessageId(ctx, message.MessageID); err != nil {
 				c.logger.Error("Failed to delete message from store", slog.Any("err", err))
 			}
-			// TODO: update message, channel becomes offline
-			slog.Info("channel is offline", slog.String("id", message.ChannelID))
+
 			continue
 		}
 
-		// TODO: update message, channel is still online, we need update values inside message embed
-		c.logger.Info(
-			"channel is still online",
-			slog.Group(
-				"channel",
-				slog.String("id", stream.UserId),
-				slog.String("name", stream.UserLogin),
-				slog.String("title", stream.Title),
-				slog.String("category", stream.GameName),
-				slog.Int("viewers", stream.ViewerCount),
-			),
-		)
+		if err = c.updateDiscordMessages(ctx, stream); err != nil {
+			c.logger.Error("Failed to update message", slog.Any("err", err))
+			continue
+		}
 	}
 }
 

@@ -9,7 +9,7 @@ replace (
 )
 
 require (
-	github.com/getsentry/sentry-go v0.23.0
+	github.com/getsentry/sentry-go v0.25.0
 	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/gomodels v0.0.0-20230816015129-6ac66282caa2
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
@@ -18,7 +18,7 @@ require (
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.3
+	gorm.io/gorm v1.25.4
 )
 
 require (

@@ -482,6 +482,22 @@ services:
       mode: replicated
       replicas: 4
 
+  discord:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: discord
+    image: registry.satont.ru/twir/discord:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
 
 volumes:
   postgres-data:

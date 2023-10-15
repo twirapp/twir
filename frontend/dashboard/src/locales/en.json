@@ -27,7 +27,8 @@
       "text": "Bot will send commands responses as reply"
     },
     "response": "Response",
-    "userName": "User name"
+    "userName": "User name",
+		"dangerZone": "Danger zone"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -189,7 +190,26 @@
   },
   "integrations": {
     "notLoggedIn": "Not logged in",
-		"songServicesInfo": "Logging throught streaming services like <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, will automatically print your current playing song in chat when <b>!song</b> command is being used."
+		"songServicesInfo": "Logging throught streaming services like <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, will automatically print your current playing song in chat when <b>!song</b> command is being used.",
+		"discord": {
+			"description": "Use this integration for setup live alerts into your discord guilds",
+			"connectedGuilds" : "Connected {count} guilds",
+			"alerts": {
+				"label": "Alerts",
+				"showTitle": "Show title of stream",
+				"showCategory": "Show category of stream",
+				"showViewers": "Show viewers",
+				"channelsSelect": "Select channels where notifications will be located",
+				"streamOnlineLabel": "Stream online message",
+				"streamOnlinePlaceholder": "The message twir will send when stream started",
+				"streamOfflineLabel": "Stream offline message",
+				"streamOfflinePlaceholder": "The message twir will send when stream goes offline",
+				"updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)"
+			},
+			"connectGuild": "+ connect new guild",
+			"disconnectGuild": "Disconnect guild",
+			"noGuilds": "No guilds connected"
+		}
   },
   "events": {
     "delay": "Delay (seconds)",

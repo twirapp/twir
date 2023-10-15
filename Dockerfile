@@ -136,6 +136,15 @@ FROM go_prod_base as eventsub
 COPY --from=eventsub_builder /app/apps/eventsub/out /bin/eventsub
 CMD ["/bin/eventsub"]
 
+FROM builder as discord_builder
+RUN cd apps/discord && \
+    go mod download && \
+    CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o ./out ./cmd/main.go && upx -9 -k ./out
+
+FROM go_prod_base as discord
+COPY --from=discord_builder /app/apps/discord/out /bin/discord
+CMD ["/bin/events"]
+
 ### NODEJS MICROSERVICES
 
 FROM node:18-alpine as node_prod_base
