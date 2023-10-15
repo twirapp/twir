@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 SELECT 'up SQL query';
-ALTER TYPE "public"."integrations_service_enum" ADD VALUE 'DISCORD';
+ALTER TYPE "integrations_service_enum" ADD VALUE 'DISCORD';
 INSERT INTO "integrations" ("service") VALUES ('DISCORD');
 -- +goose StatementEnd
 
