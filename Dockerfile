@@ -143,7 +143,7 @@ RUN cd apps/discord && \
 
 FROM go_prod_base as discord
 COPY --from=discord_builder /app/apps/discord/out /bin/discord
-CMD ["/bin/events"]
+CMD ["/bin/discord"]
 
 ### NODEJS MICROSERVICES
 
