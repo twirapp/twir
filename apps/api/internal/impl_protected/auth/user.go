@@ -188,8 +188,16 @@ func (c *Auth) AuthGetDashboards(
 	}
 
 	dashboards = lo.UniqBy(
-		dashboards, func(dashboard *auth.Dashboard) string {
+		dashboards,
+		func(dashboard *auth.Dashboard) string {
 			return dashboard.Id
+		},
+	)
+
+	dashboards = lo.Filter(
+		dashboards,
+		func(dashboard *auth.Dashboard, _ int) bool {
+			return len(dashboard.Flags) > 0
 		},
 	)
 
