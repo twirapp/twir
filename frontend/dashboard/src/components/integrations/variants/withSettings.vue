@@ -59,8 +59,10 @@ onUnmounted(() => showSettings.value = false);
 					:disabled="!userCanManageIntegrations" strong secondary type="info"
 					@click="showSettings = true"
 				>
-					<IconSettings />
-					{{ t('sharedButtons.settings') }}
+					<div style="display: flex; gap: 4px; align-items: center;">
+						<IconSettings />
+						<span>{{ t('sharedButtons.settings') }}</span>
+					</div>
 				</n-button>
 			</td>
 		</template>
