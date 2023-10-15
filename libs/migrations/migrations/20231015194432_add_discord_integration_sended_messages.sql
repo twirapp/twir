@@ -1,6 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 SELECT 'up SQL query';
+INSERT INTO "integrations" ("service") VALUES ('DISCORD');
 CREATE TABLE discord_sended_notifications (
 	id TEXT PRIMARY KEY DEFAULT uuid_generate_v4(),
 	guild_id TEXT NOT NULL,
