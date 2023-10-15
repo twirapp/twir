@@ -11,8 +11,8 @@ replace (
 )
 
 require (
-	github.com/getsentry/sentry-go v0.23.0
-	github.com/goccy/go-json v0.9.11
+	github.com/getsentry/sentry-go v0.25.0
+	github.com/goccy/go-json v0.10.2
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nicklaw5/helix/v2 v2.24.0
 	github.com/redis/go-redis/v9 v9.0.5
@@ -28,7 +28,7 @@ require (
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.3
+	gorm.io/gorm v1.25.4
 )
 
 require (

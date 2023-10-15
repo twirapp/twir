@@ -40,7 +40,11 @@ func (c *Integrations) IntegrationsLastFMGetData(
 	_ *emptypb.Empty,
 ) (*integrations_lastfm.GetDataResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceLastfm, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceLastfm,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +60,11 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 	request *integrations_lastfm.PostCodeRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceLastfm, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceLastfm,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +74,10 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 		integration.Integration.ClientSecret.String,
 	)
 	err = api.LoginWithToken(request.Code)
+	if err != nil {
+		return nil, err
+	}
+
 	sessionKey := api.GetSessionKey()
 
 	info, err := api.User.GetInfo(make(map[string]interface{}))
@@ -87,7 +99,10 @@ func (c *Integrations) IntegrationsLastFMPostCode(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Integrations) IntegrationsLastFMLogout(ctx context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *Integrations) IntegrationsLastFMLogout(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceLastfm, dashboardId,

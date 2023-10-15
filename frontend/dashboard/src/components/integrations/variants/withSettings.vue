@@ -1,52 +1,69 @@
 <script setup lang='ts'>
 import { IconSettings } from '@tabler/icons-vue';
-import { NTooltip, NButton, NModal, NSpace } from 'naive-ui';
-import { ref } from 'vue';
+import { NTooltip, NButton, NModal, NSpace, NSkeleton } from 'naive-ui';
+import { onUnmounted, ref } from 'vue';
 import { FunctionalComponent } from 'vue/dist/vue.js';
 import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
 	name: string,
-	save?: () => void | Promise<void>
-}>();
+	save?: () => void | Promise<void>,
+	description?: string,
+	isLoading?: boolean,
+	modalWidth?: string,
+}>(), {
+	modalWidth: '600px',
+});
 
 defineSlots<{
 	icon: FunctionalComponent<any>
 	settings: FunctionalComponent<any>
+	content?: FunctionalComponent<any>
 }>();
 
 const showSettings = ref(false);
-const modalWidth = '600px';
 
 async function callSave() {
 	await props.save?.();
-	showSettings.value = false;
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
 
 const { t } = useI18n();
+
+onUnmounted(() => showSettings.value = false);
 </script>
 
 <template>
 	<tr>
-		<td>
-			<n-tooltip trigger="hover" placement="left">
-				<template #trigger>
-					<slot name="icon" />
-				</template>
-				{{ name }}
-			</n-tooltip>
+		<td v-if="isLoading" colspan="3">
+			<n-skeleton height="40px" width="100%" :sharp="false" />
 		</td>
-		<td></td>
-		<td>
-			<n-button :disabled="!userCanManageIntegrations" strong secondary type="info" @click="showSettings = true">
-				<IconSettings />
-				{{ t('sharedButtons.settings') }}
-			</n-button>
-		</td>
+		<template v-else>
+			<td>
+				<n-tooltip trigger="hover" placement="left">
+					<template #trigger>
+						<slot name="icon" />
+					</template>
+					{{ name }}
+				</n-tooltip>
+			</td>
+			<td>
+				<span v-if="description">{{ description }}</span>
+				<slot name="content" />
+			</td>
+			<td>
+				<n-button
+					:disabled="!userCanManageIntegrations" strong secondary type="info"
+					@click="showSettings = true"
+				>
+					<IconSettings />
+					{{ t('sharedButtons.settings') }}
+				</n-button>
+			</td>
+		</template>
 	</tr>
 
 	<n-modal
@@ -58,9 +75,8 @@ const { t } = useI18n();
 		class="modal"
 		:style="{
 			width: modalWidth,
-			position: 'fixed',
-			left: `calc(50% - ${modalWidth}/2)`,
-			top: '50px',
+			top: '5%',
+			bottom: '5%'
 		}"
 	>
 		<template #header>

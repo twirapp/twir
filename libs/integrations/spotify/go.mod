@@ -7,14 +7,14 @@ require (
 	github.com/imroc/req/v3 v3.41.4
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
-	gorm.io/gorm v1.25.3
+	gorm.io/gorm v1.25.4
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/gaukas/godicttls v0.0.4 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/pprof v0.0.0-20230811205829-9131a7e9cc17 // indirect
 	github.com/google/uuid v1.3.0 // indirect

@@ -11,7 +11,7 @@ const { data: authLink } = manager.useAuthLink();
 
 <template>
 	<oauth-component
-		name="Faceit"
+		name="Last.fm"
 		:data="data"
 		:logout="() => logout.mutateAsync({})"
 		:authLink="authLink?.link"

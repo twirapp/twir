@@ -13,6 +13,8 @@ const props = withDefaults(defineProps<{
 	authLink?: string,
 	icon: FunctionalComponent<any>
 	iconWidth?: number
+	iconColor?: string
+	description?: string
 }>(), {
 	iconWidth: 30,
 	authLink: '',
@@ -33,29 +35,43 @@ const { t } = useI18n();
 		<td>
 			<n-tooltip trigger="hover" placement="left">
 				<template #trigger>
-					<component :is="props.icon" :width="props.iconWidth" class="icon" />
+					<component
+						:is="props.icon" :width="props.iconWidth" :style="{ fill: props.iconColor }"
+						class="icon"
+					/>
 				</template>
 				{{ name }}
 			</n-tooltip>
 		</td>
 		<td>
-			<div v-if="data?.userName" class="profile">
-				<n-avatar :src="data.avatar" class="avatar" round />
-				<n-text>
-					{{ data.userName }}
-				</n-text>
+			<div style="display: flex; flex-direction: column">
+				<div>
+					<div v-if="data?.userName" class="profile">
+						<n-avatar :src="data.avatar" class="avatar" round />
+						<n-text>
+							{{ data.userName }}
+						</n-text>
+					</div>
+					<n-tag v-else :bordered="false" type="info">
+						{{ t('integrations.notLoggedIn') }}
+					</n-tag>
+				</div>
+				<span v-if="description" style="font-size: 11px">{{ description }}</span>
 			</div>
-			<n-tag v-else :bordered="false" type="info">
-				{{ t('integrations.notLoggedIn') }}
-			</n-tag>
 		</td>
 		<td>
 			<div class="actions">
-				<n-button v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary type="error" @click="logout">
+				<n-button
+					v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary
+					type="error" @click="logout"
+				>
 					<IconLogout />
 					{{ t('sharedButtons.logout') }}
 				</n-button>
-				<n-button v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary type="success" @click="login">
+				<n-button
+					v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary
+					type="success" @click="login"
+				>
 					<IconLogin />
 					{{ t('sharedButtons.login') }}
 				</n-button>

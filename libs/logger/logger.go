@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	cfg "github.com/satont/twir/libs/config"
 )
 
 type Logger interface {
 	Info(input string, fields ...any)
 	Error(input string, fields ...any)
 	Debug(input string, fields ...any)
+	WithComponent(name string) Logger
 }
 
 type logger struct {
@@ -28,6 +30,18 @@ type Opts struct {
 	Service string
 
 	Sentry *sentry.Client
+}
+
+func NewFx(opts Opts) func(config cfg.Config, sentry *sentry.Client) Logger {
+	return func(config cfg.Config, sentry *sentry.Client) Logger {
+		return New(
+			Opts{
+				Env:     config.AppEnv,
+				Service: opts.Service,
+				Sentry:  sentry,
+			},
+		)
+	}
 }
 
 func New(opts Opts) Logger {
@@ -108,4 +122,12 @@ func (c *logger) Error(input string, fields ...any) {
 
 func (c *logger) Debug(input string, fields ...any) {
 	c.handle(slog.LevelDebug, input, fields...)
+}
+
+func (c *logger) WithComponent(name string) Logger {
+	return &logger{
+		log:     c.log.With(slog.String("component", name)),
+		sentry:  c.sentry,
+		service: c.service,
+	}
 }

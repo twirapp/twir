@@ -71,6 +71,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
 			disabled: !canViewIntegrations.value,
+			isNew: true,
 		},
 		{
 			label: t('sidebar.alerts'),

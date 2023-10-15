@@ -25,19 +25,19 @@ async function save() {
 </script>
 
 <template>
-  <with-settings name="Valorant" :save="save">
-    <template #icon>
-      <ValorantSVG style="width: 50px; display: flex" />
-    </template>
-    <template #settings>
-      <n-form-item label="Valorant username with tag">
-        <n-input
-          v-model:value="userName"
-          type="text"
-          placeholder="username#tag"
-        />
-      </n-form-item>
-    </template>
-  </with-settings>
+	<with-settings name="Valorant" :save="save">
+		<template #icon>
+			<ValorantSVG style="width: 50px; display: flex" />
+		</template>
+		<template #settings>
+			<n-form-item label="Valorant username with tag">
+				<n-input
+					v-model:value="userName"
+					type="text"
+					placeholder="username#tag"
+				/>
+			</n-form-item>
+		</template>
+	</with-settings>
 </template>
 

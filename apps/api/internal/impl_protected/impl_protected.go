@@ -27,6 +27,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/variables"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/discord"
 	integrationsGrpc "github.com/satont/twir/libs/grpc/generated/integrations"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
@@ -77,6 +78,7 @@ type Opts struct {
 	WebsocketsGrpc   websockets.WebsocketClient
 	SchedulerGrpc    scheduler.SchedulerClient
 	TimersGrpc       timersGrpc.TimersClient
+	DiscordGrpc      discord.DiscordClient
 	Logger           logger.Logger
 }
 
@@ -94,6 +96,7 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Scheduler:    opts.SchedulerGrpc,
 			Timers:       opts.TimersGrpc,
+			Discord:      opts.DiscordGrpc,
 		},
 		Logger: opts.Logger,
 	}
