@@ -17,7 +17,7 @@ useThemeVars,
 import { VNodeChild, computed, ref, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { twitchSetChannelInformationMutation, useTwitchSearchCategories } from '@/api/index.js';
+import { twitchSetChannelInformationMutation, useTwitchSearchCategories, useUserAccessFlagChecker } from '@/api/index.js';
 
 const { t } = useI18n();
 
@@ -85,6 +85,9 @@ async function saveChannelInformation() {
 	messages.success(t('sharedTexts.saved'));
 }
 
+
+const userCanEditTitle = useUserAccessFlagChecker('UPDATE_CHANNEL_TITLE');
+const userCanEditCategory = useUserAccessFlagChecker('UPDATE_CHANNEL_CATEGORY');
 </script>
 
 <template>
@@ -106,7 +109,11 @@ async function saveChannelInformation() {
 					</span>
 				</div>
 
-				<IconEdit style="display: flex; width: 35px; height: 35px" @click="openEditInformationModalModal" />
+				<IconEdit
+					v-if="userCanEditTitle || userCanEditCategory"
+					style="display: flex; width: 35px; height: 35px"
+					@click="openEditInformationModalModal"
+				/>
 			</div>
 		</n-card>
 	</div>
@@ -121,12 +128,17 @@ async function saveChannelInformation() {
 	>
 		<n-form>
 			<n-form-item :label="t('dashboard.statsWidgets.streamInfo.title')">
-				<n-input v-model:value="form.title" :placeholder="t('dashboard.statsWidgets.streamInfo.title')" />
+				<n-input
+					v-model:value="form.title"
+					:disabled="!userCanEditTitle"
+					:placeholder="t('dashboard.statsWidgets.streamInfo.title')"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('dashboard.statsWidgets.streamInfo.category')">
 				<n-select
 					v-model:value="form.categoryId"
+					:disabled="!userCanEditCategory"
 					filterable
 					placeholder="Search..."
 					:options="categoriesOptions"
