@@ -27,6 +27,8 @@ message DiscordGuild {
 
 	string offline_notification_message = 12;
 	bool live_notification_show_viewers = 13;
+	bool live_notification_show_preview = 14;
+	bool live_notification_show_profile_image = 15;
 }
 
 message GetDataResponse {

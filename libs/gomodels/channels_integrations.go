@@ -21,13 +21,15 @@ var (
 type ChannelIntegrationDataDiscordGuild struct {
 	ID string `json:"id,omitempty"`
 
-	LiveNotificationEnabled      bool     `json:"liveNotificationEnabled,omitempty"`
-	LiveNotificationChannelsIds  []string `json:"liveNotificationChannelsIds,omitempty"`
-	LiveNotificationShowTitle    bool     `json:"liveNotificationShowTitle,omitempty"`
-	LiveNotificationShowCategory bool     `json:"liveNotificationShowCategory,omitempty"`
-	LiveNotificationShowViewers  bool     `json:"liveNotificationShowViewers,omitempty"`
-	LiveNotificationMessage      string   `json:"liveNotificationMessage,omitempty"`
-	OfflineNotificationMessage   string   `json:"offlineNotificationMessage,omitempty"`
+	LiveNotificationEnabled          bool     `json:"liveNotificationEnabled,omitempty"`
+	LiveNotificationChannelsIds      []string `json:"liveNotificationChannelsIds,omitempty"`
+	LiveNotificationShowTitle        bool     `json:"liveNotificationShowTitle,omitempty"`
+	LiveNotificationShowCategory     bool     `json:"liveNotificationShowCategory,omitempty"`
+	LiveNotificationShowViewers      bool     `json:"liveNotificationShowViewers,omitempty"`
+	LiveNotificationMessage          string   `json:"liveNotificationMessage,omitempty"`
+	LiveNotificationShowPreview      bool     `json:"liveNotificationShowPreview,omitempty"`
+	LiveNotificationShowProfileImage bool     `json:"liveNotificationShowProfileImage,omitempty"`
+	OfflineNotificationMessage       string   `json:"offlineNotificationMessage,omitempty"`
 }
 
 type ChannelIntegrationDataDiscord struct {

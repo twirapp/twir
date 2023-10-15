@@ -199,6 +199,8 @@
 				"showTitle": "Show title of stream",
 				"showCategory": "Show category of stream",
 				"showViewers": "Show viewers",
+				"showPreview": "Show stream preview",
+				"showProfileImage": "Show twitch profile avatar",
 				"channelsSelect": "Select channels where notifications will be located",
 				"streamOnlineLabel": "Stream online message",
 				"streamOnlinePlaceholder": "The message twir will send when stream started",

@@ -126,6 +126,8 @@ func (c *Integrations) IntegrationsDiscordGetData(
 						LiveNotificationShowViewers:              guild.LiveNotificationShowViewers,
 						LiveNotificationMessage:                  guild.LiveNotificationMessage,
 						LiveNotificationAdditionalTwitchUsersIds: guild.LiveNotificationChannelsIds,
+						LiveNotificationShowPreview:              guild.LiveNotificationShowPreview,
+						LiveNotificationShowProfileImage:         guild.LiveNotificationShowProfileImage,
 						Channels:                                 channels,
 						Roles:                                    roles,
 						OfflineNotificationMessage:               guild.OfflineNotificationMessage,
@@ -167,14 +169,16 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 		newGuilds = append(
 			newGuilds,
 			model.ChannelIntegrationDataDiscordGuild{
-				ID:                           guild.Id,
-				LiveNotificationEnabled:      guild.LiveNotificationEnabled,
-				LiveNotificationChannelsIds:  guild.LiveNotificationChannelsIds,
-				LiveNotificationShowTitle:    guild.LiveNotificationShowTitle,
-				LiveNotificationShowCategory: guild.LiveNotificationShowCategory,
-				LiveNotificationShowViewers:  guild.LiveNotificationShowViewers,
-				LiveNotificationMessage:      guild.LiveNotificationMessage,
-				OfflineNotificationMessage:   guild.OfflineNotificationMessage,
+				ID:                               guild.Id,
+				LiveNotificationEnabled:          guild.LiveNotificationEnabled,
+				LiveNotificationChannelsIds:      guild.LiveNotificationChannelsIds,
+				LiveNotificationShowTitle:        guild.LiveNotificationShowTitle,
+				LiveNotificationShowCategory:     guild.LiveNotificationShowCategory,
+				LiveNotificationShowViewers:      guild.LiveNotificationShowViewers,
+				LiveNotificationMessage:          guild.LiveNotificationMessage,
+				OfflineNotificationMessage:       guild.OfflineNotificationMessage,
+				LiveNotificationShowPreview:      guild.LiveNotificationShowPreview,
+				LiveNotificationShowProfileImage: guild.LiveNotificationShowProfileImage,
 			},
 		)
 	}
@@ -251,10 +255,12 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 		channelIntegration.Data.Discord.Guilds = append(
 			channelIntegration.Data.Discord.Guilds,
 			model.ChannelIntegrationDataDiscordGuild{
-				ID:                           res.Guild.Id,
-				LiveNotificationShowTitle:    true,
-				LiveNotificationShowCategory: true,
-				LiveNotificationShowViewers:  true,
+				ID:                               res.Guild.Id,
+				LiveNotificationShowTitle:        true,
+				LiveNotificationShowCategory:     true,
+				LiveNotificationShowViewers:      true,
+				LiveNotificationShowProfileImage: true,
+				LiveNotificationShowPreview:      true,
 			},
 		)
 

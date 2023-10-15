@@ -204,6 +204,16 @@ const { data: currentUser } = useProfile();
 								</div>
 
 								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationShowPreview" />
+									<span>{{ t('integrations.discord.alerts.showPreview') }}</span>
+								</div>
+
+								<div class="switch">
+									<n-switch v-model:value="guild.liveNotificationShowProfileImage" />
+									<span>{{ t('integrations.discord.alerts.showProfileImage') }}</span>
+								</div>
+
+								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationShowViewers" />
 									<span>{{ t('integrations.discord.alerts.showViewers') }}</span>
 								</div>
@@ -267,8 +277,8 @@ const { data: currentUser } = useProfile();
 												:timestamp="new Date()"
 												:footerIcon="TwirCircle"
 												borderColor="#6441a5"
-												:thumbnail="currentUser?.avatar"
-												:image="StreamStarting"
+												:thumbnail="guild.liveNotificationShowProfileImage ? currentUser?.avatar : null"
+												:image="guild.liveNotificationShowPreview ? StreamStarting : null"
 											>
 												<template #fields>
 													<DiscordEmbedFields>

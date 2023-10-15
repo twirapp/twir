@@ -32,19 +32,25 @@ func (c *MessagesUpdater) buildEmbed(
 			Text:    "TwirApp",
 			IconURL: lo.ToPtr(fmt.Sprintf("https://twir.app/favicon.svg?t=%v", time.Now().Unix())),
 		},
-		Image: &disgo.EmbedImage{
+		Fields: []*disgo.EmbedField{},
+	}
+
+	if guild.LiveNotificationShowPreview {
+		embed.Image = &disgo.EmbedImage{
 			URL:    thumbNailUrl,
 			Width:  &width,
 			Height: &height,
-		},
-		Thumbnail: &disgo.EmbedThumbnail{
+		}
+	}
+
+	if guild.LiveNotificationShowProfileImage {
+		embed.Thumbnail = &disgo.EmbedThumbnail{
 			URL: fmt.Sprintf(
 				"%s?t=%v",
 				twitchUser.ProfileImageURL,
 				time.Now().Unix(),
 			),
-		},
-		Fields: []*disgo.EmbedField{},
+		}
 	}
 
 	if guild.LiveNotificationShowTitle {
