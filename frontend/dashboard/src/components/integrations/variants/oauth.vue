@@ -1,28 +1,33 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NTooltip, NAvatar, NText, NTag } from 'naive-ui';
-import type { FunctionalComponent } from 'vue';
+import { NButton, NAvatar, useThemeVars } from 'naive-ui';
+import { FunctionalComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api';
+import Card from '@/components/card/card.vue';
+
+const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
-	name: string,
+	title: string,
+	description?: string
+	isLoading?: boolean
 	data: { userName?: string, avatar?: string } | undefined
 	logout: () => any
 	authLink?: string,
 	icon: FunctionalComponent<any>
-	iconWidth?: number
+	iconWidth?: string
 	iconColor?: string
-	description?: string
 }>(), {
-	iconWidth: 30,
 	authLink: '',
+	description: '',
 });
 
 async function login() {
 	if (!props.authLink) return;
-	window.location.replace(props.authLink);
+
+	window.open(props.authLink, 'Twir connect integration', 'width=800,height=600');
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
@@ -31,71 +36,73 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<tr>
-		<td>
-			<n-tooltip trigger="hover" placement="left">
-				<template #trigger>
-					<component
-						:is="props.icon" :width="props.iconWidth" :style="{ fill: props.iconColor }"
-						class="icon"
-					/>
-				</template>
-				{{ name }}
-			</n-tooltip>
-		</td>
-		<td>
-			<div style="display: flex; flex-direction: column">
-				<div>
-					<div v-if="data?.userName" class="profile">
-						<n-avatar :src="data.avatar" class="avatar" round />
-						<n-text>
-							{{ data.userName }}
-						</n-text>
+	<card
+		:title="title"
+		style="height: 100%;"
+		:with-stroke="false"
+		:icon="icon"
+		:icon-width="iconWidth"
+		:is-loading="isLoading"
+	>
+		<template #content>
+			<span class="description" v-html="description" />
+		</template>
+
+		<template #footer>
+			<div class="footer">
+				<n-button
+					:disabled="!userCanManageIntegrations || !authLink"
+					secondary
+					size="large"
+					:type="data?.userName ? 'error' : 'success'"
+					@click="data?.userName ? logout() : login()"
+				>
+					<div class="button-content">
+						<span>
+							{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
+						</span>
+						<IconLogout v-if="data?.userName" />
+						<IconLogin v-else />
 					</div>
-					<n-tag v-else :bordered="false" type="info">
-						{{ t('integrations.notLoggedIn') }}
-					</n-tag>
+				</n-button>
+				<div v-if="data?.userName" class="profile">
+					<n-avatar round :src="data?.avatar" />
+					<span>{{ data.userName }}</span>
 				</div>
-				<span v-if="description" style="font-size: 11px">{{ description }}</span>
 			</div>
-		</td>
-		<td>
-			<div class="actions">
-				<n-button
-					v-if="data?.userName" :disabled="!userCanManageIntegrations" strong secondary
-					type="error" @click="logout"
-				>
-					<IconLogout />
-					{{ t('sharedButtons.logout') }}
-				</n-button>
-				<n-button
-					v-else :disabled="!userCanManageIntegrations || !authLink" trong secondary
-					type="success" @click="login"
-				>
-					<IconLogin />
-					{{ t('sharedButtons.login') }}
-				</n-button>
-			</div>
-		</td>
-	</tr>
+		</template>
+	</card>
 </template>
 
 <style scoped>
-.icon {
+.footer {
 	display: flex;
-}
-
-.actions {
-	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	align-items: center;
 	gap: 5px;
-	width: auto;
+	width: 100%;
+	flex-wrap: wrap;
+}
+
+.button-content {
+	display: flex;
+	gap: 4px;
 }
 
 .profile {
 	display: flex;
 	align-items: center;
-	gap: 5px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	padding-left: 18px;
+	padding-right: 18px;
+	background-color: v-bind('themeVars.buttonColor2');
+	border-radius: 4px;
+	gap: 8px;
+}
+
+.description :deep(a) {
+	color: v-bind('themeVars.successColor');
+	text-decoration: none;
 }
 </style>

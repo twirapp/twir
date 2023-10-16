@@ -32,18 +32,19 @@ import {
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import WithSettings from './variants/withSettings.vue';
+
 import TwirCircle from '@/../public/TwirInCircle.svg?url';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
-import IntegrationWithSettings from '@/components/integrations/variants/withSettings.vue';
 
 const manager = useDiscordIntegration();
 const { data: authLink } = manager.getConnectLink();
 const {
 	data: discordIntegrationData,
 	isLoading: isDataLoading,
-} = manager.getData();
+} = manager.useData();
 const guildDisconnect = manager.disconnectGuild();
 const updateSettings = manager.updateData();
 
@@ -136,21 +137,29 @@ const { data: currentUser } = useProfile();
 </script>
 
 <template>
-	<integration-with-settings
-		name="Discord"
+	<with-settings
+		title="Discord"
 		:save="saveSettings"
 		:isLoading="isDataLoading"
 		modal-width="80vw"
+		:icon="IconDiscord"
+		icon-fill="#5865F2"
 	>
-		<template #icon>
-			<IconDiscord style="width: 30px; fill: #5865F2; display: flex" />
-		</template>
-
-		<template #content>
+		<template #customDescriptionSlot>
 			<div style="display: flex; flex-direction: column">
 				<span>{{ t('integrations.discord.description') }}</span>
 				<span style="font-size: 11px">
-					{{ t('integrations.discord.connectedGuilds', { count: discordIntegrationData?.guilds?.length ?? 0 }) }}
+					{{
+						t(
+							'integrations.discord.connectedGuilds',
+							{
+								guilds: t(
+									'integrations.discord.guildPluralization',
+									discordIntegrationData?.guilds?.length ?? 0
+								)
+							}
+						)
+					}}
 				</span>
 			</div>
 		</template>
@@ -369,7 +378,7 @@ const { data: currentUser } = useProfile();
 				</template>
 			</n-tabs>
 		</template>
-	</integration-with-settings>
+	</with-settings>
 </template>
 
 <style scoped>

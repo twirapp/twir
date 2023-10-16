@@ -190,10 +190,12 @@
   },
   "integrations": {
     "notLoggedIn": "Not logged in",
-		"songServicesInfo": "Logging throught streaming services like <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, will automatically print your current playing song in chat when <b>!song</b> command is being used.",
+		"songServicesInfo": "Provides possibility to Twir for print current played song in <b>!song</b> command",
+		"donateServicesInfo": "Provides possibility to Twir for listen incoming donations, and setup interactions for you in <a href='/dashboard/events'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> systems",
 		"discord": {
 			"description": "Use this integration for setup live alerts into your discord guilds",
-			"connectedGuilds" : "Connected {count} guilds",
+			"guildPluralization": "zero guilds | 1 guild | {count} guilds",
+			"connectedGuilds" : "Connected {guilds}",
 			"alerts": {
 				"label": "Alerts",
 				"showTitle": "Show title of stream",
@@ -212,6 +214,12 @@
 			"connectGuild": "+ connect new guild",
 			"disconnectGuild": "Disconnect guild",
 			"noGuilds": "No guilds connected"
+		},
+		"faceit": {
+			"info": "Provides possibility to Twir track your faceit matches, and setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."
+		},
+		"valorant": {
+			"info": "Provides possibility to Twir track your valorant matches, and setup command variables such as <b>$(valorant.profile.elo)</b>, <b>$(valorant.profile.tier)</b> and much more. "
 		}
   },
   "events": {

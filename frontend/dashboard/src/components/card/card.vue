@@ -5,10 +5,19 @@ import { FunctionalComponent, computed } from 'vue';
 const themeVars = useThemeVars();
 const titleColor = computed(() => themeVars.value.textColor1);
 
-defineProps<{
-	title: string;
-	icon?: FunctionalComponent;
-}>();
+withDefaults(defineProps<{
+	title: string,
+	icon?: FunctionalComponent,
+	withStroke: boolean,
+	iconFill?: string
+	iconWidth?: string
+	iconHeight?: string
+	isLoading?: boolean
+}>(), {
+	withStroke: true,
+	iconWidth: '48px',
+	iconHeight: '48px',
+});
 
 defineEmits<{
 	openSettings: [];
@@ -28,7 +37,13 @@ defineSlots<{
 			<component
 				:is="icon"
 				v-if="icon"
-				style="width: 48px; height: 48px; stroke-width: 2px; stroke: #61e8bb; margin-bottom: 16px"
+				style="stroke-width: 2px; margin-bottom: 16px"
+				:style="{
+					stroke: withStroke ? '#61e8bb' : null,
+					fill: iconFill,
+					width: iconWidth,
+					height: iconHeight,
+				}"
 			/>
 			<n-space justify="space-between">
 				<h2 class="card-title">
@@ -69,7 +84,6 @@ defineSlots<{
 .footer :deep(button svg) {
 	height: 20px;
 	width: 20px;
-	margin-left: 8px
 }
 
 @media (max-width: 568px) {

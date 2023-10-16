@@ -1,6 +1,5 @@
 <script setup lang='ts'>
-import { NTable, NAlert } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+import { NGrid, NGridItem } from 'naive-ui';
 
 import Discord from '@/components/integrations/discord.vue';
 import Donatello from '@/components/integrations/donatello.vue';
@@ -14,11 +13,11 @@ import Streamlabs from '@/components/integrations/streamlabs.vue';
 import Valorant from '@/components/integrations/valorant.vue';
 import Vk from '@/components/integrations/vk.vue';
 
-const { t } = useI18n();
+// const { t } = useI18n();
 </script>
 
 <template>
-	<div class="integrations">
+	<!-- <div class="integrations">
 		<n-alert type="info" class="info">
 			<span v-html="t('integrations.songServicesInfo')" />
 		</n-alert>
@@ -32,49 +31,62 @@ const { t } = useI18n();
 				</tr>
 			</thead>
 			<tbody>
-				<Discord />
 				<Spotify />
 				<Lastfm />
 				<Vk />
 				<Streamlabs />
 				<Donationalerts />
 				<Faceit />
-				<Donatello />
-				<Donatepay />
-				<Donatestream />
-				<Valorant />
 			</tbody>
 		</n-table>
+	</div> -->
+
+	<div class="integrations">
+		<n-grid cols="1 m:2" :x-gap="16" :y-gap="16" responsive="screen">
+			<n-grid-item :span="1">
+				<Discord />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Spotify />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Lastfm />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Vk />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Donationalerts />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Streamlabs />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Donatello />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Donatepay />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Donatestream />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Faceit />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Valorant />
+			</n-grid-item>
+		</n-grid>
 	</div>
 </template>
 
 <style>
 .integrations {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
 	align-items: center;
-	height: 100%;
-	width: 100%;
-}
-
-.integrations table {
-	width: 50%;
-}
-
-.integrations table tr td:first-of-type {
-	width: 70px;
-}
-
-.integrations table tr td:last-of-type {
-	width: 70px;
-}
-
-.integrations table tr td {
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	border-right: 0;
+	justify-content: center;
+	max-width: 1000px;
+	margin: 0 auto;
 }
 
 .info {

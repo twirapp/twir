@@ -1,26 +1,30 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconSettings } from '@tabler/icons-vue';
-import { NTooltip, NButton, NModal, NSpace, NSkeleton } from 'naive-ui';
-import { onUnmounted, ref } from 'vue';
-import { FunctionalComponent } from 'vue/dist/vue.js';
+import { NButton, NModal, NSpace, useThemeVars } from 'naive-ui';
+import { FunctionalComponent, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api';
+import Card from '@/components/card/card.vue';
+
+const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
-	name: string,
-	save?: () => void | Promise<void>,
-	description?: string,
-	isLoading?: boolean,
+	title: string
+	description?: string
+	icon?: FunctionalComponent
+	iconFill?: string
+	save?: () => void | Promise<void>
 	modalWidth?: string,
+	iconWidth?: string,
+	isLoading?: boolean,
 }>(), {
 	modalWidth: '600px',
 });
 
 defineSlots<{
-	icon: FunctionalComponent<any>
-	settings: FunctionalComponent<any>
-	content?: FunctionalComponent<any>
+	settings: FunctionalComponent,
+	customDescriptionSlot?: FunctionalComponent,
 }>();
 
 const showSettings = ref(false);
@@ -37,43 +41,41 @@ onUnmounted(() => showSettings.value = false);
 </script>
 
 <template>
-	<tr>
-		<td v-if="isLoading" colspan="3">
-			<n-skeleton height="40px" width="100%" :sharp="false" />
-		</td>
-		<template v-else>
-			<td>
-				<n-tooltip trigger="hover" placement="left">
-					<template #trigger>
-						<slot name="icon" />
-					</template>
-					{{ name }}
-				</n-tooltip>
-			</td>
-			<td>
-				<span v-if="description">{{ description }}</span>
-				<slot name="content" />
-			</td>
-			<td>
-				<n-button
-					:disabled="!userCanManageIntegrations" strong secondary type="info"
-					@click="showSettings = true"
-				>
-					<div style="display: flex; gap: 4px; align-items: center;">
-						<IconSettings />
-						<span>{{ t('sharedButtons.settings') }}</span>
-					</div>
-				</n-button>
-			</td>
+	<card
+		:title="title"
+		style="height: 100%;"
+		:with-stroke="false"
+		:icon="icon"
+		:icon-fill="iconFill"
+		:icon-width="iconWidth"
+		:is-loading="isLoading"
+	>
+		<template #content>
+			<slot name="customDescriptionSlot" />
+			<span v-if="description" v-html="description" class="description" />
 		</template>
-	</tr>
+
+		<template #footer>
+			<n-button
+				:disabled="!userCanManageIntegrations"
+				secondary
+				size="large"
+				@click="showSettings = true"
+			>
+				<div style="display: flex; gap: 4px;">
+					<span>{{ t('sharedButtons.settings') }}</span>
+					<IconSettings />
+				</div>
+			</n-button>
+		</template>
+	</card>
 
 	<n-modal
 		v-model:show="showSettings"
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		:title="name"
+		:title="title"
 		class="modal"
 		:style="{
 			width: modalWidth,
@@ -82,7 +84,7 @@ onUnmounted(() => showSettings.value = false);
 		}"
 	>
 		<template #header>
-			{{ name }}
+			{{ title }}
 		</template>
 		<slot name="settings" />
 
@@ -98,3 +100,10 @@ onUnmounted(() => showSettings.value = false);
 		</template>
 	</n-modal>
 </template>
+
+<style scoped>
+.description :deep(a) {
+	color: v-bind('themeVars.successColor');
+	text-decoration: none;
+}
+</style>

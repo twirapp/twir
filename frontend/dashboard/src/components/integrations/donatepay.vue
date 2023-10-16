@@ -1,9 +1,10 @@
 <script setup lang='ts'>
 import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
 import { ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useDonatepayIntegration } from '@/api/index.js';
-import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg';
+import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg?component';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
 function redirectToGetApiKey() {
@@ -25,28 +26,37 @@ watch(data, (value) => {
 async function save() {
 	await mutateAsync(apiKey.value);
 }
+
+const { t } = useI18n();
 </script>
 
 <template>
-  <with-settings name="Donatepay" :save="save">
-    <template #icon>
-      <DonatePaySVG style="width: 50px; display: flex" />
-    </template>
-    <template #settings>
-      <n-form-item label="Api key">
-        <n-input-group>
-          <n-button secondary type="info" href="qweqwe" @click="redirectToGetApiKey">
-            Get api key
-          </n-button>
-          <n-input
-            v-model:value="apiKey"
-            type="password"
-            placeholder="Api key"
-            show-password-on="click"
-          />
-        </n-input-group>
-      </n-form-item>
-    </template>
-  </with-settings>
+	<with-settings
+		title="Donatepay"
+		:save="save"
+		:icon="DonatePaySVG"
+		icon-width="80px"
+		:description="t('integrations.donateServicesInfo', {
+			events: t('sidebar.events').toLocaleLowerCase(),
+			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
+			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
+		})"
+	>
+		<template #settings>
+			<n-form-item label="Api key">
+				<n-input-group>
+					<n-button secondary type="info" href="qweqwe" @click="redirectToGetApiKey">
+						Get api key
+					</n-button>
+					<n-input
+						v-model:value="apiKey"
+						type="password"
+						placeholder="Api key"
+						show-password-on="click"
+					/>
+				</n-input-group>
+			</n-form-item>
+		</template>
+	</with-settings>
 </template>
 

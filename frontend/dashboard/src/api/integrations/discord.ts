@@ -18,7 +18,7 @@ export const useDiscordIntegration = () => {
 				return call.response;
 			},
 		}),
-		getData: () => useQuery({
+		useData: () => useQuery({
 			queryKey: dataQueryKey,
 			queryFn: async () => {
 				const call = await protectedApiClient.integrationsDiscordGetData({});

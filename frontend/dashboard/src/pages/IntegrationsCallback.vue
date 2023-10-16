@@ -18,7 +18,7 @@ const route = useRoute();
 const integrationsHooks: { [x: string]: {
 	manager: {
 		usePostCode: (...args: any) => any | Promise<any>,
-		getData?: () => {
+		useData?: () => {
 			refetch: (...args: any) => any | Promise<any>
 		}
 	},
@@ -26,21 +26,27 @@ const integrationsHooks: { [x: string]: {
 } } = {
 	'spotify': {
 		manager: useSpotifyIntegration(),
+		closeWindow: true,
 	},
 	'lastfm': {
 		manager: useLastfmIntegration(),
+		closeWindow: true,
 	},
 	'vk': {
 		manager: useVKIntegration(),
+		closeWindow: true,
 	},
 	'streamlabs': {
 		manager: useStreamlabsIntegration(),
+		closeWindow: true,
 	},
 	'donationalerts': {
 		manager: useDonationAlertsIntegration(),
+		closeWindow: true,
 	},
 	'faceit': {
 		manager: useFaceitIntegration(),
+		closeWindow: true,
 	},
 	'discord': {
 		manager: useDiscordIntegration(),
@@ -57,16 +63,13 @@ onMounted(async () => {
 
 	const integration = integrationsHooks[integrationName];
 	const postCodeHook = integration?.manager?.usePostCode();
-	const getDataHook = integration?.manager?.getData?.();
+	const getDataHook = integration?.manager?.useData?.();
 
 	const { code, token } = route.query;
 	const incomingCode = code ?? token;
 
 	if (typeof incomingCode !== 'string' || !postCodeHook) {
 		if (integration?.closeWindow) {
-			if (getDataHook) {
-				await getDataHook.refetch({});
-			}
 			window.close();
 		} else {
 			router.push({ name: 'Integrations' });
@@ -86,11 +89,3 @@ onMounted(async () => {
 	});
 });
 </script>
-
-<template>
-	<div></div>
-</template>
-
-<style scoped lang='postcss'>
-
-</style>
