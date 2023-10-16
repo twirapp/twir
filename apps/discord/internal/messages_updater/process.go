@@ -2,11 +2,13 @@ package messages_updater
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 func (c *MessagesUpdater) process(ctx context.Context) {
@@ -51,7 +53,9 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 
 		onlineMessages, err := c.sendOnlineMessage(ctx, stream)
 		if err != nil {
-			c.logger.Error("Failed to send message", slog.Any("err", err))
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				c.logger.Error("Failed to send message", slog.Any("err", err))
+			}
 			continue
 		}
 
