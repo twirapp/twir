@@ -67,12 +67,15 @@ func (c *MessagesUpdater) processOffline(
 				continue
 			}
 		} else if guild.OfflineNotificationMessage != "" {
-			content := lo.ToPtr(guild.OfflineNotificationMessage)
+			content := &guild.OfflineNotificationMessage
+			if *content == "" {
+				content = lo.ToPtr("Stream is offline")
+			}
 
 			editMsg := disgo.EditMessage{
 				ChannelID: message.DiscordChannelID,
 				MessageID: message.MessageID,
-				Content:   &content,
+				Content:   lo.ToPtr(content),
 				Embeds:    &[]*disgo.Embed{},
 			}
 
