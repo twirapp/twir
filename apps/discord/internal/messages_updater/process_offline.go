@@ -50,6 +50,10 @@ func (c *MessagesUpdater) processOffline(
 			continue
 		}
 
+		if guild.OfflineNotificationMessage == "" {
+			continue
+		}
+
 		content := lo.ToPtr(guild.OfflineNotificationMessage)
 
 		editMsg := disgo.EditMessage{
