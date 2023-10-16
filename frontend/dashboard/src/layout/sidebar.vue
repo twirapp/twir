@@ -78,14 +78,12 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconBell),
 			path: '/dashboard/alerts',
 			disabled: !canViewAlerts.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.chatAlerts'),
 			icon: renderIcon(IconMessageCircle2),
 			path: '/dashboard/events/chat-alerts',
 			disabled: !canViewEvents.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.events'),
@@ -104,7 +102,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/registry/overlays',
 			disabled: !canViewOverlays.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.songRequests'),
@@ -117,7 +114,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceGamepad2),
 			path: '/dashboard/games',
 			disabled: !canViewGames.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.commands.label'),
