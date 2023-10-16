@@ -40,7 +40,11 @@ func (c *Integrations) IntegrationsFaceitGetData(
 	ctx context.Context, _ *emptypb.Empty,
 ) (*integrations_faceit.GetDataResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceFaceit, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceFaceit,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +56,38 @@ func (c *Integrations) IntegrationsFaceitGetData(
 	}, nil
 }
 
+func (c *Integrations) IntegrationsFaceitUpdate(
+	ctx context.Context,
+	req *integrations_faceit.UpdateDataRequest,
+) (*emptypb.Empty, error) {
+	dashboardId := ctx.Value("dashboardId").(string)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceFaceit,
+		dashboardId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	integration.Data.Game = lo.ToPtr(req.Game)
+
+	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (c *Integrations) IntegrationsFaceitPostCode(
 	ctx context.Context, request *integrations_faceit.PostCodeRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceFaceit, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceFaceit,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +105,10 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 			},
 		).
 		SetSuccessResult(&tokensData).
-		SetBasicAuth(integration.Integration.ClientID.String, integration.Integration.ClientSecret.String).
+		SetBasicAuth(
+			integration.Integration.ClientID.String,
+			integration.Integration.ClientSecret.String,
+		).
 		Post("https://api.faceit.com/auth/v1/oauth/token")
 	if err != nil {
 		return nil, err
@@ -104,7 +138,7 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 	integrationData := model.ChannelsIntegrationsData{
 		UserId:   lo.ToPtr(userInfoResult["guid"].(string)),
 		UserName: lo.ToPtr(userInfoResult["nickname"].(string)),
-		Game:     lo.ToPtr("csgo"),
+		Game:     lo.ToPtr("cs2"),
 	}
 
 	profileResult := make(map[string]any)
@@ -133,7 +167,10 @@ func (c *Integrations) IntegrationsFaceitPostCode(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Integrations) IntegrationsFaceitLogout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *Integrations) IntegrationsFaceitLogout(
+	ctx context.Context,
+	empty *emptypb.Empty,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceFaceit, dashboardId,

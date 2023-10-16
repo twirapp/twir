@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { IconLogin, IconLogout } from '@tabler/icons-vue';
-import { NButton, NAvatar, useThemeVars } from 'naive-ui';
-import { FunctionalComponent } from 'vue';
+import { IconLogin, IconLogout, IconSettings } from '@tabler/icons-vue';
+import { NButton, NAvatar, useThemeVars, NModal, NSpace } from 'naive-ui';
+import { FunctionalComponent, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api';
@@ -19,15 +19,28 @@ const props = withDefaults(defineProps<{
 	icon: FunctionalComponent<any>
 	iconWidth?: string
 	iconColor?: string
+	withSettings?: boolean
+	save?: () => any | Promise<any>
 }>(), {
 	authLink: '',
 	description: '',
 });
 
+defineSlots<{
+	settings?: FunctionalComponent,
+}>();
+
+const showSettings = ref(false);
+
 async function login() {
 	if (!props.authLink) return;
 
 	window.open(props.authLink, 'Twir connect integration', 'width=800,height=600');
+}
+
+async function saveSettings() {
+	await props.save?.();
+	showSettings.value = false;
 }
 
 const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
@@ -50,21 +63,35 @@ const { t } = useI18n();
 
 		<template #footer>
 			<div class="footer">
-				<n-button
-					:disabled="!userCanManageIntegrations || !authLink"
-					secondary
-					size="large"
-					:type="data?.userName ? 'error' : 'success'"
-					@click="data?.userName ? logout() : login()"
-				>
-					<div class="button-content">
-						<span>
-							{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
-						</span>
-						<IconLogout v-if="data?.userName" />
-						<IconLogin v-else />
-					</div>
-				</n-button>
+				<div style="display: flex; gap: 8px;">
+					<n-button
+						v-if="withSettings"
+						:disabled="!userCanManageIntegrations"
+						secondary
+						size="large"
+						@click="showSettings = true"
+					>
+						<div style="display: flex; gap: 4px;">
+							<span>{{ t('sharedButtons.settings') }}</span>
+							<IconSettings />
+						</div>
+					</n-button>
+					<n-button
+						:disabled="!userCanManageIntegrations || !authLink"
+						secondary
+						size="large"
+						:type="data?.userName ? 'error' : 'success'"
+						@click="data?.userName ? logout() : login()"
+					>
+						<div class="button-content">
+							<span>
+								{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
+							</span>
+							<IconLogout v-if="data?.userName" />
+							<IconLogin v-else />
+						</div>
+					</n-button>
+				</div>
 				<div v-if="data?.userName" class="profile">
 					<n-avatar round :src="data?.avatar" />
 					<span>{{ data.userName }}</span>
@@ -72,6 +99,37 @@ const { t } = useI18n();
 			</div>
 		</template>
 	</card>
+
+	<n-modal
+		v-if="withSettings"
+		v-model:show="showSettings"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		:title="title"
+		class="modal"
+		:style="{
+			width: '50vw',
+			top: '5%',
+			bottom: '5%'
+		}"
+	>
+		<template #header>
+			{{ title }}
+		</template>
+		<slot name="settings" />
+
+		<template #action>
+			<n-space justify="end">
+				<n-button secondary @click="showSettings = false">
+					{{ t('sharedButtons.close') }}
+				</n-button>
+				<n-button v-if="save" secondary type="success" @click="saveSettings">
+					{{ t('sharedButtons.save') }}
+				</n-button>
+			</n-space>
+		</template>
+	</n-modal>
 </template>
 
 <style scoped>

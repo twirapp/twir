@@ -15,3 +15,7 @@ message GetDataResponse {
 message PostCodeRequest {
 	string code = 1;
 }
+
+message UpdateDataRequest {
+	string game = 1;
+}

@@ -90,6 +90,7 @@ service Protected {
 
 	rpc IntegrationsFaceitGetAuthLink(google.protobuf.Empty) returns (api.integrations_faceit.GetAuthLink) {}
 	rpc IntegrationsFaceitGetData(google.protobuf.Empty) returns (api.integrations_faceit.GetDataResponse) {}
+	rpc IntegrationsFaceitUpdate(api.integrations_faceit.UpdateDataRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsFaceitPostCode(api.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 

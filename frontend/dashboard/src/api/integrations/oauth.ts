@@ -119,6 +119,7 @@ export const useFaceitIntegration = () => createIntegrationOauth({
 	getAuthLink: protectedApiClient.integrationsFaceitGetAuthLink,
 	usePostCode: protectedApiClient.integrationsFaceitPostCode,
 	useLogout: protectedApiClient.integrationsFaceitLogout,
+	updateData: protectedApiClient.integrationsFaceitUpdate,
 });
 
 export const useDonationAlertsIntegration = () => createIntegrationOauth({
