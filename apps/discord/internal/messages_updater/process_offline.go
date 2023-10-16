@@ -66,7 +66,7 @@ func (c *MessagesUpdater) processOffline(
 				c.logger.Error("Failed to delete message", slog.Any("err", err))
 				continue
 			}
-		} else if guild.OfflineNotificationMessage != "" {
+		} else {
 			content := &guild.OfflineNotificationMessage
 			if *content == "" {
 				content = lo.ToPtr("Stream is offline")
