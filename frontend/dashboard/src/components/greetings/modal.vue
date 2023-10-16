@@ -100,7 +100,7 @@ const rules: FormRules = {
 				/>
 			</n-form-item>
 			<n-form-item :label="t('sharedTexts.response')" path="text" show-require-mark>
-				<text-with-variables v-model="formValue.text" />
+				<text-with-variables v-model="formValue.text" input-type="textarea" />
 			</n-form-item>
 
 			<n-form-item :label="t('sharedTexts.reply.text')" path="text">

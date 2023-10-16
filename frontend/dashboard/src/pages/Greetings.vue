@@ -3,15 +3,15 @@ import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { useThrottleFn } from '@vueuse/core';
 import {
 	type DataTableColumns,
-  NDataTable,
-  NSpace,
-  NTag,
-  NAlert,
-  NButton,
-  NPopconfirm,
-  NModal,
-  NSwitch,
-  NAvatar,
+	NDataTable,
+	NSpace,
+	NTag,
+	NAlert,
+	NButton,
+	NPopconfirm,
+	NModal,
+	NSwitch,
+	NAvatar,
 } from 'naive-ui';
 import { h, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -57,6 +57,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 	{
 		title: t('sharedTexts.userName'),
 		key: 'userName',
+		maxWidth: 150,
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, {
 				default: () => {
@@ -69,8 +70,9 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 	{
 		title: t('sharedTexts.response'),
 		key: 'text',
+		maxWidth: 600,
 		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, { default: () => row.text });
+			return row.text;
 		},
 	},
 	{
@@ -128,12 +130,13 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 				},
 			);
 
-			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
+			return h(NSpace, {}, { default: () => [editButton, deleteButton] });
 		},
 	},
 ]);
 
 const editableGreeting = ref<EditableGreeting | null>(null);
+
 function openModal(t: EditableGreeting | null) {
 	const twitchUser = twitchUsers.data.value?.users.find((u) => u.id === t?.userId);
 	editableGreeting.value = t ? {
@@ -143,6 +146,7 @@ function openModal(t: EditableGreeting | null) {
 
 	showModal.value = true;
 }
+
 function closeModal() {
 	showModal.value = false;
 }
