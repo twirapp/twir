@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strconv"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/diamondburned/arikawa/v3/discord"
+	"github.com/diamondburned/arikawa/v3/state"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/switchupcb/disgo"
 )
 
 func (c *MessagesUpdater) sendOnlineMessage(
@@ -40,19 +42,27 @@ func (c *MessagesUpdater) sendOnlineMessage(
 
 		embed := c.buildEmbed(twitchUser, stream, guild)
 
-		for _, channel := range guild.LiveNotificationChannelsIds {
-			sendMsgReq := disgo.CreateMessage{
-				ChannelID: channel,
-				Embeds:    []*disgo.Embed{embed},
-			}
+		gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
+		shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
+		if shard == nil {
+			c.logger.Error("Shard not found", slog.Any("guild_id", guild.ID))
+			continue
+		}
 
-			if guild.LiveNotificationMessage != "" {
-				sendMsgReq.Content = &guild.LiveNotificationMessage
+		for _, channel := range guild.LiveNotificationChannelsIds {
+			dChanUid, err := strconv.ParseUint(channel, 10, 64)
+			if err != nil {
+				c.logger.Error("Failed to parse channel id", slog.Any("err", err))
+				continue
 			}
 
 			m, err := retry.DoWithData(
-				func() (*disgo.Message, error) {
-					return sendMsgReq.Send(c.discord.Client)
+				func() (*discord.Message, error) {
+					return shard.(*state.State).SendMessage(
+						discord.ChannelID(dChanUid),
+						guild.LiveNotificationMessage,
+						embed,
+					)
 				},
 				retry.Attempts(3),
 			)
@@ -64,10 +74,10 @@ func (c *MessagesUpdater) sendOnlineMessage(
 			sendedMessage = append(
 				sendedMessage,
 				sended_messages_store.Message{
-					MessageID:        m.ID,
+					MessageID:        m.ID.String(),
 					TwitchChannelID:  stream.UserId,
 					GuildID:          guild.ID,
-					DiscordChannelID: m.ChannelID,
+					DiscordChannelID: m.ChannelID.String(),
 				},
 			)
 		}

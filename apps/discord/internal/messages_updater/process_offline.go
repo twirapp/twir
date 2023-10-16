@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/diamondburned/arikawa/v3/discord"
+	"github.com/diamondburned/arikawa/v3/state"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/switchupcb/disgo"
 )
 
 func (c *MessagesUpdater) processOffline(
@@ -50,14 +52,31 @@ func (c *MessagesUpdater) processOffline(
 			continue
 		}
 
+		gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
+		shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
+		if shard == nil {
+			c.logger.Error("Shard not found", slog.Any("guild_id", guild.ID))
+			continue
+		}
+
+		dChanUid, err := strconv.ParseUint(message.DiscordChannelID, 10, 64)
+		if err != nil {
+			return err
+		}
+
+		dMsgId, err := strconv.ParseUint(message.MessageID, 10, 64)
+		if err != nil {
+			return err
+		}
+
 		if guild.ShouldDeleteMessageOnOffline {
-			delMsg := disgo.DeleteMessage{
-				ChannelID: message.DiscordChannelID,
-				MessageID: message.MessageID,
-			}
 			err = retry.Do(
 				func() error {
-					return delMsg.Send(c.discord.Client)
+					return shard.(*state.State).DeleteMessage(
+						discord.ChannelID(dChanUid),
+						discord.MessageID(dMsgId),
+						"stream offline",
+					)
 				},
 				retry.Attempts(3),
 			)
@@ -67,21 +86,18 @@ func (c *MessagesUpdater) processOffline(
 				continue
 			}
 		} else {
-			content := &guild.OfflineNotificationMessage
-			if *content == "" {
-				content = lo.ToPtr("Stream is offline")
-			}
-
-			editMsg := disgo.EditMessage{
-				ChannelID: message.DiscordChannelID,
-				MessageID: message.MessageID,
-				Content:   lo.ToPtr(content),
-				Embeds:    &[]*disgo.Embed{},
+			content := guild.OfflineNotificationMessage
+			if content == "" {
+				content = "Stream is offline"
 			}
 
 			_, err = retry.DoWithData(
-				func() (*disgo.Message, error) {
-					return editMsg.Send(c.discord.Client)
+				func() (*discord.Message, error) {
+					return shard.(*state.State).EditMessage(
+						discord.ChannelID(dChanUid),
+						discord.MessageID(dMsgId),
+						"",
+					)
 				},
 				retry.Attempts(3),
 			)

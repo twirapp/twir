@@ -4,18 +4,21 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"strconv"
 	"time"
 
+	arikawa_state "github.com/diamondburned/arikawa/v3/state"
 	"github.com/satont/twir/apps/discord/internal/discord_go"
 	"github.com/satont/twir/libs/grpc/generated/discord"
 	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
-	"github.com/switchupcb/disgo"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
+
+	arikawa_discord "github.com/diamondburned/arikawa/v3/discord"
 )
 
 type Opts struct {
@@ -72,8 +75,18 @@ func (c *Impl) GetGuildChannels(
 	ctx context.Context,
 	req *discord.GetGuildChannelsRequest,
 ) (*discord.GetGuildChannelsResponse, error) {
-	channelsReq := disgo.GetGuildChannels{GuildID: req.GuildId}
-	channels, err := channelsReq.Send(c.discord.Client)
+	gUid, err := strconv.ParseUint(req.GuildId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	shard, _ := c.discord.FromGuildID(arikawa_discord.GuildID(gUid))
+	if shard == nil {
+		return nil, fmt.Errorf("shard not found")
+	}
+	state := shard.(*arikawa_state.State)
+
+	channels, err := state.Channels(arikawa_discord.GuildID(gUid))
 	if err != nil {
 		return nil, err
 	}
@@ -82,14 +95,10 @@ func (c *Impl) GetGuildChannels(
 	for _, channel := range channels {
 		var t discord.ChannelType
 
-		if channel.Type == nil {
-			continue
-		}
-
-		switch *channel.Type {
-		case disgo.FlagChannelTypeGUILD_TEXT, disgo.FlagChannelTypeGUILD_ANNOUNCEMENT:
+		switch channel.Type {
+		case arikawa_discord.GuildText, arikawa_discord.GuildAnnouncement:
 			t = discord.ChannelType_TEXT
-		case disgo.FlagChannelTypeGUILD_VOICE:
+		case arikawa_discord.GuildVoice:
 			t = discord.ChannelType_VOICE
 		default:
 			t = -1
@@ -99,15 +108,10 @@ func (c *Impl) GetGuildChannels(
 			continue
 		}
 
-		var name string
-		if channel.Name != nil {
-			name = **channel.Name
-		}
-
 		resultedChannels = append(
 			resultedChannels, &discord.GuildChannel{
-				Id:   channel.ID,
-				Name: name,
+				Id:   channel.ID.String(),
+				Name: channel.Name,
 				Type: t,
 			},
 		)
@@ -124,22 +128,27 @@ func (c *Impl) GetGuildInfo(
 ) (*discord.GetGuildInfoResponse, error) {
 	errWg, _ := errgroup.WithContext(ctx)
 
-	var guild *disgo.Guild
+	var guild *arikawa_discord.Guild
 	var guildIcon string
 	var guildChannels []*discord.GuildChannel
 	var guildRoles []*discord.Role
 
+	gUid, err := strconv.ParseUint(req.GuildId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	shard, _ := c.discord.FromGuildID(arikawa_discord.GuildID(gUid))
+	if shard == nil {
+		return nil, fmt.Errorf("shard not found")
+	}
+	state := shard.(*arikawa_state.State)
+
 	errWg.Go(
 		func() error {
-			guildReq := disgo.GetGuild{GuildID: req.GuildId}
-			var err error
-			disGuild, err := guildReq.Send(c.discord.Client)
+			disGuild, err := state.Guild(arikawa_discord.GuildID(gUid))
 			if err != nil {
 				return err
-			}
-
-			if disGuild.Icon != nil {
-				guildIcon = *disGuild.Icon
 			}
 
 			guild = disGuild
@@ -184,7 +193,7 @@ func (c *Impl) GetGuildInfo(
 	}
 
 	return &discord.GetGuildInfoResponse{
-		Id:       guild.ID,
+		Id:       guild.ID.String(),
 		Name:     guild.Name,
 		Icon:     guildIcon,
 		Channels: guildChannels,
@@ -196,8 +205,18 @@ func (c *Impl) LeaveGuild(
 	ctx context.Context,
 	req *discord.LeaveGuildRequest,
 ) (*emptypb.Empty, error) {
-	leaveGuildReq := disgo.LeaveGuild{GuildID: req.GuildId}
-	if err := leaveGuildReq.Send(c.discord.Client); err != nil {
+	gUid, err := strconv.ParseUint(req.GuildId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	shard, _ := c.discord.FromGuildID(arikawa_discord.GuildID(gUid))
+	if shard == nil {
+		return nil, fmt.Errorf("shard not found")
+	}
+	state := shard.(*arikawa_state.State)
+
+	if err := state.LeaveGuild(arikawa_discord.GuildID(gUid)); err != nil {
 		return nil, err
 	}
 
@@ -208,8 +227,18 @@ func (c *Impl) GetGuildRoles(ctx context.Context, req *discord.GetGuildRolesRequ
 	*discord.
 		GetGuildRolesResponse, error,
 ) {
-	rolesReq := disgo.GetGuildRoles{GuildID: req.GuildId}
-	roles, err := rolesReq.Send(c.discord.Client)
+	gUid, err := strconv.ParseUint(req.GuildId, 10, 64)
+	if err != nil {
+		return nil, err
+	}
+
+	shard, _ := c.discord.FromGuildID(arikawa_discord.GuildID(gUid))
+	if shard == nil {
+		return nil, fmt.Errorf("shard not found")
+	}
+	state := shard.(*arikawa_state.State)
+
+	roles, err := state.Roles(arikawa_discord.GuildID(gUid))
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +248,7 @@ func (c *Impl) GetGuildRoles(ctx context.Context, req *discord.GetGuildRolesRequ
 	for _, role := range roles {
 		resultedRoles = append(
 			resultedRoles, &discord.Role{
-				Id:    role.ID,
+				Id:    role.ID.String(),
 				Name:  role.Name,
 				Color: fmt.Sprint(role.Color),
 			},

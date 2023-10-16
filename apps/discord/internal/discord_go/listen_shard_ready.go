@@ -3,18 +3,18 @@ package discord_go
 import (
 	"log/slog"
 
-	"github.com/switchupcb/disgo"
+	"github.com/diamondburned/arikawa/v3/gateway"
 )
 
-func (c *Discord) handleReady(e *disgo.Ready) {
+func (c *Discord) handleShardReady(e *gateway.ReadyEvent) {
 	c.logger.Info(
 		"Discord shard is ready",
 		slog.Group(
 			"bot",
-			slog.String("id", e.User.ID),
+			slog.String("id", e.User.ID.String()),
 			slog.String("name", e.User.Username),
-			slog.Bool("verified", *e.User.Verified),
 		),
 		slog.Int("guilds", len(e.Guilds)),
+		slog.Int("shard_id", e.Shard.ShardID()),
 	)
 }

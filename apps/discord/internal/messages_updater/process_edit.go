@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"strconv"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/diamondburned/arikawa/v3/discord"
+	"github.com/diamondburned/arikawa/v3/state"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/switchupcb/disgo"
 )
 
 func (c *MessagesUpdater) updateDiscordMessages(
@@ -43,15 +45,31 @@ func (c *MessagesUpdater) updateDiscordMessages(
 		for _, message := range messages {
 			embed := c.buildEmbed(twitchUser, stream, guild)
 
-			editMsg := disgo.EditMessage{
-				Embeds:    &[]*disgo.Embed{embed},
-				MessageID: message.MessageID,
-				ChannelID: message.DiscordChannelID,
+			gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
+			shard, _ := c.discord.FromGuildID(discord.GuildID(gUid))
+			if shard == nil {
+				c.logger.Error("Shard not found", slog.Any("guild_id", guild.ID))
+				continue
 			}
 
 			_, err := retry.DoWithData(
-				func() (*disgo.Message, error) {
-					return editMsg.Send(c.discord.Client)
+				func() (*discord.Message, error) {
+					dsChannelUid, err := strconv.ParseUint(message.DiscordChannelID, 10, 64)
+					if err != nil {
+						return nil, err
+					}
+
+					dMsgId, err := strconv.ParseUint(message.MessageID, 10, 64)
+					if err != nil {
+						return nil, err
+					}
+
+					return shard.(*state.State).EditMessage(
+						discord.ChannelID(dsChannelUid),
+						discord.MessageID(dMsgId),
+						"",
+						embed,
+					)
 				},
 				retry.Attempts(3),
 			)

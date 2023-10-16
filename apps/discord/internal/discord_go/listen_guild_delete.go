@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/switchupcb/disgo"
 )
 
-func (c *Discord) handleGuildDelete(e *disgo.GuildDelete) {
-	if e.Unavailable != nil && *e.Unavailable {
+func (c *Discord) handleGuildDelete(e *gateway.GuildDeleteEvent) {
+	if e.Unavailable {
 		return
 	}
 
@@ -26,7 +26,7 @@ func (c *Discord) handleGuildDelete(e *disgo.GuildDelete) {
 		integration.Data.Discord.Guilds = lo.Filter(
 			integration.Data.Discord.Guilds,
 			func(guild model.ChannelIntegrationDataDiscordGuild, _ int) bool {
-				return guild.ID != e.ID
+				return guild.ID != e.ID.String()
 			},
 		)
 

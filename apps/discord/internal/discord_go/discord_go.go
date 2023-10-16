@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/diamondburned/arikawa/v3/gateway"
+	"github.com/diamondburned/arikawa/v3/state"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/switchupcb/disgo"
-	"github.com/switchupcb/disgo/shard"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
+
+	"github.com/diamondburned/arikawa/v3/session/shard"
 )
 
 type Opts struct {
@@ -22,7 +24,7 @@ type Opts struct {
 }
 
 type Discord struct {
-	*disgo.Client
+	*shard.Manager
 
 	logger logger.Logger
 	db     *gorm.DB
@@ -39,40 +41,47 @@ func New(opts Opts) (*Discord, error) {
 		db:     opts.Db,
 	}
 
-	bot := &disgo.Client{
-		ApplicationID:  opts.Config.DiscordClientID,
-		Authentication: disgo.BotToken(opts.Config.DiscordBotToken),
-		Authorization:  &disgo.Authorization{},
-		Config:         disgo.DefaultConfig(),
-		Handlers: &disgo.Handlers{
-			Ready:       []func(*disgo.Ready){discord.handleReady},
-			GuildDelete: []func(*disgo.GuildDelete){discord.handleGuildDelete},
-		},
-		Sessions: disgo.NewSessionManager(),
-	}
+	newShard := state.NewShardFunc(
+		func(m *shard.Manager, s *state.State) {
+			// Add the needed Gateway intents.
+			s.AddIntents(gateway.IntentGuildMessages)
+			s.AddIntents(gateway.IntentDirectMessages)
 
-	bot.Config.Gateway.ShardManager = new(shard.InstanceShardManager)
-	// auto sharding
-	bot.Config.Gateway.ShardManager.SetNumShards(0)
-	s := bot.Config.Gateway.ShardManager
+			s.AddHandler(
+				func(c *gateway.ReadyEvent) {
+					discord.handleShardReady(c)
+				},
+			)
+
+			s.AddHandler(
+				func(c *gateway.GuildDeleteEvent) {
+					discord.handleGuildDelete(c)
+				},
+			)
+		},
+	)
+
+	shardManager, err := shard.NewManager("Bot "+opts.Config.DiscordBotToken, newShard)
+	if err != nil {
+		return nil, err
+	}
 
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-
-				if err := s.Connect(bot); err != nil {
+				if err := shardManager.Open(context.Background()); err != nil {
 					return err
 				}
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				return s.Disconnect()
+				return shardManager.Close()
 			},
 		},
 	)
 
-	discord.Client = bot
+	discord.Manager = shardManager
 
 	return discord, nil
 }
