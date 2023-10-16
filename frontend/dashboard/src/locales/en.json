@@ -206,7 +206,8 @@
 				"streamOnlinePlaceholder": "The message twir will send when stream started",
 				"streamOfflineLabel": "Stream offline message",
 				"streamOfflinePlaceholder": "The message twir will send when stream goes offline",
-				"updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)"
+				"updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
+				"shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline"
 			},
 			"connectGuild": "+ connect new guild",
 			"disconnectGuild": "Disconnect guild",

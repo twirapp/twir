@@ -23,7 +23,6 @@ import {
 	NAvatar,
 	NDivider,
 	NSelect,
-	NFormItem,
 	NSwitch,
 	useMessage,
 	NMention,
@@ -218,7 +217,10 @@ const { data: currentUser } = useProfile();
 									<span>{{ t('integrations.discord.alerts.showViewers') }}</span>
 								</div>
 
-								<n-form-item :label="t('integrations.discord.alerts.channelsSelect')" style="margin-top: 4px;">
+								<n-divider style="margin: 4px;" />
+
+								<div class="form-item">
+									<span>{{ t('integrations.discord.alerts.channelsSelect') }}</span>
 									<n-select
 										v-model:value="guild.liveNotificationChannelsIds"
 										multiple
@@ -227,9 +229,10 @@ const { data: currentUser } = useProfile();
 										:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
 										:max-tag-count="5"
 									/>
-								</n-form-item>
+								</div>
 
-								<n-form-item :label="t('integrations.discord.alerts.streamOnlineLabel')" style="margin-top: 4px;">
+								<div class="form-item">
+									<span>{{ t('integrations.discord.alerts.streamOnlineLabel') }}</span>
 									<n-mention
 										v-model:value="guild.liveNotificationMessage"
 										type="textarea"
@@ -237,16 +240,28 @@ const { data: currentUser } = useProfile();
 										:placeholder="t('integrations.discord.alerts.streamOnlinePlaceholder')"
 										:maxlength="5"
 									/>
-								</n-form-item>
+								</div>
 
-								<n-form-item :label="t('integrations.discord.alerts.streamOfflineLabel')" style="margin-top: 4px;">
-									<n-mention
-										v-model:value="guild.offlineNotificationMessage"
-										type="textarea"
-										:options="getRolesMentionsOptions(guild.id)"
-										:placeholder="t('integrations.discord.alerts.streamOfflinePlaceholder')"
-									/>
-								</n-form-item>
+								<div style="display: flex; flex-direction: column; gap: 8px;">
+									<div class="form-item">
+										<span>{{ t('integrations.discord.alerts.streamOfflineLabel') }}</span>
+										<n-mention
+											v-model:value="guild.offlineNotificationMessage"
+											type="textarea"
+											:disabled="guild.shouldDeleteMessageOnOffline"
+											:options="getRolesMentionsOptions(guild.id)"
+											:placeholder="t('integrations.discord.alerts.streamOfflinePlaceholder')"
+										/>
+									</div>
+
+
+									<div class="switch">
+										<n-switch v-model:value="guild.shouldDeleteMessageOnOffline" />
+										<span>{{ t('integrations.discord.alerts.shouldDeleteMessageOnOffline') }}</span>
+									</div>
+								</div>
+
+								<n-divider />
 
 								<n-alert type="info">
 									{{ t('integrations.discord.alerts.updateAlert') }}
@@ -358,6 +373,12 @@ const { data: currentUser } = useProfile();
 </template>
 
 <style scoped>
+.form-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
 .switch {
 	display: flex;
 	gap: 8px;

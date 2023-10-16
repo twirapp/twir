@@ -30,6 +30,7 @@ type ChannelIntegrationDataDiscordGuild struct {
 	LiveNotificationShowPreview      bool     `json:"liveNotificationShowPreview,omitempty"`
 	LiveNotificationShowProfileImage bool     `json:"liveNotificationShowProfileImage,omitempty"`
 	OfflineNotificationMessage       string   `json:"offlineNotificationMessage,omitempty"`
+	ShouldDeleteMessageOnOffline     bool     `json:"shouldDeleteMessageOnOffline,omitempty"`
 }
 
 type ChannelIntegrationDataDiscord struct {

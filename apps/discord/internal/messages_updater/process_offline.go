@@ -50,29 +50,43 @@ func (c *MessagesUpdater) processOffline(
 			continue
 		}
 
-		if guild.OfflineNotificationMessage == "" {
-			continue
-		}
+		if guild.ShouldDeleteMessageOnOffline {
+			delMsg := disgo.DeleteMessage{
+				ChannelID: message.DiscordChannelID,
+				MessageID: message.MessageID,
+			}
+			err = retry.Do(
+				func() error {
+					return delMsg.Send(c.discord.Client)
+				},
+				retry.Attempts(3),
+			)
 
-		content := lo.ToPtr(guild.OfflineNotificationMessage)
+			if err != nil {
+				c.logger.Error("Failed to delete message", slog.Any("err", err))
+				continue
+			}
+		} else if guild.OfflineNotificationMessage != "" {
+			content := lo.ToPtr(guild.OfflineNotificationMessage)
 
-		editMsg := disgo.EditMessage{
-			ChannelID: message.DiscordChannelID,
-			MessageID: message.MessageID,
-			Content:   &content,
-			Embeds:    &[]*disgo.Embed{},
-		}
+			editMsg := disgo.EditMessage{
+				ChannelID: message.DiscordChannelID,
+				MessageID: message.MessageID,
+				Content:   &content,
+				Embeds:    &[]*disgo.Embed{},
+			}
 
-		_, err = retry.DoWithData(
-			func() (*disgo.Message, error) {
-				return editMsg.Send(c.discord.Client)
-			},
-			retry.Attempts(3),
-		)
+			_, err = retry.DoWithData(
+				func() (*disgo.Message, error) {
+					return editMsg.Send(c.discord.Client)
+				},
+				retry.Attempts(3),
+			)
 
-		if err != nil {
-			c.logger.Error("Failed to edit message", slog.Any("err", err))
-			continue
+			if err != nil {
+				c.logger.Error("Failed to edit message", slog.Any("err", err))
+				continue
+			}
 		}
 	}
 
