@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log/slog"
 	"net/url"
 	"sync"
 
@@ -303,14 +302,6 @@ func (c *Integrations) IntegrationsDiscordDisconnectGuild(
 
 	if err := c.Db.WithContext(ctx).Save(&channelIntegration).Error; err != nil {
 		return nil, fmt.Errorf("failed to save channel integration: %w", err)
-	}
-
-	if _, err := c.Grpc.Discord.LeaveGuild(
-		ctx, &discord.LeaveGuildRequest{
-			GuildId: req.GuildId,
-		},
-	); err != nil {
-		c.Logger.Error("failed to leave guild", slog.Any("err", err))
 	}
 
 	return &emptypb.Empty{}, nil
