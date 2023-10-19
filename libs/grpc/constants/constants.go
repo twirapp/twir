@@ -1,4 +1,4 @@
-package servers
+package constants
 
 const (
 	PARSER_SERVER_PORT = 50051 + iota
@@ -16,4 +16,5 @@ const (
 	EVENTS_SERVER_PORT
 	YTSR_SERVER_PORT
 	DISCORD_SERVER_PORT
+	LANGUAGE_DETECTOR_SERVER_PORT
 )

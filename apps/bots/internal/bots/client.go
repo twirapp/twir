@@ -4,6 +4,7 @@ import (
 	ratelimiter "github.com/aidenwallis/go-ratelimiting/local"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/chat_client"
+	"github.com/satont/twir/apps/bots/pkg/tlds"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -30,6 +31,7 @@ type ClientOpts struct {
 	WebsocketsGrpc  websockets.WebsocketClient
 	Redis           *redis.Client
 	JoinRateLimiter ratelimiter.SlidingWindow
+	Tlds            *tlds.TLDS
 }
 
 func newBot(opts ClientOpts) *chat_client.ChatClient {
@@ -45,6 +47,7 @@ func newBot(opts ClientOpts) *chat_client.ChatClient {
 			WebsocketsGrpc:  opts.WebsocketsGrpc,
 			Redis:           opts.Redis,
 			JoinRateLimiter: opts.JoinRateLimiter,
+			Tlds:            opts.Tlds,
 		},
 	)
 

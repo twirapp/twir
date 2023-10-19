@@ -23,7 +23,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -98,7 +97,7 @@ func main() {
 	overlaysRegistry := overlays.New(services)
 	http.HandleFunc("/registry/overlays", overlaysRegistry.HandleRequest)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.WEBSOCKET_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.WEBSOCKET_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

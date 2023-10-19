@@ -16,7 +16,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/servers"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
@@ -76,7 +75,7 @@ func main() {
 		Redis:          redisClient,
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.EVENTS_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.EVENTS_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

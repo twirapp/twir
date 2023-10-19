@@ -12,7 +12,6 @@ import (
 
 	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
-	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
 
 	s "github.com/satont/twir/apps/scheduler/internal/services"
@@ -79,7 +78,7 @@ func main() {
 	timers.NewStreams(appCtx, services)
 	timers.NewCommandsAndRoles(appCtx, services)
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.SCHEDULER_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.SCHEDULER_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

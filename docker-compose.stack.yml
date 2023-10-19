@@ -499,6 +499,27 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
+  language-detector:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: language-detector
+    image: registry.satont.ru/twir/language-detector:latest
+    secrets:
+      - twir_doppler_token
+    deploy:
+      update_config:
+        parallelism: 2
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+    networks:
+      - twir
+
 volumes:
   postgres-data:
   redis-data:

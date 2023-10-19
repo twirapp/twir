@@ -29,6 +29,7 @@ jobs:
             ytsr,
             migrations,
             discord,
+            language-detector,
           ]
     steps:
       - uses: actions/checkout@v3

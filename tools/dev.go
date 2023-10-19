@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/satont/twir/libs/grpc/servers"
+	"github.com/satont/twir/libs/grpc/constants"
 )
 
 type App struct {
@@ -69,20 +69,21 @@ func main() {
 
 	// order matters
 	apps := []App{
-		{Stack: "go", Name: "tokens", Port: servers.TOKENS_SERVER_PORT},
-		{Stack: "go", Name: "events", Port: servers.EVENTS_SERVER_PORT},
-		{Stack: "go", Name: "emotes-cacher", Port: servers.EMOTES_CACHER_SERVER_PORT},
-		{Stack: "go", Name: "parser", Port: servers.PARSER_SERVER_PORT},
-		{Stack: "go", Name: "eventsub", Port: servers.EVENTSUB_SERVER_PORT},
-		{Stack: "node", Name: "eval", Port: servers.EVAL_SERVER_PORT},
-		{Stack: "go", Name: "bots", Port: servers.BOTS_SERVER_PORT},
-		{Stack: "go", Name: "timers", Port: servers.TIMERS_SERVER_PORT},
-		{Stack: "go", Name: "websockets", Port: servers.WEBSOCKET_SERVER_PORT},
-		{Stack: "go", Name: "ytsr", Port: servers.YTSR_SERVER_PORT},
-		{Stack: "node", Name: "integrations", Port: servers.INTEGRATIONS_SERVER_PORT},
+		{Stack: "go", Name: "tokens", Port: constants.TOKENS_SERVER_PORT},
+		{Stack: "go", Name: "events", Port: constants.EVENTS_SERVER_PORT},
+		{Stack: "go", Name: "emotes-cacher", Port: constants.EMOTES_CACHER_SERVER_PORT},
+		{Stack: "go", Name: "parser", Port: constants.PARSER_SERVER_PORT},
+		{Stack: "go", Name: "eventsub", Port: constants.EVENTSUB_SERVER_PORT},
+		{Stack: "node", Name: "eval", Port: constants.EVAL_SERVER_PORT},
+		{Stack: "node", Name: "language-detector", Port: constants.LANGUAGE_DETECTOR_SERVER_PORT},
+		{Stack: "go", Name: "bots", Port: constants.BOTS_SERVER_PORT},
+		{Stack: "go", Name: "timers", Port: constants.TIMERS_SERVER_PORT},
+		{Stack: "go", Name: "websockets", Port: constants.WEBSOCKET_SERVER_PORT},
+		{Stack: "go", Name: "ytsr", Port: constants.YTSR_SERVER_PORT},
+		{Stack: "node", Name: "integrations", Port: constants.INTEGRATIONS_SERVER_PORT},
 		{Stack: "go", Name: "api", Port: 3002},
-		{Stack: "go", Name: "scheduler", Port: servers.SCHEDULER_SERVER_PORT},
-		{Stack: "go", Name: "discord", Port: servers.DISCORD_SERVER_PORT},
+		{Stack: "go", Name: "scheduler", Port: constants.SCHEDULER_SERVER_PORT},
+		{Stack: "go", Name: "discord", Port: constants.DISCORD_SERVER_PORT},
 		{Stack: "frontend", Name: "dashboard", Port: 3006},
 		{Stack: "frontend", Name: "landing", Port: 3005},
 		{Stack: "frontend", Name: "overlays", Port: 3008},

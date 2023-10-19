@@ -5,7 +5,7 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-RUN apk add git curl wget upx protoc libc6-compat && \
+RUN apk add git curl wget upx protoc libc6-compat g++ && \
     go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
@@ -22,7 +22,6 @@ COPY patches patches
 
 RUN pnpm install --frozen-lockfile
 RUN pnpm build:libs
-
 
 ### GOLANG MICROSERVICES
 
@@ -149,7 +148,7 @@ CMD ["/bin/discord"]
 
 FROM node:18-alpine as node_prod_base
 WORKDIR /app
-RUN apk add wget && \
+RUN apk add wget g++ && \
     wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
     echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
     apk add doppler && apk del wget && \
@@ -185,6 +184,16 @@ COPY --from=eval_builder /app/apps/eval /app/apps/eval
 COPY --from=eval_builder /app/libs/config /app/libs/config
 COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
 CMD ["pnpm", "--filter=@twir/eval", "start"]
+
+FROM builder as language-detector_builder
+RUN cd apps/language-detector && \
+    pnpm prune --prod
+
+FROM node_prod_base as language-detector
+WORKDIR /app
+COPY --from=language-detector_builder /app/apps/language-detector /app/apps/language-detector
+COPY --from=language-detector_builder /app/libs/grpc /app/libs/grpc
+CMD ["pnpm", "--filter=@twir/language-detector", "start"]
 
 FROM builder as integrations_builder
 RUN cd apps/integrations && \

@@ -2,18 +2,18 @@ package main
 
 import (
 	"fmt"
-	"github.com/satont/twir/apps/ytsr/internal/grpc_impl"
-	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/ytsr"
-	"github.com/satont/twir/libs/grpc/servers"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"log"
 	"net"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/satont/twir/apps/ytsr/internal/grpc_impl"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/ytsr"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 		logger, err = zap.NewProduction()
 	}
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.YTSR_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.YTSR_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Dev Language Detector" type="NodeJSConfigurationType" path-to-js-file="src/index.js" working-dir="$PROJECT_DIR$/apps/language-detector">
+    <method v="2" />
+  </configuration>
+</component>

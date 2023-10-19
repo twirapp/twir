@@ -10,7 +10,6 @@ import (
 	arikawa_state "github.com/diamondburned/arikawa/v3/state"
 	"github.com/satont/twir/apps/discord/internal/discord_go"
 	"github.com/satont/twir/libs/grpc/generated/discord"
-	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -34,7 +33,10 @@ func New(opts Opts) (discord.DiscordServer, error) {
 		discord: opts.Discord,
 	}
 
-	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.DISCORD_SERVER_PORT))
+	grpcNetListener, err := net.Listen(
+		"tcp",
+		fmt.Sprintf("0.0.0.0:%d", constants.DISCORD_SERVER_PORT),
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -1,5 +1,5 @@
+import { PORTS } from '@twir/grpc/constants/constants';
 import * as Integrations from '@twir/grpc/generated/integrations/integrations';
-import { PORTS } from '@twir/grpc/servers/constants';
 import { createServer } from 'nice-grpc';
 
 import { DONATEPAY, DONATIONALERTS, getIntegrations, STREAMLABS } from './libs/db.js';
