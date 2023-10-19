@@ -16,20 +16,36 @@ var (
 	_ = uuid.UUID{}
 )
 
+type ModerationSettingsType string
+
+const (
+	ModerationSettingsTypeLinks       ModerationSettingsType = "links"
+	ModerationSettingsTypeDenylist                           = "denylist"
+	ModerationSettingsTypeSymbols                            = "symbols"
+	ModerationSettingsTypeLongMessage                        = "longMessage"
+	ModerationSettingsTypeCaps                               = "caps"
+	ModerationSettingsTypeEmotes                             = "emotes"
+	ModerationSettingsTypeLanguage                           = "language"
+)
+
+func (c ModerationSettingsType) String() string {
+	return string(c)
+}
+
 type ChannelsModerationSettings struct {
-	ID                 string         `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"  json:"id"`
-	Type               string         `gorm:"column:type;type:VARCHAR;"                        json:"type"`
-	ChannelID          string         `gorm:"column:channelId;type:TEXT;"                      json:"channelId"`
-	Enabled            bool           `gorm:"column:enabled;type:BOOL;default:false;"          json:"enabled"`
-	Subscribers        bool           `gorm:"column:subscribers;type:BOOL;default:false;"      json:"subscribers"`
-	Vips               bool           `gorm:"column:vips;type:BOOL;default:false;"             json:"vips"`
-	BanTime            int32          `gorm:"column:banTime;type:INT4;default:600;"            json:"banTime"`
-	BanMessage         string         `gorm:"column:banMessage;type:TEXT;"                     json:"banMessage"         swaggertype:"string"`
-	WarningMessage     string         `gorm:"column:warningMessage;type:TEXT;"                 json:"warningMessage"     swaggertype:"string"`
-	CheckClips         null.Bool      `gorm:"column:checkClips;type:BOOL;default:false;"       json:"checkClips"         swaggertype:"boolean"`
-	TriggerLength      null.Int       `gorm:"column:triggerLength;type:INT4;default:300;"      json:"triggerLength"      swaggertype:"integer"`
-	MaxPercentage      null.Int       `gorm:"column:maxPercentage;type:INT4;default:50;"       json:"maxPercentage"      swaggertype:"integer"`
-	BlackListSentences pq.StringArray `gorm:"column:blackListSentences;type:JSONB;default:[];" json:"blackListSentences"`
+	ID                    string                 `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"`
+	Type                  ModerationSettingsType `gorm:"column:type;type:VARCHAR;"`
+	ChannelID             string                 `gorm:"column:channel_id;type:TEXT;"`
+	Enabled               bool                   `gorm:"column:enabled;type:BOOL;default:false;"`
+	BanTime               int32                  `gorm:"column:ban_time;type:INT4;default:600;"`
+	BanMessage            string                 `gorm:"column:ban_message;type:TEXT;"`
+	WarningMessage        string                 `gorm:"column:warning_message;type:TEXT;"`
+	CheckClips            bool                   `gorm:"column:check_clips;type:BOOL;default:false;"`
+	TriggerLength         null.Int               `gorm:"column:trigger_length;type:INT4;default:300;"`
+	MaxPercentage         null.Int               `gorm:"column:max_percentage;type:INT4;default:50;"`
+	DenyList              pq.StringArray         `gorm:"column:deny_list;type:JSONB;default:[];"`
+	AcceptedChatLanguages pq.StringArray         `gorm:"column:accepted_chat_languages;type:JSONB;default:[];"`
+	ExcludedRoles         pq.StringArray         `gorm:"column:excluded_roles;type:JSONB;default:[];"`
 }
 
 func (c *ChannelsModerationSettings) TableName() string {

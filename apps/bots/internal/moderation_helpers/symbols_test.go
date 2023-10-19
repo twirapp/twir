@@ -25,6 +25,16 @@ func TestIsToMuchSymbols(t *testing.T) {
 		{name: "should be true", args: args{msg: ".test.", maxPercentage: 1}, want: true, wantCount: 2},
 		{name: "should be true", args: args{msg: "⣿", maxPercentage: 1}, want: true, wantCount: 1},
 		{name: "should be true", args: args{msg: "👉🏿👈🏿 ", maxPercentage: 1}, want: true, wantCount: 4},
+		{
+			name: "test zalgo",
+			args: args{
+				msg: "h̷̻̖̠͖̥͎̜̘̒̓͛͌̑̆͠ͅẻ̴̡̳̘̙͎̙͉͊͗̓ĺ̶̼̈́̎̌̀͜͝l̶̡̙̍͛̒͗̂o" +
+					"̸͙͎͖̺͖͎̺͖͔̳̳̯̖͈̎̀̆̈́̑̃́͛̀̈́̓̓͋̏̚ ̵̘̯̘͈̠͙̞͍̣͓̲̫̈́̍͌̑͆̿̇̈́́̋̿̚͜͠ẅ̴̝̜͘ò̷̧̝͚̠͉̠̲̞͉͐̈́́͑̈̃̄́͠͠r" +
+					"̶̢͓̯̺̘͕̜̪̤̳̟̺̈́́l̷̨̬͙͇̜̪̹͉̐̋̃̔̐͗́̋̌̈̏̉̚ḓ̷͋̐̔͋̑̇̈̾̊̽̚̚͠", maxPercentage: 1,
+			},
+			want:      true,
+			wantCount: 181,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(
