@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { useThrottleFn } from '@vueuse/core';
 import {
 	type DataTableColumns,
 	NDataTable,
@@ -26,9 +25,6 @@ const greetings = greetingsManager.getAll({});
 const greetingsDeleter = greetingsManager.deleteOne;
 const greetingsPatcher = greetingsManager.patch!;
 
-const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
-	greetingsPatcher.mutate({ id, enabled: v });
-}, 500);
 const showModal = ref(false);
 
 const twitchUsersIds = computed(() => {
@@ -85,7 +81,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 				{
 					value: row.enabled,
 					onUpdateValue: (value: boolean) => {
-						throttledSwitchState(row.id!, value);
+						greetingsPatcher.mutate({ id: row.id!, enabled: value });
 					},
 					disabled: !userCanManageGreetings.value,
 				},

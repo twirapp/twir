@@ -3,7 +3,7 @@ import * as LanguageDetector from '@twir/grpc/generated/language-detector/langua
 import cld from 'cld';
 import { createServer } from 'nice-grpc';
 
-const service = {
+const service: LanguageDetector.LanguageDetectorServiceImplementation = {
 	async detect({ text }) {
 		const result = await cld.detect(text);
 

@@ -28,7 +28,10 @@
     },
     "response": "Response",
     "userName": "User name",
-		"dangerZone": "Danger zone"
+		"dangerZone": "Danger zone",
+		"deleted": "Deleted",
+		"updated": "Updated",
+		"disabled": "Disabled"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -53,7 +56,8 @@
     "greetings": "Greetings",
     "alerts": "Alerts",
     "games": "Games",
-    "users": "Users"
+    "users": "Users",
+		"moderation": "Moderation"
   },
   "navbar": {
     "logout": "Logout",
@@ -552,6 +556,38 @@
 			"streamOffline": "Stream offline",
 			"chatCleared": "Chat cleared",
 			"userBanned": "User banned"
+		}
+	},
+	"moderation": {
+		"types": {
+			"links": {
+				"name": "Links",
+				"description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being shared."
+			},
+			"deny_list": {
+				"name": "Deny list",
+				"description": "Helps maintain a clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed."
+			},
+			"symbols": {
+				"name": "Symbols",
+				"description": "Identifies and restricts excessive use of symbols, preventing clutter and maintaining readability in the chat."
+			},
+			"long_message": {
+				"name": "Long message",
+				"description": "Controls chat clutter by limiting the length of messages"
+			},
+			"caps": {
+				"name": "Caps",
+				"description": "Discourages excessive use of capital letters, promoting a more balanced and respectful conversation in the chat."
+			},
+			"emotes": {
+				"name": "Emotes",
+				"description": " Emotes moderation manages the frequency and volume of emoticons used in messages, avoiding overuse and spam of iconic emotes."
+			},
+			"language": {
+				"name": "Language",
+				"description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat."
+			}
 		}
 	}
 }

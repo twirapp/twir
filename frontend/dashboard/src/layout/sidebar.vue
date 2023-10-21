@@ -20,6 +20,7 @@ import {
 	IconSpeakerphone,
 	IconSword,
 	IconUsers,
+
 } from '@tabler/icons-vue';
 import {
 	type MenuDividerOption,
@@ -146,6 +147,12 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 					path: '/dashboard/commands/manage',
 				},
 			],
+		},
+		{
+			label: t('sidebar.moderation'),
+			icon: renderIcon(IconSword),
+			path: '/dashboard/moderation',
+			isNew: true,
 		},
 		{
 			label: t('sidebar.users'),

@@ -2,6 +2,7 @@ package moderation
 
 import (
 	"context"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -55,14 +56,17 @@ func (c *Moderation) convertGrpcToDb(i *moderation.Item) model.ChannelModeration
 	}
 }
 
-func (c *Moderation) ModerationGetAll(ctx context.Context, _ *emptypb.Empty) (*moderation.GetAllResponse, error) {
+func (c *Moderation) ModerationGetAll(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*moderation.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	var entities []model.ChannelModerationSettings
 	if err := c.Db.WithContext(ctx).Where(
 		"channel_id = ?",
 		dashboardId,
-	).Find(&entities).Error; err != nil {
+	).Order("created_at desc").Find(&entities).Error; err != nil {
 		return nil, err
 	}
 
@@ -149,12 +153,13 @@ func (c *Moderation) ModerationEnableOrDisable(
 	}
 
 	entity.Enabled = req.Enabled
+	entity.UpdatedAt = time.Now()
 
 	if err := c.Db.WithContext(ctx).Where(
 		"channel_id = ? AND id = ?",
 		dashboardId,
 		req.Id,
-	).Updates(&entity).Error; err != nil {
+	).Save(&entity).Error; err != nil {
 		return nil, err
 	}
 
