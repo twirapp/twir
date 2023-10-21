@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -19,40 +20,40 @@ func (c *Moderation) convertDbToGrpc(i model.ChannelModerationSettings) moderati
 	return moderation.ItemWithId{
 		Id: i.ID,
 		Data: &moderation.Item{
-			Type:                  i.Type.String(),
-			ChannelId:             i.ChannelID,
-			Enabled:               i.Enabled,
-			BanTime:               i.BanTime,
-			BanMessage:            i.BanMessage,
-			WarningMessage:        i.WarningMessage,
-			CheckClips:            i.CheckClips,
-			TriggerLength:         int32(i.TriggerLength),
-			MaxPercentage:         int32(i.MaxPercentage),
-			DenyList:              i.DenyList,
-			AcceptedChatLanguages: i.AcceptedChatLanguages,
-			ExcludedRoles:         i.ExcludedRoles,
-			MaxWarnings:           int32(i.MaxWarnings),
-			CreatedAt:             i.CreatedAt.String(),
-			UpdatedAt:             i.UpdatedAt.String(),
+			Type:                i.Type.String(),
+			ChannelId:           i.ChannelID,
+			Enabled:             i.Enabled,
+			BanTime:             i.BanTime,
+			BanMessage:          i.BanMessage,
+			WarningMessage:      i.WarningMessage,
+			CheckClips:          i.CheckClips,
+			TriggerLength:       int32(i.TriggerLength),
+			MaxPercentage:       int32(i.MaxPercentage),
+			DenyList:            i.DenyList,
+			DeniedChatLanguages: i.DeniedChatLanguages,
+			ExcludedRoles:       i.ExcludedRoles,
+			MaxWarnings:         int32(i.MaxWarnings),
+			CreatedAt:           i.CreatedAt.String(),
+			UpdatedAt:           i.UpdatedAt.String(),
 		},
 	}
 }
 
 func (c *Moderation) convertGrpcToDb(i *moderation.Item) model.ChannelModerationSettings {
 	return model.ChannelModerationSettings{
-		Type:                  model.ModerationSettingsType(i.Type),
-		ChannelID:             i.ChannelId,
-		Enabled:               i.Enabled,
-		BanTime:               i.BanTime,
-		BanMessage:            i.BanMessage,
-		WarningMessage:        i.WarningMessage,
-		CheckClips:            i.CheckClips,
-		TriggerLength:         int(i.TriggerLength),
-		MaxPercentage:         int(i.MaxPercentage),
-		DenyList:              i.DenyList,
-		AcceptedChatLanguages: i.AcceptedChatLanguages,
-		ExcludedRoles:         i.ExcludedRoles,
-		MaxWarnings:           int(i.MaxWarnings),
+		Type:                model.ModerationSettingsType(i.Type),
+		ChannelID:           i.ChannelId,
+		Enabled:             i.Enabled,
+		BanTime:             i.BanTime,
+		BanMessage:          i.BanMessage,
+		WarningMessage:      i.WarningMessage,
+		CheckClips:          i.CheckClips,
+		TriggerLength:       int(i.TriggerLength),
+		MaxPercentage:       int(i.MaxPercentage),
+		DenyList:            i.DenyList,
+		DeniedChatLanguages: i.DeniedChatLanguages,
+		ExcludedRoles:       i.ExcludedRoles,
+		MaxWarnings:         int(i.MaxWarnings),
 	}
 }
 
@@ -80,14 +81,33 @@ func (c *Moderation) ModerationGetAll(
 	}, nil
 }
 
+func (c *Moderation) convertCreateGrpcTypeToDb(item *moderation.ItemCreateMessage) model.
+	ChannelModerationSettings {
+	return model.ChannelModerationSettings{
+		Type:                model.ModerationSettingsType(item.Type),
+		Enabled:             item.Enabled,
+		BanTime:             item.BanTime,
+		BanMessage:          item.BanMessage,
+		WarningMessage:      item.WarningMessage,
+		CheckClips:          item.CheckClips,
+		TriggerLength:       int(item.TriggerLength),
+		MaxPercentage:       int(item.MaxPercentage),
+		DenyList:            item.DenyList,
+		DeniedChatLanguages: item.DeniedChatLanguages,
+		ExcludedRoles:       item.ExcludedRoles,
+		MaxWarnings:         int(item.MaxWarnings),
+	}
+}
+
 func (c *Moderation) ModerationCreate(
 	ctx context.Context,
 	req *moderation.CreateRequest,
 ) (*moderation.ItemWithId, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	entity := c.convertGrpcToDb(req.Data)
+	entity := c.convertCreateGrpcTypeToDb(req.Data)
 	entity.ChannelID = dashboardId
+	entity.ID = uuid.NewString()
 	if err := c.Db.WithContext(ctx).Create(&entity).Error; err != nil {
 		return nil, err
 	}
@@ -121,8 +141,9 @@ func (c *Moderation) ModerationUpdate(
 ) (*moderation.ItemWithId, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	entity := c.convertGrpcToDb(req.Data)
+	entity := c.convertCreateGrpcTypeToDb(req.Data)
 	entity.ChannelID = dashboardId
+	entity.ID = req.Id
 	if err := c.Db.WithContext(ctx).Where(
 		"channel_id = ? AND id = ?",
 		dashboardId,

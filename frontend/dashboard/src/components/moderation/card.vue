@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { IconSettings, IconSword, IconTrash, IconLanguageOff, IconMessageOff, IconLinkOff, IconAbc, IconMoodOff, IconListLetters, IconAsteriskSimple } from '@tabler/icons-vue';
+import { IconSettings, IconTrash } from '@tabler/icons-vue';
 import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NSwitch, NButton, NPopconfirm, useNotification } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useModerationManager, useUserAccessFlagChecker } from '@/api';
+import { availableSettings } from './helpers.js';
+
+import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
 
 const props = defineProps<{
@@ -26,19 +28,6 @@ const { t } = useI18n();
 
 const userCanManageModeration = useUserAccessFlagChecker('MANAGE_MODERATION');
 
-const icon = computed(() => {
-	switch (props.item.data!.type) {
-		case 'links': return IconLinkOff;
-		case 'language': return IconLanguageOff;
-		case 'deny_list': return IconListLetters;
-		case 'long_message': return IconMessageOff;
-		case 'caps': return IconAbc;
-		case 'emotes': return IconMoodOff;
-		case 'symbols': return IconAsteriskSimple;
-		default: return IconSword;
-	}
-});
-
 const message = useNotification();
 
 const switchState = async (id: string, v: boolean) => {
@@ -48,12 +37,11 @@ const switchState = async (id: string, v: boolean) => {
 		await patcher.mutateAsync({ id, enabled: v });
 		props.item.data!.enabled = v;
 
-		const statusText = t(`sharedTexts.${v ? 'enabled' : 'disabled'}`).toLocaleLowerCase();
-
-		message.success({
-			title: `${t(`moderation.types.${props.item.data!.type}.name`)} ${statusText}`,
-			duration: 1500,
-		});
+		// const statusText = t(`sharedTexts.${v ? 'enabled' : 'disabled'}`).toLocaleLowerCase();
+		// message.success({
+		// 	title: `${t(`moderation.types.${props.item.data!.type}.name`)} ${statusText}`,
+		// 	duration: 1500,
+		// });
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -68,12 +56,14 @@ async function removeItem() {
 		duration: 2000,
 	});
 }
+
+const itemSettings = availableSettings.find(s => s.type === props.item.data!.type)!;
 </script>
 
 <template>
 	<card
 		:title="t(`moderation.types.${item.data!.type}.name`)"
-		:icon="icon"
+		:icon="itemSettings.icon"
 		style="height:100%"
 	>
 		<template #headerExtra>

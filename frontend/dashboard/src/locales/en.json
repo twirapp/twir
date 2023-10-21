@@ -559,6 +559,7 @@
 		}
 	},
 	"moderation": {
+		"createNewRule": "Create new moderation rule",
 		"types": {
 			"links": {
 				"name": "Links",

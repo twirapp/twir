@@ -30,7 +30,7 @@ CREATE TABLE "channels_moderation_settings" (
 		"trigger_length" integer NOT NULL default 0,
 		"max_percentage" integer NOT NULL default 0,
 		"deny_list" text[] NOT NULL default '{}',
-		"accepted_chat_languages" text[] NOT NULL default '{}',
+		"denied_chat_languages" text[] NOT NULL default '{}',
 		"excluded_roles" text[] NOT NULL default '{}',
 		CONSTRAINT "channels_moderation_settings_pkey" PRIMARY KEY ("id")
 );
