@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { NSpin } from 'naive-ui';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
@@ -89,3 +90,20 @@ onMounted(async () => {
 	});
 });
 </script>
+
+<template>
+	<div class="body">
+		<n-spin size="large" />
+	</div>
+</template>
+
+<style scoped>
+.body {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #0f0f14;
+	width: 100%;
+	height: 100%;
+}
+</style>

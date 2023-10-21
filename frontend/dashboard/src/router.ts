@@ -11,6 +11,10 @@ type Route = Omit<RouteRecordRaw, 'meta' | 'children'> & {
 export const newRouter = (queryClient: QueryClient) => {
 	const routes: ReadonlyArray<Route> = [
 		{
+			path: '/dashboard/integrations/:integrationName',
+			component: () => import('./pages/IntegrationsCallback.vue'),
+		},
+		{
 			path: '/dashboard',
 			component: () => import('./layout/layout.vue'),
 			children: [
@@ -26,10 +30,6 @@ export const newRouter = (queryClient: QueryClient) => {
 					path: '/dashboard/integrations',
 					component: () => import('./pages/Integrations.vue'),
 					meta: { neededPermission: 'VIEW_INTEGRATIONS' },
-				},
-				{
-					path: '/dashboard/integrations/:integrationName',
-					component: () => import('./pages/IntegrationsCallback.vue'),
 				},
 				{
 					path: '/dashboard/commands/:system',
