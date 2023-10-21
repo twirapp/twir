@@ -14,10 +14,34 @@ import (
 	"github.com/samber/lo"
 )
 
-func (c *ChatClient) onMessage(msg *Message) {
+func (c *ChatClient) onMessage(msg Message) {
+	ctx, cancel := context.WithTimeout(context.Background(), 510*time.Second)
+	defer cancel()
+
+	stream := model.ChannelsStreams{}
+	if err := c.services.DB.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error; err != nil {
+		c.services.Logger.Error(
+			"cannot get stream",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+		)
+		return
+	}
+	msg.DbStream = stream
+
 	userBadges := createUserBadges(msg.User.Badges)
 	// this need to be first because if we have no user in db it will produce many bugs
-	c.updateUserStats(msg.User.ID, msg.Channel.ID, userBadges)
+	user, err := c.updateUserStats(msg, userBadges)
+	msg.DbUser = user
+	if err != nil {
+		c.services.Logger.Error(
+			"cannot update user stats",
+			slog.Any("err", err),
+			slog.String("channelId", msg.Channel.ID),
+			slog.String("userId", msg.User.ID),
+		)
+		return
+	}
 
 	var dbChannel model.Channels
 	if err := c.services.DB.Where("id = ?", msg.Channel.ID).Find(&dbChannel).Error; err != nil {
@@ -28,6 +52,7 @@ func (c *ChatClient) onMessage(msg *Message) {
 		)
 		return
 	}
+	msg.DbChannel = dbChannel
 
 	if dbChannel.IsBotMod {
 		c.workersPool.Submit(
@@ -61,6 +86,12 @@ func (c *ChatClient) onMessage(msg *Message) {
 		c.workersPool.Submit(
 			func() {
 				c.handleEmotes(msg)
+			},
+		)
+
+		c.workersPool.Submit(
+			func() {
+				c.handleModeration(ctx, msg)
 			},
 		)
 	}

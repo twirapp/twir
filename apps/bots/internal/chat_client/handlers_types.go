@@ -1,6 +1,9 @@
 package chat_client
 
-import irc "github.com/gempir/go-twitch-irc/v3"
+import (
+	irc "github.com/gempir/go-twitch-irc/v3"
+	model "github.com/satont/twir/libs/gomodels"
+)
 
 type MessageUser struct {
 	ID          string
@@ -33,4 +36,8 @@ type Message struct {
 	Message string
 	Emotes  []*irc.Emote
 	Tags    map[string]string
+
+	DbChannel model.Channels
+	DbUser    model.Users
+	DbStream  model.ChannelsStreams
 }

@@ -19,6 +19,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -71,31 +72,34 @@ type ChatClient struct {
 }
 
 type services struct {
-	DB             *gorm.DB
-	Cfg            cfg.Config
-	Logger         logger.Logger
-	Model          *model.Bots
-	ParserGrpc     parser.ParserClient
-	TokensGrpc     tokens.TokensClient
-	EventsGrpc     events.EventsClient
-	WebsocketsGrpc websockets.WebsocketClient
-	Redis          *redis.Client
-	TwitchClient   *helix.Client
-	tlds           *tlds.TLDS
+	DB           *gorm.DB
+	Cfg          cfg.Config
+	Logger       logger.Logger
+	Model        *model.Bots
+	Redis        *redis.Client
+	TwitchClient *helix.Client
+	tlds         *tlds.TLDS
+
+	ParserGrpc       parser.ParserClient
+	TokensGrpc       tokens.TokensClient
+	EventsGrpc       events.EventsClient
+	LanguageDetector language_detector.LanguageDetectorClient
+	WebsocketsGrpc   websockets.WebsocketClient
 }
 
 type Opts struct {
-	DB              *gorm.DB
-	Cfg             cfg.Config
-	Logger          logger.Logger
-	Model           *model.Bots
-	ParserGrpc      parser.ParserClient
-	TokensGrpc      tokens.TokensClient
-	EventsGrpc      events.EventsClient
-	WebsocketsGrpc  websockets.WebsocketClient
-	Redis           *redis.Client
-	JoinRateLimiter ratelimiting.SlidingWindow
-	Tlds            *tlds.TLDS
+	DB               *gorm.DB
+	Cfg              cfg.Config
+	Logger           logger.Logger
+	Model            *model.Bots
+	ParserGrpc       parser.ParserClient
+	TokensGrpc       tokens.TokensClient
+	EventsGrpc       events.EventsClient
+	WebsocketsGrpc   websockets.WebsocketClient
+	LanguageDetector language_detector.LanguageDetectorClient
+	Redis            *redis.Client
+	JoinRateLimiter  ratelimiting.SlidingWindow
+	Tlds             *tlds.TLDS
 }
 
 func New(opts Opts) *ChatClient {
@@ -139,17 +143,18 @@ func New(opts Opts) *ChatClient {
 	linksR, linksWithSpacesR := moderation_helpers.BuildLinksModerationRegexps(opts.Tlds.List)
 
 	serv := &services{
-		DB:             opts.DB,
-		Cfg:            opts.Cfg,
-		Logger:         opts.Logger,
-		Model:          opts.Model,
-		ParserGrpc:     opts.ParserGrpc,
-		TokensGrpc:     opts.TokensGrpc,
-		EventsGrpc:     opts.EventsGrpc,
-		WebsocketsGrpc: opts.WebsocketsGrpc,
-		Redis:          opts.Redis,
-		TwitchClient:   twitchClient,
-		tlds:           opts.Tlds,
+		DB:               opts.DB,
+		Cfg:              opts.Cfg,
+		Logger:           opts.Logger,
+		Model:            opts.Model,
+		ParserGrpc:       opts.ParserGrpc,
+		TokensGrpc:       opts.TokensGrpc,
+		EventsGrpc:       opts.EventsGrpc,
+		WebsocketsGrpc:   opts.WebsocketsGrpc,
+		Redis:            opts.Redis,
+		TwitchClient:     twitchClient,
+		tlds:             opts.Tlds,
+		LanguageDetector: opts.LanguageDetector,
 	}
 
 	s := &ChatClient{

@@ -13,7 +13,7 @@ import (
 	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
-func (c *ChatClient) handleTts(msg *Message, userBadges []string) {
+func (c *ChatClient) handleTts(msg Message, userBadges []string) {
 	if strings.HasPrefix(msg.Message, "!") {
 		return
 	}

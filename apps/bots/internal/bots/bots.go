@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
@@ -25,13 +26,14 @@ import (
 type Opts struct {
 	fx.In
 
-	DB             *gorm.DB
-	Logger         logger.Logger
-	Cfg            cfg.Config
-	ParserGrpc     parser.ParserClient
-	TokensGrpc     tokens.TokensClient
-	EventsGrpc     events.EventsClient
-	WebsocketsGrpc websockets.WebsocketClient
+	DB               *gorm.DB
+	Logger           logger.Logger
+	Cfg              cfg.Config
+	ParserGrpc       parser.ParserClient
+	TokensGrpc       tokens.TokensClient
+	EventsGrpc       events.EventsClient
+	WebsocketsGrpc   websockets.WebsocketClient
+	LanguageDetector language_detector.LanguageDetectorClient
 
 	Tlds  *tlds.TLDS
 	Redis *redis.Client
@@ -76,17 +78,18 @@ func NewBotsService(opts Opts) *Service {
 		bot := bot
 		instance := newBot(
 			ClientOpts{
-				DB:              opts.DB,
-				Cfg:             opts.Cfg,
-				Logger:          opts.Logger,
-				Model:           &bot,
-				ParserGrpc:      opts.ParserGrpc,
-				TokensGrpc:      opts.TokensGrpc,
-				EventsGrpc:      opts.EventsGrpc,
-				WebsocketsGrpc:  opts.WebsocketsGrpc,
-				Redis:           opts.Redis,
-				JoinRateLimiter: joinRateLimiter,
-				Tlds:            opts.Tlds,
+				DB:               opts.DB,
+				Cfg:              opts.Cfg,
+				Logger:           opts.Logger,
+				Model:            &bot,
+				ParserGrpc:       opts.ParserGrpc,
+				TokensGrpc:       opts.TokensGrpc,
+				EventsGrpc:       opts.EventsGrpc,
+				WebsocketsGrpc:   opts.WebsocketsGrpc,
+				Redis:            opts.Redis,
+				JoinRateLimiter:  joinRateLimiter,
+				Tlds:             opts.Tlds,
+				LanguageDetector: opts.LanguageDetector,
 			},
 		)
 

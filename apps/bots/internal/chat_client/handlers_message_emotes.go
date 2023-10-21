@@ -11,7 +11,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *ChatClient) handleEmotes(msg *Message) {
+func (c *ChatClient) handleEmotes(msg Message) {
 	emotes := make(map[string]int)
 
 	for _, emote := range msg.Emotes {
