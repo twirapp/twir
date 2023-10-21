@@ -32,7 +32,7 @@ type moderationHandleResult struct {
 var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 	c *moderationService,
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult{
 	model.ModerationSettingsTypeLinks:       (*moderationService).linksParser,
@@ -45,7 +45,7 @@ var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 }
 
 func (c *moderationService) getChannelSettings(ctx context.Context, channelId string) (
-	[]model.ChannelsModerationSettings,
+	[]model.ChannelModerationSettings,
 	error,
 ) {
 	cacheKey := fmt.Sprintf("channels:%s:moderation_settings:*", channelId)
@@ -55,11 +55,11 @@ func (c *moderationService) getChannelSettings(ctx context.Context, channelId st
 		return nil, err
 	}
 
-	var settings []model.ChannelsModerationSettings
+	var settings []model.ChannelModerationSettings
 
 	if len(cachedKeys) > 0 {
 		for _, key := range cachedKeys {
-			var item model.ChannelsModerationSettings
+			var item model.ChannelModerationSettings
 			if err := c.Redis.Get(ctx, key).Scan(&item); err != nil {
 				return nil, err
 			}
@@ -170,7 +170,7 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 func (c *moderationService) returnByWarnedState(
 	ctx context.Context,
 	userID string,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 ) *moderationHandleResult {
 	warningRedisKey := fmt.Sprintf(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
@@ -217,7 +217,7 @@ func (c *moderationService) returnByWarnedState(
 
 func (c *moderationService) linksParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	containLink := moderation_helpers.HasLink(c.linksWithSpacesRegexp, ircMsg.Message)
@@ -248,7 +248,7 @@ func (c *moderationService) linksParser(
 
 func (c *moderationService) denyListParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	hasDeniedWord := moderation_helpers.HasDeniedWord(ircMsg.Message, settings.DenyList)
@@ -261,7 +261,7 @@ func (c *moderationService) denyListParser(
 
 func (c *moderationService) symbolsParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	if len(ircMsg.Message) < settings.TriggerLength {
@@ -278,7 +278,7 @@ func (c *moderationService) symbolsParser(
 
 func (c *moderationService) longMessageParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	isToLong := moderation_helpers.IsTooLong(ircMsg.Message, settings.TriggerLength)
@@ -292,7 +292,7 @@ func (c *moderationService) longMessageParser(
 
 func (c *moderationService) capsParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	msg := ircMsg.Message
@@ -311,7 +311,7 @@ func (c *moderationService) capsParser(
 
 func (c *moderationService) emotesParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	if settings.TriggerLength == 0 {
@@ -333,7 +333,7 @@ func (c *moderationService) emotesParser(
 
 func (c *moderationService) languageParser(
 	ctx context.Context,
-	settings model.ChannelsModerationSettings,
+	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
 	detected, err := c.LanguageDetector.Detect(

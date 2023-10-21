@@ -14,6 +14,7 @@ import "api/timers.proto";
 import "api/roles.proto";
 import "api/variables.proto";
 import "api/commands_group.proto";
+import "api/moderation.proto";
 
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
@@ -205,6 +206,13 @@ service Protected {
 	rpc OverlaysDelete(api.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc OverlaysCreate(api.overlays.CreateRequest) returns (api.overlays.Overlay) {}
 	rpc OverlaysParseHtml(api.overlays.ParseHtmlOverlayRequest) returns (api.overlays.ParseHtmlOverlayResponse) {}
+
+
+	rpc ModerationGetAll(google.protobuf.Empty) returns (api.moderation.GetAllResponse) {}
+	rpc ModerationCreate(api.moderation.CreateRequest) returns (api.moderation.ItemWithId) {}
+	rpc ModerationDelete(api.moderation.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc ModerationUpdate(api.moderation.UpdateRequest) returns (api.moderation.ItemWithId) {}
+	rpc ModerationEnableOrDisable(api.moderation.PatchRequest) returns (api.moderation.ItemWithId) {}
 }
 
 // UnProtected

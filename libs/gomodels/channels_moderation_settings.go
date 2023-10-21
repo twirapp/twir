@@ -32,7 +32,7 @@ func (c ModerationSettingsType) String() string {
 	return string(c)
 }
 
-type ChannelsModerationSettings struct {
+type ChannelModerationSettings struct {
 	ID        string                 `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
 	Type      ModerationSettingsType `gorm:"column:type;type:VARCHAR;" json:"type"`
 	ChannelID string                 `gorm:"column:channel_id;type:TEXT;" json:"channel_id"`
@@ -54,6 +54,6 @@ type ChannelsModerationSettings struct {
 	UpdatedAt time.Time `gorm:"column:updated_at;type:TIMESTAMPTZ;default:now();" json:"updated_at"`
 }
 
-func (c *ChannelsModerationSettings) TableName() string {
+func (c *ChannelModerationSettings) TableName() string {
 	return "channels_moderation_settings"
 }
