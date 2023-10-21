@@ -328,6 +328,44 @@ func (c *moderationService) emotesParser(
 		return nil
 	}
 
+	channelEmotesKeys, err := c.Redis.Keys(
+		ctx,
+		fmt.Sprintf("emotes:channel:%s:*", settings.ChannelID),
+	).Result()
+	if err != nil {
+		c.services.Logger.Error("cannot get channel emotes", slog.Any("err", err))
+		return nil
+	}
+	for _, key := range channelEmotesKeys {
+		key = strings.Replace(key, fmt.Sprintf("emotes:channel:%s:", settings.ChannelID), "", 1)
+	}
+
+	splittedMsg := strings.Split(ircMsg.Message, " ")
+
+	for _, word := range splittedMsg {
+		if slices.Contains(channelEmotesKeys, word) {
+			length++
+		}
+	}
+
+	globalEmotesKeys, err := c.Redis.Keys(
+		ctx,
+		fmt.Sprintf("emotes:global:*"),
+	).Result()
+	if err != nil {
+		c.services.Logger.Error("cannot get global emotes", slog.Any("err", err))
+		return nil
+	}
+	for _, key := range globalEmotesKeys {
+		key = strings.Replace(key, fmt.Sprintf("emotes:global:"), "", 1)
+	}
+
+	for _, word := range splittedMsg {
+		if slices.Contains(globalEmotesKeys, word) {
+			length++
+		}
+	}
+
 	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
 }
 
