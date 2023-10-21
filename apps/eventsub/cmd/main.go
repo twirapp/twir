@@ -19,6 +19,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/types"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"

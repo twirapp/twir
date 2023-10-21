@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/apps/emotes-cacher/internal/di"
 	"github.com/satont/twir/apps/emotes-cacher/internal/grpc_impl"
 	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

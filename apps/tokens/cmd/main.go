@@ -19,6 +19,7 @@ import (
 	"github.com/satont/twir/apps/tokens/internal/di"
 	"github.com/satont/twir/apps/tokens/internal/grpc_impl"
 	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"

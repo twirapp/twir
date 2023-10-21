@@ -10,6 +10,7 @@ import (
 
 	"github.com/satont/twir/apps/ytsr/internal/grpc_impl"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

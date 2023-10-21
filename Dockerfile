@@ -187,6 +187,7 @@ CMD ["pnpm", "--filter=@twir/eval", "start"]
 
 FROM builder as language-detector_builder
 RUN cd apps/language-detector && \
+    pnpm build && \
     pnpm prune --prod
 
 FROM node_prod_base as language-detector

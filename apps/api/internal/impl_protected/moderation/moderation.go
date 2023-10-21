@@ -55,7 +55,7 @@ func (c *Moderation) convertGrpcToDb(i *moderation.Item) model.ChannelModeration
 	}
 }
 
-func (c *Moderation) ModerationGetAll(ctx context.Context) (*moderation.GetAllResponse, error) {
+func (c *Moderation) ModerationGetAll(ctx context.Context, _ *emptypb.Empty) (*moderation.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	var entities []model.ChannelModerationSettings

@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/apps/events/internal/grpc_impl"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/events"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

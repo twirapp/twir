@@ -16,6 +16,7 @@ import (
 	"google.golang.org/grpc/keepalive"
 
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
 

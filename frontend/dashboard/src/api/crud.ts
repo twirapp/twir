@@ -17,9 +17,9 @@ const createCrudManager = <
 	Update extends CallFunc<any, any>,
 >(opts: {
 	getAll: GetAll,
-	getOne: GetOne | null,
+	getOne?: GetOne | null,
 	deleteOne: Delete,
-	patch: Patch | null,
+	patch?: Patch | null,
 	create: Create,
 	update: Update,
 
@@ -209,4 +209,13 @@ export const useOverlaysRegistry = () => createCrudManager({
 	patch: null,
 	deleteOne: protectedApiClient?.overlaysDelete,
 	getOne: protectedApiClient?.overlaysGetOne,
+});
+
+export const useModerationManager = () => createCrudManager({
+	queryKey: 'moderation',
+	getAll: protectedApiClient?.moderationGetAll,
+	update: protectedApiClient?.moderationUpdate,
+	create: protectedApiClient?.moderationCreate,
+	deleteOne: protectedApiClient?.moderationDelete,
+	patch: protectedApiClient?.moderationEnableOrDisable,
 });

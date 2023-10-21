@@ -1,9 +1,9 @@
 {
   "name": "@twir/language-detector",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-		"start": "node src/index.js"
+		"start": "node dist/index.js"
 	},
   "dependencies": {
     "@twir/grpc": "workspace:^",

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 
 	"google.golang.org/grpc"

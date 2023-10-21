@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"google.golang.org/grpc"
 

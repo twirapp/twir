@@ -16,6 +16,7 @@ import (
 	"github.com/lib/pq"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"google.golang.org/grpc"
 

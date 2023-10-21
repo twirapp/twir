@@ -22,6 +22,7 @@ import (
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
