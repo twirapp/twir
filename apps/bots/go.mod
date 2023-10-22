@@ -6,6 +6,7 @@ require (
 	github.com/aidenwallis/go-ratelimiting v0.0.1
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/getsentry/sentry-go v0.25.0
+	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.3.0
 	github.com/imroc/req/v3 v3.42.1
 	github.com/lib/pq v1.10.9
@@ -40,12 +41,10 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/deckarep/golang-set/v2 v2.3.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/gaukas/godicttls v0.0.4 // indirect
 	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
