@@ -5,9 +5,7 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-RUN apk add --no-cache \
-		git curl wget upx protoc libc6-compat g++ python \
-    ; \
+RUN apk add --no-cache git curl wget upx protoc libc6-compat g++ python3
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
