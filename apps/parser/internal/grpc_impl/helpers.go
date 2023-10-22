@@ -3,6 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"time"
 
 	"github.com/samber/lo"
@@ -116,11 +117,24 @@ func (c *ParserGrpcServer) isUserHasPermissionToCommand(
 		return true
 	}
 
-	if len(command.RolesIDS) == 0 {
+	if dbUser.IsBotAdmin {
 		return true
 	}
 
-	if dbUser.IsBotAdmin {
+	if slices.Contains(command.DeniedUsersIDS, userId) {
+		return false
+	}
+
+	if lo.SomeBy(
+		command.AllowedUsersIDS, func(id string) bool {
+			return id == userId
+		},
+	) {
+		// allowed user
+		return true
+	}
+
+	if len(command.RolesIDS) == 0 {
 		return true
 	}
 
@@ -135,23 +149,6 @@ func (c *ParserGrpcServer) isUserHasPermissionToCommand(
 		if userHasRole {
 			return true
 		}
-	}
-
-	if lo.SomeBy(
-		command.DeniedUsersIDS, func(id string) bool {
-			return id == userId
-		},
-	) {
-		return false
-	}
-
-	if lo.SomeBy(
-		command.AllowedUsersIDS, func(id string) bool {
-			return id == userId
-		},
-	) {
-		// allowed user
-		return true
 	}
 
 	for _, commandRole := range command.RolesIDS {
