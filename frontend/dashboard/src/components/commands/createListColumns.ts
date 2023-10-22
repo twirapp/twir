@@ -8,6 +8,7 @@ import type { ListRowData, EditableCommand } from '@/components/commands/types.j
 import { renderIcon } from '@/helpers/index.js';
 
 type Deleter = ReturnType<typeof useCommandsManager>['deleteOne']
+type Patcher = ReturnType<typeof useCommandsManager>['patch']
 
 const rgbaPattern = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)/;
 const computeGroupTextColor = (color?: string) => {
@@ -25,7 +26,7 @@ const computeGroupTextColor = (color?: string) => {
 export const createListColumns = (
 	editCommand: (command: EditableCommand) => void,
 	deleter: Deleter,
-	patcher: (id: string, value: boolean) => any,
+	patcher: Patcher,
 ) => {
 	const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 	const { t } = useI18n();
@@ -87,7 +88,7 @@ export const createListColumns = (
 						disabled: !userCanManageCommands.value,
 						onUpdateValue: (value: boolean) => {
 							row.enabled = value;
-							patcher(row.id, value);
+							patcher!.mutateAsync({ commandId: row.id, enabled: value });
 						},
 					},
 					{ default: () => row.enabled },

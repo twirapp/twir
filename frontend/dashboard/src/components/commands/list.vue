@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { type Command } from '@twir/grpc/generated/api/api/commands';
-import { useThrottleFn } from '@vueuse/core';
 import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -26,10 +25,6 @@ const props = withDefaults(defineProps<{
 const commandsManager = useCommandsManager();
 const commandsDeleter = commandsManager.deleteOne;
 const commandsPatcher = commandsManager.patch!;
-
-const throttledSwitchState = useThrottleFn((commandId: string, v: boolean) => {
-	commandsPatcher.mutate({ commandId, enabled: v });
-}, 500);
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;
@@ -90,7 +85,7 @@ function onModalClose() {
 
 const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 
-const columns = createListColumns(editCommand, commandsDeleter, throttledSwitchState);
+const columns = createListColumns(editCommand, commandsDeleter, commandsPatcher);
 </script>
 
 <template>

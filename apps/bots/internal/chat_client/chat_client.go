@@ -3,6 +3,7 @@ package chat_client
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 	"sync"
 	"time"
@@ -12,10 +13,13 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/bots/internal/moderation_helpers"
+	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -63,32 +67,39 @@ type ChatClient struct {
 	RateLimiters RateLimiters
 	Model        *model.Bots
 	TwitchUser   *helix.User
+
+	moderationService *moderationService
 }
 
 type services struct {
-	DB             *gorm.DB
-	Cfg            cfg.Config
-	Logger         logger.Logger
-	Model          *model.Bots
-	ParserGrpc     parser.ParserClient
-	TokensGrpc     tokens.TokensClient
-	EventsGrpc     events.EventsClient
-	WebsocketsGrpc websockets.WebsocketClient
-	Redis          *redis.Client
-	TwitchClient   *helix.Client
+	DB           *gorm.DB
+	Cfg          cfg.Config
+	Logger       logger.Logger
+	Model        *model.Bots
+	Redis        *redis.Client
+	TwitchClient *helix.Client
+	tlds         *tlds.TLDS
+
+	ParserGrpc       parser.ParserClient
+	TokensGrpc       tokens.TokensClient
+	EventsGrpc       events.EventsClient
+	LanguageDetector language_detector.LanguageDetectorClient
+	WebsocketsGrpc   websockets.WebsocketClient
 }
 
 type Opts struct {
-	DB              *gorm.DB
-	Cfg             cfg.Config
-	Logger          logger.Logger
-	Model           *model.Bots
-	ParserGrpc      parser.ParserClient
-	TokensGrpc      tokens.TokensClient
-	EventsGrpc      events.EventsClient
-	WebsocketsGrpc  websockets.WebsocketClient
-	Redis           *redis.Client
-	JoinRateLimiter ratelimiting.SlidingWindow
+	DB               *gorm.DB
+	Cfg              cfg.Config
+	Logger           logger.Logger
+	Model            *model.Bots
+	ParserGrpc       parser.ParserClient
+	TokensGrpc       tokens.TokensClient
+	EventsGrpc       events.EventsClient
+	WebsocketsGrpc   websockets.WebsocketClient
+	LanguageDetector language_detector.LanguageDetectorClient
+	Redis            *redis.Client
+	JoinRateLimiter  ratelimiting.SlidingWindow
+	Tlds             *tlds.TLDS
 }
 
 func New(opts Opts) *ChatClient {
@@ -98,6 +109,25 @@ func New(opts Opts) *ChatClient {
 	if err != nil {
 		panic(err)
 	}
+
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		for {
+			select {
+			case <-ticker.C:
+				res, err := opts.TokensGrpc.RequestBotToken(
+					context.Background(),
+					&tokens.GetBotTokenRequest{BotId: opts.Model.ID},
+				)
+				if err != nil {
+					opts.Logger.Error("cannot refresh bot token", slog.Any("err", err))
+					continue
+				}
+
+				twitchClient.SetUserAccessToken(res.AccessToken)
+			}
+		}
+	}()
 
 	meReq, _ := twitchClient.GetUsers(
 		&helix.UsersParams{
@@ -110,23 +140,29 @@ func New(opts Opts) *ChatClient {
 
 	me := meReq.Data.Users[0]
 
+	linksR, linksWithSpacesR := moderation_helpers.BuildLinksModerationRegexps(opts.Tlds.List)
+
+	serv := &services{
+		DB:               opts.DB,
+		Cfg:              opts.Cfg,
+		Logger:           opts.Logger,
+		Model:            opts.Model,
+		ParserGrpc:       opts.ParserGrpc,
+		TokensGrpc:       opts.TokensGrpc,
+		EventsGrpc:       opts.EventsGrpc,
+		WebsocketsGrpc:   opts.WebsocketsGrpc,
+		Redis:            opts.Redis,
+		TwitchClient:     twitchClient,
+		tlds:             opts.Tlds,
+		LanguageDetector: opts.LanguageDetector,
+	}
+
 	s := &ChatClient{
 		joinMu:           &sync.Mutex{},
 		channelsToReader: utils.NewSyncMap[*BotClientIrc](),
-		services: &services{
-			DB:             opts.DB,
-			Cfg:            opts.Cfg,
-			Logger:         opts.Logger,
-			Model:          opts.Model,
-			ParserGrpc:     opts.ParserGrpc,
-			TokensGrpc:     opts.TokensGrpc,
-			EventsGrpc:     opts.EventsGrpc,
-			WebsocketsGrpc: opts.WebsocketsGrpc,
-			Redis:          opts.Redis,
-			TwitchClient:   twitchClient,
-		},
-		TwitchUser: &me,
-		Model:      opts.Model,
+		services:         serv,
+		TwitchUser:       &me,
+		Model:            opts.Model,
 		RateLimiters: RateLimiters{
 			Global: globalChatRateLimiter,
 			Channels: ChannelsRateLimiter{
@@ -135,6 +171,12 @@ func New(opts Opts) *ChatClient {
 		},
 		workersPool:     gopool.NewPool(1000),
 		joinRateLimiter: opts.JoinRateLimiter,
+		moderationService: &moderationService{
+			services:               serv,
+			linksRegexp:            linksR,
+			linksWithSpacesRegexp:  linksWithSpacesR,
+			messagesTimeouterStore: utils.NewTtlSyncMap[struct{}](10 * time.Second),
+		},
 	}
 	s.CreateWriter()
 

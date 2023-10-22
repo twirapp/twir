@@ -1,20 +1,20 @@
-import { QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import { QueryClient, QueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { Dashboard, Profile } from '@twir/grpc/generated/api/api/auth';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
+export const profileQueryOptions = {
+	queryKey: ['authProfile'],
+	queryFn: async () => {
+		const call = await protectedApiClient.authUserProfile({});
+		return call.response;
+	},
+	retry: false,
+} satisfies QueryOptions;
 
-const profileQueryKey = ['authProfile'];
-export const useProfile = () =>
-	useQuery<Profile | null>({
-		queryKey: profileQueryKey,
-		queryFn: async () => {
-			const call = await protectedApiClient.authUserProfile({});
-			return call.response;
-		},
-		retry: false,
-	});
+export const useProfile = () => useQuery<Profile | null>(profileQueryOptions);
+
 
 export const useLogout = () => useMutation({
 	mutationKey: ['authLogout'],
@@ -26,23 +26,16 @@ export const useLogout = () => useMutation({
 	},
 });
 
-export const getProfile = async (queryClient: QueryClient) => {
-	const call = await protectedApiClient.authUserProfile({});
-	queryClient.setQueryData(profileQueryKey, call.response);
 
-	const dashboardsCall = await protectedApiClient.authGetDashboards({});
-	queryClient.setQueryData(dashboardsQueryKey, dashboardsCall.response);
-};
-
-const dashboardsQueryKey = ['authDashboards'];
-
-export const useDashboards = () => useQuery({
-	queryKey: dashboardsQueryKey,
+export const dashboardsQueryOptions = {
+	queryKey: ['authDashboards'],
 	queryFn: async () => {
 		const call = await protectedApiClient.authGetDashboards({});
 		return call.response;
 	},
-});
+} satisfies QueryOptions;
+
+export const useDashboards = () => useQuery(dashboardsQueryOptions);
 
 export const useSetDashboard = () => {
 	const queryClient = useQueryClient();
@@ -128,8 +121,8 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
-	const profile = await queryClient.getQueryData(profileQueryKey) as Profile | null;
-	const { dashboards } = await queryClient.getQueryData(dashboardsQueryKey) as {
+	const profile = await queryClient.getQueryData(profileQueryOptions.queryKey) as Profile | null;
+	const { dashboards } = await queryClient.getQueryData(dashboardsQueryOptions.queryKey) as {
 		dashboards: Dashboard[]
 	};
 

@@ -3,17 +3,18 @@ package grpc_server
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net"
+	"time"
+
 	"github.com/satont/twir/apps/timers/internal/queue"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/timers"
-	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
-	"net"
-	"time"
 )
 
 type server struct {
@@ -25,7 +26,7 @@ type server struct {
 func New(queue *queue.Queue, logger logger.Logger, lc fx.Lifecycle) error {
 	server := &server{queue: queue}
 
-	addr := fmt.Sprintf("0.0.0.0:%v", servers.TIMERS_SERVER_PORT)
+	addr := fmt.Sprintf("0.0.0.0:%v", constants.TIMERS_SERVER_PORT)
 	lis, err := net.Listen("tcp", addr)
 	if err != nil {
 		return err
@@ -64,6 +65,9 @@ func (c *server) AddTimerToQueue(_ context.Context, t *timers.Request) (*emptypb
 	return &emptypb.Empty{}, c.queue.Add(t.TimerId)
 }
 
-func (c *server) RemoveTimerFromQueue(_ context.Context, t *timers.Request) (*emptypb.Empty, error) {
+func (c *server) RemoveTimerFromQueue(_ context.Context, t *timers.Request) (
+	*emptypb.Empty,
+	error,
+) {
 	return &emptypb.Empty{}, c.queue.Remove(t.TimerId)
 }

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { type Timer } from '@twir/grpc/generated/api/api/timers';
-import { useThrottleFn } from '@vueuse/core';
 import { type DataTableColumns, NButton, NDataTable, NModal, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -15,10 +14,6 @@ const timersManager = useTimersManager();
 const timers = timersManager.getAll({});
 const timersDeleter = timersManager.deleteOne;
 const timersPatcher = timersManager.patch!;
-
-const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
-	timersPatcher.mutate({ id, enabled: v });
-}, 500);
 
 const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 
@@ -64,8 +59,8 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 			return h(NSwitch, {
 				value: row.enabled,
 				disabled: !userCanManageTimers.value,
-				onUpdateValue: (value) => {
-					throttledSwitchState(row.id, value);
+				onUpdateValue: (v) => {
+					timersPatcher.mutate({ id: row.id!, enabled: v });
 				},
 			});
 		},

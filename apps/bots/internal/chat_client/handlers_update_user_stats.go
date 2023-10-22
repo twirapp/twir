@@ -9,70 +9,68 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *ChatClient) updateUserStats(userId, channelId string, badges []string) {
-	stream := model.ChannelsStreams{}
-	if err := c.services.DB.Where(`"userId" = ?`, channelId).Find(&stream).Error; err != nil {
-		c.services.Logger.Error(
-			"cannot get channel stream",
-			slog.Any("err", err),
-			slog.String("channelId", channelId),
-		)
-		return
-	}
-
+func (c *ChatClient) updateUserStats(
+	msg Message,
+	badges []string,
+) (
+	model.Users,
+	error,
+) {
 	user := model.Users{}
+
 	err := c.services.DB.
-		Where(`"id" = ?`, userId).
-		Preload("Stats", `"userId" = ? AND "channelId" = ?`, userId, channelId).
+		Where(`"id" = ?`, msg.User.ID).
+		Preload("Stats", `"userId" = ? AND "channelId" = ?`, msg.User.ID, msg.Channel.ID).
 		Find(&user).Error
 	if err != nil {
 		c.services.Logger.Error(
 			"cannot find user",
 			slog.Any("err", err),
-			slog.String("channelId", channelId),
-			slog.String("userId", userId),
+			slog.String("channelId", msg.Channel.ID),
+			slog.String("userId", msg.User.ID),
 		)
-		return
+		return user, err
 	}
 
 	// no user found
 	if user.ID == "" {
-		user.ID = userId
+		user.ID = msg.User.ID
 		user.ApiKey = uuid.NewV4().String()
 		user.IsBotAdmin = false
 		user.IsTester = false
-		user.Stats = createStats(userId, channelId)
+		user.Stats = createStats(msg.User.ID, msg.Channel.ID)
 
 		if err := c.services.DB.Create(&user).Error; err != nil {
 			c.services.Logger.Error(
 				"cannot create user",
 				slog.Any("err", err),
-				slog.String("channelId", channelId),
-				slog.String("channelId", userId),
+				slog.String("channelId", msg.Channel.ID),
+				slog.String("channelId", msg.User.ID),
 			)
-			return
+			return user, err
 		}
 	} else {
 		if user.Stats == nil {
-			newStats := createStats(userId, channelId)
+			newStats := createStats(msg.User.ID, msg.Channel.ID)
 			err := c.services.DB.Create(newStats).Error
 			if err != nil {
 				c.services.Logger.Error(
 					"cannot create user stats",
 					slog.Any("err", err),
-					slog.String("channelId", channelId),
-					slog.String("channelId", userId),
+					slog.String("channelId", msg.Channel.ID),
+					slog.String("channelId", msg.User.ID),
 				)
 			}
+			user.Stats = newStats
 		} else {
 			query := c.services.DB.
 				Model(&user.Stats).
-				Where(`"userId" = ? AND "channelId" = ?`, userId, channelId).
+				Where(`"userId" = ? AND "channelId" = ?`, msg.DbUser.ID, msg.Channel.ID).
 				Update("is_mod", lo.Contains(badges, "MODERATOR")).
 				Update("is_subscriber", lo.Contains(badges, "SUBSCRIBER")).
 				Update("is_vip", lo.Contains(badges, "VIP"))
 
-			if stream.ID != "" {
+			if msg.DbStream.ID != "" {
 				query.Update("messages", user.Stats.Messages+1)
 			}
 
@@ -81,12 +79,14 @@ func (c *ChatClient) updateUserStats(userId, channelId string, badges []string) 
 				c.services.Logger.Error(
 					"cannot update user",
 					slog.Any("err", err),
-					slog.String("channelId", channelId),
-					slog.String("channelId", userId),
+					slog.String("channelId", msg.Channel.ID),
+					slog.String("channelId", msg.User.ID),
 				)
 			}
 		}
 	}
+
+	return user, nil
 }
 
 func createStats(userId, channelId string) *model.UsersStats {

@@ -74,7 +74,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 						return
 					}
 					c.onMessage(
-						&Message{
+						Message{
 							ID: message.ID,
 							Channel: MessageChannel{
 								ID:   message.RoomID,
@@ -99,7 +99,7 @@ func (c *ChatClient) createReader() *BotClientIrc {
 						return
 					}
 					c.onMessage(
-						&Message{
+						Message{
 							ID: message.ID,
 							Channel: MessageChannel{
 								ID:   message.RoomID,

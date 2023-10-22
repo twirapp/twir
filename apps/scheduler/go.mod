@@ -11,22 +11,22 @@ replace (
 )
 
 require (
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.24.0
+	github.com/nicklaw5/helix/v2 v2.25.1
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-20230302140714-704247d5bf81
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/grpc v0.0.0-20230302140714-704247d5bf81
 	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
-	go.uber.org/zap v1.25.0
-	golang.org/x/sync v0.3.0
-	google.golang.org/grpc v1.57.0
+	go.uber.org/zap v1.26.0
+	golang.org/x/sync v0.4.0
+	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
-	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.4
+	gorm.io/driver/postgres v1.5.3
+	gorm.io/gorm v1.25.5
 )
 
 require (
@@ -43,12 +43,13 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	github.com/onsi/gomega v1.27.10 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/exp v0.0.0-20230811145659-89c5cff77bcb // indirect
-	golang.org/x/net v0.14.0 // indirect
-	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230815205213-6bfd019c3878 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
+	golang.org/x/net v0.17.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231012201019-e917dd12ba7a // indirect
 )

@@ -1,0 +1,13 @@
+{
+  "name": "@twir/language-detector",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+		"start": "node dist/index.js"
+	},
+  "dependencies": {
+    "@twir/grpc": "workspace:^",
+    "cld": "^2.9.0",
+    "nice-grpc": "^2.0.1"
+  }
+}

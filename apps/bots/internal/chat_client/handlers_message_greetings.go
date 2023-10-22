@@ -15,22 +15,15 @@ import (
 )
 
 func (c *ChatClient) handleGreetings(
-	msg *Message,
+	msg Message,
 	userBadges []string,
 ) {
-	stream := &model.ChannelsStreams{}
-	err := c.services.DB.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error
-	if err != nil {
-		c.services.Logger.Error("cannot get stream", slog.Any("err", err))
-		return
-	}
-
-	if stream.ID == "" {
+	if msg.DbStream.ID == "" {
 		return
 	}
 
 	entity := model.ChannelsGreetings{}
-	err = c.services.DB.
+	err := c.services.DB.
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
 			msg.Channel.ID,

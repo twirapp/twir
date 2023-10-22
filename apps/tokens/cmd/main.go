@@ -19,8 +19,8 @@ import (
 	"github.com/satont/twir/apps/tokens/internal/di"
 	"github.com/satont/twir/apps/tokens/internal/grpc_impl"
 	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
-	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -77,7 +77,7 @@ func main() {
 	do.ProvideValue[redsync.Redsync](di.Provider, *redsync.New(pool))
 	//
 
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.TOKENS_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.TOKENS_SERVER_PORT))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

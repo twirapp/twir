@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 
-	"github.com/satont/twir/libs/grpc/servers"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 func NewTokens(env string) tokens.TokensClient {
-	serverAddress := createClientAddr(env, "tokens", servers.TOKENS_SERVER_PORT)
+	serverAddress := createClientAddr(env, "tokens", constants.TOKENS_SERVER_PORT)
 
 	conn, err := grpc.Dial(
 		serverAddress,

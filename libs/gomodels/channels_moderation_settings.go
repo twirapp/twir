@@ -16,22 +16,44 @@ var (
 	_ = uuid.UUID{}
 )
 
-type ChannelsModerationSettings struct {
-	ID                 string         `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;"  json:"id"`
-	Type               string         `gorm:"column:type;type:VARCHAR;"                        json:"type"`
-	ChannelID          string         `gorm:"column:channelId;type:TEXT;"                      json:"channelId"`
-	Enabled            bool           `gorm:"column:enabled;type:BOOL;default:false;"          json:"enabled"`
-	Subscribers        bool           `gorm:"column:subscribers;type:BOOL;default:false;"      json:"subscribers"`
-	Vips               bool           `gorm:"column:vips;type:BOOL;default:false;"             json:"vips"`
-	BanTime            int32          `gorm:"column:banTime;type:INT4;default:600;"            json:"banTime"`
-	BanMessage         string         `gorm:"column:banMessage;type:TEXT;"                     json:"banMessage"         swaggertype:"string"`
-	WarningMessage     string         `gorm:"column:warningMessage;type:TEXT;"                 json:"warningMessage"     swaggertype:"string"`
-	CheckClips         null.Bool      `gorm:"column:checkClips;type:BOOL;default:false;"       json:"checkClips"         swaggertype:"boolean"`
-	TriggerLength      null.Int       `gorm:"column:triggerLength;type:INT4;default:300;"      json:"triggerLength"      swaggertype:"integer"`
-	MaxPercentage      null.Int       `gorm:"column:maxPercentage;type:INT4;default:50;"       json:"maxPercentage"      swaggertype:"integer"`
-	BlackListSentences pq.StringArray `gorm:"column:blackListSentences;type:JSONB;default:[];" json:"blackListSentences"`
+type ModerationSettingsType string
+
+const (
+	ModerationSettingsTypeLinks       ModerationSettingsType = "links"
+	ModerationSettingsTypeDenylist                           = "deny_list"
+	ModerationSettingsTypeSymbols                            = "symbols"
+	ModerationSettingsTypeLongMessage                        = "long_message"
+	ModerationSettingsTypeCaps                               = "caps"
+	ModerationSettingsTypeEmotes                             = "emotes"
+	ModerationSettingsTypeLanguage                           = "language"
+)
+
+func (c ModerationSettingsType) String() string {
+	return string(c)
 }
 
-func (c *ChannelsModerationSettings) TableName() string {
+type ChannelModerationSettings struct {
+	ID        string                 `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	Type      ModerationSettingsType `gorm:"column:type;type:VARCHAR;" json:"type"`
+	ChannelID string                 `gorm:"column:channel_id;type:TEXT;" json:"channel_id"`
+	Enabled   bool                   `gorm:"column:enabled;type:BOOL;default:false;" json:"enabled"`
+
+	BanTime        int32  `gorm:"column:ban_time;type:INT4;default:600;" json:"ban_time"`
+	BanMessage     string `gorm:"column:ban_message;type:TEXT;" json:"ban_message"`
+	WarningMessage string `gorm:"column:warning_message;type:TEXT;" json:"warning_message"`
+
+	CheckClips          bool           `gorm:"column:check_clips;type:BOOL;default:false;" json:"check_clips"`
+	TriggerLength       int            `gorm:"column:trigger_length;type:INT4;default:300;" json:"trigger_length"`
+	MaxPercentage       int            `gorm:"column:max_percentage;type:INT4;default:50;" json:"max_percentage"`
+	DenyList            pq.StringArray `gorm:"column:deny_list;type:JSONB;default:[];" json:"deny_list"`
+	DeniedChatLanguages pq.StringArray `gorm:"column:denied_chat_languages;type:JSONB;default:[];" json:"accepted_chat_languages"`
+	ExcludedRoles       pq.StringArray `gorm:"column:excluded_roles;type:JSONB;default:[];" json:"excluded_roles"`
+	MaxWarnings         int            `gorm:"column:max_warnings;type:INT4;default:0;" json:"max_warnings"`
+
+	CreatedAt time.Time `gorm:"column:created_at;type:TIMESTAMPTZ;default:now();" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;type:TIMESTAMPTZ;default:now();" json:"updated_at"`
+}
+
+func (c *ChannelModerationSettings) TableName() string {
 	return "channels_moderation_settings"
 }

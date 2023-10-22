@@ -20,7 +20,7 @@ import (
 )
 
 func (c *ChatClient) handleKeywords(
-	msg *Message,
+	msg Message,
 	userBadges []string,
 ) {
 	var keywords []model.ChannelsKeywords

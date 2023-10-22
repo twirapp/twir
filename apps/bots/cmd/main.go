@@ -10,9 +10,11 @@ import (
 	"github.com/satont/twir/apps/bots/internal/gorm"
 	"github.com/satont/twir/apps/bots/internal/grpc_impl"
 	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
+	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -25,6 +27,7 @@ func main() {
 	fx.New(
 		fx.Provide(
 			cfg.NewFx,
+			tlds.New,
 			func(config cfg.Config) (*sentry.Client, error) {
 				if config.SentryDsn == "" {
 					return nil, nil
@@ -64,6 +67,9 @@ func main() {
 			func(config cfg.Config) websockets.WebsocketClient {
 				return clients.NewWebsocket(config.AppEnv)
 			},
+			func(config cfg.Config) language_detector.LanguageDetectorClient {
+				return clients.NewLanguageDetector(config.AppEnv)
+			},
 			func(config cfg.Config) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
 				if err != nil {
@@ -74,7 +80,6 @@ func main() {
 			},
 			bots.NewBotsService,
 		),
-		fx.NopLogger,
 		fx.Invoke(
 			func(config cfg.Config) {
 				if config.AppEnv != "development" {

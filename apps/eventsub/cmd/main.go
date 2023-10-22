@@ -19,8 +19,8 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/types"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/eventsub"
-	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -102,7 +102,7 @@ func main() {
 	}
 
 	grpcImpl := grpm_impl.NewGrpcImpl(eventSubClient, services, fmt.Sprintf("https://%s", appAddr))
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.EVENTSUB_SERVER_PORT))
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.EVENTSUB_SERVER_PORT))
 	if err != nil {
 		panic(err)
 	}

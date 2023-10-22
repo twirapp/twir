@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
-import { useThrottleFn } from '@vueuse/core';
 import {
 	type DataTableColumns,
   NDataTable,
@@ -24,10 +23,6 @@ const keywordsManager = useKeywordsManager();
 const keywords = keywordsManager.getAll({});
 const keywordsDeleter = keywordsManager.deleteOne;
 const keywordsPatcher = keywordsManager.patch!;
-
-const throttledSwitchState = useThrottleFn((id: string, v: boolean) => {
-	keywordsPatcher.mutate({ id, enabled: v });
-}, 500);
 
 const showModal = ref(false);
 
@@ -70,8 +65,8 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		render(row) {
 			return h(NSwitch, {
 				value: row.enabled,
-				onUpdateValue: (value) => {
-					throttledSwitchState(row.id, value);
+				onUpdateValue: (v) => {
+					keywordsPatcher.mutate({ id: row.id!, enabled: v });
 				},
 				disabled: !userCanManageKeywords.value,
 			});

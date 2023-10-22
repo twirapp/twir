@@ -10,7 +10,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 )
 
-func (c *ChatClient) handleCommand(msg *Message, userBadges []string) {
+func (c *ChatClient) handleCommand(msg Message, userBadges []string) {
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.User.ID,

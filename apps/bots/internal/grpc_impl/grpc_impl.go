@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/satont/twir/apps/bots/internal/chat_client"
-	"github.com/satont/twir/libs/grpc/servers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/twitch"
 
@@ -62,7 +62,7 @@ func NewServer(opts GrpcImplOpts) error {
 		tokensGrpc:  opts.TokensGrpc,
 	}
 
-	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", servers.BOTS_SERVER_PORT))
+	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.BOTS_SERVER_PORT))
 	if err != nil {
 		return err
 	}
