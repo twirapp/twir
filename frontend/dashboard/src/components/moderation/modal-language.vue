@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NTransfer, NDivider } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{
 	item: ItemWithId
@@ -190,6 +191,8 @@ const transferOptions = Object.entries(availableLanguages).map(([key, value]) =>
 		value: value,
 	};
 });
+
+const { t } = useI18n();
 </script>
 
 <template>
@@ -202,8 +205,8 @@ const transferOptions = Object.entries(availableLanguages).map(([key, value]) =>
 			:options="transferOptions"
 			source-filterable
 			target-filterable
-			source-title="Allowed languages"
-			target-title="Disallowed languages"
+			:source-title="t('moderation.types.language.allowedLanguages')"
+			:target-title="t('moderation.types.language.disallowedLanguages')"
 			source-filter-placeholder="Search"
 			target-filter-placeholder="Search"
 		/>

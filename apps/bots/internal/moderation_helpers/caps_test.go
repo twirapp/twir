@@ -32,6 +32,11 @@ func TestIsTooMuchCaps(t *testing.T) {
 			want:          false,
 			maxPercentage: 51,
 		},
+		{
+			msg:           "こんにちは、お元気ですか、JavaScript の素晴らしい世界",
+			want:          false,
+			maxPercentage: 10,
+		},
 	}
 
 	for _, tt := range table {

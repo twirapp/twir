@@ -112,13 +112,22 @@ async function createNewItem(itemType: string) {
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		title="Edit settings"
 		:style="{
 			width: '40vw',
 			top: '0px',
 		}"
 		:on-close="() => settingsOpened = false"
 	>
+		<template #header>
+			<div style="display: flex; flex-direction: column; gap: 2px">
+				<span>
+					{{ editableItem?.data ? t(`moderation.types.${editableItem.data.type}.name`) : 'Edit' }}
+				</span>
+				<span style="font-size: 12px;">
+					{{ editableItem?.data ? t(`moderation.types.${editableItem.data.type}.description`) : '' }}
+				</span>
+			</div>
+		</template>
 		<modal v-if="editableItem" :item="editableItem" />
 	</n-modal>
 </template>

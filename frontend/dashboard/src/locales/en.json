@@ -560,6 +560,12 @@
 	},
 	"moderation": {
 		"createNewRule": "Create new moderation rule",
+		"banTime": "Timeout time",
+		"banDescription": "Set to 0 for ban permamently",
+		"banMessage": "Message and reason of timeout",
+		"warningMessage": "Message for warning",
+		"warningMaxCount": "Count of warnings before timeout user",
+		"excludedRoles": "Select roles, which will be not impacted for this filter",
 		"types": {
 			"links": {
 				"name": "Links",
@@ -567,27 +573,37 @@
 			},
 			"deny_list": {
 				"name": "Deny list",
-				"description": "Helps maintain a clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed."
+				"description": "Helps maintain a clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
+				"empty": "List of denied words is empty, please add atleast one",
+				"regexp": "Thats support regexp for advanced users. Note: it should be writted for golang"
 			},
 			"symbols": {
 				"name": "Symbols",
-				"description": "Identifies and restricts excessive use of symbols, preventing clutter and maintaining readability in the chat."
+				"description": "Identifies and restricts excessive use of symbols, preventing clutter and maintaining readability in the chat.",
+				"triggerLength": "From what message length start to check on symbols",
+				"maxPercentage": "Max percent of symbols in message"
 			},
 			"long_message": {
 				"name": "Long message",
-				"description": "Controls chat clutter by limiting the length of messages"
+				"description": "Controls chat clutter by limiting the length of messages",
+				"triggerLength": "Maximum length of message"
 			},
 			"caps": {
 				"name": "Caps",
-				"description": "Discourages excessive use of capital letters, promoting a more balanced and respectful conversation in the chat."
+				"description": "Discourages excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
+				"maxPercentage": "Maximum percent of capitalized letters in message",
+				"triggerLength": "Message length for start checking on caps"
 			},
 			"emotes": {
 				"name": "Emotes",
-				"description": " Emotes moderation manages the frequency and volume of emoticons used in messages, avoiding overuse and spam of iconic emotes."
+				"description": " Emotes moderation manages the frequency and volume of emoticons used in messages, avoiding overuse and spam of iconic emotes.",
+				"triggerLength": "Maximum emotes in message"
 			},
 			"language": {
 				"name": "Language",
-				"description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat."
+				"description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat.",
+				"allowedLanguages": "Allowed languages",
+				"disallowedLanguages": "Disallowed languages"
 			}
 		}
 	}

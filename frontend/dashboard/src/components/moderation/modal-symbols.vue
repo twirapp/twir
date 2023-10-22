@@ -1,25 +1,28 @@
 <script setup lang="ts">
 import type { ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NFormItem, NInputNumber, NDivider } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{
 	item: ItemWithId
 }>();
+
+const { t } = useI18n();
 </script>
 
 <template>
 	<div>
-		<n-form-item label="Trigger length" feedback="from what message length start to check on symbols">
+		<n-form-item :label="t('moderation.types.symbols.triggerLength')">
 			<n-input-number
 				v-model:value="item.data!.triggerLength"
 				:max="500"
 			/>
 		</n-form-item>
 
-		<n-form-item label="Max percentage" feedback="qwe">
+		<n-form-item :label="t('moderation.types.symbols.maxPercentage')">
 			<n-input-number
 				v-model:value="item.data!.maxPercentage"
-				:max="500"
+				:max="100"
 			/>
 		</n-form-item>
 

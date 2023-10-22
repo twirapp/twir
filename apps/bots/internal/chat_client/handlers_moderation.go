@@ -282,7 +282,7 @@ func (c *moderationService) symbolsParser(
 		return nil
 	}
 
-	isToMuchSymbols, _ := moderation_helpers.IsToMuchSymbols(ircMsg.Message, settings.MaxPercentage)
+	isToMuchSymbols, _ := moderation_helpers.IsToMuchSymbols(ircMsg.Message, settings.MaxPercentage+1)
 	if !isToMuchSymbols {
 		return nil
 	}
@@ -343,7 +343,7 @@ func (c *moderationService) emotesParser(
 		length += len(e.Positions)
 	}
 
-	if length < settings.TriggerLength {
+	if length < settings.TriggerLength+1 {
 		return nil
 	}
 

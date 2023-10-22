@@ -42,6 +42,7 @@ async function saveSettings() {
 	await updater.mutateAsync(formValue.value);
 	message.success({
 		title: t('sharedTexts.saved'),
+		duration: 2000,
 	});
 }
 </script>
@@ -84,10 +85,11 @@ async function saveSettings() {
 					v-model:value="formValue.data!.banMessage"
 					type="textarea"
 					:maxLength="500"
+					autosize
 				/>
 			</n-form-item>
 
-			<n-form-item label="Ban time" feedback="qwe">
+			<n-form-item :label="t('moderation.banTime')" :feedback="t('moderation.banDescription')">
 				<n-input-number
 					v-model:value="formValue.data!.banTime"
 					:min="0"
@@ -99,15 +101,16 @@ async function saveSettings() {
 		<n-divider style="margin: 0; padding: 0" />
 
 		<div class="form-block">
-			<n-form-item label="Warning message">
+			<n-form-item :label="t('moderation.warningMessage')">
 				<n-input
 					v-model:value="formValue.data!.warningMessage"
 					type="textarea"
 					:maxLength="500"
+					autosize
 				/>
 			</n-form-item>
 
-			<n-form-item label="Warnins count">
+			<n-form-item :label="t('moderation.warningMaxCount')">
 				<n-input-number
 					v-model:value="formValue.data!.maxWarnings"
 					:min="0"
@@ -119,7 +122,7 @@ async function saveSettings() {
 		<n-divider style="margin: 0; padding: 0" />
 
 		<div class="form-block">
-			<span>Excluded for moderation roles</span>
+			<span>{{ t('moderation.excludedRoles') }}</span>
 			<div style="display: flex; flex-direction: column; gap: 5px;">
 				<n-button-group
 					v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"

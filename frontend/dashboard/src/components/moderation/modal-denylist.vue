@@ -19,11 +19,11 @@ const removeItem = (i: number) => props.item.data!.denyList = props.item.data!.d
 		<n-divider style="margin: 0; padding: 0" />
 
 		<n-alert v-if="!item.data?.denyList.length" type="warning">
-			Add new badword
+			{{ t('moderation.types.deny_list.empty') }}
 		</n-alert>
 
 		<n-alert v-else type="info">
-			Supports regex
+			{{ t('moderation.types.deny_list.regexp') }}
 		</n-alert>
 
 		<div

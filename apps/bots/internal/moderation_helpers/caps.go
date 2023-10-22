@@ -9,7 +9,7 @@ func IsTooMuchCaps(msg string, maxPercentage int) (bool, int) {
 	capsCount := 0
 
 	for _, s := range msg {
-		if unicode.ToUpper(s) == s {
+		if unicode.IsUpper(s) {
 			capsCount++
 		}
 	}
