@@ -123,42 +123,36 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 				},
 			)
 
-			if res.StatusCode != 200 {
-				c.services.Logger.Error("cannot delete message", slog.String("err", res.ErrorMessage))
-			}
-			if err != nil {
-				c.services.Logger.Error("cannot delete message", slog.Any("err", err))
+			if res.ErrorMessage != "" || err != nil {
+				c.services.Logger.Error(
+					"cannot delete message",
+					slog.String("errorMessage", res.ErrorMessage),
+					slog.String("userId", msg.User.ID),
+					slog.String("channelId", msg.Channel.ID),
+					slog.Any("err", err),
+				)
 			}
 		} else {
-			if res.Time != 0 {
-				res, err := c.services.TwitchClient.BanUser(
-					&helix.BanUserParams{
-						BroadcasterID: msg.Channel.ID,
-						ModeratorId:   c.Model.ID,
-						Body: helix.BanUserRequestBody{
-							Duration: res.Time,
-							Reason:   res.Message,
-							UserId:   msg.User.ID,
-						},
+			res, err := c.services.TwitchClient.BanUser(
+				&helix.BanUserParams{
+					BroadcasterID: msg.Channel.ID,
+					ModeratorId:   c.Model.ID,
+					Body: helix.BanUserRequestBody{
+						Duration: res.Time,
+						Reason:   res.Message,
+						UserId:   msg.User.ID,
 					},
-				)
+				},
+			)
 
-				if res.StatusCode != 200 {
-					c.services.Logger.Error(
-						"cannot ban user",
-						slog.String("err", res.ErrorMessage),
-						slog.String("userId", msg.User.ID),
-						slog.String("channelId", msg.Channel.ID),
-					)
-				}
-				if err != nil {
-					c.services.Logger.Error(
-						"cannot ban user",
-						slog.Any("err", err),
-						slog.String("userId", msg.User.ID),
-						slog.String("channelId", msg.Channel.ID),
-					)
-				}
+			if res.ErrorMessage != "" || err != nil {
+				c.services.Logger.Error(
+					"cannot ban user",
+					slog.String("errorMessage", res.ErrorMessage),
+					slog.String("userId", msg.User.ID),
+					slog.String("channelId", msg.Channel.ID),
+					slog.Any("err", err),
+				)
 			}
 		}
 
@@ -301,8 +295,13 @@ func (c *moderationService) capsParser(
 	ircMsg Message,
 ) *moderationHandleResult {
 	msg := ircMsg.Message
+
 	for _, v := range ircMsg.Emotes {
 		msg = strings.ReplaceAll(msg, v.Name, "")
+	}
+
+	if utf8.RuneCountInString(msg) < settings.TriggerLength {
+		return nil
 	}
 
 	isTooLong, _ := moderation_helpers.IsTooMuchCaps(msg, settings.MaxPercentage)

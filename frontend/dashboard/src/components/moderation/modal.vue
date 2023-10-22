@@ -2,18 +2,23 @@
 import { IconSquare, IconSquareCheck } from '@tabler/icons-vue';
 import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import chunk from 'lodash.chunk';
-import { NButton, NFormItem, NInput, NInputNumber, NDivider, NButtonGroup } from 'naive-ui';
+import { NButton, NFormItem, NInput, NInputNumber, NDivider, NButtonGroup, useNotification } from 'naive-ui';
 import { computed, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import ModalCaps from './modal-caps.vue';
 import ModalDenylist from './modal-denylist.vue';
+import ModalEmotes from './modal-emotes.vue';
 import ModalLanguage from './modal-language.vue';
 import ModalLongMessage from './modal-longmessage.vue';
 import ModalSymbols from './modal-symbols.vue';
 
-import { useRolesManager } from '@/api';
+import { useModerationManager, useRolesManager } from '@/api';
 
 const { t } = useI18n();
+
+const manager = useModerationManager();
+const updater = manager.update;
 
 const props = defineProps<{
 	item: ItemWithId
@@ -30,6 +35,15 @@ const rolesSelectOptions = computed(() => {
 			value: role.id,
 		}));
 });
+
+const message = useNotification();
+
+async function saveSettings() {
+	await updater.mutateAsync(formValue.value);
+	message.success({
+		title: t('sharedTexts.saved'),
+	});
+}
 </script>
 
 <template>
@@ -48,6 +62,18 @@ const rolesSelectOptions = computed(() => {
 
 		<modal-long-message
 			v-if="formValue.data!.type === 'long_message'"
+			class="form-block"
+			:item="formValue"
+		/>
+
+		<modal-caps
+			v-if="formValue.data!.type === 'caps'"
+			class="form-block"
+			:item="formValue"
+		/>
+
+		<modal-emotes
+			v-if="formValue.data!.type === 'emotes'"
 			class="form-block"
 			:item="formValue"
 		/>
@@ -90,6 +116,8 @@ const rolesSelectOptions = computed(() => {
 			</n-form-item>
 		</div>
 
+		<n-divider style="margin: 0; padding: 0" />
+
 		<div class="form-block">
 			<span>Excluded for moderation roles</span>
 			<div style="display: flex; flex-direction: column; gap: 5px;">
@@ -128,7 +156,7 @@ const rolesSelectOptions = computed(() => {
 
 		<n-divider style="margin: 0; padding: 0" />
 
-		<n-button type="success" secondary>
+		<n-button type="success" secondary @click="saveSettings">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</div>

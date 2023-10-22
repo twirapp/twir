@@ -102,7 +102,7 @@ export const availableSettings: Item[] = [
 		excludedRoles: [],
 		maxPercentage: 0,
 		maxWarnings: 3,
-		triggerLength: 0,
+		triggerLength: 10,
 		type: 'emotes',
 		warningMessage: 'Too many emotes [warning]',
 	},
