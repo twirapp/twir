@@ -172,9 +172,10 @@ func New(opts Opts) *ChatClient {
 		workersPool:     gopool.NewPool(1000),
 		joinRateLimiter: opts.JoinRateLimiter,
 		moderationService: &moderationService{
-			services:              serv,
-			linksRegexp:           linksR,
-			linksWithSpacesRegexp: linksWithSpacesR,
+			services:               serv,
+			linksRegexp:            linksR,
+			linksWithSpacesRegexp:  linksWithSpacesR,
+			messagesTimeouterStore: utils.NewTtlSyncMap[struct{}](10 * time.Second),
 		},
 	}
 	s.CreateWriter()

@@ -15,13 +15,15 @@ import (
 	"github.com/satont/twir/apps/bots/internal/moderation_helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
+	"github.com/satont/twir/libs/utils"
 )
 
 type moderationService struct {
 	*services
 
-	linksRegexp           *regexp.Regexp
-	linksWithSpacesRegexp *regexp.Regexp
+	linksRegexp            *regexp.Regexp
+	linksWithSpacesRegexp  *regexp.Regexp
+	messagesTimeouterStore *utils.TtlSyncMap[struct{}]
 }
 
 type moderationHandleResult struct {
@@ -72,7 +74,7 @@ func (c *moderationService) getChannelSettings(ctx context.Context, channelId st
 	}
 
 	if err := c.services.DB.Where(
-		`"channelId" = ? AND "enabled" = ?`,
+		`"channel_id" = ? AND "enabled" = ?`,
 		channelId,
 		true,
 	).Find(&settings).Error; err != nil {
@@ -83,10 +85,13 @@ func (c *moderationService) getChannelSettings(ctx context.Context, channelId st
 	return settings, nil
 }
 
-func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
+func (c *ChatClient) handleModeration(msg Message) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Minute)
+	defer cancel()
+
 	userBadges := lo.Keys(msg.User.Badges)
 
-	if lo.Some(userBadges, []string{"BROADCASTER", "MODERATOR"}) {
+	if lo.Some(userBadges, []string{"broadcaster", "moderator"}) {
 		return false
 	}
 
@@ -97,10 +102,6 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 	}
 
 	for _, setting := range settings {
-		if !setting.Enabled {
-			continue
-		}
-
 		function, ok := moderationFunctionsMapping[setting.Type]
 		if !ok {
 			continue
@@ -114,8 +115,22 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 			continue
 		}
 
+		if _, exists := c.moderationService.messagesTimeouterStore.Get(msg.Channel.ID); !exists {
+			opts := SayOpts{
+				Channel:   msg.Channel.Name,
+				Text:      setting.BanMessage,
+				ReplyTo:   &msg.ID,
+				WithLimit: true,
+			}
+			if res.IsDelete {
+				opts.Text = setting.WarningMessage
+			}
+			c.Say(opts)
+			c.moderationService.messagesTimeouterStore.Add(msg.Channel.ID, struct{}{})
+		}
+
 		if res.IsDelete {
-			res, err := c.services.TwitchClient.DeleteChatMessage(
+			r, err := c.services.TwitchClient.DeleteChatMessage(
 				&helix.DeleteChatMessageParams{
 					BroadcasterID: msg.Channel.ID,
 					ModeratorID:   c.Model.ID,
@@ -123,17 +138,17 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 				},
 			)
 
-			if res.ErrorMessage != "" || err != nil {
+			if r.ErrorMessage != "" || err != nil {
 				c.services.Logger.Error(
 					"cannot delete message",
-					slog.String("errorMessage", res.ErrorMessage),
+					slog.String("errorMessage", r.ErrorMessage),
 					slog.String("userId", msg.User.ID),
 					slog.String("channelId", msg.Channel.ID),
 					slog.Any("err", err),
 				)
 			}
 		} else {
-			res, err := c.services.TwitchClient.BanUser(
+			r, err := c.services.TwitchClient.BanUser(
 				&helix.BanUserParams{
 					BroadcasterID: msg.Channel.ID,
 					ModeratorId:   c.Model.ID,
@@ -145,10 +160,10 @@ func (c *ChatClient) handleModeration(ctx context.Context, msg Message) bool {
 				},
 			)
 
-			if res.ErrorMessage != "" || err != nil {
+			if r.ErrorMessage != "" || err != nil {
 				c.services.Logger.Error(
 					"cannot ban user",
-					slog.String("errorMessage", res.ErrorMessage),
+					slog.String("errorMessage", r.ErrorMessage),
 					slog.String("userId", msg.User.ID),
 					slog.String("channelId", msg.Channel.ID),
 					slog.Any("err", err),

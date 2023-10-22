@@ -2,6 +2,7 @@ package moderation
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -112,6 +113,8 @@ func (c *Moderation) ModerationCreate(
 		return nil, err
 	}
 
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
 		Data: c.convertDbToGrpc(entity).Data,
@@ -132,6 +135,8 @@ func (c *Moderation) ModerationDelete(
 		return nil, err
 	}
 
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -151,6 +156,8 @@ func (c *Moderation) ModerationUpdate(
 	).Updates(&entity).Error; err != nil {
 		return nil, err
 	}
+
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
@@ -183,6 +190,8 @@ func (c *Moderation) ModerationEnableOrDisable(
 	).Save(&entity).Error; err != nil {
 		return nil, err
 	}
+
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,

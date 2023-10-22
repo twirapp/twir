@@ -15,9 +15,6 @@ import (
 )
 
 func (c *ChatClient) onMessage(msg Message) {
-	ctx, cancel := context.WithTimeout(context.Background(), 510*time.Second)
-	defer cancel()
-
 	stream := model.ChannelsStreams{}
 	if err := c.services.DB.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error; err != nil {
 		c.services.Logger.Error(
@@ -91,7 +88,7 @@ func (c *ChatClient) onMessage(msg Message) {
 
 		c.workersPool.Submit(
 			func() {
-				c.handleModeration(ctx, msg)
+				c.handleModeration(msg)
 			},
 		)
 	}
