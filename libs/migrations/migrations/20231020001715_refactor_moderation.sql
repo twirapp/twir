@@ -29,9 +29,9 @@ CREATE TABLE "channels_moderation_settings" (
 		"check_clips" boolean NOT NULL default false,
 		"trigger_length" integer NOT NULL default 0,
 		"max_percentage" integer NOT NULL default 0,
-		"deny_list" text[] NOT NULL default '{}',
-		"denied_chat_languages" text[] NOT NULL default '{}',
-		"excluded_roles" text[] NOT NULL default '{}',
+		"deny_list" text[] default '{}',
+		"denied_chat_languages" text[] default '{}',
+		"excluded_roles" text[] default '{}',
 		CONSTRAINT "channels_moderation_settings_pkey" PRIMARY KEY ("id")
 );
 -- +goose StatementEnd

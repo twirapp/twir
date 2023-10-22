@@ -113,7 +113,7 @@ func (c *Moderation) ModerationCreate(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
@@ -135,7 +135,7 @@ func (c *Moderation) ModerationDelete(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
 
 	return &emptypb.Empty{}, nil
 }
@@ -153,11 +153,11 @@ func (c *Moderation) ModerationUpdate(
 		"channel_id = ? AND id = ?",
 		dashboardId,
 		req.Id,
-	).Updates(&entity).Error; err != nil {
+	).Save(&entity).Error; err != nil {
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
@@ -191,7 +191,7 @@ func (c *Moderation) ModerationEnableOrDisable(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings:*", dashboardId))
+	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,

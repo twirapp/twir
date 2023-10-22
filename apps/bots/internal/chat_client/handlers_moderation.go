@@ -2,6 +2,7 @@ package chat_client
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"regexp"
@@ -10,7 +11,9 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/moderation_helpers"
 	model "github.com/satont/twir/libs/gomodels"
@@ -51,23 +54,18 @@ func (c *moderationService) getChannelSettings(ctx context.Context, channelId st
 	[]model.ChannelModerationSettings,
 	error,
 ) {
-	cacheKey := fmt.Sprintf("channels:%s:moderation_settings:*", channelId)
+	cacheKey := fmt.Sprintf("channels:%s:moderation_settings", channelId)
 
-	cachedKeys, err := c.Redis.Keys(ctx, cacheKey).Result()
-	if err != nil {
+	cached, err := c.Redis.Get(ctx, cacheKey).Bytes()
+	if err != nil && !errors.Is(err, redis.Nil) {
 		return nil, err
 	}
 
 	var settings []model.ChannelModerationSettings
 
-	if len(cachedKeys) > 0 {
-		for _, key := range cachedKeys {
-			var item model.ChannelModerationSettings
-			if err := c.Redis.Get(ctx, key).Scan(&item); err != nil {
-				return nil, err
-			}
-
-			settings = append(settings, item)
+	if len(cached) > 0 {
+		if err := json.Unmarshal(cached, &settings); err != nil {
+			return nil, err
 		}
 
 		return settings, nil
@@ -81,6 +79,8 @@ func (c *moderationService) getChannelSettings(ctx context.Context, channelId st
 		c.services.Logger.Error("cannot find moderation settings", slog.Any("err", err))
 		return nil, err
 	}
+
+	c.services.Redis.Set(ctx, cacheKey, settings, 24*time.Hour)
 
 	return settings, nil
 }
@@ -177,14 +177,62 @@ func (c *ChatClient) handleModeration(msg Message) bool {
 	return false
 }
 
-func (c *moderationService) returnByWarnedState(
+func (c *moderationService) handleResult(
 	ctx context.Context,
-	userID string,
+	msg Message,
 	settings model.ChannelModerationSettings,
 ) *moderationHandleResult {
+	var channelRoles []model.ChannelRole
+	if err := c.services.DB.Preload("Users", `"userId" = ?`, msg.User.ID).Where(
+		`"channelId" = ?`,
+		settings.ChannelID,
+	).
+		Find(&channelRoles).
+		Error; err != nil {
+		c.Logger.Error("cannot get channel roles", slog.Any("err", err))
+		return nil
+	}
+
+	for _, r := range channelRoles {
+		if r.Type == model.ChannelRoleTypeCustom {
+			continue
+		}
+
+		shouldExcludeRole := slices.Contains(settings.ExcludedRoles, r.ID)
+		var userHasRole bool
+		if len(r.Users) > 0 {
+			userHasRole = true
+		}
+
+		if _, ok := msg.User.Badges[strings.ToLower(r.Type.String())]; ok {
+			userHasRole = true
+		}
+
+		if msg.DbUser.Stats != nil && !userHasRole {
+			roleSettings := model.ChannelRoleSettings{}
+			if err := json.Unmarshal(r.Settings, &roleSettings); err == nil {
+				if msg.DbUser.Stats.Watched >= roleSettings.RequiredWatchTime {
+					userHasRole = true
+				}
+
+				if msg.DbUser.Stats.Messages >= roleSettings.RequiredMessages {
+					userHasRole = true
+				}
+
+				if msg.DbUser.Stats.UsedChannelPoints >= roleSettings.RequiredUsedChannelPoints {
+					userHasRole = true
+				}
+			}
+		}
+
+		if shouldExcludeRole && userHasRole {
+			return nil
+		}
+	}
+
 	warningRedisKey := fmt.Sprintf(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
-		userID, settings.Type,
+		msg.User.ID, settings.Type,
 	)
 	warningsKeys, err := c.services.Redis.Keys(ctx, warningRedisKey).Result()
 	if err != nil {
@@ -198,7 +246,7 @@ func (c *moderationService) returnByWarnedState(
 			fmt.Sprintf(
 				"channels:%s:moderation_warns:%s:%s:%v",
 				settings.ChannelID,
-				userID,
+				msg.User.ID,
 				settings.Type,
 				time.Now().Unix(),
 			),
@@ -252,7 +300,7 @@ func (c *moderationService) linksParser(
 		c.services.DB.Delete(&permit)
 		return nil
 	} else {
-		return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+		return c.handleResult(ctx, ircMsg, settings)
 	}
 }
 
@@ -270,7 +318,7 @@ func (c *moderationService) denyListParser(
 		return nil
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
 
 func (c *moderationService) symbolsParser(
@@ -287,7 +335,7 @@ func (c *moderationService) symbolsParser(
 		return nil
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
 
 func (c *moderationService) longMessageParser(
@@ -301,7 +349,7 @@ func (c *moderationService) longMessageParser(
 		return nil
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
 
 func (c *moderationService) capsParser(
@@ -325,7 +373,7 @@ func (c *moderationService) capsParser(
 		return nil
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
 
 func (c *moderationService) emotesParser(
@@ -385,7 +433,7 @@ func (c *moderationService) emotesParser(
 		}
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
 
 func (c *moderationService) languageParser(
@@ -417,5 +465,5 @@ func (c *moderationService) languageParser(
 		return nil
 	}
 
-	return c.returnByWarnedState(ctx, ircMsg.User.ID, settings)
+	return c.handleResult(ctx, ircMsg, settings)
 }
