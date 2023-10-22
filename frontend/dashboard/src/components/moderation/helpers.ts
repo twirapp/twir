@@ -94,7 +94,7 @@ export const availableSettings: Item[] = [
 	{
 		icon: IconMoodOff,
 		deniedChatLanguages: [],
-		banMessage: 'Too much emotes',
+		banMessage: 'Too many emotes',
 		banTime: 600,
 		checkClips: false,
 		denyList: [],
@@ -104,12 +104,12 @@ export const availableSettings: Item[] = [
 		maxWarnings: 3,
 		triggerLength: 0,
 		type: 'emotes',
-		warningMessage: 'Too much emotes [warning]',
+		warningMessage: 'Too many emotes [warning]',
 	},
 	{
 		icon: IconAsteriskSimple,
 		deniedChatLanguages: [],
-		banMessage: 'Too much symbols',
+		banMessage: 'Too many symbols',
 		banTime: 600,
 		checkClips: false,
 		denyList: [],
@@ -119,7 +119,7 @@ export const availableSettings: Item[] = [
 		maxWarnings: 3,
 		triggerLength: 0,
 		type: 'symbols',
-		warningMessage: 'Too much symbols [warning]',
+		warningMessage: 'Too many symbols [warning]',
 	},
 ];
 

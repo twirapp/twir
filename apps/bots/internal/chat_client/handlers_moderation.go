@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -251,6 +252,10 @@ func (c *moderationService) denyListParser(
 	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
+	if len(settings.DenyList) == 0 {
+		return nil
+	}
+
 	hasDeniedWord := moderation_helpers.HasDeniedWord(ircMsg.Message, settings.DenyList)
 	if !hasDeniedWord {
 		return nil
@@ -264,7 +269,7 @@ func (c *moderationService) symbolsParser(
 	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
-	if len(ircMsg.Message) < settings.TriggerLength {
+	if utf8.RuneCountInString(ircMsg.Message) < settings.TriggerLength {
 		return nil
 	}
 
@@ -381,7 +386,6 @@ func (c *moderationService) languageParser(
 	)
 
 	if err != nil {
-		c.services.Logger.Error("cannot detect language", slog.Any("err", err))
 		return nil
 	}
 
@@ -391,7 +395,7 @@ func (c *moderationService) languageParser(
 
 	hasDeniedLanguage := lo.SomeBy(
 		detected.Languages, func(item *language_detector.Response_Language) bool {
-			return !slices.Contains(settings.AcceptedChatLanguages, item.Name)
+			return slices.Contains(settings.DeniedChatLanguages, item.Code)
 		},
 	)
 

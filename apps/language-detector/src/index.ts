@@ -8,8 +8,18 @@ const service: LanguageDetector.LanguageDetectorServiceImplementation = {
 		const result = await cld.detect(text);
 
 		return {
-			languages: result.languages.map(l => ({ name: l.name, score: l.score, percent: l.percent })),
-			chunks: result.chunks.map(c => ({ name: c.name, offset: c.offset, bytes: c.bytes })),
+			languages: result.languages.map(l => ({
+				name: l.name,
+				score: l.score,
+				percent: l.percent,
+				code: l.code,
+			})),
+			chunks: result.chunks.map(c => ({
+				name: c.name,
+				offset: c.offset,
+				bytes: c.bytes,
+				code: c.code,
+			})),
 		};
 	},
 };

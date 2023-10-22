@@ -16,12 +16,14 @@ message Response {
 		string name = 1;
 		int32 score = 2;
 		int32 percent = 3;
+		string code = 4;
 	}
 
 	message Chunk {
 		string name = 1;
 		int32 offset = 2;
 		int32 bytes = 3;
+		string code = 4;
 	}
 
 	repeated Language languages = 1;

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { IconSwords, IconX } from '@tabler/icons-vue';
 import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
-import { NGrid, NGridItem, NModal, NCard, useThemeVars, NButton } from 'naive-ui';
+import { NGrid, NGridItem, NModal, NCard, useThemeVars, NButton, NTooltip } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -55,39 +55,47 @@ async function createNewItem(itemType: string) {
 						cursor: !canEditModeration ? 'not-allowed' : !isAddingNewItem ? 'pointer' : 'default'
 					}"
 				>
-					<div
-						v-if="!isAddingNewItem"
-						class="new-item-block"
-						@click="isAddingNewItem = true"
-					>
-						<IconSwords :size="45" />
-						<span>{{ t('moderation.createNewRule') }}</span>
-					</div>
-					<div v-else style="display: flex; flex-direction: column; gap: 12px;">
-						<div style="display: flex; justify-content: space-between;">
+					<Transition mode="out-in">
+						<div
+							v-if="!isAddingNewItem"
+							class="new-item-block"
+							@click="isAddingNewItem = true"
+						>
+							<IconSwords :size="45" />
 							<span>{{ t('moderation.createNewRule') }}</span>
-							<n-button text size="tiny" @click="isAddingNewItem = false">
-								<IconX />
-							</n-button>
 						</div>
-						<div style="display: flex; gap: 8px; flex-wrap: wrap;">
-							<n-button
-								v-for="itemType of availableSettingsTypes"
-								:key="itemType"
-								secondary
-								:disabled="!canEditModeration"
-								@click="createNewItem(itemType)"
-							>
-								<div style="display: flex; align-items: center; gap: 4px">
-									<component
-										:is="availableSettings.find(i => i.type === itemType)?.icon"
-										:size="20"
-									/>
-									<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
-								</div>
-							</n-button>
+						<div v-else style="display: flex; flex-direction: column; gap: 12px;">
+							<div style="display: flex; justify-content: space-between;">
+								<span>{{ t('moderation.createNewRule') }}</span>
+								<n-button text size="tiny" @click="isAddingNewItem = false">
+									<IconX />
+								</n-button>
+							</div>
+							<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+								<n-tooltip
+									v-for="itemType of availableSettingsTypes"
+									:key="itemType"
+								>
+									<template #trigger>
+										<n-button
+											secondary
+											:disabled="!canEditModeration"
+											@click="createNewItem(itemType)"
+										>
+											<div style="display: flex; align-items: center; gap: 4px">
+												<component
+													:is="availableSettings.find(i => i.type === itemType)?.icon"
+													:size="20"
+												/>
+												<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
+											</div>
+										</n-button>
+									</template>
+									{{ t(`moderation.types.${itemType}.description`) }}
+								</n-tooltip>
+							</div>
 						</div>
-					</div>
+					</Transition>
 				</n-card>
 			</n-grid-item>
 			<n-grid-item v-for="item of settings?.body" :key="item.id" :span="1">
@@ -106,7 +114,7 @@ async function createNewItem(itemType: string) {
 		preset="card"
 		title="Edit settings"
 		:style="{
-			width: '400px',
+			width: '40vw',
 			top: '0px',
 		}"
 		:on-close="() => settingsOpened = false"
@@ -132,5 +140,15 @@ async function createNewItem(itemType: string) {
 
 .new-item-card:hover {
 	background-color: v-bind('theme.hoverColor');
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.1s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
