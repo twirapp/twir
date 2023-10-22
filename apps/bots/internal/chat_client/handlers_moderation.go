@@ -125,7 +125,9 @@ func (c *ChatClient) handleModeration(msg Message) bool {
 			if res.IsDelete {
 				opts.Text = setting.WarningMessage
 			}
-			c.Say(opts)
+			if opts.Text != "" {
+				c.Say(opts)
+			}
 			c.moderationService.messagesTimeouterStore.Add(msg.Channel.ID, struct{}{})
 		}
 

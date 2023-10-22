@@ -202,6 +202,9 @@ type SayOpts struct {
 
 func (c *ChatClient) Say(opts SayOpts) {
 	text := strings.ReplaceAll(opts.Text, "\n", " ")
+	if len(text) == 0 {
+		return
+	}
 	textParts := splitTextByLength(text)
 
 	c.RateLimiters.Global.Wait(context.Background())
