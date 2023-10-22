@@ -7,12 +7,12 @@ require (
 	github.com/gempir/go-twitch-irc/v3 v3.2.0
 	github.com/getsentry/sentry-go v0.25.0
 	github.com/goccy/go-json v0.10.2
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/imroc/req/v3 v3.42.1
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.24.0
+	github.com/nicklaw5/helix/v2 v2.25.1
 	github.com/prometheus/client_golang v1.16.0
-	github.com/redis/go-redis/v9 v9.0.5
+	github.com/redis/go-redis/v9 v9.2.1
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/gomodels v0.0.0-20221114143619-e5e207524b96
@@ -26,14 +26,14 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/fx v1.20.0
-	go.uber.org/zap v1.25.0
-	google.golang.org/grpc v1.57.0
+	go.uber.org/zap v1.26.0
+	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
-	gorm.io/driver/postgres v1.5.2
-	gorm.io/gorm v1.25.4
+	gorm.io/driver/postgres v1.5.3
+	gorm.io/gorm v1.25.5
 )
 
-require golang.org/x/net v0.14.0 // indirect
+require golang.org/x/net v0.17.0 // indirect
 
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
@@ -73,13 +73,13 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/dig v1.17.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.12.0 // indirect
-	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63 // indirect
-	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/sys v0.12.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
+	golang.org/x/mod v0.13.0 // indirect
+	golang.org/x/sys v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
-	golang.org/x/tools v0.12.1-0.20230815132531-74c255bcf846 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20230815205213-6bfd019c3878 // indirect
+	golang.org/x/tools v0.14.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231012201019-e917dd12ba7a // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
