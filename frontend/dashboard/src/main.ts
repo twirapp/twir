@@ -5,7 +5,6 @@ import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimen
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
-import { getProfile } from './api/index.js';
 import { i18n } from './i18n.js';
 import { newRouter } from './router.js';
 
@@ -33,15 +32,10 @@ VueQueryPlugin.install(app, {
 	queryClient,
 });
 
-getProfile(queryClient).catch(error => {
-	console.error(error);
-	window.location.replace('/');
-}).then(() => {
-	app
+app
 		.use(i18n)
 		.use(newRouter(queryClient))
 		.use(VueMonacoEditorPlugin);
 
 	app.mount('#app');
-});
 

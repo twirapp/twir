@@ -47,20 +47,21 @@ const router = useRouter();
 const { t } = useI18n();
 
 const activeKey = ref<string | null>('/');
-const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
-	const canViewIntegrations = useUserAccessFlagChecker('VIEW_INTEGRATIONS');
-	const canViewEvents = useUserAccessFlagChecker('VIEW_EVENTS');
-	const canViewOverlays = useUserAccessFlagChecker('VIEW_OVERLAYS');
-	const canViewSongRequests = useUserAccessFlagChecker('VIEW_SONG_REQUESTS');
-	const canViewCommands = useUserAccessFlagChecker('VIEW_COMMANDS');
-	const canViewTimers = useUserAccessFlagChecker('VIEW_TIMERS');
-	const canViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
-	const canViewVariabls = useUserAccessFlagChecker('VIEW_VARIABLES');
-	const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
-	const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
-	const canViewAlerts = useUserAccessFlagChecker('VIEW_ALERTS');
-	const canViewGames = useUserAccessFlagChecker('VIEW_GAMES');
 
+const canViewIntegrations = useUserAccessFlagChecker('VIEW_INTEGRATIONS');
+const canViewEvents = useUserAccessFlagChecker('VIEW_EVENTS');
+const canViewOverlays = useUserAccessFlagChecker('VIEW_OVERLAYS');
+const canViewSongRequests = useUserAccessFlagChecker('VIEW_SONG_REQUESTS');
+const canViewCommands = useUserAccessFlagChecker('VIEW_COMMANDS');
+const canViewTimers = useUserAccessFlagChecker('VIEW_TIMERS');
+const canViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
+const canViewVariabls = useUserAccessFlagChecker('VIEW_VARIABLES');
+const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
+const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
+const canViewAlerts = useUserAccessFlagChecker('VIEW_ALERTS');
+const canViewGames = useUserAccessFlagChecker('VIEW_GAMES');
+
+const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	return [
 		{
 			label: t('sidebar.dashboard'),

@@ -1,7 +1,12 @@
 import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { type PermissionsType, userAccessFlagChecker } from '@/api/index.js';
+import {
+	type PermissionsType,
+	userAccessFlagChecker,
+	profileQueryOptions,
+	dashboardsQueryOptions,
+} from '@/api/index.js';
 
 type Route = Omit<RouteRecordRaw, 'meta' | 'children'> & {
 	meta?: { neededPermission?: PermissionsType; noPadding?: boolean },
@@ -133,14 +138,22 @@ export const newRouter = (queryClient: QueryClient) => {
 	});
 
 	router.beforeEach(async (to, _, next) => {
-		if (!to.meta.neededPermission) return next();
+		try {
+			if (!to.meta.neededPermission) return next();
 
-		const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission as PermissionsType);
-		if (hasAccess) {
-			return next();
+			await queryClient.ensureQueryData(profileQueryOptions);
+			await queryClient.ensureQueryData(dashboardsQueryOptions);
+
+			const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission as PermissionsType);
+			if (hasAccess) {
+				return next();
+			}
+
+			return next({ name: 'Forbidden' });
+		} catch (error) {
+			console.log(error);
+			window.location.replace('/');
 		}
-
-		return next({ name: 'Forbidden' });
 	});
 
 	return router;
