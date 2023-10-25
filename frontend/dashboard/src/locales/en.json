@@ -16,7 +16,7 @@
   },
   "sharedTexts": {
     "saved": "Saved",
-		"errorOnSave": "Error on saving {error}",
+    "errorOnSave": "Error on saving {error}",
     "enabled": "Enabled",
     "status": "Status",
     "name": "Name",
@@ -28,10 +28,10 @@
     },
     "response": "Response",
     "userName": "User name",
-		"dangerZone": "Danger zone",
-		"deleted": "Deleted",
-		"updated": "Updated",
-		"disabled": "Disabled"
+    "dangerZone": "Danger zone",
+    "deleted": "Deleted",
+    "updated": "Updated",
+    "disabled": "Disabled"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -45,9 +45,9 @@
     },
     "integrations": "Integrations",
     "events": "Events",
-		"chatAlerts": "Chat alerts",
+    "chatAlerts": "Chat alerts",
     "overlays": "Overlays",
-		"overlaysRegistry": "Overlays registry",
+    "overlaysRegistry": "Overlays registry",
     "songRequests": "Song requests",
     "timers": "Timers",
     "roles": "Permissions",
@@ -57,7 +57,7 @@
     "alerts": "Alerts",
     "games": "Games",
     "users": "Users",
-		"moderation": "Moderation"
+    "moderation": "Moderation"
   },
   "navbar": {
     "logout": "Logout",
@@ -133,19 +133,19 @@
         "divider": "Settings",
         "visible": {
           "label": "Visibility",
-          "text": "Command visibility in public page, in commands list variable."
+          "text": "Command visibility on a public commands list page."
         },
         "keepOrder": {
           "label": "Keep order of responses",
-          "text": "Bot will keep your order of respones when they sent in chat"
+          "text": "Bot will keep specified order of respones when sending them into chat"
         },
         "onlineOnly": {
-          "label": "Online only",
-          "text": "Command will work only when stream online"
+          "label": "Only while online",
+          "text": "This command will work only when the stream is online"
         },
         "other": {
           "divider": "Other",
-          "commandGroup": "Group of command"
+          "commandGroup": "Command Group"
         }
       },
       "alert": {
@@ -155,9 +155,9 @@
   },
   "dashboard": {
     "botManage": {
-      "title": "Bot manage",
-      "moderator": "<b>{botName}</b> is a moderator",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {botName}</b>, otherwise bot won't send messages in chat.",
+      "title": "Bot Management",
+      "moderator": "<b>{botName}</b> is a moderator on this channel.",
+      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {botName}</b>, otherwise bot will not send messages in chat.",
       "leave": "Leave",
       "join": "Join"
     },
@@ -165,17 +165,17 @@
       "streamInfo": {
         "noTitle": "Cannot get title",
         "noCategory": "Cannot get category",
-        "modalTitle": "Edit stream information",
-        "title": "Title",
+        "modalTitle": "Edit Stream Information",
+        "title": "Stream Title",
         "category": "Category"
       },
       "uptime": "Uptime",
       "followers": "Followers",
       "messages": "Messages",
       "subs": "Subs",
-      "usedEmotes": "Used emotes",
+      "usedEmotes": "Emotes Sent",
       "viewers": "Viewers",
-      "requestedSongs": "Requested songs"
+      "requestedSongs": "Requested Songs"
     },
     "widgets": {
       "chat": {
@@ -185,81 +185,81 @@
         "title": "Stream"
       },
       "events": {
-        "title": "Events"
+        "title": "Events List"
       },
       "bot": {
-        "title": "Bot managment and information"
+        "title": "Bot Management and Information"
       }
     }
   },
   "integrations": {
-    "notLoggedIn": "Not logged in",
-		"songServicesInfo": "Provides possibility to Twir for print current played song in <b>!song</b> command",
-		"donateServicesInfo": "Provides possibility to Twir for listen incoming donations, and setup interactions for you in <a href='/dashboard/events'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> systems",
-		"discord": {
-			"description": "Use this integration for setup live alerts into your discord guilds",
-			"guildPluralization": "zero guilds | 1 guild | {count} guilds",
-			"connectedGuilds" : "Connected {guilds}",
-			"alerts": {
-				"label": "Alerts",
-				"showTitle": "Show title of stream",
-				"showCategory": "Show category of stream",
-				"showViewers": "Show viewers",
-				"showPreview": "Show stream preview",
-				"showProfileImage": "Show twitch profile avatar",
-				"channelsSelect": "Select channels where notifications will be located",
-				"streamOnlineLabel": "Stream online message",
-				"streamOnlinePlaceholder": "The message twir will send when stream started",
-				"streamOfflineLabel": "Stream offline message",
-				"streamOfflinePlaceholder": "The message twir will send when stream goes offline",
-				"updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
-				"shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline"
-			},
-			"connectGuild": "+ connect new guild",
-			"disconnectGuild": "Disconnect guild",
-			"noGuilds": "No guilds connected"
-		},
-		"faceit": {
-			"info": "Provides possibility to Twir track your faceit matches, and setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."
-		},
-		"valorant": {
-			"info": "Provides possibility to Twir track your valorant matches, and setup command variables such as <b>$(valorant.profile.elo)</b>, <b>$(valorant.profile.tier)</b> and much more. "
-		}
+    "notLoggedIn": "You have not logged in",
+    "songServicesInfo": "Logging in through streaming services such as <i>last.fm</i>, <i>Spotify</i>, <i>VK</i> will automatically print your currently playing song into chat when <b>!song</b> command is being used.",
+    "donateServicesInfo": "Provides possibility to Twir for listen incoming donations, and setup interactions for you in <a href='/dashboard/events/custom'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> systems",
+    "discord": {
+      "description": "Use this integration for setup live alerts into your discord guilds",
+      "guildPluralization": "zero guilds | 1 guild | {count} guilds",
+      "connectedGuilds": "Connected {guilds}",
+      "alerts": {
+        "label": "Alerts",
+        "showTitle": "Show title of stream",
+        "showCategory": "Show category of stream",
+        "showViewers": "Show viewers",
+        "showPreview": "Show stream preview",
+        "showProfileImage": "Show twitch profile avatar",
+        "channelsSelect": "Select channels where notifications will be located",
+        "streamOnlineLabel": "Stream online message",
+        "streamOnlinePlaceholder": "The message twir will send when stream started",
+        "streamOfflineLabel": "Stream offline message",
+        "streamOfflinePlaceholder": "The message twir will send when stream goes offline",
+        "updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
+        "shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline"
+      },
+      "connectGuild": "+ connect new guild",
+      "disconnectGuild": "Disconnect guild",
+      "noGuilds": "No guilds connected"
+    },
+    "faceit": {
+      "info": "Provides possibility to Twir track your faceit matches, and setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."
+    },
+    "valorant": {
+      "info": "Provides possibility to Twir track your valorant matches, and setup command variables such as <b>$(valorant.profile.elo)</b>, <b>$(valorant.profile.tier)</b> and much more. "
+    }
   },
   "events": {
     "delay": "Delay (seconds)",
-    "repeat": "Repeat times",
-    "onlineOnly": "Execute only when stream is online",
+    "repeat": "Repeat Count",
+    "onlineOnly": "Execute only when the stream is online",
     "type": "Type",
     "description": "Description",
-    "targetCommand": "Target command",
-    "targetVariable": "Target variable",
-    "targetTwitchReward": "Target twitch reward",
-    "targetKeyword": "Target keyword",
+    "targetCommand": "Target Command",
+    "targetVariable": "Target Variable",
+    "targetTwitchReward": "Target Twitch Reward",
+    "targetKeyword": "Target Keyword",
     "operations": {
-      "divider": "Operations",
-      "name": "Operation",
-      "input": "Text for operation (supports variables)",
-      "banMessage": "Ban message",
-      "banTime": "Ban time",
+      "divider": "Actions",
+      "name": "Action",
+      "input": "Text for an action (supports variables)",
+      "banMessage": "Ban Message",
+      "banTime": "Ban Time",
       "obs": {
-        "warningTitle": "You have to configure obs first",
-        "warningText": "Seems like you not connected Twir with obs, please do it on overlays page.",
+        "warningTitle": "You have to configure OBS first before proceeding further",
+        "warningText": "Seems like you have not connected Twir with OBS. Please, do it on “Overlays” page.",
         "scene": "OBS Scene",
         "source": "OBS Source",
-        "audioSource": "OBS Audio source"
+        "audioSource": "OBS Audio Source"
       },
       "values": "Values",
-      "triggerAlert": "Trigger alert"
+      "triggerAlert": "Trigger Alert"
     },
     "variables": {
       "userName": "Name of the user who triggered the event",
-      "userDisplayName": "Display name of the user who triggered the event",
-      "targetUserName": "Target name of user",
-      "targetDisplayUserName": "Target display name of user",
-      "subLevel": "Level of subscription, equals 1/2/3/prime",
-      "resubMonths": "How many months has the user been subscribed",
-      "resubStreak": "How many cumulative months has the user been subscribed",
+      "userDisplayName": "User display name who triggered the event",
+      "targetUserName": "Target username",
+      "targetDisplayUserName": "Target user display name",
+      "subLevel": "Subscription levels (such as “1”/“2”/“3”/“prime”)",
+      "resubMonths": "Subscriber months streak",
+      "resubStreak": "Total subscriber months count",
       "resubMessage": "Message user entered when re-resubscribed",
       "rewardName": "Name of used reward",
       "rewardCost": "Cost of used reward",
@@ -325,10 +325,10 @@
         "undoSelection": "Undo selection",
         "empty": "No one's created their own customizations yet."
       },
-			"tabs": {
-				"general": "General",
-				"usersSettings": "Users Settings"
-			}
+      "tabs": {
+        "general": "General",
+        "usersSettings": "Users Settings"
+      }
     },
     "obs": {
       "description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events.",
@@ -363,10 +363,10 @@
       "neededPercentageForskip": "Needed percentage of online users to skip song",
       "channelReward": "Channel reward for requesting song",
       "deniedChannels": "Denied youtube channels",
-			"deniedWords": "Denied words in song title and author",
+      "deniedWords": "Denied words in song title and author",
       "deniedUsers": "Users, who can't request songs",
       "deniedSongs": "Denied songs for request",
-			"takeSongFromDonationMessage": "Takes song links from donation message",
+      "takeSongFromDonationMessage": "Takes song links from donation message",
       "users": {
         "maxRequests": "Maximum requests per user",
         "minimalWatchTime": "Minimal watch time for request song (minutes)",
@@ -380,11 +380,11 @@
         "minViews": "Minimal views on song for request"
       }
     },
-		"tabs": {
-			"general": "General settings",
-			"users": "Users settings",
-			"songs": "Songs settings"
-		}
+    "tabs": {
+      "general": "General settings",
+      "users": "Users settings",
+      "songs": "Songs settings"
+    }
   },
   "timers": {
     "table": {
@@ -459,18 +459,18 @@
     "validations": {
       "name": "Name cannot be empty and bigger then 30 symbols"
     },
-		"trigger": {
-			"commands": "Commands for trigger",
-			"rewards": "Rewards for trigger",
-			"keywords": "Keywords for trigger",
-			"greetings": "Greetings for trigger"
-		},
-		"select": {
-			"audio": "Configure audio",
-			"image": "Configure image",
-			"text": "Configure text"
-		},
-		"audioVolume": "Audio volume ({volume}%)"
+    "trigger": {
+      "commands": "Commands for trigger",
+      "rewards": "Rewards for trigger",
+      "keywords": "Keywords for trigger",
+      "greetings": "Greetings for trigger"
+    },
+    "select": {
+      "audio": "Configure audio",
+      "image": "Configure image",
+      "text": "Configure text"
+    },
+    "audioVolume": "Audio volume ({volume}%)"
   },
   "games": {
     "command": "Command",
@@ -487,7 +487,7 @@
       "surviveMessage": "Message, if user survived.",
       "deathMessage": "Message, if user lost and timeouted.",
       "chargedBullets": "Charged bullets in revolver (size of tumber is {tumberSize}). The bigger number - the biggest chance to die.",
-			"tumberSize": "Size of tumber in revolver."
+      "tumberSize": "Size of tumber in revolver."
     }
   },
   "community": {
@@ -506,105 +506,105 @@
       }
     }
   },
-	"filePicker": {
-		"innerText": "Select or drop {type}",
-		"usedSpace": "Used {used} / {max} MB",
-		"emptyText": "No {type} uploaded"
-	},
-	"overlaysRegistry": {
-		"description": "This system allows you to create custom confirugurable overlays for OBS. Currently it support only html overlays, but we'll add more for you. <3",
-		"noLayersCreated": {
-			"title": "Not configured",
-			"description": "Currently layers of overlays not created"
-		},
-		"customWidth": "Custom width",
-		"customHeight": "Custom height",
-		"name": "Name of overlay",
-		"createNewLayer": "Create new layer",
-		"validations": {
-			"name": "Name cannot be empty and bigger then 30 symbols",
-			"layers": "Layers cannot be empty and it cannot contain more then 15 layers"
-		},
-		"html": {
-			"description": "Allows you to use custom html, css, and bot variables",
-			"updateInterval": "Interval, in which html variables will be updated",
-			"variablesAlert": {
-				"title": "You can use some variables in html, click the button for show available options",
-				"selectToCopy": "Select variable, to copy it to clipboard"
-			},
-			"periodicallyRefetchData": "Periodically parse html data from server"
-		}
-	},
-	"chatAlerts": {
-		"randomedMessage": "Message will be randomed.<br>",
-		"randomMessageWithCount": "Message will be randomed for identical count.<br>",
-		"replacedInfo": "{vars} – will be replaced with actual information.<br>",
-		"cooldown": "Cooldown on message sending (seconds)",
-		"ban": {
-			"alertInfo": "Set time to 0 to print message on permanent ban.<br>",
-			"countLabel": "Time (minutes)",
-			"ignoreTimeoutFrom": "Ignore timeouts from usernames"
-		},
-		"labels": {
-			"followers": "Followers",
-			"raids": "Raids",
-			"donations": "Donations",
-			"subscriptions": "Subscriptions",
-			"rewards": "Rewards",
-			"firstUserMessage": "First user message",
-			"streamOnline": "Stream online",
-			"streamOffline": "Stream offline",
-			"chatCleared": "Chat cleared",
-			"userBanned": "User banned"
-		}
-	},
-	"moderation": {
-		"createNewRule": "Create new moderation rule",
-		"banTime": "Timeout time",
-		"banDescription": "Set to 0 for ban permamently",
-		"banMessage": "Message and reason of timeout",
-		"warningMessage": "Message for warning",
-		"warningMaxCount": "Count of warnings before timeout user",
-		"excludedRoles": "Select roles, which will be not impacted for this filter",
-		"types": {
-			"links": {
-				"name": "Links",
-				"description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being shared."
-			},
-			"deny_list": {
-				"name": "Deny list",
-				"description": "Helps maintain a clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
-				"empty": "List of denied words is empty, please add atleast one",
-				"regexp": "Thats support regexp for advanced users. Note: it should be writted for golang"
-			},
-			"symbols": {
-				"name": "Symbols",
-				"description": "Identifies and restricts excessive use of symbols, preventing clutter and maintaining readability in the chat.",
-				"triggerLength": "From what message length start to check on symbols",
-				"maxPercentage": "Max percent of symbols in message"
-			},
-			"long_message": {
-				"name": "Long message",
-				"description": "Controls chat clutter by limiting the length of messages",
-				"triggerLength": "Maximum length of message"
-			},
-			"caps": {
-				"name": "Caps",
-				"description": "Discourages excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-				"maxPercentage": "Maximum percent of capitalized letters in message",
-				"triggerLength": "Message length for start checking on caps"
-			},
-			"emotes": {
-				"name": "Emotes",
-				"description": " Emotes moderation manages the frequency and volume of emoticons used in messages, avoiding overuse and spam of iconic emotes.",
-				"triggerLength": "Maximum emotes in message"
-			},
-			"language": {
-				"name": "Language",
-				"description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat.",
-				"allowedLanguages": "Allowed languages",
-				"disallowedLanguages": "Disallowed languages"
-			}
-		}
-	}
+  "filePicker": {
+    "innerText": "Select or drop {type}",
+    "usedSpace": "Used {used} / {max} MB",
+    "emptyText": "No {type} uploaded"
+  },
+  "overlaysRegistry": {
+    "description": "This system allows you to create custom confirugurable overlays for OBS. Currently it support only html overlays, but we'll add more for you. <3",
+    "noLayersCreated": {
+      "title": "Not configured",
+      "description": "Currently layers of overlays not created"
+    },
+    "customWidth": "Custom width",
+    "customHeight": "Custom height",
+    "name": "Name of overlay",
+    "createNewLayer": "Create new layer",
+    "validations": {
+      "name": "Name cannot be empty and bigger then 30 symbols",
+      "layers": "Layers cannot be empty and it cannot contain more then 15 layers"
+    },
+    "html": {
+      "description": "Allows you to use custom html, css, and bot variables",
+      "updateInterval": "Interval, in which html variables will be updated",
+      "variablesAlert": {
+        "title": "You can use some variables in html, click the button for show available options",
+        "selectToCopy": "Select variable, to copy it to clipboard"
+      },
+      "periodicallyRefetchData": "Periodically parse html data from server"
+    }
+  },
+  "chatAlerts": {
+    "randomedMessage": "Message will be randomed.<br>",
+    "randomMessageWithCount": "Message will be randomed for identical count.<br>",
+    "replacedInfo": "{vars} – will be replaced with actual information.<br>",
+    "cooldown": "Cooldown on message sending (seconds)",
+    "ban": {
+      "alertInfo": "Set time to 0 to print message on permanent ban.<br>",
+      "countLabel": "Time (minutes)",
+      "ignoreTimeoutFrom": "Ignore timeouts from usernames"
+    },
+    "labels": {
+      "followers": "Followers",
+      "raids": "Raids",
+      "donations": "Donations",
+      "subscriptions": "Subscriptions",
+      "rewards": "Rewards",
+      "firstUserMessage": "First user message",
+      "streamOnline": "Stream online",
+      "streamOffline": "Stream offline",
+      "chatCleared": "Chat cleared",
+      "userBanned": "User banned"
+    }
+  },
+  "moderation": {
+    "createNewRule": "Create new moderation rule",
+    "banTime": "Timeout time",
+    "banDescription": "Set to 0 for ban permamently",
+    "banMessage": "Message and reason of timeout",
+    "warningMessage": "Message for warning",
+    "warningMaxCount": "Count of warnings before timeout user",
+    "excludedRoles": "Select roles, which will be not impacted for this filter",
+    "types": {
+      "links": {
+        "name": "Links",
+        "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being shared."
+      },
+      "deny_list": {
+        "name": "Deny list",
+        "description": "Helps maintain a clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
+        "empty": "List of denied words is empty, please add atleast one",
+        "regexp": "Thats support regexp for advanced users. Note: it should be writted for golang"
+      },
+      "symbols": {
+        "name": "Symbols",
+        "description": "Identifies and restricts excessive use of symbols, preventing clutter and maintaining readability in the chat.",
+        "triggerLength": "From what message length start to check on symbols",
+        "maxPercentage": "Max percent of symbols in message"
+      },
+      "long_message": {
+        "name": "Long message",
+        "description": "Controls chat clutter by limiting the length of messages",
+        "triggerLength": "Maximum length of message"
+      },
+      "caps": {
+        "name": "Caps",
+        "description": "Discourages excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
+        "maxPercentage": "Maximum percent of capitalized letters in message",
+        "triggerLength": "Message length for start checking on caps"
+      },
+      "emotes": {
+        "name": "Emotes",
+        "description": " Emotes moderation manages the frequency and volume of emoticons used in messages, avoiding overuse and spam of iconic emotes.",
+        "triggerLength": "Maximum emotes in message"
+      },
+      "language": {
+        "name": "Language",
+        "description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat.",
+        "allowedLanguages": "Allowed languages",
+        "disallowedLanguages": "Disallowed languages"
+      }
+    }
+  }
 }
