@@ -40,6 +40,7 @@ require (
 	github.com/satont/twir/libs/grpc v0.0.0-20230617211209-79e3285c6910
 	github.com/satont/twir/libs/integrations/spotify v0.0.0-20230713153539-b2fe2b3b5757
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-20230617211209-79e3285c6910
 	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
@@ -57,6 +58,7 @@ require (
 	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gaukas/godicttls v0.0.4 // indirect
+	github.com/go-redis/redis/v9 v9.0.0-rc.2 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/mock v1.6.0 // indirect
