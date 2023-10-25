@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
+	type GetUsersResponse,
 	ResetStatsRequest_Field,
 } from '@twir/grpc/generated/api/api/community';
 import { Ref, isRef } from 'vue';
@@ -37,12 +38,15 @@ const sortBy = {
 
 export const useCommunityUsers = () => {
 	return {
-		getAll: (opts: GetCommunityUsersOpts | Ref<GetCommunityUsersOpts>) => useQuery({
+		getAll: (opts: GetCommunityUsersOpts | Ref<GetCommunityUsersOpts>) => useQuery<GetUsersResponse>({
 			queryKey: ['communityUsers', opts],
 			queryFn: async () => {
 				const rawOpts = isRef(opts) ? opts.value : opts;
 
-				if (!rawOpts.channelId) return;
+				if (!rawOpts.channelId) return {
+					users: [],
+					totalUsers: 0,
+				};
 
 				const order = rawOpts.order === ComminityOrder.Desc
 					? GetUsersRequest_Order.Desc

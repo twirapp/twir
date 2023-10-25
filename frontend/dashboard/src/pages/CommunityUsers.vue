@@ -10,7 +10,7 @@ import {
   NPopconfirm,
 } from 'naive-ui';
 import type { TableBaseColumn } from 'naive-ui/es/data-table/src/interface';
-import { ref, computed, h } from 'vue';
+import { ref, computed, h, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import {
@@ -34,9 +34,13 @@ const usersOpts = ref<GetCommunityUsersOpts>({
 	limit: 100,
 	order: ComminityOrder.Desc,
 	sortBy: CommunitySortBy.Watched,
-	channelId: profile.value?.selectedDashboardId,
+	channelId: undefined,
 });
 const users = communityManager.getAll(usersOpts);
+
+watch(() => profile.value?.selectedDashboardId, (v) => {
+	usersOpts.value.channelId = v;
+});
 
 const usersIdsForRequest = computed(() => {
 	return users.data?.value?.users.map((user) => user.id) ?? [];
