@@ -27,7 +27,7 @@ import {
 	useMessage,
 	NMention,
 	NPopconfirm,
-	NAlert,
+	NAlert, useThemeVars,
 } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -38,6 +38,8 @@ import TwirCircle from '@/../public/TwirInCircle.svg?url';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
+
+const themeVars = useThemeVars();
 
 const manager = useDiscordIntegration();
 const { data: authLink } = manager.getConnectLink();
@@ -144,26 +146,8 @@ const { data: currentUser } = useProfile();
 		modal-width="80vw"
 		:icon="IconDiscord"
 		icon-fill="#5865F2"
+		:description="t('integrations.discord.description')"
 	>
-		<template #customDescriptionSlot>
-			<div style="display: flex; flex-direction: column">
-				<span>{{ t('integrations.discord.description') }}</span>
-				<span style="font-size: 11px">
-					{{
-						t(
-							'integrations.discord.connectedGuilds',
-							{
-								guilds: t(
-									'integrations.discord.guildPluralization',
-									discordIntegrationData?.guilds?.length ?? 0
-								)
-							}
-						)
-					}}
-				</span>
-			</div>
-		</template>
-
 		<template #settings>
 			<n-tabs
 				v-model:value="currentTab"
@@ -378,6 +362,22 @@ const { data: currentUser } = useProfile();
 				</template>
 			</n-tabs>
 		</template>
+
+		<template #additionalFooter>
+			<div class="profile">
+				{{
+					t(
+						'integrations.discord.connectedGuilds',
+						{
+							guilds: t(
+								'integrations.discord.guildPluralization',
+								discordIntegrationData?.guilds?.length ?? 0
+							)
+						}
+					)
+				}}
+			</div>
+		</template>
 	</with-settings>
 </template>
 
@@ -411,5 +411,14 @@ const { data: currentUser } = useProfile();
 	display: flex;
 	align-items: center;
 	justify-content: center;
+}
+
+.profile {
+	display: flex;
+	align-items: center;
+	padding: 10px;
+	background-color: v-bind('themeVars.buttonColor2');
+	border-radius: 4px;
+	gap: 8px;
 }
 </style>

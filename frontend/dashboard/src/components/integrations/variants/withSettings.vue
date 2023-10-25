@@ -25,6 +25,7 @@ const props = withDefaults(defineProps<{
 defineSlots<{
 	settings: FunctionalComponent,
 	customDescriptionSlot?: FunctionalComponent,
+	additionalFooter?: FunctionalComponent
 }>();
 
 const showSettings = ref(false);
@@ -52,21 +53,29 @@ onUnmounted(() => showSettings.value = false);
 	>
 		<template #content>
 			<slot name="customDescriptionSlot" />
-			<span v-if="description" v-html="description" class="description" />
+			<span v-if="description" class="description" v-html="description" />
 		</template>
 
 		<template #footer>
-			<n-button
-				:disabled="!userCanManageIntegrations"
-				secondary
-				size="large"
-				@click="showSettings = true"
-			>
-				<div style="display: flex; gap: 4px;">
-					<span>{{ t('sharedButtons.settings') }}</span>
-					<IconSettings />
+			<div class="footer">
+				<div>
+					<n-button
+						:disabled="!userCanManageIntegrations"
+						secondary
+						size="large"
+						@click="showSettings = true"
+					>
+						<div style="display: flex; gap: 4px;">
+							<span>{{ t('sharedButtons.settings') }}</span>
+							<IconSettings />
+						</div>
+					</n-button>
 				</div>
-			</n-button>
+
+				<div>
+					<slot name="additionalFooter" />
+				</div>
+			</div>
 		</template>
 	</card>
 
@@ -105,5 +114,14 @@ onUnmounted(() => showSettings.value = false);
 .description :deep(a) {
 	color: v-bind('themeVars.successColor');
 	text-decoration: none;
+}
+
+.footer {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	width: 100%;
+	align-items: center;
+	gap: 8px;
 }
 </style>
