@@ -28,7 +28,7 @@ async function copy() {
 
 <template>
 	<n-input-group>
-		<n-input :type="type" show-password-on="click" size="small" :value="text" disabled />
+		<n-input :type="type" show-password-on="click" size="small" :value="text" @update-value="() => {}" />
 		<n-button :size="size" type="primary" @click="copy">
 			<span v-if="!isPending">Copy</span>
 			<span v-else>Copied</span>
