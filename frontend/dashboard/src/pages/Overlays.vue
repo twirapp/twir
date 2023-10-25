@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NGrid, NGridItem } from 'naive-ui';
 
+import { responsiveCols } from '@/components/consants.js';
 import Alerts from '@/components/overlays/alerts.vue';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
@@ -12,11 +13,11 @@ import TTS from '@/components/overlays/tts.vue';
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			max-width: 1000px;
+			max-width: 60vw;
 			margin: 0 auto;
 		"
 	>
-		<n-grid cols="1 m:2" :x-gap="16" :y-gap="16" responsive="screen">
+		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<TTS />
 			</n-grid-item>

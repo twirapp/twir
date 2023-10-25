@@ -2,6 +2,7 @@
 
 import { NGrid, NGridItem } from 'naive-ui';
 
+import { responsiveCols } from '@/components/consants.js';
 import EightBall from '@/components/games/8ball.vue';
 import RussianRoulette from '@/components/games/russianRoulette.vue';
 </script>
@@ -12,11 +13,11 @@ import RussianRoulette from '@/components/games/russianRoulette.vue';
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			max-width: 1000px;
+			max-width: 60vw;
 			margin: 0 auto;
 		"
 	>
-		<n-grid cols="1 m:2" :x-gap="16" :y-gap="16" responsive="screen">
+		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<EightBall />
 			</n-grid-item>

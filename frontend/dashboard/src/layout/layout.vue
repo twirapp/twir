@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { useLocalStorage, useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import {
-  darkTheme,
-  lightTheme,
-  NLayout,
-  NLayoutHeader,
-  NLayoutContent,
-  NLayoutSider,
-  NConfigProvider,
+	darkTheme,
+	lightTheme,
+	NLayout,
+	NLayoutHeader,
+	NLayoutContent,
+	NLayoutSider,
+	NConfigProvider,
 	NMessageProvider,
 	NNotificationProvider,
 	NSpin,
@@ -46,7 +46,11 @@ watch(smallerOrEqualLg, (v) => {
 </script>
 
 <template>
-	<n-config-provider :theme="themeStyles" style="height: 100%">
+	<n-config-provider
+		:theme="themeStyles"
+		style="height: 100%"
+		:breakpoints="{ xs: 0, s: 640, m: 1024, l: 1280, xl: 1536, xxl: 1920, '2xl': 2560 }"
+	>
 		<n-notification-provider :max="5">
 			<n-message-provider>
 				<n-layout style="height: 100%">
@@ -94,13 +98,13 @@ watch(smallerOrEqualLg, (v) => {
 <style>
 .router-enter-active,
 .router-leave-active {
-  transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
+	transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
 }
 
 .router-enter-from,
 .router-leave-to {
-  opacity: 0;
-  transform: scale(0.98);
+	opacity: 0;
+	transform: scale(0.98);
 }
 
 .app-loader {
