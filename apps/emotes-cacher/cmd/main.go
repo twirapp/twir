@@ -17,6 +17,7 @@ func main() {
 	const service = "emotes-cacher"
 
 	fx.New(
+		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
@@ -41,6 +42,11 @@ func main() {
 				return redis.NewClient(redisUrl), nil
 			},
 		),
-		fx.Invoke(grpc_impl.NewEmotesCacher),
+		fx.Invoke(
+			grpc_impl.NewEmotesCacher,
+			func(l logger.Logger) {
+				l.Info("Emotes Cacher started")
+			},
+		),
 	).Run()
 }
