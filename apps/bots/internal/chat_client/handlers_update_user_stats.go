@@ -63,18 +63,21 @@ func (c *ChatClient) updateUserStats(
 			}
 			user.Stats = newStats
 		} else {
-			query := c.services.DB.
+			err := c.services.DB.
 				Model(&user.Stats).
-				Where(`"userId" = ? AND "channelId" = ?`, msg.DbUser.ID, msg.Channel.ID).
-				Update("is_mod", lo.Contains(badges, "MODERATOR")).
-				Update("is_subscriber", lo.Contains(badges, "SUBSCRIBER")).
-				Update("is_vip", lo.Contains(badges, "VIP"))
+				Where(`"userId" = ? AND "channelId" = ?`, msg.User.ID, msg.Channel.ID).
+				Updates(
+					map[string]any{
+						"is_mod":        lo.Contains(badges, "MODERATOR"),
+						"is_subscriber": lo.Contains(badges, "SUBSCRIBER"),
+						"is_vip":        lo.Contains(badges, "VIP"),
+						"messages": lo.If(
+							msg.DbStream.ID != "",
+							user.Stats.Messages+1,
+						).Else(user.Stats.Messages),
+					},
+				).Error
 
-			if msg.DbStream.ID != "" {
-				query.Update("messages", user.Stats.Messages+1)
-			}
-
-			err := query.Error
 			if err != nil {
 				c.services.Logger.Error(
 					"cannot update user",
