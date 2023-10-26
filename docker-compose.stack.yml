@@ -142,6 +142,9 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 
   parser:
     build:
