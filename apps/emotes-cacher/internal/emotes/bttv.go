@@ -3,6 +3,7 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -32,7 +33,7 @@ func GetChannelBttvEmotes(channelID string) ([]string, error) {
 	reqData := BttvResponse{}
 	err = json.Unmarshal(body, &reqData)
 	if err != nil {
-		return nil, errors.New("cannot fetch bttv emotes")
+		return nil, fmt.Errorf("cannot fetch bttv emotes: %w", err)
 	}
 
 	emotes := []string{}

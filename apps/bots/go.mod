@@ -25,7 +25,7 @@ require (
 	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.4
-	go.uber.org/fx v1.20.0
+	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0

@@ -24,7 +24,7 @@ require (
 	github.com/satont/twir/libs/logger v0.0.0-20231015185800-07291c1491d4
 	github.com/satont/twir/libs/sentry v0.0.0-20231015185800-07291c1491d4
 	github.com/satont/twir/libs/twitch v0.0.0-20231015185112-b1ddd14cbc8f
-	go.uber.org/fx v1.20.0
+	go.uber.org/fx v1.20.1
 	golang.org/x/sync v0.4.0
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0

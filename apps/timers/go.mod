@@ -14,7 +14,7 @@ require (
 	github.com/satont/twir/libs/gomodels v0.0.0-20230816015129-6ac66282caa2
 	github.com/satont/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
-	go.uber.org/fx v1.20.0
+	go.uber.org/fx v1.20.1
 	google.golang.org/grpc v1.58.3
 	google.golang.org/protobuf v1.31.0
 	gorm.io/driver/postgres v1.5.3

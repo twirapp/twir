@@ -3,36 +3,71 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net"
 	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/samber/do"
-	"github.com/satont/twir/apps/emotes-cacher/internal/di"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emotes"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
-	"go.uber.org/zap"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type EmotesCacherImpl struct {
 	emotes_cacher.UnimplementedEmotesCacherServer
 
-	redis  redis.Client
-	logger zap.Logger
+	redis  *redis.Client
+	logger logger.Logger
 }
 
-func NewEmotesCacher() *EmotesCacherImpl {
-	redisClient := do.MustInvoke[redis.Client](di.Provider)
-	logger := do.MustInvoke[zap.Logger](di.Provider)
+type Opts struct {
+	fx.In
 
-	return &EmotesCacherImpl{
-		redis:  redisClient,
-		logger: logger,
+	Redis  *redis.Client
+	Logger logger.Logger
+	Lc     fx.Lifecycle
+}
+
+func NewEmotesCacher(opts Opts) {
+	impl := &EmotesCacherImpl{
+		redis:  opts.Redis,
+		logger: opts.Logger,
 	}
+
+	grpcServer := grpc.NewServer()
+
+	opts.Lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				lis, err := net.Listen(
+					"tcp",
+					fmt.Sprintf("0.0.0.0:%d", constants.EMOTES_CACHER_SERVER_PORT),
+				)
+				if err != nil {
+					return err
+				}
+				emotes_cacher.RegisterEmotesCacherServer(grpcServer, impl)
+				go grpcServer.Serve(lis)
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				grpcServer.GracefulStop()
+				return nil
+			},
+		},
+	)
 }
 
-func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cacher.Request) (*emptypb.Empty, error) {
+func (c *EmotesCacherImpl) CacheChannelEmotes(
+	_ context.Context,
+	req *emotes_cacher.Request,
+) (*emptypb.Empty, error) {
 	if req.ChannelId == "" {
 		return &emptypb.Empty{}, nil
 	}
@@ -40,45 +75,30 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cac
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
-	resultEmotes := make([]string, 300)
+	resultEmotes := make([]string, 0, 300)
 
-	wg.Add(3)
+	reqFuncs := []func(c string) ([]string, error){
+		emotes.GetChannelSevenTvEmotes,
+		emotes.GetChannelBttvEmotes,
+		emotes.GetChannelFfzEmotes,
+	}
 
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetChannelSevenTvEmotes(req.ChannelId)
-		if err != nil || em == nil || len(em) == 0 {
-			return
-		}
+	for _, f := range reqFuncs {
+		wg.Add(1)
+		f := f
+		go func() {
+			defer wg.Done()
+			res, err := f(req.ChannelId)
+			if err != nil {
+				c.logger.Error("cannot get emotes", slog.Any("err", err))
+				return
+			}
 
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
-
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetChannelBttvEmotes(req.ChannelId)
-		if err != nil || em == nil || len(em) == 0 {
-			return
-		}
-
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
-
-	go func() {
-		defer wg.Done()
-		em, err := emotes.GetChannelFfzEmotes(req.ChannelId)
-		if err != nil || em == nil || len(em) == 0 {
-			return
-		}
-
-		mu.Lock()
-		defer mu.Unlock()
-		resultEmotes = append(resultEmotes, em...)
-	}()
+			mu.Lock()
+			resultEmotes = append(resultEmotes, res...)
+			mu.Unlock()
+		}()
+	}
 
 	wg.Wait()
 
@@ -86,6 +106,7 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cac
 		if emote == "" {
 			continue
 		}
+
 		go func(emote string) {
 			c.redis.Set(
 				context.Background(),
@@ -99,7 +120,10 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(_ context.Context, req *emotes_cac
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty) (
+	*emptypb.Empty,
+	error,
+) {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 

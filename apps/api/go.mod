@@ -46,7 +46,7 @@ require (
 	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	go.uber.org/fx v1.20.0
+	go.uber.org/fx v1.20.1
 	golang.org/x/sync v0.4.0
 	gorm.io/driver/postgres v1.5.3
 	gorm.io/gorm v1.25.5

@@ -3,6 +3,7 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -21,6 +22,10 @@ func GetChannelSevenTvEmotes(channelID string) ([]string, error) {
 		return nil, err
 	}
 
+	if resp.StatusCode > 299 {
+		return nil, nil
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
@@ -29,7 +34,7 @@ func GetChannelSevenTvEmotes(channelID string) ([]string, error) {
 	reqData := SevenTvResponse{}
 	err = json.Unmarshal(body, &reqData)
 	if err != nil {
-		return nil, errors.New("cannot fetch 7tv emotes")
+		return nil, fmt.Errorf("cannot fetch 7tv emotes: %w", err)
 	}
 
 	mappedEmotes := lo.Map(

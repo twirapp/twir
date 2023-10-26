@@ -3,6 +3,7 @@ package emotes
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -36,7 +37,7 @@ func GetChannelFfzEmotes(channelID string) ([]string, error) {
 	reqData := FfzResponse{}
 	err = json.Unmarshal(body, &reqData)
 	if err != nil {
-		return nil, errors.New("cannot fetch ffz emotes")
+		return nil, fmt.Errorf("cannot fetch ffz emotes: %w", err)
 	}
 
 	emotes := []string{}
