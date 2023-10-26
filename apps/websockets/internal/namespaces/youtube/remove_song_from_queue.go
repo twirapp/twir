@@ -16,9 +16,9 @@ func (c *YouTube) RemoveSongFromQueue(
 	_ context.Context, msg *websockets.YoutubeRemoveSongFromQueueRequest,
 ) (*emptypb.Empty, error) {
 	song := &model.RequestedSong{}
-	err := c.services.Gorm.Where("id = ?", msg.EntityId).First(song).Error
+	err := c.gorm.Where("id = ?", msg.EntityId).First(song).Error
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -30,7 +30,7 @@ func (c *YouTube) RemoveSongFromQueue(
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -42,7 +42,7 @@ func (c *YouTube) RemoveSongFromQueue(
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 

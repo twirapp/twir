@@ -23,14 +23,14 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 	userId, _ := session.Get("userId")
 
 	var currentSongs []model.RequestedSong
-	err := c.services.Gorm.
+	err := c.gorm.
 		Where(`"channelId" = ? AND "deletedAt" IS NULL`, userId.(string)).
 		Order(`"queuePosition" ASC`).
 		Find(&currentSongs).
 		Error
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (c *YouTube) handleConnect(session *melody.Session) {
 
 	bytes, err := json.Marshal(outCome)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 

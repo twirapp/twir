@@ -32,20 +32,20 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 	}
 	err := json.Unmarshal(msg, data)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
 	bytes, err := json.Marshal(data.Data)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 	if data.EventName == "play" {
 		parsedData := &playEvent{}
 		err = json.Unmarshal(bytes, parsedData)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
@@ -56,7 +56,7 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 		parsedData := []string{}
 		err = json.Unmarshal(bytes, &parsedData)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
@@ -77,37 +77,37 @@ func (c *YouTube) handleMessage(session *melody.Session, msg []byte) {
 }
 
 func (c *YouTube) handleSkip(channelId string, ids []string) {
-	err := c.services.Gorm.
+	err := c.gorm.
 		Model(&model.RequestedSong{}).
 		Where(`id IN (?) AND "channelId" = ?`, ids, channelId).
 		Update(`"deletedAt"`, time.Now()).
 		Error
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 	}
 	redisKey := fmt.Sprintf("songrequests:youtube:%s:currentPlaying", channelId)
-	c.services.Redis.Del(context.Background(), redisKey)
+	c.redis.Del(context.Background(), redisKey)
 }
 
 func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) {
 	var count int64
-	err := c.services.Gorm.
+	err := c.gorm.
 		Model(&model.RequestedSong{}).
 		Where(`"channelId" = ? AND "deletedAt" IS NULL`, channelId).
 		Count(&count).Error
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
 	for i, video := range songs {
-		err = c.services.Gorm.
+		err = c.gorm.
 			Model(&model.RequestedSong{}).
 			Where(`id = ?`, video.ID).
 			Update(`"queuePosition"`, i).
 			Error
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 	}
@@ -116,11 +116,11 @@ func (c *YouTube) handleNewOrder(channelId string, songs []model.RequestedSong) 
 func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	ctx := context.Background()
 	redisKey := fmt.Sprintf("songrequests:youtube:%s:currentPlaying", userId)
-	current := c.services.Redis.Get(ctx, redisKey).Val()
+	current := c.redis.Get(ctx, redisKey).Val()
 	song := &model.RequestedSong{}
-	err := c.services.Gorm.Where("id = ?", data.ID).Find(song).Error
+	err := c.gorm.Where("id = ?", data.ID).Find(song).Error
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 	if song.ID == "" {
@@ -128,11 +128,11 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	}
 
 	channelSettings := &model.ChannelModulesSettings{}
-	err = c.services.Gorm.Where(
+	err = c.gorm.Where(
 		`"channelId" = ? AND type = ?`, song.ChannelID, "youtube_song_requests",
 	).Find(channelSettings).Error
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 	if channelSettings.ID == "" {
@@ -142,7 +142,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 	youtubeSettings := &modules.YouTubeSettings{}
 	err = json.Unmarshal(channelSettings.Settings, youtubeSettings)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -164,7 +164,7 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 			song.OrderedByDisplayName.String,
 		)
 
-		c.services.Grpc.Bots.SendMessage(
+		c.botsGrpc.SendMessage(
 			ctx, &bots.SendMessageRequest{
 				ChannelId:   song.ChannelID,
 				ChannelName: nil,
@@ -174,5 +174,5 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		)
 	}
 
-	c.services.Redis.Set(ctx, redisKey, data.ID, time.Duration(data.Duration)*time.Second)
+	c.redis.Set(ctx, redisKey, data.ID, time.Duration(data.Duration)*time.Second)
 }

@@ -6,28 +6,49 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Registry struct {
-	manager  *melody.Melody
-	services *types.Services
+	manager *melody.Melody
+
+	gorm       *gorm.DB
+	logger     logger.Logger
+	redis      *redis.Client
+	parserGrpc parser.ParserClient
 }
 
-func New(services *types.Services) *Registry {
+type Opts struct {
+	fx.In
+
+	Gorm       *gorm.DB
+	Logger     logger.Logger
+	Redis      *redis.Client
+	ParserGrpc parser.ParserClient
+}
+
+func New(opts Opts) *Registry {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	overlaysRegistry := &Registry{
-		manager:  m,
-		services: services,
+		manager:    m,
+		gorm:       opts.Gorm,
+		logger:     opts.Logger,
+		redis:      opts.Redis,
+		parserGrpc: opts.ParserGrpc,
 	}
 
 	overlaysRegistry.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				services.Logger.Error(err)
+				opts.Logger.Error(err.Error())
 				return
 			}
 			session.Write([]byte(`{"eventName":"connected to overlays namespace"}`))
@@ -39,6 +60,8 @@ func New(services *types.Services) *Registry {
 			overlaysRegistry.handleMessage(session, msg)
 		},
 	)
+
+	http.HandleFunc("/registry/overlays", overlaysRegistry.HandleRequest)
 
 	return overlaysRegistry
 }
@@ -55,7 +78,7 @@ func (c *Registry) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return err
 	}
 
@@ -67,7 +90,7 @@ func (c *Registry) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return err
 	}
 

@@ -10,10 +10,10 @@ import (
 func (c *GrpcImpl) YoutubeAddSongToQueue(
 	ctx context.Context, msg *websockets.YoutubeAddSongToQueueRequest,
 ) (*emptypb.Empty, error) {
-	return c.sockets.YouTube.AddSongToQueue(ctx, msg)
+	return c.youTubeServer.AddSongToQueue(ctx, msg)
 }
 func (c *GrpcImpl) YoutubeRemoveSongToQueue(
 	ctx context.Context, msg *websockets.YoutubeRemoveSongFromQueueRequest,
 ) (*emptypb.Empty, error) {
-	return c.sockets.YouTube.RemoveSongFromQueue(ctx, msg)
+	return c.youTubeServer.RemoveSongFromQueue(ctx, msg)
 }

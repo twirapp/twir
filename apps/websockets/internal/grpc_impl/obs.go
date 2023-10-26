@@ -11,7 +11,7 @@ func (c *GrpcImpl) ObsSetScene(
 	_ context.Context,
 	msg *websockets.ObsSetSceneMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "setScene", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "setScene", msg); err != nil {
 		return nil, err
 	}
 
@@ -21,7 +21,7 @@ func (c *GrpcImpl) ObsToggleSource(
 	_ context.Context,
 	msg *websockets.ObsToggleSourceMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "toggleSource", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "toggleSource", msg); err != nil {
 		return nil, err
 	}
 
@@ -31,7 +31,7 @@ func (c *GrpcImpl) ObsToggleAudio(
 	_ context.Context,
 	msg *websockets.ObsToggleAudioMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "toggleAudioSource", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "toggleAudioSource", msg); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +40,7 @@ func (c *GrpcImpl) ObsToggleAudio(
 func (c *GrpcImpl) ObsAudioSetVolume(_ context.Context, msg *websockets.ObsAudioSetVolumeMessage) (
 	*emptypb.Empty, error,
 ) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "setVolume", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "setVolume", msg); err != nil {
 		return nil, err
 	}
 
@@ -49,7 +49,7 @@ func (c *GrpcImpl) ObsAudioSetVolume(_ context.Context, msg *websockets.ObsAudio
 func (c *GrpcImpl) ObsAudioIncreaseVolume(
 	_ context.Context, msg *websockets.ObsAudioIncreaseVolumeMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "increaseVolume", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "increaseVolume", msg); err != nil {
 		return nil, err
 	}
 
@@ -58,7 +58,7 @@ func (c *GrpcImpl) ObsAudioIncreaseVolume(
 func (c *GrpcImpl) ObsAudioDecreaseVolume(
 	_ context.Context, msg *websockets.ObsAudioDecreaseVolumeMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "decreaseVolume", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "decreaseVolume", msg); err != nil {
 		return nil, err
 	}
 
@@ -70,7 +70,7 @@ func (c *GrpcImpl) ObsAudioEnable(
 ) (
 	*emptypb.Empty, error,
 ) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "enableAudio", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "enableAudio", msg); err != nil {
 		return nil, err
 	}
 
@@ -82,7 +82,7 @@ func (c *GrpcImpl) ObsAudioDisable(
 ) (
 	*emptypb.Empty, error,
 ) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "disableAudio", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "disableAudio", msg); err != nil {
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (c *GrpcImpl) ObsStopStream(
 	_ context.Context,
 	msg *websockets.ObsStopOrStartStream,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "stopStream", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "stopStream", msg); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (c *GrpcImpl) ObsStartStream(
 	_ context.Context,
 	msg *websockets.ObsStopOrStartStream,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.OBS.SendEvent(msg.ChannelId, "startStream", msg); err != nil {
+	if err := c.obsServer.SendEvent(msg.ChannelId, "startStream", msg); err != nil {
 		return nil, err
 	}
 
@@ -113,7 +113,7 @@ func (c *GrpcImpl) ObsCheckIsUserConnected(
 	_ context.Context,
 	msg *websockets.ObsCheckUserConnectedRequest,
 ) (*websockets.ObsCheckUserConnectedResponse, error) {
-	res, err := c.sockets.OBS.IsUserConnected(msg.UserId)
+	res, err := c.obsServer.IsUserConnected(msg.UserId)
 	if err != nil {
 		return nil, err
 	}

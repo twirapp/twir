@@ -11,7 +11,7 @@ func (c *GrpcImpl) TextToSpeechSay(_ context.Context, msg *websockets.TTSMessage
 	*emptypb.Empty,
 	error,
 ) {
-	if err := c.sockets.TTS.SendEvent(msg.ChannelId, "say", msg); err != nil {
+	if err := c.ttsServer.SendEvent(msg.ChannelId, "say", msg); err != nil {
 		return nil, err
 	}
 
@@ -21,7 +21,7 @@ func (c *GrpcImpl) TextToSpeechSkip(
 	_ context.Context,
 	msg *websockets.TTSSkipMessage,
 ) (*emptypb.Empty, error) {
-	if err := c.sockets.TTS.SendEvent(msg.ChannelId, "skip", msg); err != nil {
+	if err := c.ttsServer.SendEvent(msg.ChannelId, "skip", msg); err != nil {
 		return nil, err
 	}
 

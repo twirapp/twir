@@ -2,37 +2,57 @@ package alerts
 
 import (
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Alerts struct {
-	manager  *melody.Melody
-	services *types.Services
+	manager *melody.Melody
+
+	gorm   *gorm.DB
+	logger logger.Logger
+	redis  *redis.Client
 }
 
-func NewAlerts(services *types.Services) *Alerts {
+type Opts struct {
+	fx.In
+
+	Gorm   *gorm.DB
+	Logger logger.Logger
+	Redis  *redis.Client
+}
+
+func NewAlerts(opts Opts) *Alerts {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	alerts := &Alerts{
-		manager:  m,
-		services: services,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
 	}
 
 	alerts.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				services.Logger.Error(err)
+				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
 				return
 			}
 			session.Write([]byte(`{"eventName":"connected to alerts namespace"}`))
 		},
 	)
+
+	http.HandleFunc("/alerts", alerts.HandleRequest)
 
 	return alerts
 }
@@ -50,7 +70,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error("cannot process message", slog.Any("err", err))
 		return err
 	}
 
@@ -62,7 +82,7 @@ func (c *Alerts) SendEvent(channelId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error("cannot broadcast message", slog.Any("err", err))
 		return err
 	}
 

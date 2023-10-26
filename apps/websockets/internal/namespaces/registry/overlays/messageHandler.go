@@ -42,7 +42,7 @@ func base64ToText(text string) string {
 func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 	var message types.WebSocketMessage
 	if err := json.Unmarshal(msg, &message); err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -51,27 +51,26 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 		var data parseLayerVariablesMessage
 		bytes, _ := json.Marshal(message.Data)
 		if err := json.Unmarshal(bytes, &data); err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
 		var layer model.ChannelOverlayLayer
-		if err := c.services.Gorm.
+		if err := c.gorm.
 			Preload("Overlay").
 			Find(&layer, "id = ?", data.LayerID).
 			Error; err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
 		if layer.ID.String() == "" || layer.Overlay == nil {
-			c.services.Logger.Error("overlay not found")
 			return
 		}
 
 		text := base64ToText(layer.Settings.HtmlOverlayHTML)
 
-		res, err := c.services.Grpc.Parser.ParseTextResponse(
+		res, err := c.parserGrpc.ParseTextResponse(
 			context.TODO(),
 			&parser.ParseTextRequestData{
 				Sender: &parser.Sender{},
@@ -85,7 +84,7 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			},
 		)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
@@ -97,33 +96,31 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 				layer.ID.String(),
 			)),
 		); err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 		}
 	case "getLayers":
 		var data overlayGetLayersMessage
 		bytes, _ := json.Marshal(message.Data)
 		if err := json.Unmarshal(bytes, &data); err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
 		socketUserId, ok := session.Get("userId")
 		if !ok {
-			c.services.Logger.Error("userId not found")
 			return
 		}
 
 		var overlay model.ChannelOverlay
-		if err := c.services.Gorm.
+		if err := c.gorm.
 			Preload("Layers").
 			Find(&overlay, "channel_id = ? AND id = ?", socketUserId, data.OverlayID).
 			Error; err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
 		if overlay.ChannelID == "" {
-			c.services.Logger.Error("overlay not found")
 			return
 		}
 
@@ -134,12 +131,12 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 			},
 		)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 
 		if err := session.Write(responseBytes); err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 		}
 	}
 }

@@ -16,10 +16,10 @@ func (c *YouTube) AddSongToQueue(_ context.Context, msg *websockets.YoutubeAddSo
 	*emptypb.Empty, error,
 ) {
 	song := &model.RequestedSong{}
-	err := c.services.Gorm.Where("id = ?", msg.EntityId).First(song).Error
+	err := c.gorm.Where("id = ?", msg.EntityId).First(song).Error
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -31,7 +31,7 @@ func (c *YouTube) AddSongToQueue(_ context.Context, msg *websockets.YoutubeAddSo
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -43,7 +43,7 @@ func (c *YouTube) AddSongToQueue(_ context.Context, msg *websockets.YoutubeAddSo
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 

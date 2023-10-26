@@ -10,12 +10,12 @@ import (
 func (c *GrpcImpl) RefreshOverlays(ctx context.Context, req *websockets.RefreshOverlaysRequest) (
 	*emptypb.Empty, error,
 ) {
-	if err := c.sockets.OverlaysRegistry.SendEvent(
+	if err := c.overlaysRegistryServer.SendEvent(
 		req.ChannelId,
 		"refreshOverlays",
 		nil,
 	); err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 

@@ -2,31 +2,48 @@ package obs
 
 import (
 	"encoding/json"
+	"net/http"
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type OBS struct {
-	manager  *melody.Melody
-	services *types.Services
+	manager *melody.Melody
+	gorm    *gorm.DB
+	logger  logger.Logger
+	redis   *redis.Client
 }
 
-func NewObs(services *types.Services) *OBS {
+type Opts struct {
+	fx.In
+
+	Gorm   *gorm.DB
+	Logger logger.Logger
+	Redis  *redis.Client
+}
+
+func NewObs(opts Opts) *OBS {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	obs := &OBS{
-		manager:  m,
-		services: services,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
 	}
 
 	obs.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				services.Logger.Error(err)
+				opts.Logger.Error(err.Error())
 				return
 			}
 			session.Write([]byte(`{"eventName":"connected"}`))
@@ -38,6 +55,8 @@ func NewObs(services *types.Services) *OBS {
 			obs.handleMessage(session, msg)
 		},
 	)
+
+	http.HandleFunc("/obs", obs.HandleRequest)
 
 	return obs
 }
@@ -76,7 +95,7 @@ func (c *OBS) SendEvent(userId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return err
 	}
 
@@ -88,7 +107,7 @@ func (c *OBS) SendEvent(userId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return err
 	}
 

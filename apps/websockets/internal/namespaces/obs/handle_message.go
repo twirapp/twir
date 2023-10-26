@@ -24,7 +24,7 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 	}
 	err := json.Unmarshal(msg, data)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -33,7 +33,7 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 		var scenesData map[string][]obsSource
 		err = json.Unmarshal(bytes, &scenesData)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 		c.handleSetSources(userId.(string), scenesData)
@@ -44,7 +44,7 @@ func (c *OBS) handleMessage(session *melody.Session, msg []byte) {
 		var audioSources []obsAudioSource
 		err = json.Unmarshal(bytes, &audioSources)
 		if err != nil {
-			c.services.Logger.Error(err)
+			c.logger.Error(err.Error())
 			return
 		}
 		c.handleSetAudioSources(userId.(string), audioSources)
@@ -68,14 +68,14 @@ type obsAudioSource string
 
 func (c *OBS) handleSetAudioSources(channelId string, sources []obsAudioSource) {
 	bytes, _ := json.Marshal(sources)
-	err := c.services.Redis.Set(
+	err := c.redis.Set(
 		context.Background(),
 		fmt.Sprintf("obs:audio-sources:%s", channelId),
 		bytes,
 		7*24*time.Hour,
 	).Err()
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 }
@@ -83,14 +83,14 @@ func (c *OBS) handleSetAudioSources(channelId string, sources []obsAudioSource) 
 func (c *OBS) handleSetSources(channelId string, scenes map[string][]obsSource) {
 	scenesNames := lo.Keys(scenes)
 	bytes, _ := json.Marshal(scenesNames)
-	err := c.services.Redis.Set(
+	err := c.redis.Set(
 		context.Background(),
 		fmt.Sprintf("obs:scenes:%s", channelId),
 		bytes,
 		7*24*time.Hour,
 	).Err()
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -101,34 +101,34 @@ func (c *OBS) handleSetSources(channelId string, scenes map[string][]obsSource) 
 		}
 	}
 	bytes, _ = json.Marshal(sourceNames)
-	err = c.services.Redis.Set(
+	err = c.redis.Set(
 		context.Background(),
 		fmt.Sprintf("obs:sources:%s", channelId),
 		bytes,
 		7*24*time.Hour,
 	).Err()
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 }
 
 func (c *OBS) handleRequestSettings(channelId string) {
 	settings := &model.ChannelModulesSettings{}
-	err := c.services.Gorm.
+	err := c.gorm.
 		Where(`"channelId" = ? AND "type" = ?`, channelId, "obs_websocket").
 		Find(settings).
 		Error
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
 	obsSettings := &modules.OBSWebSocketSettings{}
 	err = json.Unmarshal(settings.Settings, obsSettings)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 
@@ -140,7 +140,7 @@ func (c *OBS) handleRequestSettings(channelId string) {
 
 	bytes, err := json.Marshal(outCome)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return
 	}
 

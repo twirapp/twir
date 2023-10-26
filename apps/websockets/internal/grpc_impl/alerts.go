@@ -3,6 +3,7 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
+
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -12,7 +13,7 @@ func (c *GrpcImpl) TriggerAlert(ctx context.Context, req *websockets.TriggerAler
 	*emptypb.Empty, error,
 ) {
 	entity := model.ChannelAlert{}
-	if err := c.services.Gorm.WithContext(ctx).Where(
+	if err := c.gorm.WithContext(ctx).Where(
 		"channel_id = ? and id = ?", req.ChannelId,
 		req.AlertId,
 	).Find(&entity).Error; err != nil {
@@ -27,6 +28,6 @@ func (c *GrpcImpl) TriggerAlert(ctx context.Context, req *websockets.TriggerAler
 		)
 	}
 
-	err := c.sockets.Alerts.SendEvent(req.ChannelId, "trigger", entity)
+	err := c.alertsServer.SendEvent(req.ChannelId, "trigger", entity)
 	return &emptypb.Empty{}, err
 }

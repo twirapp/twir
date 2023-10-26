@@ -1,29 +1,51 @@
 package youtube
 
 import (
+	"net/http"
+
 	"github.com/olahol/melody"
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/twir/apps/websockets/types"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type YouTube struct {
-	manager  *melody.Melody
-	services *types.Services
+	manager *melody.Melody
+
+	gorm     *gorm.DB
+	logger   logger.Logger
+	redis    *redis.Client
+	botsGrpc bots.BotsClient
 }
 
-func NewYouTube(services *types.Services) *YouTube {
+type Opts struct {
+	fx.In
+
+	Gorm     *gorm.DB
+	Logger   logger.Logger
+	Redis    *redis.Client
+	BotsGrpc bots.BotsClient
+}
+
+func NewYouTube(opts Opts) *YouTube {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	youTube := &YouTube{
 		manager:  m,
-		services: services,
+		gorm:     opts.Gorm,
+		logger:   opts.Logger,
+		redis:    opts.Redis,
+		botsGrpc: opts.BotsGrpc,
 	}
 
 	youTube.manager.HandleConnect(
 		func(session *melody.Session) {
-			err := helpers.CheckUserByApiKey(services.Gorm, session)
+			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				services.Logger.Error(err)
+				opts.Logger.Error(err.Error())
 			} else {
 				youTube.handleConnect(session)
 			}
@@ -35,6 +57,8 @@ func NewYouTube(services *types.Services) *YouTube {
 			youTube.handleMessage(session, msg)
 		},
 	)
+
+	http.HandleFunc("/youtube", youTube.HandleRequest)
 
 	return youTube
 }

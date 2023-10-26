@@ -20,7 +20,7 @@ func (c *TTS) Skip(ctx context.Context, msg *websockets.TTSSkipMessage) (*emptyp
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
@@ -32,7 +32,7 @@ func (c *TTS) Skip(ctx context.Context, msg *websockets.TTSSkipMessage) (*emptyp
 	)
 
 	if err != nil {
-		c.services.Logger.Error(err)
+		c.logger.Error(err.Error())
 		return nil, err
 	}
 
