@@ -13,7 +13,7 @@ export type MessageChunk = {
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
   Partial<Pick<Type, Key>>;
 
-type Message = {
+export type Message = {
 	internalId: string,
 	id?: string,
 	type: string,

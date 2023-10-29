@@ -2,9 +2,9 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
+import ChatMessage from '../components/chatMessage.vue';
 import { useChatSocket } from '../sockets/chat.js';
 import { useTmiChat } from '../sockets/chat_tmi.js';
-import { normalizeDisplayName } from '../sockets/chat_tmi_helpers.js';
 
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
@@ -24,51 +24,12 @@ const { messages } = useTmiChat(
 <template>
 	<div class="chat">
 		<TransitionGroup name="list" tag="div" class="messages">
-			<div v-for="(msg, index) of messages" :key="index" class="message">
-				<div v-if="msg.badges?.length || msg.sender" class="profile">
-					<div v-if="msg.badges" class="badges">
-						<template
-							v-for="(badgeValue, badgeName) of msg.badges"
-							:key="badgeName+badgeValue"
-						>
-							<img
-								v-if="chat.settings.channelBadges.get(`${badgeName}-${badgeValue}`)"
-								:src="chat.settings.channelBadges.get(`${badgeName}-${badgeValue}`)!.image_url_4x"
-								class="badge"
-							/>
-
-							<img
-								v-else-if="chat.settings.globalBadges.get(badgeName)?.versions.length"
-								:src="chat.settings.globalBadges.get(badgeName)!.versions.at(-1)!.image_url_4x"
-								class="badge"
-							/>
-						</template>
-					</div>
-					<div v-if="msg.senderDisplayName" :style="{ color: msg.senderColor }">
-						{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
-					</div>
-				</div>
-				<span class="text" :style="{ fontStyle: msg.isItalic ? 'italic' : 'normal' }">
-					<template v-for="(chunk, _) of msg.chunks" :key="_">
-						<img
-							v-if="chunk.type === 'emote'"
-							:src="`https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/3.0`"
-							class="emote"
-						/>
-
-						<img
-							v-else-if="chunk.type === '3rd_party_emote'"
-							:src="chunk.value"
-							class="emote"
-						/>
-
-						<template v-else-if="chunk.type === 'text'">
-							{{ chunk.value }}
-						</template>
-						{{ ' ' }}
-					</template>
-				</span>
-			</div>
+			<ChatMessage
+				v-for="(msg, index) of messages"
+				:key="index"
+				:msg="msg"
+				:settings="chat.settings"
+			/>
 		</TransitionGroup>
 	</div>
 </template>
@@ -90,40 +51,6 @@ const { messages } = useTmiChat(
 	flex-direction: column;
 	gap: 8px;
 	overflow: hidden;
-}
-
-.chat .messages .message {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-  align-items: flex-start;
-	width: 100%;
-}
-
-.chat .messages .message .badges {
-  display: flex;
-  gap: 4px;
-}
-
-.chat .messages .message .badges .badge {
-	height: 20px;
-	width: 20px;
-}
-
-.chat .messages .message .profile {
-	display: flex;
-  flex-wrap: nowrap;
-  gap: 4px;
-  align-items: center;
-}
-
-.chat .messages .message .text {
-
-}
-
-.chat .messages .message .text .emote {
-	height: 20px;
-	width: 20px;
 }
 
 .list-move, /* apply transition to moving elements */

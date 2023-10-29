@@ -19,10 +19,19 @@ type ChatBadge = {
 	versions: Array<BadgeVersion>
 }
 
+export type Settings = {
+	channelId: string,
+	channelName: string,
+	channelDisplayName: string,
+	globalBadges: Map<string, ChatBadge>,
+	channelBadges: Map<string, BadgeVersion>,
+	messageTimeout: number,
+}
+
 export const useChatSocket = (apiKey: string) => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
-	const settings = reactive({
+	const settings = reactive<Settings>({
 		channelId: '',
 		channelName: '',
 		channelDisplayName: '',
