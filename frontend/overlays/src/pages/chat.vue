@@ -93,10 +93,7 @@ const { messages } = useTmiChat(
   width: 100%;
   background-color: #000;
   color: #fff;
-  font-family: monospace;
   font-size: 20px;
-  overflow-y: scroll;
-  padding: 1rem;
 	font-family: 'Roboto';
 }
 

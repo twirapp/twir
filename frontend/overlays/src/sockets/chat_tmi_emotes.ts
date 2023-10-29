@@ -91,7 +91,7 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 
 		for (const emote of v.emote_set.emotes) {
 			const file = emote.data.host.files.filter(f => f.format === 'WEBP');
-			sevenTvEmotes.value[emote.name] = `https${emote.data.host.url}/${file.at(-1)!.name}`;
+			sevenTvEmotes.value[emote.name] = `https:${emote.data.host.url}/${file.at(-1)!.name}`;
 		}
 	});
 	watch(sevenTvGlobalEmotes.data, (v) => {
@@ -99,7 +99,7 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 
 		for (const emote of v.emotes) {
 			const file = emote.data.host.files.filter(f => f.format === 'WEBP');
-			sevenTvEmotes.value[emote.name] = `https${emote.data.host.url}/${file.at(-1)!.name}`;
+			sevenTvEmotes.value[emote.name] = `https:${emote.data.host.url}/${file.at(-1)!.name}`;
 		}
 	});
 
