@@ -6,7 +6,7 @@ import { useThirdPartyEmotes } from './chat_tmi_emotes.js';
 import { makeMessageChunks } from './chat_tmi_helpers.js';
 
 export type MessageChunk = {
-	type: 'text' | 'emote' | '7tv_emote' | 'bttv_emote' | 'ffz_emote';
+	type: 'text' | 'emote' | '3rd_party_emote';
 	value: string;
 }
 

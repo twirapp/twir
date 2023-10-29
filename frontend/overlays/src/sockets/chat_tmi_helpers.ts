@@ -4,7 +4,7 @@ import { bttvEmotes, ffzEmotes, sevenTvEmotes } from './chat_tmi_emotes.js';
 export function makeMessageChunks(message: string, emotes?: {
 	[emoteid: string]: string[];
 }): MessageChunk[] {
-	const parsedEmotes = emotes ? Object.entries(emotes).reduce((acc, [id, positions]) => {
+	const parsedTwitchEmotes = emotes ? Object.entries(emotes).reduce((acc, [id, positions]) => {
 		positions.forEach((position) => {
 			const [from, to] = position.split('-').map(Number);
 			acc.push({ from, to, emoteId: id });
@@ -16,15 +16,12 @@ export function makeMessageChunks(message: string, emotes?: {
 
 	let currentWordIndex = 0;
 	for (const part of message.split(' ')) {
-		const emote = parsedEmotes.find(e => e.from === currentWordIndex);
+		const emote = parsedTwitchEmotes.find(e => e.from === currentWordIndex);
+		const thirdPartyEmote = sevenTvEmotes.value[part] || ffzEmotes.value[part] || bttvEmotes.value[part];
 		if (emote) {
 			chunks.push({ type: 'emote', value: emote.emoteId });
-		} else if (sevenTvEmotes.value[part]) {
-			chunks.push({ type: '7tv_emote', value: sevenTvEmotes.value[part] });
-		} else if (ffzEmotes.value[part]) {
-			chunks.push({ type: 'ffz_emote', value: ffzEmotes.value[part] });
-		} else if (bttvEmotes.value[part]) {
-			chunks.push({ type: 'bttv_emote', value: bttvEmotes.value[part] });
+		} else if (thirdPartyEmote) {
+			chunks.push({ type: '3rd_party_emote', value: thirdPartyEmote });
 		} else {
 			chunks.push({ type: 'text', value: part });
 		}

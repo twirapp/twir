@@ -57,19 +57,7 @@ const { messages } = useTmiChat(
 						/>
 
 						<img
-							v-else-if="chunk.type === 'ffz_emote'"
-							:src="chunk.value"
-							class="emote"
-						/>
-
-						<img
-							v-else-if="chunk.type === 'bttv_emote'"
-							:src="chunk.value"
-							class="emote"
-						/>
-
-						<img
-							v-if="chunk.type === '7tv_emote'"
+							v-else-if="chunk.type === '3rd_party_emote'"
 							:src="chunk.value"
 							class="emote"
 						/>
