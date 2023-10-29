@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Client } from 'tmi.js';
 import { Ref, onUnmounted, ref, unref, watch } from 'vue';
 
@@ -104,6 +105,26 @@ export const useTmiChat = (
 				badges: tags.badges as Record<string, string> | undefined,
 				isItalic: tags['message-type'] === 'action',
 			});
+		});
+
+		// @ts-ignore
+		client.on('usernotice', (msgId, channel, tags, msg) => {
+			if(msgId === 'announcement') {
+				addMessage({
+					id: msgId,
+					type: 'message',
+					// @ts-ignore
+					chunks: makeMessageChunks(msg, tags.emotes),
+					// @ts-ignore
+					sender: tags.login,
+					// @ts-ignore
+					senderColor: tags.color,
+					senderDisplayName: tags['display-name'],
+					// @ts-ignore
+					badges: tags.badges as Record<string, string> | undefined,
+					isItalic: tags['message-type'] === 'action',
+				});
+			}
 		});
 
 		client.on('messagedeleted', (_channel, _username, _msgText, userState) => {

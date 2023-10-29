@@ -124,14 +124,13 @@ const { messages } = useTmiChat(
 
 .chat .messages .message .profile {
 	display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
-  justify-content: flex-start;
   align-items: center;
 }
 
 .chat .messages .message .text {
-	word-break: break-all;
+
 }
 
 .chat .messages .message .text .emote {
