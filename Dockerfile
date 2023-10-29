@@ -9,8 +9,7 @@ RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat g++ pyth
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
-    go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
-    npm i -g pnpm@8 @mapbox/node-pre-gyp
+    go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json tsconfig.json turbo.json .npmrc go.work go.work.sum docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
