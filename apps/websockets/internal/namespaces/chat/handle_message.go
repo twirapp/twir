@@ -24,7 +24,7 @@ func (c *Chat) handleMessage(session *melody.Session, msg []byte) {
 	}
 
 	if data.EventName == "getSettings" {
-		err := c.sendSettings(session)
+		err := c.SendSettings(userId.(string))
 		if err != nil {
 			c.logger.Error(err.Error())
 		}
