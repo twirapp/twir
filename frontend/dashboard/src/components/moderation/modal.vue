@@ -2,7 +2,15 @@
 import { IconSquare, IconSquareCheck } from '@tabler/icons-vue';
 import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import chunk from 'lodash.chunk';
-import { NButton, NFormItem, NInput, NInputNumber, NDivider, NButtonGroup, useNotification } from 'naive-ui';
+import {
+	NButton,
+	NFormItem,
+	NInput,
+	NInputNumber,
+	NDivider,
+	NButtonGroup,
+	useNotification,
+} from 'naive-ui';
 import { computed, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -80,7 +88,7 @@ async function saveSettings() {
 		/>
 
 		<div class="form-block">
-			<n-form-item label="Timeout message" feedback="qwe">
+			<n-form-item label="Timeout message">
 				<n-input
 					v-model:value="formValue.data!.banMessage"
 					type="textarea"
