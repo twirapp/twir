@@ -88,7 +88,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 	}
 
 	async function create(channel: string) {
-		destroy();
+		await destroy();
 
 		client = new Client({
 			connection: {
