@@ -22,15 +22,24 @@ func NewWatched(ctx context.Context, services *types.Services) {
 				ticker.Stop()
 				return
 			case <-ticker.C:
-				incrementWatchedExpr := services.Gorm.
-					Model(&model.UsersStats{}).
-					Where(`"userId" IN (?)`, services.Gorm.Table("users_online").Select(`"userId"`))
-
-				err := incrementWatchedExpr.
-					WithContext(ctx).
-					Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
-				if err != nil {
+				var streams []model.ChannelsStreams
+				if err := services.Gorm.Select(`"userId"`).Find(&streams).Error; err != nil {
 					zap.S().Error(err)
+					continue
+				}
+
+				for _, s := range streams {
+					err := services.Gorm.Model(&model.UsersStats{}).
+						WithContext(ctx).
+						Where(
+							`"channelId" = ? AND "userId" IN (?)`,
+							s.UserId,
+							services.Gorm.Table("users_online").Select(`"userId"`),
+						).
+						Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
+					if err != nil {
+						zap.S().Error(err)
+					}
 				}
 			}
 		}
