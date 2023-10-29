@@ -50,6 +50,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 
 		const showDelay = opts.messageShowDelay ?? settings.value.messageShowDelay;
 
+		// TODO: store only 100 messages in ref for perfomance
 		setTimeout(() => {
 			messages.value.push({
 				...opts,
