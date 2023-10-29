@@ -2,8 +2,8 @@
 import { Client } from 'tmi.js';
 import { Ref, onUnmounted, ref, unref, watch } from 'vue';
 
-import { useThirdPartyEmotes } from './chat_tmi_emotes.js';
-import { makeMessageChunks } from './chat_tmi_helpers.js';
+import { useThirdPartyEmotes } from '../components/chat_tmi_emotes.js';
+import { makeMessageChunks } from '../components/chat_tmi_helpers.js';
 
 export type MessageChunk = {
 	type: 'text' | 'emote' | '3rd_party_emote';
