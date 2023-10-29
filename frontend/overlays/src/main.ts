@@ -22,6 +22,10 @@ const routes = createRouter({
 			path: '/:apiKey/alerts',
 			component: () => import('./pages/alerts.vue'),
 		},
+		{
+			path: '/:apiKey/chat',
+			component: () => import('./pages/chat.vue'),
+		},
 	],
 });
 

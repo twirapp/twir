@@ -7,6 +7,7 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
@@ -39,6 +40,7 @@ type GrpcImpl struct {
 	obsServer              *obs.OBS
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
+	chatServer             *chat.Chat
 }
 
 type GrpcOpts struct {
@@ -54,6 +56,7 @@ type GrpcOpts struct {
 	OBSServer              *obs.OBS
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
+	ChatServer             *chat.Chat
 }
 
 func NewGrpcImplementation(opts GrpcOpts) error {
@@ -66,6 +69,7 @@ func NewGrpcImplementation(opts GrpcOpts) error {
 		obsServer:              opts.OBSServer,
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
+		chatServer:             opts.ChatServer,
 	}
 
 	grpcServer := grpc.NewServer()
