@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Client } from 'tmi.js';
-import { Ref, onUnmounted, ref, unref, watch } from 'vue';
+import { Ref, computed, onUnmounted, ref, unref, watch } from 'vue';
 
+import type { Settings } from './chat.js';
 import { useThirdPartyEmotes } from '../components/chat_tmi_emotes.js';
 import { makeMessageChunks } from '../components/chat_tmi_helpers.js';
 
@@ -29,15 +30,15 @@ export type Message = {
 type AddMessageOpts = Omit<
 	MakeOptional<Message, 'isItalic'>,
 	'createdAt' | 'internalId'
-> & { messageTimeout?: number }
+> & { messageHideTimeout?: number, messageShowDelay?: number; }
 
-export const useTmiChat = (
-	channelName: Ref<string>,
-	channelId: Ref<string>,
-	messageTimeout: Ref<number>,
-) => {
+export const useTmiChat = (settings: Ref<Settings>) => {
 	let client: Client | null = null;
 	const messages = ref<Message[]>([]);
+
+	const channelName = computed(() => settings.value.channelName);
+	const channelId = computed(() => settings.value.channelId);
+
 	useThirdPartyEmotes(channelName, channelId);
 
 	onUnmounted(async () => {
@@ -47,19 +48,22 @@ export const useTmiChat = (
 	function addMessage(opts: AddMessageOpts) {
 		const internalId = crypto.randomUUID();
 
-		messages.value.push({
-			...opts,
-			isItalic: opts.isItalic ?? false,
-			createdAt: new Date(),
-			internalId,
-		});
+		const showDelay = opts.messageShowDelay ?? settings.value.messageShowDelay;
 
-		const timeout = opts.messageTimeout ?? messageTimeout.value;
+		setTimeout(() => {
+			messages.value.push({
+				...opts,
+				isItalic: opts.isItalic ?? false,
+				createdAt: new Date(),
+				internalId,
+			});
+		}, showDelay * 1000);
 
-		if (timeout) {
+		const hideTimeout = opts.messageHideTimeout ?? settings.value.messageHideTimeout;
+		if (hideTimeout) {
 			setTimeout(() => {
 				removeMessageByInternalId(internalId);
-			}, timeout * 1000);
+			}, hideTimeout * 1000);
 		}
 	}
 
@@ -149,7 +153,7 @@ export const useTmiChat = (
 					type: 'text',
 					value: 'Connecting to servers...',
 				}],
-				messageTimeout: 5,
+				messageHideTimeout: 5,
 			});
 		});
 
@@ -157,22 +161,22 @@ export const useTmiChat = (
 			addMessage({
 				type: 'info',
 				chunks: [{ type: 'text', value: 'Connected' }],
-				messageTimeout: 6,
+				messageHideTimeout: 6,
 			});
 
 			await client!.join(channel);
 			addMessage({
 				type: 'info',
 				chunks: [{ type: 'text', value: `Joined channel ${channel}` }],
-				messageTimeout: 7,
+				messageHideTimeout: 7,
 			});
 		});
 
 		await client.connect();
 	}
 
-	watch(channelName, () => {
-		const name = unref(channelName);
+	watch(() => settings.value.channelName, (v) => {
+		const name = unref(v);
 		if (!name) return;
 
 		create(name);
@@ -180,6 +184,5 @@ export const useTmiChat = (
 
 	return {
 		messages,
-		messageTimeout,
 	};
 };

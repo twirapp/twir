@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { toValue } from 'vue';
 import { useRoute } from 'vue-router';
 
 import ChatMessage from '../components/chatMessage.vue';
@@ -10,15 +10,7 @@ const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
 const chat = useChatSocket(apiKey);
-
-const channelName = computed(() => chat.settings.channelName);
-const channelId = computed(() => chat.settings.channelId);
-const messageTimeout = computed(() => chat.settings.messageTimeout);
-const { messages } = useTmiChat(
-	channelName,
-	channelId,
-	messageTimeout,
-);
+const { messages } = useTmiChat(chat.settings);
 </script>
 
 <template>
@@ -28,7 +20,7 @@ const { messages } = useTmiChat(
 				v-for="(msg, index) of messages"
 				:key="index"
 				:msg="msg"
-				:settings="chat.settings"
+				:settings="toValue(chat.settings)"
 			/>
 		</TransitionGroup>
 	</div>

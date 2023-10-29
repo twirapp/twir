@@ -1,5 +1,5 @@
 import { useWebSocket } from '@vueuse/core';
-import { reactive, watch } from 'vue';
+import { ref, watch } from 'vue';
 
 type Event = {
 	eventName: string,
@@ -25,19 +25,21 @@ export type Settings = {
 	channelDisplayName: string,
 	globalBadges: Map<string, ChatBadge>,
 	channelBadges: Map<string, BadgeVersion>,
-	messageTimeout: number,
+	messageHideTimeout: number,
+	messageShowDelay: number,
 }
 
 export const useChatSocket = (apiKey: string) => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
-	const settings = reactive<Settings>({
+	const settings = ref<Settings>({
 		channelId: '',
 		channelName: '',
 		channelDisplayName: '',
 		globalBadges: new Map<string, ChatBadge>(),
 		channelBadges: new Map<string, BadgeVersion>(),
-		messageTimeout: 0,
+		messageHideTimeout: 0,
+		messageShowDelay: 0,
 	});
 
 	const { data, send } = useWebSocket(
@@ -58,22 +60,22 @@ export const useChatSocket = (apiKey: string) => {
 
 		if (event.eventName === 'settings') {
 			for (const badge of event.data.globalBadges) {
-				settings.globalBadges.set(badge.set_id, badge);
+				settings.value.globalBadges.set(badge.set_id, badge);
 			}
 
 			for (const badge of event.data.channelBadges) {
 				for (const version of badge.versions) {
-					settings.channelBadges.set(
+					settings.value.channelBadges.set(
 						`${badge.set_id}-${version.id}`,
 						version,
 					);
 				}
 			}
 
-			settings.channelId = event.data.channelId;
-			settings.channelName = event.data.channelName;
-			settings.channelDisplayName = event.data.channelDisplayName;
-			settings.messageTimeout = event.data.messageTimeout ?? 0;
+			settings.value.channelId = event.data.channelId;
+			settings.value.channelName = event.data.channelName;
+			settings.value.channelDisplayName = event.data.channelDisplayName;
+			settings.value.messageHideTimeout = event.data.messageTimeout ?? 0;
 		}
 	});
 
