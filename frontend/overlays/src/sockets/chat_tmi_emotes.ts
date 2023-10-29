@@ -37,7 +37,6 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		immediate: false,
 	});
 
-
 	const bttvUrl = computed(() => `https://api.betterttv.net/3/cached/users/twitch/${channelId.value}`);
 	const bttvChannelEmotes = useFetch(bttvUrl, {
 		refetch: true,
