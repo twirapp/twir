@@ -35,6 +35,7 @@ type AddMessageOpts = Omit<
 export const useTmiChat = (settings: Ref<Settings>) => {
 	let client: Client | null = null;
 	const messages = ref<Message[]>([]);
+	const maxMessages = ref(100);
 
 	const channelName = computed(() => settings.value.channelName);
 	const channelId = computed(() => settings.value.channelId);
@@ -49,6 +50,10 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 		const internalId = crypto.randomUUID();
 
 		const showDelay = opts.messageShowDelay ?? settings.value.messageShowDelay;
+
+		if (messages.value.length >= maxMessages.value) {
+			messages.value = messages.value.slice(1);
+		}
 
 		// TODO: store only 100 messages in ref for perfomance
 		setTimeout(() => {

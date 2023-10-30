@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toValue } from 'vue';
+import { nextTick, ref, toValue, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import ChatMessage from '../components/chatMessage.vue';
@@ -9,12 +9,21 @@ import { useTmiChat } from '../sockets/chat_tmi.js';
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
+const chatElement = ref<HTMLDivElement>();
+
 const chat = useChatSocket(apiKey);
 const { messages } = useTmiChat(chat.settings);
+
+watch(() => messages.value.length, async () => {
+	if (!chatElement.value) return;
+
+	await nextTick();
+	chatElement.value.scrollTo(0, chatElement.value.scrollHeight);
+});
 </script>
 
 <template>
-	<div class="chat">
+	<div ref="chatElement" class="chat">
 		<TransitionGroup name="list" tag="div" class="messages">
 			<ChatMessage
 				v-for="(msg, index) of messages"
@@ -30,12 +39,13 @@ const { messages } = useTmiChat(chat.settings);
 @import url(https://fonts.googleapis.com/css?family=Roboto:700);
 
 .chat {
-  height: 100%;
+	max-height: 100vh;
   width: 100%;
   background-color: #000;
   color: #fff;
   font-size: 20px;
 	font-family: 'Roboto';
+	overflow: hidden;
 }
 
 .chat .messages {
