@@ -7,7 +7,7 @@ import {
 	BadgeVersion,
 } from '@twir/frontend-chat';
 import type {
-  Settings,
+	Settings,
 } from '@twir/grpc/generated/api/api/modules_chat_overlay';
 import { useIntervalFn } from '@vueuse/core';
 import {
@@ -67,10 +67,10 @@ const formValue = ref<Settings>({
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	return {
 		channelId: '',
-    channelName: '',
-    channelDisplayName: '',
-    globalBadges,
-    channelBadges: new Map<string, BadgeVersion>(),
+		channelName: '',
+		channelDisplayName: '',
+		globalBadges,
+		channelBadges: new Map<string, BadgeVersion>(),
 		...formValue.value,
 	};
 });
@@ -125,7 +125,10 @@ const selectOptions = [
 
 			<div class="slider">
 				<span>{{ t('overlays.chat.fontSize') }}</span>
-				<n-slider v-model:value="formValue.fontSize" :min="12" :max="80" :marks="{ 12: '12', 80: '80'}" />
+				<n-slider
+					v-model:value="formValue.fontSize" :min="12" :max="80"
+					:marks="{ 12: '12', 80: '80'}"
+				/>
 			</div>
 
 			<div class="slider">
@@ -138,7 +141,7 @@ const selectOptions = [
 				<n-slider v-model:value="formValue.messageShowDelay" :max="60" :marks="sliderMarks" />
 			</div>
 
-			<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+			<n-button secondary type="success" block style="margin-top: auto" @click="save">
 				{{ t('sharedButtons.save') }}
 			</n-button>
 		</div>
@@ -154,8 +157,9 @@ const selectOptions = [
 
 <style scoped>
 .chatBox {
-	max-height: 40vw;
+	height: 40dvh;
 	overflow: hidden;
+	width: 100%;
 }
 
 .settings {
