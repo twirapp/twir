@@ -11,28 +11,26 @@ defineProps<{
 
 <template>
 	<div class="message">
-		<div v-if="msg.badges?.length || msg.sender" class="profile">
-			<div v-if="msg.badges" class="badges">
-				<template
-					v-for="(badgeValue, badgeName) of msg.badges"
-					:key="badgeName+badgeValue"
-				>
-					<img
-						v-if="settings.channelBadges.get(`${badgeName}-${badgeValue}`)"
-						:src="settings.channelBadges.get(`${badgeName}-${badgeValue}`)!.image_url_4x"
-						class="badge"
-					/>
+		<div v-if="msg.badges" class="badges">
+			<template
+				v-for="(badgeValue, badgeName) of msg.badges"
+				:key="badgeName+badgeValue"
+			>
+				<img
+					v-if="settings.channelBadges.get(`${badgeName}-${badgeValue}`)"
+					:src="settings.channelBadges.get(`${badgeName}-${badgeValue}`)!.image_url_4x"
+					class="badge"
+				/>
 
-					<img
-						v-else-if="settings.globalBadges.get(badgeName)?.versions.length"
-						:src="settings.globalBadges.get(badgeName)!.versions.at(-1)!.image_url_4x"
-						class="badge"
-					/>
-				</template>
-			</div>
-			<div v-if="msg.senderDisplayName" :style="{ color: msg.senderColor }">
-				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
-			</div>
+				<img
+					v-else-if="settings.globalBadges.get(badgeName)?.versions.length"
+					:src="settings.globalBadges.get(badgeName)!.versions.at(-1)!.image_url_4x"
+					class="badge"
+				/>
+			</template>
+		</div>
+		<div v-if="msg.sender" class="profile" :style="{ color: msg.senderColor }">
+			{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
 		</div>
 		<span class="text" :style="{ fontStyle: msg.isItalic ? 'italic' : 'normal' }">
 			<template v-for="(chunk, _) of msg.chunks" :key="_">
@@ -59,36 +57,35 @@ defineProps<{
 
 <style scoped>
 .message {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-start;
-  align-items: flex-start;
 	width: 100%;
+	line-height: 1em;
+	margin-left: 0.2em;
 }
 
 .message .badges {
-  display: flex;
-  gap: 4px;
+	display: inline-flex;
+	gap: 4px;
+	align-self: center;
+	max-height: 0.8em;
+	margin-right: 4px;
+	transform: translateY(0.2em);
 }
 
 .message .badges .badge {
-	height: 20px;
-	width: 20px;
+	height: 1em;
+	width: 1em;
 }
 
 .message .profile {
-	display: flex;
-  flex-wrap: nowrap;
-  gap: 4px;
-  align-items: center;
+	display: inline-flex;
 }
 
 .message .text {
-
+	margin-left: 4px;
 }
 
 .message .text .emote {
-	height: 20px;
-	width: 20px;
+	height: 1em;
+	width: 1em;
 }
 </style>
