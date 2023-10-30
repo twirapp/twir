@@ -5,8 +5,10 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/modules_chat_overlay"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -73,8 +75,12 @@ func (c *Modules) ModulesChatOverlayUpdate(
 		return nil, fmt.Errorf("cannot get settings: %w", err)
 	}
 
-	entity.ChannelId = dashboardId
-	entity.Type = chatOverlayType
+	if entity.ID == "" {
+		entity.ID = uuid.NewString()
+		entity.ChannelId = dashboardId
+		entity.Type = chatOverlayType
+	}
+
 	parsedSettings := c.chatOverlayGrpcToDb(req)
 	settingsJson, err := json.Marshal(parsedSettings)
 	if err != nil {
@@ -92,6 +98,12 @@ func (c *Modules) ModulesChatOverlayUpdate(
 	if err := json.Unmarshal(entity.Settings, &newSettings); err != nil {
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}
+
+	c.Grpc.Websockets.RefreshChatSettings(
+		ctx, &websockets.RefreshChatSettingsRequest{
+			ChannelId: dashboardId,
+		},
+	)
 
 	return c.chatOverlayDbToGrpc(newSettings), nil
 }

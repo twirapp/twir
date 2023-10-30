@@ -15,7 +15,7 @@ defineProps<{
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
 			<div class="badges">
-				<span v-if="!msg.isAnnounce" class="text-badge">Announce</span>
+				<span v-if="msg.isAnnounce" class="text-badge">Announce</span>
 				<template
 					v-for="(badgeValue, badgeName) of msg.badges"
 					:key="badgeName+badgeValue"

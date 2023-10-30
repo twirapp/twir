@@ -58,7 +58,8 @@ export const useChatSocket = (apiKey: string) => {
 			settings.value.channelId = event.data.channelId;
 			settings.value.channelName = event.data.channelName;
 			settings.value.channelDisplayName = event.data.channelDisplayName;
-			settings.value.messageHideTimeout = event.data.messageTimeout ?? 0;
+			settings.value.messageHideTimeout = event.data.messageHideTimeout ?? 0;
+			settings.value.messageShowDelay = event.data.messageShowDelay ?? 0;
 			settings.value.preset = event.data.preset ?? 'clean';
 			settings.value.fontSize = event.data.fontSize ?? 20;
 			settings.value.hideBots = event.data.hideBots ?? false;

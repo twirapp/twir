@@ -55,6 +55,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 			messages.value = messages.value.slice(1);
 		}
 
+
 		// TODO: store only 100 messages in ref for perfomance
 		setTimeout(() => {
 			messages.value.push({
