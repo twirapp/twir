@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@protobuf-ts/twirp-transport": "^2.9.1",
+    "@twir/frontend-chat": "workspace:^",
     "@twir/grpc": "workspace:^",
     "@vueuse/core": "^10.4.1",
     "nested-css-to-flat": "^1.0.5",

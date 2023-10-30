@@ -7,7 +7,7 @@ import Card from './card.vue';
 import TTSSettings from './tts/settings.vue';
 import UsersSettings from './tts/users.vue';
 
-import { useCommandsManager, useProfile } from '@/api/index.js';
+import { useCommandsManager, useTtsOverlayManager } from '@/api/index.js';
 import TTSIcon from '@/assets/icons/overlays/tts.svg?component';
 import CommandsList from '@/components/commands/list.vue';
 
@@ -17,10 +17,8 @@ const ttsCommands = computed(() => {
 	return allCommands.data.value?.commands.filter((c) => c.module === 'TTS') ?? [];
 });
 
-const userProfile = useProfile();
-const overlayLink = computed(() => {
-	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/tts`;
-});
+const ttsManager = useTtsOverlayManager();
+const { data: settings, isError } = ttsManager.getInfo();
 
 const isModalOpened = ref(false);
 
@@ -32,7 +30,8 @@ const { t } = useI18n();
 		title="Text to speech"
 		:icon="TTSIcon"
 		:description="t('overlays.tts.description')"
-		:overlay-link="overlayLink"
+		overlay-path="tts"
+		:copy-disabled="!settings || isError"
 		@open-settings="isModalOpened = true"
 	>
 	</card>

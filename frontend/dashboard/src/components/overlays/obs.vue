@@ -1,31 +1,28 @@
 <script setup lang="ts">
 import { NModal } from 'naive-ui';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import Settings from './obs/settings.vue';
 
-import { useProfile, useObsOverlayManager } from '@/api/index.js';
+import { useObsOverlayManager } from '@/api/index.js';
 import BroadcastIcon from '@/assets/icons/overlays/obs.svg?component';
 import Card from '@/components/overlays/card.vue';
 
 const isModalOpened = ref(false);
 const obsManager = useObsOverlayManager();
-const { data: obsSettings } = obsManager.getSettings();
+const { data: obsSettings, isError } = obsManager.getSettings();
 
-const userProfile = useProfile();
-const overlayLink = computed(() => {
-	if (!obsSettings.value?.serverAddress) return;
-
-	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/obs`;
-});
+const { t } = useI18n();
 </script>
 
 <template>
 	<card
 		:icon="BroadcastIcon"
 		title="OBS"
-		description="This overlay used for connect TwirApp with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events."
-		:overlay-link="overlayLink"
+		:description="t('overlays.obs.description')"
+		overlay-path="obs"
+		:copy-disabled="!obsSettings || isError"
 		@open-settings="isModalOpened = true"
 	>
 	</card>

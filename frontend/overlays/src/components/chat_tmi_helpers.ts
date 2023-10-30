@@ -1,5 +1,6 @@
+import type { MessageChunk } from '@twir/frontend-chat';
+
 import { bttvEmotes, ffzEmotes, sevenTvEmotes } from './chat_tmi_emotes.js';
-import { MessageChunk } from '../sockets/chat_tmi.js';
 
 export function makeMessageChunks(message: string, emotes?: {
 	[emoteid: string]: string[];
@@ -30,12 +31,4 @@ export function makeMessageChunks(message: string, emotes?: {
 	}
 
 	return chunks;
-}
-
-export function normalizeDisplayName(userName: string, displayName: string) {
-	if (userName === displayName.toLocaleLowerCase()) {
-		return displayName;
-	} else {
-		return userName;
-	}
 }

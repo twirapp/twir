@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
 import { NButton, useMessage, NTooltip } from 'naive-ui';
-import { FunctionalComponent } from 'vue';
+import { FunctionalComponent, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
@@ -10,10 +10,11 @@ import Card from '@/components/card/card.vue';
 const props = withDefaults(defineProps<{
 	description: string;
 	title: string;
-	overlayLink?: string;
+	overlayPath: string;
 	icon: FunctionalComponent;
 	showSettings: boolean
-}>(), { showSettings: true });
+	copyDisabled?: boolean,
+}>(), { showSettings: true, copyDisabled: false });
 
 defineEmits<{
 	openSettings: [];
@@ -21,16 +22,21 @@ defineEmits<{
 
 const { t } = useI18n();
 const messages = useMessage();
-const copyOverlayLink = () => {
-	if (!props.overlayLink) return;
+const { data: profile } = useProfile();
 
-	navigator.clipboard.writeText(props.overlayLink);
+const overlayLink = computed(() => {
+	return `${window.location.origin}/overlays/${profile.value?.apiKey}/${props.overlayPath}`;
+});
+
+const copyOverlayLink = () => {
+	if (!props.overlayPath) return;
+
+	navigator.clipboard.writeText(overlayLink.value);
 	messages.success(t('overlays.copied'));
 };
 
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 
-const { data: profile } = useProfile();
 
 </script>
 
@@ -49,7 +55,7 @@ const { data: profile } = useProfile();
 				<template #trigger>
 					<n-button
 						size="large"
-						:disabled="!overlayLink || profile?.id != profile?.selectedDashboardId"
+						:disabled="copyDisabled || !overlayLink || profile?.id != profile?.selectedDashboardId"
 						@click="copyOverlayLink"
 					>
 						<span>{{ t('overlays.copyOverlayLink') }}</span>

@@ -98,6 +98,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/overlays',
 			disabled: !canViewOverlays.value,
+			isNew: true,
 		},
 		{
 			label: t('sidebar.overlaysRegistry'),

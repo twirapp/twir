@@ -1,3 +1,4 @@
+import type { Settings, ChatBadge, BadgeVersion } from '@twir/frontend-chat';
 import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 
@@ -5,28 +6,6 @@ type Event = {
 	eventName: string,
 	data: Record<string, any>
 	createdAt: string
-}
-
-type BadgeVersion = {
-	id: string,
-		image_url_1x: string,
-		image_url_2x: string,
-		image_url_4x: string,
-}
-
-type ChatBadge = {
-	set_id: string,
-	versions: Array<BadgeVersion>
-}
-
-export type Settings = {
-	channelId: string,
-	channelName: string,
-	channelDisplayName: string,
-	globalBadges: Map<string, ChatBadge>,
-	channelBadges: Map<string, BadgeVersion>,
-	messageHideTimeout: number,
-	messageShowDelay: number,
 }
 
 export const useChatSocket = (apiKey: string) => {
@@ -40,6 +19,10 @@ export const useChatSocket = (apiKey: string) => {
 		channelBadges: new Map<string, BadgeVersion>(),
 		messageHideTimeout: 0,
 		messageShowDelay: 0,
+		preset: 'clean',
+		fontSize: 20,
+		hideBots: false,
+		hideCommands: false,
 	});
 
 	const { data, send } = useWebSocket(
@@ -76,6 +59,10 @@ export const useChatSocket = (apiKey: string) => {
 			settings.value.channelName = event.data.channelName;
 			settings.value.channelDisplayName = event.data.channelDisplayName;
 			settings.value.messageHideTimeout = event.data.messageTimeout ?? 0;
+			settings.value.preset = event.data.preset ?? 'clean';
+			settings.value.fontSize = event.data.fontSize ?? 20;
+			settings.value.hideBots = event.data.hideBots ?? false;
+			settings.value.hideCommands = event.data.hideCommands ?? false;
 		}
 	});
 

@@ -1,36 +1,28 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
+import { Settings, Message } from '@twir/frontend-chat';
 import { Client } from 'tmi.js';
 import { Ref, computed, onUnmounted, ref, unref, watch } from 'vue';
 
-import type { Settings } from './chat.js';
 import { useThirdPartyEmotes } from '../components/chat_tmi_emotes.js';
 import { makeMessageChunks } from '../components/chat_tmi_helpers.js';
-
-export type MessageChunk = {
-	type: 'text' | 'emote' | '3rd_party_emote';
-	value: string;
-}
 
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
   Partial<Pick<Type, Key>>;
 
-export type Message = {
-	internalId: string,
-	id?: string,
-	type: string,
-	chunks: MessageChunk[],
-	sender?: string,
-	senderColor?: string,
-	senderDisplayName?: string
-	badges?: Record<string, string>,
-	isItalic: boolean;
-	createdAt: Date;
-};
-
 type AddMessageOpts = Omit<
-	MakeOptional<Message, 'isItalic'>,
+	MakeOptional<Message, 'isItalic' | 'isAnnounce'>,
 	'createdAt' | 'internalId'
 > & { messageHideTimeout?: number, messageShowDelay?: number; }
+
+const knownBots = new Set([
+	'moobot',
+	'fossabot',
+	'wizebot',
+	'twirapp',
+	'nightbot',
+	'streamlabs',
+	'streamelements',
+]);
 
 export const useTmiChat = (settings: Ref<Settings>) => {
 	let client: Client | null = null;
@@ -47,6 +39,14 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 	});
 
 	function addMessage(opts: AddMessageOpts) {
+		if (opts.sender && settings.value.hideBots && knownBots.has(opts.sender)) {
+			return;
+		}
+
+		if (settings.value.hideCommands && opts.chunks.at(0)?.value.startsWith('!')) {
+			return;
+		}
+
 		const internalId = crypto.randomUUID();
 
 		const showDelay = opts.messageShowDelay ?? settings.value.messageShowDelay;
@@ -62,6 +62,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 				isItalic: opts.isItalic ?? false,
 				createdAt: new Date(),
 				internalId,
+				isAnnounce: opts.isAnnounce ?? false,
 			});
 		}, showDelay * 1000);
 
@@ -133,6 +134,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 					// @ts-ignore
 					badges: tags.badges as Record<string, string> | undefined,
 					isItalic: tags['message-type'] === 'action',
+					isAnnounce: true,
 				});
 			}
 		});
@@ -154,7 +156,7 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 
 		client.on('connecting', () => {
 			addMessage({
-				type: 'info',
+				type: 'system',
 				chunks: [{
 					type: 'text',
 					value: 'Connecting to servers...',
@@ -165,14 +167,14 @@ export const useTmiChat = (settings: Ref<Settings>) => {
 
 		client.on('connected', async () => {
 			addMessage({
-				type: 'info',
+				type: 'system',
 				chunks: [{ type: 'text', value: 'Connected' }],
 				messageHideTimeout: 6,
 			});
 
 			await client!.join(channel);
 			addMessage({
-				type: 'info',
+				type: 'system',
 				chunks: [{ type: 'text', value: `Joined channel ${channel}` }],
 				messageHideTimeout: 7,
 			});

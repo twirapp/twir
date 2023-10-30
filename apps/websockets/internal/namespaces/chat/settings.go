@@ -2,7 +2,9 @@ package chat
 
 import (
 	"errors"
+	"fmt"
 
+	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
@@ -16,6 +18,10 @@ func (c *Chat) SendSettings(userId string) error {
 		Error
 	if err != nil {
 		return err
+	}
+
+	if settings.ID == "" {
+		return nil
 	}
 
 	twitchClient, err := twitch.NewUserClient(userId, c.config, c.tokensGrpc)
@@ -52,15 +58,25 @@ func (c *Chat) SendSettings(userId string) error {
 		return err
 	}
 
+	settingsMap := make(map[string]any)
+	settingsMap["channelId"] = user.ID
+	settingsMap["channelName"] = user.Login
+	settingsMap["channelDisplayName"] = user.DisplayName
+	settingsMap["globalBadges"] = globalBadgesReq.Data.Badges
+	settingsMap["channelBadges"] = channelBadgesReq.Data.Badges
+
+	dbSettingsMap := make(map[string]any)
+	if err := json.Unmarshal(settings.Settings, &dbSettingsMap); err != nil {
+		return fmt.Errorf("cannot unmarshal dbSettings: %w", err)
+	}
+
+	for key, value := range dbSettingsMap {
+		settingsMap[key] = value
+	}
+
 	return c.SendEvent(
 		userId,
 		"settings",
-		map[string]any{
-			"channelId":          user.ID,
-			"channelName":        user.Login,
-			"channelDisplayName": user.DisplayName,
-			"globalBadges":       globalBadgesReq.Data.Badges,
-			"channelBadges":      channelBadgesReq.Data.Badges,
-		},
+		settingsMap,
 	)
 }

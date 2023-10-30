@@ -1,7 +1,6 @@
 <script lang="ts" setup>
-import { normalizeDisplayName } from './chat_tmi_helpers.js';
-import type { Settings } from '../sockets/chat.js';
-import type { Message } from '../sockets/chat_tmi.js';
+import { normalizeDisplayName } from '../helpers.js';
+import type { Settings, Message } from '../types.js';
 
 defineProps<{
 	msg: Message,
