@@ -32,6 +32,7 @@ import "api/modules_obs_websocket.proto";
 import "api/modules_tts.proto";
 import "api/modules_sr.proto";
 import "api/modules_chat_alerts.proto";
+import "api/modules_chat_overlay.proto";
 
 import "api/rewards.proto";
 
@@ -149,6 +150,9 @@ service Protected {
 
 	rpc ModulesChatAlertsGet(google.protobuf.Empty) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
 	rpc ModulesChatAlertsUpdate(api.modules_chat_alerts.ChatAlertsSettings) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
+
+	rpc ModulesChatOverlayGet(google.protobuf.Empty) returns (modules_chat_overlay.Settings) {}
+	rpc ModulesChatOverlayUpdate(modules_chat_overlay.Settings) returns (modules_chat_overlay.Settings) {}
 
 	rpc RewardsGet(google.protobuf.Empty) returns (api.rewards.GetResponse) {}
 

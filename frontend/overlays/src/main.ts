@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import './style.css';
 
 import App from './App.vue';
 
@@ -21,6 +22,10 @@ const routes = createRouter({
 		{
 			path: '/:apiKey/alerts',
 			component: () => import('./pages/alerts.vue'),
+		},
+		{
+			path: '/:apiKey/chat',
+			component: () => import('./pages/chat.vue'),
 		},
 	],
 });

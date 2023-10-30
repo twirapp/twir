@@ -24,6 +24,8 @@ service Websocket {
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
 	rpc RefreshOverlays(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
+
+	rpc RefreshChatSettings(RefreshChatSettingsRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -106,5 +108,9 @@ message TriggerAlertRequest {
 }
 
 message RefreshOverlaysRequest {
+	string channel_id = 1;
+}
+
+message RefreshChatSettingsRequest {
 	string channel_id = 1;
 }

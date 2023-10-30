@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/gorm"
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
@@ -15,6 +16,7 @@ import (
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
@@ -37,10 +39,14 @@ func main() {
 			func(cfg config.Config) parser.ParserClient {
 				return clients.NewParser(cfg.AppEnv)
 			},
+			func(cfg config.Config) tokens.TokensClient {
+				return clients.NewTokens(cfg.AppEnv)
+			},
 			tts.NewTts,
 			obs.NewObs,
 			youtube.NewYouTube,
 			alerts.NewAlerts,
+			chat.New,
 			overlays.New,
 		),
 		fx.Invoke(

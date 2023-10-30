@@ -7,7 +7,7 @@
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
 		"predev": "pnpm build:libs",
 		"dev": "go run ./tools/dev.go",
-		"dev:frontend": "turbo run dev --filter=./frontend/**",
+		"dev:frontend": "turbo run dev --filter=./libs/frontend-chat --filter=./frontend/**",
 		"build": "turbo run build --filter=!./apps/dota",
 		"build:libs": "turbo run build --filter=./libs/**",
 		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts",
