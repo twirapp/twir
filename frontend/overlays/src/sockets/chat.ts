@@ -1,6 +1,6 @@
 import type { Settings, ChatBadge, BadgeVersion } from '@twir/frontend-chat';
 import { useWebSocket } from '@vueuse/core';
-import { ref, watch } from 'vue';
+import { type Ref, ref, watch } from 'vue';
 
 type Event = {
 	eventName: string,
@@ -8,7 +8,7 @@ type Event = {
 	createdAt: string
 }
 
-export const useChatSocket = (apiKey: string) => {
+export const useChatSocket = (apiKey: string): { settings: Ref<Settings> } => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
 	const settings = ref<Settings>({
@@ -24,6 +24,8 @@ export const useChatSocket = (apiKey: string) => {
 		hideBots: false,
 		hideCommands: false,
 		fontFamily: 'Roboto',
+		showAnnounceBadge: true,
+		showBadges: true,
 	});
 
 	const { data, send } = useWebSocket(
