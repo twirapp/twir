@@ -14,8 +14,8 @@ defineProps<{
 			<div v-if="msg.sender" :style="{ color: msg.senderColor }">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
-			<div class="badges">
-				<span v-if="msg.isAnnounce" class="text-badge">Announce</span>
+			<div v-if="settings.showBadges" class="badges">
+				<span v-if="settings.showAnnounceBadge && msg.isAnnounce" class="text-badge">Announce</span>
 				<template
 					v-for="(badgeValue, badgeName) of msg.badges"
 					:key="badgeName+badgeValue"

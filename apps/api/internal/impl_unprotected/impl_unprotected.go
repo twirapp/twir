@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/community"
+	"github.com/satont/twir/apps/api/internal/impl_unprotected/google_fonts"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/songs"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/stats"
@@ -35,6 +36,7 @@ type UnProtected struct {
 	*songs.Songs
 	*tts.Tts
 	*community.Community
+	*google_fonts.GoogleFonts
 }
 
 type Opts struct {
@@ -113,7 +115,8 @@ func New(opts Opts) *UnProtected {
 		Songs: &songs.Songs{
 			Deps: d,
 		},
-		Tts:       &tts.Tts{Deps: d},
-		Community: &community.Community{Deps: d},
+		Tts:         &tts.Tts{Deps: d},
+		Community:   &community.Community{Deps: d},
+		GoogleFonts: &google_fonts.GoogleFonts{Deps: d},
 	}
 }

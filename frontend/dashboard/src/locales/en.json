@@ -348,7 +348,11 @@
 			"hideCommands": "Hide commands, do not inclute messages started with ! symbol",
 			"fontSize": "Font size (px)",
 			"hideTimeout": "Message hide timeout (seconds)",
-			"showDelay": "Message show delay (seconds)"
+			"showDelay": "Message show delay (seconds)",
+			"fontFamily": "Font family",
+			"fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
+			"showBadges": "Show badges",
+			"showAnnounceBadge": "Show announce badge (only for boxed style)"
 		}
   },
   "songRequests": {

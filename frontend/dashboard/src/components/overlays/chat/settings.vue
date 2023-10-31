@@ -16,6 +16,9 @@ import {
 	NSwitch,
 	NSlider,
 	NSelect,
+	NTreeSelect,
+	type TreeSelectOption,
+	useThemeVars,
 } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -24,11 +27,17 @@ import '@twir/frontend-chat/style.css';
 
 import { globalBadges } from './constants.js';
 
-import { useChatOverlayManager } from '@/api/index.js';
+import { useChatOverlayManager, useGoogleFontsList } from '@/api/index.js';
 
 const chatManager = useChatOverlayManager();
 const { data: settings } = chatManager.getSettings();
 const updater = chatManager.updateSettings();
+const {
+	data: googleFonts,
+	isError: isGoogleFontsError,
+	isLoading: isGoogleFontsLoading,
+} = useGoogleFontsList();
+const themeVars = useThemeVars();
 
 const globalBadgesObject = Object.fromEntries(globalBadges);
 
@@ -38,7 +47,7 @@ useIntervalFn(() => {
 		sender: faker.person.firstName(),
 		chunks: [{
 			type: 'text',
-			value: faker.lorem.words({ min: 1, max: 20 }),
+			value: faker.lorem.words({ min: 1, max: 40 }),
 		}],
 		createdAt: new Date(),
 		internalId: crypto.randomUUID(),
@@ -62,6 +71,9 @@ const formValue = ref<Settings>({
 	messageHideTimeout: 0,
 	messageShowDelay: 0,
 	preset: 'clean',
+	fontFamily: 'Roboto:700italic',
+	showBadges: true,
+	showAnnounceBadge: true,
 });
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
@@ -99,10 +111,26 @@ const sliderMarks = {
 	60: '60',
 };
 
-const selectOptions = [
+const styleSelectOptions = [
 	{ label: 'Clean', value: 'clean' },
 	{ label: 'Boxed', value: 'boxed' },
 ];
+
+const fontSelectOptions = computed<TreeSelectOption[]>(() => {
+	return googleFonts?.value?.fonts
+		.map((f) => {
+			const option: TreeSelectOption = {
+				label: f.family,
+				children: f.files.map((c) => ({
+					label: `${f.family}:${c.name}`,
+					key: `${f.family}:${c.name}`,
+				})),
+				key: f.family,
+			};
+
+			return option;
+		}) ?? [];
+});
 </script>
 
 <template>
@@ -110,7 +138,7 @@ const selectOptions = [
 		<div class="form">
 			<div>
 				<span>{{ t('overlays.chat.style') }}</span>
-				<n-select v-model:value="formValue.preset" :options="selectOptions" />
+				<n-select v-model:value="formValue.preset" :options="styleSelectOptions" />
 			</div>
 
 			<div class="switch">
@@ -121,6 +149,40 @@ const selectOptions = [
 			<div class="switch">
 				<n-switch v-model:value="formValue.hideCommands" />
 				<span>{{ t('overlays.chat.hideCommands') }}</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.showBadges" />
+				<span>{{ t('overlays.chat.showBadges') }}</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.showAnnounceBadge" :disabled="formValue.preset === 'clean' || !formValue.showBadges" />
+				<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
+			</div>
+
+			<div>
+				<span>{{ t('overlays.chat.fontFamily') }}</span>
+				<n-tree-select
+					v-model:value="formValue.fontFamily"
+					filterable
+					:options="fontSelectOptions"
+					:loading="isGoogleFontsLoading"
+					:disabled="isGoogleFontsError"
+					check-strategy="child"
+				>
+					<template #action>
+						{{ t('overlays.chat.fontFamilyDescription') }}
+						<a
+							class="action-link"
+							href="https://fonts.google.com/"
+							target="_blank"
+							:style="{ color: themeVars.successColor }"
+						>
+							Preview Google Fonts
+						</a>
+					</template>
+				</n-tree-select>
 			</div>
 
 			<div class="slider">
@@ -150,6 +212,7 @@ const selectOptions = [
 				class="chatBox"
 				:messages="messagesMock"
 				:settings="chatBoxSettings"
+				:fonts="googleFonts?.fonts"
 			/>
 		</div>
 	</div>
@@ -191,5 +254,9 @@ const selectOptions = [
 	gap: 4px;
 	align-items: center;
 	flex-direction: column;
+}
+
+.action-link {
+	text-decoration: none;
 }
 </style>

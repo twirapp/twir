@@ -9,4 +9,7 @@ message Settings {
 	uint32 font_size = 4;
 	bool hide_commands = 5;
 	bool hide_bots = 6;
+	string font_family = 7;
+	bool show_badges = 8;
+	bool show_announce_badge = 9;
 }

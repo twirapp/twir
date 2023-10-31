@@ -22,6 +22,9 @@ func (c *Modules) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *modules_chat
 		FontSize:           s.FontSize,
 		HideCommands:       s.HideCommands,
 		HideBots:           s.HideBots,
+		FontFamily:         s.FontFamily,
+		ShowBadges:         s.ShowBadges,
+		ShowAnnounceBadge:  s.ShowAnnounceBadge,
 	}
 }
 
@@ -33,6 +36,9 @@ func (c *Modules) chatOverlayGrpcToDb(s *modules_chat_overlay.Settings) model.Ch
 		FontSize:           s.FontSize,
 		HideCommands:       s.HideCommands,
 		HideBots:           s.HideBots,
+		FontFamily:         s.FontFamily,
+		ShowBadges:         s.ShowBadges,
+		ShowAnnounceBadge:  s.ShowAnnounceBadge,
 	}
 }
 

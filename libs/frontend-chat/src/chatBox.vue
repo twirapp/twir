@@ -30,9 +30,26 @@ const chatMessageComponent = computed(() => {
 });
 
 const fontSize = computed(() => `${props.settings.fontSize}px`);
+
+const defaultFont = 'Roboto';
+const fontFamily = computed(() => {
+	try {
+		const [family] = props.settings.fontFamily.split(':');
+
+		return family || defaultFont;
+	} catch (e) {
+		return defaultFont;
+	}
+});
+const fontUrl = computed(() => {
+	return `https://fonts.googleapis.com/css?family=${fontFamily.value}`;
+});
 </script>
 
 <template>
+	<component :is="'style'">
+		@import url('{{ fontUrl }}')
+	</component>
 	<div ref="chatElement" class="chat">
 		<TransitionGroup name="list" tag="div" class="messages">
 			<component
@@ -47,14 +64,12 @@ const fontSize = computed(() => `${props.settings.fontSize}px`);
 </template>
 
 <style scoped>
-@import url(https://fonts.googleapis.com/css?family=Roboto:700);
-
 .chat {
 	max-height: 100vh;
   width: 100%;
   color: #fff;
   font-size: v-bind(fontSize);
-	font-family: 'Roboto';
+	font-family: v-bind(fontFamily);
 	overflow: hidden;
 }
 

@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	json "github.com/bytedance/sonic"
+	"github.com/goccy/go-json"
 	"github.com/twitchtv/twirp"
 )
 
@@ -39,9 +39,9 @@ func (s *Service) NewCacheInterceptor(options ...CacheOpts) twirp.Interceptor {
 				return next(ctx, req)
 			}
 
-			channelId := ctx.Value("dashboardId").(string)
+			channelId, channelCastOk := ctx.Value("dashboardId").(string)
 			cacheKey := fmt.Sprintf("api:cache:twirp-%s", option.CacheMethod)
-			if option.WithChannelHeader {
+			if option.WithChannelHeader && channelCastOk {
 				cacheKey += "-channel-" + channelId
 			}
 

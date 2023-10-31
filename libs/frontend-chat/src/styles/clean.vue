@@ -10,7 +10,7 @@ defineProps<{
 
 <template>
 	<div class="message">
-		<div v-if="msg.badges" class="badges">
+		<div v-if="settings.showBadges && msg.badges" class="badges">
 			<template
 				v-for="(badgeValue, badgeName) of msg.badges"
 				:key="badgeName+badgeValue"

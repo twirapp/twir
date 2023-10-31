@@ -1,9 +1,12 @@
+import type { Font as InternalFont } from '@twir/grpc/generated/api/api/google_fonts_unprotected';
 import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/modules_chat_overlay';
 
 export type MessageChunk = {
 	type: 'text' | 'emote' | '3rd_party_emote';
 	value: string;
 }
+
+export type Font = InternalFont
 
 export type BadgeVersion = {
 	id: string,

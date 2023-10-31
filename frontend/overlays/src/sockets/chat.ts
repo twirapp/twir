@@ -23,6 +23,7 @@ export const useChatSocket = (apiKey: string) => {
 		fontSize: 20,
 		hideBots: false,
 		hideCommands: false,
+		fontFamily: 'Roboto',
 	});
 
 	const { data, send } = useWebSocket(
@@ -55,15 +56,14 @@ export const useChatSocket = (apiKey: string) => {
 				}
 			}
 
-			settings.value.channelId = event.data.channelId;
-			settings.value.channelName = event.data.channelName;
-			settings.value.channelDisplayName = event.data.channelDisplayName;
-			settings.value.messageHideTimeout = event.data.messageHideTimeout ?? 0;
-			settings.value.messageShowDelay = event.data.messageShowDelay ?? 0;
-			settings.value.preset = event.data.preset ?? 'clean';
-			settings.value.fontSize = event.data.fontSize ?? 20;
-			settings.value.hideBots = event.data.hideBots ?? false;
-			settings.value.hideCommands = event.data.hideCommands ?? false;
+			const valuesForSet = Object.entries(event.data)
+				.filter(([key]) => !['channelBadges', 'globalBadges'].includes(key));
+
+			for (const [key, value] of valuesForSet) {
+				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+				// @ts-ignore
+				settings.value[key] = value;
+			}
 		}
 	});
 

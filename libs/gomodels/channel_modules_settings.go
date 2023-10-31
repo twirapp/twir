@@ -183,4 +183,7 @@ type ChatOverlaySettings struct {
 	FontSize           uint32 `json:"fontSize"`
 	HideCommands       bool   `json:"hideCommands"`
 	HideBots           bool   `json:"hideBots"`
+	FontFamily         string `json:"fontFamily"`
+	ShowBadges         bool   `json:"showBadges"`
+	ShowAnnounceBadge  bool   `json:"showAnnounceBadge"`
 }

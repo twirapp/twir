@@ -11,3 +11,4 @@ export * from './overlays/index.js';
 export * from './dashboard.js';
 export * from './files.js';
 export * from './games/index.js';
+export * from './googleFonts.js';
