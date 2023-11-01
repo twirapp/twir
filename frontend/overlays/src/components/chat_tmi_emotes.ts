@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import { useFetch, useIntervalFn } from '@vueuse/core';
 import { ref, Ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
@@ -16,8 +17,10 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 	}).get().json<SevenTvChannelResponse>();
 	const sevenTvGlobalEmotes = useFetch('https://7tv.io/v3/emote-sets/global').get().json<SevenTvGlobalResponse>();
 	const sevenTvEmotesInterval = useIntervalFn(() => {
-		sevenTvChannelEmotes.execute(false);
-		sevenTvGlobalEmotes.execute(false);
+		try {
+			sevenTvChannelEmotes.execute(false);
+			sevenTvGlobalEmotes.execute(false);
+		} catch {}
 	}, 10 * 1000, {
 		immediate: false,
 	});
@@ -31,8 +34,10 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 	}).get().json<FfzChannelResponse>();
 	const ffzGlobalEmotes = useFetch('https://api.frankerfacez.com/v1/set/global').get().json<FfzGlobalResponse>();
 	const ffzEmotesInterval = useIntervalFn(() => {
-		ffzChannelEmotes.execute(false);
-		ffzGlobalEmotes.execute(false);
+		try {
+			ffzChannelEmotes.execute(false);
+			ffzGlobalEmotes.execute(false);
+		} catch {}
 	}, 10 * 1000, {
 		immediate: false,
 	});
@@ -46,8 +51,10 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 	}).get().json<BttvChannelResponse>();
 	const bttvGlobalEmotes = useFetch('https://api.betterttv.net/3/cached/emotes/global').get().json<BttvGlobalResponse>();
 	const bttvEmotesInterval = useIntervalFn(() => {
-		bttvChannelEmotes.execute(false);
-		bttvGlobalEmotes.execute(false);
+		try {
+			bttvChannelEmotes.execute(false);
+			bttvGlobalEmotes.execute(false);
+		} catch {}
 	}, 10 * 1000, {
 		immediate: false,
 	});
@@ -105,7 +112,7 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 	watch(bttvChannelEmotes.data, (v) => {
 		if (!v) return;
 
-		for (const emote of v.sharedEmotes) {
+		for (const emote of [...v.sharedEmotes, ...v.channelEmotes]) {
 			bttvEmotes.value[emote.code] = `https://cdn.betterttv.net/emote/${emote.id}/1x.webp`;
 		}
 	});
@@ -142,6 +149,7 @@ type SevenTvGlobalResponse = {
 
 type BttvEmote = { code: string, imageType: string, id: string }
 type BttvChannelResponse = {
+	channelEmotes: Array<BttvEmote>
 	sharedEmotes: Array<BttvEmote>
 }
 type BttvGlobalResponse = Array<BttvEmote>
