@@ -36,3 +36,13 @@ message SetDashboard {
 message GetDashboardsResponse {
 	repeated Dashboard dashboards = 1;
 }
+
+message GetPublicUserInfoRequest {
+	string user_id = 1;
+}
+
+message GetPublicUserInfoResponse {
+	bool is_admin = 1;
+	bool is_banned = 2;
+	string user_id = 3;
+}

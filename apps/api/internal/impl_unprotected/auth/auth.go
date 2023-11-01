@@ -5,9 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/satont/twir/libs/grpc/generated/eventsub"
 	"github.com/satont/twir/libs/grpc/generated/scheduler"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -192,4 +193,33 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	)
 
 	return &emptypb.Empty{}, nil
+}
+
+func (c *Auth) GetPublicUserInfo(ctx context.Context, req *auth.GetPublicUserInfoRequest) (
+	*auth.
+		GetPublicUserInfoResponse, error,
+) {
+	if req.UserId == "" {
+		return nil, twirp.NewError("400", "no user id provided")
+	}
+
+	user := &model.Users{}
+	if err := c.Db.
+		WithContext(ctx).
+		Where("id = ?", req.UserId).
+		Preload("Channel").
+		First(user).Error; err != nil {
+		return nil, fmt.Errorf("cannot get user: %w", err)
+	}
+
+	var isBanned bool
+	if user.Channel != nil {
+		isBanned = user.Channel.IsBanned || user.Channel.IsTwitchBanned
+	}
+
+	return &auth.GetPublicUserInfoResponse{
+		IsAdmin:  user.IsBotAdmin,
+		IsBanned: isBanned,
+		UserId:   user.ID,
+	}, nil
 }

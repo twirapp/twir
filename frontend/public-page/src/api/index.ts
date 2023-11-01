@@ -1,22 +1,42 @@
 import { useQuery } from '@tanstack/vue-query';
-import { type TwitchGetUsersResponse } from '@twir/grpc/generated/api/api/twitch';
+import { type GetPublicUserInfoResponse } from '@twir/grpc/generated/api/api/auth';
+import type {
+	TwitchGetUsersResponse,
+	TwitchUser as InternalUser,
+} from '@twir/grpc/generated/api/api/twitch';
 import { MaybeRef, type Ref, unref } from 'vue';
 
-export * from './community.js';
 import { unprotectedClient } from './twirp.js';
 
-export const useProfile = (userName: string | Ref<string>) => useQuery({
+export * from './community.js';
+
+type User = InternalUser & GetPublicUserInfoResponse;
+
+export const useProfile = (userName: string | Ref<string>) => useQuery<User | undefined>({
 	queryKey: ['profile', userName],
 	queryFn: async () => {
 		const name = unref(userName);
 		if (!name) return;
-		const call = await unprotectedClient.twitchGetUsers({
+
+		const twitchUserCall = await unprotectedClient.twitchGetUsers({
 			names: [name],
 			ids: [],
 		});
 
-		const user = call.response.users[0];
-		return user;
+		const twitchUser = twitchUserCall.response.users[0];
+		if (!twitchUser) return;
+
+		const internalUserCall = await unprotectedClient.getPublicUserInfo({
+			userId: twitchUser.id,
+		});
+
+		const internalUser = internalUserCall.response;
+		if (!internalUser) return;
+
+		return {
+			...twitchUser,
+			...internalUser,
+		};
 	},
 });
 

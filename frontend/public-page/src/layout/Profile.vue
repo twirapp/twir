@@ -11,18 +11,18 @@ const emits = defineEmits<{
 const router = useRouter();
 
 const channelName = computed<string>(() => {
-  if (typeof router.currentRoute.value.params.channelName != 'string') {
-    return '';
-  }
-  return router.currentRoute.value.params.channelName;
+	if (typeof router.currentRoute.value.params.channelName != 'string') {
+		return '';
+	}
+	return router.currentRoute.value.params.channelName;
 });
 
 const { data: profile, isLoading } = useProfile(channelName);
 
 watch(profile, (v) => {
-  if (!v) return;
+	if (!v) return;
 
-  window.document.title = `Twir - ${v.displayName}`;
+	window.document.title = `Twir - ${v.displayName}`;
 	emits('updateChannelId', v.id);
 });
 
@@ -46,7 +46,7 @@ watch(profile, (v) => {
 		</svg>
 
 		<div v-else class="flex gap-6">
-			<img :src="profile.profileImageUrl" class="rounded-full w-[68px]" />
+			<img :src="profile.profileImageUrl" class="rounded-full h-[68px] w-[68px]" />
 			<div class="flex flex-col">
 				<p class="text-4xl">
 					{{ profile?.displayName }}
@@ -54,7 +54,18 @@ watch(profile, (v) => {
 				<a
 					:href="'https://twitch.tv/'+profile.login" target="_blank"
 					class="text-purple-400"
-				>twitch.tv/{{ profile.login }}</a>
+				>
+					twitch.tv/{{ profile.login }}
+				</a>
+
+				<div class="pt-1">
+					<span
+						v-if="profile.isBanned"
+						class="py-0.5 px-2 rounded-md bg-red-600 text-sm"
+					>
+						Banned
+					</span>
+				</div>
 			</div>
 		</div>
 	</div>
