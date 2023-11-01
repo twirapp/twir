@@ -30,6 +30,7 @@ message DiscordGuild {
 	bool live_notification_show_preview = 14;
 	bool live_notification_show_profile_image = 15;
 	bool should_delete_message_on_offline = 16;
+	repeated string additional_users_ids_for_live_check = 17;
 }
 
 message GetDataResponse {

@@ -213,7 +213,8 @@
         "streamOfflineLabel": "Stream offline message",
         "streamOfflinePlaceholder": "The message twir will send when stream goes offline",
         "updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
-        "shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline"
+        "shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline",
+				"additionalUsersIdsForLiveCheck": "Additional twitch users for watch streams and send alerts"
       },
       "connectGuild": "+ connect new guild",
       "disconnectGuild": "Disconnect guild",

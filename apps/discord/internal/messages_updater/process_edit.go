@@ -26,12 +26,6 @@ func (c *MessagesUpdater) updateDiscordMessages(
 		return nil
 	}
 
-	twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{stream.UserId}})
-	if len(twitchUsersReq.Data.Users) == 0 {
-		return errors.New("user not found")
-	}
-	twitchUser := twitchUsersReq.Data.Users[0]
-
 	for _, guild := range settings.Data.Discord.Guilds {
 		if !guild.LiveNotificationEnabled {
 			continue
@@ -43,6 +37,15 @@ func (c *MessagesUpdater) updateDiscordMessages(
 		}
 
 		for _, message := range messages {
+			if message.TwitchChannelID != stream.UserId {
+				continue
+			}
+
+			twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{message.TwitchChannelID}})
+			if len(twitchUsersReq.Data.Users) == 0 {
+				return errors.New("user not found")
+			}
+			twitchUser := twitchUsersReq.Data.Users[0]
 			embed := c.buildEmbed(twitchUser, stream, guild)
 
 			gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
@@ -52,7 +55,7 @@ func (c *MessagesUpdater) updateDiscordMessages(
 				continue
 			}
 
-			_, err := retry.DoWithData(
+			_, err = retry.DoWithData(
 				func() (*discord.Message, error) {
 					dsChannelUid, err := strconv.ParseUint(message.DiscordChannelID, 10, 64)
 					if err != nil {

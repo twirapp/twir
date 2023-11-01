@@ -131,6 +131,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 						Roles:                                    roles,
 						OfflineNotificationMessage:               guild.OfflineNotificationMessage,
 						ShouldDeleteMessageOnOffline:             guild.ShouldDeleteMessageOnOffline,
+						AdditionalUsersIdsForLiveCheck:           guild.AdditionalUsersIdsForLiveCheck,
 					},
 				)
 				guildsMu.Unlock()
@@ -180,6 +181,7 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 				LiveNotificationShowPreview:      guild.LiveNotificationShowPreview,
 				LiveNotificationShowProfileImage: guild.LiveNotificationShowProfileImage,
 				ShouldDeleteMessageOnOffline:     guild.ShouldDeleteMessageOnOffline,
+				AdditionalUsersIdsForLiveCheck:   guild.AdditionalUsersIdsForLiveCheck,
 			},
 		)
 	}

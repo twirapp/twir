@@ -31,6 +31,7 @@ type ChannelIntegrationDataDiscordGuild struct {
 	LiveNotificationShowProfileImage bool     `json:"liveNotificationShowProfileImage,omitempty"`
 	OfflineNotificationMessage       string   `json:"offlineNotificationMessage,omitempty"`
 	ShouldDeleteMessageOnOffline     bool     `json:"shouldDeleteMessageOnOffline,omitempty"`
+	AdditionalUsersIdsForLiveCheck   []string `json:"additionalUsersIdsForLiveCheck,omitempty"`
 }
 
 type ChannelIntegrationDataDiscord struct {
@@ -60,6 +61,8 @@ type ChannelsIntegrations struct {
 	APIKey        null.String               `gorm:"column:apiKey;type:TEXT;"         json:"apiKey"        swaggertype:"string"`
 	Data          *ChannelsIntegrationsData `gorm:"column:data;type:JSONB;"          json:"data"`
 	Integration   *Integrations             `gorm:"foreignKey:IntegrationID"         json:"-"`
+
+	Channel *Channels `gorm:"foreignKey:ChannelID" json:"channel"`
 }
 
 func (c *ChannelsIntegrations) TableName() string {

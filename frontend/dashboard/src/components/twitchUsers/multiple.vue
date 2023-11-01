@@ -7,6 +7,9 @@ import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 
 // eslint-disable-next-line no-undef
 const usersIds = defineModel<string[]>({ default: [] });
+defineProps<{
+	max?: number
+}>();
 
 const getUsers = useTwitchGetUsers({
 	ids: usersIds,
@@ -139,6 +142,7 @@ const renderLabel = (option: Option) => {
 		:clear-filter-after-select="true"
 		:render-label="renderLabel as any"
 		:render-tag="renderMultipleSelectTag as any"
+		:disabled="max ? usersIds.length === max : false"
 		@search="handleSearch"
 	/>
 </template>

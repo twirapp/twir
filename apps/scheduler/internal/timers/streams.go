@@ -3,9 +3,10 @@ package timers
 import (
 	"context"
 	"encoding/json"
-	"gorm.io/gorm"
 	"sync"
 	"time"
+
+	"gorm.io/gorm"
 
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
@@ -44,6 +45,54 @@ func processStreams(services *types.Services) {
 		return
 	}
 
+	usersIds := make([]string, len(channels))
+	for i, channel := range channels {
+		if !channel.IsEnabled && !channel.IsBanned {
+			continue
+		}
+
+		usersIds[i] = channel.ID
+	}
+
+	discordIntegration := &model.Integrations{}
+	err = services.Gorm.
+		Where(`service = ?`, model.IntegrationServiceDiscord).
+		Select("id").
+		Find(discordIntegration).Error
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	var discordIntegrations []model.ChannelsIntegrations
+	if discordIntegration.ID != "" {
+		err = services.Gorm.
+			Where(`"integrationId" = ?`, discordIntegration.ID).
+			Select("id", `"integrationId"`, "data").
+			Find(&discordIntegrations).Error
+		if err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		for _, integration := range discordIntegrations {
+			if integration.Data == nil ||
+				integration.Data.Discord == nil ||
+				len(integration.Data.Discord.Guilds) == 0 {
+				continue
+			}
+
+			for _, guild := range integration.Data.Discord.Guilds {
+				if !guild.LiveNotificationEnabled {
+					continue
+				}
+				usersIds = append(usersIds, guild.AdditionalUsersIdsForLiveCheck...)
+			}
+		}
+	}
+
+	usersIds = lo.Uniq(usersIds)
+
 	var existedStreams []model.ChannelsStreams
 	err = services.Gorm.Select("id", `"userId"`, `"parsedMessages"`).Find(&existedStreams).Error
 	if err != nil {
@@ -57,23 +106,17 @@ func processStreams(services *types.Services) {
 		return
 	}
 
-	chunks := lo.Chunk(channels, 100)
+	chunks := lo.Chunk(usersIds, 100)
 	wg := &sync.WaitGroup{}
 
 	wg.Add(len(chunks))
 
 	for _, chunk := range chunks {
-		go func(chunk []model.Channels) {
+		go func(chunk []string) {
 			defer wg.Done()
-			usersIds := lo.Map(
-				chunk, func(channel model.Channels, _ int) string {
-					return channel.ID
-				},
-			)
-
 			streams, err := twitchClient.GetStreams(
 				&helix.StreamsParams{
-					UserIDs: usersIds,
+					UserIDs: chunk,
 				},
 			)
 
@@ -82,15 +125,15 @@ func processStreams(services *types.Services) {
 				return
 			}
 
-			for _, channel := range chunk {
+			for _, userId := range chunk {
 				twitchStream, twitchStreamExists := lo.Find(
 					streams.Data.Streams, func(stream helix.Stream) bool {
-						return stream.UserID == channel.ID
+						return stream.UserID == userId
 					},
 				)
 				dbStream, dbStreamExists := lo.Find(
 					existedStreams, func(stream model.ChannelsStreams) bool {
-						return stream.UserId == channel.ID
+						return stream.UserId == userId
 					},
 				)
 
@@ -120,13 +163,16 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && dbStreamExists {
-					if result := services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
+					if result := services.Gorm.Where(
+						`"userId" = ?`,
+						userId,
+					).Save(channelStream); result.Error != nil {
 						zap.S().Error(
 							result.Error,
 							zap.String(
 								"query", result.ToSQL(
 									func(tx *gorm.DB) *gorm.DB {
-										return tx.Where(`"userId" = ?`, channel.ID).Save(channelStream)
+										return tx.Where(`"userId" = ?`, userId).Save(channelStream)
 									},
 								),
 							),
@@ -136,13 +182,16 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && !dbStreamExists {
-					if result := services.Gorm.Where(`"userId" = ?`, channel.ID).Save(channelStream); result.Error != nil {
+					if result := services.Gorm.Where(
+						`"userId" = ?`,
+						userId,
+					).Save(channelStream); result.Error != nil {
 						zap.S().Error(
 							result.Error,
 							zap.String(
 								"query", result.ToSQL(
 									func(tx *gorm.DB) *gorm.DB {
-										return tx.Where(`"userId" = ?`, channel.ID).Save(channelStream)
+										return tx.Where(`"userId" = ?`, userId).Save(channelStream)
 									},
 								),
 							),
@@ -165,7 +214,10 @@ func processStreams(services *types.Services) {
 				}
 
 				if !twitchStreamExists && dbStreamExists {
-					err = services.Gorm.Where(`"userId" = ?`, channel.ID).Delete(&model.ChannelsStreams{}).Error
+					err = services.Gorm.Where(
+						`"userId" = ?`,
+						userId,
+					).Delete(&model.ChannelsStreams{}).Error
 					if err != nil {
 						zap.S().Error(err)
 						return

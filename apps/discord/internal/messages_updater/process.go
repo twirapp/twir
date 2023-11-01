@@ -19,26 +19,12 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 	}
 
 	streams := c.getStreams(ctx)
-	streams = lo.Filter(
-		streams,
-		func(stream model.ChannelsStreams, _ int) bool {
-			return stream.Channel != nil && stream.Channel.IsEnabled
-		},
-	)
-
-	// DELETE messages that are not in the streams, so memory do not leak
-	// for _, message := range messages {
-	// 	_, ok := lo.Find(
-	// 		streams,
-	// 		func(stream model.ChannelsStreams) bool {
-	// 			return stream.UserId == message.ChannelID
-	// 		},
-	// 	)
-	// 	if !ok {
-	// 		c.store.Delete(ctx, message.MessageID)
-	// 		// TODO: set offline message
-	// 	}
-	// }
+	// streams = lo.Filter(
+	// 	streams,
+	// 	func(stream model.ChannelsStreams, _ int) bool {
+	// 		return stream.Channel != nil && stream.Channel.IsEnabled
+	// 	},
+	// )
 
 	for _, stream := range streams {
 		_, ok := lo.Find(
@@ -101,7 +87,7 @@ func (c *MessagesUpdater) getStreams(
 	ctx context.Context,
 ) []model.ChannelsStreams {
 	var streams []model.ChannelsStreams
-	if err := c.db.WithContext(ctx).Preload("Channel").Find(&streams).Error; err != nil {
+	if err := c.db.WithContext(ctx).Find(&streams).Error; err != nil {
 		c.logger.Error("Failed to get streams", slog.Any("err", err))
 		return nil
 	}

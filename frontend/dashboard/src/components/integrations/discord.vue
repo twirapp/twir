@@ -33,6 +33,7 @@ import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import WithSettings from './variants/withSettings.vue';
+import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 
 import TwirCircle from '@/../public/TwirInCircle.svg?url';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
@@ -211,6 +212,14 @@ const { data: currentUser } = useProfile();
 								</div>
 
 								<n-divider style="margin: 4px;" />
+
+								<div class="form-item">
+									<span>{{ t('integrations.discord.alerts.additionalUsersIdsForLiveCheck') }}</span>
+									<TwitchMultipleUsersSelector
+										v-model="guild.additionalUsersIdsForLiveCheck"
+										:max="10"
+									/>
+								</div>
 
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.channelsSelect') }}</span>
