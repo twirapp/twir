@@ -51,15 +51,15 @@ const messagesDirection = computed(() => {
 </script>
 
 <template>
-	<component :is="'style'">
-		@import url('{{ fontUrl }}')
-	</component>
 	<div ref="chatElement" class="chat">
+		<component :is="'style'">
+			@import url('{{ fontUrl }}')
+		</component>
 		<TransitionGroup name="list" tag="div" class="messages">
 			<component
 				:is="chatMessageComponent"
-				v-for="(msg, index) of messages"
-				:key="index"
+				v-for="msg of messages"
+				:key="msg.internalId"
 				:msg="msg"
 				:settings="toValue(settings)"
 			/>
@@ -69,12 +69,13 @@ const messagesDirection = computed(() => {
 
 <style scoped>
 .chat {
-	max-height: 100vh;
+	height: 100dvh;
   width: 100%;
   color: #fff;
   font-size: v-bind(fontSize);
 	font-family: v-bind(fontFamily);
 	overflow: hidden;
+	position: relative;
 }
 
 .chat .messages {
@@ -88,21 +89,13 @@ const messagesDirection = computed(() => {
 	max-height: 1em;
 }
 
-.list-move, /* apply transition to moving elements */
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;
 }
-
 .list-enter-from,
 .list-leave-to {
   opacity: 0;
-  transform: translateX(30px);
-}
-
-/* ensure leaving items are taken out of layout flow so that moving
-   animations can be calculated correctly. */
-.list-leave-active {
-  position: absolute;
+  transform: translateX(-30px);
 }
 </style>
