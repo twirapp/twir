@@ -26,6 +26,7 @@ export const useChatSocket = (apiKey: string): { settings: Ref<Settings> } => {
 		fontFamily: 'Roboto',
 		showAnnounceBadge: true,
 		showBadges: true,
+		reverseMessages: false,
 	});
 
 	const { data, send } = useWebSocket(
