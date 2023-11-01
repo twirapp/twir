@@ -37,6 +37,10 @@ func (c *Community) CommunityGetUsers(
 		return nil, err
 	}
 
+	if channel.IsBanned {
+		return &community.GetUsersResponse{}, nil
+	}
+
 	var sortBy string
 	if request.SortBy == community.GetUsersRequest_UsedChannelPoints {
 		sortBy = "usedChannelPoints"

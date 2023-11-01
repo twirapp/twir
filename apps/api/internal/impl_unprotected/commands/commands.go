@@ -18,6 +18,18 @@ func (c *Commands) GetChannelCommands(
 	ctx context.Context,
 	req *commands_unprotected.GetChannelCommandsRequest,
 ) (*commands_unprotected.GetChannelCommandsResponse, error) {
+	channel := &model.Channels{}
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`id = ?`, req.ChannelId).
+		First(channel).Error; err != nil {
+		return nil, err
+	}
+
+	if channel.IsBanned {
+		return &commands_unprotected.GetChannelCommandsResponse{}, nil
+	}
+
 	var entities []*model.ChannelsCommands
 	if err := c.Db.
 		WithContext(ctx).

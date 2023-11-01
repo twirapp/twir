@@ -3,6 +3,7 @@ package songs
 import (
 	"context"
 	"fmt"
+
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
@@ -17,6 +18,18 @@ func (c *Songs) GetSongsQueue(
 	ctx context.Context,
 	req *songs_unprotected.GetSongsQueueRequest,
 ) (*songs_unprotected.GetSongsQueueResponse, error) {
+	channel := &model.Channels{}
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`id = ?`, req.ChannelId).
+		First(channel).Error; err != nil {
+		return nil, err
+	}
+
+	if channel.IsBanned {
+		return &songs_unprotected.GetSongsQueueResponse{}, nil
+	}
+
 	var queue []*model.RequestedSong
 	if err := c.Db.
 		WithContext(ctx).
@@ -29,8 +42,16 @@ func (c *Songs) GetSongsQueue(
 	songs := make([]*songs_unprotected.GetSongsQueueResponse_Song, len(queue))
 
 	for i, s := range queue {
-		requestedBy := lo.If(s.OrderedByDisplayName.Valid, s.OrderedByDisplayName.String).Else(s.OrderedByName)
-		songLink := lo.If(s.SongLink.Valid, s.SongLink.String).Else(fmt.Sprintf("https://youtu.be/%s", s.ID))
+		requestedBy := lo.If(
+			s.OrderedByDisplayName.Valid,
+			s.OrderedByDisplayName.String,
+		).Else(s.OrderedByName)
+		songLink := lo.If(s.SongLink.Valid, s.SongLink.String).Else(
+			fmt.Sprintf(
+				"https://youtu.be/%s",
+				s.ID,
+			),
+		)
 
 		songs[i] = &songs_unprotected.GetSongsQueueResponse_Song{
 			Title:       s.Title,

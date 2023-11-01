@@ -19,6 +19,18 @@ func (c *Tts) GetTTSChannelSettings(
 	ctx context.Context,
 	req *tts_unprotected.GetChannelSettingsRequest,
 ) (*tts_unprotected.Settings, error) {
+	channel := &model.Channels{}
+	if err := c.Db.
+		WithContext(ctx).
+		Where(`id = ?`, req.ChannelId).
+		First(channel).Error; err != nil {
+		return nil, err
+	}
+
+	if channel.IsBanned {
+		return &tts_unprotected.Settings{}, nil
+	}
+
 	entity := model.ChannelModulesSettings{}
 	if err := c.Db.WithContext(ctx).Where(
 		`"channelId" = ? AND "userId" IS NULL AND type = ?`,
