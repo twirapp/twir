@@ -186,4 +186,5 @@ type ChatOverlaySettings struct {
 	FontFamily         string `json:"fontFamily"`
 	ShowBadges         bool   `json:"showBadges"`
 	ShowAnnounceBadge  bool   `json:"showAnnounceBadge"`
+	ReverseMessages    bool   `json:"reverseMessages"`
 }

@@ -25,6 +25,7 @@ func (c *Modules) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *modules_chat
 		FontFamily:         s.FontFamily,
 		ShowBadges:         s.ShowBadges,
 		ShowAnnounceBadge:  s.ShowAnnounceBadge,
+		ReverseMessages:    s.ReverseMessages,
 	}
 }
 
@@ -39,6 +40,7 @@ func (c *Modules) chatOverlayGrpcToDb(s *modules_chat_overlay.Settings) model.Ch
 		FontFamily:         s.FontFamily,
 		ShowBadges:         s.ShowBadges,
 		ShowAnnounceBadge:  s.ShowAnnounceBadge,
+		ReverseMessages:    s.ReverseMessages,
 	}
 }
 

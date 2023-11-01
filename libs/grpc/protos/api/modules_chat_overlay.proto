@@ -12,4 +12,5 @@ message Settings {
 	string font_family = 7;
 	bool show_badges = 8;
 	bool show_announce_badge = 9;
+	bool reverse_messages = 10;
 }

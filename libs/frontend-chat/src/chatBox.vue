@@ -13,7 +13,7 @@ const props = defineProps<{
 }>();
 
 watch(() => props.messages.length, async () => {
-	if (!chatElement.value) return;
+	if (!chatElement.value || props.settings.reverseMessages) return;
 
 	await nextTick();
 	chatElement.value.scrollTo(0, chatElement.value.scrollHeight);
@@ -43,6 +43,10 @@ const fontFamily = computed(() => {
 });
 const fontUrl = computed(() => {
 	return `https://fonts.googleapis.com/css?family=${fontFamily.value}`;
+});
+
+const messagesDirection = computed(() => {
+	return !props.settings.reverseMessages ? 'column' : 'column-reverse';
 });
 </script>
 
@@ -75,7 +79,7 @@ const fontUrl = computed(() => {
 
 .chat .messages {
 	display: flex;
-	flex-direction: column;
+	flex-direction: v-bind(messagesDirection);
 	gap: 8px;
 	overflow: hidden;
 }

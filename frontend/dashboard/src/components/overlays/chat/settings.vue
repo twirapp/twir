@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { faker } from '@faker-js/faker';
+import { IconReload } from '@tabler/icons-vue';
 import {
 	ChatBox,
 	type Message,
@@ -64,6 +65,8 @@ useIntervalFn(() => {
 	});
 }, 1 * 1000);
 
+
+const defaultFont = 'Roboto:700italic';
 const formValue = ref<Settings>({
 	fontSize: 20,
 	hideBots: false,
@@ -71,9 +74,10 @@ const formValue = ref<Settings>({
 	messageHideTimeout: 0,
 	messageShowDelay: 0,
 	preset: 'clean',
-	fontFamily: 'Roboto:700italic',
+	fontFamily: defaultFont,
 	showBadges: true,
 	showAnnounceBadge: true,
+	reverseMessages: false,
 });
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
@@ -152,6 +156,11 @@ const fontSelectOptions = computed<TreeSelectOption[]>(() => {
 			</div>
 
 			<div class="switch">
+				<n-switch v-model:value="formValue.reverseMessages" />
+				<span>{{ t('overlays.chat.reverseMessages') }}</span>
+			</div>
+
+			<div class="switch">
 				<n-switch v-model:value="formValue.showBadges" />
 				<span>{{ t('overlays.chat.showBadges') }}</span>
 			</div>
@@ -161,8 +170,13 @@ const fontSelectOptions = computed<TreeSelectOption[]>(() => {
 				<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
 			</div>
 
-			<div>
-				<span>{{ t('overlays.chat.fontFamily') }}</span>
+			<div style="display: flex; flex-direction: column; gap: 4px;">
+				<div style="display: flex; justify-content: space-between;">
+					<span>{{ t('overlays.chat.fontFamily') }}</span>
+					<n-button size="tiny" secondary type="success" @click="formValue.fontFamily = defaultFont">
+						<IconReload style="height: 15px;" /> {{ t('overlays.chat.revertFont') }}
+					</n-button>
+				</div>
 				<n-tree-select
 					v-model:value="formValue.fontFamily"
 					filterable

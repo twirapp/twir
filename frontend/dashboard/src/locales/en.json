@@ -352,7 +352,9 @@
 			"fontFamily": "Font family",
 			"fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
 			"showBadges": "Show badges",
-			"showAnnounceBadge": "Show announce badge (only for boxed style)"
+			"showAnnounceBadge": "Show announce badge (only for boxed style)",
+			"reverseMessages": "Show new messages on top, instead bottom",
+			"revertFont": "Reset to default"
 		}
   },
   "songRequests": {
