@@ -44,6 +44,8 @@ const globalBadgesObject = Object.fromEntries(globalBadges);
 
 const messagesMock = ref<Message[]>([]);
 useIntervalFn(() => {
+	const internalId = crypto.randomUUID();
+
 	messagesMock.value.push({
 		sender: faker.person.firstName(),
 		chunks: [{
@@ -51,7 +53,7 @@ useIntervalFn(() => {
 			value: faker.lorem.words({ min: 1, max: 40 }),
 		}],
 		createdAt: new Date(),
-		internalId: crypto.randomUUID(),
+		internalId,
 		isAnnounce: faker.datatype.boolean(),
 		isItalic: false,
 		type: 'message',
@@ -63,6 +65,12 @@ useIntervalFn(() => {
 		id: crypto.randomUUID(),
 		senderDisplayName: faker.person.lastName(),
 	});
+
+	if (formValue.value.messageHideTimeout != 0) {
+		setTimeout(() => {
+			messagesMock.value = messagesMock.value.filter(m => m.internalId != internalId);
+		}, formValue.value.messageHideTimeout * 1000);
+	}
 }, 1 * 1000);
 
 
