@@ -184,8 +184,8 @@ WORKDIR /app
 COPY --from=eval_builder /app/apps/eval /app/apps/eval
 COPY --from=eval_builder /app/libs/config /app/libs/config
 COPY --from=eval_builder /app/libs/grpc /app/libs/grpc
-ENTRYPOINT "/bin/sh"
-CMD ["pnpm", "--filter=@twir/eval", "start"]
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["pnpm --filter=@twir/eval start"]
 
 FROM builder as language-detector_builder
 RUN cd apps/language-detector && \
