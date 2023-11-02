@@ -236,12 +236,16 @@ services:
       update_config:
         parallelism: 2
       mode: replicated
-      replicas: 4
+      replicas: 8
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 256M
     networks:
       - twir
 
