@@ -41,7 +41,7 @@ var ChatEval = &types.Variable{
 			)
 		}
 
-		result.Result = req.Result
+		result.Result = lo.Substring(req.Result, 0, 500)
 		return result, nil
 	},
 }
