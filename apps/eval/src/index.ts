@@ -27,7 +27,7 @@ const evalService: Eval.EvalServiceImplementation = {
 		}
 
 		return {
-			result: String(resultOfExecution),
+			result: String(resultOfExecution).slice(0, 5000),
 		};
 	},
 };

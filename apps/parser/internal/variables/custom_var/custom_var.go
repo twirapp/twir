@@ -60,6 +60,8 @@ var CustomVar = &types.Variable{
 			result.Result = v.Response
 		}
 
+		result.Result = lo.Substring(result.Result, 0, 1000)
+
 		return result, nil
 	},
 }

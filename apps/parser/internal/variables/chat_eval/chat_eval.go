@@ -2,7 +2,6 @@ package chat_eval
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/samber/lo"
@@ -34,11 +33,8 @@ var ChatEval = &types.Variable{
 		)
 
 		if err != nil {
-			parseCtx.Services.Logger.Sugar().Error(err)
-
-			return nil, errors.New(
-				"cannot evaluate variable. This is internal error, please report this bug",
-			)
+			result.Result = "Probably you're doing some suspicious things."
+			return result, nil
 		}
 
 		result.Result = lo.Substring(req.Result, 0, 500)
