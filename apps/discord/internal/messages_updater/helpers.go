@@ -2,7 +2,9 @@ package messages_updater
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -67,4 +69,32 @@ WHERE EXISTS (
 	}
 
 	return integration, err
+}
+
+type replaceMessageVarsOpts struct {
+	UserName    string `json:"userName"`
+	DisplayName string `json:"displayName"`
+
+	CategoryName string `json:"categoryName"`
+	Title        string `json:"title"`
+}
+
+func (c *MessagesUpdater) replaceMessageVars(text string, vars replaceMessageVarsOpts) string {
+	varsMap := map[string]string{}
+
+	bytes, err := json.Marshal(vars)
+	if err != nil {
+		return text
+	}
+
+	err = json.Unmarshal(bytes, &varsMap)
+	if err != nil {
+		return text
+	}
+
+	for key, value := range varsMap {
+		text = strings.ReplaceAll(text, fmt.Sprintf("{%s}", key), value)
+	}
+
+	return text
 }

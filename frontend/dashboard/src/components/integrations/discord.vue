@@ -242,6 +242,7 @@ const { data: currentUser } = useProfile();
 										:placeholder="t('integrations.discord.alerts.streamOnlinePlaceholder')"
 										:maxlength="5"
 									/>
+									<span class="description">{userName}, {displayName}, {title}, {categoryName} – supported variables</span>
 								</div>
 
 								<div style="display: flex; flex-direction: column; gap: 8px;">
@@ -254,6 +255,7 @@ const { data: currentUser } = useProfile();
 											:options="getRolesMentionsOptions(guild.id)"
 											:placeholder="t('integrations.discord.alerts.streamOfflinePlaceholder')"
 										/>
+										<span class="description">{userName}, {displayName} – supported variables</span>
 									</div>
 
 
@@ -395,6 +397,10 @@ const { data: currentUser } = useProfile();
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
+}
+
+.form-item .description {
+	font-size: 11px;
 }
 
 .switch {

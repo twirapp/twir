@@ -2,14 +2,12 @@ package messages_updater
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"strconv"
 
 	"github.com/avast/retry-go/v4"
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
-	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -41,11 +39,12 @@ func (c *MessagesUpdater) updateDiscordMessages(
 				continue
 			}
 
-			twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{message.TwitchChannelID}})
-			if len(twitchUsersReq.Data.Users) == 0 {
-				return errors.New("user not found")
+			twitchUser, err := c.getTwitchUser(stream.UserId)
+			if err != nil {
+				c.logger.Error("Failed to get twitch user", slog.Any("err", err))
+				continue
 			}
-			twitchUser := twitchUsersReq.Data.Users[0]
+
 			embed := c.buildEmbed(twitchUser, stream, guild)
 
 			gUid, _ := strconv.ParseUint(guild.ID, 10, 64)
@@ -67,10 +66,19 @@ func (c *MessagesUpdater) updateDiscordMessages(
 						return nil, err
 					}
 
+					content := c.replaceMessageVars(
+						guild.LiveNotificationMessage, replaceMessageVarsOpts{
+							UserName:     stream.UserLogin,
+							DisplayName:  stream.UserName,
+							CategoryName: stream.GameName,
+							Title:        stream.Title,
+						},
+					)
+
 					return shard.(*state.State).EditMessage(
 						discord.ChannelID(dsChannelUid),
 						discord.MessageID(dMsgId),
-						"",
+						content,
 						embed,
 					)
 				},

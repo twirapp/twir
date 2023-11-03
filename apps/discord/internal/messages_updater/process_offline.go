@@ -69,6 +69,11 @@ func (c *MessagesUpdater) processOffline(
 			return err
 		}
 
+		twitchUser, err := c.getTwitchUser(message.TwitchChannelID)
+		if err != nil {
+			return err
+		}
+
 		if guild.ShouldDeleteMessageOnOffline {
 			err = retry.Do(
 				func() error {
@@ -88,15 +93,23 @@ func (c *MessagesUpdater) processOffline(
 		} else {
 			content := guild.OfflineNotificationMessage
 			if content == "" {
-				content = "Stream is offline"
+				content = "{userName} is offline now"
 			}
+
+			content = c.replaceMessageVars(
+				content,
+				replaceMessageVarsOpts{
+					UserName:    twitchUser.Login,
+					DisplayName: twitchUser.DisplayName,
+				},
+			)
 
 			_, err = retry.DoWithData(
 				func() (*discord.Message, error) {
 					return shard.(*state.State).EditMessage(
 						discord.ChannelID(dChanUid),
 						discord.MessageID(dMsgId),
-						"",
+						content,
 					)
 				},
 				retry.Attempts(3),

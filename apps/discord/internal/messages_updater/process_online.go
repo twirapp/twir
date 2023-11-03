@@ -2,14 +2,12 @@ package messages_updater
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"strconv"
 
 	"github.com/avast/retry-go/v4"
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -27,11 +25,10 @@ func (c *MessagesUpdater) sendOnlineMessage(
 		return nil, nil
 	}
 
-	twitchUsersReq, err := c.twitchClient.GetUsers(&helix.UsersParams{IDs: []string{stream.UserId}})
-	if len(twitchUsersReq.Data.Users) == 0 {
-		return nil, errors.New("user not found")
+	twitchUser, err := c.getTwitchUser(stream.UserId)
+	if err != nil {
+		return nil, err
 	}
-	twitchUser := twitchUsersReq.Data.Users[0]
 
 	var sendedMessage []sended_messages_store.Message
 
@@ -56,11 +53,20 @@ func (c *MessagesUpdater) sendOnlineMessage(
 				continue
 			}
 
+			message := c.replaceMessageVars(
+				guild.LiveNotificationMessage, replaceMessageVarsOpts{
+					UserName:     stream.UserLogin,
+					DisplayName:  stream.UserName,
+					CategoryName: stream.GameName,
+					Title:        stream.Title,
+				},
+			)
+
 			m, err := retry.DoWithData(
 				func() (*discord.Message, error) {
 					return shard.(*state.State).SendMessage(
 						discord.ChannelID(dChanUid),
-						guild.LiveNotificationMessage,
+						message,
 						embed,
 					)
 				},
