@@ -1,71 +1,37 @@
 <script lang="ts" setup>
 import { useStore } from '@nanostores/vue';
-import { computed, onMounted, ref } from 'vue';
+import type { Profile } from '@twir/grpc/generated/api/api/auth';
 
-import Loader from '../icons/Loader.svg?component';
+import { protectedClient, unProtectedClient } from '../api/twirp.js';
 import TwitchIcon from '../icons/TwitchLogo.svg?component';
-import { profileStore, authLinkStore } from '../stores/auth.js';
-import { protectedClient } from '../api/twirp';
+import { authLinkStore } from '../stores/auth.js';
 
-const profile = useStore(profileStore);
 const authLink = useStore(authLinkStore);
-
-const isLoading = computed(
-	() => authLinkStore.value === null && profileStore.value === null && isError.value === false,
-);
-const isError = ref(false);
-const error = ref<string | null>(null);
 
 const props = defineProps<{
 	session?: string
+	location: string
 }>();
 
-try {
-	const request = await protectedClient.authUserProfile({}, {
-		meta: {
-			'Cookie': `session=${props.session}`,
-		},
-	});
-	const profile = request.response;
-	profileStore.set(profile);
-} catch (e) {
-	console.error(e);
+let profile: Profile | undefined;
+
+if (props.session) {
+	try {
+		const request = await protectedClient.authUserProfile({}, {
+			meta: { Cookie: `session=${props.session}` },
+		});
+		profile = request.response;
+	// eslint-disable-next-line no-empty
+	} catch {}
 }
 
-
-onMounted(async () => {
-	return;
-	if (typeof window === 'undefined') return;
-	const { browserProtectedClient, browserUnProtectedClient } = await import(
-		'../api/twirp-browser.js'
-	);
-
-	browserUnProtectedClient
-		.authGetLink({
-			state: window.btoa(window.location.origin),
-		})
-		.then((r) => authLinkStore.set(r.response.link))
-		.catch((err) => {
-			isError.value = true;
-			console.error(err);
-			error.value = String(err);
-		});
-
-	browserProtectedClient
-		.authUserProfile({})
-		.then((r) => profileStore.set(r.response))
-		.catch((err) => {
-			isError.value = true;
-			console.error(err);
-			error.value = String(err);
-		});
-});
+const request = await unProtectedClient.authGetLink({ state: btoa(props.location) });
+authLinkStore.set(request.response.link);
 </script>
 
 <template>
-	<Loader v-if="isLoading" class="w-6 h-6 animate-spin stroke-white/75 stroke-[1.5] m-2" />
 	<a
-		v-else-if="!profile && !isLoading"
+		v-if="!profile"
 		class="flex flex-row px-4 py-2 items-center gap-2 bg-[#5D58F5] text-white rounded-lg font-medium focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-[#5D58F5]/50 cursor-pointer hover:bg-[#6964FF] transition-shadow"
 		:href="authLink"
 	>
