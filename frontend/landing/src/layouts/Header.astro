@@ -3,6 +3,8 @@ import Profile from '../components/Profile.vue';
 import { Icon } from 'astro-icon';
 
 import { navLinks } from '../components/navLinks.js';
+
+const session = Astro.cookies.get('session')
 ---
 
 <header class="bg-[#09090B]/25 sm:px-8 px-4">
@@ -33,7 +35,7 @@ import { navLinks } from '../components/navLinks.js';
         }
       </nav>
 
-      <Profile client:load />
+      <Profile session={session.value} />
     </div>
   </div>
 </header>

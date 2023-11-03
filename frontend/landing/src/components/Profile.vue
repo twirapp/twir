@@ -5,6 +5,7 @@ import { computed, onMounted, ref } from 'vue';
 import Loader from '../icons/Loader.svg?component';
 import TwitchIcon from '../icons/TwitchLogo.svg?component';
 import { profileStore, authLinkStore } from '../stores/auth.js';
+import { protectedClient } from '../api/twirp';
 
 const profile = useStore(profileStore);
 const authLink = useStore(authLinkStore);
@@ -15,7 +16,25 @@ const isLoading = computed(
 const isError = ref(false);
 const error = ref<string | null>(null);
 
+const props = defineProps<{
+	session?: string
+}>();
+
+try {
+	const request = await protectedClient.authUserProfile({}, {
+		meta: {
+			'Cookie': `session=${props.session}`,
+		},
+	});
+	const profile = request.response;
+	profileStore.set(profile);
+} catch (e) {
+	console.error(e);
+}
+
+
 onMounted(async () => {
+	return;
 	if (typeof window === 'undefined') return;
 	const { browserProtectedClient, browserUnProtectedClient } = await import(
 		'../api/twirp-browser.js'
