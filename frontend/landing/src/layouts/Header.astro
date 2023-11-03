@@ -1,5 +1,5 @@
 ---
-import Profile from '../components/Profile.vue';
+import Profile from '../components/Profile.astro';
 import { Icon } from 'astro-icon';
 
 import { navLinks } from '../components/navLinks.js';
@@ -33,7 +33,7 @@ import { navLinks } from '../components/navLinks.js';
         }
       </nav>
 
-      <Profile client:load />
+      <Profile />
     </div>
   </div>
 </header>

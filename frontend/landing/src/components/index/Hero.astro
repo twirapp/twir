@@ -1,6 +1,6 @@
 ---
 import { Icon } from 'astro-icon';
-import HeroStartButton from './heroStartButton.vue';
+import HeroStartButton from './HeroStartButton.astro';
 
 import TwirInCircle from '../../assets/TwirInCircle.svg?component';
 import ChatMessageTail from '../../assets/chat-message-tail.svg?component';
@@ -98,7 +98,7 @@ const messages: ChatItem[] = [
             class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center whitespace-nowrap">
             Learn more
           </button>
-          <HeroStartButton client:load />
+          <HeroStartButton />
         </div>
       </div>
       <div
