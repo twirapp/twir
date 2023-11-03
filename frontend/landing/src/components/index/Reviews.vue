@@ -11,7 +11,7 @@ const reviews = [
 		id: '139336353',
 		username: '7ssk7',
 		roles: ['Streamer', 'pro player'],
-		comment: `I've been using Twir for a few years now. There are useful integrations with Volaroant, Spotify. I am pleased with its stability and functionality.`,
+		comment: `I've been using Twir for a few years now. There are useful integrations with Valorant, Spotify. I am pleased with its stability and functionality.`,
 		avatarUrl:
 			'https://static-cdn.jtvnw.net/jtv_user_pictures/66cb7060-1a8a-4fca-9ccd-f760b70af636-profile_image-70x70.png',
 		rating: 5,
