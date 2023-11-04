@@ -4,7 +4,7 @@ import { NModal } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import Settings from './chat/settings.vue';
+import Settings from './kappagen/settings.vue';
 
 import { useChatOverlayManager } from '@/api/index.js';
 import Card from '@/components/overlays/card.vue';

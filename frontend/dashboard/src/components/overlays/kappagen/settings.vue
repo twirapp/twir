@@ -22,6 +22,8 @@ async function save() {
 }
 </script>
 
-<tempalte>
-	settings of kappagen
-</tempalte>
+<template>
+	<div>
+		settings of kappagen
+	</div>
+</template>
