@@ -7,8 +7,10 @@ import (
 	"strconv"
 
 	"github.com/avast/retry-go/v4"
+	"github.com/diamondburned/arikawa/v3/api"
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/state"
+	"github.com/diamondburned/arikawa/v3/utils/json/option"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -106,10 +108,13 @@ func (c *MessagesUpdater) processOffline(
 
 			_, err = retry.DoWithData(
 				func() (*discord.Message, error) {
-					return shard.(*state.State).EditMessage(
+					return shard.(*state.State).EditMessageComplex(
 						discord.ChannelID(dChanUid),
 						discord.MessageID(dMsgId),
-						content,
+						api.EditMessageData{
+							Content: option.NewNullableString(content),
+							Embeds:  &[]discord.Embed{},
+						},
 					)
 				},
 				retry.Attempts(3),
