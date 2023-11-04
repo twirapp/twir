@@ -1,0 +1,7 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen";
+package api.overlays_kappagen;
+
+message Settings {
+
+}

@@ -1,4 +1,4 @@
-package modules
+package overlays
 
 import (
 	"context"
@@ -7,15 +7,15 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_chat_overlay"
+	"github.com/satont/twir/libs/grpc/generated/api/overlays_chat"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const chatOverlayType = "chat_overlay"
 
-func (c *Modules) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *modules_chat_overlay.Settings {
-	return &modules_chat_overlay.Settings{
+func (c *Overlays) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *overlays_chat.Settings {
+	return &overlays_chat.Settings{
 		MessageHideTimeout: s.MessageHideTimeout,
 		MessageShowDelay:   s.MessageShowDelay,
 		Preset:             s.Preset,
@@ -29,7 +29,7 @@ func (c *Modules) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *modules_chat
 	}
 }
 
-func (c *Modules) chatOverlayGrpcToDb(s *modules_chat_overlay.Settings) model.ChatOverlaySettings {
+func (c *Overlays) chatOverlayGrpcToDb(s *overlays_chat.Settings) model.ChatOverlaySettings {
 	return model.ChatOverlaySettings{
 		MessageHideTimeout: s.MessageHideTimeout,
 		MessageShowDelay:   s.MessageShowDelay,
@@ -44,10 +44,10 @@ func (c *Modules) chatOverlayGrpcToDb(s *modules_chat_overlay.Settings) model.Ch
 	}
 }
 
-func (c *Modules) ModulesChatOverlayGet(
+func (c *Overlays) OverlayChatGet(
 	ctx context.Context,
 	_ *emptypb.Empty,
-) (*modules_chat_overlay.Settings, error) {
+) (*overlays_chat.Settings, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := model.ChannelModulesSettings{}
@@ -68,10 +68,10 @@ func (c *Modules) ModulesChatOverlayGet(
 	return c.chatOverlayDbToGrpc(parsedSettings), nil
 }
 
-func (c *Modules) ModulesChatOverlayUpdate(
+func (c *Overlays) OverlayChatUpdate(
 	ctx context.Context,
-	req *modules_chat_overlay.Settings,
-) (*modules_chat_overlay.Settings, error) {
+	req *overlays_chat.Settings,
+) (*overlays_chat.Settings, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := model.ChannelModulesSettings{}
@@ -107,7 +107,7 @@ func (c *Modules) ModulesChatOverlayUpdate(
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}
 
-	c.Grpc.Websockets.RefreshChatSettings(
+	c.Grpc.Websockets.RefreshChatOverlaySettings(
 		ctx, &websockets.RefreshChatSettingsRequest{
 			ChannelId: dashboardId,
 		},

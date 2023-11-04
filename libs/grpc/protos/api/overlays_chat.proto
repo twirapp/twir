@@ -1,6 +1,6 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/grpc/generated/api/modules_chat_overlay";
-package api.modules_chat_overlay;
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/overlays_chat";
+package api.overlays_chat;
 
 message Settings {
 	uint32 message_hide_timeout = 1;

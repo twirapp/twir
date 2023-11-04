@@ -7,7 +7,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-func (c *GrpcImpl) RefreshChatSettings(
+func (c *GrpcImpl) RefreshChatOverlaySettings(
 	ctx context.Context,
 	req *websockets.RefreshChatSettingsRequest,
 ) (

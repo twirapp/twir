@@ -25,7 +25,11 @@ const routes = createRouter({
 		},
 		{
 			path: '/:apiKey/chat',
-			component: () => import('./pages/chat.vue'),
+			component: () => import('./pages/overlays/chat.vue'),
+		},
+		{
+			path: '/:apiKey/kappagen',
+			component: () => import('./pages/overlays/kappagen.vue'),
 		},
 	],
 });

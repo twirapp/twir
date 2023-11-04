@@ -7,8 +7,8 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"

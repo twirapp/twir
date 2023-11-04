@@ -66,7 +66,7 @@ func New(opts Opts) *Chat {
 		},
 	)
 
-	http.HandleFunc("/chat", chat.HandleRequest)
+	http.HandleFunc("/overlays/chat", chat.HandleRequest)
 
 	return chat
 }

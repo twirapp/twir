@@ -343,7 +343,7 @@
       "description": "This overlay used to play configured alerts"
     },
 		"chat": {
-			"description": "Embed overlay into your streaming software",
+			"description": "Embed chat overlay into your streaming software",
 			"style": "Messages style",
 			"hideBots": "Hide known bots from messages",
 			"hideCommands": "Hide commands, do not inclute messages started with ! symbol",
@@ -356,6 +356,9 @@
 			"showAnnounceBadge": "Show announce badge (only for boxed style)",
 			"reverseMessages": "Show new messages on top, instead bottom",
 			"revertFont": "Reset to default"
+		},
+		"kappagen": {
+			"description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons"
 		}
   },
   "songRequests": {

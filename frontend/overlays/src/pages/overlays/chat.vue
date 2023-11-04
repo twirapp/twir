@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import {
-	ChatBox,
+  ChatBox,
 } from '@twir/frontend-chat';
 import { useRoute } from 'vue-router';
 import '@twir/frontend-chat/style.css';
 
-import { useChatSocket } from '../sockets/chat.js';
-import { useTmiChat } from '../sockets/chat_tmi.js';
+import { useChatOverlaySocket } from '../../sockets/chat_overlay.js';
+import { useTmiChat } from '../../sockets/chat_tmi.ts';
 
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
-const { settings } = useChatSocket(apiKey);
+const { settings } = useChatOverlaySocket(apiKey);
 const { messages } = useTmiChat(settings);
 </script>
 

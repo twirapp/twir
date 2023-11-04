@@ -9,7 +9,7 @@ import {
 } from '@twir/frontend-chat';
 import type {
 	Settings,
-} from '@twir/grpc/generated/api/api/modules_chat_overlay';
+} from '@twir/grpc/generated/api/api/overlays_chat';
 import { useIntervalFn } from '@vueuse/core';
 import {
 	useNotification,
