@@ -1,50 +1,18 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Hero from '../components/index/Hero.astro';
-import Features from '../components/index/Features.astro';
-import Integrations from '../components/index/Integrations.astro';
-import Reviews from '../components/index/Reviews.vue';
-import Team from '../components/index/Team.astro';
-import Footer from '../components/index/Footer.astro';
-import StatsList from '../components/index/StatsList.astro';
+import Hero from '../components/home/Hero.astro';
+import Features from '../components/home/Features.astro';
+import Integrations from '../components/home/Integrations.astro';
+import Reviews from '../components/home/Reviews.vue';
+import Team from '../components/home/Team.astro';
+import StatsList from '../components/home/StatsList.astro';
 ---
 
 <Layout title="Twir - Main page">
-	<section id="hero">
-		<Hero/>
-	</section>
-	<section id="stats">
-		<StatsList/>
-	</section>
-	<section id="features">
-		<Features/>
-	</section>
-	<section id="integrations">
-		<Integrations/>
-	</section>
-	<section id="reviews">
-		<Reviews client:idle/>
-	</section>
-	<section id="team">
-		<Team/>
-	</section>
-	<section id="footer">
-		<Footer/>
-	</section>
+	<Hero/>
+	<StatsList/>
+	<Features/>
+	<Integrations/>
+	<Reviews client:idle profile={Astro.locals.profile}/>
+	<Team/>
 </Layout>
-
-<script>
-	const hrefs = document.querySelectorAll<HTMLElement>('[data-section]');
-
-	hrefs.forEach((href) => {
-		href.addEventListener('click', (e) => {
-			e.preventDefault();
-
-			const target = document.getElementById(href.dataset['section'].slice(1));
-
-			target.scrollIntoView({
-				behavior: 'smooth',
-			});
-		});
-	});
-</script>

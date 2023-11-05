@@ -2,17 +2,17 @@
 import Profile from '../components/Profile.astro';
 import { Icon } from 'astro-icon';
 
-import { navLinks } from '../components/navLinks.js';
+import { navLinks } from '../data/navLinks.js';
 ---
 
-<header class="bg-[#09090B]/25 sm:px-8 px-4">
+<header id="top" class="bg-[#09090B]/25 sm:px-8 px-4 sticky header top-[-1px] z-50">
   <div class="lg:container">
     <div class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4">
       <div class="flex items-center gap-[4px] divide-x-2">
-				<div class="flex items-center gap-[12px]">
+				<a href="#" class="flex items-center gap-[12px] cursor-pointer">
 					<Icon name="TwirLogo" size="36px" />
 					<span class="text-2xl font-semibold text-white">Twir</span>
-				</div>
+				</a>
 
 				<div class="bg-red inline-block h-full"></div>
 
@@ -24,9 +24,8 @@ import { navLinks } from '../components/navLinks.js';
         {
           navLinks.map((item) => (
             <a
-              data-section={item.href}
               href={item.href}
-              class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[#393A3E] rounded-md focus-visible:text-[#D5D8DF]">
+              class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] rounded-md focus-visible:text-[#D5D8DF] navigation-link">
               {item.label}
             </a>
           ))
@@ -37,3 +36,22 @@ import { navLinks } from '../components/navLinks.js';
     </div>
   </div>
 </header>
+
+<style>
+.sticky-header {
+	background-color: #17171A !important;
+}
+</style>
+
+<script>
+	// add class with background to header
+	const el = document.querySelector("header")
+	const observer = new IntersectionObserver(
+		([e]) => {
+			e.target.classList.toggle("sticky-header", e.intersectionRatio < 1)
+		},
+		{ threshold: [1] }
+	);
+
+	observer.observe(el);
+</script>

@@ -19,11 +19,3 @@ export const navLinks: NavLink[] = [
 	},
 ];
 
-export const scrollToSection = (target: HTMLElement) => {
-	const sectionY = window.scrollY - target.getBoundingClientRect().top;
-
-	window.scrollTo({
-		top: sectionY,
-		behavior: 'smooth',
-	});
-};

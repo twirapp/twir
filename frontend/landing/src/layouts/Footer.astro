@@ -1,10 +1,10 @@
 ---
-import TwirInCircle from '../../assets/TwirInCircle.svg?component';
-import Telegram from '../../assets/social/telegram.svg?component';
-import Discord from '../../assets/social/discord.svg?component';
-import Github from '../../assets/social/github.svg?component';
+import TwirInCircle from '../assets/TwirInCircle.svg?component';
+import Telegram from '../assets/social/telegram.svg?component';
+import Discord from '../assets/social/discord.svg?component';
+import Github from '../assets/social/github.svg?component';
 
-import { navLinks } from '../navLinks.js';
+import { navLinks } from '../data/navLinks.js';
 ---
 
 <footer class="pt-12 px-20 bg-[#19181a]">
@@ -16,17 +16,15 @@ import { navLinks } from '../navLinks.js';
       </div>
       <nav class="flex justify-center items-center" aria-label="Footer Navigation">
         <ul class="list-none p-0 m-0 flex gap-4">
-          {
-            navLinks.map((item) => (
-              <li>
-                <a
-                  href={item.href}
-                  class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors">
-                  {item.label}
-                </a>
-              </li>
-            ))
-          }
+          {navLinks.map((item) => (
+						<li>
+							<a
+								href={item.href}
+								class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors">
+								{item.label}
+							</a>
+						</li>
+					))}
         </ul>
       </nav>
     </div>

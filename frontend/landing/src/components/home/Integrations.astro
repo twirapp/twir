@@ -1,0 +1,32 @@
+---
+import Cube from '../../assets/cube.svg?component';
+import { integrations } from '../../data/home/integrations.js';
+---
+
+<div class="bg-[#17171A]" id="integrations">
+  <div class="container mx-auto">
+    <div class="px-[32px] pb-[100px] pt-[140px]">
+      <div class="flex flex-col flex-wrap items-center text-center gap-[20px] relative">
+        <Cube class="absolute -top-[86px] h-[184px] w-[184px] stroke-[3]" aria-hidden />
+        <h3 class="text-4xl text-white font-bold z-10 max-w-2xl leading-[1.25] tracking-tight">
+          Power-up your stream with seamless integrations
+        </h3>
+        <span class="text-xl text-[#ADB0B8] font-normal leading-normal max-w-3xl">
+          Connect with your favorite tools and platforms to supercharge your stream's performance
+          and engagement. Twir's integrations provide endless possibilities.
+        </span>
+      </div>
+      <div class="flex flex-wrap justify-center mt-[64px] gap-[24px]" role="list">
+        {integrations.map((integration) => (
+					<a href={integration.href}>
+						<integration.icon
+							role="listitem"
+							class="md:h-[70px] md:w-[70px] fill-[#72757D] hover:fill-[#606268] m-1 h-16 w-16"
+							aria-label={integration.label}
+						/>
+					</a>
+				))}
+      </div>
+    </div>
+  </div>
+</div>

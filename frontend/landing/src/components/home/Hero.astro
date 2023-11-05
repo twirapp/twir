@@ -5,66 +5,7 @@ import HeroStartButton from './HeroStartButton.astro';
 import TwirInCircle from '../../assets/TwirInCircle.svg?component';
 import ChatMessageTail from '../../assets/chat-message-tail.svg?component';
 import TwitchAvatar from '../TwitchAvatar.astro';
-
-type ChatItem =
-  | {
-      type: 'redemption';
-      title: string;
-      input: string;
-    }
-  | {
-      type: 'message';
-      sender: 'bot' | 'user';
-      message: string;
-    };
-
-const messages: ChatItem[] = [
-  {
-    sender: 'bot',
-    message: 'Message from timer: follow to my socials!',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!title Playling League of Legends with my friend',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: '✅ Title succesfully changed.',
-    type: 'message',
-  },
-  {
-    type: 'redemption',
-    title: '<b>melkam</b> activated channel reward: timeout chatter (1000 🪙)',
-    input: 'Satont',
-  },
-  {
-    sender: 'bot',
-    message: 'melkam disabled chat for <b>Satont</b> for 5 minutes',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!song',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: 'Linkin Park — Numb',
-    type: 'message',
-  },
-  {
-    sender: 'user',
-    message: '!category LOL',
-    type: 'message',
-  },
-  {
-    sender: 'bot',
-    message: '✅ Category changed to League of Legends.',
-    type: 'message',
-  },
-];
+import { messages } from '../../data/home/chat.js';
 ---
 
 <section class="px-5 md:px-9 overflow-hidden">

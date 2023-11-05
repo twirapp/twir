@@ -1,15 +1,14 @@
----
 import CommandsSvg from '../../assets/features/commands.svg?component';
-import TimersSvg from '../../assets/features/timers.svg?component';
-import GreetingsSvg from '../../assets/features/greetings.svg?component';
-import SongRequestsSvg from '../../assets/features/song-requests.svg?component';
-import KeywordsSvg from '../../assets/features/keywords.svg?component';
 import EventsSvg from '../../assets/features/events.svg?component';
+import GreetingsSvg from '../../assets/features/greetings.svg?component';
+import KeywordsSvg from '../../assets/features/keywords.svg?component';
 import ModerationSvg from '../../assets/features/moderation.svg?component';
 import ObsSvg from '../../assets/features/obs.svg?component';
+import SongRequestsSvg from '../../assets/features/song-requests.svg?component';
 import StatsSvg from '../../assets/features/stats.svg?component';
+import TimersSvg from '../../assets/features/timers.svg?component';
 
-const features = [
+export const features = [
   {
     title: 'Commands',
     description:
@@ -57,42 +56,8 @@ const features = [
     icon: ObsSvg,
   },
 	{
-	  title: 'Stats tracking',
-	  description: 'Track users watch time, messages, used channel points',
-	  icon: StatsSvg,
+		title: 'Stats tracking',
+		description: 'Track users watch time, messages, used channel points',
+		icon: StatsSvg,
 	},
-  // {
-  //   title: 'Permissions system',
-  //   description: 'Hightly customize levels of permissions for commands, dashboard editors',
-  //   icon: CommandsSvg,
-  // },
 ];
----
-
-<section id="features">
-  <div class="container flex flex-col items-center py-24 md:px-8 px-5 text-center">
-    <h2 class="font-semibold text-[#B0ADFF] text-base uppercase tracking-wider mb-3">Features</h2>
-    <div class="flex flex-col items-center gap-[20px]">
-      <h3 class="font-bold text-white text-4xl tracking-tight leading-tight">
-        Explore our bot's awesome features
-      </h3>
-      <p class="max-w-3xl text-[#ADB0B8] text-xl leading-normal">
-        Uncover a treasure trove of features that'll take your stream to the next level. Our bot got
-        the tools to transform your stream adventure!
-      </p>
-    </div>
-    <ul class="mt-[64px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[32px] gap-y-[64px]">
-      {
-        features.map((f) => (
-          <li class="flex flex-col items-center text-center">
-            <div class="bg-[#B1AEFF]/[.12] p-2.5 rounded-full flex ring-8 ring-[#B1AEFF]/5 mb-5 ">
-              <f.icon aria-hidden />
-            </div>
-            <span class=" text-xl text-white font-semibold mb-2">{f.title}</span>
-            <p class=" text-base leading-normal text-[#ADB0B8] font-normal">{f.description}</p>
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-</section>

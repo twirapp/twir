@@ -1,8 +1,8 @@
 ---
-import LoginPage from '../components/login.vue';
+import LoginPage from '../components/login/login.vue';
 import Layout from '../layouts/Layout.astro';
 ---
 
-<Layout title="Twir - Login" showHeader={false}>
+<Layout title="Twir - Login" showHeader={false} showFooter={false}>
 	<LoginPage client:only="vue" />
 </Layount>
