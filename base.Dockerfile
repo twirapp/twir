@@ -20,7 +20,6 @@ COPY . .
 RUN chmod +x docker-entrypoint.sh
 
 RUN pnpm install --frozen-lockfile
-RUN pnpm turbo run build --filter=./libs/**
 
 ###
 
