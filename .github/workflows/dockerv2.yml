@@ -28,8 +28,8 @@ jobs:
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
-          name: twir-base:${{ matrix.target }}
-          path: /tmp/twir-base:${{ matrix.target }}.tar
+          name: "twir-base:${{ matrix.target }}"
+          path: "/tmp/twir-base_${{ matrix.target }}.tar"
           retention-days: 1
 
   backend:
@@ -63,19 +63,19 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: "twir-base:builder"
-          path: /tmp/twir-base:builder.tar
+          path: /tmp/twir-base_builder.tar
 
       - name: Load node_prod_base image
         uses: actions/download-artifact@v3
         with:
           name: "twir-base:node_prod_base"
-          path: /tmp/twir-base:node_prod_base.tar
+          path: /tmp/twir-base_node_prod_base.tar
 
       - name: Load go_prod_base image
         uses: actions/download-artifact@v3
         with:
           name: "twir-base:go_prod_base"
-          path: /tmp/twir-base:go_prod_base.tar
+          path: /tmp/twir-base_go_prod_base.tar
 
       - name: Build ${{ matrix.target }}
         uses: docker/build-push-action@v5
