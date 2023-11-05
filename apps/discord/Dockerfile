@@ -1,6 +1,6 @@
 FROM twir-base:builder as builder
 RUN pnpm turbo run build --filter=@twir/language-detector
-RUN cd apps/events && \
+RUN cd apps/discord && \
     go mod download && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /twir_application ./cmd/main.go && upx -9 -k /twir_application
 
