@@ -3,9 +3,6 @@ name: Docker v2
 on:
   push:
 
-env:
-  CACHE_PATH: /tmp/.buildx-cache
-
 jobs:
   base:
     runs-on: ubuntu-latest
@@ -22,7 +19,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: ${{ env.CACHE_PATH }}
+          path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -35,13 +32,17 @@ jobs:
           target: ${{ matrix.target }}
           tags: twir-base:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/twir-base_${{ matrix.target }}.tar
-          cache-from: type=local,src=${{ env.CACHE_PATH }}
-          cache-to: type=local,dest=${{ env.CACHE_PATH }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
-          name: "twir-base_${{ matrix.target }}"
-          path: "/tmp/twir-base_${{ matrix.target }}.tar"
+          name: twir-base_${{ matrix.target }}
+          path: /tmp/twir-base_${{ matrix.target }}.tar
           retention-days: 1
 
   backend:
@@ -74,20 +75,20 @@ jobs:
       - name: Restore builder image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base_builder"
-          path: /tmp/twir-base_builder.tar
+          name: twir-base_builder
+          path: /tmp
 
       - name: Restore node_prod_base image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base_node_prod_base"
-          path: /tmp/twir-base_node_prod_base.tar
+          name: twir-base_node_prod_base
+          path: /tmp
 
       - name: Restore go_prod_base image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base_go_prod_base"
-          path: /tmp/twir-base_go_prod_base.tar
+          name: twir-base_go_prod_base
+          path: /tmp
 
       - name: Load base images
         run: |
@@ -98,7 +99,7 @@ jobs:
       - name: Cache Docker layers
         uses: actions/cache@v3
         with:
-          path: ${{ env.CACHE_PATH }}
+          path: /tmp/.buildx-cache
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
@@ -112,3 +113,7 @@ jobs:
           tags: twir:${{ matrix.target }}
           cache-from: type=local,src=${{ env.CACHE_PATH }}
           cache-to: type=local,dest=${{ env.CACHE_PATH }}
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
