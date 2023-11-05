@@ -1,8 +1,8 @@
-FROM node:18-alpine as base
+FROM node:18-alpine as node_base
 
 ###
 
-FROM base as builder
+FROM node_base as builder
 COPY --from=golang:1.21.0-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
@@ -24,7 +24,7 @@ RUN pnpm turbo run build --filter=./libs/**
 
 ###
 
-FROM prod_base as node_prod_base
+FROM node_base as node_prod_base
 WORKDIR /app
 RUN apk add wget && \
     wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
