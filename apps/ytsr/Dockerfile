@@ -1,5 +1,5 @@
 FROM twir-base:builder as builder
-RUN pnpm turbo run build --filter=@twir/language-detector
+RUN pnpm turbo run build --filter=@twir/grpc
 RUN cd apps/ytsr && \
     go mod download && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /twir_application ./cmd/main.go && upx -9 -k /twir_application

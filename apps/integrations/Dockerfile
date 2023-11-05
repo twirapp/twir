@@ -1,5 +1,5 @@
 FROM twir-base:builder as builder
-RUN pnpm turbo run build --filter=@twir/language-detector
+RUN pnpm turbo run build --filter=@twir/integrations
 
 FROM twir-base:node_prod_base as deps
 WORKDIR /app
