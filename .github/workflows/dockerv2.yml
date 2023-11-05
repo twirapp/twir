@@ -40,7 +40,7 @@ jobs:
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
-          name: "twir-base:${{ matrix.target }}"
+          name: "twir-base_${{ matrix.target }}"
           path: "/tmp/twir-base_${{ matrix.target }}.tar"
           retention-days: 1
 
@@ -71,23 +71,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Load builder image
+      - name: Restore builder image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base:builder"
+          name: "twir-base_builder"
           path: /tmp/twir-base_builder.tar
 
-      - name: Load node_prod_base image
+      - name: Restore node_prod_base image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base:node_prod_base"
+          name: "twir-base_node_prod_base"
           path: /tmp/twir-base_node_prod_base.tar
 
-      - name: Load go_prod_base image
+      - name: Restore go_prod_base image
         uses: actions/download-artifact@v3
         with:
-          name: "twir-base:go_prod_base"
+          name: "twir-base_go_prod_base"
           path: /tmp/twir-base_go_prod_base.tar
+
+      - name: Load base images
+        run: |
+          docker load --input /tmp/twir-base_builder.tar
+          docker load --input /tmp/twir-base_node_prod_base.tar
+          docker load --input /tmp/twir-base_go_prod_base.tar
 
       - name: Cache Docker layers
         uses: actions/cache@v3
