@@ -346,7 +346,7 @@
 			"description": "Embed overlay into your streaming software",
 			"style": "Messages style",
 			"hideBots": "Hide known bots from messages",
-			"hideCommands": "Hide commands, do not inclute messages started with ! symbol",
+			"hideCommands": "Hide commands, do not include messages started with ! symbol",
 			"fontSize": "Font size (px)",
 			"hideTimeout": "Message hide timeout (seconds)",
 			"showDelay": "Message show delay (seconds)",
