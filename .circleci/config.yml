@@ -5,6 +5,9 @@ jobs:
     working_directory: /app
     docker:
       - image: cimg/base:stable
+    parameters:
+      target:
+      type: string
     steps:
       - checkout
       - run:
