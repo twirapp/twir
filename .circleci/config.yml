@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  build-base:
     docker:
       - image: cimg/base:stable
     parameters:
@@ -14,15 +14,48 @@ jobs:
           name: Build application Docker image
           command: |
             docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+  build-backend:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      target:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -f ./apps/<< parameters.target >> --tag twir:<< parameters.target >> .
 
 
 workflows:
   all-tests:
     jobs:
-      - build:
+      - build-base:
           matrix:
             parameters:
               target:
                 - builder
                 - node_prod_base
                 - go_prod_base
+      - build-backend:
+          matrix:
+            parameters:
+              target:
+                - api
+                - bots
+                - discord
+                - emotes-cacher
+                - eval
+                - events
+                - eventsub
+                - integrations
+                - language-detector
+                - parser
+                - scheduler
+                - timers
+                - tokens
+                - websockets
+                - ytsr
+
