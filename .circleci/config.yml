@@ -7,7 +7,6 @@ jobs:
     parameters:
       target:
         type: string
-    parallelism: 3
     steps:
       - checkout
       - setup_remote_docker
@@ -20,6 +19,10 @@ jobs:
           command: |
             mkdir -p images
             docker image save -o images/<< parameters.target >> twir-base:<< parameters.target >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - images
 
   backend:
     description: Build backend image for << parameters.target >>
