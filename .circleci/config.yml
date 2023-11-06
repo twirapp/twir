@@ -10,10 +10,27 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - restore_cache:
+          keys:
+            - v1-<< parameters.target >>-{{ checksum "caches/app.tar" }}
+          paths:
+            - caches/app.tar
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p /caches
+            mkdir -o /images
+            docker save -o /caches/app.tar app
+            docker image save -o /images/<< parameters.target >>.tar twir-base:<< parameters.target >>
       - run:
           name: Build application Docker image
           command: |
-            docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+            docker build --cache-from=app -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+      - save_cache:
+          key: v1-<< parameters.target >>-{{ checksum "caches/app.tar" }}
+          paths:
+            - /caches/app.tar
+
   backend:
     description: Build backend image for << parameters.target >>
     docker:
@@ -24,6 +41,13 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - run:
+          name: Load image
+          command: |
+            mkdir -p /images
+            docker image load < "twir-base:builder"
+            docker image load < "twir-base:node_prod_base"
+            docker image load < "twir-base:go_prod_base"
       - run:
           name: Build application Docker image
           command: |
