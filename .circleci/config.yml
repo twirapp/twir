@@ -17,7 +17,7 @@ jobs:
       - run:
           name: Save Docker image layer cache
           command: |
-            mkdir -o /images
+            mkdir -p /images
             docker image save -o /images/<< parameters.target >>.tar twir-base:<< parameters.target >>
 
   backend:
