@@ -2,7 +2,6 @@ version: 2.1
 
 jobs:
   build:
-    working_directory: /app
     docker:
       - image: cimg/base:stable
     parameters:
