@@ -7,6 +7,7 @@ jobs:
     parameters:
       target:
         type: string
+    parallelism: 3
     steps:
       - checkout
       - setup_remote_docker
@@ -18,7 +19,7 @@ jobs:
           name: Save Docker image layer cache
           command: |
             mkdir -p images
-            docker image save -o images/<< parameters.target >>.tar twir-base:<< parameters.target >>
+            docker image save -o images/<< parameters.target >> twir-base:<< parameters.target >>
 
   backend:
     description: Build backend image for << parameters.target >>
@@ -35,9 +36,9 @@ jobs:
       - run:
           name: Load image
           command: |
-            docker image load < "images/twir-base:builder"
-            docker image load < "images/twir-base:node_prod_base"
-            docker image load < "images/twir-base:go_prod_base"
+            docker image load < "images/builder"
+            docker image load < "images/node_prod_base"
+            docker image load < "images/go_prod_base"
       - run:
           name: Build application Docker image
           command: |
