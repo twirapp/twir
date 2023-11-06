@@ -32,10 +32,10 @@ jobs:
 
 
 workflows:
-  build-base:
+  build-docker-images:
     jobs:
       - build-base:
-          name: Build base images
+          name: build-base
           matrix:
             parameters:
               target:
@@ -43,8 +43,8 @@ workflows:
                 - node_prod_base
                 - go_prod_base
       - build-backend:
-          name: Build backend images
-          requires: [Build base images]
+          name: build-backend
+          requires: [build-base]
           matrix:
             parameters:
               target:
