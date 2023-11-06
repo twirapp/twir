@@ -13,7 +13,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker build --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+            docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
 
 
 workflows:
