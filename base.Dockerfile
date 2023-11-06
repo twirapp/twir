@@ -16,13 +16,30 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
     npm i -g pnpm@8
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-RUN pnpm fetch
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh ./
+# generated via
+# pnpm gen:dockerfile:packagecopy
+COPY libs/config/package.json libs/config/package.json
+COPY libs/crypto/package.json libs/crypto/package.json
+COPY libs/frontend-chat/package.json libs/frontend-chat/package.json
+COPY libs/grpc/package.json libs/grpc/package.json
+COPY libs/pubsub/package.json libs/pubsub/package.json
+COPY libs/types/package.json libs/types/package.json
+COPY apps/dota/package.json apps/dota/package.json
+COPY apps/eval/package.json apps/eval/package.json
+COPY apps/integrations/package.json apps/integrations/package.json
+COPY apps/language-detector/package.json apps/language-detector/package.json
+COPY frontend/dashboard/package.json frontend/dashboard/package.json
+COPY frontend/landing/package.json frontend/landing/package.json
+COPY frontend/overlays/package.json frontend/overlays/package.json
+COPY frontend/public-page/package.json frontend/public-page/package.json
+RUN pnpm install --frozen-lockfile
 
-COPY . .
+RUN pnpm fetch
 RUN chmod +x docker-entrypoint.sh
 
-RUN pnpm install --frozen-lockfile
+COPY . .
+
 
 ###
 
