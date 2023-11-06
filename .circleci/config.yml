@@ -2,7 +2,6 @@ version: 2.1
 
 jobs:
   build-base:
-    name: build-base-images << parameters.target >>
     docker:
       - image: cimg/base:stable
     parameters:
@@ -34,7 +33,7 @@ workflows:
   build-base-images:
     jobs:
       - build-base:
-          name: build-base-images
+          name: build-base-images << parameters.target >>
           matrix:
             parameters:
               target:
