@@ -34,9 +34,9 @@ jobs:
           name: Load image
           command: |
             mkdir -p /images
-            docker image load < "twir-base:builder"
-            docker image load < "twir-base:node_prod_base"
-            docker image load < "twir-base:go_prod_base"
+            docker image load < "/images/twir-base:builder"
+            docker image load < "/images/twir-base:node_prod_base"
+            docker image load < "/images/twir-base:go_prod_base"
       - run:
           name: Build application Docker image
           command: |
