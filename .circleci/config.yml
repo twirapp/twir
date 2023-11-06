@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   base:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/base
     parameters:
       target:
         type: string
