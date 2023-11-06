@@ -27,7 +27,6 @@ jobs:
           outputs: type=docker,dest=/tmp/twir-base_${{ matrix.target }}.tar
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          load: true
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
@@ -94,6 +93,3 @@ jobs:
           push: false
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          load: true
