@@ -42,8 +42,6 @@ workflows:
                 - go_prod_base
       - build-backend:
           name: build-backend
-          requires:
-            - build-base-images-<< parameters.base >>
           matrix:
             parameters:
               base:
@@ -66,4 +64,6 @@ workflows:
                 - tokens
                 - websockets
                 - ytsr
+          requires:
+            - build-base-images-<< parameters.base >>
 
