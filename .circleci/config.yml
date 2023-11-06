@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   base:
+    working_directory: /app
     docker:
       - image: cimg/base:stable
     parameters:
