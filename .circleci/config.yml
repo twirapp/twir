@@ -7,7 +7,7 @@ jobs:
       - image: cimg/base:stable
     parameters:
       target:
-      type: string
+        type: string
     steps:
       - checkout
       - run:
