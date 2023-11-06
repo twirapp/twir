@@ -63,7 +63,6 @@ RUN chmod +x docker-entrypoint.sh
 
 COPY . .
 
-
 ###
 
 FROM node_base as node_prod_base
