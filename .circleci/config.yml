@@ -17,8 +17,8 @@ jobs:
       - run:
           name: Save Docker image layer cache
           command: |
-            mkdir -p /images
-            docker image save -o /images/<< parameters.target >>.tar twir-base:<< parameters.target >>
+            mkdir -p images
+            docker image save -o images/<< parameters.target >>.tar twir-base:<< parameters.target >>
 
   backend:
     description: Build backend image for << parameters.target >>
@@ -30,13 +30,14 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+      - attach_workspace:
+          at: .
       - run:
           name: Load image
           command: |
-            mkdir -p /images
-            docker image load < "/images/twir-base:builder"
-            docker image load < "/images/twir-base:node_prod_base"
-            docker image load < "/images/twir-base:go_prod_base"
+            docker image load < "images/twir-base:builder"
+            docker image load < "images/twir-base:node_prod_base"
+            docker image load < "images/twir-base:go_prod_base"
       - run:
           name: Build application Docker image
           command: |
