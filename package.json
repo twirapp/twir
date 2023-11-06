@@ -12,7 +12,7 @@
 		"build:libs": "turbo run build --filter=./libs/**",
 		"cache-golang-deps": "ts-node --esm --transpileOnly ./tools/cache-go-deps.ts",
 		"caddy": "caddy reverse-proxy --from twir.satont.localhost --to 127.0.0.1:3005",
-		"gen:dockerfile:packagecopy": "ts-node --transpileOnly ./tools/gen-dockerfile-copy.ts"
+		"gen:dockerfile:copy": "ts-node --transpileOnly ./tools/gen-dockerfile-copy.ts"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {
