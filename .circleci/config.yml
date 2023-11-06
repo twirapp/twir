@@ -72,17 +72,17 @@ workflows:
             parameters:
               target:
                 - api
-#                - bots
-#                - discord
-#                - emotes-cacher
+                - bots
+                - discord
+                - emotes-cacher
 #                - eval
-#                - events
-#                - eventsub
+                - events
+                - eventsub
 #                - integrations
 #                - language-detector
-#                - parser
-#                - scheduler
-#                - timers
-#                - tokens
-#                - websockets
-#                - ytsr
+                - parser
+                - scheduler
+                - timers
+                - tokens
+                - websockets
+                - ytsr

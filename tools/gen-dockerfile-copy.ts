@@ -57,14 +57,14 @@ const nodePaths = [
 	...findPackageJsonFiles('./frontend'),
 ];
 
-const goPaths = [
-	...findGoModFiles('./libs'),
-	...findGoModFiles('./apps'),
-];
+// const goPaths = [
+// 	...findGoModFiles('./libs'),
+// 	...findGoModFiles('./apps'),
+// ];
 
 const generatedStrings = [
 	...nodePaths.map((p) => `COPY ${p}/package.json ${p}/package.json`),
-	...goPaths.map((p) => `COPY ${p}/go.mod ${p}/go.mod ./`),
+	// ...goPaths.map((p) => `COPY ${p}/go.mod ${p}/go.mod ./`),
 ].join('\n');
 
 console.log(generatedStrings);
