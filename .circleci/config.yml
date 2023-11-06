@@ -15,8 +15,6 @@ jobs:
           command: |
             docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
   build-backend:
-    requires:
-      - build-base
     docker:
       - image: cimg/base:stable
     parameters:
