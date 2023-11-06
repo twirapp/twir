@@ -15,6 +15,7 @@ jobs:
           command: |
             docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
   backend:
+    description: Build backend image for << parameters.target >>
     docker:
       - image: cimg/base:stable
     parameters:
@@ -26,7 +27,7 @@ jobs:
       - run:
           name: Build application Docker image
           command: |
-            docker build -f ./apps/<< parameters.target >> --tag twir:<< parameters.target >> .
+            docker build -f ./apps/<< parameters.target >>/Dockerfile --tag twir:<< parameters.target >> .
 
 
 workflows:
