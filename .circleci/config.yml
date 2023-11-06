@@ -9,6 +9,7 @@ jobs:
         type: string
     steps:
       - checkout
+      - setup_remote_docker
       - run:
           name: Build application Docker image
           command: |
