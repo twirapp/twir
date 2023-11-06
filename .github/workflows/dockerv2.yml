@@ -32,12 +32,12 @@ jobs:
           target: ${{ matrix.target }}
           tags: twir-base:${{ matrix.target }}
           outputs: type=docker,dest=/tmp/twir-base_${{ matrix.target }}.tar
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.target }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.target }},mode=max
       - name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf /tmp/.buildx-cache-${{ matrix.target }}
+          mv /tmp/.buildx-cache-new-${{ matrix.target }} /tmp/.buildx-cache-${{ matrix.target }}
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
@@ -95,6 +95,7 @@ jobs:
           docker load --input /tmp/twir-base_builder.tar
           docker load --input /tmp/twir-base_node_prod_base.tar
           docker load --input /tmp/twir-base_go_prod_base.tar
+          docker image ls
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -111,9 +112,9 @@ jobs:
           push: false
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+          cache-from: type=local,src=/tmp/.buildx-cache-${{ matrix.target }}
+          cache-to: type=local,dest=/tmp/.buildx-cache-new-${{ matrix.target }},mode=max
       - name: Move cache
         run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+          rm -rf /tmp/.buildx-cache-${{ matrix.target }}
+          mv /tmp/.buildx-cache-new-${{ matrix.target }} /tmp/.buildx-cache-${{ matrix.target }}

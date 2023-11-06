@@ -9,12 +9,15 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat g++ python3
+RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat python3
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
     npm i -g pnpm@8
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+RUN pnpm fetch
 
 COPY . .
 RUN chmod +x docker-entrypoint.sh
