@@ -41,10 +41,10 @@ workflows:
                 - node_prod_base
                 - go_prod_base
   build-backend-images:
-    requires:
-      - build-base-images
     jobs:
       - build-backend:
+          requires:
+            - build-base-images
           name: build-backend
           matrix:
             parameters:
