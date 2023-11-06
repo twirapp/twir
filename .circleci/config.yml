@@ -33,7 +33,7 @@ jobs:
             mkdir -p caches
             docker save -o caches/app.tar twir-base:<< parameters.target >>
       - save_cache:
-          key: v1-<< parameters.target >>-{{ epoch }}
+          key: v1-<< parameters.target >>
           paths:
             - /caches/app.tar
 
