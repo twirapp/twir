@@ -48,7 +48,6 @@ jobs:
             - images
 
   backend:
-    description: Build backend image for << parameters.target >>
     docker:
       - image: cimg/base:stable
     parameters:
@@ -84,7 +83,6 @@ workflows:
       - backend:
           requires:
             - base
-          name: build-backend
           matrix:
             parameters:
               target:
