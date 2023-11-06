@@ -30,7 +30,7 @@ jobs:
 
 
 workflows:
-  build-docker-images:
+  build-base-images:
     jobs:
       - build-base:
           name: build-base-images
@@ -40,10 +40,12 @@ workflows:
                 - builder
                 - node_prod_base
                 - go_prod_base
+  build-backend-images:
+    requires:
+      - build-base-images
+    jobs:
       - build-backend:
           name: build-backend
-          requires:
-            - build-base-images
           matrix:
             parameters:
               target:
@@ -62,4 +64,3 @@ workflows:
                 - tokens
                 - websockets
                 - ytsr
-
