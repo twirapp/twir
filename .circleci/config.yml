@@ -43,7 +43,7 @@ workflows:
       - build-backend:
           name: build-backend
           requires:
-            - build-base-images-<< parameters.target >>
+            - build-base-images-<< parameters.base >>
           matrix:
             parameters:
               base:
