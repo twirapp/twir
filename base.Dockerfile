@@ -16,7 +16,7 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
     npm i -g pnpm@8
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh go.work go.work.sync ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh go.work go.work.sum ./
 # generated via
 # pnpm gen:dockerfile:copy
 COPY libs/config/package.json libs/config/package.json
