@@ -42,9 +42,14 @@ workflows:
                 - go_prod_base
       - build-backend:
           name: build-backend
-          requires: [build-base-images]
+          requires:
+            - build-base-images-<< parameters.target >>
           matrix:
             parameters:
+              base:
+                - builder
+                - node_prod_base
+                - go_prod_base
               target:
                 - api
                 - bots
