@@ -61,9 +61,22 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Restore images
+      - name: Restore builder image
         uses: actions/download-artifact@v3
         with:
+          name: twir-base_builder
+          path: /tmp
+
+      - name: Restore node_prod_base image
+        uses: actions/download-artifact@v3
+        with:
+          name: twir-base_node_prod_base
+          path: /tmp
+
+      - name: Restore go_prod_base image
+        uses: actions/download-artifact@v3
+        with:
+          name: twir-base_go_prod_base
           path: /tmp
 
       - name: Load base images
