@@ -95,7 +95,3 @@ jobs:
           tags: twir:${{ matrix.target }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache-${{ matrix.target }}
-          mv /tmp/.buildx-cache-new-${{ matrix.target }} /tmp/.buildx-cache-${{ matrix.target }}
