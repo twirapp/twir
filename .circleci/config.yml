@@ -2,6 +2,7 @@ version: 2.1
 
 jobs:
   build-base:
+    name: build-base-images << parameters.target >>
     docker:
       - image: cimg/base:stable
     parameters:
@@ -40,8 +41,6 @@ workflows:
                 - builder
                 - node_prod_base
                 - go_prod_base
-  build-backend-images:
-    jobs:
       - build-backend:
           requires:
             - build-base-images
