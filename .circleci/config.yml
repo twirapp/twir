@@ -10,10 +10,33 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
+
+      - restore_cache:
+          keys:
+            - v1-<< parameters.target >>
+          paths:
+            - /caches/app.tar
+            - run:
+                name: Load Docker image layer cache for << parameters.target >>
+                command: |
+                  set +o pipefail
+                  docker load -i /caches/app.tar | true
+
       - run:
           name: Build application Docker image
           command: |
-            docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+            docker build --cache-from=app -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p caches
+            docker save -o caches/app.tar app
+      - save_cache:
+          key: v1-<< parameters.target >>-{{ epoch }}
+          paths:
+            - /caches/app.tar
+
       - run:
           name: Save Docker image layer cache
           command: |
