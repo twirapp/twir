@@ -33,7 +33,7 @@ COPY frontend/dashboard/package.json frontend/dashboard/package.json
 COPY frontend/landing/package.json frontend/landing/package.json
 COPY frontend/overlays/package.json frontend/overlays/package.json
 COPY frontend/public-page/package.json frontend/public-page/package.json
-RUN pnpm fetch
+RUN pnpm install --frozen-lockfile
 RUN chmod +x docker-entrypoint.sh
 
 COPY . .
