@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build-base:
+  base:
     docker:
       - image: cimg/base:stable
     parameters:
@@ -14,7 +14,7 @@ jobs:
           name: Build application Docker image
           command: |
             docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
-  build-backend:
+  backend:
     docker:
       - image: cimg/base:stable
     parameters:
@@ -32,17 +32,16 @@ jobs:
 workflows:
   build-base-images:
     jobs:
-      - build-base:
-          name: build-base-images << parameters.target >>
+      - base:
           matrix:
             parameters:
               target:
                 - builder
                 - node_prod_base
                 - go_prod_base
-      - build-backend:
+      - backend:
           requires:
-            - build-base-images
+            - base
           name: build-backend
           matrix:
             parameters:
