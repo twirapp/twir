@@ -67,7 +67,7 @@ const messagesDirection = computed(() => {
 	</div>
 </template>
 
-<style scoped>
+<style>
 .chat {
 	height: 100dvh;
   width: 100%;
@@ -83,10 +83,23 @@ const messagesDirection = computed(() => {
 	flex-direction: v-bind(messagesDirection);
 	gap: 8px;
 	overflow: hidden;
+	padding-bottom: 5px;
 }
 
 .chat .message .text .emote {
 	max-height: 1em;
+	position: relative;
+}
+
+.chat .message .text .emote .emote-zerowidth {
+	top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}
+
+.chat .message .text .emote .emote-cursed {
+	filter: grayscale(1) brightness(0.7) contrast(2.5);
 }
 
 .list-enter-active,

@@ -1,9 +1,33 @@
 import type { Font as InternalFont } from '@twir/grpc/generated/api/api/google_fonts_unprotected';
-import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/modules_chat_overlay';
+import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/overlays_chat';
+
+export const enum EmoteFlag {
+	Hidden = 0,
+	Cursed,
+	GrowX,
+	NoSpace,
+	FlipY,
+	FlipX,
+	Rotate90,
+	Rotate270,
+}
+
+export const BttvOverlayEmotes = [
+	'cvMask',
+	'cvHazmat',
+	'SoSnowy',
+	'IceCold',
+	'TopHat',
+	'SantaHat',
+	'ReinDeer',
+	'CandyCane',
+];
 
 export type MessageChunk = {
 	type: 'text' | 'emote' | '3rd_party_emote';
 	value: string;
+	flags?: EmoteFlag[]
+	zeroWidthModifiers?: string[]
 }
 
 export type Font = InternalFont
