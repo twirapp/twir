@@ -4,14 +4,16 @@ import { ref, Ref, computed, onMounted, onUnmounted, watch } from 'vue';
 
 
 type Emote = {
-	url: string,
+	urls: string[],
 	isZeroWidth?: boolean,
 	name: string,
+	isModifier?: boolean
+	service: '7tv' | 'bttv' | 'ffz'
+	width?: number
+	height?: number
 }
 
-export const sevenTvEmotes = ref<Record<string, Emote>>({});
-export const bttvEmotes = ref<Record<string, Emote>>({});
-export const ffzEmotes = ref<Record<string, Emote>>({});
+export const emotes = ref<Record<string, Emote>>({});
 
 const isZeroWidthEmote = (flags: number) => {
 	return flags === (1 << 0);
@@ -89,9 +91,12 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		const sets = Object.values(v!.sets);
 		for (const set of sets) {
 			for (const emote of set.emoticons) {
-				ffzEmotes.value[emote.name] = {
-					url: Object.values(emote.urls).at(-1)!,
+				emotes.value[emote.name] = {
+					urls: Object.values(emote.urls),
 					name: emote.name,
+					service: 'ffz',
+					width: emote.width,
+					height: emote.height,
 				};
 			}
 		}
@@ -102,9 +107,12 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		const sets = Object.values(v!.sets);
 		for (const set of sets) {
 			for (const emote of set.emoticons) {
-				ffzEmotes.value[emote.name] = {
-					url: Object.values(emote.urls).at(0)!,
+				emotes.value[emote.name] = {
+					urls: Object.values(emote.urls),
 					name: emote.name,
+					service: 'ffz',
+					width: emote.width,
+					height: emote.height,
 				};
 			}
 		}
@@ -114,11 +122,15 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		if (!v) return;
 
 		for (const emote of v.emote_set.emotes) {
-			const file = emote.data.host.files.filter(f => f.format === 'WEBP');
-			sevenTvEmotes.value[emote.name] = {
-				url: `https:${emote.data.host.url}/${file.at(0)!.name}`,
+			const files = emote.data.host.files.filter(f => f.format === 'WEBP');
+
+			emotes.value[emote.name] = {
+				urls: files.map(f => `https:${emote.data.host.url}/${f.name}`),
 				isZeroWidth: isZeroWidthEmote(emote.flags),
 				name: emote.name,
+				service: '7tv',
+				width: files.at(0)!.width,
+				height: files.at(0)!.height,
 			};
 		}
 	});
@@ -126,22 +138,32 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		if (!v) return;
 
 		for (const emote of v.emotes) {
-			const file = emote.data.host.files.filter(f => f.format === 'WEBP');
-			sevenTvEmotes.value[emote.name] = {
-				url: `https:${emote.data.host.url}/${file.at(0)!.name}`,
+			const files = emote.data.host.files.filter(f => f.format === 'WEBP');
+			emotes.value[emote.name] = {
+				urls: files.map(f => `https:${emote.data.host.url}/${f.name}`),
 				isZeroWidth: isZeroWidthEmote(emote.flags),
 				name: emote.name,
+				service: '7tv',
+				width: files.at(0)!.width,
+				height: files.at(0)!.height,
 			};
 		}
 	});
+
+	const genBttvUrls = (id: string) => {
+		return Array.from({ length: 3 }).map((_, index) => `https://cdn.betterttv.net/emote/${id}/${index+1}x.webp`);
+	};
 
 	watch(bttvChannelEmotes.data, (v) => {
 		if (!v) return;
 
 		for (const emote of [...v.sharedEmotes, ...v.channelEmotes]) {
-			bttvEmotes.value[emote.code] = {
-				url: `https://cdn.betterttv.net/emote/${emote.id}/1x.webp`,
+			emotes.value[emote.code] = {
+				urls: genBttvUrls(emote.id),
 				name: emote.code,
+				service: 'bttv',
+				height: emote.height,
+				width: emote.width,
 			};
 		}
 	});
@@ -150,24 +172,25 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 		if (!v) return;
 
 		for (const emote of v) {
-			bttvEmotes.value[emote.code] = {
-				url: `https://cdn.betterttv.net/emote/${emote.id}/1x.webp`,
+			emotes.value[emote.code] = {
+				urls: genBttvUrls(emote.id),
 				name: emote.code,
+				service: 'bttv',
+				height: emote.height,
+				width: emote.width,
 			};
 		}
 	});
 
 	return {
-		sevenTvEmotes,
-		bttvEmotes,
-		ffzEmotes,
+		emotes,
 	};
 };
 
 type SevenTvEmote = {
 	name: string,
 	data: {
-		host: { url: string, files: Array<{ name: string, format: string }> }
+		host: { url: string, files: Array<{ name: string, format: string, height: number, width: number }> }
 	},
 	flags: number,
 }
@@ -180,17 +203,19 @@ type SevenTvGlobalResponse = {
 	emotes: Array<SevenTvEmote>
 }
 
-type BttvEmote = { code: string, imageType: string, id: string }
+type BttvEmote = { code: string, imageType: string, id: string, height?: number, width?: number }
 type BttvChannelResponse = {
 	channelEmotes: Array<BttvEmote>
 	sharedEmotes: Array<BttvEmote>
 }
 type BttvGlobalResponse = Array<BttvEmote>
 
+type FfzEmote = { name: string, urls: Record<string, string>, height: number, width: number }
+
 type FfzChannelResponse = {
 	sets: {
 		[x: string]: {
-			emoticons: Array<{ name: string, urls: Record<string, string>}>
+			emoticons: FfzEmote[]
 		}
 	}
 }
@@ -198,7 +223,7 @@ type FfzChannelResponse = {
 type FfzGlobalResponse = {
 	sets: {
 		[x: string]: {
-			emoticons: Array<{ name: string, urls: Record<string, string>}>
+			emoticons: FfzEmote[]
 		}
 	}
 }

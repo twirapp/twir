@@ -28,6 +28,8 @@ export type MessageChunk = {
 	value: string;
 	flags?: EmoteFlag[]
 	zeroWidthModifiers?: string[]
+	emoteWidth?: number
+	emoteHeight?: number
 }
 
 export type Font = InternalFont

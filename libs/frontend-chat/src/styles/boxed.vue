@@ -2,6 +2,8 @@
 import { normalizeDisplayName } from '../helpers.js';
 import { Settings, Message, EmoteFlag } from '../types.js';
 
+import MessageContent from '../components/messageContent.vue';
+
 defineProps<{
 	msg: Message,
 	settings: Settings
@@ -34,31 +36,7 @@ defineProps<{
 				</template>
 			</div>
 		</div>
-		<span class="text" :style="{ fontStyle: msg.isItalic ? 'italic' : 'normal' }">
-			<template v-for="(chunk, _) of msg.chunks" :key="_">
-				<div
-					v-if="['emote', '3rd_party_emote'].includes(chunk.type)"
-					class="emote"
-				>
-					<img
-						:src="chunk.type === 'emote'
-							? `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`
-							: chunk.value
-						"
-						:class="{'emote-cursed': chunk.flags?.includes(EmoteFlag.Cursed)}"
-					/>
-
-					<span v-for="(c, idx) of chunk.zeroWidthModifiers" :key="idx" class="emote-zerowidth">
-						<img :src="c" />
-					</span>
-				</div>
-
-				<template v-else-if="chunk.type === 'text'">
-					{{ chunk.value }}
-				</template>
-				{{ ' ' }}
-			</template>
-		</span>
+		<message-content :chunks="msg.chunks" :is-italic="msg.isItalic" />
 	</div>
 </template>
 

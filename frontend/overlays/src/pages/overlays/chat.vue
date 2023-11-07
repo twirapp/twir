@@ -23,6 +23,18 @@ const channelId = computed(() => settings.value.channelId);
 
 useThirdPartyEmotes(channelName, channelId);
 
+const removeMessageByInternalId = (id: string) => {
+	messages.value = messages.value.filter(m => m.internalId !== id);
+};
+
+const removeMessageById = (id: string) => {
+	messages.value = messages.value.filter(m => m.id !== id);
+};
+
+const removeMessageByUserName = (userName: string) => {
+	messages.value = messages.value.filter(m => m.sender !== userName);
+};
+
 const onMessage = (m: ChatMessage) => {
 	if (m.sender && settings.value.hideBots && knownBots.has(m.sender)) {
 		return;
@@ -53,9 +65,7 @@ const onMessage = (m: ChatMessage) => {
 	const hideTimeout = m.messageHideTimeout ?? settings.value.messageHideTimeout;
 
 	if (hideTimeout) {
-		setTimeout(() => {
-			messages.value = messages.value.filter(m => m.internalId === internalId);
-		}, hideTimeout * 1000);
+		setTimeout(() => removeMessageByInternalId(internalId), hideTimeout * 1000);
 	}
 };
 
@@ -64,12 +74,8 @@ const chatSettings = computed<ChatSettings>(() => {
 		channelId: settings.value.channelId,
 		channelName: settings.value.channelName,
 		onMessage,
-		onRemoveMessage(msgId) {
-			messages.value = messages.value.filter(m => m.id != msgId);
-		},
-		onRemoveMessageByUser(userName) {
-			messages.value = messages.value.filter(m => m.sender != userName);
-		},
+		onRemoveMessage: removeMessageById,
+		onRemoveMessageByUser: removeMessageByUserName,
 	};
 });
 
