@@ -2,6 +2,47 @@ syntax = "proto3";
 option go_package = "github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen";
 package api.overlays_kappagen;
 
-message Settings {
 
+message Settings {
+	message Emotes {
+		int32 time = 1;
+		int32 max = 2;
+		int32 queue = 3;
+	}
+
+	message Size {
+		int32 ratio_normal = 1;
+		int32 ratio_small = 2;
+		int32 min = 3;
+		int32 max = 4;
+	}
+
+	message Cube {
+		int32 speed = 1;
+	}
+
+	message Animation {
+		bool fade_in = 1;
+		bool fade_out = 2;
+		bool zoom_in = 3;
+		bool zoom_out = 4;
+	}
+
+	message AnimationSettings {
+		string style = 1;
+		int32 size = 2;
+		bool center = 3;
+		int32 speed = 4;
+		bool faces = 5;
+		string defaultTextMessage = 6;
+		int32 time = 7;
+		int32 count = 8;
+	}
+
+	Emotes emotes = 1;
+	Size size = 2;
+	Cube cube = 3;
+	Animation animation = 4;
+	repeated AnimationSettings animations = 5;
+	bool enableRave = 6;
 }

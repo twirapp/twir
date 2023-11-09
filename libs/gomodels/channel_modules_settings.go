@@ -188,3 +188,49 @@ type ChatOverlaySettings struct {
 	ShowAnnounceBadge  bool   `json:"showAnnounceBadge"`
 	ReverseMessages    bool   `json:"reverseMessages"`
 }
+
+type KappagenOverlaySettingsEmotes struct {
+	Time  int32 `json:"time,omitempty"`
+	Max   int32 `json:"max,omitempty"`
+	Queue int32 `json:"queue,omitempty"`
+}
+
+type KappagenOverlaySettingsSize struct {
+	// from 7 to 20
+	RatioNormal int32 `json:"ratioNormal,omitempty"`
+	// from 14 to 40
+	RatioSmall int32 `json:"ratioSmall,omitempty"`
+	Min        int32 `json:"min,omitempty"`
+	Max        int32 `json:"max,omitempty"`
+}
+
+type KappagenOverlaySettingsCube struct {
+	Speed int32 `json:"speed,omitempty"`
+}
+
+type KappagenOverlaySettingsAnimation struct {
+	FadeIn  bool `json:"fadeIn,omitempty"`
+	FadeOut bool `json:"fadeOut,omitempty"`
+	ZoomIn  bool `json:"zoomIn,omitempty"`
+	ZoomOut bool `json:"zoomOut,omitempty"`
+}
+
+type KappagenOverlaySettingsAnimationSettings struct {
+	Style              string `json:"style"`
+	Size               int32  `json:"size"`
+	Center             bool   `json:"center"`
+	Speed              int32  `json:"speed"`
+	Faces              bool   `json:"faces"`
+	DefaultTextMessage string `json:"defaultTextMessage"`
+	Time               int32  `json:"time"`
+	Count              int32  `json:"count"`
+}
+
+type KappagenOverlaySettings struct {
+	Emotes     KappagenOverlaySettingsEmotes              `json:"emotes,omitempty"`
+	Size       KappagenOverlaySettingsSize                `json:"size,omitempty"`
+	Cube       KappagenOverlaySettingsCube                `json:"cube,omitempty"`
+	Animation  KappagenOverlaySettingsAnimation           `json:"animation,omitempty"`
+	Animations []KappagenOverlaySettingsAnimationSettings `json:"animations,omitempty"`
+	EnableRave bool                                       `json:"enableRave,omitempty"`
+}

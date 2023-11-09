@@ -6,6 +6,7 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -14,12 +15,90 @@ import (
 
 const kappagenOverlayType = "kappagen_overlay"
 
-func (c *Overlays) kappagenDbToGrpc(s model.ChatOverlaySettings) *overlays_kappagen.Settings {
-	return &overlays_kappagen.Settings{}
+func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_kappagen.Settings {
+	return &overlays_kappagen.Settings{
+		Emotes: &overlays_kappagen.Settings_Emotes{
+			Time:  s.Emotes.Time,
+			Max:   s.Emotes.Max,
+			Queue: s.Emotes.Queue,
+		},
+		Size: &overlays_kappagen.Settings_Size{
+			RatioNormal: s.Size.RatioNormal,
+			RatioSmall:  s.Size.RatioSmall,
+			Min:         s.Size.Min,
+			Max:         s.Size.Max,
+		},
+		Cube: &overlays_kappagen.Settings_Cube{
+			Speed: s.Cube.Speed,
+		},
+		Animation: &overlays_kappagen.Settings_Animation{
+			FadeIn:  s.Animation.FadeIn,
+			FadeOut: s.Animation.FadeOut,
+			ZoomIn:  s.Animation.ZoomIn,
+			ZoomOut: s.Animation.ZoomOut,
+		},
+		Animations: lo.Map(
+			s.Animations, func(
+				v model.KappagenOverlaySettingsAnimationSettings,
+				i int,
+			) *overlays_kappagen.Settings_AnimationSettings {
+				return &overlays_kappagen.Settings_AnimationSettings{
+					Style:              v.Style,
+					Size:               v.Size,
+					Center:             v.Center,
+					Speed:              v.Speed,
+					Faces:              v.Faces,
+					DefaultTextMessage: v.DefaultTextMessage,
+					Time:               v.Time,
+					Count:              v.Count,
+				}
+			},
+		),
+		EnableRave: s.EnableRave,
+	}
 }
 
-func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.ChatOverlaySettings {
-	return model.ChatOverlaySettings{}
+func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.KappagenOverlaySettings {
+	return model.KappagenOverlaySettings{
+		Emotes: model.KappagenOverlaySettingsEmotes{
+			Time:  s.Emotes.Time,
+			Max:   s.Emotes.Max,
+			Queue: s.Emotes.Queue,
+		},
+		Size: model.KappagenOverlaySettingsSize{
+			RatioNormal: s.Size.RatioNormal,
+			RatioSmall:  s.Size.RatioSmall,
+			Min:         s.Size.Min,
+			Max:         s.Size.Max,
+		},
+		Cube: model.KappagenOverlaySettingsCube{
+			Speed: s.Cube.Speed,
+		},
+		Animation: model.KappagenOverlaySettingsAnimation{
+			FadeIn:  s.Animation.FadeIn,
+			FadeOut: s.Animation.FadeOut,
+			ZoomIn:  s.Animation.ZoomIn,
+			ZoomOut: s.Animation.ZoomOut,
+		},
+		Animations: lo.Map(
+			s.Animations, func(
+				v *overlays_kappagen.Settings_AnimationSettings,
+				i int,
+			) model.KappagenOverlaySettingsAnimationSettings {
+				return model.KappagenOverlaySettingsAnimationSettings{
+					Style:              v.Style,
+					Size:               v.Size,
+					Center:             v.Center,
+					Speed:              v.Speed,
+					Faces:              v.Faces,
+					DefaultTextMessage: v.DefaultTextMessage,
+					Time:               v.Time,
+					Count:              v.Count,
+				}
+			},
+		),
+		EnableRave: s.EnableRave,
+	}
 }
 
 func (c *Overlays) OverlayKappaGenGet(
@@ -38,7 +117,7 @@ func (c *Overlays) OverlayKappaGenGet(
 		return nil, fmt.Errorf("cannot get settings: %w", err)
 	}
 
-	parsedSettings := model.ChatOverlaySettings{}
+	parsedSettings := model.KappagenOverlaySettings{}
 	if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}
@@ -80,7 +159,7 @@ func (c *Overlays) OverlayKappaGenUpdate(
 		return nil, fmt.Errorf("cannot update settings: %w", err)
 	}
 
-	newSettings := model.ChatOverlaySettings{}
+	newSettings := model.KappagenOverlaySettings{}
 	if err := json.Unmarshal(entity.Settings, &newSettings); err != nil {
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}

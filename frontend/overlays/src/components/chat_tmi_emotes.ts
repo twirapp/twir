@@ -7,6 +7,7 @@ type Emote = {
 	urls: string[],
 	isZeroWidth?: boolean,
 	name: string,
+	modifierFlag?: number
 	isModifier?: boolean
 	service: '7tv' | 'bttv' | 'ffz'
 	width?: number
@@ -97,6 +98,8 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 					service: 'ffz',
 					width: emote.width,
 					height: emote.height,
+					isModifier: emote.modifier,
+					modifierFlag: emote.modifier_flags,
 				};
 			}
 		}
@@ -113,6 +116,8 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 					service: 'ffz',
 					width: emote.width,
 					height: emote.height,
+					isModifier: emote.modifier,
+					modifierFlag: emote.modifier_flags,
 				};
 			}
 		}
@@ -203,14 +208,28 @@ type SevenTvGlobalResponse = {
 	emotes: Array<SevenTvEmote>
 }
 
-type BttvEmote = { code: string, imageType: string, id: string, height?: number, width?: number }
+type BttvEmote = {
+	code: string,
+	imageType: string,
+	id: string,
+	height?: number,
+	width?: number,
+	modifier?: boolean,
+}
 type BttvChannelResponse = {
 	channelEmotes: Array<BttvEmote>
 	sharedEmotes: Array<BttvEmote>
 }
 type BttvGlobalResponse = Array<BttvEmote>
 
-type FfzEmote = { name: string, urls: Record<string, string>, height: number, width: number }
+type FfzEmote = {
+	name: string,
+	urls: Record<string, string>,
+	height: number,
+	width: number,
+	modifier: boolean;
+	modifier_flags?: number
+}
 
 type FfzChannelResponse = {
 	sets: {

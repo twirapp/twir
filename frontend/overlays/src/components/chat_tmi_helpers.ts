@@ -1,4 +1,4 @@
-import { type MessageChunk, BttvOverlayEmotes } from '@twir/frontend-chat';
+import { type MessageChunk, BttvZeroModifiers } from '@twir/frontend-chat';
 
 import { emotes as thirdPartyEmotes } from './chat_tmi_emotes.js';
 
@@ -22,13 +22,20 @@ export function makeMessageChunks(message: string, emotes?: {
 		if (emote) {
 			chunks.push({ type: 'emote', value: emote.emoteId });
 		} else if (thirdPartyEmote) {
-			const bttvOverlayEmote = BttvOverlayEmotes.find(e => e === thirdPartyEmote.name);
+			const bttvZeroModifier = BttvZeroModifiers.find(e => e === thirdPartyEmote.name);
+			const isZeroWidthModifier = thirdPartyEmote.isZeroWidth;
+			const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined';
 			const url = thirdPartyEmote.urls.at(0)!;
 
-			if (bttvOverlayEmote) {
+			if (bttvZeroModifier || isZeroWidthModifier) {
 				chunks.at(-1)!.zeroWidthModifiers = [
 					...chunks.at(-1)!.zeroWidthModifiers ?? [],
 					url,
+				];
+			} else if (isModifier) {
+				chunks.at(-1)!.flags = [
+					...chunks.at(-1)!.flags ?? [],
+					thirdPartyEmote.modifierFlag as number,
 				];
 			} else {
 				chunks.push({

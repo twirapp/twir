@@ -24,6 +24,7 @@
     "@vueuse/core": "^9.13.0",
     "date-fns": "^2.30.0",
     "grid-layout-plus": "^1.0.2",
+    "kappagen": "^0.3.2",
     "lodash.chunk": "^4.2.0",
     "naive-ui": "^2.34.4",
     "nested-css-to-flat": "^1.0.5",

@@ -1,18 +1,20 @@
 import type { Font as InternalFont } from '@twir/grpc/generated/api/api/google_fonts_unprotected';
 import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/overlays_chat';
 
-export const enum EmoteFlag {
-	Hidden = 0,
-	Cursed,
-	GrowX,
-	NoSpace,
-	FlipY,
-	FlipX,
-	Rotate90,
-	Rotate270,
+export enum EmoteFlag {
+	Hidden = 2,
+	FlipX = 3,
+	FlipY = 5,
+	GrowX = 9,
+	Rainbow = 2049,
+	HyperRed = 4097,
+	HyperShake = 8193,
+	Cursed = 16385,
+	Jam = 32769,
+	Bounce = 65537,
 }
 
-export const BttvOverlayEmotes = [
+export const BttvZeroModifiers = [
 	'cvMask',
 	'cvHazmat',
 	'SoSnowy',

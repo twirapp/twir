@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import KappagenOverlay, { type Emote } from 'kappagen';
-import { onMounted, ref, toRef } from 'vue';
+import KappagenOverlay, { type KappagenEmoteConfig, type Emote } from 'kappagen';
+import { computed, onMounted, reactive, ref, toRef } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
@@ -10,8 +10,24 @@ import { animations } from '../../components/kappagen_animations.js';
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
+console.log(apiKey);
 
 const { emotes } = useThirdPartyEmotes(toRef('fukushine'), toRef('971211575'));
+
+const kappagenEmotes = computed(() => {
+	const emotesArray = Object.values(emotes.value);
+
+	return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier);
+});
+
+const emoteConfig = reactive<KappagenEmoteConfig>({
+  max: 10,
+  time: 10,
+  queue: 100,
+  cube: {
+    speed: 10,
+  },
+});
 
 const emote: Emote = {
 	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
@@ -22,11 +38,9 @@ const emote: Emote = {
 	],
 };
 
-
-
 // на ивент\команду
 const kappa = async () => {
-	kappagen.value?.emote.addToShowList([emote]);
+	kappagen.value?.emote.addEmotes([emote]);
 	kappagen.value?.emote.showEmotes();
 };
 
@@ -34,20 +48,21 @@ const enabledAnimations = animations.filter(a => a.style !== 'Text');
 
 // смайлики в чате
 const spawn = async () => {
-	const emotesValue = Object.values(emotes.value);
+	const emotesValue = Object.values(kappagenEmotes.value);
 
 	const randomEmotes = Array(50)
 		.fill(null)
-		.map(() => emotesValue[Math.floor(Math.random()*emotesValue.length)].urls.at(-1));
+		.map(() => emotesValue[Math.floor(Math.random() * emotesValue.length)].urls.at(-1));
+	const randomAnimation = enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
 
-	await kappagen.value?.kappagen.show(
-    randomEmotes.map(url => ({ url: url! })),
-		enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)],
-  );
+	await kappagen.value!.kappagen.run(
+		randomEmotes.map(url => ({ url: url! })),
+		randomAnimation,
+	);
 };
 
 onMounted(() => {
-	kappagen.value?.startup();
+	kappagen.value?.init();
 });
 </script>
 
@@ -58,7 +73,5 @@ onMounted(() => {
 	<button @click="spawn">
 		spawn
 	</button>
-	<kappagen-overlay
-		ref="kappagen"
-	/>
+	<kappagen-overlay ref="kappagen" :emote-config="emoteConfig" />
 </template>

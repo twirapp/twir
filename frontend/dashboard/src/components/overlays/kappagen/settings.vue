@@ -10,7 +10,14 @@ const formValue = ref<Settings>({});
 
 const message = useNotification();
 const { t } = useI18n();
-
+const emote: Emote = {
+	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
+	zwe: [
+		{
+			url: 'https://cdn.7tv.app/emote/6128ed55a50c52b1429e09dc/4x.webp',
+		},
+	],
+};
 async function save() {
 	if (!formValue.value) return;
 

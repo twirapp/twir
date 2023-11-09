@@ -19,10 +19,16 @@ defineProps<{
 						? `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`
 						: chunk.value
 					"
-					:class="{'emote-cursed': chunk.flags?.includes(EmoteFlag.Cursed)}"
+					:class="{
+						'emote-cursed': chunk.flags?.includes(EmoteFlag.Cursed),
+					}"
 					:style="{
-						width: chunk.emoteWidth ? `${chunk.emoteWidth}px` : undefined,
-						height: chunk.emoteHeight ? `${chunk.emoteHeight}px` : undefined
+						width: chunk.emoteWidth
+							? `${chunk.flags?.includes(EmoteFlag.GrowX) ? chunk.emoteWidth * 2 : chunk.emoteWidth}px`
+							: undefined,
+						height: chunk.emoteHeight
+							? `${chunk.emoteHeight}px`
+							: undefined
 					}"
 				/>
 
