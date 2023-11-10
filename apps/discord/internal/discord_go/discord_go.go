@@ -2,7 +2,6 @@ package discord_go
 
 import (
 	"context"
-	"errors"
 
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/arikawa/v3/state"
@@ -32,7 +31,7 @@ type Discord struct {
 
 func New(opts Opts) (*Discord, error) {
 	if opts.Config.DiscordBotToken == "" {
-		return nil, errors.New("discord bot token is empty")
+		return &Discord{}, nil
 	}
 
 	log := opts.Logger.WithComponent("discord_session")

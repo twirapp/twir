@@ -14,9 +14,10 @@ import (
 )
 
 type App struct {
-	Name  string
-	Stack string
-	Port  int
+	Name     string
+	Stack    string
+	Port     int
+	SkipWait bool
 }
 
 func migrate() {
@@ -83,7 +84,7 @@ func main() {
 		{Stack: "node", Name: "integrations", Port: constants.INTEGRATIONS_SERVER_PORT},
 		{Stack: "go", Name: "api", Port: 3002},
 		{Stack: "go", Name: "scheduler", Port: constants.SCHEDULER_SERVER_PORT},
-		{Stack: "go", Name: "discord", Port: constants.DISCORD_SERVER_PORT},
+		{Stack: "go", Name: "discord", Port: constants.DISCORD_SERVER_PORT, SkipWait: true},
 		{Stack: "frontend", Name: "dashboard", Port: 3006},
 		{Stack: "frontend", Name: "landing", Port: 3005},
 		{Stack: "frontend", Name: "overlays", Port: 3008},
@@ -139,18 +140,20 @@ func main() {
 			continue
 		}
 
-		for {
-			conn, _ := net.DialTimeout(
-				"tcp",
-				net.JoinHostPort("", fmt.Sprintf("%v", app.Port)),
-				5*time.Second,
-			)
-			if conn != nil {
-				conn.Close()
-				break
-			} else {
-				time.Sleep(500 * time.Millisecond)
-				fmt.Print(".")
+		if !app.SkipWait {
+			for {
+				conn, _ := net.DialTimeout(
+					"tcp",
+					net.JoinHostPort("", fmt.Sprintf("%v", app.Port)),
+					5*time.Second,
+				)
+				if conn != nil {
+					conn.Close()
+					break
+				} else {
+					time.Sleep(500 * time.Millisecond)
+					fmt.Print(".")
+				}
 			}
 		}
 	}
