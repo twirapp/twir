@@ -8,16 +8,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 	await Promise.all([
 		(async () => {
-			if (session) {
+			if (session && session.value) {
 				try {
 					const request = await protectedClient.authUserProfile({}, {
 						meta: { Cookie: `session=${session.value}` },
 					});
 					context.locals.profile = request.response;
 				// eslint-disable-next-line no-empty
-				} catch (e) {
-					console.error(e)
-				}
+				} catch {}
 			}
 		})(),
 		(async () => {
