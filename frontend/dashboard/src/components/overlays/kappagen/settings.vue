@@ -5,8 +5,35 @@ import type {
 import { useNotification } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import KappagenOverlay from 'kappagen'
+import type { Emote, KappagenEmoteConfig } from 'kappagen'
 
-const formValue = ref<Settings>({});
+const formValue = ref<Settings>({
+	emotes: {
+		time: 5,
+		max: 0,
+		queue: 0,
+	},
+	animations: [],
+	enableRave: false,
+	animation: {
+		fadeIn: true,
+		fadeOut: true,
+		zoomIn: true,
+		zoomOut: true,
+	},
+	cube: {
+		speed: 6,
+	},
+	size: {
+		// from 7 to 20
+		ratioNormal: 7,
+		// from 14 to 40
+		ratioSmall: 14,
+		min: 1,
+		max: 256,
+	},
+});
 
 const message = useNotification();
 const { t } = useI18n();
