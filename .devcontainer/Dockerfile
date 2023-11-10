@@ -1,4 +1,4 @@
-FROM ubuntu:23.10
+FROM ubuntu:22.04
 
 ARG NODE_VERSION="18"
 ARG GO_VERSION="1.21.0"
