@@ -43,14 +43,17 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 				i int,
 			) *overlays_kappagen.Settings_AnimationSettings {
 				return &overlays_kappagen.Settings_AnimationSettings{
-					Style:              v.Style,
-					Size:               v.Size,
-					Center:             v.Center,
-					Speed:              v.Speed,
-					Faces:              v.Faces,
-					DefaultTextMessage: v.DefaultTextMessage,
-					Time:               v.Time,
-					Count:              v.Count,
+					Style: v.Style,
+					Prefs: &overlays_kappagen.Settings_AnimationSettings_Prefs{
+						Size:    v.Prefs.Size,
+						Center:  v.Prefs.Center,
+						Speed:   v.Prefs.Speed,
+						Faces:   v.Prefs.Faces,
+						Message: v.Prefs.Message,
+						Time:    v.Prefs.Time,
+					},
+					Count:   v.Count,
+					Enabled: v.Enabled,
 				}
 			},
 		),
@@ -86,14 +89,17 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 				i int,
 			) model.KappagenOverlaySettingsAnimationSettings {
 				return model.KappagenOverlaySettingsAnimationSettings{
-					Style:              v.Style,
-					Size:               v.Size,
-					Center:             v.Center,
-					Speed:              v.Speed,
-					Faces:              v.Faces,
-					DefaultTextMessage: v.DefaultTextMessage,
-					Time:               v.Time,
-					Count:              v.Count,
+					Style: v.Style,
+					Prefs: model.KappagenOverlaySettingsAnimationSettingsPrefs{
+						Size:    v.Prefs.Size,
+						Center:  v.Prefs.Center,
+						Speed:   v.Prefs.Speed,
+						Faces:   v.Prefs.Faces,
+						Message: v.Prefs.Message,
+						Time:    v.Prefs.Time,
+					},
+					Count:   v.Count,
+					Enabled: v.Enabled,
 				}
 			},
 		),

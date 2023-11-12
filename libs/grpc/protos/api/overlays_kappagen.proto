@@ -29,14 +29,19 @@ message Settings {
 	}
 
 	message AnimationSettings {
+		message Prefs {
+			optional float size = 1;
+			optional bool center = 2;
+			optional int32 speed = 3;
+			optional bool faces = 4;
+			repeated string message = 5;
+			optional int32 time = 6;
+		}
+
 		string style = 1;
-		int32 size = 2;
-		bool center = 3;
-		int32 speed = 4;
-		bool faces = 5;
-		string defaultTextMessage = 6;
-		int32 time = 7;
-		int32 count = 8;
+		Prefs prefs = 2;
+		optional int32 count = 3;
+		bool enabled = 4;
 	}
 
 	Emotes emotes = 1;

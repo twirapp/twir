@@ -1,77 +1,135 @@
 <script setup lang="ts">
-import KappagenOverlay, { type KappagenEmoteConfig, type Emote } from 'kappagen';
-import { computed, onMounted, reactive, ref, toRef } from 'vue';
+import type { Settings } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import KappagenOverlay, { type KappagenEmoteConfig } from 'kappagen';
+import { onMounted, reactive, ref, toRef } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
 import { useThirdPartyEmotes } from '../../components/chat_tmi_emotes.js';
+import { useKappagenBuilder, twirEmote } from '../../components/kappagen';
 import { animations } from '../../components/kappagen_animations.js';
+import { useKappagenOverlaySocket } from '../../sockets/kappagen_overlay';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
-console.log(apiKey);
 
-const { emotes } = useThirdPartyEmotes(toRef('fukushine'), toRef('971211575'));
+type Config = KappagenEmoteConfig & { rave: boolean }
 
-const kappagenEmotes = computed(() => {
-	const emotesArray = Object.values(emotes.value);
-
-	return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier);
-});
-
-const emoteConfig = reactive<KappagenEmoteConfig>({
-  max: 10,
-  time: 10,
-  queue: 100,
+const emoteConfig = reactive<Required<Config>>({
+  max: 0,
+  time: 5,
+  queue: 0,
   cube: {
-    speed: 10,
+    speed: 6,
   },
+	animation: {
+		fade: {
+			in: 8,
+			out: 9,
+		},
+		zoom: {
+			in: 17,
+			out: 8,
+		},
+	},
+	in: {
+		fade: true,
+		zoom: true,
+	},
+	out: {
+		fade: true,
+		zoom: true,
+	},
+	size: {
+		min: 1,
+		max: 256,
+		ratio: {
+			normal: 1/12,
+			small: 1/24,
+		},
+	},
+	rave: false,
 });
 
-const emote: Emote = {
-	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
-	zwe: [
-		{
-			url: 'https://cdn.7tv.app/emote/6128ed55a50c52b1429e09dc/4x.webp',
-		},
-	],
+useThirdPartyEmotes(toRef('fukushine'), toRef('971211575'));
+const socket = useKappagenOverlaySocket(apiKey);
+
+const builder = useKappagenBuilder();
+
+const onWindowMessage = (msg: MessageEvent<string>) => {
+	const parsedData = JSON.parse(msg.data) as { key: string, data?: any };
+
+	if (parsedData.key === 'settings' && parsedData.data) {
+		const settings = parsedData.data as Settings;
+		setSettings(settings);
+		kappagen.value?.clear();
+
+		kappagen.value?.kappagen.run(
+			[twirEmote],
+			animations[Math.floor(Math.random() * animations.length)],
+		);
+	}
+
+	if (parsedData.key === 'kappa') {
+		kappagen.value?.kappagen.run(
+			[twirEmote],
+			animations[Math.floor(Math.random() * animations.length)],
+		);
+	}
+
+	if (parsedData.key === 'spawn') {
+		kappagen.value?.emote.addEmotes([twirEmote]);
+		kappagen.value?.emote.showEmotes();
+	}
 };
 
-// на ивент\команду
-const kappa = async () => {
-	kappagen.value?.emote.addEmotes([emote]);
-	kappagen.value?.emote.showEmotes();
-};
+const setSettings = (settings: Settings) => {
+	if (settings.emotes) {
+		emoteConfig.max = settings.emotes.max;
+		emoteConfig.time = settings.emotes.time;
+		emoteConfig.queue = settings.emotes.queue;
+	}
 
-const enabledAnimations = animations.filter(a => a.style !== 'Text');
+	if (settings.size) {
+		emoteConfig.size.min = settings.size.min;
+		emoteConfig.size.max = settings.size.max;
+		emoteConfig.size.ratio!.normal = 1/(settings.size.ratioNormal ?? 12);
+		emoteConfig.size.ratio!.small = 1/(settings.size.ratioSmall ?? 24);
+	}
 
-// смайлики в чате
-const spawn = async () => {
-	const emotesValue = Object.values(kappagenEmotes.value);
+	if (settings.cube) {
+		emoteConfig.cube.speed = settings.cube.speed;
+	}
 
-	const randomEmotes = Array(50)
-		.fill(null)
-		.map(() => emotesValue[Math.floor(Math.random() * emotesValue.length)].urls.at(-1));
-	const randomAnimation = enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
+	if (settings.animation) {
+		emoteConfig.in.fade = settings.animation.fadeIn;
+		emoteConfig.in.zoom = settings.animation.zoomIn;
 
-	await kappagen.value!.kappagen.run(
-		randomEmotes.map(url => ({ url: url! })),
-		randomAnimation,
-	);
+		emoteConfig.out.fade = settings.animation.fadeOut;
+		emoteConfig.out.zoom = settings.animation.zoomOut;
+	}
+
+	if (typeof settings.enableRave !== 'undefined') {
+		emoteConfig.rave = settings.enableRave;
+	}
 };
 
 onMounted(() => {
+	if (window.parent) {
+		window.addEventListener('message', onWindowMessage);
+	} else {
+		socket.connect();
+	}
+
 	kappagen.value?.init();
+
+	return () => {
+		window.removeEventListener('message', onWindowMessage);
+	};
 });
 </script>
 
 <template>
-	<button @click="kappa">
-		kappa
-	</button>
-	<button @click="spawn">
-		spawn
-	</button>
-	<kappagen-overlay ref="kappagen" :emote-config="emoteConfig" />
+	<kappagen-overlay ref="kappagen" :emote-config="emoteConfig" :is-rave="emoteConfig.rave" />
 </template>

@@ -1,7 +1,7 @@
 /* eslint-disable no-empty */
+import { BttvZeroModifiers } from '@twir/frontend-chat';
 import { useFetch, useIntervalFn } from '@vueuse/core';
 import { ref, Ref, computed, onMounted, onUnmounted, watch } from 'vue';
-
 
 type Emote = {
 	urls: string[],
@@ -169,6 +169,8 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 				service: 'bttv',
 				height: emote.height,
 				width: emote.width,
+				isModifier: emote.modifier ?? false,
+				isZeroWidth: BttvZeroModifiers.some(e => e === emote.code),
 			};
 		}
 	});
@@ -183,6 +185,8 @@ export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<str
 				service: 'bttv',
 				height: emote.height,
 				width: emote.width,
+				isModifier: emote.modifier ?? false,
+				isZeroWidth: BttvZeroModifiers.some(e => e === emote.code),
 			};
 		}
 	});

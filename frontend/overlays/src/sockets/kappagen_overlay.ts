@@ -8,10 +8,10 @@ export const useKappagenOverlaySocket = (apiKey: string) => {
 	const host = window.location.host;
 
 
-	const { data, send } = useWebSocket(
+	const { data, send, open } = useWebSocket(
 		`${protocol}://${host}/socket/overlays/kappagen?apiKey=${apiKey}`,
 		{
-			immediate: true,
+			immediate: false,
 			autoReconnect: {
 				delay: 500,
 			},
@@ -26,4 +26,10 @@ export const useKappagenOverlaySocket = (apiKey: string) => {
 
 		console.log(event);
 	});
+
+	const connect = open;
+
+	return {
+		connect,
+	};
 };

@@ -215,15 +215,20 @@ type KappagenOverlaySettingsAnimation struct {
 	ZoomOut bool `json:"zoomOut,omitempty"`
 }
 
+type KappagenOverlaySettingsAnimationSettingsPrefs struct {
+	Size    *float32 `json:"size"`
+	Center  *bool    `json:"center"`
+	Speed   *int32   `json:"speed"`
+	Faces   *bool    `json:"faces"`
+	Message []string `json:"message"`
+	Time    *int32   `json:"time"`
+}
+
 type KappagenOverlaySettingsAnimationSettings struct {
-	Style              string `json:"style"`
-	Size               int32  `json:"size"`
-	Center             bool   `json:"center"`
-	Speed              int32  `json:"speed"`
-	Faces              bool   `json:"faces"`
-	DefaultTextMessage string `json:"defaultTextMessage"`
-	Time               int32  `json:"time"`
-	Count              int32  `json:"count"`
+	Style   string                                        `json:"style"`
+	Prefs   KappagenOverlaySettingsAnimationSettingsPrefs `json:"prefs"`
+	Count   *int32                                        `json:"count"`
+	Enabled bool                                          `json:"enabled"`
 }
 
 type KappagenOverlaySettings struct {
