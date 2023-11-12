@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import KappagenOverlay, { type KappagenEmoteConfig } from 'kappagen';
-import { onMounted, reactive, ref, toRef } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
@@ -52,7 +52,12 @@ const emoteConfig = reactive<Required<Config>>({
 	rave: false,
 });
 
-useThirdPartyEmotes(toRef('fukushine'), toRef('971211575'));
+
+const channelName = ref<string>();
+const channelId = ref<string>();
+useThirdPartyEmotes(channelName, channelId);
+
+
 const socket = useKappagenOverlaySocket(apiKey);
 
 const builder = useKappagenBuilder();
@@ -61,8 +66,9 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 	const parsedData = JSON.parse(msg.data) as { key: string, data?: any };
 
 	if (parsedData.key === 'settings' && parsedData.data) {
-		const settings = parsedData.data as Settings;
+		const settings = parsedData.data as Settings & { channelName: string, channelId: string };
 		setSettings(settings);
+
 		kappagen.value?.clear();
 
 		kappagen.value?.kappagen.run(
@@ -84,7 +90,10 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 	}
 };
 
-const setSettings = (settings: Settings) => {
+const setSettings = (settings: Settings & { channelId: string, channelName: string }) => {
+	channelId.value = settings.channelId;
+	channelName.value = settings.channelName;
+
 	if (settings.emotes) {
 		emoteConfig.max = settings.emotes.max;
 		emoteConfig.time = settings.emotes.time;
@@ -116,7 +125,8 @@ const setSettings = (settings: Settings) => {
 };
 
 onMounted(() => {
-	if (window.parent) {
+	if (window.frameElement) {
+		window.postMessage('getSettings');
 		window.addEventListener('message', onWindowMessage);
 	} else {
 		socket.connect();

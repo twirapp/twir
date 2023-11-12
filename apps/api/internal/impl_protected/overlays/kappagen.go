@@ -44,14 +44,19 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 			) *overlays_kappagen.Settings_AnimationSettings {
 				return &overlays_kappagen.Settings_AnimationSettings{
 					Style: v.Style,
-					Prefs: &overlays_kappagen.Settings_AnimationSettings_Prefs{
-						Size:    v.Prefs.Size,
-						Center:  v.Prefs.Center,
-						Speed:   v.Prefs.Speed,
-						Faces:   v.Prefs.Faces,
-						Message: v.Prefs.Message,
-						Time:    v.Prefs.Time,
-					},
+					Prefs: lo.IfF(
+						v.Prefs != nil,
+						func() *overlays_kappagen.Settings_AnimationSettings_Prefs {
+							return &overlays_kappagen.Settings_AnimationSettings_Prefs{
+								Size:    v.Prefs.Size,
+								Center:  v.Prefs.Center,
+								Speed:   v.Prefs.Speed,
+								Faces:   v.Prefs.Faces,
+								Message: v.Prefs.Message,
+								Time:    v.Prefs.Time,
+							}
+						},
+					).Else(nil),
 					Count:   v.Count,
 					Enabled: v.Enabled,
 				}
@@ -90,14 +95,19 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 			) model.KappagenOverlaySettingsAnimationSettings {
 				return model.KappagenOverlaySettingsAnimationSettings{
 					Style: v.Style,
-					Prefs: model.KappagenOverlaySettingsAnimationSettingsPrefs{
-						Size:    v.Prefs.Size,
-						Center:  v.Prefs.Center,
-						Speed:   v.Prefs.Speed,
-						Faces:   v.Prefs.Faces,
-						Message: v.Prefs.Message,
-						Time:    v.Prefs.Time,
-					},
+					Prefs: lo.IfF(
+						v.Prefs != nil,
+						func() *model.KappagenOverlaySettingsAnimationSettingsPrefs {
+							return &model.KappagenOverlaySettingsAnimationSettingsPrefs{
+								Size:    v.Prefs.Size,
+								Center:  v.Prefs.Center,
+								Speed:   v.Prefs.Speed,
+								Faces:   v.Prefs.Faces,
+								Message: v.Prefs.Message,
+								Time:    v.Prefs.Time,
+							}
+						},
+					).Else(nil),
 					Count:   v.Count,
 					Enabled: v.Enabled,
 				}

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
@@ -48,6 +49,7 @@ func main() {
 			alerts.NewAlerts,
 			chat.New,
 			overlays.New,
+			kappagen.New,
 		),
 		fx.Invoke(
 			func() {

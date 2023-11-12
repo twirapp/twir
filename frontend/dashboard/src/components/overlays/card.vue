@@ -12,7 +12,7 @@ const props = withDefaults(defineProps<{
 	title: string;
 	overlayPath: string;
 	icon: FunctionalComponent;
-	showSettings: boolean
+	showSettings?: boolean
 	copyDisabled?: boolean,
 }>(), { showSettings: true, copyDisabled: false });
 

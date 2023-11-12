@@ -225,10 +225,10 @@ type KappagenOverlaySettingsAnimationSettingsPrefs struct {
 }
 
 type KappagenOverlaySettingsAnimationSettings struct {
-	Style   string                                        `json:"style"`
-	Prefs   KappagenOverlaySettingsAnimationSettingsPrefs `json:"prefs"`
-	Count   *int32                                        `json:"count"`
-	Enabled bool                                          `json:"enabled"`
+	Style   string                                         `json:"style"`
+	Prefs   *KappagenOverlaySettingsAnimationSettingsPrefs `json:"prefs"`
+	Count   *int32                                         `json:"count"`
+	Enabled bool                                           `json:"enabled"`
 }
 
 type KappagenOverlaySettings struct {

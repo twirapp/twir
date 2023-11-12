@@ -8,7 +8,7 @@ const titleColor = computed(() => themeVars.value.textColor1);
 withDefaults(defineProps<{
 	title: string,
 	icon?: FunctionalComponent,
-	withStroke: boolean,
+	withStroke?: boolean,
 	iconFill?: string
 	iconWidth?: string
 	iconHeight?: string

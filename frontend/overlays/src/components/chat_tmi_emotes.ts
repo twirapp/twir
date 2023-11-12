@@ -20,7 +20,7 @@ const isZeroWidthEmote = (flags: number) => {
 	return flags === (1 << 0);
 };
 
-export const useThirdPartyEmotes = (channelName: Ref<string>, channelId: Ref<string>) => {
+export const useThirdPartyEmotes = (channelName: Ref<string | undefined>, channelId: Ref<string | undefined>) => {
 
 	const seventvUrl = computed(() => `https://7tv.io/v3/users/twitch/${channelId.value}`);
 

@@ -10,9 +10,9 @@ import { animations } from './kappagen_animations';
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
 
-const formValue = ref<Required<Settings>>({
+const formValue = ref<Settings>({
 	emotes: {
-		time: 5,
+		time: 15,
 		max: 0,
 		queue: 0,
 	},
@@ -37,6 +37,13 @@ const formValue = ref<Required<Settings>>({
 	},
 });
 const kappagenManager = useKappaGenOverlayManager();
+const { data: settings } = kappagenManager.getSettings();
+watch(settings, (s) => {
+	if (!s) return;
+
+	formValue.value = toRaw(s);
+});
+
 const updater = kappagenManager.updateSettings();
 const { data: profile } = useProfile();
 
@@ -57,9 +64,22 @@ const sendIframeMessage = (key: string, data?: any) => {
 	}));
 };
 
-watch(formValue, (v) => {
-	sendIframeMessage('settings', v);
-}, { deep: true });
+const sendSettings = () => sendIframeMessage('settings', {
+	...toRaw(formValue.value),
+	channelName: profile.value?.login,
+	channelId: profile.value?.id,
+});
+
+watch(formValue, () => sendSettings(), { deep: true });
+
+watch(kappagenIframeRef, (v) => {
+	if (!v) return;
+	v.contentWindow?.addEventListener('message', (e) => {
+		if (e.data !== 'getSettings') return;
+
+		sendSettings();
+	});
+});
 
 const message = useNotification();
 const { t } = useI18n();
@@ -104,9 +124,9 @@ async function save() {
 				<n-tab-pane name="main" tab="Main settings">
 					<div class="tab">
 						<div class="slider">
-							Size {{ formValue.size.ratioNormal }}
+							Size {{ formValue.size!.ratioNormal }}
 							<n-slider
-								v-model:value="formValue.size.ratioNormal"
+								v-model:value="formValue.size!.ratioNormal"
 								reverse
 								:min="7"
 								:max="20"
@@ -114,21 +134,32 @@ async function save() {
 						</div>
 
 						<div class="slider">
-							Small size {{ formValue.size.ratioSmall }}
+							Small size {{ formValue.size!.ratioSmall }}
 							<n-slider
-								v-model:value="formValue.size.ratioSmall"
+								v-model:value="formValue.size!.ratioSmall"
 								reverse
 								:min="14"
 								:max="40"
 							/>
 						</div>
 
+						<n-divider />
+
 						<div class="slider">
-							The time an emote stays on screen, in seconds ({{ formValue.emotes.time }})
+							The time an emote stays on screen, in seconds ({{ formValue.emotes!.time }})
 							<n-slider
-								v-model:value="formValue.emotes.time"
+								v-model:value="formValue.emotes!.time"
 								:min="1"
 								:max="15"
+							/>
+						</div>
+
+						<div class="slider">
+							Max emotes on screen ({{ formValue.emotes!.max }})
+							<n-slider
+								v-model:value="formValue.emotes!.max"
+								:min="0"
+								:max="250"
 							/>
 						</div>
 
@@ -138,12 +169,12 @@ async function save() {
 							<span>Show animations</span>
 
 							<div class="switch">
-								<n-switch v-model:value="formValue.animation.fadeIn" />
+								<n-switch v-model:value="formValue.animation!.fadeIn" />
 								<span>Fade</span>
 							</div>
 
 							<div class="switch">
-								<n-switch v-model:value="formValue.animation.zoomIn" />
+								<n-switch v-model:value="formValue.animation!.zoomIn" />
 								<span>Zoom</span>
 							</div>
 						</div>
@@ -154,12 +185,12 @@ async function save() {
 							<span>Hide animations</span>
 
 							<div class="switch">
-								<n-switch v-model:value="formValue.animation.fadeOut" />
+								<n-switch v-model:value="formValue.animation!.fadeOut" />
 								<span>Fade</span>
 							</div>
 
 							<div class="switch">
-								<n-switch v-model:value="formValue.animation.zoomOut" />
+								<n-switch v-model:value="formValue.animation!.zoomOut" />
 								<span>Zoom</span>
 							</div>
 						</div>
