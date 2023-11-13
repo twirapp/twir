@@ -4,9 +4,8 @@ import { NButton, NModal } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import CommandModal from '../commands/modal.vue';
-
 import { useCommandsManager } from '@/api';
+import CommandModal from '@/components/commands/modal.vue';
 
 const props = defineProps<{
 	name: string

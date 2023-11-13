@@ -19,6 +19,7 @@ import {
 	IconGift,
 	IconUserCancel,
 } from '@tabler/icons-vue';
+import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import { FunctionalComponent } from 'vue';
 
 export type TwirEvent = {
@@ -26,14 +27,16 @@ export type TwirEvent = {
 	icon?: FunctionalComponent,
 	variables?: string[],
 	type?: 'group',
-	childrens?: Record<string, TwirEvent>
+	childrens?: Record<string, TwirEvent>,
+	enumValue?: TwirEventType,
 }
 
-export const EVENTS: Record<string, TwirEvent> = {
+export const TWIR_EVENTS: Record<string, TwirEvent> = {
 	FOLLOW: {
 		name: 'Follow',
 		icon: IconUserHeart,
 		variables: ['userName', 'userDisplayName'],
+		enumValue: TwirEventType.FOLLOW,
 	},
 
 	SUBS: {
@@ -44,6 +47,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 				name: 'Subscribe',
 				icon: IconUserDollar,
 				variables: ['userName', 'userDisplayName', 'subLevel'],
+				enumValue: TwirEventType.SUBSCRIBE,
 			},
 			RESUBSCRIBE: {
 				name: 'Resubscribe',
@@ -56,6 +60,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'resubStreak',
 					'resubMessage',
 				],
+				enumValue: TwirEventType.RESUBSCRIBE,
 			},
 			SUB_GIFT: {
 				name: 'Subscribe Gift',
@@ -67,6 +72,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'targetDisplayName',
 					'subLevel',
 				],
+				enumValue: TwirEventType.SUB_GIFT,
 			},
 		},
 	},
@@ -74,16 +80,19 @@ export const EVENTS: Record<string, TwirEvent> = {
 		name: 'Reward Activated',
 		icon: IconAward,
 		variables: ['userName', 'userDisplayName', 'rewardName', 'rewardCost', 'rewardInput'],
+		enumValue: TwirEventType.REDEMPTION_CREATED,
 	},
 	COMMAND_USED: {
 		name: 'Command used',
 		icon: IconStar,
 		variables: ['userName', 'userDisplayName', 'commandName', 'commandInput'],
+		enumValue: TwirEventType.COMMAND_USED,
 	},
 	FIRST_USER_MESSAGE: {
 		name: 'First User Message',
 		icon: IconMessageExclamation,
 		variables: ['userName', 'userDisplayName'],
+		enumValue: TwirEventType.FIRST_USER_MESSAGE,
 	},
 
 	STREAM: {
@@ -99,6 +108,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 				name: 'Raided',
 				icon: IconPick,
 				variables: ['userName', 'userDisplayName', 'raidViewers'],
+				enumValue: TwirEventType.RAIDED,
 			},
 			TITLE_OR_CATEGORY_CHANGED: {
 				name: 'Title or Category Changed',
@@ -109,16 +119,19 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'oldStreamCategory',
 					'newStreamCategory',
 				],
+				enumValue: TwirEventType.TITLE_OR_CATEGORY_CHANGED,
 			},
 			STREAM_ONLINE: {
 				name: 'Stream Online',
 				icon: IconAccessPoint,
 				variables: ['streamTitle', 'streamCategory'],
+				enumValue: TwirEventType.STREAM_ONLINE,
 			},
 			STREAM_OFFLINE: {
 				name: 'Stream Offline',
 				icon: IconAccessPointOff,
 				variables: [],
+				enumValue: TwirEventType.STREAM_OFFLINE,
 			},
 		},
 	},
@@ -127,21 +140,25 @@ export const EVENTS: Record<string, TwirEvent> = {
 		name: 'On Chat Clear',
 		icon: IconEraser,
 		variables: [],
+		enumValue: TwirEventType.CHAT_CLEAR,
 	},
 	DONATE: {
 		name: 'Donate',
 		icon: IconCashBanknote,
 		variables: ['userName', 'donateAmount', 'donateCurrency', 'donateMessage'],
+		enumValue: TwirEventType.DONATE,
 	},
 	KEYWORD_MATCHED: {
 		name: 'Keyword Matched',
 		icon: IconBracketsContain,
 		variables: ['userName', 'userDisplayName', 'keywordName', 'keywordResponse'],
+		enumValue: TwirEventType.KEYWORD_USED,
 	},
 	GREETING_SENDED: {
 		name: 'Greeting Sended',
 		icon: IconHeartHandshake,
 		variables: ['userName', 'userDisplayName', 'greetingText'],
+		enumValue: TwirEventType.GREETING_SENDED,
 	},
 
 	POLLS: {
@@ -152,11 +169,13 @@ export const EVENTS: Record<string, TwirEvent> = {
 				name: 'Poll Begin',
 				icon: IconDeviceDesktopAnalytics,
 				variables: ['pollTitle', 'pollOptionsNames'],
+				enumValue: TwirEventType.POLL_STARTED,
 			},
 			POLL_PROGRESS: {
 				name: 'Poll Progress',
 				icon: IconDeviceDesktopAnalytics,
 				variables: ['pollTitle', 'pollOptionsNames', 'pollTotalVotes'],
+				enumValue: TwirEventType.POLL_VOTED,
 			},
 			POLL_END: {
 				name: 'Poll End',
@@ -170,6 +189,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'pollWinnerChannelsPointsVotes',
 					'pollWinnerTotalVotes',
 				],
+				enumValue: TwirEventType.POLL_ENDED,
 			},
 		},
 	},
@@ -182,6 +202,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 				name: 'Prediction Begin',
 				icon: IconDice6,
 				variables: ['predictionTitle', 'predictionOptionsNames'],
+				enumValue: TwirEventType.PREDICTION_STARTED,
 			},
 			PREDICTION_PROGRESS: {
 				name: 'Prediction Progress',
@@ -191,6 +212,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'predictionOptionsNames',
 					'predictionTotalChannelPoints',
 				],
+				enumValue: TwirEventType.PREDICTION_LOCKED,
 			},
 			PREDICTION_LOCK: {
 				name: 'Prediction Lock',
@@ -200,6 +222,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					'predictionOptionsNames',
 					'predictionTotalChannelPoints',
 				],
+				enumValue: TwirEventType.PREDICTION_LOCKED,
 			},
 			PREDICTION_END: {
 				name: 'Prediction End',
@@ -213,6 +236,7 @@ export const EVENTS: Record<string, TwirEvent> = {
 					`predictionWinner.totalPoints`,
 					`predictionWinner.topUsers`,
 				],
+				enumValue: TwirEventType.PREDICTION_ENDED,
 			},
 		},
 	},
@@ -221,5 +245,6 @@ export const EVENTS: Record<string, TwirEvent> = {
 		name: 'User banned/timeouted',
 		icon: IconUserCancel,
 		variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
+		enumValue: TwirEventType.USER_BANNED,
 	},
 };

@@ -232,10 +232,11 @@ type KappagenOverlaySettingsAnimationSettings struct {
 }
 
 type KappagenOverlaySettings struct {
-	Emotes     KappagenOverlaySettingsEmotes              `json:"emotes,omitempty"`
-	Size       KappagenOverlaySettingsSize                `json:"size,omitempty"`
-	Cube       KappagenOverlaySettingsCube                `json:"cube,omitempty"`
-	Animation  KappagenOverlaySettingsAnimation           `json:"animation,omitempty"`
-	Animations []KappagenOverlaySettingsAnimationSettings `json:"animations,omitempty"`
-	EnableRave bool                                       `json:"enableRave,omitempty"`
+	Emotes        KappagenOverlaySettingsEmotes              `json:"emotes,omitempty"`
+	Size          KappagenOverlaySettingsSize                `json:"size,omitempty"`
+	Cube          KappagenOverlaySettingsCube                `json:"cube,omitempty"`
+	Animation     KappagenOverlaySettingsAnimation           `json:"animation,omitempty"`
+	Animations    []KappagenOverlaySettingsAnimationSettings `json:"animations,omitempty"`
+	EnableRave    bool                                       `json:"enableRave,omitempty"`
+	EnabledEvents []int32                                    `json:"events,omitempty"`
 }

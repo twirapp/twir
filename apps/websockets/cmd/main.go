@@ -48,8 +48,8 @@ func main() {
 			youtube.NewYouTube,
 			alerts.NewAlerts,
 			chat.New,
-			overlays.New,
 			kappagen.New,
+			overlays.New,
 		),
 		fx.Invoke(
 			func() {

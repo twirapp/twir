@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/api/events"
 	"github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -63,6 +64,11 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 			},
 		),
 		EnableRave: s.EnableRave,
+		EnabledEvents: lo.Map(
+			s.EnabledEvents, func(item int32, _ int) events.TwirEventType {
+				return events.TwirEventType(item)
+			},
+		),
 	}
 }
 
@@ -114,6 +120,11 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 			},
 		),
 		EnableRave: s.EnableRave,
+		EnabledEvents: lo.Map(
+			s.EnabledEvents, func(item events.TwirEventType, _ int) int32 {
+				return int32(item)
+			},
+		),
 	}
 }
 

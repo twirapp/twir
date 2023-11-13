@@ -32,6 +32,7 @@ export type MessageChunk = {
 	zeroWidthModifiers?: string[]
 	emoteWidth?: number
 	emoteHeight?: number
+	emoteName?: string
 }
 
 export type Font = InternalFont

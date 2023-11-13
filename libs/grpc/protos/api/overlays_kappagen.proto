@@ -3,6 +3,8 @@ option go_package = "github.com/satont/twir/libs/grpc/generated/api/overlays_kap
 package api.overlays_kappagen;
 
 
+import "api/events.proto";
+
 message Settings {
 	message Emotes {
 		int32 time = 1;
@@ -50,4 +52,5 @@ message Settings {
 	Animation animation = 4;
 	repeated AnimationSettings animations = 5;
 	bool enableRave = 6;
+	repeated events.TwirEventType enabledEvents = 7;
 }

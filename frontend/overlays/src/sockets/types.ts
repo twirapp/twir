@@ -1,5 +1,5 @@
-export type TwirWebSocketEvent = {
+export type TwirWebSocketEvent<T = Record<string, any>> = {
 	eventName: string,
-	data: Record<string, any>
+	data: T,
 	createdAt: string
 }

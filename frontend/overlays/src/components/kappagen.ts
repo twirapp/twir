@@ -19,32 +19,44 @@ export const useKappagenBuilder = () => {
 		const emotes: Emote[] = [];
 
 		for (const chunk of emotesChunks) {
+			if (chunk.type === 'text') continue;
+
+			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
+
 			if (chunk.type === 'emote') {
 				emotes.push({
 					url: `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/3.0`,
+					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
 				});
-			} else {
-				const foundEmote = kappagenEmotes.value.find(e => e.name === chunk.value);
-				if (!foundEmote) continue;
-
-				const url = foundEmote.urls.at(-1)!;
-
-				if (!foundEmote.isModifier && !foundEmote.isZeroWidth) {
-					emotes.push({ url });
-				} else {
-					const prev = emotes.at(-1);
-					if (prev) {
-						prev.zwe = [...(prev.zwe ?? []), { url }];
-					}
-				}
 			}
+
+			if (chunk.type === '3rd_party_emote') {
+				emotes.push({
+					url: chunk.value,
+					zwe,
+				});
+			}
+			// const foundEmote = kappagenEmotes.value.find(e => e.name === chunk.emoteName);
+			// if (!foundEmote) continue;
+
+			// const url = foundEmote.urls.at(-1)!;
+
+			// if (!foundEmote.isModifier && !foundEmote.isZeroWidth) {
+			// 	emotes.push({ url });
+			// } else {
+			// 	const prev = emotes.at(-1);
+			// 	if (prev) {
+			// 		prev.zwe = [...(prev.zwe ?? []), { url }];
+			// 	}
+			// }
+
 		}
 
 		return emotes;
 	};
 
 	// КОМАНДА И ИВЕНТЫ
-	const buildKappagenEmotes = async (chunks: MessageChunk[]) => {
+	const buildKappagenEmotes = (chunks: MessageChunk[]) => {
 		const enabledAnimations = animations.filter(a => a.style !== 'Text');
 		const animation = enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
 

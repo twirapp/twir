@@ -1,7 +1,4 @@
 import { useWebSocket } from '@vueuse/core';
-import { watch } from 'vue';
-
-import type { TwirWebSocketEvent } from './types.js';
 
 export const useKappagenOverlaySocket = (apiKey: string) => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -21,15 +18,11 @@ export const useKappagenOverlaySocket = (apiKey: string) => {
 		},
 	);
 
-	watch(data, (d: string) => {
-		const event = JSON.parse(d) as TwirWebSocketEvent;
-
-		console.log(event);
-	});
 
 	const connect = open;
 
 	return {
 		connect,
+		data,
 	};
 };

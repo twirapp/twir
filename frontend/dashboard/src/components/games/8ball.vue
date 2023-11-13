@@ -5,7 +5,7 @@ import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Card from './card.vue';
-import Command from './command.vue';
+import Command from '../commandButton.vue';
 
 import { use8ballSettings, use8ballUpdateSettings } from '@/api/index.js';
 

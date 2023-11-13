@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
@@ -41,6 +42,7 @@ type GrpcImpl struct {
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
 	chatServer             *chat.Chat
+	kappagenServer         *kappagen.Kappagen
 }
 
 type GrpcOpts struct {
@@ -57,6 +59,7 @@ type GrpcOpts struct {
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
 	ChatServer             *chat.Chat
+	KappagenServer         *kappagen.Kappagen
 }
 
 func NewGrpcImplementation(opts GrpcOpts) error {
@@ -70,6 +73,7 @@ func NewGrpcImplementation(opts GrpcOpts) error {
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
 		chatServer:             opts.ChatServer,
+		kappagenServer:         opts.KappagenServer,
 	}
 
 	grpcServer := grpc.NewServer()

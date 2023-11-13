@@ -1,18 +1,30 @@
 <script lang="ts" setup>
+import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import type {
 	Settings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider } from 'naive-ui';
+import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { animations } from './kappagen_animations';
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
+import CommandButton from '@/components/commandButton.vue';
+import { flatEvents } from '@/components/events/helpers.js';
+
+const availableEvents = Object.values(flatEvents)
+	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
+	.map(e => {
+		return {
+			name: e.name,
+			value: e.enumValue,
+		};
+	}) as Array<{ name: string, value: TwirEventType }>;
 
 const formValue = ref<Settings>({
 	emotes: {
-		time: 15,
+		time: 5,
 		max: 0,
 		queue: 0,
 	},
@@ -35,6 +47,7 @@ const formValue = ref<Settings>({
 		min: 1,
 		max: 256,
 	},
+	enabledEvents: availableEvents.map(e => e.value),
 });
 const kappagenManager = useKappaGenOverlayManager();
 const { data: settings } = kappagenManager.getSettings();
@@ -123,6 +136,10 @@ async function save() {
 			<n-tabs default-value="main" type="line" size="large" justify-content="space-evenly" animated style="width: 100%">
 				<n-tab-pane name="main" tab="Main settings">
 					<div class="tab">
+						<CommandButton name="kappagen" />
+
+						<n-divider />
+
 						<div class="slider">
 							Size {{ formValue.size!.ratioNormal }}
 							<n-slider
@@ -202,6 +219,19 @@ async function save() {
 							<span>Rave</span>
 						</div>
 					</div>
+				</n-tab-pane>
+
+				<n-tab-pane name="events" tab="Events">
+					<n-checkbox-group v-model:value="formValue.enabledEvents">
+						<div style="display: flex; flex-direction: column; gap: 5px;">
+							<n-checkbox
+								v-for="event of availableEvents"
+								:key="event.name"
+								:value="event.value"
+								:label="event.name"
+							/>
+						</div>
+					</n-checkbox-group>
 				</n-tab-pane>
 
 				<n-tab-pane name="animations" tab="Animations">

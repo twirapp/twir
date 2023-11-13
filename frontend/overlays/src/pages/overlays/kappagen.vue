@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import KappagenOverlay, { type KappagenEmoteConfig } from 'kappagen';
-import { onMounted, reactive, ref } from 'vue';
+import KappagenOverlay, { KappagenAnimations, type KappagenEmoteConfig } from 'kappagen';
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
 import { useThirdPartyEmotes } from '../../components/chat_tmi_emotes.js';
+import { makeMessageChunks } from '../../components/chat_tmi_helpers';
 import { useKappagenBuilder, twirEmote } from '../../components/kappagen';
 import { animations } from '../../components/kappagen_animations.js';
+import { ChatSettings, useTmiChat } from '../../sockets/chat_tmi';
 import { useKappagenOverlaySocket } from '../../sockets/kappagen_overlay';
+import { TwirWebSocketEvent } from '../../sockets/types';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
@@ -52,12 +55,6 @@ const emoteConfig = reactive<Required<Config>>({
 	rave: false,
 });
 
-
-const channelName = ref<string>();
-const channelId = ref<string>();
-useThirdPartyEmotes(channelName, channelId);
-
-
 const socket = useKappagenOverlaySocket(apiKey);
 
 const builder = useKappagenBuilder();
@@ -74,8 +71,8 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 		kappagen.value?.kappagen.run(
 			[twirEmote],
 			animations[Math.floor(Math.random() * animations.length)],
-		);
-	}
+			);
+		}
 
 	if (parsedData.key === 'kappa') {
 		kappagen.value?.kappagen.run(
@@ -90,10 +87,15 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 	}
 };
 
-const setSettings = (settings: Settings & { channelId: string, channelName: string }) => {
-	channelId.value = settings.channelId;
-	channelName.value = settings.channelName;
+type IncomingSettings = Settings & { channelId: string, channelName: string, kappagenCommandName?: string }
 
+const channelSettings = ref<IncomingSettings>();
+
+const channelId = computed(() => channelSettings.value?.channelId ?? '');
+const channelName = computed(() => channelSettings.value?.channelName ?? '');
+useThirdPartyEmotes(channelName, channelId);
+
+const setSettings = (settings: IncomingSettings) => {
 	if (settings.emotes) {
 		emoteConfig.max = settings.emotes.max;
 		emoteConfig.time = settings.emotes.time;
@@ -137,6 +139,52 @@ onMounted(() => {
 	return () => {
 		window.removeEventListener('message', onWindowMessage);
 	};
+});
+
+watch(socket.data, (d: string) => {
+	const event = JSON.parse(d) as TwirWebSocketEvent;
+
+	if (event.eventName === 'settings') {
+		const data = event.data as IncomingSettings;
+		channelSettings.value = data;
+		setSettings(data);
+	}
+
+	if (event.eventName === 'kappagen') {
+		const data = event.data;
+		const emotes = builder.buildKappagenEmotes(makeMessageChunks(data.text));
+		if (!emotes.length || !channelSettings.value) return;
+
+		const randomAnimation = channelSettings.value.animations[Math.floor(Math.random()*channelSettings.value.animations.length)];
+
+		kappagen.value?.kappagen.run(emotes, randomAnimation as KappagenAnimations);
+	}
+});
+
+const chatSettings = computed<ChatSettings>(() => {
+	return {
+		channelId: channelId.value,
+		channelName: channelName.value,
+		onMessage: (msg) => {
+			if (msg.type === 'system') return;
+
+			const firstChunk = msg.chunks.at(0)!;
+			if (firstChunk.type === 'text' && firstChunk.value.startsWith('!')) {
+				return;
+			}
+
+			const emotes = builder.buildSpawnEmotes(msg.chunks);
+			if (!emotes.length) return;
+			kappagen.value?.emote.addEmotes(emotes);
+			kappagen.value?.emote.showEmotes();
+		},
+	};
+});
+
+const { destroy } = useTmiChat(chatSettings);
+
+onUnmounted(() => {
+	destroy();
 });
 </script>
 

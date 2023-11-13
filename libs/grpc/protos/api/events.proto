@@ -4,6 +4,32 @@ package api.events;
 
 import "api/meta.proto";
 
+enum TwirEventType {
+	FOLLOW = 0;
+	SUBSCRIBE = 1;
+	RESUBSCRIBE = 2;
+	SUB_GIFT = 3;
+	REDEMPTION_CREATED = 4;
+	COMMAND_USED = 5;
+	FIRST_USER_MESSAGE = 6;
+	RAIDED = 7;
+	TITLE_OR_CATEGORY_CHANGED = 8;
+	STREAM_ONLINE = 9;
+	STREAM_OFFLINE = 10;
+	CHAT_CLEAR = 11;
+	DONATE = 12;
+	KEYWORD_USED = 13;
+	GREETING_SENDED = 14;
+	POLL_STARTED = 15;
+	POLL_ENDED = 16;
+	POLL_VOTED = 17;
+	PREDICTION_STARTED = 18;
+	PREDICTION_ENDED = 19;
+	PREDICTION_VOTED = 20;
+	PREDICTION_LOCKED = 21;
+	USER_BANNED = 22;
+}
+
 message Event {
 	message OperationFilter {
 		string type = 1;

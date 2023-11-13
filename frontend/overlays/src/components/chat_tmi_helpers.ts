@@ -19,12 +19,13 @@ export function makeMessageChunks(message: string, emotes?: {
 	for (const part of message.split(' ')) {
 		const emote = parsedTwitchEmotes.find(e => e.from === currentWordIndex);
 		const thirdPartyEmote = thirdPartyEmotes.value[part];
+
 		if (emote) {
 			chunks.push({ type: 'emote', value: emote.emoteId });
 		} else if (thirdPartyEmote) {
 			const isZeroWidthModifier = thirdPartyEmote.isZeroWidth;
 			const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined';
-			const url = thirdPartyEmote.urls.at(0)!;
+			const url = thirdPartyEmote.urls.at(-1)!;
 
 			if (isZeroWidthModifier) {
 				chunks.at(-1)!.zeroWidthModifiers = [
@@ -42,6 +43,7 @@ export function makeMessageChunks(message: string, emotes?: {
 					value: url,
 					emoteHeight: thirdPartyEmote.height,
 					emoteWidth: thirdPartyEmote.width,
+					emoteName: thirdPartyEmote.name,
 				});
 			}
 		} else {

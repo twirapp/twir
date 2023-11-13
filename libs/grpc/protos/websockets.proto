@@ -27,6 +27,8 @@ service Websocket {
 
 	rpc RefreshChatOverlaySettings(RefreshChatSettingsRequest) returns (google.protobuf.Empty) {}
 	rpc RefreshKappagenOverlaySettings(RefreshKappagenOverlaySettingsRequest) returns (google.protobuf.Empty) {}
+
+	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -118,4 +120,9 @@ message RefreshChatSettingsRequest {
 
 message RefreshKappagenOverlaySettingsRequest {
 	string channel_id = 1;
+}
+
+message TriggerKappagenRequest {
+	string channel_id = 1;
+	string text = 2;
 }
