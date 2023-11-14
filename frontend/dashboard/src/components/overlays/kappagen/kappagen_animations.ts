@@ -8,10 +8,10 @@ export const animations: Settings_AnimationSettings[] = [
 			center: false,
 			faces: false,
 			speed: 6,
-			message: [],
+			// message: [],
 		},
 		enabled: true,
-	},
+	} as Settings_AnimationSettings,
 	{
 		style: 'Text',
 		prefs: {
@@ -37,12 +37,12 @@ export const animations: Settings_AnimationSettings[] = [
 	},
 	{
 		style: 'Burst',
-		count: 150,
+		count: 50,
 		enabled: true,
 	},
 	{
 		style: 'Fountain',
-		count: 150,
+		count: 50,
 		enabled: true,
 	},
 	{
@@ -60,9 +60,6 @@ export const animations: Settings_AnimationSettings[] = [
 	},
 	{
 		style: 'Conga',
-		prefs: {
-			message: [],
-		},
 		enabled: true,
 	},
 ];

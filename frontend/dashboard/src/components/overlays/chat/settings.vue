@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { faker } from '@faker-js/faker';
+
 import { IconReload } from '@tabler/icons-vue';
 import {
 	ChatBox,
@@ -27,6 +27,7 @@ import { useI18n } from 'vue-i18n';
 import '@twir/frontend-chat/style.css';
 
 import { globalBadges } from './constants.js';
+import * as faker from './faker.js';
 
 import { useChatOverlayManager, useGoogleFontsList } from '@/api/index.js';
 
@@ -47,23 +48,23 @@ useIntervalFn(() => {
 	const internalId = crypto.randomUUID();
 
 	messagesMock.value.push({
-		sender: faker.person.firstName(),
+		sender: faker.firstName(),
 		chunks: [{
 			type: 'text',
-			value: faker.lorem.words({ min: 1, max: 40 }),
+			value: faker.lorem(),
 		}],
 		createdAt: new Date(),
 		internalId,
-		isAnnounce: faker.datatype.boolean(),
+		isAnnounce: faker.boolean(),
 		isItalic: false,
 		type: 'message',
-		senderColor: faker.color.rgb(),
+		senderColor: faker.rgb(),
 		announceColor: '',
 		badges: {
-			[faker.helpers.objectKey(globalBadgesObject)]: '1',
+			[faker.randomObjectKey(globalBadgesObject)]: '1',
 		},
 		id: crypto.randomUUID(),
-		senderDisplayName: faker.person.lastName(),
+		senderDisplayName: faker.firstName(),
 	});
 
 	if (formValue.value.messageHideTimeout != 0) {

@@ -6,12 +6,11 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "analize": "vite-bundle-visualizer",
+    "analyze": "vite-bundle-visualizer",
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
     "@discord-message-components/vue": "^0.2.1",
-    "@faker-js/faker": "^8.2.0",
     "@guolao/vue-monaco-editor": "^1.1.3",
     "@protobuf-ts/twirp-transport": "^2.9.1",
     "@tabler/icons-vue": "^2.34.0",

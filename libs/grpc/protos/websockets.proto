@@ -3,6 +3,7 @@ import "google/protobuf/empty.proto";
 package websockets;
 option go_package = "tsuwari/grpc/websockets";
 
+
 service Websocket {
 	rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
 	rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
@@ -29,6 +30,7 @@ service Websocket {
 	rpc RefreshKappagenOverlaySettings(RefreshKappagenOverlaySettingsRequest) returns (google.protobuf.Empty) {}
 
 	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
+	rpc TriggerKappagenByEvent(TriggerKappagenByEventRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -125,4 +127,11 @@ message RefreshKappagenOverlaySettingsRequest {
 message TriggerKappagenRequest {
 	string channel_id = 1;
 	string text = 2;
+}
+
+import "api/events.proto";
+
+message TriggerKappagenByEventRequest {
+	string channel_id = 1;
+	api.events.TwirEventType event = 2;
 }

@@ -54,6 +54,7 @@ const emoteConfig = reactive<Required<Config>>({
 	},
 	rave: false,
 });
+const channelSettings = ref<IncomingSettings>();
 
 const socket = useKappagenOverlaySocket(apiKey);
 
@@ -61,12 +62,11 @@ const builder = useKappagenBuilder();
 
 const onWindowMessage = (msg: MessageEvent<string>) => {
 	const parsedData = JSON.parse(msg.data) as { key: string, data?: any };
+	kappagen.value?.clear();
 
 	if (parsedData.key === 'settings' && parsedData.data) {
 		const settings = parsedData.data as Settings & { channelName: string, channelId: string };
 		setSettings(settings);
-
-		kappagen.value?.clear();
 
 		kappagen.value?.kappagen.run(
 			[twirEmote],
@@ -81,6 +81,13 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 		);
 	}
 
+	if (parsedData.key === 'kappaWithAnimation') {
+		kappagen.value?.kappagen.run(
+			[twirEmote],
+			parsedData.data.animation,
+		);
+	}
+
 	if (parsedData.key === 'spawn') {
 		kappagen.value?.emote.addEmotes([twirEmote]);
 		kappagen.value?.emote.showEmotes();
@@ -89,7 +96,6 @@ const onWindowMessage = (msg: MessageEvent<string>) => {
 
 type IncomingSettings = Settings & { channelId: string, channelName: string, kappagenCommandName?: string }
 
-const channelSettings = ref<IncomingSettings>();
 
 const channelId = computed(() => channelSettings.value?.channelId ?? '');
 const channelName = computed(() => channelSettings.value?.channelName ?? '');
@@ -155,7 +161,8 @@ watch(socket.data, (d: string) => {
 		const emotes = builder.buildKappagenEmotes(makeMessageChunks(data.text));
 		if (!emotes.length || !channelSettings.value) return;
 
-		const randomAnimation = channelSettings.value.animations[Math.floor(Math.random()*channelSettings.value.animations.length)];
+		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
+		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
 
 		kappagen.value?.kappagen.run(emotes, randomAnimation as KappagenAnimations);
 	}

@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import type {
-	Settings,
+	Settings, Settings_AnimationSettings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox } from 'naive-ui';
+import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox, NGrid, NGridItem } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import animationSettings from './animationSettings.vue';
 import { animations } from './kappagen_animations';
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
@@ -57,6 +58,15 @@ watch(settings, (s) => {
 	formValue.value = toRaw(s);
 });
 
+watch(() => [
+	formValue.value.emotes,
+	formValue.value.enableRave,
+	formValue.value.animation,
+	formValue.value.cube,
+	formValue.value.size,
+
+], () => sendSettings(), { deep: true });
+
 const updater = kappagenManager.updateSettings();
 const { data: profile } = useProfile();
 
@@ -83,8 +93,6 @@ const sendSettings = () => sendIframeMessage('settings', {
 	channelId: profile.value?.id,
 });
 
-watch(formValue, () => sendSettings(), { deep: true });
-
 watch(kappagenIframeRef, (v) => {
 	if (!v) return;
 	v.contentWindow?.addEventListener('message', (e) => {
@@ -96,6 +104,10 @@ watch(kappagenIframeRef, (v) => {
 
 const message = useNotification();
 const { t } = useI18n();
+
+const playKappaPreview = (animation: Settings_AnimationSettings) => {
+	sendIframeMessage('kappaWithAnimation', { animation });
+};
 
 async function save() {
 	if (!formValue.value) return;
@@ -235,7 +247,11 @@ async function save() {
 				</n-tab-pane>
 
 				<n-tab-pane name="animations" tab="Animations">
-					{{ formValue.animations }}
+					<n-grid :cols="2" :x-gap="16" :y-gap="16" responsive="self">
+						<n-grid-item v-for="animation of formValue.animations" :key="animation.style" :span="1">
+							<animationSettings :settings="animation" @play="playKappaPreview" />
+						</n-grid-item>
+					</n-grid>
 				</n-tab-pane>
 			</n-tabs>
 		</div>

@@ -212,7 +212,7 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 					'predictionOptionsNames',
 					'predictionTotalChannelPoints',
 				],
-				enumValue: TwirEventType.PREDICTION_LOCKED,
+				enumValue: TwirEventType.PREDICTION_VOTED,
 			},
 			PREDICTION_LOCK: {
 				name: 'Prediction Lock',

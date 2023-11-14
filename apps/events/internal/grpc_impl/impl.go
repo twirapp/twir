@@ -8,7 +8,9 @@ import (
 	"github.com/satont/twir/apps/events/internal"
 	"github.com/satont/twir/apps/events/internal/grpc_impl/chat_alerts"
 	model "github.com/satont/twir/libs/gomodels"
+	events2 "github.com/satont/twir/libs/grpc/generated/api/events"
 	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -43,6 +45,13 @@ func (c *EventsGrpcImplementation) Follow(
 		chatAlerts.Follow(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_FOLLOW,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -65,6 +74,13 @@ func (c *EventsGrpcImplementation) Subscribe(
 	if err == nil {
 		chatAlerts.Subscribe(ctx, 1, msg.UserName, msg.BaseInfo.ChannelId)
 	}
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_SUBSCRIBE,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }
@@ -92,6 +108,13 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 		chatAlerts.Subscribe(ctx, int(msg.Months), msg.UserName, msg.BaseInfo.ChannelId)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_RESUBSCRIBE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -118,10 +141,20 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 		chatAlerts.Redemption(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_REDEMPTION_CREATED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
-func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.CommandUsedMessage) (
+func (c *EventsGrpcImplementation) CommandUsed(
+	ctx context.Context,
+	msg *events.CommandUsedMessage,
+) (
 	*emptypb.Empty, error,
 ) {
 	go c.processEvent(
@@ -135,6 +168,13 @@ func (c *EventsGrpcImplementation) CommandUsed(_ context.Context, msg *events.Co
 			UserID:          msg.UserId,
 		},
 		model.EventTypeCommandUsed,
+	)
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_COMMAND_USED,
+		},
 	)
 
 	return &emptypb.Empty{}, nil
@@ -159,6 +199,13 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 		chatAlerts.FirstUserMessage(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_FIRST_USER_MESSAGE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -182,11 +229,18 @@ func (c *EventsGrpcImplementation) Raided(
 		chatAlerts.Raid(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_RAIDED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
-	_ context.Context, msg *events.TitleOrCategoryChangedMessage,
+	ctx context.Context, msg *events.TitleOrCategoryChangedMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
@@ -197,6 +251,13 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 			NewStreamTitle:    msg.NewTitle,
 		},
 		model.EventTypeTitleOrCategoryChanged,
+	)
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_TITLE_OR_CATEGORY_CHANGED,
+		},
 	)
 
 	return &emptypb.Empty{}, nil
@@ -222,6 +283,13 @@ func (c *EventsGrpcImplementation) StreamOnline(
 		chatAlerts.StreamOnline(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_STREAM_ONLINE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -242,11 +310,18 @@ func (c *EventsGrpcImplementation) StreamOffline(
 		chatAlerts.StreamOffline(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_STREAM_OFFLINE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) SubGift(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.SubGiftMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
@@ -258,6 +333,13 @@ func (c *EventsGrpcImplementation) SubGift(
 			UserID:                msg.SenderUserId,
 		},
 		model.EventTypeSubGift,
+	)
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_SUB_GIFT,
+		},
 	)
 
 	return &emptypb.Empty{}, nil
@@ -277,6 +359,13 @@ func (c *EventsGrpcImplementation) ChatClear(
 	if err == nil {
 		chatAlerts.ChatCleared(ctx, msg)
 	}
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_CHAT_CLEAR,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }
@@ -301,11 +390,18 @@ func (c *EventsGrpcImplementation) Donate(
 		chatAlerts.Donation(ctx, msg)
 	}
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_DONATE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) KeywordMatched(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.KeywordMatchedMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
@@ -321,11 +417,18 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 		model.EventTypeKeywordMatched,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_KEYWORD_USED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) GreetingSended(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.GreetingSendedMessage,
 ) (
 	*emptypb.Empty, error,
@@ -341,11 +444,18 @@ func (c *EventsGrpcImplementation) GreetingSended(
 		model.EventTypeGreetingSended,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_GREETING_SENDED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollBegin(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.PollBeginMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
@@ -365,11 +475,18 @@ func (c *EventsGrpcImplementation) PollBegin(
 		model.EventTypePollBegin,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_POLL_STARTED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollProgress(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.PollProgressMessage,
 ) (
 	*emptypb.Empty, error,
@@ -398,11 +515,18 @@ func (c *EventsGrpcImplementation) PollProgress(
 		model.EventTypePollProgress,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_POLL_VOTED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PollEnd(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.PollEndMessage,
 ) (*emptypb.Empty, error) {
 	totalVotes := lo.Reduce(
@@ -440,11 +564,18 @@ func (c *EventsGrpcImplementation) PollEnd(
 		model.EventTypePollEnd,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_POLL_ENDED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionBegin(
-	_ context.Context, msg *events.PredictionBeginMessage,
+	ctx context.Context, msg *events.PredictionBeginMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
@@ -463,11 +594,18 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 		model.EventTypePredictionBegin,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_PREDICTION_STARTED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionProgress(
-	_ context.Context, msg *events.PredictionProgressMessage,
+	ctx context.Context, msg *events.PredictionProgressMessage,
 ) (*emptypb.Empty, error) {
 	totalPoints := lo.Reduce(
 		msg.Info.Outcomes, func(acc int, item *events.PredictionInfo_OutCome, _ int) int {
@@ -493,11 +631,18 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 		model.EventTypePredictionProgress,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_PREDICTION_VOTED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionLock(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.PredictionLockMessage,
 ) (
 	*emptypb.Empty, error,
@@ -526,11 +671,18 @@ func (c *EventsGrpcImplementation) PredictionLock(
 		model.EventTypePredictionLock,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_PREDICTION_LOCKED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) PredictionEnd(
-	_ context.Context,
+	ctx context.Context,
 	msg *events.PredictionEndMessage,
 ) (
 	*emptypb.Empty, error,
@@ -571,11 +723,18 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 		model.EventTypePredictionEnd,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_PREDICTION_ENDED,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
 func (c *EventsGrpcImplementation) StreamFirstUserJoin(
-	_ context.Context, msg *events.StreamFirstUserJoinMessage,
+	ctx context.Context, msg *events.StreamFirstUserJoinMessage,
 ) (*emptypb.Empty, error) {
 	go c.processEvent(
 		msg.BaseInfo.ChannelId,
@@ -585,6 +744,13 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 		model.EventStreamFirstUserJoin,
 	)
 
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_FIRST_USER_MESSAGE,
+		},
+	)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -592,7 +758,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	ctx context.Context,
 	msg *events.ChannelBanMessage,
 ) (*emptypb.Empty, error) {
-	c.processEvent(
+	go c.processEvent(
 		msg.BaseInfo.ChannelId,
 		internal.Data{
 			UserName:             msg.UserLogin,
@@ -609,6 +775,13 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	if err == nil {
 		chatAlerts.Ban(ctx, msg)
 	}
+
+	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+		ctx, &websockets.TriggerKappagenByEventRequest{
+			ChannelId: msg.BaseInfo.ChannelId,
+			Event:     events2.TwirEventType_USER_BANNED,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }
