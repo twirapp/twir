@@ -49,6 +49,7 @@ const formValue = ref<Settings>({
 		max: 256,
 	},
 	enabledEvents: [],
+	enableSpawn: true,
 });
 const kappagenManager = useKappaGenOverlayManager();
 const { data: settings } = kappagenManager.getSettings();
@@ -149,6 +150,11 @@ async function save() {
 				<n-tab-pane name="main" tab="Main settings">
 					<div class="tab">
 						<CommandButton name="kappagen" />
+
+						<div class="switch">
+							<n-switch v-model:value="formValue.enableSpawn" />
+							<span>Spawn emotes on screen on each chat message</span>
+						</div>
 
 						<n-divider />
 

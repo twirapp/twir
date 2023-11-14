@@ -199,6 +199,8 @@ const chatSettings = computed<ChatSettings>(() => {
 				return;
 			}
 
+			if (!channelSettings.value?.enableSpawn) return;
+
 			const generatedEmotes = builder.buildSpawnEmotes(msg.chunks);
 			if (!generatedEmotes.length) return;
 			kappagen.value?.emote.addEmotes(generatedEmotes);

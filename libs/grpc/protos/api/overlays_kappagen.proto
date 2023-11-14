@@ -53,4 +53,5 @@ message Settings {
 	repeated AnimationSettings animations = 5;
 	bool enableRave = 6;
 	repeated events.TwirEventType enabledEvents = 7;
+	bool enable_spawn = 8;
 }

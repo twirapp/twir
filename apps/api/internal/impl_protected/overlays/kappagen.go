@@ -69,6 +69,7 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 				return events.TwirEventType(item)
 			},
 		),
+		EnableSpawn: s.EnableSpawn,
 	}
 }
 
@@ -125,6 +126,7 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 				return int32(item)
 			},
 		),
+		EnableSpawn: s.EnableSpawn,
 	}
 }
 

@@ -239,4 +239,5 @@ type KappagenOverlaySettings struct {
 	Animations    []KappagenOverlaySettingsAnimationSettings `json:"animations,omitempty"`
 	EnableRave    bool                                       `json:"enableRave,omitempty"`
 	EnabledEvents []int32                                    `json:"events,omitempty"`
+	EnableSpawn   bool                                       `json:"enableSpawn,omitempty"`
 }
