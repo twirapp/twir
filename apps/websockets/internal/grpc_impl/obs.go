@@ -17,6 +17,7 @@ func (c *GrpcImpl) ObsSetScene(
 
 	return &emptypb.Empty{}, nil
 }
+
 func (c *GrpcImpl) ObsToggleSource(
 	_ context.Context,
 	msg *websockets.ObsToggleSourceMessage,

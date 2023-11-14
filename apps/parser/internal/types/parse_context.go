@@ -36,6 +36,7 @@ type ParseContext struct {
 	Emotes    []*ParseContextEmote
 
 	Text      *string
+	RawText   string
 	IsCommand bool
 
 	Command *model.ChannelsCommands

@@ -1,0 +1,57 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen";
+package api.overlays_kappagen;
+
+
+import "api/events.proto";
+
+message Settings {
+	message Emotes {
+		int32 time = 1;
+		int32 max = 2;
+		int32 queue = 3;
+	}
+
+	message Size {
+		int32 ratio_normal = 1;
+		int32 ratio_small = 2;
+		int32 min = 3;
+		int32 max = 4;
+	}
+
+	message Cube {
+		int32 speed = 1;
+	}
+
+	message Animation {
+		bool fade_in = 1;
+		bool fade_out = 2;
+		bool zoom_in = 3;
+		bool zoom_out = 4;
+	}
+
+	message AnimationSettings {
+		message Prefs {
+			optional float size = 1;
+			optional bool center = 2;
+			optional int32 speed = 3;
+			optional bool faces = 4;
+			repeated string message = 5;
+			optional int32 time = 6;
+		}
+
+		string style = 1;
+		Prefs prefs = 2;
+		optional int32 count = 3;
+		bool enabled = 4;
+	}
+
+	Emotes emotes = 1;
+	Size size = 2;
+	Cube cube = 3;
+	Animation animation = 4;
+	repeated AnimationSettings animations = 5;
+	bool enableRave = 6;
+	repeated events.TwirEventType enabledEvents = 7;
+	bool enable_spawn = 8;
+}

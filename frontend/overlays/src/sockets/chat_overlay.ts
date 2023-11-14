@@ -2,13 +2,9 @@ import type { Settings, ChatBadge, BadgeVersion } from '@twir/frontend-chat';
 import { useWebSocket } from '@vueuse/core';
 import { type Ref, ref, watch } from 'vue';
 
-type Event = {
-	eventName: string,
-	data: Record<string, any>
-	createdAt: string
-}
+import type { TwirWebSocketEvent } from './types.js';
 
-export const useChatSocket = (apiKey: string): { settings: Ref<Settings> } => {
+export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> } => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
 	const settings = ref<Settings>({
@@ -30,7 +26,7 @@ export const useChatSocket = (apiKey: string): { settings: Ref<Settings> } => {
 	});
 
 	const { data, send } = useWebSocket(
-		`${protocol}://${host}/socket/chat?apiKey=${apiKey}`,
+		`${protocol}://${host}/socket/overlays/chat?apiKey=${apiKey}`,
 		{
 			immediate: true,
 			autoReconnect: {
@@ -43,7 +39,7 @@ export const useChatSocket = (apiKey: string): { settings: Ref<Settings> } => {
 	);
 
 	watch(data, (d: string) => {
-		const event = JSON.parse(d) as Event;
+		const event = JSON.parse(d) as TwirWebSocketEvent;
 
 		if (event.eventName === 'settings') {
 			for (const badge of event.data.globalBadges) {

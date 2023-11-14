@@ -1,6 +1,7 @@
 <script lang="ts" setup>
+import MessageContent from '../components/messageContent.vue';
 import { normalizeDisplayName } from '../helpers.js';
-import type { Settings, Message } from '../types.js';
+import { Settings, Message } from '../types.js';
 
 defineProps<{
 	msg: Message,
@@ -34,26 +35,7 @@ defineProps<{
 				</template>
 			</div>
 		</div>
-		<span class="text" :style="{ fontStyle: msg.isItalic ? 'italic' : 'normal' }">
-			<template v-for="(chunk, _) of msg.chunks" :key="_">
-				<img
-					v-if="chunk.type === 'emote'"
-					:src="`https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`"
-					class="emote"
-				/>
-
-				<img
-					v-else-if="chunk.type === '3rd_party_emote'"
-					:src="chunk.value"
-					class="emote"
-				/>
-
-				<template v-else-if="chunk.type === 'text'">
-					{{ chunk.value }}
-				</template>
-				{{ ' ' }}
-			</template>
-		</span>
+		<message-content :chunks="msg.chunks" :is-italic="msg.isItalic" />
 	</div>
 </template>
 

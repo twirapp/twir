@@ -1,6 +1,6 @@
 import type { SelectGroupOption, SelectOption } from 'naive-ui';
 
-import { EVENTS } from './events.js';
+import { TWIR_EVENTS } from './events.js';
 import { OPERATIONS, Operation } from './operations.js';
 
 type SelectGeneric = {
@@ -30,7 +30,7 @@ export const createSelectOptions = (values: Record<string, SelectGeneric>): (Sel
 		});
 };
 
-export const eventTypeSelectOptions = createSelectOptions(EVENTS);
+export const eventTypeSelectOptions = createSelectOptions(TWIR_EVENTS);
 export const operationTypeSelectOptions = createSelectOptions(OPERATIONS);
 
 const createFlat = <T extends SelectGeneric>(values: Record<string, T>): Record<string, T> => {
@@ -46,7 +46,7 @@ const createFlat = <T extends SelectGeneric>(values: Record<string, T>): Record<
 	}, {} as Record<string, T>);
 };
 
-export const flatEvents = createFlat(EVENTS);
+export const flatEvents = createFlat(TWIR_EVENTS);
 export const flatOperations = createFlat(OPERATIONS);
 
 export const getOperation = (type: string): Operation | undefined => {

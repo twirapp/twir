@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
+	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
 	"github.com/satont/twir/apps/parser/internal/commands/shoutout"
 	"github.com/satont/twir/apps/parser/internal/commands/song"
@@ -87,6 +88,7 @@ func New(opts *Opts) *Commands {
 			sr_youtube.WrongCommand,
 			games.EightBall,
 			games.RussianRoulette,
+			kappagen.Kappagen,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -238,6 +240,7 @@ func (c *Commands) ParseCommandResponses(
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
+		RawText:   requestData.Message.Text,
 		IsCommand: true,
 		Services:  c.services,
 		Cacher: cacher.NewCacher(
