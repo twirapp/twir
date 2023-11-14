@@ -40,10 +40,10 @@ defineProps<{
 						:style="{
 							maxWidth: chunk.emoteWidth
 								? `${chunk.flags?.includes(EmoteFlag.GrowX) ? chunk.emoteWidth * 2 : chunk.emoteWidth}px`
-								: undefined,
+								: `32px`,
 							maxHeight: chunk.emoteHeight
 								? `${chunk.emoteHeight}px`
-								: undefined
+								: `32px`
 						}"
 					/>
 				</span>
@@ -56,23 +56,6 @@ defineProps<{
 		</template>
 	</span>
 </template>
-
-<!-- <div class="container">
-	<div class="imageOne image"></div>
-	<div class="imageTwo image"></div>
-</div>
-And
-
-.container {
-	position: relative;
-}
-
-.image {
-	position: absolute;
-	width: 100px;
-	height: 100px;
-	border: 1px solid red;
-} -->
 
 <style scoped>
 .text {
