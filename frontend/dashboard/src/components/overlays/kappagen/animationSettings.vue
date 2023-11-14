@@ -78,7 +78,7 @@ const themeVars = useThemeVars();
 					/>
 				</div>
 
-				<div v-if="animation.prefs?.message !== undefined" style="display: flex; flex-direction: column; gap: 4px;">
+				<div v-if="animation.style === 'Text'" style="display: flex; flex-direction: column; gap: 4px;">
 					<span>Texts</span>
 					<n-dynamic-input
 						v-model:value="settings!.prefs!.message"

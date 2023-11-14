@@ -99,7 +99,7 @@ type IncomingSettings = Settings & { channelId: string, channelName: string, kap
 
 const channelId = computed(() => channelSettings.value?.channelId ?? '');
 const channelName = computed(() => channelSettings.value?.channelName ?? '');
-useThirdPartyEmotes(channelName, channelId);
+const { emotes } = useThirdPartyEmotes(channelName, channelId);
 
 const setSettings = (settings: IncomingSettings) => {
 	if (settings.emotes) {
@@ -157,14 +157,15 @@ watch(socket.data, (d: string) => {
 	}
 
 	if (event.eventName === 'kappagen') {
-		const data = event.data;
-		const emotes = builder.buildKappagenEmotes(makeMessageChunks(data.text));
-		if (!emotes.length || !channelSettings.value) return;
+		if (!channelSettings.value) return;
+		const generatedEmotes = Object.values(emotes.value)
+			.filter(e => !e.isModifier && !e.isZeroWidth)
+			.map(e => ({ url: e.urls.at(-1)! }));
 
 		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
 		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
 
-		kappagen.value?.kappagen.run(emotes, randomAnimation as KappagenAnimations);
+		kappagen.value?.kappagen.run(generatedEmotes, randomAnimation as KappagenAnimations);
 	}
 });
 
@@ -180,9 +181,9 @@ const chatSettings = computed<ChatSettings>(() => {
 				return;
 			}
 
-			const emotes = builder.buildSpawnEmotes(msg.chunks);
-			if (!emotes.length) return;
-			kappagen.value?.emote.addEmotes(emotes);
+			const generatedEmotes = builder.buildSpawnEmotes(msg.chunks);
+			if (!generatedEmotes.length) return;
+			kappagen.value?.emote.addEmotes(generatedEmotes);
 			kappagen.value?.emote.showEmotes();
 		},
 	};

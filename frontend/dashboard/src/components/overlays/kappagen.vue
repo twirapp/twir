@@ -6,12 +6,12 @@ import { useI18n } from 'vue-i18n';
 
 import Settings from './kappagen/settings.vue';
 
-import { useChatOverlayManager } from '@/api/index.js';
+import { useKappaGenOverlayManager } from '@/api/index.js';
 import Card from '@/components/overlays/card.vue';
 
 const isModalOpened = ref(false);
-const chatManager = useChatOverlayManager();
-const { data: settings, isError } = chatManager.getSettings();
+const manager = useKappaGenOverlayManager();
+const { data: settings, isError } = manager.getSettings();
 const { t } = useI18n();
 </script>
 

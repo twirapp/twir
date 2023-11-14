@@ -8,10 +8,10 @@ export const animations: Settings_AnimationSettings[] = [
 			center: false,
 			faces: false,
 			speed: 6,
-			// message: [],
+			message: [],
 		},
 		enabled: true,
-	} as Settings_AnimationSettings,
+	},
 	{
 		style: 'Text',
 		prefs: {
@@ -61,5 +61,8 @@ export const animations: Settings_AnimationSettings[] = [
 	{
 		style: 'Conga',
 		enabled: true,
+		prefs: {
+			message: [],
+		},
 	},
 ];

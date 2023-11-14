@@ -48,7 +48,7 @@ const formValue = ref<Settings>({
 		min: 1,
 		max: 256,
 	},
-	enabledEvents: availableEvents.map(e => e.value),
+	enabledEvents: [],
 });
 const kappagenManager = useKappaGenOverlayManager();
 const { data: settings } = kappagenManager.getSettings();
@@ -112,7 +112,7 @@ const playKappaPreview = (animation: Settings_AnimationSettings) => {
 async function save() {
 	if (!formValue.value) return;
 
-	await updater.mutateAsync(formValue.value as Settings);
+	await updater.mutateAsync(formValue.value);
 	message.success({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
