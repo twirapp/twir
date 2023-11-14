@@ -33,7 +33,17 @@ defineProps<{
 				/>
 
 				<span v-for="(c, idx) of chunk.zeroWidthModifiers" :key="idx" class="emote-zerowidth">
-					<img :src="c" />
+					<img
+						:src="c"
+						:style="{
+							maxWidth: chunk.emoteWidth
+								? `${chunk.flags?.includes(EmoteFlag.GrowX) ? chunk.emoteWidth * 2 : chunk.emoteWidth}px`
+								: undefined,
+							maxHeight: chunk.emoteHeight
+								? `${chunk.emoteHeight}px`
+								: undefined
+						}"
+					/>
 				</span>
 			</div>
 
@@ -44,3 +54,39 @@ defineProps<{
 		</template>
 	</span>
 </template>
+
+<!-- <div class="container">
+	<div class="imageOne image"></div>
+	<div class="imageTwo image"></div>
+</div>
+And
+
+.container {
+	position: relative;
+}
+
+.image {
+	position: absolute;
+	width: 100px;
+	height: 100px;
+	border: 1px solid red;
+} -->
+
+<style scoped>
+.text .emote {
+	max-height: 1em;
+	position: relative;
+	display: inline-block;
+}
+
+.text .emote .emote-zerowidth {
+	top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+}
+
+.text .emote .emote-cursed {
+	filter: grayscale(1) brightness(0.7) contrast(2.5);
+}
+</style>

@@ -1,8 +1,7 @@
 <script lang="ts" setup>
-import { normalizeDisplayName } from '../helpers.js';
-import { Settings, Message, EmoteFlag } from '../types.js';
-
 import MessageContent from '../components/messageContent.vue';
+import { normalizeDisplayName } from '../helpers.js';
+import { Settings, Message } from '../types.js';
 
 defineProps<{
 	msg: Message,

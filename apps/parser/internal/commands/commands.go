@@ -240,6 +240,7 @@ func (c *Commands) ParseCommandResponses(
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
+		RawText:   requestData.Message.Text,
 		IsCommand: true,
 		Services:  c.services,
 		Cacher: cacher.NewCacher(

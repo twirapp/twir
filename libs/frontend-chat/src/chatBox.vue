@@ -86,22 +86,6 @@ const messagesDirection = computed(() => {
 	padding-bottom: 5px;
 }
 
-.chat .message .text .emote {
-	max-height: 1em;
-	position: relative;
-}
-
-.chat .message .text .emote .emote-zerowidth {
-	top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
-}
-
-.chat .message .text .emote .emote-cursed {
-	filter: grayscale(1) brightness(0.7) contrast(2.5);
-}
-
 .list-enter-active,
 .list-leave-active {
   transition: all 0.5s ease;

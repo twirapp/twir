@@ -2,6 +2,7 @@ package kappagen
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -24,10 +25,25 @@ var Kappagen = &types.DefaultCommand{
 			return nil
 		}
 
+		var emotes []*websockets.TriggerKappagenRequest_Emote
+		for _, e := range parseCtx.Emotes {
+			emote := &websockets.TriggerKappagenRequest_Emote{
+				Id:        e.ID,
+				Positions: []string{},
+			}
+
+			for _, pos := range e.Positions {
+				emote.Positions = append(emote.Positions, fmt.Sprintf("%v-%v", pos.Start, pos.End))
+			}
+
+			emotes = append(emotes, emote)
+		}
+
 		parseCtx.Services.GrpcClients.WebSockets.TriggerKappagen(
 			ctx, &websockets.TriggerKappagenRequest{
 				ChannelId: parseCtx.Channel.ID,
-				Text:      *parseCtx.Text,
+				Text:      "!" + parseCtx.RawText,
+				Emotes:    emotes,
 			},
 		)
 

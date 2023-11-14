@@ -52,7 +52,7 @@ func (c *GrpcImpl) TriggerKappagenByEvent(
 	)
 
 	if ok {
-		c.kappagenServer.SendEvent(req.ChannelId, "kappagen", map[string]any{})
+		c.kappagenServer.SendEvent(req.ChannelId, "event", map[string]any{})
 	}
 
 	return &emptypb.Empty{}, nil
