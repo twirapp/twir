@@ -171,7 +171,6 @@ watch(socket.data, (d: string) => {
 
 	if (event.eventName === 'kappagen') {
 		const data = event.data as { text: string, emotes: TriggerKappagenRequest_Emote[] };
-		console.log(data)
 		const emotes = builder.buildKappagenEmotes(makeMessageChunks(
 			data.text,
 			data.emotes.reduce((acc, curr) => {

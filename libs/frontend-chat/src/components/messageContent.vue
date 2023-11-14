@@ -21,6 +21,8 @@ defineProps<{
 					"
 					:class="{
 						'emote-cursed': chunk.flags?.includes(EmoteFlag.Cursed),
+						'flipX': chunk.flags?.includes(EmoteFlag.FlipX),
+						'flipY': chunk.flags?.includes(EmoteFlag.FlipY),
 					}"
 					:style="{
 						width: chunk.emoteWidth
@@ -73,6 +75,10 @@ And
 } -->
 
 <style scoped>
+.text {
+	overflow-wrap: break-word;
+}
+
 .text .emote {
 	max-height: 1em;
 	position: relative;
@@ -81,12 +87,21 @@ And
 
 .text .emote .emote-zerowidth {
 	top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  position: absolute;
+	left: 50%;
+	bottom: 0;
+	transform: translate(-50%,-50%);
+	position: absolute;
 }
 
 .text .emote .emote-cursed {
 	filter: grayscale(1) brightness(0.7) contrast(2.5);
+}
+
+.text .emote .flipX {
+	transform: scaleX(-1);
+}
+
+.text .emote .flipY {
+	transform: scaleY(-1);
 }
 </style>

@@ -21,7 +21,12 @@ export function makeMessageChunks(message: string, emotes?: {
 		const thirdPartyEmote = thirdPartyEmotes.value[part];
 
 		if (emote) {
-			chunks.push({ type: 'emote', value: emote.emoteId });
+			chunks.push({
+				type: 'emote',
+				value: emote.emoteId,
+				emoteHeight: 32,
+				emoteWidth: 32,
+			});
 		} else if (thirdPartyEmote) {
 			const isZeroWidthModifier = thirdPartyEmote.isZeroWidth;
 			const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined';
