@@ -358,7 +358,25 @@
 			"revertFont": "Reset to default"
 		},
 		"kappagen": {
-			"description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons"
+			"description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",
+			"testKappagen": "Test kappagen",
+			"testSpawn": "Test spawn",
+			"info": "Spawn will show emotes on screen while users just chatting, kappagen fires on command or configured events",
+			"tabs": {
+				"main": "Main settings",
+				"events": "Events",
+				"animations": "Animations"
+			},
+			"settings": {
+				"spawn": "Spawn emotes on screen on each chat message",
+				"size": "Size",
+				"sizeSmall": "Size for small randomed emotes",
+				"time": "The time an emote stays on screen",
+				"maxEmotes": "Max emotes on screen",
+				"animationsOnAppear": "Animations on emote appear",
+				"animationsOnDisappear": "Animations on emote disappear",
+				"rave": "Rave colors for emotes"
+			}
 		}
   },
   "songRequests": {

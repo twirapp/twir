@@ -3,7 +3,7 @@ import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import type {
 	Settings, Settings_AnimationSettings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox, NGrid, NGridItem } from 'naive-ui';
+import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox, NGrid, NGridItem, NAlert } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -134,32 +134,36 @@ async function save() {
 			<div style="display: flex; justify-content: space-between;">
 				<n-button-group style="width: 100%">
 					<n-button secondary @click="sendIframeMessage('kappa', 'EZ')">
-						Test kappagen
+						{{ t('overlays.kappagen.testKappagen') }}
 					</n-button>
 					<n-button secondary type="info" @click="sendIframeMessage('spawn', ['EZ'])">
-						Test spawn
+						{{ t('overlays.kappagen.testSpawn') }}
 					</n-button>
 				</n-button-group>
 
 				<n-button secondary type="success" @click="save">
-					Save settings
+					{{ t('sharedButtons.save') }}
 				</n-button>
 			</div>
 
+			<n-alert title="Info" type="info" :show-icon="false" style="margin-top: 5px;">
+				{{ t('overlays.kappagen.info') }}
+			</n-alert>
+
 			<n-tabs default-value="main" type="line" size="large" justify-content="space-evenly" animated style="width: 100%">
-				<n-tab-pane name="main" tab="Main settings">
+				<n-tab-pane name="main" :tab="t('overlays.kappagen.tabs.main')">
 					<div class="tab">
 						<CommandButton name="kappagen" />
 
 						<div class="switch">
 							<n-switch v-model:value="formValue.enableSpawn" />
-							<span>Spawn emotes on screen on each chat message</span>
+							<span>{{ t('overlays.kappagen.settings.spawn') }}</span>
 						</div>
 
 						<n-divider />
 
 						<div class="slider">
-							Size {{ formValue.size!.ratioNormal }}
+							{{ t('overlays.kappagen.settings.size') }}({{ formValue.size!.ratioNormal }})
 							<n-slider
 								v-model:value="formValue.size!.ratioNormal"
 								reverse
@@ -169,7 +173,7 @@ async function save() {
 						</div>
 
 						<div class="slider">
-							Small size {{ formValue.size!.ratioSmall }}
+							{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formValue.size!.ratioSmall }})
 							<n-slider
 								v-model:value="formValue.size!.ratioSmall"
 								reverse
@@ -181,7 +185,7 @@ async function save() {
 						<n-divider />
 
 						<div class="slider">
-							The time an emote stays on screen, in seconds ({{ formValue.emotes!.time }})
+							{{ t('overlays.kappagen.settings.time') }}({{ formValue.emotes!.time }}s)
 							<n-slider
 								v-model:value="formValue.emotes!.time"
 								:min="1"
@@ -190,7 +194,7 @@ async function save() {
 						</div>
 
 						<div class="slider">
-							Max emotes on screen ({{ formValue.emotes!.max }})
+							{{ t('overlays.kappagen.settings.maxEmotes') }}({{ formValue.emotes!.max }})
 							<n-slider
 								v-model:value="formValue.emotes!.max"
 								:min="0"
@@ -201,7 +205,7 @@ async function save() {
 						<n-divider />
 
 						<div class="switchers">
-							<span>Show animations</span>
+							<span>{{ t('overlays.kappagen.settings.animationsOnAppear') }}</span>
 
 							<div class="switch">
 								<n-switch v-model:value="formValue.animation!.fadeIn" />
@@ -217,7 +221,7 @@ async function save() {
 						<n-divider />
 
 						<div class="switchers">
-							<span>Hide animations</span>
+							<span>{{ t('overlays.kappagen.settings.animationsOnDisappear') }}</span>
 
 							<div class="switch">
 								<n-switch v-model:value="formValue.animation!.fadeOut" />
@@ -234,12 +238,12 @@ async function save() {
 
 						<div class="switch">
 							<n-switch v-model:value="formValue.enableRave" />
-							<span>Rave</span>
+							<span>{{ t('overlays.kappagen.settings.rave') }}</span>
 						</div>
 					</div>
 				</n-tab-pane>
 
-				<n-tab-pane name="events" tab="Events">
+				<n-tab-pane name="events" :tab="t('overlays.kappagen.tabs.events')">
 					<n-checkbox-group v-model:value="formValue.enabledEvents">
 						<div style="display: flex; flex-direction: column; gap: 5px;">
 							<n-checkbox
@@ -252,7 +256,7 @@ async function save() {
 					</n-checkbox-group>
 				</n-tab-pane>
 
-				<n-tab-pane name="animations" tab="Animations">
+				<n-tab-pane name="animations" :tab="t('overlays.kappagen.tabs.animations')">
 					<n-grid :cols="2" :x-gap="16" :y-gap="16" responsive="self">
 						<n-grid-item v-for="animation of formValue.animations" :key="animation.style" :span="1">
 							<animationSettings :settings="animation" @play="playKappaPreview" />
