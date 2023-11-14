@@ -5,6 +5,10 @@ defineProps<{
 	chunks: MessageChunk[]
 	isItalic?: boolean
 }>();
+
+const computeWidth = (w?: number) => {
+	return `${w ? w * 2 : 50}px`;
+};
 </script>
 
 <template>
@@ -25,28 +29,15 @@ defineProps<{
 						'flipY': chunk.flags?.includes(EmoteFlag.FlipY),
 					}"
 					:style="{
-						width: chunk.emoteWidth
-							? `${chunk.flags?.includes(EmoteFlag.GrowX) ? chunk.emoteWidth * 2 : chunk.emoteWidth}px`
-							: undefined,
-						height: chunk.emoteHeight
-							? `${chunk.emoteHeight}px`
-							: undefined
+						width: chunk.flags?.includes(EmoteFlag.GrowX) ? computeWidth(chunk.emoteWidth) : undefined,
 					}"
 				/>
 
-				<span v-for="(c, idx) of chunk.zeroWidthModifiers" :key="idx" class="emote-zerowidth">
-					<img
-						:src="c"
-						:style="{
-							maxWidth: chunk.emoteWidth
-								? `${chunk.flags?.includes(EmoteFlag.GrowX) ? chunk.emoteWidth * 2 : chunk.emoteWidth}px`
-								: `32px`,
-							maxHeight: chunk.emoteHeight
-								? `${chunk.emoteHeight}px`
-								: `32px`
-						}"
-					/>
-				</span>
+				<img
+					v-for="(c, idx) of chunk.zeroWidthModifiers" :key="idx" class="emote-zerowidth"
+					:src="c"
+				/>
+
 			</div>
 
 			<template v-else-if="chunk.type === 'text'">
@@ -62,8 +53,11 @@ defineProps<{
 	overflow-wrap: break-word;
 }
 
+.emote img {
+	height: 1.5em;
+}
+
 .text .emote {
-	max-height: 1em;
 	position: relative;
 	display: inline-block;
 }
