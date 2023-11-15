@@ -170,12 +170,14 @@ func (c *EventsGrpcImplementation) CommandUsed(
 		model.EventTypeCommandUsed,
 	)
 
-	c.services.WebsocketsGrpc.TriggerKappagenByEvent(
-		ctx, &websockets.TriggerKappagenByEventRequest{
-			ChannelId: msg.BaseInfo.ChannelId,
-			Event:     events2.TwirEventType_COMMAND_USED,
-		},
-	)
+	if msg.DefaultCommandName != "kappagen" {
+		c.services.WebsocketsGrpc.TriggerKappagenByEvent(
+			ctx, &websockets.TriggerKappagenByEventRequest{
+				ChannelId: msg.BaseInfo.ChannelId,
+				Event:     events2.TwirEventType_COMMAND_USED,
+			},
+		)
+	}
 
 	return &emptypb.Empty{}, nil
 }

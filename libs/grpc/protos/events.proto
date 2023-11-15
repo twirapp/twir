@@ -95,6 +95,8 @@ message CommandUsedMessage {
 	string userDisplayName = 5;
 	string commandInput = 6;
 	string userId = 7;
+	bool is_default = 8;
+	string default_command_name = 9;
 }
 
 message FirstUserMessageMessage {

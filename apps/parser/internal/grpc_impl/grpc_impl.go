@@ -178,13 +178,15 @@ func (c *ParserGrpcServer) ProcessCommand(
 	defer c.services.GrpcClients.Events.CommandUsed(
 		ctx,
 		&events.CommandUsedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: data.Channel.Id},
-			CommandId:       cmd.Cmd.ID,
-			CommandName:     cmd.Cmd.Name,
-			CommandInput:    strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
-			UserName:        data.Sender.Name,
-			UserDisplayName: data.Sender.DisplayName,
-			UserId:          data.Sender.Id,
+			BaseInfo:           &events.BaseInfo{ChannelId: data.Channel.Id},
+			CommandId:          cmd.Cmd.ID,
+			CommandName:        cmd.Cmd.Name,
+			CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+			UserName:           data.Sender.Name,
+			UserDisplayName:    data.Sender.DisplayName,
+			UserId:             data.Sender.Id,
+			IsDefault:          cmd.Cmd.Default,
+			DefaultCommandName: cmd.Cmd.DefaultName.String,
 		},
 	)
 
