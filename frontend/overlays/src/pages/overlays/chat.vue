@@ -3,7 +3,7 @@ import {
 	ChatBox,
 } from '@twir/frontend-chat';
 import type { Message } from '@twir/frontend-chat';
-import { computed, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import '@twir/frontend-chat/style.css';
 
@@ -80,6 +80,10 @@ const chatSettings = computed<ChatSettings>(() => {
 });
 
 const { destroy } = useTmiChat(chatSettings);
+
+onMounted(() => {
+	document.body.style.overflow = 'hidden';
+});
 
 onUnmounted(async () => {
 	destroy();
