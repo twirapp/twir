@@ -65,7 +65,7 @@ jobs:
       - name: Restore base images
         uses: actions/download-artifact@v3
         with:
-          path: /tmp/twir-docker
+          path: /tmp
 
       - name: Load base images
         run: |
