@@ -347,15 +347,16 @@
 			"style": "Messages style",
 			"hideBots": "Hide known bots from messages",
 			"hideCommands": "Hide commands, do not include messages started with ! symbol",
-			"fontSize": "Font size (px)",
-			"hideTimeout": "Message hide timeout (seconds)",
-			"showDelay": "Message show delay (seconds)",
+			"fontSize": "Font size",
+			"hideTimeout": "Message hide timeout",
+			"showDelay": "Message show delay",
 			"fontFamily": "Font family",
 			"fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
 			"showBadges": "Show badges",
 			"showAnnounceBadge": "Show announce badge (only for boxed style)",
 			"reverseMessages": "Show new messages on top, instead bottom",
-			"revertFont": "Reset to default"
+			"revertFont": "Reset to default",
+			"textShadow": "Text shadow"
 		},
 		"kappagen": {
 			"description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",

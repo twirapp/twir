@@ -1,14 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
 import { type MessageChunk, EmoteFlag } from '../types.js';
 
-defineProps<{
+const props = defineProps<{
 	chunks: MessageChunk[]
 	isItalic?: boolean
+	textShadowColor?: string
+	textShadowSize?: number
 }>();
 
 const computeWidth = (w?: number) => {
 	return `${w ? w * 2 : 50}px`;
 };
+
+const textShadow = computed(() => {
+	if (!props.textShadowColor || !props.textShadowSize) return '';
+
+	const array = Array.from({ length: 5 }).map((_, i) => {
+		const n = i+1;
+		return `0px 0px ${props.textShadowSize!+n}px ${props.textShadowColor}`;
+	});
+
+	return array.join(', ');
+});
 </script>
 
 <template>
@@ -37,7 +52,6 @@ const computeWidth = (w?: number) => {
 					v-for="(c, idx) of chunk.zeroWidthModifiers" :key="idx" class="emote-zerowidth"
 					:src="c"
 				/>
-
 			</div>
 
 			<template v-else-if="chunk.type === 'text'">
@@ -51,6 +65,7 @@ const computeWidth = (w?: number) => {
 <style scoped>
 .text {
 	overflow-wrap: break-word;
+	text-shadow: v-bind(textShadow);
 }
 
 .emote img {

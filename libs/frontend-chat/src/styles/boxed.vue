@@ -35,7 +35,12 @@ defineProps<{
 				</template>
 			</div>
 		</div>
-		<message-content :chunks="msg.chunks" :is-italic="msg.isItalic" />
+		<message-content
+			:chunks="msg.chunks"
+			:is-italic="msg.isItalic"
+			:text-shadow-color="settings.textShadowColor"
+			:text-shadow-size="settings.textShadowSize"
+		/>
 	</div>
 </template>
 

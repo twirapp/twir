@@ -26,6 +26,8 @@ func (c *Overlays) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *overlays_ch
 		ShowBadges:         s.ShowBadges,
 		ShowAnnounceBadge:  s.ShowAnnounceBadge,
 		ReverseMessages:    s.ReverseMessages,
+		TextShadowColor:    s.TextShadowColor,
+		TextShadowSize:     s.TextShadowSize,
 	}
 }
 
@@ -41,6 +43,8 @@ func (c *Overlays) chatOverlayGrpcToDb(s *overlays_chat.Settings) model.ChatOver
 		ShowBadges:         s.ShowBadges,
 		ShowAnnounceBadge:  s.ShowAnnounceBadge,
 		ReverseMessages:    s.ReverseMessages,
+		TextShadowColor:    s.TextShadowColor,
+		TextShadowSize:     s.TextShadowSize,
 	}
 }
 

@@ -33,7 +33,12 @@ defineProps<{
 		<div v-if="msg.sender" class="profile" :style="{ color: msg.senderColor }">
 			{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
 		</div>
-		<message-content :chunks="msg.chunks" :is-italic="msg.isItalic" />
+		<message-content
+			:chunks="msg.chunks"
+			:is-italic="msg.isItalic"
+			:text-shadow-color="settings.textShadowColor"
+			:text-shadow-size="settings.textShadowSize"
+		/>
 	</div>
 </template>
 
