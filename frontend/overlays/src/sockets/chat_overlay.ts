@@ -23,6 +23,8 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 		showAnnounceBadge: true,
 		showBadges: true,
 		reverseMessages: false,
+		textShadowColor: '',
+		textShadowSize: 0,
 	});
 
 	const { data, send } = useWebSocket(
