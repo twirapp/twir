@@ -69,11 +69,9 @@ jobs:
 
       - name: Load base images
         run: |
-          ls /tmp
-          ls /tmp/builder
-          docker load --input /tmp/builder.tar &
-          docker load --input /tmp/node_prod_base.tar &
-          docker load --input /tmp/go_prod_base.tar &
+          docker load --input /tmp/go_prod_base/builder.tar &
+          docker load --input /tmp/node_prod_base/node_prod_base.tar &
+          docker load --input /tmp/node_prod_base/go_prod_base.tar &
           wait
           docker image ls
 
