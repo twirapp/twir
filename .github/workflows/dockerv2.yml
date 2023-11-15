@@ -25,14 +25,14 @@ jobs:
           target: ${{ matrix.target }}
           load: true
           tags: twir-base:${{ matrix.target }}
-          outputs: type=docker,dest=/tmp/twir-docker/${{ matrix.target }}.tar
+          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
       - name: Upload ${{ matrix.target }} artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.target }}
-          path: /tmp/twir-docker/${{ matrix.target }}.tar
+          path: /tmp/${{ matrix.target }}.tar
           retention-days: 1
 
   backend:
@@ -69,9 +69,9 @@ jobs:
 
       - name: Load base images
         run: |
-          docker load --input /tmp/twir-docker/builder.tar &
-          docker load --input /tmp/twir-docker/node_prod_base.tar &
-          docker load --input /tmp/twir-docker/go_prod_base.tar &
+          docker load --input /tmp/builder.tar &
+          docker load --input /tmp/node_prod_base.tar &
+          docker load --input /tmp/go_prod_base.tar &
           wait
           docker image ls
 
