@@ -170,10 +170,10 @@ watch(socket.data, (d: string) => {
 	}
 
 	if (event.eventName === 'kappagen') {
-		const data = event.data as { text: string, emotes: TriggerKappagenRequest_Emote[] };
+		const data = event.data as { text: string, emotes?: TriggerKappagenRequest_Emote[] };
 		const emotes = builder.buildKappagenEmotes(makeMessageChunks(
 			data.text,
-			data.emotes.reduce((acc, curr) => {
+			data.emotes?.reduce((acc, curr) => {
 				acc[curr.id] = curr.positions;
 				return acc;
 			}, {} as Record<string, string[]>),
