@@ -15,7 +15,7 @@ const splittedLorem = loremText.split(' ');
 
 export const lorem = () => splittedLorem.slice(Math.floor(Math.random() * splittedLorem.length)).join(' ');
 
-export const boolean = () => Math.floor(Math.random()) === 1;
+export const boolean = () => Math.random() < 0.5;
 
 const randomBetween = (min: number, max: number) => min + Math.floor(Math.random() * (max - min + 1));
 
