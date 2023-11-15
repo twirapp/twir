@@ -57,7 +57,7 @@ watch(settings, (s) => {
 	if (!s) return;
 
 	formValue.value = toRaw(s);
-});
+}, { immediate: true });
 
 watch(() => [
 	formValue.value.emotes,
@@ -65,7 +65,6 @@ watch(() => [
 	formValue.value.animation,
 	formValue.value.cube,
 	formValue.value.size,
-
 ], () => sendSettings(), { deep: true });
 
 const updater = kappagenManager.updateSettings();
