@@ -27,18 +27,23 @@ jobs:
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
           tags: twir-base:${{ matrix.target }}
-#          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
+          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
-#      - name: Upload ${{ matrix.target }} artifact
-#        uses: actions/upload-artifact@v3
-#        with:
-#          name: ${{ matrix.target }}
-#          path: /tmp/${{ matrix.target }}.tar
-#          retention-days: 1
+      - name: Upload ${{ matrix.target }} artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.target }}
+          path: /tmp/${{ matrix.target }}.tar
+          retention-days: 1
 
   backend:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     needs:
       - base
     strategy:
@@ -64,29 +69,35 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-#      - name: Restore base images
-#        uses: actions/download-artifact@v3
-#        with:
-#          path: /tmp
-#
-#      - name: Load base images
-#        run: |
-#          docker load --input /tmp/builder/builder.tar &
-#          docker load --input /tmp/node_prod_base/node_prod_base.tar &
-#          docker load --input /tmp/go_prod_base/go_prod_base.tar &
-#          wait
-#          docker image ls
+      - name: Restore base images
+        uses: actions/download-artifact@v3
+        with:
+          path: /tmp
+
+      - name: Load base images
+        run: |
+          docker load --input /tmp/builder/builder.tar &
+          docker load --input /tmp/node_prod_base/node_prod_base.tar &
+          docker load --input /tmp/go_prod_base/go_prod_base.tar &
+          wait
+          docker image ls
+          docker tag twir-base:builder localhost:5000/twir-base:builder
+          docker push localhost:5000/twir-base:builder
+          docker tag twir-base:node_prod_base localhost:5000/twir-base:node_prod_base
+          docker push localhost:5000/twir-base:node_prod_base
+          docker tag twir-base:go_prod_base localhost:5000/twir-base:go_prod_base
+          docker push localhost:5000/twir-base:go_prod_base
 
       - name: Build ${{ matrix.target }}
         uses: docker/build-push-action@v5
         with:
           context: .
+          build-contexts: |
+            builder=docker-image://localhost:5000/twir-base:builder
+            node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
+            go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
           push: false
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
-          cache-from: |
-            type=gha,scope=twir-base:builder
-            type=gha,scope=twir-base:node_prod_base
-            type=gha,scope=twir-base:go_prod_base
-            type=gha,scope=twir:${{ matrix.target }}
+          cache-from: type=gha,scope=twir:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir:${{ matrix.target }}
