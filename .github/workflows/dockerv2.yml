@@ -31,7 +31,6 @@ jobs:
           push: true
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
-          load: true
           tags: localhost:5000/twir-base:${{ matrix.target }}
 #          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
@@ -92,7 +91,6 @@ jobs:
             node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
             go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
           push: false
-          load: true
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
           cache-from: |
