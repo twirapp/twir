@@ -84,11 +84,12 @@ jobs:
           wait
           docker image ls
           docker tag twir-base:builder localhost:5000/twir-base:builder
-          docker push localhost:5000/twir-base:builder
           docker tag twir-base:node_prod_base localhost:5000/twir-base:node_prod_base
-          docker push localhost:5000/twir-base:node_prod_base
           docker tag twir-base:go_prod_base localhost:5000/twir-base:go_prod_base
-          docker push localhost:5000/twir-base:go_prod_base
+          docker push localhost:5000/twir-base:builder &
+          docker push localhost:5000/twir-base:node_prod_base &
+          docker push localhost:5000/twir-base:go_prod_base &
+          wait
 
       - name: Build ${{ matrix.target }}
         uses: docker/build-push-action@v5
