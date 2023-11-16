@@ -6,11 +6,6 @@ on:
 jobs:
   base:
     runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
     strategy:
       matrix:
         target:
@@ -28,10 +23,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
+          push: false
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
-          tags: localhost:5000/twir-base:${{ matrix.target }}
+          tags: twir-base:${{ matrix.target }}
 #          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
@@ -86,15 +81,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          build-contexts: |
-            builder=docker-image://localhost:5000/twir-base:builder
-            node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
-            go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
           push: false
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
           cache-from: |
-            cache-from: |
             type=gha,scope=twir-base:builder
             type=gha,scope=twir-base:node_prod_base
             type=gha,scope=twir-base:go_prod_base
