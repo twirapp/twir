@@ -9,7 +9,8 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat python3
+# build-base contains "binutils file gcc g++ make libc-dev fortify-headers patch"
+RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat python3 py3-pip
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
