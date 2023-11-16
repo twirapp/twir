@@ -6,6 +6,11 @@ on:
 jobs:
   base:
     runs-on: ubuntu-latest
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
     strategy:
       matrix:
         target:
@@ -16,15 +21,18 @@ jobs:
       - uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          driver-opts: network=host
+
       - name: Build ${{ matrix.target }}
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: false
+          push: true
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
           load: true
-          tags: twir-base:${{ matrix.target }}
+          tags: localhost:5000/twir-base:${{ matrix.target }}
 #          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
@@ -79,6 +87,10 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          build-contexts: |
+            builder=docker-image://localhost:5000/twir-base:builder
+            node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
+            go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
           push: false
           load: true
           file: ./apps/${{ matrix.target }}/Dockerfile
