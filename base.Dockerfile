@@ -9,13 +9,13 @@ ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-# build-base contains "binutils file gcc g++ make libc-dev fortify-headers patch"
-RUN apk add --no-cache build-base git curl wget upx protoc libc6-compat python3 py3-pip
+
+RUN apk add --no-cache binutils file gcc g++ make libc-dev fortify-headers patch git curl wget upx protoc libc6-compat python3 py3-pip
 
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
     go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
     go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
-    npm i -g pnpm@8
+    npm i -g pnpm@8 node-gyp
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh go.work go.work.sum ./
 # generated via
