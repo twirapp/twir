@@ -96,9 +96,9 @@ jobs:
         with:
           context: .
           build-contexts: |
-            twir-base=docker-image://localhost:5000/twir-base:builder
-            twir-base=docker-image://localhost:5000/twir-base:node_prod_base
-            twir-base=docker-image://localhost:5000/twir-base:go_prod_base
+            twir-base:builder=docker-image://localhost:5000/twir-base:builder
+            twir-base:node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
+            twir-base:go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
           push: false
           file: ./apps/${{ matrix.target }}/Dockerfile
           tags: twir:${{ matrix.target }}
