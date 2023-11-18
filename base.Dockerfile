@@ -64,9 +64,10 @@ COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 
 RUN pnpm install --frozen-lockfile && \
-    go mod download \
+    go mod download
 
 RUN chmod +x docker-entrypoint.sh
+
 
 COPY . .
 
