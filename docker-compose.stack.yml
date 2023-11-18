@@ -61,10 +61,6 @@ services:
           - node.role == manager
 
   migrations:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: migrations
     image: registry.satont.ru/twir/migrations:latest
     secrets:
       - twir_doppler_token
@@ -98,10 +94,6 @@ services:
           - node.role == manager
 
   api:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: api
     image: registry.satont.ru/twir/api:latest
     secrets:
       - twir_doppler_token
@@ -127,10 +119,6 @@ services:
       replicas: 1
 
   bots:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: bots
     image: registry.satont.ru/twir/bots:latest
     secrets:
       - twir_doppler_token
@@ -147,10 +135,6 @@ services:
           - node.role == manager
 
   parser:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: parser
     image: registry.satont.ru/twir/parser:latest
     secrets:
       - twir_doppler_token
@@ -168,10 +152,6 @@ services:
       - twir
 
   timers:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: timers
     image: registry.satont.ru/twir/timers:latest
     secrets:
       - twir_doppler_token
@@ -185,10 +165,6 @@ services:
       endpoint_mode: dnsrr
 
   scheduler:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: scheduler
     image: registry.satont.ru/twir/scheduler:latest
     secrets:
       - twir_doppler_token
@@ -202,10 +178,6 @@ services:
       endpoint_mode: dnsrr
 
   eventsub:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: eventsub
     image: registry.satont.ru/twir/eventsub:latest
     secrets:
       - twir_doppler_token
@@ -225,10 +197,6 @@ services:
         - traefik.docker.network=traefik-public
 
   eval:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: eval
     image: registry.satont.ru/twir/eval:latest
     secrets:
       - twir_doppler_token
@@ -250,10 +218,6 @@ services:
       - twir
 
   integrations:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: integrations
     image: registry.satont.ru/twir/integrations:latest
     secrets:
       - twir_doppler_token
@@ -267,10 +231,6 @@ services:
       endpoint_mode: dnsrr
 
   landing:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: landing
     image: registry.satont.ru/twir/landing:latest
     secrets:
       - twir_doppler_token
@@ -293,10 +253,6 @@ services:
         - traefik.docker.network=traefik-public
 
   dashboard:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: dashboard
     image: registry.satont.ru/twir/dashboard:latest
     secrets:
       - twir_doppler_token
@@ -318,10 +274,6 @@ services:
         - traefik.docker.network=traefik-public
 
   public:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: public
     image: registry.satont.ru/twir/public:latest
     secrets:
       - twir_doppler_token
@@ -343,10 +295,6 @@ services:
         - traefik.docker.network=traefik-public
 
   overlays:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: overlays
     image: registry.satont.ru/twir/overlays:latest
     networks:
       - twir
@@ -366,10 +314,6 @@ services:
         - traefik.docker.network=traefik-public
 
   websockets:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: websockets
     image: registry.satont.ru/twir/websockets:latest
     secrets:
       - twir_doppler_token
@@ -391,10 +335,6 @@ services:
         - traefik.docker.network=traefik-public
 
   tokens:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: tokens
     image: registry.satont.ru/twir/tokens:latest
     secrets:
       - twir_doppler_token
@@ -412,10 +352,6 @@ services:
       endpoint_mode: dnsrr
 
   emotes-cacher:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: emotes-cacher
     image: registry.satont.ru/twir/emotes-cacher:latest
     secrets:
       - twir_doppler_token
@@ -433,10 +369,6 @@ services:
       replicas: 4
 
   events:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: events
     image: registry.satont.ru/twir/events:latest
     secrets:
       - twir_doppler_token
@@ -454,10 +386,6 @@ services:
       replicas: 6
 
   ytsr:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: ytsr
     image: registry.satont.ru/twir/ytsr:latest
     secrets:
       - twir_doppler_token
@@ -490,10 +418,6 @@ services:
       replicas: 4
 
   discord:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: discord
     image: registry.satont.ru/twir/discord:latest
     secrets:
       - twir_doppler_token
@@ -507,10 +431,6 @@ services:
       endpoint_mode: dnsrr
 
   language-detector:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: language-detector
     image: registry.satont.ru/twir/language-detector:latest
     secrets:
       - twir_doppler_token

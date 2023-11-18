@@ -68,6 +68,12 @@ services:
     networks:
       - tsuwari-dev
 
+  landing:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: landing
+
   minio:
     image: quay.io/minio/minio
     command: server /data --console-address ":9090"

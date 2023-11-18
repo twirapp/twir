@@ -1,0 +1,88 @@
+version: 2.1
+
+jobs:
+  base:
+    docker:
+      - image: cimg/base:current
+    parameters:
+      target:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+
+      - run:
+          name: check images
+          command: |
+            docker image ls
+
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -f base.Dockerfile --target << parameters.target >> --tag twir-base:<< parameters.target >> .
+
+      - run:
+          name: Save Docker image layer cache
+          command: |
+            mkdir -p images
+            docker image save -o images/<< parameters.target >> twir-base:<< parameters.target >>
+      - persist_to_workspace:
+          root: .
+          paths:
+            - images
+
+  backend:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      target:
+        type: string
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: .
+      - run:
+          name: Load image
+          command: |
+            docker image load < "images/builder"
+            docker image load < "images/node_prod_base"
+            docker image load < "images/go_prod_base"
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -f ./apps/<< parameters.target >>/Dockerfile --tag twir:<< parameters.target >> .
+
+
+workflows:
+  build-base-images:
+    jobs:
+      - base:
+          matrix:
+            parameters:
+              target:
+                - builder
+                - node_prod_base
+                - go_prod_base
+      - backend:
+          requires:
+            - base
+          matrix:
+            parameters:
+              target:
+                - api
+                - bots
+                - discord
+                - emotes-cacher
+#                - eval
+                - events
+                - eventsub
+#                - integrations
+#                - language-detector
+                - parser
+                - scheduler
+                - timers
+                - tokens
+                - websockets
+                - ytsr
