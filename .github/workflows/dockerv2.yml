@@ -81,7 +81,7 @@ jobs:
       - uses: TooMuch4U/actions-clean@v2.1
       - uses: actions/checkout@v3
       - run: |
-          docker build -f ./migrations/Dockerfile \
+          docker build -f ./libs/migrations/Dockerfile \
           -t ${{ secrets.DOCKER_REGISTRY }}/twir/migrations:latest \
           --cache-from type=gha,scope=twir-migrations \
           --cache-to type=gha,mode=max,scope=twir-migrations \
