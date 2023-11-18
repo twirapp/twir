@@ -178,5 +178,3 @@ onUnmounted(() => {
 <template>
 	<kappagen-overlay ref="kappagen" :emote-config="emoteConfig" :is-rave="emoteConfig.rave" />
 </template>
-./kappagen/kappagen_overlay.js./kappagen/kappagen.js
-./kappagen/settingsStore.js
