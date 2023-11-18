@@ -62,7 +62,7 @@ type GrpcOpts struct {
 	KappagenServer         *kappagen.Kappagen
 }
 
-func NewGrpcImplementation(opts GrpcOpts) error {
+func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 	impl := &GrpcImpl{
 		gorm:                   opts.Gorm,
 		redis:                  opts.Redis,
@@ -97,5 +97,5 @@ func NewGrpcImplementation(opts GrpcOpts) error {
 		},
 	)
 
-	return nil
+	return impl, nil
 }
