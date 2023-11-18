@@ -97,7 +97,7 @@ const formValue = ref<YouTubeSettings>({
 watch(youtubeModuleSettings, async (v) => {
 	if (!v) return;
 	formValue.value = toRaw(v);
-});
+}, { immediate: true });
 
 
 const message = useMessage();
