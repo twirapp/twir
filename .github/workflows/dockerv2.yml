@@ -26,6 +26,7 @@ jobs:
           push: false
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
+          load: true
           tags: twir-base:${{ matrix.target }}
 #          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
