@@ -104,3 +104,6 @@ jobs:
           tags: twir:${{ matrix.target }}
           cache-from: type=gha,scope=twir:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir:${{ matrix.target }}
+
+      - run: |
+          docker image ls
