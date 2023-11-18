@@ -81,7 +81,7 @@ watch(settings, (v) => {
 		// @ts-ignore
 		formValue.value[key] = raw[key];
 	}
-});
+}, { immediate: true });
 
 const message = useMessage();
 const { t } = useI18n();
