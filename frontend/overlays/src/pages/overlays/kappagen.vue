@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import type { TriggerKappagenRequest_Emote } from '@twir/grpc/generated/websockets/websockets';
-import KappagenOverlay, { KappagenAnimations, type KappagenEmoteConfig } from 'kappagen';
+import KappagenOverlay from 'kappagen';
+import type { Emote, KappagenAnimations, KappagenEmoteConfig } from 'kappagen';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
@@ -159,9 +160,9 @@ watch(socket.data, (d: string) => {
 
 	if (event.eventName === 'event') {
 		if (!channelSettings.value) return;
-		const generatedEmotes = Object.values(emotes.value)
+		const generatedEmotes: Emote[] = Object.values(emotes.value)
 			.filter(e => !e.isModifier && !e.isZeroWidth)
-			.map(e => ({ url: e.urls.at(-1)! }));
+			.map(e => ({ url: e.urls.at(-1)!, width: e.width, height: e.height }));
 
 		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
 		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
@@ -183,6 +184,7 @@ watch(socket.data, (d: string) => {
 
 		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
 		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
+
 		kappagen.value?.kappagen.run(emotes, randomAnimation as KappagenAnimations);
 	}
 });

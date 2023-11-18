@@ -28,28 +28,18 @@ export const useKappagenBuilder = () => {
 					url: `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/3.0`,
 					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
 				});
+				continue;
 			}
 
 			if (chunk.type === '3rd_party_emote') {
 				emotes.push({
 					url: chunk.value,
 					zwe,
+					width: chunk.emoteWidth,
+					height: chunk.emoteHeight,
 				});
+				continue;
 			}
-			// const foundEmote = kappagenEmotes.value.find(e => e.name === chunk.emoteName);
-			// if (!foundEmote) continue;
-
-			// const url = foundEmote.urls.at(-1)!;
-
-			// if (!foundEmote.isModifier && !foundEmote.isZeroWidth) {
-			// 	emotes.push({ url });
-			// } else {
-			// 	const prev = emotes.at(-1);
-			// 	if (prev) {
-			// 		prev.zwe = [...(prev.zwe ?? []), { url }];
-			// 	}
-			// }
-
 		}
 
 		return emotes;
@@ -76,8 +66,12 @@ export const useKappagenBuilder = () => {
 			const randomEmotes: Emote[] = Array(count)
 			.fill(null)
 			.map(() => {
+				const randomEmote = kappagenEmotes.value[Math.floor(Math.random() * kappagenEmotes.value.length)];
+
 				return {
-					url: kappagenEmotes.value[Math.floor(Math.random() * kappagenEmotes.value.length)].urls.at(-1)!,
+					url: randomEmote.urls.at(-1)!,
+					width: randomEmote.width,
+					height: randomEmote.height,
 				};
 			});
 			emotes.push(...randomEmotes);
