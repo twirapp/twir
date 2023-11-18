@@ -5,7 +5,7 @@ on:
 
 jobs:
   base:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     strategy:
       matrix:
         target:
@@ -38,7 +38,7 @@ jobs:
           retention-days: 1
 
   backend:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     services:
       registry:
         image: registry:2
