@@ -275,7 +275,7 @@ services:
         - traefik.docker.network=traefik-public
 
   public:
-    image: registry.satont.ru/twir/public:latest
+    image: registry.satont.ru/twir/public-page:latest
     command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
