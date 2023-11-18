@@ -64,6 +64,8 @@ const volume = useLocalStorage('twirPlayerVolume', 10);
 onMounted(() => {
 	if (!player.value) return;
 
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-ignore
 	plyr.value = new Plyr(player.value, {
 		controls: ['fullscreen', 'settings'],
 		settings: ['quality', 'speed'],
@@ -71,21 +73,21 @@ onMounted(() => {
 		clickToPlay: false,
 	});
 
-	plyr.value.on('play', () => {
+	plyr.value!.on('play', () => {
 		isPlaying.value = true;
 		plyr.value!.volume = volume.value / 100;
 		emits('playing');
 	});
 
-	plyr.value.on('pause', () => {
+	plyr.value!.on('pause', () => {
 		isPlaying.value = false;
 	});
 
-	plyr.value.on('timeupdate', () => {
+	plyr.value!.on('timeupdate', () => {
 		sliderTime.value = plyr.value!.currentTime;
 	});
 
-	plyr.value.on('ended', () => {
+	plyr.value!.on('ended', () => {
 		// if (!props.nextVideo) return;
 		playNext();
 	});
