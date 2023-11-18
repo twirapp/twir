@@ -31,6 +31,8 @@ jobs:
 #          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
+
+      - uses: TooMuch4U/runner-post-cleanup@v2.1
 #      - name: Upload ${{ matrix.target }} artifact
 #        uses: actions/upload-artifact@v3
 #        with:
@@ -96,6 +98,8 @@ jobs:
 #          docker image ls
 
       - run: docker build -f ./apps/${{ matrix.target }}/Dockerfile -t twir:${{ matrix.target }} .
+
+      - uses: TooMuch4U/runner-post-cleanup@v2.1
 
 #      - name: Build ${{ matrix.target }}
 #        uses: docker/build-push-action@v5

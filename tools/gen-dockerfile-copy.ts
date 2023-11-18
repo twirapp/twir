@@ -64,7 +64,25 @@ const goPaths = [
 
 const generatedStrings = [
 	...nodePaths.map((p) => `COPY ${p}/package.json ${p}/package.json`),
-	...goPaths.map((p) => `COPY ${p}/go.mod ${p}/go.mod ./`),
+	...goPaths.map((p) => `COPY ${p}/go.mod ${p}/go.mod`),
 ].join('\n');
 
-console.log(generatedStrings);
+const originalFile = fs.readFileSync('./base.Dockerfile', 'utf-8');
+
+function replaceBetweenComments(input: string, newContent: string) {
+	// Define start and end comments
+	const startComment = '# START COPYGEN';
+	const endComment = '# END COPYGEN';
+
+	// Define regular expression
+	const regex = new RegExp(`${startComment}[\\s\\S]*${endComment}`);
+
+	// Replace content between comments
+	const replacedContent = input.replace(regex, `${startComment}\n${newContent}\n${endComment}`);
+
+	return replacedContent;
+}
+
+const newFileContent = replaceBetweenComments(originalFile, generatedStrings);
+
+fs.writeFileSync('./base.Dockerfile', newFileContent);

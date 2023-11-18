@@ -20,6 +20,9 @@ RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh go.work go.work.sum ./
 # generated via
 # pnpm gen:dockerfile:copy
+# DO NOT CHANGE COMMENTS BELOW
+
+# START COPYGEN
 COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/frontend-chat/package.json libs/frontend-chat/package.json
@@ -34,30 +37,31 @@ COPY frontend/dashboard/package.json frontend/dashboard/package.json
 COPY frontend/landing/package.json frontend/landing/package.json
 COPY frontend/overlays/package.json frontend/overlays/package.json
 COPY frontend/public-page/package.json frontend/public-page/package.json
-COPY libs/config/go.mod libs/config/go.mod ./
-COPY libs/crypto/go.mod libs/crypto/go.mod ./
-COPY libs/gomodels/go.mod libs/gomodels/go.mod ./
-COPY libs/gopool/go.mod libs/gopool/go.mod ./
-COPY libs/grpc/go.mod libs/grpc/go.mod ./
-COPY libs/logger/go.mod libs/logger/go.mod ./
-COPY libs/migrations/go.mod libs/migrations/go.mod ./
-COPY libs/pubsub/go.mod libs/pubsub/go.mod ./
-COPY libs/sentry/go.mod libs/sentry/go.mod ./
-COPY libs/twitch/go.mod libs/twitch/go.mod ./
-COPY libs/types/go.mod libs/types/go.mod ./
-COPY libs/utils/go.mod libs/utils/go.mod ./
-COPY apps/api/go.mod apps/api/go.mod ./
-COPY apps/bots/go.mod apps/bots/go.mod ./
-COPY apps/discord/go.mod apps/discord/go.mod ./
-COPY apps/emotes-cacher/go.mod apps/emotes-cacher/go.mod ./
-COPY apps/events/go.mod apps/events/go.mod ./
-COPY apps/eventsub/go.mod apps/eventsub/go.mod ./
-COPY apps/parser/go.mod apps/parser/go.mod ./
-COPY apps/scheduler/go.mod apps/scheduler/go.mod ./
-COPY apps/timers/go.mod apps/timers/go.mod ./
-COPY apps/tokens/go.mod apps/tokens/go.mod ./
-COPY apps/websockets/go.mod apps/websockets/go.mod ./
-COPY apps/ytsr/go.mod apps/ytsr/go.mod ./
+COPY libs/config/go.mod libs/config/go.mod
+COPY libs/crypto/go.mod libs/crypto/go.mod
+COPY libs/gomodels/go.mod libs/gomodels/go.mod
+COPY libs/gopool/go.mod libs/gopool/go.mod
+COPY libs/grpc/go.mod libs/grpc/go.mod
+COPY libs/logger/go.mod libs/logger/go.mod
+COPY libs/migrations/go.mod libs/migrations/go.mod
+COPY libs/pubsub/go.mod libs/pubsub/go.mod
+COPY libs/sentry/go.mod libs/sentry/go.mod
+COPY libs/twitch/go.mod libs/twitch/go.mod
+COPY libs/types/go.mod libs/types/go.mod
+COPY libs/utils/go.mod libs/utils/go.mod
+COPY apps/api/go.mod apps/api/go.mod
+COPY apps/bots/go.mod apps/bots/go.mod
+COPY apps/discord/go.mod apps/discord/go.mod
+COPY apps/emotes-cacher/go.mod apps/emotes-cacher/go.mod
+COPY apps/events/go.mod apps/events/go.mod
+COPY apps/eventsub/go.mod apps/eventsub/go.mod
+COPY apps/parser/go.mod apps/parser/go.mod
+COPY apps/scheduler/go.mod apps/scheduler/go.mod
+COPY apps/timers/go.mod apps/timers/go.mod
+COPY apps/tokens/go.mod apps/tokens/go.mod
+COPY apps/websockets/go.mod apps/websockets/go.mod
+COPY apps/ytsr/go.mod apps/ytsr/go.mod
+# END COPYGEN
 
 RUN pnpm install --frozen-lockfile && \
     go mod download \
