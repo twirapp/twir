@@ -254,6 +254,7 @@ services:
 
   dashboard:
     image: registry.satont.ru/twir/dashboard:latest
+    command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
     networks:
@@ -270,11 +271,12 @@ services:
         - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
         - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
         - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
-        - traefik.http.services.twir-dashboard.loadbalancer.server.port=80
+        - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
   public:
     image: registry.satont.ru/twir/public:latest
+    command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
     networks:
@@ -291,11 +293,12 @@ services:
         - traefik.http.routers.twir-public.rule=Host(`twir.app`) && PathPrefix(`/p`)
         - traefik.http.routers.twir-public.middlewares=public-stripprefix
         - traefik.http.middlewares.public-stripprefix.stripprefix.prefixes=/p
-        - traefik.http.services.twir-public.loadbalancer.server.port=80
+        - traefik.http.services.twir-public.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
   overlays:
     image: registry.satont.ru/twir/overlays:latest
+    command: --gzip --brotli --threshold 500
     networks:
       - twir
       - traefik-public
@@ -310,7 +313,7 @@ services:
         - traefik.http.routers.twir-overlays.rule=Host(`twir.app`) && PathPrefix(`/overlays`)
         - traefik.http.routers.twir-overlays.middlewares=overlays-stripprefix
         - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
-        - traefik.http.services.twir-overlays.loadbalancer.server.port=80
+        - traefik.http.services.twir-overlays.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
   websockets:
