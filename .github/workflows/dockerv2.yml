@@ -67,10 +67,10 @@ jobs:
 #          - ytsr
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          driver-opts: network=host
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v3
+#        with:
+#          driver-opts: network=host
 
 #      - name: Restore base images
 #        uses: actions/download-artifact@v3
@@ -92,21 +92,21 @@ jobs:
 #          docker push localhost:5000/twir-base:go_prod_base &
 #          wait
 
-      - run: |
-          docker image ls
+#      - run: |
+#          docker image ls
 
-#      - run: docker build -f ./apps/${{ matrix.target }}/Dockerfile -t twir:${{ matrix.target }} .
+      - run: docker build -f ./apps/${{ matrix.target }}/Dockerfile -t twir:${{ matrix.target }} .
 
-      - name: Build ${{ matrix.target }}
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-#          build-contexts: |
-#            twir-base:builder=docker-image://localhost:5000/twir-base:builder
-#            twir-base:node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
-#            twir-base:go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
-          push: false
-          file: ./apps/${{ matrix.target }}/Dockerfile
-          tags: twir:${{ matrix.target }}
+#      - name: Build ${{ matrix.target }}
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+##          build-contexts: |
+##            twir-base:builder=docker-image://localhost:5000/twir-base:builder
+##            twir-base:node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
+##            twir-base:go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
+#          push: false
+#          file: ./apps/${{ matrix.target }}/Dockerfile
+#          tags: twir:${{ matrix.target }}
 
 
