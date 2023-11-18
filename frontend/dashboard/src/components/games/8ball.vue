@@ -27,7 +27,7 @@ watch(settings, (v) => {
 	const raw = toRaw(v);
 	formValue.value.answers = raw.answers;
 	formValue.value.enabled = raw.enabled;
-});
+}, { immediate: true });
 
 const { t } = useI18n();
 

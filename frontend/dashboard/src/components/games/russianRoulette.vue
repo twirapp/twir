@@ -41,7 +41,7 @@ watch(settings, (v) => {
 	formValue.value.deathMessage = raw.deathMessage;
 	formValue.value.chargedBullets = raw.chargedBullets;
 	formValue.value.tumberSize = raw.tumberSize;
-});
+}, { immediate: true });
 
 const { t } = useI18n();
 
