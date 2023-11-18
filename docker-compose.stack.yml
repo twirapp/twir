@@ -254,7 +254,7 @@ services:
 
   dashboard:
     image: registry.satont.ru/twir/dashboard:latest
-    command: --gzip --brotli --threshold 500
+    command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest"
     secrets:
       - twir_doppler_token
     networks:
