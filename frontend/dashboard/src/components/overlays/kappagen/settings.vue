@@ -138,6 +138,10 @@ async function save() {
 					<n-button secondary type="info" @click="sendIframeMessage('spawn', ['EZ'])">
 						{{ t('overlays.kappagen.testSpawn') }}
 					</n-button>
+
+					<n-button secondary type="warning" @click="sendIframeMessage('clear')">
+						{{ t('overlays.kappagen.clear') }}
+					</n-button>
 				</n-button-group>
 
 				<n-button secondary type="success" @click="save">
@@ -243,6 +247,21 @@ async function save() {
 				</n-tab-pane>
 
 				<n-tab-pane name="events" :tab="t('overlays.kappagen.tabs.events')">
+					<n-button
+						secondary
+						type="info"
+						style="margin-bottom: 8px;"
+						@click="() => {
+							if (formValue.enabledEvents.length === availableEvents.length) {
+								formValue.enabledEvents = []
+							} else {
+								formValue.enabledEvents = availableEvents.map(e => e.value)
+							}
+						}"
+					>
+						{{ formValue.enabledEvents.length === availableEvents.length ? 'Remove' : 'Select' }} all
+					</n-button>
+
 					<n-checkbox-group v-model:value="formValue.enabledEvents">
 						<div style="display: flex; flex-direction: column; gap: 5px;">
 							<n-checkbox

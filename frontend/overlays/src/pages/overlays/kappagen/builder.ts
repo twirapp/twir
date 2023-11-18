@@ -2,8 +2,8 @@ import type { MessageChunk } from '@twir/frontend-chat';
 import type { Emote } from 'kappagen';
 import { computed } from 'vue';
 
-import { emotes } from './chat_tmi_emotes';
-import { animations } from './kappagen_animations';
+import { animations } from './animations.js';
+import { emotes } from '../../../components/chat_tmi_emotes';
 
 export const useKappagenBuilder = () => {
 	const kappagenEmotes = computed(() => {

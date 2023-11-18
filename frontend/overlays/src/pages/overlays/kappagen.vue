@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import type { TriggerKappagenRequest_Emote } from '@twir/grpc/generated/websockets/websockets';
 import KappagenOverlay from 'kappagen';
-import type { Emote, KappagenAnimations, KappagenEmoteConfig } from 'kappagen';
+import type { KappagenEmoteConfig } from 'kappagen';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
+import { useKappagenBuilder as useKappagenEmotesBuilder } from './kappagen/builder.js';
+import { useIframe } from './kappagen/iframe.js';
+import { useChannelSettings } from './kappagen/settingsStore.js';
+import { useKappagenOverlaySocket } from './kappagen/socket.js';
+import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from './kappagen/types.js';
 import { useThirdPartyEmotes } from '../../components/chat_tmi_emotes.js';
-import { makeMessageChunks } from '../../components/chat_tmi_helpers';
-import { useKappagenBuilder, twirEmote } from '../../components/kappagen';
-import { animations } from '../../components/kappagen_animations.js';
 import { ChatSettings, useTmiChat } from '../../sockets/chat_tmi';
-import { useKappagenOverlaySocket } from '../../sockets/kappagen_overlay';
-import { TwirWebSocketEvent } from '../../sockets/types';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
@@ -56,138 +54,87 @@ const emoteConfig = reactive<Required<Config>>({
 	},
 	rave: false,
 });
-const channelSettings = ref<IncomingSettings>();
 
-const socket = useKappagenOverlaySocket(apiKey);
+const { kappagenSettings, setSettings } = useChannelSettings();
+watch(kappagenSettings, (s) => {
+	if (!s) return;
 
-const builder = useKappagenBuilder();
-
-const onWindowMessage = (msg: MessageEvent<string>) => {
-	const parsedData = JSON.parse(msg.data) as { key: string, data?: any };
-	kappagen.value?.clear();
-
-	if (parsedData.key === 'settings' && parsedData.data) {
-		const settings = parsedData.data as Settings & { channelName: string, channelId: string };
-		setSettings(settings);
-
-		kappagen.value?.kappagen.run(
-			[twirEmote],
-			animations[Math.floor(Math.random() * animations.length)],
-			);
-		}
-
-	if (parsedData.key === 'kappa') {
-		kappagen.value?.kappagen.run(
-			[twirEmote],
-			animations[Math.floor(Math.random() * animations.length)],
-		);
+	if (s.emotes) {
+		emoteConfig.max = s.emotes.max;
+		emoteConfig.time = s.emotes.time;
+		emoteConfig.queue = s.emotes.queue;
 	}
 
-	if (parsedData.key === 'kappaWithAnimation') {
-		kappagen.value?.kappagen.run(
-			[twirEmote],
-			parsedData.data.animation,
-		);
+	if (s.size) {
+		emoteConfig.size.min = s.size.min;
+		emoteConfig.size.max = s.size.max;
+		emoteConfig.size.ratio!.normal = 1/(s.size.ratioNormal ?? 12);
+		emoteConfig.size.ratio!.small = 1/(s.size.ratioSmall ?? 24);
 	}
 
-	if (parsedData.key === 'spawn') {
-		kappagen.value?.emote.addEmotes([twirEmote]);
-		kappagen.value?.emote.showEmotes();
+	if (s.cube) {
+		emoteConfig.cube.speed = s.cube.speed;
 	}
+
+	if (s.animation) {
+		emoteConfig.in.fade = s.animation.fadeIn;
+		emoteConfig.in.zoom = s.animation.zoomIn;
+
+		emoteConfig.out.fade = s.animation.fadeOut;
+		emoteConfig.out.zoom = s.animation.zoomOut;
+	}
+
+	if (typeof s.enableRave !== 'undefined') {
+		emoteConfig.rave = s.enableRave;
+	}
+});
+
+const emotesBuilder = useKappagenEmotesBuilder();
+
+const kappagenCallback: KappagenCallback = (emotes, animation) => {
+	kappagen.value?.kappagen.run(emotes, animation);
 };
 
-type IncomingSettings = Settings & { channelId: string, channelName: string, kappagenCommandName?: string }
-
-
-const channelId = computed(() => channelSettings.value?.channelId ?? '');
-const channelName = computed(() => channelSettings.value?.channelName ?? '');
-const { emotes } = useThirdPartyEmotes(channelName, channelId);
-
-const setSettings = (settings: IncomingSettings) => {
-	if (settings.emotes) {
-		emoteConfig.max = settings.emotes.max;
-		emoteConfig.time = settings.emotes.time;
-		emoteConfig.queue = settings.emotes.queue;
-	}
-
-	if (settings.size) {
-		emoteConfig.size.min = settings.size.min;
-		emoteConfig.size.max = settings.size.max;
-		emoteConfig.size.ratio!.normal = 1/(settings.size.ratioNormal ?? 12);
-		emoteConfig.size.ratio!.small = 1/(settings.size.ratioSmall ?? 24);
-	}
-
-	if (settings.cube) {
-		emoteConfig.cube.speed = settings.cube.speed;
-	}
-
-	if (settings.animation) {
-		emoteConfig.in.fade = settings.animation.fadeIn;
-		emoteConfig.in.zoom = settings.animation.zoomIn;
-
-		emoteConfig.out.fade = settings.animation.fadeOut;
-		emoteConfig.out.zoom = settings.animation.zoomOut;
-	}
-
-	if (typeof settings.enableRave !== 'undefined') {
-		emoteConfig.rave = settings.enableRave;
-	}
+const spawnCallback: SpawnCallback = (emotes) => {
+	kappagen.value?.emote.addEmotes(emotes);
+	kappagen.value?.emote.showEmotes();
 };
+
+const setSettingsCallback: SetSettingsCallback = (settings) => {
+	setSettings(settings);
+};
+
+const socket = useKappagenOverlaySocket(apiKey, {
+	kappagenCallback,
+	setSettingsCallback,
+	spawnCallback,
+});
+const iframe = useIframe({
+	kappagenCallback,
+	setSettingsCallback,
+	spawnCallback,
+	clearCallback: () => {
+		kappagen.value?.clear();
+	},
+});
 
 onMounted(() => {
 	if (window.frameElement) {
-		window.postMessage('getSettings');
-		window.addEventListener('message', onWindowMessage);
+		iframe.create();
 	} else {
-		socket.connect();
+		socket.create();
 	}
 
 	kappagen.value?.init();
 
 	return () => {
-		window.removeEventListener('message', onWindowMessage);
+		iframe.destroy();
 	};
 });
 
-watch(socket.data, (d: string) => {
-	const event = JSON.parse(d) as TwirWebSocketEvent;
-
-	if (event.eventName === 'settings') {
-		const data = event.data as IncomingSettings;
-		channelSettings.value = data;
-		setSettings(data);
-	}
-
-	if (event.eventName === 'event') {
-		if (!channelSettings.value) return;
-		const generatedEmotes: Emote[] = Object.values(emotes.value)
-			.filter(e => !e.isModifier && !e.isZeroWidth)
-			.map(e => ({ url: e.urls.at(-1)!, width: e.width, height: e.height }));
-
-		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
-		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
-
-		kappagen.value?.kappagen.run(generatedEmotes, randomAnimation as KappagenAnimations);
-	}
-
-	if (event.eventName === 'kappagen') {
-		const data = event.data as { text: string, emotes?: TriggerKappagenRequest_Emote[] };
-		const emotes = builder.buildKappagenEmotes(makeMessageChunks(
-			data.text,
-			data.emotes?.reduce((acc, curr) => {
-				acc[curr.id] = curr.positions;
-				return acc;
-			}, {} as Record<string, string[]>),
-		));
-
-		if (!emotes.length || !channelSettings.value) return;
-
-		const enabledAnimations = channelSettings.value.animations.filter(a => a.enabled);
-		const randomAnimation = enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
-
-		kappagen.value?.kappagen.run(emotes, randomAnimation as KappagenAnimations);
-	}
-});
+const channelId = computed(() => kappagenSettings.value?.channelId ?? '');
+const channelName = computed(() => kappagenSettings.value?.channelName ?? '');
+useThirdPartyEmotes(channelName, channelId);
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
@@ -201,9 +148,9 @@ const chatSettings = computed<ChatSettings>(() => {
 				return;
 			}
 
-			if (!channelSettings.value?.enableSpawn) return;
+			if (!kappagenSettings.value?.enableSpawn) return;
 
-			const generatedEmotes = builder.buildSpawnEmotes(msg.chunks);
+			const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
 			if (!generatedEmotes.length) return;
 			kappagen.value?.emote.addEmotes(generatedEmotes);
 			kappagen.value?.emote.showEmotes();
@@ -221,3 +168,5 @@ onUnmounted(() => {
 <template>
 	<kappagen-overlay ref="kappagen" :emote-config="emoteConfig" :is-rave="emoteConfig.rave" />
 </template>
+./kappagen/kappagen_overlay.js./kappagen/kappagen.js
+./kappagen/settingsStore.js
