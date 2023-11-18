@@ -1,17 +1,18 @@
 <script lang="ts" setup>
 import { TwirEventType } from '@twir/grpc/generated/api/api/events';
-import type {
-	Settings, Settings_AnimationSettings,
+import type { Settings_AnimationSettings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, NSlider, NSwitch, NDivider, NCheckboxGroup, NCheckbox, NGrid, NGridItem, NAlert } from 'naive-ui';
+import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import animationSettings from './animationSettings.vue';
-import { animations } from './kappagen_animations';
+import SettingsAnimations from './settingsAnimations.vue';
+import SettingsEvents from './settingsEvents.vue';
+import SettingsGeneral from './settingsGeneral.vue';
+import { useSettings } from './store.js';
+import { useCopyOverlayLink } from '../copyOverlayLink.js';
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
-import CommandButton from '@/components/commandButton.vue';
 import { flatEvents } from '@/components/events/helpers.js';
 
 const availableEvents = Object.values(flatEvents)
@@ -23,40 +24,30 @@ const availableEvents = Object.values(flatEvents)
 		};
 	}) as Array<{ name: string, value: TwirEventType }>;
 
-const formValue = ref<Settings>({
-	emotes: {
-		time: 5,
-		max: 0,
-		queue: 0,
-	},
-	animations: animations,
-	enableRave: false,
-	animation: {
-		fadeIn: true,
-		fadeOut: true,
-		zoomIn: true,
-		zoomOut: true,
-	},
-	cube: {
-		speed: 6,
-	},
-	size: {
-		// from 7 to 20
-		ratioNormal: 7,
-		// from 14 to 40
-		ratioSmall: 14,
-		min: 1,
-		max: 256,
-	},
-	enabledEvents: [],
-	enableSpawn: true,
-});
+const themeVars = useThemeVars();
+
+const { copyOverlayLink } = useCopyOverlayLink('kappagen');
+
+const { settings: formValue } = useSettings();
+
 const kappagenManager = useKappaGenOverlayManager();
 const { data: settings } = kappagenManager.getSettings();
 watch(settings, (s) => {
 	if (!s) return;
 
-	formValue.value = toRaw(s);
+	const events = toRaw(s.events);
+
+	for (const event of availableEvents) {
+		const isExists = events.some(e => e.event === event.value);
+		if (isExists) continue;
+
+		events.push({ event: event.value, disabledStyles: [], enabled: false });
+	}
+
+	formValue.value = {
+		...toRaw(s),
+		events: events,
+	};
 }, { immediate: true });
 
 watch(() => [
@@ -121,17 +112,10 @@ async function save() {
 </script>
 
 <template>
-	<div style="display: flex; gap: 15px;">
-		<iframe
-			v-if="kappagenIframeUrl"
-			ref="kappagenIframeRef"
-			:src="kappagenIframeUrl"
-			style="width: 50%; height: auto; aspect-ratio: 16/9; border: 0;"
-		/>
-
+	<div style="display: flex; gap: 42px; height: 100%; padding: 24px;">
 		<div style="width: 50%">
 			<div style="display: flex; justify-content: space-between;">
-				<n-button-group style="width: 100%">
+				<n-button-group>
 					<n-button secondary @click="sendIframeMessage('kappa', 'EZ')">
 						{{ t('overlays.kappagen.testKappagen') }}
 					</n-button>
@@ -144,168 +128,127 @@ async function save() {
 					</n-button>
 				</n-button-group>
 
-				<n-button secondary type="success" @click="save">
-					{{ t('sharedButtons.save') }}
-				</n-button>
+				<n-button-group>
+					<n-button secondary type="info" @click="copyOverlayLink">
+						{{ t('overlays.copyOverlayLink') }}
+					</n-button>
+					<n-button secondary type="success" @click="save">
+						{{ t('sharedButtons.saveSettings') }}
+					</n-button>
+				</n-button-group>
 			</div>
 
-			<n-alert title="Info" type="info" :show-icon="false" style="margin-top: 5px;">
-				{{ t('overlays.kappagen.info') }}
-			</n-alert>
-
-			<n-tabs default-value="main" type="line" size="large" justify-content="space-evenly" animated style="width: 100%">
+			<n-tabs
+				default-value="main"
+				type="segment"
+				size="large"
+				justify-content="space-evenly"
+				animated
+				style="width: 100%; margin-top: 16px;"
+			>
 				<n-tab-pane name="main" :tab="t('overlays.kappagen.tabs.main')">
-					<div class="tab">
-						<CommandButton name="kappagen" />
-
-						<div class="switch">
-							<n-switch v-model:value="formValue.enableSpawn" />
-							<span>{{ t('overlays.kappagen.settings.spawn') }}</span>
-						</div>
-
-						<n-divider />
-
-						<div class="slider">
-							{{ t('overlays.kappagen.settings.size') }}({{ formValue.size!.ratioNormal }})
-							<n-slider
-								v-model:value="formValue.size!.ratioNormal"
-								reverse
-								:min="7"
-								:max="20"
-							/>
-						</div>
-
-						<div class="slider">
-							{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formValue.size!.ratioSmall }})
-							<n-slider
-								v-model:value="formValue.size!.ratioSmall"
-								reverse
-								:min="14"
-								:max="40"
-							/>
-						</div>
-
-						<n-divider />
-
-						<div class="slider">
-							{{ t('overlays.kappagen.settings.time') }}({{ formValue.emotes!.time }}s)
-							<n-slider
-								v-model:value="formValue.emotes!.time"
-								:min="1"
-								:max="15"
-							/>
-						</div>
-
-						<div class="slider">
-							{{ t('overlays.kappagen.settings.maxEmotes') }}({{ formValue.emotes!.max }})
-							<n-slider
-								v-model:value="formValue.emotes!.max"
-								:min="0"
-								:max="250"
-							/>
-						</div>
-
-						<n-divider />
-
-						<div class="switchers">
-							<span>{{ t('overlays.kappagen.settings.animationsOnAppear') }}</span>
-
-							<div class="switch">
-								<n-switch v-model:value="formValue.animation!.fadeIn" />
-								<span>Fade</span>
-							</div>
-
-							<div class="switch">
-								<n-switch v-model:value="formValue.animation!.zoomIn" />
-								<span>Zoom</span>
-							</div>
-						</div>
-
-						<n-divider />
-
-						<div class="switchers">
-							<span>{{ t('overlays.kappagen.settings.animationsOnDisappear') }}</span>
-
-							<div class="switch">
-								<n-switch v-model:value="formValue.animation!.fadeOut" />
-								<span>Fade</span>
-							</div>
-
-							<div class="switch">
-								<n-switch v-model:value="formValue.animation!.zoomOut" />
-								<span>Zoom</span>
-							</div>
-						</div>
-
-						<n-divider />
-
-						<div class="switch">
-							<n-switch v-model:value="formValue.enableRave" />
-							<span>{{ t('overlays.kappagen.settings.rave') }}</span>
+					<div class="card">
+						<div class="content">
+							<SettingsGeneral />
 						</div>
 					</div>
 				</n-tab-pane>
 
 				<n-tab-pane name="events" :tab="t('overlays.kappagen.tabs.events')">
-					<n-button
-						secondary
-						type="info"
-						style="margin-bottom: 8px;"
-						@click="() => {
-							if (formValue.enabledEvents.length === availableEvents.length) {
-								formValue.enabledEvents = []
-							} else {
-								formValue.enabledEvents = availableEvents.map(e => e.value)
-							}
-						}"
-					>
-						{{ formValue.enabledEvents.length === availableEvents.length ? 'Remove' : 'Select' }} all
-					</n-button>
-
-					<n-checkbox-group v-model:value="formValue.enabledEvents">
-						<div style="display: flex; flex-direction: column; gap: 5px;">
-							<n-checkbox
-								v-for="event of availableEvents"
-								:key="event.name"
-								:value="event.value"
-								:label="event.name"
-							/>
+					<div class="card">
+						<div class="content">
+							<SettingsEvents />
 						</div>
-					</n-checkbox-group>
+					</div>
 				</n-tab-pane>
 
 				<n-tab-pane name="animations" :tab="t('overlays.kappagen.tabs.animations')">
-					<n-grid :cols="2" :x-gap="16" :y-gap="16" responsive="self">
-						<n-grid-item v-for="animation of formValue.animations" :key="animation.style" :span="1">
-							<animationSettings :settings="animation" @play="playKappaPreview" />
-						</n-grid-item>
-					</n-grid>
+					<div class="card">
+						<div class="content">
+							<SettingsAnimations @play="playKappaPreview" />
+						</div>
+					</div>
 				</n-tab-pane>
 			</n-tabs>
+		</div>
+
+		<div style="width: 50%; height: 100%;">
+			<iframe
+				v-if="kappagenIframeUrl"
+				ref="kappagenIframeRef"
+				:src="kappagenIframeUrl"
+				class="iframe"
+			/>
 		</div>
 	</div>
 </template>
 
 <style scoped>
-.tab {
+:deep(.card) {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	height: 100%;
+	border-radius: 4px;
+	background-color: v-bind('themeVars.actionColor');
+}
+
+:deep(.card .content) {
+	padding: 12px;
+}
+
+:deep(.card .content .settings) {
+	padding-top: 5px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+:deep(.card .title) {
+	display: flex;
+	justify-content: space-between;
+	width: 100%;
+	padding-bottom: 3px;
+}
+
+:deep(.card .title .info) {
+	display: flex;
+	gap: 4px;
+}
+
+:deep(.card .title-bordered) {
+	border-bottom: 1px solid v-bind('themeVars.borderColor');
+}
+
+:deep(.card .form-item) {
+	display: flex;
+	justify-content: space-between;
+	gap: 4px;
+}
+
+:deep(.n-input-number) {
+	width: 40%
+}
+
+:deep(.tab) {
 	display: flex;
 	flex-direction: column;
 	gap: 15px;
 }
 
-.slider {
+:deep(.slider) {
 	display: flex;
 	gap: 5px;
 	flex-direction: column;
 }
 
-.switchers {
+:deep(.switchers) {
 	display: flex;
 	gap: 5px;
 	flex-direction: column;
 }
 
-.switch {
+:deep(.switch) {
 	display: flex;
 	gap: 5px;
 }
@@ -313,5 +256,19 @@ async function save() {
 :deep(.n-divider) {
 	margin-top: 0;
 	margin-bottom: 0;
+}
+
+:deep(.card) {
+	background-color: v-bind('themeVars.actionColor');
+}
+
+.iframe {
+	height: 100%;
+	width: 100%;
+	aspect-ratio: 16/9;
+	border: 0;
+	margin-top: 8px;
+	border: 1px solid v-bind('themeVars.borderColor');
+	border-radius: 8px;
 }
 </style>

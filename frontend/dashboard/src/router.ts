@@ -81,6 +81,15 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'VIEW_OVERLAYS' },
 				},
 				{
+					name: 'Kappagen',
+					path: '/dashboard/overlays/kappagen',
+					component: () => import('./components/overlays/kappagen/settings.vue'),
+					meta: {
+						neededPermission: 'MANAGE_OVERLAYS',
+						noPadding: true,
+					},
+				},
+				{
 					path: '/dashboard/events/chat-alerts',
 					component: () => import('./pages/ChatAlerts.vue'),
 					meta: { neededPermission: 'VIEW_EVENTS' },

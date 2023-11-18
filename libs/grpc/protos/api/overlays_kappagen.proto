@@ -46,12 +46,18 @@ message Settings {
 		bool enabled = 4;
 	}
 
+	message Event {
+		events.TwirEventType event = 1;
+		repeated string disabled_styles = 2;
+		bool enabled = 3;
+	}
+
 	Emotes emotes = 1;
 	Size size = 2;
 	Cube cube = 3;
 	Animation animation = 4;
 	repeated AnimationSettings animations = 5;
 	bool enableRave = 6;
-	repeated events.TwirEventType enabledEvents = 7;
+	repeated Event events = 7;
 	bool enable_spawn = 8;
 }

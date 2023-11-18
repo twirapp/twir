@@ -1,18 +1,17 @@
 <script setup lang="ts">
 import { IconMoodWink } from '@tabler/icons-vue';
-import { NModal } from 'naive-ui';
-import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-import Settings from './kappagen/settings.vue';
+import { useRouter } from 'vue-router';
 
 import { useKappaGenOverlayManager } from '@/api/index.js';
 import Card from '@/components/overlays/card.vue';
 
-const isModalOpened = ref(false);
+
 const manager = useKappaGenOverlayManager();
 const { data: settings, isError } = manager.getSettings();
 const { t } = useI18n();
+
+const router = useRouter();
 </script>
 
 <template>
@@ -22,11 +21,11 @@ const { t } = useI18n();
 		:description="t('overlays.kappagen.description')"
 		overlay-path="kappagen"
 		:copy-disabled="!settings || isError"
-		@open-settings="isModalOpened = true"
+		@open-settings="router.push({ name: 'Kappagen' })"
 	>
 	</card>
 
-	<n-modal
+	<!-- <n-modal
 		v-model:show="isModalOpened"
 		:mask-closable="false"
 		:segmented="true"
@@ -36,5 +35,5 @@ const { t } = useI18n();
 		style="width: 70vw; max-width: calc(100vw - 40px)"
 	>
 		<Settings />
-	</n-modal>
+	</n-modal> -->
 </template>

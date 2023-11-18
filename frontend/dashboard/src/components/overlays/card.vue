@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NButton, useMessage, NTooltip } from 'naive-ui';
-import { FunctionalComponent, computed } from 'vue';
+import { NButton, NTooltip } from 'naive-ui';
+import { FunctionalComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import { useCopyOverlayLink } from './copyOverlayLink.js';
 
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
@@ -21,23 +23,11 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
-const messages = useMessage();
 const { data: profile } = useProfile();
 
-const overlayLink = computed(() => {
-	return `${window.location.origin}/overlays/${profile.value?.apiKey}/${props.overlayPath}`;
-});
-
-const copyOverlayLink = () => {
-	if (!props.overlayPath) return;
-
-	navigator.clipboard.writeText(overlayLink.value);
-	messages.success(t('overlays.copied'));
-};
+const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath);
 
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-
-
 </script>
 
 <template>
@@ -51,11 +41,11 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 				<span>{{ t('sharedButtons.settings') }}</span>
 				<IconSettings />
 			</n-button>
-			<n-tooltip :disabled="!!overlayLink || profile?.id != profile?.selectedDashboardId">
+			<n-tooltip :disabled="profile?.id !== profile?.selectedDashboardId">
 				<template #trigger>
 					<n-button
 						size="large"
-						:disabled="copyDisabled || !overlayLink || profile?.id != profile?.selectedDashboardId"
+						:disabled="copyDisabled || profile?.id != profile?.selectedDashboardId"
 						@click="copyOverlayLink"
 					>
 						<span>{{ t('overlays.copyOverlayLink') }}</span>

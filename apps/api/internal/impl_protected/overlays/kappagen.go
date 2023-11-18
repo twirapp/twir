@@ -64,9 +64,16 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 			},
 		),
 		EnableRave: s.EnableRave,
-		EnabledEvents: lo.Map(
-			s.EnabledEvents, func(item int32, _ int) events.TwirEventType {
-				return events.TwirEventType(item)
+		Events: lo.Map(
+			s.Events, func(
+				item model.KappagenOverlaySettingsEvent,
+				_ int,
+			) *overlays_kappagen.Settings_Event {
+				return &overlays_kappagen.Settings_Event{
+					Event:          events.TwirEventType(item.Event),
+					DisabledStyles: item.DisabledStyles,
+					Enabled:        item.Enabled,
+				}
 			},
 		),
 		EnableSpawn: s.EnableSpawn,
@@ -121,9 +128,17 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 			},
 		),
 		EnableRave: s.EnableRave,
-		EnabledEvents: lo.Map(
-			s.EnabledEvents, func(item events.TwirEventType, _ int) int32 {
-				return int32(item)
+		Events: lo.Map(
+			s.Events,
+			func(
+				item *overlays_kappagen.Settings_Event,
+				_ int,
+			) model.KappagenOverlaySettingsEvent {
+				return model.KappagenOverlaySettingsEvent{
+					Event:          int32(item.Event),
+					DisabledStyles: item.DisabledStyles,
+					Enabled:        item.Enabled,
+				}
 			},
 		),
 		EnableSpawn: s.EnableSpawn,

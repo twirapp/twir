@@ -1,0 +1,106 @@
+<script lang="ts" setup>
+import { NSlider, NSwitch, NAlert, NDivider } from 'naive-ui';
+import { useI18n } from 'vue-i18n';
+
+import { useSettings } from './store.js';
+
+import CommandButton from '@/components/commandButton.vue';
+
+const { settings: formValue } = useSettings();
+const { t } = useI18n();
+</script>
+
+<template>
+	<div class="tab">
+		<n-alert type="info" :show-icon="false" style="margin-top: 5px;">
+			{{ t('overlays.kappagen.info') }}
+		</n-alert>
+		<CommandButton name="kappagen" />
+
+		<div class="switch">
+			<n-switch v-model:value="formValue.enableSpawn" />
+			<span>{{ t('overlays.kappagen.settings.spawn') }}</span>
+		</div>
+
+		<n-divider />
+
+		<div class="slider">
+			{{ t('overlays.kappagen.settings.size') }}({{ formValue.size!.ratioNormal }})
+			<n-slider
+				v-model:value="formValue.size!.ratioNormal"
+				reverse
+				:min="7"
+				:max="20"
+			/>
+		</div>
+
+		<div class="slider">
+			{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formValue.size!.ratioSmall }})
+			<n-slider
+				v-model:value="formValue.size!.ratioSmall"
+				reverse
+				:min="14"
+				:max="40"
+			/>
+		</div>
+
+		<n-divider />
+
+		<div class="slider">
+			{{ t('overlays.kappagen.settings.time') }}({{ formValue.emotes!.time }}s)
+			<n-slider
+				v-model:value="formValue.emotes!.time"
+				:min="1"
+				:max="15"
+			/>
+		</div>
+
+		<div class="slider">
+			{{ t('overlays.kappagen.settings.maxEmotes') }}({{ formValue.emotes!.max }})
+			<n-slider
+				v-model:value="formValue.emotes!.max"
+				:min="0"
+				:max="250"
+			/>
+		</div>
+
+		<n-divider />
+
+		<div class="switchers">
+			<span>{{ t('overlays.kappagen.settings.animationsOnAppear') }}</span>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.animation!.fadeIn" />
+				<span>Fade</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.animation!.zoomIn" />
+				<span>Zoom</span>
+			</div>
+		</div>
+
+		<n-divider />
+
+		<div class="switchers">
+			<span>{{ t('overlays.kappagen.settings.animationsOnDisappear') }}</span>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.animation!.fadeOut" />
+				<span>Fade</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.animation!.zoomOut" />
+				<span>Zoom</span>
+			</div>
+		</div>
+
+		<n-divider />
+
+		<div class="switch">
+			<n-switch v-model:value="formValue.enableRave" />
+			<span>{{ t('overlays.kappagen.settings.rave') }}</span>
+		</div>
+	</div>
+</template>

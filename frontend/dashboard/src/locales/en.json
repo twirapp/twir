@@ -12,7 +12,8 @@
     "edit": "Edit",
     "select": "Select",
     "cancel": "Cancel",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+		"saveSettings": "Save settings"
   },
   "sharedTexts": {
     "saved": "Saved",

@@ -46,8 +46,9 @@ func (c *GrpcImpl) TriggerKappagenByEvent(
 	}
 
 	ok := lo.SomeBy(
-		parsedSettings.EnabledEvents, func(item int32) bool {
-			return int32(req.Event.Number()) == item
+		parsedSettings.Events,
+		func(item model.KappagenOverlaySettingsEvent) bool {
+			return int32(req.Event.Number()) == item.Event && item.Enabled
 		},
 	)
 

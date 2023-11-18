@@ -1,0 +1,87 @@
+<script setup lang="ts">
+import { IconPlayerPlay } from '@tabler/icons-vue';
+import type { Settings_AnimationSettings } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import { NGrid, NGridItem, NButton, NSwitch, NInputNumber, NDynamicInput } from 'naive-ui';
+
+import { useSettings } from './store.js';
+
+const { settings: formValue } = useSettings();
+
+defineEmits<{
+	play: [animation: Settings_AnimationSettings]
+}>();
+</script>
+
+<template>
+	<n-grid :cols="2" :x-gap="16" :y-gap="16" responsive="self">
+		<n-grid-item v-for="animation of formValue.animations" :key="animation.style" :span="1">
+			<div class="card">
+				<div class="content">
+					<div
+						class="title"
+						:class="{
+							'title-bordered': animation.count !== undefined || animation.prefs !== undefined
+						}"
+					>
+						<div class="info">
+							<span>{{ animation.style }}</span>
+							<n-button text size="tiny" @click="$emit('play', animation)">
+								<IconPlayerPlay style="display: flex; height: 18px;" />
+							</n-button>
+						</div>
+						<n-switch v-model:value="animation.enabled" />
+					</div>
+
+					<div class="settings">
+						<div v-if="animation.prefs?.size !== undefined" class="form-item">
+							<span>Size</span>
+							<n-input-number
+								v-model:value="animation.prefs!.size"
+								:step="animation.style === 'TheCube' ? 0.1 : 1"
+								size="tiny"
+							/>
+						</div>
+
+						<div v-if="animation.prefs?.center !== undefined" class="form-item">
+							<span>Center</span>
+							<n-switch v-model:value="animation.prefs!.center" />
+						</div>
+
+						<div v-if="animation.prefs?.faces !== undefined" class="form-item">
+							<span>Faces</span>
+							<n-switch v-model:value="animation.prefs!.faces" />
+						</div>
+
+						<div v-if="animation.prefs?.speed !== undefined" class="form-item">
+							<span>Speed</span>
+							<n-input-number
+								v-model:value="animation.prefs!.speed"
+								size="tiny"
+								:max="100"
+							/>
+						</div>
+
+
+						<div v-if="animation.count !== undefined" class="form-item">
+							<span>Emotes count</span>
+							<n-input-number
+								v-model:value="animation.count"
+								:min="1"
+								:max="150"
+								size="tiny"
+							/>
+						</div>
+
+						<div v-if="animation.style === 'Text'" style="display: flex; flex-direction: column; gap: 4px;">
+							<span>Texts</span>
+							<n-dynamic-input
+								v-model:value="animation.prefs!.message"
+								:max="10"
+							/>
+						</div>
+					</div>
+				</div>
+			</div>
+		</n-grid-item>
+	</n-grid>
+</template>
