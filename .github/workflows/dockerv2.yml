@@ -27,7 +27,7 @@ jobs:
           file: ./base.Dockerfile
           target: ${{ matrix.target }}
           tags: twir-base:${{ matrix.target }}
-          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
+#          outputs: type=docker,dest=/tmp/${{ matrix.target }}.tar
           cache-from: type=gha,scope=twir-base:${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=twir-base:${{ matrix.target }}
 #      - name: Upload ${{ matrix.target }} artifact
