@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => {
 			}),
 			svg({ svgo: false }),
 			VitePWA({
+				selfDestroying: true,
 				registerType: 'autoUpdate',
 				devOptions: {
 					enabled: true,
