@@ -66,22 +66,32 @@ watch(kappagenSettings, (s) => {
 	}
 
 	if (s.size) {
-		emoteConfig.size.min = s.size.min;
-		emoteConfig.size.max = s.size.max;
-		emoteConfig.size.ratio!.normal = 1/(s.size.ratioNormal ?? 12);
-		emoteConfig.size.ratio!.small = 1/(s.size.ratioSmall ?? 24);
+		emoteConfig.size = {
+			min: s.size.min,
+			max: s.size.max,
+			ratio: {
+				normal: 1/(s.size.ratioNormal ?? 12),
+				small: 1/(s.size.ratioSmall ?? 24),
+			},
+		};
 	}
 
 	if (s.cube) {
-		emoteConfig.cube.speed = s.cube.speed;
+		emoteConfig.cube = {
+			speed: s.cube.speed,
+		};
 	}
 
 	if (s.animation) {
-		emoteConfig.in.fade = s.animation.fadeIn;
-		emoteConfig.in.zoom = s.animation.zoomIn;
+		emoteConfig.in = {
+			fade: s.animation.fadeIn,
+			zoom: s.animation.zoomIn,
+		};
 
-		emoteConfig.out.fade = s.animation.fadeOut;
-		emoteConfig.out.zoom = s.animation.zoomOut;
+		emoteConfig.out = {
+			fade: s.animation.fadeOut,
+			zoom: s.animation.zoomOut,
+		};
 	}
 
 	if (typeof s.enableRave !== 'undefined') {
