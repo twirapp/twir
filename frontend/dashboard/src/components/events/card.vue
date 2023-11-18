@@ -65,7 +65,7 @@ const userCanEditEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
 		</template>
 
 		<template #footer>
-			<n-button secondary size="large" :disabled="!userCanEditEvents || !event.id" @click="$emit('openSettings', event!.id)">
+			<n-button secondary size="large" :disabled="!userCanEditEvents || !event.id" @click="$emit('openSettings', event.id!)">
 				<span>{{ t('sharedButtons.settings') }}</span>
 				<IconSettings />
 			</n-button>
