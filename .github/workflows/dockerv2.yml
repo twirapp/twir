@@ -19,6 +19,7 @@ jobs:
       - run: |
           docker build -f ./base.Dockerfile \
           -t twir-base:${{ matrix.target }} \
+          --target ${{ matrix.target }} \
           --cache-from type=gha,scope=twir-base:${{ matrix.target }} \
           --cache-to type=gha,mode=max,scope=twir-base:${{ matrix.target }} \
           .
@@ -88,7 +89,10 @@ jobs:
 #      - run: |
 #          docker image ls
 
-      - run: docker build -f ./apps/${{ matrix.target }}/Dockerfile -t twir:${{ matrix.target }} .
+      - run: |
+          docker build -f ./apps/${{ matrix.target }}/Dockerfile \
+          -t twir:${{ matrix.target }} \
+          .
 
 
 #      - name: Build ${{ matrix.target }}
