@@ -93,19 +93,22 @@ jobs:
 #          docker push localhost:5000/twir-base:go_prod_base &
 #          wait
 
-      - name: Build ${{ matrix.target }}
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-#          build-contexts: |
-#            twir-base:builder=docker-image://localhost:5000/twir-base:builder
-#            twir-base:node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
-#            twir-base:go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
-          push: false
-          file: ./apps/${{ matrix.target }}/Dockerfile
-          tags: twir:${{ matrix.target }}
-          cache-from: type=gha,scope=twir:${{ matrix.target }}
-          cache-to: type=gha,mode=max,scope=twir:${{ matrix.target }}
-
       - run: |
           docker image ls
+
+      - run: docker build -f ./apps/${{ matrix.target }}/Dockerfile -t twir:${{ matrix.target }} .
+
+#      - name: Build ${{ matrix.target }}
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+##          build-contexts: |
+##            twir-base:builder=docker-image://localhost:5000/twir-base:builder
+##            twir-base:node_prod_base=docker-image://localhost:5000/twir-base:node_prod_base
+##            twir-base:go_prod_base=docker-image://localhost:5000/twir-base:go_prod_base
+#          push: false
+#          file: ./apps/${{ matrix.target }}/Dockerfile
+#          tags: twir:${{ matrix.target }}
+#          cache-from: type=gha,scope=twir:${{ matrix.target }}
+#          cache-to: type=gha,mode=max,scope=twir:${{ matrix.target }}
+
