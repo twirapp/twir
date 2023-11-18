@@ -32,7 +32,7 @@ message Settings {
 
 	message AnimationSettings {
 		message Prefs {
-			optional float size = 1;
+			optional double size = 1;
 			optional bool center = 2;
 			optional int32 speed = 3;
 			optional bool faces = 4;

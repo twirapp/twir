@@ -218,7 +218,7 @@ type KappagenOverlaySettingsAnimation struct {
 }
 
 type KappagenOverlaySettingsAnimationSettingsPrefs struct {
-	Size    *float32 `json:"size"`
+	Size    *float64 `json:"size"`
 	Center  *bool    `json:"center"`
 	Speed   *int32   `json:"speed"`
 	Faces   *bool    `json:"faces"`
