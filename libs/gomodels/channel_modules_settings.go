@@ -199,11 +199,11 @@ type KappagenOverlaySettingsEmotes struct {
 
 type KappagenOverlaySettingsSize struct {
 	// from 7 to 20
-	RatioNormal int32 `json:"ratioNormal,omitempty"`
+	RatioNormal float64 `json:"ratioNormal,omitempty"`
 	// from 14 to 40
-	RatioSmall int32 `json:"ratioSmall,omitempty"`
-	Min        int32 `json:"min,omitempty"`
-	Max        int32 `json:"max,omitempty"`
+	RatioSmall float64 `json:"ratioSmall,omitempty"`
+	Min        int32   `json:"min,omitempty"`
+	Max        int32   `json:"max,omitempty"`
 }
 
 type KappagenOverlaySettingsCube struct {

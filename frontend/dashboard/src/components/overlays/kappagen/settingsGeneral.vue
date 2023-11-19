@@ -8,6 +8,8 @@ import CommandButton from '@/components/commandButton.vue';
 
 const { settings: formValue } = useSettings();
 const { t } = useI18n();
+
+const formatSizeValue = (v: number) => parseInt(`${v}`.split('.')[1]);
 </script>
 
 <template>
@@ -25,22 +27,24 @@ const { t } = useI18n();
 		<n-divider />
 
 		<div class="slider">
-			{{ t('overlays.kappagen.settings.size') }}({{ formValue.size!.ratioNormal }})
+			{{ t('overlays.kappagen.settings.size') }}({{ formatSizeValue(formValue.size!.ratioNormal) }})
 			<n-slider
 				v-model:value="formValue.size!.ratioNormal"
-				reverse
-				:min="7"
-				:max="20"
+				:format-tooltip="formatSizeValue"
+				:step="0.01"
+				:min="0.05"
+				:max="0.15"
 			/>
 		</div>
 
 		<div class="slider">
-			{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formValue.size!.ratioSmall }})
+			{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formatSizeValue(formValue.size!.ratioSmall) }})
 			<n-slider
 				v-model:value="formValue.size!.ratioSmall"
-				reverse
-				:min="14"
-				:max="40"
+				:format-tooltip="formatSizeValue"
+				:step="0.01"
+				:min="0.02"
+				:max="0.07"
 			/>
 		</div>
 

@@ -13,8 +13,8 @@ message Settings {
 	}
 
 	message Size {
-		int32 ratio_normal = 1;
-		int32 ratio_small = 2;
+		double ratio_normal = 1;
+		double ratio_small = 2;
 		int32 min = 3;
 		int32 max = 4;
 	}

@@ -70,8 +70,8 @@ watch(kappagenSettings, (s) => {
 			min: s.size.min,
 			max: s.size.max,
 			ratio: {
-				normal: 1/(s.size.ratioNormal ?? 12),
-				small: 1/(s.size.ratioSmall ?? 24),
+				normal: s.size.ratioNormal,
+				small: s.size.ratioSmall,
 			},
 		};
 	}
