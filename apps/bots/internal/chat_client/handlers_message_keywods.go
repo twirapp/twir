@@ -77,8 +77,6 @@ func (c *ChatClient) handleKeywords(
 				}
 			}
 
-			defer keywordsCounter.Inc()
-
 			isOnCooldown := false
 			if k.Cooldown != 0 && k.CooldownExpireAt.Valid {
 				isOnCooldown = k.CooldownExpireAt.Time.After(time.Now().UTC())

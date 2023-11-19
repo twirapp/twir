@@ -11,8 +11,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promauto"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 
@@ -53,19 +51,6 @@ func newBot(opts ClientOpts) *chat_client.ChatClient {
 			LanguageDetector: opts.LanguageDetector,
 		},
 	)
-
-	messagesCounter := promauto.NewCounter(
-		prometheus.CounterOpts{
-			Name: "bots_messages_counter",
-			Help: "The total number of processed messages",
-			ConstLabels: prometheus.Labels{
-				"botName": client.TwitchUser.Login,
-				"botId":   client.TwitchUser.ID,
-			},
-		},
-	)
-
-	prometheus.Register(messagesCounter)
 
 	return client
 }

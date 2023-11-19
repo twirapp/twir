@@ -47,8 +47,6 @@ func (c *ChatClient) handleGreetings(
 		return
 	}
 
-	defer greetingsCounter.Inc()
-
 	defer func() {
 		alert := model.ChannelAlert{}
 		if err := c.services.DB.Where(

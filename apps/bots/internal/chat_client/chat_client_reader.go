@@ -70,6 +70,8 @@ func (c *ChatClient) createReader() *BotClientIrc {
 			)
 			client.OnUserNoticeMessage(
 				func(message irc.UserNoticeMessage) {
+					c.counters.messagesCounter.Inc()
+
 					if message.User.ID == c.TwitchUser.ID && c.services.Cfg.AppEnv != "development" {
 						return
 					}
@@ -95,6 +97,8 @@ func (c *ChatClient) createReader() *BotClientIrc {
 			)
 			client.OnPrivateMessage(
 				func(message irc.PrivateMessage) {
+					c.counters.messagesCounter.Inc()
+
 					if message.User.ID == c.TwitchUser.ID && c.services.Cfg.AppEnv != "development" {
 						return
 					}
@@ -120,6 +124,8 @@ func (c *ChatClient) createReader() *BotClientIrc {
 			)
 			client.OnClearChatMessage(
 				func(message irc.ClearChatMessage) {
+					c.counters.messagesCounter.Inc()
+
 					if message.TargetUserID != "" {
 						return
 					}

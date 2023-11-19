@@ -14,6 +14,12 @@ func NewSyncMap[T any]() *SyncMap[T] {
 	}
 }
 
+func (c *SyncMap[T]) Len() int {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return len(c.store)
+}
+
 func (c *SyncMap[T]) Add(key string, value T) {
 	c.mu.Lock()
 	defer c.mu.Unlock()

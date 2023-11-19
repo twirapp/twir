@@ -12,6 +12,8 @@ import (
 	ratelimiting "github.com/aidenwallis/go-ratelimiting/local"
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderation_helpers"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
@@ -52,11 +54,19 @@ type BotClientIrc struct {
 	Connected       bool
 }
 
+type ChatClientPrometheus struct {
+	messagesCounter prometheus.Counter
+	readersCounter  prometheus.Gauge
+	channelsCounter prometheus.Gauge
+}
+
 type ChatClient struct {
 	services *services
 
 	Readers []*BotClientIrc
 	Writer  *BotClientIrc
+
+	counters *ChatClientPrometheus
 
 	// channelId:writer
 	channelsToReader *utils.SyncMap[*BotClientIrc]
@@ -177,8 +187,41 @@ func New(opts Opts) *ChatClient {
 			linksWithSpacesRegexp:  linksWithSpacesR,
 			messagesTimeouterStore: utils.NewTtlSyncMap[struct{}](10 * time.Second),
 		},
+		counters: &ChatClientPrometheus{
+			messagesCounter: promauto.NewCounter(
+				prometheus.CounterOpts{
+					Name: "bots_messages_counter",
+					Help: "The total number of processed messages",
+					ConstLabels: prometheus.Labels{
+						"botName": me.Login,
+						"botId":   me.ID,
+					},
+				},
+			),
+			readersCounter: promauto.NewGauge(
+				prometheus.GaugeOpts{
+					Name:        "bots_readers_counter",
+					ConstLabels: prometheus.Labels{"botName": me.Login, "botId": me.ID},
+				},
+			),
+			channelsCounter: promauto.NewGauge(
+				prometheus.GaugeOpts{
+					Name:        "bots_channels_counter",
+					ConstLabels: prometheus.Labels{"botName": me.Login, "botId": me.ID},
+				},
+			),
+		},
 	}
 	s.CreateWriter()
+
+	go func() {
+		for {
+			s.counters.readersCounter.Set(float64(len(s.Readers)))
+			s.counters.channelsCounter.Set(float64(s.channelsToReader.Len()))
+
+			time.Sleep(5 * time.Second)
+		}
+	}()
 
 	channels, err := s.getChannels()
 	if err != nil {
