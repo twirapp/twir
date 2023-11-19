@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
@@ -19,6 +21,7 @@ type OBS struct {
 	gorm    *gorm.DB
 	logger  logger.Logger
 	redis   *redis.Client
+	counter prometheus.Gauge
 }
 
 type Opts struct {
@@ -37,6 +40,12 @@ func NewObs(opts Opts) *OBS {
 		gorm:    opts.Gorm,
 		logger:  opts.Logger,
 		redis:   opts.Redis,
+		counter: promauto.NewGauge(
+			prometheus.GaugeOpts{
+				Name:        "websockets_connections_count",
+				ConstLabels: prometheus.Labels{"overlay": "obs"},
+			},
+		),
 	}
 
 	obs.manager.HandleConnect(
@@ -46,7 +55,15 @@ func NewObs(opts Opts) *OBS {
 				opts.Logger.Error(err.Error())
 				return
 			}
+
+			obs.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected"}`))
+		},
+	)
+
+	obs.manager.HandleDisconnect(
+		func(session *melody.Session) {
+			obs.counter.Dec()
 		},
 	)
 

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
@@ -18,9 +20,10 @@ import (
 type TTS struct {
 	manager *melody.Melody
 
-	gorm   *gorm.DB
-	logger logger.Logger
-	redis  *redis.Client
+	gorm    *gorm.DB
+	logger  logger.Logger
+	redis   *redis.Client
+	counter prometheus.Gauge
 }
 
 type Opts struct {
@@ -38,15 +41,34 @@ func NewTts(opts Opts) *TTS {
 		gorm:    opts.Gorm,
 		logger:  opts.Logger,
 		redis:   opts.Redis,
+		counter: promauto.NewGauge(
+			prometheus.GaugeOpts{
+				Name:        "websockets_connections_count",
+				ConstLabels: prometheus.Labels{"overlay": "tts"},
+			},
+		),
 	}
 
 	tts.manager.HandleConnect(
 		func(session *melody.Session) {
-			helpers.CheckUserByApiKey(opts.Gorm, session)
+			err := helpers.CheckUserByApiKey(opts.Gorm, session)
+
+			if err != nil {
+				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				return
+			}
+
+			tts.counter.Inc()
 		},
 	)
 
 	http.HandleFunc("/tts", tts.HandleRequest)
+
+	tts.manager.HandleDisconnect(
+		func(session *melody.Session) {
+			tts.counter.Dec()
+		},
+	)
 
 	return tts
 }

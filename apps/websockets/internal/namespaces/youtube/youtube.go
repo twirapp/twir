@@ -4,6 +4,8 @@ import (
 	"net/http"
 
 	"github.com/olahol/melody"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -19,6 +21,8 @@ type YouTube struct {
 	logger   logger.Logger
 	redis    *redis.Client
 	botsGrpc bots.BotsClient
+
+	counter prometheus.Gauge
 }
 
 type Opts struct {
@@ -39,6 +43,12 @@ func NewYouTube(opts Opts) *YouTube {
 		logger:   opts.Logger,
 		redis:    opts.Redis,
 		botsGrpc: opts.BotsGrpc,
+		counter: promauto.NewGauge(
+			prometheus.GaugeOpts{
+				Name:        "websockets_connections_count",
+				ConstLabels: prometheus.Labels{"overlay": "youtube"},
+			},
+		),
 	}
 
 	youTube.manager.HandleConnect(

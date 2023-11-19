@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
@@ -21,6 +23,8 @@ type Alerts struct {
 	gorm   *gorm.DB
 	logger logger.Logger
 	redis  *redis.Client
+
+	counter prometheus.Gauge
 }
 
 type Opts struct {
@@ -39,6 +43,12 @@ func NewAlerts(opts Opts) *Alerts {
 		gorm:    opts.Gorm,
 		logger:  opts.Logger,
 		redis:   opts.Redis,
+		counter: promauto.NewGauge(
+			prometheus.GaugeOpts{
+				Name:        "websockets_connections_count",
+				ConstLabels: prometheus.Labels{"overlay": "alerts"},
+			},
+		),
 	}
 
 	alerts.manager.HandleConnect(
@@ -48,7 +58,14 @@ func NewAlerts(opts Opts) *Alerts {
 				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
 				return
 			}
+			alerts.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected to alerts namespace"}`))
+		},
+	)
+
+	alerts.manager.HandleDisconnect(
+		func(session *melody.Session) {
+			alerts.counter.Dec()
 		},
 	)
 

@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
@@ -25,6 +27,7 @@ type Chat struct {
 	redis      *redis.Client
 	config     config.Config
 	tokensGrpc tokens.TokensClient
+	counter    prometheus.Gauge
 }
 
 type Opts struct {
@@ -47,6 +50,12 @@ func New(opts Opts) *Chat {
 		redis:      opts.Redis,
 		config:     opts.Config,
 		tokensGrpc: opts.TokensGrpc,
+		counter: promauto.NewGauge(
+			prometheus.GaugeOpts{
+				Name:        "websockets_connections_count",
+				ConstLabels: prometheus.Labels{"overlay": "chat"},
+			},
+		),
 	}
 
 	chat.manager.HandleConnect(
@@ -56,6 +65,8 @@ func New(opts Opts) *Chat {
 				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
 				return
 			}
+
+			chat.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected to chat namespace"}`))
 		},
 	)
@@ -63,6 +74,12 @@ func New(opts Opts) *Chat {
 	chat.manager.HandleMessage(
 		func(session *melody.Session, msg []byte) {
 			chat.handleMessage(session, msg)
+		},
+	)
+
+	chat.manager.HandleDisconnect(
+		func(session *melody.Session) {
+			chat.counter.Dec()
 		},
 	)
 
