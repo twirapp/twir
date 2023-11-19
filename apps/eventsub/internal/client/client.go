@@ -71,7 +71,7 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 
 	neededSubs := map[string]SubRequest{
 		"channel.update": {
-			Version:   "1",
+			Version:   "2",
 			Condition: channelCondition,
 		},
 		"stream.online": {
@@ -152,6 +152,12 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 		"channel.subscription.message": {
 			Version:   "1",
 			Condition: channelCondition,
+		},
+		"channel.raid": {
+			Version: "1",
+			Condition: map[string]string{
+				"to_broadcaster_user_id": userId,
+			},
 		},
 	}
 

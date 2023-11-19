@@ -38,6 +38,7 @@ func NewHandler(services *types.Services) *Handler {
 	manager.HandleChannelSubscribe = myHandler.handleChannelSubscribe
 	manager.HandleChannelSubscriptionGift = myHandler.handleChannelSubscriptionGift
 	manager.HandleChannelSubscriptionMessage = myHandler.handleChannelSubscriptionMessage
+	manager.HandleChannelRaid = myHandler.handleChannelRaid
 
 	return myHandler
 }
