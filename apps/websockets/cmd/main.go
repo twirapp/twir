@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/satont/twir/apps/websockets/internal/gorm"
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
@@ -25,6 +26,8 @@ import (
 
 func main() {
 	const service = "Websockets"
+
+	http.Handle("/metrics", promhttp.Handler())
 
 	fx.New(
 		fx.NopLogger,
