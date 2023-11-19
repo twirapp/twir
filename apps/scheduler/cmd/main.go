@@ -78,6 +78,7 @@ func main() {
 	timers.NewOnlineUsers(appCtx, services)
 	timers.NewStreams(appCtx, services)
 	timers.NewCommandsAndRoles(appCtx, services)
+	timers.NewBannerChannels(appCtx, services)
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.SCHEDULER_SERVER_PORT))
 	if err != nil {

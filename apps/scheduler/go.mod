@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/scheduler
 
-go 1.21
+go 1.21.0
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -8,6 +8,7 @@ replace (
 	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
+	github.com/satont/twir/libs/utils => ../../libs/utils
 )
 
 require (
@@ -21,6 +22,7 @@ require (
 	github.com/satont/twir/libs/grpc v0.0.0-20230302140714-704247d5bf81
 	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/utils v0.0.0-00010101000000-000000000000
 	go.uber.org/zap v1.26.0
 	golang.org/x/sync v0.4.0
 	google.golang.org/grpc v1.58.3

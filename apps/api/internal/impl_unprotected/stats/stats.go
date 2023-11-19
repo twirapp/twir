@@ -52,7 +52,12 @@ func (c *Stats) cacheCounts() {
 	wg.Go(
 		func() {
 			var count int64
-			c.Db.Model(&model.Channels{}).Where(`"isEnabled" = ?`, true).Count(&count)
+			c.Db.Model(&model.Channels{}).Where(
+				`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
+				true,
+				false,
+				false,
+			).Count(&count)
 			c.cache.Channels = count
 		},
 	)
