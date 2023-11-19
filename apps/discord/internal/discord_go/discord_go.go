@@ -43,8 +43,10 @@ func New(opts Opts) (*Discord, error) {
 	newShard := state.NewShardFunc(
 		func(m *shard.Manager, s *state.State) {
 			// Add the needed Gateway intents.
+			s.AddIntents(gateway.IntentGuilds)
 			s.AddIntents(gateway.IntentGuildMessages)
 			s.AddIntents(gateway.IntentDirectMessages)
+			s.AddIntents(gateway.IntentGuildMembers)
 
 			s.AddHandler(
 				func(c *gateway.ReadyEvent) {

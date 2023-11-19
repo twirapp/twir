@@ -54,6 +54,7 @@ message GuildChannel {
 	string id = 1;
 	string name = 2;
 	ChannelType type = 3;
+	bool can_send_messages = 4;
 }
 
 message GuildRole {

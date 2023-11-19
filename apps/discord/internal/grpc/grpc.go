@@ -94,6 +94,11 @@ func (c *Impl) GetGuildChannels(
 		return nil, err
 	}
 
+	discordUser, discordUserErr := state.Me()
+	if discordUserErr != nil {
+		return nil, discordUserErr
+	}
+
 	resultedChannels := make([]*discord.GuildChannel, 0, len(channels))
 	for _, channel := range channels {
 		var t discord.ChannelType
@@ -111,11 +116,23 @@ func (c *Impl) GetGuildChannels(
 			continue
 		}
 
+		var hasSendMessagePerm bool
+
+		if t == discord.ChannelType_TEXT {
+			perms, permsErr := state.Permissions(channel.ID, discordUser.ID)
+			if permsErr != nil {
+				return nil, permsErr
+			}
+
+			hasSendMessagePerm = perms.Has(arikawa_discord.PermissionSendMessages)
+		}
+
 		resultedChannels = append(
 			resultedChannels, &discord.GuildChannel{
-				Id:   channel.ID.String(),
-				Name: channel.Name,
-				Type: t,
+				Id:              channel.ID.String(),
+				Name:            channel.Name,
+				Type:            t,
+				CanSendMessages: hasSendMessagePerm,
 			},
 		)
 	}

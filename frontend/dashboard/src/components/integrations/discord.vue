@@ -27,9 +27,12 @@ import {
 	useMessage,
 	NMention,
 	NPopconfirm,
-	NAlert, useThemeVars,
+	NAlert,
+	useThemeVars,
+	NSpin,
 } from 'naive-ui';
-import { computed, ref, toRaw, watch } from 'vue';
+import type { SelectBaseOption, SelectOption } from 'naive-ui/es/select/src/interface';
+import { type VNode, computed, h, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import WithSettings from './variants/withSettings.vue';
@@ -102,18 +105,37 @@ const guildsChannelsResults = useQueries({
 });
 
 const liveChannelSelectorOptions = computed(() => {
-	const result: Array<Array<{ label: string, value: string }>> = [];
+	const result: Array<Array<SelectBaseOption>> = [];
 
 	for (let index = 0; index < guildsChannelsResults.length; index++) {
 		const channels = guildsChannelsResults.at(index)!;
 
 		const channelsData = channels.data?.channels.filter(c => c.type === ChannelType.TEXT) ?? [];
 
-		result.push(channelsData.map(c => ({ label: `#${c.name}`, value: c.id })));
+		result.push(channelsData.map(c => ({
+			label: `#${c.name}`,
+			value: c.id,
+			disabled: !c.canSendMessages,
+		})));
 	}
 
 	return result;
 });
+
+const liveChannelSelectorRenderOption = ({ node, option }: { node: VNode; option: SelectOption }): VNode => {
+	if (!option.disabled) return node;
+
+	return h(
+		'div',
+		{ style: 'display: flex; justify-content: space-between; align-items: center' },
+		{
+			default: () => [
+				node,
+				t('integrations.discord.cannotSendMessage'),
+			],
+		},
+	);
+};
 
 function getRolesMentionsOptions(guildId: string) {
 	const guild = discordIntegrationData.value?.guilds?.find((g) => g.id === guildId);
@@ -211,16 +233,6 @@ const { data: currentUser } = useProfile();
 									<span>{{ t('integrations.discord.alerts.showViewers') }}</span>
 								</div>
 
-								<n-divider style="margin: 4px;" />
-
-								<div class="form-item">
-									<span>{{ t('integrations.discord.alerts.additionalUsersIdsForLiveCheck') }}</span>
-									<TwitchMultipleUsersSelector
-										v-model="guild.additionalUsersIdsForLiveCheck"
-										:max="10"
-									/>
-								</div>
-
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.channelsSelect') }}</span>
 									<n-select
@@ -230,6 +242,18 @@ const { data: currentUser } = useProfile();
 										filterable
 										:options="liveChannelSelectorOptions.at(guildIndex) ?? []"
 										:max-tag-count="5"
+										:render-option="liveChannelSelectorRenderOption"
+										:loading="guildsChannelsResults.some(q => q.isLoading)"
+									/>
+								</div>
+
+								<n-divider style="margin: 4px;" />
+
+								<div class="form-item">
+									<span>{{ t('integrations.discord.alerts.additionalUsersIdsForLiveCheck') }}</span>
+									<TwitchMultipleUsersSelector
+										v-model="guild.additionalUsersIdsForLiveCheck"
+										:max="10"
 									/>
 								</div>
 
@@ -376,17 +400,21 @@ const { data: currentUser } = useProfile();
 
 		<template #additionalFooter>
 			<div class="profile">
-				{{
-					t(
-						'integrations.discord.connectedGuilds',
-						{
-							guilds: t(
-								'integrations.discord.guildPluralization',
-								discordIntegrationData?.guilds?.length ?? 0
-							)
-						}
-					)
-				}}
+				<n-spin v-if="isDataLoading" style="height: 18px;" />
+
+				<template v-else>
+					{{
+						t(
+							'integrations.discord.connectedGuilds',
+							{
+								guilds: t(
+									'integrations.discord.guildPluralization',
+									discordIntegrationData?.guilds?.length ?? 0
+								)
+							}
+						)
+					}}
+				</template>
 			</div>
 		</template>
 	</with-settings>

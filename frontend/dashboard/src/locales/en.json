@@ -219,7 +219,8 @@
       },
       "connectGuild": "+ connect new guild",
       "disconnectGuild": "Disconnect guild",
-      "noGuilds": "No guilds connected"
+      "noGuilds": "No guilds connected",
+			"cannotSendMessage": "Bot has no access to send messages in that channel"
     },
     "faceit": {
       "info": "Provides possibility to Twir track your faceit matches, and setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."

@@ -92,9 +92,10 @@ func (c *Integrations) IntegrationsDiscordGetData(
 					channels = append(
 						channels,
 						&integrations_discord.GuildChannel{
-							Id:   channel.Id,
-							Name: channel.Name,
-							Type: integrations_discord.ChannelType(channel.Type.Number()),
+							Id:              channel.Id,
+							Name:            channel.Name,
+							Type:            integrations_discord.ChannelType(channel.Type.Number()),
+							CanSendMessages: channel.CanSendMessages,
 						},
 					)
 				}
@@ -330,9 +331,10 @@ func (c *Integrations) IntegrationsDiscordGetGuildChannels(
 		channels = append(
 			channels,
 			&integrations_discord.GuildChannel{
-				Id:   channel.Id,
-				Name: channel.Name,
-				Type: integrations_discord.ChannelType(channel.Type.Number()),
+				Id:              channel.Id,
+				Name:            channel.Name,
+				Type:            integrations_discord.ChannelType(channel.Type.Number()),
+				CanSendMessages: channel.CanSendMessages,
 			},
 		)
 	}
@@ -360,9 +362,10 @@ func (c *Integrations) IntegrationsDiscordGetGuildInfo(
 		channels = append(
 			channels,
 			&integrations_discord.GuildChannel{
-				Id:   channel.Id,
-				Name: channel.Name,
-				Type: integrations_discord.ChannelType(channel.Type.Number()),
+				Id:              channel.Id,
+				Name:            channel.Name,
+				Type:            integrations_discord.ChannelType(channel.Type.Number()),
+				CanSendMessages: channel.CanSendMessages,
 			},
 		)
 	}
