@@ -131,7 +131,7 @@ message TriggerKappagenRequest {
 	}
 
 	string channel_id = 1;
-	optional string text = 2;
+	string text = 2;
 	repeated Emote emotes = 3;
 }
 

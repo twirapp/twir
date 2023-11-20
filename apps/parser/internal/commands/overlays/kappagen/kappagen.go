@@ -41,7 +41,7 @@ var Kappagen = &types.DefaultCommand{
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TriggerKappagen(
 			ctx, &websockets.TriggerKappagenRequest{
 				ChannelId: parseCtx.Channel.ID,
-				Text:      &param,
+				Text:      param,
 				Emotes:    emotes,
 			},
 		)
@@ -56,7 +56,6 @@ var Kappagen = &types.DefaultCommand{
 				zap.String("userId", parseCtx.Sender.ID),
 				zap.String("param", param),
 			)
-			return result
 		}
 
 		return result
