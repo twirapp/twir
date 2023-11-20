@@ -104,7 +104,7 @@ func main() {
 			)
 		} else if app.Stack == "node" {
 			command = fmt.Sprintf(
-				`pnpm nodemon --exec "cross-env TS_NODE_TRANSPILE_ONLY=true node --loader ts-node/esm --enable-source-maps --trace-warnings --nolazy" --ext "ts" --watch . --cwd ./apps/%s --signal SIGTERM src/index.ts`,
+				`pnpm nodemon --exec "tsx --no-warnings" --ext "ts" --watch . --cwd ./apps/%s --signal SIGTERM src/index.ts`,
 				app.Name,
 			)
 		} else {

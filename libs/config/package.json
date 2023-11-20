@@ -5,8 +5,7 @@
   "main": "./dist/src/index.js",
   "scripts": {
     "prebuild": "rm -rf .dist",
-    "build": "tsc -b tsconfig.json",
-    "dev": "nodemon"
+    "build": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "dotenv": "16.0.3",
