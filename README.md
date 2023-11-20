@@ -1,36 +1,35 @@
 # Development
 
-## Pre requirements
+## Requirements
 
-Before starting developing application you need these tools installed:
+- [Node.js (20+)](https://nodejs.org/en)
+- [Pnpm](https://pnpm.io/)
+- [Go (1.21+)](https://go.dev/)
+- Protobuf-compiler.
 
-#### All system-wide dependencies provided by VSCode and Devcontainers
-
-You can easy setup dependencies for project via installation of these deps:
+	Installation of protobuf depends on your system, google it.
 
 - [Docker](https://docs.docker.com/engine/)
-- [Visual Studio Code](https://code.visualstudio.com/)
-- [VSCode Devcontainers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-- Node 18
-- pnpm
+- Installed Go cli dependencies
 ```bash
-npm i -g pnpm
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
+go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
+go install github.com/pressly/goose/v3/cmd/goose@latest
 ```
 
-#### If you not using vscode
+## Prepare
 
-Oh, dear... You need to check `.devcontainer/Dockerfile` file and check what i'm installed via package manager
-with versions from `docker-compose.dev.yml`. Also you need to check other tools installed in container (for example via
-go install).
-
-Sorry, i won't describe how to do that, because there is few deps, and they can be changed in anytime. I'm lazy update
-readme, but Dockerfile must be always up-to-date.
-
-Write command to run needed services
+- Run needed services
 ```bash
-docker compose -f docker-compose.dev.yml up -d postgres redis tts
+docker compose -f docker-compose.dev.yml up -d
 ```
-Notice, we omited `tsuwari` here, because it needed only for vscode.
+
+- Install Node.js dependencies
+```bash
+pnpm install --frozen-lockfile
+```
+
 ### Next steps
 
 Well, now we are almost ready for developing project, just few steps.
@@ -39,16 +38,8 @@ Well, now we are almost ready for developing project, just few steps.
 - Set `http://localhost:3005/login` and `https://twitchtokengenerator.com` as your redirect url's for twitch application
 - Go to https://twitchtokengenerator.com, set clientID and clientSecret from your app and generate initial token WITH
   ALL SCOPES
-- Read `.env`, I'm tried to describe important parts.
-    ```bash
-    cp .env.example .env
-    ```
-  Then fill that with values.
-- Open project folder in devcontainer. Execute "Dev Containers: open folder in container" via vscode commands, or via
-  another ways. Doesn't metter.
-- Execute `pnpm install`
-
-Now you are read to run project:
+- `cp .env.example .env` and fill required envs
+#### Now you are read to run project:
 
 ```bash
 pnpm dev
@@ -56,7 +47,7 @@ pnpm dev
 
 And when everything starts open https://localhost:3005
 
-#### Migrations
+## Writing migrations
 
 Migrations done via [goose](https://github.com/pressly/goose).
 1. Navigate to folder
@@ -67,19 +58,14 @@ Migrations done via [goose](https://github.com/pressly/goose).
 	```bash
 	goose create new_migration_name sql
 	```
-3. Run new created migrations (optional)
+* Run new created migrations (optional, because it's running when you execute `pnpm dev`)
 	```bash
 	cd libs/migrations
 	go run main.go
 	```
 ##### Write `go` models
 
-If you not familiar with the go, you can check existed models.
-
 1. Go to `libs/gomodels`
 2. Create new file and describe the go schema
 3. Do not forget about `TableName()` for struct
 
-##### How to run migrations
-
-Migration ran automatically when you execute `pnpm dev`, or you can run them manually via
