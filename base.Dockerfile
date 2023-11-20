@@ -1,14 +1,13 @@
-FROM node:18-alpine as node_base
+FROM node:20-alpine as node_base
 
 ###
 
 FROM node_base as builder
-COPY --from=golang:1.21.0-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.21.4-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
-
 
 RUN apk add --no-cache binutils file gcc g++ make libc-dev fortify-headers patch git curl wget upx protoc libc6-compat python3 py3-pip
 
