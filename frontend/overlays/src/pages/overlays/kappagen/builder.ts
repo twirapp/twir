@@ -2,7 +2,6 @@ import type { MessageChunk } from '@twir/frontend-chat';
 import type { Emote } from 'kappagen';
 import { computed } from 'vue';
 
-import { animations } from './animations.js';
 import { emotes } from '../../../components/chat_tmi_emotes';
 
 export const useKappagenBuilder = () => {
@@ -16,7 +15,7 @@ export const useKappagenBuilder = () => {
 	const buildSpawnEmotes = (chunks: MessageChunk[]) => {
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 
-		const emotes: Emote[] = [];
+		const result: Emote[] = [];
 
 		for (const chunk of emotesChunks) {
 			if (chunk.type === 'text') continue;
@@ -24,7 +23,7 @@ export const useKappagenBuilder = () => {
 			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
 
 			if (chunk.type === 'emote') {
-				emotes.push({
+				result.push({
 					url: `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/3.0`,
 					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
 				});
@@ -32,7 +31,7 @@ export const useKappagenBuilder = () => {
 			}
 
 			if (chunk.type === '3rd_party_emote') {
-				emotes.push({
+				result.push({
 					url: chunk.value,
 					zwe,
 					width: chunk.emoteWidth,
@@ -42,49 +41,33 @@ export const useKappagenBuilder = () => {
 			}
 		}
 
-		return emotes;
+		return result;
 	};
 
 	// КОМАНДА И ИВЕНТЫ
 	const buildKappagenEmotes = (chunks: MessageChunk[]) => {
-		const enabledAnimations = animations.filter(a => a.style !== 'Text');
-		const animation = enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
-
-		let count = 0;
-
-		if ('count' in animation) {
-			count = animation.count;
-		} else {
-			count = 1;
-		}
-
-		const emotes: Emote[] = [];
+		const result: Emote[] = [];
 
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 
-		if (!chunks.length) {
-			const randomEmotes: Emote[] = Array(count)
-			.fill(null)
-			.map(() => {
-				const randomEmote = kappagenEmotes.value[Math.floor(Math.random() * kappagenEmotes.value.length)];
+		if (!emotesChunks.length) {
+			const mappedEmotes = kappagenEmotes.value.map(v => ({
+				url: v.urls.at(-1)!,
+				width: v.width,
+				height: v.height,
+			}));
 
-				return {
-					url: randomEmote.urls.at(-1)!,
-					width: randomEmote.width,
-					height: randomEmote.height,
-				};
-			});
-			emotes.push(...randomEmotes);
+			result.push(...mappedEmotes);
 		} else {
 			for (const chunk of emotesChunks) {
 				const emote = buildSpawnEmotes([chunk]);
 				if (emote.length) {
-					emotes.push(...emote);
+					result.push(...emote);
 				}
 			}
 		}
 
-		return emotes;
+		return result;
 	};
 
 	return {
