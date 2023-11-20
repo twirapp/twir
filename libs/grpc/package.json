@@ -2,7 +2,7 @@
 	"name": "@twir/grpc",
 	"scripts": {
 		"prebuild": "rm -rf dist generated",
-		"gen": "ts-node --transpileOnly gen.ts",
+		"gen": "tsx ./gen.ts",
 		"build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
 		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",
 		"build:cjs": "tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs",
