@@ -28,9 +28,9 @@ const settings = ref<Settings>({
 	},
 	size: {
 		// from 7 to 20
-		ratioNormal: 7,
+		ratioNormal: 0.05,
 		// from 14 to 40
-		ratioSmall: 14,
+		ratioSmall: 0.02,
 		min: 1,
 		max: 256,
 	},
