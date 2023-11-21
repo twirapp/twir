@@ -1,8 +1,9 @@
 import { type MessageChunk } from '@twir/frontend-chat';
+import emojiRegex from 'emoji-regex';
 
 import { emotes as thirdPartyEmotes } from './chat_tmi_emotes.js';
 
-const emojiRegexp = /\p{Emoji}/gu;
+const emojiRegexp = emojiRegex();
 
 export function makeMessageChunks(message: string, emotes?: {
 	[emoteid: string]: string[];
@@ -23,7 +24,12 @@ export function makeMessageChunks(message: string, emotes?: {
 		const thirdPartyEmote = thirdPartyEmotes.value[part];
 		const emojiMatch = part.match(emojiRegexp);
 
-		if (emote) {
+		if (emojiMatch && emojiMatch.length) {
+			chunks.push({
+				type: 'emoji',
+				value: part,
+			});
+		} else if (emote) {
 			chunks.push({
 				type: 'emote',
 				value: emote.emoteId,
@@ -56,7 +62,7 @@ export function makeMessageChunks(message: string, emotes?: {
 			chunks.push({ type: 'text', value: part });
 		}
 
-		currentWordIndex = currentWordIndex + part.length + 1;
+		currentWordIndex = currentWordIndex + [...part].length + 1;
 	}
 
 	return chunks;

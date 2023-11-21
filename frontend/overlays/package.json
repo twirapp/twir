@@ -12,6 +12,7 @@
     "@twir/frontend-chat": "workspace:^",
     "@twir/grpc": "workspace:^",
     "@vueuse/core": "^10.6.1",
+    "emoji-regex": "^10.3.0",
     "kappagen": "^0.3.3",
     "nested-css-to-flat": "^1.0.5",
     "obs-websocket-js": "^5.0.3",

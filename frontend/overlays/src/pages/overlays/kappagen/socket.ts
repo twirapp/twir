@@ -3,7 +3,7 @@ import { useWebSocket } from '@vueuse/core';
 import type { KappagenAnimations } from 'kappagen';
 import { watch } from 'vue';
 
-import { useKappagenBuilder } from './builder.js';
+import { type Buidler } from './builder.js';
 import { kappagenSettings } from './settingsStore.js';
 import type { KappagenCallback, SpawnCallback, SetSettingsCallback, KappagenSettings } from './types.js';
 import { makeMessageChunks } from '../../../components/chat_tmi_helpers.js';
@@ -13,12 +13,12 @@ type Opts = {
 	kappagenCallback: KappagenCallback
 	spawnCallback: SpawnCallback
 	setSettingsCallback: SetSettingsCallback
+	emotesBuilder: Buidler
 }
 
 export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
-	const emotesBuilder = useKappagenBuilder();
 
 	const { data, send, open, close } = useWebSocket(
 		`${protocol}://${host}/socket/overlays/kappagen?apiKey=${apiKey}`,
@@ -51,7 +51,7 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		if (event.eventName === 'event') {
 			if (!kappagenSettings.value) return;
 
-			const generatedEmotes = emotesBuilder.buildKappagenEmotes([]);
+			const generatedEmotes = opts.emotesBuilder.buildKappagenEmotes([]);
 
 			const animation = randomAnimation();
 			if (!animation) return;
@@ -71,7 +71,7 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 					return acc;
 				}, {} as Record<string, string[]>),
 			);
-			const emotesForKappagen = emotesBuilder.buildKappagenEmotes(chunks);
+			const emotesForKappagen = opts.emotesBuilder.buildKappagenEmotes(chunks);
 
 			const animation = randomAnimation();
 			if (!animation) return;

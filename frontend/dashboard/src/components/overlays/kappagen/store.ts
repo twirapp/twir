@@ -13,7 +13,7 @@ const settings = ref<Settings>({
 		bttvEnabled: true,
 		emojiStyle: 0,
 		ffzEnabled: true,
-		seventvEnabled: true,
+		sevenTvEnabled: true,
 	},
 	animations: animations,
 	enableRave: false,

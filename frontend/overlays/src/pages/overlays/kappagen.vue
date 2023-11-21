@@ -99,8 +99,6 @@ watch(kappagenSettings, (s) => {
 	}
 });
 
-const emotesBuilder = useKappagenEmotesBuilder();
-
 const kappagenCallback: KappagenCallback = (emotes, animation) => {
 	kappagen.value?.kappagen.run(emotes, animation);
 };
@@ -114,10 +112,15 @@ const setSettingsCallback: SetSettingsCallback = (settings) => {
 	setSettings(settings);
 };
 
+
+const emojiStyle = computed(() => kappagenSettings.value?.emotes?.emojiStyle);
+const emotesBuilder = useKappagenEmotesBuilder(emojiStyle);
+
 const socket = useKappagenOverlaySocket(apiKey, {
 	kappagenCallback,
 	setSettingsCallback,
 	spawnCallback,
+	emotesBuilder,
 });
 const iframe = useIframe({
 	kappagenCallback,

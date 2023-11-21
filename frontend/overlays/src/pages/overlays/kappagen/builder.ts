@@ -1,10 +1,26 @@
 import type { MessageChunk } from '@twir/frontend-chat';
+import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import type { Emote } from 'kappagen';
-import { computed } from 'vue';
+import { Ref, computed } from 'vue';
 
 import { emotes } from '../../../components/chat_tmi_emotes';
 
-export const useKappagenBuilder = () => {
+
+const getEmojiStyleName = (style: EmojiStyle) => {
+	switch (style) {
+		case EmojiStyle.Blobmoji: return 'blob';
+		case EmojiStyle.Noto: return 'noto';
+		case EmojiStyle.Openmoji: return 'openmoji';
+		case EmojiStyle.Twemoji: return 'twemoji';
+	}
+};
+
+export type Buidler = {
+	buildKappagenEmotes: (chunks: MessageChunk[]) => Emote[];
+	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[];
+}
+
+export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Buidler => {
 	const kappagenEmotes = computed(() => {
 		const emotesArray = Object.values(emotes.value);
 
@@ -39,6 +55,15 @@ export const useKappagenBuilder = () => {
 				});
 				continue;
 			}
+
+			if (chunk.type === 'emoji' && emojiStyle && emojiStyle.value) {
+				const code = chunk.value.codePointAt(0)?.toString(16);
+				if (!code) continue;
+
+				result.push({
+					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle.value)}/${code}.png`,
+				});
+			}
 		}
 
 		return result;
@@ -49,7 +74,6 @@ export const useKappagenBuilder = () => {
 		const result: Emote[] = [];
 
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
-
 		if (!emotesChunks.length) {
 			const mappedEmotes = kappagenEmotes.value.map(v => ({
 				url: v.urls.at(-1)!,
