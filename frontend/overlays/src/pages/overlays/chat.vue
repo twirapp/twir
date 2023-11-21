@@ -7,7 +7,7 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import '@twir/frontend-chat/style.css';
 
-import { useThirdPartyEmotes } from '../../components/chat_tmi_emotes';
+import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
 import { useChatOverlaySocket } from '../../sockets/chat_overlay.js';
 import { type ChatSettings, useTmiChat, knownBots, ChatMessage } from '../../sockets/chat_tmi.ts';
 
@@ -18,10 +18,18 @@ const messages = ref<Message[]>([]);
 const maxMessages = ref(100);
 
 const { settings } = useChatOverlaySocket(apiKey);
-const channelName = computed(() => settings.value.channelName);
-const channelId = computed(() => settings.value.channelId);
 
-useThirdPartyEmotes(channelName, channelId);
+const emotesOpts = computed<EmotesOpts>(() => {
+	return {
+		channelName:settings.value.channelName,
+		channelId: settings.value.channelId,
+		ffz: true,
+		bttv: true,
+		sevenTv: true,
+	};
+});
+
+useThirdPartyEmotes(emotesOpts);
 
 const removeMessageByInternalId = (id: string) => {
 	messages.value = messages.value.filter(m => m.internalId !== id);

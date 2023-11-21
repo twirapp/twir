@@ -5,11 +5,23 @@ package api.overlays_kappagen;
 
 import "api/events.proto";
 
+enum EmojiStyle {
+	None = 0;
+	Twemoji = 1;
+	Openmoji = 2;
+	Noto = 3;
+	Blobmoji = 4;
+}
+
 message Settings {
 	message Emotes {
 		int32 time = 1;
 		int32 max = 2;
 		int32 queue = 3;
+		bool ffz_enabled = 4;
+		bool bttv_enabled = 5;
+		bool seven_tv_enabled = 6;
+		EmojiStyle emoji_style = 7;
 	}
 
 	message Size {

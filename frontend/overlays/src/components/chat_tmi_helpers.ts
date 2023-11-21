@@ -2,6 +2,8 @@ import { type MessageChunk } from '@twir/frontend-chat';
 
 import { emotes as thirdPartyEmotes } from './chat_tmi_emotes.js';
 
+const emojiRegexp = /\p{Emoji}/gu;
+
 export function makeMessageChunks(message: string, emotes?: {
 	[emoteid: string]: string[];
 }): MessageChunk[] {
@@ -19,6 +21,7 @@ export function makeMessageChunks(message: string, emotes?: {
 	for (const part of message.split(' ')) {
 		const emote = parsedTwitchEmotes.find(e => e.from === currentWordIndex);
 		const thirdPartyEmote = thirdPartyEmotes.value[part];
+		const emojiMatch = part.match(emojiRegexp);
 
 		if (emote) {
 			chunks.push({

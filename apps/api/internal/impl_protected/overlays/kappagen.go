@@ -19,9 +19,13 @@ const kappagenOverlayType = "kappagen_overlay"
 func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_kappagen.Settings {
 	return &overlays_kappagen.Settings{
 		Emotes: &overlays_kappagen.Settings_Emotes{
-			Time:  s.Emotes.Time,
-			Max:   s.Emotes.Max,
-			Queue: s.Emotes.Queue,
+			Time:           s.Emotes.Time,
+			Max:            s.Emotes.Max,
+			Queue:          s.Emotes.Queue,
+			FfzEnabled:     s.Emotes.FfzEnabled,
+			BttvEnabled:    s.Emotes.BttvEnabled,
+			SevenTvEnabled: s.Emotes.SevenTvEnabled,
+			EmojiStyle:     overlays_kappagen.EmojiStyle(s.Emotes.EmojiStyle),
 		},
 		Size: &overlays_kappagen.Settings_Size{
 			RatioNormal: s.Size.RatioNormal,
@@ -83,9 +87,13 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.KappagenOverlaySettings {
 	return model.KappagenOverlaySettings{
 		Emotes: model.KappagenOverlaySettingsEmotes{
-			Time:  s.Emotes.Time,
-			Max:   s.Emotes.Max,
-			Queue: s.Emotes.Queue,
+			Time:           s.Emotes.Time,
+			Max:            s.Emotes.Max,
+			Queue:          s.Emotes.Queue,
+			FfzEnabled:     s.Emotes.FfzEnabled,
+			BttvEnabled:    s.Emotes.BttvEnabled,
+			SevenTvEnabled: s.Emotes.SevenTvEnabled,
+			EmojiStyle:     model.KappagenOverlaySettingsEmotesEmojiStyle(s.Emotes.EmojiStyle),
 		},
 		Size: model.KappagenOverlaySettingsSize{
 			RatioNormal: s.Size.RatioNormal,

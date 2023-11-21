@@ -379,7 +379,13 @@
 				"maxEmotes": "Max emotes on screen",
 				"animationsOnAppear": "Animations on emote appear",
 				"animationsOnDisappear": "Animations on emote disappear",
-				"rave": "Rave colors for emotes"
+				"rave": "Rave colors for emotes",
+				"emotes": {
+					"bttvEnabled": "Enable BetterTTV emotes",
+					"ffzEnabled": "Enable FrankerFaceZ emotes",
+					"seventvEnabled": "Enable 7tv emotes",
+					"emojiStyle": "Emoji style"
+				}
 			}
 		}
   },

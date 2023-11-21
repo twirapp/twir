@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { NSlider, NSwitch, NAlert, NDivider } from 'naive-ui';
+import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import { NSlider, NSwitch, NAlert, NDivider, NSelect } from 'naive-ui';
+import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
+import { VNodeChild, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useSettings } from './store.js';
@@ -10,6 +13,34 @@ const { settings: formValue } = useSettings();
 const { t } = useI18n();
 
 const formatSizeValue = (v: number) => parseInt(`${v}`.split('.')[1]);
+
+const emojiStylesOptions: SelectBaseOption[] = [
+	{ label: 'Disabled', value: EmojiStyle.None },
+	{ label: 'Twemoji', value: EmojiStyle.Twemoji },
+	{ label: 'Openmoji', value: EmojiStyle.Openmoji },
+	{ label: 'Noto', value: EmojiStyle.Noto },
+	{ label: 'Blob', value: EmojiStyle.Blobmoji },
+];
+
+const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
+	const style = emojiStylesOptions.find(s => s.value === option.value);
+	if (!style || style.value === EmojiStyle.None) return 'Disabled';
+
+	const preview = `https://cdn.frankerfacez.com/static/emoji/images/${style.label?.toString().toLowerCase()}/1f609.png`;
+
+	return [
+		h(
+			'div',
+			{ style: 'display: flex; align-items: center; gap: 4px;' },
+			{
+				default: () => [
+					h('span', undefined, { default: () => option.label }),
+					h('img', { style: 'height: 20px; width: 20px', src: preview }),
+				],
+			},
+		),
+	];
+};
 </script>
 
 <template>
@@ -46,6 +77,34 @@ const formatSizeValue = (v: number) => parseInt(`${v}`.split('.')[1]);
 				:min="0.02"
 				:max="0.07"
 			/>
+		</div>
+
+		<div class="switchers">
+			<div class="switch">
+				<n-switch v-model:value="formValue.emotes!.bttvEnabled" />
+				<span>{{ t('overlays.kappagen.settings.emotes.bttvEnabled') }}</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.emotes!.ffzEnabled" />
+				<span>{{ t('overlays.kappagen.settings.emotes.ffzEnabled') }}</span>
+			</div>
+
+			<div class="switch">
+				<n-switch v-model:value="formValue.emotes!.sevenTvEnabled" />
+				<span>{{ t('overlays.kappagen.settings.emotes.seventvEnabled') }}</span>
+			</div>
+
+			<div class="switch">
+				<span>{{ t('overlays.kappagen.settings.emotes.emojiStyle') }}</span>
+				<n-select
+					v-model:value="formValue.emotes!.emojiStyle"
+					:options="emojiStylesOptions"
+					style="width: 40%;"
+					size="tiny"
+					:render-label="renderEmojiLabel"
+				/>
+			</div>
 		</div>
 
 		<n-divider />

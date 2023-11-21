@@ -54,7 +54,7 @@ const textShadow = computed(() => {
 				/>
 			</div>
 
-			<template v-else-if="chunk.type === 'text'">
+			<template v-else-if="['text', 'emoji'].includes(chunk.type)">
 				{{ chunk.value }}
 			</template>
 			{{ ' ' }}

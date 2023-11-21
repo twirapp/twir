@@ -10,7 +10,7 @@ import { useIframe } from './kappagen/iframe.js';
 import { useChannelSettings } from './kappagen/settingsStore.js';
 import { useKappagenOverlaySocket } from './kappagen/socket.js';
 import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from './kappagen/types.js';
-import { useThirdPartyEmotes } from '../../components/chat_tmi_emotes.js';
+import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
 import { ChatSettings, useTmiChat } from '../../sockets/chat_tmi';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
@@ -142,14 +142,22 @@ onMounted(() => {
 	};
 });
 
-const channelId = computed(() => kappagenSettings.value?.channelId ?? '');
-const channelName = computed(() => kappagenSettings.value?.channelName ?? '');
-useThirdPartyEmotes(channelName, channelId);
+const emotesOpts = computed<EmotesOpts>(() => {
+	return {
+		channelName: kappagenSettings.value?.channelName,
+		channelId: kappagenSettings.value?.channelId,
+		ffz: kappagenSettings.value?.emotes?.ffzEnabled,
+		bttv: kappagenSettings.value?.emotes?.bttvEnabled,
+		sevenTv: kappagenSettings.value?.emotes?.sevenTvEnabled,
+	};
+});
+
+useThirdPartyEmotes(emotesOpts);
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: channelId.value,
-		channelName: channelName.value,
+		channelId: emotesOpts.value.channelId!,
+		channelName: emotesOpts.value.channelName!,
 		onMessage: (msg) => {
 			if (msg.type === 'system') return;
 

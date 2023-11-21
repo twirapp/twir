@@ -26,7 +26,7 @@ export const BttvZeroModifiers = [
 ];
 
 export type MessageChunk = {
-	type: 'text' | 'emote' | '3rd_party_emote';
+	type: 'text' | 'emote' | '3rd_party_emote' | 'emoji';
 	value: string;
 	flags?: EmoteFlag[]
 	zeroWidthModifiers?: string[]

@@ -3,13 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
+	"github.com/kvz/logstreamer"
 	"github.com/satont/twir/libs/grpc/constants"
 )
 
@@ -94,17 +97,23 @@ func main() {
 	var processes []*os.Process
 
 	for _, app := range apps {
-		fmt.Println("Starting " + app.Name)
+		logPrefix := fmt.Sprintf("[%s]", strings.ToUpper(app.Name))
+		outLogger := log.New(os.Stdout, logPrefix, 0)
+		errLogger := log.New(os.Stderr, logPrefix, 0)
+
+		logStreamerOut := logstreamer.NewLogstreamer(outLogger, " ", false)
+		logStreamerErr := logstreamer.NewLogstreamer(errLogger, " ", false)
+
 		// nodemon --exec "go run ./cmd/main.go" --ext "go" --watch . --cwd ./apps/tokens
 		var command string
 		if app.Stack == "go" {
 			command = fmt.Sprintf(
-				`pnpm nodemon --exec "go run" --ext "go" --watch . --cwd ./apps/%s --signal SIGTERM cmd/main.go`,
+				`pnpm nodemon --exec "go run" --ext "go" --watch . --cwd ./apps/%s --signal SIGTERM --quiet cmd/main.go`,
 				app.Name,
 			)
 		} else if app.Stack == "node" {
 			command = fmt.Sprintf(
-				`pnpm nodemon --exec "tsx --no-warnings" --ext "ts" --watch . --cwd ./apps/%s --signal SIGTERM src/index.ts`,
+				`pnpm nodemon --exec "tsx --no-warnings" --ext "ts" --watch . --cwd ./apps/%s --signal SIGTERM --quiet src/index.ts`,
 				app.Name,
 			)
 		} else {
@@ -122,8 +131,8 @@ func main() {
 		}
 
 		cmd.Stdin = os.Stdin
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		cmd.Stdout = logStreamerOut
+		cmd.Stderr = logStreamerErr
 
 		err := cmd.Start()
 		if err != nil {
@@ -132,11 +141,7 @@ func main() {
 
 		processes = append(processes, cmd.Process)
 
-		if app.Port == 0 {
-			continue
-		}
-
-		if app.Stack == "frontend" {
+		if app.Port == 0 || app.Stack == "frontend" {
 			continue
 		}
 
@@ -152,7 +157,6 @@ func main() {
 					break
 				} else {
 					time.Sleep(500 * time.Millisecond)
-					fmt.Print(".")
 				}
 			}
 		}
