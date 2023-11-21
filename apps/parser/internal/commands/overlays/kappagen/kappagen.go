@@ -36,7 +36,7 @@ var Kappagen = &types.DefaultCommand{
 			emotes = append(emotes, emote)
 		}
 
-		param := parseCtx.RawText
+		param := "!" + parseCtx.RawText
 
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TriggerKappagen(
 			ctx, &websockets.TriggerKappagenRequest{

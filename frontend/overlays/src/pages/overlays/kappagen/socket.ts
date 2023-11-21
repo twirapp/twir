@@ -63,13 +63,15 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 			if (!kappagenSettings.value) return;
 
 			const data = event.data as { text: string, emotes?: TriggerKappagenRequest_Emote[] };
-			const emotesForKappagen = emotesBuilder.buildKappagenEmotes(makeMessageChunks(
+
+			const chunks = makeMessageChunks(
 				data.text,
 				data.emotes?.reduce((acc, curr) => {
 					acc[curr.id] = curr.positions;
 					return acc;
 				}, {} as Record<string, string[]>),
-			));
+			);
+			const emotesForKappagen = emotesBuilder.buildKappagenEmotes(chunks);
 
 			const animation = randomAnimation();
 			if (!animation) return;
