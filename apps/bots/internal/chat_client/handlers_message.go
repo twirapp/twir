@@ -15,6 +15,17 @@ import (
 )
 
 func (c *ChatClient) onMessage(msg Message) {
+	if msg.Channel.ID == "988337552" {
+		c.services.Logger.Info(
+			"message in channel, bot still alive",
+			slog.Group(
+				"channel",
+				slog.String("id", msg.Channel.ID),
+				slog.String("name", msg.Channel.Name),
+			),
+		)
+	}
+
 	stream := model.ChannelsStreams{}
 	if err := c.services.DB.Where(`"userId" = ?`, msg.Channel.ID).Find(&stream).Error; err != nil {
 		c.services.Logger.Error(
