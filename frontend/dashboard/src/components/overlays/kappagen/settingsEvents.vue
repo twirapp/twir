@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import { NTabs, NTabPane, NSwitch, NGrid, NGridItem, NCheckbox } from 'naive-ui';
+import { watch } from 'vue';
 
 import { useSettings } from './store.js';
 
@@ -15,8 +16,20 @@ const availableEvents = Object.values(flatEvents)
 		};
 	}) as Array<{ name: string, value: TwirEventType }>;
 const { settings: formValue } = useSettings();
-</script>
 
+watch(formValue.value.events, (v) => {
+	for (const event of availableEvents) {
+		const exists = v.find(e => e.event === event.value);
+		if (exists) continue;
+
+		formValue.value.events.push({
+			event: event.value,
+			disabledStyles: [],
+			enabled: true,
+		});
+	}
+}, { immediate: true });
+</script>
 
 <template>
 	<n-tabs type="line" placement="left">

@@ -2,7 +2,9 @@
 import { IconPlayerPlay } from '@tabler/icons-vue';
 import type { Settings_AnimationSettings } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import { NGrid, NGridItem, NButton, NSwitch, NInputNumber, NDynamicInput } from 'naive-ui';
+import { watch } from 'vue';
 
+import { animations } from './kappagen_animations';
 import { useSettings } from './store.js';
 
 const { settings: formValue } = useSettings();
@@ -10,6 +12,15 @@ const { settings: formValue } = useSettings();
 defineEmits<{
 	play: [animation: Settings_AnimationSettings]
 }>();
+
+watch(formValue.value.animations, (v) => {
+	for (const animation of animations) {
+		const exists = v.find(a => a.style === animation.style);
+		if (exists) continue;
+
+		formValue.value.animations.push(animation);
+	}
+}, { immediate: true });
 </script>
 
 <template>
