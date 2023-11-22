@@ -31,6 +31,10 @@ service Websocket {
 
 	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerKappagenByEvent(TriggerKappagenByEventRequest) returns (google.protobuf.Empty) {}
+
+	rpc TriggerShowBrb(TriggerShowBrbRequest) returns (google.protobuf.Empty) {}
+	rpc TriggerHideBrb(TriggerHideBrbRequest) returns (google.protobuf.Empty) {}
+	rpc RefreshBrbSettings(RefreshBrbSettingsRequest) returns (google.protobuf.Empty) {}
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -140,4 +144,16 @@ import "api/events.proto";
 message TriggerKappagenByEventRequest {
 	string channel_id = 1;
 	api.events.TwirEventType event = 2;
+}
+
+message TriggerShowBrbRequest {
+	string channel_id = 1;
+}
+
+message TriggerHideBrbRequest {
+	string channel_id = 1;
+}
+
+message RefreshBrbSettingsRequest {
+	string channel_id = 1;
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
@@ -53,6 +54,7 @@ func main() {
 			chat.New,
 			kappagen.New,
 			overlays.New,
+			be_right_back.New,
 		),
 		fx.Invoke(
 			func() {

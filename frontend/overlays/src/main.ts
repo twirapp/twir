@@ -31,6 +31,10 @@ const routes = createRouter({
 			path: '/:apiKey/kappagen',
 			component: () => import('./pages/overlays/kappagen.vue'),
 		},
+		{
+			path: '/:apiKey/brb',
+			component: () => import('./pages/overlays/beRightBack.vue'),
+		},
 	],
 });
 
