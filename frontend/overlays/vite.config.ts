@@ -8,6 +8,7 @@ export default defineConfig({
 		vue(),
 		webUpdateNotice({
       hiddenDefaultNotification: true,
+      checkInterval: 1 * 60 * 1000,
     }),
 	],
 	base: '/overlays',
