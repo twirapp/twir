@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@plugin-web-update-notification/vite": "^1.6.6",
     "@protobuf-ts/twirp-transport": "^2.9.1",
     "@twir/frontend-chat": "workspace:^",
     "@twir/grpc": "workspace:^",

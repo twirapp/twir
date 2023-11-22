@@ -35,3 +35,8 @@ const routes = createRouter({
 });
 
 createApp(App).use(routes).mount('#app');
+
+// refresh the page when new version comes
+document.body.addEventListener('plugin_web_update_notice', () => {
+  window.location.reload();
+});
