@@ -3,11 +3,12 @@ package chat_client
 import (
 	"context"
 	"log/slog"
-	"strings"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/grpc/generated/parser"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (c *ChatClient) handleCommand(msg Message, userBadges []string) {
@@ -49,9 +50,12 @@ func (c *ChatClient) handleCommand(msg Message, userBadges []string) {
 
 	res, err := c.services.ParserGrpc.ProcessCommand(context.Background(), requestStruct)
 	if err != nil {
-		if strings.Contains(err.Error(), "command not found") {
-			c.services.Logger.Error("cannot process command", slog.Any("err", err))
+		st, ok := status.FromError(err)
+		if ok && st.Code() == codes.NotFound {
+			return
 		}
+
+		c.services.Logger.Error("cannot process command", slog.Any("err", err))
 		return
 	}
 
