@@ -118,7 +118,8 @@ func (c *ChatClient) handleGreetings(
 	}
 
 	_, err = c.services.EventsGrpc.GreetingSended(
-		context.Background(), &events.GreetingSendedMessage{
+		context.Background(),
+		&events.GreetingSendedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: msg.Channel.ID},
 			UserId:          msg.User.ID,
 			UserName:        msg.User.Name,
@@ -126,5 +127,7 @@ func (c *ChatClient) handleGreetings(
 			GreetingText:    entity.Text,
 		},
 	)
-	c.services.Logger.Error("cannot send greetings event", slog.Any("err", err))
+	if err != nil {
+		c.services.Logger.Error("cannot send greetings event", slog.Any("err", err))
+	}
 }
