@@ -15,16 +15,14 @@ import (
 const brbOverlayType = "be_right_back_overlay"
 
 func (c *Overlays) brbDbToGrpc(
-	s model.
-		ChannelModulesSettingsBeRightBack,
+	s model.ChannelModulesSettingsBeRightBack,
 ) *overlays_be_right_back.Settings {
 	return &overlays_be_right_back.Settings{
 		Text: s.Text,
 		Late: &overlays_be_right_back.Settings_Late{
-			Enabled:         s.Late.Enabled,
-			Text:            s.Late.Text,
-			DisplayBrbTime:  s.Late.DisplayBrbTime,
-			DisplayLateTime: s.Late.DisplayLateTime,
+			Enabled:        s.Late.Enabled,
+			Text:           s.Late.Text,
+			DisplayBrbTime: s.Late.DisplayBrbTime,
 		},
 		BackgroundColor: s.BackgroundColor,
 		FontSize:        s.FontSize,
@@ -32,15 +30,15 @@ func (c *Overlays) brbDbToGrpc(
 	}
 }
 
-func (c *Overlays) brbGrpcToDb(s *overlays_be_right_back.Settings) model.
-	ChannelModulesSettingsBeRightBack {
+func (c *Overlays) brbGrpcToDb(
+	s *overlays_be_right_back.Settings,
+) model.ChannelModulesSettingsBeRightBack {
 	return model.ChannelModulesSettingsBeRightBack{
 		Text: s.Text,
 		Late: model.ChannelModulesSettingsBeRightBackLate{
-			Enabled:         s.Late.Enabled,
-			Text:            s.Late.Text,
-			DisplayBrbTime:  s.Late.DisplayBrbTime,
-			DisplayLateTime: s.Late.DisplayLateTime,
+			Enabled:        s.Late.Enabled,
+			Text:           s.Late.Text,
+			DisplayBrbTime: s.Late.DisplayBrbTime,
 		},
 		BackgroundColor: s.BackgroundColor,
 		FontSize:        s.FontSize,

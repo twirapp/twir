@@ -7,7 +7,6 @@ message Settings {
 		bool enabled = 1;
 		string text = 2;
 		bool display_brb_time = 3;
-		bool display_late_time = 4;
 	}
 
 	string text = 1;
@@ -16,4 +15,5 @@ message Settings {
 	string background_color = 3;
 	int32 font_size = 4;
 	string font_color = 5;
+	string font_family = 6;
 }

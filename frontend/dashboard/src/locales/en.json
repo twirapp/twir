@@ -653,5 +653,10 @@
         "disallowedLanguages": "Disallowed languages"
       }
     }
-  }
+  },
+	"components": {
+		"fontFamily": {
+			"description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
+		}
+	}
 }

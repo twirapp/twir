@@ -12,7 +12,7 @@ import Card from '@/components/overlays/card.vue';
 const { t } = useI18n();
 const isModalOpened = ref(false);
 const manager = useBeRightBackOverlayManager();
-const { data: settings, isError } = manager.getSettings();
+const { data: settings, isError, isLoading } = manager.getSettings();
 </script>
 
 <template>
@@ -21,7 +21,7 @@ const { data: settings, isError } = manager.getSettings();
 		title="Be right back (afk)"
 		:description="t('overlays.brb.description')"
 		overlay-path="brb"
-		:copy-disabled="!settings || isError"
+		:copy-disabled="!settings || isError || isLoading"
 		@open-settings="isModalOpened = true"
 	>
 	</card>

@@ -22,6 +22,7 @@ const settings = ref<Settings>({
 		displayLateTime: true,
 		enabled: true,
 	},
+	fontFamily: '',
 });
 
 const ticker = ref<Ticker | null>(null);
@@ -71,8 +72,17 @@ onMounted(() => {
 </script>
 
 <template>
-	<brb-ticker
-		ref="ticker"
-		:settings="settings"
-	/>
+	<div class="container">
+		<brb-ticker
+			ref="ticker"
+			:settings="settings"
+		/>
+	</div>
 </template>
+
+<style scoped>
+.container {
+	overflow: hidden;
+	background-color: #fff;
+}
+</style>

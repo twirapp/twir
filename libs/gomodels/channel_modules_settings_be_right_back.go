@@ -13,8 +13,7 @@ type ChannelModulesSettingsBeRightBack struct {
 }
 
 type ChannelModulesSettingsBeRightBackLate struct {
-	Enabled         bool   `json:"enabled"`
-	Text            string `json:"text"`
-	DisplayBrbTime  bool   `json:"displayBrbTime"`
-	DisplayLateTime bool   `json:"displayLateTime"`
+	Enabled        bool   `json:"enabled"`
+	Text           string `json:"text"`
+	DisplayBrbTime bool   `json:"displayBrbTime"`
 }

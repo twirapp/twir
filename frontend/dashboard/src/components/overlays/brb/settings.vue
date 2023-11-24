@@ -1,9 +1,174 @@
 <script setup lang="ts">
+import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch } from 'naive-ui';
+import { ref, computed, toRaw, watch } from 'vue';
+
+import { useProfile } from '@/api';
+import FontSelector from '@/components/fontSelector.vue';
+
+const themeVars = useThemeVars();
+
+const { data: profile } = useProfile();
+
+const formValue = ref<Settings>({
+	backgroundColor: 'rgba(9, 8, 8, 0.49)',
+	fontColor: '#fff',
+	fontFamily: '',
+	fontSize: 100,
+	text: 'AFK FOR',
+	late: {
+		text: 'LATE FOR',
+		displayBrbTime: true,
+		enabled: false,
+	},
+});
+
+const brbIframeRef = ref<HTMLIFrameElement | null>(null);
+const brbIframeUrl = computed(() => {
+	if (!profile.value) return null;
+
+	return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`;
+});
+
+const sendIframeMessage = (key: string, data?: any) => {
+	if (!brbIframeRef.value) return;
+	const win = brbIframeRef.value;
+
+  win.contentWindow?.postMessage(JSON.stringify({
+		key,
+		data: toRaw(data),
+	}));
+};
+
+const sendSettings = () => sendIframeMessage('settings', {
+	...toRaw(formValue.value),
+	channelName: profile.value?.login,
+	channelId: profile.value?.id,
+});
+
+watch(brbIframeRef, (v) => {
+	if (!v) return;
+	v.contentWindow?.addEventListener('message', (e) => {
+		if (e.data !== 'getSettings') return;
+
+		sendSettings();
+	});
+});
+
+watch(() => formValue, () => {
+	sendSettings();
+}, { deep: true });
 </script>
 
 <template>
-	<div>settings</div>
+	<div class="settings">
+		<div class="form">
+			<div style="display: flex; flex-direction: column; gap: 12px;">
+				<n-divider>Main settings</n-divider>
+
+				{{ formValue }}
+				<div class="item">
+					<span>Text</span>
+					<n-input v-model:value="formValue.text" :maxlength="500" />
+				</div>
+
+				<div class="item">
+					<span>background</span>
+					<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
+				</div>
+
+				<div class="item">
+					<span>fontColor</span>
+					<n-color-picker v-model:value="formValue.fontColor" :modes="['rgb']" />
+				</div>
+
+				<div class="item">
+					<span>font family</span>
+					<font-selector v-model="formValue.fontFamily" :clearable="true" />
+				</div>
+
+				<div class="item">
+					<span>Font size</span>
+					<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
+				</div>
+			</div>
+
+			<div style="display: flex; flex-direction: column; gap: 12px;">
+				<n-divider>"Late" settings</n-divider>
+
+				<div class="item">
+					<span>Text</span>
+					<n-input v-model:value="formValue.late!.text" :maxlength="500" />
+				</div>
+
+				<div style="display: flex; gap: 8px">
+					<n-switch v-model:value="formValue.late!.enabled" />
+					<span>Enabled</span>
+				</div>
+
+				<div style="display: flex; gap: 8px">
+					<n-switch v-model:value="formValue.late!.displayBrbTime" />
+					<span>Display brb</span>
+				</div>
+			</div>
+		</div>
+		<div>
+			<div style="position: absolute; top: 85px; right: 20px; font-weight: 500;">
+				<div style="display: flex; gap: 8px">
+					<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
+						Stop
+					</n-button>
+					<n-button secondary size="small" type="success" @click="sendIframeMessage('start', { minutes: 0.1 })">
+						Start
+					</n-button>
+				</div>
+			</div>
+			<iframe
+				v-if="brbIframeUrl"
+				ref="brbIframeRef"
+				:src="brbIframeUrl"
+				class="iframe"
+			/>
+		</div>
+	</div>
 </template>
 
 <style scoped>
+.settings {
+	display: flex;
+	gap: 16px;
+	width: 100%;
+}
+
+.form {
+	padding: 8px;
+	border-radius: 8px;
+	background-color: v-bind('themeVars.cardColor');
+	display: flex;
+	gap: 8px;
+}
+
+.form > div {
+	width: 50%;
+}
+
+.form .item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.settings > div {
+	width: 50%;
+	min-height: 50dvh;
+}
+
+.iframe {
+	height: 100%;
+	width: 100%;
+	aspect-ratio: 16/9;
+	border: 0;
+	border: 1px solid v-bind('themeVars.borderColor');
+	border-radius: 8px;
+}
 </style>
