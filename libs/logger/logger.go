@@ -110,7 +110,11 @@ func (c *logger) Error(input string, fields ...any) {
 				continue
 			}
 
-			scope.SetExtra(casted.Key, casted.Value.Any())
+			if err, ok := casted.Value.Any().(error); ok {
+				scope.SetExtra(casted.Key, err.Error())
+			} else {
+				scope.SetExtra(casted.Key, casted.Value.Any())
+			}
 		}
 
 		scope.SetTag("service", c.service)

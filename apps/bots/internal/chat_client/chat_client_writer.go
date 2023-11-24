@@ -73,6 +73,7 @@ func (c *ChatClient) CreateWriter() {
 						c.Writer.Connected = false
 						c.services.Logger.Error("writer disconnected", slog.Any("err", err))
 					}
+					close(connectResultCh)
 					break connLoop
 				}
 			}
