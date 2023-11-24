@@ -9,6 +9,8 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
@@ -74,13 +76,12 @@ func (c *ParserGrpcServer) ProcessCommand(
 
 	cmds, err := c.commands.GetChannelCommands(ctx, data.Channel.Id)
 	if err != nil {
-		return nil, errors.New("command not found")
+		return nil, status.Errorf(codes.Internal, "cannot get channel commands: %w", err)
 	}
 
 	cmd := c.commands.FindChannelCommandInInput(data.Message.Text, cmds)
-
 	if cmd.Cmd == nil {
-		return nil, errors.New("command not found")
+		return nil, status.Error(codes.NotFound, "command not found")
 	}
 
 	if cmd.Cmd.OnlineOnly {
