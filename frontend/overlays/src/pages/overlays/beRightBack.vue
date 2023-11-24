@@ -11,19 +11,7 @@ import type { SetSettings, OnStart, OnStop } from './brb/types.js';
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
-const settings = ref<Settings>({
-	fontSize: 100,
-	fontColor: '#fff',
-	backgroundColor: 'rgb(231, 220, 220, 0.5)',
-	text: 'AFK FOR',
-	late: {
-		text: 'LATE FOR',
-		displayBrbTime: true,
-		displayLateTime: true,
-		enabled: true,
-	},
-	fontFamily: '',
-});
+const settings = ref<Settings>();
 
 const ticker = ref<Ticker | null>(null);
 
@@ -52,11 +40,6 @@ const socket = useBeRightBackOverlaySocket({
 	onStop,
 });
 
-setTimeout(() => {
-	// this should be called on socket event
-	onStart(0.1, settings.value.text);
-}, 1000);
-
 onMounted(() => {
 	if (window.frameElement) {
 		iframe.create();
@@ -74,6 +57,7 @@ onMounted(() => {
 <template>
 	<div class="container">
 		<brb-ticker
+			v-if="settings"
 			ref="ticker"
 			:settings="settings"
 		/>

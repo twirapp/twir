@@ -40,22 +40,28 @@ const sendIframeMessage = (key: string, data?: any) => {
 	}));
 };
 
-const sendSettings = () => sendIframeMessage('settings', {
-	...toRaw(formValue.value),
-	channelName: profile.value?.login,
-	channelId: profile.value?.id,
-});
+const sendSettings = () => {
+	sendIframeMessage('settings', {
+		...toRaw(formValue.value),
+		channelName: profile.value?.login,
+		channelId: profile.value?.id,
+	});
+};
 
 watch(brbIframeRef, (v) => {
 	if (!v) return;
+
 	v.contentWindow?.addEventListener('message', (e) => {
-		if (e.data !== 'getSettings') return;
+		const parsed = JSON.parse(e.data);
+		if (parsed.key !== 'getSettings') return;
 
 		sendSettings();
 	});
 });
 
 watch(() => formValue, () => {
+	if (!brbIframeRef.value) return;
+
 	sendSettings();
 }, { deep: true });
 </script>
@@ -64,9 +70,8 @@ watch(() => formValue, () => {
 	<div class="settings">
 		<div class="form">
 			<div style="display: flex; flex-direction: column; gap: 12px;">
-				<n-divider>Main settings</n-divider>
+				<n-divider style="margin: 0">Main settings</n-divider>
 
-				{{ formValue }}
 				<div class="item">
 					<span>Text</span>
 					<n-input v-model:value="formValue.text" :maxlength="500" />
@@ -94,7 +99,7 @@ watch(() => formValue, () => {
 			</div>
 
 			<div style="display: flex; flex-direction: column; gap: 12px;">
-				<n-divider>"Late" settings</n-divider>
+				<n-divider style="margin: 0">"Late" settings</n-divider>
 
 				<div class="item">
 					<span>Text</span>
@@ -118,8 +123,16 @@ watch(() => formValue, () => {
 					<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
 						Stop
 					</n-button>
-					<n-button secondary size="small" type="success" @click="sendIframeMessage('start', { minutes: 0.1 })">
-						Start
+					<n-button
+						secondary
+						size="small"
+						type="success"
+						@click="() => {
+							sendSettings();
+							sendIframeMessage('start', { minutes: 0.1 })
+						}"
+					>
+						Start preview
 					</n-button>
 				</div>
 			</div>

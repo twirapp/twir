@@ -23,8 +23,8 @@ export const useIframe = (opts: Opts) => {
 	};
 
 	const create = () => {
-		window.parent.postMessage(JSON.stringify({ key: 'getSettings' }));
 		window.addEventListener('message', onWindowMessage);
+		window.parent.postMessage(JSON.stringify({ key: 'getSettings' }));
 	};
 
 	const destroy = () => {
