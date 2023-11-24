@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal } from 'naive-ui';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useCopyOverlayLink } from '../copyOverlayLink';
 
-import { useProfile } from '@/api';
-import FontSelector from '@/components/fontSelector.vue';
+import { useBeRightBackOverlayManager, useProfile } from '@/api';
 import commandButton from '@/components/commandButton.vue';
+import FontSelector from '@/components/fontSelector.vue';
 
 defineProps<{
 	showSettings: boolean
@@ -34,6 +34,16 @@ const formValue = ref<Settings>({
 		enabled: false,
 	},
 });
+
+const manager = useBeRightBackOverlayManager();
+const { data: settings } = manager.getSettings();
+const updater = manager.updateSettings();
+
+watch(settings, (v) => {
+	if (!v) return;
+
+	formValue.value = v;
+}, { immediate: true });
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null);
 const brbIframeUrl = computed(() => {
@@ -77,8 +87,17 @@ watch(() => formValue, () => {
 	sendSettings();
 }, { deep: true });
 
-
 const { copyOverlayLink } = useCopyOverlayLink('brb');
+
+const message = useNotification();
+async function save() {
+	await updater.mutateAsync(formValue.value);
+
+	message.success({
+		title: t('sharedTexts.saved'),
+		duration: 5000,
+	});
+}
 </script>
 
 <template>
@@ -191,6 +210,7 @@ const { copyOverlayLink } = useCopyOverlayLink('brb');
 				<n-button
 					secondary
 					type="success"
+					@click="save"
 				>
 					{{ t('sharedButtons.save') }}
 				</n-button>
