@@ -20,7 +20,6 @@ watch(data, (value) => {
 });
 
 async function save() {
-	console.log(userName.value);
 	await mutateAsync(userName.value);
 }
 

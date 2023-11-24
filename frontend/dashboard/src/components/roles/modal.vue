@@ -45,7 +45,6 @@ const rules: FormRules = {
 	name: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
-			console.log(value);
 			if (!value || !value.length) {
 				return new Error(t('roles.validations.nameRequired'));
 			}

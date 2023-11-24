@@ -17,7 +17,7 @@ const { data: settings, isError, isLoading } = manager.getSettings();
 <template>
 	<card
 		:icon="IconBrb"
-		title="Be right back (afk)"
+		title="AFK overlay"
 		:description="t('overlays.brb.description')"
 		overlay-path="brb"
 		:copy-disabled="!settings || isError || isLoading"

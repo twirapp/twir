@@ -8,6 +8,7 @@ import { useCopyOverlayLink } from '../copyOverlayLink';
 
 import { useProfile } from '@/api';
 import FontSelector from '@/components/fontSelector.vue';
+import commandButton from '@/components/commandButton.vue';
 
 defineProps<{
 	showSettings: boolean
@@ -98,6 +99,11 @@ const { copyOverlayLink } = useCopyOverlayLink('brb');
 					<n-divider style="margin: 0">
 						Main settings
 					</n-divider>
+
+					<div class="item">
+						<command-button name="brb" title="Afk command settings" />
+						<command-button name="brbstop" title="Afk command settings" />
+					</div>
 
 					<div class="item">
 						<span>Text</span>
