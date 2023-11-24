@@ -1,12 +1,23 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch } from 'naive-ui';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+import { useCopyOverlayLink } from '../copyOverlayLink';
 
 import { useProfile } from '@/api';
 import FontSelector from '@/components/fontSelector.vue';
 
+defineProps<{
+	showSettings: boolean
+}>();
+defineEmits<{
+	close: []
+}>();
+
 const themeVars = useThemeVars();
+const { t } = useI18n();
 
 const { data: profile } = useProfile();
 
@@ -64,86 +75,122 @@ watch(() => formValue, () => {
 
 	sendSettings();
 }, { deep: true });
+
+
+const { copyOverlayLink } = useCopyOverlayLink('brb');
 </script>
 
 <template>
-	<div class="settings">
-		<div class="form">
-			<div style="display: flex; flex-direction: column; gap: 12px;">
-				<n-divider style="margin: 0">Main settings</n-divider>
+	<n-modal
+		:show="showSettings"
+		:mask-closable="false"
+		:segmented="true"
+		preset="card"
+		title="Be right back"
+		content-style="padding: 10px; width: 100%"
+		style="width: 50dvw;"
+		footer-style="padding: 8px;"
+		@close="$emit('close')"
+	>
+		<div class="settings">
+			<div class="form">
+				<div style="display: flex; flex-direction: column; gap: 12px;">
+					<n-divider style="margin: 0">
+						Main settings
+					</n-divider>
 
-				<div class="item">
-					<span>Text</span>
-					<n-input v-model:value="formValue.text" :maxlength="500" />
+					<div class="item">
+						<span>Text</span>
+						<n-input v-model:value="formValue.text" :maxlength="500" />
+					</div>
+
+					<div class="item">
+						<span>background</span>
+						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
+					</div>
+
+					<div class="item">
+						<span>fontColor</span>
+						<n-color-picker v-model:value="formValue.fontColor" :modes="['rgb']" />
+					</div>
+
+					<div class="item">
+						<span>font family</span>
+						<font-selector v-model="formValue.fontFamily" :clearable="true" />
+					</div>
+
+					<div class="item">
+						<span>Font size</span>
+						<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
+					</div>
 				</div>
 
-				<div class="item">
-					<span>background</span>
-					<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
-				</div>
+				<div style="display: flex; flex-direction: column; gap: 12px;">
+					<n-divider style="margin: 0">
+						"Late" settings
+					</n-divider>
 
-				<div class="item">
-					<span>fontColor</span>
-					<n-color-picker v-model:value="formValue.fontColor" :modes="['rgb']" />
-				</div>
+					<div class="item">
+						<span>Text</span>
+						<n-input v-model:value="formValue.late!.text" :maxlength="500" />
+					</div>
 
-				<div class="item">
-					<span>font family</span>
-					<font-selector v-model="formValue.fontFamily" :clearable="true" />
-				</div>
+					<div style="display: flex; gap: 8px">
+						<n-switch v-model:value="formValue.late!.enabled" />
+						<span>Enabled</span>
+					</div>
 
-				<div class="item">
-					<span>Font size</span>
-					<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
+					<div style="display: flex; gap: 8px">
+						<n-switch v-model:value="formValue.late!.displayBrbTime" />
+						<span>Display brb</span>
+					</div>
 				</div>
 			</div>
-
-			<div style="display: flex; flex-direction: column; gap: 12px;">
-				<n-divider style="margin: 0">"Late" settings</n-divider>
-
-				<div class="item">
-					<span>Text</span>
-					<n-input v-model:value="formValue.late!.text" :maxlength="500" />
+			<div>
+				<div style="position: absolute; top: 85px; right: 20px; font-weight: 500;">
+					<div style="display: flex; gap: 8px">
+						<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
+							Stop
+						</n-button>
+						<n-button
+							secondary
+							size="small"
+							type="success"
+							@click="() => {
+								sendSettings();
+								sendIframeMessage('start', { minutes: 0.1 })
+							}"
+						>
+							Start preview
+						</n-button>
+					</div>
 				</div>
-
-				<div style="display: flex; gap: 8px">
-					<n-switch v-model:value="formValue.late!.enabled" />
-					<span>Enabled</span>
-				</div>
-
-				<div style="display: flex; gap: 8px">
-					<n-switch v-model:value="formValue.late!.displayBrbTime" />
-					<span>Display brb</span>
-				</div>
+				<iframe
+					v-if="brbIframeUrl"
+					ref="brbIframeRef"
+					:src="brbIframeUrl"
+					class="iframe"
+				/>
 			</div>
 		</div>
-		<div>
-			<div style="position: absolute; top: 85px; right: 20px; font-weight: 500;">
-				<div style="display: flex; gap: 8px">
-					<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
-						Stop
-					</n-button>
-					<n-button
-						secondary
-						size="small"
-						type="success"
-						@click="() => {
-							sendSettings();
-							sendIframeMessage('start', { minutes: 0.1 })
-						}"
-					>
-						Start preview
-					</n-button>
-				</div>
+		<template #footer>
+			<div class="footer">
+				<n-button
+					secondary
+					type="info"
+					@click="copyOverlayLink"
+				>
+					{{ t('overlays.copyOverlayLink') }}
+				</n-button>
+				<n-button
+					secondary
+					type="success"
+				>
+					{{ t('sharedButtons.save') }}
+				</n-button>
 			</div>
-			<iframe
-				v-if="brbIframeUrl"
-				ref="brbIframeRef"
-				:src="brbIframeUrl"
-				class="iframe"
-			/>
-		</div>
-	</div>
+		</template>
+	</n-modal>
 </template>
 
 <style scoped>
@@ -174,6 +221,12 @@ watch(() => formValue, () => {
 .settings > div {
 	width: 50%;
 	min-height: 50dvh;
+}
+
+.footer {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }
 
 .iframe {

@@ -308,7 +308,7 @@
     "copyOverlayLink": "Copy overlay link",
     "uncongirured": "You should configure overlay first",
     "noAccess": "You cannot copy overlays of other users",
-    "copied": "Copied link url, paste it in obs as browser source",
+    "copied": "Copied overlay link url, paste it in obs as browser source",
     "tts": {
       "description": "Play audios in your OBS with some set of preconfigured voices. You can use that overlay via commands, or on events",
       "eventsHint": "Hint: you can use events system to trigger tts on reward.",
@@ -656,7 +656,7 @@
   },
 	"components": {
 		"fontFamily": {
-			"description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
+			"description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)"
 		}
 	}
 }

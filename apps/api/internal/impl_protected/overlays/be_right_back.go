@@ -2,6 +2,7 @@ package overlays
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/goccy/go-json"
@@ -9,7 +10,9 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/overlays_be_right_back"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 const brbOverlayType = "be_right_back_overlay"
@@ -59,6 +62,10 @@ func (c *Overlays) OverlayBeRightBackGet(
 		Where(`"channelId" = ? and type = ?`, dashboardId, brbOverlayType).
 		First(&entity).
 		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, twirp.NotFoundError("settings not found")
+		}
+
 		return nil, fmt.Errorf("cannot get settings: %w", err)
 	}
 

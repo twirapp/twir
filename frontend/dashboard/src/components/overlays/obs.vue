@@ -11,7 +11,7 @@ import Card from '@/components/overlays/card.vue';
 
 const isModalOpened = ref(false);
 const obsManager = useObsOverlayManager();
-const { data: obsSettings, isError } = obsManager.getSettings();
+const { data: obsSettings, isError } = obsManager.getSettings(false);
 
 const { t } = useI18n();
 </script>

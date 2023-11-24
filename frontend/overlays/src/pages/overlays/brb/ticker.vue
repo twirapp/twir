@@ -95,34 +95,36 @@ const showCountDown = computed(() => {
 	<component :is="'style'">
 		@import url('{{ fontUrl }}')
 	</component>
-	<div
-		v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"
-		class="overlay"
-		:style="{
-			backgroundColor: settings.backgroundColor || 'rgba(9, 8, 8, 0.49)',
-			color: settings.fontColor || '#fff',
-		}"
-	>
+	<Transition name="overlay" appear>
 		<div
-			v-if="showCountDown"
-			class="count-up"
-			:style="{ fontSize: `${settings.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px` }"
+			v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"
+			class="overlay"
+			:style="{
+				backgroundColor: settings.backgroundColor || 'rgba(9, 8, 8, 0.49)',
+				color: settings.fontColor || '#fff',
+			}"
 		>
-			{{ text || settings.text }}
-			{{
-				countDownTicks > 0
-					? millisecondsToTime(countDownTicks * 1000)
-					: millisecondsToTime(minutes)
-			}}
+			<div
+				v-if="showCountDown"
+				class="count-up"
+				:style="{ fontSize: `${settings.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px` }"
+			>
+				{{ text || settings.text }}
+				{{
+					countDownTicks > 0
+						? millisecondsToTime(countDownTicks * 1000)
+						: millisecondsToTime(minutes)
+				}}
+			</div>
+			<div
+				v-if="countUpInterval.isActive.value && props.settings.late?.enabled"
+				class="count-down"
+				:style="{ fontSize: `${settings.fontSize}px`}"
+			>
+				{{ settings.late?.text }}	 {{ millisecondsToTime(countUpTicks * 1000) }}
+			</div>
 		</div>
-		<div
-			v-if="countUpInterval.isActive.value && props.settings.late?.enabled"
-			class="count-down"
-			:style="{ fontSize: `${settings.fontSize}px`}"
-		>
-			{{ settings.late?.text }}	 {{ millisecondsToTime(countUpTicks * 1000) }}
-		</div>
-	</div>
+	</Transition>
 </template>
 
 
@@ -137,5 +139,15 @@ const showCountDown = computed(() => {
 	text-align: center;
 	flex-direction: column;
 	font-family: v-bind(fontFamily);
+}
+
+.overlay-enter-active,
+.overlay-leave-active {
+  transition: opacity 0.9s ease;
+}
+
+.overlay-enter-from,
+.overlay-leave-to {
+  opacity: 0;
 }
 </style>
