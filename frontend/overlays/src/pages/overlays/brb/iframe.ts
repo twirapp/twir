@@ -1,11 +1,17 @@
-import type { SetSettings } from './types.js';
+import type { OnStart, OnStop, SetSettings } from './types.js';
 
-export const useIframe = (setSettings: SetSettings) => {
+type Opts = {
+	onSettings: SetSettings,
+	onStart: OnStart,
+	onStop: OnStop,
+}
+
+export const useIframe = (opts: Opts) => {
 	const onWindowMessage = (msg: MessageEvent<string>) => {
 		const parsedData = JSON.parse(msg.data);
 		console.log('iframe data: ', parsedData);
 		if (parsedData.key === 'settings') {
-			setSettings(parsedData.data);
+			opts.onSettings(parsedData.data);
 		}
 	};
 

@@ -148,6 +148,8 @@ message TriggerKappagenByEventRequest {
 
 message TriggerShowBrbRequest {
 	string channel_id = 1;
+	int32 minutes = 2;
+	optional string text = 3;
 }
 
 message TriggerHideBrbRequest {

@@ -8,8 +8,36 @@ import (
 )
 
 func (c *GrpcImpl) RefreshBrbSettings(
-	ctx context.Context,
+	_ context.Context,
 	req *websockets.RefreshBrbSettingsRequest,
 ) (*emptypb.Empty, error) {
-	panic("not implemented")
+	err := c.beRightBackServer.SendSettings(req.GetChannelId())
+
+	return &emptypb.Empty{}, err
+}
+
+func (c *GrpcImpl) TriggerShowBrb(
+	_ context.Context,
+	req *websockets.TriggerShowBrbRequest,
+) (*emptypb.Empty, error) {
+	err := c.beRightBackServer.SendEvent(
+		req.GetChannelId(),
+		"start", map[string]any{
+			"minutes": req.GetMinutes(),
+			"text":    req.Text,
+		},
+	)
+
+	return &emptypb.Empty{}, err
+}
+
+func (c *GrpcImpl) TriggerHideBrb(
+	_ context.Context,
+	req *websockets.TriggerHideBrbRequest,
+) (
+	*emptypb.Empty, error,
+) {
+	err := c.beRightBackServer.SendEvent(req.GetChannelId(), "stop", nil)
+
+	return &emptypb.Empty{}, err
 }

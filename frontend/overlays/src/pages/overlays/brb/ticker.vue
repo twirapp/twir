@@ -1,57 +1,83 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { computed, ref, watch, watchEffect } from 'vue';
+import { useIntervalFn } from '@vueuse/core';
+import { ref } from 'vue';
 
 import { getTimeDiffInMilliseconds, millisecondsToTime } from './timeUtils.js';
+import { OnStart, OnStop } from './types';
 
-const props = defineProps<{
+defineProps<{
 	settings: Settings
-	startTicks: number
 }>();
 
+const minutes = ref(0);
+const text = ref<string>();
 const countDownTicks = ref(0);
-watchEffect(() => countDownTicks.value = props.startTicks);
-
 const countUpTicks = ref(0);
 
-const isRunned = computed(() => countDownTicks.value > 0 || countUpTicks.value > 0);
+export type Ticker = {
+	start: OnStart,
+	stop: OnStop,
+}
 
-watch(countUpTicks, (v) => {
-	if (!v) return;
+const countDownInterval = useIntervalFn(() => {
+	countDownTicks.value--;
 
-	setTimeout(() => countUpTicks.value++, 1000);
+	if (!countDownTicks.value) {
+		countUpInterval.resume();
+	}
+}, 1000, {
+	immediate: false,
 });
 
-watch(countDownTicks, (v) => {
-	if (!v) {
-		if (props.settings.late?.enabled) {
-			countUpTicks.value++;
-		}
+const countUpInterval = useIntervalFn(() => {
+	countUpTicks.value++;
+}, 1000, {
+	immediate: false,
+});
 
-		return;
-	} else {
-		countUpTicks.value = 0;
-	}
+const start: OnStart = (incomingMinutes, incomingText) => {
+	stop();
+	const ticks = parseInt((getTimeDiffInMilliseconds(incomingMinutes) / 1000).toString());
 
-	setTimeout(() => countDownTicks.value--, 1000);
+	countDownTicks.value = ticks;
+	minutes.value = getTimeDiffInMilliseconds(incomingMinutes);
+	text.value = incomingText;
+
+	countDownInterval.resume();
+};
+
+const stop: OnStop = () => {
+	countDownTicks.value = 0;
+	countUpTicks.value = 0;
+	minutes.value = 0;
+	text.value = undefined;
+
+	countDownInterval.pause();
+	countUpInterval.pause();
+};
+
+defineExpose({
+  start,
+	stop,
 });
 </script>
 
 <template>
-	<div v-if="isRunned" class="overlay">
+	<div v-if="countDownInterval.isActive.value || countUpInterval.isActive.value" class="overlay">
 		<div
 			class="count-up"
-			:style="{ fontSize: `${settings.fontSize / (countUpTicks > 0 ? 2 : 1)}px` }"
+			:style="{ fontSize: `${settings.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px` }"
 		>
-			{{ settings.text }}
+			{{ text || settings.text }}
 			{{
 				countDownTicks > 0
 					? millisecondsToTime(countDownTicks * 1000)
-					: millisecondsToTime(getTimeDiffInMilliseconds(5))
+					: millisecondsToTime(minutes)
 			}}
 		</div>
 		<div
-			v-if="countUpTicks > 0"
+			v-if="countUpInterval.isActive.value"
 			class="count-down"
 			:style="{ fontSize: `${settings.fontSize}px`}"
 		>

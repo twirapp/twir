@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
+	"github.com/satont/twir/apps/parser/internal/commands/overlays/brb"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
 	"github.com/satont/twir/apps/parser/internal/commands/shoutout"
@@ -89,6 +90,8 @@ func New(opts *Opts) *Commands {
 			games.EightBall,
 			games.RussianRoulette,
 			kappagen.Kappagen,
+			brb.Start,
+			brb.Stop,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

@@ -5,8 +5,8 @@ import { useRoute } from 'vue-router';
 
 import { useIframe } from './brb/iframe.js';
 import { useBeRightBackOverlaySocket } from './brb/socket.js';
-import BrbTicker from './brb/ticker.vue';
-import { getTimeDiffInMilliseconds } from './brb/timeUtils.js';
+import BrbTicker, { type Ticker } from './brb/ticker.vue';
+import type { SetSettings, OnStart, OnStop } from './brb/types.js';
 
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
@@ -23,18 +23,37 @@ const settings = ref<Settings>({
 		enabled: true,
 	},
 });
-const setSettings = (s: Settings) => {
+
+const ticker = ref<Ticker | null>(null);
+
+const setSettings: SetSettings = (s) => {
 	settings.value = s;
 };
 
-const iframe = useIframe(setSettings);
-const socket = useBeRightBackOverlaySocket(apiKey, setSettings);
+const onStart: OnStart = (minutes, incomingText) => {
+	ticker.value?.start(minutes, incomingText);
+};
 
-const countDownTicks = ref(0);
+const onStop: OnStop = () => {
+	ticker.value?.stop();
+};
+
+const iframe = useIframe({
+	onSettings: setSettings,
+	onStart,
+	onStop,
+});
+
+const socket = useBeRightBackOverlaySocket({
+	apiKey,
+	onSettings: setSettings,
+	onStart,
+	onStop,
+});
 
 setTimeout(() => {
 	// this should be called on socket event
-	countDownTicks.value = parseInt((getTimeDiffInMilliseconds(0.1) / 1000).toString());
+	onStart(0.1, settings.value.text);
 }, 1000);
 
 onMounted(() => {
@@ -52,5 +71,8 @@ onMounted(() => {
 </script>
 
 <template>
-	<BrbTicker :settings="settings" :start-ticks="countDownTicks" />
+	<brb-ticker
+		ref="ticker"
+		:settings="settings"
+	/>
 </template>
