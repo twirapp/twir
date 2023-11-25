@@ -387,6 +387,37 @@
 					"emojiStyle": "Emoji style"
 				}
 			}
+		},
+		"brb": {
+			"settings": {
+				"main": {
+					"label": "Main settings",
+					"startCommand": {
+						"description": "Command for start coundown",
+						"example": "<b>!brb 1 Coffee</b> – starts 1 minute countdown with 'Coffee' text<br><b>!brb 1</b> – starts 1 minute coundown with default text"
+					},
+					"stopCommand": {
+						"description": "Stops countdown and removes from screen",
+						"example": "!brbstop"
+					},
+					"text": "Text which will be showed on screen",
+					"background": "Overlay background",
+					"font": {
+						"color": "Font color",
+						"family": "Font family",
+						"size": "Font size"
+					}
+				},
+				"late": {
+					"label": "Late settings",
+					"text": "Text which will be showed on screen",
+					"displayBrb": "Display countdown information"
+				}
+			},
+			"preview": {
+				"start": "Start preview",
+				"stop": "Stop preview"
+			}
 		}
   },
   "songRequests": {

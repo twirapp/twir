@@ -106,7 +106,7 @@ async function save() {
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		title="Be right back"
+		title="Afk overlay"
 		content-style="padding: 10px; width: 100%"
 		style="width: 50dvw;"
 		footer-style="padding: 8px;"
@@ -116,58 +116,60 @@ async function save() {
 			<div class="form">
 				<div style="display: flex; flex-direction: column; gap: 12px;">
 					<n-divider style="margin: 0">
-						Main settings
+						{{ t('overlays.brb.settings.main.label') }}
 					</n-divider>
 
 					<div class="item">
-						<command-button name="brb" title="Afk command settings" />
-						<command-button name="brbstop" title="Afk command settings" />
+						<div>
+							<command-button name="brb" :title="t('overlays.brb.settings.main.startCommand.description')" />
+							<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
+						</div>
 					</div>
 
 					<div class="item">
-						<span>Text</span>
+						<span>{{ t('overlays.brb.settings.main.text') }}</span>
 						<n-input v-model:value="formValue.text" :maxlength="500" />
 					</div>
 
 					<div class="item">
-						<span>background</span>
+						<span>{{ t('overlays.brb.settings.main.background') }}</span>
 						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
 					</div>
 
 					<div class="item">
-						<span>fontColor</span>
+						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
 						<n-color-picker v-model:value="formValue.fontColor" :modes="['rgb']" />
 					</div>
 
 					<div class="item">
-						<span>font family</span>
+						<span>{{ t('overlays.brb.settings.main.font.family') }}</span>
 						<font-selector v-model="formValue.fontFamily" :clearable="true" />
 					</div>
 
 					<div class="item">
-						<span>Font size</span>
+						<span>{{ t('overlays.brb.settings.main.font.size') }}</span>
 						<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
 					</div>
 				</div>
 
 				<div style="display: flex; flex-direction: column; gap: 12px;">
 					<n-divider style="margin: 0">
-						"Late" settings
+						{{ t('overlays.brb.settings.late.label') }}
 					</n-divider>
 
 					<div class="item">
-						<span>Text</span>
+						<span>{{ t('overlays.brb.settings.late.text') }}</span>
 						<n-input v-model:value="formValue.late!.text" :maxlength="500" />
 					</div>
 
 					<div style="display: flex; gap: 8px">
 						<n-switch v-model:value="formValue.late!.enabled" />
-						<span>Enabled</span>
+						<span>{{ t('sharedTexts.enabled') }}</span>
 					</div>
 
 					<div style="display: flex; gap: 8px">
 						<n-switch v-model:value="formValue.late!.displayBrbTime" />
-						<span>Display brb</span>
+						<span>{{ t('overlays.brb.settings.late.displayBrb') }}</span>
 					</div>
 				</div>
 			</div>
@@ -175,7 +177,7 @@ async function save() {
 				<div style="position: absolute; top: 85px; right: 20px; font-weight: 500;">
 					<div style="display: flex; gap: 8px">
 						<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
-							Stop
+							{{ t('overlays.brb.preview.stop') }}
 						</n-button>
 						<n-button
 							secondary
@@ -186,7 +188,7 @@ async function save() {
 								sendIframeMessage('start', { minutes: 0.1 })
 							}"
 						>
-							Start preview
+							{{ t('overlays.brb.preview.start') }}
 						</n-button>
 					</div>
 				</div>
