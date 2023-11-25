@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/obs"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/registry/overlays"
@@ -43,6 +44,7 @@ type GrpcImpl struct {
 	overlaysRegistryServer *overlays.Registry
 	chatServer             *chat.Chat
 	kappagenServer         *kappagen.Kappagen
+	beRightBackServer      *be_right_back.BeRightBack
 }
 
 type GrpcOpts struct {
@@ -60,6 +62,7 @@ type GrpcOpts struct {
 	OverlaysRegistryServer *overlays.Registry
 	ChatServer             *chat.Chat
 	KappagenServer         *kappagen.Kappagen
+	BeRightBackServer      *be_right_back.BeRightBack
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -74,6 +77,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
 		chatServer:             opts.ChatServer,
 		kappagenServer:         opts.KappagenServer,
+		beRightBackServer:      opts.BeRightBackServer,
 	}
 
 	grpcServer := grpc.NewServer()

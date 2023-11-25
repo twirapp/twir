@@ -64,7 +64,6 @@ const commandsWithGroups = computed<ListRowData[]>(() => {
 
 const commandsFilter = ref('');
 const filteredCommands = computed<ListRowData[]>(() => {
-	console.log(commandsWithGroups.value);
 	return commandsWithGroups.value.filter(c => {
 		return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value));
 	});

@@ -12,7 +12,7 @@ export const useObsOverlayManager = () => {
   const queryKey = ['obsSettings'];
 
   return {
-    getSettings: () => useQuery({
+    getSettings: (refetchEnabled = true) => useQuery({
       queryKey,
       queryFn: async (): Promise<GetResponse | null> => {
 				try {
@@ -22,7 +22,7 @@ export const useObsOverlayManager = () => {
 					return null;
 				}
       },
-			refetchInterval: 1000,
+			refetchInterval: refetchEnabled ? 1000 : 0,
     }),
     updateSettings: () => useMutation({
       mutationKey: ['obsSettingsUpdate'],

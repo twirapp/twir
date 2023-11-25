@@ -411,7 +411,6 @@ const createButtonProps = { class: 'create-button' } as any;
 					:type="formValue.cooldownRolesIds.includes(option.value) ? 'success' : 'default'"
 					secondary
 					@click="() => {
-						console.log(formValue.cooldownRolesIds, option.value)
 						if (formValue.cooldownRolesIds.includes(option.value)) {
 							formValue.cooldownRolesIds = formValue.cooldownRolesIds.filter(r => r !== option.value)
 						} else {

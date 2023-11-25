@@ -34,6 +34,7 @@ import "api/modules_sr.proto";
 import "api/modules_chat_alerts.proto";
 import "api/overlays_chat.proto";
 import "api/overlays_kappagen.proto";
+import "api/overlays_be_right_back.proto";
 
 import "api/rewards.proto";
 
@@ -154,6 +155,9 @@ service Protected {
 
 	rpc OverlayChatGet(google.protobuf.Empty) returns (overlays_chat.Settings) {}
 	rpc OverlayChatUpdate(overlays_chat.Settings) returns (overlays_chat.Settings) {}
+
+	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (overlays_be_right_back.Settings) {}
+	rpc OverlayBeRightBackUpdate(overlays_be_right_back.Settings) returns (overlays_be_right_back.Settings) {}
 
 	rpc OverlayKappaGenGet(google.protobuf.Empty) returns (overlays_kappagen.Settings) {}
 	rpc OverlayKappaGenUpdate(overlays_kappagen.Settings) returns (overlays_kappagen.Settings) {}

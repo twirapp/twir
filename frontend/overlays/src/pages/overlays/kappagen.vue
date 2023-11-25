@@ -142,6 +142,7 @@ onMounted(() => {
 
 	return () => {
 		iframe.destroy();
+		socket.destroy();
 	};
 });
 

@@ -13,7 +13,8 @@
     "select": "Select",
     "cancel": "Cancel",
     "confirm": "Confirm",
-		"saveSettings": "Save settings"
+		"saveSettings": "Save settings",
+		"setDefaultSettings": "Set default settings"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -308,7 +309,7 @@
     "copyOverlayLink": "Copy overlay link",
     "uncongirured": "You should configure overlay first",
     "noAccess": "You cannot copy overlays of other users",
-    "copied": "Copied link url, paste it in obs as browser source",
+    "copied": "Copied overlay link url, paste it in obs as browser source",
     "tts": {
       "description": "Play audios in your OBS with some set of preconfigured voices. You can use that overlay via commands, or on events",
       "eventsHint": "Hint: you can use events system to trigger tts on reward.",
@@ -386,6 +387,37 @@
 					"seventvEnabled": "Enable 7tv emotes",
 					"emojiStyle": "Emoji style"
 				}
+			}
+		},
+		"brb": {
+			"settings": {
+				"main": {
+					"label": "Main settings",
+					"startCommand": {
+						"description": "Command for start coundown",
+						"example": "<b>!brb 1 Coffee</b> – starts 1 minute countdown with 'Coffee' text<br><b>!brb 1</b> – starts 1 minute coundown with default text"
+					},
+					"stopCommand": {
+						"description": "Stops countdown and removes from screen",
+						"example": "!brbstop"
+					},
+					"text": "Text which will be showed on screen",
+					"background": "Overlay background",
+					"font": {
+						"color": "Font color",
+						"family": "Font family",
+						"size": "Font size"
+					}
+				},
+				"late": {
+					"label": "Late settings",
+					"text": "Text which will be showed on screen",
+					"displayBrb": "Display countdown information"
+				}
+			},
+			"preview": {
+				"start": "Start preview",
+				"stop": "Stop preview"
 			}
 		}
   },
@@ -653,5 +685,10 @@
         "disallowedLanguages": "Disallowed languages"
       }
     }
-  }
+  },
+	"components": {
+		"fontFamily": {
+			"description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)"
+		}
+	}
 }

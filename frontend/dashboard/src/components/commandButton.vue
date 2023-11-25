@@ -9,6 +9,7 @@ import CommandModal from '@/components/commands/modal.vue';
 
 const props = defineProps<{
 	name: string
+	title?: string
 }>();
 
 const commandsManager = useCommandsManager();
@@ -22,7 +23,7 @@ const { t } = useI18n();
 
 <template>
 	<div style="display: flex; flex-direction: column;">
-		<span>{{ t('games.command') }}</span>
+		<span>{{ props.title ?? t('games.command') }}</span>
 		<div v-if="command" style="display: flex; gap: 5px;">
 			<n-button secondary type="success" @click="() => showCommandEditModal = true">
 				<div

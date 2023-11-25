@@ -19,7 +19,6 @@ const webhookUrl = computed(() => {
 
 const secret = ref('');
 async function saveSecret() {
-	console.log(secret.value);
 	if (!secret.value) return;
 	await mutateAsync(secret.value);
 }
