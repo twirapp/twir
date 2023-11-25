@@ -7,8 +7,9 @@ type ChannelModulesSettingsBeRightBack struct {
 
 	BackgroundColor string `json:"backgroundColor"`
 
-	FontSize  int32  `json:"fontSize"`
-	FontColor string `json:"color"`
+	FontSize   int32  `json:"fontSize"`
+	FontColor  string `json:"color"`
+	FontFamily string `json:"fontFamily"`
 }
 
 type ChannelModulesSettingsBeRightBackLate struct {

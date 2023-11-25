@@ -30,6 +30,7 @@ func (c *Overlays) brbDbToGrpc(
 		BackgroundColor: s.BackgroundColor,
 		FontSize:        s.FontSize,
 		FontColor:       s.FontColor,
+		FontFamily:      s.FontFamily,
 	}
 }
 
@@ -46,6 +47,7 @@ func (c *Overlays) brbGrpcToDb(
 		BackgroundColor: s.BackgroundColor,
 		FontSize:        s.FontSize,
 		FontColor:       s.FontColor,
+		FontFamily:      s.FontFamily,
 	}
 }
 
