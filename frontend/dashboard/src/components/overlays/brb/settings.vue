@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert, NSlider } from 'naive-ui';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -23,7 +23,7 @@ const { t } = useI18n();
 const { data: profile } = useProfile();
 
 const defaultSettings = {
-	backgroundColor: 'rgba(9, 8, 8, 0.49)',
+	backgroundColor: 'rgba(9, 8, 8, 0.50)',
 	fontColor: '#fff',
 	fontFamily: '',
 	fontSize: 100,
@@ -140,17 +140,12 @@ async function save() {
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.background') }}</span>
-						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
-					</div>
-
-					<div class="item">
-						<span>{{ t('overlays.brb.settings.main.backgroundOpacity') }}({{ formValue.opacity }}%)</span>
-						<n-slider v-model:value="formValue.opacity" :min="0" :max="100" />
+						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" show-preview />
 					</div>
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
-						<n-color-picker v-model:value="formValue.fontColor" :modes="['rgb']" />
+						<n-color-picker v-model:value="formValue.fontColor" :modes="['hex', 'rgb']" :show-alpha="false" />
 					</div>
 
 					<div class="item">

@@ -3,8 +3,7 @@ package model
 type ChannelModulesSettingsBeRightBack struct {
 	Text string `json:"text"`
 
-	Late    ChannelModulesSettingsBeRightBackLate `json:"late"`
-	Opacity int32                                 `json:"opacity"`
+	Late ChannelModulesSettingsBeRightBackLate `json:"late"`
 
 	BackgroundColor string `json:"backgroundColor"`
 

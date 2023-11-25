@@ -67,6 +67,5 @@ onMounted(() => {
 <style scoped>
 .container {
 	overflow: hidden;
-	background-color: #fff;
 }
 </style>

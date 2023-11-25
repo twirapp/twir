@@ -88,8 +88,6 @@ const showCountDown = computed(() => {
 
 	return true;
 });
-
-const opacity = computed(() => `${props.settings.opacity}%`);
 </script>
 
 <template>
@@ -101,7 +99,7 @@ const opacity = computed(() => `${props.settings.opacity}%`);
 			v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"
 			class="overlay"
 			:style="{
-				backgroundColor: settings.backgroundColor || 'rgba(9, 8, 8, 0.49)',
+				backgroundColor: settings.backgroundColor || 'rgba(9, 8, 8, 0.50)',
 				color: settings.fontColor || '#fff',
 			}"
 		>
@@ -140,7 +138,6 @@ const opacity = computed(() => `${props.settings.opacity}%`);
 	text-align: center;
 	flex-direction: column;
 	font-family: v-bind(fontFamily);
-	opacity: v-bind(opacity);
 }
 
 .overlay-enter-active,
