@@ -390,6 +390,7 @@
 			}
 		},
 		"brb": {
+			"description": "Show countdown/countup timers on screen",
 			"settings": {
 				"main": {
 					"label": "Main settings",
