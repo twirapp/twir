@@ -404,6 +404,7 @@
 					},
 					"text": "Text which will be showed on screen",
 					"background": "Overlay background",
+					"backgroundOpacity": "Overlay background opacity",
 					"font": {
 						"color": "Font color",
 						"family": "Font family",

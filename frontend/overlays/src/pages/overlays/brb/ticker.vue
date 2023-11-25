@@ -89,6 +89,7 @@ const showCountDown = computed(() => {
 	return true;
 });
 
+const opacity = computed(() => `${props.settings.opacity}%`);
 </script>
 
 <template>
@@ -139,6 +140,7 @@ const showCountDown = computed(() => {
 	text-align: center;
 	flex-direction: column;
 	font-family: v-bind(fontFamily);
+	opacity: v-bind(opacity);
 }
 
 .overlay-enter-active,

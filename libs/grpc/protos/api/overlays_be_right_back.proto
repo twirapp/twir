@@ -16,4 +16,5 @@ message Settings {
 	int32 font_size = 4;
 	string font_color = 5;
 	string font_family = 6;
+	int32 opacity = 7;
 }

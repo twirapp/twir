@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert } from 'naive-ui';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert, NSlider } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -33,6 +33,7 @@ const defaultSettings = {
 		displayBrbTime: true,
 		enabled: true,
 	},
+	opacity: 50,
 };
 
 const formValue = ref<Settings>(defaultSettings);
@@ -140,6 +141,11 @@ async function save() {
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.background') }}</span>
 						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" />
+					</div>
+
+					<div class="item">
+						<span>{{ t('overlays.brb.settings.main.backgroundOpacity') }}({{ formValue.opacity }}%)</span>
+						<n-slider v-model:value="formValue.opacity" :min="0" :max="100" />
 					</div>
 
 					<div class="item">
