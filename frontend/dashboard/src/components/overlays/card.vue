@@ -38,8 +38,10 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 
 		<template #footer>
 			<n-button v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large" @click="$emit('openSettings')">
-				<span>{{ t('sharedButtons.settings') }}</span>
-				<IconSettings />
+				<div class="button-content">
+					<span>{{ t('sharedButtons.settings') }}</span>
+					<IconSettings />
+				</div>
 			</n-button>
 			<n-tooltip :disabled="profile?.id !== profile?.selectedDashboardId">
 				<template #trigger>
@@ -48,8 +50,10 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 						:disabled="copyDisabled || profile?.id != profile?.selectedDashboardId"
 						@click="copyOverlayLink"
 					>
-						<span>{{ t('overlays.copyOverlayLink') }}</span>
-						<IconCopy />
+						<div class="button-content">
+							<span>{{ t('overlays.copyOverlayLink') }}</span>
+							<IconCopy />
+						</div>
 					</n-button>
 				</template>
 				<span v-if="profile?.id != profile?.selectedDashboardId">{{ t('overlays.noAccess') }}</span>
@@ -58,3 +62,10 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 		</template>
 	</card>
 </template>
+
+<style scoped>
+.button-content {
+	display: flex;
+	gap: 4px;
+}
+</style>
