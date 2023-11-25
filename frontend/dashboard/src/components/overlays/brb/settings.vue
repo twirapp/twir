@@ -38,7 +38,7 @@ const defaultSettings = {
 const formValue = ref<Settings>(defaultSettings);
 
 const manager = useBeRightBackOverlayManager();
-const { data: settings } = manager.getSettings();
+const { data: settings, isError: isSettingsError, isLoading: isSettingsLoading } = manager.getSettings();
 const updater = manager.updateSettings();
 
 watch(settings, (v) => {
@@ -220,6 +220,7 @@ async function save() {
 					<n-button
 						secondary
 						type="info"
+						:disabled="isSettingsError || isSettingsLoading"
 						@click="copyOverlayLink"
 					>
 						{{ t('overlays.copyOverlayLink') }}
