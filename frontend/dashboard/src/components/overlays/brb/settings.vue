@@ -22,7 +22,7 @@ const { t } = useI18n();
 
 const { data: profile } = useProfile();
 
-const formValue = ref<Settings>({
+const defaultSettings = {
 	backgroundColor: 'rgba(9, 8, 8, 0.49)',
 	fontColor: '#fff',
 	fontFamily: '',
@@ -31,9 +31,11 @@ const formValue = ref<Settings>({
 	late: {
 		text: 'LATE FOR',
 		displayBrbTime: true,
-		enabled: false,
+		enabled: true,
 	},
-});
+};
+
+const formValue = ref<Settings>(defaultSettings);
 
 const manager = useBeRightBackOverlayManager();
 const { data: settings } = manager.getSettings();
@@ -42,7 +44,7 @@ const updater = manager.updateSettings();
 watch(settings, (v) => {
 	if (!v) return;
 
-	formValue.value = v;
+	formValue.value = toRaw(v);
 }, { immediate: true });
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null);
@@ -204,18 +206,28 @@ async function save() {
 			<div class="footer">
 				<n-button
 					secondary
-					type="info"
-					@click="copyOverlayLink"
+					type="error"
+					@click="formValue = defaultSettings"
 				>
-					{{ t('overlays.copyOverlayLink') }}
+					{{ t('sharedButtons.setDefaultSettings') }}
 				</n-button>
-				<n-button
-					secondary
-					type="success"
-					@click="save"
-				>
-					{{ t('sharedButtons.save') }}
-				</n-button>
+
+				<div style="display: flex; gap: 8px;">
+					<n-button
+						secondary
+						type="info"
+						@click="copyOverlayLink"
+					>
+						{{ t('overlays.copyOverlayLink') }}
+					</n-button>
+					<n-button
+						secondary
+						type="success"
+						@click="save"
+					>
+						{{ t('sharedButtons.save') }}
+					</n-button>
+				</div>
 			</div>
 		</template>
 	</n-modal>
@@ -253,7 +265,7 @@ async function save() {
 
 .footer {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	gap: 8px;
 }
 

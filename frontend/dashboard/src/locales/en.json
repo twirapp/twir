@@ -13,7 +13,8 @@
     "select": "Select",
     "cancel": "Cancel",
     "confirm": "Confirm",
-		"saveSettings": "Save settings"
+		"saveSettings": "Save settings",
+		"setDefaultSettings": "Set default settings"
   },
   "sharedTexts": {
     "saved": "Saved",
