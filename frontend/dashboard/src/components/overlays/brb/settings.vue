@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification } from 'naive-ui';
+import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -122,10 +122,14 @@ async function save() {
 					</n-divider>
 
 					<div class="item">
-						<div>
+						<div style="display: flex; gap: 4px; flex-direction: column;">
 							<command-button name="brb" :title="t('overlays.brb.settings.main.startCommand.description')" />
-							<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
+							<n-alert type="info" :show-icon="false">
+								<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
+							</n-alert>
 						</div>
+
+						<command-button name="brbstop" :title="t('overlays.brb.settings.main.stopCommand.description')" />
 					</div>
 
 					<div class="item">
