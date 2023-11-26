@@ -1,6 +1,0 @@
-[submodule "libs/twitch-eventsub-bindings"]
-	path = libs/twitch-eventsub-bindings
-	url = https://github.com/twirapp/twitch-eventsub-bindings
-[submodule "libs/twitch-eventsub-framework"]
-	path = libs/twitch-eventsub-framework
-	url = https://github.com/twirapp/twitch-eventsub-framework
