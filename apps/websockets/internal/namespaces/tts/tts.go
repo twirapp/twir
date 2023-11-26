@@ -59,16 +59,16 @@ func NewTts(opts Opts) *TTS {
 			}
 
 			tts.counter.Inc()
+			session.Write([]byte(`{"eventName":"connected"}`))
 		},
 	)
-
-	http.HandleFunc("/tts", tts.HandleRequest)
-
 	tts.manager.HandleDisconnect(
 		func(session *melody.Session) {
 			tts.counter.Dec()
 		},
 	)
+
+	http.HandleFunc("/tts", tts.HandleRequest)
 
 	return tts
 }

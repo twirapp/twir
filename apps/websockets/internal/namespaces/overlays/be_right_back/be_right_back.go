@@ -43,7 +43,7 @@ type Opts struct {
 func New(opts Opts) *BeRightBack {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
-	kappagen := &BeRightBack{
+	brb := &BeRightBack{
 		manager:    m,
 		gorm:       opts.Gorm,
 		logger:     opts.Logger,
@@ -58,7 +58,7 @@ func New(opts Opts) *BeRightBack {
 		),
 	}
 
-	kappagen.manager.HandleConnect(
+	brb.manager.HandleConnect(
 		func(session *melody.Session) {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
@@ -66,26 +66,26 @@ func New(opts Opts) *BeRightBack {
 				return
 			}
 
-			kappagen.counter.Inc()
+			brb.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected to be_right_back namespace"}`))
 		},
 	)
 
-	kappagen.manager.HandleMessage(
+	brb.manager.HandleMessage(
 		func(session *melody.Session, msg []byte) {
-			kappagen.handleMessage(session, msg)
+			brb.handleMessage(session, msg)
 		},
 	)
 
-	kappagen.manager.HandleDisconnect(
+	brb.manager.HandleDisconnect(
 		func(session *melody.Session) {
-			kappagen.counter.Dec()
+			brb.counter.Dec()
 		},
 	)
 
-	http.HandleFunc("/overlays/brb", kappagen.HandleRequest)
+	http.HandleFunc("/overlays/brb", brb.HandleRequest)
 
-	return kappagen
+	return brb
 }
 
 func (c *BeRightBack) HandleRequest(w http.ResponseWriter, r *http.Request) {
