@@ -148,10 +148,14 @@ export const newRouter = (queryClient: QueryClient) => {
 
 	router.beforeEach(async (to, _, next) => {
 		try {
-			if (!to.meta.neededPermission) return next();
-
-			await queryClient.ensureQueryData(profileQueryOptions);
+			const profile = await queryClient.ensureQueryData(profileQueryOptions);
 			await queryClient.ensureQueryData(dashboardsQueryOptions);
+
+			if (!profile) {
+				return window.location.replace('/');
+			}
+
+			if (!to.meta.neededPermission) return next();
 
 			const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission as PermissionsType);
 			if (hasAccess) {
