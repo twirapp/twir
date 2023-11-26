@@ -5,6 +5,8 @@
 - [Node.js (20+)](https://nodejs.org/en)
 - [Pnpm](https://pnpm.io/)
 - [Go (1.21+)](https://go.dev/)
+- Python (3+)
+- [Build tools](https://github.com/nodejs/node-gyp#installation)
 - Protobuf-compiler.
 
 	Installation of protobuf depends on your system, google it.
