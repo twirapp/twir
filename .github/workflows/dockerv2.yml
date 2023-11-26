@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: TooMuch4U/actions-clean@v2.1
       - uses: actions/checkout@v3
+        with:
+          submodules: true
 
       - run: |
           docker build -f ./base.Dockerfile \
