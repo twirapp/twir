@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"sync/atomic"
 
@@ -47,7 +48,7 @@ func NewClient(
 	}
 
 	for _, channel := range channels {
-		err = subClient.SubscribeToNeededEvents(ctx, channel.ID)
+		err = subClient.SubscribeToNeededEvents(ctx, channel.ID, channel.BotID)
 		if err != nil {
 			return nil, err
 		}
@@ -61,12 +62,17 @@ type SubRequest struct {
 	Condition map[string]string
 }
 
-func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) error {
+func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId, botId string) error {
 	channelCondition := map[string]string{
 		"broadcaster_user_id": userId,
 	}
 	userCondition := map[string]string{
 		"user_id": userId,
+	}
+
+	channelConditionWithBotId := map[string]string{
+		"broadcaster_user_id": userId,
+		"user_id":             botId,
 	}
 
 	neededSubs := map[string]SubRequest{
@@ -159,6 +165,22 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 				"to_broadcaster_user_id": userId,
 			},
 		},
+		"channel.chat.clear": {
+			Version:   "1",
+			Condition: channelConditionWithBotId,
+		},
+		"channel.chat.clear_user_messages": {
+			Version:   "1",
+			Condition: channelConditionWithBotId,
+		},
+		"channel.chat.message_delete": {
+			Version:   "1",
+			Condition: channelConditionWithBotId,
+		},
+		"channel.chat.notification": {
+			Version:   "1",
+			Condition: channelConditionWithBotId,
+		},
 	}
 
 	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
@@ -166,11 +188,27 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 		return err
 	}
 
-	subsReq, err := twitchClient.GetEventSubSubscriptions(
-		&helix.EventSubSubscriptionsParams{
-			UserID: userId,
-		},
-	)
+	var subscriptions []helix.EventSubSubscription
+	cursor := ""
+	for {
+		subs, err := twitchClient.GetEventSubSubscriptions(
+			&helix.EventSubSubscriptionsParams{
+				UserID: userId,
+				After:  cursor,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
+
+		if subs.Data.Pagination.Cursor == "" {
+			break
+		}
+
+		cursor = subs.Data.Pagination.Cursor
+	}
 
 	wg := &sync.WaitGroup{}
 	wg.Add(len(neededSubs))
@@ -182,7 +220,7 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 			defer wg.Done()
 
 			existedSub, ok := lo.Find(
-				subsReq.Data.EventSubSubscriptions, func(item helix.EventSubSubscription) bool {
+				subscriptions, func(item helix.EventSubSubscription) bool {
 					return item.Type == key &&
 						(item.Condition.BroadcasterUserID == value.Condition["broadcaster_user_id"] ||
 							item.Condition.UserID == value.Condition["user_id"])
@@ -201,15 +239,32 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId string) 
 				}
 			}
 
-			request := &eventsub_framework.SubRequest{
+			request := eventsub_framework.SubRequest{
 				Type:      key,
 				Condition: value.Condition,
 				Callback:  c.callbackUrl,
 				Secret:    c.services.Config.TwitchClientSecret,
 				Version:   value.Version,
 			}
-			if _, err := c.Subscribe(ctx, request); err != nil {
-				zap.S().Error(err, key, userId)
+			if _, subscribeErr := c.Subscribe(ctx, &request); subscribeErr != nil {
+				var e *eventsub_framework.TwitchError
+				if errors.As(subscribeErr, &e) {
+					zap.S().Errorw(
+						"Failed to subscribe",
+						"user_id", userId,
+						"type", key,
+						"error", e.ErrorText,
+						"status", e.Status,
+						"message", e.Message,
+					)
+				} else {
+					zap.S().Error(
+						subscribeErr,
+						"user_id", userId,
+						"type", key,
+					)
+				}
+
 				return
 			}
 

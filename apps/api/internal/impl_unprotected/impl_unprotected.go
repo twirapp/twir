@@ -107,6 +107,7 @@ func New(opts Opts) *UnProtected {
 				"channel:read:subscriptions",
 				"channel:moderate",
 				"user:read:follows",
+				"channel:bot",
 			},
 		},
 		Modules: &modules.Modules{

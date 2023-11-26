@@ -36,9 +36,10 @@ func NewHandler(services *types.Services) *Handler {
 	manager.HandleChannelPredictionEnd = myHandler.handleChannelPredictionEnd
 	manager.HandleChannelBan = myHandler.handleBan
 	manager.HandleChannelSubscribe = myHandler.handleChannelSubscribe
-	manager.HandleChannelSubscriptionGift = myHandler.handleChannelSubscriptionGift
 	manager.HandleChannelSubscriptionMessage = myHandler.handleChannelSubscriptionMessage
 	manager.HandleChannelRaid = myHandler.handleChannelRaid
+	manager.HandleChannelChatClear = myHandler.handleChannelChatClear
+	manager.HandleChannelChatNotification = myHandler.handleChannelChatNotification
 
 	return myHandler
 }

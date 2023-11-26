@@ -3,6 +3,8 @@ module github.com/satont/twir/apps/eventsub
 go 1.21
 
 replace (
+	github.com/dnsge/twitch-eventsub-bindings => ../../libs/twitch-eventsub-bindings
+	github.com/dnsge/twitch-eventsub-framework => ../../libs/twitch-eventsub-framework
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/grpc => ../../libs/grpc

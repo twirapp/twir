@@ -7,10 +7,7 @@ import (
 	"time"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 )
 
@@ -122,30 +119,6 @@ func (c *ChatClient) createReader() *BotClientIrc {
 					)
 				},
 			)
-			client.OnClearChatMessage(
-				func(message irc.ClearChatMessage) {
-					c.counters.messagesCounter.Inc()
-
-					if message.TargetUserID != "" {
-						return
-					}
-					c.services.DB.Create(
-						&model.ChannelsEventsListItem{
-							ID:        uuid.New().String(),
-							ChannelID: message.RoomID,
-							Type:      model.ChannelEventListItemTypeChatClear,
-							CreatedAt: time.Now().UTC(),
-							Data:      &model.ChannelsEventsListItemData{},
-						},
-					)
-					c.services.EventsGrpc.ChatClear(
-						context.Background(), &events.ChatClearMessage{
-							BaseInfo: &events.BaseInfo{ChannelId: message.RoomID},
-						},
-					)
-				},
-			)
-			client.OnUserNoticeMessage(c.onNotice)
 			client.OnUserJoinMessage(c.onUserJoin)
 
 			if err != nil {

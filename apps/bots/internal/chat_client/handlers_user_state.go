@@ -19,10 +19,7 @@ func (c *ChatClient) OnUserStateMessage(msg irc.UserStateMessage) {
 
 	twitchReq, _ := c.services.TwitchClient.GetUsers(
 		&helix.UsersParams{
-			Logins: []string{
-				msg.
-					Channel,
-			},
+			Logins: []string{msg.Channel},
 		},
 	)
 	if len(twitchReq.Data.Users) == 0 {
