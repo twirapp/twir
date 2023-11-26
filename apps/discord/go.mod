@@ -15,7 +15,7 @@ require (
 	github.com/avast/retry-go/v4 v4.5.0
 	github.com/diamondburned/arikawa/v3 v3.3.3
 	github.com/google/uuid v1.3.1
-	github.com/nicklaw5/helix/v2 v2.25.1
+	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-20231015185800-07291c1491d4

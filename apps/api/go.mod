@@ -29,7 +29,7 @@ require (
 	github.com/imroc/req/v3 v3.42.1
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.62
-	github.com/nicklaw5/helix/v2 v2.25.1
+	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/rs/cors v1.9.0

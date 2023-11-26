@@ -64,8 +64,8 @@ github.com/mattn/go-isatty v0.0.19 h1:JITubQf0MOLdlGRuRq+jtsDlekdYPia9ZFsB8h/APP
 github.com/mattn/go-isatty v0.0.19/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/mozillazg/go-httpheader v0.3.1 h1:IRP+HFrMX2SlwY9riuio7raffXUpzAosHtZu25BSJok=
 github.com/mozillazg/go-httpheader v0.3.1/go.mod h1:PuT8h0pw6efvp8ZeUec1Rs7dwjK08bt6gKSReGMqtdA=
-github.com/nicklaw5/helix/v2 v2.25.1 h1:hccFfWf1kdPKeC/Zp8jNbOvqV0f6ya12hdeNHuQa5wg=
-github.com/nicklaw5/helix/v2 v2.25.1/go.mod h1:zZcKsyyBWDli34x3QleYsVMiiNGMXPAEU5NjsiZDtvY=
+github.com/nicklaw5/helix/v2 v2.25.2 h1:diGnmRnUpNk8vYVM1vOjUo5PGZnr8atbkUYT78T6evc=
+github.com/nicklaw5/helix/v2 v2.25.2/go.mod h1:zZcKsyyBWDli34x3QleYsVMiiNGMXPAEU5NjsiZDtvY=
 github.com/nxadm/tail v1.4.8 h1:nPr65rt6Y5JFSKQO7qToXr7pePgD6Gwiw05lkbyAQTE=
 github.com/nxadm/tail v1.4.8/go.mod h1:+ncqLTQzXmGhMZNUePPaPqPvBxHAIsmXswZKocGu+AU=
 github.com/onsi/ginkgo v1.16.5 h1:8xi0RTUf59SOSfEtZMvwTvXYMzG4gV23XVHOZiXNtnE=

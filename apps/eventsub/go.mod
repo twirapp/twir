@@ -18,7 +18,7 @@ require (
 	github.com/dnsge/twitch-eventsub-framework v1.2.3
 	github.com/google/uuid v1.3.1
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.25.1
+	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-20230606001334-07f3c562ff7e

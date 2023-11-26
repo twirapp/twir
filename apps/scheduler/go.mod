@@ -15,7 +15,7 @@ require (
 	github.com/google/uuid v1.3.1
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.9
-	github.com/nicklaw5/helix/v2 v2.25.1
+	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/samber/lo v1.38.1
 	github.com/satont/twir/libs/config v0.0.0-20230302140714-704247d5bf81
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000

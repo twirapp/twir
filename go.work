@@ -24,9 +24,9 @@ use (
 	./libs/pubsub
 	./libs/sentry
 	./libs/twitch
-	./libs/types
 	./libs/twitch-eventsub-bindings
 	./libs/twitch-eventsub-framework
+	./libs/types
 	./tools
 	libs/utils
 )

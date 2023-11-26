@@ -14,7 +14,7 @@ require (
 	github.com/getsentry/sentry-go v0.25.0
 	github.com/go-redis/redis/v9 v9.0.0-rc.2
 	github.com/go-redsync/redsync/v4 v4.7.1
-	github.com/nicklaw5/helix/v2 v2.25.1
+	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/samber/do v1.6.0
 	github.com/satont/twir/libs/config v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/crypto v0.0.0-00010101000000-000000000000
