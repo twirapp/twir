@@ -46,6 +46,8 @@ COPY libs/migrations/go.mod libs/migrations/go.mod
 COPY libs/pubsub/go.mod libs/pubsub/go.mod
 COPY libs/sentry/go.mod libs/sentry/go.mod
 COPY libs/twitch/go.mod libs/twitch/go.mod
+COPY libs/twitch-eventsub-bindings/go.mod libs/twitch-eventsub-bindings/go.mod
+COPY libs/twitch-eventsub-framework/go.mod libs/twitch-eventsub-framework/go.mod
 COPY libs/types/go.mod libs/types/go.mod
 COPY libs/utils/go.mod libs/utils/go.mod
 COPY apps/api/go.mod apps/api/go.mod
