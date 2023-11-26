@@ -13,8 +13,8 @@
     "select": "Select",
     "cancel": "Cancel",
     "confirm": "Confirm",
-		"saveSettings": "Save settings",
-		"setDefaultSettings": "Set default settings"
+    "saveSettings": "Save settings",
+    "setDefaultSettings": "Set default settings"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -216,12 +216,12 @@
         "streamOfflinePlaceholder": "The message twir will send when stream goes offline",
         "updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
         "shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline",
-				"additionalUsersIdsForLiveCheck": "Additional twitch users for watch streams and send alerts"
+        "additionalUsersIdsForLiveCheck": "Additional twitch users for watch streams and send alerts"
       },
       "connectGuild": "+ connect new guild",
       "disconnectGuild": "Disconnect guild",
       "noGuilds": "No guilds connected",
-			"cannotSendMessage": "Bot has no access to send messages in that channel"
+      "cannotSendMessage": "Bot has no access to send messages in that channel"
     },
     "faceit": {
       "info": "Provides possibility to Twir track your faceit matches, and setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."
@@ -345,83 +345,83 @@
     "alerts": {
       "description": "This overlay used to play configured alerts"
     },
-		"chat": {
-			"description": "Embed chat overlay into your streaming software",
-			"style": "Messages style",
-			"hideBots": "Hide known bots from messages",
-			"hideCommands": "Hide commands, do not include messages started with ! symbol",
-			"fontSize": "Font size",
-			"hideTimeout": "Message hide timeout",
-			"showDelay": "Message show delay",
-			"fontFamily": "Font family",
-			"fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
-			"showBadges": "Show badges",
-			"showAnnounceBadge": "Show announce badge (only for boxed style)",
-			"reverseMessages": "Show new messages on top, instead bottom",
-			"revertFont": "Reset to default",
-			"textShadow": "Text shadow"
-		},
-		"kappagen": {
-			"description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",
-			"testKappagen": "Test kappagen",
-			"testSpawn": "Test spawn",
-			"clear": "Clear overlay",
-			"info": "Spawn will show emotes on screen while users just chatting, kappagen fires on command or configured events",
-			"tabs": {
-				"main": "Main settings",
-				"events": "Events",
-				"animations": "Animations"
-			},
-			"settings": {
-				"spawn": "Spawn emotes on screen on each chat message",
-				"size": "Size",
-				"sizeSmall": "Size for small randomed emotes",
-				"time": "The time an emote stays on screen",
-				"maxEmotes": "Max emotes on screen",
-				"animationsOnAppear": "Animations on emote appear",
-				"animationsOnDisappear": "Animations on emote disappear",
-				"rave": "Rave colors for emotes",
-				"emotes": {
-					"bttvEnabled": "Enable BetterTTV emotes",
-					"ffzEnabled": "Enable FrankerFaceZ emotes",
-					"seventvEnabled": "Enable 7tv emotes",
-					"emojiStyle": "Emoji style"
-				}
-			}
-		},
-		"brb": {
-			"description": "Show countdown/countup timers on screen",
-			"settings": {
-				"main": {
-					"label": "Main settings",
-					"startCommand": {
-						"description": "Command for start coundown",
-						"example": "<b>!brb 1 Coffee</b> – starts 1 minute countdown with 'Coffee' text<br><b>!brb 1</b> – starts 1 minute coundown with default text"
-					},
-					"stopCommand": {
-						"description": "Stops countdown and removes from screen",
-						"example": "!brbstop"
-					},
-					"text": "Text which will be showed on screen",
-					"background": "Overlay background",
-					"backgroundOpacity": "Overlay background opacity",
-					"font": {
-						"color": "Font color",
-						"family": "Font family",
-						"size": "Font size"
-					}
-				},
-				"late": {
-					"label": "Late settings",
-					"text": "Text which will be showed on screen",
-					"displayBrb": "Display countdown information"
-				}
-			},
-			"preview": {
-				"start": "Start preview",
-				"stop": "Stop preview"
-			}
-		}
+    "chat": {
+      "description": "Embed chat overlay into your streaming software",
+      "style": "Messages style",
+      "hideBots": "Hide known bots from messages",
+      "hideCommands": "Hide commands, do not include messages started with ! symbol",
+      "fontSize": "Font size",
+      "hideTimeout": "Message hide timeout",
+      "showDelay": "Message show delay",
+      "fontFamily": "Font family",
+      "fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
+      "showBadges": "Show badges",
+      "showAnnounceBadge": "Show announce badge (only for boxed style)",
+      "reverseMessages": "Show new messages on top, instead bottom",
+      "revertFont": "Reset to default",
+      "textShadow": "Text shadow"
+    },
+    "kappagen": {
+      "description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",
+      "testKappagen": "Test kappagen",
+      "testSpawn": "Test spawn",
+      "clear": "Clear overlay",
+      "info": "Spawn will show emotes on screen while users just chatting, kappagen fires on command or configured events",
+      "tabs": {
+        "main": "Main settings",
+        "events": "Events",
+        "animations": "Animations"
+      },
+      "settings": {
+        "spawn": "Spawn emotes on screen on each chat message",
+        "size": "Size",
+        "sizeSmall": "Size for small randomed emotes",
+        "time": "The time an emote stays on screen",
+        "maxEmotes": "Max emotes on screen",
+        "animationsOnAppear": "Animations on emote appear",
+        "animationsOnDisappear": "Animations on emote disappear",
+        "rave": "Rave colors for emotes",
+        "emotes": {
+          "bttvEnabled": "Enable BetterTTV emotes",
+          "ffzEnabled": "Enable FrankerFaceZ emotes",
+          "seventvEnabled": "Enable 7tv emotes",
+          "emojiStyle": "Emoji style"
+        }
+      }
+    },
+    "brb": {
+      "description": "Show countdown/countup timers on screen",
+      "settings": {
+        "main": {
+          "label": "Main settings",
+          "startCommand": {
+            "description": "Command for start coundown",
+            "example": "<b>!brb 1 Coffee</b> – starts 1 minute countdown with 'Coffee' text<br><b>!brb 1</b> – starts 1 minute coundown with default text"
+          },
+          "stopCommand": {
+            "description": "Stops countdown and removes from screen",
+            "example": "!brbstop"
+          },
+          "text": "Text which will be showed on screen",
+          "background": "Overlay background",
+          "backgroundOpacity": "Overlay background opacity",
+          "font": {
+            "color": "Font color",
+            "family": "Font family",
+            "size": "Font size"
+          }
+        },
+        "late": {
+          "label": "Late settings",
+          "text": "Text which will be showed on screen",
+          "displayBrb": "Display countdown information"
+        }
+      },
+      "preview": {
+        "start": "Start preview",
+        "stop": "Stop preview"
+      }
+    }
   },
   "songRequests": {
     "waiting": "Waiting for songs",
@@ -682,15 +682,15 @@
       },
       "language": {
         "name": "Language",
-        "description": "Scans and filters out offensive or inappropriate language, ensuring a welcoming and family-friendly environment in the Twitch chat.",
+        "description": "Scans and filters out offensive or inappropriate languages.",
         "allowedLanguages": "Allowed languages",
         "disallowedLanguages": "Disallowed languages"
       }
     }
   },
-	"components": {
-		"fontFamily": {
-			"description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)"
-		}
-	}
+  "components": {
+    "fontFamily": {
+      "description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)"
+    }
+  }
 }
