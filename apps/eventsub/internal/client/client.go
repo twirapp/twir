@@ -39,8 +39,9 @@ func NewClient(
 
 	var channels []model.Channels
 	err := services.Gorm.Where(
-		`"isEnabled" = ? and "isBanned" = ?`,
+		`"isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
 		true,
+		false,
 		false,
 	).Find(&channels).Error
 	if err != nil {
