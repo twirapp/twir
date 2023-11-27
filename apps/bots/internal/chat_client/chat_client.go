@@ -136,11 +136,17 @@ func New(opts Opts) *ChatClient {
 		}
 	}()
 
-	meReq, _ := twitchClient.GetUsers(
+	meReq, err := twitchClient.GetUsers(
 		&helix.UsersParams{
 			IDs: []string{opts.Model.ID},
 		},
 	)
+	if err != nil {
+		panic(err)
+	}
+	if meReq.ErrorMessage != "" {
+		panic(meReq.ErrorMessage)
+	}
 	if len(meReq.Data.Users) == 0 {
 		panic("No user found for bot " + opts.Model.ID)
 	}

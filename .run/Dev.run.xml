@@ -15,7 +15,6 @@
     <toRun name="Dev Dota" type="NodeJSConfigurationType" />
     <toRun name="Dev Eval" type="NodeJSConfigurationType" />
     <toRun name="Dev Integrations" type="NodeJSConfigurationType" />
-    <toRun name="Dev Language Detector" type="NodeJSConfigurationType" />
     <method v="2" />
   </configuration>
 </component>
