@@ -434,14 +434,16 @@ services:
       endpoint_mode: dnsrr
 
   language-detector:
-    image: registry.satont.ru/twir/language-detector:latest
+    image: ghcr.io/twirapp/language-detector:latest
     secrets:
       - twir_doppler_token
+    environment:
+      - APP_ENV=production
     deploy:
       update_config:
-        parallelism: 2
+        parallelism: 1
       mode: replicated
-      replicas: 4
+      replicas: 2
       endpoint_mode: dnsrr
       restart_policy:
         condition: any

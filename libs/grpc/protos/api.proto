@@ -225,6 +225,7 @@ service Protected {
 	rpc ModerationDelete(api.moderation.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc ModerationUpdate(api.moderation.UpdateRequest) returns (api.moderation.ItemWithId) {}
 	rpc ModerationEnableOrDisable(api.moderation.PatchRequest) returns (api.moderation.ItemWithId) {}
+	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (api.moderation.AvailableLanguagesResponse) {}
 }
 
 // UnProtected

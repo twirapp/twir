@@ -14,7 +14,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/events"
-	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
@@ -67,9 +66,6 @@ func main() {
 			},
 			func(config cfg.Config) websockets.WebsocketClient {
 				return clients.NewWebsocket(config.AppEnv)
-			},
-			func(config cfg.Config) language_detector.LanguageDetectorClient {
-				return clients.NewLanguageDetector(config.AppEnv)
 			},
 			func(config cfg.Config) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)

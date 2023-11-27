@@ -12,12 +12,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/goccy/go-json"
+	"github.com/imroc/req/v3"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/moderation_helpers"
 	model "github.com/satont/twir/libs/gomodels"
-	language_detector "github.com/satont/twir/libs/grpc/generated/language-detector"
 	"github.com/satont/twir/libs/utils"
 )
 
@@ -438,28 +438,47 @@ func (c *moderationService) emotesParser(
 	return c.handleResult(ctx, ircMsg, settings)
 }
 
+type langDetectLang struct {
+	Code    int    `json:"code"`
+	Iso6933 int    `json:"iso_693_3"`
+	Name    string `json:"name"`
+}
+
+func (c *moderationService) detectLanguage(text string) ([]langDetectLang, error) {
+	var reqUrl string
+	if c.Cfg.AppEnv == "production" {
+		reqUrl = fmt.Sprint("http://language-detector:3012")
+	} else {
+		reqUrl = "http://localhost:3012"
+	}
+
+	var resp []langDetectLang
+	res, err := req.R().SetQueryParam("text", text).SetSuccessResult(&resp).Get(reqUrl)
+	if err != nil {
+		return nil, err
+	}
+	if !res.IsSuccessState() {
+		return nil, errors.New("cannot get response")
+	}
+
+	return resp, nil
+}
+
 func (c *moderationService) languageParser(
 	ctx context.Context,
 	settings model.ChannelModerationSettings,
 	ircMsg Message,
 ) *moderationHandleResult {
-	detected, err := c.LanguageDetector.Detect(
-		ctx, &language_detector.Request{
-			Text: ircMsg.Message,
-		},
-	)
 
-	if err != nil {
-		return nil
-	}
-
-	if len(detected.Languages) == 0 {
+	detected, err := c.detectLanguage(ircMsg.Message)
+	if err != nil || len(detected) == 0 {
 		return nil
 	}
 
 	hasDeniedLanguage := lo.SomeBy(
-		detected.Languages, func(item *language_detector.Response_Language) bool {
-			return slices.Contains(settings.DeniedChatLanguages, item.Code)
+		detected,
+		func(item langDetectLang) bool {
+			return slices.Contains(settings.DeniedChatLanguages, string(item.Code))
 		},
 	)
 

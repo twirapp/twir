@@ -36,6 +36,13 @@ services:
     networks:
       - tsuwari-dev
 
+  language-detector:
+    image: ghcr.io/twirapp/language-detector:latest
+    ports:
+      - "3012:3012"
+    environment:
+      - APP_ENV=development
+
   tts:
     restart: unless-stopped
     image: aculeasis/rhvoice-rest
