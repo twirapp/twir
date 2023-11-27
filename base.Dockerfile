@@ -31,7 +31,6 @@ COPY libs/types/package.json libs/types/package.json
 COPY apps/dota/package.json apps/dota/package.json
 COPY apps/eval/package.json apps/eval/package.json
 COPY apps/integrations/package.json apps/integrations/package.json
-COPY apps/language-detector/package.json apps/language-detector/package.json
 COPY frontend/dashboard/package.json frontend/dashboard/package.json
 COPY frontend/landing/package.json frontend/landing/package.json
 COPY frontend/overlays/package.json frontend/overlays/package.json
