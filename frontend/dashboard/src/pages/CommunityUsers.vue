@@ -38,9 +38,10 @@ const usersOpts = ref<GetCommunityUsersOpts>({
 });
 const users = communityManager.getAll(usersOpts);
 
-watch(() => profile.value?.selectedDashboardId, (v) => {
+watch(() => profile.value?.selectedDashboardId, async (v) => {
 	usersOpts.value.channelId = v;
-});
+	await users.refetch();
+}, { immediate: true });
 
 const usersIdsForRequest = computed(() => {
 	return users.data?.value?.users.map((user) => user.id) ?? [];
