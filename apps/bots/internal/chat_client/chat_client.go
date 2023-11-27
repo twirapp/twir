@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"os"
 	"strings"
 	"sync"
 	"time"
@@ -142,10 +143,11 @@ func New(opts Opts) *ChatClient {
 		},
 	)
 	if err != nil {
-		panic(err)
+		opts.Logger.Error("No user found", slog.String("bot.id", opts.Model.ID), slog.Any("err", err))
 	}
 	if meReq.ErrorMessage != "" {
-		panic(meReq.ErrorMessage)
+		opts.Logger.Error("No user found", slog.String("bot.id", opts.Model.ID), slog.String("err", meReq.ErrorMessage))
+		os.Exit(1)
 	}
 	if len(meReq.Data.Users) == 0 {
 		panic("No user found for bot " + opts.Model.ID)
