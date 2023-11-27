@@ -10,7 +10,7 @@
     "@twir/config": "workspace:*",
     "@twir/grpc": "workspace:*",
     "lodash": "4.17.21",
-    "nice-grpc": "^2.1.7",
+    "nice-grpc": "2.0.1",
     "vm2": "^3.9.19"
   },
   "devDependencies": {

@@ -66,8 +66,8 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       nice-grpc:
-        specifier: ^2.0.1
-        version: 2.1.3
+        specifier: 2.0.1
+        version: 2.0.1
       protobufjs:
         specifier: 7.1.2
         version: 7.1.2
@@ -103,8 +103,8 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       nice-grpc:
-        specifier: ^2.1.7
-        version: 2.1.7
+        specifier: 2.0.1
+        version: 2.0.1
       vm2:
         specifier: ^3.9.19
         version: 3.9.19
@@ -137,8 +137,8 @@ importers:
         specifier: ^2.5.1
         version: 2.5.1(pg@8.11.1)
       nice-grpc:
-        specifier: ^2.0.1
-        version: 2.1.3
+        specifier: 2.0.1
+        version: 2.0.1
       pg:
         specifier: ^8.11.1
         version: 8.11.1
@@ -491,35 +491,35 @@ importers:
   libs/grpc:
     dependencies:
       '@protobuf-ts/plugin':
-        specifier: ^2.9.1
+        specifier: 2.9.1
         version: 2.9.1
       '@protobuf-ts/runtime':
-        specifier: ^2.9.1
+        specifier: 2.9.1
         version: 2.9.1
       '@protobuf-ts/runtime-rpc':
-        specifier: ^2.9.1
+        specifier: 2.9.1
         version: 2.9.1
       '@protobuf-ts/twirp-transport':
-        specifier: ^2.9.1
+        specifier: 2.9.1
         version: 2.9.1
       grpc-tools:
-        specifier: ^1.11.3
-        version: 1.12.4
+        specifier: 1.11.3
+        version: 1.11.3
       long:
-        specifier: ^5.2.1
+        specifier: 5.2.1
         version: 5.2.1
       nice-grpc:
-        specifier: ^2.0.1
-        version: 2.1.3
-      nice-grpc-common:
-        specifier: ^2.0.0
+        specifier: 2.0.1
         version: 2.0.1
+      nice-grpc-common:
+        specifier: 2.0.0
+        version: 2.0.0
       protobufjs:
         specifier: 7.1.2
         version: 7.1.2
       ts-proto:
-        specifier: ^1.135.0
-        version: 1.145.0
+        specifier: 1.135.0
+        version: 1.135.0
     devDependencies:
       '@grpc/grpc-js':
         specifier: ^1.8.3
@@ -3342,6 +3342,7 @@ packages:
     dependencies:
       '@grpc/proto-loader': 0.7.6
       '@types/node': 18.13.0
+    dev: true
 
   /@grpc/grpc-js@1.9.9:
     resolution: {integrity: sha512-vQ1qwi/Kiyprt+uhb1+rHMpyk4CVRMTGNUGGPRGS7pLNfWkdCHrGEnT6T3/JyC2VZgoOX/X1KwdoU0WYQAeYcQ==}
@@ -3356,7 +3357,7 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       lodash.camelcase: 4.3.0
-      long: 5.2.3
+      long: 5.2.1
       protobufjs: 7.2.5
       yargs: 17.7.2
     dev: false
@@ -3370,6 +3371,7 @@ packages:
       long: 4.0.0
       protobufjs: 7.1.2
       yargs: 16.2.0
+    dev: true
 
   /@guolao/vue-monaco-editor@1.4.0(monaco-editor@0.43.0)(vue@3.3.8):
     resolution: {integrity: sha512-aQ4S9U2TWUNpOl1hArsvcwEZt6IHWFMfRMpHlqXHVJ1RUXoVUvQGhDfDdr/4z3pOGjgecS0/mBf1DGGz35D/fQ==}
@@ -3579,23 +3581,6 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /@mapbox/node-pre-gyp@1.0.10:
-    resolution: {integrity: sha512-4ySo4CjzStuprMwk35H5pPbkymjv1SF3jGLj6rAHp/xT/RF7TL7bd9CTm1xDY49K2qF7jmR/g7k+SkLETP6opA==}
-    dependencies:
-      detect-libc: 2.0.1
-      https-proxy-agent: 5.0.1
-      make-dir: 3.1.0
-      node-fetch: 2.6.9
-      nopt: 5.0.0
-      npmlog: 5.0.1
-      rimraf: 3.0.2
-      semver: 7.5.4
-      tar: 6.1.13
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: false
-
   /@mapbox/node-pre-gyp@1.0.11:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     dependencies:
@@ -3611,7 +3596,6 @@ packages:
     transitivePeerDependencies:
       - encoding
       - supports-color
-    dev: true
 
   /@microsoft/api-extractor-model@7.28.2(@types/node@20.8.9):
     resolution: {integrity: sha512-vkojrM2fo3q4n4oPh4uUZdjJ2DxQ2+RnDQL/xhTWSRUNPF6P4QyrvY357HBxbnltKcYu+nNNolVqc6TIGQ73Ig==}
@@ -5234,10 +5218,6 @@ packages:
   /abbrev@1.1.1:
     resolution: {integrity: sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==}
 
-  /abort-controller-x@0.4.1:
-    resolution: {integrity: sha512-lJ2ssrl3FoTK3cX/g15lRCkXFWKiwRTRtBjfwounO2EM/Q65rI/MEZsfsch1juWU2pH2aLSaq0HGowlDP/imrw==}
-    dev: false
-
   /abort-controller-x@0.4.3:
     resolution: {integrity: sha512-VtUwTNU8fpMwvWGn4xE93ywbogTYsuT+AUxAXOeelbXuQVIwNmC5YLeho9sH4vZ4ITW8414TTAOG1nW6uIVHCA==}
     dev: false
@@ -5902,11 +5882,6 @@ packages:
   /caniuse-lite@1.0.30001563:
     resolution: {integrity: sha512-na2WUmOxnwIZtwnFI2CZ/3er0wdNzU7hN+cPYz/z2ajHThnkWjNBOpEPP4n+4r2WPM847JaMotaJE3bnfzjyKw==}
 
-  /case-anything@2.1.10:
-    resolution: {integrity: sha512-JczJwVrCP0jPKh05McyVsuOg6AYosrB9XWZKbQzXeDAm2ClE/PJE/BcrrQrVyGYH7Jg8V/LDupmyL4kFlVsVFQ==}
-    engines: {node: '>=12.13'}
-    dev: false
-
   /ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
     dev: false
@@ -5999,6 +5974,7 @@ packages:
       string-width: 4.2.3
       strip-ansi: 6.0.1
       wrap-ansi: 7.0.0
+    dev: true
 
   /cliui@8.0.1:
     resolution: {integrity: sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ==}
@@ -6564,15 +6540,9 @@ packages:
     engines: {node: '>=0.10'}
     dev: false
 
-  /detect-libc@2.0.1:
-    resolution: {integrity: sha512-463v3ZeIrcWtdgIg6vI6XUncguvr2TnGl4SzDXinkt9mSLpBJKXT3mW6xT3VQdDN11+WVs29pgvivTc4Lp8v+w==}
-    engines: {node: '>=8'}
-    dev: false
-
   /detect-libc@2.0.2:
     resolution: {integrity: sha512-UX6sGumvvqSaXgdKGUsgZWqcUyIXZ/vZTrlRT/iobiKhGL0zL4d3osHj3uqllWJK+i+sixDS/3COVEOFbupFyw==}
     engines: {node: '>=8'}
-    dev: true
 
   /devalue@4.3.2:
     resolution: {integrity: sha512-KqFl6pOgOW+Y6wJgu80rHpo2/3H07vr8ntR9rkkFIRETewbf5GaYYcakYfiKz89K+sLsuPkQIZaXDMjUObZwWg==}
@@ -7885,11 +7855,11 @@ packages:
       vue: 3.3.8(typescript@5.2.2)
     dev: false
 
-  /grpc-tools@1.12.4:
-    resolution: {integrity: sha512-5+mLAJJma3BjnW/KQp6JBjUMgvu7Mu3dBvBPd1dcbNIb+qiR0817zDpgPjS7gRb+l/8EVNIa3cB02xI9JLToKg==}
+  /grpc-tools@1.11.3:
+    resolution: {integrity: sha512-cRSK2uhDKHtZ9hLRM35HxaMAMxyh/L7C96Ojt58DhQBdwTOQlV1VIJHSK6X/pDeSQKhaQqWMFfebt8tIcvRfjQ==}
     requiresBuild: true
     dependencies:
-      '@mapbox/node-pre-gyp': 1.0.10
+      '@mapbox/node-pre-gyp': 1.0.11
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -9470,32 +9440,18 @@ packages:
       typescript: 5.2.2
     dev: false
 
-  /nice-grpc-common@2.0.1:
-    resolution: {integrity: sha512-QbQ8nAALQagN4VukmTGwEWKzVtgQr3YwWP9okIzoMCmx0mLTswBFpyOUbKlG4cOm7NDaIFmbmtleQR9EWmNtrw==}
+  /nice-grpc-common@2.0.0:
+    resolution: {integrity: sha512-8h/QraeDmScnbKLd5ImS+e7uUDxumvByBo6ILj1jLHjKlIa74WKHNSn54u7RmnJ5tFAYE70iTm8VWyvbTv82yg==}
     dependencies:
       ts-error: 1.0.6
     dev: false
 
-  /nice-grpc-common@2.0.2:
-    resolution: {integrity: sha512-7RNWbls5kAL1QVUOXvBsv1uO0wPQK3lHv+cY1gwkTzirnG1Nop4cBJZubpgziNbaVc/bl9QJcyvsf/NQxa3rjQ==}
-    dependencies:
-      ts-error: 1.0.6
-    dev: false
-
-  /nice-grpc@2.1.3:
-    resolution: {integrity: sha512-joBTUZ/PTExOxZelUizkWkGv0bu+uwH7S+87mY8uTMccnp6t9Gljkw50+T1i4jvqH/w3QYTaAUK81DXlddd+cQ==}
-    dependencies:
-      '@grpc/grpc-js': 1.8.13
-      abort-controller-x: 0.4.1
-      nice-grpc-common: 2.0.1
-    dev: false
-
-  /nice-grpc@2.1.7:
-    resolution: {integrity: sha512-pSaZk5Y3PHGAPObOSXTrANgimA6T//szxlcKOnnyttpYwO0gyOpX2WsaFK4fbGJizPVxXjwqrXpPOSHMwM2vlg==}
+  /nice-grpc@2.0.1:
+    resolution: {integrity: sha512-Q5CGXO08STsv+HAkXeFgRayANT62X1LnIDhNXdCf+LP0XaP7EiHM0Cr3QefnoFjDZAx/Kxq+qiQfY66BrtKcNQ==}
     dependencies:
       '@grpc/grpc-js': 1.9.9
       abort-controller-x: 0.4.3
-      nice-grpc-common: 2.0.2
+      nice-grpc-common: 2.0.0
     dev: false
 
   /nlcst-to-string@3.1.1:
@@ -10332,7 +10288,7 @@ packages:
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
       '@types/node': 18.13.0
-      long: 5.2.3
+      long: 5.2.1
     dev: false
 
   /proxy-addr@2.0.7:
@@ -11823,23 +11779,22 @@ packages:
       dprint-node: 1.0.7
     dev: false
 
-  /ts-proto-descriptors@1.8.0:
-    resolution: {integrity: sha512-iV20plcI8+GRkeZIAygxOOH0p2xpOsKfw9kI1W20NCwawi1/4bG/YRd9rQY9XSJP+lD9j7XbSy3tFFuikfsljw==}
+  /ts-proto-descriptors@1.7.1:
+    resolution: {integrity: sha512-oIKUh3K4Xts4v29USGLfUG+2mEk32MsqpgZAOUyUlkrcIdv34yE+k2oZ2Nzngm6cV/JgFdOxRCqeyvmWHuYAyw==}
     dependencies:
       long: 4.0.0
       protobufjs: 6.11.3
     dev: false
 
-  /ts-proto@1.145.0:
-    resolution: {integrity: sha512-th0T5BN8Ytl//6L5ea5nbxtlcGQaqPP9MVm0lxT+t1Mn3Np0g/GMR1VUiOwZhtAo5N7xfuaX4AppWELR5rCF7g==}
+  /ts-proto@1.135.0:
+    resolution: {integrity: sha512-NwK+PcSiWZBzO8GFVID2Ig71vIZRCApTG8XDZIlQ3WabbJlbUx9zsrHcYNojcUENtqkiYywTp3uTP6dketiCpw==}
     dependencies:
       '@types/object-hash': 1.3.4
-      case-anything: 2.1.10
       dataloader: 1.4.0
       object-hash: 1.3.1
       protobufjs: 6.11.3
       ts-poet: 6.4.1
-      ts-proto-descriptors: 1.8.0
+      ts-proto-descriptors: 1.7.1
     dev: false
 
   /tsconfig-paths@3.14.2:
@@ -13217,6 +13172,7 @@ packages:
   /yargs-parser@20.2.9:
     resolution: {integrity: sha512-y11nGElTIV+CT3Zv9t7VKl+Q3hTQoT9a1Qzezhhl6Rp21gJ/IVTW7Z3y9EWXhuUBC2Shnf+DX0antecpAwSP8w==}
     engines: {node: '>=10'}
+    dev: true
 
   /yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
@@ -13233,6 +13189,7 @@ packages:
       string-width: 4.2.3
       y18n: 5.0.8
       yargs-parser: 20.2.9
+    dev: true
 
   /yargs@17.7.2:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
