@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -23,10 +24,13 @@ type App struct {
 	SkipWait bool
 }
 
+var shell string
+var shellOption string
+
 func migrate() {
 	cmd := exec.Command(
-		"sh",
-		"-c",
+		shell,
+		shellOption,
 		"go run main.go",
 	)
 
@@ -47,8 +51,8 @@ func caddy(withCaddy *bool) {
 	}
 
 	cmd := exec.Command(
-		"sh",
-		"-c",
+		shell,
+		shellOption,
 		"caddy reverse-proxy --from twir.satont.localhost --to 127.0.0.1:3005",
 	)
 
@@ -65,6 +69,14 @@ func caddy(withCaddy *bool) {
 }
 
 func main() {
+	if runtime.GOOS == "windows" {
+		shell = "cmd"
+		shellOption = "/C"
+	} else {
+		shell = "sh"
+		shellOption = "-c"
+	}
+
 	withCaddy := flag.Bool("caddy", false, "start caddy server?")
 	flag.Parse()
 
@@ -121,8 +133,8 @@ func main() {
 		}
 
 		cmd := exec.Command(
-			"sh",
-			"-c",
+			shell,
+			shellOption,
 			command,
 		)
 
