@@ -91,7 +91,6 @@ func main() {
 		{Stack: "go", Name: "parser", Port: constants.PARSER_SERVER_PORT},
 		{Stack: "go", Name: "eventsub", Port: constants.EVENTSUB_SERVER_PORT},
 		{Stack: "node", Name: "eval", Port: constants.EVAL_SERVER_PORT},
-		{Stack: "node", Name: "language-detector", Port: constants.LANGUAGE_DETECTOR_SERVER_PORT},
 		{Stack: "go", Name: "bots", Port: constants.BOTS_SERVER_PORT},
 		{Stack: "go", Name: "timers", Port: constants.TIMERS_SERVER_PORT},
 		{Stack: "go", Name: "websockets", Port: constants.WEBSOCKET_SERVER_PORT},
