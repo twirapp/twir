@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/bots
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.1

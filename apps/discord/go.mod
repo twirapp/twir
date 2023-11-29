@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/discord
 
-go 1.21.0
+go 1.21
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
