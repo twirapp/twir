@@ -69,6 +69,7 @@ func caddy(withCaddy *bool) {
 }
 
 func main() {
+	//goland:noinspection GoBoolExpressions
 	if runtime.GOOS == "windows" {
 		shell = "cmd"
 		shellOption = "/C"
