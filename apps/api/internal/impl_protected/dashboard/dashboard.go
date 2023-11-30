@@ -3,6 +3,9 @@ package dashboard
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"sync"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -10,8 +13,6 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/api/dashboard"
 	"github.com/satont/twir/libs/twitch"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
-	"sync"
 )
 
 type Dashboard struct {
@@ -32,7 +33,7 @@ func (c *Dashboard) GetDashboardStats(
 		return nil, fmt.Errorf("failed to get stream: %w", err)
 	}
 
-	twitchClient, err := twitch.NewUserClient(dashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClient(dashboardId, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create twitch client: %w", err)
 	}

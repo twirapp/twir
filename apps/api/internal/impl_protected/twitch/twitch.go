@@ -3,6 +3,7 @@ package twitch
 import (
 	"context"
 	"fmt"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	"github.com/satont/twir/libs/grpc/generated/api/twitch_protected"
@@ -20,9 +21,18 @@ func (c *Twitch) TwitchSearchCategories(
 ) (*twitch_protected.SearchCategoriesResponse, error) {
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, selectedDashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		selectedDashboardId,
+		c.Config,
+		c.Grpc.Tokens,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create user %s twitch client  token: %w", selectedDashboardId, err)
+		return nil, fmt.Errorf(
+			"cannot create user %s twitch client  token: %w",
+			selectedDashboardId,
+			err,
+		)
 	}
 
 	categories, err := twitchClient.SearchCategories(
@@ -37,7 +47,10 @@ func (c *Twitch) TwitchSearchCategories(
 		return nil, fmt.Errorf("cannot get categories: %s", categories.ErrorMessage)
 	}
 
-	mappedCategories := make([]*twitch_protected.SearchCategoriesResponse_Category, len(categories.Data.Categories))
+	mappedCategories := make(
+		[]*twitch_protected.SearchCategoriesResponse_Category,
+		len(categories.Data.Categories),
+	)
 	for i, category := range categories.Data.Categories {
 		mappedCategories[i] = &twitch_protected.SearchCategoriesResponse_Category{
 			Id:    category.ID,
@@ -51,15 +64,27 @@ func (c *Twitch) TwitchSearchCategories(
 	}, nil
 }
 
-func (c *Twitch) TwitchSetChannelInformation(ctx context.Context, req *twitch_protected.SetChannelInformationRequest) (
+func (c *Twitch) TwitchSetChannelInformation(
+	ctx context.Context,
+	req *twitch_protected.SetChannelInformationRequest,
+) (
 	*emptypb.Empty,
 	error,
 ) {
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, selectedDashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		selectedDashboardId,
+		c.Config,
+		c.Grpc.Tokens,
+	)
 	if err != nil {
-		return nil, fmt.Errorf("cannot create user %s twitch client  token: %w", selectedDashboardId, err)
+		return nil, fmt.Errorf(
+			"cannot create user %s twitch client  token: %w",
+			selectedDashboardId,
+			err,
+		)
 	}
 
 	res, err := twitchClient.EditChannelInformation(

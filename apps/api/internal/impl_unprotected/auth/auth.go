@@ -60,7 +60,7 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	*emptypb.Empty,
 	error,
 ) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create twitch client: %w", err)
 	}

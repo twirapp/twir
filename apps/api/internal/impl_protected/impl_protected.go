@@ -70,7 +70,7 @@ type Opts struct {
 
 	Redis          *redis.Client
 	DB             *gorm.DB
-	Config         *config.Config
+	Config         config.Config
 	SessionManager *scs.SessionManager
 
 	TokensGrpc       tokens.TokensClient

@@ -44,7 +44,7 @@ type Opts struct {
 
 	Redis          *redis.Client
 	DB             *gorm.DB
-	Config         *cfg.Config
+	Config         cfg.Config
 	SessionManager *scs.SessionManager
 
 	IntegrationsGrpc integrationsGrpc.IntegrationsClient

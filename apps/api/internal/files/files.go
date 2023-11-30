@@ -2,6 +2,10 @@ package files
 
 import (
 	"fmt"
+	"io"
+	"log/slog"
+	"net/http"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -10,22 +14,19 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"io"
-	"log/slog"
-	"net/http"
 )
 
 type Opts struct {
 	fx.In
 
 	Db     *gorm.DB
-	Config *cfg.Config
+	Config cfg.Config
 	Logger logger.Logger
 }
 
 type Files struct {
 	db          *gorm.DB
-	config      *cfg.Config
+	config      cfg.Config
 	minioClient *minio.Client
 	logger      logger.Logger
 }

@@ -51,8 +51,11 @@ func (c *Twitch) getUsersFromCache(ctx context.Context, keys []string) ([]helix.
 	return users, nil
 }
 
-func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersParams) ([]helix.User, error) {
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+func (c *Twitch) getUsersFromTwitch(ctx context.Context, params *helix.UsersParams) (
+	[]helix.User,
+	error,
+) {
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -218,7 +221,7 @@ func (c *Twitch) TwitchSearchChannels(
 		return nil, fmt.Errorf("query is empty")
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}

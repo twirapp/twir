@@ -3,6 +3,8 @@ package bot
 import (
 	"context"
 	"fmt"
+	"log/slog"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -14,7 +16,6 @@ import (
 	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log/slog"
 )
 
 type Bot struct {
@@ -37,7 +38,7 @@ func (c *Bot) BotInfo(ctx context.Context, _ *meta.BaseRequestMeta) (*bots.BotIn
 		return nil, twirp.NotFoundError("user not found")
 	}
 
-	twitchClient, err := twitch.NewUserClient(dashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClient(dashboardId, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -128,7 +129,7 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 		return nil, twirp.NotFoundError("channel not found")
 	}
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}

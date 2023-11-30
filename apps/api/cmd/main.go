@@ -32,6 +32,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	internalSentry "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -41,28 +42,19 @@ func main() {
 	fx.New(
 		fx.NopLogger,
 		fx.Provide(
-			func() *cfg.Config {
+			func() cfg.Config {
 				config, err := cfg.New()
 				if err != nil {
 					panic(err)
 				}
-				return config
+				return *config
 			},
-			func(config *cfg.Config) (*sentry.Client, error) {
-				if config.SentryDsn == "" {
-					return nil, nil
-				}
-
-				s, err := sentry.NewClient(
-					sentry.ClientOptions{
-						Dsn:              config.SentryDsn,
-						AttachStacktrace: true,
-					},
-				)
-
-				return s, err
-			},
-			func(config *cfg.Config, s *sentry.Client) logger.Logger {
+			internalSentry.NewFx(
+				internalSentry.NewFxOpts{
+					Service: "api",
+				},
+			),
+			func(config cfg.Config, s *sentry.Client) logger.Logger {
 				return logger.New(
 					logger.Opts{
 						Env:     config.AppEnv,
@@ -71,37 +63,37 @@ func main() {
 					},
 				)
 			},
-			func(c *cfg.Config) tokens.TokensClient {
+			func(c cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(c.AppEnv)
 			},
-			func(c *cfg.Config) bots.BotsClient {
+			func(c cfg.Config) bots.BotsClient {
 				return clients.NewBots(c.AppEnv)
 			},
-			func(c *cfg.Config) integrations.IntegrationsClient {
+			func(c cfg.Config) integrations.IntegrationsClient {
 				return clients.NewIntegrations(c.AppEnv)
 			},
-			func(c *cfg.Config) parser.ParserClient {
+			func(c cfg.Config) parser.ParserClient {
 				return clients.NewParser(c.AppEnv)
 			},
-			func(c *cfg.Config) events.EventsClient {
+			func(c cfg.Config) events.EventsClient {
 				return clients.NewEvents(c.AppEnv)
 			},
-			func(c *cfg.Config) websockets.WebsocketClient {
+			func(c cfg.Config) websockets.WebsocketClient {
 				return clients.NewWebsocket(c.AppEnv)
 			},
-			func(c *cfg.Config) scheduler.SchedulerClient {
+			func(c cfg.Config) scheduler.SchedulerClient {
 				return clients.NewScheduler(c.AppEnv)
 			},
-			func(c *cfg.Config) timers.TimersClient {
+			func(c cfg.Config) timers.TimersClient {
 				return clients.NewTimers(c.AppEnv)
 			},
-			func(c *cfg.Config) eventsub.EventSubClient {
+			func(c cfg.Config) eventsub.EventSubClient {
 				return clients.NewEventSub(c.AppEnv)
 			},
-			func(c *cfg.Config) discord.DiscordClient {
+			func(c cfg.Config) discord.DiscordClient {
 				return clients.NewDiscord(c.AppEnv)
 			},
-			func(config *cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
+			func(config cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
 				redisOpts, err := redis.ParseURL(config.RedisUrl)
 				if err != nil {
 					return nil, err
@@ -120,7 +112,7 @@ func main() {
 			func(r *redis.Client) *scs.SessionManager {
 				return sessions.New(r)
 			},
-			func(config *cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
+			func(config cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
 				db, err := gorm.Open(
 					postgres.Open(config.DatabaseUrl),
 				)

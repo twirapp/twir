@@ -30,7 +30,7 @@ type Grpc struct {
 }
 
 type Deps struct {
-	Config         *cfg.Config
+	Config         cfg.Config
 	Redis          *redis.Client
 	Db             *gorm.DB
 	Grpc           *Grpc

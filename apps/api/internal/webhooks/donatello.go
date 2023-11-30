@@ -24,7 +24,7 @@ type DonatelloOpts struct {
 	Db         *gorm.DB
 	EventsGrpc events.EventsClient
 	Logger     logger.Logger
-	Config     *cfg.Config
+	Config     cfg.Config
 }
 
 type Donatello struct {

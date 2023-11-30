@@ -24,7 +24,7 @@ type DonateStreamOpts struct {
 	Db         *gorm.DB
 	EventsGrpc events.EventsClient
 	Logger     logger.Logger
-	Config     *cfg.Config
+	Config     cfg.Config
 }
 
 type DonateStream struct {

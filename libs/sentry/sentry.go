@@ -41,6 +41,7 @@ func NewFx(opts NewFxOpts) func(config cfg.Config) (*sentry.Client, error) {
 				Dsn:              config.SentryDsn,
 				AttachStacktrace: true,
 				Tags:             tags,
+				Debug:            false,
 			},
 		)
 
