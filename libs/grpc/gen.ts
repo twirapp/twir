@@ -1,6 +1,6 @@
 import { exec } from 'node:child_process';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
-import { readdir } from 'node:fs/promises';
+import { readFile, unlink, readdir, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { resolve } from 'node:path';
 import { promisify } from 'util';
@@ -80,8 +80,17 @@ rmSync('generated', { recursive: true, force: true });
 		const filePath = `${directoryPath}/${name}.pb.go`;
 		mkdirSync(directoryPath, { recursive: true });
 		await promisedExec(`protoc --experimental_allow_proto3_optional --go_opt=paths=source_relative --go_out=${directoryPath} --proto_path=./protos api/${file}`);
+
 		// найс костыль кекв / cool crutch kekw
-		await promisedExec(`mv ${directoryPath}/api/${name}.pb.go ${filePath}`);
+		const sourceFilePath = `${directoryPath}/api/${name}.pb.go`;
+
+		try {
+			const fileData = await readFile(sourceFilePath, 'utf8');
+			await writeFile(filePath, fileData, 'utf8');
+			await unlink(sourceFilePath);
+		} catch {
+			process.exit(1);
+		}
 	}
 
 	console.info(`✅ Generated api proto definitions for go and ts.`);
