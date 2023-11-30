@@ -148,13 +148,12 @@ func (c *ChatClient) createReader() *BotClientIrc {
 						},
 					)
 					break mainLoop
-				case err := <-connectResultCh:
-					// Handle the result of the connection attempt.
-					if err != nil {
-						reader.Connected = false
+				case connErr := <-connectResultCh:
+					reader.Connected = false
+					if connErr != nil {
 						c.services.Logger.Error(
 							"reader disconnected by error",
-							slog.String("err", err.Error()),
+							slog.Any("err", err),
 						)
 					}
 					close(connectResultCh)

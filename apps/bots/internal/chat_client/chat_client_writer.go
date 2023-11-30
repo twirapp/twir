@@ -67,11 +67,11 @@ func (c *ChatClient) CreateWriter() {
 					c.Writer.Connected = false
 					c.services.Logger.Info("writer disconnected", slog.Any("err", err))
 					break mainLoop
-				case err := <-connectResultCh:
+				case conErr := <-connectResultCh:
 					// Handle the result of the connection attempt.
-					if err != nil {
-						c.Writer.Connected = false
-						c.services.Logger.Error("writer disconnected", slog.Any("err", err))
+					c.Writer.Connected = false
+					if conErr != nil {
+						c.services.Logger.Error("writer disconnected", slog.Any("err", conErr))
 					}
 					close(connectResultCh)
 					break connLoop
