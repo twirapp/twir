@@ -35,7 +35,7 @@ func main() {
 			sentry.ClientOptions{
 				Dsn:              cfg.SentryDsn,
 				Environment:      cfg.AppEnv,
-				Debug:            true,
+				Debug:            false,
 				TracesSampleRate: 1.0,
 			},
 		)

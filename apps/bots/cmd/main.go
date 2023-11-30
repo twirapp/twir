@@ -19,6 +19,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
+	sentryInternal "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
 )
 
@@ -28,20 +29,7 @@ func main() {
 		fx.Provide(
 			cfg.NewFx,
 			tlds.New,
-			func(config cfg.Config) (*sentry.Client, error) {
-				if config.SentryDsn == "" {
-					return nil, nil
-				}
-
-				s, err := sentry.NewClient(
-					sentry.ClientOptions{
-						Dsn:              config.SentryDsn,
-						AttachStacktrace: true,
-					},
-				)
-
-				return s, err
-			},
+			sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "bots"}),
 			func(config cfg.Config, s *sentry.Client) logger.Logger {
 				return logger.New(
 					logger.Opts{
@@ -82,18 +70,6 @@ func main() {
 				if config.AppEnv != "development" {
 					http.Handle("/metrics", promhttp.Handler())
 					go http.ListenAndServe("0.0.0.0:3000", nil)
-				}
-			},
-			func(config cfg.Config) {
-				if config.SentryDsn != "" {
-					sentry.Init(
-						sentry.ClientOptions{
-							Dsn:              config.SentryDsn,
-							Environment:      config.AppEnv,
-							Debug:            true,
-							TracesSampleRate: 1.0,
-						},
-					)
 				}
 			},
 			pubsub_handlers.New,

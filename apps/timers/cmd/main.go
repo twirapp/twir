@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/logger"
+	sentryInternal "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
 )
 
@@ -20,20 +21,7 @@ func main() {
 	fx.New(
 		fx.Provide(
 			cfg.NewFx,
-			func(config cfg.Config) (*sentry.Client, error) {
-				if config.SentryDsn == "" {
-					return nil, nil
-				}
-
-				s, err := sentry.NewClient(
-					sentry.ClientOptions{
-						Dsn:              config.SentryDsn,
-						AttachStacktrace: true,
-					},
-				)
-
-				return s, err
-			},
+			sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),
 			func(config cfg.Config, s *sentry.Client) logger.Logger {
 				return logger.New(
 					logger.Opts{
