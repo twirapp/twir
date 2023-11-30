@@ -3,6 +3,7 @@ package rewards
 import (
 	"context"
 	"fmt"
+
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -20,7 +21,7 @@ func (c *Rewards) RewardsGet(
 	_ *emptypb.Empty,
 ) (*rewards.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	twitchClient, err := twitch.NewUserClientWithContext(ctx, dashboardId, *c.Config, c.Grpc.Tokens)
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, dashboardId, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, err
 	}
@@ -37,7 +38,7 @@ func (c *Rewards) RewardsGet(
 		return nil, fmt.Errorf("cannot get channel rewards: %v %s", resp.StatusCode, resp.ErrorMessage)
 	}
 
-	//resp.Data.ChannelCustomRewards = append(
+	// resp.Data.ChannelCustomRewards = append(
 	//	resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
 	//		BroadcasterID:    "",
 	//		BroadcasterLogin: "",
@@ -68,8 +69,8 @@ func (c *Rewards) RewardsGet(
 	//		RedemptionsRedeemedCurrentStream:  0,
 	//		CooldownExpiresAt:                 "",
 	//	},
-	//)
-	//resp.Data.ChannelCustomRewards = append(
+	// )
+	// resp.Data.ChannelCustomRewards = append(
 	//	resp.Data.ChannelCustomRewards, helix.ChannelCustomReward{
 	//		BroadcasterID:    "",
 	//		BroadcasterLogin: "",
@@ -100,7 +101,7 @@ func (c *Rewards) RewardsGet(
 	//		RedemptionsRedeemedCurrentStream:  0,
 	//		CooldownExpiresAt:                 "",
 	//	},
-	//)
+	// )
 
 	return &rewards.GetResponse{
 		Rewards: lo.Map(
