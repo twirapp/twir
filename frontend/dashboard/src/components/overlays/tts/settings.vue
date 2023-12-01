@@ -1,21 +1,23 @@
-<script setup lang='ts'>
+<script setup lang="ts">
+import { IconPlayerPlay } from '@tabler/icons-vue';
 import type { GetResponse as TTSSettings } from '@twir/grpc/generated/api/api/modules_tts';
 import {
-	NSlider,
-	NSpace,
-	NButton,
-	NSkeleton,
-	NSwitch,
-	NAlert,
-	NForm,
-	NDivider,
-	NSelect,
-	NFormItem,
-	NText,
-	NGrid,
-	NGridItem,
-	NRow,
-	useMessage,
+  NSlider,
+  NSpace,
+  NButton,
+  NSkeleton,
+  NSwitch,
+  NAlert,
+  NForm,
+  NDivider,
+  NSelect,
+  NFormItem,
+  NText,
+  NGrid,
+  NGridItem,
+  NRow,
+  NInput,
+  useMessage,
 } from 'naive-ui';
 import { computed, ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -26,74 +28,75 @@ const ttsManager = useTtsOverlayManager();
 const ttsSettings = ttsManager.getSettings();
 const ttsUpdater = ttsManager.updateSettings();
 const ttsInfo = ttsManager.getInfo();
+const ttsSay = ttsManager.useSay();
 
 const countriesMapping: Record<string, string> = {
-	'ru': '🇷🇺 Russian',
-	'mk': '🇲🇰 Macedonian',
-	'uk': '🇺🇦 Ukrainian',
-	'ka': '🇬🇪 Georgian',
-	'ky': '🇰🇬 Kyrgyz',
-	'en': '🇺🇸 English',
-	'pt': '🇵🇹 Portuguese',
-	'eo': '🇺🇳 Esperanto',
-	'sq': '🇦🇱 Albanian',
-	'cs': '🇨🇿 Czech',
-	'pl': '🇵🇱 Polish',
-	'br': '🇧🇷 Brazilian',
+  'ru': '🇷🇺 Russian',
+  'mk': '🇲🇰 Macedonian',
+  'uk': '🇺🇦 Ukrainian',
+  'ka': '🇬🇪 Georgian',
+  'ky': '🇰🇬 Kyrgyz',
+  'en': '🇺🇸 English',
+  'pt': '🇵🇹 Portuguese',
+  'eo': '🇺🇳 Esperanto',
+  'sq': '🇦🇱 Albanian',
+  'cs': '🇨🇿 Czech',
+  'pl': '🇵🇱 Polish',
+  'br': '🇧🇷 Brazilian',
 };
 
 type Voice = { label: string, value: string, key: string }
 type VoiceGroup = Omit<Voice, 'value' | 'gender'> & { children: Voice[], type: 'group' }
 const voicesOptions = computed<VoiceGroup[]>(() => {
-	if (!ttsInfo.data.value?.voicesInfo) return [];
+  if (!ttsInfo.data.value?.voicesInfo) return [];
 
-	const voices: Record<string, VoiceGroup> = {};
+  const voices: Record<string, VoiceGroup> = {};
 
-	for (const [voiceKey, voice] of Object.entries(ttsInfo.data.value.voicesInfo)) {
-		let lang = voice.lang;
+  for (const [voiceKey, voice] of Object.entries(ttsInfo.data.value.voicesInfo)) {
+    let lang = voice.lang;
 
-		if (voice.lang === 'tt') {
-			lang = 'ru';
-		}
+    if (voice.lang === 'tt') {
+      lang = 'ru';
+    }
 
-		if (!voices[lang]) {
-			voices[lang] = {
-				key: lang,
-				label: `${countriesMapping[lang] ?? ''}`,
-				type: 'group',
-				children: [],
-			};
-		}
+    if (!voices[lang]) {
+      voices[lang] = {
+        key: lang,
+        label: `${countriesMapping[lang] ?? ''}`,
+        type: 'group',
+        children: [],
+      };
+    }
 
-		voices[lang].children.push({
-			key: lang,
-			value: voiceKey,
-			label: `${voice.name} (${voice.gender})`,
-		});
-	}
+    voices[lang].children.push({
+      key: lang,
+      value: voiceKey,
+      label: `${voice.name} (${voice.gender})`,
+    });
+  }
 
-	return Object.entries(voices).map(([, group]) => group);
+  return Object.entries(voices).map(([, group]) => group);
 });
 
 const formValue = ref<TTSSettings['data']>({
-	enabled: true,
-	voice: 'alan',
-	disallowedVoices: [],
-	pitch: 50,
-	rate: 50,
-	volume: 30,
-	doNotReadTwitchEmotes: true,
-	doNotReadEmoji: true,
-	doNotReadLinks: true,
-	allowUsersChooseVoiceInMainCommand: false,
-	maxSymbols: 0,
-	readChatMessages: false,
-	readChatMessagesNicknames: false,
+  enabled: true,
+  voice: 'alan',
+  disallowedVoices: [],
+  pitch: 50,
+  rate: 50,
+  volume: 30,
+  doNotReadTwitchEmotes: true,
+  doNotReadEmoji: true,
+  doNotReadLinks: true,
+  allowUsersChooseVoiceInMainCommand: false,
+  maxSymbols: 0,
+  readChatMessages: false,
+  readChatMessagesNicknames: false,
 });
 
 watch(ttsSettings.data, (v) => {
-	if (!v?.data) return;
-	formValue.value = toRaw(v.data);
+  if (!v?.data) return;
+  formValue.value = toRaw(v.data);
 }, { immediate: true });
 
 const message = useMessage();
@@ -101,8 +104,22 @@ const { t } = useI18n();
 
 
 async function save() {
-	await ttsUpdater.mutateAsync({ data: formValue.value });
-	message.success(t('sharedTexts.saved'));
+  await ttsUpdater.mutateAsync({ data: formValue.value });
+  message.success(t('sharedTexts.saved'));
+}
+
+const previewText = ref('');
+
+async function previewVoice() {
+  if (!previewText.value || !formValue.value) return;
+
+  await ttsSay.mutateAsync({
+    voice: formValue.value.voice,
+    text: previewText.value,
+    volume: formValue.value.volume,
+    pitch: formValue.value.pitch,
+    rate: formValue.value.rate,
+  });
 }
 </script>
 
@@ -199,6 +216,17 @@ async function save() {
 					<n-slider v-model:value="formValue.rate" :step="1" />
 				</n-form-item>
 			</n-space>
+
+			<n-divider style="margin: 0; margin-bottom: 10px" />
+
+			<n-form-item :label="`🎤 ${t('overlays.tts.previewText')}`">
+				<div style="display: flex; gap: 4px; width: 100%">
+					<n-input v-model:value="previewText" :placeholder="t('overlays.tts.previewText')" style="width: 50%" />
+					<n-button text @click="previewVoice">
+						<IconPlayerPlay />
+					</n-button>
+				</div>
+			</n-form-item>
 		</n-form>
 
 		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
@@ -207,6 +235,6 @@ async function save() {
 	</n-space>
 </template>
 
-<style scoped lang='postcss'>
+<style scoped lang="postcss">
 
 </style>

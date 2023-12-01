@@ -332,7 +332,8 @@
       "tabs": {
         "general": "General",
         "usersSettings": "Users Settings"
-      }
+      },
+      "previewText": "Preview voice with text, pitch, rate"
     },
     "obs": {
       "description": "This overlay used for connect Twir with your obs. It gives opportunity to bot manage your sources, scenes, audio sources on events",
