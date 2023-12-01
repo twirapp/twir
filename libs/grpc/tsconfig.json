@@ -16,6 +16,7 @@
   ],
   "exclude": [
     "./dist",
-    "gen.ts"
+    "gen.ts",
+    "postbuild.ts"
   ]
 }
