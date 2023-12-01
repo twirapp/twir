@@ -39,7 +39,7 @@ const defaultSettings = {
   opacity: 50,
 };
 
-const formValue = ref<Settings>(defaultSettings);
+const formValue = ref<Settings>(structuredClone(defaultSettings));
 
 const manager = useBeRightBackOverlayManager();
 const {
@@ -124,7 +124,7 @@ const canCopyLink = computed(() => {
 				<n-button
 					secondary
 					type="error"
-					@click="formValue = defaultSettings"
+					@click="formValue = structuredClone(defaultSettings)"
 				>
 					{{ t('sharedButtons.setDefaultSettings') }}
 				</n-button>
@@ -254,50 +254,13 @@ const canCopyLink = computed(() => {
 </template>
 
 <style scoped>
-.page {
-  display: flex;
-  gap: 24px;
-  padding: 24px;
-}
-
-.page > div {
-  width: 50%;
-}
+@import '../styles.css';
 
 .card {
-  padding: 8px;
-  border-radius: 8px;
   background-color: v-bind('themeVars.cardColor');
 }
 
-.card-header {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.card-body {
-  display: flex;
-  gap: 12px;
-}
-
-.card-body > div {
-  width: 50%;
-}
-
-.card-body-column {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
 .iframe {
-  height: 100%;
-  width: 100%;
-  aspect-ratio: 16/9;
   border: 1px solid v-bind('themeVars.borderColor');
-  border-radius: 8px;
 }
 </style>

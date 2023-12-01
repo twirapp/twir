@@ -1,18 +1,16 @@
 <script setup lang="ts">
 import { IconMessage } from '@tabler/icons-vue';
-import { NModal } from 'naive-ui';
-import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-import Settings from './chat/settings.vue';
+import { useRouter } from 'vue-router';
 
 import { useChatOverlayManager } from '@/api/index.js';
 import Card from '@/components/overlays/card.vue';
 
-const isModalOpened = ref(false);
 const chatManager = useChatOverlayManager();
 const { data: settings, isError } = chatManager.getSettings();
 const { t } = useI18n();
+
+const router = useRouter();
 </script>
 
 <template>
@@ -22,19 +20,7 @@ const { t } = useI18n();
 		:description="t('overlays.chat.description')"
 		overlay-path="chat"
 		:copy-disabled="!settings || isError"
-		@open-settings="isModalOpened = true"
+		@open-settings="router.push({ name: 'ChatOverlay' })"
 	>
 	</card>
-
-	<n-modal
-		v-model:show="isModalOpened"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="Chat"
-		content-style="padding: 10px; width: 100%"
-		style="width: 70vw; max-width: calc(100vw - 40px)"
-	>
-		<Settings />
-	</n-modal>
 </template>
