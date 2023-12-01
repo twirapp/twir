@@ -2,6 +2,6 @@
   "watch": [
     "src"
   ],
-  "exec": "rm -rf dist; pnpm build",
+  "exec": "rimraf dist; pnpm build",
   "ext": "ts"
 }

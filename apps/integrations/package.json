@@ -1,7 +1,7 @@
 {
 	"name": "@twir/integrations",
 	"scripts": {
-		"prebuild": "rm -rf dist",
+		"prebuild": "rimraf dist",
 		"build": "tsc",
 		"start": "node --enable-source-maps dist/index.js"
 	},

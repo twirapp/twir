@@ -1,7 +1,7 @@
 {
 	"name": "@twir/grpc",
 	"scripts": {
-		"prebuild": "rm -rf dist generated",
+		"prebuild": "rimraf dist generated",
 		"gen": "tsx ./gen.ts",
 		"build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
 		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",

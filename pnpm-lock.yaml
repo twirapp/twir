@@ -257,7 +257,7 @@ importers:
         version: 5.2.2
       vite:
         specifier: ^5.0.0
-        version: 5.0.0(sass@1.69.5)
+        version: 5.0.0(@types/node@20.4.2)(sass@1.69.5)
       vite-bundle-visualizer:
         specifier: ^0.11.0
         version: 0.11.0
@@ -515,10 +515,6 @@ importers:
       '@grpc/grpc-js':
         specifier: ^1.8.3
         version: 1.8.13
-
-  libs/grpc/dist/cjs: {}
-
-  libs/grpc/dist/esm: {}
 
   libs/pubsub:
     dependencies:
@@ -2762,7 +2758,7 @@ packages:
       vite: '>4.0.0 || ^3.0.0 || ^2.0.0'
     dependencies:
       '@plugin-web-update-notification/core': 1.6.6
-      vite: 5.0.0(sass@1.69.5)
+      vite: 5.0.0(@types/node@20.4.2)(sass@1.69.5)
     dev: true
 
   /@popperjs/core@2.11.8:
@@ -3684,7 +3680,7 @@ packages:
       vite: ^4.0.0 || ^5.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 5.0.0(sass@1.69.5)
+      vite: 5.0.0(@types/node@20.4.2)(sass@1.69.5)
       vue: 3.3.8(typescript@5.2.2)
     dev: true
 
@@ -10613,7 +10609,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@5.0.0(sass@1.69.5):
+  /vite@5.0.0(@types/node@20.4.2)(sass@1.69.5):
     resolution: {integrity: sha512-ESJVM59mdyGpsiNAeHQOR/0fqNoOyWPYesFto8FFZugfmhdHx8Fzd8sF3Q/xkVhZsyOxHfdM7ieiVAorI9RjFw==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
@@ -10641,6 +10637,7 @@ packages:
       terser:
         optional: true
     dependencies:
+      '@types/node': 20.4.2
       esbuild: 0.19.5
       postcss: 8.4.31
       rollup: 4.5.0

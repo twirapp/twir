@@ -2,7 +2,7 @@
   "name": "@twir/eval",
   "type": "module",
   "scripts": {
-    "prebuild": "rm -rf dist",
+    "prebuild": "rimraf dist",
     "build": "tsc",
     "start": "node --enable-source-maps dist/index.js"
   },
