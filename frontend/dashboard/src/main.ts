@@ -33,9 +33,12 @@ VueQueryPlugin.install(app, {
 });
 
 app
-		.use(i18n)
-		.use(newRouter(queryClient))
-		.use(VueMonacoEditorPlugin);
+	.use(i18n)
+	.use(newRouter(queryClient))
+	.use(VueMonacoEditorPlugin);
 
-	app.mount('#app');
+app.mount('#app');
 
+if (import.meta.env.DEV) {
+	document.title = 'Twir Dashboard (dev)';
+}
