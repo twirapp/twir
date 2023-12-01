@@ -81,9 +81,18 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'VIEW_OVERLAYS' },
 				},
 				{
-					name: 'Kappagen',
+					name: 'KappagenOverlay',
 					path: '/dashboard/overlays/kappagen',
-					component: () => import('./components/overlays/kappagen/settings.vue'),
+					component: () => import('./pages/overlays/kappagen/Kappagen.vue'),
+					meta: {
+						neededPermission: 'MANAGE_OVERLAYS',
+						noPadding: true,
+					},
+				},
+				{
+					name: 'BrbOverlay',
+					path: '/dashboard/overlays/brb',
+					component: () => import('./pages/overlays/brb/Brb.vue'),
 					meta: {
 						neededPermission: 'MANAGE_OVERLAYS',
 						noPadding: true,

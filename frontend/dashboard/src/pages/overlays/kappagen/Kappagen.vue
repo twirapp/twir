@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { TwirEventType } from '@twir/grpc/generated/api/api/events';
-import type { Settings_AnimationSettings,
+import type {
+	Settings_AnimationSettings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
@@ -10,10 +11,11 @@ import SettingsAnimations from './settingsAnimations.vue';
 import SettingsEvents from './settingsEvents.vue';
 import SettingsGeneral from './settingsGeneral.vue';
 import { useSettings } from './store.js';
-import { useCopyOverlayLink } from '../copyOverlayLink.js';
+
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
 import { flatEvents } from '@/components/events/helpers.js';
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -72,7 +74,7 @@ const sendIframeMessage = (key: string, data?: any) => {
 	if (!kappagenIframeRef.value) return;
 	const win = kappagenIframeRef.value;
 
-  win.contentWindow?.postMessage(JSON.stringify({
+	win.contentWindow?.postMessage(JSON.stringify({
 		key,
 		data: toRaw(data),
 	}));

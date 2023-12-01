@@ -21,19 +21,7 @@ const router = useRouter();
 		:description="t('overlays.kappagen.description')"
 		overlay-path="kappagen"
 		:copy-disabled="!settings || isError"
-		@open-settings="router.push({ name: 'Kappagen' })"
+		@open-settings="router.push({ name: 'KappagenOverlay' })"
 	>
 	</card>
-
-	<!-- <n-modal
-		v-model:show="isModalOpened"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="Kappagen"
-		content-style="padding: 10px; width: 100%"
-		style="width: 70vw; max-width: calc(100vw - 40px)"
-	>
-		<Settings />
-	</n-modal> -->
 </template>
