@@ -5,23 +5,22 @@
 - [Node.js (20+)](https://nodejs.org/en)
 - [Pnpm](https://pnpm.io/)
 - [Go (1.21+)](https://go.dev/)
-- Python (3+)
-- Protobuf-compiler.
+- [Protobuf-compiler](https://grpc.io/docs/protoc-installation/)
 
-	Installation of protobuf depends on your system, google it.
+Installation of protobuf depends on your system, google it.
 
 - [Docker](https://docs.docker.com/engine/)
 - Installed Go cli dependencies
 ```bash
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest && \
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest && \
-go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
-go install github.com/pressly/goose/v3/cmd/goose@latest
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
+  google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest \
+  github.com/twitchtv/twirp/protoc-gen-twirp@latest \
+  github.com/pressly/goose/v3/cmd/goose@latest
 ```
 
 ## Prepare
 
-- Run needed services
+- Run needed services (Postgres, Adminer, Redis, Minio)
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
@@ -69,4 +68,3 @@ Migrations done via [goose](https://github.com/pressly/goose).
 1. Go to `libs/gomodels`
 2. Create new file and describe the go schema
 3. Do not forget about `TableName()` for struct
-
