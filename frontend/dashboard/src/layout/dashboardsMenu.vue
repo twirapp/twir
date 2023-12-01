@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { IconChevronRight } from '@tabler/icons-vue';
-import { useMagicKeys } from '@vueuse/core';
+import { onClickOutside, useMagicKeys } from '@vueuse/core';
 import { NAvatar, NInput, NSpin, NScrollbar, useThemeVars, NDivider, NText, NPopover } from 'naive-ui';
 import { computed,  ref, watch } from 'vue';
 
@@ -71,23 +71,37 @@ const isSelectDashboardPopoverOpened = ref(false);
 
 function select(key: string) {
 	activeDashboard.value = key;
-
-	isSelectDashboardPopoverOpened.value = false;
 }
 
-useMagicKeys({
+const keys = useMagicKeys({
 	passive: false,
-	onEventFired(e) {
-		if (e.key === 'k' && e.metaKey) {
-			isSelectDashboardPopoverOpened.value = !isSelectDashboardPopoverOpened.value;
-			e.preventDefault();
+	onEventFired(event) {
+		const isCtrl = event.ctrlKey || event.metaKey;
+		if (event.key === 'k' && isCtrl) {
+			event.preventDefault();
 		}
 	},
+});
+
+watch([keys['Ctrl+K'], keys['Meta+K']], (keys) => {
+	for (const key of keys) {
+		if (!key) continue;
+		isSelectDashboardPopoverOpened.value = !isSelectDashboardPopoverOpened.value;
+	}
+});
+
+const refPopover = ref<HTMLElement | null>();
+onClickOutside(refPopover, (event) => {
+	if (isSelectDashboardPopoverOpened.value) {
+		event.stopPropagation();
+		isSelectDashboardPopoverOpened.value = false;
+	}
 });
 </script>
 
 <template>
 	<n-popover
+		ref="refPopover"
 		placement="bottom-start"
 		trigger="manual"
 		:show="isSelectDashboardPopoverOpened"
@@ -97,7 +111,7 @@ useMagicKeys({
 			<div
 				class="block"
 				style="cursor: pointer;"
-				@click="isSelectDashboardPopoverOpened = !isSelectDashboardPopoverOpened"
+				@click="isSelectDashboardPopoverOpened = true"
 			>
 				<n-avatar
 					style="display: flex; align-self: center; border-radius: 111px;"
