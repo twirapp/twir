@@ -115,6 +115,10 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const canCopyLink = computed(() => {
   return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
 });
+
+const setDefaultSettings = () => {
+  formValue.value = structuredClone(defaultSettings);
+};
 </script>
 
 <template>
@@ -124,7 +128,7 @@ const canCopyLink = computed(() => {
 				<n-button
 					secondary
 					type="error"
-					@click="formValue = structuredClone(defaultSettings)"
+					@click="setDefaultSettings"
 				>
 					{{ t('sharedButtons.setDefaultSettings') }}
 				</n-button>
