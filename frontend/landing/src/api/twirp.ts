@@ -4,7 +4,9 @@ import { ProtectedClient, UnProtectedClient } from '@twir/grpc/generated/api/api
 
 const host = config.SITE_BASE_URL ?? 'localhost:3005';
 const isDev = config.NODE_ENV === 'development';
-const baseUrl = `${host?.startsWith('localhost') ? 'http' : 'https'}://${isDev ? `${host}/api` : 'api:3002'}/v1`;
+const apiAddr = isDev ? `${host}/api` : 'api:3002';
+
+const baseUrl = `http://${apiAddr}/v1`;
 
 console.info('BaseURL:', baseUrl);
 
