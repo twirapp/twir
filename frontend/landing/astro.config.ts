@@ -27,7 +27,7 @@ export default defineConfig({
 		plugins: [svg({ defaultImport: 'url', svgo: false }) as unknown as PluginOption],
 		clearScreen: false,
 		define: {
-			'import.meta.env.HOST': JSON.stringify(config.HOSTNAME || 'localhost:3005'),
+			'import.meta.env.HOST': JSON.stringify(config.SITE_BASE_URL || 'localhost:3005'),
 			'import.meta.env.DISCORD_FEEDBACK_URL': JSON.stringify(config.DISCORD_FEEDBACK_URL),
 		},
 		server: {

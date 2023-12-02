@@ -2,7 +2,7 @@ import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
 import { config } from '@twir/config';
 import { ProtectedClient, UnProtectedClient } from '@twir/grpc/generated/api/api.client';
 
-const host = config.HOSTNAME ?? 'localhost:3005';
+const host = config.SITE_BASE_URL ?? 'localhost:3005';
 const isDev = config.NODE_ENV === 'development';
 const baseUrl = `${host?.startsWith('localhost') ? 'http' : 'https'}://${isDev ? `${host}/api` : 'api:3002'}/v1`;
 

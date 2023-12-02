@@ -11,7 +11,7 @@ try {
 
 export const config = cleanEnv(process.env, {
 	DATABASE_URL: str({
-		default: 'postgresql://tsuwari:tsuwari@postgres:5432/tsuwari?schema=public',
+		default: 'postgresql://tsuwari:tsuwari@localhost:54321/tsuwari?schema=public',
 	}),
 	NODE_ENV: str({ choices: ['development', 'production'], default: 'development' }),
 	TWITCH_CLIENTID: str({ default: '' }),
@@ -19,7 +19,7 @@ export const config = cleanEnv(process.env, {
 	TWITCH_CALLBACKURL: str({ default: 'http://localhost:3005/login' }),
 	REDIS_URL: str({ default: 'redis://localhost:6379/0' }),
 	SAY_IN_CHAT: bool({ default: true }),
-	HOSTNAME: str({ default: 'localhost:3005' }),
+	SITE_BASE_URL: str({ default: 'localhost:3005' }),
 	STEAM_USERNAME: str({ default: '' }),
 	STEAM_PASSWORD: str({ default: '' }),
 	STEAM_API_KEY: str({ default: '' }),

@@ -61,7 +61,7 @@ func main() {
 
 	appAddr := lo.
 		If(cfg.AppEnv != "production", appTun.Addr().String()).
-		Else(fmt.Sprintf("eventsub.%s", cfg.HostName))
+		Else(fmt.Sprintf("eventsub.%s", cfg.SiteBaseUrl))
 
 	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
 	if err != nil {

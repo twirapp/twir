@@ -20,7 +20,7 @@ type Config struct {
 	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
 	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
 	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
-	HostName           string `required:"false" default:"localhost:3005" envconfig:"HOSTNAME"`
+	SiteBaseUrl        string `required:"false" default:"localhost:3005" envconfig:"SITE_BASE_URL"`
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
