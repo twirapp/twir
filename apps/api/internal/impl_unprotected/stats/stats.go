@@ -168,7 +168,17 @@ func (c *Stats) cacheStreamers() {
 		user := user
 		streamersFollowersWg.Go(
 			func() {
-				userTwitchClient, err := twitch.NewUserClient(user.ID, c.Config, c.Grpc.Tokens)
+				userTwitchClientCtx, userTwitchClientCtxCancel := context.WithTimeout(
+					context.Background(),
+					500*time.Millisecond,
+				)
+				defer userTwitchClientCtxCancel()
+				userTwitchClient, err := twitch.NewUserClientWithContext(
+					userTwitchClientCtx,
+					user.ID,
+					c.Config,
+					c.Grpc.Tokens,
+				)
 				if err != nil {
 					c.Logger.Error("cannot create twitch client", slog.Any("err", err))
 					return
