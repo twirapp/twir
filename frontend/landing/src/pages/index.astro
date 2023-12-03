@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Hero from '../components/home/Hero.astro';
 import Features from '../components/home/Features.astro';
 import Integrations from '../components/home/Integrations.astro';
-import Streamers from '../components/home/Streamers.vue';
+import Streamers from '../components/home/Streamers.astro';
 import Team from '../components/home/Team.astro';
 import StatsList from '../components/home/StatsList.astro';
 ---
@@ -13,6 +13,6 @@ import StatsList from '../components/home/StatsList.astro';
 	<StatsList/>
 	<Features/>
 	<Integrations/>
-	<Streamers client:only profile={Astro.locals.profile}/>
+	<Streamers/>
 	<Team/>
 </Layout>
