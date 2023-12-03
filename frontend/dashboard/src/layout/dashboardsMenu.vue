@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { IconChevronRight } from '@tabler/icons-vue';
-import { onClickOutside, useMagicKeys } from '@vueuse/core';
+import { onClickOutside, onKeyStroke } from '@vueuse/core';
 import { NAvatar, NInput, NSpin, NScrollbar, useThemeVars, NDivider, NText, NPopover } from 'naive-ui';
 import { computed,  ref, watch } from 'vue';
 
@@ -73,20 +73,10 @@ function select(key: string) {
 	activeDashboard.value = key;
 }
 
-const keys = useMagicKeys({
-	passive: false,
-	onEventFired(event) {
-		const isCtrl = event.ctrlKey || event.metaKey;
-		if (event.key === 'k' && isCtrl) {
-			event.preventDefault();
-		}
-	},
-});
-
-watch([keys['Ctrl+K'], keys['Meta+K']], (keys) => {
-	for (const key of keys) {
-		if (!key) continue;
-		isSelectDashboardPopoverOpened.value = !isSelectDashboardPopoverOpened.value;
+onKeyStroke('k', (event) => {
+	if (event.ctrlKey || event.metaKey) {
+		event.preventDefault();
+		isSelectDashboardPopoverOpened.value = 	!isSelectDashboardPopoverOpened.value;
 	}
 });
 
