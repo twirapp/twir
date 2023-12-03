@@ -18,13 +18,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.7"
+    "vue": "3.3.9"
   },
   "devDependencies": {
     "@twir/grpc": "workspace:^",
-    "@types/node": "^20.8.9",
-    "@vitejs/plugin-vue": "^4.2.3",
-    "vite": "^4.5.0",
-    "vite-plugin-dts": "^3.6.3"
+    "@types/node": "20.10.3",
+    "@vitejs/plugin-vue": "4.5.1",
+    "vite": "5.0.4",
+    "vite-plugin-dts": "3.6.4"
   }
 }
