@@ -10,7 +10,7 @@ const streamersWithFollowers: GetTwirStreamersResponse_Streamer[][] = [];
 
 try {
 	const twitchStreamersReq = await unProtectedClient.getStatsTwirStreamers({});
-	const sortedStreamers = twitchStreamersReq.response.streamers.sort((a, b) => a.followersCount - b.followersCount);
+	const sortedStreamers = twitchStreamersReq.response.streamers.sort((a, b) => b.followersCount - a.followersCount);
 	streamersWithFollowers.push(...chunk(sortedStreamers, 3))
 	// streamersWithFollowers.push(...chunk(Array.from({ length: 500 }).map(() => sortedStreamers.at(0)!), 3));
 } catch (e) {
