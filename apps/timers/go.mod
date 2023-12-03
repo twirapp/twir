@@ -25,7 +25,6 @@ require (
 require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

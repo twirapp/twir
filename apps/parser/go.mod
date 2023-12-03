@@ -59,7 +59,6 @@ require (
 	github.com/klauspost/compress v1.17.4 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
-	github.com/matttproud/golang_protobuf_extensions v1.0.4 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/onsi/ginkgo/v2 v2.13.2 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect

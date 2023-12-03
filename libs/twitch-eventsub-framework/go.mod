@@ -6,7 +6,7 @@ replace github.com/dnsge/twitch-eventsub-bindings => ../twitch-eventsub-bindings
 
 require (
 	github.com/dnsge/twitch-eventsub-bindings v1.1.0
-	github.com/mozillazg/go-httpheader v0.3.1
+	github.com/mozillazg/go-httpheader v0.4.0
 	github.com/stretchr/testify v1.8.4
 )
 

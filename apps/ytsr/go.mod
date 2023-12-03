@@ -17,7 +17,6 @@ require (
 
 require (
 	github.com/golang/protobuf v1.5.3 // indirect
-	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
