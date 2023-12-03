@@ -225,9 +225,8 @@ func (c *Stats) cacheStreamers() {
 		)
 	}
 
-	c.streamersCache = &stats.GetTwirStreamersResponse{
-		Streamers: streamersWithFollowers,
-	}
+	c.Logger.Info("Cache streamers updated", slog.Int("count", len(streamersWithFollowers)))
+	c.streamersCache.Streamers = streamersWithFollowers
 }
 
 func (c *Stats) GetStats(_ context.Context, _ *emptypb.Empty) (*stats.Response, error) {
