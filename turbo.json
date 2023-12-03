@@ -1,9 +1,9 @@
 {
-  "$schema": "https://turborepo.org/schema.json",
+  "$schema": "https://turbo.build/schema.json",
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**"]
+      "outputs": ["dist/**", "!dist/**/package.json"]
     },
     "generate": {
       "dependsOn": [],
@@ -11,10 +11,15 @@
     },
     "dev": {
       "cache": false,
-      "dependsOn": ["^build"]
+      "dependsOn": ["build"]
     },
     "lint": {
       "outputs": []
     }
-  }
+  },
+	"globalDependencies": [
+    "tsconfig.json",
+		"tsconfig.base.json",
+		"tsconfig.build.json"
+  ]
 }
