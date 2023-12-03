@@ -7,7 +7,8 @@
 - [Go (1.21+)](https://go.dev/)
 - [Protobuf-compiler](https://grpc.io/docs/protoc-installation/)
 
-Installation of protobuf depends on your system, google it.
+> [!WARNING]
+> Installation of protobuf depends on your system, google it.
 
 - [Docker](https://docs.docker.com/engine/)
 - Installed Go cli dependencies
