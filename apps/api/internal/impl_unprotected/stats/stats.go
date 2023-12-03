@@ -106,6 +106,7 @@ func (c *Stats) cacheCounts() {
 }
 
 func (c *Stats) cacheStreamers() {
+	c.Logger.Info("Updating streamers cache in stats")
 	var streamers []string
 	if err := c.Db.Model(&model.Channels{}).Where(
 		`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
