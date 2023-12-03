@@ -2,19 +2,27 @@ package stats
 
 import (
 	"context"
+	"errors"
+	"log/slog"
+	"sync"
 	"time"
 
+	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/stats"
+	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Stats struct {
 	*impl_deps.Deps
 
-	cache *stats.Response
+	statsCache     *stats.Response
+	streamersCache *stats.GetTwirStreamersResponse
 }
 
 type statsNResult struct {
@@ -23,15 +31,18 @@ type statsNResult struct {
 
 func New(deps *impl_deps.Deps) *Stats {
 	s := &Stats{
-		Deps:  deps,
-		cache: &stats.Response{},
+		Deps:           deps,
+		statsCache:     &stats.Response{},
+		streamersCache: &stats.GetTwirStreamersResponse{},
 	}
 
 	go s.cacheCounts()
+	go s.cacheStreamers()
 	ticker := time.NewTicker(5 * time.Minute)
 	go func() {
 		for range ticker.C {
 			s.cacheCounts()
+			s.cacheStreamers()
 		}
 	}()
 
@@ -45,7 +56,7 @@ func (c *Stats) cacheCounts() {
 		func() {
 			var count int64
 			c.Db.Model(&model.Users{}).Count(&count)
-			c.cache.Users = count
+			c.statsCache.Users = count
 		},
 	)
 
@@ -58,7 +69,7 @@ func (c *Stats) cacheCounts() {
 				false,
 				false,
 			).Count(&count)
-			c.cache.Channels = count
+			c.statsCache.Channels = count
 		},
 	)
 
@@ -69,7 +80,7 @@ func (c *Stats) cacheCounts() {
 				Where("module = ?", "CUSTOM").
 				Count(&count)
 
-			c.cache.Commands = count
+			c.statsCache.Commands = count
 		},
 	)
 
@@ -79,7 +90,7 @@ func (c *Stats) cacheCounts() {
 			c.Db.Model(&model.UsersStats{}).
 				Select("sum(messages) as n").
 				Scan(&result)
-			c.cache.Messages = result.N
+			c.statsCache.Messages = result.N
 		},
 	)
 
@@ -87,13 +98,144 @@ func (c *Stats) cacheCounts() {
 		func() {
 			var count int64
 			c.Db.Model(&model.ChannelEmoteUsage{}).Count(&count)
-			c.cache.UsedEmotes = count
+			c.statsCache.UsedEmotes = count
 		},
 	)
 
 	wg.Wait()
 }
 
+func (c *Stats) cacheStreamers() {
+	var streamers []string
+	if err := c.Db.Model(&model.Channels{}).Where(
+		`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
+		true,
+		false,
+		false,
+	).Pluck("id", &streamers).Error; err != nil {
+		c.Logger.Error("cannot cache streamers", slog.Any("err", err))
+		return
+	}
+
+	helixUsersMu := sync.Mutex{}
+	helixUsers := make([]helix.User, 0, len(streamers))
+
+	errGroup, ctx := errgroup.WithContext(context.Background())
+	chunks := lo.Chunk(streamers, 100)
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
+	if err != nil {
+		c.Logger.Error("cannot create twitch client", slog.Any("err", err))
+		return
+	}
+
+	for _, chunk := range chunks {
+		chunk := chunk
+		errGroup.Go(
+			func() error {
+				usersReq, usersErr := twitchClient.GetUsers(
+					&helix.UsersParams{
+						IDs: chunk,
+					},
+				)
+				if usersErr != nil {
+					return usersErr
+				}
+				if usersReq.ErrorMessage != "" {
+					return errors.New(usersReq.ErrorMessage)
+				}
+
+				helixUsersMu.Lock()
+				defer helixUsersMu.Unlock()
+				helixUsers = append(helixUsers, usersReq.Data.Users...)
+
+				return nil
+			},
+		)
+	}
+
+	if err := errGroup.Wait(); err != nil {
+		c.Logger.Error("cannot get users", slog.Any("err", err))
+		return
+	}
+
+	streamersFollowers := make(map[string]int)
+	streamersFollowersMu := sync.Mutex{}
+	streamersFollowersWg := utils.NewGoroutinesGroup()
+
+	for _, user := range helixUsers {
+		user := user
+		streamersFollowersWg.Go(
+			func() {
+				userTwitchClient, err := twitch.NewUserClient(user.ID, c.Config, c.Grpc.Tokens)
+				if err != nil {
+					c.Logger.Error("cannot create twitch client", slog.Any("err", err))
+					return
+				}
+
+				followersReq, followersErr := userTwitchClient.GetChannelFollows(
+					&helix.GetChannelFollowsParams{
+						BroadcasterID: user.ID,
+					},
+				)
+				if followersErr != nil {
+					c.Logger.Error("cannot get followers", slog.Any("err", followersErr))
+					return
+				}
+				if followersReq.ErrorMessage != "" {
+					c.Logger.Error("cannot get followers", slog.Any("err", followersReq.ErrorMessage))
+					return
+				}
+
+				streamersFollowersMu.Lock()
+				defer streamersFollowersMu.Unlock()
+				streamersFollowers[user.ID] = followersReq.Data.Total
+			},
+		)
+	}
+
+	streamersFollowersWg.Wait()
+
+	streamersWithFollowers := make(
+		[]*stats.GetTwirStreamersResponse_Streamer,
+		0,
+		len(streamersFollowers),
+	)
+
+	for userId, followers := range streamersFollowers {
+		streamer, ok := lo.Find(
+			helixUsers, func(item helix.User) bool {
+				return item.ID == userId
+			},
+		)
+		if !ok {
+			continue
+		}
+
+		streamersWithFollowers = append(
+			streamersWithFollowers,
+			&stats.GetTwirStreamersResponse_Streamer{
+				UserId:          streamer.ID,
+				UserLogin:       streamer.Login,
+				UserDisplayName: streamer.DisplayName,
+				Avatar:          streamer.ProfileImageURL,
+				FollowersCount:  int32(followers),
+			},
+		)
+	}
+
+	c.streamersCache = &stats.GetTwirStreamersResponse{
+		Streamers: streamersWithFollowers,
+	}
+}
+
 func (c *Stats) GetStats(_ context.Context, _ *emptypb.Empty) (*stats.Response, error) {
-	return c.cache, nil
+	return c.statsCache, nil
+}
+
+func (c *Stats) GetStatsTwirStreamers(
+	_ context.Context,
+	_ *emptypb.Empty,
+) (*stats.GetTwirStreamersResponse, error) {
+	return c.streamersCache, nil
 }

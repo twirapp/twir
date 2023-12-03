@@ -13,7 +13,7 @@
 		"@astrojs/tailwind": "4.0.0",
 		"@astrojs/vue": "2.2.1",
 		"@egjs/flicking-plugins": "4.7.1",
-		"@egjs/vue3-flicking": "4.11.0",
+		"@egjs/vue3-flicking": "4.11.1",
 		"@fastify/middie": "8.3.0",
 		"@fastify/static": "6.10.2",
 		"@nanostores/vue": "0.10.0",

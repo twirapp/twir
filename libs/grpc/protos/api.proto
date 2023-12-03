@@ -242,6 +242,7 @@ service UnProtected {
 	rpc TwitchSearchChannels(api.twitch.TwitchSearchChannelsRequest) returns (api.twitch.TwitchSearchChannelsResponse) {}
 
 	rpc GetStats(google.protobuf.Empty) returns (api.stats.Response) {}
+	rpc GetStatsTwirStreamers(google.protobuf.Empty) returns (api.stats.GetTwirStreamersResponse) {}
 
 	rpc CommunityGetUsers(api.community.GetUsersRequest) returns (api.community.GetUsersResponse) {}
 

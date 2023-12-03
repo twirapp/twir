@@ -33,7 +33,7 @@ watch(dialog, (v) => {
 });
 
 const reviewForm = ref<ReviewBody>({
-	author: props.profile?.login ?? '',
+	author: '',
 	message: '',
 });
 
@@ -42,7 +42,9 @@ const feedBackError = ref<string | null>(null);
 async function sendFeedBack() {
 	const { author, message } = reviewForm.value;
 
-	if (!author || !message) {
+	const computedAuthor = props.profile?.login || author;
+
+	if (!computedAuthor || !message) {
 		feedBackError.value = 'Author and message required';
 		return;
 	}
@@ -50,7 +52,7 @@ async function sendFeedBack() {
 	const req = await fetch('/functions/feedback', {
 		method: 'POST',
 		body: JSON.stringify({
-			author,
+			author: computedAuthor,
 			message,
 			profile: props.profile,
 		}),

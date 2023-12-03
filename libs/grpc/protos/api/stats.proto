@@ -9,3 +9,15 @@ message Response {
 	int64 messages = 4;
 	int64 used_emotes = 5;
 }
+
+message GetTwirStreamersResponse {
+	message Streamer {
+		string user_id = 1;
+		string user_login = 2;
+		string user_display_name = 3;
+		string avatar = 4;
+		int32 followers_count = 5;
+	}
+
+	repeated Streamer streamers = 1;
+}
