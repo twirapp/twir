@@ -11,6 +11,10 @@ Installation of protobuf depends on your system, google it.
 
 - [Docker](https://docs.docker.com/engine/)
 - Installed Go cli dependencies
+
+> [!CAUTION]
+> You need to setup [GOPATH](https://github.com/golang/go/wiki/SettingGOPATH) variable before executing lines below.
+
 ```bash
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
   google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest \
@@ -20,14 +24,15 @@ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest \
 
 ## Prepare
 
-- Run needed services (Postgres, Adminer, Redis, Minio)
-```bash
-docker compose -f docker-compose.dev.yml up -d
-```
-
 - Install Node.js dependencies
 ```bash
 pnpm install --frozen-lockfile
+```
+
+
+- Run needed services (Postgres, Adminer, Redis, Minio)
+```bash
+docker compose -f docker-compose.dev.yml up -d
 ```
 
 ### Next steps
