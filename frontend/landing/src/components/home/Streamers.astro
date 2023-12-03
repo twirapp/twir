@@ -26,7 +26,7 @@ try {
 					Streamers use twir
 				</h3>
 
-				<ReviewDialog profile={Astro.locals.profile} />
+				<ReviewDialog client:only profile={Astro.locals.profile} />
 			</div>
 		</div>
 		<StreamersList client:only="vue" streamers={streamersWithFollowers} />
