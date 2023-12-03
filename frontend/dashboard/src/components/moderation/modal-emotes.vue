@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import type { ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NInputNumber, NFormItem, NDivider } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-defineProps<{
-	item: ItemWithId
-}>();
+import { useEditableItem } from './helpers';
 
+const { editableItem } = useEditableItem();
 const { t } = useI18n();
 </script>
 
@@ -14,7 +12,7 @@ const { t } = useI18n();
 	<div>
 		<n-form-item :label="t('moderation.types.emotes.triggerLength')">
 			<n-input-number
-				v-model:value="item.data!.triggerLength"
+				v-model:value="editableItem!.data!.triggerLength"
 				:max="500"
 			/>
 		</n-form-item>

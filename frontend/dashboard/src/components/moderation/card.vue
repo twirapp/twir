@@ -5,7 +5,7 @@ import { NSwitch, NButton, NPopconfirm, useNotification } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { availableSettings } from './helpers.js';
+import { Icons } from './helpers.js';
 
 import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
@@ -36,12 +36,6 @@ const switchState = async (id: string, v: boolean) => {
 	try {
 		await patcher.mutateAsync({ id, enabled: v });
 		props.item.data!.enabled = v;
-
-		// const statusText = t(`sharedTexts.${v ? 'enabled' : 'disabled'}`).toLocaleLowerCase();
-		// message.success({
-		// 	title: `${t(`moderation.types.${props.item.data!.type}.name`)} ${statusText}`,
-		// 	duration: 1500,
-		// });
 	} catch (error) {
 		console.error(error);
 	} finally {
@@ -56,14 +50,12 @@ async function removeItem() {
 		duration: 2000,
 	});
 }
-
-const itemSettings = availableSettings.find(s => s.type === props.item.data!.type)!;
 </script>
 
 <template>
 	<card
 		:title="t(`moderation.types.${item.data!.type}.name`)"
-		:icon="itemSettings.icon"
+		:icon="Icons[item.data!.type]"
 		style="height:100%"
 	>
 		<template #headerExtra>

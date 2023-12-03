@@ -1,23 +1,26 @@
 <script lang="ts" setup>
 import { IconSwords, IconX } from '@tabler/icons-vue';
-import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NGrid, NGridItem, NModal, NCard, useThemeVars, NButton, NTooltip } from 'naive-ui';
-import { ref } from 'vue';
+import { ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/moderation/card.vue';
-import { availableSettingsTypes, availableSettings } from '@/components/moderation/helpers.js';
+import { availableSettingsTypes, availableSettings, useEditableItem } from '@/components/moderation/helpers.js';
+import { Icons } from '@/components/moderation/helpers.js';
 import Modal from '@/components/moderation/modal.vue';
 
 const manager = useModerationManager();
 const { data: settings } = manager.getAll({});
-const creator = manager.create;
 
-const editableItem = ref<ItemWithId | undefined>();
+const { editableItem } = useEditableItem();
+
 const settingsOpened = ref(false);
 function showSettings(id: string) {
-	editableItem.value = settings.value?.body.find(i => i.id === id);
+	const item = settings.value?.body.find(i => i.id === id);
+	if (!item) return;
+
+	editableItem.value = toRaw(item);
 	settingsOpened.value = true;
 }
 
@@ -30,8 +33,9 @@ const canEditModeration = useUserAccessFlagChecker('MANAGE_MODERATION');
 async function createNewItem(itemType: string) {
 	const defaultSettings = availableSettings.find(s => s.type === itemType);
 	if (!defaultSettings) return;
-	const newItem = await creator.mutateAsync({ data: defaultSettings });
-	editableItem.value = newItem;
+	editableItem.value = {
+		data: structuredClone(defaultSettings),
+	};
 	settingsOpened.value = true;
 }
 </script>
@@ -84,7 +88,7 @@ async function createNewItem(itemType: string) {
 										>
 											<div style="display: flex; align-items: center; gap: 4px">
 												<component
-													:is="availableSettings.find(i => i.type === itemType)?.icon"
+													:is="Icons[itemType]"
 													:size="20"
 												/>
 												<span>{{ t(`moderation.types.${itemType}.name`) }}</span>
@@ -128,7 +132,7 @@ async function createNewItem(itemType: string) {
 				</span>
 			</div>
 		</template>
-		<modal v-if="editableItem" :item="editableItem" />
+		<modal v-if="editableItem" />
 	</n-modal>
 </template>
 

@@ -8,16 +8,31 @@ import {
 	IconMoodOff,
 	type SVGProps,
 } from '@tabler/icons-vue';
-import type { ItemCreateMessage } from '@twir/grpc/generated/api/api/moderation';
-import type { FunctionalComponent } from 'vue';
+import type { ItemCreateMessage, Item as GrpcItem } from '@twir/grpc/generated/api/api/moderation';
+import { ref, type FunctionalComponent } from 'vue';
 
-type Item = ItemCreateMessage & {
+export type Item = ItemCreateMessage & {
 	icon: FunctionalComponent<SVGProps>
 }
 
-export const availableSettings: Item[] = [
+export type ItemData = Omit<GrpcItem, 'createdAt' | 'channelId' | 'updatedAt'>
+export type ItemWithOptionalId = {
+	id?: string
+	data?: ItemData
+}
+
+export const Icons: Readonly<Record<string, (props: SVGProps) => FunctionalComponent<SVGProps, any, any>>> = Object.freeze({
+	'links': IconLinkOff,
+	'language': IconLanguageOff,
+	'deny_list': IconListLetters,
+	'long_message': IconMessageOff,
+	'caps': IconAbc,
+	'emotes': IconMoodOff,
+	'symbols': IconAsteriskSimple,
+});
+
+export const availableSettings: ItemData[] = [
 	{
-		icon: IconLinkOff,
 		deniedChatLanguages: [],
 		banMessage: 'No links allowed',
 		banTime: 600,
@@ -32,7 +47,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'No links allowed [warning]',
 	},
 	{
-		icon: IconLanguageOff,
 		deniedChatLanguages: [],
 		banMessage: 'Language not allowed',
 		banTime: 600,
@@ -47,7 +61,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'Language not allowed [warning]',
 	},
 	{
-		icon: IconListLetters,
 		deniedChatLanguages: [],
 		banMessage: 'Bad word',
 		banTime: 600,
@@ -62,7 +75,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'Bad word [warning]',
 	},
 	{
-		icon: IconMessageOff,
 		deniedChatLanguages: [],
 		banMessage: 'Too long message',
 		banTime: 600,
@@ -77,7 +89,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'Too long message [warning]',
 	},
 	{
-		icon: IconAbc,
 		deniedChatLanguages: [],
 		banMessage: 'Too much caps',
 		banTime: 600,
@@ -92,7 +103,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'Too much caps [warning]',
 	},
 	{
-		icon: IconMoodOff,
 		deniedChatLanguages: [],
 		banMessage: 'Too many emotes',
 		banTime: 600,
@@ -107,7 +117,6 @@ export const availableSettings: Item[] = [
 		warningMessage: 'Too many emotes [warning]',
 	},
 	{
-		icon: IconAsteriskSimple,
 		deniedChatLanguages: [],
 		banMessage: 'Too many symbols',
 		banTime: 600,
@@ -124,3 +133,14 @@ export const availableSettings: Item[] = [
 ];
 
 export const availableSettingsTypes = availableSettings.map(n => n.type);
+
+const editableItem = ref<ItemWithOptionalId>();
+
+export const useEditableItem = () => {
+	const reset = () => editableItem.value = undefined;
+
+	return {
+		editableItem,
+		reset,
+	};
+};

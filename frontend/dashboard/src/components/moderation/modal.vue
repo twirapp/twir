@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconSquare, IconSquareCheck } from '@tabler/icons-vue';
-import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import chunk from 'lodash.chunk';
 import {
 	NButton,
@@ -11,9 +10,10 @@ import {
 	NButtonGroup,
 	useNotification,
 } from 'naive-ui';
-import { computed, ref, toRaw } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useEditableItem } from './helpers.js';
 import ModalCaps from './modal-caps.vue';
 import ModalDenylist from './modal-denylist.vue';
 import ModalEmotes from './modal-emotes.vue';
@@ -27,11 +27,9 @@ const { t } = useI18n();
 
 const manager = useModerationManager();
 const updater = manager.update;
+const creator = manager.create;
 
-const props = defineProps<{
-	item: ItemWithId
-}>();
-const formValue = ref(structuredClone(toRaw(props.item)));
+const { editableItem } = useEditableItem();
 
 const { data: availableRoles } = useRolesManager().getAll({});
 const rolesSelectOptions = computed(() => {
@@ -47,7 +45,18 @@ const rolesSelectOptions = computed(() => {
 const message = useNotification();
 
 async function saveSettings() {
-	await updater.mutateAsync(formValue.value);
+	if (!editableItem.value) return;
+
+	if (!editableItem.value.id) {
+		await creator.mutateAsync({
+			data: editableItem.value.data,
+		});
+	} else {
+		await updater.mutateAsync({
+			id: editableItem.value.id,
+			data: editableItem.value.data,
+		});
+	}
 	message.success({
 		title: t('sharedTexts.saved'),
 		duration: 2000,
@@ -58,48 +67,43 @@ async function saveSettings() {
 <template>
 	<div style="display: flex; flex-direction: column; gap: 12px;">
 		<modal-symbols
-			v-if="formValue.data!.type === 'symbols'"
+			v-if="editableItem?.data?.type === 'symbols'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<modal-language
-			v-if="formValue.data!.type === 'language'"
+			v-if="editableItem?.data?.type === 'language'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<modal-long-message
-			v-if="formValue.data!.type === 'long_message'"
+			v-if="editableItem?.data?.type === 'long_message'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<modal-caps
-			v-if="formValue.data!.type === 'caps'"
+			v-if="editableItem?.data?.type === 'caps'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<modal-emotes
-			v-if="formValue.data!.type === 'emotes'"
+			v-if="editableItem?.data?.type === 'emotes'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<div class="form-block">
-			<n-form-item label="Timeout message">
+			<n-form-item v-if="editableItem?.data" label="Timeout message">
 				<n-input
-					v-model:value="formValue.data!.banMessage"
+					v-model:value="editableItem.data.banMessage"
 					type="textarea"
 					:maxLength="500"
 					autosize
 				/>
 			</n-form-item>
 
-			<n-form-item :label="t('moderation.banTime')" :feedback="t('moderation.banDescription')">
+			<n-form-item v-if="editableItem?.data" :label="t('moderation.banTime')" :feedback="t('moderation.banDescription')">
 				<n-input-number
-					v-model:value="formValue.data!.banTime"
+					v-model:value="editableItem.data.banTime"
 					:min="0"
 					:max="86400"
 				/>
@@ -109,18 +113,18 @@ async function saveSettings() {
 		<n-divider style="margin: 0; padding: 0" />
 
 		<div class="form-block">
-			<n-form-item :label="t('moderation.warningMessage')">
+			<n-form-item v-if="editableItem?.data" :label="t('moderation.warningMessage')">
 				<n-input
-					v-model:value="formValue.data!.warningMessage"
+					v-model:value="editableItem.data.warningMessage"
 					type="textarea"
 					:maxLength="500"
 					autosize
 				/>
 			</n-form-item>
 
-			<n-form-item :label="t('moderation.warningMaxCount')">
+			<n-form-item v-if="editableItem?.data" :label="t('moderation.warningMaxCount')">
 				<n-input-number
-					v-model:value="formValue.data!.maxWarnings"
+					v-model:value="editableItem.data.maxWarnings"
 					:min="0"
 					:max="10"
 				/>
@@ -131,7 +135,7 @@ async function saveSettings() {
 
 		<div class="form-block">
 			<span>{{ t('moderation.excludedRoles') }}</span>
-			<div style="display: flex; flex-direction: column; gap: 5px;">
+			<div v-if="editableItem?.data" style="display: flex; flex-direction: column; gap: 5px;">
 				<n-button-group
 					v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 					:key="index"
@@ -139,18 +143,18 @@ async function saveSettings() {
 					<n-button
 						v-for="option of group"
 						:key="option.value"
-						:type="formValue.data!.excludedRoles.includes(option.value) ? 'success' : 'default'"
+						:type="editableItem?.data?.excludedRoles.includes(option.value) ? 'success' : 'default'"
 						secondary
 						@click="() => {
-							if (formValue.data!.excludedRoles.includes(option.value)) {
-								formValue.data!.excludedRoles = formValue.data!.excludedRoles.filter(r => r !== option.value)
+							if (editableItem!.data!.excludedRoles.includes(option.value)) {
+								editableItem!.data!.excludedRoles = editableItem!.data!.excludedRoles.filter(r => r !== option.value)
 							} else {
-								formValue.data!.excludedRoles.push(option.value)
+								editableItem!.data!.excludedRoles.push(option.value)
 							}
 						}"
 					>
 						<template #icon>
-							<IconSquareCheck v-if="formValue.data!.excludedRoles.includes(option.value)" />
+							<IconSquareCheck v-if="editableItem?.data?.excludedRoles.includes(option.value)" />
 							<IconSquare v-else />
 						</template>
 						{{ option.label }}
@@ -160,9 +164,8 @@ async function saveSettings() {
 		</div>
 
 		<modal-denylist
-			v-if="formValue.data!.type === 'deny_list'"
+			v-if="editableItem?.data?.type === 'deny_list'"
 			class="form-block"
-			:item="formValue"
 		/>
 
 		<n-divider style="margin: 0; padding: 0" />

@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { IconTrash } from '@tabler/icons-vue';
-import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NAlert, NInput, NDivider, NButton } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-const props = defineProps<{
-	item: ItemWithId
-}>();
+import { useEditableItem } from './helpers';
+
+const { editableItem } = useEditableItem();
 
 const { t } = useI18n();
 
-const addItem = () => props.item.data!.denyList.push('');
-const removeItem = (i: number) => props.item.data!.denyList = props.item.data!.denyList.filter((_, idx) => idx != i);
+const addItem = () => editableItem.value!.data!.denyList.push('');
+const removeItem = (i: number) => editableItem.value!.data!.denyList = editableItem.value!.data!.denyList.filter((_, idx) => idx != i);
 </script>
 
 <template>
 	<div>
 		<n-divider style="margin: 0; padding: 0" />
 
-		<n-alert v-if="!item.data?.denyList.length" type="warning">
+		<n-alert v-if="!editableItem?.data?.denyList.length" type="warning">
 			{{ t('moderation.types.deny_list.empty') }}
 		</n-alert>
 
@@ -27,12 +26,12 @@ const removeItem = (i: number) => props.item.data!.denyList = props.item.data!.d
 		</n-alert>
 
 		<div
-			v-for="(_, i) of item.data!.denyList"
+			v-for="(_, i) of editableItem!.data!.denyList"
 			:key="i"
 			style="display: flex; gap: 4px;"
 		>
 			<n-input
-				v-model:value="item.data!.denyList[i]"
+				v-model:value="editableItem!.data!.denyList[i]"
 				type="textarea"
 				autosize
 				:maxlength="500"
@@ -43,7 +42,7 @@ const removeItem = (i: number) => props.item.data!.denyList = props.item.data!.d
 		</div>
 
 		<n-button
-			:disabled="item.data!.denyList.length >= 100"
+			:disabled="editableItem!.data!.denyList.length >= 100"
 			type="success"
 			dashed
 			block

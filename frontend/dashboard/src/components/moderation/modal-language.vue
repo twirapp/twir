@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import type { ItemWithId } from '@twir/grpc/generated/api/api/moderation';
 import { NTransfer, NDivider } from 'naive-ui';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useEditableItem } from './helpers.js';
+
 import { useModerationAvailableLanguages } from '@/api';
 
-defineProps<{
-	item: ItemWithId
-}>();
+const { editableItem } = useEditableItem();
 
 const { data: availableLanguages } = useModerationAvailableLanguages();
 
@@ -26,7 +25,7 @@ const { t } = useI18n();
 	<div>
 		<n-transfer
 			ref="transfer"
-			v-model:value="item.data!.deniedChatLanguages"
+			v-model:value="editableItem!.data!.deniedChatLanguages"
 			:show-selected="false"
 			virtual-scroll
 			:options="transferOptions"
