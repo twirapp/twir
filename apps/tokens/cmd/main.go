@@ -12,9 +12,9 @@ import (
 	"github.com/satont/twir/libs/logger"
 
 	"github.com/getsentry/sentry-go"
-	goredislib "github.com/go-redis/redis/v9"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	goredislib "github.com/redis/go-redis/v9"
 	"github.com/samber/do"
 	"github.com/satont/twir/apps/tokens/internal/di"
 	"github.com/satont/twir/apps/tokens/internal/grpc_impl"

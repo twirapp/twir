@@ -7,16 +7,23 @@ replace github.cim/satont/twir/libs/config => ./../config
 replace github.cim/satont/twir/libs/crypto => ./../crypto
 
 require (
-	github.com/google/uuid v1.3.1
+	github.com/google/uuid v1.4.0
 	github.com/lib/pq v1.10.9
-	github.com/pressly/goose/v3 v3.13.4
-	github.com/satont/twir/libs/config v0.0.0-20230713153539-b2fe2b3b5757
-	github.com/satont/twir/libs/crypto v0.0.0-20230713153539-b2fe2b3b5757
+	github.com/pressly/goose/v3 v3.16.0
+	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
+	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72
 )
 
 require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/tools v0.14.0 // indirect
+	github.com/klauspost/compress v1.17.4 // indirect
+	github.com/sethvargo/go-retry v0.2.4 // indirect
+	github.com/stretchr/testify v1.8.4 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
+	golang.org/x/crypto v0.16.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
+	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/tools v0.16.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20231127180814-3a041ad873d4 // indirect
 )

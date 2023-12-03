@@ -100,15 +100,15 @@ importers:
         specifier: 4.17.21
         version: 4.17.21
       nice-grpc:
-        specifier: 2.0.1
-        version: 2.0.1
+        specifier: 2.1.7
+        version: 2.1.7
       vm2:
         specifier: ^3.9.19
         version: 3.9.19
     devDependencies:
       '@types/lodash':
-        specifier: 4.14.200
-        version: 4.14.200
+        specifier: 4.14.202
+        version: 4.14.202
 
   apps/integrations:
     dependencies:
@@ -1866,6 +1866,14 @@ packages:
       '@types/node': 20.10.3
     dev: true
 
+  /@grpc/grpc-js@1.9.12:
+    resolution: {integrity: sha512-Um5MBuge32TS3lAKX02PGCnFM4xPT996yLgZNb5H03pn6NyJ4Iwn5YcPq6Jj9yxGRk7WOgaZFtVRH5iTdYBeUg==}
+    engines: {node: ^8.13.0 || >=10.10.0}
+    dependencies:
+      '@grpc/proto-loader': 0.7.10
+      '@types/node': 20.10.3
+    dev: false
+
   /@grpc/grpc-js@1.9.9:
     resolution: {integrity: sha512-vQ1qwi/Kiyprt+uhb1+rHMpyk4CVRMTGNUGGPRGS7pLNfWkdCHrGEnT6T3/JyC2VZgoOX/X1KwdoU0WYQAeYcQ==}
     engines: {node: ^8.13.0 || >=10.10.0}
@@ -2838,26 +2846,21 @@ packages:
   /@types/lodash-es@4.17.11:
     resolution: {integrity: sha512-eCw8FYAWHt2DDl77s+AMLLzPn310LKohruumpucZI4oOFJkIgnlaJcy23OKMJxx4r9PeTF13Gv6w+jqjWQaYUg==}
     dependencies:
-      '@types/lodash': 4.14.201
+      '@types/lodash': 4.14.202
     dev: false
 
   /@types/lodash.chunk@4.2.9:
     resolution: {integrity: sha512-Z9VtFUSnmT0No/QymqfG9AGbfOA4O5qB/uyP89xeZBqDAsKsB4gQFTqt7d0pHjbsTwtQ4yZObQVHuKlSOhIJ5Q==}
     dependencies:
-      '@types/lodash': 4.14.201
+      '@types/lodash': 4.14.202
     dev: false
 
   /@types/lodash@4.14.191:
     resolution: {integrity: sha512-BdZ5BCCvho3EIXw6wUCXHe7rS53AIDPLE+JzwgT+OsJk53oBfbSmZZ7CX4VaRoN78N+TJpFi9QPlfIVNmJYWxQ==}
     dev: false
 
-  /@types/lodash@4.14.200:
-    resolution: {integrity: sha512-YI/M/4HRImtNf3pJgbF+W6FrXovqj+T+/HpENLTooK9PnkacBsDpeP3IpHab40CClUfhNmdM2WTNP2sa2dni5Q==}
-    dev: true
-
-  /@types/lodash@4.14.201:
-    resolution: {integrity: sha512-y9euML0cim1JrykNxADLfaG0FgD1g/yTHwUs/Jg9ZIU7WKj2/4IW9Lbb1WZbvck78W/lfGXFfe+u2EGfIJXdLQ==}
-    dev: false
+  /@types/lodash@4.14.202:
+    resolution: {integrity: sha512-OvlIYQK9tNneDlS0VN54LLd5uiPCBOp7gS5Z0f1mjoJYBrtStzgmJBxONW3U6OZqdtNzZPmn9BS/7WI7BFFcFQ==}
 
   /@types/long@3.0.32:
     resolution: {integrity: sha512-ZXyOOm83p7X8p3s0IYM3VeueNmHpkk/yMlP8CLeOnEcu6hIwPH7YjZBvhQkR0ZFS2DqZAxKtJ/M5fcuv3OU5BA==}
@@ -7518,7 +7521,7 @@ packages:
       '@css-render/plugin-bem': 0.15.12(css-render@0.15.12)
       '@css-render/vue3-ssr': 0.15.12(vue@3.3.8)
       '@types/katex': 0.16.6
-      '@types/lodash': 4.14.201
+      '@types/lodash': 4.14.202
       '@types/lodash-es': 4.17.11
       async-validator: 4.2.5
       css-render: 0.15.12
@@ -7580,12 +7583,26 @@ packages:
       ts-error: 1.0.6
     dev: false
 
+  /nice-grpc-common@2.0.2:
+    resolution: {integrity: sha512-7RNWbls5kAL1QVUOXvBsv1uO0wPQK3lHv+cY1gwkTzirnG1Nop4cBJZubpgziNbaVc/bl9QJcyvsf/NQxa3rjQ==}
+    dependencies:
+      ts-error: 1.0.6
+    dev: false
+
   /nice-grpc@2.0.1:
     resolution: {integrity: sha512-Q5CGXO08STsv+HAkXeFgRayANT62X1LnIDhNXdCf+LP0XaP7EiHM0Cr3QefnoFjDZAx/Kxq+qiQfY66BrtKcNQ==}
     dependencies:
       '@grpc/grpc-js': 1.9.9
       abort-controller-x: 0.4.3
       nice-grpc-common: 2.0.0
+    dev: false
+
+  /nice-grpc@2.1.7:
+    resolution: {integrity: sha512-pSaZk5Y3PHGAPObOSXTrANgimA6T//szxlcKOnnyttpYwO0gyOpX2WsaFK4fbGJizPVxXjwqrXpPOSHMwM2vlg==}
+    dependencies:
+      '@grpc/grpc-js': 1.9.12
+      abort-controller-x: 0.4.3
+      nice-grpc-common: 2.0.2
     dev: false
 
   /nlcst-to-string@3.1.1:
@@ -10279,6 +10296,8 @@ packages:
   /vm2@3.9.19:
     resolution: {integrity: sha512-J637XF0DHDMV57R6JyVsTak7nIL8gy5KH4r1HiwWLf/4GBbb5MKL5y7LpmF4A8E2nR6XmzpmMFQ7V7ppPTmUQg==}
     engines: {node: '>=6.0'}
+    deprecated: The library contains critical security issues and should not be used for production! The maintenance of the project has been discontinued. Consider migrating your code to isolated-vm.
+    hasBin: true
     dependencies:
       acorn: 8.11.2
       acorn-walk: 8.3.0
