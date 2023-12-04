@@ -10,8 +10,8 @@ export const navLinks: NavLink[] = [
 		label: 'Integrations',
 	},
 	{
-		href: '#reviews',
-		label: 'Reviews',
+		href: '#streamers',
+		label: 'Streamers',
 	},
 	{
 		href: '#team',
