@@ -283,8 +283,11 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 					`"
 				>
 					<template #header>
-						<n-form-item :label="t('chatAlerts.ban.ignoreTimeoutFrom')" label-style="padding: 0">
-							<n-dynamic-tags v-model:value="formValue.ban.ignoreTimeoutFrom" :max="100" />
+						<n-form-item :label="t('chatAlerts.ban.ignoreTimeoutFrom')" label-style="padding: 0;" class="tags">
+							<n-dynamic-tags
+								v-model:value="formValue.ban.ignoreTimeoutFrom"
+								:max="100"
+							/>
 						</n-form-item>
 					</template>
 				</Settings>
@@ -292,3 +295,16 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 		</n-tabs>
 	</n-card>
 </template>
+
+<style scoped>
+/* TODO: webkit line clamp */
+.tags :deep(.n-tag__content) {
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.tags :deep(.n-space), .tags :deep(.n-tag) {
+	width: 100%;
+}
+</style>

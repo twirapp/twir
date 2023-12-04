@@ -55,7 +55,7 @@ defineSlots<{
 </script>
 
 <template>
-	<div style="display: flex; gap: 8px; flex-direction: column;">
+	<section style="display: flex; gap: 8px; flex-direction: column;">
 		<div style="display: flex; gap: 4px;">
 			<span>{{ t('sharedTexts.enabled') }}</span>
 			<n-switch v-model:value="enabled" />
@@ -67,38 +67,42 @@ defineSlots<{
 				v-model:value="cooldown"
 				:min="minCooldown"
 				:max="9999"
-				style="width: 10%"
+				style="width: 10%; min-width: 100px;"
 			/>
 		</div>
 
 		<slot name="header" />
-	</div>
+	</section>
 
 	<n-alert v-if="alertMessage" type="info" title="Info" style="margin-top: 14px;">
 		<span v-html="alertMessage" />
 	</n-alert>
 
-	<div class="messages">
-		<div
+	<ul class="messages">
+		<li
 			v-for="(m, index) of messages"
 			:key="index"
-			style="display: flex; gap: 14px"
+			class="messageItem"
 		>
-			<n-input-group v-if="withCount && countLabel" style="width: auto;">
-				<n-input-group-label>{{ countLabel }} >=</n-input-group-label>
-				<n-input-number
-					v-model:value="m.count"
-					:min="minCount ?? 1"
-					:max="9999999"
-				/>
-			</n-input-group>
+			<div class="messageItemContent">
+				<n-input-group v-if="withCount && countLabel" style="width: auto; min-width: 200px">
+					<n-input-group-label>{{ countLabel }} >=</n-input-group-label>
+					<n-input-number
+						v-model:value="m.count"
+						:min="minCount ?? 1"
+						:max="9999999"
+						style="flex: 1"
+					/>
+				</n-input-group>
 
-			<n-input v-model:value="m.text" />
+				<n-input v-model:value="m.text" :title="m.text" />
+			</div>
+
 			<n-button :disabled="!hasAccessToManageAlerts" secondary type="error" @click="removeMessage(index)">
 				<IconTrash />
 			</n-button>
-		</div>
-	</div>
+		</li>
+	</ul>
 
 	<n-button
 		block
@@ -107,7 +111,8 @@ defineSlots<{
 		:disabled="(messages?.length === maxMessages) || !hasAccessToManageAlerts"
 		@click="createMessage"
 	>
-		{{ t('sharedButtons.create') }} ({{ messages?.length }} / {{ maxMessages }})
+		<span v-if="messages?.length">{{ t('sharedButtons.create') }} ({{ messages.length }} / {{ maxMessages }})</span>
+		<span v-else>{{ t('sharedButtons.create') }}</span>
 	</n-button>
 </template>
 
@@ -116,8 +121,27 @@ defineSlots<{
 	display: flex;
 	gap: 14px;
 	flex-direction: column;
+	padding: 0;
+	margin: 14px 0;
+}
+
+.messageItem {
+	display: flex;
 	gap: 14px;
-	margin-bottom: 14px;
-	margin-top: 14px;
+	justify-content: space-between;
+}
+
+.messageItemContent {
+	width: 100%;
+	display: flex;
+	column-gap: 14px;
+}
+
+@media screen and (max-width: 768px){
+	.messageItemContent {
+		flex-direction: column;
+		column-gap: 0;
+		row-gap: 6px;
+	}
 }
 </style>
