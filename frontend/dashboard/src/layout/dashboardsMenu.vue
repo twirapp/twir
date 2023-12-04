@@ -68,25 +68,30 @@ const menuOptions = computed(() => {
 });
 
 const isSelectDashboardPopoverOpened = ref(false);
+function togglePopover(value?: boolean) {
+	isSelectDashboardPopoverOpened.value = value ?? !isSelectDashboardPopoverOpened.value;
+}
 
-function select(key: string) {
+function onSelectDashboard(key: string) {
 	activeDashboard.value = key;
+	togglePopover(false);
 }
 
 onKeyStroke('k', (event) => {
 	if (event.ctrlKey || event.metaKey) {
 		event.preventDefault();
-		isSelectDashboardPopoverOpened.value = 	!isSelectDashboardPopoverOpened.value;
+		togglePopover();
 	}
 });
 
+const refPopoverList = ref<HTMLElement | null>();
 const refPopover = ref<HTMLElement | null>();
 onClickOutside(refPopover, (event) => {
 	if (isSelectDashboardPopoverOpened.value) {
 		event.stopPropagation();
-		isSelectDashboardPopoverOpened.value = false;
+		togglePopover(false);
 	}
-});
+}, { ignore: [refPopoverList] });
 </script>
 
 <template>
@@ -118,7 +123,7 @@ onClickOutside(refPopover, (event) => {
 			</div>
 		</template>
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
-		<div v-else>
+		<div v-else ref="refPopoverList">
 			<div style="display: flex; gap: 12px; padding: 6px;">
 				<n-avatar :src="currentDashboard?.profileImageUrl" round />
 				<div style="display: flex; flex-direction: column;">
@@ -138,7 +143,7 @@ onClickOutside(refPopover, (event) => {
 						:key="option.key"
 						secondary
 						class="item"
-						@click="select(option.key)"
+						@click="onSelectDashboard(option.key)"
 					>
 						<n-avatar :src="option.icon" round size="small" />
 						{{ option.label }}
