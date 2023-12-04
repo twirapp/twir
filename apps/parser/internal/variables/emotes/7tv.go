@@ -33,7 +33,7 @@ var SevenTv = &types.Variable{
 		_, err := req.R().
 			SetContext(ctx).
 			SetSuccessResult(&response).
-			Get("https://7tv.io/v3/users/twitch/988337552" + parseCtx.Channel.ID)
+			Get("https://7tv.io/v3/users/twitch/" + parseCtx.Channel.ID)
 
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)

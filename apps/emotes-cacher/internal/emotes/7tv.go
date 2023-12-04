@@ -25,7 +25,7 @@ type SevenTvGlobalResponse struct {
 }
 
 func GetChannelSevenTvEmotes(channelID string) ([]string, error) {
-	resp, err := http.Get("https://7tv.io/v3/users/twitch/988337552" + channelID)
+	resp, err := http.Get("https://7tv.io/v3/users/twitch/" + channelID)
 	if err != nil {
 		return nil, err
 	}
