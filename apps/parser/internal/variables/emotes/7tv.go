@@ -13,6 +13,12 @@ type sevenTVEmote struct {
 	Name string `json:"name"`
 }
 
+type sevenUserTvResponse struct {
+	EmoteSet *struct {
+		Emotes []sevenTVEmote `json:"emotes"`
+	} `json:"emote_set"`
+}
+
 var SevenTv = &types.Variable{
 	Name:                "emotes.7tv",
 	Description:         lo.ToPtr("Emotes of channel from https://7tv.app"),
@@ -22,20 +28,24 @@ var SevenTv = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		var data []*sevenTVEmote
+		var response sevenUserTvResponse
 
 		_, err := req.R().
 			SetContext(ctx).
-			SetSuccessResult(&data).
-			Get("https://api.7tv.app/v2/users/" + parseCtx.Channel.ID + "/emotes")
+			SetSuccessResult(&response).
+			Get("https://7tv.io/v3/users/twitch/988337552" + parseCtx.Channel.ID)
 
 		if err != nil {
 			parseCtx.Services.Logger.Sugar().Error(err)
 			return result, nil
 		}
 
+		if response.EmoteSet == nil {
+			return result, nil
+		}
+
 		mapped := lo.Map(
-			data, func(e *sevenTVEmote, _ int) string {
+			response.EmoteSet.Emotes, func(e sevenTVEmote, _ int) string {
 				return e.Name
 			},
 		)
