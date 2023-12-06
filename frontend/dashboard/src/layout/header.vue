@@ -10,7 +10,7 @@ import ButtonToggleTheme from './buttons/buttonToggleTheme.vue';
 import DashboardsMenu from './dashboardsMenu.vue';
 import Drawer from './drawer.vue';
 import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
-import DropdownProfileOptions from './dropdowns/dropdownProfileOptions.vue';
+import DropdownProfile from './dropdowns/dropdownProfile.vue';
 import HamburgerMenu from './hamburgerMenu.vue';
 import Logo from '../../public/TwirInCircle.svg?component';
 
@@ -70,7 +70,7 @@ useEventListener('keydown', (ev) => {
 				<div class="block">
 					<dropdown-language />
 					<button-toggle-theme />
-					<dropdown-profile-options />
+					<dropdown-profile />
 				</div>
 			</div>
 
@@ -90,7 +90,7 @@ useEventListener('keydown', (ev) => {
 							</div>
 						</div>
 
-						<dropdown-profile-options />
+						<dropdown-profile />
 					</div>
 				</drawer>
 			</template>
@@ -159,7 +159,7 @@ useEventListener('keydown', (ev) => {
 	margin-right: 6px;
 }
 
-@media screen and (max-width: 520px){
+@media screen and (max-width: 520px) {
 	.drawerSlot {
 		align-items: flex-start;
 	}

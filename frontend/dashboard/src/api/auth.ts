@@ -21,9 +21,6 @@ export const useLogout = () => useMutation({
 	mutationFn: async () => {
 		await protectedApiClient.authLogout({});
 	},
-	onSuccess: () => {
-		window.location.replace('/');
-	},
 });
 
 

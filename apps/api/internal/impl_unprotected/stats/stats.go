@@ -107,16 +107,24 @@ func (c *Stats) cacheCounts() {
 
 func (c *Stats) cacheStreamers() {
 	c.Logger.Info("Updating streamers cache in stats")
-	var streamers []string
-	if err := c.Db.Model(&model.Channels{}).Where(
-		`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
-		true,
-		false,
-		false,
-	).Pluck("id", &streamers).Error; err != nil {
+	var streamers []model.Channels
+	if err := c.Db.Model(&model.Channels{}).
+		Preload("User").
+		Where(
+			`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
+			true,
+			false,
+			false,
+		).Find(&streamers).Error; err != nil {
 		c.Logger.Error("cannot cache streamers", slog.Any("err", err))
 		return
 	}
+
+	streamers = lo.Filter(
+		streamers, func(item model.Channels, _ int) bool {
+			return item.User != nil && !item.User.HideOnLandingPage
+		},
+	)
 
 	helixUsersMu := sync.Mutex{}
 	helixUsers := make([]helix.User, 0, len(streamers))
@@ -134,9 +142,15 @@ func (c *Stats) cacheStreamers() {
 		chunk := chunk
 		errGroup.Go(
 			func() error {
+				usersIds := lo.Map(
+					chunk, func(item model.Channels, _ int) string {
+						return item.ID
+					},
+				)
+
 				usersReq, usersErr := twitchClient.GetUsers(
 					&helix.UsersParams{
-						IDs: chunk,
+						IDs: usersIds,
 					},
 				)
 				if usersErr != nil {

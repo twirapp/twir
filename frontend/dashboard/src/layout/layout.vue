@@ -55,7 +55,7 @@ watch(smallerOrEqualLg, (v) => {
 		:breakpoints="{ xs: 0, s: 640, m: 1024, l: 1280, xl: 1536, xxl: 1920, '2xl': 2560 }"
 	>
 		<n-notification-provider :max="5">
-			<n-message-provider>
+			<n-message-provider :duration="2500" :closable="true">
 				<n-layout style="height: 100%">
 					<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
 						<Header :toggleSidebar="toggleSidebar" />

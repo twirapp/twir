@@ -25,6 +25,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/timers"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
+	"github.com/satont/twir/apps/api/internal/impl_protected/users"
 	"github.com/satont/twir/apps/api/internal/impl_protected/variables"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -63,6 +64,7 @@ type Protected struct {
 	*games.Games
 	*overlays.Overlays
 	*moderation.Moderation
+	*users.Users
 }
 
 type Opts struct {
@@ -126,5 +128,6 @@ func New(opts Opts) *Protected {
 		Games:            &games.Games{Deps: d},
 		Overlays:         &overlays.Overlays{Deps: d},
 		Moderation:       &moderation.Moderation{Deps: d},
+		Users:            &users.Users{Deps: d},
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/auth"
@@ -17,7 +18,11 @@ type Auth struct {
 }
 
 func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Profile, error) {
-	dbUser := c.SessionManager.Get(ctx, "dbUser").(model.Users)
+	dbUser, err := helpers.GetUserModelFromCtx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get user model from ctx: %w", err)
+	}
+
 	twitchUser := c.SessionManager.Get(ctx, "twitchUser").(helix.User)
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
@@ -46,6 +51,7 @@ func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Pro
 		ApiKey:              dbUser.ApiKey,
 		IsBotAdmin:          dbUser.IsBotAdmin,
 		SelectedDashboardId: selectedDashboardId,
+		HideOnLandingPage:   dbUser.HideOnLandingPage,
 	}, nil
 }
 

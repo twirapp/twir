@@ -27,6 +27,7 @@ message Profile {
 	string api_key = 5;
 	bool is_bot_admin = 6;
 	string selected_dashboard_id = 7;
+	bool hide_on_landing_page = 8;
 }
 
 message SetDashboard {

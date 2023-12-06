@@ -31,6 +31,10 @@ export const newRouter = (queryClient: QueryClient) => {
 					},
 				},
 				{
+					path: '/dashboard/profile',
+					component: () => import('./pages/Profile.vue'),
+				},
+				{
 					name: 'Integrations',
 					path: '/dashboard/integrations',
 					component: () => import('./pages/Integrations.vue'),
