@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 import { useProfile, useTwitchGetUsers } from '@/api';
 
 const { data: profileData } = useProfile();
-const { t } = useI18n({ useScope: 'global' });
+const { t } = useI18n();
 
 const selectedUserId = computed(() => {
 	return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';

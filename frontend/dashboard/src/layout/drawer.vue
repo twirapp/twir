@@ -18,7 +18,7 @@ defineProps<{
 		style="top: var(--layout-header-height)"
 		height="calc(100vh - var(--layout-header-height))"
 	>
-		<n-drawer-content body-content-style="padding: 12px" header-style="padding: 8px">
+		<n-drawer-content header-style="padding: 8px">
 			<template #header>
 				<slot />
 			</template>
@@ -28,7 +28,17 @@ defineProps<{
 </template>
 
 <style scoped>
+:deep(.n-drawer-body-content-wrapper) {
+	padding: 12px !important;
+}
+
 :deep(.n-drawer-header__main) {
 	width: 100%;
+}
+
+@media screen and (max-width: 520px) {
+	:deep(.n-drawer-body-content-wrapper) {
+		padding: 4px 0 !important;
+	}
 }
 </style>

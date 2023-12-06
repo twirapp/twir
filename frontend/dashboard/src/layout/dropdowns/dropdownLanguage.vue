@@ -4,12 +4,10 @@ import { NButton, NDropdown } from 'naive-ui';
 import { defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-const { t, locale, availableLocales } = useI18n({ useScope: 'global' });
+const { t, locale, availableLocales } = useI18n();
 
 const localStorageLocale = useLocalStorage('twirLocale', 'en');
 
-// TODO: Тупая IDEA, говорит, что не может зарезолвить путь ни с алиасом, ни без.
-// TODO: А еще с алиасом компонент не импортиться Kappa
 const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`../../assets/icons/flags/${code}.svg?component`));
 </script>
 

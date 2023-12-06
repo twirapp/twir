@@ -3,16 +3,11 @@ import { IconLogout } from '@tabler/icons-vue';
 import { DropdownOption, NAvatar, NButton, NDropdown, NSpin } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import { useLogout } from '@/api';
+import { useLogout, useProfile } from '@/api';
 import { renderIcon } from '@/helpers';
 
-
-defineProps<{
-	isProfileLoading: boolean,
-	avatar?:  string,
-}>();
-
-const { t } = useI18n({ useScope: 'global' });
+const { t } = useI18n();
+const { data: profileData, isLoading: isProfileLoading } = useProfile();
 const logout = useLogout();
 
 const profileOptions: DropdownOption[] = [{
@@ -34,7 +29,7 @@ const profileOptions: DropdownOption[] = [{
 			<div v-else class="profile">
 				<n-avatar
 					size="small"
-					:src="avatar"
+					:src="profileData?.avatar"
 					round
 				/>
 			</div>

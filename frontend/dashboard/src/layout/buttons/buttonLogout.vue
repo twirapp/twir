@@ -3,13 +3,10 @@ import { IconLogout } from '@tabler/icons-vue';
 import { NButton, NSpin } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import { useLogout } from '@/api';
+import { useLogout, useProfile } from '@/api';
 
-defineProps<{
-	isProfileLoading: boolean
-}>();
-
-const { t } = useI18n({ useScope: 'global' });
+const { t } = useI18n();
+const { isLoading: isProfileLoading } = useProfile();
 const logout = useLogout();
 </script>
 

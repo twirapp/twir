@@ -101,7 +101,6 @@ watch(smallerOrEqualLg, (v) => {
 </template>
 
 <style>
-/* TODO: Unused? */
 .router-enter-active,
 .router-leave-active {
 	transition: all 0.2s cubic-bezier(0, 0, 0.2, 1);
