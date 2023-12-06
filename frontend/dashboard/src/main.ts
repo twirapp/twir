@@ -40,5 +40,5 @@ app
 app.mount('#app');
 
 if (import.meta.env.DEV) {
-	document.title = 'Twir Dashboard (dev)';
+	document.title = 'Twir - Dashboard (dev)';
 }
