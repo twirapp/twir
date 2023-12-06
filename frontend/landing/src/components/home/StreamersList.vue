@@ -37,9 +37,18 @@ const wrapper = ref<HTMLElement>(null);
 				]"
 			>
 				<div v-for="(item, idx) in streamers" :key="idx" class="slider-review-card">
-					<div v-for="(streamer, streamerIdx) of item" :key="streamerIdx" class="flex gap-3 items-center">
-						<img :src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false" :alt="`streamers-list-${streamer.userDisplayName}`" />
-						<a class="flex flex-col gap-1" :href="`https://twitch.tv/${streamer.userLogin}`" target="_blank">
+					<div
+						v-for="(streamer, streamerIdx) of item" :key="streamerIdx"
+						class="flex gap-3 items-center"
+					>
+						<img
+							:src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false"
+							:alt="`streamers-list-${streamer.userDisplayName}`"
+						/>
+						<a
+							class="streamer-link flex flex-col gap-1"
+							:href="`https://twitch.tv/${streamer.userLogin}`" target="_blank"
+						>
 							<span>{{ streamer.userDisplayName }}</span>
 							<span class="text-xs uppercase">{{ streamer.followersCount }} followers</span>
 						</a>
@@ -67,23 +76,30 @@ const wrapper = ref<HTMLElement>(null);
 }
 
 .slider-review-card {
-  width: auto;
-  margin: 0 12px;
-  height: auto;
-  opacity: 1 !important;
+	width: auto;
+	margin: 0 12px;
+	height: auto;
+	opacity: 1 !important;
 
-  @media screen and (max-width: 565.98px) {
-    width: calc(100vw - 24px * 2);
-  }
+	@media screen and (max-width: 565.98px) {
+		width: calc(100vw - 24px * 2);
+	}
 
-	-webkit-user-select: none; /* Safari */
-  -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 
 	@apply gap-5 p-6 rounded-[12px] bg-[#24242780] border-[#393A3E] inline-flex flex-col border select-none
 }
 
 :deep(.flicking-pagination-bullet) {
 	background-color: #fff !important;
+}
+
+.streamer-link {
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-webkit-user-drag: none;
+	user-select: none;
 }
 </style>
