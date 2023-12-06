@@ -64,8 +64,9 @@ import Vk from '@/components/integrations/vk.vue';
 	margin: 0 auto;
 }
 
-.info {
-	width: 50%;
-	margin-bottom: 15px
+@media screen and (max-width: 1024px) {
+	.integrations {
+		max-width: 80vw;
+	}
 }
 </style>
