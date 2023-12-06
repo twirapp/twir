@@ -8,13 +8,13 @@
     "delete": "Delete",
     "settings": "Settings",
     "login": "Login",
-    "logout": "Logout",
+    "logout": "Log Out",
     "edit": "Edit",
     "select": "Select",
     "cancel": "Cancel",
     "confirm": "Confirm",
-    "saveSettings": "Save settings",
-    "setDefaultSettings": "Set default settings"
+    "saveSettings": "Save Settings",
+    "setDefaultSettings": "Set Default Settings"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -29,8 +29,8 @@
       "text": "Bot will send commands responses as reply"
     },
     "response": "Response",
-    "userName": "User name",
-    "dangerZone": "Danger zone",
+    "userName": "Username",
+    "dangerZone": "Danger Zone",
     "deleted": "Deleted",
     "updated": "Updated",
     "disabled": "Disabled"
@@ -47,10 +47,10 @@
     },
     "integrations": "Integrations",
     "events": "Events",
-    "chatAlerts": "Chat alerts",
+    "chatAlerts": "Chat Alerts",
     "overlays": "Overlays",
-    "overlaysRegistry": "Overlays registry",
-    "songRequests": "Song requests",
+    "overlaysRegistry": "Overlays Registry",
+    "songRequests": "Song Requests",
     "timers": "Timers",
     "roles": "Permissions",
     "keywords": "Keywords",
@@ -63,64 +63,64 @@
   },
   "navbar": {
     "logout": "Logout",
-    "publicPage": "Public page"
+    "publicPage": "Public Page"
   },
   "deleteConfirmation": {
-    "text": "Are you sure you want to delete this thing?",
+    "text": "Are you sure about deleting this thing?",
     "cancel": "Cancel",
     "confirm": "Confirm"
   },
   "haveNoAccess": {
-    "message": "You are not authorized to view this page, ask broadcaster to provide it."
+    "message": "You are not authorized to view this page, ask the broadcaster to provide it."
   },
   "commands": {
     "name": "Command | Commands",
-    "searchPlaceholder": "Search command",
-    "newCommandTitle": "New command",
+    "searchPlaceholder": "Search the command...",
+    "newCommandTitle": "New Command",
     "groups": {
-      "manageButton": "Manage groups",
+      "manageButton": "Manage Groups",
       "name": "Name",
       "color": "Color"
     },
     "table": {
       "responses": {
-        "empty": "Responses are empty"
+        "empty": "Responses are empty!"
       }
     },
     "modal": {
       "name": {
         "label": "Name",
         "validations": {
-          "empty": "Command name is required",
-          "startsWith": "Command name should not start with !",
-          "len": "Command name should be less than 25 characters"
+          "empty": "Command Name is required.",
+          "startsWith": "Command Name should not start with '!'.",
+          "len": "Command Name should be less than 25 characters."
         }
       },
       "aliases": {
         "label": "Aliases"
       },
       "description": {
-        "label": "Command description"
+        "label": "Command Description"
       },
       "responses": {
         "validations": {
-          "empty": "Response should not be empty. Command can be created without responses, so you can omit this field.",
-          "len": "Response should be less than 500 characters"
+          "empty": "Response should not be empty. Command can be created without a response, so you can skip this field.",
+          "len": "Response should be less than 500 characters."
         },
-        "defaultWarning": "Responses cannot be edited for default commands"
+        "defaultWarning": "Responses cannot be edited for default commands."
       },
       "permissions": {
         "divider": "Permissions",
         "name": "Roles",
-        "placeholder": "Select roles, which will have permissions to use commands",
-        "deniedUsers": "Users, who cannot use that command",
-        "allowedUsers": "Users, who can bypass roles restriction for that command"
+        "placeholder": "Select roles to grant permissions to use commands",
+        "deniedUsers": "Users, who cannot use that command.",
+        "allowedUsers": "Users, who can bypass roles restriction for that command."
       },
       "restrictions": {
         "name": "Restrictions by stats",
-        "watchTime": "Required watch time for use that command",
-        "messages": "Required messages for use that command",
-        "channelsPoints": "Required used channels points for use that command"
+        "watchTime": "Required watch time to use that command.",
+        "messages": "Required message count to use that command.",
+        "channelsPoints": "Required spent channels points to use that command."
       },
       "cooldown": {
         "label": "Cooldown",
@@ -128,7 +128,7 @@
         "type": {
           "name": "Cooldown per",
           "global": "Global",
-          "user": "Per user (individual)"
+          "user": "Individual (per user)"
         }
       },
       "settings": {
@@ -138,12 +138,12 @@
           "text": "Command visibility on a public commands list page."
         },
         "keepOrder": {
-          "label": "Keep order of responses",
-          "text": "Bot will keep specified order of respones when sending them into chat"
+          "label": "Keep Order",
+          "text": "Bot will keep this order of responses when sending them into chat."
         },
         "onlineOnly": {
-          "label": "Only while online",
-          "text": "This command will work only when the stream is online"
+          "label": "Only When Online",
+          "text": "This command will work only when the stream is online."
         },
         "other": {
           "divider": "Other",
@@ -151,7 +151,7 @@
         }
       },
       "alert": {
-        "label": "Select alert, which will be triggered on command usage"
+        "label": "Select an alert, which will be triggered when the command used."
       }
     }
   },
@@ -165,8 +165,8 @@
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Cannot get title",
-        "noCategory": "Cannot get category",
+        "noTitle": "Cannot get Stream Title",
+        "noCategory": "Cannot get Category",
         "modalTitle": "Edit Stream Information",
         "title": "Stream Title",
         "category": "Category"
@@ -190,33 +190,33 @@
         "title": "Events List"
       },
       "bot": {
-        "title": "Bot Management and Information"
+        "title": "Bot Management"
       }
     }
   },
   "integrations": {
     "notLoggedIn": "You have not logged in",
-    "songServicesInfo": "Logging in through streaming services such as <i>last.fm</i>, <i>Spotify</i>, <i>VK</i> will automatically print your currently playing song into chat when <b>!song</b> command is being used.",
-    "donateServicesInfo": "Provides possibility to Twir for listen incoming donations, and setup interactions for you in <a href='/dashboard/events/custom'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> systems",
+    "songServicesInfo": "Providing access to this service will allow to automatically get and print your currently playing song into chat when <b>!song</b> command is being used.",
+    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in <a href='/dashboard/events/custom'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> categories.",
     "discord": {
-      "description": "Use this integration for setup live alerts into your discord guilds",
-      "guildPluralization": "zero guilds | 1 guild | {count} guilds",
-      "connectedGuilds": "Connected {guilds}",
+      "description": "Use this integration to setup automatic pings and alerts on your Discord servers",
+      "guildPluralization": "No servers | 1 server | {count} servers",
+      "connectedGuilds": "{guilds} connected",
       "alerts": {
         "label": "Alerts",
-        "showTitle": "Show title of stream",
-        "showCategory": "Show category of stream",
-        "showViewers": "Show viewers",
-        "showPreview": "Show stream preview",
-        "showProfileImage": "Show twitch profile avatar",
-        "channelsSelect": "Select channels where notifications will be located",
-        "streamOnlineLabel": "Stream online message",
-        "streamOnlinePlaceholder": "The message twir will send when stream started",
-        "streamOfflineLabel": "Stream offline message",
-        "streamOfflinePlaceholder": "The message twir will send when stream goes offline",
-        "updateAlert": "Twir will update embed periodically to make sure embed in sync with your stream state (viewers, title, category, e.t.c)",
-        "shouldDeleteMessageOnOffline": "Delete announce message instead of editing when stream becomes offline",
-        "additionalUsersIdsForLiveCheck": "Additional twitch users for watch streams and send alerts"
+        "showTitle": "Show Stream Title",
+        "showCategory": "Show Stream Category",
+        "showViewers": "Show Viewers Counter",
+        "showPreview": "Show Stream Preview",
+        "showProfileImage": "Show Twitch Profile Avatar",
+        "channelsSelect": "Where alerts will be posted?",
+        "streamOnlineLabel": "Stream Alert Message",
+        "streamOnlinePlaceholder": "This message Twir will send when the stream starts.",
+        "streamOfflineLabel": "Stream Ended Message",
+        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
+        "updateAlert": "Twir will update embed periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
+        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
+        "additionalUsersIdsForLiveCheck": "Additional Twitch users to follow to send stream alerts."
       },
       "connectGuild": "+ connect new guild",
       "disconnectGuild": "Disconnect guild",
