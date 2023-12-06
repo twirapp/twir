@@ -22,7 +22,8 @@ const wrapper = ref<HTMLElement>(null);
 					moveType: 'snap',
 					circularFallback: 'linear',
 					circular: false,
-					align: 'prev'
+					align: 'prev',
+					bound: true
 				}"
 				:plugins="[
 					new AutoPlay({ stopOnHover: true, duration: 2500 }),
