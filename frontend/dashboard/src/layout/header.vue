@@ -1,71 +1,53 @@
 <script setup lang="ts">
-import { IconLogout, IconShare, IconMoon, IconSun } from '@tabler/icons-vue';
-import { useLocalStorage } from '@vueuse/core';
-import {
-	type DropdownOption,
-	NAvatar,
-	NButton,
-	NDropdown,
-	NTooltip,
-	NSpin,
-	useThemeVars,
-} from 'naive-ui';
-import { computed, defineAsyncComponent } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { breakpointsTailwind, useBreakpoints, useEventListener } from '@vueuse/core';
+import { useThemeVars } from 'naive-ui';
+import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 
+import ButtonDiscord from './buttons/buttonDiscord.vue';
+import ButtonPublicPage from './buttons/buttonPublicPage.vue';
+import ButtonToggleTheme from './buttons/buttonToggleTheme.vue';
 import DashboardsMenu from './dashboardsMenu.vue';
+import Drawer from './drawer.vue';
+import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
+import DropdownProfileOptions from './dropdowns/dropdownProfileOptions.vue';
+import HamburgerMenu from './hamburgerMenu.vue';
 import Logo from '../../public/TwirInCircle.svg?component';
-
-import { useLogout, useProfile, useTwitchGetUsers } from '@/api/index.js';
-import DiscordLogo from '@/assets/icons/integrations/discord.svg?component';
-import { renderIcon } from '@/helpers/index.js';
-import { useTheme } from '@/hooks/index.js';
 
 defineProps<{
 	toggleSidebar: () => void;
 }>();
 
-const { t, availableLocales, locale } = useI18n({ useScope: 'global' });
-const { theme, toggleTheme } = useTheme();
+const route = useRoute();
 
 const themeVars = useThemeVars();
 const blockColor = computed(() => themeVars.value.buttonColor2);
-const discordIconColor = computed(() => themeVars.value.textColor2);
 
-const logout = useLogout();
-const profileOptions: DropdownOption[] = [{
-	label: t('navbar.logout'),
-	key: 'logout',
-	icon: renderIcon(IconLogout),
-	props: {
-		onClick: () => {
-			logout.mutate();
-		},
-		style: {
-			// 'background-color': 'red',
-		},
-	},
-}];
+const breakPoints = useBreakpoints(breakpointsTailwind);
+const smallerOrEqualMd = breakPoints.smallerOrEqual('md');
 
-const { data: profileData, isLoading: isProfileLoading } = useProfile();
+const isDrawerOpen = ref(false);
+const handleCloseDrawer = () => isDrawerOpen.value = false;
+const handleToggleDrawer = () => isDrawerOpen.value = !isDrawerOpen.value;
 
-const localStorageLocale = useLocalStorage('twirLocale', 'en');
-
-const selectedUserId = computed(() => {
-	return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';
-});
-const selectedDashboardTwitchUser = useTwitchGetUsers({
-	ids: selectedUserId,
+watch(smallerOrEqualMd, (v) => {
+	if (!v && isDrawerOpen.value) {
+		handleCloseDrawer();
+	}
 });
 
-const openDiscord = () => window.open('https://discord.gg/Q9NBZq3zVV', '_blank');
-const publicPageHref = computed<string>(() => {
-	if (!profileData.value || !selectedDashboardTwitchUser.data.value?.users.length) return '';
+watch(() => route.fullPath, () => {
+	if (!isDrawerOpen.value) return;
 
-	return `${window.location.origin}/p/${selectedDashboardTwitchUser.data.value.users.at(0)!.login}`;
+	handleCloseDrawer();
 });
 
-const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/assets/icons/flags/${code}.svg?component`));
+useEventListener('keydown', (ev) => {
+	if (ev.code !== 'Escape' || !isDrawerOpen.value) return;
+
+	// TODO: Don`t close if dropdown-profile-options is open
+	// handleCloseDrawer();
+});
 </script>
 
 <template>
@@ -79,61 +61,39 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 				<DashboardsMenu />
 			</div>
 
-			<div style="display: flex; gap: 12px;">
+			<div v-if="!smallerOrEqualMd" style="display: flex; gap: 12px;">
 				<div class="block">
-					<n-tooltip>
-						<template #trigger>
-							<n-button tag="a" circle quaternary target="_blank" :href="publicPageHref">
-								<IconShare />
-							</n-button>
-						</template>
-						{{ t('navbar.publicPage') }}
-					</n-tooltip>
-					<n-button
-						quaternary
-						circle
-						style="padding: 5px"
-						@click="openDiscord"
-					>
-						<DiscordLogo :style="{ width: '20px', fill: discordIconColor }" />
-					</n-button>
+					<button-public-page />
+					<button-discord />
 				</div>
 
 				<div class="block">
-					<n-dropdown
-						trigger="click"
-						:options="availableLocales.map(l => ({
-							title: t('languageName', {}, { locale: l }),
-							key: l as string,
-						}))"
-						size="medium"
-						@select="(l) => {
-							locale = l
-							localStorageLocale = l
-						}"
-					>
-						<n-button circle quaternary style="padding: 5px; font-size: 25px">
-							<component :is="renderFlagIcon(localStorageLocale)" style="width: 35px; height: 50px;" />
-						</n-button>
-					</n-dropdown>
-					<n-button circle quaternary style="padding: 5px" @click="toggleTheme">
-						<IconSun v-if="theme === 'dark'" color="orange" />
-						<IconMoon v-else />
-					</n-button>
-					<n-dropdown trigger="click" :options="profileOptions" size="large">
-						<n-button text>
-							<n-spin v-if="isProfileLoading" size="small" />
-							<div v-else class="profile">
-								<n-avatar
-									size="small"
-									:src="profileData?.avatar"
-									round
-								/>
-							</div>
-						</n-button>
-					</n-dropdown>
+					<dropdown-language />
+					<button-toggle-theme />
+					<dropdown-profile-options />
 				</div>
 			</div>
+
+			<template v-if="smallerOrEqualMd">
+				<hamburger-menu :is-open="isDrawerOpen" @click="handleToggleDrawer" />
+				<drawer :show="isDrawerOpen">
+					<div class="drawerSlot">
+						<div class="drawerSlotBlocks">
+							<div class="drawerBlock">
+								<button-public-page />
+								<button-discord />
+							</div>
+
+							<div class="drawerBlock">
+								<dropdown-language />
+								<button-toggle-theme />
+							</div>
+						</div>
+
+						<dropdown-profile-options />
+					</div>
+				</drawer>
+			</template>
 		</div>
 	</div>
 </template>
@@ -166,11 +126,6 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 	align-items: center;
 	height: 45px;
 }
-.profile {
-	display: flex;
-	gap: 5px;
-	align-items: center;
-}
 
 .block {
 	background-color: v-bind(blockColor);
@@ -179,5 +134,38 @@ const renderFlagIcon = (code: string) => defineAsyncComponent(() => import(`@/as
 	padding: 16px;
 	border-radius: 10px;
 	align-items: center;
+}
+
+.drawerBlock {
+	background-color: v-bind(blockColor);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 16px;
+	border-radius: 10px;
+}
+
+.drawerSlot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px;
+}
+
+.drawerSlotBlocks {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-right: 6px;
+}
+
+@media screen and (max-width: 520px){
+	.drawerSlot {
+		align-items: flex-start;
+	}
+
+	.drawerSlotBlocks {
+		flex-direction: column;
+	}
 }
 </style>

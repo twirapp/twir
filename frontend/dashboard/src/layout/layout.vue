@@ -28,7 +28,10 @@ const router = useRouter();
 router.isReady().finally(() => isRouterReady.value = true);
 
 const breakPoints = useBreakpoints(breakpointsTailwind);
+// If we are on a smaller than or equal to lg, we want the sidebar to collapse.
 const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
+// If we are on a smaller than or equal to md, we want the sidebar to hide and show hamburger menu with drawer.
+const smallerOrEqualMd = breakPoints.smallerOrEqual('md');
 
 const storedSidebarValue = useLocalStorage('twirSidebarIsCollapsed', false);
 
@@ -54,11 +57,13 @@ watch(smallerOrEqualLg, (v) => {
 		<n-notification-provider :max="5">
 			<n-message-provider>
 				<n-layout style="height: 100%">
-					<n-layout-header bordered style="height: 65px; width: 100%;">
+					<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
 						<Header :toggleSidebar="toggleSidebar" />
 					</n-layout-header>
-					<n-layout has-sider style="height: calc(100vh - 65px)">
+
+					<n-layout has-sider style="height: calc(100vh - var(--layout-header-height))">
 						<n-layout-sider
+							v-if="!smallerOrEqualMd"
 							bordered
 							collapse-mode="width"
 							:collapsed-width="64"
