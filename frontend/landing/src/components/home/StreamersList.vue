@@ -37,7 +37,7 @@ const wrapper = ref<HTMLElement>(null);
 			>
 				<div v-for="(item, idx) in streamers" :key="idx" class="slider-review-card">
 					<div v-for="(streamer, streamerIdx) of item" :key="streamerIdx" class="flex gap-3 items-center">
-						<img :src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false" />
+						<img :src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false" :alt="`streamers-list-${streamer.userDisplayName}`" />
 						<a class="flex flex-col gap-1" :href="`https://twitch.tv/${streamer.userLogin}`" target="_blank">
 							<span>{{ streamer.userDisplayName }}</span>
 							<span class="text-xs uppercase">{{ streamer.followersCount }} followers</span>
