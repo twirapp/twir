@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 import { IconChevronRight } from '@tabler/icons-vue';
 import { onClickOutside, onKeyStroke } from '@vueuse/core';
-import { NAvatar, NInput, NSpin, NScrollbar, useThemeVars, NDivider, NText, NPopover } from 'naive-ui';
-import { computed,  ref, watch } from 'vue';
+import {
+	NAvatar,
+	NInput,
+	NSpin,
+	NScrollbar,
+	useThemeVars,
+	NText,
+	NPopover,
+} from 'naive-ui';
+import { computed, ref, watch } from 'vue';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
@@ -68,6 +76,7 @@ const menuOptions = computed(() => {
 });
 
 const isSelectDashboardPopoverOpened = ref(false);
+
 function togglePopover(value?: boolean) {
 	isSelectDashboardPopoverOpened.value = value ?? !isSelectDashboardPopoverOpened.value;
 }
@@ -104,7 +113,7 @@ onClickOutside(refPopover, (event) => {
 	>
 		<template #trigger>
 			<div
-				class="block"
+				class="block selected-dashboard"
 				style="cursor: pointer;"
 				@click="isSelectDashboardPopoverOpened = true"
 			>
@@ -112,7 +121,12 @@ onClickOutside(refPopover, (event) => {
 					style="display: flex; align-self: center; border-radius: 111px;"
 					:src="currentDashboard?.profileImageUrl"
 				/>
-				<n-text>{{ currentDashboard?.displayName }}</n-text>
+				<div style="display: flex; flex-direction: column;">
+					<n-text :depth="3" style="font-size: 11px">
+						Managing user
+					</n-text>
+					<n-text>{{ currentDashboard?.displayName }}</n-text>
+				</div>
 
 				<IconChevronRight
 					:style="{
@@ -123,19 +137,10 @@ onClickOutside(refPopover, (event) => {
 			</div>
 		</template>
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
-		<div v-else ref="refPopoverList">
-			<div style="display: flex; gap: 12px; padding: 6px;">
-				<n-avatar :src="currentDashboard?.profileImageUrl" round />
-				<div style="display: flex; flex-direction: column;">
-					<n-text depth="3" style="font-size: 12px;">
-						Managing user
-					</n-text>
-					<n-text>{{ currentDashboard?.login }}</n-text>
-				</div>
-			</div>
-
-			<n-divider style="margin-top: 3px; margin-bottom: 10px;" />
-
+		<div v-else ref="refPopoverList" class="dashboards-container">
+			<n-text :depth="3" style="font-size: 11px">
+				Channels you have access to
+			</n-text>
 			<n-scrollbar style="max-height: 400px;" trigger="none">
 				<div class="dashboards-menu">
 					<div
@@ -150,13 +155,29 @@ onClickOutside(refPopover, (event) => {
 					</div>
 				</div>
 			</n-scrollbar>
-			<n-input v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10" v-model:value="filterValue" placeholder="Search" />
 		</div>
+
+		<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10" #footer>
+			<n-input
+				v-model:value="filterValue" placeholder="Search"
+			/>
+		</template>
 	</n-popover>
 </template>
 
 <style scoped>
+.dashboards-container {
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.dashboards-container :deep(img) {
+	-webkit-user-drag: none;
+}
+
 .dashboards-menu {
+	background-color: v-bind(blockColor);
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
@@ -164,7 +185,7 @@ onClickOutside(refPopover, (event) => {
 	margin-bottom: 10px;
 }
 
-.dashboards-menu .item {
+.dashboards-menu > .item {
 	display: flex;
 	gap: 12px;
 	align-items: center;
@@ -175,7 +196,7 @@ onClickOutside(refPopover, (event) => {
 	cursor: pointer;
 }
 
-.dashboards-menu .item:hover {
+.dashboards-menu > .item:hover {
 	background-color: v-bind(blockColor2);
 }
 
@@ -186,5 +207,15 @@ onClickOutside(refPopover, (event) => {
 	padding: 16px;
 	border-radius: 10px;
 	align-items: center;
+}
+
+.selected-dashboard {
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.selected-dashboard :deep(img) {
+	-webkit-user-drag: none;
 }
 </style>
