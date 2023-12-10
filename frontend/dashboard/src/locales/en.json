@@ -165,8 +165,8 @@
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Cannot get Stream Title",
-        "noCategory": "Cannot get Category",
+        "noTitle": "Cannot get Stream Title!",
+        "noCategory": "Cannot get Category!",
         "modalTitle": "Edit Stream Information",
         "title": "Stream Title",
         "category": "Category"
@@ -231,7 +231,7 @@
     }
   },
   "events": {
-    "delay": "Delay (seconds)",
+    "delay": "Delay (in seconds)",
     "repeat": "Repeat Count",
     "onlineOnly": "Online-Only Execution",
     "type": "Type",
@@ -336,11 +336,11 @@
       "previewText": "Preview voice with text, pitch and rate:"
     },
     "obs": {
-      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes and audio sources on events.",
+      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
       "address": "Address of OBS WebSocket server",
       "port": "Port of OBS WebSocket server",
-      "connected": "Connected",
-      "notConnected": "Not Connected",
+      "connected": "Connected!",
+      "notConnected": "Not Connected!",
       "checkConnection": "Check Connection"
     },
     "alerts": {
@@ -349,7 +349,7 @@
     "chat": {
       "description": "This overlay allows you to display your Twitch chat into your streaming software (such as OBS, XSplit, etc).",
       "style": "Message Style",
-      "hideBots": "Hide Known Bots",
+      "hideBots": "Hide Other Bots Messages",
       "hideCommands": "Hide Commands",
       "fontSize": "Font Size",
       "hideTimeout": "Message Hide Timeout",
@@ -358,7 +358,7 @@
       "fontFamilyDescription": "We use Google Fonts, you can find any font there with your preferred variant. (i.e. cyrillic)",
       "showBadges": "Show Badges",
       "showAnnounceBadge": "Show Announce Badge (only available in the “boxed” style)",
-      "reverseMessages": "Show Messages from Top (bottom by default)",
+      "reverseMessages": "Show Messages from Top? (bottom by default)",
       "revertFont": "Reset to Default",
       "textShadow": "Text Shadow"
     },
@@ -562,13 +562,13 @@
     },
     "russianRoulette": {
       "description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
-      "canBeUsedByModerator": "Timeout Moderators? *Moderator priveleges will be granted again after the timeout.",
-      "timeoutSeconds": "Timeout Time (in seconds). Set to 0 to disable a timeout.",
-      "decisionSeconds": "Result Delay (in seconds).",
+      "canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
+      "timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
+      "decisionSeconds": "Result Delay (in seconds)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
       "deathMessage": "User Lost Message",
-      "chargedBullets": "Charged Bullets Amount",
+      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
       "tumberSize": "Revolver Сylinder's Size"
     }
   },
@@ -678,7 +678,7 @@
       },
       "emotes": {
         "name": "Emotes",
-        "description": "Identifies and detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
+        "description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
         "triggerLength": "Maximum Emote Usage Limit"
       },
       "language": {
