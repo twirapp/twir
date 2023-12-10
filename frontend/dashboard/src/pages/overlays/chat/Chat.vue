@@ -294,7 +294,6 @@ const canCopyLink = computed(() => {
 				class="chatBox"
 				:messages="messagesMock"
 				:settings="chatBoxSettings"
-				:fonts="googleFonts?.fonts"
 			/>
 		</div>
 	</div>

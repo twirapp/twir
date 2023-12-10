@@ -13,3 +13,4 @@ export * from './files.js';
 export * from './games/index.js';
 export * from './googleFonts.js';
 export * from './moderation.js';
+export * from './user.js';

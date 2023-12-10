@@ -19,16 +19,16 @@ const formatter = Intl.NumberFormat('en-US', {
 
 const stats = [
 	{
-		key: 'Users',
-		value: formatter.format(res?.users ?? 0),
-	},
-	{
 		key: 'Channels',
 		value: formatter.format(res?.channels ?? 0),
 	},
 	{
-		key: 'Commands',
+		key: 'Created commands',
 		value: formatter.format(res?.commands ?? 0),
+	},
+	{
+		key: 'Viewers',
+		value: formatter.format(res?.users ?? 0),
 	},
 	{
 		key: 'Messages',

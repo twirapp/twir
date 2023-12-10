@@ -63,7 +63,14 @@
   },
   "navbar": {
     "logout": "Logout",
-    "publicPage": "Public page"
+    "publicPage": "Public page",
+		"profile": {
+			"showMeOnLanding": "Show me as streamer on landing",
+			"regenerateApiKey": {
+				"button": "Regenerate private api key",
+				"info": "This key is used for all overlays links, so when you regenerating this – you need to recreate overlays in your streaming software acording new links."
+			}
+		}
   },
   "deleteConfirmation": {
     "text": "Are you sure you want to delete this thing?",

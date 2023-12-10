@@ -15,6 +15,7 @@ import "api/roles.proto";
 import "api/variables.proto";
 import "api/commands_group.proto";
 import "api/moderation.proto";
+import "api/users.proto";
 
 import "api/integrations_donate_stream.proto";
 import "api/integrations_donatello.proto";
@@ -226,6 +227,9 @@ service Protected {
 	rpc ModerationUpdate(api.moderation.UpdateRequest) returns (api.moderation.ItemWithId) {}
 	rpc ModerationEnableOrDisable(api.moderation.PatchRequest) returns (api.moderation.ItemWithId) {}
 	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (api.moderation.AvailableLanguagesResponse) {}
+
+	rpc UsersRegenerateApiKey(api.users.RegenerateApiKeyRequest) returns (google.protobuf.Empty) {}
+	rpc UsersUpdate(api.users.UpdateUserRequest) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected
