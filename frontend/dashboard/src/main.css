@@ -1,5 +1,9 @@
 @import url('https://fonts.googleapis.com/css?family=Inter');
 
+:root {
+	--layout-header-height: 65px;
+}
+
 html, body {
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;

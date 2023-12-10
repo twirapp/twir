@@ -3,7 +3,7 @@ import tailwind from '@astrojs/tailwind';
 import vue from '@astrojs/vue';
 import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
-import { PluginOption } from 'vite';
+import type { PluginOption } from 'vite';
 import svg from 'vite-svg-loader';
 
 // eslint-disable-next-line no-undef

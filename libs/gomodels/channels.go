@@ -25,6 +25,7 @@ type Channels struct {
 
 	Commands []ChannelsCommands `gorm:"foreignKey:ChannelID" json:"-"`
 	Roles    []*ChannelRole     `gorm:"foreignKey:ChannelID" json:"-"`
+	User     *Users             `gorm:"foreignKey:ID" json:"-"`
 }
 
 func (c *Channels) TableName() string {

@@ -25,6 +25,8 @@ type Users struct {
 	Token      *Tokens        `gorm:"foreignKey:TokenID"                         json:"token"`
 	Stats      *UsersStats    `gorm:"foreignKey:UserID"                          json:"stats"`
 
+	HideOnLandingPage bool `gorm:"column:hide_on_landing_page;type:BOOL;default:false;" json:"hide_on_landing_page"`
+
 	Roles []ChannelRoleUser `gorm:"foreignKey:UserID" json:"roles"`
 }
 
