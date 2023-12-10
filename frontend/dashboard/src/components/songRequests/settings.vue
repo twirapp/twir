@@ -287,7 +287,7 @@ const songsSearchOptions = computed(() => {
 					<n-input-number v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
 				</n-form-item>
 				<n-form-item
-					:label="t('songRequests.settings.users.mininalFollowTime')"
+					:label="t('songRequests.settings.users.minimalFollowTime')"
 					path="user.minFollowTime"
 				>
 					<n-input-number
@@ -305,7 +305,7 @@ const songsSearchOptions = computed(() => {
 				<n-form-item :label="t('songRequests.settings.songs.maxRequests')">
 					<n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
 				</n-form-item>
-				<n-form-item :label="t('songRequests.settings.songs.minLinegth')">
+				<n-form-item :label="t('songRequests.settings.songs.minLength')">
 					<n-input-number v-model:value="formValue.song!.minLength" :min="0" :max="999999" />
 				</n-form-item>
 				<n-form-item :label="t('songRequests.settings.songs.maxLength')">
