@@ -10,7 +10,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	"go.uber.org/zap"
 )
 
 var RateCommand = &types.DefaultCommand{
@@ -20,13 +19,21 @@ var RateCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
+		channelSettings, channelModele := getSettings(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.ID,
+			"",
+		)
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
-			return result
+			return result, nil
 		}
 
 		userSettings, currentUserModel := getSettings(
@@ -49,27 +56,28 @@ var RateCommand = &types.DefaultCommand{
 					).Else(channelSettings.Rate),
 				),
 			)
-			return result
+			return result, nil
 		}
 
 		rate, err := strconv.Atoi(*parseCtx.Text)
 		if err != nil {
-			result.Result = append(result.Result, "Rate must be a number")
-			return result
+			result.Result = append(result.Result, "rate must be a number")
+			return result, nil
 		}
 
 		if rate < 0 || rate > 100 {
-			result.Result = append(result.Result, "Rate must be between 0 and 100")
-			return result
+			result.Result = append(result.Result, "rate must be between 0 and 100")
+			return result, nil
 		}
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Rate = rate
 			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
 			if err != nil {
-				zap.S().Error(err)
-				result.Result = append(result.Result, "Error while updating settings")
-				return result
+				return nil, &types.CommandHandlerError{
+					Message: "error while updating settings",
+					Err:     err,
+				}
 			}
 		} else {
 			if userSettings == nil {
@@ -83,23 +91,25 @@ var RateCommand = &types.DefaultCommand{
 					parseCtx.Sender.ID,
 				)
 				if err != nil {
-					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while creating settings")
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "error while creating settings",
+						Err:     err,
+					}
 				}
 			} else {
 				userSettings.Rate = rate
 				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
 				if err != nil {
-					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while updating settings")
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "error while updating settings",
+						Err:     err,
+					}
 				}
 			}
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Rate changed to %v", rate))
 
-		return result
+		return result, nil
 	},
 }

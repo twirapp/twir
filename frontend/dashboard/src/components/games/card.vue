@@ -17,6 +17,7 @@ withDefaults(defineProps<{
 	title: string;
 	icon: FunctionalComponent;
 	showSettings?: boolean
+	iconFill?: string
 }>(), { showSettings: true });
 
 const { t } = useI18n();
@@ -25,7 +26,7 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 </script>
 
 <template>
-	<card :title="title" :icon="icon">
+	<card :title="title" :icon="icon" :icon-fill="iconFill">
 		<template #content>
 			<p>{{ description }}</p>
 		</template>
@@ -37,8 +38,10 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 				size="large"
 				@click="$emit('openSettings')"
 			>
-				<span>{{ t('sharedButtons.settings') }}</span>
-				<IconSettings />
+				<div style="display: flex; gap: 6px">
+					<span>{{ t('sharedButtons.settings') }}</span>
+					<IconSettings />
+				</div>
 			</n-button>
 		</template>
 	</card>

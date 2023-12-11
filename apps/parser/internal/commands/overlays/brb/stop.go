@@ -21,7 +21,10 @@ var Stop = &types.DefaultCommand{
 			model.ChannelRoleTypeBroadcaster.String(),
 		},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := types.CommandsHandlerResult{}
 
 		if _, err := parseCtx.Services.GrpcClients.WebSockets.TriggerHideBrb(
@@ -30,10 +33,12 @@ var Stop = &types.DefaultCommand{
 				ChannelId: parseCtx.Channel.ID,
 			},
 		); err != nil {
-			result.Result = []string{"cannot send brb stop event"}
-			return &result
+			return &result, &types.CommandHandlerError{
+				Message: "cannot trigger hide brb",
+				Err:     err,
+			}
 		}
 
-		return &result
+		return &result, nil
 	},
 }

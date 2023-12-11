@@ -14,12 +14,10 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 
 	"github.com/guregu/null"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
-	"go.uber.org/zap"
-
-	"github.com/satont/twir/libs/grpc/generated/websockets"
 
 	model "github.com/satont/twir/libs/gomodels"
 
@@ -45,7 +43,10 @@ var SrCommand = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		moduleSettings := &model.ChannelModulesSettings{}
@@ -53,31 +54,35 @@ var SrCommand = &types.DefaultCommand{
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(`"channelId" = ? AND "type" = ?`, parseCtx.Channel.ID, "youtube_song_requests").
 			First(moduleSettings).Error
-		if err != nil && err != gorm.ErrRecordNotFound {
-			parseCtx.Services.Logger.Sugar().Error(err)
-			result.Result = append(result.Result, "internal error")
-			return result
-		}
-		if moduleSettings.ID != "" {
-			err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
-			if err != nil {
-				zap.S().Error(err)
-				result.Result = append(result.Result, "internal error")
-				return result
-			}
 
-			if !*parsedSettings.Enabled {
-				result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
-				return result
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				result.Result = append(result.Result, "Song requests not enabled")
+				return result, nil
+			} else {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get song requests settings",
+					Err:     err,
+				}
 			}
-		} else {
-			result.Result = append(result.Result, "Song requests not enabled")
-			return result
+		}
+
+		err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot parse song requests settings",
+				Err:     err,
+			}
+		}
+
+		if !*parsedSettings.Enabled {
+			result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+			return result, nil
 		}
 
 		if parseCtx.Text == nil {
 			result.Result = append(result.Result, parsedSettings.Translations.NoText)
-			return result
+			return result, nil
 		}
 
 		if *parsedSettings.AcceptOnlyWhenOnline {
@@ -88,7 +93,7 @@ var SrCommand = &types.DefaultCommand{
 			).First(stream)
 			if stream.ID == "" {
 				result.Result = append(result.Result, parsedSettings.Translations.AcceptOnlineWhenOnline)
-				return result
+				return result, nil
 			}
 		}
 
@@ -96,12 +101,14 @@ var SrCommand = &types.DefaultCommand{
 			context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text},
 		)
 		if err != nil {
-			zap.S().Error(err)
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot search song",
+				Err:     err,
+			}
 		}
 		if len(req.Songs) == 0 {
 			result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
-			return result
+			return result, nil
 		}
 
 		latestSong := &model.RequestedSong{}
@@ -110,6 +117,12 @@ var SrCommand = &types.DefaultCommand{
 			Where(`"channelId" = ? AND "deletedAt" IS NULL`, parseCtx.Channel.ID).
 			Order(`"createdAt" desc`).
 			Find(&latestSong).Error
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get latest song",
+				Err:     err,
+			}
+		}
 
 		requested := make([]*model.RequestedSong, 0, len(req.Songs))
 		errors := make([]*ReqError, 0, len(req.Songs))
@@ -122,9 +135,10 @@ var SrCommand = &types.DefaultCommand{
 			Error
 
 		if err != nil {
-			zap.S().Error(err)
-			result.Result = append(result.Result, "internal error")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get current queue count",
+				Err:     err,
+			}
 		}
 
 		for i, song := range req.Songs {
@@ -195,7 +209,7 @@ var SrCommand = &types.DefaultCommand{
 			)
 		}
 
-		return result
+		return result, nil
 	},
 }
 

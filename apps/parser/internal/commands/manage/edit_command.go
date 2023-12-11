@@ -2,12 +2,13 @@ package manage
 
 import (
 	"context"
-	"log"
+	"errors"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
+	"gorm.io/gorm"
 
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -20,21 +21,24 @@ var EditCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
@@ -47,23 +51,29 @@ var EditCommand = &types.DefaultCommand{
 			Preload(`Responses`).
 			First(&cmd).Error
 
-		if err != nil || cmd.ID == "" {
-			log.Fatalln(err)
-			result.Result = append(result.Result, "Command not found.")
-			return result
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				result.Result = append(result.Result, "Command not found.")
+				return result, nil
+			} else {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get command",
+					Err:     err,
+				}
+			}
 		}
 
 		if cmd.Default {
 			result.Result = append(result.Result, "Cannot delete default command.")
-			return result
+			return result, nil
 		}
 
 		if cmd.Responses != nil && len(cmd.Responses) > 1 {
 			result.Result = append(
 				result.Result,
-				"Cannot update response because you have more then 1 responses in command. Please use UI.",
+				"Cannot update response because you have more than 1 response in command. Please use UI.",
 			)
-			return result
+			return result, nil
 		}
 
 		err = parseCtx.Services.Gorm.
@@ -73,15 +83,13 @@ var EditCommand = &types.DefaultCommand{
 			Update(`text`, text).Error
 
 		if err != nil {
-			log.Fatalln(err)
-			result.Result = append(
-				result.Result,
-				"Cannot update command response. This is internal bug, please report it.",
-			)
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot update command",
+				Err:     err,
+			}
 		}
 
 		result.Result = append(result.Result, "✅ Command edited.")
-		return result
+		return result, nil
 	},
 }

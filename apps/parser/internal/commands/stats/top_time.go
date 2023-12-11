@@ -22,7 +22,10 @@ var TopTime = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     []string{"top watched"},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -32,6 +35,6 @@ var TopTime = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

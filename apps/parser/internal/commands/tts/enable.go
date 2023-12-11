@@ -19,16 +19,21 @@ var EnableCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 		err := switchEnableState(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, true)
 		if err != nil {
-			result.Result = append(result.Result, "Error while updating settings")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "failed to enable tts",
+				Err:     err,
+			}
 		}
 
 		result.Result = append(result.Result, "TTS enabled")
 
-		return result
+		return result, nil
 	},
 }

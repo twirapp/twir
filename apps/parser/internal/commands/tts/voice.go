@@ -10,7 +10,6 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	"go.uber.org/zap"
 )
 
 var VoiceCommand = &types.DefaultCommand{
@@ -20,13 +19,21 @@ var VoiceCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModel := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
+		channelSettings, channelModel := getSettings(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.ID,
+			"",
+		)
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
-			return result
+			return result, nil
 		}
 
 		userSettings, currentUserModel := getSettings(
@@ -49,13 +56,13 @@ var VoiceCommand = &types.DefaultCommand{
 					).Else("not setted"),
 				),
 			)
-			return result
+			return result, nil
 		}
 
 		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
 			result.Result = append(result.Result, "No voices found")
-			return result
+			return result, nil
 		}
 
 		wantedVoice, ok := lo.Find(
@@ -66,7 +73,7 @@ var VoiceCommand = &types.DefaultCommand{
 
 		if !ok {
 			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *parseCtx.Text))
-			return result
+			return result, nil
 		}
 
 		_, isDisallowed := lo.Find(
@@ -80,16 +87,17 @@ var VoiceCommand = &types.DefaultCommand{
 				result.Result,
 				fmt.Sprintf("Voice %s is disallowed for usage", wantedVoice.Name),
 			)
-			return result
+			return result, nil
 		}
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Voice = wantedVoice.Name
 			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModel, channelSettings)
 			if err != nil {
-				zap.S().Error(err)
-				result.Result = append(result.Result, "Error while updating settings")
-				return result
+				return nil, &types.CommandHandlerError{
+					Message: "error while updating settings",
+					Err:     err,
+				}
 			}
 		} else {
 			if userSettings == nil {
@@ -103,24 +111,26 @@ var VoiceCommand = &types.DefaultCommand{
 					parseCtx.Sender.ID,
 				)
 				if err != nil {
-					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while creating settings")
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "error while creating user settings",
+						Err:     err,
+					}
 				}
 			} else {
 
 				userSettings.Voice = wantedVoice.Name
 				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
 				if err != nil {
-					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while updating settings")
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "error while updating user settings",
+						Err:     err,
+					}
 				}
 			}
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Voice changed to %s", wantedVoice.Name))
 
-		return result
+		return result, nil
 	},
 }

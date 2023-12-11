@@ -23,11 +23,14 @@ var UserWatchTime = &types.DefaultCommand{
 		Enabled:     false,
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{fmt.Sprintf("You watching stream for $(%s)", user.Watched.Name)},
 		}
 
-		return result
+		return result, nil
 	},
 }

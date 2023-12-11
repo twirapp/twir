@@ -20,7 +20,10 @@ var TopEmotes = &types.DefaultCommand{
 		Visible:     true,
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -30,6 +33,6 @@ var TopEmotes = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

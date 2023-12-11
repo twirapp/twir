@@ -2,7 +2,6 @@ package manage
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/guregu/null"
@@ -22,21 +21,24 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		commandName := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
@@ -50,12 +52,12 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 
 		if err != nil || cmd.ID == "" {
 			result.Result = append(result.Result, "Command not found.")
-			return result
+			return result, nil
 		}
 
 		if !lo.Contains(cmd.Aliases, aliase) {
 			result.Result = append(result.Result, "That aliase not in the command")
-			return result
+			return result, nil
 		}
 
 		index := lo.IndexOf(cmd.Aliases, aliase)
@@ -66,15 +68,13 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			Save(&cmd).Error
 
 		if err != nil {
-			log.Fatalln(err)
-			result.Result = append(
-				result.Result,
-				"Cannot update command aliases. This is internal bug, please report it.",
-			)
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot save command",
+				Err:     err,
+			}
 		}
 
 		result.Result = append(result.Result, "✅ Aliase removed.")
-		return result
+		return result, nil
 	},
 }

@@ -23,7 +23,10 @@ var UserAge = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     pq.StringArray{"accountage"},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -33,6 +36,6 @@ var UserAge = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

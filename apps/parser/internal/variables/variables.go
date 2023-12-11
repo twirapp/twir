@@ -119,6 +119,7 @@ func New(opts *Opts) *Variables {
 			subscribers.LatestSubscriberUsername,
 			request.Request,
 			chat_eval.ChatEval,
+			user.Reputation,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

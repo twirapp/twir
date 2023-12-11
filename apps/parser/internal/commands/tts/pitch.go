@@ -20,13 +20,21 @@ var PitchCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
+		channelSettings, channelModele := getSettings(
+			ctx,
+			parseCtx.Services.Gorm,
+			parseCtx.Channel.ID,
+			"",
+		)
 
 		if channelSettings == nil {
 			result.Result = append(result.Result, "TTS is not configured.")
-			return result
+			return result, nil
 		}
 
 		userSettings, currentUserModel := getSettings(
@@ -49,27 +57,28 @@ var PitchCommand = &types.DefaultCommand{
 					).Else(channelSettings.Pitch),
 				),
 			)
-			return result
+			return result, nil
 		}
 
 		pitch, err := strconv.Atoi(*parseCtx.Text)
 		if err != nil {
 			result.Result = append(result.Result, "Pitch must be a number")
-			return result
+			return result, nil
 		}
 
 		if pitch < 0 || pitch > 100 {
 			result.Result = append(result.Result, "Pitch must be between 0 and 100")
-			return result
+			return result, nil
 		}
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Pitch = pitch
 			err := updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
 			if err != nil {
-				zap.S().Error(err)
-				result.Result = append(result.Result, "Error while updating settings")
-				return result
+				return nil, &types.CommandHandlerError{
+					Message: "error while updating settings",
+					Err:     err,
+				}
 			}
 		} else {
 			if userSettings == nil {
@@ -84,22 +93,23 @@ var PitchCommand = &types.DefaultCommand{
 				)
 				if err != nil {
 					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while creating settings")
-					return result
+					result.Result = append(result.Result, "error while updating settings")
+					return result, nil
 				}
 			} else {
 				userSettings.Pitch = pitch
 				err := updateSettings(ctx, parseCtx.Services.Gorm, currentUserModel, userSettings)
 				if err != nil {
-					zap.S().Error(err)
-					result.Result = append(result.Result, "Error while updating settings")
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "error while updating settings",
+						Err:     err,
+					}
 				}
 			}
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Pitch changed to %v", pitch))
 
-		return result
+		return result, nil
 	},
 }

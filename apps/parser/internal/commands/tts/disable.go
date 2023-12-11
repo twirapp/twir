@@ -18,16 +18,21 @@ var DisableCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 		err := switchEnableState(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, false)
 		if err != nil {
-			result.Result = append(result.Result, "Error while updating settings")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "error while disabling tts",
+				Err:     err,
+			}
 		}
 
 		result.Result = append(result.Result, "TTS disabled")
 
-		return result
+		return result, nil
 	},
 }

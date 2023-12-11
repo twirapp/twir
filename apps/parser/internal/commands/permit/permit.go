@@ -2,14 +2,14 @@ package permit
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
 
-	"github.com/satont/twir/apps/parser/internal/types"
-
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 
@@ -28,12 +28,21 @@ var Command = &types.DefaultCommand{
 		Module:      "MODERATION",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		twitchClient, err := twitch.NewAppClientWithContext(
 			ctx,
 			*parseCtx.Services.Config,
 			parseCtx.Services.GrpcClients.Tokens,
 		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create twitch client",
+				Err:     err,
+			}
+		}
 
 		result := &types.CommandsHandlerResult{}
 
@@ -43,7 +52,7 @@ var Command = &types.DefaultCommand{
 		paramsLen := len(params)
 		if paramsLen < 1 {
 			result.Result = []string{"you have type user name to permit."}
-			return result
+			return result, nil
 		}
 
 		if paramsLen == 2 {
@@ -55,7 +64,7 @@ var Command = &types.DefaultCommand{
 
 		if count > 100 {
 			result.Result = []string{"cannot create more then 100 permits."}
-			return result
+			return result, nil
 		}
 
 		target, err := twitchClient.GetUsers(
@@ -63,13 +72,25 @@ var Command = &types.DefaultCommand{
 				Logins: []string{params[0]},
 			},
 		)
-
-		if err != nil || target.StatusCode != 200 || len(target.Data.Users) == 0 {
-			result.Result = []string{"user not found."}
-			return result
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get user from twitch",
+				Err:     err,
+			}
+		}
+		if target.ErrorMessage != "" {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get user from twitch",
+				Err:     errors.New(target.ErrorMessage),
+			}
 		}
 
-		parseCtx.Services.Gorm.WithContext(ctx).Transaction(
+		if len(target.Data.Users) == 0 {
+			result.Result = []string{"user not found."}
+			return result, nil
+		}
+
+		txErr := parseCtx.Services.Gorm.WithContext(ctx).Transaction(
 			func(tx *gorm.DB) error {
 				for i := 0; i < count; i++ {
 					permit := model.ChannelsPermits{
@@ -87,9 +108,16 @@ var Command = &types.DefaultCommand{
 			},
 		)
 
+		if txErr != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create permit",
+				Err:     txErr,
+			}
+		}
+
 		result.Result = []string{
 			fmt.Sprintf("✅ added %v permits to %s", count, target.Data.Users[0].DisplayName),
 		}
-		return result
+		return result, nil
 	},
 }

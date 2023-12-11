@@ -20,7 +20,10 @@ var SrListCommand = &types.DefaultCommand{
 		Module:      "SONGS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		url := fmt.Sprintf(
@@ -31,6 +34,6 @@ var SrListCommand = &types.DefaultCommand{
 		)
 
 		result.Result = append(result.Result, url)
-		return result
+		return result, nil
 	},
 }

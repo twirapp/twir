@@ -24,7 +24,7 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -36,11 +36,14 @@ var SetCommand = &types.DefaultCommand{
 			parseCtx.Services.GrpcClients.Tokens,
 		)
 		if err != nil {
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create broadcaster twitch client",
+				Err:     err,
+			}
 		}
 
 		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			return result
+			return result, nil
 		}
 
 		gameReq, err := twitchClient.GetGames(
@@ -49,7 +52,10 @@ var SetCommand = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get game from twitch",
+				Err:     err,
+			}
 		}
 
 		categoryId := ""
@@ -65,7 +71,10 @@ var SetCommand = &types.DefaultCommand{
 				},
 			)
 			if err != nil {
-				return nil
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get game from twitch",
+					Err:     err,
+				}
 			}
 
 			if len(games.Data.Categories) > 0 {
@@ -84,7 +93,7 @@ var SetCommand = &types.DefaultCommand{
 
 		if categoryId == "" || categoryName == "" {
 			result.Result = append(result.Result, "❌ game not found on twitch")
-			return result
+			return result, nil
 		}
 
 		req, err := twitchClient.EditChannelInformation(
@@ -99,10 +108,10 @@ var SetCommand = &types.DefaultCommand{
 				result.Result,
 				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
 			)
-			return result
+			return result, nil
 		}
 
 		result.Result = append(result.Result, "✅ "+categoryName)
-		return result
+		return result, nil
 	},
 }

@@ -23,30 +23,33 @@ var Start = &types.DefaultCommand{
 			model.ChannelRoleTypeBroadcaster.String(),
 		},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := types.CommandsHandlerResult{}
 
 		if parseCtx.Text == nil {
 			result.Result = []string{"you have to type minutes and optionally text"}
-			return &result
+			return &result, nil
 		}
 
 		params := strings.Split(*parseCtx.Text, " ")
 
 		if len(params) < 1 {
 			result.Result = []string{"you have to type minutes and optionally text"}
-			return &result
+			return &result, nil
 		}
 
 		minutes, err := strconv.Atoi(params[0])
 		if err != nil {
 			result.Result = []string{"first argument should be minutes"}
-			return &result
+			return &result, nil
 		}
 
 		if minutes > 99999 || minutes <= 0 {
 			result.Result = []string{"minutes cannot be more than 99999 and fewer then 1"}
-			return &result
+			return &result, nil
 		}
 
 		text := strings.Join(params[1:], " ")
@@ -58,18 +61,12 @@ var Start = &types.DefaultCommand{
 				Text:      &text,
 			},
 		); err != nil {
-			parseCtx.Services.Logger.Sugar().Error(
-				"cannot send brb event",
-				"error", err,
-				"channelId", parseCtx.Channel.ID,
-				"minutes", minutes,
-				"text", text,
-				"userId", parseCtx.Sender.ID,
-			)
-			result.Result = []string{"cannot send brb start event"}
-			return &result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot trigger show brb",
+				Err:     err,
+			}
 		}
 
-		return &result
+		return &result, nil
 	},
 }
