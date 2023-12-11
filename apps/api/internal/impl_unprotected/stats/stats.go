@@ -102,6 +102,14 @@ func (c *Stats) cacheCounts() {
 		},
 	)
 
+	wg.Go(
+		func() {
+			var count int64
+			c.Db.Model(&model.ChannelsCommandsUsages{}).Count(&count)
+			c.statsCache.UsedCommands = count
+		},
+	)
+
 	wg.Wait()
 }
 
@@ -208,7 +216,10 @@ func (c *Stats) cacheStreamers() {
 					return
 				}
 				if followersReq.ErrorMessage != "" {
-					c.Logger.Error("cannot get followers", slog.Any("err", followersReq.ErrorMessage))
+					c.Logger.Error(
+						"cannot get followers",
+						slog.Any("err", followersReq.ErrorMessage),
+					)
 					return
 				}
 

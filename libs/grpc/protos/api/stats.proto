@@ -8,6 +8,7 @@ message Response {
 	int64 commands = 3;
 	int64 messages = 4;
 	int64 used_emotes = 5;
+	int64 used_commands = 6;
 }
 
 message GetTwirStreamersResponse {
