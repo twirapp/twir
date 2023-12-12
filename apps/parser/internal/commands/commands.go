@@ -95,6 +95,8 @@ func New(opts *Opts) *Commands {
 			kappagen.Kappagen,
 			brb.Start,
 			brb.Stop,
+			games.Duel,
+			games.DuelAccept,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

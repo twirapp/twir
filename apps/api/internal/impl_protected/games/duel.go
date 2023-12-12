@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/games"
+	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -21,7 +22,7 @@ func (c *Games) GamesGetDuelSettings(
 ) (*games.DuelSettingsResponse, error) {
 	dashboardId, err := helpers.GetSelectedDashboardIDFromCtx(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("cannot get selected dashboard: %w", err)
+		return nil, twirp.NewErrorf(twirp.NotFound, "cannot get selected dashboard: %w", err)
 	}
 
 	entity := model.ChannelModulesSettings{}
@@ -30,12 +31,12 @@ func (c *Games) GamesGetDuelSettings(
 		Where(`"channelId" = ? and "userId" IS NULL and type = ?`, dashboardId, duelType).
 		First(&entity).
 		Error; err != nil {
-		return nil, err
+		return nil, twirp.NewErrorf(twirp.NotFound, "cannot get duel settings: %w", err)
 	}
 
 	settings := model.ChannelModulesSettingsDuel{}
 	if err := json.Unmarshal(entity.Settings, &settings); err != nil {
-		return nil, err
+		return nil, twirp.NewErrorf(twirp.Internal, "cannot parse duel settings: %w", err)
 	}
 
 	return &games.DuelSettingsResponse{
@@ -49,6 +50,7 @@ func (c *Games) GamesGetDuelSettings(
 		PointsPerWin:    settings.PointsPerWin,
 		PointsPerLose:   settings.PointsPerLose,
 		BothDiePercent:  settings.BothDiePercent,
+		BothDieMessage:  settings.BothDieMessage,
 	}, nil
 }
 
@@ -70,9 +72,17 @@ func (c *Games) GamesUpdateDuelSettings(
 		return nil, err
 	}
 
+	if entity.ID == "" {
+		entity.ID = uuid.NewString()
+		entity.ChannelId = dashboardId
+		entity.Type = duelType
+	}
+
 	settings := model.ChannelModulesSettingsDuel{}
-	if err := json.Unmarshal(entity.Settings, &settings); err != nil {
-		return nil, err
+	if entity.Settings != nil {
+		if err := json.Unmarshal(entity.Settings, &settings); err != nil {
+			return nil, err
+		}
 	}
 
 	settings.UserCooldown = req.UserCooldown
@@ -85,6 +95,7 @@ func (c *Games) GamesUpdateDuelSettings(
 	settings.PointsPerWin = req.PointsPerWin
 	settings.PointsPerLose = req.PointsPerLose
 	settings.BothDiePercent = req.BothDiePercent
+	settings.BothDieMessage = req.BothDieMessage
 
 	settingsJson, err := json.Marshal(settings)
 	if err != nil {

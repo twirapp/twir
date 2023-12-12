@@ -107,6 +107,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceGamepad2),
 			path: '/dashboard/games',
 			disabled: !canViewGames.value,
+			isNew: true,
 		},
 		{
 			label: t('sidebar.commands.label'),

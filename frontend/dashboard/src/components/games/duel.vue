@@ -27,7 +27,7 @@ const formValue = ref<DuelSettingsResponse>({
 	userCooldown: 0,
 	globalCooldown: 0,
 	resultMessage: '',
-	secondsToAccept: 10,
+	secondsToAccept: 60,
 	startMessage: '',
 	timeoutSeconds: 600,
 	pointsPerWin: 0,
@@ -50,7 +50,7 @@ async function save() {
 	if (!formValue.value) return;
 	await updater.mutateAsync(formValue.value);
 	message.success({
-		title: t('sharedTexts.success'),
+		title: t('sharedTexts.saved'),
 		duration: 2500,
 	});
 }
@@ -81,6 +81,36 @@ async function save() {
 				/>
 			</n-form-item>
 
+			<n-form-item label="user cooldown" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.userCooldown"
+					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="global cooldown" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.globalCooldown"
+					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="resultMessage" :show-feedback="false">
+				<n-input
+					v-model:value="formValue.resultMessage"
+					type="textarea"
+					:autosize="{ minRows: 2 }"
+					:maxlength="400"
+				/>
+			</n-form-item>
+
+			<n-form-item label="secondstoaccespt" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.secondsToAccept"
+					:max="84000"
+				/>
+			</n-form-item>
+
 			<n-form-item label="startmessage" :show-feedback="false">
 				<n-input
 					v-model:value="formValue.startMessage"
@@ -90,10 +120,40 @@ async function save() {
 				/>
 			</n-form-item>
 
-			<n-form-item label="global cooldown" :show-feedback="false">
+			<n-form-item label="timeoutSeconds" :show-feedback="false">
 				<n-input-number
-					v-model:value="formValue.globalCooldown"
+					v-model:value="formValue.timeoutSeconds"
 					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="pointsPerWin" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.pointsPerWin"
+					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="pointsPerLose" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.pointsPerLose"
+					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="bothDiePercent" :show-feedback="false">
+				<n-input-number
+					v-model:value="formValue.bothDiePercent"
+					:max="84000"
+				/>
+			</n-form-item>
+
+			<n-form-item label="bothDieMessage" :show-feedback="false">
+				<n-input
+					v-model:value="formValue.bothDieMessage"
+					type="textarea"
+					:autosize="{ minRows: 2 }"
+					:maxlength="400"
 				/>
 			</n-form-item>
 		</div>
