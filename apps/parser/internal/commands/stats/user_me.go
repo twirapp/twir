@@ -27,8 +27,9 @@ var UserMe = &types.DefaultCommand{
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
-					"$(%s) used emotes · $(%s) watched · $(%s) messages · $(%s) used points · $(%s) songs requested",
+					"$(%s) used emotes · $(%s) used commands · $(%s) watched · $(%s) messages · $(%s) used points · $(%s) songs requested",
 					user.Emotes.Name,
+					user.Commands.Name,
 					user.Watched.Name,
 					user.Messages.Name,
 					user.UsedChannelPoints.Name,
