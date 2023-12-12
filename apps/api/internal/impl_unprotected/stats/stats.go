@@ -248,6 +248,16 @@ func (c *Stats) cacheStreamers() {
 			continue
 		}
 
+		stream := model.ChannelsStreams{}
+		if err := c.Db.Where(`"userId" = ?`, streamer.ID).Find(&stream).Error; err != nil {
+			c.Logger.Error(
+				"cannot get stream",
+				slog.Any("err", err),
+				slog.String("channelId", streamer.ID),
+			)
+			continue
+		}
+
 		streamersWithFollowers = append(
 			streamersWithFollowers,
 			&stats.GetTwirStreamersResponse_Streamer{
@@ -256,6 +266,8 @@ func (c *Stats) cacheStreamers() {
 				UserDisplayName: streamer.DisplayName,
 				Avatar:          streamer.ProfileImageURL,
 				FollowersCount:  int32(followers),
+				IsLive:          stream.ID != "",
+				IsPartner:       streamer.BroadcasterType == "partner",
 			},
 		)
 	}
