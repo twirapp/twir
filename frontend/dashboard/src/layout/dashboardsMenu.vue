@@ -155,13 +155,10 @@ onClickOutside(refPopover, (event) => {
 					</div>
 				</div>
 			</n-scrollbar>
+			<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10">
+				<n-input v-model:value="filterValue" placeholder="Search" />
+			</template>
 		</div>
-
-		<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10" #footer>
-			<n-input
-				v-model:value="filterValue" placeholder="Search"
-			/>
-		</template>
 	</n-popover>
 </template>
 
