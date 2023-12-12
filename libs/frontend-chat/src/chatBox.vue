@@ -13,10 +13,25 @@ const props = defineProps<{
 }>();
 
 watch(() => props.messages.length, async () => {
-	if (!chatElement.value || props.settings.reverseMessages) return;
-
+	if (props.settings.reverseMessages) return;
 	await nextTick();
-	chatElement.value.scrollTo(0, chatElement.value.scrollHeight);
+	scrollToBottom();
+});
+
+function scrollToBottom() {
+	chatElement.value?.scrollIntoView(false);
+}
+
+function scrollToTop() {
+	chatElement.value?.scrollIntoView(true);
+}
+
+watch(() => props.settings.reverseMessages, (newValue) => {
+	if (newValue) {
+		scrollToTop();
+	} else {
+		scrollToBottom();
+	}
 });
 
 const chatMessageComponent = computed(() => {
@@ -37,7 +52,7 @@ const fontFamily = computed(() => {
 		const [family] = props.settings.fontFamily.split(':');
 
 		return family || defaultFont;
-	} catch (e) {
+	} catch {
 		return defaultFont;
 	}
 });
@@ -46,7 +61,7 @@ const fontUrl = computed(() => {
 });
 
 const messagesDirection = computed(() => {
-	return !props.settings.reverseMessages ? 'column' : 'column-reverse';
+	return props.settings.reverseMessages ? 'column-reverse' : 'column';
 });
 </script>
 
