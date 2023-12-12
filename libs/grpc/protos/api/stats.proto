@@ -18,6 +18,8 @@ message GetTwirStreamersResponse {
 		string user_display_name = 3;
 		string avatar = 4;
 		int32 followers_count = 5;
+		bool is_live = 6;
+		bool is_partner = 7;
 	}
 
 	repeated Streamer streamers = 1;
