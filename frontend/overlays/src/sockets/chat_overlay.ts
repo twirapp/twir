@@ -25,6 +25,7 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 		reverseMessages: false,
 		textShadowColor: '',
 		textShadowSize: 0,
+		chatBackgroundColor: '',
 	});
 
 	const { data, send } = useWebSocket(
