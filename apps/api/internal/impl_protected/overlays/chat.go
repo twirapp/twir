@@ -16,35 +16,37 @@ const chatOverlayType = "chat_overlay"
 
 func (c *Overlays) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *overlays_chat.Settings {
 	return &overlays_chat.Settings{
-		MessageHideTimeout: s.MessageHideTimeout,
-		MessageShowDelay:   s.MessageShowDelay,
-		Preset:             s.Preset,
-		FontSize:           s.FontSize,
-		HideCommands:       s.HideCommands,
-		HideBots:           s.HideBots,
-		FontFamily:         s.FontFamily,
-		ShowBadges:         s.ShowBadges,
-		ShowAnnounceBadge:  s.ShowAnnounceBadge,
-		ReverseMessages:    s.ReverseMessages,
-		TextShadowColor:    s.TextShadowColor,
-		TextShadowSize:     s.TextShadowSize,
+		MessageHideTimeout:  s.MessageHideTimeout,
+		MessageShowDelay:    s.MessageShowDelay,
+		Preset:              s.Preset,
+		FontSize:            s.FontSize,
+		HideCommands:        s.HideCommands,
+		HideBots:            s.HideBots,
+		FontFamily:          s.FontFamily,
+		ShowBadges:          s.ShowBadges,
+		ShowAnnounceBadge:   s.ShowAnnounceBadge,
+		ReverseMessages:     s.ReverseMessages,
+		TextShadowColor:     s.TextShadowColor,
+		TextShadowSize:      s.TextShadowSize,
+		ChatBackgroundColor: s.ChatBackgroundColor,
 	}
 }
 
 func (c *Overlays) chatOverlayGrpcToDb(s *overlays_chat.Settings) model.ChatOverlaySettings {
 	return model.ChatOverlaySettings{
-		MessageHideTimeout: s.MessageHideTimeout,
-		MessageShowDelay:   s.MessageShowDelay,
-		Preset:             s.Preset,
-		FontSize:           s.FontSize,
-		HideCommands:       s.HideCommands,
-		HideBots:           s.HideBots,
-		FontFamily:         s.FontFamily,
-		ShowBadges:         s.ShowBadges,
-		ShowAnnounceBadge:  s.ShowAnnounceBadge,
-		ReverseMessages:    s.ReverseMessages,
-		TextShadowColor:    s.TextShadowColor,
-		TextShadowSize:     s.TextShadowSize,
+		MessageHideTimeout:  s.MessageHideTimeout,
+		MessageShowDelay:    s.MessageShowDelay,
+		Preset:              s.Preset,
+		FontSize:            s.FontSize,
+		HideCommands:        s.HideCommands,
+		HideBots:            s.HideBots,
+		FontFamily:          s.FontFamily,
+		ShowBadges:          s.ShowBadges,
+		ShowAnnounceBadge:   s.ShowAnnounceBadge,
+		ReverseMessages:     s.ReverseMessages,
+		TextShadowColor:     s.TextShadowColor,
+		TextShadowSize:      s.TextShadowSize,
+		ChatBackgroundColor: s.ChatBackgroundColor,
 	}
 }
 

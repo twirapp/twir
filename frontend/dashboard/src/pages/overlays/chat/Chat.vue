@@ -291,7 +291,7 @@ const canCopyLink = computed(() => {
 						<n-slider v-model:value="formValue.textShadowSize" :min="0" :max="30" />
 					</div>
 
-					<n-divider />\\\
+					<n-divider />
 
 					<div class="slider">
 						<span>{{ t('overlays.chat.hideTimeout') }}({{ formValue.messageHideTimeout }}s)</span>
