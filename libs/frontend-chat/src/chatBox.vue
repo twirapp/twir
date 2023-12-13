@@ -91,6 +91,7 @@ const messagesDirection = computed(() => {
 	font-family: v-bind(fontFamily);
 	overflow: hidden;
 	position: relative;
+	background-color: v-bind('settings.chatBackgroundColor');
 }
 
 .chat .messages {
