@@ -366,7 +366,7 @@
       "showBadges": "Show badges",
       "showAnnounceBadge": "Show announce badge (only for boxed style)",
       "reverseMessages": "Show new messages on top, instead bottom",
-      "revertFont": "Reset to default",
+      "resetToDefault": "Reset to default",
       "textShadow": "Text shadow",
 			"backgroundColor": "Background color"
     },

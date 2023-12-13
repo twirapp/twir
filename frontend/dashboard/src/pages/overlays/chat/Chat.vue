@@ -101,7 +101,7 @@ const defaultSettings: Settings = {
 	reverseMessages: false,
 	textShadowColor: 'rgba(0,0,0,1)',
 	textShadowSize: 0,
-	chatBackgroundColor: 'rgba(16, 16, 20, 1)',
+	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
@@ -243,7 +243,7 @@ const canCopyLink = computed(() => {
 								@click="formValue.fontFamily = defaultFont"
 							>
 								<IconReload style="height: 15px;" />
-								{{ t('overlays.chat.revertFont') }}
+								{{ t('overlays.chat.resetToDefault') }}
 							</n-button>
 						</div>
 
@@ -282,10 +282,10 @@ const canCopyLink = computed(() => {
 							<span>{{ t('overlays.chat.backgroundColor') }}</span>
 							<n-button
 								size="tiny" secondary type="success"
-								@click="formValue.chatBackgroundColor = 'rgba(16, 16, 20, 1)'"
+								@click="formValue.chatBackgroundColor = defaultSettings.chatBackgroundColor"
 							>
 								<IconReload style="height: 15px;" />
-								{{ t('overlays.chat.revertFont') }}
+								{{ t('overlays.chat.resetToDefault') }}
 							</n-button>
 						</div>
 						<n-color-picker
