@@ -94,6 +94,7 @@ const defaultSettings: Settings = {
   reverseMessages: false,
   textShadowColor: 'rgba(0,0,0,1)',
   textShadowSize: 0,
+	chatBackgroundColor: 'rgba(16, 16, 20, 1)',
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
@@ -268,6 +269,21 @@ const canCopyLink = computed(() => {
 							:marks="{ 12: '12', 80: '80'}"
 						/>
 					</div>
+
+					<div class="slider">
+						<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+							<span>{{ t('overlays.chat.backgroundColor') }}</span>
+							<n-button
+								size="tiny" secondary type="success"
+								@click="formValue.chatBackgroundColor = 'rgba(16, 16, 20, 1)'"
+							>
+								<IconReload style="height: 15px;" />
+								{{ t('overlays.chat.revertFont') }}
+							</n-button>
+						</div>
+						<n-color-picker v-model:value="formValue.chatBackgroundColor" default-value="rgba(16, 16, 20, 1)" />
+					</div>
+
 
 					<div class="slider">
 						<span>{{ t('overlays.chat.textShadow') }}({{ formValue.textShadowSize }}px)</span>
