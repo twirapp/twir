@@ -15,6 +15,18 @@ jobs:
       with:
         version: 8
         run_install: false
+    - uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.work'
+
+    - name: Install protobuf dependencies
+      run: |
+        apt-get update
+        apt-get install -y protobuf-compiler
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+        go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
+
     - name: Get pnpm store directory
       shell: bash
       run: |
