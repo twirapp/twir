@@ -10,6 +10,15 @@ import (
 	"github.com/satont/twir/libs/twitch"
 )
 
+type settings struct {
+	model.ChatOverlaySettings
+	ChannelID          string            `json:"channelId"`
+	ChannelName        string            `json:"channelName"`
+	ChannelDisplayName string            `json:"channelDisplayName"`
+	GlobalBadges       []helix.ChatBadge `json:"globalBadges"`
+	ChannelBadges      []helix.ChatBadge `json:"channelBadges"`
+}
+
 func (c *Chat) SendSettings(userId string) error {
 	entity := &model.ChannelModulesSettings{}
 	err := c.gorm.

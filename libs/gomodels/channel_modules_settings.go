@@ -177,17 +177,17 @@ type ChatAlertsBan struct {
 }
 
 type ChatOverlaySettings struct {
-	MessageHideTimeout  uint32 `json:"messageHideTimeout,omitempty"`
-	MessageShowDelay    uint32 `json:"messageShowDelay,omitempty"`
-	Preset              string `json:"preset,omitempty"`
-	FontSize            uint32 `json:"fontSize,omitempty"`
-	HideCommands        bool   `json:"hideCommands,omitempty"`
-	HideBots            bool   `json:"hideBots,omitempty"`
-	FontFamily          string `json:"fontFamily,omitempty"`
-	ShowBadges          bool   `json:"showBadges,omitempty"`
-	ShowAnnounceBadge   bool   `json:"showAnnounceBadge,omitempty"`
-	ReverseMessages     bool   `json:"reverseMessages,omitempty"`
-	TextShadowColor     string `json:"textShadowColor,omitempty"`
-	TextShadowSize      uint32 `json:"textShadowSize,omitempty"`
-	ChatBackgroundColor string `json:"chatBackgroundColor,omitempty"`
+	MessageHideTimeout  uint32 `json:"messageHideTimeout"`
+	MessageShowDelay    uint32 `json:"messageShowDelay"`
+	Preset              string `json:"preset"`
+	FontSize            uint32 `json:"fontSize"`
+	HideCommands        bool   `json:"hideCommands"`
+	HideBots            bool   `json:"hideBots"`
+	FontFamily          string `json:"fontFamily"`
+	ShowBadges          bool   `json:"showBadges"`
+	ShowAnnounceBadge   bool   `json:"showAnnounceBadge"`
+	ReverseMessages     bool   `json:"reverseMessages"`
+	TextShadowColor     string `json:"textShadowColor"`
+	TextShadowSize      uint32 `json:"textShadowSize"`
+	ChatBackgroundColor string `json:"chatBackgroundColor"`
 }
