@@ -29,7 +29,7 @@ const { t } = useI18n();
 				<div
 					style="display: flex; align-items: center; min-width: 80px; justify-content: space-between;"
 				>
-					<span>{{ command.name }}</span>
+					<span>!{{ command.name }}</span>
 					<IconPencil />
 				</div>
 			</n-button>

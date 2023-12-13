@@ -112,27 +112,27 @@ func (c *Games) GamesUpdateDuelSettings(
 
 	txErr := c.Db.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
-			duelCommand := model.ChannelsCommands{}
 			if err := tx.
 				WithContext(ctx).
+				Model(&model.ChannelsCommands{}).
 				Where(`"channelId" = ? and "defaultName" = ?`, dashboardId, "duel").
-				First(&duelCommand).
+				Update("enabled", req.Enabled).
 				Error; err != nil {
 				return err
 			}
 
-			duelCommand.Enabled = req.Enabled
+			if err := tx.
+				WithContext(ctx).
+				Model(&model.ChannelsCommands{}).
+				Where(`"channelId" = ? and "defaultName" = ?`, dashboardId, "duel accept").
+				Update("enabled", req.Enabled).
+				Error; err != nil {
+				return err
+			}
 
 			if err := tx.
 				WithContext(ctx).
 				Save(&entity).
-				Error; err != nil {
-				return err
-			}
-
-			if err := tx.
-				WithContext(ctx).
-				Save(&duelCommand).
 				Error; err != nil {
 				return err
 			}

@@ -4,11 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
 	"slices"
 	"strings"
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
@@ -53,9 +56,8 @@ func (c *duelHandler) getChannelSettings(ctx context.Context) (
 	return parsedSettings, nil
 }
 
-func (c *duelHandler) createHelixClient(ctx context.Context) (*helix.Client, error) {
-	client, err := twitch.NewUserClientWithContext(
-		ctx,
+func (c *duelHandler) createHelixClient() (*helix.Client, error) {
+	client, err := twitch.NewUserClient(
 		c.parseCtx.Channel.ID,
 		*c.parseCtx.Services.Config,
 		c.parseCtx.Services.GrpcClients.Tokens,
@@ -198,57 +200,62 @@ func (c *duelHandler) saveDuelDataToCache(
 	return nil
 }
 
-func (c *duelHandler) getCurrentDuelOfUserByKey(
-	ctx context.Context,
-	key string,
-) (duelRedisCachedData, error) {
-	cachedData, err := c.parseCtx.Services.Redis.Get(
-		ctx,
-		key,
-	).Bytes()
-	if err != nil && errors.Is(err, redis.Nil) {
-		return duelRedisCachedData{}, fmt.Errorf(
-			"internal error when trying to find cached data: %w",
-			err,
-		)
-	}
-
-	data := duelRedisCachedData{}
-
-	if cachedData != nil {
-		if err := json.Unmarshal(cachedData, &data); err != nil {
-			return data, fmt.Errorf("internal error when trying to find cached data: %w", err)
-		}
-
-		return data, nil
-	}
-
-	return data, nil
-}
-
 func (c *duelHandler) getSenderCurrentDuel(
 	ctx context.Context,
-) (duelRedisCachedData, error) {
-	dataAsInitiator, err := c.getCurrentDuelOfUserByKey(
+) (*duelRedisCachedData, error) {
+	keysOfAllDuelsOfChannel, err := c.parseCtx.Services.Redis.Keys(
 		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, c.parseCtx.Sender.ID, "*"),
-	)
-	if err != nil {
-		return duelRedisCachedData{}, err
-	}
-	if dataAsInitiator.SenderID != "" {
-		return dataAsInitiator, nil
+		generateDuelRedisKey(c.parseCtx.Channel.ID, "*", "*"),
+	).Result()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return nil, fmt.Errorf("cannot get keys of all duels of channel: %w", err)
 	}
 
-	dataAsTarget, err := c.getCurrentDuelOfUserByKey(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, "*", c.parseCtx.Sender.ID),
-	)
-	if err != nil {
-		return duelRedisCachedData{}, err
+	if len(keysOfAllDuelsOfChannel) == 0 {
+		return nil, nil
 	}
-	if dataAsTarget.TargetID != "" {
-		return dataAsTarget, nil
+
+	dataAsTarget := &duelRedisCachedData{}
+
+	re := regexp.MustCompile(`commands:duel:(\d+):(\d+)`)
+
+	var neededKey string
+
+	for _, key := range keysOfAllDuelsOfChannel {
+		matches := re.FindStringSubmatch(key)
+
+		if len(matches) < 3 {
+			continue
+		}
+
+		initiatorId := matches[1]
+		targetId := matches[2]
+
+		if initiatorId == c.parseCtx.Sender.ID {
+			neededKey = key
+			break
+		}
+
+		if targetId == c.parseCtx.Sender.ID {
+			neededKey = key
+			break
+		}
+	}
+
+	if neededKey == "" {
+		return nil, nil
+	}
+
+	dataAsTargetJson, err := c.parseCtx.Services.Redis.Get(
+		ctx,
+		neededKey,
+	).Bytes()
+	if err != nil {
+		return nil, fmt.Errorf("cannot get duel data from cache: %w", err)
+	}
+
+	if err := json.Unmarshal(dataAsTargetJson, dataAsTarget); err != nil {
+		return nil, fmt.Errorf("cannot unmarshal duel data from cache: %w", err)
 	}
 
 	return dataAsTarget, nil
@@ -293,4 +300,89 @@ func (c *duelHandler) timeoutUser(
 	}
 
 	return nil
+}
+
+func (c *duelHandler) saveResult(
+	ctx context.Context,
+	data duelRedisCachedData,
+	dbChannel model.Channels,
+	settings model.ChannelModulesSettingsDuel,
+	loserId string,
+) error {
+	_, err := c.parseCtx.Services.Redis.Del(
+		ctx,
+		generateDuelRedisKey(c.parseCtx.Channel.ID, data.SenderID, data.TargetID),
+	).Result()
+	if err != nil {
+		return fmt.Errorf("cannot delete duel data from cache: %w", err)
+	}
+
+	duel := model.ChannelDuel{
+		ID:        uuid.New(),
+		ChannelID: dbChannel.ID,
+		SenderID:  null.StringFrom(data.SenderID),
+		TargetID:  null.StringFrom(data.TargetID),
+		LoserID:   null.StringFrom(loserId),
+		CreatedAt: time.Now(),
+	}
+
+	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Create(&duel).Error; err != nil {
+		return fmt.Errorf("cannot save duel result: %w", err)
+	}
+
+	if settings.UserCooldown != 0 {
+		_, err = c.parseCtx.Services.Redis.Set(
+			ctx,
+			"duels:cooldown:"+data.SenderID,
+			"",
+			time.Duration(settings.UserCooldown)*time.Second,
+		).Result()
+
+		if err != nil {
+			return fmt.Errorf("cannot set user cooldown: %w", err)
+		}
+	}
+
+	if settings.GlobalCooldown != 0 {
+		_, err = c.parseCtx.Services.Redis.Set(
+			ctx,
+			"duels:cooldown:global",
+			"",
+			time.Duration(settings.GlobalCooldown)*time.Second,
+		).Result()
+
+		if err != nil {
+			return fmt.Errorf("cannot set global cooldown: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func (c *duelHandler) isCooldown(ctx context.Context, userID string) (bool, error) {
+	isUserCooldown, err := c.parseCtx.Services.Redis.Exists(
+		ctx,
+		"duels:cooldown:"+userID,
+	).Result()
+	if err != nil {
+		return false, fmt.Errorf("cannot check cooldown: %w", err)
+	}
+
+	if isUserCooldown == 1 {
+		return true, nil
+	}
+
+	isGlobalCooldown, err := c.parseCtx.Services.Redis.Exists(
+		ctx,
+		"duels:cooldown:global",
+	).Result()
+	if err != nil {
+		return false, fmt.Errorf("cannot check cooldown: %w", err)
+	}
+
+	if isGlobalCooldown == 1 {
+		return true, nil
+	}
+
+	return false, nil
 }

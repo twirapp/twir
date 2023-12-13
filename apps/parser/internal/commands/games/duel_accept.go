@@ -3,13 +3,16 @@ package games
 import (
 	"context"
 	"math/rand"
+	"strings"
 	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.uber.org/zap"
 )
 
 var DuelAccept = &types.DefaultCommand{
@@ -43,7 +46,7 @@ var DuelAccept = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-		if cachedData.SenderID == "" {
+		if cachedData == nil {
 			return &types.CommandsHandlerResult{
 				Result: []string{"you are not participate in any duel"},
 			}, nil
@@ -57,7 +60,7 @@ var DuelAccept = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := handler.createHelixClient(ctx)
+		twitchClient, err := handler.createHelixClient()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot create broadcaster twitch client",
@@ -68,7 +71,7 @@ var DuelAccept = &types.DefaultCommand{
 		randomedNumber := rand.Intn(100)
 		if settings.BothDiePercent > 0 && randomedNumber <= int(settings.BothDiePercent) {
 			err = handler.timeoutUser(
-				cachedData, dbChannel, settings, cachedData.SenderID, cachedData.IsSenderModerator,
+				*cachedData, dbChannel, settings, cachedData.SenderID, cachedData.IsSenderModerator,
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
@@ -78,7 +81,7 @@ var DuelAccept = &types.DefaultCommand{
 			}
 
 			err = handler.timeoutUser(
-				cachedData, dbChannel, settings, cachedData.TargetID, cachedData.IsTargetModerator,
+				*cachedData, dbChannel, settings, cachedData.TargetID, cachedData.IsTargetModerator,
 			)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
@@ -87,8 +90,12 @@ var DuelAccept = &types.DefaultCommand{
 				}
 			}
 
+			resultMessage := settings.BothDieMessage
+			resultMessage = strings.ReplaceAll(resultMessage, "{initiator}", cachedData.SenderUserLogin)
+			resultMessage = strings.ReplaceAll(resultMessage, "{target}", cachedData.TargetUserLogin)
+
 			return &types.CommandsHandlerResult{
-				Result: []string{settings.BothDieMessage},
+				Result: []string{resultMessage},
 			}, nil
 		}
 
@@ -104,7 +111,15 @@ var DuelAccept = &types.DefaultCommand{
 			isMod = cachedData.IsTargetModerator
 		}
 
-		err = handler.timeoutUser(cachedData, dbChannel, settings, userId, isMod)
+		err = handler.saveResult(ctx, *cachedData, dbChannel, settings, userId)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot save duel result",
+				Err:     err,
+			}
+		}
+
+		err = handler.timeoutUser(*cachedData, dbChannel, settings, userId, isMod)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot timeout user",
@@ -115,15 +130,47 @@ var DuelAccept = &types.DefaultCommand{
 		if isMod {
 			go func() {
 				time.Sleep(time.Duration(settings.TimeoutSeconds+2) * time.Second)
-				_, err = twitchClient.AddChannelModerator(
-					&helix.AddChannelModeratorParams{
-						BroadcasterID: parseCtx.Channel.ID,
-						UserID:        userId,
+
+				err := retry.Do(
+					func() error {
+						_, err = twitchClient.AddChannelModerator(
+							&helix.AddChannelModeratorParams{
+								BroadcasterID: parseCtx.Channel.ID,
+								UserID:        userId,
+							},
+						)
+
+						return err
 					},
+					retry.Attempts(5),
+					retry.Delay(100*time.Millisecond),
 				)
+
+				if err != nil {
+					parseCtx.Services.Logger.Error(
+						"cannot add moderator",
+						zap.Error(err),
+					)
+				}
 			}()
 		}
 
-		return nil, nil
+		var loserName string
+		var winnerName string
+		if userId == cachedData.SenderID {
+			loserName = cachedData.SenderUserLogin
+			winnerName = cachedData.TargetUserLogin
+		} else {
+			loserName = cachedData.TargetUserLogin
+			winnerName = cachedData.SenderUserLogin
+		}
+
+		resultMessage := settings.ResultMessage
+		resultMessage = strings.ReplaceAll(resultMessage, "{loser}", loserName)
+		resultMessage = strings.ReplaceAll(resultMessage, "{winner}", winnerName)
+
+		return &types.CommandsHandlerResult{
+			Result: []string{resultMessage},
+		}, nil
 	},
 }

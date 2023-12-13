@@ -577,7 +577,37 @@
       "deathMessage": "Message, if user lost and timeouted.",
       "chargedBullets": "Charged bullets in revolver (size of tumber is {tumberSize}). The bigger number - the biggest chance to die.",
       "tumberSize": "Size of tumber in revolver."
-    }
+    },
+		"duel": {
+			"title": "Duel",
+			"description": "Fight on guns between 2 users!",
+			"commands": {
+				"title": "Duel commands",
+				"duel": "Challange",
+				"accept": "Accept",
+				"stats": "Statistic"
+			},
+			"cooldown": {
+				"title": "Cooldown between duels",
+				"user": "Individual",
+				"global": "Global"
+			},
+			"messages": {
+				"title": "Messages",
+				"start": {
+					"title": "Initial",
+					"description": "Dispatched when duel initiated. Available variables: '{'target'}', '{'initiator'}', '{'duelAcceptCommandName'}', '{'acceptSeconds'}'"
+				},
+				"result": {
+					"title": "Result",
+					"description": "Dispatched when duel happend. Available variables: {loser}, {winner}"
+				},
+				"bothDie": {
+					"title": "Both die",
+					"description": "Dispatched when both users dead in duel. Available variables: {target}, {initiator}"
+				}
+			}
+		}
   },
   "community": {
     "users": {

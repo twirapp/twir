@@ -97,6 +97,7 @@ func New(opts *Opts) *Commands {
 			brb.Stop,
 			games.Duel,
 			games.DuelAccept,
+			games.DuelStats,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

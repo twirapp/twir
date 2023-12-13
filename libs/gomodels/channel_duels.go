@@ -12,6 +12,7 @@ type ChannelDuel struct {
 	ChannelID string      `gorm:"type:text;"`
 	SenderID  null.String `gorm:"type:text;"`
 	TargetID  null.String `gorm:"type:text;"`
+	LoserID   null.String `gorm:"type:text;"`
 	CreatedAt time.Time   `gorm:"type:timestamp;default:now()"`
 }
 

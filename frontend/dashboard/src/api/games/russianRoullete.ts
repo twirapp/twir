@@ -24,6 +24,7 @@ export const useRussianRouletteUpdateSettings = () => {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries(key);
+			await queryClient.invalidateQueries(['commands']);
 		},
 	});
 };
