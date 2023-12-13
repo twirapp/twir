@@ -225,10 +225,10 @@ const canCopyLink = computed(() => {
 						<span>{{ t('overlays.chat.showBadges') }}</span>
 					</div>
 
-					<div class="switch">
+					<div v-if="formValue.preset === 'boxed'" class="switch">
 						<n-switch
 							v-model:value="formValue.showAnnounceBadge"
-							:disabled="formValue.preset === 'clean' || !formValue.showBadges"
+							:disabled="!formValue.showBadges"
 						/>
 						<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
 					</div>
