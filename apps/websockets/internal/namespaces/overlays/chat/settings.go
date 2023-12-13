@@ -11,16 +11,16 @@ import (
 )
 
 func (c *Chat) SendSettings(userId string) error {
-	settings := &model.ChannelModulesSettings{}
+	entity := &model.ChannelModulesSettings{}
 	err := c.gorm.
 		Where(`"channelId" = ? AND "type" = ?`, userId, "chat_overlay").
-		Find(settings).
+		Find(entity).
 		Error
 	if err != nil {
 		return err
 	}
 
-	if settings.ID == "" {
+	if entity.ID == "" {
 		return nil
 	}
 
@@ -58,25 +58,23 @@ func (c *Chat) SendSettings(userId string) error {
 		return err
 	}
 
-	settingsMap := make(map[string]any)
-	settingsMap["channelId"] = user.ID
-	settingsMap["channelName"] = user.Login
-	settingsMap["channelDisplayName"] = user.DisplayName
-	settingsMap["globalBadges"] = globalBadgesReq.Data.Badges
-	settingsMap["channelBadges"] = channelBadgesReq.Data.Badges
-
-	dbSettingsMap := make(map[string]any)
-	if err := json.Unmarshal(settings.Settings, &dbSettingsMap); err != nil {
-		return fmt.Errorf("cannot unmarshal dbSettings: %w", err)
+	var entitySettings model.ChatOverlaySettings
+	if err := json.Unmarshal(entity.Settings, &entitySettings); err != nil {
+		return fmt.Errorf("cannot unmarshal entitySettings: %w", err)
 	}
 
-	for key, value := range dbSettingsMap {
-		settingsMap[key] = value
+	data := settings{
+		ChannelID:           user.ID,
+		ChannelName:         user.Login,
+		ChannelDisplayName:  user.DisplayName,
+		GlobalBadges:        globalBadgesReq.Data.Badges,
+		ChannelBadges:       channelBadgesReq.Data.Badges,
+		ChatOverlaySettings: entitySettings,
 	}
 
 	return c.SendEvent(
 		userId,
 		"settings",
-		settingsMap,
+		data,
 	)
 }
