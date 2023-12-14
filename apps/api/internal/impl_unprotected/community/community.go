@@ -95,6 +95,7 @@ func (c *Community) CommunityGetUsers(
 			&dbUser.IsMod,
 			&dbUser.IsVip,
 			&dbUser.IsSubscriber,
+			&dbUser.Reputation,
 			&dbUser.Emotes,
 		)
 		if err != nil {
