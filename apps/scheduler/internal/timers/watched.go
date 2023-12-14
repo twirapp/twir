@@ -34,7 +34,10 @@ func NewWatched(ctx context.Context, services *types.Services) {
 						Where(
 							`"channelId" = ? AND "userId" IN (?)`,
 							s.UserId,
-							services.Gorm.Table("users_online").Select(`"userId"`),
+							services.Gorm.Table("users_online").Where(
+								`"channelId" = ?`,
+								s.UserId,
+							).Select(`"userId"`),
 						).
 						Update("watched", gorm.Expr("watched + ?", timeTick.Milliseconds())).Error
 					if err != nil {
