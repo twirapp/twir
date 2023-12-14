@@ -6,7 +6,6 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/hibiken/asynq"
-	"github.com/kr/pretty"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
@@ -20,8 +19,6 @@ func (p *RedisTaskProcessor) ProcessDistributeMod(
 	if err := json.Unmarshal(task.Payload(), &payload); err != nil {
 		return err
 	}
-
-	pretty.Println(payload)
 
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
