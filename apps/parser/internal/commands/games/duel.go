@@ -59,6 +59,20 @@ var Duel = &types.DefaultCommand{
 			return &types.CommandsHandlerResult{}, nil
 		}
 
+		isCooldown, err := handler.isCooldown(ctx, parseCtx.Sender.ID)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get cooldown",
+				Err:     err,
+			}
+		}
+
+		if isCooldown {
+			return &types.CommandsHandlerResult{
+				Result: []string{},
+			}, nil
+		}
+
 		dbChannel, err := handler.getDbChannel(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
