@@ -366,8 +366,9 @@
       "showBadges": "Show badges",
       "showAnnounceBadge": "Show announce badge (only for boxed style)",
       "reverseMessages": "Show new messages on top, instead bottom",
-      "revertFont": "Reset to default",
-      "textShadow": "Text shadow"
+      "resetToDefault": "Reset to default",
+      "textShadow": "Text shadow",
+			"backgroundColor": "Background color"
     },
     "kappagen": {
       "description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",

@@ -2,7 +2,6 @@ package kappagen
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
@@ -10,17 +9,23 @@ import (
 	"github.com/satont/twir/libs/twitch"
 )
 
+type settings struct {
+	model.KappagenOverlaySettings
+	ChannelID   string `json:"channelId"`
+	ChannelName string `json:"channelName"`
+}
+
 func (c *Kappagen) SendSettings(userId string) error {
-	settings := &model.ChannelModulesSettings{}
+	entity := &model.ChannelModulesSettings{}
 	err := c.gorm.
 		Where(`"channelId" = ? AND "type" = ?`, userId, "kappagen_overlay").
-		Find(settings).
+		Find(entity).
 		Error
 	if err != nil {
 		return err
 	}
 
-	if settings.ID == "" {
+	if entity.ID == "" {
 		return nil
 	}
 
@@ -44,17 +49,16 @@ func (c *Kappagen) SendSettings(userId string) error {
 
 	user := usersReq.Data.Users[0]
 
-	settingsMap := make(map[string]any)
-	settingsMap["channelId"] = user.ID
-	settingsMap["channelName"] = user.Login
-
-	dbSettingsMap := make(map[string]any)
-	if err := json.Unmarshal(settings.Settings, &dbSettingsMap); err != nil {
-		return fmt.Errorf("cannot unmarshal dbSettings: %w", err)
+	parsedEntitySettings := model.KappagenOverlaySettings{}
+	err = json.Unmarshal(entity.Settings, &parsedEntitySettings)
+	if err != nil {
+		return err
 	}
 
-	for key, value := range dbSettingsMap {
-		settingsMap[key] = value
+	settingsMap := settings{
+		ChannelID:               user.ID,
+		ChannelName:             user.Login,
+		KappagenOverlaySettings: parsedEntitySettings,
 	}
 
 	return c.SendEvent(

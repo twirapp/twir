@@ -1,0 +1,51 @@
+name: Build and lint
+
+on:
+  push:
+
+jobs:
+  build-lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+    - uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: false
+    - uses: actions/setup-go@v4
+      with:
+        go-version-file: 'go.work'
+
+    - name: Install protobuf dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y protobuf-compiler
+        go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+        go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+        go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
+
+    - name: Get pnpm store directory
+      shell: bash
+      run: |
+        echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+    - uses: actions/cache@v3
+      name: Setup pnpm cache
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
+
+    - name: Install dependencies
+      run: pnpm install
+
+    - name: Build
+      run: pnpm run build
+
+    - name: Lint
+      run: pnpm run lint
+

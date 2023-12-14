@@ -104,6 +104,7 @@ func New(opts *Opts) *Variables {
 			user.SongsRequestedDuration,
 			user.EmotesTop,
 			user.Watched,
+			user.Commands,
 			last_donate.Amount,
 			last_donate.Currency,
 			last_donate.UserName,
