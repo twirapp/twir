@@ -99,8 +99,6 @@ var Weather = &types.Variable{
 			SetHeader("Content-Type", "application/json").
 			Get("https://api.openweathermap.org/data/2.5/weather")
 
-		fmt.Println(resp, err)
-
 		if err != nil {
 			return nil, err
 		}
