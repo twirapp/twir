@@ -2,6 +2,7 @@ package channel_title
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
@@ -21,7 +22,7 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -33,11 +34,11 @@ var SetCommand = &types.DefaultCommand{
 			parseCtx.Services.GrpcClients.Tokens,
 		)
 		if err != nil {
-			return nil
+			return nil, fmt.Errorf("cannot create broadcaster twitch api client: %w", err)
 		}
 
 		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			return result
+			return result, nil
 		}
 
 		req, err := twitchClient.EditChannelInformation(
@@ -52,10 +53,10 @@ var SetCommand = &types.DefaultCommand{
 				result.Result,
 				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
 			)
-			return result
+			return result, nil
 		}
 
 		result.Result = append(result.Result, "✅ "+*parseCtx.Text)
-		return result
+		return result, nil
 	},
 }

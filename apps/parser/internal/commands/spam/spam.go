@@ -18,7 +18,10 @@ var Command = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		count := 1
@@ -27,7 +30,7 @@ var Command = &types.DefaultCommand{
 		paramsLen := len(params)
 		if paramsLen < 2 {
 			result.Result = []string{"you have type count and message"}
-			return result
+			return result, nil
 		}
 
 		newCount, err := strconv.Atoi(params[0])
@@ -36,8 +39,8 @@ var Command = &types.DefaultCommand{
 		}
 
 		if count > 20 || count <= 0 {
-			result.Result = []string{"count cannot be more then 20 and fewer then 1"}
-			return result
+			result.Result = []string{"count cannot be more than 20 and fewer then 1"}
+			return result, nil
 		}
 
 		message := strings.Join(params[1:], " ")
@@ -46,6 +49,6 @@ var Command = &types.DefaultCommand{
 			result.Result = append(result.Result, message)
 		}
 
-		return result
+		return result, nil
 	},
 }

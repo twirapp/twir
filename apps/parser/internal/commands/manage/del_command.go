@@ -2,11 +2,13 @@ package manage
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
+	"gorm.io/gorm"
 
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -19,14 +21,17 @@ var DelCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		name := strings.ToLower(strings.ReplaceAll(*parseCtx.Text, "!", ""))
@@ -38,14 +43,21 @@ var DelCommand = &types.DefaultCommand{
 			First(&cmd).
 			Error
 
-		if err != nil || cmd == nil {
-			result.Result = append(result.Result, "Command not found.")
-			return result
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				result.Result = append(result.Result, "Command not found.")
+				return result, nil
+			} else {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get command",
+					Err:     err,
+				}
+			}
 		}
 
 		if cmd.Default {
 			result.Result = append(result.Result, "Cannot delete default command.")
-			return result
+			return result, nil
 		}
 
 		parseCtx.Services.Gorm.
@@ -54,6 +66,6 @@ var DelCommand = &types.DefaultCommand{
 			Delete(&model.ChannelsCommands{})
 
 		result.Result = append(result.Result, "✅ Command removed.")
-		return result
+		return result, nil
 	},
 }

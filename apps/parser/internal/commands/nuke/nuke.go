@@ -8,8 +8,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 
-	"go.uber.org/zap"
-
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 
@@ -25,11 +23,14 @@ var Command = &types.DefaultCommand{
 		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:   "MODERATION",
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		var messages []model.ChannelChatMessage
 
 		if parseCtx.Text == nil {
-			return nil
+			return nil, nil
 		}
 
 		err := parseCtx.Services.Gorm.WithContext(ctx).
@@ -41,12 +42,14 @@ var Command = &types.DefaultCommand{
 			Find(&messages).
 			Error
 		if err != nil {
-			zap.S().Error(err)
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get messages",
+				Err:     err,
+			}
 		}
 
 		if len(messages) == 0 {
-			return nil
+			return nil, nil
 		}
 
 		messages = lo.Filter(
@@ -60,17 +63,28 @@ var Command = &types.DefaultCommand{
 			},
 		)
 
-		parseCtx.Services.GrpcClients.Bots.DeleteMessage(
-			context.Background(), &bots.DeleteMessagesRequest{
+		if _, err = parseCtx.Services.GrpcClients.Bots.DeleteMessage(
+			ctx,
+			&bots.DeleteMessagesRequest{
 				ChannelId:   parseCtx.Channel.ID,
 				MessageIds:  mappedMessages,
 				ChannelName: parseCtx.Channel.Name,
 			},
-		)
+		); err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot delete messages",
+				Err:     err,
+			}
+		}
 
-		parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessages).
-			Delete(&model.ChannelChatMessage{})
+		if err = parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessages).
+			Delete(&model.ChannelChatMessage{}).Error; err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot delete messages from db",
+				Err:     err,
+			}
+		}
 
-		return nil
+		return nil, nil
 	},
 }

@@ -2,6 +2,8 @@ package commands
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -30,6 +32,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
 	"github.com/satont/twir/libs/grpc/generated/parser"
+	"go.uber.org/zap"
 )
 
 type Commands struct {
@@ -92,6 +95,9 @@ func New(opts *Opts) *Commands {
 			kappagen.Kappagen,
 			brb.Start,
 			brb.Stop,
+			games.Duel,
+			games.DuelAccept,
+			games.DuelStats,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -276,7 +282,39 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
-		results := defaultCommand.Handler(ctx, parseCtx)
+		results, err := defaultCommand.Handler(ctx, parseCtx)
+		if err != nil {
+			c.services.Logger.Error(
+				"error happened on default command execution",
+				zap.Error(err),
+				zap.Dict(
+					"channel",
+					zap.String("id", requestData.Channel.Id),
+					zap.String("name", requestData.Channel.Name),
+				),
+				zap.Dict(
+					"sender",
+					zap.String("id", requestData.Sender.Id),
+					zap.String("name", requestData.Sender.Name),
+				),
+				zap.String("message", requestData.Message.Text),
+				zap.Dict("command", zap.String("id", command.Cmd.ID), zap.String("name", command.Cmd.Name)),
+			)
+
+			var commandErr *types.CommandHandlerError
+
+			if errors.As(err, &commandErr) {
+				results = &types.CommandsHandlerResult{
+					Result: []string{
+						fmt.Sprintf("[Twir error]: %s. Please contact developers.", commandErr.Message),
+					},
+				}
+			} else {
+				results = &types.CommandsHandlerResult{
+					Result: []string{"[Twir error]: unknown error happened. Please contact developers."},
+				}
+			}
+		}
 
 		result.Responses = lo.
 			IfF(results == nil, func() []string { return []string{} }).

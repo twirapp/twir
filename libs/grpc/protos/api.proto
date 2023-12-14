@@ -208,10 +208,16 @@ service Protected {
 	rpc AlertsUpdate(api.alerts.UpdateRequest) returns (api.alerts.Alert) {}
 	rpc AlertsDelete(api.alerts.RemoveRequest) returns (google.protobuf.Empty) {}
 
+	// Games
 	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (api.games.EightBallSettingsResponse) {}
 	rpc GamesUpdateEightBallSettings(api.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
+
 	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (api.games.RussianRouletteSettingsResponse) {}
 	rpc GamesUpdateRouletteSettings(api.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
+
+	rpc GamesGetDuelSettings(google.protobuf.Empty) returns (api.games.DuelSettingsResponse) {}
+	rpc GamesUpdateDuelSettings(api.games.UpdateDuelSettings) returns (google.protobuf.Empty) {}
+	//
 
 	rpc OverlaysGetAll(google.protobuf.Empty) returns (api.overlays.GetAllResponse) {}
 	rpc OverlaysGetOne(api.overlays.GetByIdRequest) returns (api.overlays.Overlay) {}

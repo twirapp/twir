@@ -2,6 +2,7 @@ package channel_title
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -22,7 +23,7 @@ var History = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -55,8 +56,7 @@ var History = &types.DefaultCommand{
 			Error
 
 		if err != nil {
-			result.Result = append(result.Result, "internal error")
-			return result
+			return result, fmt.Errorf("cannot get history of titles from database: %w", err)
 		}
 
 		titles := lo.Map(
@@ -66,6 +66,6 @@ var History = &types.DefaultCommand{
 		)
 
 		result.Result = append(result.Result, strings.Join(titles, " ║ "))
-		return result
+		return result, nil
 	},
 }

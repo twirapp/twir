@@ -27,7 +27,7 @@ var RussianRoulette = &types.DefaultCommand{
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{},
 		}
@@ -37,16 +37,22 @@ var RussianRoulette = &types.DefaultCommand{
 			`"channelId" = ? and "userId" is null and "type" = 'russian_roulette'`,
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get roulette settings from db",
+				Err:     err,
+			}
 		}
 
 		var parsedSettings model.RussianRouletteSetting
 		if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot parse roulette settings",
+				Err:     err,
+			}
 		}
 
 		if !parsedSettings.Enabled {
-			return result
+			return result, nil
 		}
 
 		initMessage := strings.ReplaceAll(
@@ -81,7 +87,10 @@ var RussianRoulette = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot send initial message",
+				Err:     err,
+			}
 		}
 
 		if parsedSettings.DecisionSeconds > 0 {
@@ -90,7 +99,7 @@ var RussianRoulette = &types.DefaultCommand{
 
 		if slices.Contains(parseCtx.Sender.Badges, "BROADCASTER") {
 			result.Result = []string{surviveMessage}
-			return result
+			return result, nil
 		}
 
 		twitchClient, err := twitch.NewUserClient(
@@ -99,13 +108,16 @@ var RussianRoulette = &types.DefaultCommand{
 			parseCtx.Services.GrpcClients.Tokens,
 		)
 		if err != nil {
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create broadcaster twitch client",
+				Err:     err,
+			}
 		}
 
 		randomized := rand.Intn(parsedSettings.TumberSize + 1)
 		if randomized > parsedSettings.ChargedBullets {
 			result.Result = []string{surviveMessage}
-			return result
+			return result, nil
 		} else {
 			_, err = parseCtx.Services.GrpcClients.Bots.SendMessage(
 				ctx,
@@ -118,7 +130,10 @@ var RussianRoulette = &types.DefaultCommand{
 				},
 			)
 			if err != nil {
-				return result
+				return nil, &types.CommandHandlerError{
+					Message: "cannot send death message",
+					Err:     err,
+				}
 			}
 
 			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
@@ -130,8 +145,10 @@ var RussianRoulette = &types.DefaultCommand{
 					},
 				)
 				if err != nil {
-					result.Result = []string{"internal error when trying to remove mod"}
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "cannot remove moderator",
+						Err:     err,
+					}
 				}
 
 				go func() {
@@ -163,13 +180,15 @@ var RussianRoulette = &types.DefaultCommand{
 					},
 				)
 				if err != nil {
-					result.Result = []string{"internal error when trying to ban user"}
-					return result
+					return nil, &types.CommandHandlerError{
+						Message: "cannot ban user",
+						Err:     err,
+					}
 				}
 			}
 
 			result.Result = []string{}
-			return result
+			return result, nil
 		}
 	},
 }

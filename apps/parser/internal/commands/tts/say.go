@@ -14,7 +14,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"go.uber.org/zap"
 )
 
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
@@ -27,16 +26,19 @@ var SayCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		if parseCtx.Text == nil {
-			return result
+			return result, nil
 		}
 
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 		if channelSettings == nil || !*channelSettings.Enabled {
-			return result
+			return result, nil
 		}
 
 		userSettings, _ := getSettings(
@@ -76,7 +78,7 @@ var SayCommand = &types.DefaultCommand{
 						result.Result,
 						fmt.Sprintf("Voice %s is disallowed fopr usage", voice),
 					)
-					return result
+					return result, nil
 				}
 
 				*parseCtx.Text = strings.Join(splittedChatArgs[1:], " ")
@@ -84,7 +86,7 @@ var SayCommand = &types.DefaultCommand{
 		}
 
 		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(*parseCtx.Text) > channelSettings.MaxSymbols {
-			return result
+			return result, nil
 		}
 
 		rate := lo.IfF(
@@ -149,7 +151,7 @@ var SayCommand = &types.DefaultCommand{
 		*parseCtx.Text = strings.TrimSpace(strings.Join(splittedString, " "))
 
 		if len(*parseCtx.Text) == 0 || *parseCtx.Text == parseCtx.Sender.Name {
-			return result
+			return result, nil
 		}
 
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(
@@ -163,10 +165,12 @@ var SayCommand = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			zap.S().Error(err)
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "error while sending message to tts service",
+				Err:     err,
+			}
 		}
 
-		return result
+		return result, nil
 	},
 }

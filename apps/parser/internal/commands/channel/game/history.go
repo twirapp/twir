@@ -22,7 +22,7 @@ var History = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -56,7 +56,10 @@ var History = &types.DefaultCommand{
 
 		if err != nil {
 			result.Result = append(result.Result, "internal error")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot find used games in database",
+				Err:     err,
+			}
 		}
 
 		categories := lo.Map(
@@ -66,6 +69,6 @@ var History = &types.DefaultCommand{
 		)
 
 		result.Result = append(result.Result, strings.Join(categories, " ║ "))
-		return result
+		return result, nil
 	},
 }

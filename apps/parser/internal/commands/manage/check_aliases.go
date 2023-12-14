@@ -8,8 +8,6 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 
-	"go.uber.org/zap"
-
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -21,14 +19,17 @@ var CheckAliasesCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		if parseCtx.Text == nil {
-			result.Result = append(result.Result, "type command name for check aliases.")
-			return result
+			result.Result = append(result.Result, "you should specify aliase name")
+			return result, nil
 		}
 
 		commandName := strings.ReplaceAll(strings.ToLower(*parseCtx.Text), "!", "")
@@ -40,22 +41,23 @@ var CheckAliasesCommand = &types.DefaultCommand{
 			Find(&cmd).
 			Error
 		if err != nil {
-			zap.S().Error(err)
-			result.Result = append(result.Result, "internal error")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get command",
+				Err:     err,
+			}
 		}
 
 		if cmd.ID == "" {
 			result.Result = append(result.Result, "command with that name not found.")
-			return result
+			return result, nil
 		}
 
 		if len(cmd.Aliases) == 0 {
 			result.Result = append(result.Result, "command have no aliases")
-			return result
+			return result, nil
 		}
 
 		result.Result = append(result.Result, strings.Join(cmd.Aliases, ", "))
-		return result
+		return result, nil
 	},
 }

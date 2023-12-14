@@ -2,7 +2,6 @@ package manage
 
 import (
 	"context"
-	"log"
 	"strings"
 
 	"github.com/lib/pq"
@@ -18,7 +17,6 @@ import (
 const (
 	exampleUsage   = "!commands add name response"
 	incorrectUsage = "Incorrect usage of command. Example: " + exampleUsage
-	wentWrong      = "Something went wrong on creating command"
 	alreadyExists  = "Command with that name or aliase already exists."
 )
 
@@ -30,21 +28,24 @@ var AddCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		if parseCtx.Text == nil {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		args := strings.Split(*parseCtx.Text, " ")
 
 		if len(args) < 2 {
 			result.Result = append(result.Result, incorrectUsage)
-			return result
+			return result, nil
 		}
 
 		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
@@ -52,7 +53,7 @@ var AddCommand = &types.DefaultCommand{
 
 		if len(name) > 20 {
 			result.Result = append(result.Result, "Command name cannot be greatest then 20.")
-			return result
+			return result, nil
 		}
 
 		var commands []*model.ChannelsCommands
@@ -62,19 +63,21 @@ var AddCommand = &types.DefaultCommand{
 			Where(`"channelId" = ?`, parseCtx.Channel.ID).
 			Find(&commands).Error
 		if err != nil {
-			log.Fatalln(err)
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get existed commands",
+				Err:     err,
+			}
 		}
 
 		for _, c := range commands {
 			if c.Name == name {
 				result.Result = append(result.Result, alreadyExists)
-				return result
+				return result, nil
 			}
 
 			if lo.Contains(c.Aliases, name) {
 				result.Result = append(result.Result, alreadyExists)
-				return result
+				return result, nil
 			}
 		}
 
@@ -103,12 +106,13 @@ var AddCommand = &types.DefaultCommand{
 		err = parseCtx.Services.Gorm.WithContext(ctx).Create(&command).Error
 
 		if err != nil {
-			log.Fatalln(err)
-			result.Result = append(result.Result, wentWrong)
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create command",
+				Err:     err,
+			}
 		}
 
 		result.Result = []string{"✅ Command added."}
-		return result
+		return result, nil
 	},
 }
