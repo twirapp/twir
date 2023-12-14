@@ -274,7 +274,7 @@ services:
         - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
-  public:
+  public-page:
     image: registry.satont.ru/twir/public-page:latest
     command: --gzip --brotli --threshold 500
     secrets:
