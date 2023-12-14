@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@plugin-web-update-notification/vite": "1.7.0",
-    "@protobuf-ts/twirp-transport": "2.9.1",
+    "@protobuf-ts/twirp-transport": "2.9.3",
     "@twir/frontend-chat": "workspace:^",
     "@twir/grpc": "workspace:^",
     "@vueuse/core": "10.6.1",

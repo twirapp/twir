@@ -292,8 +292,8 @@ importers:
         specifier: 0.10.0
         version: 0.10.0(nanostores@0.9.5)(vue@3.3.10)
       '@protobuf-ts/twirp-transport':
-        specifier: 2.9.2
-        version: 2.9.2
+        specifier: 2.9.3
+        version: 2.9.3
       '@twir/config':
         specifier: workspace:^
         version: link:../../libs/config
@@ -341,8 +341,8 @@ importers:
         specifier: 1.7.0
         version: 1.7.0(vite@5.0.4)
       '@protobuf-ts/twirp-transport':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       '@twir/frontend-chat':
         specifier: workspace:^
         version: link:../../libs/frontend-chat
@@ -393,8 +393,8 @@ importers:
   frontend/public-page:
     dependencies:
       '@protobuf-ts/twirp-transport':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       '@tabler/icons-vue':
         specifier: 2.42.0
         version: 2.42.0(vue@3.3.9)
@@ -482,17 +482,17 @@ importers:
   libs/grpc:
     dependencies:
       '@protobuf-ts/plugin':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       '@protobuf-ts/runtime':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       '@protobuf-ts/runtime-rpc':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       '@protobuf-ts/twirp-transport':
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.9.3
+        version: 2.9.3
       long:
         specifier: 5.2.1
         version: 5.2.1
@@ -2289,31 +2289,27 @@ packages:
     resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
     dev: false
 
-  /@protobuf-ts/plugin-framework@2.9.1:
-    resolution: {integrity: sha512-/4sHdsXjp6KKkbpcCLUHpMfdYsCaqqQHRAwoxVzHmltsotw06B/K9HglZtkQx0IpLO4eeF3vNr3n7qzjD3e2zA==}
+  /@protobuf-ts/plugin-framework@2.9.3:
+    resolution: {integrity: sha512-iqdkhAu7fGPvBCVOoAEEFJ1/oaGIBoNIMgSv2WonTNJVHxv5FvvAfWFn6nG/eta34fHRZT38ZXTaYcMUkv8AiQ==}
     dependencies:
-      '@protobuf-ts/runtime': 2.9.1
+      '@protobuf-ts/runtime': 2.9.3
       typescript: 3.9.10
     dev: false
 
-  /@protobuf-ts/plugin@2.9.1:
-    resolution: {integrity: sha512-svkFSyFgTtaLdDFPGvd6cTu8qK5Nul5RizDCTcv0xWRzcPWtMiqbuCLKCv6E9gdpnAs3MPeQTnSABB2+NhfWBg==}
+  /@protobuf-ts/plugin@2.9.3:
+    resolution: {integrity: sha512-tHYACv+nnIV2eoiMxeZhrgMqGiUktzUzrhfgnROg/rr8TecPLp9v5/yqNibN+bad5k7d57aqlTuQKhFl+J4W/g==}
+    hasBin: true
     dependencies:
-      '@protobuf-ts/plugin-framework': 2.9.1
-      '@protobuf-ts/protoc': 2.9.1
-      '@protobuf-ts/runtime': 2.9.1
-      '@protobuf-ts/runtime-rpc': 2.9.1
+      '@protobuf-ts/plugin-framework': 2.9.3
+      '@protobuf-ts/protoc': 2.9.3
+      '@protobuf-ts/runtime': 2.9.3
+      '@protobuf-ts/runtime-rpc': 2.9.3
       typescript: 3.9.10
     dev: false
 
-  /@protobuf-ts/protoc@2.9.1:
-    resolution: {integrity: sha512-/q2iVDwVDijfZlFZnnm3W6ALbybNskNSww88TfYBaJH49PuQMqhcXUPRu28UouJr9sc/Lr5k6t0TB9Nff3UIsA==}
-    dev: false
-
-  /@protobuf-ts/runtime-rpc@2.9.1:
-    resolution: {integrity: sha512-pzO20J6s07LTWcj8hKAXh/dAacU5HIVir6SANKXXH8G0pn0VIIB4FFECq5Hbv25/8PQoOGZ7iApq/DMHaSjGhg==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.1
+  /@protobuf-ts/protoc@2.9.3:
+    resolution: {integrity: sha512-TJ0Ycx/CIBqpB4wpKt6K05kjXj6zv36s/qpdCT/wdJBhpayOVBqLF5NpLp3WIiw1PmIxvqalB6QHKjvnLzGKLA==}
+    hasBin: true
     dev: false
 
   /@protobuf-ts/runtime-rpc@2.9.3:
@@ -2321,30 +2317,8 @@ packages:
     dependencies:
       '@protobuf-ts/runtime': 2.9.3
 
-  /@protobuf-ts/runtime@2.9.1:
-    resolution: {integrity: sha512-ZTc8b+pQ6bwxZa3qg9/IO/M/brRkvr0tic9cSGgAsDByfPrtatT2300wTIRLDk8X9WTW1tT+FhyqmcrbMHTeww==}
-    dev: false
-
-  /@protobuf-ts/runtime@2.9.2:
-    resolution: {integrity: sha512-0XeRY+5+j2ZrhY3osjUqz6Y8TVpgdO8h5OjKV+qXEpyjniiP+AVo06W7xZxfvsdBrtB7A3BvP5w1Cja7VYNGjw==}
-    dev: false
-
   /@protobuf-ts/runtime@2.9.3:
     resolution: {integrity: sha512-nivzCpg/qYD0RX2OmHOahJALb8ndjGmUhNBcTJ0BbXoqKwCSM6vYA+vegzS3rhuaPgbyC7Ec8idlnizzUfIRuw==}
-
-  /@protobuf-ts/twirp-transport@2.9.1:
-    resolution: {integrity: sha512-I0IRAoQwnm6ZzORc9kwDDHu3adRscGCwJ89QDe0KQ1wgONTZLqErrMWOvIroQEfocgstp+LXU185D0k60uMSKw==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.1
-      '@protobuf-ts/runtime-rpc': 2.9.3
-    dev: false
-
-  /@protobuf-ts/twirp-transport@2.9.2:
-    resolution: {integrity: sha512-qxMKx16P+WwO8v60mQZ4JS10lhLP+IKe3MNKAvi5udh5B5svUDBuIh5+RXJqze79SaIVlxT6rd6GZPUoujXiJQ==}
-    dependencies:
-      '@protobuf-ts/runtime': 2.9.2
-      '@protobuf-ts/runtime-rpc': 2.9.3
-    dev: false
 
   /@protobuf-ts/twirp-transport@2.9.3:
     resolution: {integrity: sha512-GblMjxj0IJ6Q7ULMRS6Ad+AFQdRBN22LcX6OxSXEg+RiRdoLUvBcmJeBWnUZ6CS7EIGUOaGid5pJ2MmfccfEsQ==}
@@ -4035,6 +4009,7 @@ packages:
   /autoprefixer@10.4.16(postcss@8.4.32):
     resolution: {integrity: sha512-7vd3UC6xKp0HLfua5IjZlcXvGAGy7cBAXTg2lyQ/8WpNhd6SiZ8Be+xm3FyBSYJx5GKcpRCzBh7RH4/0dnY+uQ==}
     engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
@@ -6744,6 +6719,7 @@ packages:
   /knex@2.5.1(pg@8.11.1):
     resolution: {integrity: sha512-z78DgGKUr4SE/6cm7ku+jHvFT0X97aERh/f0MUKAKgFnwCYBEW4TFBqtHWFYiJFid7fMrtpZ/gxJthvz5mEByA==}
     engines: {node: '>=12'}
+    hasBin: true
     peerDependencies:
       better-sqlite3: '*'
       mysql: '*'
@@ -8733,6 +8709,7 @@ packages:
   /rollup-plugin-visualizer@5.11.0:
     resolution: {integrity: sha512-exM0Ms2SN3AgTzMeW7y46neZQcyLY7eKwWAop1ZoRTCZwyrIRdMMJ6JjToAJbML77X/9N8ZEpmXG4Z/Clb9k8g==}
     engines: {node: '>=14'}
+    hasBin: true
     peerDependencies:
       rollup: 2.x || 3.x || 4.x
     peerDependenciesMeta:
@@ -9675,6 +9652,7 @@ packages:
   /tsconfck@3.0.0(typescript@5.3.2):
     resolution: {integrity: sha512-w3wnsIrJNi7avf4Zb0VjOoodoO0woEqGgZGQm+LHH9przdUI+XDKsWAXwxHA1DaRTjeuZNcregSzr7RaA8zG9A==}
     engines: {node: ^18 || >=20}
+    hasBin: true
     peerDependencies:
       typescript: ^5.0.0
     peerDependenciesMeta:
@@ -9837,6 +9815,7 @@ packages:
   /typescript@3.9.10:
     resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
     engines: {node: '>=4.2.0'}
+    hasBin: true
     dev: false
 
   /typescript@5.0.4:
@@ -9992,6 +9971,7 @@ packages:
 
   /update-browserslist-db@1.0.13(browserslist@4.22.2):
     resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
+    hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
     dependencies:
@@ -10134,6 +10114,7 @@ packages:
   /vite@5.0.4(@types/node@20.10.3):
     resolution: {integrity: sha512-RzAr8LSvM8lmhB4tQ5OPcBhpjOZRZjuxv9zO5UcxeoY2bd3kP3Ticd40Qma9/BqZ8JS96Ll/jeBX9u+LJZrhVg==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
@@ -10168,6 +10149,7 @@ packages:
   /vite@5.0.6(@types/node@20.10.3):
     resolution: {integrity: sha512-MD3joyAEBtV7QZPl2JVVUai6zHms3YOmLR+BpMzLlX2Yzjfcc4gTgNi09d/Rua3F4EtC8zdwPU8eQYyib4vVMQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
@@ -10202,6 +10184,7 @@ packages:
   /vite@5.0.8(@types/node@20.10.3)(sass@1.69.5):
     resolution: {integrity: sha512-jYMALd8aeqR3yS9xlHd0OzQJndS9fH5ylVgWdB+pxTwxLKdO1pgC5Dlb398BUxpfaBxa4M9oT7j1g503Gaj5IQ==}
     engines: {node: ^18.0.0 || >=20.0.0}
+    hasBin: true
     peerDependencies:
       '@types/node': ^18.0.0 || >=20.0.0
       less: '*'
@@ -10266,6 +10249,7 @@ packages:
   /vue-demi@0.13.11(vue@3.3.11):
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
     engines: {node: '>=12'}
+    hasBin: true
     requiresBuild: true
     peerDependencies:
       '@vue/composition-api': ^1.0.0-rc.1
@@ -10280,6 +10264,7 @@ packages:
   /vue-demi@0.14.6(vue@3.3.10):
     resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
     engines: {node: '>=12'}
+    hasBin: true
     requiresBuild: true
     peerDependencies:
       '@vue/composition-api': ^1.0.0-rc.1
@@ -10294,6 +10279,7 @@ packages:
   /vue-demi@0.14.6(vue@3.3.11):
     resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
     engines: {node: '>=12'}
+    hasBin: true
     requiresBuild: true
     peerDependencies:
       '@vue/composition-api': ^1.0.0-rc.1
@@ -10308,6 +10294,7 @@ packages:
   /vue-demi@0.14.6(vue@3.3.9):
     resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
     engines: {node: '>=12'}
+    hasBin: true
     requiresBuild: true
     peerDependencies:
       '@vue/composition-api': ^1.0.0-rc.1
@@ -10385,6 +10372,7 @@ packages:
 
   /vue-tsc@1.8.24(typescript@5.3.2):
     resolution: {integrity: sha512-eH1CSj231OzVEY5Hi7wS6ubzyOEwgr5jCptR0Ddf2SitGcaXIsPVDvrprm3eolCdyhDt3WS1Eb2F4fGX9BsUUw==}
+    hasBin: true
     peerDependencies:
       typescript: '*'
     dependencies:
@@ -10396,6 +10384,7 @@ packages:
 
   /vue-tsc@1.8.25(typescript@5.3.3):
     resolution: {integrity: sha512-lHsRhDc/Y7LINvYhZ3pv4elflFADoEOo67vfClAfF2heVHpHmVquLSjojgCSIwzA4F0Pc4vowT/psXCYcfk+iQ==}
+    hasBin: true
     peerDependencies:
       typescript: '*'
     dependencies:

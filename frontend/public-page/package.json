@@ -8,7 +8,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@protobuf-ts/twirp-transport": "2.9.1",
+		"@protobuf-ts/twirp-transport": "2.9.3",
 		"@tabler/icons-vue": "2.42.0",
 		"@tanstack/vue-query": "5.12.2",
 		"@tanstack/vue-table": "8.10.7",
