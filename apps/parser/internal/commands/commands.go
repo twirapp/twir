@@ -284,7 +284,7 @@ func (c *Commands) ParseCommandResponses(
 	if command.Cmd.Default && defaultCommand != nil {
 		results, err := defaultCommand.Handler(ctx, parseCtx)
 		if err != nil {
-			c.services.Logger.Error(
+			c.services.Logger.Sugar().Error(
 				"error happened on default command execution",
 				zap.Error(err),
 				zap.Dict(

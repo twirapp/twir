@@ -6,13 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/avast/retry-go/v4"
 	"github.com/guregu/null"
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/satont/twir/apps/parser/internal/queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"go.uber.org/zap"
 )
 
 var DuelAccept = &types.DefaultCommand{
@@ -60,7 +59,7 @@ var DuelAccept = &types.DefaultCommand{
 			}
 		}
 
-		twitchClient, err := handler.createHelixClient()
+		_, err = handler.createHelixClient()
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot create broadcaster twitch client",
@@ -128,31 +127,18 @@ var DuelAccept = &types.DefaultCommand{
 		}
 
 		if isMod {
-			go func() {
-				time.Sleep(time.Duration(settings.TimeoutSeconds+2) * time.Second)
-
-				err := retry.Do(
-					func() error {
-						_, err = twitchClient.AddChannelModerator(
-							&helix.AddChannelModeratorParams{
-								BroadcasterID: parseCtx.Channel.ID,
-								UserID:        userId,
-							},
-						)
-
-						return err
-					},
-					retry.Attempts(5),
-					retry.Delay(100*time.Millisecond),
-				)
-
-				if err != nil {
-					parseCtx.Services.Logger.Error(
-						"cannot add moderator",
-						zap.Error(err),
-					)
+			err = parseCtx.Services.TaskDistributor.DistributeModUser(
+				ctx, &queue.TaskModUserPayload{
+					ChannelID: dbChannel.ID,
+					UserID:    userId,
+				}, asynq.ProcessIn(time.Duration(settings.TimeoutSeconds+2)*time.Second),
+			)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot distribute mod user",
+					Err:     err,
 				}
-			}()
+			}
 		}
 
 		var loserName string

@@ -39,7 +39,7 @@ var Duel = &types.DefaultCommand{
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return &types.CommandsHandlerResult{
-					Result: []string{"duels not enabled on this channel"},
+					Result: []string{},
 				}, nil
 			} else {
 				return nil, &types.CommandHandlerError{

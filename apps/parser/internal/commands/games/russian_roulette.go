@@ -8,9 +8,11 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/guregu/null"
+	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/parser/internal/queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -27,7 +29,10 @@ var RussianRoulette = &types.DefaultCommand{
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{},
 		}
@@ -138,6 +143,21 @@ var RussianRoulette = &types.DefaultCommand{
 
 			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
 			if parsedSettings.CanBeUsedByModerators && isModerator && parsedSettings.TimeoutSeconds > 0 {
+				err = parseCtx.Services.TaskDistributor.DistributeModUser(
+					ctx,
+					&queue.TaskModUserPayload{
+						ChannelID: parseCtx.Channel.ID,
+						UserID:    parseCtx.Sender.ID,
+					},
+					asynq.ProcessIn(time.Duration(parsedSettings.TimeoutSeconds+2)*time.Second),
+				)
+				if err != nil {
+					return nil, &types.CommandHandlerError{
+						Message: "cannot distribute mod user",
+						Err:     err,
+					}
+				}
+
 				_, err = twitchClient.RemoveChannelModerator(
 					&helix.RemoveChannelModeratorParams{
 						UserID:        parseCtx.Sender.ID,
@@ -150,20 +170,6 @@ var RussianRoulette = &types.DefaultCommand{
 						Err:     err,
 					}
 				}
-
-				go func() {
-					time.Sleep(time.Duration(parsedSettings.TimeoutSeconds+2) * time.Second)
-
-					_, err = twitchClient.AddChannelModerator(
-						&helix.AddChannelModeratorParams{
-							UserID:        parseCtx.Sender.ID,
-							BroadcasterID: parseCtx.Channel.ID,
-						},
-					)
-					if err != nil {
-						return
-					}
-				}()
 			}
 
 			if parsedSettings.TimeoutSeconds > 0 &&
