@@ -41,7 +41,7 @@ var Weather = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
-		apiKey := parseCtx.Services.Config.OpenWeatherApiKey
+		apiKey := parseCtx.Services.Config.OpenWeatherMapApiKey
 		if apiKey == "" {
 			result.Result = "No API key provided"
 			return result, nil
