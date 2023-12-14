@@ -25,6 +25,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/top"
 	"github.com/satont/twir/apps/parser/internal/variables/user"
 	"github.com/satont/twir/apps/parser/internal/variables/valorant"
+	"github.com/satont/twir/apps/parser/internal/variables/weather"
 
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/variables/command_param"
@@ -121,6 +122,7 @@ func New(opts *Opts) *Variables {
 			request.Request,
 			chat_eval.ChatEval,
 			user.Reputation,
+			weather.Weather,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
