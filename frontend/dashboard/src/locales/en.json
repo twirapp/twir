@@ -596,16 +596,24 @@
 				"title": "Messages",
 				"start": {
 					"title": "Initial",
-					"description": "Dispatched when duel initiated. Available variables: '{'target'}', '{'initiator'}', '{'duelAcceptCommandName'}', '{'acceptSeconds'}'"
+					"description": "When duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
 				},
 				"result": {
 					"title": "Result",
-					"description": "Dispatched when duel happend. Available variables: {loser}, {winner}"
+					"description": "When duel happened. Available variables: {'{loser}, {winner}'}"
 				},
 				"bothDie": {
 					"title": "Both die",
-					"description": "Dispatched when both users dead in duel. Available variables: {target}, {initiator}"
+					"description": "When both users dead in duel. Available variables: {'{target}, {initiator}'}"
 				}
+			},
+			"settings": {
+				"title": "Settings",
+				"secondsToAccept": "Seconds to accept duel",
+				"timeoutTime": "Timeout time for loser",
+				"pointsPerWin": "Reputation for win",
+				"pointsPerLose": "Reputation for lose",
+				"bothDiePercent": "Percent of chance both users die"
 			}
 		}
   },

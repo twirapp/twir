@@ -109,7 +109,10 @@ async function save() {
 						{{ t('games.duel.cooldown.title') }}
 					</div>
 					<div class="form-item">
-						<n-form-item :label="t('games.duel.cooldown.user')" :show-feedback="false" style="width: 45%">
+						<n-form-item
+							:label="t('games.duel.cooldown.user')" :show-feedback="false"
+							style="width: 45%"
+						>
 							<n-input-number
 								v-model:value="formValue.userCooldown"
 								:max="84000"
@@ -117,7 +120,10 @@ async function save() {
 							/>
 						</n-form-item>
 
-						<n-form-item :label="t('games.duel.cooldown.global')" :show-feedback="false" style="width: 45%">
+						<n-form-item
+							:label="t('games.duel.cooldown.global')" :show-feedback="false"
+							style="width: 45%"
+						>
 							<n-input-number
 								v-model:value="formValue.globalCooldown"
 								:max="84000"
@@ -134,7 +140,10 @@ async function save() {
 						{{ t('games.duel.messages.title') }}
 					</div>
 					<div class="form-item" style="flex-direction: column;">
-						<n-form-item :label="t('games.duel.messages.start.title')" :feedback="t('games.duel.messages.start.description', {}, {escapeParameter: false})">
+						<n-form-item
+							:label="t('games.duel.messages.start.title')"
+							:feedback="t('games.duel.messages.start.description', {}, {escapeParameter: false})"
+						>
 							<n-input
 								v-model:value="formValue.startMessage"
 								type="textarea"
@@ -143,7 +152,10 @@ async function save() {
 							/>
 						</n-form-item>
 
-						<n-form-item :label="t('games.duel.messages.result.title')" :feedback="t('games.duel.messages.result.description')">
+						<n-form-item
+							:label="t('games.duel.messages.result.title')"
+							:feedback="t('games.duel.messages.result.description')"
+						>
 							<n-input
 								v-model:value="formValue.resultMessage"
 								type="textarea"
@@ -152,7 +164,10 @@ async function save() {
 							/>
 						</n-form-item>
 
-						<n-form-item :label="t('games.duel.messages.bothDie.title')" :feedback="t('games.duel.messages.bothDie.description')">
+						<n-form-item
+							:label="t('games.duel.messages.bothDie.title')"
+							:feedback="t('games.duel.messages.bothDie.description')"
+						>
 							<n-input
 								v-model:value="formValue.bothDieMessage"
 								type="textarea"
@@ -165,41 +180,46 @@ async function save() {
 			</div>
 
 
+			<div class="card">
+				<div class="content">
+					<div class="title">
+						{{ t('games.duel.settings.title') }}
+					</div>
 
-			<n-form-item label="secondstoaccespt" :show-feedback="false">
-				<n-input-number
-					v-model:value="formValue.secondsToAccept"
-					:max="600"
-				/>
-			</n-form-item>
-
-			<n-form-item label="timeoutSeconds" :show-feedback="false">
-				<n-input-number
-					v-model:value="formValue.timeoutSeconds"
-					:max="84000"
-				/>
-			</n-form-item>
-
-			<n-form-item label="pointsPerWin" :show-feedback="false">
-				<n-input-number
-					v-model:value="formValue.pointsPerWin"
-					:max="99999999"
-				/>
-			</n-form-item>
-
-			<n-form-item label="pointsPerLose" :show-feedback="false">
-				<n-input-number
-					v-model:value="formValue.pointsPerLose"
-					:max="99999999"
-				/>
-			</n-form-item>
-
-			<n-form-item label="bothDiePercent" :show-feedback="false">
-				<n-input-number
-					v-model:value="formValue.bothDiePercent"
-					:max="100"
-				/>
-			</n-form-item>
+					<div class="form-item">
+						<n-form-item :label="t('games.duel.settings.secondsToAccept')" :show-feedback="false">
+							<n-input-number
+								v-model:value="formValue.secondsToAccept"
+								:max="600"
+							/>
+						</n-form-item>
+						<n-form-item :label="t('games.duel.settings.timeoutTime')" :show-feedback="false">
+							<n-input-number
+								v-model:value="formValue.timeoutSeconds"
+								:max="84000"
+							/>
+						</n-form-item>
+						<n-form-item :label="t('games.duel.settings.bothDiePercent')" :show-feedback="false">
+							<n-input-number
+								v-model:value="formValue.bothDiePercent"
+								:max="100"
+							/>
+						</n-form-item>
+						<n-form-item :label="t('games.duel.settings.pointsPerWin')" :show-feedback="false">
+							<n-input-number
+								v-model:value="formValue.pointsPerWin"
+								:max="99999999"
+							/>
+						</n-form-item>
+						<n-form-item :label="t('games.duel.settings.pointsPerLose')" :show-feedback="false">
+							<n-input-number
+								v-model:value="formValue.pointsPerLose"
+								:max="99999999"
+							/>
+						</n-form-item>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<n-divider />
@@ -221,6 +241,7 @@ async function save() {
 	flex-direction: column;
 	gap: 8px;
 }
+
 .card {
 	display: flex;
 	flex-direction: column;
