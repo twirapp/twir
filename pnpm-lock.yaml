@@ -192,7 +192,7 @@ importers:
         specifier: ^10.7.0
         version: 10.7.0(vue@3.3.11)
       '@vueuse/core':
-        specifier: ^10.7.0
+        specifier: 10.7.0
         version: 10.7.0(vue@3.3.11)
       date-fns:
         specifier: ^2.30.0
@@ -350,8 +350,8 @@ importers:
         specifier: workspace:^
         version: link:../../libs/grpc
       '@vueuse/core':
-        specifier: 10.6.1
-        version: 10.6.1(vue@3.3.9)
+        specifier: 10.7.0
+        version: 10.7.0(vue@3.3.9)
       emoji-regex:
         specifier: 10.3.0
         version: 10.3.0
@@ -411,8 +411,8 @@ importers:
         specifier: 10.6.1
         version: 10.6.1(vue@3.3.9)
       '@vueuse/core':
-        specifier: 10.6.1
-        version: 10.6.1(vue@3.3.9)
+        specifier: 10.7.0
+        version: 10.7.0(vue@3.3.9)
       vue:
         specifier: 3.3.9
         version: 3.3.9(typescript@5.3.2)
@@ -459,6 +459,9 @@ importers:
 
   libs/frontend-chat:
     dependencies:
+      '@vueuse/core':
+        specifier: 10.7.0
+        version: 10.7.0(vue@3.3.9)
       vue:
         specifier: 3.3.9
         version: 3.3.9(typescript@5.3.3)
@@ -3202,7 +3205,7 @@ packages:
       vue: ^3.2.25
     dependencies:
       vite: 5.0.4(@types/node@20.10.3)
-      vue: 3.3.9(typescript@5.3.2)
+      vue: 3.3.9(typescript@5.3.3)
     dev: true
 
   /@vitejs/plugin-vue@4.5.2(vite@5.0.6)(vue@3.3.10):
@@ -3559,7 +3562,7 @@ packages:
     dependencies:
       '@vue/compiler-ssr': 3.3.9
       '@vue/shared': 3.3.9
-      vue: 3.3.9(typescript@5.3.2)
+      vue: 3.3.9(typescript@5.3.3)
 
   /@vue/shared@3.3.10:
     resolution: {integrity: sha512-2y3Y2J1a3RhFa0WisHvACJR2ncvWiVHcP8t0Inxo+NKz+8RKO4ZV8eZgCxRgQoA6ITfV12L4E6POOL9HOU5nqw==}
@@ -3628,6 +3631,18 @@ packages:
       - vue
     dev: false
 
+  /@vueuse/core@10.7.0(vue@3.3.9):
+    resolution: {integrity: sha512-4EUDESCHtwu44ZWK3Gc/hZUVhVo/ysvdtwocB5vcauSV4B7NiGY5972WnsojB3vRNdxvAt7kzJWE2h9h7C9d5w==}
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 10.7.0
+      '@vueuse/shared': 10.7.0(vue@3.3.9)
+      vue-demi: 0.14.6(vue@3.3.9)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
   /@vueuse/metadata@10.6.1:
     resolution: {integrity: sha512-qhdwPI65Bgcj23e5lpGfQsxcy0bMjCAsUGoXkJ7DsoeDUdasbZ2DBa4dinFCOER3lF4gwUv+UD2AlA11zdzMFw==}
     dev: false
@@ -3658,6 +3673,15 @@ packages:
     resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
     dependencies:
       vue-demi: 0.14.6(vue@3.3.11)
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+    dev: false
+
+  /@vueuse/shared@10.7.0(vue@3.3.9):
+    resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
+    dependencies:
+      vue-demi: 0.14.6(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -10303,7 +10327,7 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.9(typescript@5.3.2)
+      vue: 3.3.9(typescript@5.3.3)
     dev: false
 
   /vue-draggable-next@2.2.1(sortablejs@1.15.1)(vue@3.3.11):
@@ -10445,6 +10469,7 @@ packages:
       '@vue/server-renderer': 3.3.9(vue@3.3.9)
       '@vue/shared': 3.3.9
       typescript: 5.3.2
+    dev: false
 
   /vue@3.3.9(typescript@5.3.3):
     resolution: {integrity: sha512-sy5sLCTR8m6tvUk1/ijri3Yqzgpdsmxgj6n6yl7GXXCXqVbmW2RCXe9atE4cEI6Iv7L89v5f35fZRRr5dChP9w==}
@@ -10460,7 +10485,6 @@ packages:
       '@vue/server-renderer': 3.3.9(vue@3.3.9)
       '@vue/shared': 3.3.9
       typescript: 5.3.3
-    dev: false
 
   /vueuc@0.4.51(vue@3.3.11):
     resolution: {integrity: sha512-pLiMChM4f+W8czlIClGvGBYo656lc2Y0/mXFSCydcSmnCR1izlKPGMgiYBGjbY9FDkFG8a2HEVz7t0DNzBWbDw==}

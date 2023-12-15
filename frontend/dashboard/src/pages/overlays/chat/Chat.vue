@@ -102,9 +102,17 @@ const defaultSettings: Settings = {
 	textShadowColor: 'rgba(0,0,0,1)',
 	textShadowSize: 0,
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
+	direction: 'top',
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
+
+const directionOptions = [
+	{ label: 'Top', value: 'top' },
+	{ label: 'Right', value: 'right' },
+	{ label: 'Bottom', value: 'bottom' },
+	{ label: 'Left', value: 'left' },
+];
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	return {
@@ -205,32 +213,32 @@ const canCopyLink = computed(() => {
 						<n-select v-model:value="formValue.preset" :options="styleSelectOptions" />
 					</div>
 
+					<div>
+						<span>{{ t('overlays.chat.direction') }}</span>
+						<n-select v-model:value="formValue.direction" :options="directionOptions" />
+					</div>
+
 					<div class="switch">
-						<n-switch v-model:value="formValue.hideBots" />
 						<span>{{ t('overlays.chat.hideBots') }}</span>
+						<n-switch v-model:value="formValue.hideBots" />
 					</div>
 
 					<div class="switch">
-						<n-switch v-model:value="formValue.hideCommands" />
 						<span>{{ t('overlays.chat.hideCommands') }}</span>
+						<n-switch v-model:value="formValue.hideCommands" />
 					</div>
 
 					<div class="switch">
-						<n-switch v-model:value="formValue.reverseMessages" />
-						<span>{{ t('overlays.chat.reverseMessages') }}</span>
-					</div>
-
-					<div class="switch">
-						<n-switch v-model:value="formValue.showBadges" />
 						<span>{{ t('overlays.chat.showBadges') }}</span>
+						<n-switch v-model:value="formValue.showBadges" />
 					</div>
 
 					<div v-if="formValue.preset === 'boxed'" class="switch">
+						<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
 						<n-switch
 							v-model:value="formValue.showAnnounceBadge"
 							:disabled="!formValue.showBadges"
 						/>
-						<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
 					</div>
 
 					<n-divider />
@@ -337,6 +345,11 @@ const canCopyLink = computed(() => {
 
 .card {
 	background-color: v-bind('themeVars.cardColor');
+}
+
+.switch {
+	display: flex;
+	justify-content: space-between;
 }
 
 :deep(.chat) {

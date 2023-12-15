@@ -1,13 +1,16 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
+
 import MessageContent from '../components/messageContent.vue';
-import { normalizeDisplayName } from '../helpers.js';
+import { getMessageAlign, normalizeDisplayName } from '../helpers.js';
 import type { Settings, Message } from '../types.js';
 
-
-defineProps<{
+const props = defineProps<{
 	msg: Message,
 	settings: Settings
 }>();
+
+const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 </script>
 
 <template>
@@ -38,24 +41,21 @@ defineProps<{
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
+			:message-align="messageAlign"
 		/>
 	</div>
 </template>
 
 <style scoped>
 .message {
-	width: 100%;
-	line-height: 1em;
-	margin-left: 0.2em;
+	display: inline-flex;
+	align-items: center;
 }
 
 .message .badges {
 	display: inline-flex;
 	gap: 4px;
-	align-self: center;
-	max-height: 0.8em;
 	margin-right: 4px;
-	transform: translateY(0.2em);
 }
 
 .message .badges .badge {

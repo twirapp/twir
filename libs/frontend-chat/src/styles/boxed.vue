@@ -1,12 +1,17 @@
 <script lang="ts" setup>
-import MessageContent from '../components/messageContent.vue';
-import { normalizeDisplayName } from '../helpers.js';
-import { Settings, Message } from '../types.js';
+import { computed } from 'vue';
 
-defineProps<{
+import MessageContent from '../components/messageContent.vue';
+import { getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import type { Settings, Message } from '../types.js';
+
+const props = defineProps<{
 	msg: Message,
 	settings: Settings
 }>();
+
+const messageAlign = computed(() => getMessageAlign(props.settings.direction));
+const messageFlexWrap = computed(() => messageAlign.value === 'center' ? 'nowrap' : 'wrap');
 </script>
 
 <template>
@@ -40,6 +45,7 @@ defineProps<{
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
+			:message-align="messageAlign"
 		/>
 	</div>
 </template>
@@ -47,7 +53,8 @@ defineProps<{
 <style scoped>
 .message {
 	display: flex;
-	flex-direction: column;
+	flex-direction: inherit;
+	align-items: v-bind(messageAlign);
 	padding: 0.5em;
 	gap: 0.2em;
 	border-radius: 8px;
@@ -79,5 +86,10 @@ defineProps<{
 .message .profile {
 	display: flex;
 	justify-content: space-between;
+	gap: 4px;
+}
+
+.message > .text {
+	flex-wrap: v-bind(messageFlexWrap);
 }
 </style>

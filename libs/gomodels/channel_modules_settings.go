@@ -190,4 +190,5 @@ type ChatOverlaySettings struct {
 	TextShadowColor     string `json:"textShadowColor"`
 	TextShadowSize      uint32 `json:"textShadowSize"`
 	ChatBackgroundColor string `json:"chatBackgroundColor"`
+	Direction           string `json:"direction"`
 }

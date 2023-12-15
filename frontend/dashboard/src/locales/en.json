@@ -368,7 +368,8 @@
       "reverseMessages": "Show new messages on top, instead bottom",
       "resetToDefault": "Reset to default",
       "textShadow": "Text shadow",
-			"backgroundColor": "Background color"
+			"backgroundColor": "Background color",
+			"direction": "Chat direction from"
     },
     "kappagen": {
       "description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",

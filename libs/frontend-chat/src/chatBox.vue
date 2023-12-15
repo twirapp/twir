@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { useWindowSize } from '@vueuse/core';
 import { computed, nextTick, ref, toValue, watch } from 'vue';
 
 import ChatMessageStyleBoxed from './styles/boxed.vue';
 import ChatMessageStyleClean from './styles/clean.vue';
 import type { Message, Settings } from './types.js';
 
-const chatElement = ref<HTMLDivElement>();
+const chatMessages = ref<HTMLDivElement>();
 
 const props = defineProps<{
 	messages: Message[]
@@ -13,25 +14,50 @@ const props = defineProps<{
 }>();
 
 watch(() => props.messages.length, async () => {
-	if (props.settings.reverseMessages) return;
 	await nextTick();
-	scrollToBottom();
+	scrollByDirection(props.settings.direction);
 });
 
 function scrollToBottom() {
-	chatElement.value?.scrollIntoView(false);
+	if (!chatMessages.value) return;
+	chatMessages.value.scrollIntoView(true);
 }
 
 function scrollToTop() {
-	chatElement.value?.scrollIntoView(true);
+	if (!chatMessages.value) return;
+	chatMessages.value.scrollIntoView(false);
 }
 
-watch(() => props.settings.reverseMessages, (newValue) => {
-	if (newValue) {
-		scrollToTop();
-	} else {
+function scrollToLeft() {
+	if (!chatMessages.value) return;
+	chatMessages.value.scrollLeft += 999999;
+}
+
+function scrollToRight() {
+	if (!chatMessages.value) return;
+	chatMessages.value.scrollLeft -= 999999;
+}
+
+function scrollByDirection(direction: string) {
+	if (direction === 'bottom') {
 		scrollToBottom();
 	}
+
+	if (direction === 'top') {
+		scrollToTop();
+	}
+
+	if (direction === 'left') {
+		scrollToLeft();
+	}
+
+	if (direction === 'right') {
+		scrollToRight();
+	}
+}
+
+watch(() => props.settings.direction, (direction) => {
+	scrollByDirection(direction);
 });
 
 const chatMessageComponent = computed(() => {
@@ -61,37 +87,63 @@ const fontUrl = computed(() => {
 });
 
 const messagesDirection = computed(() => {
-	return props.settings.reverseMessages ? 'column-reverse' : 'column';
+	switch (props.settings.direction) {
+		case 'top':
+			return 'column';
+		case 'bottom':
+			return 'column-reverse';
+		case 'left':
+			return 'row';
+		case 'right':
+			return 'row-reverse';
+		default:
+			return 'column';
+	}
+});
+
+const { height } = useWindowSize();
+const windowHeight = computed(() => {
+	if (props.settings.direction === 'left' || props.settings.direction === 'right') {
+		return `${height.value}px`;
+	}
+
+	return 'auto';
 });
 </script>
 
 <template>
-	<div ref="chatElement" class="chat">
+	<div class="chat">
 		<component :is="'style'">
 			@import url('{{ fontUrl }}')
 		</component>
-		<TransitionGroup name="list" tag="div" class="messages">
-			<component
-				:is="chatMessageComponent"
-				v-for="msg of messages"
-				:key="msg.internalId"
-				:msg="msg"
-				:settings="toValue(settings)"
-			/>
-		</TransitionGroup>
+		<div ref="chatMessages" class="messages">
+			<TransitionGroup name="list">
+				<component
+					:is="chatMessageComponent"
+					v-for="msg of messages"
+					:key="msg.internalId"
+					:msg="msg"
+					:settings="toValue(settings)"
+				/>
+			</TransitionGroup>
+		</div>
 	</div>
 </template>
 
 <style>
 .chat {
-	height: 100dvh;
-  width: 100%;
-  color: #fff;
-  font-size: v-bind(fontSize);
+	height: 100vh;
+	width: 100%;
+	color: #fff;
+	font-size: v-bind(fontSize);
 	font-family: v-bind(fontFamily);
 	overflow: hidden;
 	position: relative;
 	background-color: v-bind('settings.chatBackgroundColor');
+}
+
+.messages {
+	height: v-bind(windowHeight);
 }
 
 .chat .messages {
@@ -99,16 +151,16 @@ const messagesDirection = computed(() => {
 	flex-direction: v-bind(messagesDirection);
 	gap: 8px;
 	overflow: hidden;
-	padding-bottom: 5px;
 }
 
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s ease;
+	transition: all 0.5s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
+	opacity: 0;
+	transform: translateX(-30px);
 }
 </style>

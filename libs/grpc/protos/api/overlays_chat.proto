@@ -16,4 +16,5 @@ message Settings {
 	string text_shadow_color = 11;
 	uint32 text_shadow_size = 12;
 	string chat_background_color = 13;
+	string direction = 14;
 }
