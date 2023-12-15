@@ -18,7 +18,7 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 <template>
 	<div class="message">
 		<div class="profile">
-			<div v-if="msg.sender" :style="{ color: userColor }">
+			<div v-if="msg.sender" :style="{ color: userColor, fontWeight: 700 }">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
 			<div v-if="settings.showBadges" class="badges">

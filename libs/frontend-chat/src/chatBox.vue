@@ -143,14 +143,11 @@ const windowHeight = computed(() => {
 }
 
 .messages {
-	height: v-bind(windowHeight);
-}
-
-.chat .messages {
 	display: flex;
 	flex-direction: v-bind(messagesDirection);
 	gap: 8px;
 	overflow: hidden;
+	height: v-bind(windowHeight);
 }
 
 .list-enter-active,

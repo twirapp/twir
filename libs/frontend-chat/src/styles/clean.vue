@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
+const messageFlexWrap = computed(() => messageAlign.value === 'center' ? 'nowrap' : 'wrap');
 const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
@@ -34,7 +35,7 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 				/>
 			</template>
 		</div>
-		<div v-if="msg.sender" class="profile" :style="{ color: userColor }">
+		<div v-if="msg.sender" class="profile" :style="{ color: userColor, fontWeight: 700 }">
 			{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
 		</div>
 		<message-content
@@ -76,5 +77,9 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 .message .text .emote {
 	height: 1em;
 	width: 1em;
+}
+
+.message > .text {
+	flex-wrap: v-bind(messageFlexWrap);
 }
 </style>

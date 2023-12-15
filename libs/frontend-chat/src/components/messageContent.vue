@@ -28,7 +28,7 @@ const textShadow = computed(() => {
 });
 
 const wrapText = computed(() => {
-	return props.messageAlign === 'flex-start' ? 'nowrap' : 'initial';
+	return props.messageAlign === 'flex-start' ? 'initial' : 'nowrap';
 });
 
 </script>
