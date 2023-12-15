@@ -8,6 +8,7 @@ const props = defineProps<{
 	isItalic?: boolean
 	textShadowColor?: string
 	textShadowSize?: number
+	userColor: string
 	messageAlign: string
 }>();
 
@@ -29,10 +30,17 @@ const textShadow = computed(() => {
 const wrapText = computed(() => {
 	return props.messageAlign === 'flex-start' ? 'nowrap' : 'initial';
 });
+
 </script>
 
 <template>
-	<div class="text" :style="{ fontStyle: isItalic ? 'italic' : 'normal' }">
+	<div
+		class="text"
+		:style="{
+			fontStyle: isItalic ? 'italic' : 'normal',
+			color: isItalic ? userColor : 'inherit',
+		}"
+	>
 		<template v-for="(chunk, _) of chunks" :key="_">
 			<div
 				v-if="['emote', '3rd_party_emote'].includes(chunk.type)"

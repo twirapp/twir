@@ -1,3 +1,5 @@
+import type { Message } from './types.js';
+
 export function normalizeDisplayName(userName: string, displayName: string) {
 	if (userName === displayName.toLocaleLowerCase()) {
 		return displayName;
@@ -17,4 +19,13 @@ export function getMessageAlign(direction: string): 'stretch' | 'center' {
 		default:
 			return 'stretch';
 	}
+}
+
+const DEFAULT_COLOR = '#a65ee8';
+export function getColorFromMsg(msg: Message): string {
+	if (msg.senderColor) {
+		return msg.senderColor;
+	}
+
+	return DEFAULT_COLOR;
 }

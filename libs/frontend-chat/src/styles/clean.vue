@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 import MessageContent from '../components/messageContent.vue';
-import { getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
 import type { Settings, Message } from '../types.js';
 
 const props = defineProps<{
@@ -11,6 +11,7 @@ const props = defineProps<{
 }>();
 
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
+const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
 <template>
@@ -33,7 +34,7 @@ const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 				/>
 			</template>
 		</div>
-		<div v-if="msg.sender" class="profile" :style="{ color: msg.senderColor }">
+		<div v-if="msg.sender" class="profile" :style="{ color: userColor }">
 			{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
 		</div>
 		<message-content
@@ -42,6 +43,7 @@ const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
 			:message-align="messageAlign"
+			:user-color="userColor"
 		/>
 	</div>
 </template>

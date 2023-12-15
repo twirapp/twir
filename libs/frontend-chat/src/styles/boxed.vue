@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 
 import MessageContent from '../components/messageContent.vue';
-import { getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
 import type { Settings, Message } from '../types.js';
 
 const props = defineProps<{
@@ -12,12 +12,13 @@ const props = defineProps<{
 
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 const messageFlexWrap = computed(() => messageAlign.value === 'center' ? 'nowrap' : 'wrap');
+const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
 <template>
 	<div class="message">
 		<div class="profile">
-			<div v-if="msg.sender" :style="{ color: msg.senderColor }">
+			<div v-if="msg.sender" :style="{ color: userColor }">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
 			<div v-if="settings.showBadges" class="badges">
@@ -46,6 +47,7 @@ const messageFlexWrap = computed(() => messageAlign.value === 'center' ? 'nowrap
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
 			:message-align="messageAlign"
+			:user-color="userColor"
 		/>
 	</div>
 </template>
