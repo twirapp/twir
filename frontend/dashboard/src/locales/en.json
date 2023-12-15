@@ -365,11 +365,14 @@
       "fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
       "showBadges": "Show badges",
       "showAnnounceBadge": "Show announce badge (only for boxed style)",
-      "reverseMessages": "Show new messages on top, instead bottom",
       "resetToDefault": "Reset to default",
       "textShadow": "Text shadow",
 			"backgroundColor": "Background color",
-			"direction": "Chat direction from"
+			"direction": "Direction of message display",
+			"directionTop": "Top",
+			"directionBottom": "Bottom",
+			"directionLeft": "Left",
+			"directionRight": "Right"
     },
     "kappagen": {
       "description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",

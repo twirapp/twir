@@ -98,7 +98,6 @@ const defaultSettings: Settings = {
 	fontFamily: defaultFont,
 	showBadges: true,
 	showAnnounceBadge: true,
-	reverseMessages: false,
 	textShadowColor: 'rgba(0,0,0,1)',
 	textShadowSize: 0,
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
@@ -107,12 +106,14 @@ const defaultSettings: Settings = {
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
 
-const directionOptions = [
-	{ label: 'Top', value: 'top' },
-	{ label: 'Right', value: 'right' },
-	{ label: 'Bottom', value: 'bottom' },
-	{ label: 'Left', value: 'left' },
-];
+const directionOptions = computed(() => {
+	return [
+		{ label: t('overlays.chat.directionTop'), value: 'top' },
+		{ label: t('overlays.chat.directionRight'), value: 'right' },
+		{ label: t('overlays.chat.directionBottom'), value: 'bottom' },
+		{ label: t('overlays.chat.directionLeft'), value: 'left' },
+	];
+});
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	return {
