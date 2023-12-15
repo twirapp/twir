@@ -4,31 +4,33 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 )
 
-type WeatherResponse struct {
-	ID      int
-	Name    string
+type weatherResponse struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
 	Weather []struct {
-		Description string
-	}
+		Description string `json:"description"`
+	} `json:"weather"`
 	Main struct {
-		Humidity int
-		Temp     float32
-	}
+		Humidity int     `json:"humidity"`
+		Temp     float32 `json:"temp"`
+	} `json:"main"`
 	Clouds struct {
-		All int
-	}
+		All int `json:"all"`
+	} `json:"clouds"`
 	Wind struct {
-		Speed float32
-	}
+		Speed float32 `json:"speed"`
+	} `json:"wind"`
 	Sys struct {
-		Country string
-	}
+		Country string `json:"country"`
+	} `json:"sys"`
 }
 
 var Weather = &types.Variable{
@@ -73,12 +75,13 @@ var Weather = &types.Variable{
 		}
 
 		query := ""
-		if parseCtx.Text != nil {
-			query = *parseCtx.Text
-		}
-
+		// take default city from variable params
 		if len(params) == 2 && params[1] != "" {
 			query = params[1]
+		}
+		// take city from command params
+		if parseCtx.Text != nil {
+			query = *parseCtx.Text
 		}
 
 		if query == "" {
@@ -86,38 +89,43 @@ var Weather = &types.Variable{
 			return result, nil
 		}
 
-		data := WeatherResponse{}
+		data := weatherResponse{}
 		resp, err := req.
 			R().
-			SetQueryParams(map[string]string{
-				"appid": apiKey,
-				"lang":  lang,
-				"units": "metric",
-				"q":     query,
-			}).
+			SetQueryParams(
+				map[string]string{
+					"appid": apiKey,
+					"lang":  lang,
+					"units": "metric",
+					"q":     query,
+				},
+			).
 			SetSuccessResult(&data).
 			SetHeader("Content-Type", "application/json").
 			Get("https://api.openweathermap.org/data/2.5/weather")
-
 		if err != nil {
 			return nil, err
 		}
-
+		if resp.StatusCode != 200 && resp.StatusCode != 404 {
+			result.Result = fmt.Sprintf("OpenWeatherMap API error: %d", resp.StatusCode)
+			return result, nil
+		}
 		if resp.StatusCode == 404 {
 			result.Result = "Location not found"
 			return result, nil
 		}
 
-		weatherDescription := ""
-		for _, weather := range data.Weather {
-			weatherDescription += strings.ToUpper(weather.Description[0:1]) + weather.Description[1:]
+		weatherDescription := make([]string, len(data.Weather))
+		for i, weather := range data.Weather {
+			r, j := utf8.DecodeRuneInString(weather.Description)
+			weatherDescription[i] = string(unicode.ToTitle(r)) + weather.Description[j:]
 		}
 
 		result.Result = fmt.Sprintf(
 			"%s (%s): %s, 🌡️ %s°C, ☁️ %d%%, 💦 %d%%, 💨 %s m/sec",
 			data.Name,
 			data.Sys.Country,
-			weatherDescription,
+			strings.Join(weatherDescription, ", "),
 			fmt.Sprintf("%.1f", data.Main.Temp),
 			data.Clouds.All,
 			data.Main.Humidity,
