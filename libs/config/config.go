@@ -35,6 +35,8 @@ type Config struct {
 	DiscordClientID     string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
 	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
+
+	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 }
 
 func New() (*Config, error) {
