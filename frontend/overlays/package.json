@@ -18,7 +18,7 @@
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.3",
     "tmi.js": "1.8.5",
-    "vue": "3.3.9",
+    "vue": "3.3.12",
     "vue-router": "4.2.5"
   },
   "devDependencies": {
