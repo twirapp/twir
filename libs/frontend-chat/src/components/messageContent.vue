@@ -27,10 +27,9 @@ const textShadow = computed(() => {
 	return array.join(', ');
 });
 
-const wrapText = computed(() => {
-	return props.messageAlign === 'flex-start' ? 'initial' : 'nowrap';
+const wordBreak = computed(() => {
+	return props.messageAlign === 'flex-start' ? 'break-all' : 'initial';
 });
-
 </script>
 
 <template>
@@ -76,11 +75,14 @@ const wrapText = computed(() => {
 
 <style scoped>
 .text {
-	white-space: v-bind(wrapText);
 	text-shadow: v-bind(textShadow);
 	display: flex;
 	gap: 4px;
   align-items: center;
+}
+
+.text > span {
+	word-break: v-bind(wordBreak);
 }
 
 .emote img {

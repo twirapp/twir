@@ -8,16 +8,31 @@ export function normalizeDisplayName(userName: string, displayName: string) {
 	}
 }
 
-export function getMessageAlign(direction: string): 'stretch' | 'center' {
+type MessageAlignType = 'center' | 'baseline';
+
+export function getMessageAlign(direction: string): MessageAlignType {
 	switch (direction) {
 		case 'left':
 		case 'right':
 			return 'center';
 		case 'top':
 		case 'bottom':
-			return 'stretch';
 		default:
-			return 'stretch';
+			return 'baseline';
+	}
+}
+
+export type Direction = 'horizontal' | 'vertical';
+
+export function getChatDirection(direction: string): Direction {
+	switch (direction) {
+		case 'left':
+		case 'right':
+			return 'horizontal';
+		case 'top':
+		case 'bottom':
+		default:
+			return 'vertical';
 	}
 }
 

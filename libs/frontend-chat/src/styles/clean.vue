@@ -3,15 +3,17 @@ import { computed } from 'vue';
 
 import MessageContent from '../components/messageContent.vue';
 import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import type { Direction } from '../helpers.js';
 import type { Settings, Message } from '../types.js';
 
 const props = defineProps<{
 	msg: Message,
-	settings: Settings
+	settings: Settings,
+	direction: Direction
 }>();
 
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
-const messageFlexWrap = computed(() => messageAlign.value === 'center' ? 'nowrap' : 'wrap');
+const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
 const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
@@ -52,7 +54,7 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 <style scoped>
 .message {
 	display: inline-flex;
-	align-items: center;
+	align-items: v-bind(messageAlign);
 }
 
 .message .badges {

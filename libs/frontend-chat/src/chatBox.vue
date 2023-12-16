@@ -2,20 +2,25 @@
 import { useWindowSize } from '@vueuse/core';
 import { computed, nextTick, ref, toValue, watch } from 'vue';
 
+import { getChatDirection } from './helpers.js';
 import ChatMessageStyleBoxed from './styles/boxed.vue';
 import ChatMessageStyleClean from './styles/clean.vue';
 import type { Message, Settings } from './types.js';
-
-const chatMessages = ref<HTMLDivElement>();
 
 const props = defineProps<{
 	messages: Message[]
 	settings: Settings
 }>();
 
+const chatMessages = ref<HTMLDivElement>();
+
 watch(() => props.messages.length, async () => {
 	await nextTick();
 	scrollByDirection(props.settings.direction);
+});
+
+watch(() => props.settings.direction, (direction) => {
+	scrollByDirection(direction);
 });
 
 function scrollToBottom() {
@@ -56,37 +61,9 @@ function scrollByDirection(direction: string) {
 	}
 }
 
-watch(() => props.settings.direction, (direction) => {
-	scrollByDirection(direction);
-});
+const chatDirection = computed(() => getChatDirection(props.settings.direction));
 
-const chatMessageComponent = computed(() => {
-	switch (props.settings.preset) {
-		case 'boxed':
-			return ChatMessageStyleBoxed;
-		case 'clean':
-		default:
-			return ChatMessageStyleClean;
-	}
-});
-
-const fontSize = computed(() => `${props.settings.fontSize}px`);
-
-const defaultFont = 'Roboto';
-const fontFamily = computed(() => {
-	try {
-		const [family] = props.settings.fontFamily.split(':');
-
-		return family || defaultFont;
-	} catch {
-		return defaultFont;
-	}
-});
-const fontUrl = computed(() => {
-	return `https://fonts.googleapis.com/css?family=${fontFamily.value}`;
-});
-
-const messagesDirection = computed(() => {
+const messagesFlexDirection = computed(() => {
 	switch (props.settings.direction) {
 		case 'top':
 			return 'column';
@@ -101,13 +78,38 @@ const messagesDirection = computed(() => {
 	}
 });
 
+const chatMessageComponent = computed(() => {
+	switch (props.settings.preset) {
+		case 'boxed':
+			return ChatMessageStyleBoxed;
+		case 'clean':
+		default:
+			return ChatMessageStyleClean;
+	}
+});
+
 const { height } = useWindowSize();
 const windowHeight = computed(() => {
-	if (props.settings.direction === 'left' || props.settings.direction === 'right') {
+	if (getChatDirection(props.settings.direction) === 'horizontal') {
 		return `${height.value}px`;
 	}
 
 	return 'auto';
+});
+
+const fontSize = computed(() => `${props.settings.fontSize}px`);
+const defaultFont = 'Roboto';
+const fontFamily = computed(() => {
+	try {
+		const [family] = props.settings.fontFamily.split(':');
+
+		return family || defaultFont;
+	} catch {
+		return defaultFont;
+	}
+});
+const fontUrl = computed(() => {
+	return `https://fonts.googleapis.com/css?family=${fontFamily.value}`;
 });
 </script>
 
@@ -123,6 +125,7 @@ const windowHeight = computed(() => {
 					v-for="msg of messages"
 					:key="msg.internalId"
 					:msg="msg"
+					:direction="chatDirection"
 					:settings="toValue(settings)"
 				/>
 			</TransitionGroup>
@@ -144,7 +147,7 @@ const windowHeight = computed(() => {
 
 .messages {
 	display: flex;
-	flex-direction: v-bind(messagesDirection);
+	flex-direction: v-bind(messagesFlexDirection);
 	gap: 8px;
 	overflow: hidden;
 	height: v-bind(windowHeight);
