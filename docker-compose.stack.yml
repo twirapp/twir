@@ -195,6 +195,10 @@ services:
     networks:
       - twir
     deploy:
+      update_config:
+        parallelism: 2
+      mode: replicated
+      replicas: 3
       restart_policy:
         condition: any
         delay: 30s
