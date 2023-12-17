@@ -109,7 +109,5 @@ func (c *Workflow) Flow(ctx workflow.Context, timer timers.Timer) error {
 		return err
 	}
 
-	_ = workflow.Sleep(ctx, 1*time.Second)
-
 	return nil
 }

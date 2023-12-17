@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twir/apps/timers/internal/activity"
 	"github.com/satont/twir/apps/timers/internal/gorm"
 	"github.com/satont/twir/apps/timers/internal/grpc_server"
+	"github.com/satont/twir/apps/timers/internal/redis"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
@@ -27,6 +28,7 @@ func main() {
 			sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),
 			logger.NewFx(logger.Opts{Level: slog.LevelInfo, Service: "timers"}),
 			gorm.New,
+			redis.New,
 			timers.NewGorm,
 			activity.New,
 			workflow.New,

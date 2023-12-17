@@ -3,7 +3,9 @@ package activity
 import (
 	"context"
 	"errors"
+	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
@@ -22,6 +24,7 @@ type Opts struct {
 	Cfg                config.Config
 	ParserGrpc         parser.ParserClient
 	BotsGrpc           bots.BotsClient
+	Redis              *redis.Client
 }
 
 func New(opts Opts) *Activity {
@@ -32,6 +35,7 @@ func New(opts Opts) *Activity {
 		cfg:                opts.Cfg,
 		parserGrpc:         opts.ParserGrpc,
 		botsGrpc:           opts.BotsGrpc,
+		redis:              opts.Redis,
 	}
 }
 
@@ -42,28 +46,34 @@ type Activity struct {
 	cfg                config.Config
 	parserGrpc         parser.ParserClient
 	botsGrpc           bots.BotsClient
+	redis              *redis.Client
 }
 
-func (c *Activity) SendMessage(ctx context.Context, timerId string, currentResponse int) (
+func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
 	int,
 	error,
 ) {
 	timer, err := c.timersRepository.GetById(timerId)
 	if err != nil {
-		return currentResponse, err
+		return 0, err
 	}
 
 	channel, err := c.channelsRepository.GetById(timer.ChannelID)
 	if err != nil {
-		return currentResponse, err
+		return 0, err
 	}
 
 	if !channel.Enabled {
-		return currentResponse, nil
+		return 0, nil
 	}
 
 	if !channel.IsBotMod {
-		return currentResponse, nil
+		return 0, nil
+	}
+
+	currentResponse, err := c.redis.Get(ctx, "timers:current_response:"+timerId).Int()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return currentResponse, err
 	}
 
 	stream, err := c.streamsRepository.GetByChannelId(channel.ID)
@@ -99,6 +109,11 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string, currentRespo
 
 	if nextIndex >= len(timer.Responses) {
 		nextIndex = 0
+	}
+
+	err = c.redis.Set(ctx, "timers:current_response:"+timerId, nextIndex, 24*time.Hour).Err()
+	if err != nil {
+		return nextIndex, err
 	}
 
 	return nextIndex, nil
