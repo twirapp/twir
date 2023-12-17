@@ -40,10 +40,22 @@ func (c *EventWorkflow) Flow(
 		return err
 	}
 
+	var stream model.ChannelsStreams
+	err = c.db.
+		Where(`"userId" = ?`, data.ChannelID).
+		Find(&stream).Error
+	if err != nil {
+		return err
+	}
+
 	var operations []model.EventOperation
 
 	for _, entity := range channelEvents {
 		if entity.ID == "" {
+			continue
+		}
+
+		if entity.OnlineOnly && stream.ID == "" {
 			continue
 		}
 
