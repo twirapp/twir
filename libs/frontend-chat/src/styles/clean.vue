@@ -1,13 +1,20 @@
 <script lang="ts" setup>
+import { computed } from 'vue';
+
 import MessageContent from '../components/messageContent.vue';
-import { normalizeDisplayName } from '../helpers.js';
+import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import type { Direction } from '../helpers.js';
 import type { Settings, Message } from '../types.js';
 
-
-defineProps<{
+const props = defineProps<{
 	msg: Message,
-	settings: Settings
+	settings: Settings,
+	direction: Direction
 }>();
+
+const messageAlign = computed(() => getMessageAlign(props.settings.direction));
+const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
+const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
 <template>
@@ -30,7 +37,7 @@ defineProps<{
 				/>
 			</template>
 		</div>
-		<div v-if="msg.sender" class="profile" :style="{ color: msg.senderColor }">
+		<div v-if="msg.sender" class="profile" :style="{ color: userColor, fontWeight: 700 }">
 			{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
 		</div>
 		<message-content
@@ -38,24 +45,22 @@ defineProps<{
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
+			:message-align="messageAlign"
+			:user-color="userColor"
 		/>
 	</div>
 </template>
 
 <style scoped>
 .message {
-	width: 100%;
-	line-height: 1em;
-	margin-left: 0.2em;
+	display: inline-flex;
+	align-items: v-bind(messageAlign);
 }
 
 .message .badges {
 	display: inline-flex;
 	gap: 4px;
-	align-self: center;
-	max-height: 0.8em;
 	margin-right: 4px;
-	transform: translateY(0.2em);
 }
 
 .message .badges .badge {
@@ -74,5 +79,9 @@ defineProps<{
 .message .text .emote {
 	height: 1em;
 	width: 1em;
+}
+
+.message > .text {
+	flex-wrap: v-bind(messageFlexWrap);
 }
 </style>
