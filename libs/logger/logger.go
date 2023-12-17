@@ -15,6 +15,7 @@ type Logger interface {
 	Info(input string, fields ...any)
 	Error(input string, fields ...any)
 	Debug(input string, fields ...any)
+	Warn(input string, fields ...any)
 	WithComponent(name string) Logger
 }
 
@@ -30,6 +31,7 @@ type Opts struct {
 	Service string
 
 	Sentry *sentry.Client
+	Level  slog.Level
 }
 
 func NewFx(opts Opts) func(config cfg.Config, sentry *sentry.Client) Logger {
@@ -47,13 +49,16 @@ func NewFx(opts Opts) func(config cfg.Config, sentry *sentry.Client) Logger {
 func New(opts Opts) Logger {
 	var log *slog.Logger
 
+	level := opts.Level
+
 	switch opts.Env {
 	case "development":
 		log = slog.New(
 			slog.NewTextHandler(
 				os.Stdout,
 				&slog.HandlerOptions{
-					Level: slog.LevelDebug, AddSource: true,
+					Level:     level,
+					AddSource: true,
 				},
 			),
 		)
@@ -61,14 +66,20 @@ func New(opts Opts) Logger {
 		log = slog.New(
 			slog.NewJSONHandler(
 				os.Stdout,
-				&slog.HandlerOptions{Level: slog.LevelInfo, AddSource: true},
+				&slog.HandlerOptions{
+					Level:     level,
+					AddSource: true,
+				},
 			),
 		)
 	default:
 		log = slog.New(
 			slog.NewTextHandler(
 				os.Stdout,
-				&slog.HandlerOptions{Level: slog.LevelDebug, AddSource: true},
+				&slog.HandlerOptions{
+					Level:     level,
+					AddSource: true,
+				},
 			),
 		)
 	}
@@ -96,6 +107,10 @@ func (c *logger) handle(level slog.Level, input string, fields ...any) {
 
 func (c *logger) Info(input string, fields ...any) {
 	c.handle(slog.LevelInfo, input, fields...)
+}
+
+func (c *logger) Warn(input string, fields ...any) {
+	c.handle(slog.LevelWarn, input, fields...)
 }
 
 func (c *logger) Error(input string, fields ...any) {
