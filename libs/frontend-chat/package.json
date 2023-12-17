@@ -13,8 +13,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@twir/fontsource": "workspace:^",
     "@vueuse/core": "10.7.0",
-    "vue": "3.3.9"
+    "vue": "3.3.12"
   },
   "devDependencies": {
     "@twir/grpc": "workspace:^",

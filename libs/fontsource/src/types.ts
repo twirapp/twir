@@ -11,7 +11,7 @@ export type FontVariants =
 
 export type FontStyle = 'normal' | 'italic'
 export type FontSubset = 'latin' | 'cyrillic'
-export type FontType = 'woff2'
+export type FontType = 'woff2' | 'woff'
 
 export interface FontItem {
   category: string

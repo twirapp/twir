@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { useFontSource } from '@twir/fontsource';
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
 import { useIntervalFn } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import { getTimeDiffInMilliseconds, millisecondsToTime } from './timeUtils.js';
-import { OnStart, OnStop } from './types';
+import type { OnStart, OnStop } from './types.js';
+
 
 const props = defineProps<{
 	settings: Settings
@@ -66,20 +68,6 @@ defineExpose({
 	stop,
 });
 
-const fontUrl = computed(() => {
-	return `https://fonts.googleapis.com/css?family=${props.settings.fontFamily}`;
-});
-
-const fontFamily = computed(() => {
-	try {
-		const [family] = props.settings.fontFamily.split(':');
-
-		return family;
-	} catch (e) {
-		return '';
-	}
-});
-
 const showCountDown = computed(() => {
 	const isActive = countDownInterval.isActive.value;
 
@@ -88,12 +76,18 @@ const showCountDown = computed(() => {
 
 	return true;
 });
+
+const fontSource = useFontSource();
+watch(() => props.settings.fontFamily, () => {
+	fontSource.loadFont(props.settings.fontFamily, 400, 'normal');
+});
+
+const fontFamily = computed(() => {
+	return `"${props.settings.fontFamily}-400-normal"`;
+});
 </script>
 
 <template>
-	<component :is="'style'">
-		@import url('{{ fontUrl }}')
-	</component>
 	<Transition name="overlay" appear>
 		<div
 			v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"

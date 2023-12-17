@@ -196,7 +196,7 @@ importers:
         version: 10.7.0(vue@3.3.12)
       '@vueuse/core':
         specifier: 10.7.0
-        version: 10.7.0(vue@3.3.11)
+        version: 10.7.0(vue@3.3.12)
       date-fns:
         specifier: ^2.30.0
         version: 2.30.0
@@ -346,6 +346,9 @@ importers:
       '@protobuf-ts/twirp-transport':
         specifier: 2.9.3
         version: 2.9.3
+      '@twir/fontsource':
+        specifier: workspace:^
+        version: link:../../libs/fontsource
       '@twir/frontend-chat':
         specifier: workspace:^
         version: link:../../libs/frontend-chat
@@ -354,7 +357,7 @@ importers:
         version: link:../../libs/grpc
       '@vueuse/core':
         specifier: 10.7.0
-        version: 10.7.0(vue@3.3.9)
+        version: 10.7.0(vue@3.3.12)
       emoji-regex:
         specifier: 10.3.0
         version: 10.3.0
@@ -415,7 +418,7 @@ importers:
         version: 10.6.1(vue@3.3.12)
       '@vueuse/core':
         specifier: 10.7.0
-        version: 10.7.0(vue@3.3.9)
+        version: 10.7.0(vue@3.3.12)
       vue:
         specifier: 3.3.12
         version: 3.3.12(typescript@5.3.2)
@@ -471,9 +474,12 @@ importers:
 
   libs/frontend-chat:
     dependencies:
+      '@twir/fontsource':
+        specifier: workspace:^
+        version: link:../fontsource
       '@vueuse/core':
         specifier: 10.7.0
-        version: 10.7.0(vue@3.3.9)
+        version: 10.7.0(vue@3.3.12)
       vue:
         specifier: 3.3.12
         version: 3.3.12(typescript@5.3.3)
@@ -3219,7 +3225,7 @@ packages:
       vue: ^3.2.25
     dependencies:
       vite: 5.0.4(@types/node@20.10.3)
-      vue: 3.3.9(typescript@5.3.3)
+      vue: 3.3.12(typescript@5.3.2)
     dev: true
 
   /@vitejs/plugin-vue@4.5.2(vite@5.0.6)(vue@3.3.12):
@@ -3429,7 +3435,7 @@ packages:
       '@volar/language-core': 1.11.1
       '@volar/source-map': 1.11.1
       '@vue/compiler-dom': 3.3.11
-      '@vue/shared': 3.3.11
+      '@vue/shared': 3.3.12
       computeds: 0.0.1
       minimatch: 9.0.3
       muggle-string: 0.3.1
@@ -3449,7 +3455,7 @@ packages:
       '@volar/language-core': 1.11.1
       '@volar/source-map': 1.11.1
       '@vue/compiler-dom': 3.3.11
-      '@vue/shared': 3.3.11
+      '@vue/shared': 3.3.12
       computeds: 0.0.1
       minimatch: 9.0.3
       muggle-string: 0.3.1
@@ -3530,9 +3536,9 @@ packages:
     peerDependencies:
       vue: 3.3.12
     dependencies:
-      '@vue/compiler-ssr': 3.3.9
-      '@vue/shared': 3.3.9
-      vue: 3.3.9(typescript@5.3.3)
+      '@vue/compiler-ssr': 3.3.12
+      '@vue/shared': 3.3.12
+      vue: 3.3.12(typescript@5.3.2)
 
   /@vue/shared@3.3.10:
     resolution: {integrity: sha512-2y3Y2J1a3RhFa0WisHvACJR2ncvWiVHcP8t0Inxo+NKz+8RKO4ZV8eZgCxRgQoA6ITfV12L4E6POOL9HOU5nqw==}
@@ -3591,18 +3597,6 @@ packages:
       - vue
     dev: false
 
-  /@vueuse/core@10.7.0(vue@3.3.9):
-    resolution: {integrity: sha512-4EUDESCHtwu44ZWK3Gc/hZUVhVo/ysvdtwocB5vcauSV4B7NiGY5972WnsojB3vRNdxvAt7kzJWE2h9h7C9d5w==}
-    dependencies:
-      '@types/web-bluetooth': 0.0.20
-      '@vueuse/metadata': 10.7.0
-      '@vueuse/shared': 10.7.0(vue@3.3.9)
-      vue-demi: 0.14.6(vue@3.3.9)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-    dev: false
-
   /@vueuse/metadata@10.6.1:
     resolution: {integrity: sha512-qhdwPI65Bgcj23e5lpGfQsxcy0bMjCAsUGoXkJ7DsoeDUdasbZ2DBa4dinFCOER3lF4gwUv+UD2AlA11zdzMFw==}
     dev: false
@@ -3624,15 +3618,6 @@ packages:
     resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
     dependencies:
       vue-demi: 0.14.6(vue@3.3.12)
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-    dev: false
-
-  /@vueuse/shared@10.7.0(vue@3.3.9):
-    resolution: {integrity: sha512-kc00uV6CiaTdc3i1CDC4a3lBxzaBE9AgYNtFN87B5OOscqeWElj/uza8qVDmk7/U8JbqoONLbtqiLJ5LGRuqlw==}
-    dependencies:
-      vue-demi: 0.14.6(vue@3.3.9)
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -6642,7 +6627,7 @@ packages:
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:
-      vue: 3.3.12(typescript@5.3.3)
+      vue: 3.3.12(typescript@5.3.2)
     dev: false
 
   /keycode@2.2.1:
@@ -10219,40 +10204,10 @@ packages:
       '@vue/composition-api':
         optional: true
     dependencies:
-      vue: 3.3.12(typescript@5.3.3)
+      vue: 3.3.12(typescript@5.3.2)
     dev: false
 
-  /vue-demi@0.14.6(vue@3.3.11):
-    resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      vue: 3.3.11(typescript@5.3.3)
-    dev: false
-
-  /vue-demi@0.14.6(vue@3.3.9):
-    resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-    dependencies:
-      vue: 3.3.9(typescript@5.3.3)
-    dev: false
-
-  /vue-draggable-next@2.2.1(sortablejs@1.15.1)(vue@3.3.11):
+  /vue-draggable-next@2.2.1(sortablejs@1.15.1)(vue@3.3.12):
     resolution: {integrity: sha512-EAMS1IRHF0kZO0o5PMOinsQsXIqsrKT1hKmbICxG3UEtn7zLFkLxlAtajcCcUTisNvQ6TtCB5COjD9a1raNADw==}
     peerDependencies:
       sortablejs: ^1.14.0
@@ -10297,7 +10252,7 @@ packages:
       vue: ^3.2.0
     dependencies:
       '@vue/devtools-api': 6.5.1
-      vue: 3.3.12(typescript@5.3.3)
+      vue: 3.3.12(typescript@5.3.2)
     dev: false
 
   /vue-template-compiler@2.7.15:
@@ -10352,7 +10307,6 @@ packages:
       '@vue/server-renderer': 3.3.12(vue@3.3.12)
       '@vue/shared': 3.3.12
       typescript: 5.3.2
-    dev: false
 
   /vue@3.3.12(typescript@5.3.3):
     resolution: {integrity: sha512-jYNv2QmET2OTHsFzfWHMnqgCfqL4zfo97QwofdET+GBRCHhSCHuMTTvNIgeSn0/xF3JRT5OGah6MDwUFN7MPlg==}

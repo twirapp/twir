@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { type Font, FontSelector } from '@twir/fontsource';
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
 import {
   useThemeVars,
@@ -17,7 +18,6 @@ import { useI18n } from 'vue-i18n';
 
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import commandButton from '@/components/commandButton.vue';
-import FontSelector from '@/components/fontSelector.vue';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 
 const themeVars = useThemeVars();
@@ -28,7 +28,7 @@ const { data: profile } = useProfile();
 const defaultSettings = {
   backgroundColor: 'rgba(9, 8, 8, 0.50)',
   fontColor: '#fff',
-  fontFamily: '',
+  fontFamily: 'roboto',
   fontSize: 100,
   text: 'AFK FOR',
   late: {
@@ -51,7 +51,6 @@ const updater = manager.updateSettings();
 
 watch(settings, (v) => {
   if (!v) return;
-
   formValue.value = toRaw(v);
 }, { immediate: true });
 
@@ -116,9 +115,13 @@ const canCopyLink = computed(() => {
   return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
 });
 
-const setDefaultSettings = () => {
-  formValue.value = structuredClone(defaultSettings);
-};
+function setDefaultSettings() {
+	formValue.value = structuredClone(defaultSettings);
+}
+
+function updateFont(font: Font) {
+	formValue.value.fontFamily = font.id;
+}
 </script>
 
 <template>
@@ -195,7 +198,12 @@ const setDefaultSettings = () => {
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.family') }}</span>
-						<font-selector v-model="formValue.fontFamily" :clearable="true" />
+						<font-selector
+							:font-family="formValue.fontFamily"
+							font-style="normal"
+							:font-weight="400"
+							@update-font="updateFont"
+						/>
 					</div>
 
 					<div class="item">

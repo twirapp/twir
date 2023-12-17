@@ -82,6 +82,9 @@ const wordBreak = computed(() => {
 }
 
 .text > span {
+	font-style: inherit;
+	font-weight: inherit;
+	font-style: inherit;
 	word-break: v-bind(wordBreak);
 }
 

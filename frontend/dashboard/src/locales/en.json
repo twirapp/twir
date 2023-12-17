@@ -358,11 +358,12 @@
       "style": "Messages style",
       "hideBots": "Hide known bots from messages",
       "hideCommands": "Hide commands, do not include messages started with ! symbol",
+      "fontFamily": "Font family",
+			"fontWeight": "Font weight",
+			"fontStyle": "Font style",
       "fontSize": "Font size",
       "hideTimeout": "Message hide timeout",
       "showDelay": "Message show delay",
-      "fontFamily": "Font family",
-      "fontFamilyDescription": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)",
       "showBadges": "Show badges",
       "showAnnounceBadge": "Show announce badge (only for boxed style)",
       "resetToDefault": "Reset to default",
@@ -737,11 +738,6 @@
         "allowedLanguages": "Allowed languages",
         "disallowedLanguages": "Disallowed languages"
       }
-    }
-  },
-  "components": {
-    "fontFamily": {
-      "description": "We use Google fonts, you can find any font there with your prefered variant (i.e cyrillic)"
     }
   }
 }

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconReload } from '@tabler/icons-vue';
-import { FontSelector } from '@twir/fontsource';
+import { FontSelector, type Font } from '@twir/fontsource';
 import {
 	ChatBox,
 	type Message,
@@ -81,10 +81,10 @@ useIntervalFn(() => {
 }, 1 * 1000);
 
 const defaultSettings: Settings = {
-	fontFamily: 'roboto',
+	fontFamily: 'inter',
 	fontSize: 20,
-	// fontWeight: 400,
-	// fontItalic: false,
+	fontWeight: 400,
+	fontStyle: 'normal',
 	hideBots: false,
 	hideCommands: false,
 	messageHideTimeout: 0,
@@ -99,6 +99,24 @@ const defaultSettings: Settings = {
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
+
+const fontData = ref<Font | null>(null);
+
+const fontWeightOptions = computed(() => {
+	if (!fontData.value) return [];
+	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
+});
+
+const fontStyleOptions = computed(() => {
+	if (!fontData.value) return [];
+	return fontData.value.styles.map((style) => ({ label: style, value: style }));
+});
+
+function updateFont(font: Font): void {
+	console.log(font)
+	fontData.value = font;
+	formValue.value.fontFamily = font.id;
+}
 
 const directionOptions = computed(() => {
 	return [
@@ -120,18 +138,17 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	};
 });
 
-watch(() => settings.value, () => {
-	if (!settings.value) return;
-
-	formValue.value = toRaw(settings.value);
-}, { immediate: true });
+// watch(() => settings.value, () => {
+// 	if (!settings.value) return;
+// 	formValue.value = toRaw(settings.value);
+// 	console.log(formValue.value.fontFamily)
+// }, { immediate: true });
 
 const message = useNotification();
 const { t } = useI18n();
 
 async function save() {
 	if (!formValue.value) return;
-
 	await updater.mutateAsync(formValue.value);
 	message.success({
 		title: t('sharedTexts.saved'),
@@ -224,11 +241,32 @@ const canCopyLink = computed(() => {
 
 					<div>
 						<span>{{ t('overlays.chat.fontFamily') }}</span>
-						<font-selector initial-font-family="roboto" @update-font-family="console.log" />
+						<font-selector
+							:font-family="formValue.fontFamily"
+							:font-weight="formValue.fontWeight"
+							:font-style="formValue.fontStyle"
+							@update-font="(font) => updateFont(font)"
+						/>
+					</div>
+
+					<div>
+						<span>{{ t('overlays.chat.fontWeight') }}</span>
+						<n-select
+							v-model:value="formValue.fontWeight"
+							:options="fontWeightOptions"
+						/>
+					</div>
+
+					<div>
+						<span>{{ t('overlays.chat.fontStyle') }}</span>
+						<n-select
+							v-model:value="formValue.fontStyle"
+							:options="fontStyleOptions"
+						/>
 					</div>
 
 					<div class="slider">
-						<span>{{ t('overlays.chat.fontSize') }}({{ formValue.fontSize }}px)</span>
+						<span>{{ t('overlays.chat.fontSize') }} ({{ formValue.fontSize }}px)</span>
 						<n-slider
 							v-model:value="formValue.fontSize" :min="12" :max="80"
 							:marks="{ 12: '12', 80: '80'}"

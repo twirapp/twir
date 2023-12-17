@@ -245,7 +245,6 @@ import "api/commands_unprotected.proto";
 import "api/auth.proto";
 import "api/songs_unprotected.proto";
 import "api/tts_unprotected.proto";
-import "api/google_fonts_unprotected.proto";
 
 service UnProtected {
 	rpc TwitchGetUsers(api.twitch.TwitchGetUsersRequest) returns (api.twitch.TwitchGetUsersResponse) {}
@@ -266,8 +265,6 @@ service UnProtected {
 
 	rpc GetTTSChannelSettings(api.tts_unprotected.GetChannelSettingsRequest) returns (api.tts_unprotected.Settings) {}
 	rpc GetTTSUsersSettings(api.tts_unprotected.GetUsersSettingsRequest) returns (api.tts_unprotected.GetUsersSettingsResponse) {}
-
-	rpc GetGoogleFonts(google.protobuf.Empty) returns (api.google_fonts_unprotected.Fonts) {}
 
 	rpc GetPublicUserInfo(api.auth.GetPublicUserInfoRequest) returns (api.auth.GetPublicUserInfoResponse) {}
 }

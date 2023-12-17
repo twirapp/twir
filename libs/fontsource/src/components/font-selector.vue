@@ -3,27 +3,35 @@ import type { SelectOption } from 'naive-ui';
 import { NSelect } from 'naive-ui';
 import { ref, computed, watch, h } from 'vue';
 
+import { generateFontKey } from '../api.js';
 import { useFontSource } from '../composable/use-fontsource.js';
+import type { Font } from '../types.js';
 
 const props = defineProps<{
-	initialFontFamily: string
+	fontFamily: string
+	fontWeight: number
+	fontStyle: string
 }>();
 
 const emits = defineEmits<{
-	'update-font-family': [fontFamily: string]
+	'update-font': [font: Font]
 }>();
 
 const fontSource = useFontSource();
-const selectedFont = ref(props.initialFontFamily);
+const selectedFont = ref(props.fontFamily);
 
-watch(() => selectedFont.value, async (font) => {
-	if (!font || fontSource.loading.value) return;
-	await fontSource.loadFont(font);
-	emits('update-font-family', font);
+watch(() => props.fontFamily, () => {
+	selectedFont.value = props.fontFamily;
+});
+
+watch([fontSource.fonts.value, selectedFont], async () => {
+	const font = fontSource.getFont(selectedFont.value);
+	if (!font) return;
+	emits('update-font', font);
 });
 
 const options = computed((): SelectOption[] => {
-	return fontSource.fonts.value.map((font) => ({
+	return fontSource.fontList.value.map((font) => ({
 		label: font.family,
 		value: font.id,
 	}));
@@ -31,12 +39,13 @@ const options = computed((): SelectOption[] => {
 
 function renderLabel(option: SelectOption) {
 	if (!fontSource.loading.value) {
-		fontSource.loadFont(option.value as string);
+		fontSource.loadFont(option.value as string, props.fontWeight, props.fontStyle);
 	}
 
+	const fontFamily = generateFontKey(option.value as string, props.fontWeight, props.fontStyle);
 	return h(
 		'div',
-		{ style: { 'font-family': `"${option.value}"` } },
+		{ style: { 'font-family': `"${fontFamily}"` } },
 		{ default: () => option.label },
 	);
 }
@@ -45,7 +54,7 @@ function renderLabel(option: SelectOption) {
 <template>
 	<n-select
 		v-model:value="selectedFont"
-		:default-value="props.initialFontFamily"
+		:default-value="props.fontFamily"
 		:render-label="renderLabel"
 		filterable
 		:options="options"

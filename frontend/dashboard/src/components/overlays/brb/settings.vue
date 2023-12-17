@@ -8,7 +8,6 @@ import { useCopyOverlayLink } from '../copyOverlayLink';
 
 import { useBeRightBackOverlayManager, useProfile } from '@/api';
 import commandButton from '@/components/commandButton.vue';
-import FontSelector from '@/components/fontSelector.vue';
 
 defineProps<{
 	showSettings: boolean
@@ -146,11 +145,6 @@ async function save() {
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
 						<n-color-picker v-model:value="formValue.fontColor" :modes="['hex', 'rgb']" :show-alpha="false" />
-					</div>
-
-					<div class="item">
-						<span>{{ t('overlays.brb.settings.main.font.family') }}</span>
-						<font-selector v-model="formValue.fontFamily" :clearable="true" />
 					</div>
 
 					<div class="item">

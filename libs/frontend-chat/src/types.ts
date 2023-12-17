@@ -1,4 +1,3 @@
-import type { Font as InternalFont } from '@twir/grpc/generated/api/api/google_fonts_unprotected';
 import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/overlays_chat';
 
 export enum EmoteFlag {
@@ -34,8 +33,6 @@ export type MessageChunk = {
 	emoteHeight?: number
 	emoteName?: string
 }
-
-export type Font = InternalFont
 
 export type BadgeVersion = {
 	id: string,
