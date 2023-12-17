@@ -13,7 +13,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "3.3.12"
+    "@vueuse/core": "10.7.0",
+    "vue": "3.3.9"
   },
   "devDependencies": {
     "@twir/grpc": "workspace:^",

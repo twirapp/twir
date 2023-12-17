@@ -1,18 +1,26 @@
 <script lang="ts" setup>
-import MessageContent from '../components/messageContent.vue';
-import { normalizeDisplayName } from '../helpers.js';
-import { Settings, Message } from '../types.js';
+import { computed } from 'vue';
 
-defineProps<{
+import MessageContent from '../components/messageContent.vue';
+import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
+import type { Direction } from '../helpers.js';
+import type { Settings, Message } from '../types.js';
+
+const props = defineProps<{
 	msg: Message,
-	settings: Settings
+	settings: Settings,
+	direction: Direction
 }>();
+
+const messageAlign = computed(() => getMessageAlign(props.settings.direction));
+const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
+const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
 <template>
 	<div class="message">
 		<div class="profile">
-			<div v-if="msg.sender" :style="{ color: msg.senderColor }">
+			<div v-if="msg.sender" :style="{ color: userColor, fontWeight: 700 }">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
 			<div v-if="settings.showBadges" class="badges">
@@ -40,6 +48,8 @@ defineProps<{
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
+			:message-align="messageAlign"
+			:user-color="userColor"
 		/>
 	</div>
 </template>
@@ -47,7 +57,8 @@ defineProps<{
 <style scoped>
 .message {
 	display: flex;
-	flex-direction: column;
+	flex-direction: inherit;
+	align-items: v-bind(messageAlign);
 	padding: 0.5em;
 	gap: 0.2em;
 	border-radius: 8px;
@@ -79,5 +90,10 @@ defineProps<{
 .message .profile {
 	display: flex;
 	justify-content: space-between;
+	gap: 4px;
+}
+
+.message > .text {
+	flex-wrap: v-bind(messageFlexWrap);
 }
 </style>

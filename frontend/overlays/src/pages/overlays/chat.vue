@@ -14,7 +14,7 @@ const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
 const messages = ref<Message[]>([]);
-const maxMessages = ref(100);
+const maxMessages = ref(30);
 
 const { settings } = useChatOverlaySocket(apiKey);
 

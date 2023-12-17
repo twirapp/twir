@@ -8,6 +8,8 @@ const props = defineProps<{
 	isItalic?: boolean
 	textShadowColor?: string
 	textShadowSize?: number
+	userColor: string
+	messageAlign: string
 }>();
 
 const computeWidth = (w?: number) => {
@@ -24,10 +26,20 @@ const textShadow = computed(() => {
 
 	return array.join(', ');
 });
+
+const wordBreak = computed(() => {
+	return props.messageAlign === 'flex-start' ? 'break-all' : 'initial';
+});
 </script>
 
 <template>
-	<span class="text" :style="{ fontStyle: isItalic ? 'italic' : 'normal' }">
+	<div
+		class="text"
+		:style="{
+			fontStyle: isItalic ? 'italic' : 'normal',
+			color: isItalic ? userColor : 'inherit',
+		}"
+	>
 		<template v-for="(chunk, _) of chunks" :key="_">
 			<div
 				v-if="['emote', '3rd_party_emote'].includes(chunk.type)"
@@ -55,17 +67,22 @@ const textShadow = computed(() => {
 			</div>
 
 			<template v-else-if="['text', 'emoji'].includes(chunk.type)">
-				{{ chunk.value }}
+				<span>{{ chunk.value }}</span>
 			</template>
-			{{ ' ' }}
 		</template>
-	</span>
+	</div>
 </template>
 
 <style scoped>
 .text {
-	overflow-wrap: break-word;
 	text-shadow: v-bind(textShadow);
+	display: flex;
+	gap: 4px;
+  align-items: center;
+}
+
+.text > span {
+	word-break: v-bind(wordBreak);
 }
 
 .emote img {
@@ -75,6 +92,8 @@ const textShadow = computed(() => {
 .text .emote {
 	position: relative;
 	display: inline-block;
+	margin-left: 4px;
+  margin-right: 4px;
 }
 
 .text .emote .emote-zerowidth {

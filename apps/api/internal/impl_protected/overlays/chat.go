@@ -25,10 +25,10 @@ func (c *Overlays) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *overlays_ch
 		FontFamily:          s.FontFamily,
 		ShowBadges:          s.ShowBadges,
 		ShowAnnounceBadge:   s.ShowAnnounceBadge,
-		ReverseMessages:     s.ReverseMessages,
 		TextShadowColor:     s.TextShadowColor,
 		TextShadowSize:      s.TextShadowSize,
 		ChatBackgroundColor: s.ChatBackgroundColor,
+		Direction:           s.Direction,
 	}
 }
 
@@ -43,10 +43,10 @@ func (c *Overlays) chatOverlayGrpcToDb(s *overlays_chat.Settings) model.ChatOver
 		FontFamily:          s.FontFamily,
 		ShowBadges:          s.ShowBadges,
 		ShowAnnounceBadge:   s.ShowAnnounceBadge,
-		ReverseMessages:     s.ReverseMessages,
 		TextShadowColor:     s.TextShadowColor,
 		TextShadowSize:      s.TextShadowSize,
 		ChatBackgroundColor: s.ChatBackgroundColor,
+		Direction:           s.Direction,
 	}
 }
 
