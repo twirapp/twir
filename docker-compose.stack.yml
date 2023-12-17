@@ -198,7 +198,7 @@ services:
       update_config:
         parallelism: 2
       mode: replicated
-      replicas: 3
+      replicas: 6
       restart_policy:
         condition: any
         delay: 30s
