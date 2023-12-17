@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/satont/twir/apps/timers/internal/queue"
+	"github.com/satont/twir/apps/timers/internal/workflow"
 	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/timers"
 	"github.com/satont/twir/libs/logger"
@@ -20,11 +20,21 @@ import (
 type server struct {
 	timers.UnimplementedTimersServer
 
-	queue *queue.Queue
+	workflow *workflow.Workflow
 }
 
-func New(queue *queue.Queue, logger logger.Logger, lc fx.Lifecycle) error {
-	server := &server{queue: queue}
+type Opts struct {
+	fx.In
+
+	Lc       fx.Lifecycle
+	Logger   logger.Logger
+	Workflow *workflow.Workflow
+}
+
+func New(opts Opts) error {
+	s := &server{
+		workflow: opts.Workflow,
+	}
 
 	addr := fmt.Sprintf("0.0.0.0:%v", constants.TIMERS_SERVER_PORT)
 	lis, err := net.Listen("tcp", addr)
@@ -38,9 +48,9 @@ func New(queue *queue.Queue, logger logger.Logger, lc fx.Lifecycle) error {
 			},
 		),
 	)
-	timers.RegisterTimersServer(grpcServer, server)
+	timers.RegisterTimersServer(grpcServer, s)
 
-	lc.Append(
+	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
@@ -48,7 +58,7 @@ func New(queue *queue.Queue, logger logger.Logger, lc fx.Lifecycle) error {
 						panic(err)
 					}
 				}()
-				logger.Info("Timers grpc server started", slog.String("addr", addr))
+				opts.Logger.Info("Timers grpc server started", slog.String("addr", addr))
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
@@ -61,13 +71,13 @@ func New(queue *queue.Queue, logger logger.Logger, lc fx.Lifecycle) error {
 	return nil
 }
 
-func (c *server) AddTimerToQueue(_ context.Context, t *timers.Request) (*emptypb.Empty, error) {
-	return &emptypb.Empty{}, c.queue.Add(t.TimerId)
+func (c *server) AddTimerToQueue(ctx context.Context, t *timers.Request) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, c.workflow.AddTimer(ctx, t.TimerId)
 }
 
-func (c *server) RemoveTimerFromQueue(_ context.Context, t *timers.Request) (
+func (c *server) RemoveTimerFromQueue(ctx context.Context, t *timers.Request) (
 	*emptypb.Empty,
 	error,
 ) {
-	return &emptypb.Empty{}, c.queue.Remove(t.TimerId)
+	return &emptypb.Empty{}, c.workflow.RemoveTimer(ctx, t.TimerId)
 }
