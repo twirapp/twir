@@ -98,124 +98,231 @@ type EventsGrpcImplementation struct {
 	eventsWorkflow *workflows.EventWorkflow
 }
 
-// func (c *EventsGrpcImplementation) Follow(
-// 	ctx context.Context,
-// 	msg *events.FollowMessage,
-// ) (*emptypb.Empty, error) {
-// 	go c.processEvent(
-// 		msg.BaseInfo.ChannelId,
-// 		internal.Data{
-// 			UserName:        msg.UserName,
-// 			UserDisplayName: msg.UserDisplayName,
-// 			UserID:          msg.UserId,
-// 		},
-// 		model.EventTypeFollow,
-// 	)
-// 	go c.chatAlerts.ProcessEvent(ctx, msg.BaseInfo.ChannelId, api_events.TwirEventType_FOLLOW, msg)
-// 	go c.websocketsGrpc.TriggerKappagenByEvent(
-// 		ctx, &websockets.TriggerKappagenByEventRequest{
-// 			ChannelId: msg.BaseInfo.ChannelId,
-// 			Event:     api_events.TwirEventType_FOLLOW,
-// 		},
-// 	)
-//
-// 	return &emptypb.Empty{}, nil
-// }
-//
-// func (c *EventsGrpcImplementation) Subscribe(
-// 	ctx context.Context,
-// 	msg *events.SubscribeMessage,
-// ) (*emptypb.Empty, error) {
-// 	go c.processEvent(
-// 		msg.BaseInfo.ChannelId,
-// 		internal.Data{
-// 			UserName:        msg.UserName,
-// 			UserDisplayName: msg.UserDisplayName,
-// 			SubLevel:        msg.Level,
-// 			UserID:          msg.UserId,
-// 		},
-// 		model.EventTypeSubscribe,
-// 	)
-// 	go c.chatAlerts.ProcessEvent(
-// 		ctx,
-// 		msg.BaseInfo.ChannelId,
-// 		api_events.TwirEventType_SUBSCRIBE,
-// 		chat_alerts.SubscribMessage{
-// 			UserName:  msg.UserName,
-// 			Months:    0,
-// 			ChannelId: msg.BaseInfo.ChannelId,
-// 		},
-// 	)
-// 	go c.websocketsGrpc.TriggerKappagenByEvent(
-// 		ctx, &websockets.TriggerKappagenByEventRequest{
-// 			ChannelId: msg.BaseInfo.ChannelId,
-// 			Event:     api_events.TwirEventType_SUBSCRIBE,
-// 		},
-// 	)
-//
-// 	return &emptypb.Empty{}, nil
-// }
-//
-// func (c *EventsGrpcImplementation) ReSubscribe(
-// 	ctx context.Context,
-// 	msg *events.ReSubscribeMessage,
-// ) (*emptypb.Empty, error) {
-// 	go c.processEvent(
-// 		msg.BaseInfo.ChannelId,
-// 		internal.Data{
-// 			UserName:        msg.UserName,
-// 			UserDisplayName: msg.UserDisplayName,
-// 			SubLevel:        msg.Level,
-// 			ResubMessage:    msg.Message,
-// 			ResubMonths:     msg.Months,
-// 			ResubStreak:     msg.Streak,
-// 			UserID:          msg.UserId,
-// 		},
-// 		model.EventTypeResubscribe,
-// 	)
-// 	go c.chatAlerts.ProcessEvent(ctx, msg.BaseInfo.ChannelId, api_events.TwirEventType_RESUBSCRIBE, msg)
-// 	go c.websocketsGrpc.TriggerKappagenByEvent(
-// 		ctx, &websockets.TriggerKappagenByEventRequest{
-// 			ChannelId: msg.BaseInfo.ChannelId,
-// 			Event:     api_events.TwirEventType_RESUBSCRIBE,
-// 		},
-// 	)
-//
-// 	return &emptypb.Empty{}, nil
-// }
-//
-// func (c *EventsGrpcImplementation) RedemptionCreated(
-// 	ctx context.Context,
-// 	msg *events.RedemptionCreatedMessage,
-// ) (*emptypb.Empty, error) {
-// 	go c.processEvent(
-// 		msg.BaseInfo.ChannelId,
-// 		internal.Data{
-// 			UserName:        msg.UserName,
-// 			UserDisplayName: msg.UserDisplayName,
-// 			RewardCost:      msg.RewardCost,
-// 			RewardInput:     msg.Input,
-// 			RewardName:      msg.RewardName,
-// 			RewardID:        msg.Id,
-// 			UserID:          msg.UserId,
-// 		},
-// 		model.EventTypeRedemptionCreated,
-// 	)
-// 	go c.chatAlerts.ProcessEvent(
-// 		ctx,
-// 		msg.BaseInfo.ChannelId,
-// 		api_events.TwirEventType_REDEMPTION_CREATED,
-// 		msg,
-// 	)
-// 	go c.websocketsGrpc.TriggerKappagenByEvent(
-// 		ctx, &websockets.TriggerKappagenByEventRequest{
-// 			ChannelId: msg.BaseInfo.ChannelId,
-// 			Event:     api_events.TwirEventType_REDEMPTION_CREATED,
-// 		},
-// 	)
-//
-// 	return &emptypb.Empty{}, nil
-// }
+func (c *EventsGrpcImplementation) Follow(
+	ctx context.Context,
+	msg *events.FollowMessage,
+) (*emptypb.Empty, error) {
+	wg := utils.NewGoroutinesGroup()
+
+	wg.Go(
+		func() {
+			err := c.eventsWorkflow.Execute(
+				ctx,
+				model.EventTypeFollow,
+				shared.EvenData{
+					ChannelID:       msg.BaseInfo.ChannelId,
+					UserName:        msg.UserName,
+					UserDisplayName: msg.UserDisplayName,
+					UserID:          msg.UserId,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error execute workflow", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			c.chatAlerts.ProcessEvent(
+				ctx,
+				msg.BaseInfo.ChannelId,
+				api_events.TwirEventType_FOLLOW,
+				msg,
+			)
+		},
+	)
+
+	wg.Go(
+		func() {
+			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
+				ctx, &websockets.TriggerKappagenByEventRequest{
+					ChannelId: msg.BaseInfo.ChannelId,
+					Event:     api_events.TwirEventType_FOLLOW,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Wait()
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) Subscribe(
+	ctx context.Context,
+	msg *events.SubscribeMessage,
+) (*emptypb.Empty, error) {
+	wg := utils.NewGoroutinesGroup()
+
+	wg.Go(
+		func() {
+			err := c.eventsWorkflow.Execute(
+				ctx,
+				model.EventTypeSubscribe,
+				shared.EvenData{
+					ChannelID:       msg.BaseInfo.ChannelId,
+					UserDisplayName: msg.UserDisplayName,
+					SubLevel:        msg.Level,
+					UserID:          msg.UserId,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error execute workflow", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			c.chatAlerts.ProcessEvent(
+				ctx,
+				msg.BaseInfo.ChannelId,
+				api_events.TwirEventType_SUBSCRIBE,
+				chat_alerts.SubscribMessage{
+					UserName:  msg.UserName,
+					Months:    0,
+					ChannelId: msg.BaseInfo.ChannelId,
+				},
+			)
+		},
+	)
+
+	wg.Go(
+		func() {
+			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
+				ctx, &websockets.TriggerKappagenByEventRequest{
+					ChannelId: msg.BaseInfo.ChannelId,
+					Event:     api_events.TwirEventType_SUBSCRIBE,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Wait()
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) ReSubscribe(
+	ctx context.Context,
+	msg *events.ReSubscribeMessage,
+) (*emptypb.Empty, error) {
+	wg := utils.NewGoroutinesGroup()
+
+	wg.Go(
+		func() {
+			err := c.eventsWorkflow.Execute(
+				ctx,
+				model.EventTypeResubscribe,
+				shared.EvenData{
+					ChannelID:       msg.BaseInfo.ChannelId,
+					UserDisplayName: msg.UserDisplayName,
+					SubLevel:        msg.Level,
+					ResubMessage:    msg.Message,
+					ResubMonths:     msg.Months,
+					ResubStreak:     msg.Streak,
+					UserID:          msg.UserId,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error execute workflow", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			c.chatAlerts.ProcessEvent(
+				ctx,
+				msg.BaseInfo.ChannelId,
+				api_events.TwirEventType_RESUBSCRIBE,
+				msg,
+			)
+		},
+	)
+
+	wg.Go(
+		func() {
+			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
+				ctx, &websockets.TriggerKappagenByEventRequest{
+					ChannelId: msg.BaseInfo.ChannelId,
+					Event:     api_events.TwirEventType_RESUBSCRIBE,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Wait()
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) RedemptionCreated(
+	ctx context.Context,
+	msg *events.RedemptionCreatedMessage,
+) (*emptypb.Empty, error) {
+	wg := utils.NewGoroutinesGroup()
+
+	wg.Go(
+		func() {
+			err := c.eventsWorkflow.Execute(
+				ctx,
+				model.EventTypeRedemptionCreated,
+				shared.EvenData{
+					ChannelID:       msg.BaseInfo.ChannelId,
+					UserDisplayName: msg.UserDisplayName,
+					RewardCost:      msg.RewardCost,
+					RewardInput:     msg.Input,
+					RewardName:      msg.RewardName,
+					RewardID:        msg.Id,
+					UserID:          msg.UserId,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error execute workflow", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			c.chatAlerts.ProcessEvent(
+				ctx,
+				msg.BaseInfo.ChannelId,
+				api_events.TwirEventType_REDEMPTION_CREATED,
+				msg,
+			)
+		},
+	)
+
+	wg.Go(
+		func() {
+			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
+				ctx, &websockets.TriggerKappagenByEventRequest{
+					ChannelId: msg.BaseInfo.ChannelId,
+					Event:     api_events.TwirEventType_REDEMPTION_CREATED,
+				},
+			)
+			if err != nil {
+				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Wait()
+
+	return &emptypb.Empty{}, nil
+}
 
 func (c *EventsGrpcImplementation) CommandUsed(
 	ctx context.Context,
