@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
+	"github.com/satont/twir/apps/timers/internal/s"
 	"github.com/satont/twir/apps/timers/internal/worker"
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	cfg "github.com/satont/twir/libs/config"
@@ -43,6 +44,7 @@ func main() {
 		),
 		fx.NopLogger,
 		fx.Invoke(
+			s.New,
 			worker.New,
 			grpc_server.New,
 			func(l logger.Logger) {

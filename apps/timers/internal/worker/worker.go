@@ -32,7 +32,7 @@ func New(opts Opts) error {
 	if err != nil {
 		return err
 	}
-
+	
 	temporalWorker := worker.New(c, shared.TimersWorkerTaskQueueName, worker.Options{})
 
 	temporalWorker.RegisterWorkflow(opts.Workflow.Flow)
