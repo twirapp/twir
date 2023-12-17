@@ -3,6 +3,8 @@ package timers
 import (
 	"context"
 	"fmt"
+	"log/slog"
+
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -11,7 +13,6 @@ import (
 	timersGrpc "github.com/satont/twir/libs/grpc/generated/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
-	"log/slog"
 )
 
 type Timers struct {
@@ -117,10 +118,18 @@ func (c *Timers) TimersUpdate(
 	grpcRequest := &timersGrpc.Request{
 		TimerId: entity.ID,
 	}
+	_, err := c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+	if err != nil {
+		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
+		return nil, fmt.Errorf("cannot remove timer from queue: %w", err)
+	}
+
 	if entity.Enabled {
-		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
-	} else {
-		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+		_, err := c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+		if err != nil {
+			c.Logger.Error("cannot add timer to queue", slog.Any("err", err))
+			return nil, fmt.Errorf("cannot add timer to queue: %w", err)
+		}
 	}
 
 	return c.convertEntity(entity), nil
@@ -131,20 +140,22 @@ func (c *Timers) TimersDelete(
 	request *timers.DeleteRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
+
+	if _, err := c.Grpc.Timers.RemoveTimerFromQueue(
+		ctx,
+		&timersGrpc.Request{
+			TimerId: request.Id,
+		},
+	); err != nil {
+		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
+	}
+
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "id" = ?`, dashboardId, request.Id).
 		Delete(&model.ChannelsTimers{}).
 		Error; err != nil {
 		return nil, err
-	}
-
-	if _, err := c.Grpc.Timers.RemoveTimerFromQueue(
-		ctx, &timersGrpc.Request{
-			TimerId: request.Id,
-		},
-	); err != nil {
-		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
 	}
 
 	return &emptypb.Empty{}, nil
