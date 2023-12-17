@@ -16,6 +16,22 @@ services:
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
+  temporal-ui:
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:2.21.0
+    networks:
+      - twir
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
+        - traefik.http.routers.twir-temporal.middlewares=admin-auth
+        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
+        - traefik.docker.network=traefik-public
+
   postgres:
     image: postgres:14-alpine
     volumes:
@@ -37,6 +53,27 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  temporal:
+    depends_on:
+      - postgres
+    image: registry.satont.ru/twir/temporal:latest
+    networks:
+      - twir
+    secrets:
+      - twir_postgres_user
+      - twir_postgres_password
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      labels:
+        kompose.volume.type: configMap
       placement:
         constraints:
           - node.role == manager

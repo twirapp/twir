@@ -250,7 +250,14 @@
     "operations": {
       "divider": "Actions",
       "name": "Action",
-      "input": "Text for an action (supports variables)",
+			"inputs": {
+				"message": "Message for sending (supports variables)",
+				"default": "Text for an action (supports variables)",
+				"vipSlots": "Your twitch channel VIP slots count",
+				"username": "Username (supports variables)",
+				"variableValue": "New variable value (supports variables)",
+				"variableIncrementDecrement": "Increment or decrement value (supports variables)"
+			},
       "banMessage": "Ban Message",
       "banTime": "Ban Time",
       "obs": {

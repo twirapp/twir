@@ -1,94 +1,60 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"net"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"log/slog"
 
-	"github.com/getsentry/sentry-go"
-	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/events/internal"
+	eventsActivity "github.com/satont/twir/apps/events/internal/activities/events"
+	"github.com/satont/twir/apps/events/internal/chat_alerts"
+	"github.com/satont/twir/apps/events/internal/gorm"
 	"github.com/satont/twir/apps/events/internal/grpc_impl"
-	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/apps/events/internal/hydrator"
+	"github.com/satont/twir/apps/events/internal/redis"
+	"github.com/satont/twir/apps/events/internal/workers"
+	"github.com/satont/twir/apps/events/internal/workflows"
+	"github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"go.uber.org/zap"
-	"google.golang.org/grpc"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
+	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/sentry"
+	"go.uber.org/fx"
 )
 
 func main() {
-	cfg, err := config.New()
-	if err != nil || cfg == nil {
-		fmt.Println(err)
-		panic("Cannot load config of application")
-	}
-
-	if cfg.SentryDsn != "" {
-		sentry.Init(
-			sentry.ClientOptions{
-				Dsn:              cfg.SentryDsn,
-				Environment:      cfg.AppEnv,
-				Debug:            false,
-				TracesSampleRate: 1.0,
+	fx.New(
+		fx.NopLogger,
+		fx.Provide(
+			cfg.NewFx,
+			twirsentry.NewFx(twirsentry.NewFxOpts{Service: "events"}),
+			logger.NewFx(
+				logger.Opts{
+					Service: "events",
+					Level:   slog.LevelDebug,
+				},
+			),
+			func(config cfg.Config) bots.BotsClient {
+				return clients.NewBots(config.AppEnv)
 			},
-		)
-	}
-
-	var logger *zap.Logger
-
-	if cfg.AppEnv == "development" {
-		l, _ := zap.NewDevelopment()
-		logger = l
-	} else {
-		l, _ := zap.NewProduction()
-		logger = l
-	}
-
-	db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
-	if err != nil {
-		fmt.Println(err)
-		panic("failed to connect database")
-	}
-	d, _ := db.DB()
-	d.SetMaxOpenConns(5)
-	d.SetConnMaxIdleTime(1 * time.Minute)
-
-	redisParams, err := redis.ParseURL(cfg.RedisUrl)
-	if err != nil {
-		panic(err)
-	}
-	redisClient := redis.NewClient(redisParams)
-
-	services := &internal.Services{
-		DB:             db,
-		Logger:         logger,
-		Cfg:            cfg,
-		BotsGrpc:       clients.NewBots(cfg.AppEnv),
-		TokensGrpc:     clients.NewTokens(cfg.AppEnv),
-		WebsocketsGrpc: clients.NewWebsocket(cfg.AppEnv),
-		Redis:          redisClient,
-	}
-
-	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.EVENTS_SERVER_PORT))
-	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
-	grpcServer := grpc.NewServer()
-	events.RegisterEventsServer(grpcServer, grpc_impl.NewEvents(services))
-	go grpcServer.Serve(lis)
-
-	logger.Sugar().Info("Events microservices started")
-
-	exitSignal := make(chan os.Signal, 1)
-	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
-	<-exitSignal
-	fmt.Println("Closing...")
-	grpcServer.Stop()
+			func(config cfg.Config) tokens.TokensClient {
+				return clients.NewTokens(config.AppEnv)
+			},
+			func(config cfg.Config) websockets.WebsocketClient {
+				return clients.NewWebsocket(config.AppEnv)
+			},
+			gorm.New,
+			redis.New,
+			hydrator.New,
+			eventsActivity.New,
+			workflows.NewEventsWorkflow,
+			chat_alerts.New,
+		),
+		fx.Invoke(
+			workers.NewEventsWorker,
+			grpc_impl.New,
+			func(l logger.Logger) {
+				l.Info("Events service started")
+			},
+		),
+	).Run()
 }
