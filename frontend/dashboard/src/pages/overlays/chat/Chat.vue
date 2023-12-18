@@ -22,6 +22,7 @@ import {
 	useThemeVars,
 	NDivider,
 	NColorPicker,
+	NText,
 } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -111,12 +112,10 @@ const defaultSettings: Settings = {
 const formValue = ref<Settings>(structuredClone(defaultSettings));
 
 const directionOptions = computed(() => {
-	return [
-		{ label: t('overlays.chat.directionTop'), value: 'top' },
-		{ label: t('overlays.chat.directionRight'), value: 'right' },
-		{ label: t('overlays.chat.directionBottom'), value: 'bottom' },
-		{ label: t('overlays.chat.directionLeft'), value: 'left' },
-	];
+	return ['top', 'right', 'bottom', 'left'].map((direction) => ({
+		value: direction,
+		label: t(`overlays.chat.directions.${direction}`),
+	}));
 });
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
@@ -221,6 +220,9 @@ const canCopyLink = computed(() => {
 					<div>
 						<span>{{ t('overlays.chat.direction') }}</span>
 						<n-select v-model:value="formValue.direction" :options="directionOptions" />
+						<n-text style="font-size: 12px; margin-top: 4px;">
+							{{ t('overlays.chat.directionWarning') }}
+						</n-text>
 					</div>
 
 					<div class="switch">

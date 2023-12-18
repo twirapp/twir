@@ -376,10 +376,13 @@
       "textShadow": "Text shadow",
 			"backgroundColor": "Background color",
 			"direction": "Direction of message display",
-			"directionTop": "Top",
-			"directionBottom": "Bottom",
-			"directionLeft": "Left",
-			"directionRight": "Right"
+			"directions": {
+				"left": "Left",
+				"right": "Right",
+				"top": "Top",
+				"bottom": "Bottom"
+			},
+			"directionWarning": "For right and left directions you should set small height (about 50px) for overlay in your streaming software"
     },
     "kappagen": {
       "description": "Liven up your screen with explosions, movements, fireworks, walls of emoticons",
