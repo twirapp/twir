@@ -14,6 +14,9 @@ const props = defineProps<{
 
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
+const messageDirection = computed(() => props.direction === 'horizontal' ? 'row' : 'column');
+const messageWidth = computed(() => props.direction === 'vertical' ? '100%' : 'auto');
+const profileDirection = computed(() => props.direction === 'vertical' ? 'row' : 'row-reverse');
 const userColor = computed(() => getColorFromMsg(props.msg));
 </script>
 
@@ -57,7 +60,7 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 <style scoped>
 .message {
 	display: flex;
-	flex-direction: inherit;
+	flex-direction: v-bind(messageDirection);
 	align-items: v-bind(messageAlign);
 	padding: 0.5em;
 	gap: 0.2em;
@@ -89,8 +92,10 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 
 .message .profile {
 	display: flex;
+	flex-direction: v-bind(profileDirection);
 	justify-content: space-between;
 	gap: 4px;
+	width: v-bind(messageWidth);
 }
 
 .message > .text {

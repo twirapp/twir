@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
+import type { MessageAlignType } from '../helpers.js';
 import { type MessageChunk, EmoteFlag } from '../types.js';
 
 const props = defineProps<{
@@ -9,7 +10,7 @@ const props = defineProps<{
 	textShadowColor?: string
 	textShadowSize?: number
 	userColor: string
-	messageAlign: string
+	messageAlign: MessageAlignType
 }>();
 
 const computeWidth = (w?: number) => {
@@ -20,15 +21,15 @@ const textShadow = computed(() => {
 	if (!props.textShadowColor || !props.textShadowSize) return '';
 
 	const array = Array.from({ length: 5 }).map((_, i) => {
-		const n = i+1;
-		return `0px 0px ${props.textShadowSize!+n}px ${props.textShadowColor}`;
+		const n = i + 1;
+		return `0px 0px ${props.textShadowSize! + n}px ${props.textShadowColor}`;
 	});
 
 	return array.join(', ');
 });
 
 const wordBreak = computed(() => {
-	return props.messageAlign === 'flex-start' ? 'break-all' : 'initial';
+	return props.messageAlign === 'baseline' ? 'break-all' : 'initial';
 });
 </script>
 
@@ -76,9 +77,9 @@ const wordBreak = computed(() => {
 <style scoped>
 .text {
 	text-shadow: v-bind(textShadow);
-	display: flex;
+	display: inline-flex;
 	gap: 4px;
-  align-items: center;
+	align-items: center;
 }
 
 .text > span {
@@ -93,14 +94,14 @@ const wordBreak = computed(() => {
 	position: relative;
 	display: inline-block;
 	margin-left: 4px;
-  margin-right: 4px;
+	margin-right: 4px;
 }
 
 .text .emote .emote-zerowidth {
 	top: 50%;
 	left: 50%;
 	bottom: 0;
-	transform: translate(-50%,-50%);
+	transform: translate(-50%, -50%);
 	position: absolute;
 }
 

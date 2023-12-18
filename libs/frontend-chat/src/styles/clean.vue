@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed, CSSProperties } from 'vue';
 
 import MessageContent from '../components/messageContent.vue';
 import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
@@ -15,10 +15,25 @@ const props = defineProps<{
 const messageAlign = computed(() => getMessageAlign(props.settings.direction));
 const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
 const userColor = computed(() => getColorFromMsg(props.msg));
+
+const messageStyle = computed<CSSProperties>(() => {
+	if (props.direction === 'horizontal') {
+		return {
+			display: 'inline-flex',
+			'align-items': messageAlign.value,
+		};
+	} else {
+		return {
+			width: '100%',
+			'line-height': '1em',
+			'margin-left': '0.2em',
+		};
+	}
+});
 </script>
 
 <template>
-	<div class="message">
+	<div class="message" :style="messageStyle">
 		<div v-if="settings.showBadges && msg.badges" class="badges">
 			<template
 				v-for="(badgeValue, badgeName) of msg.badges"
@@ -52,11 +67,6 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 </template>
 
 <style scoped>
-.message {
-	display: inline-flex;
-	align-items: v-bind(messageAlign);
-}
-
 .message .badges {
 	display: inline-flex;
 	gap: 4px;

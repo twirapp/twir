@@ -83,6 +83,10 @@ useIntervalFn(() => {
 			messagesMock.value = messagesMock.value.filter(m => m.internalId != internalId);
 		}, formValue.value.messageHideTimeout * 1000);
 	}
+
+	if (messagesMock.value.length >= 20) {
+		messagesMock.value = messagesMock.value.slice(1);
+	}
 }, 1 * 1000);
 
 

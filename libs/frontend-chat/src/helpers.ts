@@ -8,7 +8,7 @@ export function normalizeDisplayName(userName: string, displayName: string) {
 	}
 }
 
-type MessageAlignType = 'center' | 'baseline';
+export type MessageAlignType = 'center' | 'baseline';
 
 export function getMessageAlign(direction: string): MessageAlignType {
 	switch (direction) {
@@ -37,6 +37,7 @@ export function getChatDirection(direction: string): Direction {
 }
 
 const DEFAULT_COLOR = '#a65ee8';
+
 export function getColorFromMsg(msg: Message): string {
 	if (msg.senderColor) {
 		return msg.senderColor;
