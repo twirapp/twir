@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
+	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/workflow"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -39,6 +40,7 @@ func New(opts Opts) (*Workflow, error) {
 	cl, err := client.Dial(
 		client.Options{
 			HostPort: opts.Cfg.TemporalHost,
+			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
 		},
 	)
 	if err != nil {

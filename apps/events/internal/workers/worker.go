@@ -9,6 +9,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/worker"
 	"go.uber.org/fx"
 )
@@ -27,6 +28,7 @@ func NewEventsWorker(opts EventsWorkerOpts) error {
 	c, err := client.Dial(
 		client.Options{
 			HostPort: opts.Cfg.TemporalHost,
+			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
 		},
 	)
 	if err != nil {

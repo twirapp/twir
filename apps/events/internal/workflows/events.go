@@ -11,7 +11,9 @@ import (
 	"github.com/satont/twir/apps/events/internal/shared"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/log"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -24,12 +26,14 @@ type EventsWorkflowOpts struct {
 	Gorm           *gorm.DB
 	Redis          *redis.Client
 	Hydrator       *hydrator.Hydrador
+	Logger         logger.Logger
 }
 
 func NewEventsWorkflow(opts EventsWorkflowOpts) (*EventWorkflow, error) {
 	c, err := client.Dial(
 		client.Options{
 			HostPort: opts.Cfg.TemporalHost,
+			Logger:   log.NewStructuredLogger(opts.Logger.GetSlog()),
 		},
 	)
 	if err != nil {

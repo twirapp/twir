@@ -23,9 +23,10 @@ type Logger interface {
 	Debug(input string, fields ...any)
 	Warn(input string, fields ...any)
 	WithComponent(name string) Logger
+	GetSlog() *slog.Logger
 }
 
-type logger struct {
+type Log struct {
 	log *slog.Logger
 
 	service string
@@ -84,14 +85,14 @@ func New(opts Opts) Logger {
 		log = log.With(slog.String("service", opts.Service))
 	}
 
-	return &logger{
+	return &Log{
 		log:     log,
 		sentry:  opts.Sentry,
 		service: opts.Service,
 	}
 }
 
-func (c *logger) handle(level slog.Level, input string, fields ...any) {
+func (c *Log) handle(level slog.Level, input string, fields ...any) {
 	var pcs [1]uintptr
 	runtime.Callers(3, pcs[:])
 	r := slog.NewRecord(time.Now(), level, input, pcs[0])
@@ -101,27 +102,31 @@ func (c *logger) handle(level slog.Level, input string, fields ...any) {
 	_ = c.log.Handler().Handle(context.Background(), r)
 }
 
-func (c *logger) Info(input string, fields ...any) {
+func (c *Log) Info(input string, fields ...any) {
 	c.handle(slog.LevelInfo, input, fields...)
 }
 
-func (c *logger) Warn(input string, fields ...any) {
+func (c *Log) Warn(input string, fields ...any) {
 	c.handle(slog.LevelWarn, input, fields...)
 }
 
-func (c *logger) Error(input string, fields ...any) {
+func (c *Log) Error(input string, fields ...any) {
 	c.handle(slog.LevelError, input, fields...)
 
 }
 
-func (c *logger) Debug(input string, fields ...any) {
+func (c *Log) Debug(input string, fields ...any) {
 	c.handle(slog.LevelDebug, input, fields...)
 }
 
-func (c *logger) WithComponent(name string) Logger {
-	return &logger{
+func (c *Log) WithComponent(name string) Logger {
+	return &Log{
 		log:     c.log.With(slog.String("component", name)),
 		sentry:  c.sentry,
 		service: c.service,
 	}
+}
+
+func (c *Log) GetSlog() *slog.Logger {
+	return c.log
 }
