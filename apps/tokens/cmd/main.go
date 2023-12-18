@@ -25,7 +25,7 @@ func main() {
 		fx.Invoke(
 			grpc_impl.NewTokens,
 			func(l logger.Logger) {
-				l.Info("Started tokens service")
+				l.Info("Started")
 			},
 		),
 	).Run()

@@ -3,15 +3,22 @@ package grpc_impl
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net"
 	"net/url"
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/samber/lo"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/satont/twir/libs/grpc/generated/ytsr"
-	"go.uber.org/zap"
+	"github.com/satont/twir/libs/logger"
+	"go.uber.org/fx"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 )
 
 type YtsrServer struct {
@@ -21,17 +28,53 @@ type YtsrServer struct {
 	linksRegexp regexp.Regexp
 
 	config cfg.Config
-	logger *zap.Logger
+	logger logger.Logger
 }
 
-func NewYtsrServer(config cfg.Config, logger *zap.Logger) *YtsrServer {
-	return &YtsrServer{
+type Opts struct {
+	fx.In
+	Lc fx.Lifecycle
+
+	Config cfg.Config
+	Logger logger.Logger
+}
+
+func New(opts Opts) error {
+	impl := &YtsrServer{
 		ytRegexp: *regexp.MustCompile(
 			`(?m)http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?`,
 		),
-		config: config,
-		logger: logger,
+		config: opts.Config,
+		logger: opts.Logger,
 	}
+
+	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.YTSR_SERVER_PORT))
+	if err != nil {
+		return err
+	}
+	grpcServer := grpc.NewServer(
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				MaxConnectionAge: 1 * time.Minute,
+			},
+		),
+	)
+	ytsr.RegisterYtsrServer(grpcServer, impl)
+
+	opts.Lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go grpcServer.Serve(lis)
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				grpcServer.GracefulStop()
+				return nil
+			},
+		},
+	)
+
+	return nil
 }
 
 type internalSong struct {
@@ -72,7 +115,7 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
 
 				// if odesli search fails, then we push raw youtube link to slice
 				if err != nil {
-					c.logger.Error("searchOdesli", zap.Error(err))
+					c.logger.Error("searchOdesli", slog.Any("err", err))
 					internalSongs = append(
 						internalSongs,
 						internalSong{
@@ -129,7 +172,7 @@ func (c *YtsrServer) Search(ctx context.Context, req *ytsr.SearchRequest) (
 				).Else(internalLink.youtubeQuery),
 			)
 			if err != nil {
-				c.logger.Error("searchByText", zap.Error(err))
+				c.logger.Error("searchByText", slog.Any("err", err))
 				return
 			}
 			if res.ID == "" {
