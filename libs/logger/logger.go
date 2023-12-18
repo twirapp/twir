@@ -2,12 +2,18 @@ package logger
 
 import (
 	"context"
+	"io"
 	"log/slog"
 	"os"
 	"runtime"
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/pkgerrors"
+	slogmulti "github.com/samber/slog-multi"
+	slogsentry "github.com/samber/slog-sentry/v2"
+	slogzerolog "github.com/samber/slog-zerolog/v2"
 	cfg "github.com/satont/twir/libs/config"
 )
 
@@ -47,42 +53,32 @@ func NewFx(opts Opts) func(config cfg.Config, sentry *sentry.Client) Logger {
 }
 
 func New(opts Opts) Logger {
-	var log *slog.Logger
-
 	level := opts.Level
 
-	switch opts.Env {
-	case "development":
-		log = slog.New(
-			slog.NewTextHandler(
-				os.Stdout,
-				&slog.HandlerOptions{
-					Level:     level,
-					AddSource: true,
-				},
-			),
-		)
-	case "production":
-		log = slog.New(
-			slog.NewJSONHandler(
-				os.Stdout,
-				&slog.HandlerOptions{
-					Level:     level,
-					AddSource: true,
-				},
-			),
-		)
-	default:
-		log = slog.New(
-			slog.NewTextHandler(
-				os.Stdout,
-				&slog.HandlerOptions{
-					Level:     level,
-					AddSource: true,
-				},
-			),
-		)
+	var zeroLogWriter io.Writer
+	if opts.Env == "production" {
+		zeroLogWriter = os.Stderr
+	} else {
+		zeroLogWriter = zerolog.ConsoleWriter{Out: os.Stderr}
 	}
+
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
+	slogzerolog.SourceKey = "source"
+	slogzerolog.ErrorKeys = []string{"error", "err"}
+	zerolog.ErrorStackFieldName = "stack"
+
+	zeroLogLogger := zerolog.New(zeroLogWriter)
+
+	log := slog.New(
+		slogmulti.Fanout(
+			slogzerolog.Option{
+				Level:     level,
+				Logger:    &zeroLogLogger,
+				AddSource: true,
+			}.NewZerologHandler(),
+			slogsentry.Option{Level: slog.LevelError, AddSource: true}.NewSentryHandler(),
+		),
+	)
 
 	if opts.Service != "" {
 		log = log.With(slog.String("service", opts.Service))
@@ -116,27 +112,6 @@ func (c *logger) Warn(input string, fields ...any) {
 func (c *logger) Error(input string, fields ...any) {
 	c.handle(slog.LevelError, input, fields...)
 
-	if c.sentry != nil {
-		scope := sentry.NewScope()
-
-		for _, f := range fields {
-			casted, ok := f.(slog.Attr)
-			if !ok {
-				continue
-			}
-
-			if err, ok := casted.Value.Any().(error); ok {
-				scope.SetExtra(casted.Key, err.Error())
-			} else {
-				scope.SetExtra(casted.Key, casted.Value.Any())
-			}
-		}
-
-		scope.SetTag("service", c.service)
-		scope.SetExtra("service", c.service)
-
-		c.sentry.CaptureMessage(input, &sentry.EventHint{}, scope)
-	}
 }
 
 func (c *logger) Debug(input string, fields ...any) {

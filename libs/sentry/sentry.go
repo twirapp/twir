@@ -10,12 +10,14 @@ func New(dsn string) (*sentry.Client, error) {
 		return nil, nil
 	}
 
-	s, err := sentry.NewClient(
-		sentry.ClientOptions{
-			Dsn:              dsn,
-			AttachStacktrace: true,
-		},
-	)
+	opts := sentry.ClientOptions{
+		Dsn:              dsn,
+		AttachStacktrace: true,
+	}
+
+	s, err := sentry.NewClient(opts)
+
+	sentry.Init(opts)
 
 	return s, err
 }
@@ -36,14 +38,15 @@ func NewFx(opts NewFxOpts) func(config cfg.Config) (*sentry.Client, error) {
 			tags["service"] = opts.Service
 		}
 
-		s, err := sentry.NewClient(
-			sentry.ClientOptions{
-				Dsn:              config.SentryDsn,
-				AttachStacktrace: true,
-				Tags:             tags,
-				Debug:            false,
-			},
-		)
+		o := sentry.ClientOptions{
+			Dsn:              config.SentryDsn,
+			AttachStacktrace: true,
+			Tags:             tags,
+			Debug:            false,
+		}
+
+		s, err := sentry.NewClient(o)
+		sentry.Init(o)
 
 		return s, err
 	}
