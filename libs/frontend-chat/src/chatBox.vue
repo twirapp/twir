@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useFontSource } from '@twir/fontsource';
 import { useWindowSize } from '@vueuse/core';
 import { computed, nextTick, ref, toValue, watch } from 'vue';
 
@@ -13,6 +14,20 @@ const props = defineProps<{
 }>();
 
 const chatMessages = ref<HTMLDivElement>();
+
+const fontSource = useFontSource();
+
+watch(() => [
+	props.settings.fontFamily,
+	props.settings.fontWeight,
+	props.settings.fontStyle,
+], () => {
+	fontSource.loadFont(
+		props.settings.fontFamily,
+		props.settings.fontWeight,
+		props.settings.fontStyle,
+	);
+});
 
 watch(() => props.messages.length, async () => {
 	await nextTick();
@@ -98,26 +113,13 @@ const windowHeight = computed(() => {
 });
 
 const fontSize = computed(() => `${props.settings.fontSize}px`);
-const defaultFont = 'Roboto';
 const fontFamily = computed(() => {
-	try {
-		const [family] = props.settings.fontFamily.split(':');
-
-		return family || defaultFont;
-	} catch {
-		return defaultFont;
-	}
-});
-const fontUrl = computed(() => {
-	return `https://fonts.googleapis.com/css?family=${fontFamily.value}`;
+	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-${props.settings.fontStyle}"`;
 });
 </script>
 
 <template>
 	<div class="chat">
-		<component :is="'style'">
-			@import url('{{ fontUrl }}')
-		</component>
 		<div ref="chatMessages" class="messages">
 			<TransitionGroup name="list">
 				<component
@@ -140,6 +142,8 @@ const fontUrl = computed(() => {
 	color: #fff;
 	font-size: v-bind(fontSize);
 	font-family: v-bind(fontFamily);
+	font-weight: v-bind('settings.fontWeight');
+	font-style: v-bind('settings.fontStyle');
 	overflow: hidden;
 	position: relative;
 	background-color: v-bind('settings.chatBackgroundColor');

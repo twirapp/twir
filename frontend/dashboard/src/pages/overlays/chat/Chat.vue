@@ -1,6 +1,6 @@
 <script setup lang="ts">
-
 import { IconReload } from '@tabler/icons-vue';
+import { FontSelector, type Font } from '@twir/fontsource';
 import {
 	ChatBox,
 	type Message,
@@ -17,14 +17,12 @@ import {
 	NSwitch,
 	NSlider,
 	NSelect,
-	NTreeSelect,
-	type TreeSelectOption,
 	useThemeVars,
 	NDivider,
 	NColorPicker,
 	NText,
 } from 'naive-ui';
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { globalBadges } from './constants.js';
@@ -32,30 +30,27 @@ import * as faker from './faker.js';
 
 import {
 	useChatOverlayManager,
-	useGoogleFontsList,
 	useProfile,
 	useUserAccessFlagChecker,
 } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
 
 const chatManager = useChatOverlayManager();
+
 const {
 	data: settings,
 	isLoading: isSettingsLoading,
 	isError: isSettingsError,
 } = chatManager.getSettings();
+
 const updater = chatManager.updateSettings();
-const {
-	data: googleFonts,
-	isError: isGoogleFontsError,
-	isLoading: isGoogleFontsLoading,
-} = useGoogleFontsList();
 
 const themeVars = useThemeVars();
 
 const globalBadgesObject = Object.fromEntries(globalBadges);
 
 const messagesMock = ref<Message[]>([]);
+
 useIntervalFn(() => {
 	const internalId = crypto.randomUUID();
 
@@ -90,17 +85,16 @@ useIntervalFn(() => {
 	}
 }, 1 * 1000);
 
-
-const defaultFont = 'Roboto:700italic';
-
 const defaultSettings: Settings = {
+	fontFamily: 'inter',
 	fontSize: 20,
+	fontWeight: 400,
+	fontStyle: 'normal',
 	hideBots: false,
 	hideCommands: false,
 	messageHideTimeout: 0,
 	messageShowDelay: 0,
 	preset: 'clean',
-	fontFamily: defaultFont,
 	showBadges: true,
 	showAnnounceBadge: true,
 	textShadowColor: 'rgba(0,0,0,1)',
@@ -110,6 +104,24 @@ const defaultSettings: Settings = {
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
+
+watch(settings, (v) => {
+	if (!v) return;
+	formValue.value = toRaw(v);
+}, { immediate: true });
+
+const fontData = ref<Font | null>(null);
+
+const fontWeightOptions = computed(() => {
+	if (!fontData.value) return [];
+	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
+});
+
+const fontStyleOptions = computed(() => {
+	if (!fontData.value) return [];
+	return fontData.value.styles.map((style) => ({ label: style, value: style }));
+});
+
 
 const directionOptions = computed(() => {
 	return ['top', 'right', 'bottom', 'left'].map((direction) => ({
@@ -129,18 +141,11 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	};
 });
 
-watch(() => settings.value, () => {
-	if (!settings.value) return;
-
-	formValue.value = toRaw(settings.value);
-}, { immediate: true });
-
 const message = useNotification();
 const { t } = useI18n();
 
 async function save() {
 	if (!formValue.value) return;
-
 	await updater.mutateAsync(formValue.value);
 	message.success({
 		title: t('sharedTexts.saved'),
@@ -157,22 +162,6 @@ const styleSelectOptions = [
 	{ label: 'Clean', value: 'clean' },
 	{ label: 'Boxed', value: 'boxed' },
 ];
-
-const fontSelectOptions = computed<TreeSelectOption[]>(() => {
-	return googleFonts?.value?.fonts
-		.map((f) => {
-			const option: TreeSelectOption = {
-				label: f.family,
-				children: f.files.map((c) => ({
-					label: `${f.family}:${c.name}`,
-					key: `${f.family}:${c.name}`,
-				})),
-				key: f.family,
-			};
-
-			return option;
-		}) ?? [];
-});
 
 const setDefaultSettings = () => {
 	formValue.value = structuredClone(defaultSettings);
@@ -249,43 +238,35 @@ const canCopyLink = computed(() => {
 					</div>
 
 					<n-divider />
+					<div>
+						<span>{{ t('overlays.chat.fontFamily') }}</span>
+						<font-selector
+							v-model:selected-font="formValue.fontFamily"
+							:font-family="formValue.fontFamily"
+							:font-weight="formValue.fontWeight"
+							:font-style="formValue.fontStyle"
+							@update-font="(v) => fontData = v"
+						/>
+					</div>
 
-					<div style="display: flex; flex-direction: column; gap: 4px;">
-						<div style="display: flex; justify-content: space-between;">
-							<span>{{ t('overlays.chat.fontFamily') }}</span>
-							<n-button
-								size="tiny" secondary type="success"
-								@click="formValue.fontFamily = defaultFont"
-							>
-								<IconReload style="height: 15px;" />
-								{{ t('overlays.chat.resetToDefault') }}
-							</n-button>
-						</div>
+					<div>
+						<span>{{ t('overlays.chat.fontWeight') }}</span>
+						<n-select
+							v-model:value="formValue.fontWeight"
+							:options="fontWeightOptions"
+						/>
+					</div>
 
-						<n-tree-select
-							v-model:value="formValue.fontFamily"
-							filterable
-							:options="fontSelectOptions"
-							:loading="isGoogleFontsLoading"
-							:disabled="isGoogleFontsError"
-							check-strategy="child"
-						>
-							<template #action>
-								{{ t('overlays.chat.fontFamilyDescription') }}
-								<a
-									class="action-link"
-									href="https://fonts.google.com/"
-									target="_blank"
-									:style="{ color: themeVars.successColor }"
-								>
-									Preview Google Fonts
-								</a>
-							</template>
-						</n-tree-select>
+					<div>
+						<span>{{ t('overlays.chat.fontStyle') }}</span>
+						<n-select
+							v-model:value="formValue.fontStyle"
+							:options="fontStyleOptions"
+						/>
 					</div>
 
 					<div class="slider">
-						<span>{{ t('overlays.chat.fontSize') }}({{ formValue.fontSize }}px)</span>
+						<span>{{ t('overlays.chat.fontSize') }} ({{ formValue.fontSize }}px)</span>
 						<n-slider
 							v-model:value="formValue.fontSize" :min="12" :max="80"
 							:marks="{ 12: '12', 80: '80'}"
