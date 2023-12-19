@@ -6,6 +6,7 @@ import (
 
 	"github.com/satont/twir/apps/timers/internal/shared"
 	"go.temporal.io/sdk/client"
+	"go.temporal.io/sdk/temporal"
 )
 
 func (c *Workflow) AddTimer(ctx context.Context, timerId string) error {
@@ -41,6 +42,13 @@ func (c *Workflow) AddTimer(ctx context.Context, timerId string) error {
 				TaskQueue: shared.TimersWorkerTaskQueueName,
 				Args:      []interface{}{timer},
 				Memo:      map[string]interface{}{"lastResponse": 0},
+				RetryPolicy: &temporal.RetryPolicy{
+					InitialInterval:        time.Second,
+					BackoffCoefficient:     2.0,
+					MaximumInterval:        time.Second * 100,
+					MaximumAttempts:        3,
+					NonRetryableErrorTypes: []string{},
+				},
 			},
 		},
 	)

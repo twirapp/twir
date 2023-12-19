@@ -15,6 +15,7 @@ import (
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/log"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -80,6 +81,13 @@ func (c *Workflow) Flow(ctx workflow.Context, timer timers.Timer) error {
 		StartToCloseTimeout: time.Second * 5,
 		HeartbeatTimeout:    time.Second * 10,
 		TaskQueue:           shared.TimersWorkerTaskQueueName,
+		RetryPolicy: &temporal.RetryPolicy{
+			InitialInterval:        time.Second,
+			BackoffCoefficient:     2.0,
+			MaximumInterval:        time.Second * 100,
+			MaximumAttempts:        3,
+			NonRetryableErrorTypes: []string{},
+		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, options)
 

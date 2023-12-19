@@ -10,6 +10,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
 
@@ -21,6 +22,13 @@ func (c *EventWorkflow) Flow(
 	options := workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 5,
 		HeartbeatTimeout:    time.Second * 10,
+		RetryPolicy: &temporal.RetryPolicy{
+			InitialInterval:        time.Second,
+			BackoffCoefficient:     2.0,
+			MaximumInterval:        time.Second * 100,
+			MaximumAttempts:        3,
+			NonRetryableErrorTypes: []string{},
+		},
 	}
 	ctx = workflow.WithActivityOptions(ctx, options)
 

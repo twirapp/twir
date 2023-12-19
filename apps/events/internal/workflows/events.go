@@ -3,6 +3,7 @@ package workflows
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
@@ -14,6 +15,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/log"
+	"go.temporal.io/sdk/temporal"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -67,6 +69,13 @@ func (c *EventWorkflow) Execute(
 	options := client.StartWorkflowOptions{
 		ID:        fmt.Sprintf("%s - %s", shared.EventsWorkflow, uuid.NewString()),
 		TaskQueue: shared.EventsWorkerTaskQueueName,
+		RetryPolicy: &temporal.RetryPolicy{
+			InitialInterval:        time.Second,
+			BackoffCoefficient:     2.0,
+			MaximumInterval:        time.Second * 100,
+			MaximumAttempts:        3,
+			NonRetryableErrorTypes: []string{},
+		},
 	}
 
 	we, err := c.cl.ExecuteWorkflow(
