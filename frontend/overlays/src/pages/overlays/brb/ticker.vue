@@ -64,7 +64,7 @@ const stop: OnStop = () => {
 };
 
 defineExpose({
-  start,
+	start,
 	stop,
 });
 
@@ -80,7 +80,7 @@ const showCountDown = computed(() => {
 const fontSource = useFontSource();
 watch(() => props.settings.fontFamily, () => {
 	fontSource.loadFont(props.settings.fontFamily, 400, 'normal');
-});
+}, { immediate: true });
 
 const fontFamily = computed(() => {
 	return `"${props.settings.fontFamily}-400-normal"`;
@@ -114,7 +114,7 @@ const fontFamily = computed(() => {
 				class="count-down"
 				:style="{ fontSize: `${settings.fontSize}px`}"
 			>
-				{{ settings.late?.text }}	 {{ millisecondsToTime(countUpTicks * 1000) }}
+				{{ settings.late?.text }} {{ millisecondsToTime(countUpTicks * 1000) }}
 			</div>
 		</div>
 	</Transition>
@@ -136,11 +136,11 @@ const fontFamily = computed(() => {
 
 .overlay-enter-active,
 .overlay-leave-active {
-  transition: opacity 0.9s ease;
+	transition: opacity 0.9s ease;
 }
 
 .overlay-enter-from,
 .overlay-leave-to {
-  opacity: 0;
+	opacity: 0;
 }
 </style>

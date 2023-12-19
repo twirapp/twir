@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SelectOption } from 'naive-ui';
 import { NSelect } from 'naive-ui';
-import { ref, computed, watch, h } from 'vue';
+import { computed, watch, h } from 'vue';
 
 import { generateFontKey } from '../api.js';
 import { useFontSource } from '../composable/use-fontsource.js';
@@ -18,16 +18,19 @@ const emits = defineEmits<{
 }>();
 
 const fontSource = useFontSource();
-const selectedFont = ref(props.fontFamily);
 
-watch(() => props.fontFamily, () => {
-	selectedFont.value = props.fontFamily;
-});
+// eslint-disable-next-line no-undef
+const selectedFont = defineModel<string>('selectedFont', { default: '' });
 
-watch([fontSource.fonts.value, selectedFont], async () => {
-	const font = fontSource.getFont(selectedFont.value);
+watch(selectedFont, (v) => {
+	if (!v) return;
+	const font = fontSource.getFont(v);
 	if (!font) return;
 	emits('update-font', font);
+});
+
+watch(() => props.fontFamily, (v) => {
+	selectedFont.value = v;
 });
 
 const options = computed((): SelectOption[] => {
@@ -54,7 +57,6 @@ function renderLabel(option: SelectOption) {
 <template>
 	<n-select
 		v-model:value="selectedFont"
-		:default-value="props.fontFamily"
 		:render-label="renderLabel"
 		filterable
 		:options="options"

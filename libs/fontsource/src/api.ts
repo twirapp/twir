@@ -16,14 +16,15 @@ export async function loadFont(
 	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId}`);
 	const font = await response.json() as Font;
 
-	// for (const subset of ['latin', 'cyrillic']) {
+
+	for (const subset of font.subsets) {
 		// @ts-ignore
-		const fontSource = `url(${font.variants[fontWeight][fontStyle].latin.url.woff2})`;
+		const fontSource = `url(${font.variants[fontWeight][fontStyle][subset].url.woff2})`;
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle);
 		const fontFace = new FontFace(fontKey, fontSource);
 		await fontFace.load();
 		document.fonts.add(fontFace);
-	// }
+	}
 
 	return font;
 }

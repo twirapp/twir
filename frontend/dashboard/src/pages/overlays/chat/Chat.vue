@@ -21,7 +21,7 @@ import {
 	NDivider,
 	NColorPicker,
 } from 'naive-ui';
-import { computed, ref, toRaw, watch } from 'vue';
+import { computed, ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { globalBadges } from './constants.js';
@@ -100,6 +100,11 @@ const defaultSettings: Settings = {
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
 
+watch(settings, (v) => {
+	if (!v) return;
+	formValue.value = toRaw(v);
+}, { immediate: true });
+
 const fontData = ref<Font | null>(null);
 
 const fontWeightOptions = computed(() => {
@@ -112,11 +117,6 @@ const fontStyleOptions = computed(() => {
 	return fontData.value.styles.map((style) => ({ label: style, value: style }));
 });
 
-function updateFont(font: Font): void {
-	console.log(font)
-	fontData.value = font;
-	formValue.value.fontFamily = font.id;
-}
 
 const directionOptions = computed(() => {
 	return [
@@ -137,12 +137,6 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 		...formValue.value,
 	};
 });
-
-// watch(() => settings.value, () => {
-// 	if (!settings.value) return;
-// 	formValue.value = toRaw(settings.value);
-// 	console.log(formValue.value.fontFamily)
-// }, { immediate: true });
 
 const message = useNotification();
 const { t } = useI18n();
@@ -238,14 +232,14 @@ const canCopyLink = computed(() => {
 					</div>
 
 					<n-divider />
-
 					<div>
 						<span>{{ t('overlays.chat.fontFamily') }}</span>
 						<font-selector
+							v-model:selected-font="formValue.fontFamily"
 							:font-family="formValue.fontFamily"
 							:font-weight="formValue.fontWeight"
 							:font-style="formValue.fontStyle"
-							@update-font="(font) => updateFont(font)"
+							@update-font="(v) => fontData = v"
 						/>
 					</div>
 
