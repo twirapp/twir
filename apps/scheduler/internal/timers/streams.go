@@ -3,46 +3,95 @@ package timers
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
+	config "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/pubsub"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/scheduler/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"go.uber.org/zap"
 )
 
-func NewStreams(ctx context.Context, services *types.Services) {
-	timeTick := lo.If(services.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
-	ticker := time.NewTicker(timeTick)
+type StreamOpts struct {
+	fx.In
+	Lc fx.Lifecycle
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				ticker.Stop()
-				return
-			case <-ticker.C:
-				processStreams(services)
-			}
-		}
-	}()
+	Config config.Config
+	Logger logger.Logger
+
+	Gorm       *gorm.DB
+	PubSub     *pubsub.PubSub
+	TokensGrpc tokens.TokensClient
 }
 
-func processStreams(services *types.Services) {
+type streams struct {
+	config     config.Config
+	logger     logger.Logger
+	gorm       *gorm.DB
+	pubSub     *pubsub.PubSub
+	tokensGrpc tokens.TokensClient
+}
+
+func NewStreams(opts StreamOpts) {
+	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	ticker := time.NewTicker(timeTick)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	s := &streams{
+		config:     opts.Config,
+		logger:     opts.Logger,
+		gorm:       opts.Gorm,
+		pubSub:     opts.PubSub,
+		tokensGrpc: opts.TokensGrpc,
+	}
+
+	opts.Lc.Append(
+		fx.Hook{
+			OnStart: func(_ context.Context) error {
+				go func() {
+					for {
+						select {
+						case <-ctx.Done():
+							ticker.Stop()
+							return
+						case <-ticker.C:
+							if err := s.processStreams(ctx); err != nil {
+								opts.Logger.Error("cannot process streams", slog.Any("err", err))
+							}
+						}
+					}
+				}()
+
+				return nil
+			},
+			OnStop: func(_ context.Context) error {
+				cancel()
+				return nil
+			},
+		},
+	)
+}
+
+func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
-	err := services.Gorm.
+	err := c.gorm.
+		WithContext(ctx).
 		Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).
 		Select("id", `"isEnabled"`, `"isBanned"`).
 		Find(&channels).Error
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
 	usersIds := make([]string, len(channels))
@@ -55,24 +104,24 @@ func processStreams(services *types.Services) {
 	}
 
 	discordIntegration := &model.Integrations{}
-	err = services.Gorm.
+	err = c.gorm.
+		WithContext(ctx).
 		Where(`service = ?`, model.IntegrationServiceDiscord).
 		Select("id").
 		Find(discordIntegration).Error
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return fmt.Errorf("cannot get discord integration: %w", err)
 	}
 
 	var discordIntegrations []model.ChannelsIntegrations
 	if discordIntegration.ID != "" {
-		err = services.Gorm.
+		err = c.gorm.
+			WithContext(ctx).
 			Where(`"integrationId" = ?`, discordIntegration.ID).
 			Select("id", `"integrationId"`, "data").
 			Find(&discordIntegrations).Error
 		if err != nil {
-			zap.S().Error(err)
-			return
+			return fmt.Errorf("cannot get discord integrations: %w", err)
 		}
 
 		for _, integration := range discordIntegrations {
@@ -94,21 +143,22 @@ func processStreams(services *types.Services) {
 	usersIds = lo.Uniq(usersIds)
 
 	var existedStreams []model.ChannelsStreams
-	err = services.Gorm.Select("id", `"userId"`, `"parsedMessages"`).Find(&existedStreams).Error
+	err = c.gorm.WithContext(ctx).Select(
+		"id",
+		`"userId"`,
+		`"parsedMessages"`,
+	).Find(&existedStreams).Error
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return fmt.Errorf("cannot get existed streams: %w", err)
 	}
 
-	twitchClient, err := twitch.NewAppClient(*services.Config, services.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return fmt.Errorf("cannot create twitch client: %w", err)
 	}
 
 	chunks := lo.Chunk(usersIds, 100)
 	wg := &sync.WaitGroup{}
-
 	wg.Add(len(chunks))
 
 	for _, chunk := range chunks {
@@ -121,7 +171,7 @@ func processStreams(services *types.Services) {
 			)
 
 			if err != nil || streams.ErrorMessage != "" {
-				zap.S().Error(err)
+				c.logger.Error("cannot get streams", slog.Any("err", err))
 				return
 			}
 
@@ -163,39 +213,23 @@ func processStreams(services *types.Services) {
 				}
 
 				if twitchStreamExists && dbStreamExists {
-					if result := services.Gorm.Where(
+					// stream still online, update
+					if result := c.gorm.WithContext(ctx).Where(
 						`"userId" = ?`,
 						userId,
 					).Save(channelStream); result.Error != nil {
-						zap.S().Error(
-							result.Error,
-							zap.String(
-								"query", result.ToSQL(
-									func(tx *gorm.DB) *gorm.DB {
-										return tx.Where(`"userId" = ?`, userId).Save(channelStream)
-									},
-								),
-							),
-						)
+						c.logger.Error("cannot update stream", slog.Any("err", result.Error))
 						return
 					}
 				}
 
 				if twitchStreamExists && !dbStreamExists {
-					if result := services.Gorm.Where(
+					// stream online, create
+					if result := c.gorm.WithContext(ctx).Where(
 						`"userId" = ?`,
 						userId,
 					).Save(channelStream); result.Error != nil {
-						zap.S().Error(
-							result.Error,
-							zap.String(
-								"query", result.ToSQL(
-									func(tx *gorm.DB) *gorm.DB {
-										return tx.Where(`"userId" = ?`, userId).Save(channelStream)
-									},
-								),
-							),
-						)
+						c.logger.Error("cannot create stream", slog.Any("err", result.Error))
 						return
 					}
 
@@ -206,20 +240,21 @@ func processStreams(services *types.Services) {
 						},
 					)
 					if err != nil {
-						zap.S().Error(err)
+						c.logger.Error("cannot marshal stream online message", slog.Any("err", err))
 						return
 					}
 
-					services.PubSub.Publish("stream.online", bytes)
+					c.pubSub.Publish("stream.online", bytes)
 				}
 
 				if !twitchStreamExists && dbStreamExists {
-					err = services.Gorm.Where(
+					// stream offline, delete
+					err = c.gorm.WithContext(ctx).Where(
 						`"userId" = ?`,
 						userId,
 					).Delete(&model.ChannelsStreams{}).Error
 					if err != nil {
-						zap.S().Error(err)
+						c.logger.Error("cannot delete stream", slog.Any("err", err))
 						return
 					}
 
@@ -229,17 +264,19 @@ func processStreams(services *types.Services) {
 						},
 					)
 					if err != nil {
-						zap.S().Error(err)
+						c.logger.Error("cannot marshal stream offline message", slog.Any("err", err))
 						return
 					}
 
-					services.PubSub.Publish("stream.offline", bytes)
+					c.pubSub.Publish("stream.offline", bytes)
 				}
 			}
 		}(chunk)
 	}
 
 	wg.Wait()
+
+	return nil
 }
 
 // { streamId: stream.id, channelId: channel }

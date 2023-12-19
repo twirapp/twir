@@ -3,20 +3,28 @@ package services
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"log/slog"
+	"sync"
+
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"golang.org/x/sync/errgroup"
+	"github.com/satont/twir/libs/logger"
 	"gorm.io/gorm"
 )
 
 type Roles struct {
-	db *gorm.DB
+	db     *gorm.DB
+	logger logger.Logger
 }
 
-func NewRoles(db *gorm.DB) *Roles {
-	return &Roles{db}
+func NewRoles(db *gorm.DB, l logger.Logger) *Roles {
+	return &Roles{
+		db:     db,
+		logger: l,
+	}
 }
 
 var rolesForCreate = []string{
@@ -28,54 +36,58 @@ var rolesForCreate = []string{
 
 func (c *Roles) CreateDefaultRoles(ctx context.Context, channelsIds []string) error {
 	var channels []model.Channels
-	if err := c.db.Where(`"id" IN ?`, channelsIds).Preload("Roles").Find(&channels).Error; err != nil {
-		return err
+	if err := c.db.Where(
+		`"id" IN ?`,
+		channelsIds,
+	).Preload("Roles").Find(&channels).Error; err != nil {
+		return fmt.Errorf("cannot get channels: %w", err)
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
+	var wg sync.WaitGroup
+
 	for _, channel := range channels {
 		channel := channel
 
-		g.Go(
-			func() error {
-				for _, roleType := range rolesForCreate {
-					isExists := lo.SomeBy(
-						channel.Roles,
-						func(item *model.ChannelRole) bool {
-							return item.Type.String() == roleType
-						},
-					)
-					if isExists {
-						continue
-					}
-
-					settings, err := json.Marshal(&model.ChannelRoleSettings{})
-					if err != nil {
-						return err
-					}
-
-					if err := c.db.Create(
-						&model.ChannelRole{
-							ID:          uuid.New().String(),
-							ChannelID:   channel.ID,
-							Name:        roleType,
-							Type:        model.ChannelRoleEnum(roleType),
-							Permissions: pq.StringArray{},
-							Settings:    settings,
-						},
-					).Error; err != nil {
-						return err
-					}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for _, roleType := range rolesForCreate {
+				isExists := lo.SomeBy(
+					channel.Roles,
+					func(item *model.ChannelRole) bool {
+						return item.Type.String() == roleType
+					},
+				)
+				if isExists {
+					continue
 				}
 
-				return nil
-			},
-		)
+				settings, err := json.Marshal(&model.ChannelRoleSettings{})
+				if err != nil {
+					c.logger.Error("cannot marshal settings", slog.Any("err", err))
+					return
+				}
+
+				if err := c.db.WithContext(ctx).Create(
+					&model.ChannelRole{
+						ID:          uuid.New().String(),
+						ChannelID:   channel.ID,
+						Name:        roleType,
+						Type:        model.ChannelRoleEnum(roleType),
+						Permissions: pq.StringArray{},
+						Settings:    settings,
+					},
+				).Error; err != nil {
+					c.logger.Error("cannot create role", slog.Any("err", err))
+					return
+				}
+			}
+
+			return
+		}()
 	}
 
-	if err := g.Wait(); err != nil {
-		return err
-	}
+	wg.Wait()
 
 	return nil
 }
