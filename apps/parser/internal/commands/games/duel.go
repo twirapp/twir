@@ -97,9 +97,22 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		if err = handler.validateTarget(ctx, targetUser, dbChannel); err != nil {
-			errorResult.Result = []string{err.Error()}
-			return &errorResult, nil
+		if err = handler.validateParticipants(
+			ctx,
+			parseCtx.Sender.ID,
+			targetUser.ID,
+			dbChannel,
+		); err != nil {
+			var e *targetValidateError
+			if errors.As(err, e) {
+				errorResult.Result = []string{err.Error()}
+				return &errorResult, nil
+			} else {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot validate participants",
+					Err:     err,
+				}
+			}
 		}
 
 		moderators, err := handler.getChannelModerators()

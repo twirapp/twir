@@ -101,45 +101,69 @@ func (c *duelHandler) getDbChannel(ctx context.Context) (model.Channels, error) 
 	return channel, nil
 }
 
-func (c *duelHandler) validateTarget(
+func (c *duelHandler) isUserInDuel(ctx context.Context, userId string) (bool, error) {
+	isUserInDuel, err := c.parseCtx.Services.Redis.Exists(
+		ctx,
+		generateDuelRedisKey(c.parseCtx.Channel.ID, userId, "*"),
+	).Result()
+	if err != nil {
+		return false, fmt.Errorf("cannot check user in duel: %w", err)
+	}
+	if isUserInDuel == 1 {
+		return true, nil
+	}
+	isUserInDuel, err = c.parseCtx.Services.Redis.Exists(
+		ctx,
+		generateDuelRedisKey(c.parseCtx.Channel.ID, "*", userId),
+	).Result()
+	if err != nil {
+		return false, fmt.Errorf("cannot check user in duel: %w", err)
+	}
+	if isUserInDuel == 1 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+type targetValidateError struct {
+	message string
+}
+
+func (e *targetValidateError) Error() string {
+	return e.message
+}
+
+func (c *duelHandler) validateParticipants(
 	ctx context.Context,
-	targetUser helix.User,
+	senderUserId string,
+	targetUserId string,
 	dbChannel model.Channels,
 ) error {
-	if targetUser.ID == c.parseCtx.Sender.ID {
-		return errors.New("you cannot duel with yourself")
+	if targetUserId == c.parseCtx.Sender.ID {
+		return &targetValidateError{message: "you cannot duel with yourself"}
+	}
+	if targetUserId == c.parseCtx.Channel.ID {
+		return &targetValidateError{message: "you cannot duel with streamer"}
+	}
+	if dbChannel.BotID == targetUserId {
+		return &targetValidateError{message: "you cannot duel with bot"}
 	}
 
-	if targetUser.ID == c.parseCtx.Channel.ID {
-		return errors.New("you cannot duel with streamer")
-	}
-
-	if dbChannel.BotID == targetUser.ID {
-		return errors.New("you cannot duel with bot")
-	}
-
-	isAlreadyParticipant, err := c.parseCtx.Services.Redis.Exists(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, c.parseCtx.Sender.ID, "*"),
-	).Result()
+	isTargetInDuel, err := c.isUserInDuel(ctx, targetUserId)
 	if err != nil {
-		return fmt.Errorf("cannot check target user: %w", err)
+		return fmt.Errorf("cannot check user in duel: %w", err)
+	}
+	if isTargetInDuel {
+		return &targetValidateError{message: "target user already in duel"}
 	}
 
-	if isAlreadyParticipant == 1 {
-		return errors.New("you are already participating in the duel")
-	}
-
-	isAlreadyParticipant, err = c.parseCtx.Services.Redis.Exists(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, targetUser.ID, "*"),
-	).Result()
+	isSenderInDuel, err := c.isUserInDuel(ctx, senderUserId)
 	if err != nil {
-		return fmt.Errorf("cannot check target user: %w", err)
+		return fmt.Errorf("cannot check user in duel: %w", err)
 	}
-
-	if isAlreadyParticipant == 1 {
-		return errors.New("target user is already participating in the duel")
+	if isSenderInDuel {
+		return &targetValidateError{message: "you already in duel"}
 	}
 
 	return nil
