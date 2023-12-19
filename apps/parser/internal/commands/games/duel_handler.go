@@ -4,35 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
-	"slices"
 	"strings"
 	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/redis/go-redis/v9"
-	"github.com/samber/lo"
+	"github.com/satont/twir/apps/parser/internal/queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"gorm.io/gorm"
 )
 
 type duelHandler struct {
 	parseCtx    *types.ParseContext
 	helixClient *helix.Client
-}
-
-type duelRedisCachedData struct {
-	TargetUserLogin   string `json:"targetUserLogin"`
-	TargetID          string `json:"targetId"`
-	IsTargetModerator bool   `json:"isTargetModerator"`
-
-	SenderUserLogin   string `json:"senderUserLogin"`
-	SenderID          string `json:"senderId"`
-	IsSenderModerator bool   `json:"isSenderModerator"`
 }
 
 func (c *duelHandler) getChannelSettings(ctx context.Context) (
@@ -101,29 +90,29 @@ func (c *duelHandler) getDbChannel(ctx context.Context) (model.Channels, error) 
 	return channel, nil
 }
 
-func (c *duelHandler) isUserInDuel(ctx context.Context, userId string) (bool, error) {
-	isUserInDuel, err := c.parseCtx.Services.Redis.Exists(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, userId, "*"),
-	).Result()
+func (c *duelHandler) getUserCurrentDuel(ctx context.Context, userId string) (
+	*model.ChannelDuel,
+	error,
+) {
+	duel := model.ChannelDuel{}
+
+	err := c.parseCtx.Services.Gorm.
+		WithContext(ctx).
+		Debug().
+		Where(`channel_id = ?`, c.parseCtx.Channel.ID).
+		Where("finished_at is null").
+		Where("available_until >= now()").
+		Where("sender_id = ? OR target_id = ?", userId, userId).
+		First(&duel).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
 	if err != nil {
-		return false, fmt.Errorf("cannot check user in duel: %w", err)
-	}
-	if isUserInDuel == 1 {
-		return true, nil
-	}
-	isUserInDuel, err = c.parseCtx.Services.Redis.Exists(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, "*", userId),
-	).Result()
-	if err != nil {
-		return false, fmt.Errorf("cannot check user in duel: %w", err)
-	}
-	if isUserInDuel == 1 {
-		return true, nil
+		return nil, fmt.Errorf("cannot check user in duel: %w", err)
 	}
 
-	return false, nil
+	return &duel, nil
 }
 
 type targetValidateError struct {
@@ -150,19 +139,19 @@ func (c *duelHandler) validateParticipants(
 		return &targetValidateError{message: "you cannot duel with bot"}
 	}
 
-	isTargetInDuel, err := c.isUserInDuel(ctx, targetUserId)
+	targetDuelUser, err := c.getUserCurrentDuel(ctx, targetUserId)
 	if err != nil {
 		return fmt.Errorf("cannot check user in duel: %w", err)
 	}
-	if isTargetInDuel {
+	if targetDuelUser != nil {
 		return &targetValidateError{message: "target user already in duel"}
 	}
 
-	isSenderInDuel, err := c.isUserInDuel(ctx, senderUserId)
+	senderDuel, err := c.getUserCurrentDuel(ctx, senderUserId)
 	if err != nil {
 		return fmt.Errorf("cannot check user in duel: %w", err)
 	}
-	if isSenderInDuel {
+	if senderDuel != nil {
 		return &targetValidateError{message: "you already in duel"}
 	}
 
@@ -185,119 +174,64 @@ func (c *duelHandler) getChannelModerators() ([]helix.Moderator, error) {
 	return moderatorsRequest.Data.Moderators, nil
 }
 
-func (c *duelHandler) saveDuelDataToCache(
+func (c *duelHandler) saveDuelData(
 	ctx context.Context,
 	targetUser helix.User,
 	moderators []helix.Moderator,
 	settings model.ChannelModulesSettingsDuel,
 ) error {
-	redisCachedData := duelRedisCachedData{
-		TargetUserLogin: targetUser.Login,
-		TargetID:        targetUser.ID,
-		IsTargetModerator: lo.SomeBy(
-			moderators,
-			func(item helix.Moderator) bool {
-				return item.UserID == targetUser.ID
-			},
-		),
-
-		SenderUserLogin:   c.parseCtx.Sender.Name,
-		SenderID:          c.parseCtx.Sender.ID,
-		IsSenderModerator: slices.Contains(c.parseCtx.Sender.Badges, "moderator"),
+	var senderModerator bool
+	var targetModerator bool
+	for _, moderator := range moderators {
+		if moderator.UserID == c.parseCtx.Sender.ID {
+			senderModerator = true
+		}
+		if moderator.UserID == targetUser.ID {
+			targetModerator = true
+		}
 	}
 
-	redisCachedDataJson, err := json.Marshal(redisCachedData)
-	if err != nil {
-		return fmt.Errorf("internal error when trying to find cached data: %w", err)
+	entity := model.ChannelDuel{
+		ID:              uuid.New(),
+		ChannelID:       c.parseCtx.Channel.ID,
+		SenderID:        null.StringFrom(c.parseCtx.Sender.ID),
+		SenderModerator: senderModerator,
+		SenderLogin:     c.parseCtx.Sender.Name,
+		TargetID:        null.StringFrom(targetUser.ID),
+		TargetModerator: targetModerator,
+		TargetLogin:     targetUser.Login,
+		LoserID:         null.String{},
+		CreatedAt:       time.Now(),
+		FinishedAt:      null.Time{},
+		AvailableUntil:  time.Now().Add(time.Duration(settings.SecondsToAccept) * time.Second),
 	}
 
-	err = c.parseCtx.Services.Redis.Set(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, c.parseCtx.Sender.ID, targetUser.ID),
-		redisCachedDataJson,
-		time.Duration(settings.SecondsToAccept)*time.Second,
-	).Err()
-	if err != nil {
-		return fmt.Errorf("cannot save duel data to cache: %w", err)
+	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+		return fmt.Errorf("cannot save duel data: %w", err)
 	}
 
 	return nil
 }
 
-func (c *duelHandler) getSenderCurrentDuel(
-	ctx context.Context,
-) (*duelRedisCachedData, error) {
-	keysOfAllDuelsOfChannel, err := c.parseCtx.Services.Redis.Keys(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, "*", "*"),
-	).Result()
-	if err != nil && !errors.Is(err, redis.Nil) {
-		return nil, fmt.Errorf("cannot get keys of all duels of channel: %w", err)
-	}
-
-	if len(keysOfAllDuelsOfChannel) == 0 {
-		return nil, nil
-	}
-
-	dataAsTarget := &duelRedisCachedData{}
-
-	re := regexp.MustCompile(`commands:duel:(\d+):(\d+)`)
-
-	var neededKey string
-
-	for _, key := range keysOfAllDuelsOfChannel {
-		matches := re.FindStringSubmatch(key)
-
-		if len(matches) < 3 {
-			continue
-		}
-
-		initiatorId := matches[1]
-		targetId := matches[2]
-
-		if initiatorId == c.parseCtx.Sender.ID {
-			neededKey = key
-			break
-		}
-
-		if targetId == c.parseCtx.Sender.ID {
-			neededKey = key
-			break
-		}
-	}
-
-	if neededKey == "" {
-		return nil, nil
-	}
-
-	dataAsTargetJson, err := c.parseCtx.Services.Redis.Get(
-		ctx,
-		neededKey,
-	).Bytes()
-	if err != nil {
-		return nil, fmt.Errorf("cannot get duel data from cache: %w", err)
-	}
-
-	if err := json.Unmarshal(dataAsTargetJson, dataAsTarget); err != nil {
-		return nil, fmt.Errorf("cannot unmarshal duel data from cache: %w", err)
-	}
-
-	return dataAsTarget, nil
-}
-
 func (c *duelHandler) timeoutUser(
-	data duelRedisCachedData,
-	dbChannel model.Channels,
+	ctx context.Context,
 	settings model.ChannelModulesSettingsDuel,
 	userID string,
 	isMod bool,
 ) error {
-	if data.TargetID != userID && data.SenderID != userID {
-		return errors.New("user not cached")
-	}
-
 	if isMod {
-		_, err := c.helixClient.RemoveChannelModerator(
+		err := c.parseCtx.Services.TaskDistributor.DistributeModUser(
+			ctx,
+			&queue.TaskModUserPayload{
+				ChannelID: c.parseCtx.Channel.ID,
+				UserID:    userID,
+			}, asynq.ProcessIn(time.Duration(settings.TimeoutSeconds+2)*time.Second),
+		)
+		if err != nil {
+			return fmt.Errorf("cannot distribute mod user: %w", err)
+		}
+
+		_, err = c.helixClient.RemoveChannelModerator(
 			&helix.RemoveChannelModeratorParams{
 				BroadcasterID: c.parseCtx.Channel.ID,
 				UserID:        userID,
@@ -310,8 +244,8 @@ func (c *duelHandler) timeoutUser(
 
 	_, err := c.helixClient.BanUser(
 		&helix.BanUserParams{
-			BroadcasterID: dbChannel.ID,
-			ModeratorId:   dbChannel.ID,
+			BroadcasterID: c.parseCtx.Channel.ID,
+			ModeratorId:   c.parseCtx.Channel.ID,
 			Body: helix.BanUserRequestBody{
 				Duration: int(settings.TimeoutSeconds),
 				Reason:   "lost in duel",
@@ -328,36 +262,22 @@ func (c *duelHandler) timeoutUser(
 
 func (c *duelHandler) saveResult(
 	ctx context.Context,
-	data duelRedisCachedData,
-	dbChannel model.Channels,
+	data model.ChannelDuel,
 	settings model.ChannelModulesSettingsDuel,
-	loserId string,
+	loserId null.String,
 ) error {
-	_, err := c.parseCtx.Services.Redis.Del(
-		ctx,
-		generateDuelRedisKey(c.parseCtx.Channel.ID, data.SenderID, data.TargetID),
-	).Result()
-	if err != nil {
-		return fmt.Errorf("cannot delete duel data from cache: %w", err)
-	}
 
-	duel := model.ChannelDuel{
-		ID:        uuid.New(),
-		ChannelID: dbChannel.ID,
-		SenderID:  null.StringFrom(data.SenderID),
-		TargetID:  null.StringFrom(data.TargetID),
-		LoserID:   null.StringFrom(loserId),
-		CreatedAt: time.Now(),
-	}
+	data.LoserID = loserId
+	data.FinishedAt = null.TimeFrom(time.Now())
 
-	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Create(&duel).Error; err != nil {
+	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Save(&data).Error; err != nil {
 		return fmt.Errorf("cannot save duel result: %w", err)
 	}
 
 	if settings.UserCooldown != 0 {
-		_, err = c.parseCtx.Services.Redis.Set(
+		_, err := c.parseCtx.Services.Redis.Set(
 			ctx,
-			"duels:cooldown:"+data.SenderID,
+			"duels:cooldown:"+data.SenderID.String,
 			"",
 			time.Duration(settings.UserCooldown)*time.Second,
 		).Result()
@@ -368,7 +288,7 @@ func (c *duelHandler) saveResult(
 	}
 
 	if settings.GlobalCooldown != 0 {
-		_, err = c.parseCtx.Services.Redis.Set(
+		_, err := c.parseCtx.Services.Redis.Set(
 			ctx,
 			"duels:cooldown:global",
 			"",

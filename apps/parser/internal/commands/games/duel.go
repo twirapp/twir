@@ -104,7 +104,7 @@ var Duel = &types.DefaultCommand{
 			dbChannel,
 		); err != nil {
 			var e *targetValidateError
-			if errors.As(err, e) {
+			if errors.As(err, &e) {
 				errorResult.Result = []string{err.Error()}
 				return &errorResult, nil
 			} else {
@@ -123,13 +123,6 @@ var Duel = &types.DefaultCommand{
 			}
 		}
 
-		if err = handler.saveDuelDataToCache(ctx, targetUser, moderators, settings); err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot save duel data to cache",
-				Err:     err,
-			}
-		}
-
 		var acceptCommandName []string
 		if err = parseCtx.Services.Gorm.Model(&model.ChannelsCommands{}).
 			Where(`"channelId" = ? AND "defaultName" = ?`, dbChannel.ID, "duel accept").
@@ -143,6 +136,13 @@ var Duel = &types.DefaultCommand{
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get accept command name",
 				Err:     errors.New("accept command name not found"),
+			}
+		}
+
+		if err = handler.saveDuelData(ctx, targetUser, moderators, settings); err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot save duel data to cache",
+				Err:     err,
 			}
 		}
 
