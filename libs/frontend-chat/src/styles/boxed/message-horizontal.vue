@@ -55,6 +55,7 @@ defineProps<MessageComponentProps>();
 	gap: 0.2em;
 	border-radius: 8px;
 	background-color: #252525;
+	white-space: nowrap;
 }
 
 .message .badges {
@@ -81,14 +82,8 @@ defineProps<MessageComponentProps>();
 
 .message .profile {
 	display: flex;
-	flex-direction: v-bind(profileDirection);
 	justify-content: space-between;
 	gap: 4px;
-	width: v-bind(messageWidth);
-}
-
-.message > .text {
-	flex-wrap: v-bind(messageFlexWrap);
 }
 
 .username {
