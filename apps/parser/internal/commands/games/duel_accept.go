@@ -51,6 +51,12 @@ var DuelAccept = &types.DefaultCommand{
 			}, nil
 		}
 
+		if cachedData.TargetID != parseCtx.Sender.ID {
+			return &types.CommandsHandlerResult{
+				Result: []string{},
+			}, nil
+		}
+
 		dbChannel, err := handler.getDbChannel(ctx)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
