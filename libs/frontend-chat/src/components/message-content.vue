@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import type { MessageAlignType } from '../helpers.js';
 import { type MessageChunk, EmoteFlag } from '../types.js';
 
 const props = defineProps<{
@@ -10,10 +9,10 @@ const props = defineProps<{
 	textShadowColor?: string
 	textShadowSize?: number
 	userColor: string
-	messageAlign: MessageAlignType
+	// messageAlign: MessageAlignType
 }>();
 
-const computeWidth = (w?: number) => {
+const getEmoteWidth = (w?: number) => {
 	return `${w ? w * 2 : 50}px`;
 };
 
@@ -28,20 +27,35 @@ const textShadow = computed(() => {
 	return array.join(', ');
 });
 
-const wordBreak = computed(() => {
-	return props.messageAlign === 'baseline' ? 'break-all' : 'initial';
-});
+// const wordBreak = computed(() => {
+// 	return props.messageAlign === 'baseline' ? 'break-all' : 'initial';
+// });
+
+const mappedChunks = props.chunks.reduce((acc, chunk) => {
+	if (chunk.type === 'text') {
+		const lastChunk = acc[acc.length - 1];
+		if (lastChunk && lastChunk.type === 'text') {
+			lastChunk.value += ' ' + chunk.value;
+		} else {
+			acc.push(chunk);
+		}
+	} else {
+		acc.push(chunk);
+	}
+
+	return acc;
+}, [] as MessageChunk[]);
 </script>
 
 <template>
-	<div
+	<span
 		class="text"
 		:style="{
 			fontStyle: isItalic ? 'italic' : 'normal',
 			color: isItalic ? userColor : 'inherit',
 		}"
 	>
-		<template v-for="(chunk, _) of chunks" :key="_">
+		<template v-for="(chunk, _) of mappedChunks" :key="_">
 			<div
 				v-if="['emote', '3rd_party_emote'].includes(chunk.type)"
 				class="emote"
@@ -57,7 +71,7 @@ const wordBreak = computed(() => {
 						'flipY': chunk.flags?.includes(EmoteFlag.FlipY),
 					}"
 					:style="{
-						width: chunk.flags?.includes(EmoteFlag.GrowX) ? computeWidth(chunk.emoteWidth) : undefined,
+						width: chunk.flags?.includes(EmoteFlag.GrowX) ? getEmoteWidth(chunk.emoteWidth) : undefined,
 					}"
 				/>
 
@@ -68,25 +82,22 @@ const wordBreak = computed(() => {
 			</div>
 
 			<template v-else-if="['text', 'emoji'].includes(chunk.type)">
-				<span>{{ chunk.value }}</span>
+				{{ chunk.value }}
 			</template>
 		</template>
-	</div>
+	</span>
 </template>
 
 <style scoped>
 .text {
 	text-shadow: v-bind(textShadow);
-	display: inline-flex;
-	gap: 4px;
-	align-items: center;
+	vertical-align: baseline;
 }
 
 .text > span {
 	font-style: inherit;
 	font-weight: inherit;
 	font-style: inherit;
-	word-break: v-bind(wordBreak);
 }
 
 .emote img {
@@ -98,6 +109,7 @@ const wordBreak = computed(() => {
 	display: inline-block;
 	margin-left: 4px;
 	margin-right: 4px;
+	vertical-align: middle;
 }
 
 .text .emote .emote-zerowidth {

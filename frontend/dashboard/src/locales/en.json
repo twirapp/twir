@@ -372,7 +372,7 @@
       "hideTimeout": "Message hide timeout",
       "showDelay": "Message show delay",
       "showBadges": "Show badges",
-      "showAnnounceBadge": "Show announce badge (only for boxed style)",
+      "showAnnounceBadge": "Show announce border",
       "resetToDefault": "Reset to default",
       "textShadow": "Text shadow",
 			"backgroundColor": "Background color",

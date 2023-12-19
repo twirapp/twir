@@ -68,3 +68,10 @@ export type Settings = {
 	globalBadges: Map<string, ChatBadge>
 	channelBadges: Map<string, BadgeVersion>
 } & ChatSettings;
+
+
+export type MessageComponentProps = {
+	msg: Message,
+	settings: Settings,
+	userColor: string,
+}

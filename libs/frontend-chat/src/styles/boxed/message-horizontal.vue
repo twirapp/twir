@@ -1,33 +1,24 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
 
-import MessageContent from '../components/messageContent.vue';
-import { getColorFromMsg, getMessageAlign, normalizeDisplayName } from '../helpers.js';
-import type { Direction } from '../helpers.js';
-import type { Settings, Message } from '../types.js';
+import MessageContent from '../../components/message-content.vue';
+import { normalizeDisplayName } from '../../helpers.js';
+import type { MessageComponentProps } from '../../types.js';
 
-const props = defineProps<{
-	msg: Message,
-	settings: Settings,
-	direction: Direction
-}>();
-
-const messageAlign = computed(() => getMessageAlign(props.settings.direction));
-const messageFlexWrap = computed(() => props.direction === 'horizontal' ? 'nowrap' : 'wrap');
-const messageDirection = computed(() => props.direction === 'horizontal' ? 'row' : 'column');
-const messageWidth = computed(() => props.direction === 'vertical' ? '100%' : 'auto');
-const profileDirection = computed(() => props.direction === 'vertical' ? 'row' : 'row-reverse');
-const userColor = computed(() => getColorFromMsg(props.msg));
+defineProps<MessageComponentProps>();
 </script>
 
 <template>
-	<div class="message">
+	<div
+		class="message"
+		:style="{
+			border: msg.isAnnounce && settings.showAnnounceBadge ? '2px solid #9146ff' : undefined,
+		}"
+	>
 		<div class="profile">
-			<div v-if="msg.sender" :style="{ color: userColor, fontWeight: 700 }">
+			<div v-if="msg.sender" class="username">
 				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
 			<div v-if="settings.showBadges" class="badges">
-				<span v-if="settings.showAnnounceBadge && msg.isAnnounce" class="text-badge">Announce</span>
 				<template
 					v-for="(badgeValue, badgeName) of msg.badges"
 					:key="badgeName+badgeValue"
@@ -51,7 +42,6 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"
 			:text-shadow-size="settings.textShadowSize"
-			:message-align="messageAlign"
 			:user-color="userColor"
 		/>
 	</div>
@@ -60,8 +50,7 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 <style scoped>
 .message {
 	display: flex;
-	flex-direction: v-bind(messageDirection);
-	align-items: v-bind(messageAlign);
+	flex-direction: column;
 	padding: 0.5em;
 	gap: 0.2em;
 	border-radius: 8px;
@@ -100,5 +89,10 @@ const userColor = computed(() => getColorFromMsg(props.msg));
 
 .message > .text {
 	flex-wrap: v-bind(messageFlexWrap);
+}
+
+.username {
+	color: v-bind(userColor);
+	font-weight: 700;
 }
 </style>

@@ -3,9 +3,11 @@ import { useFontSource } from '@twir/fontsource';
 import { useWindowSize } from '@vueuse/core';
 import { computed, nextTick, ref, toValue, watch } from 'vue';
 
-import { getChatDirection } from './helpers.js';
-import ChatMessageStyleBoxed from './styles/boxed.vue';
-import ChatMessageStyleClean from './styles/clean.vue';
+import { getChatDirection, getUserColor } from './helpers.js';
+import MessageHorizontalBoxed from './styles/boxed/message-horizontal.vue';
+import MessageVerticalBoxed from './styles/boxed/message-vertical.vue';
+import MessageHorizontalClean from './styles/clean/message-horizontal.vue';
+import MessageVerticalClean from './styles/clean/message-vertical.vue';
 import type { Message, Settings } from './types.js';
 
 const props = defineProps<{
@@ -34,7 +36,8 @@ watch(() => props.messages.length, async () => {
 	scrollByDirection(props.settings.direction);
 });
 
-watch(() => props.settings.direction, (direction) => {
+watch(() => props.settings.direction, async (direction) => {
+	await nextTick();
 	scrollByDirection(direction);
 });
 
@@ -96,10 +99,27 @@ const messagesFlexDirection = computed(() => {
 const chatMessageComponent = computed(() => {
 	switch (props.settings.preset) {
 		case 'boxed':
-			return ChatMessageStyleBoxed;
+			if (chatDirection.value === 'horizontal') {
+				return MessageHorizontalBoxed;
+			}
+
+			if (chatDirection.value === 'vertical') {
+				return MessageVerticalBoxed;
+			}
+
+			return MessageVerticalBoxed;
 		case 'clean':
+			if (chatDirection.value === 'horizontal') {
+				return MessageHorizontalClean;
+			}
+
+			if (chatDirection.value === 'vertical') {
+				return MessageVerticalClean;
+			}
+
+			return MessageHorizontalClean;
 		default:
-			return ChatMessageStyleClean;
+			return MessageVerticalClean;
 	}
 });
 
@@ -129,6 +149,7 @@ const fontFamily = computed(() => {
 					:msg="msg"
 					:direction="chatDirection"
 					:settings="toValue(settings)"
+					:userColor="getUserColor(msg.senderColor)"
 				/>
 			</TransitionGroup>
 		</div>

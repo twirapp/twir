@@ -38,6 +38,14 @@ export function getChatDirection(direction: string): Direction {
 
 const DEFAULT_COLOR = '#a65ee8';
 
+export function getUserColor(color?: string): string {
+	if (color) {
+		return color;
+	}
+
+	return DEFAULT_COLOR;
+}
+
 export function getColorFromMsg(msg: Message): string {
 	if (msg.senderColor) {
 		return msg.senderColor;
