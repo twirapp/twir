@@ -29,9 +29,6 @@ main.~
 !.idea/codeStyles
 !.idea/codeStyles/*.xml
 
-.vscode
-!.vscode/extensions.json
-
 !traefik/*
 
 vite.config.ts.timestamp-*.mjs

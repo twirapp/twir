@@ -8,12 +8,15 @@ linters:
     - ineffassign
     - unused
 
+    - containedctx
+    - exhaustruct
     - goerr113
     - goimports
     - revive
     - staticcheck
     - vet
     - forbidigo
+    - tagliatelle
 
 run:
   skip-dirs:
@@ -104,6 +107,20 @@ linters-settings:
           - "fmt.*"
           - "bytes.Buffer.*"
           - "strings.Builder.*"
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        json: snake
+        yaml: snake
+        xml: snake
+        toml: snake
+
 issues:
   # Exclude cyclomatic and cognitive complexity rules for functional tests in the `tests` root directory.
   exclude-rules:

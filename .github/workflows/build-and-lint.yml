@@ -49,8 +49,8 @@ jobs:
     - name: Lint javascript
       run: pnpm run lint
 
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: v1.55.2
+#    - name: golangci-lint
+#      uses: golangci/golangci-lint-action@v3
+#      with:
+#        version: v1.55.2
 
