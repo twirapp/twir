@@ -63,9 +63,9 @@ jobs:
 
       - run: |
           docker build -f ./apps/${{ matrix.target }}/Dockerfile \
-          -t ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.target }}:latest .
+          -t ${{ secrets.DOCKER_REGISTRY }}/twir-${{ matrix.target }}:latest .
 
-          docker push ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.target }}:latest
+          docker push ${{ secrets.DOCKER_REGISTRY }}/twir-${{ matrix.target }}:latest
 
   frontend:
     runs-on: self-hosted
@@ -91,9 +91,9 @@ jobs:
 
       - run: |
           docker build -f ./frontend/${{ matrix.target }}/Dockerfile \
-          -t ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.target }}:latest .
+          -t ${{ secrets.DOCKER_REGISTRY }}/twir-${{ matrix.target }}:latest .
 
-          docker push ${{ secrets.DOCKER_REGISTRY }}/twir/${{ matrix.target }}:latest
+          docker push ${{ secrets.DOCKER_REGISTRY }}/twir-${{ matrix.target }}:latest
 
   migrations:
     runs-on: self-hosted
@@ -112,8 +112,8 @@ jobs:
 
       - run: |
           docker build -f ./libs/migrations/Dockerfile \
-          -t ${{ secrets.DOCKER_REGISTRY }}/twir/migrations:latest \
+          -t ${{ secrets.DOCKER_REGISTRY }}/twir-migrations:latest \
           --cache-from type=gha,scope=twir-migrations \
           --cache-to type=gha,mode=max,scope=twir-migrations .
 
-          docker push ${{ secrets.DOCKER_REGISTRY }}/twir/migrations:latest
+          docker push ${{ secrets.DOCKER_REGISTRY }}/twir-migrations:latest
