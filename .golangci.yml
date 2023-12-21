@@ -8,8 +8,21 @@ linters:
     - ineffassign
     - unused
 
+    - errname
+    - exhaustive
     - containedctx
     - exhaustruct
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - ireturn
+    - perfsprint
+    - prealloc
+    - protogetter
+    - sqlclosecheck
+    - whitespace
+    - wrapcheck
     - goerr113
     - goimports
     - revive
