@@ -130,7 +130,7 @@ var DuelAccept = &types.DefaultCommand{
 				loserId = currentDuel.TargetID
 			}
 
-			resultMessage := settings.ResultMessage
+			resultMessage = settings.ResultMessage
 			resultMessage = strings.ReplaceAll(resultMessage, "{loser}", loser)
 			resultMessage = strings.ReplaceAll(resultMessage, "{winner}", winner)
 		}
