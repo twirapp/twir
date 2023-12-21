@@ -60,7 +60,7 @@ services:
   temporal:
     depends_on:
       - postgres
-    image: twir-temporal:latest
+    image: satont/twir-temporal:latest
     networks:
       - twir
     secrets:
@@ -82,7 +82,7 @@ services:
     build:
       context: .
       dockerfile: ./tools/pg-backup/Dockerfile
-    image: twir-postgres-backup:latest
+    image: satont/twir-postgres-backup:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -98,7 +98,7 @@ services:
           - node.role == manager
 
   migrations:
-    image: twir-migrations:latest
+    image: satont/twir-migrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -131,7 +131,7 @@ services:
           - node.role == manager
 
   api:
-    image: twir-api:latest
+    image: satont/twir-api:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -156,7 +156,7 @@ services:
       replicas: 1
 
   bots:
-    image: twir-bots:latest
+    image: satont/twir-bots:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -172,7 +172,7 @@ services:
           - node.role == manager
 
   parser:
-    image: twir-parser:latest
+    image: satont/twir-parser:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -189,7 +189,7 @@ services:
       - twir
 
   timers:
-    image: twir-timers:latest
+    image: satont/twir-timers:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -206,7 +206,7 @@ services:
       endpoint_mode: dnsrr
 
   scheduler:
-    image: twir-scheduler:latest
+    image: satont/twir-scheduler:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -219,7 +219,7 @@ services:
       endpoint_mode: dnsrr
 
   eventsub:
-    image: twir-eventsub:latest
+    image: satont/twir-eventsub:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -238,7 +238,7 @@ services:
         - traefik.docker.network=traefik-public
 
   eval:
-    image: twir-eval:latest
+    image: satont/twir-eval:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -259,7 +259,7 @@ services:
       - twir
 
   integrations:
-    image: twir-integrations:latest
+    image: satont/twir-integrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -272,7 +272,7 @@ services:
       endpoint_mode: dnsrr
 
   landing:
-    image: twir-landing:latest
+    image: satont/twir-landing:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -294,7 +294,7 @@ services:
         - traefik.docker.network=traefik-public
 
   dashboard:
-    image: twir-dashboard:latest
+    image: satont/twir-dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
     secrets:
       - twir_doppler_token
@@ -316,7 +316,7 @@ services:
         - traefik.docker.network=traefik-public
 
   public-page:
-    image: twir-public-page:latest
+    image: satont/twir-public-page:latest
     command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
@@ -338,7 +338,7 @@ services:
         - traefik.docker.network=traefik-public
 
   overlays:
-    image: twir-overlays:latest
+    image: satont/twir-overlays:latest
     command: --gzip --brotli --threshold 500
     networks:
       - twir
@@ -358,7 +358,7 @@ services:
         - traefik.docker.network=traefik-public
 
   websockets:
-    image: twir-websockets:latest
+    image: satont/twir-websockets:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -379,7 +379,7 @@ services:
         - traefik.docker.network=traefik-public
 
   tokens:
-    image: twir-tokens:latest
+    image: satont/twir-tokens:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -396,7 +396,7 @@ services:
       endpoint_mode: dnsrr
 
   emotes-cacher:
-    image: twir-emotes-cacher:latest
+    image: satont/twir-emotes-cacher:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -413,7 +413,7 @@ services:
       replicas: 4
 
   events:
-    image: twir-events:latest
+    image: satont/twir-events:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -430,7 +430,7 @@ services:
       replicas: 6
 
   ytsr:
-    image: twir-ytsr:latest
+    image: satont/twir-ytsr:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -447,7 +447,7 @@ services:
       replicas: 6
 
   tts:
-    image: twir-tts:latest
+    image: satont/twir-tts:latest
     networks:
       - twir
     deploy:
@@ -462,7 +462,7 @@ services:
       replicas: 4
 
   discord:
-    image: twir-discord:latest
+    image: satont/twir-discord:latest
     secrets:
       - twir_doppler_token
     networks:
