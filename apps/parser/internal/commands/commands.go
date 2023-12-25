@@ -306,7 +306,7 @@ func (c *Commands) ParseCommandResponses(
 			if errors.As(err, &commandErr) {
 				results = &types.CommandsHandlerResult{
 					Result: []string{
-						fmt.Sprintf("[Twir error]: %s. Please contact developers.", commandErr.Message),
+						fmt.Sprintf("[Twir error]: %s", commandErr.Message),
 					},
 				}
 			} else {
