@@ -14,9 +14,10 @@ type locks struct {
 	stream      sync.Mutex
 	dbUserStats sync.Mutex
 
-	twitchSenderUser sync.Mutex
-	twitchFollow     sync.Mutex
-	twitchChannel    sync.Mutex
+	twitchFollow            sync.Mutex
+	twitchChannel           sync.Mutex
+	cachedTwitchUsersById   sync.Mutex
+	cachedTwitchUsersByName sync.Mutex
 
 	channelIntegrations sync.Mutex
 
@@ -33,9 +34,10 @@ type cache struct {
 	stream      *model.ChannelsStreams
 	dbUserStats *model.UsersStats
 
-	twitchSenderUser  *helix.User
-	twitchUserFollows map[string]*helix.ChannelFollow
-	twitchChannel     *helix.ChannelInformation
+	twitchUserFollows       map[string]*helix.ChannelFollow
+	twitchChannel           *helix.ChannelInformation
+	cachedTwitchUsersById   map[string]*helix.User
+	cachedTwitchUsersByName map[string]*helix.User
 
 	channelIntegrations []*model.ChannelsIntegrations
 
@@ -71,7 +73,9 @@ func NewCacher(opts *CacherOpts) types.DataCacher {
 		parseCtxText:    opts.ParseCtxText,
 		locks:           &locks{},
 		cache: &cache{
-			twitchUserFollows: make(map[string]*helix.ChannelFollow),
+			twitchUserFollows:       make(map[string]*helix.ChannelFollow),
+			cachedTwitchUsersById:   make(map[string]*helix.User),
+			cachedTwitchUsersByName: make(map[string]*helix.User),
 		},
 	}
 }

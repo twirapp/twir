@@ -20,6 +20,8 @@ type DataCacher interface {
 	GetGbUserStats(ctx context.Context) *model.UsersStats
 	GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 	GetTwitchSenderUser(ctx context.Context) *helix.User
+	GetTwitchUserById(ctx context.Context, userId string) (*helix.User, error)
+	GetTwitchUserByName(ctx context.Context, userId string) (*helix.User, error)
 	GetValorantMatches(ctx context.Context) []*ValorantMatch
 	GetValorantProfile(ctx context.Context) *ValorantProfile
 

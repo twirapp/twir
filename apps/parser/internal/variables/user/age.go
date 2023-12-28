@@ -8,7 +8,6 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/pkg/helpers"
-	"github.com/satont/twir/libs/twitch"
 )
 
 var Age = &types.Variable{
@@ -18,29 +17,19 @@ var Age = &types.Variable{
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
-		twitchClient, err := twitch.NewAppClientWithContext(
-			ctx,
-			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
-		)
-		if err != nil {
-			return nil, err
-		}
-
 		result := types.VariableHandlerResult{}
 
 		var user *helix.User
 		if parseCtx.Text != nil {
 			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
 
-			users, err := twitchClient.GetUsers(
-				&helix.UsersParams{
-					Logins: []string{userName},
-				},
-			)
+			cachedUser, err := parseCtx.Cacher.GetTwitchUserByName(ctx, userName)
+			if err != nil {
+				return nil, err
+			}
 
-			if err == nil && len(users.Data.Users) != 0 {
-				user = &users.Data.Users[0]
+			if cachedUser == nil {
+				user = cachedUser
 			}
 		} else {
 			user = parseCtx.Cacher.GetTwitchSenderUser(ctx)
@@ -50,7 +39,8 @@ var Age = &types.Variable{
 			result.Result = "Cannot find user on twitch."
 		} else {
 			result.Result = helpers.Duration(
-				user.CreatedAt.Time, &helpers.DurationOpts{
+				user.CreatedAt.Time,
+				&helpers.DurationOpts{
 					UseUtc: true,
 					Hide: helpers.DurationOptsHide{
 						Seconds: true,

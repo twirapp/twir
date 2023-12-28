@@ -188,13 +188,24 @@ func (c *cacher) GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 	return c.cache.twitchChannel
 }
 
-// GetTwitchUser implements types.VariablesCacher
+// GetTwitchSenderUser implements types.VariablesCacher
 func (c *cacher) GetTwitchSenderUser(ctx context.Context) *helix.User {
-	c.locks.twitchSenderUser.Lock()
-	defer c.locks.twitchSenderUser.Unlock()
+	user, err := c.GetTwitchUserById(ctx, c.parseCtxSender.ID)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
 
-	if c.cache.twitchSenderUser != nil {
-		return c.cache.twitchSenderUser
+	return user
+}
+
+// GetTwitchUserById implements types.VariablesCacher
+func (c *cacher) GetTwitchUserById(ctx context.Context, userId string) (*helix.User, error) {
+	c.locks.cachedTwitchUsersById.Lock()
+	defer c.locks.cachedTwitchUsersById.Unlock()
+
+	if user, ok := c.cache.cachedTwitchUsersById[userId]; ok {
+		return user, nil
 	}
 
 	twitchClient, err := twitch.NewAppClientWithContext(
@@ -203,23 +214,66 @@ func (c *cacher) GetTwitchSenderUser(ctx context.Context) *helix.User {
 		c.services.GrpcClients.Tokens,
 	)
 	if err != nil {
-		return nil
+		return nil, err
 	}
 
 	users, err := twitchClient.GetUsers(
 		&helix.UsersParams{
-			IDs: []string{c.parseCtxSender.ID},
+			IDs: []string{userId},
 		},
 	)
-
-	if err != nil || users.ErrorMessage != "" {
-		c.services.Logger.Sugar().Error(users.ErrorMessage, err)
-		return nil
+	if err != nil {
+		return nil, err
+	}
+	if users.ErrorMessage != "" {
+		return nil, fmt.Errorf(users.ErrorMessage)
 	}
 
-	if err == nil && len(users.Data.Users) != 0 {
-		c.cache.twitchSenderUser = &users.Data.Users[0]
+	if len(users.Data.Users) == 0 {
+		return nil, nil
 	}
 
-	return c.cache.twitchSenderUser
+	c.cache.cachedTwitchUsersById[userId] = &users.Data.Users[0]
+	c.cache.cachedTwitchUsersByName[users.Data.Users[0].Login] = &users.Data.Users[0]
+
+	return &users.Data.Users[0], nil
+}
+
+func (c *cacher) GetTwitchUserByName(ctx context.Context, userName string) (*helix.User, error) {
+	c.locks.cachedTwitchUsersByName.Lock()
+	defer c.locks.cachedTwitchUsersByName.Unlock()
+
+	if user, ok := c.cache.cachedTwitchUsersByName[userName]; ok {
+		return user, nil
+	}
+
+	twitchClient, err := twitch.NewAppClientWithContext(
+		ctx,
+		*c.services.Config,
+		c.services.GrpcClients.Tokens,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			Logins: []string{userName},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if users.ErrorMessage != "" {
+		return nil, fmt.Errorf(users.ErrorMessage)
+	}
+
+	if len(users.Data.Users) == 0 {
+		return nil, nil
+	}
+
+	c.cache.cachedTwitchUsersByName[userName] = &users.Data.Users[0]
+	c.cache.cachedTwitchUsersById[users.Data.Users[0].ID] = &users.Data.Users[0]
+
+	return &users.Data.Users[0], nil
 }
