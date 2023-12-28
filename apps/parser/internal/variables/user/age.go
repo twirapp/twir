@@ -28,7 +28,7 @@ var Age = &types.Variable{
 				return nil, err
 			}
 
-			if cachedUser == nil {
+			if cachedUser != nil {
 				user = cachedUser
 			}
 		} else {
