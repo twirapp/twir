@@ -132,11 +132,6 @@ export const newRouter = (queryClient: QueryClient) => {
 					component: () => import('./pages/Files.vue'),
 				},
 				{
-					path: '/dashboard/registry/overlays',
-					component: () => import('./pages/OverlaysRegistry.vue'),
-					meta: { neededPermission: 'VIEW_OVERLAYS' },
-				},
-				{
 					name: 'RegistryOverlayEdit',
 					path: '/dashboard/registry/overlays/:id',
 					component: () => import('./components/registry/overlays/edit.vue'),
