@@ -4,7 +4,7 @@ import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
 import { createColumns } from '@/components/commands/list/createColumns';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
@@ -21,10 +21,6 @@ const props = withDefaults(defineProps<{
 	showHeader: false,
 	showCreateButton: false,
 });
-
-const commandsManager = useCommandsManager();
-const commandsDeleter = commandsManager.deleteOne;
-const commandsPatcher = commandsManager.patch!;
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;
@@ -85,7 +81,7 @@ function onModalClose() {
 
 const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 
-const columns = createColumns(editCommand, commandsDeleter, commandsPatcher);
+const columns = createColumns(editCommand);
 </script>
 
 <template>

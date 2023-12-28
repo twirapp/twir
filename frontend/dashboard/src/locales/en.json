@@ -404,6 +404,7 @@
         "maxEmotes": "Max emotes on screen",
         "animationsOnAppear": "Animations on emote appear",
         "animationsOnDisappear": "Animations on emote disappear",
+				"excludedEmotes": "Excluded emotes in overlay",
         "rave": "Rave colors for emotes",
         "emotes": {
           "bttvEnabled": "Enable BetterTTV emotes",

@@ -3,15 +3,20 @@ import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import type { Emote } from 'kappagen';
 import { Ref, computed } from 'vue';
 
+import { useChannelSettings } from './settingsStore.ts';
 import { emotes } from '../../../components/chat_tmi_emotes';
 
 
 const getEmojiStyleName = (style: EmojiStyle) => {
 	switch (style) {
-		case EmojiStyle.Blobmoji: return 'blob';
-		case EmojiStyle.Noto: return 'noto';
-		case EmojiStyle.Openmoji: return 'openmoji';
-		case EmojiStyle.Twemoji: return 'twemoji';
+		case EmojiStyle.Blobmoji:
+			return 'blob';
+		case EmojiStyle.Noto:
+			return 'noto';
+		case EmojiStyle.Openmoji:
+			return 'openmoji';
+		case EmojiStyle.Twemoji:
+			return 'twemoji';
 	}
 };
 
@@ -21,6 +26,8 @@ export type Buidler = {
 }
 
 export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Buidler => {
+	const { kappagenSettings } = useChannelSettings();
+
 	const kappagenEmotes = computed(() => {
 		const emotesArray = Object.values(emotes.value);
 
@@ -37,6 +44,8 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 			if (chunk.type === 'text') continue;
 
 			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
+
+			if (chunk.emoteName && kappagenSettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
 
 			if (chunk.type === 'emote') {
 				result.push({
@@ -75,11 +84,13 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 		if (!emotesChunks.length) {
-			const mappedEmotes = kappagenEmotes.value.map(v => ({
-				url: v.urls.at(-1)!,
-				width: v.width,
-				height: v.height,
-			}));
+			const mappedEmotes = kappagenEmotes.value
+				.filter(v => !kappagenSettings.value?.excludedEmotes?.includes(v.name))
+				.map(v => ({
+					url: v.urls.at(-1)!,
+					width: v.width,
+					height: v.height,
+				}));
 
 			result.push(...mappedEmotes);
 		} else {
