@@ -69,6 +69,7 @@ function setEdit() {
 				size="tiny"
 				type="textarea"
 				autosize
+				@keydown.enter="save"
 			/>
 		</template>
 
