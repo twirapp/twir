@@ -60,17 +60,9 @@ function setEdit() {
 	<div v-if="row.isGroup"></div>
 	<div v-else>
 		<template v-if="row.module !== 'CUSTOM'">
-			<n-text v-if="!isEdit" class="response" @click="setEdit">
+			<n-text @click="setEdit">
 				{{ row.description }}
 			</n-text>
-			<n-input
-				v-else
-				v-model:value="description"
-				size="tiny"
-				type="textarea"
-				autosize
-				@keydown.enter="save"
-			/>
 		</template>
 
 		<n-popconfirm
