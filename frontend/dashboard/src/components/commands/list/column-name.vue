@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue';
-import { NTag, NButton, NInput, useNotification, NText } from 'naive-ui';
+import { NTag, NButton, NInput, useNotification, NText, NPopconfirm } from 'naive-ui';
 import { ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -63,24 +63,43 @@ function setEdit() {
 </script>
 
 <template>
-	<n-tag v-if="row.isGroup" :style="{ backgroundColor: row.groupColor }">
-		<p :style="{ color: computeGroupTextColor(row.groupColor) }">
-			{{ row.name }}
-		</p>
-	</n-tag>
-	<n-text v-else-if="!isEdit" class="name" @click="setEdit">
-		{{ row.name }}
-	</n-text>
-	<div v-else class="editable-name">
-		<n-input v-model:value="name" size="small" />
-		<div class="actions">
-			<n-button text type="error" size="tiny" @click="reset">
-				<IconX />
-			</n-button>
-			<n-button text type="success" size="tiny" @click="save">
-				<IconDeviceFloppy />
-			</n-button>
-		</div>
+	<div class="command-name">
+		<n-tag v-if="row.isGroup" :style="{ backgroundColor: row.groupColor }">
+			<p :style="{ color: computeGroupTextColor(row.groupColor) }">
+				{{ row.name }}
+			</p>
+		</n-tag>
+
+		<n-popconfirm
+			v-else
+			:show-icon="false"
+			style="width: 200px"
+			:show="isEdit"
+			trigger="click"
+			placement="bottom-start"
+			@clickoutside="reset"
+		>
+			<template #trigger>
+				<div style="width: 100%" @click="setEdit">
+					<n-text class="name">
+						{{ row.name }}
+					</n-text>
+				</div>
+			</template>
+
+			<n-input v-model:value="name" size="small" :maxlength="50" type="textarea" autosize />
+
+			<template #action>
+				<div class="actions">
+					<n-button secondary type="error" size="tiny" @click="reset">
+						<IconX />
+					</n-button>
+					<n-button secondary type="success" size="tiny" @click="save">
+						<IconDeviceFloppy />
+					</n-button>
+				</div>
+			</template>
+		</n-popconfirm>
 	</div>
 </template>
 
@@ -89,9 +108,9 @@ function setEdit() {
 	text-decoration: underline dotted;
 }
 
-.editable-name {
+.command-name {
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 4px;
 	justify-content: space-between;
 }
