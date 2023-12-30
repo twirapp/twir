@@ -111,6 +111,11 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
 		nextIndex = 0
 	}
 
+	err = c.timersRepository.UpdateTriggerMessageNumber(timerId, stream.ParsedMessages)
+	if err != nil {
+		return nextIndex, err
+	}
+
 	err = c.redis.Set(ctx, "timers:current_response:"+timerId, nextIndex, 24*time.Hour).Err()
 	if err != nil {
 		return nextIndex, err

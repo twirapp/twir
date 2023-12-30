@@ -48,7 +48,7 @@ func (c *gormRepository) GetById(id string) (Timer, error) {
 	}
 
 	if entity.ID == "" {
-		return result, NotFoundError
+		return result, ErrNotFound
 	}
 
 	return c.convertEntity(entity), nil
@@ -84,7 +84,7 @@ func (c *gormRepository) Update(id string, data Timer) error {
 	}
 
 	if entity.ID == "" {
-		return NotFoundError
+		return ErrNotFound
 	}
 
 	// ID                       string
@@ -104,4 +104,11 @@ func (c *gormRepository) Update(id string, data Timer) error {
 	}
 
 	return nil
+}
+
+func (c *gormRepository) UpdateTriggerMessageNumber(id string, number int) error {
+	return c.db.Model(&model.ChannelsTimers{}).Where(
+		"id = ?",
+		id,
+	).Update(`"lastTriggerMessageNumber"`, number).Error
 }
