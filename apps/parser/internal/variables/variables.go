@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types/services"
+	"github.com/satont/twir/apps/parser/internal/variables/channel"
 	"github.com/satont/twir/apps/parser/internal/variables/chat_eval"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/last_donate"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate"
@@ -123,6 +124,7 @@ func New(opts *Opts) *Variables {
 			chat_eval.ChatEval,
 			user.Reputation,
 			weather.Weather,
+			channel.Name,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},
