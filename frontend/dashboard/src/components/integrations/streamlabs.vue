@@ -20,10 +20,10 @@ const { t } = useI18n();
 		:logout="() => logout.mutateAsync({})"
 		:authLink="authLink?.link"
 		:icon="IconStreamLabs"
-		:description="<span v-html='t('integrations.donateServicesInfo', {
+		:description="t('integrations.donateServicesInfo', {
 			events: t('sidebar.events').toLocaleLowerCase(),
 			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
 			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})'>"
+		})"
 	/>
 </template>
