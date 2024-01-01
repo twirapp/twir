@@ -2,6 +2,8 @@ package timers
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -9,75 +11,125 @@ import (
 	"github.com/guregu/null"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/scheduler/internal/types"
+	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
-	"go.uber.org/zap"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
-func NewOnlineUsers(ctx context.Context, services *types.Services) {
-	timeTick := lo.If(services.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
-	ticker := time.NewTicker(timeTick)
+type OnlineUsersOpts struct {
+	fx.In
+	Lc fx.Lifecycle
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				ticker.Stop()
-				return
-			case <-ticker.C:
-				updateOnlineUsers(ctx, services)
-			}
-		}
-	}()
+	Logger logger.Logger
+	Config config.Config
+
+	Gorm       *gorm.DB
+	TokensGrpc tokens.TokensClient
 }
 
-func updateOnlineUsers(ctx context.Context, services *types.Services) {
-	streams, err := getStreams(ctx, services)
+type onlineUsers struct {
+	config     config.Config
+	logger     logger.Logger
+	db         *gorm.DB
+	tokensGrpc tokens.TokensClient
+}
+
+func NewOnlineUsers(opts OnlineUsersOpts) {
+	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	ticker := time.NewTicker(timeTick)
+
+	ctx, cancel := context.WithCancel(context.Background())
+
+	s := &onlineUsers{
+		config:     opts.Config,
+		logger:     opts.Logger,
+		db:         opts.Gorm,
+		tokensGrpc: opts.TokensGrpc,
+	}
+
+	opts.Lc.Append(
+		fx.Hook{
+			OnStart: func(_ context.Context) error {
+				go func() {
+					for {
+						select {
+						case <-ctx.Done():
+							ticker.Stop()
+							return
+						case <-ticker.C:
+							s.updateOnlineUsers(ctx)
+						}
+					}
+				}()
+
+				return nil
+			},
+			OnStop: func(_ context.Context) error {
+				cancel()
+				return nil
+			},
+		},
+	)
+}
+
+func (c *onlineUsers) updateOnlineUsers(ctx context.Context) {
+	streams, err := c.getStreams(ctx)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error("cannot get streams", slog.Any("err", err))
 		return
 	}
 
 	var wg sync.WaitGroup
 	for _, stream := range streams {
-		if shouldSkipStream(stream) {
+		if c.shouldSkipStream(stream) {
 			continue
 		}
+
+		userId := stream.UserId
 		wg.Add(1)
-		go func(broadcasterID string) {
+
+		go func() {
 			defer wg.Done()
-			updateStreamUsers(ctx, broadcasterID, services)
-		}(stream.UserId)
+			if updateErr := c.updateStreamUsers(ctx, userId); updateErr != nil {
+				c.logger.Error("cannot update stream users", slog.Any("err", updateErr))
+			}
+		}()
 	}
+
 	wg.Wait()
 }
 
-func getStreams(ctx context.Context, services *types.Services) ([]*model.ChannelsStreams, error) {
+func (c *onlineUsers) getStreams(
+	ctx context.Context,
+) ([]*model.ChannelsStreams, error) {
 	var streams []*model.ChannelsStreams
-	err := services.Gorm.WithContext(ctx).Preload("Channel").Find(&streams).Error
+	err := c.db.WithContext(ctx).Preload("Channel").Find(&streams).Error
 	return streams, err
 }
 
-func shouldSkipStream(stream *model.ChannelsStreams) bool {
+func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
 	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.IsBanned)
 }
 
-func updateStreamUsers(ctx context.Context, broadcasterID string, services *types.Services) {
+func (c *onlineUsers) updateStreamUsers(
+	ctx context.Context,
+	broadcasterID string,
+) error {
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
 		broadcasterID,
-		*services.Config,
-		services.Grpc.Tokens,
+		c.config,
+		c.tokensGrpc,
 	)
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return err
 	}
 
 	var cursor string
-
 	for {
 		params := &helix.GetChatChattersParams{
 			BroadcasterID: broadcasterID,
@@ -87,34 +139,32 @@ func updateStreamUsers(ctx context.Context, broadcasterID string, services *type
 		}
 		req, err := twitchClient.GetChannelChatChatters(params)
 		if err != nil {
-			zap.S().Error(err)
-			return
+			return fmt.Errorf("cannot get channel chat chatters: %w", err)
 		}
 		if req.ErrorMessage != "" {
-			zap.S().Error(req.ErrorMessage)
-			return
+			return fmt.Errorf("cannot get channel chat chatters: %s", req.ErrorMessage)
 		}
 
 		chatters := req.Data.Chatters
-
 		if len(chatters) == 0 {
-			return
+			return nil
 		}
 
 		usersIdsForRequest := lo.Map(
-			chatters, func(chatter helix.ChatChatter, _ int) string {
+			chatters,
+			func(chatter helix.ChatChatter, _ int) string {
 				return chatter.UserID
 			},
 		)
 
-		err = services.Gorm.WithContext(ctx).Transaction(
+		err = c.db.WithContext(ctx).Transaction(
 			func(tx *gorm.DB) error {
 				var existedUsers []model.Users
 				if err := tx.
 					Select("id").
 					Where("id IN ?", usersIdsForRequest).
 					Find(&existedUsers).Error; err != nil {
-					return err
+					return fmt.Errorf("cannot get existed users: %w", err)
 				}
 				var usersForCreate []model.Users
 				for _, chatter := range chatters {
@@ -143,7 +193,7 @@ func updateStreamUsers(ctx context.Context, broadcasterID string, services *type
 					`"channelId" = ?`,
 					broadcasterID,
 				).Delete(&model.UsersOnline{}).Error; err != nil {
-					return err
+					return fmt.Errorf("cannot delete online users: %w", err)
 				}
 
 				onlineChattersForCreate := make([]model.UsersOnline, 0, len(chatters))
@@ -161,13 +211,13 @@ func updateStreamUsers(ctx context.Context, broadcasterID string, services *type
 
 				if len(usersForCreate) > 0 {
 					if err := tx.Create(&usersForCreate).Error; err != nil {
-						return err
+						return fmt.Errorf("cannot create users: %w", err)
 					}
 				}
 
 				if len(onlineChattersForCreate) > 0 {
 					if err := tx.Create(&onlineChattersForCreate).Error; err != nil {
-						return err
+						return fmt.Errorf("cannot create online users: %w", err)
 					}
 				}
 
@@ -176,12 +226,11 @@ func updateStreamUsers(ctx context.Context, broadcasterID string, services *type
 		)
 
 		if err != nil {
-			zap.S().Error(err)
-			return
+			return fmt.Errorf("cannot update stream users: %w", err)
 		}
 
 		if req.Data.Pagination.Cursor == "" {
-			return
+			return nil
 		}
 
 		cursor = req.Data.Pagination.Cursor

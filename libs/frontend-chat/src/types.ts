@@ -1,4 +1,3 @@
-import type { Font as InternalFont } from '@twir/grpc/generated/api/api/google_fonts_unprotected';
 import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/overlays_chat';
 
 export enum EmoteFlag {
@@ -35,8 +34,6 @@ export type MessageChunk = {
 	emoteName?: string
 }
 
-export type Font = InternalFont
-
 export type BadgeVersion = {
 	id: string,
 	image_url_1x: string,
@@ -71,3 +68,10 @@ export type Settings = {
 	globalBadges: Map<string, ChatBadge>
 	channelBadges: Map<string, BadgeVersion>
 } & ChatSettings;
+
+
+export type MessageComponentProps = {
+	msg: Message,
+	settings: Settings,
+	userColor: string,
+}

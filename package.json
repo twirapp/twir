@@ -6,7 +6,7 @@
 		"node": ">= 20"
 	},
 	"scripts": {
-		"lint": "eslint --ext .ts,.vue apps/",
+		"lint": "eslint --ext .ts,.vue apps/ libs/",
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
 		"predev": "pnpm build:libs",
 		"dev": "go run ./tools/dev.go",

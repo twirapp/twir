@@ -12,7 +12,10 @@ message Settings {
 	string font_family = 7;
 	bool show_badges = 8;
 	bool show_announce_badge = 9;
-	bool reverse_messages = 10;
-	string text_shadow_color = 11;
-	uint32 text_shadow_size = 12;
+	string text_shadow_color = 10;
+	uint32 text_shadow_size = 11;
+	string chat_background_color = 12;
+	string direction = 13;
+	uint32 font_weight = 14;
+	string font_style = 15;
 }

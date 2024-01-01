@@ -4,8 +4,13 @@ import type { KappagenAnimations } from 'kappagen';
 import { watch } from 'vue';
 
 import { type Buidler } from './builder.js';
-import { kappagenSettings } from './settingsStore.js';
-import type { KappagenCallback, SpawnCallback, SetSettingsCallback, KappagenSettings } from './types.js';
+import { useChannelSettings } from './settingsStore.js';
+import type {
+	KappagenCallback,
+	SpawnCallback,
+	SetSettingsCallback,
+	KappagenSettings,
+} from './types.js';
 import { makeMessageChunks } from '../../../components/chat_tmi_helpers.js';
 import type { TwirWebSocketEvent } from '../../../sockets/types';
 
@@ -17,6 +22,8 @@ type Opts = {
 }
 
 export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
+	const { kappagenSettings } = useChannelSettings();
+
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
 
@@ -33,11 +40,10 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		},
 	);
 
-
 	const randomAnimation = () => {
 		if (!kappagenSettings.value) return;
 		const enabledAnimations = kappagenSettings.value.animations.filter(a => a.enabled);
-		return enabledAnimations[Math.floor(Math.random()*enabledAnimations.length)];
+		return enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
 	};
 
 	watch(data, (d: string) => {

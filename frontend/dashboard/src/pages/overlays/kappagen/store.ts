@@ -36,6 +36,7 @@ const settings = ref<Settings>({
 	},
 	events: [],
 	enableSpawn: true,
+	excludedEmotes: [],
 });
 
 export const useSettings = () => {

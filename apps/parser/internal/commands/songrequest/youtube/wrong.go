@@ -3,7 +3,6 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
-	"log"
 	"strconv"
 	"time"
 
@@ -24,7 +23,10 @@ var WrongCommand = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		var songs []*model.RequestedSong
@@ -39,14 +41,15 @@ var WrongCommand = &types.DefaultCommand{
 			Find(&songs).
 			Error
 		if err != nil {
-			log.Fatal(err)
-			result.Result = append(result.Result, "internal error")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get songs from queue",
+				Err:     err,
+			}
 		}
 
 		if len(songs) == 0 {
 			result.Result = append(result.Result, `You haven't requested any song`)
-			return result
+			return result, nil
 		}
 
 		number := 1
@@ -55,7 +58,7 @@ var WrongCommand = &types.DefaultCommand{
 			newNumber, err := strconv.Atoi(*parseCtx.Text)
 			if err != nil {
 				result.Result = append(result.Result, "Seems like you provided not a number.")
-				return result
+				return result, nil
 			}
 			number = newNumber
 		}
@@ -65,15 +68,17 @@ var WrongCommand = &types.DefaultCommand{
 				result.Result,
 				fmt.Sprintf("there is only %v songs", len(songs)),
 			)
-			return result
+			return result, nil
 		}
 
 		choosedSong := songs[number-1]
 		choosedSong.DeletedAt = lo.ToPtr(time.Now().UTC())
 		err = parseCtx.Services.Gorm.WithContext(ctx).Updates(&choosedSong).Error
 		if err != nil {
-			result.Result = append(result.Result, "Cannot delete song")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot update song",
+				Err:     err,
+			}
 		}
 
 		_, err = parseCtx.Services.GrpcClients.WebSockets.YoutubeRemoveSongToQueue(
@@ -84,9 +89,10 @@ var WrongCommand = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			log.Fatal(err)
-			result.Result = append(result.Result, "Internal error happened when we removing song from queue")
-			return result
+			return nil, &types.CommandHandlerError{
+				Message: "cannot remove song from queue",
+				Err:     err,
+			}
 		}
 
 		result.Result = append(
@@ -94,6 +100,6 @@ var WrongCommand = &types.DefaultCommand{
 			fmt.Sprintf("Song %s deleted from queue", choosedSong.Title),
 		)
 
-		return result
+		return result, nil
 	},
 }

@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { NCard, NTabs, NTabPane, useMessage, NButton, NDynamicTags, NFormItem } from 'naive-ui';
+import {
+	NCard,
+	NTabs,
+	NTabPane,
+	NButton,
+	NDynamicTags,
+	NFormItem,
+	useNotification,
+} from 'naive-ui';
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -83,7 +91,7 @@ watch(settings, (v) => {
 	}
 }, { immediate: true });
 
-const message = useMessage();
+const message = useNotification();
 const { t } = useI18n();
 
 async function save() {
@@ -91,9 +99,15 @@ async function save() {
 
 	try {
 		await updater.mutateAsync(raw);
-		message.success(t('sharedTexts.saved'));
+		message.success({
+			title: t('sharedTexts.saved'),
+			duration: 2500,
+		});
 	} catch (error) {
-		message.error(t('sharedTexts.errorOnSave'));
+		message.error({
+			title: t('sharedTexts.errorOnSave'),
+			duration: 2500,
+		});
 	}
 }
 
@@ -283,7 +297,10 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 					`"
 				>
 					<template #header>
-						<n-form-item :label="t('chatAlerts.ban.ignoreTimeoutFrom')" label-style="padding: 0;" class="tags">
+						<n-form-item
+							:label="t('chatAlerts.ban.ignoreTimeoutFrom')" label-style="padding: 0;"
+							class="tags"
+						>
 							<n-dynamic-tags
 								v-model:value="formValue.ban.ignoreTimeoutFrom"
 								:max="100"

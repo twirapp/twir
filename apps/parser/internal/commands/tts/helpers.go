@@ -17,7 +17,6 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/tidwall/gjson"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -64,13 +63,11 @@ func getVoices(ctx context.Context, cfg *config.Config) []Voice {
 		SetSuccessResult(&data).
 		Get(fmt.Sprintf("http://%s/info", cfg.TTSServiceUrl))
 	if err != nil {
-		zap.S().Error(err)
 		return nil
 	}
 
 	bytes, err := json.Marshal(&data)
 	if err != nil {
-		zap.S().Error(err)
 		return nil
 	}
 
@@ -93,7 +90,10 @@ func getVoices(ctx context.Context, cfg *config.Config) []Voice {
 }
 
 func updateSettings(
-	ctx context.Context, db *gorm.DB, entity *model.ChannelModulesSettings, settings *modules.TTSSettings,
+	ctx context.Context,
+	db *gorm.DB,
+	entity *model.ChannelModulesSettings,
+	settings *modules.TTSSettings,
 ) error {
 	bytes, err := json.Marshal(settings)
 	if err != nil {
@@ -152,7 +152,7 @@ func switchEnableState(ctx context.Context, db *gorm.DB, channelId string, newSt
 	channelSettings, channelModele := getSettings(ctx, db, channelId, "")
 
 	if channelSettings == nil {
-		return errors.New("Tts not configured")
+		return errors.New("tts not configured")
 	}
 
 	channelSettings.Enabled = &newState

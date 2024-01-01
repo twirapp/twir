@@ -11,7 +11,11 @@ export function makeMessageChunks(message: string, emotes?: {
 	const parsedTwitchEmotes = emotes ? Object.entries(emotes).reduce((acc, [id, positions]) => {
 		positions.forEach((position) => {
 			const [from, to] = position.split('-').map(Number);
-			acc.push({ from, to, emoteId: id });
+			acc.push({
+				from,
+				to,
+				emoteId: id,
+			});
 		});
 		return acc;
 	}, [] as { from: number, to: number, emoteId: string }[]) : [];

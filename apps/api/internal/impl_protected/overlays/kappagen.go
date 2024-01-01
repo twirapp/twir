@@ -80,7 +80,8 @@ func (c *Overlays) kappagenDbToGrpc(s model.KappagenOverlaySettings) *overlays_k
 				}
 			},
 		),
-		EnableSpawn: s.EnableSpawn,
+		EnableSpawn:    s.EnableSpawn,
+		ExcludedEmotes: s.ExcludedEmotes,
 	}
 }
 
@@ -149,7 +150,8 @@ func (c *Overlays) kappagenGrpcToDb(s *overlays_kappagen.Settings) model.Kappage
 				}
 			},
 		),
-		EnableSpawn: s.EnableSpawn,
+		EnableSpawn:    s.EnableSpawn,
+		ExcludedEmotes: s.ExcludedEmotes,
 	}
 }
 

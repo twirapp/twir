@@ -8,7 +8,6 @@ import (
 
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"go.uber.org/zap"
 )
 
 var SkipCommand = &types.DefaultCommand{
@@ -18,7 +17,10 @@ var SkipCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSkip(
@@ -27,9 +29,12 @@ var SkipCommand = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			zap.S().Error(err)
+			return nil, &types.CommandHandlerError{
+				Message: "error while sending message to tts service",
+				Err:     err,
+			}
 		}
 
-		return result
+		return result, nil
 	},
 }

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { NSlider, NSwitch, NAlert, NDivider, NSelect } from 'naive-ui';
+import { NSlider, NSwitch, NAlert, NDivider, NSelect, NButton } from 'naive-ui';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { VNodeChild, h } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -69,7 +69,9 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 		</div>
 
 		<div class="slider">
-			{{ t('overlays.kappagen.settings.sizeSmall') }}({{ formatSizeValue(formValue.size!.ratioSmall) }})
+			{{ t('overlays.kappagen.settings.sizeSmall') }}({{
+				formatSizeValue(formValue.size!.ratioSmall)
+			}})
 			<n-slider
 				v-model:value="formValue.size!.ratioSmall"
 				:format-tooltip="formatSizeValue"
@@ -164,6 +166,25 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 		<div class="switch">
 			<n-switch v-model:value="formValue.enableRave" />
 			<span>{{ t('overlays.kappagen.settings.rave') }}</span>
+		</div>
+
+		<n-divider />
+
+		<div style="display: flex; flex-direction: column; gap: 4px;">
+			<span>{{ t('overlays.kappagen.settings.excludedEmotes') }}</span>
+
+			<n-select
+				v-model:value="formValue.excludedEmotes"
+				filterable
+				multiple
+				tag
+				:placeholder="t('overlays.kappagen.settings.excludedEmotes')"
+				:show-arrow="false"
+				:show="false"
+			/>
+			<n-button secondary type="error" @click="formValue.excludedEmotes = []">
+				Clear
+			</n-button>
 		</div>
 	</div>
 </template>

@@ -22,7 +22,10 @@ var CurrentSong = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     []string{"currentsong"},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -32,6 +35,6 @@ var CurrentSong = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

@@ -4,6 +4,7 @@ import { NGrid, NGridItem } from 'naive-ui';
 
 import { responsiveCols } from '@/components/consants.js';
 import EightBall from '@/components/games/8ball.vue';
+import Duel from '@/components/games/duel.vue';
 import RussianRoulette from '@/components/games/russianRoulette.vue';
 </script>
 
@@ -24,6 +25,10 @@ import RussianRoulette from '@/components/games/russianRoulette.vue';
 
 			<n-grid-item :span="1">
 				<RussianRoulette />
+			</n-grid-item>
+
+			<n-grid-item :span="1">
+				<Duel />
 			</n-grid-item>
 		</n-grid>
 	</div>

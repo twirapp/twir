@@ -1,0 +1,148 @@
+# https://golangci-lint.run/usage/configuration/#config-file
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - unused
+
+    - errname
+    - exhaustive
+    - containedctx
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - ireturn
+    - perfsprint
+    - prealloc
+    - protogetter
+    - sqlclosecheck
+    - whitespace
+    - goerr113
+    - goimports
+    - revive
+    - staticcheck
+    - vet
+    - forbidigo
+    - tagliatelle
+
+run:
+  skip-dirs:
+    - ^api
+    - ^proto
+    - ^.git
+    - libs/grpc
+linters-settings:
+  govet:
+    fieldalignment: 0
+  forbidigo:
+    forbid:
+      - p: ^time\.After$
+        msg: "time.After may leak resources. Use time.NewTimer instead."
+  revive:
+    severity: error
+    confidence: 0.8
+    enable-all-rules: true
+    rules:
+      # Disabled rules
+      - name: add-constant
+        disabled: true
+      - name: argument-limit
+        disabled: true
+      - name: bare-return
+        disabled: true
+      - name: banned-characters
+        disabled: true
+      - name: bool-literal-in-expr
+        disabled: true
+      - name: confusing-naming
+        disabled: true
+      - name: empty-lines
+        disabled: true
+      - name: error-naming
+        disabled: true
+      - name: errorf
+        disabled: true
+      - name: exported
+        disabled: true
+      - name: file-header
+        disabled: true
+      - name: function-length
+        disabled: true
+      - name: imports-blacklist
+        disabled: true
+      - name: increment-decrement
+        disabled: true
+      - name: line-length-limit
+        disabled: true
+      - name: max-public-structs
+        disabled: true
+      - name: nested-structs
+        disabled: true
+      - name: package-comments
+        disabled: true
+      - name: string-format
+        disabled: true
+      - name: unexported-naming
+        disabled: true
+      - name: unexported-return
+        disabled: true
+      - name: unused-parameter
+        disabled: true
+      - name: unused-receiver
+        disabled: true
+      - name: use-any
+        disabled: true
+      - name: var-naming
+        disabled: true
+      - name: empty-block
+        disabled: true
+      - name: flag-parameter
+        disabled: true
+
+      # Rule tuning
+      - name: cognitive-complexity
+        arguments:
+          - 25
+      - name: cyclomatic
+        arguments:
+          - 25
+      - name: function-result-limit
+        arguments:
+          - 5
+      - name: unhandled-error
+        arguments:
+          - "fmt.*"
+          - "bytes.Buffer.*"
+          - "strings.Builder.*"
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        json: snake
+        yaml: snake
+        xml: snake
+        toml: snake
+
+issues:
+  # Exclude cyclomatic and cognitive complexity rules for functional tests in the `tests` root directory.
+  exclude-rules:
+    - path: ^tests\/.+\.go
+      text: "(cyclomatic|cognitive)"
+      linters:
+        - revive
+    - path: _test\.go|^common/persistence\/tests\/.+\.go # Ignore things like err = errors.New("test error") in tests
+      linters:
+        - goerr113
+    - path: ^tools\/.+\.go
+      linters:
+        - goerr113
+        - revive

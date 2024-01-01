@@ -20,12 +20,12 @@ const apiKey = route.params.apiKey as string;
 type Config = KappagenEmoteConfig & { rave: boolean }
 
 const emoteConfig = reactive<Required<Config>>({
-  max: 0,
-  time: 5,
-  queue: 0,
-  cube: {
-    speed: 6,
-  },
+	max: 0,
+	time: 5,
+	queue: 0,
+	cube: {
+		speed: 6,
+	},
 	animation: {
 		fade: {
 			in: 8,
@@ -48,8 +48,8 @@ const emoteConfig = reactive<Required<Config>>({
 		min: 1,
 		max: 256,
 		ratio: {
-			normal: 1/12,
-			small: 1/24,
+			normal: 1 / 12,
+			small: 1 / 24,
 		},
 	},
 	rave: false,

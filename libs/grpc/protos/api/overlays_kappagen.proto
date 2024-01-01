@@ -72,4 +72,5 @@ message Settings {
 	bool enableRave = 6;
 	repeated Event events = 7;
 	bool enable_spawn = 8;
+	repeated string excluded_emotes = 9;
 }

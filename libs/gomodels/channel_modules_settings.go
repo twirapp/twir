@@ -70,7 +70,7 @@ type YoutubeSettings struct {
 
 type EightBallSettings struct {
 	Answers []string `validate:"required" json:"answers"`
-	Enabled bool     `json:"enabled"`
+	Enabled bool     `                    json:"enabled"`
 }
 
 type RussianRouletteSetting struct {
@@ -177,16 +177,19 @@ type ChatAlertsBan struct {
 }
 
 type ChatOverlaySettings struct {
-	MessageHideTimeout uint32 `json:"messageHideTimeout,omitempty"`
-	MessageShowDelay   uint32 `json:"messageShowDelay,omitempty"`
-	Preset             string `json:"preset,omitempty"`
-	FontSize           uint32 `json:"fontSize,omitempty"`
-	HideCommands       bool   `json:"hideCommands,omitempty"`
-	HideBots           bool   `json:"hideBots,omitempty"`
-	FontFamily         string `json:"fontFamily,omitempty"`
-	ShowBadges         bool   `json:"showBadges,omitempty"`
-	ShowAnnounceBadge  bool   `json:"showAnnounceBadge,omitempty"`
-	ReverseMessages    bool   `json:"reverseMessages,omitempty"`
-	TextShadowColor    string `json:"textShadowColor,omitempty"`
-	TextShadowSize     uint32 `json:"textShadowSize,omitempty"`
+	MessageHideTimeout  uint32 `json:"messageHideTimeout"`
+	MessageShowDelay    uint32 `json:"messageShowDelay"`
+	Preset              string `json:"preset"`
+	FontFamily          string `json:"fontFamily"`
+	FontSize            uint32 `json:"fontSize"`
+	FontWeight          uint32 `json:"fontWeight"`
+	FontStyle           string `json:"fontStyle"`
+	HideCommands        bool   `json:"hideCommands"`
+	HideBots            bool   `json:"hideBots"`
+	ShowBadges          bool   `json:"showBadges"`
+	ShowAnnounceBadge   bool   `json:"showAnnounceBadge"`
+	TextShadowColor     string `json:"textShadowColor"`
+	TextShadowSize      uint32 `json:"textShadowSize"`
+	ChatBackgroundColor string `json:"chatBackgroundColor"`
+	Direction           string `json:"direction"`
 }

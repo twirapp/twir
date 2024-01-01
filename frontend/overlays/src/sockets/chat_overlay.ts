@@ -22,9 +22,12 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 		fontFamily: 'Roboto',
 		showAnnounceBadge: true,
 		showBadges: true,
-		reverseMessages: false,
 		textShadowColor: '',
 		textShadowSize: 0,
+		chatBackgroundColor: '',
+		direction: 'top',
+		fontStyle: 'normal',
+		fontWeight: 400,
 	});
 
 	const { data, send } = useWebSocket(

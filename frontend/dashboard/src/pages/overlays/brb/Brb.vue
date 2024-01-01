@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import { FontSelector } from '@twir/fontsource';
 import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
 import {
-  useThemeVars,
-  NButton,
-  NColorPicker,
-  NDivider,
-  NInputNumber,
-  NInput,
-  NSwitch,
-  useNotification,
-  NAlert,
+	useThemeVars,
+	NButton,
+	NColorPicker,
+	NDivider,
+	NInputNumber,
+	NInput,
+	NSwitch,
+	useNotification,
+	NAlert,
 } from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -17,7 +18,6 @@ import { useI18n } from 'vue-i18n';
 
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import commandButton from '@/components/commandButton.vue';
-import FontSelector from '@/components/fontSelector.vue';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 
 const themeVars = useThemeVars();
@@ -26,75 +26,74 @@ const { t } = useI18n();
 const { data: profile } = useProfile();
 
 const defaultSettings = {
-  backgroundColor: 'rgba(9, 8, 8, 0.50)',
-  fontColor: '#fff',
-  fontFamily: '',
-  fontSize: 100,
-  text: 'AFK FOR',
-  late: {
-    text: 'LATE FOR',
-    displayBrbTime: true,
-    enabled: true,
-  },
-  opacity: 50,
+	backgroundColor: 'rgba(9, 8, 8, 0.50)',
+	fontColor: '#fff',
+	fontFamily: 'inter',
+	fontSize: 100,
+	text: 'AFK FOR',
+	late: {
+		text: 'LATE FOR',
+		displayBrbTime: true,
+		enabled: true,
+	},
+	opacity: 50,
 };
 
 const formValue = ref<Settings>(structuredClone(defaultSettings));
 
 const manager = useBeRightBackOverlayManager();
 const {
-  data: settings,
-  isError: isSettingsError,
-  isLoading: isSettingsLoading,
+	data: settings,
+	isError: isSettingsError,
+	isLoading: isSettingsLoading,
 } = manager.getSettings();
 const updater = manager.updateSettings();
 
 watch(settings, (v) => {
-  if (!v) return;
-
-  formValue.value = toRaw(v);
+	if (!v) return;
+	formValue.value = toRaw(v);
 }, { immediate: true });
 
 const brbIframeRef = ref<HTMLIFrameElement | null>(null);
 const brbIframeUrl = computed(() => {
-  if (!profile.value) return null;
+	if (!profile.value) return null;
 
-  return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`;
+	return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`;
 });
 
 const sendIframeMessage = (key: string, data?: any) => {
-  if (!brbIframeRef.value) return;
-  const win = brbIframeRef.value;
+	if (!brbIframeRef.value) return;
+	const win = brbIframeRef.value;
 
-  win.contentWindow?.postMessage(JSON.stringify({
-    key,
-    data: toRaw(data),
-  }));
+	win.contentWindow?.postMessage(JSON.stringify({
+		key,
+		data: toRaw(data),
+	}));
 };
 
 const sendSettings = () => {
-  sendIframeMessage('settings', {
-    ...toRaw(formValue.value),
-    channelName: profile.value?.login,
-    channelId: profile.value?.id,
-  });
+	sendIframeMessage('settings', {
+		...toRaw(formValue.value),
+		channelName: profile.value?.login,
+		channelId: profile.value?.id,
+	});
 };
 
 watch(brbIframeRef, (v) => {
-  if (!v) return;
+	if (!v) return;
 
-  v.contentWindow?.addEventListener('message', (e) => {
-    const parsed = JSON.parse(e.data);
-    if (parsed.key !== 'getSettings') return;
+	v.contentWindow?.addEventListener('message', (e) => {
+		const parsed = JSON.parse(e.data);
+		if (parsed.key !== 'getSettings') return;
 
-    sendSettings();
-  });
+		sendSettings();
+	});
 });
 
 watch(() => formValue, () => {
-  if (!brbIframeRef.value) return;
+	if (!brbIframeRef.value) return;
 
-  sendSettings();
+	sendSettings();
 }, { deep: true });
 
 const { copyOverlayLink } = useCopyOverlayLink('brb');
@@ -102,23 +101,23 @@ const { copyOverlayLink } = useCopyOverlayLink('brb');
 const message = useNotification();
 
 async function save() {
-  await updater.mutateAsync(formValue.value);
+	await updater.mutateAsync(formValue.value);
 
-  message.success({
-    title: t('sharedTexts.saved'),
-    duration: 5000,
-  });
+	message.success({
+		title: t('sharedTexts.saved'),
+		duration: 5000,
+	});
 }
 
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 
 const canCopyLink = computed(() => {
-  return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
+	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
 });
 
-const setDefaultSettings = () => {
-  formValue.value = structuredClone(defaultSettings);
-};
+function setDefaultSettings() {
+	formValue.value = structuredClone(defaultSettings);
+}
 </script>
 
 <template>
@@ -195,7 +194,12 @@ const setDefaultSettings = () => {
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.family') }}</span>
-						<font-selector v-model="formValue.fontFamily" :clearable="true" />
+						<font-selector
+							v-model:selected-font="formValue.fontFamily"
+							:font-family="formValue.fontFamily"
+							font-style="normal"
+							:font-weight="400"
+						/>
 					</div>
 
 					<div class="item">
@@ -261,10 +265,10 @@ const setDefaultSettings = () => {
 @import '../styles.css';
 
 .card {
-  background-color: v-bind('themeVars.cardColor');
+	background-color: v-bind('themeVars.cardColor');
 }
 
 .iframe {
-  border: 1px solid v-bind('themeVars.borderColor');
+	border: 1px solid v-bind('themeVars.borderColor');
 }
 </style>

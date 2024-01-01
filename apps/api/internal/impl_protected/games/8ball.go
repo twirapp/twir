@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/api/games"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 var eightBallType = "8ball"
@@ -79,11 +80,33 @@ func (c *Games) GamesUpdateEightBallSettings(
 
 	entity.Settings = settingsJson
 
-	if err := c.Db.
-		WithContext(ctx).
-		Save(&entity).
-		Error; err != nil {
-		return nil, err
+	txErr := c.Db.WithContext(ctx).Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.WithContext(ctx).Save(&entity).Error; err != nil {
+				return err
+			}
+
+			eightBallCommand := model.ChannelsCommands{}
+			if err := tx.WithContext(ctx).Where(
+				`"channelId" = ? and "defaultName" = ?`,
+				dashboardId,
+				"8ball",
+			).First(&eightBallCommand).Error; err != nil {
+				return err
+			}
+
+			eightBallCommand.Enabled = req.Enabled
+
+			if err := tx.WithContext(ctx).Save(&eightBallCommand).Error; err != nil {
+				return err
+			}
+
+			return nil
+		},
+	)
+
+	if txErr != nil {
+		return nil, fmt.Errorf("transaction error: %w", txErr)
 	}
 
 	return &emptypb.Empty{}, nil

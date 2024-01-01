@@ -21,6 +21,7 @@ export const use8ballUpdateSettings = () => {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries(['8ballSettings']);
+			await queryClient.invalidateQueries(['commands']);
 		},
 	});
 };

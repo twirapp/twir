@@ -3,12 +3,12 @@ package user
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/pkg/helpers"
-	"github.com/satont/twir/libs/twitch"
 )
 
 var FollowAge = &types.Variable{
@@ -18,50 +18,46 @@ var FollowAge = &types.Variable{
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {
-		twitchClient, err := twitch.NewAppClientWithContext(
-			ctx,
-			*parseCtx.Services.Config,
-			parseCtx.Services.GrpcClients.Tokens,
-		)
-		if err != nil {
-			return nil, err
-		}
-
 		result := &types.VariableHandlerResult{}
 
-		targetId := parseCtx.Sender.ID
+		var targetUser *helix.User
 		if parseCtx.Text != nil {
 			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
 
-			users, err := twitchClient.GetUsers(
-				&helix.UsersParams{
-					Logins: []string{userName},
-				},
-			)
-
-			if err != nil || len(users.Data.Users) == 0 {
-				result.Result = "Cannot find user " + *parseCtx.Text + " on twitch."
-				return result, nil
+			user, err := parseCtx.Cacher.GetTwitchUserByName(ctx, userName)
+			if err != nil {
+				return nil, err
 			}
 
-			targetId = users.Data.Users[0].ID
+			if user != nil {
+				targetUser = user
+			}
+		} else {
+			targetUser = parseCtx.Cacher.GetTwitchSenderUser(ctx)
 		}
 
-		if parseCtx.Channel.ID == targetId {
-			result.Result = "🎙️ broadcaster"
+		var followedAt *time.Time
+		if targetUser == nil {
+			result.Result = "Cannot find user on twitch."
 			return result, nil
+		} else if parseCtx.Channel.ID == targetUser.ID {
+			followedAt = &targetUser.CreatedAt.Time
+		} else {
+			follow := parseCtx.Cacher.GetTwitchUserFollow(ctx, targetUser.ID)
+			if follow != nil {
+				followedAt = &follow.Followed.Time
+			}
 		}
 
-		follow := parseCtx.Cacher.GetTwitchUserFollow(ctx, targetId)
-		if follow == nil {
+		if followedAt == nil {
 			result.Result = "not a follower"
 		} else {
 			result.Result = helpers.Duration(
-				follow.Followed.Time,
+				*followedAt,
 				&helpers.DurationOpts{
 					UseUtc: true,
 					Hide: helpers.DurationOptsHide{
-						Minutes: true,
+						Minutes: false,
 						Seconds: true,
 					},
 				},

@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
 import {
 	type FormInst,
@@ -25,12 +25,17 @@ import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
 
-import { eventTypeSelectOptions, operationTypeSelectOptions, getOperation, flatEvents } from './helpers.js';
+import {
+	eventTypeSelectOptions,
+	operationTypeSelectOptions,
+	getOperation,
+	flatEvents,
+} from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
 
 
 import {
-useAlertsManager,
+	useAlertsManager,
 	useCommandsManager,
 	useEventsManager,
 	useKeywordsManager,
@@ -209,7 +214,7 @@ const addOperation = () => {
 		target: '',
 		timeoutMessage: '',
 	});
-	selectedOperationsTab.value = newLength-1;
+	selectedOperationsTab.value = newLength - 1;
 };
 
 const removeOperation = (index: number) => {
@@ -251,6 +256,34 @@ const manager = useAlertsManager();
 const { data: alerts } = manager.getAll({});
 
 const showAlertModal = ref(false);
+
+function getOperationLabel(type: string): string {
+	switch (type) {
+		case 'SEND_MESSAGE':
+			return t('events.operations.inputs.message');
+		case 'UNVIP_RANDOM_IF_NO_SLOTS':
+			return t('events.operations.inputs.vipSlots');
+		case 'BAN':
+		case 'UNBAN':
+		case 'TIMEOUT':
+		case 'VIP':
+		case 'UNVIP':
+		case 'MOD':
+		case 'UNMOD':
+		case 'ALLOW_COMMAND_TO_USER':
+		case 'REMOVE_ALLOW_COMMAND_TO_USER':
+		case 'DENY_COMMAND_TO_USER':
+		case 'REMOVE_DENY_COMMAND_TO_USER':
+			return t('events.operations.inputs.username');
+		case 'CHANGE_VARIABLE':
+			return t('events.operations.inputs.variableValue');
+		case 'INCREMENT_VARIABLE':
+		case 'DECREMENT_VARIABLE':
+			return t('events.operations.inputs.variableIncrementDecrement');
+		default:
+			return t('events.operations.inputs.default');
+	}
+}
 </script>
 
 <template>
@@ -322,7 +355,7 @@ const showAlertModal = ref(false);
 						v-for="(variable, variableIndex) of flatEvents[formValue.type]?.variables"
 						:key="variableIndex"
 					>
-						{{ '{'+variable+'}' }} - {{ t(`events.variables.${variable}`) }}
+						{{ '{' + variable + '}' }} - {{ t(`events.variables.${variable}`) }}
 					</n-text>
 				</n-space>
 			</n-space>
@@ -359,7 +392,10 @@ const showAlertModal = ref(false);
 						</n-button>
 
 						<n-button text>
-							<IconTrash style="width: 18px; display: flex" @click="removeOperation(operationIndex)" />
+							<IconTrash
+								style="width: 18px; display: flex"
+								@click="removeOperation(operationIndex)"
+							/>
 						</n-button>
 					</div>
 				</VueDraggableNext>
@@ -381,7 +417,10 @@ const showAlertModal = ref(false);
 					<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
 						<n-grid-item :span="2">
 							<n-form-item :label="t('events.operations.name')" required>
-								<n-select filterable v-model:value="currentOperation.type" :options="operationTypeSelectOptions" />
+								<n-select
+									v-model:value="currentOperation.type" filterable
+									:options="operationTypeSelectOptions"
+								/>
 							</n-form-item>
 						</n-grid-item>
 						<n-grid-item :span="1">
@@ -407,7 +446,7 @@ const showAlertModal = ref(false);
 
 					<n-form-item
 						v-if="getOperation(currentOperation.type)?.haveInput"
-						:label="t('events.operations.input')"
+						:label="getOperationLabel(currentOperation.type)"
 					>
 						<n-input v-model:value="currentOperation.input" />
 					</n-form-item>
@@ -498,7 +537,9 @@ const showAlertModal = ref(false);
 							<n-form-item :label="t('events.operations.triggerAlert')">
 								<div style="display: flex; gap: 10px; width: 90%">
 									<n-button block type="info" @click="showAlertModal = true">
-										{{ alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select') }}
+										{{
+											alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
+										}}
 									</n-button>
 									<n-button
 										:disabled="!currentOperation!.target"

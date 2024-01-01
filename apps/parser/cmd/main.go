@@ -14,6 +14,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/satont/twir/apps/parser/internal/queue"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/constants"
@@ -110,6 +111,26 @@ func main() {
 
 	redisClient.Conn()
 
+	tokensGrpc := clients.NewTokens(config.AppEnv)
+
+	queueDistributor := queue.NewRedisTaskDistributor(config, logger)
+	queueProcessor := queue.NewRedisTaskProcessor(
+		queue.RedisTaskProcessorOpts{
+			Cfg:        *config,
+			Logger:     logger,
+			Gorm:       db,
+			TokensGrpc: tokensGrpc,
+		},
+	)
+	defer queueProcessor.Stop()
+
+	go func() {
+		err := queueProcessor.Start()
+		if err != nil {
+			logger.Fatal("Error starting queue processor", zap.Error(err))
+		}
+	}()
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -121,10 +142,11 @@ func main() {
 			Bots:       clients.NewBots(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
 			Eval:       clients.NewEval(config.AppEnv),
-			Tokens:     clients.NewTokens(config.AppEnv),
+			Tokens:     tokensGrpc,
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
+		TaskDistributor: queueDistributor,
 	}
 
 	variablesService := variables.New(
@@ -144,6 +166,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
+	defer grpcServer.GracefulStop()
 	parser.RegisterParserServer(
 		grpcServer,
 		grpc_impl.NewServer(s, commandsService, variablesService),

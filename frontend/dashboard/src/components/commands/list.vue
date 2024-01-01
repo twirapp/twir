@@ -1,11 +1,11 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { type Command } from '@twir/grpc/generated/api/api/commands';
 import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsManager, useUserAccessFlagChecker } from '@/api/index.js';
-import { createListColumns } from '@/components/commands/createListColumns.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
+import { createColumns } from '@/components/commands/list/createColumns';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
 import type { EditableCommand, ListRowData } from '@/components/commands/types.js';
@@ -21,10 +21,6 @@ const props = withDefaults(defineProps<{
 	showHeader: false,
 	showCreateButton: false,
 });
-
-const commandsManager = useCommandsManager();
-const commandsDeleter = commandsManager.deleteOne;
-const commandsPatcher = commandsManager.patch!;
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
 	const commands = props.commands;
@@ -73,6 +69,7 @@ const showCommandEditModal = ref(false);
 const showManageGroupsModal = ref(false);
 
 const editableCommand = ref<EditableCommand | null>(null);
+
 function editCommand(command: EditableCommand) {
 	editableCommand.value = structuredClone(toRaw(command));
 	showCommandEditModal.value = true;
@@ -84,7 +81,7 @@ function onModalClose() {
 
 const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 
-const columns = createListColumns(editCommand, commandsDeleter, commandsPatcher);
+const columns = createColumns(editCommand);
 </script>
 
 <template>
@@ -101,7 +98,10 @@ const columns = createListColumns(editCommand, commandsDeleter, commandsPatcher)
 			</div>
 			<div>
 				<n-space>
-					<n-button :disabled="!userCanManageCommands" secondary type="info" @click="showManageGroupsModal = true">
+					<n-button
+						:disabled="!userCanManageCommands" secondary type="info"
+						@click="showManageGroupsModal = true"
+					>
 						{{ t('commands.groups.manageButton') }}
 					</n-button>
 

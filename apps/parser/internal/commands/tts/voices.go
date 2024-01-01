@@ -19,7 +19,10 @@ var VoicesCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
@@ -27,7 +30,7 @@ var VoicesCommand = &types.DefaultCommand{
 		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
 			result.Result = append(result.Result, "No voices found")
-			return result
+			return result, nil
 		}
 
 		if channelSettings != nil && len(channelSettings.DisallowedVoices) > 0 {
@@ -46,6 +49,6 @@ var VoicesCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, strings.Join(mapped, " · "))
 
-		return result
+		return result, nil
 	},
 }

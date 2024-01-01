@@ -10,6 +10,7 @@ type UsersStats struct {
 	IsMod             bool   `gorm:"column:is_mod;type:BOOL;default:false;"           json:"isMod" db:"is_mod"`
 	IsVip             bool   `gorm:"column:is_vip;type:BOOL;default:false;"           json:"isVip" db:"is_vip"`
 	IsSubscriber      bool   `gorm:"column:is_subscriber;type:BOOL;default:false;"    json:"isSubscriber" db:"is_subscriber"`
+	Reputation        int64  `gorm:"column:reputation;type:INT8;default:0;"              json:"reputation" db:"reputation"`
 
 	// internal, not db
 	Emotes int `gorm:"-" json:"emotes" db:"emotes"`

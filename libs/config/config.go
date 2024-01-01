@@ -24,7 +24,6 @@ type Config struct {
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
 	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
-	GoogleFontsApiKey  string `required:"false" envconfig:"GOOGLE_FONTS_API_KEY"`
 
 	S3Host        string `required:"false" envconfig:"CDN_HOST"`
 	S3Bucket      string `required:"false" envconfig:"CDN_BUCKET"`
@@ -35,6 +34,10 @@ type Config struct {
 	DiscordClientID     string `required:"false" envconfig:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret string `required:"false" envconfig:"DISCORD_CLIENT_SECRET"`
 	DiscordBotToken     string `required:"false" envconfig:"DISCORD_BOT_TOKEN"`
+
+	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
+
+	TemporalHost string `required:"false" default:"localhost:7233" envconfig:"TEMPORAL_HOST"`
 }
 
 func New() (*Config, error) {

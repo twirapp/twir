@@ -2,6 +2,7 @@ package shoutout
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -24,12 +25,15 @@ var ShoutOut = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{}
 
 		if parseCtx.Text == nil || *parseCtx.Text == "" {
 			result.Result = append(result.Result, "you have to type streamer for shoutout.")
-			return result
+			return result, nil
 		}
 
 		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(
@@ -39,7 +43,7 @@ var ShoutOut = &types.DefaultCommand{
 		)
 		if err != nil {
 			result.Result = append(result.Result, "internal error")
-			return result
+			return result, nil
 		}
 
 		_, ok := lo.Find(
@@ -49,9 +53,10 @@ var ShoutOut = &types.DefaultCommand{
 		)
 		if !ok {
 			result.Result = append(
-				result.Result, "we have no permissions for shoutout. Streamer must re-authorize to bot dashboard.",
+				result.Result,
+				"we have no permissions for shoutout. Streamer must re-authorize to bot dashboard.",
 			)
-			return result
+			return result, nil
 		}
 
 		twitchClient, err := twitch.NewUserClientWithContext(
@@ -61,7 +66,10 @@ var ShoutOut = &types.DefaultCommand{
 			parseCtx.Services.GrpcClients.Tokens,
 		)
 		if err != nil {
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot create broadcaster twitch client",
+				Err:     err,
+			}
 		}
 
 		usersReq, err := twitchClient.GetUsers(
@@ -69,8 +77,22 @@ var ShoutOut = &types.DefaultCommand{
 				Logins: []string{*parseCtx.Text},
 			},
 		)
-		if err != nil || len(usersReq.Data.Users) == 0 {
-			return nil
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get user",
+				Err:     err,
+			}
+		}
+		if usersReq.ErrorMessage != "" {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get user",
+				Err:     errors.New(usersReq.ErrorMessage),
+			}
+		}
+
+		if len(usersReq.Data.Users) == 0 {
+			result.Result = append(result.Result, "cannot find user with this name.")
+			return result, nil
 		}
 
 		user := usersReq.Data.Users[0]
@@ -89,7 +111,16 @@ var ShoutOut = &types.DefaultCommand{
 			},
 		)
 		if err != nil {
-			return nil
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get stream",
+				Err:     err,
+			}
+		}
+		if streamsReq.ErrorMessage != "" {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot get stream",
+				Err:     errors.New(streamsReq.ErrorMessage),
+			}
 		}
 
 		if len(streamsReq.Data.Streams) != 0 {
@@ -105,15 +136,29 @@ var ShoutOut = &types.DefaultCommand{
 					stream.ViewerCount,
 				),
 			)
-			return result
+			return result, nil
 		} else {
 			channelReq, err := twitchClient.GetChannelInformation(
 				&helix.GetChannelInformationParams{
 					BroadcasterIDs: []string{user.ID},
 				},
 			)
-			if err != nil || len(channelReq.Data.Channels) == 0 {
-				return nil
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get channel",
+					Err:     err,
+				}
+			}
+			if channelReq.ErrorMessage != "" {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot get channel",
+					Err:     errors.New(channelReq.ErrorMessage),
+				}
+			}
+
+			if len(channelReq.Data.Channels) == 0 {
+				result.Result = append(result.Result, "cannot find user with this name.")
+				return result, nil
 			}
 			channel := channelReq.Data.Channels[0]
 			result.Result = append(
@@ -125,7 +170,7 @@ var ShoutOut = &types.DefaultCommand{
 					channel.Title,
 				),
 			)
-			return result
+			return result, nil
 		}
 	},
 }

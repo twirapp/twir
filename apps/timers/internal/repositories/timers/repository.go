@@ -3,13 +3,14 @@ package timers
 import "errors"
 
 var (
-	NotFoundError = errors.New("timer not found")
+	ErrNotFound = errors.New("timer not found")
 )
 
 type Repository interface {
 	GetById(id string) (Timer, error)
 	GetAll() ([]Timer, error)
 	Update(id string, data Timer) error
+	UpdateTriggerMessageNumber(id string, number int) error
 }
 
 type TimerResponse struct {

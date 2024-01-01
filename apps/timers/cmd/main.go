@@ -1,13 +1,17 @@
 package main
 
 import (
-	"github.com/getsentry/sentry-go"
+	"log/slog"
+
+	"github.com/satont/twir/apps/timers/internal/activity"
 	"github.com/satont/twir/apps/timers/internal/gorm"
 	"github.com/satont/twir/apps/timers/internal/grpc_server"
-	"github.com/satont/twir/apps/timers/internal/queue"
+	"github.com/satont/twir/apps/timers/internal/redis"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
+	"github.com/satont/twir/apps/timers/internal/worker"
+	"github.com/satont/twir/apps/timers/internal/workflow"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/bots"
@@ -19,21 +23,16 @@ import (
 
 func main() {
 	fx.New(
+		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),
-			func(config cfg.Config, s *sentry.Client) logger.Logger {
-				return logger.New(
-					logger.Opts{
-						Env:     config.AppEnv,
-						Service: "timers",
-						Sentry:  s,
-					},
-				)
-			},
+			logger.NewFx(logger.Opts{Level: slog.LevelInfo, Service: "timers"}),
 			gorm.New,
-			queue.New,
+			redis.New,
 			timers.NewGorm,
+			activity.New,
+			workflow.New,
 			channels.NewGorm,
 			streams.NewGorm,
 			func(config cfg.Config) parser.ParserClient {
@@ -43,10 +42,12 @@ func main() {
 				return clients.NewBots(config.AppEnv)
 			},
 		),
-		fx.NopLogger,
 		fx.Invoke(
-			// queue.New,
+			worker.New,
 			grpc_server.New,
+			func(l logger.Logger) {
+				l.Info("Timers service started")
+			},
 		),
 	).Run()
 }

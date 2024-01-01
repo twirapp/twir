@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -22,7 +23,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/grpc/generated/parser"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -152,9 +152,27 @@ func (c *ParserGrpcServer) ProcessCommand(
 		return nil, errors.New("have no permissions")
 	}
 
-	defer func() {
+	go func() {
+		gCtx := context.Background()
+
+		c.services.GrpcClients.Events.CommandUsed(
+			// this should be background, because we don't want to wait for response
+			gCtx,
+			&events.CommandUsedMessage{
+				BaseInfo:           &events.BaseInfo{ChannelId: data.Channel.Id},
+				CommandId:          cmd.Cmd.ID,
+				CommandName:        cmd.Cmd.Name,
+				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+				UserName:           data.Sender.Name,
+				UserDisplayName:    data.Sender.DisplayName,
+				UserId:             data.Sender.Id,
+				IsDefault:          cmd.Cmd.Default,
+				DefaultCommandName: cmd.Cmd.DefaultName.String,
+			},
+		)
+
 		alert := model.ChannelAlert{}
-		if err := c.services.Gorm.WithContext(ctx).Where(
+		if err := c.services.Gorm.Where(
 			"channel_id = ? AND command_ids && ?",
 			data.Channel.Id,
 			pq.StringArray{cmd.Cmd.ID},
@@ -167,7 +185,8 @@ func (c *ParserGrpcServer) ProcessCommand(
 			return
 		}
 		c.services.GrpcClients.WebSockets.TriggerAlert(
-			ctx, &websockets.TriggerAlertRequest{
+			gCtx,
+			&websockets.TriggerAlertRequest{
 				ChannelId: data.Channel.Id,
 				AlertId:   alert.ID,
 			},
@@ -175,21 +194,6 @@ func (c *ParserGrpcServer) ProcessCommand(
 	}()
 
 	result := c.commands.ParseCommandResponses(ctx, cmd, data)
-
-	defer c.services.GrpcClients.Events.CommandUsed(
-		ctx,
-		&events.CommandUsedMessage{
-			BaseInfo:           &events.BaseInfo{ChannelId: data.Channel.Id},
-			CommandId:          cmd.Cmd.ID,
-			CommandName:        cmd.Cmd.Name,
-			CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
-			UserName:           data.Sender.Name,
-			UserDisplayName:    data.Sender.DisplayName,
-			UserId:             data.Sender.Id,
-			IsDefault:          cmd.Cmd.Default,
-			DefaultCommandName: cmd.Cmd.DefaultName.String,
-		},
-	)
 
 	return result, nil
 }

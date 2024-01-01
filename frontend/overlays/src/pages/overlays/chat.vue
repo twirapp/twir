@@ -5,7 +5,6 @@ import {
 import type { Message } from '@twir/frontend-chat';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import '@twir/frontend-chat/style.css';
 
 import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
 import { useChatOverlaySocket } from '../../sockets/chat_overlay.js';
@@ -15,13 +14,13 @@ const route = useRoute();
 const apiKey = route.params.apiKey as string;
 
 const messages = ref<Message[]>([]);
-const maxMessages = ref(100);
+const maxMessages = ref(30);
 
 const { settings } = useChatOverlaySocket(apiKey);
 
 const emotesOpts = computed<EmotesOpts>(() => {
 	return {
-		channelName:settings.value.channelName,
+		channelName: settings.value.channelName,
 		channelId: settings.value.channelId,
 		ffz: true,
 		bttv: true,

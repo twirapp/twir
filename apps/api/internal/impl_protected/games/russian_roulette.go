@@ -2,6 +2,7 @@ package games
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/goccy/go-json"
@@ -10,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/grpc/generated/api/games"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 var rouletteType = "russian_roulette"
@@ -105,11 +107,35 @@ func (c *Games) GamesUpdateRouletteSettings(
 
 	entity.Settings = settingsJson
 
-	if err := c.Db.
-		WithContext(ctx).
-		Save(&entity).
-		Error; err != nil {
-		return nil, err
+	txErr := c.Db.WithContext(ctx).Transaction(
+		func(tx *gorm.DB) error {
+			if err := tx.WithContext(ctx).Save(&entity).Error; err != nil {
+				return err
+			}
+
+			rouletteCommand := model.ChannelsCommands{}
+			if err := tx.
+				WithContext(ctx).
+				Where(`"channelId" = ? and "defaultName" = ?`, dashboardId, "roulette").
+				First(&rouletteCommand).Error; err != nil {
+				return err
+			}
+
+			rouletteCommand.Enabled = req.Enabled
+
+			if err := tx.
+				WithContext(ctx).
+				Save(&rouletteCommand).
+				Error; err != nil {
+				return err
+			}
+
+			return nil
+		},
+	)
+
+	if txErr != nil {
+		return nil, fmt.Errorf("transaction error: %w", txErr)
 	}
 
 	return &emptypb.Empty{}, nil

@@ -250,7 +250,14 @@
     "operations": {
       "divider": "Actions",
       "name": "Action",
-      "input": "Action Text (supports variables)",
+			"inputs": {
+				"message": "Message To Send (supports variables)",
+				"default": "Action Text (supports variables)",
+				"vipSlots": "VIP Slots Amount",
+				"username": "Username (supports variables)",
+				"variableValue": "New Variable Value (supports variables)",
+				"variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+			},
       "banMessage": "Ban Message",
       "banTime": "Ban Time",
       "obs": {
@@ -354,20 +361,30 @@
       "description": "This overlay allows you to play configured alerts from the “Alerts” section."
     },
     "chat": {
-      "description": "This overlay allows you to display your Twitch chat into your streaming software (such as OBS, XSplit, etc).",
-      "style": "Message Style",
-      "hideBots": "Hide Other Bots Messages",
-      "hideCommands": "Hide Commands",
-      "fontSize": "Font Size",
+			"fontWeight": "Font Weight",
+			"fontStyle": "Font Style",
       "hideTimeout": "Message Hide Timeout",
       "showDelay": "Message Show Delay",
-      "fontFamily": "Font Family",
-      "fontFamilyDescription": "We use Google Fonts, you can find any font there with your preferred variant. (i.e. cyrillic)",
       "showBadges": "Show Badges",
-      "showAnnounceBadge": "Show Announce Badge (only available in the “boxed” style)",
-      "reverseMessages": "Show Messages from Top? (bottom by default)",
-      "revertFont": "Reset to Default",
-      "textShadow": "Text Shadow"
+      "showAnnounceBadge": "Show Announcement Border",
+      "resetToDefault": "Reset to Default",
+      "textShadow": "Text Shadow",
+			"backgroundColor": "Background Color",
+			"direction": "Message Direction",
+			"directions": {
+				"left": "Left",
+				"right": "Right",
+				"top": "Top",
+				"bottom": "Bottom"
+			},
+			"directionWarning": "To use 'Left' and '' For right and left directions you should set small height (about 50px) for overlay in your streaming software"
+      "fontFamily": "Font Family",
+      "fontSize": "Font Size",
+			"fontWeight": "Font Weight",
+      "hideCommands": "Hide Commands",
+      "hideBots": "Hide Other Bots Messages",
+      "style": "Message Style",
+      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)",
     },
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
@@ -387,8 +404,9 @@
         "time": "Emote Livespan",
         "maxEmotes": "Emotes Amount",
         "animationsOnAppear": "Appearing Emote Animation",
-        "animationsOnDisappear": "Dissappearing Emote Animation",
-        "rave": "Rave Emote Colors",
+        "animationsOnDisappear": "Disappearing Emote Animation",
+				"excludedEmotes": "Excluded Emotes",
+        "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
           "bttvEnabled": "Enable BetterTTV Emotes?",
           "ffzEnabled": "Enable FrankerFaceZ Emotes?",
@@ -568,16 +586,54 @@
       "answers": "Answers"
     },
     "russianRoulette": {
-      "description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
-      "canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
-      "timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
-      "decisionSeconds": "Result Delay (in seconds)",
-      "initMessage": "Trigger Pull Announcement (Game Start Message)",
-      "surviveMessage": "User Survived Message",
-      "deathMessage": "User Lost Message",
-      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
-      "tumberSize": "Revolver Сylinder's Size"
-    }
+      "description": "Test luck in classic russian funny* roulette game.",
+      "canBeUsedByModerator": "Timeout moderators? Will remove mod -> timeout -> mod again.",
+      "timeoutSeconds": "Time for timeout (seconds). Leave as 0 if you want to disable timeout.",
+      "decisionSeconds": "Time before result will arrive (seconds).",
+      "initMessage": "First message sended by bot, to announce trigger is pulled.",
+      "surviveMessage": "Message, if user survived.",
+      "deathMessage": "Message, if user lost and timeouted.",
+      "chargedBullets": "Charged bullets in revolver (size of tumber is {tumberSize}). The bigger number - the biggest chance to die.",
+      "tumberSize": "Size of tumber in revolver."
+    },
+		"duel": {
+			"title": "Duel",
+			"description": "Fight on guns between 2 users!",
+			"commands": {
+				"title": "Duel commands",
+				"duel": "Challange",
+				"accept": "Accept",
+				"stats": "Statistic"
+			},
+			"cooldown": {
+				"title": "Cooldown between duels",
+				"user": "Individual",
+				"global": "Global"
+			},
+			"messages": {
+				"title": "Messages",
+				"start": {
+					"title": "Initial",
+					"description": "When duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+				},
+				"result": {
+					"title": "Result",
+					"description": "When duel happened. Available variables: {'{loser}, {winner}'}"
+				},
+				"bothDie": {
+					"title": "Both die",
+					"description": "When both users dead in duel. Available variables: {'{target}, {initiator}'}"
+				}
+			},
+			"settings": {
+				"title": "Settings",
+				"secondsToAccept": "Seconds to accept duel",
+				"timeoutTime": "Timeout time for loser",
+				"pointsPerWin": "Reputation for win",
+				"pointsPerLose": "Reputation for lose",
+				"bothDiePercent": "Percent of chance both users die"
+			}
+		}
   },
   "community": {
     "users": {
@@ -694,11 +750,6 @@
         "allowedLanguages": "Allowed Languages List",
         "disallowedLanguages": "Disallowed Languages List"
       }
-    }
-  },
-  "components": {
-    "fontFamily": {
-      "description": "We use Google Fonts, you can find any font there with your preferred variant. (i.e. cyrillic)"
     }
   }
 }

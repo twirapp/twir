@@ -63,7 +63,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
 			disabled: !canViewIntegrations.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.alerts'),
@@ -87,13 +86,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.overlays'),
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/overlays',
-			disabled: !canViewOverlays.value,
-			isNew: true,
-		},
-		{
-			label: t('sidebar.overlaysRegistry'),
-			icon: renderIcon(IconDeviceDesktop),
-			path: '/dashboard/registry/overlays',
 			disabled: !canViewOverlays.value,
 		},
 		{
@@ -144,7 +136,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.moderation'),
 			icon: renderIcon(IconSword),
 			path: '/dashboard/moderation',
-			isNew: true,
 		},
 		{
 			label: t('sidebar.users'),

@@ -1,0 +1,12 @@
+{
+  "name": "@twir/fontsource",
+  "type": "module",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "naive-ui": "2.35.0",
+    "vue": "3.3.12"
+  }
+}

@@ -106,7 +106,8 @@ func (c *Chat) SendEvent(channelId, eventName string, data any) error {
 	}
 
 	err = c.manager.BroadcastFilter(
-		bytes, func(session *melody.Session) bool {
+		bytes,
+		func(session *melody.Session) bool {
 			socketUserId, ok := session.Get("userId")
 			return ok && socketUserId.(string) == channelId
 		},

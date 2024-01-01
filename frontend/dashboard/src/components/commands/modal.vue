@@ -174,21 +174,22 @@ const createButtonProps = { class: 'create-button' } as any;
 
 <template>
 	<n-form ref="formRef" :model="formValue" :rules="rules">
-		<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10">
-			<n-grid-item :span="1">
-				<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark>
-					<n-input-group>
-						<n-input-group-label>!</n-input-group-label>
-						<n-input v-model:value="formValue.name" placeholder="Input Name" />
-					</n-input-group>
-				</n-form-item>
-			</n-grid-item>
-			<n-grid-item :span="1">
-				<n-form-item :label="t('commands.modal.aliases.label')" path="aliases">
-					<n-dynamic-tags v-model:value="formValue.aliases" />
-				</n-form-item>
-			</n-grid-item>
-		</n-grid>
+		<div style="display: flex; gap: 8px">
+			<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark style="width: 90%">
+				<n-input-group>
+					<n-input-group-label>!</n-input-group-label>
+					<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" />
+				</n-input-group>
+			</n-form-item>
+			<n-form-item :label="t('sharedTexts.enabled')" path="enabled">
+				<n-switch v-model:value="formValue.enabled" />
+			</n-form-item>
+		</div>
+
+		<n-form-item :label="t('commands.modal.aliases.label')" path="aliases">
+			<n-dynamic-tags v-model:value="formValue.aliases" :input-props="{ maxlength: 25 }" />
+		</n-form-item>
+
 		<n-form-item :label="t('commands.modal.description.label')" path="description">
 			<n-input
 				v-model:value="formValue.description" placeholder="Description" type="textarea"

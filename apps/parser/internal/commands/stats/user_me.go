@@ -3,6 +3,7 @@ package stats
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/variables/user"
@@ -23,20 +24,24 @@ var UserMe = &types.DefaultCommand{
 		Visible:     true,
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
+		var slice []string
+
+		slice = append(slice, fmt.Sprintf("$(%s) watched", user.Watched.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) messages", user.Messages.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) reputation", user.Reputation.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) used emotes", user.Emotes.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) used points", user.UsedChannelPoints.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) songs requestes", user.SongsRequested.Name))
+		slice = append(slice, fmt.Sprintf("$(%s) reputation", user.Reputation.Name))
+
 		result := &types.CommandsHandlerResult{
-			Result: []string{
-				fmt.Sprintf(
-					"$(%s) used emotes · $(%s) watched · $(%s) messages · $(%s) used points · $(%s) songs requested",
-					user.Emotes.Name,
-					user.Watched.Name,
-					user.Messages.Name,
-					user.UsedChannelPoints.Name,
-					user.SongsRequested.Name,
-				),
-			},
+			Result: []string{strings.Join(slice, " · ")},
 		}
 
-		return result
+		return result, nil
 	},
 }

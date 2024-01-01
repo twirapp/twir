@@ -21,7 +21,10 @@ var UserFollowage = &types.DefaultCommand{
 		Visible:     true,
 		IsReply:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -31,6 +34,6 @@ var UserFollowage = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

@@ -30,7 +30,7 @@ const html = defineModel('html');
 const css = defineModel('css');
 const js = defineModel('js');
 const pollInterval = defineModel('pollInterval', { default: 5 });
-const periodicallyRefetchData = defineModel('periodicallyRefetchData');
+const periodicallyRefetchData = defineModel<boolean>('periodicallyRefetchData');
 
 const showModal = ref(false);
 

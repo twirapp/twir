@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"go.uber.org/zap"
 )
 
 var Kappagen = &types.DefaultCommand{
@@ -21,7 +20,10 @@ var Kappagen = &types.DefaultCommand{
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		var emotes []*websockets.TriggerKappagenRequest_Emote
 		for _, e := range parseCtx.Emotes {
 			emote := &websockets.TriggerKappagenRequest_Emote{
@@ -45,19 +47,13 @@ var Kappagen = &types.DefaultCommand{
 				Emotes:    emotes,
 			},
 		)
-
-		result := &types.CommandsHandlerResult{}
-
 		if err != nil {
-			parseCtx.Services.Logger.Error(
-				"cannot send websocket event",
-				zap.Error(err),
-				zap.String("channelId", parseCtx.Channel.ID),
-				zap.String("userId", parseCtx.Sender.ID),
-				zap.String("param", param),
-			)
+			return nil, &types.CommandHandlerError{
+				Message: "error while triggering kappagen",
+				Err:     err,
+			}
 		}
 
-		return result
+		return &types.CommandsHandlerResult{}, nil
 	},
 }

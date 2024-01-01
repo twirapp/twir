@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"sync"
 
 	"github.com/google/uuid"
@@ -10,7 +11,7 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/parser"
-	"go.uber.org/zap"
+	"github.com/satont/twir/libs/logger"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -19,12 +20,14 @@ type Commands struct {
 	db         *gorm.DB
 	parserGrpc parser.ParserClient
 	lock       sync.Mutex
+	logger     logger.Logger
 }
 
-func NewCommands(db *gorm.DB, parserGrpc parser.ParserClient) *Commands {
+func NewCommands(db *gorm.DB, parserGrpc parser.ParserClient, l logger.Logger) *Commands {
 	return &Commands{
 		db:         db,
 		parserGrpc: parserGrpc,
+		logger:     l,
 	}
 }
 
@@ -44,7 +47,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 		Find(&channelsWithCommands).
 		Where(`"id" IN ?`, usersIds).
 		Error; err != nil {
-		return err
+		return fmt.Errorf("cannot get channels with commands: %w", err)
 	}
 
 	for _, channel := range channelsWithCommands {
@@ -61,7 +64,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 
 			var channelRoles []model.ChannelRole
 			if err := c.db.Where(`"channelId" = ?`, channel.ID).Find(&channelRoles).Error; err != nil {
-				return err
+				return fmt.Errorf("cannot get channel roles: %w", err)
 			}
 
 			commandRolesIds := make([]string, 0, len(command.RolesNames))
@@ -101,8 +104,7 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 				WithContext(ctx).
 				Create(newCmd).
 				Error; err != nil {
-				zap.S().Error("cannot create default command", zap.Error(err), zap.Any("command", newCmd))
-				return err
+				return fmt.Errorf("cannot create default command: %w", err)
 			}
 		}
 	}

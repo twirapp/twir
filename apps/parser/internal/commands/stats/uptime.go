@@ -23,7 +23,10 @@ var Uptime = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     pq.StringArray{},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) *types.CommandsHandlerResult {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: []string{
 				fmt.Sprintf(
@@ -33,6 +36,6 @@ var Uptime = &types.DefaultCommand{
 			},
 		}
 
-		return result
+		return result, nil
 	},
 }

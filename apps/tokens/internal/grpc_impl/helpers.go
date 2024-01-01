@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-const expireShift = 5 * time.Second
+const expireShift = 15 * time.Minute
 
 func isTokenExpired(expiresIn int, obtainmentTimestamp time.Time) bool {
 	currentTime := time.Now().UTC()

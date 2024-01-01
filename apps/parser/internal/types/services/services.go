@@ -3,6 +3,7 @@ package services
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/parser/internal/queue"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/generated/bots"
 	"github.com/satont/twir/libs/grpc/generated/dota"
@@ -26,10 +27,11 @@ type Grpc struct {
 }
 
 type Services struct {
-	Config      *cfg.Config
-	Logger      *zap.Logger
-	Gorm        *gorm.DB
-	Sqlx        *sqlx.DB
-	Redis       *redis.Client
-	GrpcClients *Grpc
+	Config          *cfg.Config
+	Logger          *zap.Logger
+	Gorm            *gorm.DB
+	Sqlx            *sqlx.DB
+	Redis           *redis.Client
+	GrpcClients     *Grpc
+	TaskDistributor queue.TaskDistributor
 }

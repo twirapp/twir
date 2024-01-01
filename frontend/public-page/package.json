@@ -8,14 +8,14 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
-		"@protobuf-ts/twirp-transport": "2.9.1",
+		"@protobuf-ts/twirp-transport": "2.9.3",
 		"@tabler/icons-vue": "2.42.0",
 		"@tanstack/vue-query": "5.12.2",
 		"@tanstack/vue-table": "8.10.7",
 		"@twir/grpc": "workspace:^",
 		"@vueuse/components": "10.6.1",
-		"@vueuse/core": "10.6.1",
-		"vue": "3.3.9",
+		"@vueuse/core": "10.7.0",
+		"vue": "3.3.12",
 		"vue-router": "4.2.5"
 	},
 	"devDependencies": {

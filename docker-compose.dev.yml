@@ -64,6 +64,53 @@ services:
     volumes:
       - minio-data:/data
 
+  temporal:
+    depends_on:
+      - postgres
+    environment:
+      - DB=postgresql
+      - DB_PORT=5432
+      # this is db addr
+      - POSTGRES_SEEDS=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=tsuwari
+      - POSTGRES_PWD=tsuwari
+      - POSTGRES_DB=temporal
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
+    volumes:
+      - ./configs/temporal:/etc/temporal/config/dynamicconfig
+    image: temporalio/auto-setup:1.22.2
+    networks:
+      - tsuwari-dev
+    ports:
+      - "7233:7233"
+    labels:
+      kompose.volume.type: configMap
+
+  temporal-admin-tools:
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:1.22.2
+    networks:
+      - tsuwari-dev
+    stdin_open: true
+    tty: true
+
+  temporal-ui:
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:2.21.0
+    networks:
+      - tsuwari-dev
+    ports:
+      - "7234:8080"
+
 volumes:
   redis-data:
   postgres-data:
