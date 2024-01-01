@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconTrash } from '@tabler/icons-vue';
-import { NAlert, NInput, NDivider, NButton } from 'naive-ui';
+import { NAlert, NInput, NDivider, NButton, NA } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
 import { useEditableItem } from './helpers';
@@ -21,7 +21,18 @@ const removeItem = (i: number) => editableItem.value!.data!.denyList = editableI
 			{{ t('moderation.types.deny_list.empty') }}
 		</n-alert>
 
-		<n-alert v-else type="info" v-html="t('moderation.types.deny_list.regexp')"></n-alert>
+		<n-alert v-else type="info">
+			<i18n-t
+				keypath="moderation.types.deny_list.regexp"
+			>
+				<n-a
+					href="https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet"
+					target="_blank"
+				>
+					{{ t('moderation.types.deny_list.regexpCheatSheet') }}
+				</n-a>
+			</i18n-t>
+		</n-alert>
 
 		<div
 			v-for="(_, i) of editableItem!.data!.denyList"

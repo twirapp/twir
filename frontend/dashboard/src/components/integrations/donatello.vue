@@ -1,17 +1,15 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { NTimeline, NTimelineItem, NText } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
 
 import { useDonatelloIntegration } from '@/api/index.js';
 import DonatelloSVG from '@/assets/icons/integrations/donatello.svg?component';
 import CopyInput from '@/components/copyInput.vue';
+import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
 const { data: donatelloData } = useDonatelloIntegration();
 
 const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatello`;
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -19,12 +17,10 @@ const { t } = useI18n();
 		title="Donatello"
 		:icon="DonatelloSVG"
 		icon-width="80px"
-		:description="t('integrations.donateServicesInfo', {
-			events: t('sidebar.events').toLocaleLowerCase(),
-			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
-			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})"
 	>
+		<template #description>
+			<donate-description />
+		</template>
 		<template #settings>
 			<n-timeline>
 				<n-timeline-item type="info" title="Step 1">

@@ -169,8 +169,10 @@ const { data: currentUser } = useProfile();
 		modal-width="80vw"
 		:icon="IconDiscord"
 		icon-fill="#5865F2"
-		:description="t('integrations.discord.description')"
 	>
+		<template #description>
+			{{ t('integrations.discord.description') }}
+		</template>
 		<template #settings>
 			<n-tabs
 				v-model:value="currentTab"

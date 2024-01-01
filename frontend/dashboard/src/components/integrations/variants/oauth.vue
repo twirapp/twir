@@ -11,7 +11,6 @@ const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
 	title: string,
-	description?: string
 	isLoading?: boolean
 	data: { userName?: string, avatar?: string } | undefined
 	logout: () => any
@@ -28,6 +27,7 @@ const props = withDefaults(defineProps<{
 
 defineSlots<{
 	settings?: FunctionalComponent,
+	description?: FunctionalComponent | string,
 }>();
 
 const showSettings = ref(false);
@@ -58,7 +58,7 @@ const { t } = useI18n();
 		:is-loading="isLoading"
 	>
 		<template #content>
-			<span class="description" v-html="description" />
+			<slot class="description" name="description" />
 		</template>
 
 		<template #footer>
