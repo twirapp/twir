@@ -57,6 +57,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.dashboard'),
 			icon: renderIcon(IconDashboard),
 			path: '/dashboard',
+			isNew: false,
 		},
 		{
 			label: t('sidebar.integrations'),
