@@ -63,7 +63,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
 			disabled: !canViewIntegrations.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.alerts'),
@@ -88,7 +87,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/overlays',
 			disabled: !canViewOverlays.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.songRequests'),
@@ -101,7 +99,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			icon: renderIcon(IconDeviceGamepad2),
 			path: '/dashboard/games',
 			disabled: !canViewGames.value,
-			isNew: true,
 		},
 		{
 			label: t('sidebar.commands.label'),
@@ -139,7 +136,6 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.moderation'),
 			icon: renderIcon(IconSword),
 			path: '/dashboard/moderation',
-			isNew: true,
 		},
 		{
 			label: t('sidebar.users'),
