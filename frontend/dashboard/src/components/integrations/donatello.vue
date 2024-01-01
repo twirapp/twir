@@ -19,11 +19,11 @@ const { t } = useI18n();
 		title="Donatello"
 		:icon="DonatelloSVG"
 		icon-width="80px"
-		:description="t('integrations.donateServicesInfo', {
+		:description="<span v-html='t('integrations.donateServicesInfo', {
 			events: t('sidebar.events').toLocaleLowerCase(),
 			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
 			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})"
+		})'>"
 	>
 		<template #settings>
 			<n-timeline>

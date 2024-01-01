@@ -21,9 +21,7 @@ const removeItem = (i: number) => editableItem.value!.data!.denyList = editableI
 			{{ t('moderation.types.deny_list.empty') }}
 		</n-alert>
 
-		<n-alert v-else type="info">
-			{{ t('moderation.types.deny_list.regexp') }}
-		</n-alert>
+		<n-alert v-else type="info" v-html="t('moderation.types.deny_list.regexp')"></n-alert>
 
 		<div
 			v-for="(_, i) of editableItem!.data!.denyList"

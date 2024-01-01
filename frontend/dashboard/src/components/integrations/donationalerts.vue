@@ -20,10 +20,10 @@ const { t } = useI18n();
 		:logout="() => logout.mutateAsync({})"
 		:authLink="authLink?.link"
 		:icon="IconDonationAlerts"
-		:description="t('integrations.donateServicesInfo', {
+		:description="<span v-html='t('integrations.donateServicesInfo', {
 			events: t('sidebar.events').toLocaleLowerCase(),
 			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
 			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})"
+		})'>"
 	/>
 </template>

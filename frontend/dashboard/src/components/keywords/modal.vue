@@ -109,9 +109,7 @@ const rules: FormRules = {
 				<n-checkbox v-model:checked="formValue.isRegular">
 					{{ t('keywords.isRegular') }}
 				</n-checkbox>
-				<n-alert v-if="formValue.isRegular" type="info">
-					{{ t('keywords.regularDescription') }}
-				</n-alert>
+				<n-alert v-if="formValue.isRegular" type="info" v-html="t('keywords.regularDescription')"></n-alert>
 			</n-space>
 
 			<n-form-item :label="t('sharedTexts.response')" path="response">
