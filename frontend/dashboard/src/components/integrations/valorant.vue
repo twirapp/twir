@@ -1,11 +1,12 @@
-<script setup lang='ts'>
-import { NInput, NFormItem } from 'naive-ui';
+<script setup lang="ts">
+import { NInput, NFormItem, useThemeVars } from 'naive-ui';
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import { useValorantIntegration } from '@/api/index.js';
 import ValorantSVG from '@/assets/icons/integrations/valorant.svg?component';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
+
+const themeVars = useThemeVars();
 
 const manager = useValorantIntegration();
 const { data } = manager.useGetData();
@@ -22,8 +23,6 @@ watch(data, (value) => {
 async function save() {
 	await mutateAsync(userName.value);
 }
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -31,8 +30,15 @@ const { t } = useI18n();
 		title="Valorant"
 		:save="save"
 		:icon="ValorantSVG"
-		:description="t('integrations.valorant.info')"
 	>
+		<template #description>
+			<i18n-t
+				keypath="integrations.valorant.info"
+			>
+				<b class="variable">$(valorant.profile.elo)</b>
+				<b class="variable">$(valorant.profile.tier)</b>
+			</i18n-t>
+		</template>
 		<template #settings>
 			<n-form-item label="Valorant username with tag">
 				<n-input
@@ -45,3 +51,8 @@ const { t } = useI18n();
 	</with-settings>
 </template>
 
+<style scoped>
+.variable {
+	color: v-bind('themeVars.successColor');
+}
+</style>

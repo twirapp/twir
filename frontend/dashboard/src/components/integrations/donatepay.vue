@@ -1,10 +1,11 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDonatepayIntegration } from '@/api/index.js';
 import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg?component';
+import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
 function redirectToGetApiKey() {
@@ -36,12 +37,10 @@ const { t } = useI18n();
 		:save="save"
 		:icon="DonatePaySVG"
 		icon-width="80px"
-		:description="t('integrations.donateServicesInfo', {
-			events: t('sidebar.events').toLocaleLowerCase(),
-			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
-			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})"
 	>
+		<template #description>
+			<donate-description />
+		</template>
 		<template #settings>
 			<n-form-item label="Api key">
 				<n-input-group>

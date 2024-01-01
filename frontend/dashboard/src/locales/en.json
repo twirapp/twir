@@ -203,8 +203,8 @@
   },
   "integrations": {
     "notLoggedIn": "You have not logged in!",
-    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when <b>!song</b> command is being used.",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in <a href='/dashboard/events/custom'>{events}</a>, <a href='/dashboard/events/chat-alerts'>{chatAlerts}</a>, <a href='/dashboard/events/registry/overlays'>{overlaysRegistry}</a> categories.",
+    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when {0} command is being used.",
+    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
     "discord": {
       "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
       "guildPluralization": "No servers | 1 server | {count} servers",
@@ -231,10 +231,10 @@
       "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as <b>$(faceit.elo)</b>, <b>$(faceit.lvl)</b> and much more."
+      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as <b>$(valorant.profile.elo)</b>, <b>$(valorant.profile.tier)</b> and much more. "
+      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
     }
   },
   "events": {
@@ -377,14 +377,14 @@
 				"top": "Top",
 				"bottom": "Bottom"
 			},
-			"directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!"
+			"directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
       "fontFamily": "Font Family",
       "fontSize": "Font Size",
 			"fontWeight": "Font Weight",
       "hideCommands": "Hide Commands",
       "hideBots": "Hide Other Bots Messages",
       "style": "Message Style",
-      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)",
+      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
@@ -529,7 +529,8 @@
     "triggerText": "Trigger Text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
-    "regularDescription": "Regular Expression should be written in golang format! See <a href='https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet'>{cheat sheet}</a> here.",
+    "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
+		"regularDescriptionCheatSheet": "cheat sheet",
     "settings": "Settings",
     "cooldown": "Cooldown (in seconds)",
     "validations": {
@@ -720,7 +721,8 @@
         "name": "Disallowed Words List",
         "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
         "empty": "List of disallowed words is empty! You can add one there.",
-        "regexp": "If you are an advanced user, Dissalowed Words List also support regular expressions. Regular Expression should be written in golang format! See <a href='https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet'> cheat sheet</a> here."
+        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
+				"regexpCheatSheet": "cheat sheet"
       },
       "symbols": {
         "name": "Symbols",

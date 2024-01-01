@@ -1,11 +1,11 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup } from 'naive-ui';
 import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import { useDonateStreamIntegration } from '@/api/index.js';
 import DonateStreamSVG from '@/assets/icons/integrations/donate.stream.svg?component';
 import CopyInput from '@/components/copyInput.vue';
+import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
 const integration = useDonateStreamIntegration();
@@ -18,12 +18,11 @@ const webhookUrl = computed(() => {
 });
 
 const secret = ref('');
+
 async function saveSecret() {
 	if (!secret.value) return;
 	await mutateAsync(secret.value);
 }
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -31,12 +30,10 @@ const { t } = useI18n();
 		title="Donate.stream"
 		:icon="DonateStreamSVG"
 		icon-width="100px"
-		:description="t('integrations.donateServicesInfo', {
-			events: t('sidebar.events').toLocaleLowerCase(),
-			chatAlerts: t('sidebar.chatAlerts').toLocaleLowerCase(),
-			overlaysRegistry: t('sidebar.overlaysRegistry').toLocaleLowerCase(),
-		})"
 	>
+		<template #description>
+			<donate-description />
+		</template>
 		<template #settings>
 			<n-timeline>
 				<n-timeline-item type="info" title="Step 1">
@@ -64,7 +61,10 @@ const { t } = useI18n();
 						from page and click SAVE
 					</n-text>
 					<n-input-group>
-						<n-input v-model:value="secret" type="text" size="small" placeholder="secret from page" />
+						<n-input
+							v-model:value="secret" type="text" size="small"
+							placeholder="secret from page"
+						/>
 						<n-button size="small" secondary type="success" @click="saveSecret">
 							Save
 						</n-button>
