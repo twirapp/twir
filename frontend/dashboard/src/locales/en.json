@@ -377,7 +377,7 @@
 				"top": "Top",
 				"bottom": "Bottom"
 			},
-			"directionWarning": "To use 'Left' and '' For right and left directions you should set small height (about 50px) for overlay in your streaming software"
+			"directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!"
       "fontFamily": "Font Family",
       "fontSize": "Font Size",
 			"fontWeight": "Font Weight",
@@ -391,7 +391,7 @@
       "testKappagen": "Test Kappagen",
       "testSpawn": "Test Emote Spawn",
       "clear": "Clear Overlay",
-      "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on command or configured events.",
+      "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on a command or configured events.",
       "tabs": {
         "main": "Settings",
         "events": "Events",
@@ -405,7 +405,7 @@
         "maxEmotes": "Emotes Amount",
         "animationsOnAppear": "Appearing Emote Animation",
         "animationsOnDisappear": "Disappearing Emote Animation",
-				"excludedEmotes": "Excluded Emotes",
+        "excludedEmotes": "Excluded Emotes",
         "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
           "bttvEnabled": "Enable BetterTTV Emotes?",
@@ -586,43 +586,43 @@
       "answers": "Answers"
     },
     "russianRoulette": {
-      "description": "Test luck in classic russian funny* roulette game.",
-      "canBeUsedByModerator": "Timeout moderators? Will remove mod -> timeout -> mod again.",
-      "timeoutSeconds": "Time for timeout (seconds). Leave as 0 if you want to disable timeout.",
-      "decisionSeconds": "Time before result will arrive (seconds).",
-      "initMessage": "First message sended by bot, to announce trigger is pulled.",
-      "surviveMessage": "Message, if user survived.",
-      "deathMessage": "Message, if user lost and timeouted.",
-      "chargedBullets": "Charged bullets in revolver (size of tumber is {tumberSize}). The bigger number - the biggest chance to die.",
-      "tumberSize": "Size of tumber in revolver."
+      "description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
+      "canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
+      "timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
+      "decisionSeconds": "Result Delay (in seconds)",
+      "initMessage": "Trigger Pull Announcement (Game Start Message)",
+      "surviveMessage": "User Survived Message",
+      "deathMessage": "User Lost Message",
+      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
+      "tumberSize": "Revolver Сylinder's Size"
     },
 		"duel": {
-			"title": "Duel",
-			"description": "Fight on guns between 2 users!",
+			"title": "Duels",
+			"description": "A simple chat game between two users allowing to test their dodge skills!",
 			"commands": {
-				"title": "Duel commands",
-				"duel": "Challange",
-				"accept": "Accept",
-				"stats": "Statistic"
+				"title": "Duel Commands",
+				"duel": "Ask for a Duel",
+				"accept": "Accept a Duel",
+				"stats": "Statistics"
 			},
 			"cooldown": {
-				"title": "Cooldown between duels",
+				"title": "Duel Cooldown",
 				"user": "Individual",
 				"global": "Global"
 			},
 			"messages": {
 				"title": "Messages",
 				"start": {
-					"title": "Initial",
-					"description": "When duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+					"title": "Initial Message",
+					"description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
 				},
 				"result": {
-					"title": "Result",
-					"description": "When duel happened. Available variables: {'{loser}, {winner}'}"
+					"title": "Result Message",
+					"description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
 				},
 				"bothDie": {
-					"title": "Both die",
-					"description": "When both users dead in duel. Available variables: {'{target}, {initiator}'}"
+					"title": "«No One Survived» Message",
+					"description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
 				}
 			},
 			"settings": {
