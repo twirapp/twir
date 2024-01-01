@@ -511,7 +511,7 @@
     "triggerText": "Trigger Text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
-    "regularDescription": "Regular Expression should be written in golang format! See <a href='https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet'> cheat sheet</a> here.",
+    "regularDescription": "Regular Expression should be written in golang format! See <a href='https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet'>{cheat sheet}</a> here.",
     "settings": "Settings",
     "cooldown": "Cooldown (in seconds)",
     "validations": {
