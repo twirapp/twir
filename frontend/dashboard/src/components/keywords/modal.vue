@@ -1,22 +1,23 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
-  NForm,
-  NFormItem,
-  NInput,
-  NInputNumber,
-  NSpace,
-  NCheckbox,
-  NDivider,
-  NGrid,
-  NGridItem,
-  NSwitch,
-  NCard,
-  NText,
-  NButton,
+	NForm,
+	NFormItem,
+	NInput,
+	NInputNumber,
+	NSpace,
+	NCheckbox,
+	NDivider,
+	NGrid,
+	NGridItem,
+	NSwitch,
+	NCard,
+	NText,
+	NButton,
 	NAlert,
+	NA,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -109,8 +110,20 @@ const rules: FormRules = {
 				<n-checkbox v-model:checked="formValue.isRegular">
 					{{ t('keywords.isRegular') }}
 				</n-checkbox>
-				<n-alert v-if="formValue.isRegular" type="info">
-					{{ t('keywords.regularDescription') }}
+				<n-alert
+					v-if="formValue.isRegular"
+					type="info"
+				>
+					<i18n-t
+						keypath="keywords.regularDescription"
+					>
+						<n-a
+							href="https://yourbasic.org/golang/regexp-cheat-sheet/#cheat-sheet"
+							target="_blank"
+						>
+							{{ t('keywords.regularDescriptionCheatSheet') }}
+						</n-a>
+					</i18n-t>
 				</n-alert>
 			</n-space>
 
