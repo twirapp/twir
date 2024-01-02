@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
 
 import { useDonationAlertsIntegration } from '@/api/index.js';
 import IconDonationAlerts from '@/assets/icons/integrations/donationalerts.svg?component';
@@ -10,8 +9,6 @@ const manager = useDonationAlertsIntegration();
 const { data } = manager.useData();
 const logout = manager.useLogout();
 const { data: authLink } = manager.useAuthLink();
-
-const { t } = useI18n();
 </script>
 
 <template>

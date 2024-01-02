@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
 import { ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import { useDonatepayIntegration } from '@/api/index.js';
 import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg?component';
@@ -27,8 +26,6 @@ watch(data, (value) => {
 async function save() {
 	await mutateAsync(apiKey.value);
 }
-
-const { t } = useI18n();
 </script>
 
 <template>
