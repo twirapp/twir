@@ -5,7 +5,7 @@ import {
 	NAvatar,
 	NInput,
 	NSpin,
-	NScrollbar,
+	NVirtualList,
 	useThemeVars,
 	NText,
 	NPopover,
@@ -141,20 +141,22 @@ onClickOutside(refPopover, (event) => {
 			<n-text :depth="3" style="font-size: 11px">
 				Channels you have access to
 			</n-text>
-			<n-scrollbar style="max-height: 400px;" trigger="none">
-				<div class="dashboards-menu">
+			<n-virtual-list
+				style="max-height: 400px;" :item-size="42" trigger="none"
+				:items="menuOptions"
+			>
+				<template #default="{ item }">
 					<div
-						v-for="option of menuOptions"
-						:key="option.key"
-						secondary
+						:key="item.key"
 						class="item"
-						@click="onSelectDashboard(option.key)"
+						style="height: 42px"
+						@click="onSelectDashboard(item.key)"
 					>
-						<n-avatar :src="option.icon" round size="small" />
-						{{ option.label }}
+						<n-avatar :src="item.icon" round size="small" />
+						<span> {{ item.label }}</span>
 					</div>
-				</div>
-			</n-scrollbar>
+				</template>
+			</n-virtual-list>
 			<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10">
 				<n-input v-model:value="filterValue" placeholder="Search" />
 			</template>
@@ -173,16 +175,7 @@ onClickOutside(refPopover, (event) => {
 	-webkit-user-drag: none;
 }
 
-.dashboards-menu {
-	background-color: v-bind(blockColor);
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	margin-right: 25px;
-	margin-bottom: 10px;
-}
-
-.dashboards-menu > .item {
+.item {
 	display: flex;
 	gap: 12px;
 	align-items: center;
