@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconUser } from '@tabler/icons-vue';
+import { IconUser, IconEdit } from '@tabler/icons-vue';
 import { useIntervalFn } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
 import { useThemeVars, NSkeleton } from 'naive-ui';
@@ -56,11 +56,10 @@ const infoEditorOpened = ref(false);
 			<n-skeleton width="20%" height="25px" :sharp="false" :repeat="6" />
 		</div>
 		<div v-else class="stats">
-			<div class="item" style="position: relative;">
+			<div class="item stats-uptime" style="position: relative; cursor: pointer;" @click="infoEditorOpened = true">
 				<div
 					class="stats-item"
-					style="cursor: pointer;"
-					@click="infoEditorOpened = true"
+					style="padding-right: 10px;"
 				>
 					<span>{{ stats?.title ?? 'No title' }}</span>
 					<span>{{ stats?.categoryName ?? 'No category' }}</span>
@@ -73,6 +72,7 @@ const infoEditorOpened = ref(false);
 						<span>{{ stats?.viewers }}</span>
 					</div>
 				</div>
+				<IconEdit class="stats-edit-icon" />
 			</div>
 
 			<div class="divider" />
@@ -138,8 +138,18 @@ const infoEditorOpened = ref(false);
 	width: 100%;
 }
 
+.stats-uptime {
+	display: flex;
+	align-items: center;
+}
+
+.stats-edit-icon {
+	height: 20px;
+	width: 20px;
+	cursor: pointer;
+}
+
 .item {
-	padding-right: 10px;
 	min-width: max-content;
 }
 
