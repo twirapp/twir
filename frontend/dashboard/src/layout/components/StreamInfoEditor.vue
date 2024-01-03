@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core';
 import {
-	NAvatar,
 	NButton,
 	NForm,
 	NFormItem,
@@ -75,9 +74,9 @@ const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 			},
 		},
 		[
-			h(NAvatar, {
-				src: o.image?.replace('52x72', '1280x720'),
-				style: { height: '90px', width: '90px', marginLeft: '10px' },
+			h('img', {
+				src: o.image?.replace('52x72', '144x192'),
+				style: { height: '80px', width: '60px' },
 			}),
 			h('span', {}, o.label! as string),
 		],
@@ -144,4 +143,3 @@ const userCanEditCategory = useUserAccessFlagChecker('UPDATE_CHANNEL_CATEGORY');
 		</n-form>
 	</n-modal>
 </template>
-
