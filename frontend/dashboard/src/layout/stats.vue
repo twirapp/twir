@@ -56,8 +56,8 @@ const infoEditorOpened = ref(false);
 					style="cursor: pointer;"
 					@click="infoEditorOpened = true"
 				>
-					<span>{{ stats?.title }}</span>
-					<span>{{ stats?.categoryName }}</span>
+					<span>{{ stats?.title ?? 'No title' }}</span>
+					<span>{{ stats?.categoryName ?? 'No category' }}</span>
 				</div>
 				<div v-if="uptime != null" class="live">
 					<div style="display: inline-flex; align-items: center; gap: 2px">
