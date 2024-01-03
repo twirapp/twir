@@ -18,12 +18,17 @@ const { data: stats, refetch, isLoading } = useDashboardStats();
 
 const { pause: pauseStatsFetch } = useIntervalFn(refetch, 5000);
 
+const currentTime = ref(new Date());
+const { pause: pauseUptimeInterval } = useIntervalFn(() => {
+	currentTime.value = new Date();
+}, 1000);
+
 const uptime = computed(() => {
 	if (!stats.value?.startedAt) return null;
 
 	const duration = intervalToDuration({
 		start: new Date(Number(stats.value?.startedAt)),
-		end: new Date(),
+		end: currentTime.value,
 	});
 
 	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0];
@@ -37,6 +42,7 @@ const uptime = computed(() => {
 
 onBeforeUnmount(() => {
 	pauseStatsFetch();
+	pauseUptimeInterval();
 });
 
 const { t } = useI18n();
