@@ -12,7 +12,9 @@ import Drawer from './drawer.vue';
 import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
 import DropdownProfile from './dropdowns/dropdownProfile.vue';
 import HamburgerMenu from './hamburgerMenu.vue';
+import Stats from './stats.vue';
 import Logo from '../../public/TwirInCircle.svg?component';
+
 
 defineProps<{
 	toggleSidebar: () => void;
@@ -59,6 +61,12 @@ useEventListener('keydown', (ev) => {
 				</a>
 
 				<DashboardsMenu />
+			</div>
+
+			<div v-if="!smallerOrEqualMd" style="flex-grow: 1">
+				<div class="block" style="width: 100%; max-width: max-content;">
+					<Stats />
+				</div>
 			</div>
 
 			<div v-if="!smallerOrEqualMd" style="display: flex; gap: 12px;">
@@ -125,6 +133,7 @@ useEventListener('keydown', (ev) => {
 	justify-content: space-between;
 	align-items: center;
 	height: 45px;
+	column-gap: 12px;
 }
 
 .block {

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { IconPencilPlus } from '@tabler/icons-vue';
 import { GridLayout, GridItem } from 'grid-layout-plus';
-import { NButton, NDropdown, useThemeVars } from 'naive-ui';
+import { NButton, NDropdown } from 'naive-ui';
 import { computed } from 'vue';
 
 import Bot from '@/components/dashboard/bot.vue';
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';
-import Stats from '@/components/dashboard/stats.vue';
 import Stream from '@/components/dashboard/stream.vue';
 import { useWidgets } from '@/components/dashboard/widgets.js';
 
@@ -29,15 +28,9 @@ const addWidget = (key: string) => {
 	item.x = (widgetsLength * 2) % 12;
 	item.y = widgetsLength + 12;
 };
-
-const theme = useThemeVars();
-const statsBackground = computed(() => theme.value.tabColor);
 </script>
 
 <template>
-	<div style="display: flex; width: 100%;" :style="{ 'background-color': statsBackground }">
-		<Stats />
-	</div>
 	<div style="width: 100%; height: 100%; padding-left: 5px;">
 		<GridLayout
 			v-model:layout="widgets"

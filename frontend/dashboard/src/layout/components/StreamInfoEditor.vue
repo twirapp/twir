@@ -1,57 +1,66 @@
-<script lang="ts" setup>
-import { IconEdit } from '@tabler/icons-vue';
+<script setup lang="ts">
 import { refDebounced } from '@vueuse/core';
 import {
-	type SelectOption,
-	NCard,
-	NModal,
+	NAvatar,
+	NButton,
 	NForm,
 	NFormItem,
 	NInput,
-	NButton,
+	NModal,
 	NSelect,
-	NAvatar,
-	useMessage,
-useThemeVars,
- } from 'naive-ui';
-import { VNodeChild, computed, ref, h } from 'vue';
+	type SelectOption,
+	useNotification,
+} from 'naive-ui';
+import { computed, h, ref, VNodeChild, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { twitchSetChannelInformationMutation, useTwitchSearchCategories, useUserAccessFlagChecker } from '@/api/index.js';
+import {
+	twitchSetChannelInformationMutation,
+	useTwitchSearchCategories,
+	useUserAccessFlagChecker,
+} from '@/api';
 
 const { t } = useI18n();
-
-const theme = useThemeVars();
 
 const props = defineProps<{
 	title?: string,
 	categoryId?: string,
 	categoryName?: string,
+	opened: boolean,
 }>();
 
-const isEditInformationModalShowed = ref(false);
+const emits = defineEmits<{
+	close: [],
+}>();
 
 const form = ref({
 	title: '',
 	categoryId: '',
 });
 
+
 const categoriesSearch = ref('');
 const categoriesSearchDebounced = refDebounced(categoriesSearch, 500);
 
-const openEditInformationModalModal = () => {
-	isEditInformationModalShowed.value = true;
+watch(props, (v) => {
 	form.value = {
-		categoryId: props.categoryId ?? '',
-		title: props.title ?? '',
+		title: v.title ?? '',
+		categoryId: v.categoryId ?? '',
 	};
-	categoriesSearch.value = props.categoryName || '';
-};
+	categoriesSearch.value = v.categoryName ?? '';
+}, { immediate: true });
 
-const { data: categoriesData, isLoading: isCategoriesLoading } = useTwitchSearchCategories(categoriesSearchDebounced);
+const {
+	data: categoriesData,
+	isLoading: isCategoriesLoading,
+} = useTwitchSearchCategories(categoriesSearchDebounced);
 
 const categoriesOptions = computed(() => {
-	return categoriesData.value?.categories.map((c) => ({ label: c.name, value: c.id, image: c.image }));
+	return categoriesData.value?.categories.map((c) => ({
+		label: c.name,
+		value: c.id,
+		image: c.image,
+	}));
 });
 
 const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
@@ -77,54 +86,33 @@ const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 
 const informationUpdater = twitchSetChannelInformationMutation();
 
-const messages = useMessage();
-async function saveChannelInformation() {
-	const { title, categoryId } = form.value;
-	await informationUpdater.mutateAsync({ categoryId, title });
-	isEditInformationModalShowed.value = false;
-	messages.success(t('sharedTexts.saved'));
-}
+const messages = useNotification();
 
+async function saveChannelInformation() {
+	await informationUpdater.mutateAsync({
+		categoryId: form.value.categoryId,
+		title: form.value.title,
+	});
+	messages.success({
+		title: t('sharedTexts.saved'),
+		duration: 2500,
+	});
+	emits('close');
+}
 
 const userCanEditTitle = useUserAccessFlagChecker('UPDATE_CHANNEL_TITLE');
 const userCanEditCategory = useUserAccessFlagChecker('UPDATE_CHANNEL_CATEGORY');
 </script>
 
 <template>
-	<div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 5px; height: 100%">
-		<n-card
-			class="card"
-			:bordered="false"
-			embedded
-			content-style="padding: 5px;"
-			:style="{ 'background-color': theme.actionColor }"
-		>
-			<div style="display: flex; justify-content: space-between; align-items: center">
-				<div style="display: flex; font-size:15px; flex-direction: column; white-space: nowrap; overflow: hidden;text-overflow: ellipsis">
-					<span style="font-size:15px;">
-						{{ props?.title || t('dashboard.statsWidgets.streamInfo.noTitle') }}
-					</span>
-					<span style="font-size:15px;">
-						{{ props?.categoryName || t('dashboard.statsWidgets.streamInfo.noCategory') }}
-					</span>
-				</div>
-
-				<IconEdit
-					v-if="userCanEditTitle || userCanEditCategory"
-					style="display: flex; width: 35px; height: 35px"
-					@click="openEditInformationModalModal"
-				/>
-			</div>
-		</n-card>
-	</div>
-
 	<n-modal
-		v-model:show="isEditInformationModalShowed"
+		:show="opened"
 		preset="card"
 		:bordered="false"
 		:segmented="true"
 		style="width: 500px"
 		:title="t('dashboard.statsWidgets.streamInfo.modalTitle')"
+		@close="() => emits('close')"
 	>
 		<n-form>
 			<n-form-item :label="t('dashboard.statsWidgets.streamInfo.title')">
@@ -157,9 +145,3 @@ const userCanEditCategory = useUserAccessFlagChecker('UPDATE_CHANNEL_CATEGORY');
 	</n-modal>
 </template>
 
-<style scoped>
-.card {
-	flex: 1 1 200px;
-	cursor: pointer;
-}
-</style>
