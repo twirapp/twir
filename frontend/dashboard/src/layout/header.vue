@@ -64,7 +64,7 @@ useEventListener('keydown', (ev) => {
 			</div>
 
 			<div v-if="!smallerOrEqualMd" style="flex-grow: 1">
-				<div class="block" style="width: 100%; max-width: max-content;">
+				<div class="block" style="width: 100%; max-width: max-content; min-width: 40%;">
 					<Stats />
 				</div>
 			</div>
