@@ -3,7 +3,7 @@ import {
 	ChatBox,
 } from '@twir/frontend-chat';
 import type { Message } from '@twir/frontend-chat';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
@@ -29,7 +29,16 @@ const emotesOpts = computed<EmotesOpts>(() => {
 	};
 });
 
-useThirdPartyEmotes(emotesOpts);
+const { emotes } = useThirdPartyEmotes(emotesOpts);
+
+watch(emotes.value, (e) => {
+	for (const emote of Object.values(e)) {
+		for (const url of emote.urls) {
+			const image = new Image();
+			image.src = url;
+		}
+	}
+});
 
 const removeMessageByInternalId = (id: string) => {
 	messages.value = messages.value.filter(m => m.internalId !== id);
