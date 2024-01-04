@@ -127,7 +127,17 @@ onClickOutside(refPopover, (event) => {
 					style="display: flex; align-self: center; border-radius: 111px;"
 					:src="currentDashboard?.profileImageUrl"
 				/>
-				<div v-if="!isCollapsed" style="display: flex; flex-direction: column;">
+				<div
+					v-if="!isCollapsed"
+					style="
+						display: flex;
+						flex-direction: column;
+						max-width: 100px;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					"
+				>
 					<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
 						{{ t(`dashboard.header.managingUser`) }}
 					</n-text>
