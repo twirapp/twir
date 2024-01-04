@@ -83,15 +83,16 @@ Migrations done via [goose](https://github.com/pressly/goose).
 * Add `https://dev.twir.app/login` to your twitch application redirect url's
 
 * Edit `.env` entries:
-```ini
-TWITCH_CALLBACKURL=https://dev.twir.app/login
-SITE_BASE_URL=dev.twir.app
-```
+	```ini
+	TWITCH_CALLBACKURL=https://dev.twir.app/login
+	SITE_BASE_URL=dev.twir.app
+	```
 
 * Add to your `/etc/hosts` or `C:/Windows/System32/drivers/etc/hosts` file new entry:
 	```bash
 	127.0.0.1 dev.twir.app
 	```
+
 * Start caddy:
 	```bash
 	pnpm caddy
