@@ -136,6 +136,17 @@ const fontSize = computed(() => `${props.settings.fontSize}px`);
 const fontFamily = computed(() => {
 	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-${props.settings.fontStyle}"`;
 });
+
+const textShadow = computed(() => {
+	if (!props.settings.textShadowColor || !props.settings.textShadowSize) return '';
+
+	const array = Array.from({ length: 5 }).map((_, i) => {
+		const n = i + 1;
+		return `0px 0px ${props.settings.textShadowSize! + n}px ${props.settings.textShadowColor}`;
+	});
+
+	return array.join(', ');
+});
 </script>
 
 <template>
@@ -176,6 +187,7 @@ const fontFamily = computed(() => {
 	gap: 8px;
 	overflow: hidden;
 	height: v-bind(windowHeight);
+	text-shadow: v-bind(textShadow);
 }
 
 .list-enter-active,
