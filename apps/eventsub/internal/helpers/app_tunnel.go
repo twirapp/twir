@@ -3,23 +3,18 @@ package helpers
 import (
 	"context"
 	"net"
-	"time"
 
+	"github.com/localtunnel/go-localtunnel"
 	config "github.com/satont/twir/libs/config"
-	"golang.ngrok.com/ngrok"
-	ngrok_config "golang.ngrok.com/ngrok/config"
 )
 
 func GetAppTunnel(ctx context.Context, cfg *config.Config) (net.Listener, error) {
 	if cfg.AppEnv != "production" {
-		ngrokCtx, cancelNgrokCtx := context.WithTimeout(ctx, 5*time.Second)
-		tun, err := ngrok.Listen(
-			ngrokCtx,
-			ngrok_config.HTTPEndpoint(),
+		tun, err := localtunnel.Listen(
+			localtunnel.Options{},
 		)
 		if err != nil {
-			cancelNgrokCtx()
-			return createDefaultTun()
+			return nil, err
 		}
 
 		return tun, nil
