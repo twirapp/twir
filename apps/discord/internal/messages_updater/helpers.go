@@ -9,6 +9,8 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
+var ErrIntegrationNotFound = fmt.Errorf("integration not found")
+
 func (c *MessagesUpdater) getChannelDiscordIntegration(
 	ctx context.Context,
 	channelId string,
@@ -65,7 +67,7 @@ WHERE EXISTS (
 
 		integration.Channel = channel
 
-		return nil, fmt.Errorf("integration not found")
+		return nil, ErrIntegrationNotFound
 	}
 
 	return integration, err

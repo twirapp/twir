@@ -131,7 +131,7 @@ async function save() {
 				</n-button-group>
 
 				<n-button-group>
-					<n-button secondary type="info" @click="copyOverlayLink">
+					<n-button secondary type="info" @click="copyOverlayLink()">
 						{{ t('overlays.copyOverlayLink') }}
 					</n-button>
 					<n-button secondary type="success" @click="save">

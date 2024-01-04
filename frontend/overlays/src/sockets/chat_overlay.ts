@@ -4,7 +4,9 @@ import { type Ref, ref, watch } from 'vue';
 
 import type { TwirWebSocketEvent } from './types.js';
 
-export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> } => {
+export const useChatOverlaySocket = (apiKey: string, overlayId?: string): {
+	settings: Ref<Settings>
+} => {
 	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 	const host = window.location.host;
 	const settings = ref<Settings>({
@@ -30,8 +32,14 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 		fontWeight: 400,
 	});
 
+	const url = new URL(`${protocol}://${host}/socket/overlays/chat`);
+	url.searchParams.append('apiKey', apiKey);
+	if (overlayId) {
+		url.searchParams.append('id', overlayId);
+	}
+
 	const { data, send } = useWebSocket(
-		`${protocol}://${host}/socket/overlays/chat?apiKey=${apiKey}`,
+		url.toString(),
 		{
 			immediate: true,
 			autoReconnect: {
@@ -47,11 +55,17 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 		const event = JSON.parse(d) as TwirWebSocketEvent;
 
 		if (event.eventName === 'settings') {
-			for (const badge of event.data.globalBadges) {
+			if (overlayId && event.data.id !== overlayId) {
+				return;
+			}
+
+			const data = event.data;
+
+			for (const badge of data.global_badges) {
 				settings.value.globalBadges.set(badge.set_id, badge);
 			}
 
-			for (const badge of event.data.channelBadges) {
+			for (const badge of data.channel_badges) {
 				for (const version of badge.versions) {
 					settings.value.channelBadges.set(
 						`${badge.set_id}-${version.id}`,
@@ -60,14 +74,24 @@ export const useChatOverlaySocket = (apiKey: string): { settings: Ref<Settings> 
 				}
 			}
 
-			const valuesForSet = Object.entries(event.data)
-				.filter(([key]) => !['channelBadges', 'globalBadges'].includes(key));
-
-			for (const [key, value] of valuesForSet) {
-				// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-				// @ts-ignore
-				settings.value[key] = value;
-			}
+			settings.value.channelId = data.channel_id;
+			settings.value.channelName = data.channel_name;
+			settings.value.channelDisplayName = data.channel_display_name;
+			settings.value.messageHideTimeout = data.message_hide_timeout;
+			settings.value.messageShowDelay = data.message_show_delay;
+			settings.value.preset = data.preset;
+			settings.value.fontSize = data.font_size;
+			settings.value.hideBots = data.hide_bots;
+			settings.value.hideCommands = data.hide_commands;
+			settings.value.fontFamily = data.font_family;
+			settings.value.showAnnounceBadge = data.show_announce_badge;
+			settings.value.showBadges = data.show_badges;
+			settings.value.textShadowColor = data.text_shadow_color;
+			settings.value.textShadowSize = data.text_shadow_size;
+			settings.value.chatBackgroundColor = data.chat_background_color;
+			settings.value.direction = data.direction;
+			settings.value.fontStyle = data.font_style;
+			settings.value.fontWeight = data.font_weight;
 		}
 	});
 

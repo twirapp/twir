@@ -16,7 +16,12 @@ const props = withDefaults(defineProps<{
 	icon: FunctionalComponent;
 	showSettings?: boolean
 	copyDisabled?: boolean,
-}>(), { showSettings: true, copyDisabled: false });
+	showCopy?: boolean
+}>(), {
+	showSettings: true,
+	copyDisabled: false,
+	showCopy: true,
+});
 
 defineEmits<{
 	openSettings: [];
@@ -37,18 +42,21 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 		</template>
 
 		<template #footer>
-			<n-button v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large" @click="$emit('openSettings')">
+			<n-button
+				v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large"
+				@click="$emit('openSettings')"
+			>
 				<div class="button-content">
 					<span>{{ t('sharedButtons.settings') }}</span>
 					<IconSettings />
 				</div>
 			</n-button>
-			<n-tooltip :disabled="profile?.id !== profile?.selectedDashboardId">
+			<n-tooltip v-if="showCopy" :disabled="profile?.id !== profile?.selectedDashboardId">
 				<template #trigger>
 					<n-button
 						size="large"
 						:disabled="copyDisabled || profile?.id != profile?.selectedDashboardId"
-						@click="copyOverlayLink"
+						@click="copyOverlayLink()"
 					>
 						<div class="button-content">
 							<span>{{ t('overlays.copyOverlayLink') }}</span>

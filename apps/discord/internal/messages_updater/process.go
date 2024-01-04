@@ -39,7 +39,7 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 
 		onlineMessages, err := c.sendOnlineMessage(ctx, stream)
 		if err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
+			if !errors.Is(err, gorm.ErrRecordNotFound) && !errors.Is(err, ErrIntegrationNotFound) {
 				c.logger.Error("Failed to send message", slog.Any("err", err))
 			}
 			continue
@@ -65,7 +65,9 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 		)
 		if !ok {
 			if err = c.processOffline(ctx, message.TwitchChannelID); err != nil {
-				c.logger.Error("Failed to process offline", slog.Any("err", err))
+				if !errors.Is(err, ErrIntegrationNotFound) {
+					c.logger.Error("Failed to process offline", slog.Any("err", err))
+				}
 				continue
 			}
 
@@ -77,6 +79,9 @@ func (c *MessagesUpdater) process(ctx context.Context) {
 		}
 
 		if err = c.updateDiscordMessages(ctx, stream); err != nil {
+			if !errors.Is(err, ErrIntegrationNotFound) {
+				c.logger.Error("Failed to process offline", slog.Any("err", err))
+			}
 			c.logger.Error("Failed to update message", slog.Any("err", err))
 			continue
 		}

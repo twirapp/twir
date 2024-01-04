@@ -216,7 +216,7 @@ async function save() {
 						secondary
 						type="info"
 						:disabled="isSettingsError || isSettingsLoading"
-						@click="copyOverlayLink"
+						@click="copyOverlayLink()"
 					>
 						{{ t('overlays.copyOverlayLink') }}
 					</n-button>

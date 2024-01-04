@@ -12,11 +12,12 @@ import { type ChatSettings, useTmiChat, knownBots, ChatMessage } from '../../soc
 
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
+const id = route.query.id;
 
 const messages = ref<Message[]>([]);
 const maxMessages = ref(30);
 
-const { settings } = useChatOverlaySocket(apiKey);
+const { settings } = useChatOverlaySocket(apiKey, id as string | undefined);
 
 const emotesOpts = computed<EmotesOpts>(() => {
 	return {

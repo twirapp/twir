@@ -20,7 +20,7 @@ func (c *Games) GamesGetDuelSettings(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*games.DuelSettingsResponse, error) {
-	dashboardId, err := helpers.GetSelectedDashboardIDFromCtx(ctx)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
 	if err != nil {
 		return nil, twirp.NewErrorf(twirp.NotFound, "cannot get selected dashboard: %w", err)
 	}
@@ -58,7 +58,7 @@ func (c *Games) GamesUpdateDuelSettings(
 	ctx context.Context,
 	req *games.UpdateDuelSettings,
 ) (*emptypb.Empty, error) {
-	dashboardId, err := helpers.GetSelectedDashboardIDFromCtx(ctx)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get selected dashboard: %w", err)
 	}

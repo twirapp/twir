@@ -154,8 +154,11 @@ service Protected {
 	rpc ModulesChatAlertsGet(google.protobuf.Empty) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
 	rpc ModulesChatAlertsUpdate(api.modules_chat_alerts.ChatAlertsSettings) returns (api.modules_chat_alerts.ChatAlertsSettings) {}
 
-	rpc OverlayChatGet(google.protobuf.Empty) returns (overlays_chat.Settings) {}
-	rpc OverlayChatUpdate(overlays_chat.Settings) returns (overlays_chat.Settings) {}
+	rpc OverlayChatGet(overlays_chat.GetRequest) returns (overlays_chat.Settings) {}
+	rpc OverlayChatGetAll(google.protobuf.Empty) returns (overlays_chat.GetAllResponse) {}
+	rpc OverlayChatCreate(overlays_chat.Settings) returns (overlays_chat.Settings) {}
+	rpc OverlayChatUpdate(overlays_chat.UpdateRequest) returns (overlays_chat.Settings) {}
+	rpc OverlayChatDelete(overlays_chat.DeleteRequest) returns (google.protobuf.Empty) {}
 
 	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (overlays_be_right_back.Settings) {}
 	rpc OverlayBeRightBackUpdate(overlays_be_right_back.Settings) returns (overlays_be_right_back.Settings) {}

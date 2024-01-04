@@ -135,7 +135,7 @@ function setDefaultSettings() {
 					secondary
 					type="info"
 					:disabled="isSettingsError || isSettingsLoading || !canCopyLink"
-					@click="copyOverlayLink"
+					@click="copyOverlayLink()"
 				>
 					{{ t('overlays.copyOverlayLink') }}
 				</n-button>
