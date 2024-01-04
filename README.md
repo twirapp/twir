@@ -65,6 +65,13 @@ Migrations done via [goose](https://github.com/pressly/goose).
 	```bash
 	goose create new_migration_name sql
 	```
+
+	or
+
+	```bash
+	goose create new_migration_name go
+	```
+
 * Run new created migrations (optional, because it's running when you execute `pnpm dev`)
 	```bash
 	cd libs/migrations
