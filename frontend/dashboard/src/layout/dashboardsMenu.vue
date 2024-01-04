@@ -11,6 +11,7 @@ import {
 	NPopover,
 } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
@@ -18,6 +19,7 @@ const emits = defineEmits<{
 	dashboardSelected: []
 }>();
 
+const { t } = useI18n();
 const themeVars = useThemeVars();
 const blockColor = computed(() => themeVars.value.buttonColor2);
 const blockColor2 = computed(() => themeVars.value.buttonColor2Hover);
@@ -122,8 +124,8 @@ onClickOutside(refPopover, (event) => {
 					:src="currentDashboard?.profileImageUrl"
 				/>
 				<div style="display: flex; flex-direction: column;">
-					<n-text :depth="3" style="font-size: 11px">
-						Managing user
+					<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
+						{{ t(`dashboard.header.managingUser`) }}
 					</n-text>
 					<n-text>{{ currentDashboard?.displayName }}</n-text>
 				</div>
@@ -139,7 +141,7 @@ onClickOutside(refPopover, (event) => {
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
 		<div v-else ref="refPopoverList" class="dashboards-container">
 			<n-text :depth="3" style="font-size: 11px">
-				Channels you have access to
+				{{ t(`dashboard.header.channelsAccess`) }}
 			</n-text>
 			<n-virtual-list
 				style="max-height: 400px;" :item-size="42" trigger="none"
