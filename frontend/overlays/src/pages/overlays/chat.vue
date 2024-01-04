@@ -31,11 +31,14 @@ const emotesOpts = computed<EmotesOpts>(() => {
 
 const { emotes } = useThirdPartyEmotes(emotesOpts);
 
+const loadedEmotes = ref<string[]>([]);
 watch(emotes.value, (e) => {
 	for (const emote of Object.values(e)) {
 		for (const url of emote.urls) {
+			if (loadedEmotes.value.includes(url)) continue;
 			const image = new Image();
 			image.src = url;
+			loadedEmotes.value.push(url);
 		}
 	}
 });
