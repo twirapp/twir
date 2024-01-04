@@ -7,7 +7,6 @@ import { useRoute } from 'vue-router';
 import ButtonPublicPage from './buttons/buttonPublicPage.vue';
 import ButtonToggleTheme from './buttons/buttonToggleTheme.vue';
 import SocialButtons from './buttons/socialButtons.vue';
-import DashboardsMenu from './dashboardsMenu.vue';
 import Drawer from './drawer.vue';
 import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
 import DropdownProfile from './dropdowns/dropdownProfile.vue';
@@ -58,7 +57,6 @@ useEventListener('keydown', (ev) => {
 				<a href="/" class="logo">
 					<TwirLogo style="width: 36px; height: 36px; display: flex" />
 				</a>
-				<DashboardsMenu />
 			</div>
 
 			<div v-if="isDesktopWindow" style="flex-grow: 1; overflow-y: hidden; overflow-x: auto;">

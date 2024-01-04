@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import { NScrollbar } from 'naive-ui';
 
 import Navigation from './navigation.vue';

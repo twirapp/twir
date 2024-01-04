@@ -15,6 +15,10 @@ import { useI18n } from 'vue-i18n';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 
+defineProps<{
+	isCollapsed: boolean
+}>();
+
 const emits = defineEmits<{
 	dashboardSelected: []
 }>();
@@ -123,7 +127,7 @@ onClickOutside(refPopover, (event) => {
 					style="display: flex; align-self: center; border-radius: 111px;"
 					:src="currentDashboard?.profileImageUrl"
 				/>
-				<div style="display: flex; flex-direction: column;">
+				<div v-if="!isCollapsed" style="display: flex; flex-direction: column;">
 					<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
 						{{ t(`dashboard.header.managingUser`) }}
 					</n-text>
@@ -131,6 +135,7 @@ onClickOutside(refPopover, (event) => {
 				</div>
 
 				<IconChevronRight
+					v-if="!isCollapsed"
 					:style="{
 						transition: '0.2s transform ease',
 						transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
@@ -193,10 +198,8 @@ onClickOutside(refPopover, (event) => {
 }
 
 .block {
-	background-color: v-bind(blockColor);
 	display: flex;
 	gap: 16px;
-	padding: 16px;
 	border-radius: 10px;
 	align-items: center;
 }

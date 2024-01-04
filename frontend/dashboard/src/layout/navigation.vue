@@ -21,12 +21,14 @@ import {
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { MenuDividerOption, MenuOption, NBadge, NMenu } from 'naive-ui';
+import { MenuDividerOption, MenuOption, NBadge, NMenu, NDivider } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRouter } from 'vue-router';
 
+import DashboardsMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
+
 
 import { useUserAccessFlagChecker } from '@/api';
 
@@ -220,6 +222,12 @@ onMounted(async () => {
 </script>
 
 <template>
+	<div class="sidebar-dashboards-menu">
+		<dashboards-menu :is-collapsed="isCollapsed" />
+	</div>
+
+	<n-divider style="margin-top: 0; margin-bottom: 5px;" />
+
 	<n-menu
 		v-model:value="activeKey"
 		:collapsed-width="64"
@@ -233,5 +241,14 @@ onMounted(async () => {
 	align-self: stretch;
 	display: flex;
 	align-items: center;
+}
+
+.sidebar-dashboards-menu {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding-top: 10px;
+	padding-bottom: 10px;
 }
 </style>
