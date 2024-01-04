@@ -10,7 +10,7 @@ export type FontVariants =
   | '900'
 
 export type FontStyle = 'normal' | 'italic'
-export type FontSubset = 'latin' | 'cyrillic'
+export type FontSubset = 'latin' | 'cyrillic' | string
 export type FontType = 'woff2' | 'woff'
 
 export interface FontItem {
