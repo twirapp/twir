@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	google.golang.org/grpc v1.60.0
+	google.golang.org/grpc v1.60.1
 	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.3.0
 	google.golang.org/protobuf v1.31.0
 )

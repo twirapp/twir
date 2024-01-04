@@ -1,4 +1,4 @@
-go 1.21
+go 1.21.5
 
 use (
 	./apps/api
@@ -13,6 +13,7 @@ use (
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
+	./cli
 	./libs/config
 	./libs/crypto
 	./libs/gomodels
@@ -27,6 +28,6 @@ use (
 	./libs/twitch-eventsub-bindings
 	./libs/twitch-eventsub-framework
 	./libs/types
+	./libs/utils
 	./tools
-	libs/utils
 )

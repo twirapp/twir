@@ -10,12 +10,7 @@
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
 		"predev": "pnpm build:libs",
 		"dev": "go run ./tools/dev.go",
-		"dev:frontend": "turbo run dev --filter=./libs/frontend-chat --filter=./frontend/**",
-		"build": "turbo run build --filter=!./apps/dota",
-		"build:libs": "turbo run build --filter='./libs/*'",
-		"cache-golang-deps": "tsx ./tools/cache-go-deps.ts",
-		"caddy": "caddy reverse-proxy --from dev.twir.app --to 127.0.0.1:3005 --insecure --internal-certs",
-		"gen:dockerfile:copy": "tsx ./tools/gen-dockerfile-copy.ts"
+		"dev:frontend": "turbo run dev --filter=./libs/frontend-chat --filter=./frontend/**"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {

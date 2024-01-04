@@ -17,7 +17,7 @@ require (
 	github.com/satont/twir/libs/logger v0.0.0-20231218071827-5dc09a0eae99
 	github.com/satont/twir/libs/sentry v0.0.0-20231218071827-5dc09a0eae99
 	go.uber.org/fx v1.20.1
-	google.golang.org/grpc v1.60.0
+	google.golang.org/grpc v1.60.1
 )
 
 require (
@@ -28,8 +28,8 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	github.com/rs/zerolog v1.30.0 // indirect
-	github.com/samber/slog-common v0.11.0 // indirect
+	github.com/rs/zerolog v1.31.0 // indirect
+	github.com/samber/slog-common v0.13.0 // indirect
 	github.com/samber/slog-multi v1.0.2 // indirect
 	github.com/samber/slog-sentry/v2 v2.2.1 // indirect
 	github.com/samber/slog-zerolog/v2 v2.1.0 // indirect
