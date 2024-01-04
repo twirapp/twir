@@ -84,6 +84,9 @@ const chatSettings = computed<ChatSettings>(() => {
 		onMessage,
 		onRemoveMessage: removeMessageById,
 		onRemoveMessageByUser: removeMessageByUserName,
+		onChatClear: () => {
+			messages.value = [];
+		},
 	};
 });
 

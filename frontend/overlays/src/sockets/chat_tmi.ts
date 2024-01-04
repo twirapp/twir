@@ -31,6 +31,7 @@ export type ChatSettings = {
 	onMessage: (message: ChatMessage) => MaybePromise
 	onRemoveMessage?: (msgId: string) => MaybePromise
 	onRemoveMessageByUser?: (userName: string) => MaybePromise
+	onChatClear?: () => void
 }
 
 // const { sevenTvEmotes, bttvEmotes, ffzEmotes } = useThirdPartyEmotes(channelName, channelId);
@@ -119,6 +120,12 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 
 		client.on('ban', (_channel, username) => {
 			opts.value.onRemoveMessageByUser?.(username);
+		});
+
+		client.on('clearchat', () => {
+			if (opts.value.onChatClear) {
+				opts.value.onChatClear();
+			}
 		});
 
 		client.on('connecting', () => {
