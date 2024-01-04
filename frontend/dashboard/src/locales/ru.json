@@ -152,6 +152,10 @@
     }
   },
   "dashboard": {
+		"header": {
+			"managingUser": "Управление",
+			"channelsAccess": "Каналы, доступные для управления"
+		},
     "botManage": {
       "title": "Управление ботом",
       "moderator": "<b>{botName}</b> является модератором на этом канале.",

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { IconUser, IconEdit } from '@tabler/icons-vue';
-import { useIntervalFn } from '@vueuse/core';
+import { IconEdit } from '@tabler/icons-vue';
+import { useIntervalFn, useMagicKeys } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
-import { useThemeVars, NSkeleton } from 'naive-ui';
-import { computed, onBeforeUnmount, ref } from 'vue';
+import { useThemeVars, NSkeleton, NText } from 'naive-ui';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import StreamInfoEditor from './components/StreamInfoEditor.vue';
@@ -48,29 +48,30 @@ onBeforeUnmount(() => {
 const { t } = useI18n();
 
 const infoEditorOpened = ref(false);
+
+const { escape } = useMagicKeys();
+watch(escape, (v) => {
+	if (v) infoEditorOpened.value = false;
+});
 </script>
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="isLoading" class="stats">
-			<n-skeleton width="20%" height="25px" :sharp="false" :repeat="6" />
+		<div v-if="isLoading" class="stats" style="padding-top: 5px; padding-bottom: 5px;">
+			<n-skeleton width="120px" height="36px" :sharp="false" :repeat="6" />
 		</div>
 		<div v-else class="stats">
-			<div class="item stats-uptime" style="position: relative; cursor: pointer;" @click="infoEditorOpened = true">
+			<div class="item stats-uptime" style="cursor: pointer;" @click="infoEditorOpened = true">
 				<div
 					class="stats-item"
 					style="padding-right: 10px;"
 				>
-					<span>{{ stats?.title ?? 'No title' }}</span>
-					<span>{{ stats?.categoryName ?? 'No category' }}</span>
-				</div>
-				<div v-if="uptime != null" class="live">
-					<div style="display: inline-flex; align-items: center; gap: 2px">
-						<span>{{ uptime }}</span>
-						|
-						<IconUser style="height: 15px; width: 15px;" />
-						<span>{{ stats?.viewers }}</span>
-					</div>
+					<n-text>
+						{{ stats?.title ?? 'No title' }}
+					</n-text>
+					<n-text>
+						{{ stats?.categoryName ?? 'No category' }}
+					</n-text>
 				</div>
 				<IconEdit class="stats-edit-icon" />
 			</div>
@@ -78,36 +79,79 @@ const infoEditorOpened = ref(false);
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<span class="label">{{ t(`dashboard.statsWidgets.followers`) }}</span>
-				<span class="value">{{ stats?.followers }}</span>
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.uptime`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ uptime }}
+				</n-text>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<span class="label">{{ t(`dashboard.statsWidgets.messages`) }}</span>
-				<span class="value">{{ stats?.chatMessages }}</span>
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.viewers`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ stats?.viewers ?? 0 }}
+				</n-text>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<span class="label">{{ t(`dashboard.statsWidgets.subs`) }}</span>
-				<span class="value">{{ stats?.subs }}</span>
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.followers`) }}
+				</n-text>
+
+				<n-text style="font-size: 16px;">
+					{{ stats?.followers }}
+				</n-text>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<span class="label">{{ t(`dashboard.statsWidgets.usedEmotes`) }}</span>
-				<span class="value">{{ stats?.usedEmotes }}</span>
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.messages`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ stats?.chatMessages }}
+				</n-text>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<span class="label">{{ t(`dashboard.statsWidgets.requestedSongs`) }}</span>
-				<span class="value">{{ stats?.requestedSongs }}</span>
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.subs`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ stats?.subs }}
+				</n-text>
+			</div>
+
+			<div class="divider" />
+
+			<div class="item stats-item">
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ stats?.usedEmotes }}
+				</n-text>
+			</div>
+
+			<div class="divider" />
+
+			<div class="item stats-item">
+				<n-text :depth="3" style="font-size: 11px;">
+					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
+				</n-text>
+				<n-text style="font-size: 16px;">
+					{{ stats?.requestedSongs }}
+				</n-text>
 			</div>
 		</div>
 	</Transition>
@@ -163,27 +207,5 @@ const infoEditorOpened = ref(false);
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
-}
-
-.stats-item .label {
-	font-size: 0.7rem;
-	font-weight: 400;
-}
-
-.stats-item .value {
-	font-size: 1rem;
-}
-
-.live {
-	position: absolute;
-	right: -15px;
-	top: -10px;
-	background-color: rgb(220 38 38);
-	font-size: .75rem;
-	line-height: 1rem;
-	font-weight: 600;
-	padding-left: 10px;
-	padding-right: 10px;
-	border-radius: 4px;
 }
 </style>

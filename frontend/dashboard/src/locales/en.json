@@ -163,6 +163,10 @@
     }
   },
   "dashboard": {
+		"header": {
+			"managingUser": "Managing user",
+			"channelsAccess": "Channels you have access to"
+		},
     "botManage": {
       "title": "Bot Management",
       "moderator": "<b>{botName}</b> is a moderator on this channel.",
