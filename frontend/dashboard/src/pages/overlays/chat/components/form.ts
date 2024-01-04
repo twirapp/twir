@@ -31,7 +31,10 @@ export const useChatOverlayForm = () => {
 	}
 
 	function $reset() {
-		data.value = structuredClone(defaultSettings);
+		data.value = {
+			id: data.value.id,
+			...structuredClone(defaultSettings),
+		};
 	}
 
 	function $getDefaultSettings() {
