@@ -14,7 +14,7 @@
 		"build": "turbo run build --filter=!./apps/dota",
 		"build:libs": "turbo run build --filter='./libs/*'",
 		"cache-golang-deps": "tsx ./tools/cache-go-deps.ts",
-		"caddy": "caddy reverse-proxy --from twir.satont.localhost --to 127.0.0.1:3005",
+		"caddy": "caddy reverse-proxy --from dev.twir.app --to 127.0.0.1:3005 --insecure --internal-certs",
 		"gen:dockerfile:copy": "tsx ./tools/gen-dockerfile-copy.ts"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
