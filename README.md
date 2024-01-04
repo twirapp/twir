@@ -97,3 +97,5 @@ Migrations done via [goose](https://github.com/pressly/goose).
 	```bash
 	pnpm caddy
 	```
+
+* Open https://dev.twir.app
