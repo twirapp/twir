@@ -6,7 +6,7 @@ import {
 	userAccessFlagChecker,
 	profileQueryOptions,
 	dashboardsQueryOptions,
-} from '@/api/index.js';
+} from '@/api';
 
 type Route = Omit<RouteRecordRaw, 'meta' | 'children'> & {
 	meta?: { neededPermission?: PermissionsType; noPadding?: boolean },
@@ -17,15 +17,15 @@ export const newRouter = (queryClient: QueryClient) => {
 	const routes: ReadonlyArray<Route> = [
 		{
 			path: '/dashboard/integrations/:integrationName',
-			component: () => import('./pages/IntegrationsCallback.vue'),
+			component: () => import('../pages/IntegrationsCallback.vue'),
 		},
 		{
 			path: '/dashboard',
-			component: () => import('./layout/layout.vue'),
+			component: () => import('../layout/layout.vue'),
 			children: [
 				{
 					path: '/dashboard',
-					component: () => import('./pages/Dashboard.vue'),
+					component: () => import('../pages/Dashboard.vue'),
 					meta: {
 						noPadding: true,
 					},
@@ -33,57 +33,57 @@ export const newRouter = (queryClient: QueryClient) => {
 				{
 					name: 'Integrations',
 					path: '/dashboard/integrations',
-					component: () => import('./pages/Integrations.vue'),
+					component: () => import('../pages/Integrations.vue'),
 					meta: { neededPermission: 'VIEW_INTEGRATIONS' },
 				},
 				{
 					path: '/dashboard/commands/:system',
-					component: () => import('./pages/Commands.vue'),
+					component: () => import('../pages/Commands.vue'),
 					meta: { neededPermission: 'VIEW_COMMANDS' },
 				},
 				{
 					path: '/dashboard/timers',
-					component: () => import('./pages/Timers.vue'),
+					component: () => import('../pages/Timers.vue'),
 					meta: { neededPermission: 'VIEW_TIMERS' },
 				},
 				{
 					path: '/dashboard/keywords',
-					component: () => import('./pages/Keywords.vue'),
+					component: () => import('../pages/Keywords.vue'),
 					meta: { neededPermission: 'VIEW_KEYWORDS' },
 				},
 				{
 					path: '/dashboard/variables',
-					component: () => import('./pages/Variables.vue'),
+					component: () => import('../pages/Variables.vue'),
 					meta: { neededPermission: 'VIEW_VARIABLES' },
 				},
 				{
 					path: '/dashboard/greetings',
-					component: () => import('./pages/Greetings.vue'),
+					component: () => import('../pages/Greetings.vue'),
 					meta: { neededPermission: 'VIEW_GREETINGS' },
 				},
 				{
 					path: '/dashboard/community/users',
-					component: () => import('./pages/CommunityUsers.vue'),
+					component: () => import('../pages/CommunityUsers.vue'),
 				},
 				{
 					path: '/dashboard/community/roles',
-					component: () => import('./pages/CommunityRoles.vue'),
+					component: () => import('../pages/CommunityRoles.vue'),
 					meta: { neededPermission: 'VIEW_ROLES' },
 				},
 				{
 					path: '/dashboard/song-requests',
-					component: () => import('./pages/SongRequests.vue'),
+					component: () => import('../pages/SongRequests.vue'),
 					meta: { neededPermission: 'VIEW_SONG_REQUESTS' },
 				},
 				{
 					path: '/dashboard/overlays',
-					component: () => import('./pages/Overlays.vue'),
+					component: () => import('../pages/Overlays.vue'),
 					meta: { neededPermission: 'VIEW_OVERLAYS' },
 				},
 				{
 					name: 'ChatOverlay',
 					path: '/dashboard/overlays/chat',
-					component: () => import('./pages/overlays/chat/Chat.vue'),
+					component: () => import('../pages/overlays/chat/Chat.vue'),
 					meta: {
 						neededPermission: 'MANAGE_OVERLAYS',
 						noPadding: true,
@@ -92,7 +92,7 @@ export const newRouter = (queryClient: QueryClient) => {
 				{
 					name: 'KappagenOverlay',
 					path: '/dashboard/overlays/kappagen',
-					component: () => import('./pages/overlays/kappagen/Kappagen.vue'),
+					component: () => import('../pages/overlays/kappagen/Kappagen.vue'),
 					meta: {
 						neededPermission: 'MANAGE_OVERLAYS',
 						noPadding: true,
@@ -101,7 +101,7 @@ export const newRouter = (queryClient: QueryClient) => {
 				{
 					name: 'BrbOverlay',
 					path: '/dashboard/overlays/brb',
-					component: () => import('./pages/overlays/brb/Brb.vue'),
+					component: () => import('../pages/overlays/brb/Brb.vue'),
 					meta: {
 						neededPermission: 'MANAGE_OVERLAYS',
 						noPadding: true,
@@ -109,44 +109,44 @@ export const newRouter = (queryClient: QueryClient) => {
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
-					component: () => import('./pages/ChatAlerts.vue'),
+					component: () => import('../pages/ChatAlerts.vue'),
 					meta: { neededPermission: 'VIEW_EVENTS' },
 				},
 				{
 					path: '/dashboard/events/custom',
-					component: () => import('./pages/Events.vue'),
+					component: () => import('../pages/Events.vue'),
 					meta: { neededPermission: 'VIEW_EVENTS' },
 				},
 				{
 					path: '/dashboard/alerts',
-					component: () => import('./pages/Alerts.vue'),
+					component: () => import('../pages/Alerts.vue'),
 					meta: { neededPermission: 'VIEW_ALERTS' },
 				},
 				{
 					path: '/dashboard/games',
-					component: () => import('./pages/Games.vue'),
+					component: () => import('../pages/Games.vue'),
 					meta: { neededPermission: 'VIEW_GAMES' },
 				},
 				{
 					path: '/dashboard/files',
-					component: () => import('./pages/Files.vue'),
+					component: () => import('../pages/Files.vue'),
 				},
 				{
 					name: 'RegistryOverlayEdit',
 					path: '/dashboard/registry/overlays/:id',
-					component: () => import('./components/registry/overlays/edit.vue'),
+					component: () => import('../components/registry/overlays/edit.vue'),
 					meta: { neededPermission: 'MANAGE_OVERLAYS' },
 				},
 				{
 					name: 'Moderation',
 					path: '/dashboard/moderation',
-					component: () => import('./pages/Moderation.vue'),
+					component: () => import('../pages/Moderation.vue'),
 					meta: { neededPermission: 'MANAGE_MODERATION' },
 				},
 				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
-					component: () => import('./pages/NoAccess.vue'),
+					component: () => import('../pages/NoAccess.vue'),
 				},
 			],
 		},

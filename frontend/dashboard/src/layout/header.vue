@@ -58,7 +58,6 @@ useEventListener('keydown', (ev) => {
 				<a href="/" class="logo">
 					<TwirLogo style="width: 36px; height: 36px; display: flex" />
 				</a>
-
 				<DashboardsMenu />
 			</div>
 
@@ -72,13 +71,13 @@ useEventListener('keydown', (ev) => {
 
 			<div v-if="isDesktopWindow" style="display: flex; gap: 12px;">
 				<div class="block">
-					<button-public-page />
 					<social-buttons />
 				</div>
 
 				<div class="block">
 					<dropdown-language />
 					<button-toggle-theme />
+					<button-public-page />
 					<dropdown-profile />
 				</div>
 			</div>
@@ -127,7 +126,7 @@ useEventListener('keydown', (ev) => {
 	padding-right: 14px;
 }
 
-.content>div {
+.content > div {
 	display: flex;
 	justify-content: flex-start;
 	gap: 5px;

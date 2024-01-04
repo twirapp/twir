@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { IconEdit } from '@tabler/icons-vue';
-import { useIntervalFn, useMagicKeys } from '@vueuse/core';
+import { useIntervalFn } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
 import { useThemeVars, NSkeleton, NText } from 'naive-ui';
-import { computed, onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import StreamInfoEditor from './components/StreamInfoEditor.vue';
 
 import { useDashboardStats } from '@/api';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime';
-
 
 const themeVars = useThemeVars();
 
@@ -24,7 +24,7 @@ const { pause: pauseUptimeInterval } = useIntervalFn(() => {
 }, 1000);
 
 const uptime = computed(() => {
-	if (!stats.value?.startedAt) return null;
+	if (!stats.value?.startedAt) return '00:00:00';
 
 	const duration = intervalToDuration({
 		start: new Date(Number(stats.value?.startedAt)),
@@ -47,12 +47,18 @@ onBeforeUnmount(() => {
 
 const { t } = useI18n();
 
-const infoEditorOpened = ref(false);
+const discrete = useNaiveDiscrete();
 
-const { escape } = useMagicKeys();
-watch(escape, (v) => {
-	if (v) infoEditorOpened.value = false;
-});
+function openInfoEditor() {
+	discrete.dialog.create({
+		showIcon: false,
+		content: () => h(StreamInfoEditor, {
+			title: stats.value?.title,
+			categoryId: stats.value?.categoryId,
+			categoryName: stats.value?.categoryName,
+		}),
+	});
+}
 </script>
 
 <template>
@@ -61,7 +67,7 @@ watch(escape, (v) => {
 			<n-skeleton width="120px" height="36px" :sharp="false" :repeat="6" />
 		</div>
 		<div v-else class="stats">
-			<div class="item stats-uptime" style="cursor: pointer;" @click="infoEditorOpened = true">
+			<div class="item stats-uptime" style="cursor: pointer;" @click="openInfoEditor">
 				<div
 					class="stats-item"
 					style="padding-right: 10px;"
@@ -155,14 +161,6 @@ watch(escape, (v) => {
 			</div>
 		</div>
 	</Transition>
-
-	<StreamInfoEditor
-		:opened="infoEditorOpened"
-		:title="stats?.title"
-		:categoryId="stats?.categoryId"
-		:category-name="stats?.categoryName"
-		@close="infoEditorOpened = false"
-	/>
 </template>
 
 <style scoped>
