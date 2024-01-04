@@ -63,8 +63,8 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="isLoading" class="stats" style="padding-top: 5px; padding-bottom: 5px;">
-			<n-skeleton width="120px" height="36px" :sharp="false" :repeat="6" />
+		<div v-if="isLoading" style="padding-top: 5px; padding-bottom: 5px; width: 100%">
+			<n-skeleton width="100%" height="43px" :sharp="false" />
 		</div>
 		<div v-else class="stats">
 			<div class="item stats-uptime" style="cursor: pointer;" @click="openInfoEditor">
@@ -178,6 +178,8 @@ function openInfoEditor() {
 	display: flex;
 	gap: 12px;
 	width: 100%;
+	padding-right: 16px;
+	padding-left: 16px;
 }
 
 .stats-uptime {

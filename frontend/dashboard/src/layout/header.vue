@@ -154,8 +154,6 @@ useEventListener('keydown', (ev) => {
 	max-width: max-content;
 	min-width: 40%;
 	padding: unset;
-	padding-right: 16px;
-	padding-left: 16px;
 }
 
 .drawerBlock {
