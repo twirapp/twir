@@ -3,7 +3,8 @@ import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { unprotectedApiClient } from '../api';
+import { unprotectedApiClient } from '@/api.js';
+import { generateUrlWithParams } from '@/helpers.js';
 
 declare global {
   interface Window {
@@ -15,11 +16,13 @@ const queue = ref<Array<Record<string, string>>>([]);
 const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null);
 
 const route = useRoute();
-const apiKey = route.params.apiKey as string;
 
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const host = window.location.host;
-const { data } = useWebSocket(`${protocol}://${host}/socket/tts?apiKey=${apiKey}`, {
+const apiKey = route.params.apiKey as string;
+const ttsUrl = generateUrlWithParams('/overlays/tts', {
+	apiKey,
+});
+
+const { data } = useWebSocket(ttsUrl, {
 	autoReconnect: {
 		delay: 500,
 	},

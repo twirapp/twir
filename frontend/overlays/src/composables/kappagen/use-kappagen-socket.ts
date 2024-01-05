@@ -1,18 +1,21 @@
 import type { TriggerKappagenRequest_Emote } from '@twir/grpc/generated/websockets/websockets';
 import { useWebSocket } from '@vueuse/core';
 import type { KappagenAnimations } from 'kappagen';
-import { watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import { ref, watch } from 'vue';
 
-import { type Buidler } from './builder.js';
-import { useChannelSettings } from './settingsStore.js';
+import { type Buidler } from './use-kappagen-builder.js';
+
+import type { TwirWebSocketEvent } from '@/api.js';
+import { useMessageHelpers } from '@/composables/chat/use-message-helpers.js';
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
+import { generateUrlWithParams } from '@/helpers.js';
 import type {
 	KappagenCallback,
 	SpawnCallback,
 	SetSettingsCallback,
 	KappagenSettings,
-} from './types.js';
-import { makeMessageChunks } from '../../../components/chat_tmi_helpers.js';
-import type { TwirWebSocketEvent } from '../../../sockets/types';
+} from '@/types.js';
 
 type Opts = {
 	kappagenCallback: KappagenCallback
@@ -21,14 +24,15 @@ type Opts = {
 	emotesBuilder: Buidler
 }
 
-export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
-	const { kappagenSettings } = useChannelSettings();
+export const useKappagenOverlaySocket = (opts: Opts) => {
+	const kappagenUrl = ref('');
 
-	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-	const host = window.location.host;
+	const { makeMessageChunks } = useMessageHelpers();
+	const kappagenSettingsStore = useKappagenSettings();
+	const { settings } = storeToRefs(kappagenSettingsStore);
 
 	const { data, send, open, close } = useWebSocket(
-		`${protocol}://${host}/socket/overlays/kappagen?apiKey=${apiKey}`,
+		kappagenUrl,
 		{
 			immediate: false,
 			autoReconnect: {
@@ -40,11 +44,11 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		},
 	);
 
-	const randomAnimation = () => {
-		if (!kappagenSettings.value) return;
-		const enabledAnimations = kappagenSettings.value.animations.filter(a => a.enabled);
+	function randomAnimation() {
+		if (!settings.value) return;
+		const enabledAnimations = settings.value.animations.filter(a => a.enabled);
 		return enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
-	};
+	}
 
 	watch(data, (d: string) => {
 		const event = JSON.parse(d) as TwirWebSocketEvent;
@@ -55,7 +59,7 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		}
 
 		if (event.eventName === 'event') {
-			if (!kappagenSettings.value) return;
+			if (!settings.value) return;
 
 			const generatedEmotes = opts.emotesBuilder.buildKappagenEmotes([]);
 
@@ -66,7 +70,7 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		}
 
 		if (event.eventName === 'kappagen') {
-			if (!kappagenSettings.value) return;
+			if (!settings.value) return;
 
 			const data = event.data as { text: string, emotes?: TriggerKappagenRequest_Emote[] };
 
@@ -86,16 +90,22 @@ export const useKappagenOverlaySocket = (apiKey: string, opts: Opts) => {
 		}
 	});
 
-	const create = () => {
-		open();
-	};
-
-	const destroy = () => {
+	function destroy() {
 		close();
-	};
+	}
+
+	function connect(apiKey: string): void {
+		const url = generateUrlWithParams('/socket/overlays/kappagen', {
+			apiKey,
+		});
+
+		kappagenUrl.value = url;
+
+		open();
+	}
 
 	return {
-		create,
+		connect,
 		destroy,
 	};
 };

@@ -4,8 +4,8 @@ import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_ba
 import { useIntervalFn } from '@vueuse/core';
 import { computed, ref, watch } from 'vue';
 
-import { getTimeDiffInMilliseconds, millisecondsToTime } from './timeUtils.js';
-import type { OnStart, OnStop } from './types.js';
+import { getTimeDiffInMilliseconds, millisecondsToTime } from '@/helpers.js';
+import type { OnStart, OnStop } from '@/types.js';
 
 
 const props = defineProps<{

@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { Message } from '@twir/frontend-chat';
 import { Client } from 'tmi.js';
-import { Ref, onUnmounted, unref, watch } from 'vue';
+import { Ref, unref, watch } from 'vue';
 
-import { makeMessageChunks } from '../components/chat_tmi_helpers.js';
+import { useMessageHelpers } from './use-message-helpers.js';
 
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
   Partial<Pick<Type, Key>>;
@@ -34,13 +34,10 @@ export type ChatSettings = {
 	onChatClear?: () => void
 }
 
-// const { sevenTvEmotes, bttvEmotes, ffzEmotes } = useThirdPartyEmotes(channelName, channelId);
-export const useTmiChat = (opts: Ref<ChatSettings>) => {
-	let client: Client | null = null;
+export const useChatTmi = (options: Ref<ChatSettings>) => {
+	const { makeMessageChunks } = useMessageHelpers();
 
-	onUnmounted(async () => {
-		destroy();
-	});
+	let client: Client | null = null;
 
 	const createMessage = (opts: ChatMessage) => {
 		const internalId = crypto.randomUUID();
@@ -74,7 +71,7 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 		});
 
 		client.on('message', (_, tags, message) => {
-			opts.value.onMessage(createMessage({
+			options.value.onMessage(createMessage({
 				id: tags.id,
 				type: 'message',
 				chunks: makeMessageChunks(message, tags.emotes),
@@ -89,7 +86,7 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 		// @ts-ignore
 		client.on('usernotice', (msgId, channel, tags, msg) => {
 			if(msgId === 'announcement') {
-				opts.value.onMessage(createMessage({
+				options.value.onMessage(createMessage({
 					id: msgId,
 					type: 'message',
 					// @ts-ignore
@@ -110,26 +107,26 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 		client.on('messagedeleted', (_channel, _username, _msgText, userState) => {
 			const msgId = userState['target-msg-id'];
 			if (msgId) {
-				opts.value.onRemoveMessage?.(msgId);
+				options.value.onRemoveMessage?.(msgId);
 			}
 		});
 
 		client.on('timeout', (_channel, username) => {
-			opts.value.onRemoveMessageByUser?.(username);
+			options.value.onRemoveMessageByUser?.(username);
 		});
 
 		client.on('ban', (_channel, username) => {
-			opts.value.onRemoveMessageByUser?.(username);
+			options.value.onRemoveMessageByUser?.(username);
 		});
 
 		client.on('clearchat', () => {
-			if (opts.value.onChatClear) {
-				opts.value.onChatClear();
+			if (options.value.onChatClear) {
+				options.value.onChatClear();
 			}
 		});
 
 		client.on('connecting', () => {
-			opts.value.onMessage(createMessage({
+			options.value.onMessage(createMessage({
 				type: 'system',
 				chunks: [{
 					type: 'text',
@@ -140,7 +137,7 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 		});
 
 		client.on('connected', async () => {
-			opts.value.onMessage(createMessage({
+			options.value.onMessage(createMessage({
 				type: 'system',
 				chunks: [{ type: 'text', value: 'Connected' }],
 				messageHideTimeout: 6,
@@ -148,7 +145,7 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 
 			await client!.join(channel);
 
-			opts.value.onMessage(createMessage({
+			options.value.onMessage(createMessage({
 				type: 'system',
 				chunks: [{ type: 'text', value: `Joined channel ${channel}` }],
 				messageHideTimeout: 7,
@@ -158,7 +155,7 @@ export const useTmiChat = (opts: Ref<ChatSettings>) => {
 		await client.connect();
 	}
 
-	watch(() => opts.value.channelName, (v) => {
+	watch(() => options.value.channelName, (v) => {
 		const name = unref(v);
 		if (!name) return;
 

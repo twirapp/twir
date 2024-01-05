@@ -2,22 +2,19 @@ import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_ba
 import { useWebSocket } from '@vueuse/core';
 import { watch } from 'vue';
 
-import type { SetSettings } from './types.js';
-import { TwirWebSocketEvent } from '../../../sockets/types.js';
+import { TwirWebSocketEvent } from '@/api.js';
+import { SetSettings } from '@/types.js';
 
-type Opts = {
-	apiKey: string,
+type Options = {
+	brbUrl: string,
 	onSettings: SetSettings,
 	onStart: (minutes: number, text?: string) => void,
 	onStop: () => void,
 }
 
-export const useBeRightBackOverlaySocket = (opts: Opts) => {
-	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-	const host = window.location.host;
-
+export const useBeRightBackOverlaySocket = (optins: Options) => {
 	const { data, send, open, close } = useWebSocket(
-		`${protocol}://${host}/socket/overlays/brb?apiKey=${opts.apiKey}`,
+		optins.brbUrl,
 		{
 			immediate: false,
 			autoReconnect: {
@@ -33,25 +30,25 @@ export const useBeRightBackOverlaySocket = (opts: Opts) => {
 		const parsedData = JSON.parse(v) as TwirWebSocketEvent;
 
 		if (parsedData.eventName === 'settings') {
-			opts.onSettings(parsedData.data as Settings);
+			optins.onSettings(parsedData.data as Settings);
 		}
 
 		if (parsedData.eventName === 'start') {
-			opts.onStart(parsedData.data.minutes, parsedData.data.text);
+			optins.onStart(parsedData.data.minutes, parsedData.data.text);
 		}
 
 		if (parsedData.eventName === 'stop') {
-			opts.onStop();
+			optins.onStop();
 		}
 	});
 
-	const create = () => {
+	function create() {
 		open();
-	};
+	}
 
-	const destroy = () => {
+	function destroy() {
 		close();
-	};
+	}
 
 	return {
 		create,

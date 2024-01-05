@@ -1,4 +1,4 @@
-import type { OnStart, OnStop, SetSettings } from './types.js';
+import type { OnStart, OnStop, SetSettings } from '@/types.js';
 
 type Opts = {
 	onSettings: SetSettings,
@@ -6,19 +6,19 @@ type Opts = {
 	onStop: OnStop,
 }
 
-export const useIframe = (opts: Opts) => {
+export const useBrbIframe = (options: Opts) => {
 	const onWindowMessage = (msg: MessageEvent<string>) => {
 		const parsedData = JSON.parse(msg.data);
 		if (parsedData.key === 'settings') {
-			opts.onSettings(parsedData.data);
+			options.onSettings(parsedData.data);
 		}
 
 		if (parsedData.key === 'start') {
-			opts.onStart(parsedData.data.minutes, parsedData.data.text ?? parsedData.data.incomingText);
+			options.onStart(parsedData.data.minutes, parsedData.data.text ?? parsedData.data.incomingText);
 		}
 
 		if (parsedData.key === 'stop') {
-			opts.onStop();
+			options.onStop();
 		}
 	};
 

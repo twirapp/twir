@@ -1,11 +1,11 @@
 import type { MessageChunk } from '@twir/frontend-chat';
 import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import type { Emote } from 'kappagen';
+import { storeToRefs } from 'pinia';
 import { Ref, computed } from 'vue';
 
-import { useChannelSettings } from './settingsStore.ts';
-import { emotes } from '../../../components/chat_tmi_emotes';
-
+import { useEmotes } from '@/composables/chat/use-emotes.js';
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 
 const getEmojiStyleName = (style: EmojiStyle) => {
 	switch (style) {
@@ -26,15 +26,18 @@ export type Buidler = {
 }
 
 export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Buidler => {
-	const { kappagenSettings } = useChannelSettings();
+	const emotesStore = useEmotes();
+	const { emotes } = storeToRefs(emotesStore);
+
+	const kappagenSettingsStore = useKappagenSettings();
+	const { settings } = storeToRefs(kappagenSettingsStore);
 
 	const kappagenEmotes = computed(() => {
-		const emotesArray = Object.values(emotes.value);
-
+		const emotesArray = Object.values(emotes);
 		return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier);
 	});
 
-	// ПРОСТО ЧАТ
+	// chat events
 	const buildSpawnEmotes = (chunks: MessageChunk[]) => {
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 
@@ -45,7 +48,7 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 
 			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
 
-			if (chunk.emoteName && kappagenSettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
+			if (chunk.emoteName && settings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
 
 			if (chunk.type === 'emote') {
 				result.push({
@@ -78,14 +81,14 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 		return result;
 	};
 
-	// КОМАНДА И ИВЕНТЫ
+	// command, twitch events
 	const buildKappagenEmotes = (chunks: MessageChunk[]) => {
 		const result: Emote[] = [];
 
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 		if (!emotesChunks.length) {
 			const mappedEmotes = kappagenEmotes.value
-				.filter(v => !kappagenSettings.value?.excludedEmotes?.includes(v.name))
+				.filter(v => !settings.value?.excludedEmotes?.includes(v.name))
 				.map(v => ({
 					url: v.urls.at(-1)!,
 					width: v.width,

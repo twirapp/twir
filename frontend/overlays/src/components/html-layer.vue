@@ -2,7 +2,7 @@
 import { transform } from 'nested-css-to-flat';
 import { watch, nextTick, computed } from 'vue';
 
-import { Layer } from '../sockets/overlays';
+import type { Layer } from '@/composables/overlays/use-overlays.js';
 
 const props = defineProps<{
 	layer: Layer

@@ -3,10 +3,11 @@ import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_ba
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useIframe } from './brb/iframe.js';
-import { useBeRightBackOverlaySocket } from './brb/socket.js';
-import BrbTicker, { type Ticker } from './brb/ticker.vue';
-import type { SetSettings, OnStart, OnStop } from './brb/types.js';
+import BrbTicker, { type Ticker } from '@/components/brb-ticker.vue';
+import { useBrbIframe } from '@/composables/brb/use-brb-iframe.js';
+import { useBeRightBackOverlaySocket } from '@/composables/brb/use-brb-socket.js';
+import { generateUrlWithParams } from '@/helpers';
+import type { SetSettings, OnStart, OnStop } from '@/types.js';
 
 const route = useRoute();
 const apiKey = route.params.apiKey as string;
@@ -27,14 +28,18 @@ const onStop: OnStop = () => {
 	ticker.value?.stop();
 };
 
-const iframe = useIframe({
+const iframe = useBrbIframe({
 	onSettings: setSettings,
 	onStart,
 	onStop,
 });
 
-const socket = useBeRightBackOverlaySocket({
+const brbUrl = generateUrlWithParams('/overlays/be-right-back', {
 	apiKey,
+});
+
+const socket = useBeRightBackOverlaySocket({
+	brbUrl,
 	onSettings: setSettings,
 	onStart,
 	onStop,

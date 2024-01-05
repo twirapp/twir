@@ -1,14 +1,12 @@
 import type { Settings, ChatBadge, BadgeVersion } from '@twir/frontend-chat';
 import { useWebSocket } from '@vueuse/core';
-import { type Ref, ref, watch } from 'vue';
+import { defineStore } from 'pinia';
+import { ref, watch } from 'vue';
 
-import type { TwirWebSocketEvent } from './types.js';
+import type { TwirWebSocketEvent } from '@/api.js';
+import { generateUrlWithParams } from '@/helpers.js';
 
-export const useChatOverlaySocket = (apiKey: string, overlayId?: string): {
-	settings: Ref<Settings>
-} => {
-	const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-	const host = window.location.host;
+export const useChatSocket = defineStore('chat-socket', () => {
 	const settings = ref<Settings>({
 		channelId: '',
 		channelName: '',
@@ -32,16 +30,13 @@ export const useChatOverlaySocket = (apiKey: string, overlayId?: string): {
 		fontWeight: 400,
 	});
 
-	const url = new URL(`${protocol}://${host}/socket/overlays/chat`);
-	url.searchParams.append('apiKey', apiKey);
-	if (overlayId) {
-		url.searchParams.append('id', overlayId);
-	}
+	const overlayId = ref<string | undefined>();
+	const socketUrl = ref('');
 
-	const { data, send } = useWebSocket(
-		url.toString(),
+	const { data, status, send, open, close } = useWebSocket(
+		socketUrl,
 		{
-			immediate: true,
+			immediate: false,
 			autoReconnect: {
 				delay: 500,
 			},
@@ -55,9 +50,7 @@ export const useChatOverlaySocket = (apiKey: string, overlayId?: string): {
 		const event = JSON.parse(d) as TwirWebSocketEvent;
 
 		if (event.eventName === 'settings') {
-			if (overlayId && event.data.id !== overlayId) {
-				return;
-			}
+			if (overlayId.value && event.data.id !== overlayId.value) return;
 
 			const data = event.data;
 
@@ -95,7 +88,27 @@ export const useChatOverlaySocket = (apiKey: string, overlayId?: string): {
 		}
 	});
 
+	function destroy(): void {
+		close();
+	}
+
+	function connect(apiKey: string, _overlayId?: string): void {
+		if (status.value === 'OPEN') return;
+
+		const url = generateUrlWithParams('/socket/overlays/chat', {
+			apiKey,
+			id: _overlayId,
+		});
+
+		socketUrl.value = url;
+		overlayId.value = _overlayId;
+
+		open();
+	}
+
 	return {
 		settings,
+		connect,
+		destroy,
 	};
-};
+});

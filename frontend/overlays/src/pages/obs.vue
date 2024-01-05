@@ -3,15 +3,18 @@ import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useObs } from '../sockets/obs';
+import { useObs } from '@/composables/obs/use-obs.js';
+import { generateUrlWithParams } from '@/helpers.js';
 
 const obs = useObs();
-
 const route = useRoute();
+
 const apiKey = route.params.apiKey as string;
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const host = window.location.host;
-const internalSocket = useWebSocket(`${protocol}://${host}/socket/obs?apiKey=${apiKey}`, {
+const obsUrl = generateUrlWithParams('/overlays/obs', {
+	apiKey,
+});
+
+const internalSocket = useWebSocket(obsUrl, {
 	immediate: true,
 	autoReconnect: {
 		delay: 500,
@@ -42,13 +45,13 @@ watch(internalSocket.data, (message) => {
 	}
 });
 
-watch(settings, async (s) => {
-	if (!s) {
+watch(settings, async (settings) => {
+	if (!settings) {
 		await obs.disconnect();
 		return;
 	}
 
-	await obs.connect(s.serverAddress, s.serverPort, s.serverPassword);
+	await obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword);
 	console.log('Twir obs socket opened');
 
 	internalSocket.send(JSON.stringify({ eventName: 'obsConnected' }));
@@ -85,7 +88,7 @@ watch(settings, async (s) => {
 		}));
 	};
 
-	obs.instance.value
+	obs.instance
 		.on('SceneListChanged', scenesHandler)
 
 		.on('InputCreated', audioHandler)
