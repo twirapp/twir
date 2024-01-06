@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 
-import { useEmotes } from './use-emotes.js';
+import { useEmotes } from './use-emotes.ts';
 
-import { FfzChannelResponse, FfzGlobalResponse } from '@/types.js';
+import { FfzChannelResponse, FfzGlobalResponse } from '@/types.ts';
 
 export const useFrankerFaceZ = defineStore('ffz', () => {
 	const { setFrankerFaceZEmotes } = useEmotes();

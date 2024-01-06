@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Message } from '@twir/frontend-chat';
+import { Message } from '@twir/frontend-chat/dist';
 import { Client } from 'tmi.js';
 import { Ref, unref, watch } from 'vue';
 
-import { useMessageHelpers } from './use-message-helpers.js';
+import { useMessageHelpers } from './use-message-helpers.ts';
 
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
-  Partial<Pick<Type, Key>>;
+	Partial<Pick<Type, Key>>;
 
 export type ChatMessage = Omit<
 	MakeOptional<Message, 'isItalic' | 'isAnnounce'>,
@@ -85,7 +85,7 @@ export const useChatTmi = (options: Ref<ChatSettings>) => {
 
 		// @ts-ignore
 		client.on('usernotice', (msgId, channel, tags, msg) => {
-			if(msgId === 'announcement') {
+			if (msgId === 'announcement') {
 				options.value.onMessage(createMessage({
 					id: msgId,
 					type: 'message',

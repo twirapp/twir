@@ -4,12 +4,12 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { unprotectedApiClient } from '@/api.js';
-import { generateUrlWithParams } from '@/helpers.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
 declare global {
-  interface Window {
-    webkitAudioContext: typeof AudioContext
-  }
+	interface Window {
+		webkitAudioContext: typeof AudioContext;
+	}
 }
 
 const queue = ref<Array<Record<string, string>>>([]);
@@ -18,7 +18,7 @@ const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null);
 const route = useRoute();
 
 const apiKey = route.params.apiKey as string;
-const ttsUrl = generateUrlWithParams('/overlays/tts', {
+const ttsUrl = generateSocketUrlWithParams('/overlays/tts', {
 	apiKey,
 });
 

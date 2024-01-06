@@ -2,7 +2,7 @@ import { useWebSocket } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
-import { base64DecodeUnicode, generateUrlWithParams } from '@/helpers.js';
+import { base64DecodeUnicode, generateSocketUrlWithParams } from '@/helpers.js';
 
 export interface Layer {
 	id: string;
@@ -97,7 +97,7 @@ export const useOverlays = defineStore('overlays', () => {
 	function connectToOverlays(apiKey: string, _overlayId: string): void {
 		if (status.value === 'OPEN') return;
 
-		const url = generateUrlWithParams('/socket/registry/overlays', {
+		const url = generateSocketUrlWithParams('/overlays/registry/overlays', {
 			apiKey,
 		});
 

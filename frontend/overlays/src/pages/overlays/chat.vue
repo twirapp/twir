@@ -5,16 +5,24 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useChatSocket } from '@/composables/chat/use-chat-socket.js';
-import { type ChatSettings, useChatTmi, knownBots, ChatMessage } from '@/composables/chat/use-chat-tmi.js';
-import { useThirdPartyEmotes, type ThirdPartyEmotesOptions } from '@/composables/chat/use-third-party-emotes.js';
+import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.ts';
+import {
+	type ChatSettings,
+	useChatTmi,
+	knownBots,
+	ChatMessage,
+} from '@/composables/tmi/use-chat-tmi.ts';
+import {
+	useThirdPartyEmotes,
+	type ThirdPartyEmotesOptions,
+} from '@/composables/tmi/use-third-party-emotes.ts';
 
 const route = useRoute();
 
 const messages = ref<Message[]>([]);
 const maxMessages = ref(30);
 
-const chatSocketStore = useChatSocket();
+const chatSocketStore = useChatOverlaySocket();
 const { settings } = storeToRefs(chatSocketStore);
 
 const emotesOptions = computed<ThirdPartyEmotesOptions>(() => {

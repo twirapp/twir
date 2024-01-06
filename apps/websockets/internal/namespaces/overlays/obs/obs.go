@@ -1,8 +1,7 @@
-package tts
+package obs
 
 import (
 	"encoding/json"
-	"log/slog"
 	"net/http"
 	"time"
 
@@ -17,9 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type TTS struct {
+type OBS struct {
 	manager *melody.Melody
-
 	gorm    *gorm.DB
 	logger  logger.Logger
 	redis   *redis.Client
@@ -34,9 +32,10 @@ type Opts struct {
 	Redis  *redis.Client
 }
 
-func NewTts(opts Opts) *TTS {
+func NewObs(opts Opts) *OBS {
 	m := melody.New()
-	tts := &TTS{
+	m.Config.MaxMessageSize = 1024 * 1024 * 10
+	obs := &OBS{
 		manager: m,
 		gorm:    opts.Gorm,
 		logger:  opts.Logger,
@@ -44,40 +43,67 @@ func NewTts(opts Opts) *TTS {
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",
-				ConstLabels: prometheus.Labels{"overlay": "tts"},
+				ConstLabels: prometheus.Labels{"overlay": "obs"},
 			},
 		),
 	}
 
-	tts.manager.HandleConnect(
+	obs.manager.HandleConnect(
 		func(session *melody.Session) {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
-
 			if err != nil {
-				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				opts.Logger.Error(err.Error())
 				return
 			}
 
-			tts.counter.Inc()
+			obs.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected"}`))
 		},
 	)
-	tts.manager.HandleDisconnect(
+
+	obs.manager.HandleDisconnect(
 		func(session *melody.Session) {
-			tts.counter.Dec()
+			obs.counter.Dec()
 		},
 	)
 
-	http.HandleFunc("/tts", tts.HandleRequest)
+	obs.manager.HandleMessage(
+		func(session *melody.Session, msg []byte) {
+			obs.handleMessage(session, msg)
+		},
+	)
 
-	return tts
+	http.HandleFunc("/overlays/obs", obs.HandleRequest)
+
+	return obs
 }
 
-func (c *TTS) HandleRequest(w http.ResponseWriter, r *http.Request) {
-	c.manager.HandleRequest(w, r)
+func (c *OBS) IsUserConnected(userId string) (bool, error) {
+	sessions, err := c.manager.Sessions()
+	if err != nil {
+		return false, err
+	}
+
+	for _, s := range sessions {
+		userIdValue, isUserIdExists := s.Get("userId")
+		isConnectedValue, isConnectedExists := s.Get("obsConnected")
+		if !isUserIdExists || !isConnectedExists {
+			continue
+		}
+		castedUserId, isUserCastOk := userIdValue.(string)
+		castedIsConnected, isConnectCastOk := isConnectedValue.(bool)
+		if !isUserCastOk || !isConnectCastOk {
+			continue
+		}
+		if castedUserId == userId {
+			return castedIsConnected, nil
+		}
+	}
+
+	return false, nil
 }
 
-func (c *TTS) SendEvent(userId, eventName string, data any) error {
+func (c *OBS) SendEvent(userId, eventName string, data any) error {
 	message := &types.WebSocketMessage{
 		EventName: eventName,
 		Data:      data,
@@ -86,7 +112,7 @@ func (c *TTS) SendEvent(userId, eventName string, data any) error {
 
 	bytes, err := json.Marshal(message)
 	if err != nil {
-		c.logger.Error("cannot process message", slog.Any("err", err))
+		c.logger.Error(err.Error())
 		return err
 	}
 
@@ -98,7 +124,7 @@ func (c *TTS) SendEvent(userId, eventName string, data any) error {
 	)
 
 	if err != nil {
-		c.logger.Error("cannot broadcast message", slog.Any("err", err))
+		c.logger.Error(err.Error())
 		return err
 	}
 

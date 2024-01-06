@@ -6,12 +6,17 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
-import { useChatTmi, type ChatSettings } from '@/composables/chat/use-chat-tmi.js';
-import { useThirdPartyEmotes, type ThirdPartyEmotesOptions } from '@/composables/chat/use-third-party-emotes.js';
-import { useKappagenBuilder as useKappagenEmotesBuilder } from '@/composables/kappagen/use-kappagen-builder.js';
+import {
+	useKappagenBuilder as useKappagenEmotesBuilder,
+} from '@/composables/kappagen/use-kappagen-builder.js';
 import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js';
+import { useChatTmi, type ChatSettings } from '@/composables/tmi/use-chat-tmi.ts';
+import {
+	useThirdPartyEmotes,
+	type ThirdPartyEmotesOptions,
+} from '@/composables/tmi/use-third-party-emotes.ts';
 import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from '@/types.js';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();

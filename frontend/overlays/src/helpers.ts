@@ -1,10 +1,9 @@
-export function generateUrlWithParams(
+export function generateSocketUrlWithParams(
 	path: string,
 	params: Record<string, string | undefined>,
 ): string {
 	const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-	const host = location.host;
-	const url = new URL(`${protocol}://${host}${path}`);
+	const url = new URL(`${protocol}://${location.host}/socket${path}`);
 
 	for (const [key, value] of Object.entries(params)) {
 		if (!value) continue;

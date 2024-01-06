@@ -7,9 +7,9 @@ import { ref, watch } from 'vue';
 import { type Buidler } from './use-kappagen-builder.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { useMessageHelpers } from '@/composables/chat/use-message-helpers.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
-import { generateUrlWithParams } from '@/helpers.js';
+import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.ts';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 import type {
 	KappagenCallback,
 	SpawnCallback,
@@ -95,7 +95,7 @@ export const useKappagenOverlaySocket = (opts: Opts) => {
 	}
 
 	function connect(apiKey: string): void {
-		const url = generateUrlWithParams('/socket/overlays/kappagen', {
+		const url = generateSocketUrlWithParams('/overlays/kappagen', {
 			apiKey,
 		});
 

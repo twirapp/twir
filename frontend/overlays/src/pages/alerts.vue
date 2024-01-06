@@ -3,11 +3,11 @@ import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { generateUrlWithParams } from '@/helpers.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
 declare global {
 	interface Window {
-		webkitAudioContext: typeof AudioContext
+		webkitAudioContext: typeof AudioContext;
 	}
 }
 
@@ -22,7 +22,7 @@ const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null);
 const route = useRoute();
 
 const apiKey = route.params.apiKey as string;
-const alertsUrl = generateUrlWithParams('/overlays/alerts', {
+const alertsUrl = generateSocketUrlWithParams('/overlays/alerts', {
 	apiKey,
 });
 

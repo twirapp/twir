@@ -4,13 +4,13 @@ import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useObs } from '@/composables/obs/use-obs.js';
-import { generateUrlWithParams } from '@/helpers.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
 const obs = useObs();
 const route = useRoute();
 
 const apiKey = route.params.apiKey as string;
-const obsUrl = generateUrlWithParams('/overlays/obs', {
+const obsUrl = generateSocketUrlWithParams('/overlays/obs', {
 	apiKey,
 });
 
@@ -31,17 +31,39 @@ watch(internalSocket.data, (message) => {
 	}
 
 	switch (eventName) {
-		case 'settings': settings.value = data; break;
-		case 'setScene': obs.setScene(data.sceneName); break;
-		case 'toggleSource': obs.toggleSource(data.sourceName); break;
-		case 'toggleAudioSource': obs.toggleAudioSource(data.audioSourceName); break;
-		case 'setVolume': obs.setVolume(data.audioSourceName, data.volume); break;
-		case 'increaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'increase'); break;
-		case 'decreaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'decrease'); break;
-		case 'enableAudio': obs.toggleAudioSource(data.audioSourceName, true); break;
-		case 'disableAudio': obs.toggleAudioSource(data.audioSourceName, false); break;
-		case 'startStart': obs.startStream(); break;
-		case 'stopStream': obs.stopStream(); break;
+		case 'settings':
+			settings.value = data;
+			break;
+		case 'setScene':
+			obs.setScene(data.sceneName);
+			break;
+		case 'toggleSource':
+			obs.toggleSource(data.sourceName);
+			break;
+		case 'toggleAudioSource':
+			obs.toggleAudioSource(data.audioSourceName);
+			break;
+		case 'setVolume':
+			obs.setVolume(data.audioSourceName, data.volume);
+			break;
+		case 'increaseVolume':
+			obs.changeVolume(data.audioSourceName, data.step, 'increase');
+			break;
+		case 'decreaseVolume':
+			obs.changeVolume(data.audioSourceName, data.step, 'decrease');
+			break;
+		case 'enableAudio':
+			obs.toggleAudioSource(data.audioSourceName, true);
+			break;
+		case 'disableAudio':
+			obs.toggleAudioSource(data.audioSourceName, false);
+			break;
+		case 'startStart':
+			obs.startStream();
+			break;
+		case 'stopStream':
+			obs.stopStream();
+			break;
 	}
 });
 

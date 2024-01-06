@@ -4,8 +4,8 @@ import type { Emote } from 'kappagen';
 import { storeToRefs } from 'pinia';
 import { Ref, computed } from 'vue';
 
-import { useEmotes } from '@/composables/chat/use-emotes.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
+import { useEmotes } from '@/composables/tmi/use-emotes.ts';
 
 const getEmojiStyleName = (style: EmojiStyle) => {
 	switch (style) {

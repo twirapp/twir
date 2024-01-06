@@ -1,8 +1,8 @@
-import { type MessageChunk } from '@twir/frontend-chat';
+import { type MessageChunk } from '@twir/frontend-chat/dist';
 import emojiRegex from 'emoji-regex';
 import { defineStore, storeToRefs } from 'pinia';
 
-import { useEmotes } from './use-emotes.js';
+import { useEmotes } from './use-emotes.ts';
 
 const emojiRegexp = emojiRegex();
 
@@ -18,15 +18,15 @@ export const useMessageHelpers = defineStore('message-helpers', () => {
 	): MessageChunk[] {
 		const parsedTwitchEmotes = emotes
 			? Object.entries(emotes).reduce((acc, [id, positions]) => {
-					positions.forEach((position) => {
-						const [from, to] = position.split('-').map(Number);
-						acc.push({
-							from,
-							to,
-							emoteId: id,
-						});
+				positions.forEach((position) => {
+					const [from, to] = position.split('-').map(Number);
+					acc.push({
+						from,
+						to,
+						emoteId: id,
 					});
-					return acc;
+				});
+				return acc;
 			}, [] as { from: number; to: number; emoteId: string }[])
 			: [];
 
@@ -52,11 +52,11 @@ export const useMessageHelpers = defineStore('message-helpers', () => {
 				const isZeroWidthModifier = thirdPartyEmote.isZeroWidth;
 				const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined';
 				const url = thirdPartyEmote.urls.at(-1)!;
+				const latestChunk = chunks.at(-1)!;
 
 				if (isZeroWidthModifier) {
 					chunks.at(-1)!.zeroWidthModifiers = [...(chunks.at(-1)!.zeroWidthModifiers ?? []), url];
-				} else if (isModifier) {
-					const latestChunk = chunks.at(-1)!;
+				} else if (isModifier && latestChunk) {
 					const flags = [
 						...(chunks.at(-1)?.flags ?? []),
 						thirdPartyEmote.modifierFlag as number,

@@ -6,7 +6,7 @@ import { useRoute } from 'vue-router';
 import BrbTicker, { type Ticker } from '@/components/brb-ticker.vue';
 import { useBrbIframe } from '@/composables/brb/use-brb-iframe.js';
 import { useBeRightBackOverlaySocket } from '@/composables/brb/use-brb-socket.js';
-import { generateUrlWithParams } from '@/helpers';
+import { generateSocketUrlWithParams } from '@/helpers';
 import type { SetSettings, OnStart, OnStop } from '@/types.js';
 
 const route = useRoute();
@@ -34,7 +34,7 @@ const iframe = useBrbIframe({
 	onStop,
 });
 
-const brbUrl = generateUrlWithParams('/overlays/be-right-back', {
+const brbUrl = generateSocketUrlWithParams('/overlays/brb', {
 	apiKey,
 });
 

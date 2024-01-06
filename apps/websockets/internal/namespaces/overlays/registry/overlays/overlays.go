@@ -61,7 +61,7 @@ func New(opts Opts) *Registry {
 		},
 	)
 
-	http.HandleFunc("/registry/overlays", overlaysRegistry.HandleRequest)
+	http.HandleFunc("/overlays/registry/overlays", overlaysRegistry.HandleRequest)
 
 	return overlaysRegistry
 }

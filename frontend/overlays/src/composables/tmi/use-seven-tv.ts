@@ -2,9 +2,9 @@ import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
-import { useEmotes } from './use-emotes.js';
+import { useEmotes } from './use-emotes.ts';
 
-import { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '@/types.js';
+import { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '@/types.ts';
 
 // opcodes https://github.com/SevenTV/EventAPI#opcodes
 const OPCODES = {
@@ -29,7 +29,7 @@ const OPCODES = {
 type Opcode = (typeof OPCODES)[keyof typeof OPCODES];
 
 interface SevenTvWebsocketPayload {
-	op: number
+	op: number;
 	d: {
 		type: string
 		body: {
@@ -38,12 +38,12 @@ interface SevenTvWebsocketPayload {
 			pushed?: SevenTvWebsocketBody[]
 			updated?: SevenTvWebsocketBody[]
 		}
-	}
+	};
 }
 
 interface SevenTvWebsocketBody {
-	old_value?: SevenTvEmote
-	value: SevenTvEmote
+	old_value?: SevenTvEmote;
+	value: SevenTvEmote;
 }
 
 function sevenTvPayload(opcode: Opcode, data: any): string {
@@ -105,7 +105,7 @@ export const useSevenTv = defineStore('seven-tv', () => {
 					for (const emote of body.pushed) {
 						emotesStore.updateSevenTvEmote(emote.value);
 					}
-				// UPDATE
+					// UPDATE
 				} else if (body.updated) {
 					for (const emote of body.updated) {
 						if (emote.old_value) {
@@ -114,7 +114,7 @@ export const useSevenTv = defineStore('seven-tv', () => {
 
 						emotesStore.updateSevenTvEmote(emote.value);
 					}
-				// REMOVE
+					// REMOVE
 				} else if (body.pulled) {
 					for (const emote of body.pulled) {
 						if (emote.old_value) {

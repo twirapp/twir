@@ -69,7 +69,7 @@ func NewAlerts(opts Opts) *Alerts {
 		},
 	)
 
-	http.HandleFunc("/alerts", alerts.HandleRequest)
+	http.HandleFunc("/overlays/alerts", alerts.HandleRequest)
 
 	return alerts
 }

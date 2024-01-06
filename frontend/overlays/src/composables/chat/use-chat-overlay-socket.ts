@@ -4,9 +4,9 @@ import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { generateUrlWithParams } from '@/helpers.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
-export const useChatSocket = defineStore('chat-socket', () => {
+export const useChatOverlaySocket = defineStore('chat-socket', () => {
 	const settings = ref<Settings>({
 		channelId: '',
 		channelName: '',
@@ -95,7 +95,7 @@ export const useChatSocket = defineStore('chat-socket', () => {
 	function connect(apiKey: string, _overlayId?: string): void {
 		if (status.value === 'OPEN') return;
 
-		const url = generateUrlWithParams('/socket/overlays/chat', {
+		const url = generateSocketUrlWithParams('/overlays/chat', {
 			apiKey,
 			id: _overlayId,
 		});

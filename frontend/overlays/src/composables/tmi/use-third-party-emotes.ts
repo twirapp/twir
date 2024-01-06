@@ -1,9 +1,9 @@
 import { useIntervalFn } from '@vueuse/core';
 import { watch, type Ref, onUnmounted } from 'vue';
 
-import { useBetterTv } from './use-bettertv.js';
-import { useFrankerFaceZ } from './use-ffz.js';
-import { useSevenTv } from './use-seven-tv.js';
+import { useBetterTv } from './use-bettertv.ts';
+import { useFrankerFaceZ } from './use-ffz.ts';
+import { useSevenTv } from './use-seven-tv.ts';
 
 export type ThirdPartyEmotesOptions = {
 	channelName?: string;

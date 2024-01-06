@@ -1,6 +1,6 @@
 import { BttvZeroModifiers } from '@twir/frontend-chat';
 import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 
 import type {
 	BttvChannelResponse,
@@ -11,7 +11,7 @@ import type {
 	SevenTvChannelResponse,
 	SevenTvEmote,
 	SevenTvGlobalResponse,
-} from '@/types.js';
+} from '@/types.ts';
 
 type Emote = {
 	urls: string[];
@@ -109,17 +109,16 @@ export const useEmotes = defineStore('emotes', () => {
 		};
 	}
 
-	const loadedEmotes = ref<string[]>([]);
-	watch(() => emotes, (emotes) => {
-		for (const emote of Object.values(emotes)) {
-			for (const url of emote.urls) {
-				if (loadedEmotes.value.includes(url)) continue;
-				const image = new Image();
-				image.src = url;
-				loadedEmotes.value.push(url);
-			}
-		}
-	});
+	// const loadedEmotes = ref<string[]>([]);
+	// watch(() => emotes, (emotes) => {
+	// 	for (const emote of Object.values(emotes)) {
+	// 		const link = emote.urls(0);
+	// 		if (!link) continue;
+	// 		const image = new Image();
+	// 		image.src = link;
+	// 		loadedEmotes.value.push(link);
+	// 	}
+	// });
 
 	return {
 		emotes,
