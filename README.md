@@ -69,6 +69,7 @@ pnpm cli migrations run
 ```ini
 TWITCH_CALLBACKURL=https://dev.twir.app/login
 SITE_BASE_URL=dev.twir.app
+USE_WSS=true
 ```
 
 * Add to your `/etc/hosts` or `C:/Windows/System32/drivers/etc/hosts` file new entry:
