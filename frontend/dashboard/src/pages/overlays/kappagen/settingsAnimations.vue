@@ -5,9 +5,9 @@ import { NGrid, NGridItem, NButton, NSwitch, NInputNumber, NDynamicInput } from 
 import { watch } from 'vue';
 
 import { animations } from './kappagen_animations';
-import { useSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js';
 
-const { settings: formValue } = useSettings();
+const { settings: formValue } = useKappagenFormSettings();
 
 defineEmits<{
 	play: [animation: Settings_AnimationSettings]
@@ -83,7 +83,10 @@ watch(formValue.value.animations, (v) => {
 							/>
 						</div>
 
-						<div v-if="animation.style === 'Text'" style="display: flex; flex-direction: column; gap: 4px;">
+						<div
+							v-if="animation.style === 'Text'"
+							style="display: flex; flex-direction: column; gap: 4px;"
+						>
 							<span>Texts</span>
 							<n-dynamic-input
 								v-model:value="animation.prefs!.message"

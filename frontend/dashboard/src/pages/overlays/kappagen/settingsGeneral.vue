@@ -5,11 +5,11 @@ import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { VNodeChild, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js';
 
 import CommandButton from '@/components/commandButton.vue';
 
-const { settings: formValue } = useSettings();
+const { settings: formValue } = useKappagenFormSettings();
 const { t } = useI18n();
 
 const formatSizeValue = (v: number) => parseInt(`${v}`.split('.')[1]);

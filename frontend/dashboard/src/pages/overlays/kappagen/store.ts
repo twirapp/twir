@@ -39,7 +39,7 @@ const settings = ref<Settings>({
 	excludedEmotes: [],
 });
 
-export const useSettings = () => {
+export const useKappagenFormSettings = () => {
 	return {
 		settings,
 	};

@@ -2,16 +2,20 @@ package overlays
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/generated/api/events"
 	"github.com/satont/twir/libs/grpc/generated/api/overlays_kappagen"
 	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 const kappagenOverlayType = "kappagen_overlay"
@@ -159,7 +163,10 @@ func (c *Overlays) OverlayKappaGenGet(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*overlays_kappagen.Settings, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	entity := model.ChannelModulesSettings{}
 
@@ -168,6 +175,9 @@ func (c *Overlays) OverlayKappaGenGet(
 		Where(`"channelId" = ? and type = ?`, dashboardId, kappagenOverlayType).
 		First(&entity).
 		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, twirp.NotFoundError("settings not found")
+		}
 		return nil, fmt.Errorf("cannot get settings: %w", err)
 	}
 
@@ -183,7 +193,10 @@ func (c *Overlays) OverlayKappaGenUpdate(
 	ctx context.Context,
 	req *overlays_kappagen.Settings,
 ) (*overlays_kappagen.Settings, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	entity := model.ChannelModulesSettings{}
 	if err := c.Db.
