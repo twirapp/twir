@@ -63,8 +63,6 @@ pnpm cli migrations run
 
 ## Http on localhost (optional)
 
-* Install [caddy](https://caddyserver.com/docs/install)
-
 * Add `https://dev.twir.app/login` to your twitch application redirect url's
 
 * Edit `.env` entries:
@@ -74,13 +72,13 @@ pnpm cli migrations run
 	```
 
 * Add to your `/etc/hosts` or `C:/Windows/System32/drivers/etc/hosts` file new entry:
-	```bash
-	127.0.0.1 dev.twir.app
-	```
+```bash
+127.0.0.1 dev.twir.app
+```
 
 * Start caddy:
-	```bash
-	pnpm caddy
-	```
+```bash
+pnpm cli proxy
+```
 
 * Open https://dev.twir.app
