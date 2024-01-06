@@ -22,6 +22,7 @@ var Cmd = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
+		return installProtoc()
 		skipNode := c.Bool("skip-node")
 		skipGo := c.Bool("skip-go")
 
