@@ -7,7 +7,10 @@ import (
 
 	"github.com/pterm/pterm"
 	"github.com/satont/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/cli/internal/cmds/build"
+	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/goapps"
+	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/urfave/cli/v2"
 )
 
@@ -47,17 +50,17 @@ func CreateDevCommand() *cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			// if err := dependencies.Cmd.Run(c); err != nil {
-			// 	return err
-			// }
-			//
-			// if err := build.LibsCmd.Run(c); err != nil {
-			// 	return err
-			// }
-			//
-			// if err := migrations.MigrateCmd.Run(c); err != nil {
-			// 	return err
-			// }
+			if err := dependencies.Cmd.Run(c); err != nil {
+				return err
+			}
+
+			if err := build.LibsCmd.Run(c); err != nil {
+				return err
+			}
+
+			if err := migrations.MigrateCmd.Run(c); err != nil {
+				return err
+			}
 
 			golangApps, err := goapps.New()
 			if err != nil {
@@ -72,6 +75,8 @@ func CreateDevCommand() *cli.Command {
 
 			exitSignal := make(chan os.Signal, 1)
 			signal.Notify(exitSignal, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
+
+			<-exitSignal
 
 			return nil
 		},
