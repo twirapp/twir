@@ -49,6 +49,7 @@ var MigrateCmd = &cli.Command{
 		migrationsDir := filepath.Join(wd, "libs", "migrations", "migrations")
 
 		log.SetOutput(&emptyLogWriter{})
+
 		if err := goose.Up(db, migrationsDir); err != nil {
 			pterm.Error.Println(err)
 			return err
@@ -64,7 +65,7 @@ var MigrateCmd = &cli.Command{
 			panic(err)
 		}
 
-		pterm.Success.Println("Migrations succeed")
+		pterm.Success.Println("Migration succeed")
 
 		return nil
 	},

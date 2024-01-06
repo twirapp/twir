@@ -2,12 +2,12 @@ package app
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/alexedwards/scs/v2"
-	"github.com/getsentry/sentry-go"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -36,9 +36,7 @@ import (
 	"gorm.io/gorm"
 )
 
-var App = fx.Module(
-	"api",
-	fx.NopLogger,
+var App = fx.Options(
 	fx.Provide(
 		func() cfg.Config {
 			config, err := cfg.New()
@@ -52,15 +50,7 @@ var App = fx.Module(
 				Service: "api",
 			},
 		),
-		func(config cfg.Config, s *sentry.Client) logger.Logger {
-			return logger.New(
-				logger.Opts{
-					Env:     config.AppEnv,
-					Service: "api",
-					Sentry:  s,
-				},
-			)
-		},
+		logger.NewFx(logger.Opts{Service: "api"}),
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
 		},
@@ -123,7 +113,7 @@ var App = fx.Module(
 
 			lc.Append(
 				fx.Hook{
-					OnStop: func(ctx context.Context) error {
+					OnStop: func(_ context.Context) error {
 						return d.Close()
 					},
 				},
@@ -150,14 +140,38 @@ var App = fx.Module(
 			fx.ParamTags(`group:"handlers"`),
 		),
 	),
-	fx.NopLogger,
 	fx.Invoke(
-		func(mux *http.ServeMux, sessionManager *scs.SessionManager, l logger.Logger) {
-			l.Info("Started")
-			l.Error(
-				"Crashed",
-				slog.Any("err", http.ListenAndServe("0.0.0.0:3002", sessionManager.LoadAndSave(mux))),
+		func(
+			mux *http.ServeMux,
+			sessionManager *scs.SessionManager,
+			l logger.Logger,
+			lc fx.Lifecycle,
+		) error {
+			server := &http.Server{
+				Addr:    "0.0.0.0:3002",
+				Handler: sessionManager.LoadAndSave(mux),
+			}
+
+			lc.Append(
+				fx.Hook{
+					OnStart: func(_ context.Context) error {
+						go func() {
+							l.Info("Started", slog.String("port", "3002"))
+							err := server.ListenAndServe()
+							if err != nil && !errors.Is(err, http.ErrServerClosed) {
+								panic(err)
+							}
+						}()
+
+						return nil
+					},
+					OnStop: func(ctx context.Context) error {
+						return server.Shutdown(ctx)
+					},
+				},
 			)
+
+			return nil
 		},
 	),
 )

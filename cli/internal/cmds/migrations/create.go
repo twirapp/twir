@@ -12,21 +12,19 @@ import (
 )
 
 var createCmd = &cli.Command{
-	Name:  "create",
-	Usage: "Create new migration",
-	Flags: []cli.Flag{
-		&cli.BoolFlag{
-			Name:    "golang",
-			Usage:   "create golang migration",
-			Aliases: []string{"g"},
-		},
-	},
-	ArgsUsage:              "migrationName",
+	Name:                   "create",
+	Usage:                  "Create new migration",
 	UseShortOptionHandling: true,
 	Action: func(c *cli.Context) error {
-		arg := c.Args().Get(0)
-		if arg == "" {
-			return fmt.Errorf("name of migration cannot be empty")
+		migrationNameInput := pterm.DefaultInteractiveTextInput.WithMultiLine(false)
+		migrationName, err := migrationNameInput.Show("Migration name")
+		if err != nil {
+			return err
+		}
+
+		migrationType, err := pterm.DefaultInteractiveSelect.WithOptions([]string{"sql", "go"}).Show()
+		if err != nil {
+			return err
 		}
 
 		wd, err := os.Getwd()
@@ -36,19 +34,13 @@ var createCmd = &cli.Command{
 
 		dir := filepath.Join(wd, "libs", "migrations", "migrations")
 
-		fmt.Println(c.FlagNames(), c.Bool("golang"))
-		migrationType := "sql"
-		if c.Bool("golang") {
-			migrationType = "go"
-		}
-
 		log.SetOutput(&emptyLogWriter{})
-		err = goose.Create(nil, dir, arg, migrationType)
+		err = goose.Create(nil, dir, migrationName, migrationType)
 		if err != nil {
 			return fmt.Errorf("cannot create migration: %w", err)
 		}
 
-		pterm.Info.Println(fmt.Sprintf(`Migration "%s" created`, arg))
+		pterm.Info.Println(fmt.Sprintf(`Migration "%s" created`, migrationName))
 
 		return nil
 	},

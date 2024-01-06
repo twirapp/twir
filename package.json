@@ -9,8 +9,7 @@
 		"lint": "eslint --ext .ts,.vue apps/ libs/",
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
 		"predev": "pnpm build:libs",
-		"dev": "go run ./tools/dev.go",
-		"dev:frontend": "turbo run dev --filter=./libs/frontend-chat --filter=./frontend/**"
+		"cli": "go run ./cli/main.go"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {

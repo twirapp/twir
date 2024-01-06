@@ -76,3 +76,12 @@ func NewFx() Config {
 
 	return *config
 }
+
+func NewFxWithPath(path string) Config {
+	config, err := NewWithEnvPath(path)
+	if err != nil {
+		panic(err)
+	}
+
+	return *config
+}
