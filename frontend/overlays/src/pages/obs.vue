@@ -3,15 +3,18 @@ import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useObs } from '../sockets/obs';
+import { useObs } from '@/composables/obs/use-obs.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
 const obs = useObs();
-
 const route = useRoute();
+
 const apiKey = route.params.apiKey as string;
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const host = window.location.host;
-const internalSocket = useWebSocket(`${protocol}://${host}/socket/obs?apiKey=${apiKey}`, {
+const obsUrl = generateSocketUrlWithParams('/overlays/obs', {
+	apiKey,
+});
+
+const internalSocket = useWebSocket(obsUrl, {
 	immediate: true,
 	autoReconnect: {
 		delay: 500,
@@ -28,27 +31,49 @@ watch(internalSocket.data, (message) => {
 	}
 
 	switch (eventName) {
-		case 'settings': settings.value = data; break;
-		case 'setScene': obs.setScene(data.sceneName); break;
-		case 'toggleSource': obs.toggleSource(data.sourceName); break;
-		case 'toggleAudioSource': obs.toggleAudioSource(data.audioSourceName); break;
-		case 'setVolume': obs.setVolume(data.audioSourceName, data.volume); break;
-		case 'increaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'increase'); break;
-		case 'decreaseVolume': obs.changeVolume(data.audioSourceName, data.step, 'decrease'); break;
-		case 'enableAudio': obs.toggleAudioSource(data.audioSourceName, true); break;
-		case 'disableAudio': obs.toggleAudioSource(data.audioSourceName, false); break;
-		case 'startStart': obs.startStream(); break;
-		case 'stopStream': obs.stopStream(); break;
+		case 'settings':
+			settings.value = data;
+			break;
+		case 'setScene':
+			obs.setScene(data.sceneName);
+			break;
+		case 'toggleSource':
+			obs.toggleSource(data.sourceName);
+			break;
+		case 'toggleAudioSource':
+			obs.toggleAudioSource(data.audioSourceName);
+			break;
+		case 'setVolume':
+			obs.setVolume(data.audioSourceName, data.volume);
+			break;
+		case 'increaseVolume':
+			obs.changeVolume(data.audioSourceName, data.step, 'increase');
+			break;
+		case 'decreaseVolume':
+			obs.changeVolume(data.audioSourceName, data.step, 'decrease');
+			break;
+		case 'enableAudio':
+			obs.toggleAudioSource(data.audioSourceName, true);
+			break;
+		case 'disableAudio':
+			obs.toggleAudioSource(data.audioSourceName, false);
+			break;
+		case 'startStart':
+			obs.startStream();
+			break;
+		case 'stopStream':
+			obs.stopStream();
+			break;
 	}
 });
 
-watch(settings, async (s) => {
-	if (!s) {
+watch(settings, async (settings) => {
+	if (!settings) {
 		await obs.disconnect();
 		return;
 	}
 
-	await obs.connect(s.serverAddress, s.serverPort, s.serverPassword);
+	await obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword);
 	console.log('Twir obs socket opened');
 
 	internalSocket.send(JSON.stringify({ eventName: 'obsConnected' }));
@@ -85,7 +110,7 @@ watch(settings, async (s) => {
 		}));
 	};
 
-	obs.instance.value
+	obs.instance
 		.on('SceneListChanged', scenesHandler)
 
 		.on('InputCreated', audioHandler)

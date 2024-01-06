@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type MessageChunk, EmoteFlag } from '../types.js';
+import { EmoteFlag, type MessageChunk } from '../types.js';
 
 const props = defineProps<{
 	chunks: MessageChunk[]
@@ -10,8 +10,14 @@ const props = defineProps<{
 	// messageAlign: MessageAlignType
 }>();
 
-const getEmoteWidth = (w?: number) => {
-	return `${w ? w * 2 : 50}px`;
+const getEmoteWidth = (isGrowX: boolean, w?: number) => {
+	if (isGrowX) {
+		return `${w ? w * 2 : 50}px`;
+	} else if (w) {
+		return `${w}px`;
+	} else {
+		return '50px';
+	}
 };
 
 // const wordBreak = computed(() => {
@@ -58,7 +64,7 @@ const mappedChunks = props.chunks.reduce((acc, chunk) => {
 						'flipY': chunk.flags?.includes(EmoteFlag.FlipY),
 					}"
 					:style="{
-						width: chunk.flags?.includes(EmoteFlag.GrowX) ? getEmoteWidth(chunk.emoteWidth) : undefined,
+						width: getEmoteWidth(chunk.flags?.includes(EmoteFlag.GrowX) ?? false, chunk.emoteWidth),
 					}"
 				/>
 
