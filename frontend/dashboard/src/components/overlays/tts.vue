@@ -18,7 +18,7 @@ const ttsCommands = computed(() => {
 });
 
 const ttsManager = useTtsOverlayManager();
-const { data: settings, isError } = ttsManager.getInfo();
+const { data: settings, isError } = ttsManager.getSettings();
 
 const isModalOpened = ref(false);
 

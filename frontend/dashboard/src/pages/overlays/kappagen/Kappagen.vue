@@ -1,21 +1,23 @@
 <script lang="ts" setup>
+import { RpcError } from '@protobuf-ts/runtime-rpc';
 import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import type {
 	Settings_AnimationSettings,
 } from '@twir/grpc/generated/api/api/overlays_kappagen';
-import { useNotification, NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
+import { NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import SettingsAnimations from './settingsAnimations.vue';
 import SettingsEvents from './settingsEvents.vue';
 import SettingsGeneral from './settingsGeneral.vue';
-import { useSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js';
 
 
 import { useKappaGenOverlayManager, useProfile } from '@/api';
 import { flatEvents } from '@/components/events/helpers.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -27,13 +29,24 @@ const availableEvents = Object.values(flatEvents)
 	}) as Array<{ name: string, value: TwirEventType }>;
 
 const themeVars = useThemeVars();
-
+const discrete = useNaiveDiscrete();
+const { t } = useI18n();
 const { copyOverlayLink } = useCopyOverlayLink('kappagen');
 
-const { settings: formValue } = useSettings();
-
 const kappagenManager = useKappaGenOverlayManager();
-const { data: settings } = kappagenManager.getSettings();
+const { data: settings, error } = kappagenManager.getSettings();
+const updater = kappagenManager.updateSettings();
+
+const { settings: formValue } = useKappagenFormSettings();
+
+watch(error, async (v) => {
+	if (v instanceof RpcError) {
+		if (v.code === 'not_found') {
+			await updater.mutateAsync(formValue.value);
+		}
+	}
+});
+
 watch(settings, (s) => {
 	if (!s) return;
 
@@ -60,7 +73,6 @@ watch(() => [
 	formValue.value.size,
 ], () => sendSettings(), { deep: true });
 
-const updater = kappagenManager.updateSettings();
 const { data: profile } = useProfile();
 
 const kappagenIframeRef = ref<HTMLIFrameElement | null>(null);
@@ -95,8 +107,6 @@ watch(kappagenIframeRef, (v) => {
 	});
 });
 
-const message = useNotification();
-const { t } = useI18n();
 
 const playKappaPreview = (animation: Settings_AnimationSettings) => {
 	sendIframeMessage('kappaWithAnimation', { animation });
@@ -106,7 +116,7 @@ async function save() {
 	if (!formValue.value) return;
 
 	await updater.mutateAsync(formValue.value);
-	message.success({
+	discrete.notification.success({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
 	});
@@ -116,7 +126,7 @@ async function save() {
 <template>
 	<div style="display: flex; gap: 42px; height: 100%; padding: 24px;">
 		<div style="width: 50%">
-			<div style="display: flex; justify-content: space-between;">
+			<div class="header-buttons">
 				<n-button-group>
 					<n-button secondary @click="sendIframeMessage('kappa', 'EZ')">
 						{{ t('overlays.kappagen.testKappagen') }}
@@ -186,6 +196,14 @@ async function save() {
 </template>
 
 <style scoped>
+.header-buttons {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap-reverse;
+	row-gap: 10px;
+	column-gap: 10px;
+}
+
 :deep(.card) {
 	display: flex;
 	flex-direction: column;

@@ -14,7 +14,7 @@ const channelId = ref<string | undefined>();
 	<div class="flex flex-col space-y-[30px] w-[100%]">
 		<div class="flex justify-between flex-wrap gap-y-5">
 			<div>
-				<Profile @updateChannelId="(v) => channelId = v" />
+				<Profile @update-channel-id="(v) => channelId = v" />
 			</div>
 			<div>
 				<Menu />

@@ -1,26 +1,31 @@
 <script lang="ts" setup>
-import { watch } from 'vue';
+import { storeToRefs } from 'pinia';
+import { onMounted, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import htmlLayer from '../components/htmlLayer.vue';
-import { useOverlays } from '../sockets/overlays';
+import htmlLayer from '@/components/html-layer.vue';
+import { useOverlays } from '@/composables/overlays/use-overlays.js';
 
 const route = useRoute();
 
-const { layers, parsedLayersData, requestLayerData } = useOverlays(
-	route.params.apiKey as string,
-	route.params.overlayId as string,
-);
+const overlaysStore = useOverlays();
+const { layers, parsedLayersData } = storeToRefs(overlaysStore);
 
-watch(layers, (l) => {
-	if (!l.length) return;
+onMounted(() => {
+	const apiKey = route.params.apiKey as string;
+	const overlayId = route.params.overlayId as string;
+	overlaysStore.connectToOverlays(apiKey, overlayId);
+});
 
-	for (const layer of l) {
+watch(layers, (layers) => {
+	if (!layers.length) return;
+
+	for (const layer of layers) {
 		if (layer.type === 'HTML') {
-			requestLayerData(layer.id);
+			overlaysStore.requestLayerData(layer.id);
 
 			setInterval(
-				() => requestLayerData(layer.id),
+				() => overlaysStore.requestLayerData(layer.id),
 				layer.settings.htmlOverlayDataPollSecondsInterval * 1000,
 			);
 		}

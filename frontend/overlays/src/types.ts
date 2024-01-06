@@ -1,0 +1,86 @@
+import type { Settings as BrbOverlaySettings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
+import type { Settings as KappagenOverlaySettings } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import type { Emote, KappagenAnimations } from 'kappagen';
+
+// emotes start
+export type SevenTvEmote = {
+	id: string;
+	name: string;
+	flags: number;
+	data: {
+		host: {
+			url: string;
+			files: Array<{ name: string; format: string; height: number; width: number }>;
+		};
+	};
+};
+
+export type SevenTvChannelResponse = {
+	user: {
+		id: string
+	}
+	emote_set: {
+		id: string;
+		emotes: Array<SevenTvEmote>;
+	};
+};
+
+export type SevenTvGlobalResponse = {
+	emotes: Array<SevenTvEmote>;
+};
+
+export type BttvEmote = {
+	code: string;
+	imageType: string;
+	id: string;
+	height?: number;
+	width?: number;
+	modifier?: boolean;
+};
+
+export type BttvChannelResponse = {
+	channelEmotes: Array<BttvEmote>;
+	sharedEmotes: Array<BttvEmote>;
+};
+
+export type BttvGlobalResponse = Array<BttvEmote>;
+
+export type FfzEmote = {
+	name: string;
+	urls: Record<string, string>;
+	height: number;
+	width: number;
+	modifier: boolean;
+	modifier_flags?: number;
+};
+
+export type FfzChannelResponse = {
+	sets: {
+		[x: string]: {
+			emoticons: FfzEmote[];
+		};
+	};
+};
+
+export type FfzGlobalResponse = {
+	sets: {
+		[x: string]: {
+			emoticons: FfzEmote[];
+		};
+	};
+};
+// emotes end
+
+// brb start
+export type SetSettings = (settings: BrbOverlaySettings) => void;
+export type OnStart = (minutes: number, incomingText?: string) => void;
+export type OnStop = () => void;
+// brb end
+
+// kappagen start
+export type KappagenSettings = KappagenOverlaySettings & { channelName: string, channelId: string };
+
+export type KappagenCallback = (emotes: Emote[], animation: KappagenAnimations) => void;
+export type SpawnCallback = (emotes: Emote[]) => void;
+export type SetSettingsCallback = (settings: KappagenSettings) => void;
+// kappagen end

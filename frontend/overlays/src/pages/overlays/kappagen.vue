@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import KappagenOverlay from 'kappagen';
 import type { KappagenEmoteConfig } from 'kappagen';
+import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import 'kappagen/style.css';
 
-import { useKappagenBuilder as useKappagenEmotesBuilder } from './kappagen/builder.js';
-import { useIframe } from './kappagen/iframe.js';
-import { useChannelSettings } from './kappagen/settingsStore.js';
-import { useKappagenOverlaySocket } from './kappagen/socket.js';
-import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from './kappagen/types.js';
-import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
-import { ChatSettings, useTmiChat } from '../../sockets/chat_tmi';
+import {
+	useKappagenBuilder as useKappagenEmotesBuilder,
+} from '@/composables/kappagen/use-kappagen-builder.js';
+import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js';
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
+import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js';
+import { useChatTmi, type ChatSettings } from '@/composables/tmi/use-chat-tmi.ts';
+import {
+	useThirdPartyEmotes,
+	type ThirdPartyEmotesOptions,
+} from '@/composables/tmi/use-third-party-emotes.ts';
+import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from '@/types.js';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
-const apiKey = route.params.apiKey as string;
 
 type Config = KappagenEmoteConfig & { rave: boolean }
 
@@ -55,47 +60,49 @@ const emoteConfig = reactive<Required<Config>>({
 	rave: false,
 });
 
-const { kappagenSettings, setSettings } = useChannelSettings();
-watch(kappagenSettings, (s) => {
-	if (!s) return;
+const kappagenSettingsStore = useKappagenSettings();
+const { settings } = storeToRefs(kappagenSettingsStore);
 
-	if (s.emotes) {
-		emoteConfig.max = s.emotes.max;
-		emoteConfig.time = s.emotes.time;
-		emoteConfig.queue = s.emotes.queue;
+watch(() => settings.value, (settings) => {
+	if (!settings) return;
+
+	if (settings.emotes) {
+		emoteConfig.max = settings.emotes.max;
+		emoteConfig.time = settings.emotes.time;
+		emoteConfig.queue = settings.emotes.queue;
 	}
 
-	if (s.size) {
+	if (settings.size) {
 		emoteConfig.size = {
-			min: s.size.min,
-			max: s.size.max,
+			min: settings.size.min,
+			max: settings.size.max,
 			ratio: {
-				normal: s.size.ratioNormal,
-				small: s.size.ratioSmall,
+				normal: settings.size.ratioNormal,
+				small: settings.size.ratioSmall,
 			},
 		};
 	}
 
-	if (s.cube) {
+	if (settings.cube) {
 		emoteConfig.cube = {
-			speed: s.cube.speed,
+			speed: settings.cube.speed,
 		};
 	}
 
-	if (s.animation) {
+	if (settings.animation) {
 		emoteConfig.in = {
-			fade: s.animation.fadeIn,
-			zoom: s.animation.zoomIn,
+			fade: settings.animation.fadeIn,
+			zoom: settings.animation.zoomIn,
 		};
 
 		emoteConfig.out = {
-			fade: s.animation.fadeOut,
-			zoom: s.animation.zoomOut,
+			fade: settings.animation.fadeOut,
+			zoom: settings.animation.zoomOut,
 		};
 	}
 
-	if (typeof s.enableRave !== 'undefined') {
-		emoteConfig.rave = s.enableRave;
+	if (typeof settings.enableRave !== 'undefined') {
+		emoteConfig.rave = settings.enableRave;
 	}
 });
 
@@ -109,20 +116,20 @@ const spawnCallback: SpawnCallback = (emotes) => {
 };
 
 const setSettingsCallback: SetSettingsCallback = (settings) => {
-	setSettings(settings);
+	kappagenSettingsStore.setSettings(settings);
 };
 
-
-const emojiStyle = computed(() => kappagenSettings.value?.emotes?.emojiStyle);
+const emojiStyle = computed(() => settings.value?.emotes?.emojiStyle);
 const emotesBuilder = useKappagenEmotesBuilder(emojiStyle);
 
-const socket = useKappagenOverlaySocket(apiKey, {
+const socket = useKappagenOverlaySocket({
 	kappagenCallback,
 	setSettingsCallback,
 	spawnCallback,
 	emotesBuilder,
 });
-const iframe = useIframe({
+
+const iframe = useKappagenIframe({
 	kappagenCallback,
 	setSettingsCallback,
 	spawnCallback,
@@ -131,37 +138,22 @@ const iframe = useIframe({
 	},
 });
 
-onMounted(() => {
-	if (window.frameElement) {
-		iframe.create();
-	} else {
-		socket.create();
-	}
-
-	kappagen.value?.init();
-
-	return () => {
-		iframe.destroy();
-		socket.destroy();
-	};
-});
-
-const emotesOpts = computed<EmotesOpts>(() => {
+const emotesOptions = computed<ThirdPartyEmotesOptions>(() => {
 	return {
-		channelName: kappagenSettings.value?.channelName,
-		channelId: kappagenSettings.value?.channelId,
-		ffz: kappagenSettings.value?.emotes?.ffzEnabled,
-		bttv: kappagenSettings.value?.emotes?.bttvEnabled,
-		sevenTv: kappagenSettings.value?.emotes?.sevenTvEnabled,
+		channelName: settings.value?.channelName,
+		channelId: settings.value?.channelId,
+		ffz: settings.value?.emotes?.ffzEnabled,
+		bttv: settings.value?.emotes?.bttvEnabled,
+		sevenTv: settings.value?.emotes?.sevenTvEnabled,
 	};
 });
 
-useThirdPartyEmotes(emotesOpts);
+useThirdPartyEmotes(emotesOptions);
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: emotesOpts.value.channelId!,
-		channelName: emotesOpts.value.channelName!,
+		channelId: emotesOptions.value.channelId!,
+		channelName: emotesOptions.value.channelName!,
 		onMessage: (msg) => {
 			if (msg.type === 'system') return;
 
@@ -170,7 +162,7 @@ const chatSettings = computed<ChatSettings>(() => {
 				return;
 			}
 
-			if (!kappagenSettings.value?.enableSpawn) return;
+			if (!settings.value?.enableSpawn) return;
 
 			const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
 			if (!generatedEmotes.length) return;
@@ -180,9 +172,22 @@ const chatSettings = computed<ChatSettings>(() => {
 	};
 });
 
-const { destroy } = useTmiChat(chatSettings);
+const { destroy } = useChatTmi(chatSettings);
+
+onMounted(() => {
+	if (window.frameElement) {
+		iframe.create();
+	} else {
+		const apiKey = route.params.apiKey as string;
+		socket.connect(apiKey);
+	}
+
+	kappagen.value?.init();
+});
 
 onUnmounted(() => {
+	iframe.destroy();
+	socket.destroy();
 	destroy();
 });
 </script>
