@@ -14,9 +14,9 @@ type ExecCommandOpts struct {
 	Stderr io.Writer
 }
 
-func ExecCommand(opts ExecCommandOpts) error {
+func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 	if opts.Command == "" {
-		return fmt.Errorf("command not specified")
+		return nil, fmt.Errorf("command not specified")
 	}
 	cmd := exec.Command(
 		GetShell(),
@@ -34,6 +34,15 @@ func ExecCommand(opts ExecCommandOpts) error {
 
 	if opts.Stderr != nil {
 		cmd.Stderr = opts.Stderr
+	}
+
+	return cmd, nil
+}
+
+func ExecCommand(opts ExecCommandOpts) error {
+	cmd, err := CreateCommand(opts)
+	if err != nil {
+		return err
 	}
 
 	return cmd.Run()

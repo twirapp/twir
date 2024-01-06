@@ -3,39 +3,28 @@ package goapps
 import (
 	"context"
 	"os"
+	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/pterm/pterm"
-	"github.com/rjeczalik/notify"
-	"github.com/samber/lo"
-	api "github.com/satont/twir/apps/api/app"
-	cfg "github.com/satont/twir/libs/config"
-
-	// bots "github.com/satont/twir/apps/bots/app"
-	// discord "github.com/satont/twir/apps/discord/app"
-	// emotescacher "github.com/satont/twir/apps/emotes-cacher/app"
-	// events "github.com/satont/twir/apps/events/app"
-	// scheduler "github.com/satont/twir/apps/scheduler/app"
-	// timers "github.com/satont/twir/apps/timers/app"
-	// tokens "github.com/satont/twir/apps/tokens/app"
-	// websockets "github.com/satont/twir/apps/websockets/app"
-	// ytsr "github.com/satont/twir/apps/ytsr/app"
-	"go.uber.org/fx"
+	"github.com/twirapp/twir/cli/internal/shell"
+	"github.com/twirapp/twir/cli/internal/watcher"
 )
 
-type twirApplication struct {
-	Name     string
-	FxModule fx.Option
+type application struct {
+	name    string
+	cmd     *exec.Cmd
+	path    string
+	watcher *watcher.Watcher
 }
 
-var apps = []twirApplication{
+var apps = []application{
 	// {Name: "tokens", FxModule: tokens.App},
 	// {Name: "events", FxModule: events.App},
 	// {Name: "emotes-cacher", FxModule: emotescacher.App},
 	// {Name: "scheduler", FxModule: scheduler.App},
-	{Name: "api", FxModule: api.App},
+	{name: "api"},
 	// {Name: "bots", FxModule: bots.App},
 	// {Name: "discord", FxModule: discord.App},
 	// {Name: "timers", FxModule: timers.App},
@@ -43,65 +32,68 @@ var apps = []twirApplication{
 	// {Name: "ytsr", FxModule: ytsr.App},
 }
 
-type applicationWithWatcher struct {
-	*twirApplication
-	fxApp *fx.App
-}
-
 type GoApps struct {
-	apps []*applicationWithWatcher
+	apps []*application
 }
 
-func New() *GoApps {
-	wd, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
+func New() (*GoApps, error) {
 	ga := &GoApps{}
-
-	envPath := filepath.Join(wd, ".env")
 	for _, app := range apps {
-		fxApp := fx.New(
-			app.FxModule,
-			fx.Decorate(
-				func() cfg.Config {
-					return cfg.NewFxWithPath(envPath)
-				},
-			),
-			fx.NopLogger,
-		)
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
 
-		ga.apps = append(
-			ga.apps,
-			&applicationWithWatcher{
-				twirApplication: &app,
-				fxApp:           fxApp,
+		appPath := filepath.Join(wd, "apps", app.name)
+
+		cmd, err := shell.CreateCommand(
+			shell.ExecCommandOpts{
+				Command: "go run ./cmd/main.go",
+				Pwd:     appPath,
+				Stdout:  os.Stdout,
+				Stderr:  os.Stderr,
 			},
 		)
+		if err != nil {
+			return nil, err
+		}
+
+		app.cmd = cmd
+		app.path = appPath
+		app.watcher = watcher.New()
+
+		ga.apps = append(ga.apps, &app)
 	}
 
-	return ga
+	return ga, nil
 }
 
 func (c *GoApps) Start(ctx context.Context) {
 	for _, app := range c.apps {
 		app := app
-		pterm.Info.Println("Starting " + app.Name)
-		go app.fxApp.Start(ctx) //nolint:errcheck
+		pterm.Info.Println("Starting " + app.name)
+
+		if err := app.cmd.Start(); err != nil {
+			pterm.Fatal.Println(err)
+		}
 
 		go func() {
-			pterm.Info.Println("Starting watcher for " + app.Name)
-			watcher, err := c.watchAppFsUpdate(app.Name)
+			chann, err := app.watcher.Start(app.path)
 			if err != nil {
-				panic(err)
+				pterm.Fatal.Println(err)
 			}
 
-			for range watcher {
-				if err := app.fxApp.Stop(ctx); err != nil {
-					panic(err)
+			for range chann {
+				if err := app.cmd.Process.Kill(); err != nil {
+					pterm.Fatal.Println(err)
 				}
-				app.fxApp.Start(ctx) //nolint:errcheck
+				if err := app.cmd.Wait(); err != nil && err.Error() != "signal: killed" {
+					pterm.Fatal.Println(err)
+				}
+				time.Sleep(5 * time.Second)
+				if err := app.cmd.Start(); err != nil {
+					pterm.Fatal.Println(err)
+				}
 			}
 		}()
 	}
@@ -109,41 +101,7 @@ func (c *GoApps) Start(ctx context.Context) {
 
 func (c *GoApps) Stop(ctx context.Context) {
 	for _, app := range c.apps {
-		app.fxApp.Stop(ctx) //nolint:errcheck
+		app.watcher.Stop()
+		app.cmd.Process.Kill()
 	}
-}
-
-func (c *GoApps) watchAppFsUpdate(appName string) (chan struct{}, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	watchPath := filepath.Join(wd, "apps", appName) + "..."
-
-	notifyChan := make(chan notify.EventInfo, 1)
-	chann := make(chan struct{}, 1)
-
-	if err := notify.Watch(watchPath, notifyChan, notify.All); err != nil {
-		return nil, err
-	}
-
-	reload, _ := lo.NewDebounce(
-		1*time.Second,
-		func() {
-			chann <- struct{}{}
-		},
-	)
-
-	go func() {
-		for event := range notifyChan {
-			if strings.HasSuffix(event.Path(), "~") {
-				continue
-			}
-
-			reload()
-		}
-	}()
-
-	return chann, nil
 }

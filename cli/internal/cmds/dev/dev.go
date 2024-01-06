@@ -58,7 +58,10 @@ func CreateDevCommand() *cli.Command {
 			// 	return err
 			// }
 
-			golangApps := goapps.New()
+			golangApps, err := goapps.New()
+			if err != nil {
+				return err
+			}
 			golangApps.Start(c.Context)
 
 			exitSignal := make(chan os.Signal, 1)
