@@ -18,6 +18,7 @@ func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 	if opts.Command == "" {
 		return nil, fmt.Errorf("command not specified")
 	}
+
 	cmd := exec.Command(
 		GetShell(),
 		GetShellOption(),

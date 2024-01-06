@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/pterm/pterm"
 	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/goapps"
 	"github.com/urfave/cli/v2"
@@ -62,13 +63,15 @@ func CreateDevCommand() *cli.Command {
 			if err != nil {
 				return err
 			}
-			golangApps.Start(c.Context)
+			defer golangApps.Stop(c.Context)
+
+			if err := golangApps.Start(c.Context); err != nil {
+				pterm.Error.Println(err)
+				return err
+			}
 
 			exitSignal := make(chan os.Signal, 1)
 			signal.Notify(exitSignal, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-
-			<-exitSignal
-			golangApps.Stop(c.Context)
 
 			return nil
 		},

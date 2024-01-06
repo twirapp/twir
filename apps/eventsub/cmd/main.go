@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -91,7 +92,10 @@ func main() {
 
 	eventSubHandler := handler.NewHandler(services)
 	go func() {
-		if err := http.Serve(appTun, eventSubHandler.Manager); err != nil {
+		if err := http.Serve(appTun, eventSubHandler.Manager); err != nil && !errors.Is(
+			err,
+			net.ErrClosed,
+		) {
 			panic(err)
 		}
 	}()
