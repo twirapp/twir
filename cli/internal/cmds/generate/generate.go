@@ -8,5 +8,6 @@ import (
 var Cmd = &cli.Command{
 	Name:        "generate",
 	Usage:       "some generators",
+	Aliases:     []string{"gen"},
 	Subcommands: []*cli.Command{dockerfile.Dockerfile},
 }
