@@ -12,6 +12,7 @@ var binaries = []string{
 	"google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0",
 	"google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0",
 	"github.com/twitchtv/twirp/protoc-gen-twirp@v8.1.3",
+	"github.com/caddyserver/caddy/v2/cmd/caddy@latest",
 }
 
 func installGoBinaries() error {

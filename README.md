@@ -11,25 +11,6 @@
 > Installation of protobuf depends on your system, google it.
 
 - [Docker](https://docs.docker.com/engine/)
-- Installed Go cli dependencies
-
-
-## Prepare
-
-> [!CAUTION]
-> You need to setup [GOPATH](https://github.com/golang/go/wiki/SettingGOPATH) variable before executing lines below.
-
-```bash
-go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-go install github.com/twitchtv/twirp/protoc-gen-twirp@latest
-curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-```
-
-- Install Node.js dependencies
-```bash
-pnpm install --frozen-lockfile
-```
 
 - Run needed services (Postgres, Adminer, Redis, Minio)
 ```bash
@@ -48,22 +29,21 @@ Well, now we are almost ready for developing project, just few steps.
 #### Now you are read to run project:
 
 ```bash
-pnpm dev
+pnpm cli dev
 ```
 
 And when everything starts open https://localhost:3005
 
 ## Writing migrations
 
-Migrations done via [goose](https://github.com/pressly/goose).
-* Navigate to folder
-	```bash
-	cd libs/migrations/migrations
-	```
 * Use command for create new migration
-	```bash
-	goose create new_migration_name sql
-	```
+```bash
+pnpm cli migrations create
+```
+* Navigate to folder and edit new migration file
+```bash
+cd libs/migrations/migrations
+```
 
 	or
 
@@ -72,10 +52,9 @@ Migrations done via [goose](https://github.com/pressly/goose).
 	```
 
 * Run new created migrations (optional, because it's running when you execute `pnpm dev`)
-	```bash
-	cd libs/migrations
-	go run main.go
-	```
+```bash
+pnpm cli migrations run
+```
 ##### Write `go` models
 
 * Go to `libs/gomodels`
