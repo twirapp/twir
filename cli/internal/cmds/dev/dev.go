@@ -22,8 +22,6 @@ type app struct {
 }
 
 var apps = []app{
-	{Stack: "go", Name: "parser", Port: constants.PARSER_SERVER_PORT},
-	{Stack: "go", Name: "eventsub", Port: constants.EVENTSUB_SERVER_PORT},
 	{Stack: "node", Name: "eval", Port: constants.EVAL_SERVER_PORT},
 	{Stack: "node", Name: "integrations", Port: constants.INTEGRATIONS_SERVER_PORT},
 	{Stack: "frontend", Name: "dashboard", Port: 3006},

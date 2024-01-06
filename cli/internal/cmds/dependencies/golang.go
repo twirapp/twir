@@ -43,8 +43,6 @@ func installGolangDeps() error {
 		}
 	}
 
-	spinner, _ := pterm.DefaultSpinner.Start("Install golang deps...")
-
 	for _, p := range paths {
 		// name := strings.Split(p, "/")
 
@@ -54,8 +52,6 @@ func installGolangDeps() error {
 			return err
 		}
 	}
-
-	spinner.Success("Golang deps installed")
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package dependencies
 
 import (
+	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -25,16 +26,29 @@ var Cmd = &cli.Command{
 		skipGo := c.Bool("skip-go")
 
 		if !skipGo {
+			goSpinner, _ := pterm.DefaultSpinner.Start("Install golang deps...")
 			if err := installGolangDeps(); err != nil {
+				goSpinner.Fail(err)
 				return err
 			}
+			goSpinner.Success("Golang deps installed")
 		}
 
 		if !skipNode {
+			nodeSpinner, _ := pterm.DefaultSpinner.Start("Install node deps...")
 			if err := installNodeDeps(); err != nil {
+				nodeSpinner.Fail(err)
 				return err
 			}
+			nodeSpinner.Success("Nodejs deps installed")
 		}
+
+		binariesSpinner, _ := pterm.DefaultSpinner.Start("Install golang binaries...")
+		if err := installGoBinaries(); err != nil {
+			binariesSpinner.Fail(err)
+			return err
+		}
+		binariesSpinner.Success("Golang binaries installed")
 
 		return nil
 	},

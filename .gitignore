@@ -34,3 +34,4 @@ main.~
 vite.config.ts.timestamp-*.mjs
 
 .DS_STORE
+.bin
