@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Message } from '@twir/frontend-chat/dist';
+import { Message } from '@twir/frontend-chat';
 import { Client } from 'tmi.js';
 import { Ref, unref, watch } from 'vue';
 

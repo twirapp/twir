@@ -1,4 +1,4 @@
-import { type MessageChunk } from '@twir/frontend-chat/dist';
+import { type MessageChunk } from '@twir/frontend-chat';
 import emojiRegex from 'emoji-regex';
 import { defineStore, storeToRefs } from 'pinia';
 
