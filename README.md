@@ -63,6 +63,8 @@ pnpm cli migrations run
 
 ## Http on localhost (optional)
 
+We'll use `dev.twir.app` domain, but you can use any other domain.
+
 * Add `https://dev.twir.app/login` to your twitch application redirect url's
 
 * Edit `.env` entries:
