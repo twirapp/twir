@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "tsc",
-    "start": "node --enable-source-maps dist/index.js"
+    "start": "node src/index.js",
+		"dev": "node --watch --watch-preserve-output src/index.js"
   },
   "dependencies": {
     "@twir/config": "workspace:*",

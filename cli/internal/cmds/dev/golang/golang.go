@@ -1,4 +1,4 @@
-package goapps
+package golang
 
 import (
 	"context"

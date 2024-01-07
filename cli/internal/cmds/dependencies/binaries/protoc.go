@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-const version = "v25.1"
+const protocVersion = "v25.1"
 const protocUrl = "https://github.com/protocolbuffers/protobuf/releases/download"
 
 func InstallProtoc() error {
@@ -38,12 +38,7 @@ func InstallProtoc() error {
 		platform = "win64"
 	}
 
-	binaryName := "protoc"
-	if runtime.GOOS == "windows" {
-		binaryName += ".exe"
-	}
-	
-	if isBinaryInstalled(binaryName) {
+	if isBinaryInstalled("protoc") {
 		return nil
 	}
 
@@ -51,8 +46,8 @@ func InstallProtoc() error {
 		fmt.Sprintf(
 			"%s/%s/protoc-%s-%s-%s.zip",
 			protocUrl,
-			version,
-			strings.Replace(version, "v", "", 1),
+			protocVersion,
+			strings.Replace(protocVersion, "v", "", 1),
 			platform,
 			arch,
 		),

@@ -9,8 +9,9 @@ import (
 	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
-	"github.com/twirapp/twir/cli/internal/cmds/dev/frontendapps"
-	"github.com/twirapp/twir/cli/internal/cmds/dev/goapps"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/urfave/cli/v2"
 )
@@ -61,17 +62,23 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 
-			golangApps, err := goapps.New()
+			golangApps, err := golang.New()
 			if err != nil {
 				return err
 			}
 			defer golangApps.Stop(c.Context)
 
-			frontendApps, err := frontendapps.New()
+			frontendApps, err := frontend.New()
 			if err != nil {
 				return err
 			}
 			defer golangApps.Stop(c.Context)
+
+			nodejsApps, err := nodejs.New()
+			if err != nil {
+				return err
+			}
+			defer nodejsApps.Stop()
 
 			if err := golangApps.Start(c.Context); err != nil {
 				pterm.Error.Println(err)
@@ -79,6 +86,11 @@ func CreateDevCommand() *cli.Command {
 			}
 
 			if err := frontendApps.Start(); err != nil {
+				pterm.Error.Println(err)
+				return err
+			}
+
+			if err := nodejsApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
 			}

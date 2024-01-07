@@ -6,36 +6,31 @@ import { eventsGrpcClient } from '../libs/eventsGrpc.js';
 import { parserGrpcClient } from '../libs/parserGrpc.js';
 import { ytsrGrpcClient } from '../libs/ytsrGrpc.js';
 
-export type Donate = {
-	twitchUserId: string;
-	amount: number | string;
-	currency: string;
-	message?: string | null;
-	userName?: string | null;
-}
-
-export const onDonation = async (opts: Donate) => {
-	const userName = opts.userName ?? 'Anonymous';
+/**
+ * @param {Donate} donate
+*/
+export const onDonation = async (donate) => {
+	const userName = donate.userName ?? 'Anonymous';
 
 	await db.insert({
 		id: randomUUID(),
-		channel_id: opts.twitchUserId,
+		channel_id: donate.twitchUserId,
 		type: 'DONATION',
 		data: {
-			donationAmount: opts.amount.toString(),
-			donationCurrency: opts.currency,
-			donationMessage: opts.message,
+			donationAmount: donate.amount.toString(),
+			donationCurrency: donate.currency,
+			donationMessage: donate.message,
 			donationUsername: userName,
 		},
 	}).into('channels_events_list');
 
-	const msg = opts.message || '';
+	const msg = donate.message || '';
 
 	await eventsGrpcClient.donate({
-		amount: opts.amount.toString(),
+		amount: donate.amount.toString(),
 		message: msg,
-		currency: opts.currency,
-		baseInfo: { channelId: opts.twitchUserId },
+		currency: donate.currency,
+		baseInfo: { channelId: donate.twitchUserId },
 		userName,
 	});
 
@@ -48,7 +43,7 @@ export const onDonation = async (opts: Donate) => {
 		return;
 	}
 
-	const srCommand = await getSrCommand(opts.twitchUserId);
+	const srCommand = await getSrCommand(donate.twitchUserId);
 	if (!srCommand?.enabled) {
 		return;
 	}
@@ -57,7 +52,7 @@ export const onDonation = async (opts: Donate) => {
 		try {
 			const parseResult = await parserGrpcClient.processCommand({
 				channel: {
-					id: opts.twitchUserId,
+					id: donate.twitchUserId,
 				},
 				message: {
 					id: '',
@@ -65,7 +60,7 @@ export const onDonation = async (opts: Donate) => {
 					text: `!${srCommand.name} https://youtu.be/${song.id}`,
 				},
 				sender: {
-					id: opts.twitchUserId,
+					id: donate.twitchUserId,
 					badges: ['BROADCASTER'],
 					name: userName,
 					displayName: userName,
@@ -74,7 +69,7 @@ export const onDonation = async (opts: Donate) => {
 
 			for (const response of parseResult.responses) {
 				await botsGrpcClient.sendMessage({
-					channelId: opts.twitchUserId,
+					channelId: donate.twitchUserId,
 					message: response,
 					skipRateLimits: true,
 				});
@@ -85,7 +80,11 @@ export const onDonation = async (opts: Donate) => {
 	}
 };
 
-async function getSrCommand(channelId: string) {
+/**
+	* @param {string} channelId
+	* @returns {Promise<{ name: string, enabled: boolean } | null>}
+*/
+async function getSrCommand(channelId) {
 	const result = await db
 		.from('channels_commands')
 		.select('*')
@@ -100,24 +99,5 @@ async function getSrCommand(channelId: string) {
 		return null;
 	}
 
-	return result as {
-		name: string,
-		enabled: boolean,
-	};
+	return result;
 }
-
-// ttsCommand := &model.ChannelsCommands{}
-// err = c.db.
-// Where(`"channelId" = ?`, msg.Channel.ID).
-// Where(`"module" = ?`, "TTS").
-// Where(`"defaultName" = ?`, "tts").
-// Find(&ttsCommand).
-// Error
-// if err != nil {
-// 	c.logger.Error(
-// 		"cannot find tts command",
-// 		slog.Any("err", err),
-// 		slog.String("channelId", msg.Channel.ID),
-// 	)
-// 	return
-// }

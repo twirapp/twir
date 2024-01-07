@@ -1,4 +1,4 @@
-package frontendapps
+package nodejs
 
 import (
 	"os"
@@ -24,7 +24,7 @@ func newApplication(name string) (*twirApp, error) {
 	app := twirApp{
 		name: name,
 		cmd:  nil,
-		path: filepath.Join(wd, "frontend", name),
+		path: filepath.Join(wd, "apps", name),
 	}
 
 	cmd, err := app.createAppCommand()

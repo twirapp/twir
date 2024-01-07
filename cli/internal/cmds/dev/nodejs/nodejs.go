@@ -1,18 +1,16 @@
-package frontendapps
+package nodejs
 
 var appsForStart = []twirApp{
-	{name: "dashboard"},
-	{name: "landing"},
-	{name: "overlays"},
-	{name: "public-page"},
+	{name: "eval"},
+	{name: "integrations"},
 }
 
-type FrontendApps struct {
+type NodejsApps struct {
 	apps []*twirApp
 }
 
-func New() (*FrontendApps, error) {
-	fa := &FrontendApps{}
+func New() (*NodejsApps, error) {
+	fa := &NodejsApps{}
 	for _, app := range appsForStart {
 		application, err := newApplication(app.name)
 		if err != nil {
@@ -25,7 +23,7 @@ func New() (*FrontendApps, error) {
 	return fa, nil
 }
 
-func (fa *FrontendApps) Start() error {
+func (fa *NodejsApps) Start() error {
 	for _, app := range fa.apps {
 		if err := app.start(); err != nil {
 			return err
@@ -35,7 +33,7 @@ func (fa *FrontendApps) Start() error {
 	return nil
 }
 
-func (fa *FrontendApps) Stop() error {
+func (fa *NodejsApps) Stop() error {
 	for _, app := range fa.apps {
 		if err := app.stop(); err != nil {
 			return err

@@ -15,15 +15,19 @@ const vm = new VM({
 	eval: false,
 });
 
-const evalService: Eval.EvalServiceImplementation = {
-	async process(request: Eval.Evaluate): Promise<Eval.DeepPartial<Eval.EvaluateResult>> {
-		let resultOfExecution: any;
+
+/**
+ * @type {import('@twir/grpc/generated/eval/eval').EvalServiceImplementation}
+ */
+const evalService = {
+	async process(request) {
+		let resultOfExecution;
 		try {
 			const toEval = `(async function () { ${request.script} })()`.split(';\n').join(';');
 			resultOfExecution = await vm.run(toEval);
 		} catch (error) {
 			console.error(error);
-			resultOfExecution = (error as any).message ?? 'unexpected error';
+			resultOfExecution = error.message ?? 'unexpected error';
 		}
 
 		return {

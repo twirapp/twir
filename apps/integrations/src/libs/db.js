@@ -1,23 +1,25 @@
 import { config } from '@twir/config';
 import Knex from 'knex';
 
-import { Integration } from '../types.js';
-
 export const db = Knex({
 	client: 'pg',
 	connection: config.DATABASE_URL,
 });
 
-export const DONATIONALERTS = 'DONATIONALERTS';
-export const STREAMLABS = 'STREAMLABS';
-export const DONATEPAY = 'DONATEPAY';
+export const Services = Object.freeze({
+	DONATIONALERTS: 'DONATIONALERTS',
+	STREAMLABS: 'STREAMLABS',
+	DONATEPAY: 'DONATEPAY',
+});
 
-export async function getIntegrations(integrationId: string): Promise<Integration>
-export async function getIntegrations(): Promise<Integration[]>
-export async function getIntegrations(integrationId?: string): Promise<Integration | Integration[]> {
+/**
+	* @param {string} [integrationId]
+	* @returns {Promise<Integration | Integration[]>}
+*/
+export async function getIntegrations(integrationId) {
 	let query = db
 		.from('channels_integrations')
-		.select<Integration[]>([
+		.select([
 			'channels_integrations.*',
 			db.raw('(json_agg(integration.*) ->> 0)::json as integration'),
 			db.raw('(json_agg(channel.*) ->> 0)::json as channel'),
@@ -25,11 +27,7 @@ export async function getIntegrations(integrationId?: string): Promise<Integrati
 		.where({
 			enabled: true,
 		})
-		.andWhere('integration.service', 'in', [
-			DONATIONALERTS,
-			STREAMLABS,
-			DONATEPAY,
-		])
+		.andWhere('integration.service', 'in', Object.values(Services))
 		.andWhere('channel.isEnabled', true)
 		.andWhere('channel.isBanned', false)
 		.leftJoin('integrations as integration', 'integration.id', '=', 'channels_integrations.integrationId')

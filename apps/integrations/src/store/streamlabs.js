@@ -1,63 +1,17 @@
-import * as IO from 'socket.io-client';
-
-import { removeIntegration } from '../index.js';
 import { db } from '../libs/db.js';
-import { Integration } from '../types.js';
-import { onDonation } from '../utils/onDonation.js';
+import { StreamLabs } from '../services/streamLabs.js';
 
-type Socket = typeof IO.Socket;
+/**
+ *
+ * @type {Map<string, StreamLabs>}
+ */
+export const streamlabsStore = new Map();
 
-export class StreamLabs {
-	#conn: Socket | null;
-
-	constructor(token: string, private readonly twitchUserId: string) {
-		this.#conn = IO.connect(`https://sockets.streamlabs.com?token=${token}`, {
-			transports: ['websocket'],
-		});
-
-		this.#conn.on('event', (eventData: Event) => {
-			if (eventData.type === 'donation') {
-				eventData.message.forEach((m) => {
-					onDonation({
-						twitchUserId: this.twitchUserId,
-						amount: m.amount,
-						currency: m.currency,
-						message: m.message,
-						userName: m.from,
-					});
-				});
-			}
-		});
-	}
-
-	async destroy() {
-		this.#conn!.close();
-		this.#conn = null;
-	}
-}
-
-export type Event = {
-	type: 'donation';
-	message: Message[];
-	for: string;
-	event_id: string;
-};
-
-export type Message = {
-	name: string;
-	isTest: boolean;
-	formatted_amount: string;
-	amount: number;
-	message: string | null;
-	currency: string;
-	to: { name: string };
-	from: string;
-	from_user_id: number;
-	_id: string;
-	priority: number;
-};
-
-export async function addStreamlabsIntegration(integration: Integration) {
+/**
+ *
+ * @param {Integration} integration
+ */
+export const addIntegration = async (integration) => {
 	if (
 		!integration.accessToken ||
 		!integration.refreshToken ||
@@ -69,7 +23,7 @@ export async function addStreamlabsIntegration(integration: Integration) {
 		return;
 	}
 
-	await removeIntegration(integration);
+	await removeIntegration(integration.channelId);
 
 	const refresh = await fetch('https://www.twitchalerts.com/api/v1.0/token', {
 		method: 'POST',
@@ -111,4 +65,15 @@ export async function addStreamlabsIntegration(integration: Integration) {
 	const instance = new StreamLabs(socket_token, integration.channelId);
 
 	return instance;
-}
+};
+
+/**
+ *
+ * @param {string} channelId
+ */
+export const removeIntegration = async (channelId) => {
+	const existed = streamlabsStore.get(channelId);
+	if (!existed) return;
+	await existed.destroy();
+	streamlabsStore.delete(channelId);
+};
