@@ -10,7 +10,6 @@ import (
 
 func main() {
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: "ytsr"}),

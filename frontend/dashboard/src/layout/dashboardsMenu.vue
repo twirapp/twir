@@ -5,19 +5,25 @@ import {
 	NAvatar,
 	NInput,
 	NSpin,
-	NScrollbar,
+	NVirtualList,
 	useThemeVars,
 	NText,
 	NPopover,
 } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
+
+defineProps<{
+	isCollapsed: boolean
+}>();
 
 const emits = defineEmits<{
 	dashboardSelected: []
 }>();
 
+const { t } = useI18n();
 const themeVars = useThemeVars();
 const blockColor = computed(() => themeVars.value.buttonColor2);
 const blockColor2 = computed(() => themeVars.value.buttonColor2Hover);
@@ -121,14 +127,25 @@ onClickOutside(refPopover, (event) => {
 					style="display: flex; align-self: center; border-radius: 111px;"
 					:src="currentDashboard?.profileImageUrl"
 				/>
-				<div style="display: flex; flex-direction: column;">
-					<n-text :depth="3" style="font-size: 11px">
-						Managing user
+				<div
+					v-if="!isCollapsed"
+					style="
+						display: flex;
+						flex-direction: column;
+						max-width: 100px;
+						white-space: nowrap;
+						overflow: hidden;
+						text-overflow: ellipsis;
+					"
+				>
+					<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
+						{{ t(`dashboard.header.managingUser`) }}
 					</n-text>
 					<n-text>{{ currentDashboard?.displayName }}</n-text>
 				</div>
 
 				<IconChevronRight
+					v-if="!isCollapsed"
 					:style="{
 						transition: '0.2s transform ease',
 						transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
@@ -139,22 +156,24 @@ onClickOutside(refPopover, (event) => {
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
 		<div v-else ref="refPopoverList" class="dashboards-container">
 			<n-text :depth="3" style="font-size: 11px">
-				Channels you have access to
+				{{ t(`dashboard.header.channelsAccess`) }}
 			</n-text>
-			<n-scrollbar style="max-height: 400px;" trigger="none">
-				<div class="dashboards-menu">
+			<n-virtual-list
+				style="max-height: 400px;" :item-size="42" trigger="none"
+				:items="menuOptions"
+			>
+				<template #default="{ item }">
 					<div
-						v-for="option of menuOptions"
-						:key="option.key"
-						secondary
+						:key="item.key"
 						class="item"
-						@click="onSelectDashboard(option.key)"
+						style="height: 42px"
+						@click="onSelectDashboard(item.key)"
 					>
-						<n-avatar :src="option.icon" round size="small" />
-						{{ option.label }}
+						<n-avatar :src="item.icon" round size="small" />
+						<span> {{ item.label }}</span>
 					</div>
-				</div>
-			</n-scrollbar>
+				</template>
+			</n-virtual-list>
 			<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10">
 				<n-input v-model:value="filterValue" placeholder="Search" />
 			</template>
@@ -173,16 +192,7 @@ onClickOutside(refPopover, (event) => {
 	-webkit-user-drag: none;
 }
 
-.dashboards-menu {
-	background-color: v-bind(blockColor);
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	margin-right: 25px;
-	margin-bottom: 10px;
-}
-
-.dashboards-menu > .item {
+.item {
 	display: flex;
 	gap: 12px;
 	align-items: center;
@@ -198,10 +208,8 @@ onClickOutside(refPopover, (event) => {
 }
 
 .block {
-	background-color: v-bind(blockColor);
 	display: flex;
 	gap: 16px;
-	padding: 16px;
 	border-radius: 10px;
 	align-items: center;
 }

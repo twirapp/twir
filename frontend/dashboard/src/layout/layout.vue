@@ -11,6 +11,7 @@ import {
 	NMessageProvider,
 	NNotificationProvider,
 	NSpin,
+	NDialogProvider,
 } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
@@ -56,45 +57,47 @@ watch(smallerOrEqualLg, (v) => {
 	>
 		<n-notification-provider :max="5">
 			<n-message-provider :duration="2500" :closable="true">
-				<n-layout style="height: 100%">
-					<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
-						<Header :toggleSidebar="toggleSidebar" />
-					</n-layout-header>
+				<n-dialog-provider>
+					<n-layout style="height: 100%">
+						<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
+							<Header :toggleSidebar="toggleSidebar" />
+						</n-layout-header>
 
-					<n-layout has-sider style="height: calc(100vh - var(--layout-header-height))">
-						<n-layout-sider
-							v-if="!smallerOrEqualMd"
-							bordered
-							collapse-mode="width"
-							:collapsed-width="64"
-							:width="240"
-							show-trigger="arrow-circle"
-							:native-scrollbar="false"
-							:collapsed="isSidebarCollapsed"
-							:show-collapsed-content="false"
-							@update-collapsed="toggleSidebar"
-						>
-							<Sidebar :is-collapsed="isSidebarCollapsed" />
-						</n-layout-sider>
-						<n-layout-content>
-							<div v-if="!isRouterReady" class="app-loader">
-								<n-spin size="large" />
-							</div>
-							<router-view v-else v-slot="{ Component, route }">
-								<transition :name="route.meta.transition as string || 'router'" mode="out-in">
-									<div
-										:key="route.path"
-										:style="{
-											padding: route.meta?.noPadding ? undefined: '24px'
-										}"
-									>
-										<component :is="Component" />
-									</div>
-								</transition>
-							</router-view>
-						</n-layout-content>
+						<n-layout has-sider style="height: calc(100vh - var(--layout-header-height))">
+							<n-layout-sider
+								v-if="!smallerOrEqualMd"
+								bordered
+								collapse-mode="width"
+								:collapsed-width="64"
+								:width="240"
+								show-trigger="arrow-circle"
+								:native-scrollbar="false"
+								:collapsed="isSidebarCollapsed"
+								:show-collapsed-content="false"
+								@update-collapsed="toggleSidebar"
+							>
+								<Sidebar :is-collapsed="isSidebarCollapsed" />
+							</n-layout-sider>
+							<n-layout-content>
+								<div v-if="!isRouterReady" class="app-loader">
+									<n-spin size="large" />
+								</div>
+								<router-view v-else v-slot="{ Component, route }">
+									<transition :name="route.meta.transition as string || 'router'" mode="out-in">
+										<div
+											:key="route.path"
+											:style="{
+												padding: route.meta?.noPadding ? undefined: '24px'
+											}"
+										>
+											<component :is="Component" />
+										</div>
+									</transition>
+								</router-view>
+							</n-layout-content>
+						</n-layout>
 					</n-layout>
-				</n-layout>
+				</n-dialog-provider>
 			</n-message-provider>
 		</n-notification-provider>
 	</n-config-provider>

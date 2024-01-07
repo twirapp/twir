@@ -5,8 +5,8 @@ import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimen
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
 
-import { i18n } from './i18n.js';
-import { newRouter } from './router.js';
+import { i18n } from './plugins/i18n.js';
+import { newRouter } from './plugins/router.js';
 
 import App from '@/App.vue';
 

@@ -14,6 +14,7 @@ const loremText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed 
 const splittedLorem = loremText.split(' ');
 
 export const lorem = () => splittedLorem.slice(Math.floor(Math.random() * splittedLorem.length)).join(' ');
+export const loremWithLen = (len: number) => splittedLorem.slice(Math.floor(Math.random() * splittedLorem.length)).slice(0, len).join(' ');
 
 export const boolean = () => Math.random() < 0.5;
 

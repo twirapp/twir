@@ -175,21 +175,3 @@ type ChatAlertsBan struct {
 	IgnoreTimeoutFrom []string                   `json:"ignoreTimeoutFrom"`
 	Cooldown          int                        `json:"cooldown"`
 }
-
-type ChatOverlaySettings struct {
-	MessageHideTimeout  uint32 `json:"messageHideTimeout"`
-	MessageShowDelay    uint32 `json:"messageShowDelay"`
-	Preset              string `json:"preset"`
-	FontFamily          string `json:"fontFamily"`
-	FontSize            uint32 `json:"fontSize"`
-	FontWeight          uint32 `json:"fontWeight"`
-	FontStyle           string `json:"fontStyle"`
-	HideCommands        bool   `json:"hideCommands"`
-	HideBots            bool   `json:"hideBots"`
-	ShowBadges          bool   `json:"showBadges"`
-	ShowAnnounceBadge   bool   `json:"showAnnounceBadge"`
-	TextShadowColor     string `json:"textShadowColor"`
-	TextShadowSize      uint32 `json:"textShadowSize"`
-	ChatBackgroundColor string `json:"chatBackgroundColor"`
-	Direction           string `json:"direction"`
-}

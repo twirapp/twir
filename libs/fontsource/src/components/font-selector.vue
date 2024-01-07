@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SelectOption } from 'naive-ui';
 import { NSelect } from 'naive-ui';
-import { computed, watch, h } from 'vue';
+import { computed, watch, h, ref } from 'vue';
 
 import { generateFontKey } from '../api.js';
 import { useFontSource } from '../composable/use-fontsource.js';
@@ -19,6 +19,19 @@ const emits = defineEmits<{
 
 const fontSource = useFontSource();
 
+const availableSubsets = ref<Set<string>>(new Set());
+const filteredSubsets = ref<string[]>([]);
+
+watch(fontSource.fontList, (v) => {
+	if (!v) return;
+
+	for (const font of v) {
+		for (const subset of font.subsets) {
+			availableSubsets.value.add(subset);
+		}
+	}
+});
+
 // eslint-disable-next-line no-undef
 const selectedFont = defineModel<string>('selectedFont', { default: '' });
 
@@ -34,10 +47,15 @@ watch(() => props.fontFamily, (v) => {
 });
 
 const options = computed((): SelectOption[] => {
-	return fontSource.fontList.value.map((font) => ({
-		label: font.family,
-		value: font.id,
-	}));
+	return fontSource.fontList.value
+		.filter((font) => {
+			if (!filteredSubsets.value.length) return true;
+			return filteredSubsets.value.every((subset) => font.subsets.includes(subset));
+		})
+		.map((font) => ({
+			label: font.family,
+			value: font.id,
+		}));
 });
 
 function renderLabel(option: SelectOption) {
@@ -63,5 +81,17 @@ function renderLabel(option: SelectOption) {
 		:loading="fontSource.loading.value"
 		:disabled="fontSource.loading.value"
 		check-strategy="child"
-	/>
+	>
+		<template #action>
+			Languages ({{ options.length }} filtered fonts)
+			<n-select
+				v-model:value="filteredSubsets"
+				clearable
+				multiple
+				size="tiny"
+				:options="[...availableSubsets.values()].map(s => ({ label: s, value: s}))"
+				placeholder="Select preferable subsets"
+			/>
+		</template>
+	</n-select>
 </template>

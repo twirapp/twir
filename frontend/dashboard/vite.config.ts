@@ -9,8 +9,8 @@ import svg from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-	const env = loadEnv(mode, process.cwd(), '');
-
+	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '');
+	
 	return {
 		plugins: [
 			vue({
@@ -48,31 +48,6 @@ export default defineConfig(({ mode }) => {
 			host: true,
 			hmr: {
 				protocol: env.USE_WSS === 'true' ? 'wss' : 'ws',
-			},
-			proxy: {
-				'/api': {
-					target: 'http://127.0.0.1:3002',
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ''),
-					ws: true,
-				},
-				'/socket': {
-					target: 'http://127.0.0.1:3004',
-					changeOrigin: true,
-					ws: true,
-					rewrite: (path) => path.replace(/^\/socket/, ''),
-				},
-				'/p': {
-					target: 'http://127.0.0.1:3007',
-					changeOrigin: true,
-					ws: true,
-					// rewrite: (path) => path.replace(/^\/p/, ''),
-				},
-				'/overlays': {
-					target: 'http://127.0.0.1:3008',
-					changeOrigin: true,
-					ws: true,
-				},
 			},
 		},
 		clearScreen: false,

@@ -14,7 +14,7 @@ func (c *GrpcImpl) RefreshChatOverlaySettings(
 	*emptypb.Empty,
 	error,
 ) {
-	if err := c.chatServer.SendSettings(req.ChannelId); err != nil {
+	if err := c.chatServer.SendSettings(req.GetChannelId(), req.GetId()); err != nil {
 		c.logger.Error(err.Error())
 		return nil, err
 	}

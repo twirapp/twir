@@ -3,7 +3,7 @@ import { FONTSOURCE_API_URL } from './constants.js';
 import type { Font, FontItem } from './types.js';
 
 export async function loadFontList(): Promise<FontItem[]> {
-	const response = await fetch(`${FONTSOURCE_API_URL}/fonts?subsets=latin,cyrillic&styles=normal,italic&variable=true`);
+	const response = await fetch(`${FONTSOURCE_API_URL}/fonts?subsets=latin,cyrillic&styles=normal,italic`);
 	const fonts = await response.json() as FontItem[];
 	return fonts;
 }
@@ -15,7 +15,6 @@ export async function loadFont(
 ): Promise<Font> {
 	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId}`);
 	const font = await response.json() as Font;
-
 
 	for (const subset of font.subsets) {
 		// @ts-ignore

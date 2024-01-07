@@ -7,17 +7,16 @@ import (
 	"github.com/satont/twir/apps/discord/internal/messages_updater"
 	"github.com/satont/twir/apps/discord/internal/redis"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
-	"github.com/satont/twir/libs/config"
+	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/sentry"
+	twirsentry "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
 )
 
 func main() {
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			gorm.New,

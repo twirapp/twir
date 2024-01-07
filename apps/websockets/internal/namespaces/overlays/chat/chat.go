@@ -66,6 +66,8 @@ func New(opts Opts) *Chat {
 				return
 			}
 
+			session.Set("id", session.Request.URL.Query().Get("id"))
+
 			chat.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected to chat namespace"}`))
 		},

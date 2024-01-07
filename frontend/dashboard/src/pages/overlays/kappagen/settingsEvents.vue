@@ -3,7 +3,7 @@ import { TwirEventType } from '@twir/grpc/generated/api/api/events';
 import { NTabs, NTabPane, NSwitch, NGrid, NGridItem, NCheckbox } from 'naive-ui';
 import { watch } from 'vue';
 
-import { useSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js';
 
 import { flatEvents } from '@/components/events/helpers.js';
 
@@ -15,7 +15,7 @@ const availableEvents = Object.values(flatEvents)
 			value: e.enumValue,
 		};
 	}) as Array<{ name: string, value: TwirEventType }>;
-const { settings: formValue } = useSettings();
+const { settings: formValue } = useKappagenFormSettings();
 
 watch(formValue.value.events, (v) => {
 	for (const event of availableEvents) {
@@ -33,7 +33,10 @@ watch(formValue.value.events, (v) => {
 
 <template>
 	<n-tabs type="line" placement="left">
-		<n-tab-pane v-for="(event) of formValue.events" :key="event.event" :name="event.event" :tab="availableEvents.find(e => e.value === event.event)?.name">
+		<n-tab-pane
+			v-for="(event) of formValue.events" :key="event.event" :name="event.event"
+			:tab="availableEvents.find(e => e.value === event.event)?.name"
+		>
 			<template #tab>
 				<div style="display: flex; justify-content: space-between; width: 100%; gap: 12px;">
 					<span>

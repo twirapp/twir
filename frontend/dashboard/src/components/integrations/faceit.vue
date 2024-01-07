@@ -1,19 +1,18 @@
-<script setup lang='ts'>
-import { NFormItem, NSelect } from 'naive-ui';
+<script setup lang="ts">
+import { NFormItem, NSelect, useThemeVars } from 'naive-ui';
 import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
 
 import { useFaceitIntegration } from '@/api/index.js';
 import IconFaceit from '@/assets/icons/integrations/faceit.svg?component';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
+
+const themeVars = useThemeVars();
 
 const manager = useFaceitIntegration();
 const { data } = manager.useData();
 const logout = manager.useLogout();
 const { data: authLink } = manager.useAuthLink();
 const updater = manager.update!();
-
-const { t } = useI18n();
 
 const game = ref('');
 
@@ -29,10 +28,17 @@ async function save() {
 		:logout="() => logout.mutateAsync({})"
 		:authLink="authLink?.link"
 		:icon="IconFaceit"
-		:description="t('integrations.faceit.info')"
 		:withSettings="true"
 		:save="save"
 	>
+		<template #description>
+			<i18n-t
+				keypath="integrations.faceit.info"
+			>
+				<b class="variable">$(faceit.elo)</b>
+				<b class="variable">$(faceit.lvl)</b>
+			</i18n-t>
+		</template>
 		<template #settings>
 			<NFormItem label="Game">
 				<n-select
@@ -48,3 +54,10 @@ async function save() {
 		</template>
 	</oauth-component>
 </template>
+
+
+<style scoped>
+.variable {
+	color: v-bind('themeVars.successColor');
+}
+</style>

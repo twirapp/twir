@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-
-import { type MessageChunk, EmoteFlag } from '../types.js';
+import { EmoteFlag, type MessageChunk } from '../types.js';
 
 const props = defineProps<{
 	chunks: MessageChunk[]
@@ -9,27 +7,17 @@ const props = defineProps<{
 	textShadowColor?: string
 	textShadowSize?: number
 	userColor: string
-	// messageAlign: MessageAlignType
 }>();
 
-const getEmoteWidth = (w?: number) => {
-	return `${w ? w * 2 : 50}px`;
+const getEmoteWidth = (isGrowX: boolean, width?: number) => {
+	if (isGrowX) {
+		return `${width ? width * 2 : 50}px`;
+	}
+
+	if (width) {
+		return `${width}px`;
+	}
 };
-
-const textShadow = computed(() => {
-	if (!props.textShadowColor || !props.textShadowSize) return '';
-
-	const array = Array.from({ length: 5 }).map((_, i) => {
-		const n = i + 1;
-		return `0px 0px ${props.textShadowSize! + n}px ${props.textShadowColor}`;
-	});
-
-	return array.join(', ');
-});
-
-// const wordBreak = computed(() => {
-// 	return props.messageAlign === 'baseline' ? 'break-all' : 'initial';
-// });
 
 const mappedChunks = props.chunks.reduce((acc, chunk) => {
 	if (chunk.type === 'text') {
@@ -71,7 +59,7 @@ const mappedChunks = props.chunks.reduce((acc, chunk) => {
 						'flipY': chunk.flags?.includes(EmoteFlag.FlipY),
 					}"
 					:style="{
-						width: chunk.flags?.includes(EmoteFlag.GrowX) ? getEmoteWidth(chunk.emoteWidth) : undefined,
+						width: getEmoteWidth(chunk.flags?.includes(EmoteFlag.GrowX) ?? false, chunk.emoteWidth),
 					}"
 				/>
 
@@ -90,7 +78,6 @@ const mappedChunks = props.chunks.reduce((acc, chunk) => {
 
 <style scoped>
 .text {
-	text-shadow: v-bind(textShadow);
 	vertical-align: baseline;
 }
 

@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { breakpointsTailwind, useBreakpoints, useEventListener } from '@vueuse/core';
-import { useThemeVars } from 'naive-ui';
+import { NScrollbar, useThemeVars } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
-import ButtonDiscord from './buttons/buttonDiscord.vue';
 import ButtonPublicPage from './buttons/buttonPublicPage.vue';
 import ButtonToggleTheme from './buttons/buttonToggleTheme.vue';
-import DashboardsMenu from './dashboardsMenu.vue';
+import SocialButtons from './buttons/socialButtons.vue';
 import Drawer from './drawer.vue';
 import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
 import DropdownProfile from './dropdowns/dropdownProfile.vue';
 import HamburgerMenu from './hamburgerMenu.vue';
-import Logo from '../../public/TwirInCircle.svg?component';
+import Stats from './stats.vue';
+import TwirLogo from '../../public/TwirInCircle.svg?component';
 
 defineProps<{
 	toggleSidebar: () => void;
@@ -24,13 +24,13 @@ const themeVars = useThemeVars();
 const blockColor = computed(() => themeVars.value.buttonColor2);
 
 const breakPoints = useBreakpoints(breakpointsTailwind);
-const smallerOrEqualMd = breakPoints.smallerOrEqual('md');
+const isDesktopWindow = breakPoints.greaterOrEqual('md');
 
 const isDrawerOpen = ref(false);
 const handleCloseDrawer = () => isDrawerOpen.value = false;
 const handleToggleDrawer = () => isDrawerOpen.value = !isDrawerOpen.value;
 
-watch(smallerOrEqualMd, (v) => {
+watch(isDesktopWindow, (v) => {
 	if (!v && isDrawerOpen.value) {
 		handleCloseDrawer();
 	}
@@ -55,33 +55,44 @@ useEventListener('keydown', (ev) => {
 		<div class="content">
 			<div>
 				<a href="/" class="logo">
-					<Logo style="width: 36px; height: 36px; display: flex" />
+					<TwirLogo style="width: 36px; height: 36px; display: flex" />
 				</a>
-
-				<DashboardsMenu />
 			</div>
 
-			<div v-if="!smallerOrEqualMd" style="display: flex; gap: 12px;">
+			<div v-if="isDesktopWindow" style="flex-grow: 1; overflow-y: hidden; overflow-x: auto;">
+				<n-scrollbar x-scrollable style="border-radius: 10px;">
+					<div class="block scrollable-stats-block">
+						<Stats />
+					</div>
+				</n-scrollbar>
+			</div>
+
+			<div v-if="isDesktopWindow" style="display: flex; gap: 12px;">
 				<div class="block">
-					<button-public-page />
-					<button-discord />
+					<social-buttons />
 				</div>
 
 				<div class="block">
 					<dropdown-language />
 					<button-toggle-theme />
+					<button-public-page />
 					<dropdown-profile />
 				</div>
 			</div>
 
-			<template v-if="smallerOrEqualMd">
+			<template v-if="!isDesktopWindow">
 				<hamburger-menu :is-open="isDrawerOpen" @click="handleToggleDrawer" />
 				<drawer :show="isDrawerOpen">
+					<n-scrollbar x-scrollable style="border-radius: 10px;">
+						<div class="block scrollable-stats-block">
+							<Stats />
+						</div>
+					</n-scrollbar>
 					<div class="drawerSlot">
 						<div class="drawerSlotBlocks">
 							<div class="drawerBlock">
 								<button-public-page />
-								<button-discord />
+								<social-buttons />
 							</div>
 
 							<div class="drawerBlock">
@@ -125,6 +136,7 @@ useEventListener('keydown', (ev) => {
 	justify-content: space-between;
 	align-items: center;
 	height: 45px;
+	column-gap: 12px;
 }
 
 .block {
@@ -134,6 +146,14 @@ useEventListener('keydown', (ev) => {
 	padding: 16px;
 	border-radius: 10px;
 	align-items: center;
+}
+
+.scrollable-stats-block {
+	height: 45px;
+	width: 100%;
+	max-width: max-content;
+	min-width: 40%;
+	padding: unset;
 }
 
 .drawerBlock {

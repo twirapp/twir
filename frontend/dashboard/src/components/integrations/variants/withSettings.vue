@@ -11,7 +11,6 @@ const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
 	title: string
-	description?: string
 	icon?: FunctionalComponent
 	iconFill?: string
 	save?: () => void | Promise<void>
@@ -26,6 +25,7 @@ defineSlots<{
 	settings: FunctionalComponent,
 	customDescriptionSlot?: FunctionalComponent,
 	additionalFooter?: FunctionalComponent
+	description?: FunctionalComponent | string
 }>();
 
 const showSettings = ref(false);
@@ -53,7 +53,7 @@ onUnmounted(() => showSettings.value = false);
 	>
 		<template #content>
 			<slot name="customDescriptionSlot" />
-			<span v-if="description" class="description" v-html="description" />
+			<slot class="description" name="description" />
 		</template>
 
 		<template #footer>

@@ -1,24 +1,31 @@
 <script setup lang="ts">
-import {
-	ChatBox,
-} from '@twir/frontend-chat';
+import { ChatBox } from '@twir/frontend-chat';
 import type { Message } from '@twir/frontend-chat';
+import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useThirdPartyEmotes, type Opts as EmotesOpts } from '../../components/chat_tmi_emotes.js';
-import { useChatOverlaySocket } from '../../sockets/chat_overlay.js';
-import { type ChatSettings, useTmiChat, knownBots, ChatMessage } from '../../sockets/chat_tmi.ts';
+import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
+import {
+	type ChatMessage,
+	type ChatSettings,
+	useChatTmi,
+	knownBots,
+} from '@/composables/tmi/use-chat-tmi.js';
+import {
+	useThirdPartyEmotes,
+	type ThirdPartyEmotesOptions,
+} from '@/composables/tmi/use-third-party-emotes.js';
 
 const route = useRoute();
-const apiKey = route.params.apiKey as string;
 
 const messages = ref<Message[]>([]);
 const maxMessages = ref(30);
 
-const { settings } = useChatOverlaySocket(apiKey);
+const chatSocketStore = useChatOverlaySocket();
+const { settings } = storeToRefs(chatSocketStore);
 
-const emotesOpts = computed<EmotesOpts>(() => {
+const emotesOptions = computed<ThirdPartyEmotesOptions>(() => {
 	return {
 		channelName: settings.value.channelName,
 		channelId: settings.value.channelId,
@@ -28,7 +35,7 @@ const emotesOpts = computed<EmotesOpts>(() => {
 	};
 });
 
-useThirdPartyEmotes(emotesOpts);
+useThirdPartyEmotes(emotesOptions);
 
 const removeMessageByInternalId = (id: string) => {
 	messages.value = messages.value.filter(m => m.internalId !== id);
@@ -83,20 +90,28 @@ const chatSettings = computed<ChatSettings>(() => {
 		onMessage,
 		onRemoveMessage: removeMessageById,
 		onRemoveMessageByUser: removeMessageByUserName,
+		onChatClear: () => {
+			messages.value = [];
+		},
 	};
 });
 
-const { destroy } = useTmiChat(chatSettings);
+const chatTmiStore = useChatTmi(chatSettings);
 
 onMounted(() => {
 	document.body.style.overflow = 'hidden';
+
+	const apiKey = route.params.apiKey as string;
+	const overlayId = route.params.overlayId as string;
+	chatSocketStore.connect(apiKey, overlayId);
 });
 
 onUnmounted(async () => {
-	destroy();
+	chatSocketStore.destroy();
+	chatTmiStore.destroy();
 });
 </script>
 
 <template>
-	<ChatBox :messages="messages" :settings="settings" />
+	<chat-box :messages="messages" :settings="settings" />
 </template>

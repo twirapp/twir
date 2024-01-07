@@ -1,64 +1,55 @@
 <script setup lang="ts">
-import { IconReload } from '@tabler/icons-vue';
-import { FontSelector, type Font } from '@twir/fontsource';
 import {
 	ChatBox,
 	type Message,
 	type Settings as ChatBoxSettings,
 	BadgeVersion,
 } from '@twir/frontend-chat';
-import type {
-	Settings,
-} from '@twir/grpc/generated/api/api/overlays_chat';
 import { useIntervalFn } from '@vueuse/core';
 import {
-	useNotification,
-	NButton,
-	NSwitch,
-	NSlider,
-	NSelect,
+	NTabs,
+	NTabPane,
+	NAlert,
 	useThemeVars,
-	NDivider,
-	NColorPicker,
 	NText,
 } from 'naive-ui';
-import { computed, ref, watch, toRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { computed, ref, watch } from 'vue';
 
+import { useChatOverlayForm } from './components/form.js';
+import Form from './components/Form.vue';
 import { globalBadges } from './constants.js';
 import * as faker from './faker.js';
 
 import {
-	useChatOverlayManager,
-	useProfile,
-	useUserAccessFlagChecker,
+	useChatOverlayManager, useUserAccessFlagChecker,
 } from '@/api/index.js';
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
-
-const chatManager = useChatOverlayManager();
-
-const {
-	data: settings,
-	isLoading: isSettingsLoading,
-	isError: isSettingsError,
-} = chatManager.getSettings();
-
-const updater = chatManager.updateSettings();
 
 const themeVars = useThemeVars();
+const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const chatManager = useChatOverlayManager();
+const creator = chatManager.useCreate();
+const deleter = chatManager.useDelete();
+
+const {
+	data: entities,
+} = chatManager.useGetAll();
 
 const globalBadgesObject = Object.fromEntries(globalBadges);
 
 const messagesMock = ref<Message[]>([]);
 
 useIntervalFn(() => {
+	if (!formValue.value) return;
+
 	const internalId = crypto.randomUUID();
 
 	messagesMock.value.push({
 		sender: faker.firstName(),
 		chunks: [{
 			type: 'text',
-			value: faker.lorem(),
+			value: formValue.value.direction === 'left' || formValue.value.direction === 'right'
+				? faker.loremWithLen(3)
+				: faker.lorem(),
 		}],
 		createdAt: new Date(),
 		internalId,
@@ -85,49 +76,32 @@ useIntervalFn(() => {
 	}
 }, 1 * 1000);
 
-const defaultSettings: Settings = {
-	fontFamily: 'inter',
-	fontSize: 20,
-	fontWeight: 400,
-	fontStyle: 'normal',
-	hideBots: false,
-	hideCommands: false,
-	messageHideTimeout: 0,
-	messageShowDelay: 0,
-	preset: 'clean',
-	showBadges: true,
-	showAnnounceBadge: true,
-	textShadowColor: 'rgba(0,0,0,1)',
-	textShadowSize: 0,
-	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
-	direction: 'top',
-};
+const openedTab = ref<string>();
 
-const formValue = ref<Settings>(structuredClone(defaultSettings));
+const { data: formValue, $setData, $getDefaultSettings } = useChatOverlayForm();
 
-watch(settings, (v) => {
-	if (!v) return;
-	formValue.value = toRaw(v);
+function resetTab() {
+	if (!entities.value?.settings.at(0)) {
+		openedTab.value = undefined;
+		return;
+	}
+
+	openedTab.value = entities.value.settings.at(0)!.id;
+}
+
+watch(entities, () => {
+	resetTab();
 }, { immediate: true });
 
-const fontData = ref<Font | null>(null);
+watch(openedTab, (v) => {
+	const entity = entities.value?.settings.find(s => s.id === v);
+	if (!entity) return;
 
-const fontWeightOptions = computed(() => {
-	if (!fontData.value) return [];
-	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
+	$setData(entity);
 });
 
-const fontStyleOptions = computed(() => {
-	if (!fontData.value) return [];
-	return fontData.value.styles.map((style) => ({ label: style, value: style }));
-});
-
-
-const directionOptions = computed(() => {
-	return ['top', 'right', 'bottom', 'left'].map((direction) => ({
-		value: direction,
-		label: t(`overlays.chat.directions.${direction}`),
-	}));
+watch(openedTab, () => {
+	messagesMock.value = [];
 });
 
 const chatBoxSettings = computed<ChatBoxSettings>(() => {
@@ -141,185 +115,65 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 	};
 });
 
-const message = useNotification();
-const { t } = useI18n();
+async function handleClose(id: string) {
+	const entity = entities.value?.settings.find(s => s.id === id);
+	if (!entity?.id) return;
 
-async function save() {
-	if (!formValue.value) return;
-	await updater.mutateAsync(formValue.value);
-	message.success({
-		title: t('sharedTexts.saved'),
-		duration: 1500,
-	});
+	await deleter.mutateAsync(entity.id);
+	resetTab();
 }
 
-const sliderMarks = {
-	0: '0',
-	60: '60',
-};
+async function handleAdd() {
+	await creator.mutateAsync($getDefaultSettings());
+}
 
-const styleSelectOptions = [
-	{ label: 'Clean', value: 'clean' },
-	{ label: 'Boxed', value: 'boxed' },
-];
-
-const setDefaultSettings = () => {
-	formValue.value = structuredClone(defaultSettings);
-};
-
-const { copyOverlayLink } = useCopyOverlayLink('chat');
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const { data: profile } = useProfile();
-const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
+const addable = computed(() => {
+	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5;
 });
 </script>
 
 <template>
 	<div class="page">
-		<div class="card">
-			<div class="card-header">
-				<n-button
-					secondary
-					type="error"
-					@click="setDefaultSettings"
-				>
-					{{ t('sharedButtons.setDefaultSettings') }}
-				</n-button>
-				<n-button
-					secondary
-					type="info"
-					:disabled="isSettingsError || isSettingsLoading || !canCopyLink"
-					@click="copyOverlayLink"
-				>
-					{{ t('overlays.copyOverlayLink') }}
-				</n-button>
-				<n-button secondary type="success" @click="save">
-					{{ t('sharedButtons.save') }}
-				</n-button>
-			</div>
-
-			<div class="card-body">
-				<div class="card-body-column">
-					<div>
-						<span>{{ t('overlays.chat.style') }}</span>
-						<n-select v-model:value="formValue.preset" :options="styleSelectOptions" />
-					</div>
-
-					<div>
-						<span>{{ t('overlays.chat.direction') }}</span>
-						<n-select v-model:value="formValue.direction" :options="directionOptions" />
-						<n-text style="font-size: 12px; margin-top: 4px;">
-							{{ t('overlays.chat.directionWarning') }}
-						</n-text>
-					</div>
-
-					<div class="switch">
-						<span>{{ t('overlays.chat.hideBots') }}</span>
-						<n-switch v-model:value="formValue.hideBots" />
-					</div>
-
-					<div class="switch">
-						<span>{{ t('overlays.chat.hideCommands') }}</span>
-						<n-switch v-model:value="formValue.hideCommands" />
-					</div>
-
-					<div class="switch">
-						<span>{{ t('overlays.chat.showBadges') }}</span>
-						<n-switch v-model:value="formValue.showBadges" />
-					</div>
-
-					<div v-if="formValue.preset === 'boxed'" class="switch">
-						<span>{{ t('overlays.chat.showAnnounceBadge') }}</span>
-						<n-switch
-							v-model:value="formValue.showAnnounceBadge"
-							:disabled="!formValue.showBadges"
-						/>
-					</div>
-
-					<n-divider />
-					<div>
-						<span>{{ t('overlays.chat.fontFamily') }}</span>
-						<font-selector
-							v-model:selected-font="formValue.fontFamily"
-							:font-family="formValue.fontFamily"
-							:font-weight="formValue.fontWeight"
-							:font-style="formValue.fontStyle"
-							@update-font="(v) => fontData = v"
-						/>
-					</div>
-
-					<div>
-						<span>{{ t('overlays.chat.fontWeight') }}</span>
-						<n-select
-							v-model:value="formValue.fontWeight"
-							:options="fontWeightOptions"
-						/>
-					</div>
-
-					<div>
-						<span>{{ t('overlays.chat.fontStyle') }}</span>
-						<n-select
-							v-model:value="formValue.fontStyle"
-							:options="fontStyleOptions"
-						/>
-					</div>
-
-					<div class="slider">
-						<span>{{ t('overlays.chat.fontSize') }} ({{ formValue.fontSize }}px)</span>
-						<n-slider
-							v-model:value="formValue.fontSize" :min="12" :max="80"
-							:marks="{ 12: '12', 80: '80'}"
-						/>
-					</div>
-
-					<div class="slider">
-						<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-							<span>{{ t('overlays.chat.backgroundColor') }}</span>
-							<n-button
-								size="tiny" secondary type="success"
-								@click="formValue.chatBackgroundColor = defaultSettings.chatBackgroundColor"
-							>
-								<IconReload style="height: 15px;" />
-								{{ t('overlays.chat.resetToDefault') }}
-							</n-button>
-						</div>
-						<n-color-picker
-							v-model:value="formValue.chatBackgroundColor"
-							default-value="rgba(16, 16, 20, 1)"
-						/>
-					</div>
-
-
-					<div class="slider">
-						<span>{{ t('overlays.chat.textShadow') }}({{ formValue.textShadowSize }}px)</span>
-						<n-color-picker
-							v-model:value="formValue.textShadowColor"
-							default-value="rgba(0,0,0,1)"
-						/>
-						<n-slider v-model:value="formValue.textShadowSize" :min="0" :max="30" />
-					</div>
-
-					<n-divider />
-
-					<div class="slider">
-						<span>{{ t('overlays.chat.hideTimeout') }}({{ formValue.messageHideTimeout }}s)</span>
-						<n-slider v-model:value="formValue.messageHideTimeout" :max="60" :marks="sliderMarks" />
-					</div>
-
-					<div class="slider">
-						<span>{{ t('overlays.chat.showDelay') }}({{ formValue.messageShowDelay }}s)</span>
-						<n-slider v-model:value="formValue.messageShowDelay" :max="60" :marks="sliderMarks" />
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="chatBox">
+		<div class="chatBox" style="width: 70%">
 			<ChatBox
+				v-if="openedTab"
 				class="chatBox"
 				:messages="messagesMock"
 				:settings="chatBoxSettings"
 			/>
+			<div v-else style="display: flex; justify-content: center; align-items: center; height: 100%;">
+				<n-text style="font-size: 1rem;">
+					Preview of chat will be here when you select some preset
+				</n-text>
+			</div>
+		</div>
+		<div style="width: 30%">
+			<n-tabs
+				v-model:value="openedTab"
+				type="card"
+				:closable="userCanEditOverlays"
+				:addable="addable"
+				tab-style="min-width: 80px;"
+				@close="handleClose"
+				@add="handleAdd"
+			>
+				<template #prefix>
+					Presets
+				</template>
+				<template v-if="entities?.settings.length">
+					<n-tab-pane
+						v-for="(entity, entityIndex) in entities?.settings"
+						:key="entity.id"
+						:tab="`#${entityIndex+1}`"
+						:name="entity.id!"
+					>
+						<Form />
+					</n-tab-pane>
+				</template>
+			</n-tabs>
+			<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
+				Create new overlay for edit settings
+			</n-alert>
 		</div>
 	</div>
 </template>
@@ -327,20 +181,13 @@ const canCopyLink = computed(() => {
 <style scoped>
 @import '../styles.css';
 
-.card-body-column {
-	width: 100%;
-}
-
-.card {
-	background-color: v-bind('themeVars.cardColor');
-}
-
-.switch {
-	display: flex;
-	justify-content: space-between;
-}
-
 :deep(.chat) {
+	height: 80dvh;
+}
+
+.chatBox {
+	background-color: v-bind('themeVars.cardColor');
+	border-radius: 11px;
 	height: 80dvh;
 }
 </style>

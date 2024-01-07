@@ -13,8 +13,15 @@ export const useCopyOverlayLink = (overlayPath: string) => {
 		return `${window.location.origin}/overlays/${profile.value?.apiKey}/${overlayPath}`;
 	});
 
-	const copyOverlayLink = () => {
-		navigator.clipboard.writeText(overlayLink.value);
+	const copyOverlayLink = (query?: Record<string, string>) => {
+		const url = new URL(overlayLink.value);
+		if (query) {
+			for (const [key, value] of Object.entries(query)) {
+				url.searchParams.set(key, value);
+			}
+		}
+
+		navigator.clipboard.writeText(url.toString());
 		messages.success({
 			title: t('overlays.copied'),
 			duration: 5000,
