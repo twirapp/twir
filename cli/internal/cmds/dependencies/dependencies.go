@@ -3,6 +3,7 @@ package dependencies
 import (
 	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
+	"golang.org/x/sync/errgroup"
 )
 
 var Cmd = &cli.Command{
@@ -22,7 +23,6 @@ var Cmd = &cli.Command{
 		},
 	},
 	Action: func(c *cli.Context) error {
-		return installProtoc()
 		skipNode := c.Bool("skip-node")
 		skipGo := c.Bool("skip-go")
 
@@ -44,12 +44,19 @@ var Cmd = &cli.Command{
 			nodeSpinner.Success("Nodejs deps installed")
 		}
 
-		binariesSpinner, _ := pterm.DefaultSpinner.Start("Install golang binaries...")
-		if err := installGoBinaries(); err != nil {
+		var errwg errgroup.Group
+
+		binariesSpinner, _ := pterm.DefaultSpinner.Start("Install binaries...")
+
+		errwg.Go(installGoBinaries)
+		errwg.Go(installProtoc)
+
+		if err := errwg.Wait(); err != nil {
 			binariesSpinner.Fail(err)
 			return err
 		}
-		binariesSpinner.Success("Golang binaries installed")
+
+		binariesSpinner.Success("Binaries installed")
 
 		return nil
 	},

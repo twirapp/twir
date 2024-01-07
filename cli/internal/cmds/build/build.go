@@ -1,10 +1,7 @@
 package build
 
 import (
-	"fmt"
-	"math"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/pterm/pterm"
@@ -13,8 +10,9 @@ import (
 )
 
 var Cmd = &cli.Command{
-	Name:  "build",
-	Usage: "build application",
+	Name:    "build",
+	Usage:   "build application",
+	Aliases: []string{"b"},
 	Action: func(c *cli.Context) error {
 		return build("turbo run build --filter=!./apps/dota")
 	},
@@ -28,26 +26,6 @@ var LibsCmd = &cli.Command{
 	Action: func(context *cli.Context) error {
 		return build("turbo run build --filter='./libs/*'")
 	},
-}
-
-func rgb(i int) (int, int, int) {
-	var f = 0.275
-
-	return int(math.Sin(f*float64(i)+4*math.Pi/3)*127 + 128),
-		// int(math.Sin(f*float64(i)+2*math.Pi/3)*127 + 128),
-		int(45),
-		int(math.Sin(f*float64(i)+0)*127 + 128)
-}
-
-func rainbow(text string) string {
-	var rainbowStr []string
-	for index, value := range text {
-		r, g, b := rgb(index)
-		str := fmt.Sprintf("\033[1m\033[38;2;%d;%d;%dm%c\033[0m\033[0;1m", r, g, b, value)
-		rainbowStr = append(rainbowStr, str)
-	}
-
-	return strings.Join(rainbowStr, "")
 }
 
 func build(cmd string) error {
@@ -65,6 +43,7 @@ func build(cmd string) error {
 		shell.ExecCommandOpts{
 			Command: cmd,
 			Pwd:     wd,
+			Stderr:  os.Stderr,
 		},
 	)
 	if err != nil {
