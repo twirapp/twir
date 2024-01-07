@@ -8,6 +8,6 @@
   },
   "dependencies": {
     "@twir/config": "workspace:*",
-    "redis": "^4.5.1"
+    "redis": "^4.6.12"
   }
 }

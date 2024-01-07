@@ -7,20 +7,20 @@
 		"start": "node --enable-source-maps dist/index.js"
 	},
 	"devDependencies": {
-		"@types/steam-user": "4.26.0",
-		"@types/steamid": "2.0.1"
+		"@types/steam-user": "4.26.8",
+		"@types/steamid": "2.0.3"
 	},
 	"dependencies": {
 		"@twir/config": "workspace:*",
 		"@twir/grpc": "workspace:*",
-		"@types/lodash": "^4.14.191",
-		"ioredis": "5.2.4",
+		"@types/lodash": "^4.14.202",
+		"ioredis": "5.3.2",
 		"lodash": "4.17.21",
-		"nice-grpc": "2.0.1",
-		"protobufjs": "7.1.2",
-		"reflect-metadata": "0.1.13",
-		"steam-user": "4.26.0",
+		"nice-grpc": "2.1.7",
+		"protobufjs": "7.2.5",
+		"reflect-metadata": "0.2.1",
+		"steam-user": "5.0.4",
 		"steamid": "2.0.0",
-		"tslib": "2.4.1"
+		"tslib": "2.6.2"
 	}
 }
