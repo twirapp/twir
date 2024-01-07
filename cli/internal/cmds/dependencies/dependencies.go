@@ -77,6 +77,10 @@ var Cmd = &cli.Command{
 			func() error {
 				var binariesWg errgroup.Group
 
+				if err := binaries.CreateDir(); err != nil {
+					return err
+				}
+
 				binariesWg.Go(binaries.InstallGoBinaries)
 				binariesWg.Go(binaries.InstallProtoc)
 

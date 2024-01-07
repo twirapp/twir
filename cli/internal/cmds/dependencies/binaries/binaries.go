@@ -22,3 +22,16 @@ func isBinaryInstalled(binaryName string) bool {
 
 	return true
 }
+
+func CreateDir() error {
+	wd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	if err := os.Mkdir(filepath.Join(wd, ".bin"), 0755); err != nil {
+		return err
+	}
+
+	return nil
+}
