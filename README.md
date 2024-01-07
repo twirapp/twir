@@ -5,10 +5,6 @@
 * [Node.js (20+)](https://nodejs.org/en)
 * [Pnpm](https://pnpm.io/)
 * [Go (1.21+)](https://go.dev/)
-* [Protobuf-compiler](https://grpc.io/docs/protoc-installation/)
-
-> [!WARNING]
-> Installation of protobuf depends on your system, google it.
 
 * [Docker](https://docs.docker.com/engine/)
 
@@ -72,7 +68,7 @@ pnpm cli migrations run
 * Create new file and describe the go schema
 * Do not forget about `TableName()` for struct
 
-## Http on localhost (optional)
+## Https on localhost (optional)
 
 We'll use `dev.twir.app` domain, but you can use any other domain.
 
