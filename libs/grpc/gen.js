@@ -76,8 +76,8 @@ console.dir({
 
 				const goBuildString = [
 					protocPath,
-					`--plugin=go=${protocGenGoPath}`,
-					`--plugin=go-grpc=${protocGenGoGrpcPath}`,
+					`--plugin="go=${protocGenGoPath}"`,
+					`--plugin="go-grpc=${protocGenGoGrpcPath}"`,
 					`--go_out=${workDir}/generated/${name}`,
 					`--go_opt=paths=source_relative`,
 					`--go-grpc_out=${workDir}/generated/${name}`,
@@ -89,7 +89,7 @@ console.dir({
 
 				const nodeBuildString = [
 					protocPath,
-					`--plugin=protoc-gen-ts_proto=${protocGenTsPath}`,
+					`--plugin="protoc-gen-ts_proto=${protocGenTsPath}"`,
 					`--ts_proto_out=${workDir}/generated/${name}`,
 					'--ts_proto_opt=outputServices=nice-grpc',
 					'--ts_proto_opt=outputServices=generic-definitions',
@@ -113,7 +113,7 @@ console.dir({
 
 	await promisedExec([
 		protocPath,
-		`--plugin=ts=${protocGenTwirpPath}`,
+		`--plugin="ts=${protocGenTwirpPath}"`,
 		`--ts_out=${workDir}/generated/api`,
 		`--ts_opt=optimize_code_size`,
 		`--ts_opt=generate_dependencies,eslint_disable`,
@@ -125,8 +125,8 @@ console.dir({
 
 	await promisedExec([
 		protocPath,
-		`--plugin=twirp=${protocGenTwirpPath}`,
-		`--plugin=go=${protocGenGoPath}`,
+		`--plugin="twirp=${protocGenTwirpPath}"`,
+		`--plugin="go=${protocGenGoPath}"`,
 		`--go_opt=paths=source_relative`,
 		`--twirp_opt=paths=source_relative`,
 		`--go_out=${workDir}/generated/api`,
@@ -145,7 +145,7 @@ console.dir({
 
 		await promisedExec([
 			protocPath,
-			`--plugin=go=${protocGenGoPath}`,
+			`--plugin="go=${protocGenGoPath}"`,
 			`--go_opt=paths=source_relative`,
 			`--go_out=${directoryPath}`,
 			`--experimental_allow_proto3_optional`,
