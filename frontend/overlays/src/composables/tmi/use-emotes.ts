@@ -11,7 +11,7 @@ import type {
 	SevenTvChannelResponse,
 	SevenTvEmote,
 	SevenTvGlobalResponse,
-} from '@/types.ts';
+} from '@/types.js';
 
 type Emote = {
 	urls: string[];

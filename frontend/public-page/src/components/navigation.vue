@@ -21,20 +21,20 @@ const routes = [
 </script>
 
 <template>
-	<div class="flex flex-wrap items-center h-full">
+	<div class="flex flex-wrap content-end items-center h-full">
 		<button
-			v-for="r of routes"
-			:key="r.name"
+			v-for="route of routes"
+			:key="route.name"
 			class="p-2 rounded text-slate-200 m-1 shadow-lg"
 			:class="{
-				'bg-neutral-600': router.currentRoute.value.name === r.name,
-				'bg-neutral-700': router.currentRoute.value.name !== r.name
+				'bg-neutral-600': router.currentRoute.value.name === route.name,
+				'bg-neutral-700': router.currentRoute.value.name !== route.name
 			}"
 			@click="() => {
-				router.push({ name: r.name })
+				router.push({ name: route.name })
 			}"
 		>
-			{{ r.name }}
+			{{ route.name }}
 		</button>
 	</div>
 </template>

@@ -9,5 +9,4 @@ func main() {
 	fx.New(
 		app.App,
 	).Run()
-
 }

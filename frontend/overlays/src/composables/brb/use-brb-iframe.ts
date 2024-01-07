@@ -1,16 +1,19 @@
-import type { OnStart, OnStop, SetSettings } from '@/types.js';
+import { useBrbSettings } from './use-brb-settings';
 
-type Opts = {
-	onSettings: SetSettings,
-	onStart: OnStart,
-	onStop: OnStop,
+import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js';
+
+type Options = {
+	onStart: BrbOnStartFn,
+	onStop: BrbOnStopFn,
 }
 
-export const useBrbIframe = (options: Opts) => {
+export const useBrbIframe = (options: Options) => {
+	const { setSettings } = useBrbSettings();
+
 	const onWindowMessage = (msg: MessageEvent<string>) => {
 		const parsedData = JSON.parse(msg.data);
 		if (parsedData.key === 'settings') {
-			options.onSettings(parsedData.data);
+			setSettings(parsedData.data);
 		}
 
 		if (parsedData.key === 'start') {
@@ -22,14 +25,14 @@ export const useBrbIframe = (options: Opts) => {
 		}
 	};
 
-	const create = () => {
+	function create(): void {
 		window.addEventListener('message', onWindowMessage);
 		window.parent.postMessage(JSON.stringify({ key: 'getSettings' }));
-	};
+	}
 
-	const destroy = () => {
+	function destroy(): void {
 		window.removeEventListener('message', onWindowMessage);
-	};
+	}
 
 	return {
 		create,

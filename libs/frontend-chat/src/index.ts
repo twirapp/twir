@@ -1,4 +1,4 @@
-import ChatBox from './chatBox.vue';
+import ChatBox from './components/chat-box.vue';
 
 export * from './types.js';
 

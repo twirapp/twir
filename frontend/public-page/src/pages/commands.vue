@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { IconVideo, IconSword, IconDiamond, IconUserDollar } from '@tabler/icons-vue';
 import type { Command } from '@twir/grpc/generated/api/api/commands_unprotected';
-import { FunctionalComponent, computed } from 'vue';
+import { type FunctionalComponent, computed } from 'vue';
 
-import { useCommands } from '@/api/index.js';
+import { useCommands } from '@/api/commands.js';
 
 const props = defineProps<{
 	channelId: string
@@ -45,7 +45,7 @@ const permissionsMapping: Record<string, FunctionalComponent> = {
 </script>
 
 <template>
-	<div class="overflow-hidden rounded-lg border-gray-200 shadow-lg">
+	<div class="overflow-auto overflow-y-hidden rounded-lg border-gray-200 shadow-lg">
 		<table class="w-full border-collapse text-left text-sm text-slate-200 relative">
 			<thead class="bg-neutral-700 text-slate-200">
 				<tr>

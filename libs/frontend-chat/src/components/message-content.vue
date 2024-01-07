@@ -7,22 +7,17 @@ const props = defineProps<{
 	textShadowColor?: string
 	textShadowSize?: number
 	userColor: string
-	// messageAlign: MessageAlignType
 }>();
 
-const getEmoteWidth = (isGrowX: boolean, w?: number) => {
+const getEmoteWidth = (isGrowX: boolean, width?: number) => {
 	if (isGrowX) {
-		return `${w ? w * 2 : 50}px`;
-	} else if (w) {
-		return `${w}px`;
-	} else {
-		return '50px';
+		return `${width ? width * 2 : 50}px`;
+	}
+
+	if (width) {
+		return `${width}px`;
 	}
 };
-
-// const wordBreak = computed(() => {
-// 	return props.messageAlign === 'baseline' ? 'break-all' : 'initial';
-// });
 
 const mappedChunks = props.chunks.reduce((acc, chunk) => {
 	if (chunk.type === 'text') {

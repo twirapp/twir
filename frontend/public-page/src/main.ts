@@ -1,45 +1,13 @@
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
 import { createApp } from 'vue';
-import { createRouter, createWebHistory } from 'vue-router';
+
+import MainApp from './app.vue';
+import { router } from './routes.js';
 
 import './style.css';
-import App from './App.vue';
 
-const router = createRouter({
-	history: createWebHistory(),
-	routes: [
-		{
-			path: '/p/:channelName',
-			component: () => import('./layout/Layout.vue'),
-			children: [
-				{
-					name: 'Commands',
-					path: '/p/:channelName',
-					alias: '/p/:channelName/commands',
-					component: () => import('./pages/Commands.vue'),
-				},
-				{
-					name: 'Song requests',
-					path: '/p/:channelName/songs-requests',
-					component: () => import('./pages/SongRequests.vue'),
-				},
-				{
-					name: 'TTS Settings',
-					path: '/p/:channelName/tts-settings',
-					component: () => import('./pages/TTSSettings.vue'),
-				},
-				{
-					name: 'Users',
-					path: '/p/:channelName/users',
-					component: () => import('./pages/Users.vue'),
-				},
-			],
-		},
-	],
-});
-
-const app = createApp(App)
-	.use(router);
+const app = createApp(MainApp);
+app.use(router);
 
 VueQueryPlugin.install(app, {
 	queryClient: new QueryClient({

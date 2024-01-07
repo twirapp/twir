@@ -3,7 +3,7 @@ import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
 } from '@twir/grpc/generated/api/api/community';
-import { ComputedRef, Ref, unref } from 'vue';
+import { type ComputedRef, type Ref, unref } from 'vue';
 
 import { unprotectedClient } from './twirp.js';
 
@@ -24,11 +24,11 @@ export type GetCommunityUsersOpts = {
 	channelId?: string
 }
 
-export const useCommunityUsers = (opts: Ref<GetCommunityUsersOpts> | ComputedRef<GetCommunityUsersOpts>) => {
+export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | ComputedRef<GetCommunityUsersOpts>) => {
 	return useQuery({
-		queryKey: ['communityUsers', opts],
+		queryKey: ['communityUsers', options],
 		queryFn: async () => {
-			const rawOpts = unref(opts);
+			const rawOpts = unref(options);
 			if (!rawOpts.channelId) return;
 			console.log(rawOpts);
 

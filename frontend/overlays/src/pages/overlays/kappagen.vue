@@ -12,12 +12,12 @@ import {
 import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js';
-import { useChatTmi, type ChatSettings } from '@/composables/tmi/use-chat-tmi.ts';
+import { useChatTmi, type ChatSettings } from '@/composables/tmi/use-chat-tmi.js';
 import {
 	useThirdPartyEmotes,
 	type ThirdPartyEmotesOptions,
-} from '@/composables/tmi/use-third-party-emotes.ts';
-import type { KappagenCallback, SetSettingsCallback, SpawnCallback } from '@/types.js';
+} from '@/composables/tmi/use-third-party-emotes.js';
+import type { KappagenSpawnAnimatedEmotesFn, KappagenSpawnEmotesFn } from '@/types.js';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
 const route = useRoute();
@@ -106,17 +106,13 @@ watch(() => settings.value, (settings) => {
 	}
 });
 
-const kappagenCallback: KappagenCallback = (emotes, animation) => {
+const kappagenCallback: KappagenSpawnAnimatedEmotesFn = (emotes, animation) => {
 	kappagen.value?.kappagen.run(emotes, animation);
 };
 
-const spawnCallback: SpawnCallback = (emotes) => {
+const spawnCallback: KappagenSpawnEmotesFn = (emotes) => {
 	kappagen.value?.emote.addEmotes(emotes);
 	kappagen.value?.emote.showEmotes();
-};
-
-const setSettingsCallback: SetSettingsCallback = (settings) => {
-	kappagenSettingsStore.setSettings(settings);
 };
 
 const emojiStyle = computed(() => settings.value?.emotes?.emojiStyle);
@@ -124,14 +120,12 @@ const emotesBuilder = useKappagenEmotesBuilder(emojiStyle);
 
 const socket = useKappagenOverlaySocket({
 	kappagenCallback,
-	setSettingsCallback,
 	spawnCallback,
 	emotesBuilder,
 });
 
 const iframe = useKappagenIframe({
 	kappagenCallback,
-	setSettingsCallback,
 	spawnCallback,
 	clearCallback: () => {
 		kappagen.value?.clear();

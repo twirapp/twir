@@ -5,17 +5,17 @@ import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.ts';
+import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
 import {
+	type ChatMessage,
 	type ChatSettings,
 	useChatTmi,
 	knownBots,
-	ChatMessage,
-} from '@/composables/tmi/use-chat-tmi.ts';
+} from '@/composables/tmi/use-chat-tmi.js';
 import {
 	useThirdPartyEmotes,
 	type ThirdPartyEmotesOptions,
-} from '@/composables/tmi/use-third-party-emotes.ts';
+} from '@/composables/tmi/use-third-party-emotes.js';
 
 const route = useRoute();
 

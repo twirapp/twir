@@ -2,19 +2,24 @@ import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_ba
 import { useWebSocket } from '@vueuse/core';
 import { watch } from 'vue';
 
-import { TwirWebSocketEvent } from '@/api.js';
-import { SetSettings } from '@/types.js';
+import { useBrbSettings } from './use-brb-settings.js';
+
+import type { TwirWebSocketEvent } from '@/api.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 
 type Options = {
-	brbUrl: string,
-	onSettings: SetSettings,
-	onStart: (minutes: number, text?: string) => void,
+	apiKey: string,
+	onStart: (minutes: number, text: string) => void,
 	onStop: () => void,
 }
 
-export const useBeRightBackOverlaySocket = (optins: Options) => {
+export const useBeRightBackOverlaySocket = (options: Options) => {
+	const brbUrl = generateSocketUrlWithParams('/overlays/brb', {
+		apiKey: options.apiKey,
+	});
+
 	const { data, send, open, close } = useWebSocket(
-		optins.brbUrl,
+		brbUrl,
 		{
 			immediate: false,
 			autoReconnect: {
@@ -26,27 +31,29 @@ export const useBeRightBackOverlaySocket = (optins: Options) => {
 		},
 	);
 
+	const { setSettings } = useBrbSettings();
+
 	watch(data, (v) => {
 		const parsedData = JSON.parse(v) as TwirWebSocketEvent;
 
 		if (parsedData.eventName === 'settings') {
-			optins.onSettings(parsedData.data as Settings);
+			setSettings(parsedData.data as Settings);
 		}
 
 		if (parsedData.eventName === 'start') {
-			optins.onStart(parsedData.data.minutes, parsedData.data.text);
+			options.onStart(parsedData.data.minutes, parsedData.data.text ?? '');
 		}
 
 		if (parsedData.eventName === 'stop') {
-			optins.onStop();
+			options.onStop();
 		}
 	});
 
-	function create() {
+	function create(): void {
 		open();
 	}
 
-	function destroy() {
+	function destroy(): void {
 		close();
 	}
 
