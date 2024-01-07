@@ -18,7 +18,7 @@ jobs:
     - uses: actions/setup-go@v4
       with:
         go-version-file: 'go.work'
-
+        cache-dependency-path: "**/*.sum"
 
     - name: Get pnpm store directory
       shell: bash
@@ -37,6 +37,9 @@ jobs:
       run: |
         pnpm cli deps --skip-node --skip-go
         pnpm install
+        ls -la .
+        echo #####
+        ls -la .bin
 
     - name: Build
       run: pnpm turbo run build --filter='./libs/*'
