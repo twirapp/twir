@@ -4,9 +4,8 @@ import { readFile, unlink, readdir, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'util';
 
-const promisedExec = promisify(exec);
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -44,15 +43,28 @@ const protocGenTsPath = resolve(
 	'.bin',
 	`protoc-gen-ts_proto${binSuffixCmd}`,
 );
-console.dir({
-	workDir,
-	cwd,
-	protocPath,
-	protocGenGoPath,
-	protocGenGoGrpcPath,
-	protocGenTwirpPath,
-	protocGenTsPath,
-});
+
+const pathName = platform() === 'win32' ? 'Path' : 'PATH';
+
+const execOptions = {
+	env: {
+		...process.env,
+		[pathName]: `${process.env[pathName]}:${cwd}/.bin`,
+	},
+};
+
+const promisedExec = async (cmd) => {
+	return new Promise((resolve, reject) => {
+		exec(cmd, execOptions, (err, stdout, stderr) => {
+			if (err) {
+				console.error(stderr);
+				reject(err);
+			} else {
+				resolve(stdout);
+			}
+		});
+	});
+};
 
 (async () => {
 	const files = await readdir(`${workDir}/protos`);
@@ -122,7 +134,6 @@ console.dir({
 		`api.proto`,
 	].join(' '));
 
-
 	await promisedExec([
 		protocPath,
 		`--plugin="twirp=${protocGenTwirpPath}"`,
@@ -166,26 +177,4 @@ console.dir({
 	}
 
 	console.info(`✅ Generated api proto definitions for go and ts.`);
-
 })();
-
-// function hasDockerEnv() {
-//   try {
-//     statSync('/.dockerenv');
-//     return true;
-//   } catch {
-//     return false;
-//   }
-// }
-
-// function hasDockerCGroup() {
-//   try {
-//     return readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
-//   } catch {
-//     return false;
-//   }
-// }
-
-// export default function isDocker() {
-//   return hasDockerEnv() || hasDockerCGroup();
-// }
