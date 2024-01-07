@@ -64,7 +64,7 @@ COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
-COPY tools/go.mod tools/go.mod
+COPY cli/go.mod cli/go.mod
 
 RUN pnpm install --frozen-lockfile && \
     go mod download
