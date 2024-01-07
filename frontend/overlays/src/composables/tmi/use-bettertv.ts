@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 
-import { useEmotes } from './use-emotes.ts';
+import { useEmotes } from './use-emotes.js';
 
-import { BttvChannelResponse, BttvGlobalResponse } from '@/types.ts';
+import type { BttvChannelResponse, BttvGlobalResponse } from '@/types.js';
 
 export const useBetterTv = defineStore('bettertv', () => {
 	const { setBttvEmotes } = useEmotes();

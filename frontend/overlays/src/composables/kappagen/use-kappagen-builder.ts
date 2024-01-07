@@ -2,10 +2,10 @@ import type { MessageChunk } from '@twir/frontend-chat';
 import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
 import type { Emote } from 'kappagen';
 import { storeToRefs } from 'pinia';
-import { Ref, computed } from 'vue';
+import { type Ref, computed } from 'vue';
 
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
-import { useEmotes } from '@/composables/tmi/use-emotes.ts';
+import { useEmotes } from '@/composables/tmi/use-emotes.js';
 
 const getEmojiStyleName = (style: EmojiStyle) => {
 	switch (style) {

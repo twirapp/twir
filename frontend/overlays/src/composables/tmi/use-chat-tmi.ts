@@ -1,8 +1,9 @@
-import { Message } from '@twir/frontend-chat';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import type { Message } from '@twir/frontend-chat';
 import { Client } from 'tmi.js';
-import { Ref, unref, watch } from 'vue';
+import { type Ref, unref, watch } from 'vue';
 
-import { useMessageHelpers } from './use-message-helpers.ts';
+import { useMessageHelpers } from './use-message-helpers.js';
 
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
 	Partial<Pick<Type, Key>>;

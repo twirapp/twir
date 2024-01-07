@@ -1,26 +1,20 @@
 <script setup lang="ts">
 import { useFontSource } from '@twir/fontsource';
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
 import { useIntervalFn } from '@vueuse/core';
+import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
+import { useBrbSettings } from '@/composables/brb/use-brb-settings';
 import { getTimeDiffInMilliseconds, millisecondsToTime } from '@/helpers.js';
-import type { OnStart, OnStop } from '@/types.js';
+import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js';
 
-
-const props = defineProps<{
-	settings: Settings
-}>();
+const brbSettingsStore = useBrbSettings();
+const { settings } = storeToRefs(brbSettingsStore);
 
 const minutes = ref(0);
-const text = ref<string>();
+const text = ref<string | null>(null);
 const countDownTicks = ref(0);
 const countUpTicks = ref(0);
-
-export type Ticker = {
-	start: OnStart,
-	stop: OnStop,
-}
 
 const countDownInterval = useIntervalFn(() => {
 	countDownTicks.value--;
@@ -29,20 +23,16 @@ const countDownInterval = useIntervalFn(() => {
 		countDownInterval.pause();
 	}
 
-	if (!countDownTicks.value && props.settings.late?.enabled) {
+	if (!countDownTicks.value && settings.value?.late?.enabled) {
 		countUpInterval.resume();
 	}
-}, 1000, {
-	immediate: false,
-});
+}, 1000, { immediate: false });
 
 const countUpInterval = useIntervalFn(() => {
 	countUpTicks.value++;
-}, 1000, {
-	immediate: false,
-});
+}, 1000, { immediate: false });
 
-const start: OnStart = (incomingMinutes, incomingText) => {
+const start: BrbOnStartFn = (incomingMinutes, incomingText) => {
 	stop();
 	const ticks = parseInt((getTimeDiffInMilliseconds(incomingMinutes) / 1000).toString());
 
@@ -53,17 +43,22 @@ const start: OnStart = (incomingMinutes, incomingText) => {
 	countDownInterval.resume();
 };
 
-const stop: OnStop = () => {
+const stop: BrbOnStopFn = () => {
 	countDownTicks.value = 0;
 	countUpTicks.value = 0;
 	minutes.value = 0;
-	text.value = undefined;
+	text.value = null;
 
 	countDownInterval.pause();
 	countUpInterval.pause();
 };
 
-defineExpose({
+export type BrbTimerMethods = {
+	start: BrbOnStartFn,
+	stop: BrbOnStopFn,
+}
+
+defineExpose<BrbTimerMethods>({
 	start,
 	stop,
 });
@@ -72,35 +67,48 @@ const showCountDown = computed(() => {
 	const isActive = countDownInterval.isActive.value;
 
 	if (isActive) return true;
-	if (countUpInterval.isActive.value && !props.settings.late?.displayBrbTime) return false;
+	if (countUpInterval.isActive.value && !settings.value?.late?.displayBrbTime) return false;
 
 	return true;
 });
 
-const fontSource = useFontSource();
-watch(() => props.settings.fontFamily, () => {
-	fontSource.loadFont(props.settings.fontFamily, 400, 'normal');
+const fontSource = useFontSource(false);
+watch(() => settings.value?.fontFamily, (font) => {
+	if (!font) return;
+	fontSource.loadFont(font, 400, 'normal');
 }, { immediate: true });
 
 const fontFamily = computed(() => {
-	return `"${props.settings.fontFamily}-400-normal"`;
+	return `"${settings.value?.fontFamily}-400-normal"`;
+});
+
+const backgroundColor = computed(() => {
+	return settings.value?.backgroundColor || 'rgba(9, 8, 8, 0.50)';
+});
+
+const fontColor = computed(() => {
+	return settings.value?.fontColor || '#fff';
+});
+
+const countUpFontSize = computed(() => {
+	if (!settings.value?.fontSize) return '16px';
+	return `${settings.value.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px`;
+});
+
+const countDownFontSize = computed(() => {
+	return `${settings.value?.fontSize || 16}px`;
 });
 </script>
 
 <template>
-	<Transition name="overlay" appear>
+	<Transition v-if="settings" name="overlay" appear>
 		<div
 			v-if="countDownInterval.isActive.value || countUpInterval.isActive.value"
 			class="overlay"
-			:style="{
-				backgroundColor: settings.backgroundColor || 'rgba(9, 8, 8, 0.50)',
-				color: settings.fontColor || '#fff',
-			}"
 		>
 			<div
 				v-if="showCountDown"
 				class="count-up"
-				:style="{ fontSize: `${settings.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px` }"
 			>
 				{{ text || settings.text }}
 				{{
@@ -110,16 +118,14 @@ const fontFamily = computed(() => {
 				}}
 			</div>
 			<div
-				v-if="countUpInterval.isActive.value && props.settings.late?.enabled"
+				v-if="countUpInterval.isActive.value && settings.late?.enabled"
 				class="count-down"
-				:style="{ fontSize: `${settings.fontSize}px`}"
 			>
 				{{ settings.late?.text }} {{ millisecondsToTime(countUpTicks * 1000) }}
 			</div>
 		</div>
 	</Transition>
 </template>
-
 
 <style scoped>
 .overlay {
@@ -132,6 +138,16 @@ const fontFamily = computed(() => {
 	text-align: center;
 	flex-direction: column;
 	font-family: v-bind(fontFamily);
+	background-color: v-bind(backgroundColor);
+	color: v-bind(fontColor);
+}
+
+.count-up {
+	font-size: v-bind(countUpFontSize);
+}
+
+.count-down {
+	font-size: v-bind(countDownFontSize);
 }
 
 .overlay-enter-active,
