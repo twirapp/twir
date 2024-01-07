@@ -72,7 +72,7 @@ func (c *GoApps) Start(ctx context.Context) error {
 	return nil
 }
 
-func (c *GoApps) Stop(ctx context.Context) {
+func (c *GoApps) Stop() {
 	for _, app := range c.apps {
 		app.watcher.Stop()
 		app.stop()
