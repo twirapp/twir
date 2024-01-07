@@ -3,13 +3,14 @@ import { ref, onMounted } from 'vue';
 import { loadFontList, loadFont as loadFontById, generateFontKey } from '../api.js';
 import type { Font, FontItem } from '../types.js';
 
-export function useFontSource() {
+export function useFontSource(preloadFonts = true) {
 	const loading = ref(true);
 	const fontList = ref<FontItem[]>([]);
 	const fonts = ref<Font[]>([]);
 
 	onMounted(async () => {
 		try {
+			if (!preloadFonts) return;
 			fontList.value = await loadFontList();
 		} catch (err) {
 			console.error(err);

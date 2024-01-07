@@ -8,29 +8,26 @@ import { type Buidler } from './use-kappagen-builder.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
-import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.ts';
+import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js';
 import { generateSocketUrlWithParams } from '@/helpers.js';
 import type {
-	KappagenCallback,
-	SpawnCallback,
-	SetSettingsCallback,
+	KappagenSpawnAnimatedEmotesFn,
+	KappagenSpawnEmotesFn,
 	KappagenSettings,
 } from '@/types.js';
 
-type Opts = {
-	kappagenCallback: KappagenCallback
-	spawnCallback: SpawnCallback
-	setSettingsCallback: SetSettingsCallback
+type Options = {
+	kappagenCallback: KappagenSpawnAnimatedEmotesFn
+	spawnCallback: KappagenSpawnEmotesFn
 	emotesBuilder: Buidler
 }
 
-export const useKappagenOverlaySocket = (opts: Opts) => {
-	const kappagenUrl = ref('');
-
+export const useKappagenOverlaySocket = (options: Options) => {
 	const { makeMessageChunks } = useMessageHelpers();
 	const kappagenSettingsStore = useKappagenSettings();
 	const { settings } = storeToRefs(kappagenSettingsStore);
 
+	const kappagenUrl = ref('');
 	const { data, send, open, close } = useWebSocket(
 		kappagenUrl,
 		{
@@ -55,18 +52,18 @@ export const useKappagenOverlaySocket = (opts: Opts) => {
 
 		if (event.eventName === 'settings') {
 			const data = event.data as KappagenSettings;
-			opts.setSettingsCallback(data);
+			kappagenSettingsStore.setSettings(data);
 		}
 
 		if (event.eventName === 'event') {
 			if (!settings.value) return;
 
-			const generatedEmotes = opts.emotesBuilder.buildKappagenEmotes([]);
+			const generatedEmotes = options.emotesBuilder.buildKappagenEmotes([]);
 
 			const animation = randomAnimation();
 			if (!animation) return;
 
-			opts.kappagenCallback(generatedEmotes, animation as KappagenAnimations);
+			options.kappagenCallback(generatedEmotes, animation as KappagenAnimations);
 		}
 
 		if (event.eventName === 'kappagen') {
@@ -81,12 +78,12 @@ export const useKappagenOverlaySocket = (opts: Opts) => {
 					return acc;
 				}, {} as Record<string, string[]>),
 			);
-			const emotesForKappagen = opts.emotesBuilder.buildKappagenEmotes(chunks);
+			const emotesForKappagen = options.emotesBuilder.buildKappagenEmotes(chunks);
 
 			const animation = randomAnimation();
 			if (!animation) return;
 
-			opts.kappagenCallback(emotesForKappagen, animation as KappagenAnimations);
+			options.kappagenCallback(emotesForKappagen, animation as KappagenAnimations);
 		}
 	});
 

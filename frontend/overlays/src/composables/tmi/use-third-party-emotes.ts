@@ -1,9 +1,9 @@
 import { useIntervalFn } from '@vueuse/core';
 import { watch, type Ref, onUnmounted } from 'vue';
 
-import { useBetterTv } from './use-bettertv.ts';
-import { useFrankerFaceZ } from './use-ffz.ts';
-import { useSevenTv } from './use-seven-tv.ts';
+import { useBetterTv } from './use-bettertv.js';
+import { useFrankerFaceZ } from './use-ffz.js';
+import { useSevenTv } from './use-seven-tv.js';
 
 export type ThirdPartyEmotesOptions = {
 	channelName?: string;
@@ -14,7 +14,7 @@ export type ThirdPartyEmotesOptions = {
 };
 
 export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
-	const { fetchSevenTvEmotes, openSevenTvConnection, destroySevenTvConnection } = useSevenTv();
+	const { fetchSevenTvEmotes, connect: connectSevenTv, destroy: destroySevenTv } = useSevenTv();
 	const { fetchBttvEmotes } = useBetterTv();
 	const { fetchFrankerFaceZEmotes } = useFrankerFaceZ();
 
@@ -35,7 +35,7 @@ export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 		if (!options.channelId) return;
 
 		if (options.sevenTv) {
-			openSevenTvConnection(options.channelId);
+			connectSevenTv(options.channelId);
 			await fetchSevenTvEmotes();
 		}
 
@@ -57,6 +57,6 @@ export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 	onUnmounted(() => {
 		bttvPause();
 		ffzPause();
-		destroySevenTvConnection();
+		destroySevenTv();
 	});
 }

@@ -16,7 +16,6 @@ export async function loadFont(
 	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId}`);
 	const font = await response.json() as Font;
 
-
 	for (const subset of font.subsets) {
 		// @ts-ignore
 		const fontSource = `url(${font.variants[fontWeight][fontStyle][subset].url.woff2})`;

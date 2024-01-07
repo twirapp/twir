@@ -72,15 +72,14 @@ export type FfzGlobalResponse = {
 // emotes end
 
 // brb start
-export type SetSettings = (settings: BrbOverlaySettings) => void;
-export type OnStart = (minutes: number, incomingText?: string) => void;
-export type OnStop = () => void;
+export type BrbSetSettingsFn = (settings: BrbOverlaySettings) => void;
+export type BrbOnStartFn = (minutes: number, text: string) => void;
+export type BrbOnStopFn = () => void;
 // brb end
 
 // kappagen start
 export type KappagenSettings = KappagenOverlaySettings & { channelName: string, channelId: string };
-
-export type KappagenCallback = (emotes: Emote[], animation: KappagenAnimations) => void;
-export type SpawnCallback = (emotes: Emote[]) => void;
-export type SetSettingsCallback = (settings: KappagenSettings) => void;
+export type KappagenSpawnAnimatedEmotesFn = (emotes: Emote[], animation: KappagenAnimations) => void;
+export type KappagenSpawnEmotesFn = (emotes: Emote[]) => void;
+export type KappagenSetSettingsFn = (settings: KappagenSettings) => void;
 // kappagen end
