@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/twirapp/twir/cli/internal/cmds"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev"
@@ -44,6 +45,7 @@ func main() {
 			generate.Cmd,
 			build.Cmd,
 			dev.CreateDevCommand(),
+			cmds.Test,
 		},
 	}
 

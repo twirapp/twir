@@ -10,14 +10,24 @@
 > [!WARNING]
 > Installation of protobuf depends on your system, google it.
 
-- [Docker](https://docs.docker.com/engine/)
+* [Docker](https://docs.docker.com/engine/)
 
-- Run needed services (Postgres, Adminer, Redis, Minio)
+* Run needed services (Postgres, Adminer, Redis, Minio)
 ```bash
 docker compose -f docker-compose.dev.yml up -d
 ```
 
-### Next steps
+* Install dependencies
+```bash
+pnpm cli deps
+```
+
+* Build libs
+```
+pnpm cli build libs
+```
+
+### Configure project for development
 
 Well, now we are almost ready for developing project, just few steps.
 
@@ -27,13 +37,13 @@ Well, now we are almost ready for developing project, just few steps.
   ALL SCOPES
 * `cp .env.example .env` and fill required envs
 
-#### Now you are ready to run the project:
+### Run project
 
+* Start dev mode
 ```bash
 pnpm cli dev
 ```
-
-And when everything starts open https://localhost:3005
+* Visit https://localhost:3005
 
 ## Writing migrations
 

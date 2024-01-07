@@ -26,37 +26,64 @@ var Cmd = &cli.Command{
 		skipNode := c.Bool("skip-node")
 		skipGo := c.Bool("skip-go")
 
+		multiPrinter := pterm.DefaultMultiPrinter
+		goSpinner, _ := pterm.DefaultSpinner.
+			WithWriter(multiPrinter.NewWriter()).
+			Start("Install golang deps...")
+		nodeSpinner, _ := pterm.DefaultSpinner.
+			WithWriter(multiPrinter.NewWriter()).
+			Start("Install node deps...")
+		binariesSpinner, _ := pterm.DefaultSpinner.
+			WithWriter(multiPrinter.NewWriter()).
+			Start("Install binaries...")
+
+		if _, err := multiPrinter.Start(); err != nil {
+			return err
+		}
+
+		var wg errgroup.Group
 		if !skipGo {
-			goSpinner, _ := pterm.DefaultSpinner.Start("Install golang deps...")
-			if err := installGolangDeps(); err != nil {
-				goSpinner.Fail(err)
-				return err
-			}
-			goSpinner.Success("Golang deps installed")
+			wg.Go(
+				func() error {
+					if err := installGolangDeps(); err != nil {
+						goSpinner.Fail(err)
+						return err
+					}
+					goSpinner.Success("Golang deps installed")
+					return nil
+				},
+			)
+		} else {
+			go goSpinner.Warning("Golang deps skipped")
 		}
 
 		if !skipNode {
-			nodeSpinner, _ := pterm.DefaultSpinner.Start("Install node deps...")
-			if err := installNodeDeps(); err != nil {
-				nodeSpinner.Fail(err)
-				return err
-			}
-			nodeSpinner.Success("Nodejs deps installed")
+			wg.Go(
+				func() error {
+					if err := installNodeDeps(); err != nil {
+						nodeSpinner.Fail(err)
+						return err
+					}
+					nodeSpinner.Success("Nodejs deps installed")
+					return nil
+				},
+			)
+		} else {
+			go nodeSpinner.Warning("Nodejs deps skipped")
 		}
 
-		var errwg errgroup.Group
+		wg.Go(installGoBinaries)
+		wg.Go(installProtoc)
 
-		binariesSpinner, _ := pterm.DefaultSpinner.Start("Install binaries...")
-
-		errwg.Go(installGoBinaries)
-		errwg.Go(installProtoc)
-
-		if err := errwg.Wait(); err != nil {
-			binariesSpinner.Fail(err)
+		if err := wg.Wait(); err != nil {
 			return err
 		}
 
 		binariesSpinner.Success("Binaries installed")
+
+		if _, err := multiPrinter.Stop(); err != nil {
+			return err
+		}
 
 		return nil
 	},
