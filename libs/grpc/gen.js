@@ -44,6 +44,15 @@ const protocGenTsPath = resolve(
 	'.bin',
 	`protoc-gen-ts_proto${binSuffixCmd}`,
 );
+console.dir({
+	workDir,
+	cwd,
+	protocPath,
+	protocGenGoPath,
+	protocGenGoGrpcPath,
+	protocGenTwirpPath,
+	protocGenTsPath,
+});
 
 (async () => {
 	const files = await readdir(`${workDir}/protos`);
