@@ -1,4 +1,4 @@
-package dependencies
+package binaries
 
 import (
 	"archive/zip"
@@ -15,7 +15,7 @@ import (
 const version = "v25.1"
 const protocUrl = "https://github.com/protocolbuffers/protobuf/releases/download"
 
-func installProtoc() error {
+func InstallProtoc() error {
 	var arch string
 	var platform string
 
@@ -36,6 +36,15 @@ func installProtoc() error {
 		platform = "linux"
 	case "windows":
 		platform = "win64"
+	}
+
+	binaryName := "protoc"
+	if runtime.GOOS == "windows" {
+		binaryName += ".exe"
+	}
+	
+	if isBinaryInstalled(binaryName) {
+		return nil
 	}
 
 	resp, err := http.Get(

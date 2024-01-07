@@ -64,12 +64,7 @@ func (c *twirApp) start() error {
 	}
 
 	c.cmd = newCmd
-
-	if err := c.cmd.Start(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.cmd.Start()
 }
 
 func (c *twirApp) getTempPath() string {

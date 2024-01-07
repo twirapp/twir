@@ -2,6 +2,7 @@ package dependencies
 
 import (
 	"github.com/pterm/pterm"
+	"github.com/twirapp/twir/cli/internal/cmds/dependencies/binaries"
 	"github.com/urfave/cli/v2"
 	"golang.org/x/sync/errgroup"
 )
@@ -72,14 +73,26 @@ var Cmd = &cli.Command{
 			go nodeSpinner.Warning("Nodejs deps skipped")
 		}
 
-		wg.Go(installGoBinaries)
-		wg.Go(installProtoc)
+		wg.Go(
+			func() error {
+				var binariesWg errgroup.Group
+
+				binariesWg.Go(binaries.InstallGoBinaries)
+				binariesWg.Go(binaries.InstallProtoc)
+
+				if err := binariesWg.Wait(); err != nil {
+					binariesSpinner.Fail(err)
+					return err
+				}
+
+				binariesSpinner.Success("Binaries installed")
+				return nil
+			},
+		)
 
 		if err := wg.Wait(); err != nil {
 			return err
 		}
-
-		binariesSpinner.Success("Binaries installed")
 
 		if _, err := multiPrinter.Stop(); err != nil {
 			return err

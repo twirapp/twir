@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/frontendapps"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/goapps"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/urfave/cli/v2"
@@ -66,7 +67,18 @@ func CreateDevCommand() *cli.Command {
 			}
 			defer golangApps.Stop(c.Context)
 
+			frontendApps, err := frontendapps.New()
+			if err != nil {
+				return err
+			}
+			defer golangApps.Stop(c.Context)
+
 			if err := golangApps.Start(c.Context); err != nil {
+				pterm.Error.Println(err)
+				return err
+			}
+
+			if err := frontendApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
 			}

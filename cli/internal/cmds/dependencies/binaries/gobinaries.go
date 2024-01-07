@@ -1,9 +1,10 @@
-package dependencies
+package binaries
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/twirapp/twir/cli/internal/shell"
 )
@@ -15,13 +16,20 @@ var binaries = []string{
 	"github.com/caddyserver/caddy/v2/cmd/caddy@v2.7.6",
 }
 
-func installGoBinaries() error {
+func InstallGoBinaries() error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
 	for _, bin := range binaries {
+		splittedBinaryName := strings.Split(bin, "/")
+		binaryName := strings.Split(splittedBinaryName[len(splittedBinaryName)-1], "@")[0]
+
+		if isBinaryInstalled(binaryName) {
+			continue
+		}
+
 		cmd, err := shell.CreateCommand(
 			shell.ExecCommandOpts{
 				Command: "go install " + bin,
