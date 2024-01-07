@@ -25,7 +25,6 @@ import (
 
 func main() {
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			tlds.New,

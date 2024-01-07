@@ -5,9 +5,9 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/emotes-cacher/internal/grpc_impl"
-	"github.com/satont/twir/libs/config"
+	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/sentry"
+	twirsentry "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,7 +17,6 @@ func main() {
 	const service = "emotes-cacher"
 
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
