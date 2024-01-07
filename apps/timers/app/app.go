@@ -23,7 +23,6 @@ import (
 
 var App = fx.Module(
 	"timers",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),

@@ -25,7 +25,6 @@ import (
 
 var App = fx.Module(
 	"bots",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		tlds.New,

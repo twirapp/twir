@@ -23,7 +23,6 @@ import (
 
 var App = fx.Module(
 	"events",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "events"}),

@@ -17,7 +17,6 @@ const service = "emotes-cacher"
 
 var App = fx.Module(
 	service,
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),

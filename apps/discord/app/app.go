@@ -17,7 +17,6 @@ import (
 
 var App = fx.Module(
 	"discord",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		gorm.New,

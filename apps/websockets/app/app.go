@@ -29,7 +29,6 @@ const service = "Websockets"
 
 var App = fx.Module(
 	"websockets",
-	fx.NopLogger,
 	fx.Provide(
 		config.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),

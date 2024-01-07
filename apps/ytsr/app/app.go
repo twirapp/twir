@@ -10,7 +10,6 @@ import (
 
 var App = fx.Module(
 	"ytsr",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "ytsr"}),

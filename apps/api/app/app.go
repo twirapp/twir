@@ -37,7 +37,6 @@ import (
 )
 
 var App = fx.Options(
-	fx.NopLogger,
 	fx.Provide(
 		func() cfg.Config {
 			config, err := cfg.New()

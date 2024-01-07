@@ -12,7 +12,6 @@ import (
 
 var App = fx.Module(
 	"tokens",
-	fx.NopLogger,
 	fx.Provide(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "tokens"}),
