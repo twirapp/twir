@@ -1,6 +1,7 @@
 package binaries
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -29,7 +30,7 @@ func CreateDir() error {
 		return err
 	}
 
-	if err := os.Mkdir(filepath.Join(wd, ".bin"), 0755); err != nil {
+	if err := os.Mkdir(filepath.Join(wd, ".bin"), 0755); err != nil && !errors.Is(err, os.ErrExist) {
 		return err
 	}
 
