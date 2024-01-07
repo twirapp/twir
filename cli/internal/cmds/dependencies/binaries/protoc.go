@@ -3,7 +3,6 @@ package binaries
 import (
 	"archive/zip"
 	"bytes"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -42,16 +41,26 @@ func InstallProtoc() error {
 		return nil
 	}
 
-	resp, err := http.Get(
-		fmt.Sprintf(
-			"%s/%s/protoc-%s-%s-%s.zip",
-			protocUrl,
-			protocVersion,
-			strings.Replace(protocVersion, "v", "", 1),
-			platform,
-			arch,
-		),
-	)
+	var url strings.Builder
+	url.WriteString(protocUrl)
+	url.WriteString("/")
+	url.WriteString(protocVersion)
+	url.WriteString("/")
+	url.WriteString("protoc-")
+	url.WriteString(strings.Replace(protocVersion, "v", "", 1))
+	url.WriteString("-")
+	url.WriteString(platform)
+
+	if platform != "win64" {
+		url.WriteString("-")
+		url.WriteString(arch)
+	}
+
+	url.WriteString(".zip")
+
+	// https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-win64-x86_64.zip
+
+	resp, err := http.Get(url.String())
 	if err != nil {
 		return err
 	}
