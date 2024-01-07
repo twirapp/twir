@@ -101,7 +101,7 @@ func (c GoBinary) Install() error {
 
 	cmd, err := shell.CreateCommand(
 		shell.ExecCommandOpts{
-			Command: "go Install " + c.Url,
+			Command: "go install " + c.Url,
 			Pwd:     wd,
 		},
 	)
