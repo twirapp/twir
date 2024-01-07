@@ -2,10 +2,13 @@ import { exec } from 'node:child_process';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { readFile, unlink, readdir, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'util';
 
 const promisedExec = promisify(exec);
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 rmSync('generated', { recursive: true, force: true });
 

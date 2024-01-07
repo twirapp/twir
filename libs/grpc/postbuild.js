@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const esmPath = path.join('./dist/esm', 'package.json');
 const cjsPath = path.join('./dist/cjs', 'package.json');
