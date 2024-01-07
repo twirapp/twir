@@ -29,5 +29,4 @@ use (
 	./libs/twitch-eventsub-framework
 	./libs/types
 	./libs/utils
-	./tools
 )

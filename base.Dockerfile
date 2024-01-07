@@ -3,17 +3,13 @@ FROM node:20-alpine as node_base
 ###
 
 FROM node_base as builder
-COPY --from=golang:1.21.4-alpine /usr/local/go/ /usr/local/go/
+COPY --from=golang:1.21.5-alpine /usr/local/go/ /usr/local/go/
 ENV PATH="$PATH:/usr/local/go/bin"
 ENV PATH="$PATH:/root/go/bin"
 
 WORKDIR /app
 
-RUN apk add --no-cache binutils file gcc g++ make libc-dev fortify-headers patch git curl wget upx protoc libc6-compat python3 py3-pip
-
-RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1 && \
-    go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0 && \
-    go install github.com/twitchtv/twirp/protoc-gen-twirp@latest && \
+RUN apk add --no-cache binutils file gcc g++ make libc-dev fortify-headers patch git curl wget upx protoc libc6-compat python3 py3-pip && \
     npm i -g pnpm@8 node-gyp
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh go.work go.work.sum ./
@@ -64,13 +60,11 @@ COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
-COPY cli/go.mod cli/go.mod
+COPY cli cli
 
-RUN pnpm install --frozen-lockfile && \
-    go mod download
+RUN pnpm cli deps
 
 RUN chmod +x docker-entrypoint.sh
-
 
 COPY . .
 
