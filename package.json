@@ -8,8 +8,8 @@
 	"scripts": {
 		"lint": "eslint --ext .ts,.vue apps/ libs/",
 		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"predev": "pnpm build:libs",
-		"cli": "go run ./cli/main.go"
+		"cli": "go run ./cli/main.go",
+		"dev": "pnpm cli dev"
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {
