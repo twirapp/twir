@@ -1,8 +1,8 @@
-const padTo2Digits = (num: number) => {
+function padTo2Digits(num: number): string {
 	return num.toString().padStart(2, '0');
-};
+}
 
-export const convertMillisToTime = (millis: number) => {
+export function convertMillisToTime(millis: number): string {
 	let seconds = Math.floor(millis / 1000);
 	let minutes = Math.floor(seconds / 60);
 	const hours = Math.floor(minutes / 60);
@@ -10,7 +10,5 @@ export const convertMillisToTime = (millis: number) => {
 	seconds = seconds % 60;
 	minutes = minutes % 60;
 
-	return `${hours ? `${padTo2Digits(hours)}:` : ''}${padTo2Digits(minutes)}:${padTo2Digits(
-		seconds,
-	)}`;
-};
+	return `${hours ? `${padTo2Digits(hours)}:` : ''}${padTo2Digits(minutes)}:${padTo2Digits(seconds)}`;
+}

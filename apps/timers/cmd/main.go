@@ -23,7 +23,6 @@ import (
 
 func main() {
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			cfg.NewFx,
 			sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),

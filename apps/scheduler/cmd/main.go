@@ -20,7 +20,6 @@ const service = "scheduler"
 
 func main() {
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),

@@ -31,7 +31,6 @@ func main() {
 	http.Handle("/metrics", promhttp.Handler())
 
 	fx.New(
-		fx.NopLogger,
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
