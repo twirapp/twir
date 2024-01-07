@@ -9,8 +9,6 @@ import (
 	"regexp"
 	"runtime"
 	"strings"
-
-	"github.com/twirapp/twir/cli/internal/shell"
 )
 
 type GoBinary struct {
@@ -99,16 +97,9 @@ func (c GoBinary) Install() error {
 		return err
 	}
 
-	cmd, err := shell.CreateCommand(
-		shell.ExecCommandOpts{
-			Command: "go install " + c.Url,
-			Pwd:     wd,
-		},
-	)
-	if err != nil {
-		return err
-	}
+	cmd := exec.Command("go", "install", c.Url)
 
+	cmd.Dir = wd
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "GOBIN="+filepath.Join(wd, ".bin"), "GOFLAGS=")
 
