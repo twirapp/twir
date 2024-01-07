@@ -2,9 +2,9 @@ import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
-import { useEmotes } from './use-emotes.ts';
+import { useEmotes } from './use-emotes.js';
 
-import { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '@/types.ts';
+import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '@/types.js';
 
 // opcodes https://github.com/SevenTV/EventAPI#opcodes
 const OPCODES = {
@@ -62,7 +62,7 @@ export const useSevenTv = defineStore('seven-tv', () => {
 	const emotesStore = useEmotes();
 	const { emotes } = storeToRefs(emotesStore);
 
-	const { data, open, send, close } = useWebSocket('wss://events.7tv.io/v3', {
+	const { data, status, open, send, close } = useWebSocket('wss://events.7tv.io/v3', {
 		immediate: false,
 		autoReconnect: {
 			delay: 500,
@@ -169,18 +169,19 @@ export const useSevenTv = defineStore('seven-tv', () => {
 		}
 	}
 
-	function openSevenTvConnection(_channelId: string): void {
+	function connect(_channelId: string): void {
+		if (status.value === 'OPEN') return;
 		channelId.value = _channelId;
 		open();
 	}
 
-	function destroySevenTvConnection(): void {
+	function destroy(): void {
 		close();
 	}
 
 	return {
-		openSevenTvConnection,
-		destroySevenTvConnection,
+		connect,
+		destroy,
 		fetchSevenTvEmotes,
 	};
 });

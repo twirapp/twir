@@ -1,23 +1,24 @@
-import type { KappagenAnimations } from 'kappagen';
-
+import { animations } from './kappagen-animations.js';
 import { twirEmote } from './use-kappagen-builder.js';
+import { useKappagenSettings } from './use-kappagen-settings.js';
 
-import type { KappagenCallback, SetSettingsCallback, SpawnCallback, KappagenSettings } from '@/types.js';
+import type { KappagenSpawnAnimatedEmotesFn, KappagenSpawnEmotesFn, KappagenSettings } from '@/types.js';
 
 type Options = {
-	kappagenCallback: KappagenCallback
-	spawnCallback: SpawnCallback
-	setSettingsCallback: SetSettingsCallback
+	kappagenCallback: KappagenSpawnAnimatedEmotesFn
+	spawnCallback: KappagenSpawnEmotesFn
 	clearCallback?: () => void;
 }
 
 export const useKappagenIframe = (options: Options) => {
+	const { setSettings } = useKappagenSettings();
+
 	const onWindowMessage = (msg: MessageEvent<string>) => {
 		const parsedData = JSON.parse(msg.data) as { key: string, data?: any };
 
 		if (parsedData.key === 'settings' && parsedData.data) {
 			const settings = parsedData.data as KappagenSettings;
-			options.setSettingsCallback(settings);
+			setSettings(settings);
 		}
 
 		if (parsedData.key === 'kappa') {
@@ -38,7 +39,6 @@ export const useKappagenIframe = (options: Options) => {
 	};
 
 	function create() {
-		window.postMessage('getSettings');
 		window.addEventListener('message', onWindowMessage);
 	}
 
@@ -51,58 +51,3 @@ export const useKappagenIframe = (options: Options) => {
 		destroy,
 	};
 };
-
-export const animations: KappagenAnimations[] = [
-	{
-		style: 'TheCube',
-		prefs: {
-			size: 0.2,
-			center: false,
-			faces: false,
-			speed: 6,
-		},
-	},
-	{
-		style: 'Text',
-		prefs: {
-			message: ['Twir'],
-			time: 3,
-		},
-	},
-	{
-		style: 'Confetti',
-		count: 150,
-	},
-	{
-		style: 'Spiral',
-		count: 150,
-	},
-	{
-		style: 'Stampede',
-		count: 150,
-	},
-	{
-		style: 'Burst',
-		count: 150,
-	},
-	{
-		style: 'Fountain',
-		count: 150,
-	},
-	{
-		style: 'SmallPyramid',
-	},
-	{
-		style: 'Pyramid',
-	},
-	{
-		style: 'Fireworks',
-		count: 150,
-	},
-	{
-		style: 'Conga',
-		prefs: {
-			avoidMiddle: false,
-		},
-	},
-];

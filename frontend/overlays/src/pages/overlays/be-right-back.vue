@@ -1,46 +1,32 @@
 <script setup lang="ts">
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
-import BrbTicker, { type Ticker } from '@/components/brb-ticker.vue';
+import BrbTimer, { type BrbTimerMethods } from '@/components/brb-timer.vue';
 import { useBrbIframe } from '@/composables/brb/use-brb-iframe.js';
 import { useBeRightBackOverlaySocket } from '@/composables/brb/use-brb-socket.js';
-import { generateSocketUrlWithParams } from '@/helpers';
-import type { SetSettings, OnStart, OnStop } from '@/types.js';
+import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js';
 
 const route = useRoute();
-const apiKey = route.params.apiKey as string;
+const brbTimerRef = ref<BrbTimerMethods | null>(null);
 
-const settings = ref<Settings>();
-
-const ticker = ref<Ticker | null>(null);
-
-const setSettings: SetSettings = (s) => {
-	settings.value = s;
+const onStart: BrbOnStartFn = (minutes, text) => {
+	brbTimerRef.value?.start(minutes, text);
 };
 
-const onStart: OnStart = (minutes, incomingText) => {
-	ticker.value?.start(minutes, incomingText);
-};
-
-const onStop: OnStop = () => {
-	ticker.value?.stop();
+const onStop: BrbOnStopFn = () => {
+	brbTimerRef.value?.stop();
 };
 
 const iframe = useBrbIframe({
-	onSettings: setSettings,
 	onStart,
 	onStop,
 });
 
-const brbUrl = generateSocketUrlWithParams('/overlays/brb', {
-	apiKey,
-});
+const apiKey = route.params.apiKey as string;
 
 const socket = useBeRightBackOverlaySocket({
-	brbUrl,
-	onSettings: setSettings,
+	apiKey,
 	onStart,
 	onStop,
 });
@@ -51,21 +37,17 @@ onMounted(() => {
 	} else {
 		socket.create();
 	}
+});
 
-	return () => {
-		iframe.destroy();
-		socket.destroy();
-	};
+onUnmounted(() => {
+	iframe.destroy();
+	socket.destroy();
 });
 </script>
 
 <template>
 	<div class="container">
-		<brb-ticker
-			v-if="settings"
-			ref="ticker"
-			:settings="settings"
-		/>
+		<brb-timer ref="brbTimerRef" />
 	</div>
 </template>
 

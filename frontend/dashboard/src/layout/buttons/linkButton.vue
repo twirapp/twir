@@ -25,6 +25,7 @@ const openLink = () => window.open(props.url, '_blank');
 <style scoped>
 :slotted(svg) {
   width: 20px;
-	fill: v-bind('iconColor');
+	color: v-bind('iconColor');
+	fill: currentColor;
 }
 </style>
