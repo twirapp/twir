@@ -60,7 +60,13 @@ COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
+
+# CLI PART
 COPY cli cli
+COPY libs/config libs/config
+COPY libs/crypto libs/crypto
+COPY libs/migrations libs/migrations
+# CLI PART END
 
 RUN pnpm cli deps
 
