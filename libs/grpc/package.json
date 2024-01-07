@@ -27,13 +27,13 @@
 		"@protobuf-ts/runtime": "2.9.3",
 		"@protobuf-ts/runtime-rpc": "2.9.3",
 		"@protobuf-ts/twirp-transport": "2.9.3",
-		"long": "5.2.1",
-		"nice-grpc": "2.0.1",
-		"nice-grpc-common": "2.0.0",
-		"protobufjs": "7.1.2",
-		"ts-proto": "1.135.0"
+		"long": "5.2.3",
+		"nice-grpc": "2.1.7",
+		"nice-grpc-common": "2.0.2",
+		"protobufjs": "7.2.5",
+		"ts-proto": "1.166.2"
 	},
 	"devDependencies": {
-		"@grpc/grpc-js": "^1.8.3"
+		"@grpc/grpc-js": "^1.9.13"
 	}
 }
