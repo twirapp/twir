@@ -112,7 +112,7 @@ const kappagenCallback: KappagenSpawnAnimatedEmotesFn = (emotes, animation) => {
 
 const spawnCallback: KappagenSpawnEmotesFn = (emotes) => {
 	kappagen.value?.emote.addEmotes(emotes);
-	kappagen.value?.emote.KappagenSetSettingsFn();
+	kappagen.value?.emote.showEmotes();
 };
 
 const emojiStyle = computed(() => settings.value?.emotes?.emojiStyle);
@@ -161,7 +161,7 @@ const chatSettings = computed<ChatSettings>(() => {
 			const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
 			if (!generatedEmotes.length) return;
 			kappagen.value?.emote.addEmotes(generatedEmotes);
-			kappagen.value?.emote.KappagenSetSettingsFn();
+			kappagen.value?.emote.showEmotes();
 		},
 	};
 });

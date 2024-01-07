@@ -1,18 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import {
-useProfile,
-  useTTSChannelSettings,
-  useTTSUsersSettings,
-  useTwitchGetUsers,
-} from '@/api/index.js';
+import { useProfile } from '@/api/profile.js';
+import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/tts-settings.js';
+import { useTwitchGetUsers } from '@/api/users.js';
 
 const props = defineProps<{
 	channelId: string
 	channelName: string
 }>();
-
 
 const { data: profile } = useProfile(props.channelName);
 const { data: channelSettings } = useTTSChannelSettings(props.channelId);
@@ -22,7 +18,9 @@ const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId)
 const { data: users } = useTwitchGetUsers(usersIds);
 
 const usersWithProfiles = computed(() => {
-  return users.value?.users.map(u => {
+	if (!users.value?.users) return [];
+
+  return users.value.users.map(u => {
     const settings = usersSettings.value?.settings.find(s => s.userId === u.id);
     if (!settings) return;
 
@@ -31,12 +29,12 @@ const usersWithProfiles = computed(() => {
       avatar: u.profileImageUrl,
       ...settings,
     };
-  }).filter(Boolean) ?? [];
+  }).filter(Boolean);
 });
 </script>
 
 <template>
-	<div class="overflow-hidden rounded-lg border-gray-200 shadow-lg">
+	<div class="overflow-auto overflow-y-hidden rounded-lg border-gray-200 shadow-lg">
 		<table class="w-full border-collapse text-left text-sm text-slate-200 relative">
 			<thead class="bg-neutral-700 text-slate-200">
 				<tr>
@@ -74,7 +72,6 @@ const usersWithProfiles = computed(() => {
 					</th>
 				</tr>
 
-
 				<tr
 					v-for="(user, index) of usersWithProfiles" :key="index"
 					class="hover:bg-neutral-600"
@@ -99,5 +96,3 @@ const usersWithProfiles = computed(() => {
 		</table>
 	</div>
 </template>
-
-<style scoped></style>

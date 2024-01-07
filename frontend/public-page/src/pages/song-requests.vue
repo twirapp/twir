@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { UseTimeAgo } from '@vueuse/components';
 
-import { useSongsQueue } from '@/api/index.js';
-import { convertMillisToTime } from '@/helpers/millisToTime.js';
+import { useSongsQueue } from '@/api/song-requests.js';
+import { convertMillisToTime } from '@/helpers.js';
 
 const props = defineProps<{
 	channelId: string
@@ -13,7 +13,7 @@ const { data: queue } = useSongsQueue(props.channelId);
 </script>
 
 <template>
-	<div class="overflow-hidden rounded-lg border-gray-200 shadow-lg">
+	<div class="overflow-auto overflow-y-hidden rounded-lg border-gray-200 shadow-lg">
 		<table class="w-full border-collapse text-left text-sm text-slate-200 relative">
 			<thead class="bg-neutral-700 text-slate-200">
 				<tr>
