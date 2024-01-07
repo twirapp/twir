@@ -2,11 +2,7 @@
   "name": "@twir/config",
   "type": "module",
   "private": true,
-  "main": "./dist/src/index.js",
-  "scripts": {
-    "prebuild": "rimraf dist",
-    "build": "tsc -b tsconfig.json"
-  },
+  "main": "./src/index.js",
   "dependencies": {
     "dotenv": "16.3.1",
     "envalid": "8.0.0"

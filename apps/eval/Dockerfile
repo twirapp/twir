@@ -1,6 +1,6 @@
 FROM twir-base:builder as builder
 WORKDIR /app
-RUN pnpm turbo run build --filter=@twir/eval
+RUN pnpm turbo run build --filter=@twir/grpc
 RUN pnpm prune --prod
 
 FROM twir-base:node_prod_base

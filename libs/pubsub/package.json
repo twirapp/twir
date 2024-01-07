@@ -1,11 +1,8 @@
 {
   "name": "@twir/pubsub",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "scripts": {
-    "build": "tsc"
-  },
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
   "dependencies": {
     "@twir/config": "workspace:*",
     "redis": "^4.6.12"

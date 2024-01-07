@@ -40,15 +40,23 @@ type Config struct {
 	TemporalHost string `required:"false" default:"localhost:7233" envconfig:"TEMPORAL_HOST"`
 }
 
-func New() (*Config, error) {
+func NewWithEnvPath(envPath string) (*Config, error) {
 	var newCfg Config
+	_ = godotenv.Load(envPath)
 
-	var err error
+	if err := envconfig.Process("", &newCfg); err != nil {
+		return nil, err
+	}
 
+	return &newCfg, nil
+}
+
+func New() (*Config, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
+
 	if strings.HasPrefix(wd, "/workspace") {
 		wd = "/workspace"
 	} else {
@@ -56,17 +64,21 @@ func New() (*Config, error) {
 	}
 
 	envPath := filepath.Join(wd, ".env")
-	_ = godotenv.Load(envPath)
 
-	if err = envconfig.Process("", &newCfg); err != nil {
-		return nil, err
-	}
-
-	return &newCfg, nil
+	return NewWithEnvPath(envPath)
 }
 
 func NewFx() Config {
 	config, err := New()
+	if err != nil {
+		panic(err)
+	}
+
+	return *config
+}
+
+func NewFxWithPath(path string) Config {
+	config, err := NewWithEnvPath(path)
 	if err != nil {
 		panic(err)
 	}

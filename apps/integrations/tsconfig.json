@@ -18,11 +18,12 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strictPropertyInitialization": false
-  },
-  "exclude": [
+    "strictPropertyInitialization": false,
+		"checkJs": true
+	},
+	"exclude": [
     "node_modules",
-    "dist",
+    "dist"
   ],
   "include": [
     "src"

@@ -125,6 +125,10 @@
     "examples",
     "node_modules"
   ],
+	"env": {
+		"browser": true,
+		"node": true
+	},
   "overrides": [
     {
       "files": ["*.config.js", "*.config.cjs"],
