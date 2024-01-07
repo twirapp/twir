@@ -4,9 +4,8 @@ import { readFile, unlink, readdir, writeFile } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { promisify } from 'util';
 
-const promisedExec = promisify(exec);
+
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -45,6 +44,28 @@ const protocGenTsPath = resolve(
 	`protoc-gen-ts_proto${binSuffixCmd}`,
 );
 
+const pathName = platform() === 'win32' ? 'Path' : 'PATH';
+
+const execOptions = {
+	env: {
+		...process.env,
+		[pathName]: `${process.env[pathName]}:${cwd}/.bin`,
+	},
+};
+
+const promisedExec = async (cmd) => {
+	return new Promise((resolve, reject) => {
+		exec(cmd, execOptions, (err, stdout, stderr) => {
+			if (err) {
+				console.error(stderr);
+				reject(err);
+			} else {
+				resolve(stdout);
+			}
+		});
+	});
+};
+
 (async () => {
 	const files = await readdir(`${workDir}/protos`);
 
@@ -67,8 +88,8 @@ const protocGenTsPath = resolve(
 
 				const goBuildString = [
 					protocPath,
-					`--plugin=go=${protocGenGoPath}`,
-					`--plugin=go-grpc=${protocGenGoGrpcPath}`,
+					`--plugin="go=${protocGenGoPath}"`,
+					`--plugin="go-grpc=${protocGenGoGrpcPath}"`,
 					`--go_out=${workDir}/generated/${name}`,
 					`--go_opt=paths=source_relative`,
 					`--go-grpc_out=${workDir}/generated/${name}`,
@@ -80,7 +101,7 @@ const protocGenTsPath = resolve(
 
 				const nodeBuildString = [
 					protocPath,
-					`--plugin=protoc-gen-ts_proto=${protocGenTsPath}`,
+					`--plugin="protoc-gen-ts_proto=${protocGenTsPath}"`,
 					`--ts_proto_out=${workDir}/generated/${name}`,
 					'--ts_proto_opt=outputServices=nice-grpc',
 					'--ts_proto_opt=outputServices=generic-definitions',
@@ -104,7 +125,7 @@ const protocGenTsPath = resolve(
 
 	await promisedExec([
 		protocPath,
-		`--plugin=ts=${protocGenTwirpPath}`,
+		`--plugin="ts=${protocGenTwirpPath}"`,
 		`--ts_out=${workDir}/generated/api`,
 		`--ts_opt=optimize_code_size`,
 		`--ts_opt=generate_dependencies,eslint_disable`,
@@ -113,11 +134,10 @@ const protocGenTsPath = resolve(
 		`api.proto`,
 	].join(' '));
 
-
 	await promisedExec([
 		protocPath,
-		`--plugin=twirp=${protocGenTwirpPath}`,
-		`--plugin=go=${protocGenGoPath}`,
+		`--plugin="twirp=${protocGenTwirpPath}"`,
+		`--plugin="go=${protocGenGoPath}"`,
 		`--go_opt=paths=source_relative`,
 		`--twirp_opt=paths=source_relative`,
 		`--go_out=${workDir}/generated/api`,
@@ -136,7 +156,7 @@ const protocGenTsPath = resolve(
 
 		await promisedExec([
 			protocPath,
-			`--plugin=go=${protocGenGoPath}`,
+			`--plugin="go=${protocGenGoPath}"`,
 			`--go_opt=paths=source_relative`,
 			`--go_out=${directoryPath}`,
 			`--experimental_allow_proto3_optional`,
@@ -157,26 +177,4 @@ const protocGenTsPath = resolve(
 	}
 
 	console.info(`✅ Generated api proto definitions for go and ts.`);
-
 })();
-
-// function hasDockerEnv() {
-//   try {
-//     statSync('/.dockerenv');
-//     return true;
-//   } catch {
-//     return false;
-//   }
-// }
-
-// function hasDockerCGroup() {
-//   try {
-//     return readFileSync('/proc/self/cgroup', 'utf8').includes('docker');
-//   } catch {
-//     return false;
-//   }
-// }
-
-// export default function isDocker() {
-//   return hasDockerEnv() || hasDockerCGroup();
-// }
