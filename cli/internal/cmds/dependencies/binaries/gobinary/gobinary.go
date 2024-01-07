@@ -93,8 +93,6 @@ func (c GoBinary) Install() error {
 		return err
 	}
 
-	fmt.Println("workingdir:", wd)
-
 	cmd := exec.Command("go", "install", c.Url)
 
 	cmd.Dir = wd

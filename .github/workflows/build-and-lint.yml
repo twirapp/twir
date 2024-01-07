@@ -37,6 +37,7 @@ jobs:
       run: |
         pnpm cli deps --skip-node --skip-go
         pnpm install
+        pwd
         ls -la .
         echo #####
         ls -la .bin
