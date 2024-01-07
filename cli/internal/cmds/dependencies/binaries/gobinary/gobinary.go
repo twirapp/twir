@@ -51,10 +51,6 @@ func (c GoBinary) GetGolangBinaryVersion(name string) (string, error) {
 		return "", err
 	}
 
-	if runtime.GOOS == "windows" {
-		name += ".exe"
-	}
-
 	path := filepath.Join(wd, ".bin", name)
 
 	cmd := exec.Command("go", "version", "-m", path)
