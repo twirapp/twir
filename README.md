@@ -52,12 +52,6 @@ pnpm cli migrations create
 cd libs/migrations/migrations
 ```
 
-	or
-
-	```bash
-	goose create new_migration_name go
-	```
-
 * Run new created migrations (optional, because it's running when you execute `pnpm dev`)
 ```bash
 pnpm cli migrations run
