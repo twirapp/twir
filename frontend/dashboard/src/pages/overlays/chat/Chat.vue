@@ -14,6 +14,7 @@ import {
 	NText,
 } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { useChatOverlayForm } from './components/form.js';
 import Form from './components/Form.vue';
@@ -23,12 +24,17 @@ import * as faker from './faker.js';
 import {
 	useChatOverlayManager, useUserAccessFlagChecker,
 } from '@/api/index.js';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+
 
 const themeVars = useThemeVars();
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const chatManager = useChatOverlayManager();
 const creator = chatManager.useCreate();
 const deleter = chatManager.useDelete();
+
+const { t } = useI18n();
+const { dialog } = useNaiveDiscrete();
 
 const {
 	data: entities,
@@ -116,11 +122,20 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 });
 
 async function handleClose(id: string) {
-	const entity = entities.value?.settings.find(s => s.id === id);
-	if (!entity?.id) return;
+	dialog.create({
+		title: 'Delete preset',
+		content: 'Are you sure you want to delete this preset?',
+		positiveText: 'Delete',
+		negativeText: 'Cancel',
+		showIcon: false,
+		onPositiveClick: async () => {
+			const entity = entities.value?.settings.find(s => s.id === id);
+			if (!entity?.id) return;
 
-	await deleter.mutateAsync(entity.id);
-	resetTab();
+			await deleter.mutateAsync(entity.id);
+			resetTab();
+		},
+	});
 }
 
 async function handleAdd() {
@@ -158,7 +173,7 @@ const addable = computed(() => {
 				@add="handleAdd"
 			>
 				<template #prefix>
-					Presets
+					{{ t('overlays.chat.presets') }}
 				</template>
 				<template v-if="entities?.settings.length">
 					<n-tab-pane

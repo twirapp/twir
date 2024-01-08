@@ -1,6 +1,6 @@
 import { config } from '@twir/config';
 import type { Profile } from '@twir/grpc/generated/api/api/auth';
-import { APIRoute } from 'astro';
+import type { APIRoute } from 'astro';
 import Redis from 'ioredis';
 
 const { REDIS_URL, DISCORD_FEEDBACK_URL } = config;
