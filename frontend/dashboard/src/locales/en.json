@@ -365,9 +365,9 @@
       "description": "This overlay allows you to play configured alerts from the “Alerts” section."
     },
     "chat": {
-			"fontWeight": "Font Weight",
-			"fontStyle": "Font Style",
-      "hideTimeout": "Message Hide Timeout",
+			"presets": "Presets",
+			"selectSubsetPlaceholder": "Select preferable subsets",
+			"hideTimeout": "Message Hide Timeout",
       "showDelay": "Message Show Delay",
       "showBadges": "Show Badges",
       "showAnnounceBadge": "Show Announcement Border",
@@ -384,7 +384,9 @@
 			"directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
       "fontFamily": "Font Family",
       "fontSize": "Font Size",
+			"fontStyle": "Font Style",
 			"fontWeight": "Font Weight",
+			"availabeFonts": "Available Fonts",
       "hideCommands": "Hide Commands",
       "hideBots": "Hide Other Bots Messages",
       "style": "Message Style",

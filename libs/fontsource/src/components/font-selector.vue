@@ -2,6 +2,7 @@
 import type { SelectOption } from 'naive-ui';
 import { NSelect } from 'naive-ui';
 import { computed, watch, h, ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import { generateFontKey } from '../api.js';
 import { useFontSource } from '../composable/use-fontsource.js';
@@ -17,6 +18,7 @@ const emits = defineEmits<{
 	'update-font': [font: Font]
 }>();
 
+const { t } = useI18n();
 const fontSource = useFontSource();
 
 const availableSubsets = ref<Set<string>>(new Set());
@@ -46,7 +48,7 @@ watch(() => props.fontFamily, (v) => {
 	selectedFont.value = v;
 });
 
-const options = computed((): SelectOption[] => {
+const fontOptions = computed((): SelectOption[] => {
 	return fontSource.fontList.value
 		.filter((font) => {
 			if (!filteredSubsets.value.length) return true;
@@ -56,6 +58,11 @@ const options = computed((): SelectOption[] => {
 			label: font.family,
 			value: font.id,
 		}));
+});
+
+const availableSubsetsOptions = computed(() => {
+	return [...availableSubsets.value.values()]
+		.map(subset => ({ label: subset, value: subset }));
 });
 
 function renderLabel(option: SelectOption) {
@@ -77,20 +84,20 @@ function renderLabel(option: SelectOption) {
 		v-model:value="selectedFont"
 		:render-label="renderLabel"
 		filterable
-		:options="options"
+		:options="fontOptions"
 		:loading="fontSource.loading.value"
 		:disabled="fontSource.loading.value"
 		check-strategy="child"
 	>
 		<template #action>
-			Languages ({{ options.length }} filtered fonts)
+			{{ t('overlays.chat.availabeFonts') }}: {{ fontOptions.length }}
 			<n-select
 				v-model:value="filteredSubsets"
 				clearable
 				multiple
 				size="tiny"
-				:options="[...availableSubsets.values()].map(s => ({ label: s, value: s}))"
-				placeholder="Select preferable subsets"
+				:options="availableSubsetsOptions"
+				:placeholder="t('overlays.chat.selectSubsetPlaceholder')"
 			/>
 		</template>
 	</n-select>

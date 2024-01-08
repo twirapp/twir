@@ -6,7 +6,8 @@
     ".": "./src/index.ts"
   },
   "dependencies": {
-    "naive-ui": "2.36.0",
-    "vue": "3.4.5"
+    "naive-ui": "2.37.0",
+    "vue": "3.4.5",
+    "vue-i18n": "9.9.0"
   }
 }
