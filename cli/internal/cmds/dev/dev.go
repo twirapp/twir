@@ -26,9 +26,20 @@ func CreateDevCommand() *cli.Command {
 	var cmd = &cli.Command{
 		Name:  "dev",
 		Usage: "start project in dev mode",
+		Flags: []cli.Flag{
+			&cli.BoolFlag{
+				Name:  "skip-deps",
+				Value: false,
+				Usage: "skip dependencies installation",
+			},
+		},
 		Action: func(c *cli.Context) error {
-			if err := dependencies.Cmd.Run(c); err != nil {
-				return err
+			skipDeps := c.Bool("skip-deps")
+
+			if !skipDeps {
+				if err := dependencies.Cmd.Run(c); err != nil {
+					return err
+				}
 			}
 
 			if err := build.LibsCmd.Run(c); err != nil {
