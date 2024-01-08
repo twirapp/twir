@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
-	"github.com/kr/pretty"
 	"github.com/olahol/melody"
 	"github.com/satont/twir/apps/websockets/types"
 )
@@ -17,7 +16,7 @@ func (c *Chat) handleMessage(session *melody.Session, msg []byte) {
 
 	var overlayId string
 	id, ok := session.Get("id")
-	pretty.Println(id, ok)
+
 	if id != nil || ok {
 		casted, castOk := id.(string)
 		if castOk {
