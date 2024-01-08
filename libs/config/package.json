@@ -2,7 +2,8 @@
   "name": "@twir/config",
   "type": "module",
   "private": true,
-  "main": "./src/index.js",
+  "module": "./src/index.js",
+	"types": "./src/types.d.ts",
   "dependencies": {
     "dotenv": "16.3.1",
     "envalid": "8.0.0"
