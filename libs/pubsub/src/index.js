@@ -3,7 +3,10 @@ import Redis from 'redis';
 /**
  *
  * @param url
- * @returns {Promise<{subscribe: *, publish: *}>}
+ * @returns {Promise<{
+ * subscribe: (topic: string, callback: (data: string) => void | Promise<void>) => void,
+ * publish: (topic: string, data: Record<any, any> | any[] | string) => void;
+ * }>}
  */
 export const createPubSub = async (url) => {
   const subscriber = Redis.createClient({
@@ -16,19 +19,9 @@ export const createPubSub = async (url) => {
   await publisher.connect();
 
   return {
-		/**
-		 *
-		 * @param {string} topic
-		 * @param {PublishData} data
-		 */
     publish: (topic, data) => {
       publisher.publish(topic, JSON.stringify(data));
     },
-		/**
-		 *
-		 * @param {string} topic
-		 * @param {SubscribeCallback} cb
-		 */
     subscribe: (topic, cb) => {
       subscriber.subscribe(topic, cb);
     },
