@@ -1,2 +1,6 @@
-type SubscribeCallback = (topic: string, callback: (data: string) => void | Promise<void>) => void;
-type PublishData = (topic: string, data: Record<any, any> | any[] | string) => void;
+declare module '@twir/pubsub' {
+	export const createPubSub: () => Promise<{
+		publish: (topic: string, data: Record<any, any> | any[] | string) => void;
+		subscribe: (topic: string, callback: (data: string) => void | Promise<void>) => void;
+	}>;
+}
