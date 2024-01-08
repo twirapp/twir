@@ -102,7 +102,7 @@ onMounted(() => {
 	document.body.style.overflow = 'hidden';
 
 	const apiKey = route.params.apiKey as string;
-	const overlayId = route.params.overlayId as string;
+	const overlayId = route.query.id as string;
 	chatSocketStore.connect(apiKey, overlayId);
 });
 
