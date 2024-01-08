@@ -1,13 +1,5 @@
 import Redis from 'redis';
 
-/**
- *
- * @param url
- * @returns {Promise<{
- * subscribe: (topic: string, callback: (data: string) => void | Promise<void>) => void,
- * publish: (topic: string, data: Record<any, any> | any[] | string) => void;
- * }>}
- */
 export const createPubSub = async (url) => {
   const subscriber = Redis.createClient({
     url,
