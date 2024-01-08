@@ -1,40 +1,26 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 
+import { routesNames } from '@/routes.js';
+
 const router = useRouter();
-
-const routes = [
-  {
-    name: 'Commands',
-  },
-  {
-    name: 'Song requests',
-  },
-  {
-    name: 'TTS Settings',
-  },
-	{
-    name: 'Users',
-  },
-];
-
 </script>
 
 <template>
-	<div class="flex flex-wrap content-end items-center h-full">
-		<button
-			v-for="route of routes"
-			:key="route.name"
-			class="p-2 rounded text-slate-200 m-1 shadow-lg"
-			:class="{
-				'bg-neutral-600': router.currentRoute.value.name === route.name,
-				'bg-neutral-700': router.currentRoute.value.name !== route.name
-			}"
-			@click="() => {
-				router.push({ name: route.name })
-			}"
-		>
-			{{ route.name }}
-		</button>
+	<div>
+		<div class="flex flex-wrap items-end h-full gap-3">
+			<button
+				v-for="routeName of Object.values(routesNames)"
+				:key="routeName"
+				class="p-2 rounded-md text-slate-200 shadow-lg"
+				:class="{
+					'bg-neutral-600': router.currentRoute.value.name === routeName,
+					'bg-neutral-700': router.currentRoute.value.name !== routeName
+				}"
+				@click="router.push({ name: routeName })"
+			>
+				{{ routeName }}
+			</button>
+		</div>
 	</div>
 </template>
