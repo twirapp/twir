@@ -29,7 +29,7 @@
 		"vue": "3.4.5"
 	},
 	"devDependencies": {
-		"@types/node": "20.10.6",
+		"@types/node": "20.10.7",
 		"astro-icon": "1.0.2",
 		"vite": "5.0.11",
 		"vite-svg-loader": "5.1.0"
