@@ -7,7 +7,10 @@ const { REDIS_URL, DISCORD_FEEDBACK_URL } = config;
 
 const redis = new Redis(REDIS_URL);
 
-const internalError = new Response(JSON.stringify({ error: 'internal error, contact developers in discord' }), { status: 500 });
+const internalError = new Response(
+	JSON.stringify({ error: 'Internal error, contact developers in Discord.' }),
+	{ status: 500 },
+);
 
 export type ReviewBody = {
 	author: string
@@ -15,36 +18,39 @@ export type ReviewBody = {
 	profile?: Profile
 }
 
-export const post: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request }) => {
 	if (!DISCORD_FEEDBACK_URL) {
-		console.error('No env setted');
+		console.log('No env setted');
 		return internalError;
 	}
 
 	const realIp = request.headers.get('x-real-ip');
 	if (!realIp) {
-		console.error('no real ip');
+		console.log('No real ip');
 		return internalError;
 	}
 
 	const realIpRedisKey = `landing:feedback-limit:${realIp}`;
 
 	if (await redis.exists(realIpRedisKey)) {
-		return new Response(JSON.stringify({ error: 'You already sent an review, please wait 15 minutes.' }), { status: 429 });
+		return new Response(
+			JSON.stringify({ error: 'You already sent an review, please wait 15 minutes.' }),
+			{ status: 429 },
+		);
 	}
 
 	const body: ReviewBody = await new Response(request.body).json();
 	if (!body.author || !body.message || body.message.length > 200 || body.author.length > 25) {
-		return new Response(JSON.stringify({ error: 'wrong body' }), { status: 400 });
+		return new Response(JSON.stringify({ error: 'Wrong body.' }), { status: 400 });
 	}
 
 	const embed: Record<string, any> = {
-		'type': 'rich',
-		'title': `New feedback`,
-		'description': body.message,
-		'color': 0x00FFFF,
-		'author': {
-			'name': body.profile?.login ?? body.author,
+		type: 'rich',
+		title: `New feedback`,
+		description: body.message,
+		color: 0x00FFFF,
+		author: {
+			name: body.profile?.login ?? body.author,
 		},
 		thumbnail: {
 			url: body.profile?.avatar,
@@ -68,7 +74,7 @@ export const post: APIRoute = async ({ request }) => {
 	});
 
 	if (!discordReq.ok) {
-		console.log(await discordReq.text());
+		console.log('Discord error:', await discordReq.text());
 		return internalError;
 	}
 

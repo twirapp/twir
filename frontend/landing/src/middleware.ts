@@ -1,6 +1,6 @@
 import { defineMiddleware } from 'astro/middleware';
 
-import { protectedClient, unProtectedClient } from './api/twirp.js';
+import { protectedClient, unProtectedClient } from '@/api/twirp.js';
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	const session = context.cookies.get('session');
@@ -14,12 +14,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
 						meta: { Cookie: `session=${session.value}` },
 					});
 					context.locals.profile = request.response;
-				// eslint-disable-next-line no-empty
-				} catch {}
+				} catch (err) {
+					console.log('User profile error:', err);
+				}
 			}
 		})(),
 		(async () => {
-			const request = await unProtectedClient.authGetLink({ state: Buffer.from(location, 'base64').toString('hex') });
+			const state = Buffer.from(location, 'base64').toString('hex');
+			const request = await unProtectedClient.authGetLink({ state });
 			context.locals.authLink = request.response.link;
 		})(),
 	]);

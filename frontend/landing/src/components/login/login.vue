@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 
-import { browserUnProtectedClient } from '../../api/twirp-browser.js';
+import { browserUnProtectedClient } from '@/api/twirp-browser.js';
 
 const url = new URL(window.location.href);
 const code = url.searchParams.get('code');
-let err = url.searchParams.get('error');
-
-let loading = true;
+const err = ref(url.searchParams.get('error'));
+const loading = ref(true);
 
 onMounted(async () => {
 	if (!code) return;
@@ -18,10 +17,10 @@ onMounted(async () => {
 		});
 		window.location.replace('/dashboard');
 	} catch (error) {
-		err = 'Internal error happend, please contact devs in discord';
+		err.value = 'Internal error happend, please contact devs in discord';
 		window.location.replace('/');
 	} finally {
-		loading = false;
+		loading.value = false;
 	}
 });
 </script>

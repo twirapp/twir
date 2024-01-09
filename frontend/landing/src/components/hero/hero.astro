@@ -1,0 +1,42 @@
+---
+import HeroStartButton from './hero-start-button.astro';
+import HeroChat from './hero-chat.astro';
+
+import ArrowRightIcon from '@/assets/icons/arrow-right.svg?component'
+import { DISCORD_URL } from '@/constants.js';
+---
+
+<section class="px-5 md:px-9 overflow-hidden">
+  <div
+    class="container py-20 lg:py-28 relative before:content-[''] before:absolute before:w-[950px] before:h-[607px] before:-right-12 before:-rotate-[30deg] before:rounded-[950px] before:pointer-events-none before:bg-[radial-gradient(50%_50.00%_at_50%_50%,_#181F4E_0%,_rgba(9,9,11,0.00)_100%)] before:-z-10 before:-bottom-8">
+    <div class="flex justify-between items-center md:flex-nowrap flex-wrap gap-[60px]">
+      <div class="flex flex-col items-start w-full">
+        <a
+          class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow"
+          href={DISCORD_URL}
+          target="_blank">
+          🚀 View latest updates
+          <ArrowRightIcon class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0" />
+        </a>
+        <h1
+          class="pt-4 lg:text-[64px] text-[min(48px,11vw)] font-bold text-white tracking-tight leading-[1.2] max-w-2xl">
+          Engage your audience like never before
+        </h1>
+
+        <p class="pt-6 max-w-xl text-[#ADB0B8] lg:text-[20px] text-[min(18px,5vw)] leading-normal">
+          Our Twitch bot is the ultimate all-in-one solution for streamers looking to take their
+          channel to the next level.
+        </p>
+
+        <div class="pt-[48px] w-full inline-flex flex-col xs:flex-row gap-3">
+          <button
+            class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center whitespace-nowrap">
+            Learn more
+          </button>
+          <HeroStartButton />
+        </div>
+      </div>
+      <HeroChat />
+    </div>
+  </div>
+</section>
