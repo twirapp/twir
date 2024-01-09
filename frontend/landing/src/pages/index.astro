@@ -1,18 +1,18 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Hero from '../components/home/Hero.astro';
-import Features from '../components/home/Features.astro';
-import Integrations from '../components/home/Integrations.astro';
-import Streamers from '../components/home/Streamers.astro';
-import Team from '../components/home/Team.astro';
-import StatsList from '../components/home/StatsList.astro';
+import Layout from '@/components/layout/layout.astro';
+import Hero from '@/components/hero/hero.astro';
+import Features from '@/components/features/features.astro';
+import Integrations from '@/components/integrations/integrations.astro';
+import Streamers from '@/components/streamers/streamers.astro';
+import Team from '@/components/team/team.astro';
+import Stats from '@/components/stats/stats.astro';
 ---
 
-<Layout title="Twir - Main page">
-	<Hero/>
-	<StatsList/>
-	<Features/>
-	<Integrations/>
-	<Streamers/>
-	<Team/>
+<Layout>
+	<Hero />
+	<Stats />
+	<Features />
+	<Integrations />
+	<Streamers />
+	<Team />
 </Layout>

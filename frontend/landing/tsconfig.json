@@ -1,6 +1,11 @@
 {
 	"compilerOptions": {
-		"jsx": "preserve"
+		"jsx": "preserve",
+		"moduleResolution": "Node",
+		"baseUrl": ".",
+		"paths": {
+      "@/*": ["src/*"],
+    }
 	},
   "extends": "astro/tsconfigs/base"
 }

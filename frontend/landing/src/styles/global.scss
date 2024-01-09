@@ -1,0 +1,18 @@
+@import url('./fonts.scss');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	scroll-behavior: smooth;
+}
+
+html,
+body {
+	scrollbar-gutter: stable;
+}
+
+:root {
+	color-scheme: dark;
+}

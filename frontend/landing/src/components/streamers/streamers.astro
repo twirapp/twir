@@ -1,0 +1,21 @@
+---
+import FeedbackDialog from '@/components/feedback/feedback-dialog.vue';
+import StreamersList from './streamers-list.vue.jsx';
+import { getStreamers } from './streamers.js';
+
+const streamers = await getStreamers()
+---
+
+<section id="streamers">
+	<div class="reviews-bg">
+		<div class="container py-24">
+			<div class="flex justify-between">
+				<h3 class="text-white text-4xl font-bold">
+					Streamers use Twir
+				</h3>
+				<FeedbackDialog client:only profile={Astro.locals.profile} />
+			</div>
+		</div>
+		<StreamersList client:only="vue" streamers={streamers} />
+	</div>
+</section>
