@@ -1,0 +1,7 @@
+syntax = "proto3";
+option go_package = "github.com/satont/twir/libs/api/messages/integrations_donatello";
+package messages.integrations_donatello;
+
+message GetResponse {
+	string integration_id = 1;
+}

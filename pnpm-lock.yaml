@@ -433,6 +433,12 @@ importers:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)
 
+  libs/api:
+    dependencies:
+      '@protobuf-ts/plugin':
+        specifier: 2.9.3
+        version: 2.9.3
+
   libs/config:
     dependencies:
       dotenv:

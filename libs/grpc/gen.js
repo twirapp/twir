@@ -152,6 +152,7 @@ const promisedExec = async (cmd) => {
 		const name = file.replace('.proto', '');
 		const directoryPath = `${workDir}/generated/api/${name}`;
 		const filePath = `${directoryPath}/${name}.pb.go`;
+
 		mkdirSync(directoryPath, { recursive: true });
 
 		await promisedExec([

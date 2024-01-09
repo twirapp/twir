@@ -1,0 +1,276 @@
+syntax = "proto3";
+option go_package = "api";
+
+package api;
+
+import "google/protobuf/empty.proto";
+
+import "messages/meta/meta.proto";
+
+import "messages/auth/auth.proto";
+import "messages/bots/bots.proto";
+import "messages/commands/commands.proto";
+import "messages/community/community.proto";
+import "messages/events/events.proto";
+import "messages/greetings/greetings.proto";
+import "messages/keywords/keywords.proto";
+import "messages/timers/timers.proto";
+import "messages/roles/roles.proto";
+import "messages/variables/variables.proto";
+import "messages/commands_group/commands_group.proto";
+import "messages/moderation/moderation.proto";
+import "messages/users/users.proto";
+
+import "messages/integrations_donate_stream/integrations_donate_stream.proto";
+import "messages/integrations_donatello/integrations_donatello.proto";
+import "messages/integrations_donatepay/integrations_donatepay.proto";
+import "messages/integrations_donationalerts/integrations_donationalerts.proto";
+import "messages/integrations_faceit/integrations_faceit.proto";
+import "messages/integrations_lastfm/integrations_lastfm.proto";
+import "messages/integrations_spotify/integrations_spotify.proto";
+import "messages/integrations_streamlabs/integrations_streamlabs.proto";
+import "messages/integrations_vk/integrations_vk.proto";
+import "messages/integrations_valorant/integrations_valorant.proto";
+import "messages/integrations_discord/integrations_discord.proto";
+
+import "messages/modules_obs_websocket/modules_obs_websocket.proto";
+import "messages/modules_tts/modules_tts.proto";
+import "messages/modules_sr/modules_sr.proto";
+import "messages/modules_chat_alerts/modules_chat_alerts.proto";
+import "messages/overlays_chat/overlays_chat.proto";
+import "messages/overlays_kappagen/overlays_kappagen.proto";
+import "messages/overlays_be_right_back/overlays_be_right_back.proto";
+
+import "messages/rewards/rewards.proto";
+
+import "messages/built_in_variables/built_in_variables.proto";
+
+import "messages/dashboard/dashboard.proto";
+import "messages/twitch_protected/twitch_protected.proto";
+import "messages/files/files.proto";
+import "messages/alerts/alerts.proto";
+import "messages/games/games.proto";
+import "messages/overlays/overlays.proto";
+
+service Protected {
+	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
+	rpc AuthSetDashboard(messages.auth.SetDashboard) returns (google.protobuf.Empty) {}
+	rpc AuthGetDashboards(google.protobuf.Empty) returns (messages.auth.GetDashboardsResponse) {}
+	rpc AuthLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
+	rpc BotJoinPart(messages.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
+
+	rpc CommandsGetAll(google.protobuf.Empty) returns (messages.commands.CommandsGetAllResponse) {}
+	rpc CommandsGetById(messages.commands.GetByIdRequest) returns (messages.commands.Command) {}
+	rpc CommandsCreate(messages.commands.CreateRequest) returns (messages.commands.Command) {}
+	rpc CommandsDelete(messages.commands.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsUpdate(messages.commands.PutRequest) returns (messages.commands.Command) {}
+	rpc CommandsEnableOrDisable(messages.commands.PatchRequest) returns (messages.commands.Command) {}
+
+	rpc CommunityResetStats(messages.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
+
+	rpc EventsGetAll(google.protobuf.Empty) returns (messages.events.GetAllResponse) {}
+	rpc EventsGetById(messages.events.GetByIdRequest) returns (messages.events.Event) {}
+	rpc EventsCreate(messages.events.CreateRequest) returns (messages.events.Event) {}
+	rpc EventsDelete(messages.events.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc EventsUpdate(messages.events.PutRequest) returns (messages.events.Event) {}
+	rpc EventsEnableOrDisable(messages.events.PatchRequest) returns (messages.events.Event) {}
+
+	rpc GreetingsGetAll(google.protobuf.Empty) returns (messages.greetings.GetAllResponse) {}
+	rpc GreetingsGetById(messages.greetings.GetByIdRequest) returns (messages.greetings.Greeting) {}
+	rpc GreetingsCreate(messages.greetings.CreateRequest) returns (messages.greetings.Greeting) {}
+	rpc GreetingsDelete(messages.greetings.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc GreetingsUpdate(messages.greetings.PutRequest) returns (messages.greetings.Greeting) {}
+	rpc GreetingsEnableOrDisable(messages.greetings.PatchRequest) returns (messages.greetings.Greeting) {}
+
+	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (messages.integrations_donate_stream.DonateStreamResponse) {}
+	rpc IntegrationsDonateStreamPostSecret(messages.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsDonatelloGet(google.protobuf.Empty) returns (messages.integrations_donatello.GetResponse) {}
+
+	rpc IntegrationsDonatepayGet(google.protobuf.Empty) returns (messages.integrations_donatepay.GetResponse) {}
+	rpc IntegrationsDonatepayPut(messages.integrations_donatepay.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsDonationAlertsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_donationalerts.GetAuthLink) {}
+	rpc IntegrationsDonationAlertsGetData(google.protobuf.Empty) returns (messages.integrations_donationalerts.GetDataResponse) {}
+	rpc IntegrationsDonationAlertsPostCode(messages.integrations_donationalerts.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDonationAlertsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsFaceitGetAuthLink(google.protobuf.Empty) returns (messages.integrations_faceit.GetAuthLink) {}
+	rpc IntegrationsFaceitGetData(google.protobuf.Empty) returns (messages.integrations_faceit.GetDataResponse) {}
+	rpc IntegrationsFaceitUpdate(messages.integrations_faceit.UpdateDataRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsFaceitPostCode(messages.integrations_faceit.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsFaceitLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsLastFMGetAuthLink(google.protobuf.Empty) returns (messages.integrations_lastfm.GetAuthLink) {}
+	rpc IntegrationsLastFMGetData(google.protobuf.Empty) returns (messages.integrations_lastfm.GetDataResponse) {}
+	rpc IntegrationsLastFMPostCode(messages.integrations_lastfm.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsLastFMLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+
+	rpc IntegrationsSpotifyGetAuthLink(google.protobuf.Empty) returns (messages.integrations_spotify.GetAuthLink) {}
+	rpc IntegrationsSpotifyGetData(google.protobuf.Empty) returns (messages.integrations_spotify.GetDataResponse) {}
+	rpc IntegrationsSpotifyPostCode(messages.integrations_spotify.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsSpotifyLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsStreamlabsGetAuthLink(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetAuthLink) {}
+	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}
+	rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink) {}
+	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}
+	rpc IntegrationsVKPostCode(messages.integrations_vk.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsVKLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsDiscordGetAuthLink(google.protobuf.Empty) returns (messages.integrations_discord.GetAuthLink) {}
+	rpc IntegrationsDiscordGetData(google.protobuf.Empty) returns (messages.integrations_discord.GetDataResponse) {}
+	rpc IntegrationsDiscordUpdate(messages.integrations_discord.UpdateMessage) returns (google.protobuf.Empty) {}
+	rpc IntegrationDiscordConnectGuild(messages.integrations_discord.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDiscordDisconnectGuild(messages.integrations_discord.DisconnectGuildMessage) returns (google.protobuf.Empty) {}
+	rpc IntegrationsDiscordGetGuildChannels(messages.integrations_discord.GetGuildChannelsRequest) returns (messages.integrations_discord.GetGuildChannelsResponse) {}
+	rpc IntegrationsDiscordGetGuildInfo(messages.integrations_discord.GetGuildInfoRequest) returns (messages.integrations_discord.GetGuildInfoResponse) {}
+
+	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (messages.integrations_valorant.GetResponse) {}
+	rpc IntegrationsValorantUpdate(messages.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc KeywordsGetAll(google.protobuf.Empty) returns (messages.keywords.GetAllResponse) {}
+	rpc KeywordsGetById(messages.keywords.GetByIdRequest) returns (messages.keywords.Keyword) {}
+	rpc KeywordsCreate(messages.keywords.CreateRequest) returns (messages.keywords.Keyword) {}
+	rpc KeywordsDelete(messages.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc KeywordsUpdate(messages.keywords.PutRequest) returns (messages.keywords.Keyword) {}
+	rpc KeywordsEnableOrDisable(messages.keywords.PatchRequest) returns (messages.keywords.Keyword) {}
+
+	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse) {}
+	rpc ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc ModulesTTSGet(google.protobuf.Empty) returns (messages.modules_tts.GetResponse) {}
+	rpc ModulesTTSUpdate(messages.modules_tts.PostRequest) returns (google.protobuf.Empty) {}
+	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (messages.modules_tts.GetInfoResponse) {}
+	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
+	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
+
+	rpc ModulesSRGet(google.protobuf.Empty) returns (messages.modules_sr.GetResponse) {}
+	rpc ModulesSRSearchVideosOrChannels(messages.modules_sr.GetSearchRequest) returns (messages.modules_sr.GetSearchResponse) {}
+	rpc ModulesSRUpdate(messages.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
+
+	rpc ModulesChatAlertsGet(google.protobuf.Empty) returns (messages.modules_chat_alerts.ChatAlertsSettings) {}
+	rpc ModulesChatAlertsUpdate(messages.modules_chat_alerts.ChatAlertsSettings) returns (messages.modules_chat_alerts.ChatAlertsSettings) {}
+
+	rpc OverlayChatGet(messages.overlays_chat.GetRequest) returns (messages.overlays_chat.Settings) {}
+	rpc OverlayChatGetAll(google.protobuf.Empty) returns (messages.overlays_chat.GetAllResponse) {}
+	rpc OverlayChatCreate(messages.overlays_chat.Settings) returns (messages.overlays_chat.Settings) {}
+	rpc OverlayChatUpdate(messages.overlays_chat.UpdateRequest) returns (messages.overlays_chat.Settings) {}
+	rpc OverlayChatDelete(messages.overlays_chat.DeleteRequest) returns (google.protobuf.Empty) {}
+
+	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (messages.overlays_be_right_back.Settings) {}
+	rpc OverlayBeRightBackUpdate(messages.overlays_be_right_back.Settings) returns (messages.overlays_be_right_back.Settings) {}
+
+	rpc OverlayKappaGenGet(google.protobuf.Empty) returns (messages.overlays_kappagen.Settings) {}
+	rpc OverlayKappaGenUpdate(messages.overlays_kappagen.Settings) returns (messages.overlays_kappagen.Settings) {}
+
+	rpc RewardsGet(google.protobuf.Empty) returns (messages.rewards.GetResponse) {}
+
+	rpc RolesGetAll(google.protobuf.Empty) returns (messages.roles.GetAllResponse) {}
+	rpc RolesUpdate(messages.roles.UpdateRequest) returns (messages.roles.Role) {}
+	rpc RolesDelete(messages.roles.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc RolesCreate(messages.roles.CreateRequest) returns (messages.roles.Role) {}
+
+	rpc TimersGetAll(google.protobuf.Empty) returns (messages.timers.GetResponse) {}
+	rpc TimersUpdate(messages.timers.UpdateRequest) returns (messages.timers.Timer) {}
+	rpc TimersDelete(messages.timers.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc TimersCreate(messages.timers.CreateRequest) returns (messages.timers.Timer) {}
+	rpc TimersEnableOrDisable(messages.timers.PatchRequest) returns (messages.timers.Timer) {}
+
+	rpc VariablesGetAll(google.protobuf.Empty) returns (messages.variables.GetAllResponse) {}
+	rpc VariablesGetById(messages.variables.GetByIdRequest) returns (messages.variables.Variable) {}
+	rpc VariablesCreate(messages.variables.CreateRequest) returns (messages.variables.Variable) {}
+	rpc VariablesDelete(messages.variables.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc VariablesUpdate(messages.variables.PutRequest) returns (messages.variables.Variable) {}
+
+	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
+
+	rpc CommandsGroupGetAll(google.protobuf.Empty) returns (messages.commands_group.GetAllResponse) {}
+	rpc CommandsGroupCreate(messages.commands_group.CreateRequest) returns (messages.commands_group.Group) {}
+	rpc CommandsGroupDelete(messages.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc CommandsGroupUpdate(messages.commands_group.PutRequest) returns (messages.commands_group.Group) {}
+
+	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
+	rpc GetDashboardEventsList(google.protobuf.Empty) returns (messages.dashboard.DashboardEventsList) {}
+
+	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest)
+		returns (messages.twitch_protected.SearchCategoriesResponse
+		) {}
+	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest)
+		returns (google.protobuf.Empty) {}
+
+	rpc FilesGetAll(google.protobuf.Empty) returns (messages.files.GetAllResponse) {}
+	rpc FilesUpload(messages.files.UploadRequest) returns (messages.files.FileMeta) {}
+	rpc FilesDelete(messages.files.RemoveRequest) returns (google.protobuf.Empty) {}
+
+	rpc AlertsGetAll(google.protobuf.Empty) returns (messages.alerts.GetAllResponse) {}
+	rpc AlertsGetOne(messages.alerts.GetOneRequest) returns (messages.alerts.Alert) {}
+	rpc AlertsCreate(messages.alerts.CreateRequest) returns (messages.alerts.Alert) {}
+	rpc AlertsUpdate(messages.alerts.UpdateRequest) returns (messages.alerts.Alert) {}
+	rpc AlertsDelete(messages.alerts.RemoveRequest) returns (google.protobuf.Empty) {}
+
+	// Games
+	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (messages.games.EightBallSettingsResponse) {}
+	rpc GamesUpdateEightBallSettings(messages.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
+
+	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (messages.games.RussianRouletteSettingsResponse) {}
+	rpc GamesUpdateRouletteSettings(messages.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
+
+	rpc GamesGetDuelSettings(google.protobuf.Empty) returns (messages.games.DuelSettingsResponse) {}
+	rpc GamesUpdateDuelSettings(messages.games.UpdateDuelSettings) returns (google.protobuf.Empty) {}
+	//
+
+	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}
+	rpc OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay) {}
+	rpc OverlaysUpdate(messages.overlays.UpdateRequest) returns (messages.overlays.Overlay) {}
+	rpc OverlaysDelete(messages.overlays.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc OverlaysCreate(messages.overlays.CreateRequest) returns (messages.overlays.Overlay) {}
+	rpc OverlaysParseHtml(messages.overlays.ParseHtmlOverlayRequest) returns (messages.overlays.ParseHtmlOverlayResponse) {}
+
+
+	rpc ModerationGetAll(google.protobuf.Empty) returns (messages.moderation.GetAllResponse) {}
+	rpc ModerationCreate(messages.moderation.CreateRequest) returns (messages.moderation.ItemWithId) {}
+	rpc ModerationDelete(messages.moderation.DeleteRequest) returns (google.protobuf.Empty) {}
+	rpc ModerationUpdate(messages.moderation.UpdateRequest) returns (messages.moderation.ItemWithId) {}
+	rpc ModerationEnableOrDisable(messages.moderation.PatchRequest) returns (messages.moderation.ItemWithId) {}
+	rpc ModerationAvailableLanguages(google.protobuf.Empty) returns (messages.moderation.AvailableLanguagesResponse) {}
+
+	rpc UsersRegenerateApiKey(messages.users.RegenerateApiKeyRequest) returns (google.protobuf.Empty) {}
+	rpc UsersUpdate(messages.users.UpdateUserRequest) returns (google.protobuf.Empty) {}
+}
+
+// UnProtected
+import "messages/stats/stats.proto";
+import "messages/twitch/twitch.proto";
+import "messages/commands_unprotected/commands_unprotected.proto";
+import "messages/songs_unprotected/songs_unprotected.proto";
+import "messages/tts_unprotected/tts_unprotected.proto";
+
+service UnProtected {
+	rpc TwitchGetUsers(messages.twitch.TwitchGetUsersRequest) returns (messages.twitch.TwitchGetUsersResponse) {}
+	rpc TwitchSearchChannels(messages.twitch.TwitchSearchChannelsRequest) returns (messages.twitch.TwitchSearchChannelsResponse) {}
+
+	rpc GetStats(google.protobuf.Empty) returns (messages.stats.Response) {}
+	rpc GetStatsTwirStreamers(google.protobuf.Empty) returns (messages.stats.GetTwirStreamersResponse) {}
+
+	rpc CommunityGetUsers(messages.community.GetUsersRequest) returns (messages.community.GetUsersResponse) {}
+
+	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
+	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
+
+	rpc AuthGetLink(messages.auth.GetLinkRequest) returns (messages.auth.GetLinkResponse) {}
+	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (google.protobuf.Empty) {}
+
+	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
+
+	rpc GetTTSChannelSettings(messages.tts_unprotected.GetChannelSettingsRequest) returns (messages.tts_unprotected.Settings) {}
+	rpc GetTTSUsersSettings(messages.tts_unprotected.GetUsersSettingsRequest) returns (messages.tts_unprotected.GetUsersSettingsResponse) {}
+
+	rpc GetPublicUserInfo(messages.auth.GetPublicUserInfoRequest) returns (messages.auth.GetPublicUserInfoResponse) {}
+}

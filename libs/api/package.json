@@ -1,0 +1,8 @@
+{
+  "name": "@twir/api",
+  "type": "module",
+  "scripts": {},
+  "dependencies": {
+    "@protobuf-ts/plugin": "2.9.3"
+  }
+}
