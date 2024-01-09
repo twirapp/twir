@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 import { IconSun, IconMoon } from '@tabler/icons-vue';
-import { useLocalStorage } from '@vueuse/core';
 import { NButton } from 'naive-ui';
 import { computed } from 'vue';
 
@@ -8,14 +7,11 @@ import Card from './card.vue';
 
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
-import { type Theme } from '@/hooks/index.js';
+import { useTheme } from '@/composables/use-theme.js';
 
 const { data: profile } = useProfile();
 
-const chatTheme = useLocalStorage<Theme>('twirTwitchChatTheme', 'dark');
-const toggleTheme = () => {
-	chatTheme.value = chatTheme.value === 'light' ? 'dark' : 'light';
-};
+const { theme: chatTheme, toggleTheme } = useTheme('twirTwitchChatTheme');
 
 const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '');
 const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId });

@@ -3,6 +3,9 @@ import { NScrollbar } from 'naive-ui';
 
 import Navigation from './navigation.vue';
 
+import FeedbackButton from '@/layout/feedback/feedback-button.vue';
+
+
 defineProps<{
 	isCollapsed: boolean
 }>();
@@ -14,6 +17,8 @@ defineProps<{
 		<n-scrollbar trigger="none">
 			<navigation :is-collapsed="isCollapsed" />
 		</n-scrollbar>
+
+		<feedback-button :is-collapsed="isCollapsed" />
 	</div>
 </template>
 

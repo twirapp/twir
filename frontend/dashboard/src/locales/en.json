@@ -759,5 +759,14 @@
         "disallowedLanguages": "Disallowed Languages List"
       }
     }
-  }
+  },
+	"feedback": {
+		"button": "Send feedback",
+		"notification": "Your feedback sended",
+		"rateLimited": "You are sending messages to quickly, try again in {time}",
+		"messageLabel": "Message",
+		"validation": {
+			"emptyMessage": "Message cannot be empty"
+		}
+	}
 }

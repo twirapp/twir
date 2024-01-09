@@ -3,6 +3,8 @@ import { NDrawer, NDrawerContent } from 'naive-ui';
 
 import Navigation from './navigation.vue';
 
+import FeedbackButton from '@/layout/feedback/feedback-button.vue';
+
 defineProps<{
 	show: boolean
 }>();
@@ -23,6 +25,7 @@ defineProps<{
 				<slot />
 			</template>
 			<navigation :is-collapsed="false" />
+			<feedback-button :is-collapsed="false" />
 		</n-drawer-content>
 	</n-drawer>
 </template>

@@ -28,6 +28,7 @@
     "lodash.chunk": "4.2.0",
     "naive-ui": "2.37.0",
     "nested-css-to-flat": "1.0.5",
+    "pinia": "2.1.7",
     "plyr": "3.7.8",
     "vue": "3.4.5",
     "vue-draggable-next": "2.2.1",
