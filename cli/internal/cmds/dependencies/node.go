@@ -17,6 +17,7 @@ func installNodeDeps() error {
 			Command: "pnpm install --frozen-lockfile",
 			Pwd:     wd,
 			Stderr:  os.Stderr,
+			Stdout:  os.Stdout,
 		},
 	)
 

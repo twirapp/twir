@@ -44,6 +44,7 @@ func build(cmd string) error {
 			Command: cmd,
 			Pwd:     wd,
 			Stderr:  os.Stderr,
+			Stdout:  os.Stdout,
 		},
 	)
 	if err != nil {
