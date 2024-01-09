@@ -7,7 +7,7 @@ import { anchorLinks } from './anchor-links.js';
 import { DISCORD_URL, GITHUB_URL } from '@/constants.js';
 ---
 
-<footer class="pt-12 px-20 bg-[#19181a]">
+<footer class="pt-12 px-5 bg-[#19181a]">
   <div class="container">
     <div class="flex flex-col gap-6 items-center">
       <div class="flex gap-3 items-center">
@@ -15,7 +15,7 @@ import { DISCORD_URL, GITHUB_URL } from '@/constants.js';
         <span class="text-white text-2xl font-semibold uppercase tracking-wide">Twir</span>
       </div>
       <nav class="flex justify-center items-center" aria-label="Footer Navigation">
-        <ul class="list-none p-0 m-0 flex gap-4">
+        <ul class="list-none p-0 m-0 flex gap-4 max-[720px]:flex-col">
           {anchorLinks.map((anchor) => (
 						<li>
 							<a
@@ -28,7 +28,7 @@ import { DISCORD_URL, GITHUB_URL } from '@/constants.js';
         </ul>
       </nav>
     </div>
-    <div class="flex justify-between p-8 text-stone-400 mt-12 border-t border-stone-600">
+    <div class="flex justify-between p-8 text-stone-400 mt-12 border-t border-stone-600 gap-4 max-[720px]:flex-col max-[720px]:items-center">
       <span>&copy; {new Date().getFullYear()} Twir. All rights reserved.</span>
       <div class="flex gap-[14px]">
         <a

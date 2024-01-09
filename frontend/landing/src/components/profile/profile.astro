@@ -10,7 +10,9 @@ import TwitchLogo from '@/assets/icons/twitch.svg?component';
 	<TwitchLogo class="w-5 h-5 fill-white" />
 </a>}
 {Astro.locals.profile && <a v-else href="/dashboard" class="text-white/75 inline-flex gap-x-3 items-center">
-	{Astro.locals.profile.displayName}
+	<span class="max-[600px]:hidden">
+		{Astro.locals.profile.displayName}
+	</span>
 	<img
 		src={Astro.locals.profile.avatar}
 		alt="avatarImage"
