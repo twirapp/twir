@@ -2,7 +2,7 @@
 	<g id="icons/cube">
 		<path id="Icon"
 			d="M152.5 53.9583L91.5 23.125L30.5 53.9583M152.5 53.9583L91.5 84.7917M152.5 53.9583V131.042L91.5 161.875M91.5 84.7917L30.5 53.9583M91.5 84.7917V161.875M30.5 53.9583V131.042L91.5 161.875"
-			stroke="url(#paint0_linear_893_2696)" stroke-width="3" stroke-linejoin="round" />
+			stroke="url(#paint0_linear_893_2696)" stroke-width="2" stroke-linejoin="round" />
 	</g>
 	<defs>
 		<linearGradient id="paint0_linear_893_2696" x1="91.5001" y1="23.125" x2="91.5001" y2="161.875"

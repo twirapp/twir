@@ -134,11 +134,6 @@ function configForm(event: MouseEvent) {
 </template>
 
 <style>
-.reviews-bg {
-	background: radial-gradient(ellipse at top, #270a3b, transparent),
-	radial-gradient(ellipse at bottom, #000, transparent);
-}
-
 #feedback-dialog::backdrop {
 	background-color: rgba(0, 0, 0, 9);
 	opacity: 0.7;

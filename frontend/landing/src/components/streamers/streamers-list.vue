@@ -13,7 +13,7 @@ const wrapper = ref<HTMLElement>(null);
 
 <template>
 	<div class="flicking-viewport">
-		<div ref="wrapper" class="wrapper">
+		<div ref="wrapper" class="wrapper px-5">
 			<Flicking
 				v-if="wrapper"
 				ref="flickingRef"
@@ -46,6 +46,7 @@ const wrapper = ref<HTMLElement>(null);
 							</span>
 						</div>
 						<a
+							draggable="false"
 							class="streamer-link flex flex-col gap-1"
 							:href="`https://twitch.tv/${streamer.userLogin}`" target="_blank"
 						>
@@ -70,7 +71,6 @@ const wrapper = ref<HTMLElement>(null);
 
 .wrapper {
 	display: flex;
-	width: 50dvw;
 	align-items: center;
 	justify-content: center;
 	padding-bottom: 40px;
@@ -84,10 +84,7 @@ const wrapper = ref<HTMLElement>(null);
 	height: auto;
 	opacity: 1 !important;
 	user-select: none;
-
-	@media screen and (max-width: 565.98px) {
-		width: calc(100vw - 24px * 2);
-	}
+	touch-action: auto;
 }
 
 :deep(.flicking-pagination-bullet) {

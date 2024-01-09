@@ -4,6 +4,7 @@ import Discord from '@/assets/social/discord.svg?component';
 import Github from '@/assets/social/github.svg?component';
 
 import { anchorLinks } from './anchor-links.js';
+import { DISCORD_URL, GITHUB_URL } from '@/constants.js';
 ---
 
 <footer class="pt-12 px-20 bg-[#19181a]">
@@ -31,14 +32,14 @@ import { anchorLinks } from './anchor-links.js';
       <span>&copy; {new Date().getFullYear()} Twir. All rights reserved.</span>
       <div class="flex gap-[14px]">
         <a
-          href="https://discord.gg/Q9NBZq3zVV"
+          href={DISCORD_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Discord channel for asking a question and keeping up with updates">
           <Discord class="w-6 h-6" aria-hidden />
         </a>
         <a
-          href="https://github.com/satont/twir"
+          href={GITHUB_URL}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Github repository">
