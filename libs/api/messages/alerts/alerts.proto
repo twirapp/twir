@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/twirapp/twir/libs/api/alerts";
+option go_package = "github.com/twirapp/twir/libs/api/messages/alerts";
 package messages.alerts;
 
 message Alert {

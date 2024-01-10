@@ -1,8 +1,8 @@
 syntax = "proto3";
-option go_package = "github.com/twirapp/twir/libs/grpc/generated/messages/events";
+option go_package = "github.com/twirapp/twir/libs/api/messages/events";
 package messages.events;
 
-import "messages/meta.proto";
+import "messages/meta/meta.proto";
 
 enum TwirEventType {
 	FOLLOW = 0;

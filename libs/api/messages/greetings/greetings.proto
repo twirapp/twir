@@ -2,7 +2,7 @@ syntax = "proto3";
 option go_package = "github.com/twirapp/twir/libs/api/messages/greetings";
 package messages.greetings;
 
-import "messages/meta.proto";
+import "messages/meta/meta.proto";
 
 message Greeting {
 	string id = 1;
