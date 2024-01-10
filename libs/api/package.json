@@ -4,6 +4,13 @@
   "scripts": {
     "build": "buf generate --path=api.proto --include-imports"
   },
+	"typesVersions": {
+		"*": {
+			"*": [
+				"./dist/*.d.ts"
+			]
+		}
+	},
   "dependencies": {
     "@bufbuild/protobuf": "1.6.0",
     "@bufbuild/protoc-gen-es": "1.6.0",

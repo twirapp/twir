@@ -170,6 +170,9 @@ importers:
       '@tanstack/vue-query':
         specifier: 4.37.0
         version: 4.37.0(vue@3.4.5)
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@twir/fontsource':
         specifier: workspace:*
         version: link:../../libs/fontsource
