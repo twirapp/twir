@@ -444,9 +444,6 @@ importers:
       '@bufbuild/protoc-gen-es':
         specifier: 1.6.0
         version: 1.6.0(@bufbuild/protobuf@1.6.0)
-      '@protobuf-ts/plugin':
-        specifier: 2.9.3
-        version: 2.9.3
 
   libs/config:
     dependencies:
