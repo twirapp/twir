@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/integrations_streamlabs";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_streamlabs";
 package messages.integrations_streamlabs;
 
 message GetAuthLink {

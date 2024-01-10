@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/overlays";
+option go_package = "github.com/twirapp/twir/libs/api/messages/overlays";
 package messages.overlays;
 
 enum OverlayLayerType {

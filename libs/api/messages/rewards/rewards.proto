@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/rewards";
+option go_package = "github.com/twirapp/twir/libs/api/messages/rewards";
 package messages.rewards;
 
 message Reward {

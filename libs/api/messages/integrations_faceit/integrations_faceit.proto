@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/integrations_faceit";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_faceit";
 package messages.integrations_faceit;
 
 message GetAuthLink {

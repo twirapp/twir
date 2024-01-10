@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/modules_chat_alerts";
+option go_package = "github.com/twirapp/twir/libs/api/messages/modules_chat_alerts";
 package messages.modules_chat_alerts;
 
 message ChatAlertsSettings {

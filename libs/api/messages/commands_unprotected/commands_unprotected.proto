@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/commands_unprotected";
+option go_package = "github.com/twirapp/twir/libs/api/messages/commands_unprotected";
 package messages.commands_unprotected;
 
 message GetChannelCommandsRequest {

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/modules_obs_websocket";
+option go_package = "github.com/twirapp/twir/libs/api/messages/modules_obs_websocket";
 package messages.modules_obs_websocket;
 
 message GetResponse {

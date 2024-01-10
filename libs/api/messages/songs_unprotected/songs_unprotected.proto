@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/songs_unprotected";
+option go_package = "github.com/twirapp/twir/libs/api/messages/songs_unprotected";
 package messages.songs_unprotected;
 
 message GetSongsQueueRequest {

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/overlays_kappagen";
+option go_package = "github.com/twirapp/twir/libs/api/messages/overlays_kappagen";
 package messages.overlays_kappagen;
 
 

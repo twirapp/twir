@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/tts_unprotected";
+option go_package = "github.com/twirapp/twir/libs/api/messages/tts_unprotected";
 package messages.tts_unprotected;
 
 message Settings {

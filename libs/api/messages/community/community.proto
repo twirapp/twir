@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/community";
+option go_package = "github.com/twirapp/twir/libs/api/messages/community";
 package messages.community;
 
 message GetUsersRequest {

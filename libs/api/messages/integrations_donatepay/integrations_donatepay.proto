@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/integrations_donatepay";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_donatepay";
 package messages.integrations_donatepay;
 
 message GetResponse {

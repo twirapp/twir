@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/modules_tts";
+option go_package = "github.com/twirapp/twir/libs/api/messages/modules_tts";
 package messages.modules_tts;
 
 import "google/protobuf/any.proto";

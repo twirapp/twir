@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/integrations_valorant";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_valorant";
 package messages.integrations_valorant;
 
 message GetResponse {

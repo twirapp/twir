@@ -29,4 +29,5 @@ use (
 	./libs/twitch-eventsub-framework
 	./libs/types
 	./libs/utils
+	./libs/api
 )

@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/greetings";
+option go_package = "github.com/twirapp/twir/libs/api/messages/greetings";
 package messages.greetings;
 
 import "messages/meta.proto";

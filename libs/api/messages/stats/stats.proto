@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/api/messages/stats";
+option go_package = "github.com/twirapp/twir/libs/api/messages/stats";
 package messages.stats;
 
 message Response {

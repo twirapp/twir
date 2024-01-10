@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/grpc/generated/messages/events";
+option go_package = "github.com/twirapp/twir/libs/grpc/generated/messages/events";
 package messages.events;
 
 import "messages/meta.proto";
