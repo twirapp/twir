@@ -8,3 +8,7 @@ plugins:
     out: ./
     opt:
       - paths=source_relative
+  - plugin: es
+    path: ./node_modules/.bin/protoc-gen-es
+    opt: target=dts
+    out: dist

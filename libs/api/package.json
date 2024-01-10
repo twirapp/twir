@@ -2,9 +2,11 @@
   "name": "@twir/api",
   "type": "module",
   "scripts": {
-		"build": "buf generate --path=api.proto --include-imports"
-	},
+    "build": "buf generate --path=api.proto --include-imports"
+  },
   "dependencies": {
+    "@bufbuild/protobuf": "1.6.0",
+    "@bufbuild/protoc-gen-es": "1.6.0",
     "@protobuf-ts/plugin": "2.9.3"
   }
 }
