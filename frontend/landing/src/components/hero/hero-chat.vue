@@ -2,11 +2,15 @@
 import { ref } from 'vue';
 
 import ChatAvatar from './hero-chat-avatar.vue';
-import { chatMessages, type ChatMessage } from './hero-chat-messages.js';
+import { type ChatMessage } from './hero-chat-messages.js';
 
 import ChatMessageTail from '@/assets/chat-message-tail.svg?component';
 
-const messages = ref<ChatMessage[]>(chatMessages);
+const props = defineProps<{
+	messages: ChatMessage[]
+}>();
+
+const chatMessages = ref<ChatMessage[]>(props.messages);
 </script>
 
 <template>
@@ -16,7 +20,7 @@ const messages = ref<ChatMessage[]>(chatMessages);
 	>
 		<TransitionGroup name="list">
 			<div
-				v-for="(message, index) of messages"
+				v-for="(message, index) of chatMessages"
 				:key="index"
 				class="flex items-start gap-[16px] w-full"
 			>

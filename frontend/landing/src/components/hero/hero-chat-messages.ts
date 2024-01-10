@@ -5,7 +5,7 @@ export type ChatMessage = {
 	user?: string
 }
 
-export const chatMessages: ChatMessage[] = [
+export const initialChatMessages: ChatMessage[] = [
 	{
     sender: 'user',
     text: 'Hello, World!',
