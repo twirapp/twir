@@ -1,5 +1,5 @@
 ---
-import Button from '@/components/ui/button.vue';
+import UiButton from '@/components/ui/ui-button.vue';
 import HeroChat from './hero-chat.vue';
 
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?component'
@@ -32,8 +32,8 @@ const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
         </p>
 
         <div class="pt-[48px] w-full inline-flex flex-col xs:flex-row gap-3">
-					<Button href="#" variant="secondary">Learn more</Button>
-          <Button href={startButtonHref} variant="primary">{startButtonText}</Button>
+					<UiButton href="#" variant="secondary">Learn more</UiButton>
+          <UiButton href={startButtonHref} variant="primary">{startButtonText}</UiButton>
         </div>
       </div>
       <HeroChat client:only="vue" />

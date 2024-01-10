@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 
 import { browserUnProtectedClient } from '@/api/twirp-browser.js';
-import Button from '@/components/ui/button.vue';
+import UiButton from '@/components/ui/ui-button.vue';
 
 const url = new URL(window.location.href);
 const code = url.searchParams.get('code');
@@ -37,9 +37,9 @@ onMounted(async () => {
 	<div class="flex justify-center items-center h-screen px-3">
 		<div v-if="error" class="flex flex-col gap-2 items-center">
 			<span class="font-medium text-red-400 text-center">{{ error }}</span>
-			<Button href="/" variant="primary">
+			<UiButton href="/" variant="primary">
 				Back to home
-			</Button>
+			</UiButton>
 		</div>
 
 		<div v-else-if="loading" role="status">
