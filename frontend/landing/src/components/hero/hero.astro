@@ -4,6 +4,7 @@ import HeroChat from './hero-chat.vue';
 
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?component'
 import { DISCORD_INVITE_URL } from '@twir/brand';
+import { initialChatMessages } from './hero-chat-messages.js';
 
 const startButtonHref = Astro.locals.profile ? '/dashboard' : Astro.locals.authLink
 const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
@@ -36,7 +37,7 @@ const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
           <UiButton href={startButtonHref} variant="primary">{startButtonText}</UiButton>
         </div>
       </div>
-      <HeroChat client:load />
+      <HeroChat client:idle messages={initialChatMessages} />
     </div>
   </div>
 </section>
