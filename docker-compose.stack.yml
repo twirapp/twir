@@ -312,7 +312,6 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-dashboard.rule=Host(`twir.app`) && PathPrefix(`/dashboard`)
         - traefik.http.routers.twir-dashboard.middlewares=dashboard-stripprefix
-        - traefik.http.routers.twir-dashboard.middlewares=cloudflarewarp
         - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
         - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
