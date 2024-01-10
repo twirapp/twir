@@ -11,10 +11,10 @@ const streamers = await getStreamers()
 			<h1 class="font-semibold text-[#B0ADFF] text-base uppercase tracking-wider mb-3 text-center">Streamers</h1>
 			<div class="flex justify-between gap-4 flex-col">
 				<h3 class="text-white text-4xl font-bold text-center">
-					Communtiy around Twir
+					Community around Twir
 				</h3>
 			</div>
 		</div>
-		<StreamersList client:only="vue" streamers={streamers} />
+		<StreamersList client:visible streamers={streamers} />
 	</div>
 </section>

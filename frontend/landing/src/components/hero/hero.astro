@@ -1,9 +1,12 @@
 ---
-import HeroStartButton from './hero-start-button.astro';
-import HeroChat from './hero-chat.astro';
+import UiButton from '@/components/ui/ui-button.vue';
+import HeroChat from './hero-chat.vue';
 
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?component'
 import { DISCORD_URL } from '@/constants.js';
+
+const startButtonHref = Astro.locals.profile ? '/dashboard' : Astro.locals.authLink
+const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
 ---
 
 <section class="px-5 md:px-9 overflow-hidden">
@@ -29,14 +32,11 @@ import { DISCORD_URL } from '@/constants.js';
         </p>
 
         <div class="pt-[48px] w-full inline-flex flex-col xs:flex-row gap-3">
-          <button
-            class="inline-flex justify-center py-3 xs:px-7 sm:py-4 font-medium text-white rounded-lg ring-[#393A3E] ring-1 sm:text-lg text-base hover:bg-[#393A3E]/50 transition-[background,box-shadow] focus-visible:ring-4 focus-visible:outline-none text-center items-center whitespace-nowrap">
-            Learn more
-          </button>
-          <HeroStartButton />
+					<UiButton href="#" variant="secondary">Learn more</UiButton>
+          <UiButton href={startButtonHref} variant="primary">{startButtonText}</UiButton>
         </div>
       </div>
-      <HeroChat />
+      <HeroChat client:only="vue" />
     </div>
   </div>
 </section>
