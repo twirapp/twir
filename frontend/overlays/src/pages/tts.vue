@@ -23,6 +23,7 @@ const ttsUrl = generateSocketUrlWithParams('/overlays/tts', {
 });
 
 const { data } = useWebSocket(ttsUrl, {
+	autoClose: true, // used for development hmr reconnect
 	autoReconnect: {
 		delay: 500,
 	},
@@ -33,9 +34,7 @@ watch(data, (message) => {
 	if (parsedData.eventName === 'say') {
 		queue.value.push(parsedData.data);
 
-		if (queue.value.length === 1) {
-			processQueue();
-		}
+		processQueue();
 	}
 
 	if (parsedData.eventName === 'skip') {
@@ -43,12 +42,14 @@ watch(data, (message) => {
 	}
 });
 
+const processing = ref(false);
+
 const processQueue = async () => {
-	if (queue.value.length === 0) {
-		return;
-	}
+	if (processing.value || !queue.value.length) return;
+	processing.value = true;
 
 	await say(queue.value[0]);
+	processing.value = false;
 	queue.value = queue.value.slice(1);
 
 	// Process the next item in the queue
