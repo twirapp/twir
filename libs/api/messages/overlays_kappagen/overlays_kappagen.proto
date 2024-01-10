@@ -3,7 +3,7 @@ option go_package = "github.com/satont/twir/libs/api/messages/overlays_kappagen"
 package messages.overlays_kappagen;
 
 
-import "messages/events.proto";
+import "messages/events/events.proto";
 
 enum EmojiStyle {
 	None = 0;

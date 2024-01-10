@@ -1,11 +1,11 @@
 syntax = "proto3";
-option go_package = "api";
+option go_package = "./api";
 
 package api;
 
 import "google/protobuf/empty.proto";
 
-import "messages/meta/meta.proto";
+import "messages/meta.proto";
 
 import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
