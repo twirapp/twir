@@ -1,7 +1,6 @@
 <script setup lang="ts">
+import TwirLogo from '@twir/brand/src/logo.svg?component';
 import { computed } from 'vue';
-
-import TwirLogo from '@/assets/twir.svg?component';
 
 type Props = {
 	variant?: 'blue' | 'purple' | 'pink' | 'turquoise';

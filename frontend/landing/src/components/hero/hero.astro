@@ -3,7 +3,7 @@ import UiButton from '@/components/ui/ui-button.vue';
 import HeroChat from './hero-chat.vue';
 
 import ArrowRightIcon from '@/assets/icons/arrow-right.svg?component'
-import { DISCORD_URL } from '@/constants.js';
+import { DISCORD_INVITE_URL } from '@twir/brand';
 
 const startButtonHref = Astro.locals.profile ? '/dashboard' : Astro.locals.authLink
 const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
@@ -16,7 +16,7 @@ const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
       <div class="flex flex-col items-start w-full">
         <a
           class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow"
-          href={DISCORD_URL}
+          href={DISCORD_INVITE_URL}
           target="_blank">
           🚀 View latest updates
           <ArrowRightIcon class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0" />

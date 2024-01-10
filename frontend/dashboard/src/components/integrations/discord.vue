@@ -12,6 +12,7 @@ import {
 	// @ts-ignore
 } from '@discord-message-components/vue';
 import { useQueries } from '@tanstack/vue-query';
+import TwirLogo from '@twir/brand/src/logo.svg?url';
 import {
 	ChannelType,
 	type GetDataResponse,
@@ -38,7 +39,6 @@ import { useI18n } from 'vue-i18n';
 import WithSettings from './variants/withSettings.vue';
 import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 
-import TwirCircle from '@/../public/TwirInCircle.svg?url';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
@@ -300,7 +300,7 @@ const { data: currentUser } = useProfile();
 
 							<div style="width: 50%">
 								<DiscordMessages>
-									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirCircle">
+									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirLogo">
 										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
 											<DiscordMention
 												v-if="m.startsWith('@')"
@@ -320,7 +320,7 @@ const { data: currentUser } = useProfile();
 												embedTitle="Today we are doing amazing things!"
 												:url="`https://twitch.tv/${currentUser?.login}`"
 												:timestamp="new Date()"
-												:footerIcon="TwirCircle"
+												:footerIcon="TwirLogo"
 												borderColor="#6441a5"
 												:thumbnail="guild.liveNotificationShowProfileImage ? currentUser?.avatar : null"
 												:image="guild.liveNotificationShowPreview ? StreamStarting : null"

@@ -17,6 +17,7 @@
 		"@fastify/middie": "8.3.0",
 		"@fastify/static": "6.12.0",
 		"@protobuf-ts/twirp-transport": "2.9.3",
+		"@twir/brand": "workspace:*",
 		"@twir/config": "workspace:*",
 		"@twir/grpc": "workspace:*",
 		"astro": "4.1.1",

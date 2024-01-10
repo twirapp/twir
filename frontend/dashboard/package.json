@@ -16,6 +16,7 @@
     "@tabler/icons-vue": "2.45.0",
     "@tanstack/query-broadcast-client-experimental": "4.36.1",
     "@tanstack/vue-query": "4.37.0",
+    "@twir/brand": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/grpc": "workspace:*",
