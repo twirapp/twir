@@ -1,0 +1,7 @@
+{
+  "name": "@twir/brand",
+	"type": "module",
+	"private": true,
+	"module": "./src/index.js",
+	"types": "./src/types.d.ts"
+}
