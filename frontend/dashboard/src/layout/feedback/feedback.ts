@@ -32,7 +32,7 @@ export const useFeedbackForm = defineStore('feedback', () => {
 
 				throw e;
 			} else {
-				error.value = 'Unexpected error happened, shared discord this into our discord';
+				error.value = 'Unexpected error happened, shared this into our discord';
 				throw e;
 			}
 		}
