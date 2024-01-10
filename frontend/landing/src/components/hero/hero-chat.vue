@@ -15,7 +15,11 @@ const messages = ref<ChatMessage[]>(chatMessages);
 		style="-webkit-mask-image: linear-gradient(0deg, #D9D9D9 75%, rgba(217, 217, 217, 0) 100%)"
 	>
 		<TransitionGroup name="list">
-			<div v-for="(message, index) of messages" :key="index" class="flex items-start gap-[16px] w-full">
+			<div
+				v-for="(message, index) of messages"
+				:key="index"
+				class="flex items-start gap-[16px] w-full"
+			>
 				<chat-avatar
 					v-if="message.type === 'message'"
 					:is-bot="message.sender === 'bot'"
@@ -40,7 +44,10 @@ const messages = ref<ChatMessage[]>(chatMessages);
 					<span v-html="message.text"></span>
 				</div>
 
-				<div v-if="message.type === 'redemption'" class="font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full">
+				<div
+					v-if="message.type === 'redemption'"
+					class="font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full"
+				>
 					<span class="text-sm leading-normal text-white/90" v-html="message.text"></span>
 					<span class="font-semibold">{{ message.user }}</span>
 					<span class="absolute bg-[#4C47F5] w-[2px] rounded-sm h-[calc(100%-24px)] left-0"></span>
@@ -54,16 +61,16 @@ const messages = ref<ChatMessage[]>(chatMessages);
 .list-move,
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s ease;
+	transition: all 0.5s ease;
 }
 
 .list-enter-from,
 .list-leave-to {
-  opacity: 0;
-  transform: translateY(50px);
+	opacity: 0;
+	transform: translateY(50px);
 }
 
 .list-leave-active {
-  position: absolute;
+	position: absolute;
 }
 </style>
