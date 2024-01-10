@@ -142,7 +142,6 @@ services:
         - traefik.enable=true
         - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api`)
         - traefik.http.routers.twir-api.middlewares=api-stripprefix
-        - traefik.http.routers.twir-api.middlewares=cloudflarewarp
         - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
         - traefik.docker.network=traefik-public
