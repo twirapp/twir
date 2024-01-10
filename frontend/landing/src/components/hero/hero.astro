@@ -36,7 +36,7 @@ const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
           <UiButton href={startButtonHref} variant="primary">{startButtonText}</UiButton>
         </div>
       </div>
-      <HeroChat client:only="vue" />
+      <HeroChat client:idle />
     </div>
   </div>
 </section>
