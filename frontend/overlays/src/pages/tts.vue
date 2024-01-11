@@ -13,6 +13,7 @@ declare global {
 	}
 }
 
+const isProcessing = ref(false);
 const queueMessages = ref<TTSMessage[]>([]);
 const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null);
 
@@ -24,7 +25,6 @@ const ttsUrl = generateSocketUrlWithParams('/overlays/tts', {
 });
 
 const { data } = useWebSocket(ttsUrl, {
-	autoClose: true, // used for development hmr reconnect
 	autoReconnect: {
 		delay: 500,
 	},
@@ -34,22 +34,28 @@ watch(data, (message) => {
 	const parsedData = JSON.parse(message);
 	if (parsedData.eventName === 'say') {
 		queueMessages.value.push(parsedData.data);
-
-		if (!currentAudioBuffer.value) {
-			processQueue();
-		}
+		processQueue();
 	}
 
-	if (parsedData.eventName === 'skip' && currentAudioBuffer.value) {
-		currentAudioBuffer.value.stop();
+	if (parsedData.eventName === 'skip') {
+		currentAudioBuffer.value?.stop();
+	}
+
+	if (parsedData.eventName === 'skipall') {
+		currentAudioBuffer.value?.stop();
+		queueMessages.value = [];
 	}
 });
 
 async function processQueue() {
+	if (isProcessing.value) return;
+
 	const message = queueMessages.value.shift();
 	if (!message) return;
 
+	isProcessing.value = true;
 	await sayMessage(message);
+	isProcessing.value = false;
 
 	// Process the next item in the queue
 	processQueue();
