@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"prebuild": "rimraf ./**/*.go && rimraf dist",
-		"build": "pnpm build:api && pnpm build:messages",
+		"build": "pnpm build:api && pnpm build:messages && pnpm build:ts",
 		"build:api": "buf generate --template buf.gen.api.yaml api.proto",
 		"build:messages": "buf generate --path messages --template buf.gen.messages.yaml",
 		"build:ts": "tsc"
