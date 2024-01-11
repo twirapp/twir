@@ -2,17 +2,30 @@
 	"name": "@twir/api",
 	"type": "module",
 	"scripts": {
-		"build": "buf generate --path=api.proto --include-imports"
+		"prebuild": "rimraf ./**/*.go && rimraf dist",
+		"build": "pnpm build:api && pnpm build:messages",
+		"build:api": "buf generate --template buf.gen.api.yaml api.proto",
+		"build:messages": "buf generate --path messages --template buf.gen.messages.yaml",
+		"build:ts": "tsc"
+	},
+	"exports": {
+		"./*": {
+			"import": "./dist/*.js",
+			"require": "./dist/*.js"
+		}
 	},
 	"typesVersions": {
 		"*": {
 			"*": [
-				"./dist/*.d.ts"
+				"./dist/*.ts"
 			]
 		}
 	},
 	"dependencies": {
 		"@bufbuild/protobuf": "1.6.0",
-		"@bufbuild/protoc-gen-es": "1.6.0"
+		"@bufbuild/protoc-gen-es": "1.6.0",
+		"@protobuf-ts/plugin": "2.9.3",
+		"@protobuf-ts/runtime": "2.9.3",
+		"@protobuf-ts/runtime-rpc": "2.9.3"
 	}
 }
