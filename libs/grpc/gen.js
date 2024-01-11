@@ -1,11 +1,9 @@
 import { exec } from 'node:child_process';
 import { existsSync, mkdirSync, rmSync } from 'node:fs';
-import { readFile, unlink, readdir, writeFile } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import { platform } from 'node:os';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-
-
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -31,11 +29,6 @@ const protocGenGoGrpcPath = resolve(
 	cwd,
 	'.bin',
 	`protoc-gen-go-grpc${binSuffixExe}`,
-);
-const protocGenTwirpPath = resolve(
-	cwd,
-	'.bin',
-	`protoc-gen-twirp${binSuffixExe}`,
 );
 const protocGenTsPath = resolve(
 	__dirname,
@@ -122,60 +115,6 @@ const promisedExec = async (cmd) => {
 				return requests;
 			}),
 	);
-
-	await promisedExec([
-		protocPath,
-		`--plugin="ts=${protocGenTwirpPath}"`,
-		`--ts_out=${workDir}/generated/api`,
-		`--ts_opt=optimize_code_size`,
-		`--ts_opt=generate_dependencies,eslint_disable`,
-		`--experimental_allow_proto3_optional`,
-		`--proto_path=${workDir}/protos`,
-		`api.proto`,
-	].join(' '));
-
-	await promisedExec([
-		protocPath,
-		`--plugin="twirp=${protocGenTwirpPath}"`,
-		`--plugin="go=${protocGenGoPath}"`,
-		`--go_opt=paths=source_relative`,
-		`--twirp_opt=paths=source_relative`,
-		`--go_out=${workDir}/generated/api`,
-		`--twirp_out=${workDir}/generated/api`,
-		`	--proto_path=${workDir}/protos`,
-		`api.proto`,
-	].join(' '));
-
-	const apiFiles = await readdir(`${workDir}/protos/api`);
-
-	for (const file of apiFiles) {
-		const name = file.replace('.proto', '');
-		const directoryPath = `${workDir}/generated/api/${name}`;
-		const filePath = `${directoryPath}/${name}.pb.go`;
-
-		mkdirSync(directoryPath, { recursive: true });
-
-		await promisedExec([
-			protocPath,
-			`--plugin="go=${protocGenGoPath}"`,
-			`--go_opt=paths=source_relative`,
-			`--go_out=${directoryPath}`,
-			`--experimental_allow_proto3_optional`,
-			`--proto_path=${workDir}/protos`,
-			`api/${file}`,
-		].join(' '));
-
-		// найс костыль кекв / cool crutch kekw
-		const sourceFilePath = `${directoryPath}/api/${name}.pb.go`;
-
-		try {
-			const fileData = await readFile(sourceFilePath, 'utf8');
-			await writeFile(filePath, fileData, 'utf8');
-			await unlink(sourceFilePath);
-		} catch {
-			process.exit(1);
-		}
-	}
 
 	console.info(`✅ Generated api proto definitions for go and ts.`);
 })();

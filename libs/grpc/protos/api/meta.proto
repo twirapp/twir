@@ -1,8 +1,0 @@
-syntax = "proto3";
-option go_package = "github.com/satont/twir/libs/grpc/generated/api/meta";
-package api.meta;
-import "google/protobuf/empty.proto";
-
-message BaseRequestMeta {
-//	string channelId = 1;
-}

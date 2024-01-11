@@ -5,10 +5,9 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
-    "declaration": true,
-    "declarationMap": true,
+    "declaration": false,
+    "declarationMap": false,
     "preserveSymlinks": true,
-    "composite": false,
     "esModuleInterop": true
   },
   "includes": [
