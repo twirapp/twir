@@ -24,6 +24,7 @@ const ttsUrl = generateSocketUrlWithParams('/overlays/tts', {
 });
 
 const { data } = useWebSocket(ttsUrl, {
+	autoClose: true, // used for development hmr reconnect
 	autoReconnect: {
 		delay: 500,
 	},
