@@ -1,12 +1,12 @@
-import DonationAlerts from '@/assets/integrations/donationalerts.svg?component';
-import Faceit from '@/assets/integrations/faceit.svg?component';
-import LastFm from '@/assets/integrations/lastfm.svg?component';
-import OBS from '@/assets/integrations/obs.svg?component';
-import Spotify from '@/assets/integrations/spotify.svg?component';
-// import StreamElements from '@/assets/integrations/streamelements.svg?component';
-import Streamlabs from '@/assets/integrations/streamlabs.svg?component';
-import Twitch from '@/assets/integrations/twitch.svg?component';
-import Vk from '@/assets/integrations/vk.svg?component';
+import DonationAlerts from '@/assets/social/donationalerts.svg?use';
+import Faceit from '@/assets/social/faceit.svg?use';
+import LastFm from '@/assets/social/lastfm.svg?use';
+import OBS from '@/assets/social/obs.svg?use';
+import Spotify from '@/assets/social/spotify.svg?use';
+// import StreamElements from '@/assets/social/streamelements.svg?use';
+import Streamlabs from '@/assets/social/streamlabs.svg?use';
+import Twitch from '@/assets/social/twitch.svg?use';
+import Vk from '@/assets/social/vk.svg?use';
 
 interface Integration {
 	icon: any;
