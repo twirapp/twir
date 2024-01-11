@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { UpdateDuelSettings } from '@twir/api/messages/games/games_pb';
+import type { UpdateDuelSettings } from '@twir/api/messages/games/games';
 
 import { protectedApiClient } from '@/api/twirp';
 

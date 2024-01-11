@@ -438,12 +438,9 @@ importers:
 
   libs/api:
     dependencies:
-      '@bufbuild/protobuf':
-        specifier: 1.6.0
-        version: 1.6.0
       '@bufbuild/protoc-gen-es':
         specifier: 1.6.0
-        version: 1.6.0(@bufbuild/protobuf@1.6.0)
+        version: 1.6.0
       '@protobuf-ts/plugin':
         specifier: 2.9.3
         version: 2.9.3
@@ -986,7 +983,7 @@ packages:
     resolution: {integrity: sha512-hp19vSFgNw3wBBcVBx5qo5pufCqjaJ0Cfk5H/pfjNOfNWU+4/w0QVOmfAOZNRrNWRrVuaJWxcN8P2vhOkkzbBQ==}
     dev: false
 
-  /@bufbuild/protoc-gen-es@1.6.0(@bufbuild/protobuf@1.6.0):
+  /@bufbuild/protoc-gen-es@1.6.0:
     resolution: {integrity: sha512-m0akOPWeD5UBfGdZyudrbnmdjI8l/ZHlP8TyEIcj7qMCR4kh68tMtGvrjRzj5ynIpavrr6G7P06XP9F9f2MDRw==}
     engines: {node: '>=14'}
     hasBin: true
@@ -996,7 +993,6 @@ packages:
       '@bufbuild/protobuf':
         optional: true
     dependencies:
-      '@bufbuild/protobuf': 1.6.0
       '@bufbuild/protoplugin': 1.6.0
     transitivePeerDependencies:
       - supports-color

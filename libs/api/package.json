@@ -22,7 +22,6 @@
 		}
 	},
 	"dependencies": {
-		"@bufbuild/protobuf": "1.6.0",
 		"@bufbuild/protoc-gen-es": "1.6.0",
 		"@protobuf-ts/plugin": "2.9.3",
 		"@protobuf-ts/runtime": "2.9.3",

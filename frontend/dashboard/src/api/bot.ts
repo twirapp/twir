@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { BotJoinPartRequest_Action } from '@twir/grpc/generated/api/api/bots';
+import type { BotJoinPartRequest_Action } from '@twir/api/messages/bots/bots';
 
 import { protectedApiClient } from './twirp.js';
 
