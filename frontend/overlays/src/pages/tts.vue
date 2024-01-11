@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import type { TTSMessage } from '@twir/grpc/generated/websockets/websockets';
 import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -12,7 +13,8 @@ declare global {
 	}
 }
 
-const queue = ref<Array<Record<string, string>>>([]);
+const isProcessing = ref(false);
+const queueMessages = ref<TTSMessage[]>([]);
 const currentAudioBuffer = ref<AudioBufferSourceNode | null>(null);
 
 const route = useRoute();
@@ -23,7 +25,6 @@ const ttsUrl = generateSocketUrlWithParams('/overlays/tts', {
 });
 
 const { data } = useWebSocket(ttsUrl, {
-	autoClose: true, // used for development hmr reconnect
 	autoReconnect: {
 		delay: 500,
 	},
@@ -32,36 +33,41 @@ const { data } = useWebSocket(ttsUrl, {
 watch(data, (message) => {
 	const parsedData = JSON.parse(message);
 	if (parsedData.eventName === 'say') {
-		queue.value.push(parsedData.data);
-
+		queueMessages.value.push(parsedData.data);
 		processQueue();
 	}
 
 	if (parsedData.eventName === 'skip') {
 		currentAudioBuffer.value?.stop();
 	}
+
+	if (parsedData.eventName === 'skipall') {
+		currentAudioBuffer.value?.stop();
+		queueMessages.value = [];
+	}
 });
 
-const processing = ref(false);
+async function processQueue() {
+	if (isProcessing.value) return;
 
-const processQueue = async () => {
-	if (processing.value || !queue.value.length) return;
-	processing.value = true;
+	const message = queueMessages.value.shift();
+	if (!message) return;
 
-	await say(queue.value[0]);
-	processing.value = false;
-	queue.value = queue.value.slice(1);
+	isProcessing.value = true;
+	await sayMessage(message);
+	isProcessing.value = false;
 
 	// Process the next item in the queue
 	processQueue();
-};
+}
 
-const say = async (data: Record<string, string>) => {
+async function sayMessage(data: TTSMessage) {
 	if (!apiKey || !data.text) return;
+
 	const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 	const gainNode = audioContext.createGain();
 
-	const req = await unprotectedApiClient.modulesTTSSay({
+	const { response } = await unprotectedApiClient.modulesTTSSay({
 		voice: data.voice,
 		text: data.text,
 		volume: Number(data.volume),
@@ -72,19 +78,19 @@ const say = async (data: Record<string, string>) => {
 	const source = audioContext.createBufferSource();
 	currentAudioBuffer.value = source;
 
-	source.buffer = await audioContext.decodeAudioData(req.response.file.buffer);
+	source.buffer = await audioContext.decodeAudioData(response.file.buffer);
 
 	gainNode.gain.value = parseInt(data.volume) / 100;
 	source.connect(gainNode);
 	gainNode.connect(audioContext.destination);
 
-	return new Promise((resolve) => {
+	return new Promise<void>((resolve) => {
 		source.onended = () => {
 			currentAudioBuffer.value = null;
-			resolve(null);
+			resolve();
 		};
 
 		source.start(0);
 	});
-};
+}
 </script>
