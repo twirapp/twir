@@ -29,12 +29,12 @@ defineProps<{
 					v-for="(streamer, streamerIdx) of item" :key="streamerIdx"
 					class="flex gap-3 items-center"
 				>
-					<div class="relative">
+					<div class="relative flex-none">
 						<img
 							:src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false"
 							:alt="`streamers-list-${streamer.userDisplayName}`"
 						/>
-						<span v-if="streamer.isLive" class="absolute inline-block bg-red-600 text-white text-xs font-semibold uppercase px-1 rounded-sm top-8 left-1">
+						<span v-if="streamer.isLive" class="absolute inline-block bg-red-600 text-white text-xs font-semibold uppercase px-1 rounded-sm -bottom-[8px] left-[3px]">
 							LIVE
 						</span>
 					</div>
