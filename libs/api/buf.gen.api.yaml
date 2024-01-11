@@ -1,7 +1,6 @@
 version: v1
 plugins:
   - plugin: twirp
-    path: ../../.bin/protoc-gen-twirp
     out: ./
     opt:
       - paths=source_relative

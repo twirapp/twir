@@ -1,7 +1,7 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/eventsub";
+option go_package = "github.com/twirapp/twir/libs/grpc/eventsub";
 package eventsub;
-import "google/protobuf/empty.proto"; 
+import "google/protobuf/empty.proto";
 
 service EventSub {
   rpc SubscribeToEvents(SubscribeToEventsRequest) returns (google.protobuf.Empty) {}

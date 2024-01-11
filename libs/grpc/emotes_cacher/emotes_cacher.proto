@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/emotes_cacher";
+option go_package = "github.com/twirapp/twir/libs/grpc/emotes_cacher";
 package emotes_cacher;
 import "google/protobuf/empty.proto";
 

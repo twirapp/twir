@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/events";
+option go_package = "github.com/twirapp/twir/libs/grpc/events";
 package events;
 import "google/protobuf/empty.proto";
 

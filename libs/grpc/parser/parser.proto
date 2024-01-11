@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/parser";
+option go_package = "github.com/twirapp/twir/libs/grpc/parser";
 package parser;
 import "google/protobuf/empty.proto";
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
+option go_package = "github.com/twirapp/twir/libs/grpc/tokens";
 package tokens;
-option go_package = "tsuwari/grpc/tokens";
+import "google/protobuf/empty.proto";
 
 service Tokens {
   rpc RequestAppToken(google.protobuf.Empty) returns (Token) {}

@@ -1,7 +1,7 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto"; 
+option go_package = "github.com/twirapp/twir/libs/grpc/integrations";
 package integrations;
-option go_package = "tsuwari/grpc/integrations";
+import "google/protobuf/empty.proto";
 
 service Integrations {
   rpc AddIntegration(Request) returns (google.protobuf.Empty) {}

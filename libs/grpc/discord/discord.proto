@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/discord";
+option go_package = "github.com/twirapp/twir/libs/grpc/discord";
 package discord;
 import "google/protobuf/empty.proto";
 

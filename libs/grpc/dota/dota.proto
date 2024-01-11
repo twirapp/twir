@@ -1,6 +1,6 @@
 syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/grpc/dota";
 package dota;
-option go_package = "tsuwari/grpc/dota";
 
 service Dota {
   rpc GetPlayerCard(GetPlayerCardRequest) returns (GetPlayerCardResponse) {}

@@ -1,4 +1,4 @@
-module github.com/satont/twir/libs/grpc
+module github.com/twirapp/twir/libs/grpc
 
 go 1.21
 

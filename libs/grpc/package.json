@@ -4,22 +4,18 @@
 	"scripts": {
 		"prebuild": "rimraf dist generated",
 		"gen": "node ./gen.js",
-		"build": "pnpm gen && pnpm build:esm && pnpm build:cjs && pnpm build:types",
-		"build:esm": "tsc --module ESNext --outDir dist/esm --declaration false --declarationMap false",
-		"build:cjs": "tsc --module CommonJS --declaration false --declarationMap false --outDir dist/cjs",
-		"build:types": "tsc --emitDeclarationOnly --outDir dist/types",
-		"postbuild": "node ./postbuild.js"
+		"build": "node buf.js generate --exclude-path=node_modules --include-imports --include-wkt ./*/**.proto"
 	},
 	"exports": {
 		"./*": {
-			"import": "./dist/esm/*.js",
-			"require": "./dist/cjs/*.js"
+			"import": "./dist/*.js",
+			"require": "./dist/*.js"
 		}
 	},
 	"typesVersions": {
 		"*": {
 			"*": [
-				"./dist/types/*.d.ts"
+				"./dist/types/*.ts"
 			]
 		}
 	},

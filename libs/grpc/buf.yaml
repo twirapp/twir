@@ -1,0 +1,13 @@
+version: v1
+deps:
+  - buf.build/googleapis/googleapis
+breaking:
+  use:
+    - WIRE_JSON
+  ignore:
+    - google
+lint:
+  use:
+    - DEFAULT
+  ignore:
+    - google

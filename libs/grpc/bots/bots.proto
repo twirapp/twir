@@ -1,5 +1,5 @@
 syntax = "proto3";
-option go_package = "tsuwari/grpc/bots";
+option go_package = "github.com/twirapp/twir/libs/grpc/bots";
 package bots;
 import "google/protobuf/empty.proto";
 

@@ -1,7 +1,7 @@
 syntax = "proto3";
-import "google/protobuf/empty.proto";
+option go_package = "github.com/twirapp/twir/libs/grpc/ytsr";
 package ytsr;
-option go_package = "tsuwari/grpc/ytsr";
+import "google/protobuf/empty.proto";
 
 service Ytsr {
   rpc Search(SearchRequest) returns (SearchResponse) {}
