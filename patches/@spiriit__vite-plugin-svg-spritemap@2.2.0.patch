@@ -1,0 +1,48 @@
+diff --git a/dist/index.js b/dist/index.js
+index 4f582c951885f46602d774727f33c392166b813d..00ddfa575faad59bb2ed059ceaa908fe3ddd1a18 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -5,6 +5,12 @@ var getFilename = () => fileURLToPath(import.meta.url);
+ var getDirname = () => path.dirname(getFilename());
+ var __dirname = /* @__PURE__ */ getDirname();
+ 
++function getSpritemapPath(config) {
++  const envDir = config.envDir.split('/').at(-1)
++  const basePath = config.base
++  return `${basePath}spritemap_${envDir}`
++}
++
+ // src/plugins/build.ts
+ import path3 from "path";
+ 
+@@ -4681,8 +4687,9 @@ function DevPlugin(iconsPattern, options) {
+       directories.forEach((directory) => this.addWatchFile(directory));
+     },
+     configureServer(server) {
++      const spritemapPath = getSpritemapPath(config);
+       server.middlewares.use(async (req, res, next) => {
+-        if (req.url?.startsWith("/__spritemap")) {
++        if (req.url?.startsWith(spritemapPath)) {
+           res.statusCode = 200;
+           res.setHeader("Content-Type", "image/svg+xml");
+           res.setHeader("Access-Control-Allow-Origin", "*");
+@@ -4794,6 +4801,7 @@ function VuePlugin(iconsPattern, options) {
+       svgManager.updateAll();
+     },
+     async load(id) {
++      const spritemapPath = getSpritemapPath(config);
+       if (config.plugins.findIndex((plugin) => plugin.name === "vite:vue") === -1 || !options.output)
+         return;
+       if (!filterVueComponent(id))
+@@ -4805,9 +4813,9 @@ function VuePlugin(iconsPattern, options) {
+       if (options.output[query] === false)
+         return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the ${query} option to load ${id} as component.`);
+       if (query === "view")
+-        source = `<img src="/__spritemap#${options.prefix}${name}-view" width="${svg?.width || ""}" height="${svg?.height || ""}" />`;
++        source = `<img src="${spritemapPath}#${options.prefix}${name}-view" width="${svg?.width || ""}" height="${svg?.height || ""}" />`;
+       else
+-        source = `<svg><slot/><use href="/__spritemap#${options.prefix}${name}"></use></svg>`;
++        source = `<svg><slot/><use href="${spritemapPath}#${options.prefix}${name}"></use></svg>`;
+       const { compileTemplate } = await import("vue/compiler-sfc");
+       const { code } = compileTemplate({
+         id,

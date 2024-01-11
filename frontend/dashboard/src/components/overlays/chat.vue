@@ -13,6 +13,7 @@ const router = useRouter();
 <template>
 	<card
 		:icon="IconMessage"
+		:icon-stroke="1"
 		title="Chat"
 		:description="t('overlays.chat.description')"
 		overlay-path="chat"

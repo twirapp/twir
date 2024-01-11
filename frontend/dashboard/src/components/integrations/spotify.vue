@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useSpotifyIntegration } from '@/api/index.js';
-import IconSpotify from '@/assets/icons/integrations/spotify.svg?component';
+import IconSpotify from '@/assets/integrations/spotify.svg?use';
 import SongDescription from '@/components/integrations/helpers/songDescription.vue';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 

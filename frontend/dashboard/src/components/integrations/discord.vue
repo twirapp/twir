@@ -12,7 +12,6 @@ import {
 	// @ts-ignore
 } from '@discord-message-components/vue';
 import { useQueries } from '@tanstack/vue-query';
-import TwirLogo from '@twir/brand/src/logo.svg?url';
 import {
 	ChannelType,
 	type GetDataResponse,
@@ -40,8 +39,9 @@ import WithSettings from './variants/withSettings.vue';
 import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
-import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
+import IconDiscord from '@/assets/integrations/discord.svg?use';
+import TwirLogo from '@/components/twir-logo.vue';
 
 const themeVars = useThemeVars();
 
@@ -187,7 +187,7 @@ const { data: currentUser } = useProfile();
 						<div style="display: flex; gap: 5px; align-items: center; justify-content: center">
 							<n-avatar
 								round
-								:src="`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`"
+								:src="`https://cdn.discordapp.com/${guild.id}/${guild.icon}.png`"
 								class="guild-avatar"
 								:render-fallback="() => guild.name.charAt(0)"
 							/>

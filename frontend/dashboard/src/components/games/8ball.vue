@@ -46,6 +46,7 @@ async function save() {
 	<card
 		title="8ball"
 		:icon="IconMessageCircleQuestion"
+		:icon-stroke="1"
 		:description="t('games.8ball.description')"
 		@open-settings="isModalOpened = true"
 	/>

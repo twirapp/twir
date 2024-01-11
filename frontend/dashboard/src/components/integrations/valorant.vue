@@ -3,7 +3,7 @@ import { NInput, NFormItem, useThemeVars } from 'naive-ui';
 import { ref, watch } from 'vue';
 
 import { useValorantIntegration } from '@/api/index.js';
-import ValorantSVG from '@/assets/icons/integrations/valorant.svg?component';
+import ValorantSVG from '@/assets/integrations/valorant.svg?use';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
 const themeVars = useThemeVars();

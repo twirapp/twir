@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import { useBeRightBackOverlayManager } from '@/api/index.js';
-import IconBrb from '@/assets/icons/overlays/brb.svg?component';
+import KeyboardAndMouseIcon from '@/assets/overlays/keyboard-and-mouse.svg?use';
 import Card from '@/components/overlays/card.vue';
 
 const { t } = useI18n();
@@ -15,7 +15,7 @@ const router = useRouter();
 
 <template>
 	<card
-		:icon="IconBrb"
+		:icon="KeyboardAndMouseIcon"
 		title="AFK overlay"
 		:description="t('overlays.brb.description')"
 		overlay-path="brb"

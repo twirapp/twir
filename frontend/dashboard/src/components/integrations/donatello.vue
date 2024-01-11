@@ -2,7 +2,7 @@
 import { NTimeline, NTimelineItem, NText } from 'naive-ui';
 
 import { useDonatelloIntegration } from '@/api/index.js';
-import DonatelloSVG from '@/assets/icons/integrations/donatello.svg?component';
+import DonatelloSVG from '@/assets/integrations/donatello.svg?use';
 import CopyInput from '@/components/copyInput.vue';
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';

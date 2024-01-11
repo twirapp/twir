@@ -8,6 +8,7 @@ const titleColor = computed(() => themeVars.value.textColor1);
 withDefaults(defineProps<{
 	title: string,
 	icon?: FunctionalComponent,
+	iconStroke?: number,
 	withStroke?: boolean,
 	iconFill?: string
 	iconWidth?: string
@@ -37,12 +38,14 @@ defineSlots<{
 			<component
 				:is="icon"
 				v-if="icon"
-				style="stroke-width: 2px; margin-bottom: 16px"
 				:style="{
+					color: iconFill,
+					fill: iconFill ? 'currentColor' : null,
 					stroke: withStroke ? '#61e8bb' : null,
-					fill: iconFill,
+					strokeWidth: iconStroke,
 					width: iconWidth,
 					height: iconHeight,
+					marginBottom: '16px'
 				}"
 			/>
 			<n-space justify="space-between">

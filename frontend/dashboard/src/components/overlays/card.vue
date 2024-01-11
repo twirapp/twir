@@ -14,6 +14,7 @@ const props = withDefaults(defineProps<{
 	title: string;
 	overlayPath: string;
 	icon: FunctionalComponent;
+	iconStroke?: number
 	showSettings?: boolean
 	copyDisabled?: boolean,
 	showCopy?: boolean
@@ -36,7 +37,7 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 </script>
 
 <template>
-	<card :title="title" :icon="icon" style="height: 100%;">
+	<card :title="title" :icon="icon" :icon-stroke="iconStroke" style="height: 100%;">
 		<template #content>
 			{{ description }}
 		</template>

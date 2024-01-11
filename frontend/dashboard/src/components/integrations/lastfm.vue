@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useLastfmIntegration } from '@/api/index.js';
-import IconLastFM from '@/assets/icons/integrations/lastfm.svg?component';
+import IconLastFM from '@/assets/integrations/lastfm.svg?use';
 import SongDescription from '@/components/integrations/helpers/songDescription.vue';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
