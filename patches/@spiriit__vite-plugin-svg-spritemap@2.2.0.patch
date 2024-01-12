@@ -1,5 +1,5 @@
 diff --git a/dist/index.js b/dist/index.js
-index 4f582c951885f46602d774727f33c392166b813d..00ddfa575faad59bb2ed059ceaa908fe3ddd1a18 100644
+index 4f582c951885f46602d774727f33c392166b813d..149a09223b8d5507d67d69dbff2adae46d62ffaf 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -5,6 +5,12 @@ var getFilename = () => fileURLToPath(import.meta.url);
@@ -7,15 +7,28 @@ index 4f582c951885f46602d774727f33c392166b813d..00ddfa575faad59bb2ed059ceaa908fe
  var __dirname = /* @__PURE__ */ getDirname();
  
 +function getSpritemapPath(config) {
-+  const envDir = config.envDir.split('/').at(-1)
-+  const basePath = config.base
-+  return `${basePath}spritemap_${envDir}`
++  const envDir = config.envDir.split('/').at(-1);
++  const basePath = config.base;
++  return `${basePath}spritemap_${envDir}`;
 +}
 +
  // src/plugins/build.ts
  import path3 from "path";
  
-@@ -4681,8 +4687,9 @@ function DevPlugin(iconsPattern, options) {
+@@ -4636,8 +4642,11 @@ function BuildPlugin(iconsPattern, options) {
+     },
+     transform(code) {
+       if (typeof options.output === "object") {
++        const spriteMapPath = getSpritemapPath(config);
++        const filePath = path3.join(config.base, this.getFileName(fileRef));
++
+         return {
+-          code: code.replace(/\/__spritemap/g, path3.join(config.base, this.getFileName(fileRef))),
++          code: code.replaceAll(spriteMapPath, filePath),
+           map: null
+         };
+       }
+@@ -4681,8 +4690,9 @@ function DevPlugin(iconsPattern, options) {
        directories.forEach((directory) => this.addWatchFile(directory));
      },
      configureServer(server) {
@@ -26,7 +39,7 @@ index 4f582c951885f46602d774727f33c392166b813d..00ddfa575faad59bb2ed059ceaa908fe
            res.statusCode = 200;
            res.setHeader("Content-Type", "image/svg+xml");
            res.setHeader("Access-Control-Allow-Origin", "*");
-@@ -4794,6 +4801,7 @@ function VuePlugin(iconsPattern, options) {
+@@ -4794,6 +4804,7 @@ function VuePlugin(iconsPattern, options) {
        svgManager.updateAll();
      },
      async load(id) {
@@ -34,7 +47,7 @@ index 4f582c951885f46602d774727f33c392166b813d..00ddfa575faad59bb2ed059ceaa908fe
        if (config.plugins.findIndex((plugin) => plugin.name === "vite:vue") === -1 || !options.output)
          return;
        if (!filterVueComponent(id))
-@@ -4805,9 +4813,9 @@ function VuePlugin(iconsPattern, options) {
+@@ -4805,9 +4816,9 @@ function VuePlugin(iconsPattern, options) {
        if (options.output[query] === false)
          return config.logger.warn(`[vite-plugin-svg-spritemap] You need to enable the ${query} option to load ${id} as component.`);
        if (query === "view")
