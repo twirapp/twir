@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@spiriit/vite-plugin-svg-spritemap@2.2.0':
-    hash: xkepfhvrfnr7nngcumpwayfxw4
+    hash: itt25l5ykepzroziatyhks42di
     path: patches/@spiriit__vite-plugin-svg-spritemap@2.2.0.patch
 
 importers:
@@ -247,7 +247,7 @@ importers:
         version: 2.9.3
       '@spiriit/vite-plugin-svg-spritemap':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5)
+        version: 2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5)
       '@vitejs/plugin-vue':
         specifier: 5.0.2
         version: 5.0.2(vite@5.0.11)(vue@3.4.5)
@@ -323,7 +323,7 @@ importers:
     devDependencies:
       '@spiriit/vite-plugin-svg-spritemap':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5)
+        version: 2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5)
       '@types/node':
         specifier: 20.10.7
         version: 20.10.7
@@ -2087,7 +2087,7 @@ packages:
       '@daybrush/utils': 1.13.0
     dev: false
 
-  /@spiriit/vite-plugin-svg-spritemap@2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5):
+  /@spiriit/vite-plugin-svg-spritemap@2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5):
     resolution: {integrity: sha512-KN6q6EMDG871e5GPXnI16N3cVWpVt2FRfQnP6TEuQVQtLgEtxTWBJaWn9NGZe8lCDkj7jRtN9cqiSCw7Ecs83Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
