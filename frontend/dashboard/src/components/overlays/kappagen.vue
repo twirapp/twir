@@ -13,6 +13,7 @@ const router = useRouter();
 <template>
 	<card
 		:icon="IconMoodWink"
+		:icon-stroke="1"
 		title="Kappagen"
 		:description="t('overlays.kappagen.description')"
 		overlay-path="kappagen"

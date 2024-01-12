@@ -1,5 +1,5 @@
 ---
-import Cube from '@/assets/cube.svg?component';
+import Cube from '@/assets/icons/cube.svg?use';
 
 import { integrations } from './integrations.js';
 ---
@@ -23,7 +23,7 @@ import { integrations } from './integrations.js';
 					<a href={integration.href}>
 						<integration.icon
 							role="listitem"
-							class="md:h-[70px] md:w-[70px] fill-[#72757D] hover:fill-[#606268] m-1 h-16 w-16"
+							class="md:h-[70px] md:w-[70px] text-[#72757D] hover:text-[#606268] transition-colors m-1 h-16 w-16"
 							aria-label={integration.label}
 						/>
 					</a>

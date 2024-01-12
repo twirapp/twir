@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@spiriit/vite-plugin-svg-spritemap@2.2.0':
+    hash: xkepfhvrfnr7nngcumpwayfxw4
+    path: patches/@spiriit__vite-plugin-svg-spritemap@2.2.0.patch
+
 importers:
 
   .:
@@ -240,6 +245,9 @@ importers:
       '@protobuf-ts/runtime-rpc':
         specifier: 2.9.3
         version: 2.9.3
+      '@spiriit/vite-plugin-svg-spritemap':
+        specifier: 2.2.0
+        version: 2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5)
       '@vitejs/plugin-vue':
         specifier: 5.0.2
         version: 5.0.2(vite@5.0.11)(vue@3.4.5)
@@ -258,9 +266,6 @@ importers:
       vite-bundle-visualizer:
         specifier: 1.0.0
         version: 1.0.0
-      vite-svg-loader:
-        specifier: 5.1.0
-        version: 5.1.0(vue@3.4.5)
       vue-tsc:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)
@@ -316,6 +321,9 @@ importers:
         specifier: 3.4.5
         version: 3.4.5(typescript@5.3.3)
     devDependencies:
+      '@spiriit/vite-plugin-svg-spritemap':
+        specifier: 2.2.0
+        version: 2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5)
       '@types/node':
         specifier: 20.10.7
         version: 20.10.7
@@ -325,9 +333,6 @@ importers:
       vite:
         specifier: 5.0.11
         version: 5.0.11(@types/node@20.10.7)(sass@1.69.7)
-      vite-svg-loader:
-        specifier: 5.1.0
-        version: 5.1.0(vue@3.4.5)
 
   frontend/overlays:
     dependencies:
@@ -2082,6 +2087,26 @@ packages:
       '@daybrush/utils': 1.13.0
     dev: false
 
+  /@spiriit/vite-plugin-svg-spritemap@2.2.0(patch_hash=xkepfhvrfnr7nngcumpwayfxw4)(vite@5.0.11)(vue@3.4.5):
+    resolution: {integrity: sha512-KN6q6EMDG871e5GPXnI16N3cVWpVt2FRfQnP6TEuQVQtLgEtxTWBJaWn9NGZe8lCDkj7jRtN9cqiSCw7Ecs83Q==}
+    engines: {node: ^14.18.0 || >=16.0.0}
+    peerDependencies:
+      vite: ^5.0.11
+      vue: ^3.4.7
+    peerDependenciesMeta:
+      vue:
+        optional: true
+    dependencies:
+      '@xmldom/xmldom': 0.8.10
+      fast-glob: 3.3.2
+      hash-sum: 2.0.0
+      mini-svg-data-uri: 1.4.4
+      svgo: 3.2.0
+      vite: 5.0.11(@types/node@20.10.7)(sass@1.69.7)
+      vue: 3.4.5(typescript@5.3.3)
+    dev: true
+    patched: true
+
   /@tabler/icons-vue@2.45.0(vue@3.4.5):
     resolution: {integrity: sha512-jHPfSwbOtHOJq4HB1gi83jKkIrfdEVgIukfAmZQ31mnflbkat9232piVNtdFFOYZk8s7RiqIAgXazYKnwHCdUg==}
     peerDependencies:
@@ -2703,6 +2728,11 @@ packages:
       - '@vue/composition-api'
       - vue
     dev: false
+
+  /@xmldom/xmldom@0.8.10:
+    resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
+    engines: {node: '>=10.0.0'}
+    dev: true
 
   /abort-controller-x@0.4.3:
     resolution: {integrity: sha512-VtUwTNU8fpMwvWGn4xE93ywbogTYsuT+AUxAXOeelbXuQVIwNmC5YLeho9sH4vZ4ITW8414TTAOG1nW6uIVHCA==}
@@ -4716,6 +4746,10 @@ packages:
       has-symbols: 1.0.3
     dev: true
 
+  /hash-sum@2.0.0:
+    resolution: {integrity: sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==}
+    dev: true
+
   /hasown@2.0.0:
     resolution: {integrity: sha512-vUptKVTpIJhcczKBbgnS+RtcuYMB8+oNzPK2/Hp3hanz8JmpATdmmgLgSaadVREkDm+e2giHwY3ZRkyjSIDDFA==}
     engines: {node: '>= 0.4'}
@@ -5940,6 +5974,11 @@ packages:
     resolution: {integrity: sha512-vqiC06CuhBTUdZH+RYl8sFrL096vA45Ok5ISO6sE/Mr1jRbGH4Csnhi8f3wKVl7x8mO4Au7Ir9D3Oyv1VYMFJw==}
     engines: {node: '>=12'}
     dev: false
+
+  /mini-svg-data-uri@1.4.4:
+    resolution: {integrity: sha512-r9deDe9p5FJUPZAk3A59wGH7Ii9YrjjWw0jmw/liSbHl2CHiyXj6FcDXDu2K3TjVAXqiJdaw3xxwlZZr9E6nHg==}
+    hasBin: true
+    dev: true
 
   /minimatch@3.1.2:
     resolution: {integrity: sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==}
@@ -7704,9 +7743,10 @@ packages:
     resolution: {integrity: sha512-ovssysQTa+luh7A5Weu3Rta6FJlFBBbInjOh722LIt6klpU2/HtdUbszju/G4devcvk8PGt7FCLv5wftu3THUA==}
     dev: false
 
-  /svgo@3.1.0:
-    resolution: {integrity: sha512-R5SnNA89w1dYgNv570591F66v34b3eQShpIBcQtZtM5trJwm1VvxbIoMpRYY3ybTAutcKTLEmTsdnaknOHbiQA==}
+  /svgo@3.2.0:
+    resolution: {integrity: sha512-4PP6CMW/V7l/GmKRKzsLR8xxjdHTV4IMvhTnpuHwwBazSIlw5W/5SmPjN8Dwyt7lKbSJrRDgp4t9ph0HgChFBQ==}
     engines: {node: '>=14.0.0'}
+    hasBin: true
     dependencies:
       '@trysound/sax': 0.2.0
       commander: 7.2.0
@@ -8248,15 +8288,6 @@ packages:
     transitivePeerDependencies:
       - rollup
       - supports-color
-    dev: true
-
-  /vite-svg-loader@5.1.0(vue@3.4.5):
-    resolution: {integrity: sha512-M/wqwtOEjgb956/+m5ZrYT/Iq6Hax0OakWbokj8+9PXOnB7b/4AxESHieEtnNEy7ZpjsjYW1/5nK8fATQMmRxw==}
-    peerDependencies:
-      vue: '>=3.2.13'
-    dependencies:
-      svgo: 3.1.0
-      vue: 3.4.5(typescript@5.3.3)
     dev: true
 
   /vite@5.0.11(@types/node@20.10.7)(sass@1.69.7):

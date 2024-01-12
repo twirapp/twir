@@ -4,7 +4,7 @@ import { ref } from 'vue';
 import ChatAvatar from './hero-chat-avatar.vue';
 import { type ChatMessage } from './hero-chat-messages.js';
 
-import ChatMessageTail from '@/assets/chat-message-tail.svg?component';
+import ChatMessageTail from '@/assets/icons/chat-message-tail.svg?use';
 
 const props = defineProps<{
 	messages: ChatMessage[]
@@ -40,9 +40,9 @@ const chatMessages = ref<ChatMessage[]>(props.messages);
 				>
 					<ChatMessageTail
 						:class="{
-							'absolute h-[21px] top-0 -left-[10px]': true,
-							'fill-[#534FDB]': message.sender === 'bot',
-							'fill-[#232427]': message.sender === 'user',
+							'absolute h-[21px] w-[11px] top-0 -left-[10px]': true,
+							'text-[#534FDB]': message.sender === 'bot',
+							'text-[#232427]': message.sender === 'user',
 						}"
 					/>
 					<span v-html="message.text"></span>

@@ -58,6 +58,7 @@ async function save() {
 	<card
 		title="Russian Roulette"
 		:icon="IconBomb"
+		:icon-stroke="1"
 		:description="t('games.russianRoulette.description')"
 		@open-settings="isModalOpened = true"
 	/>

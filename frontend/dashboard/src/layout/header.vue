@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import TwirLogo from '@twir/brand/src/logo.svg?component';
 import { breakpointsTailwind, useBreakpoints, useEventListener } from '@vueuse/core';
 import { NScrollbar, useThemeVars } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
@@ -13,6 +12,8 @@ import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
 import DropdownProfile from './dropdowns/dropdownProfile.vue';
 import HamburgerMenu from './hamburgerMenu.vue';
 import Stats from './stats.vue';
+
+import TwirLogo from '@/components/twir-logo.vue';
 
 defineProps<{
 	toggleSidebar: () => void;

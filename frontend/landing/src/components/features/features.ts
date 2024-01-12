@@ -1,12 +1,12 @@
-import CommandsSvg from '@/assets/features/commands.svg?component';
-import EventsSvg from '@/assets/features/events.svg?component';
-import GreetingsSvg from '@/assets/features/greetings.svg?component';
-import KeywordsSvg from '@/assets/features/keywords.svg?component';
-import ModerationSvg from '@/assets/features/moderation.svg?component';
-import ObsSvg from '@/assets/features/obs.svg?component';
-import SongRequestsSvg from '@/assets/features/song-requests.svg?component';
-import StatsSvg from '@/assets/features/stats.svg?component';
-import TimersSvg from '@/assets/features/timers.svg?component';
+import CommandsSvg from '@/assets/features/commands.svg?use';
+import ConnectionSvg from '@/assets/features/connection.svg?use';
+import EventsSvg from '@/assets/features/events.svg?use';
+import GreetingsSvg from '@/assets/features/greetings.svg?use';
+import KeywordsSvg from '@/assets/features/keywords.svg?use';
+import ModerationSvg from '@/assets/features/moderation.svg?use';
+import SongRequestsSvg from '@/assets/features/song-requests.svg?use';
+import StatsSvg from '@/assets/features/stats.svg?use';
+import TimersSvg from '@/assets/features/timers.svg?use';
 
 interface Feature {
 	title: string;
@@ -59,7 +59,7 @@ export const features: Feature[] = [
     title: 'OBS Websockets',
     description:
       'Highly integrate with obs studio via websockets. Change scenes, mute audio, toggle source visibility via bot',
-    icon: ObsSvg,
+    icon: ConnectionSvg,
   },
 	{
 		title: 'Stats tracking',

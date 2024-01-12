@@ -3,7 +3,7 @@ import { NFormItem, NSelect, useThemeVars } from 'naive-ui';
 import { ref } from 'vue';
 
 import { useFaceitIntegration } from '@/api/index.js';
-import IconFaceit from '@/assets/icons/integrations/faceit.svg?component';
+import IconFaceit from '@/assets/integrations/faceit.svg?use';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
 const themeVars = useThemeVars();

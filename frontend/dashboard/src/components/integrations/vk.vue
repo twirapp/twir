@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVKIntegration } from '@/api/index.js';
-import IconVk from '@/assets/icons/integrations/vk.svg?component';
+import IconVk from '@/assets/integrations/vk.svg?use';
 import SongDescription from '@/components/integrations/helpers/songDescription.vue';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 

@@ -3,7 +3,7 @@ import { NInputGroup, NButton, NInput, NFormItem } from 'naive-ui';
 import { ref, watch } from 'vue';
 
 import { useDonatepayIntegration } from '@/api/index.js';
-import DonatePaySVG from '@/assets/icons/integrations/donatepay.svg?component';
+import DonatePaySVG from '@/assets/integrations/donatepay.svg?use';
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 
@@ -55,4 +55,3 @@ async function save() {
 		</template>
 	</with-settings>
 </template>
-

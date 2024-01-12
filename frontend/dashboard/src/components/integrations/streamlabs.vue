@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { useStreamlabsIntegration } from '@/api/index.js';
-import IconStreamLabs from '@/assets/icons/integrations/streamlabs.svg?component';
+import IconStreamLabs from '@/assets/integrations/streamlabs.svg?use';
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 

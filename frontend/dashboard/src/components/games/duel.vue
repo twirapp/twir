@@ -18,7 +18,7 @@ import Card from './card.vue';
 import CommandButton from '../commandButton.vue';
 
 import { useDuelGame } from '@/api/games/duel';
-import IconDuel from '@/assets/icons/games/duel.svg?component';
+import IconDuel from '@/assets/games/duel.svg?use';
 
 const manager = useDuelGame();
 const { data: settings } = manager.useSettings();
@@ -64,6 +64,7 @@ async function save() {
 		:title="t('games.duel.title')"
 		:description="t('games.duel.description')"
 		:icon="IconDuel"
+		:icon-stroke="1"
 		icon-fill="#63e2b7"
 		@open-settings="isModalOpened = true"
 	/>

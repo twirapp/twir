@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { useDonationAlertsIntegration } from '@/api/index.js';
-import IconDonationAlerts from '@/assets/icons/integrations/donationalerts.svg?component';
+import IconDonationAlerts from '@/assets/integrations/donationalerts.svg?use';
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 

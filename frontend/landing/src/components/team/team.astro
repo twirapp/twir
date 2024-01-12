@@ -1,8 +1,8 @@
 ---
-import Github from '@/assets/social/github.svg?component';
-import Instagram from '@/assets/social/instagram.svg?component';
-import Telegram from '@/assets/social/telegram.svg?component';
-import Twitch from '@/assets/social/twitch.svg?component';
+import Github from '@/assets/social/github.svg?use';
+import Instagram from '@/assets/social/instagram.svg?use';
+import Telegram from '@/assets/social/telegram.svg?use';
+import Twitch from '@/assets/social/twitch.svg?use';
 import { developers, socialLinkLabels } from './team.js';
 ---
 
@@ -13,27 +13,25 @@ import { developers, socialLinkLabels } from './team.js';
   </div>
 
   <div class="pt-16 pl-5 flex flex-wrap gap-8">
-    {
-      developers.map((d) => (
-        <div class="flex gap-6">
-          <img src={d.avatarUrl} class="w-20 h-20 rounded-full" alt={`team-avatar-${d.username}`} />
-          <div class="flex flex-col">
-            <span class="font-semibold text-white text-lg">{d.username}</span>
-            <span class="font-normal mt-1 text-[#ADB0B8] text-base">{d.description}</span>
-            <div class="flex mt-4 gap-4">
-              {Object.keys(d.social).map((s) => (
-                <a href={d.social[s]} target="_blank" aria-label={socialLinkLabels[s]}>
-                  {s === 'twitch' && <Twitch />}
-                  {s === 'telegram' && <Telegram />}
-                  {s === 'github' && <Github />}
-                  {s === 'instagram' && <Instagram />}
-                </a>
-              ))}
-            </div>
+    {developers.map((developer) => (
+      <div class="flex gap-6">
+        <img src={developer.avatarUrl} class="w-20 h-20 rounded-full" alt={`Avatar of ${developer.username} from GitHub`} />
+        <div class="flex flex-col">
+          <span class="font-semibold text-white text-lg">{developer.username}</span>
+          <span class="font-normal mt-1 text-[#ADB0B8] text-base">{developer.description}</span>
+          <div class="flex mt-4 gap-4">
+            {Object.keys(developer.social).map((social) => (
+              <a href={developer.social[social]} target="_blank" aria-label={socialLinkLabels[social]}>
+                {social === 'twitch' && <Twitch class="w-5 h-5 text-[#ADB0B8]" />}
+                {social === 'telegram' && <Telegram class="w-5 h-5 text-[#ADB0B8]" />}
+                {social === 'github' && <Github class="w-5 h-5 text-[#ADB0B8]" />}
+                {social === 'instagram' && <Instagram class="w-5 h-5 text-[#ADB0B8]" />}
+              </a>
+            ))}
           </div>
         </div>
-      ))
-    }
+      </div>
+    ))}
   </div>
 </section>
 

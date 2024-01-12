@@ -1,10 +1,9 @@
 import node from '@astrojs/node';
 import tailwind from '@astrojs/tailwind';
 import vue from '@astrojs/vue';
+import svgSprite from '@spiriit/vite-plugin-svg-spritemap';
 import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
-import type { PluginOption } from 'vite';
-import svg from 'vite-svg-loader';
 
 // eslint-disable-next-line no-undef
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
@@ -24,7 +23,9 @@ export default defineConfig({
 		// ssr: {
 		// 	noExternal: true,
 		// },
-		plugins: [svg({ defaultImport: 'url', svgo: false }) as unknown as PluginOption],
+		plugins: [
+			svgSprite('./src/assets/*/*.svg'),
+		],
 		clearScreen: false,
 		define: {
 			'import.meta.env.HOST': JSON.stringify(config.SITE_BASE_URL || 'localhost:3005'),

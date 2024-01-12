@@ -34,4 +34,14 @@ export const developers: Developer[] = [
       instagram: 'https://www.instagram.com/mel._.kam/',
     },
   },
+	{
+		username: 'crashmax',
+		description: 'Frontend developer',
+		avatarUrl: 'https://avatars.githubusercontent.com/u/15673111?v=4',
+		social: {
+			twitch: 'https://www.twitch.tv/web_storm',
+			telegram: 'https://t.me/crashmax',
+			github: 'https://github.com/crashmax-dev',
+		},
+	},
 ];
