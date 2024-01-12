@@ -14,13 +14,13 @@
 	},
 	"author": "Satont <satontworldwide@gmail.com>",
 	"devDependencies": {
-		"@types/node": "20.10.7",
-		"@typescript-eslint/eslint-plugin": "6.18.0",
-		"@typescript-eslint/parser": "6.18.0",
+		"@types/node": "20.11.0",
+		"@typescript-eslint/eslint-plugin": "6.18.1",
+		"@typescript-eslint/parser": "6.18.1",
 		"eslint": "8.56.0",
 		"eslint-plugin-import": "2.29.1",
 		"eslint-plugin-unused-imports": "3.0.0",
-		"eslint-plugin-vue": "9.19.2",
+		"eslint-plugin-vue": "9.20.0",
 		"rimraf": "5.0.5",
 		"turbo": "1.11.3",
 		"typescript": "5.3.3"
