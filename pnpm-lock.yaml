@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   '@spiriit/vite-plugin-svg-spritemap@2.2.0':
-    hash: itt25l5ykepzroziatyhks42di
+    hash: b7qkrz23fjldsh42esvnpm6ioe
     path: patches/@spiriit__vite-plugin-svg-spritemap@2.2.0.patch
 
 importers:
@@ -247,7 +247,7 @@ importers:
         version: 2.9.3
       '@spiriit/vite-plugin-svg-spritemap':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5)
+        version: 2.2.0(patch_hash=b7qkrz23fjldsh42esvnpm6ioe)(vite@5.0.11)(vue@3.4.10)
       '@vitejs/plugin-vue':
         specifier: 5.0.3
         version: 5.0.3(vite@5.0.11)(vue@3.4.10)
@@ -323,7 +323,7 @@ importers:
     devDependencies:
       '@spiriit/vite-plugin-svg-spritemap':
         specifier: 2.2.0
-        version: 2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5)
+        version: 2.2.0(patch_hash=b7qkrz23fjldsh42esvnpm6ioe)(vite@5.0.11)(vue@3.4.10)
       '@types/node':
         specifier: 20.11.0
         version: 20.11.0
@@ -1898,7 +1898,7 @@ packages:
       '@daybrush/utils': 1.13.0
     dev: false
 
-  /@spiriit/vite-plugin-svg-spritemap@2.2.0(patch_hash=itt25l5ykepzroziatyhks42di)(vite@5.0.11)(vue@3.4.5):
+  /@spiriit/vite-plugin-svg-spritemap@2.2.0(patch_hash=b7qkrz23fjldsh42esvnpm6ioe)(vite@5.0.11)(vue@3.4.10):
     resolution: {integrity: sha512-KN6q6EMDG871e5GPXnI16N3cVWpVt2FRfQnP6TEuQVQtLgEtxTWBJaWn9NGZe8lCDkj7jRtN9cqiSCw7Ecs83Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -2610,8 +2610,8 @@ packages:
       acorn: 8.11.2
     dev: true
 
-  /acorn-walk@8.3.1:
-    resolution: {integrity: sha512-TgUZgYvqZprrl7YldZNoa9OciCAyZR+Ejm9eXzKCmjsF5IKp/wgQ7Z/ZpjpGTIUPwrHQIcYeI8qDh4PsEwxMbw==}
+  /acorn-walk@8.3.2:
+    resolution: {integrity: sha512-cjkyv4OtNCIeqhHrfS81QWXoCBPExR/J62oyEqepVw8WaQeSqpW2uhuLPh1m9eWhDuOo/jUXVTlifvesOWp/4A==}
     engines: {node: '>=0.4.0'}
     dev: false
 
@@ -8425,7 +8425,7 @@ packages:
     hasBin: true
     dependencies:
       acorn: 8.11.3
-      acorn-walk: 8.3.1
+      acorn-walk: 8.3.2
     dev: false
 
   /vooks@0.2.12(vue@3.4.10):

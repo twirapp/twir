@@ -1,11 +1,11 @@
 diff --git a/dist/index.js b/dist/index.js
-index 4f582c951885f46602d774727f33c392166b813d..adf0f65869a514d1840f4966688c3df07d817018 100644
+index 4f582c951885f46602d774727f33c392166b813d..149a09223b8d5507d67d69dbff2adae46d62ffaf 100644
 --- a/dist/index.js
 +++ b/dist/index.js
 @@ -5,6 +5,12 @@ var getFilename = () => fileURLToPath(import.meta.url);
  var getDirname = () => path.dirname(getFilename());
  var __dirname = /* @__PURE__ */ getDirname();
-
+ 
 +function getSpritemapPath(config) {
 +  const envDir = config.envDir.split('/').at(-1);
 +  const basePath = config.base;
@@ -14,7 +14,7 @@ index 4f582c951885f46602d774727f33c392166b813d..adf0f65869a514d1840f4966688c3df0
 +
  // src/plugins/build.ts
  import path3 from "path";
-
+ 
 @@ -4636,8 +4642,11 @@ function BuildPlugin(iconsPattern, options) {
      },
      transform(code) {
