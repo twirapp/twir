@@ -19,7 +19,7 @@
 		"nice-grpc": "2.1.7",
 		"protobufjs": "7.2.5",
 		"reflect-metadata": "0.2.1",
-		"steam-user": "5.0.4",
+		"steam-user": "5.0.7",
 		"steamid": "2.0.0",
 		"tslib": "2.6.2"
 	}
