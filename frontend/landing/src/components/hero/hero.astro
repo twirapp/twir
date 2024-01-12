@@ -37,7 +37,7 @@ const startButtonText = Astro.locals.profile ? 'Dashboard' : 'Start for free'
           <UiButton href={startButtonHref} variant="primary">{startButtonText}</UiButton>
         </div>
       </div>
-      <HeroChat client:idle messages={initialChatMessages} />
+      <HeroChat client:idle />
     </div>
   </div>
 </section>
