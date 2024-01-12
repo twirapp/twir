@@ -65,6 +65,12 @@ function chatSleep(ms: number): ChatSleep {
 	};
 }
 
+function chatEmote(
+	hash: string,
+): string {
+	return `<div class="chat-emote"><img src="https://cdn.7tv.app/emote/${hash}/1x.webp"></div>`;
+}
+
 export const initialChatMessages: Message[] = [
 	userMessage('Hello, World'),
 	botMessage('Message from timer: follow to my socials!'),
@@ -81,13 +87,19 @@ export const initialChatMessages: Message[] = [
 export const liveChatMessages: Message[] = [
 	chatSleep(1000),
 	userMessage('!game Minecraft', 'lime',
-		chatSleep(2000),
+		chatSleep(1000),
 		botMessage('✅ Game changed to Minecraft'),
 	),
 
 	chatSleep(2000),
 	userMessage('!song', 'gray',
-		chatSleep(2000),
+		chatSleep(1000),
 		botMessage('Linkin Park — Numb'),
 	),
+
+	chatSleep(1000),
+	userMessage(`
+		Добавь туда ${chatEmote('62c5c34724fb1819d9f08b4d')}
+		тем самым покажешь что есть поддержка 7tv ${chatEmote('613937fcf7977b64f644c0d2')}
+	`, 'pink'),
 ];

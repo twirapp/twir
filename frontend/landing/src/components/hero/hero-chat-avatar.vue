@@ -5,11 +5,12 @@ import { computed } from 'vue';
 export type ColorVariant =
 	| 'blue'
 	| 'purple'
-	| 'pink'
+	| 'red'
 	| 'turquoise'
 	| 'orange'
 	| 'lime'
 	| 'gray'
+	| 'pink'
 
 type Props = {
 	variant?: ColorVariant;
@@ -25,12 +26,13 @@ const WHITE = '#FFF';
 
 const variantStyles: Record<ColorVariant, { avatar: string; bg: string }> = {
   blue: { bg: '#1E69FF', avatar: WHITE },
-  pink: { bg: '#FD6675', avatar: DARK },
+  red: { bg: '#FD6675', avatar: DARK },
   purple: { bg: '#8205B4', avatar: WHITE },
   turquoise: { bg: '#00C8AF', avatar: DARK },
 	orange: { bg: '#ffca5f', avatar: DARK },
 	lime: { bg: '#beff00', avatar: DARK },
 	gray: { bg: '#d2d2e6', avatar: DARK },
+	pink: { bg: '#fc0fc0', avatar: WHITE },
 };
 
 const variant = computed(() => variantStyles[props.variant]);

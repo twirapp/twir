@@ -40,7 +40,7 @@ const { messages } = useChat();
 							'text-[#232427]': message.sender === 'user',
 						}"
 					/>
-					<span v-html="message.text"></span>
+					<span class="chat-message" v-html="message.text"></span>
 				</div>
 
 				<div
@@ -57,6 +57,18 @@ const { messages } = useChat();
 </template>
 
 <style>
+.chat-message {
+	vertical-align: baseline;
+}
+
+.chat-emote {
+	position: relative;
+  display: inline-block;
+  margin-left: 4px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
 .list-move,
 .list-enter-active {
 	transition: all 0.3s ease;
