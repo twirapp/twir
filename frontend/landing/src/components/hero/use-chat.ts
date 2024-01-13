@@ -1,4 +1,4 @@
-import { nextTick, onMounted, ref, watch } from 'vue';
+import { nextTick, ref, watch } from 'vue';
 
 import { initialChatMessages, liveChatMessages, type Message } from './hero-chat-messages.js';
 
@@ -9,25 +9,26 @@ function sleep(ms = 1000) {
 export function useChat() {
 	const messages = ref<Message[]>(initialChatMessages);
 
-	function getNextMessage() {
-		const message = liveChatMessages.shift();
-		return message;
-	}
-
-	async function queueMessage() {
-		const message = getNextMessage();
-		if (!message) return;
-
-		if (message.type === 'sleep') {
-			await sleep(message.ms);
-			await queueMessage();
-			return;
+	watch(() => messages.value, async (msg) => {
+		if (msg.length > 20) {
+			await nextTick(() => {
+				msg = msg.slice(10, msg.length - 1);
+			});
 		}
+	}, { deep: true });
 
-		messages.value.push(message);
+	async function init() {
+		for (const message of liveChatMessages) {
+			if (message.type === 'sleep') {
+				await sleep(message.ms);
+				continue;
+			}
 
-		if (message.type === 'message') {
-			if (message.replyMessages) {
+			messages.value.push(message);
+
+			if (message.type === 'message') {
+				if (!message.replyMessages) continue;
+
 				for (const msg of message.replyMessages) {
 					if (msg.type === 'sleep') {
 						await sleep(msg.ms);
@@ -38,21 +39,10 @@ export function useChat() {
 				}
 			}
 		}
-
-		await queueMessage();
 	}
-
-	watch(() => messages.value, async (msg) => {
-		if (msg.length > 20) {
-			await nextTick(() => {
-				msg = msg.slice(10, msg.length - 1);
-			});
-		}
-	}, { deep: true });
-
-	onMounted(() => queueMessage());
 
 	return {
 		messages,
+		init,
 	};
 }

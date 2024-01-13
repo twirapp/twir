@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
 import ChatAvatar from './hero-chat-avatar.vue';
 import { useChat } from './use-chat.js';
 
 import ChatMessageTail from '@/assets/icons/chat-message-tail.svg?use';
 
-const { messages } = useChat();
+const { messages, init } = useChat();
+
+onMounted(() => init());
 </script>
 
 <template>
