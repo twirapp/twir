@@ -50,6 +50,7 @@ func (c *Modules) ModulesSRGet(
 			ChannelPointsRewardId: settings.ChannelPointsRewardId,
 			AnnouncePlay:          *settings.AnnouncePlay,
 			NeededVotesVorSkip:    float32(settings.NeededVotesVorSkip),
+			PlayerNoCookieMode:    *settings.PlayerNoCookieMode,
 			User: &modules_sr.YouTubeUserSettings{
 				MaxRequests:   int32(settings.User.MaxRequests),
 				MinWatchTime:  int32(settings.User.MinWatchTime),
@@ -226,6 +227,7 @@ func (c *Modules) ModulesSRUpdate(
 		ChannelPointsRewardId: request.Data.ChannelPointsRewardId,
 		AnnouncePlay:          &request.Data.AnnouncePlay,
 		NeededVotesVorSkip:    float64(request.Data.NeededVotesVorSkip),
+		PlayerNoCookieMode:    &request.Data.PlayerNoCookieMode,
 		User: modules.YouTubeUserSettings{
 			MaxRequests:   int(request.Data.User.MaxRequests),
 			MinWatchTime:  int64(request.Data.User.MinWatchTime),

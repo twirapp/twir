@@ -40,6 +40,7 @@ const formValue = ref<YouTubeSettings>({
 	enabled: false,
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
+	playerNoCookieMode: false,
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,
@@ -214,6 +215,14 @@ const songsSearchOptions = computed(() => {
 						<n-switch v-model:value="formValue.announcePlay" />
 					</n-space>
 
+					<n-space justify="space-between" style="margin-bottom: 12px;">
+						<n-text>{{ t("songRequests.settings.playerNoCookieMode") }}</n-text>
+						<n-switch v-model:value="formValue.playerNoCookieMode" />
+						<n-text style="font-size: 12px; margin-top: 4px;">
+							{{ t("songRequests.settings.playerNoCookieModeDescription") }}
+						</n-text>
+					</n-space>
+
 					<n-form-item
 						:label="t('songRequests.settings.neededPercentageForskip')"
 						path="neededVotesVorSkip"
@@ -335,4 +344,3 @@ const songsSearchOptions = computed(() => {
 		</n-button>
 	</n-form>
 </template>
-

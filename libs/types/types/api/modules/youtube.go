@@ -74,6 +74,7 @@ type YouTubeTranslations struct {
 type YouTubeSettings struct {
 	Enabled               *bool               `validate:"required" json:"enabled"`
 	AcceptOnlyWhenOnline  *bool               `validate:"required" json:"acceptOnlyWhenOnline"`
+	PlayerNoCookieMode    *bool               `validate:"required" json:"playerNoCookieMode"`
 	MaxRequests           int                 `validate:"lte=500"  json:"maxRequests"`
 	ChannelPointsRewardId string              `validate:"max=100"  json:"channelPointsRewardId"`
 	AnnouncePlay          *bool               `validate:"required" json:"announcePlay"`

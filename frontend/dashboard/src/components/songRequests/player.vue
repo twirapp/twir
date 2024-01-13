@@ -37,6 +37,7 @@ import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
 const props = defineProps<{
 	currentVideo?: Video | null
+	noCookie: boolean
 	nextVideo: boolean
 	openSettingsModal: () => void
 }>();
@@ -64,30 +65,29 @@ const volume = useLocalStorage('twirPlayerVolume', 10);
 onMounted(() => {
 	if (!player.value) return;
 
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
 	plyr.value = new Plyr(player.value, {
 		controls: ['fullscreen', 'settings'],
 		settings: ['quality', 'speed'],
 		hideControls: true,
 		clickToPlay: false,
+		youtube: { noCookie: props.noCookie },
 	});
 
-	plyr.value!.on('play', () => {
+	plyr.value.on('play', () => {
 		isPlaying.value = true;
 		plyr.value!.volume = volume.value / 100;
 		emits('playing');
 	});
 
-	plyr.value!.on('pause', () => {
+	plyr.value.on('pause', () => {
 		isPlaying.value = false;
 	});
 
-	plyr.value!.on('timeupdate', () => {
+	plyr.value.on('timeupdate', () => {
 		sliderTime.value = plyr.value!.currentTime;
 	});
 
-	plyr.value!.on('ended', () => {
+	plyr.value.on('ended', () => {
 		// if (!props.nextVideo) return;
 		playNext();
 	});
@@ -186,7 +186,7 @@ const { t } = useI18n();
 					height: '300px',
 				}"
 				class="plyr"
-			/>
+			></video>
 
 			<n-space vertical class="card-content">
 				<n-grid
