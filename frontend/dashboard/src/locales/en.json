@@ -473,6 +473,8 @@
     "settings": {
       "onlineOnly": "Allow Song Requests when streaming?",
       "announcePlay": "Announce Current Song into Chat?",
+			"playerNoCookieMode": "Incognito mode for player",
+			"playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
       "neededPercentageForskip": "User Skip Percentage",
       "channelReward": "Channel Points Reward Request Trigger",
       "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
