@@ -1,16 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted } from 'vue';
 
 import ChatAvatar from './hero-chat-avatar.vue';
-import { type ChatMessage } from './hero-chat-messages.js';
+import { useChat } from './use-chat.js';
 
 import ChatMessageTail from '@/assets/icons/chat-message-tail.svg?use';
 
-const props = defineProps<{
-	messages: ChatMessage[]
-}>();
+const { messages, processLiveMessages } = useChat();
 
-const chatMessages = ref<ChatMessage[]>(props.messages);
+onMounted(async () => {
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		await processLiveMessages();
+	}
+});
 </script>
 
 <template>
@@ -20,13 +23,14 @@ const chatMessages = ref<ChatMessage[]>(props.messages);
 	>
 		<TransitionGroup name="list">
 			<div
-				v-for="(message, index) of chatMessages"
+				v-for="(message, index) of messages"
 				:key="index"
 				class="flex items-start gap-[16px] w-full"
 			>
 				<chat-avatar
 					v-if="message.type === 'message'"
 					:is-bot="message.sender === 'bot'"
+					:variant="message.variant"
 				/>
 
 				<div
@@ -45,7 +49,7 @@ const chatMessages = ref<ChatMessage[]>(props.messages);
 							'text-[#232427]': message.sender === 'user',
 						}"
 					/>
-					<span v-html="message.text"></span>
+					<span class="chat-message" v-html="message.text"></span>
 				</div>
 
 				<div
@@ -53,7 +57,7 @@ const chatMessages = ref<ChatMessage[]>(props.messages);
 					class="font-normal flex flex-col py-3 px-5 bg-[#4C47F5]/[.15] gap-2 rounded-md relative w-full"
 				>
 					<span class="text-sm leading-normal text-white/90" v-html="message.text"></span>
-					<span class="font-semibold">{{ message.user }}</span>
+					<span class="font-semibold">{{ message.input }}</span>
 					<span class="absolute bg-[#4C47F5] w-[2px] rounded-sm h-[calc(100%-24px)] left-0"></span>
 				</div>
 			</div>
@@ -62,19 +66,25 @@ const chatMessages = ref<ChatMessage[]>(props.messages);
 </template>
 
 <style>
-.list-move,
-.list-enter-active,
-.list-leave-active {
-	transition: all 0.5s ease;
+.chat-message {
+	vertical-align: baseline;
 }
 
-.list-enter-from,
-.list-leave-to {
+.chat-emote {
+	position: relative;
+	display: inline-block;
+	margin-left: 4px;
+	margin-right: 4px;
+	vertical-align: middle;
+}
+
+.list-move,
+.list-enter-active {
+	transition: all 0.3s ease;
+}
+
+.list-enter-from {
 	opacity: 0;
 	transform: translateY(50px);
-}
-
-.list-leave-active {
-	position: absolute;
 }
 </style>

@@ -2,8 +2,18 @@
 import TwirLogo from '@twir/brand/src/logo.svg?url';
 import { computed } from 'vue';
 
+export type ColorVariant =
+	| 'blue'
+	| 'purple'
+	| 'red'
+	| 'turquoise'
+	| 'orange'
+	| 'lime'
+	| 'gray'
+	| 'pink'
+
 type Props = {
-	variant?: 'blue' | 'purple' | 'pink' | 'turquoise';
+	variant?: ColorVariant;
 	isBot?: boolean;
 };
 
@@ -11,11 +21,18 @@ const props = withDefaults(defineProps<Props>(), {
 	variant: 'purple',
 });
 
-const variantStyles: Record<Props['variant'], { avatar: string; bg: string }> = {
-  blue: { bg: '#1E69FF', avatar: '#FFFFFF' },
-  pink: { bg: '#FD6675', avatar: '#060002' },
-  purple: { bg: '#8205B4', avatar: '#FFFFFF' },
-  turquoise: { bg: '#00C8AF', avatar: '#060002' },
+const DARK = '#060002';
+const WHITE = '#FFF';
+
+const variantStyles: Record<ColorVariant, { avatar: string; bg: string }> = {
+  blue: { bg: '#1E69FF', avatar: WHITE },
+  red: { bg: '#FD6675', avatar: DARK },
+  purple: { bg: '#8205B4', avatar: WHITE },
+  turquoise: { bg: '#00C8AF', avatar: DARK },
+	orange: { bg: '#ffca5f', avatar: DARK },
+	lime: { bg: '#beff00', avatar: DARK },
+	gray: { bg: '#d2d2e6', avatar: DARK },
+	pink: { bg: '#fc0fc0', avatar: WHITE },
 };
 
 const variant = computed(() => variantStyles[props.variant]);
