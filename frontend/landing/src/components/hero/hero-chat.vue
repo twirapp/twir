@@ -6,9 +6,14 @@ import { useChat } from './use-chat.js';
 
 import ChatMessageTail from '@/assets/icons/chat-message-tail.svg?use';
 
-const { messages, init } = useChat();
+const { messages, processLiveMessages } = useChat();
 
-onMounted(() => init());
+onMounted(async () => {
+	// eslint-disable-next-line no-constant-condition
+	while (true) {
+		await processLiveMessages();
+	}
+});
 </script>
 
 <template>
@@ -67,10 +72,10 @@ onMounted(() => init());
 
 .chat-emote {
 	position: relative;
-  display: inline-block;
-  margin-left: 4px;
-  margin-right: 4px;
-  vertical-align: middle;
+	display: inline-block;
+	margin-left: 4px;
+	margin-right: 4px;
+	vertical-align: middle;
 }
 
 .list-move,

@@ -17,11 +17,13 @@ export function useChat() {
 		}
 	}, { deep: true });
 
-	async function init() {
+	async function processLiveMessages() {
 		for (const message of liveChatMessages) {
 			if (message.type === 'sleep') {
 				await sleep(message.ms);
 				continue;
+			} else {
+				await sleep(1500);
 			}
 
 			messages.value.push(message);
@@ -33,6 +35,8 @@ export function useChat() {
 					if (msg.type === 'sleep') {
 						await sleep(msg.ms);
 						continue;
+					} else {
+						await sleep(650);
 					}
 
 					messages.value.push(msg);
@@ -43,6 +47,6 @@ export function useChat() {
 
 	return {
 		messages,
-		init,
+		processLiveMessages,
 	};
 }
