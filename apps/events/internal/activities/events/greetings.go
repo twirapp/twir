@@ -23,7 +23,7 @@ func (c *Activity) CreateGreeting(
 		return dbChannelErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixApiClient(ctx, dbChannel.BotID)
+	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

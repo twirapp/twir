@@ -25,7 +25,7 @@ func (c *Activity) ChangeCategory(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -78,7 +78,7 @@ func (c *Activity) ChangeTitle(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	twitchClient, twitchClientErr := c.getHelixApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

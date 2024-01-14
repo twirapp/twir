@@ -20,7 +20,7 @@ func (c *Activity) SwitchEmoteOnly(
 		return dbEntityErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixApiClient(ctx, dbEntity.BotID)
+	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, dbEntity.BotID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -56,7 +56,7 @@ func (c *Activity) SwitchSubMode(
 		return dbEntityErr
 	}
 
-	twitchClient, twitchClientErr := c.getHelixApiClient(ctx, dbEntity.BotID)
+	twitchClient, twitchClientErr := c.getHelixBotApiClient(ctx, dbEntity.BotID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

@@ -44,7 +44,7 @@ func (c *Activity) Ban(
 
 	errwg, errwgCtx := errgroup.WithContext(ctx)
 
-	twitchClient, twitchClientError := c.getHelixApiClient(errwgCtx, dbChannel.BotID)
+	twitchClient, twitchClientError := c.getHelixBotApiClient(errwgCtx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
@@ -131,7 +131,7 @@ func (c *Activity) Unban(
 		return dbChannelErr
 	}
 
-	twitchClient, twitchClientError := c.getHelixApiClient(ctx, dbChannel.BotID)
+	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
@@ -168,7 +168,7 @@ func (c *Activity) BanRandom(
 		return err
 	}
 
-	twitchClient, twitchClientError := c.getHelixApiClient(ctx, dbChannel.BotID)
+	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
