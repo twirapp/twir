@@ -10,6 +10,7 @@ import {
 	NTabs,
 	NTabPane,
 	NAlert,
+	NScrollbar,
 	useThemeVars,
 	NText,
 } from 'naive-ui';
@@ -182,7 +183,9 @@ const addable = computed(() => {
 						:tab="`#${entityIndex+1}`"
 						:name="entity.id!"
 					>
-						<Form />
+						<n-scrollbar style="max-height: 75vh;" trigger="none">
+							<Form />
+						</n-scrollbar>
 					</n-tab-pane>
 				</template>
 			</n-tabs>
@@ -202,7 +205,7 @@ const addable = computed(() => {
 
 .chatBox {
 	background-color: v-bind('themeVars.cardColor');
-	border-radius: 11px;
+	border-radius: 8px;
 	height: 80dvh;
 }
 </style>
