@@ -1,25 +1,34 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 import ChatAvatar from './hero-chat-avatar.vue';
 import { useChat } from './use-chat.js';
 
 import ChatMessageTail from '@/assets/icons/chat-message-tail.svg?use';
 
-const { messages, processLiveMessages } = useChat();
+const isEnabled = ref(false);
+const { messages, startTimeout, stopTimeout } = useChat(isEnabled);
 
-onMounted(async () => {
-	// eslint-disable-next-line no-constant-condition
-	while (true) {
-		await processLiveMessages();
-	}
-});
+onMounted(() => startTimeout());
+onUnmounted(() => stopTimeout());
+
+function onMouseHover() {
+	isEnabled.value = true;
+	stopTimeout();
+}
+
+function onMouseLeave() {
+	isEnabled.value = false;
+	startTimeout();
+}
 </script>
 
 <template>
 	<div
 		class="flex flex-col justify-end gap-[12px] w-full max-h-[540px] xl:max-w-lg relative -top-5"
 		style="-webkit-mask-image: linear-gradient(0deg, #D9D9D9 75%, rgba(217, 217, 217, 0) 100%)"
+		@mouseenter="onMouseHover"
+		@mouseleave="onMouseLeave"
 	>
 		<TransitionGroup name="list">
 			<div

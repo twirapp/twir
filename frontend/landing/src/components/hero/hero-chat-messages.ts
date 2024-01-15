@@ -70,17 +70,19 @@ function chatSleep(ms: number): ChatSleep {
 export const initialChatMessages: Message[] = [
 	userMessage('Hello, World'),
 	botMessage('Message from timer: follow to my socials!'),
+
 	userMessage('!title Playling League of Legends with my friend'),
 	botMessage('✅ Title succesfully changed.'),
+
 	redemptionMessage('melkam', 'timeout chatter (1000 🪙)', 'Satont'),
 	botMessage('melkam disabled chat for <b>Satont</b> for 5 minutes'),
+
 	userMessage('!song'),
 	botMessage('Linkin Park — Numb'),
+
 	userMessage('!category LOL'),
 	botMessage('✅ Category changed to League of Legends.'),
 ];
-
-const SECOND = 1000;
 
 export const liveChatMessages: Message[] = [
 	userMessage('!game Minecraft', 'lime',
@@ -95,7 +97,6 @@ export const liveChatMessages: Message[] = [
 		botMessage(`You're watching stream for 210.2h`),
 	),
 
-	chatSleep(2 * SECOND),
 	userMessage('!top time', 'lime',
 		botMessage(`Jon × 210.3h · Mike × 167.2h · Alice × 125.9h · Ivan × 96.1h · Brian × 80.8h`),
 	),

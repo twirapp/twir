@@ -1,4 +1,4 @@
-import { nextTick, ref, watch } from 'vue';
+import { nextTick, ref, watch, type Ref } from 'vue';
 
 import { initialChatMessages, liveChatMessages, type Message } from './hero-chat-messages.js';
 
@@ -6,7 +6,13 @@ function sleep(ms = 1000) {
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export function useChat() {
+function getRandomNum(min: number, max: number) {
+	return Math.floor(Math.random() * (max - min) + min);
+}
+
+export function useChat(isEnabled: Ref<boolean>) {
+	const currentMessageIndex = ref(0);
+	const timeoutId = ref<ReturnType<typeof setTimeout>>(null);
 	const messages = ref<Message[]>(initialChatMessages);
 
 	watch(() => messages.value, async (msg) => {
@@ -17,36 +23,48 @@ export function useChat() {
 		}
 	}, { deep: true });
 
-	async function processLiveMessages() {
-		for (const message of liveChatMessages) {
-			if (message.type === 'sleep') {
-				await sleep(message.ms);
-				continue;
-			} else {
-				await sleep(1500);
-			}
+	function startTimeout() {
+		timeoutId.value = setTimeout(() => processLiveMessages(), getRandomNum(1500, 2000));
+	}
 
+	function stopTimeout() {
+		if (!timeoutId.value) return;
+		clearTimeout(timeoutId.value);
+		timeoutId.value = null;
+	}
+
+	async function processLiveMessages() {
+		if (isEnabled.value) return;
+
+		currentMessageIndex.value = currentMessageIndex.value % liveChatMessages.length;
+		const message = liveChatMessages[currentMessageIndex.value];
+		currentMessageIndex.value += 1;
+
+		if (message.type === 'sleep') {
+			await sleep(message.ms);
+		}
+
+		if (message.type === 'message') {
 			messages.value.push(message);
 
-			if (message.type === 'message') {
-				if (!message.replyMessages) continue;
-
-				for (const msg of message.replyMessages) {
-					if (msg.type === 'sleep') {
-						await sleep(msg.ms);
-						continue;
-					} else {
-						await sleep(650);
-					}
-
-					messages.value.push(msg);
+			for (const msg of message.replyMessages) {
+				if (msg.type === 'sleep') {
+					await sleep(msg.ms);
+					continue;
+				} else {
+					await sleep(800);
 				}
+
+				messages.value.push(msg);
 			}
 		}
+
+		startTimeout();
 	}
 
 	return {
 		messages,
-		processLiveMessages,
+		startTimeout,
+		stopTimeout,
 	};
 }
