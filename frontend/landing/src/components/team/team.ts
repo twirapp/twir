@@ -39,7 +39,7 @@ export const developers: Developer[] = [
 		description: 'Frontend developer',
 		avatarUrl: 'https://avatars.githubusercontent.com/u/15673111?v=4',
 		social: {
-			twitch: 'https://www.twitch.tv/web_storm',
+			twitch: 'https://www.twitch.tv/vs_code',
 			telegram: 'https://t.me/crashmax',
 			github: 'https://github.com/crashmax-dev',
 		},
