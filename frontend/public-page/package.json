@@ -12,7 +12,7 @@
 		"@tabler/icons-vue": "2.45.0",
 		"@tanstack/vue-query": "5.17.7",
 		"@tanstack/vue-table": "8.11.3",
-		"@twir/grpc": "workspace:*",
+		"@twir/api": "workspace:*",
 		"@vueuse/components": "10.7.1",
 		"@vueuse/core": "10.7.1",
 		"vue": "3.4.5",

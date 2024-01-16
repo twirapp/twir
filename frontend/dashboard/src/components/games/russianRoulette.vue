@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { IconBomb } from '@tabler/icons-vue';
-import type { UpdateRussianRouletteSettings } from '@twir/grpc/generated/api/api/games';
-import { NModal, NInput, NInputNumber, NFormItem, NButton, NSwitch, NDivider, useMessage } from 'naive-ui';
+import type { UpdateRussianRouletteSettings } from '@twir/api/messages/games/games';
+import {
+	NModal,
+	NInput,
+	NInputNumber,
+	NFormItem,
+	NButton,
+	NSwitch,
+	NDivider,
+	useMessage,
+} from 'naive-ui';
 import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -91,8 +100,13 @@ async function save() {
 				<n-input-number v-model:value="formValue.tumberSize" :min="2" :max="100" />
 			</n-form-item>
 
-			<n-form-item :label="t('games.russianRoulette.chargedBullets', { tumberSize: formValue.tumberSize })">
-				<n-input-number v-model:value="formValue.chargedBullets" :min="1" :max="formValue.tumberSize-1" />
+			<n-form-item
+				:label="t('games.russianRoulette.chargedBullets', { tumberSize: formValue.tumberSize })"
+			>
+				<n-input-number
+					v-model:value="formValue.chargedBullets" :min="1"
+					:max="formValue.tumberSize-1"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.timeoutSeconds')">
@@ -106,15 +120,24 @@ async function save() {
 			<n-divider />
 
 			<n-form-item :label="t('games.russianRoulette.initMessage')">
-				<n-input v-model:value="formValue.initMessage" :maxlength="450" type="textarea" autosize :rows="1" />
+				<n-input
+					v-model:value="formValue.initMessage" :maxlength="450" type="textarea" autosize
+					:rows="1"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.surviveMessage')">
-				<n-input v-model:value="formValue.surviveMessage" :maxlength="450" type="textarea" autosize :rows="1" />
+				<n-input
+					v-model:value="formValue.surviveMessage" :maxlength="450" type="textarea" autosize
+					:rows="1"
+				/>
 			</n-form-item>
 
 			<n-form-item :label="t('games.russianRoulette.deathMessage')">
-				<n-input v-model:value="formValue.deathMessage" :maxlength="450" type="textarea" autosize :rows="1" />
+				<n-input
+					v-model:value="formValue.deathMessage" :maxlength="450" type="textarea" autosize
+					:rows="1"
+				/>
 			</n-form-item>
 		</div>
 

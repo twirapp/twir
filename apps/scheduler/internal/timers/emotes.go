@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
+	"github.com/satont/twir/libs/grpc/emotes_cacher"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/protobuf/types/known/emptypb"

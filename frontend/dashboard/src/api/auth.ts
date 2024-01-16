@@ -5,9 +5,7 @@ import {
 	useQuery,
 	useQueryClient,
 } from '@tanstack/vue-query';
-
-import { Dashboard, Profile } from '/auth';
-
+import type { Dashboard, Profile } from '@twir/api/messages/auth/auth';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';

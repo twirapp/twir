@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
 )
 
 type parseLayerVariablesMessage struct {

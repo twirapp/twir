@@ -5,7 +5,7 @@ import (
 	"time"
 
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
 
@@ -40,7 +40,11 @@ func NewAppClient(config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Cli
 	return NewAppClientWithContext(context.Background(), config, tokensGrpc)
 }
 
-func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc tokens.TokensClient) (
+func NewAppClientWithContext(
+	ctx context.Context,
+	config cfg.Config,
+	tokensGrpc tokens.TokensClient,
+) (
 	*helix.Client, error,
 ) {
 	appToken, err := tokensGrpc.RequestAppToken(
@@ -68,7 +72,10 @@ func NewAppClientWithContext(ctx context.Context, config cfg.Config, tokensGrpc 
 	return client, nil
 }
 
-func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+func NewUserClient(userID string, config cfg.Config, tokensGrpc tokens.TokensClient) (
+	*helix.Client,
+	error,
+) {
 	return NewUserClientWithContext(context.Background(), userID, config, tokensGrpc)
 }
 
@@ -103,7 +110,10 @@ func NewUserClientWithContext(
 	return client, nil
 }
 
-func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (*helix.Client, error) {
+func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClient) (
+	*helix.Client,
+	error,
+) {
 	return NewBotClientWithContext(context.Background(), botID, config, tokensGrpc)
 }
 

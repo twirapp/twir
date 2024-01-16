@@ -15,7 +15,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/bots"
 	"github.com/satont/twir/libs/twitch"
 	"golang.org/x/exp/rand"
 )

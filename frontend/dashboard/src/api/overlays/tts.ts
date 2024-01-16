@@ -5,7 +5,7 @@ import type {
 	GetInfoResponse,
 	GetResponse,
 	SayRequest,
-} from '@twir/grpc/generated/api/api/modules_tts';
+} from '@twir/api/messages/modules_tts/modules_tts';
 import { Ref, unref } from 'vue';
 
 import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js';

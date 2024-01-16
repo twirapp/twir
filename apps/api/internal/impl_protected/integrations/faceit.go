@@ -9,7 +9,7 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_faceit"
+	"github.com/twirapp/twir/libs/api/messages/integrations_faceit"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

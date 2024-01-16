@@ -3,7 +3,7 @@ import type {
 	Settings,
 	UpdateRequest,
 	GetAllResponse,
-} from '@twir/grpc/generated/api/api/overlays_chat';
+} from '@twir/api/messages/overlays_chat/overlays_chat';
 import { unref } from 'vue';
 import type { MaybeRef } from 'vue';
 

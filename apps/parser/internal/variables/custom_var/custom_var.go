@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/eval"
+	"github.com/satont/twir/libs/grpc/eval"
 )
 
 var CustomVar = &types.Variable{

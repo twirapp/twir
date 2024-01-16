@@ -8,13 +8,16 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/events"
 	"github.com/satont/twir/libs/pubsub"
 	"github.com/satont/twir/libs/twitch"
 	"go.uber.org/zap"
 )
 
-func (c *Handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOnline) {
+func (c *Handler) handleStreamOnline(
+	h *eventsub_bindings.ResponseHeaders,
+	event *eventsub_bindings.EventStreamOnline,
+) {
 	defer zap.S().Infow(
 		"stream online",
 		"channelId", event.BroadcasterUserID,
@@ -44,7 +47,10 @@ func (c *Handler) handleStreamOnline(h *eventsub_bindings.ResponseHeaders, event
 
 	stream := streamsReq.Data.Streams[0]
 
-	err = c.services.Gorm.Where(`"userId" = ?`, event.BroadcasterUserID).Delete(&model.ChannelsStreams{}).Error
+	err = c.services.Gorm.Where(
+		`"userId" = ?`,
+		event.BroadcasterUserID,
+	).Delete(&model.ChannelsStreams{}).Error
 	if err == nil {
 		tags := pq.StringArray{}
 		for _, tag := range stream.Tags {

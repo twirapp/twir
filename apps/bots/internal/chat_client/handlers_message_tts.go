@@ -9,7 +9,7 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
 )
 

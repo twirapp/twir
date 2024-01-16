@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import { FontSelector } from '@twir/fontsource';
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
 import {
 	useThemeVars,
 	NButton,

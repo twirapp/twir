@@ -6,8 +6,8 @@ import (
 
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_lastfm"
 	lfm "github.com/shkh/lastfm-go/lastfm"
+	"github.com/twirapp/twir/libs/api/messages/integrations_lastfm"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

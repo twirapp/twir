@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type Command } from '@twir/grpc/generated/api/api/commands';
+import { type Command } from '@twir/api/messages/commands/commands';
 import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
 import { ref, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';

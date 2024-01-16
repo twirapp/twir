@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/libs/grpc/generated/api/users"
+	"github.com/twirapp/twir/libs/api/messages/users"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

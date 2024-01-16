@@ -17,13 +17,13 @@ import (
 
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
 	internalBots "github.com/satont/twir/apps/bots/internal/bots"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/bots"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 

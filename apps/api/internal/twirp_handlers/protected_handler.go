@@ -8,9 +8,9 @@ import (
 
 	"github.com/satont/twir/apps/api/internal/interceptors"
 	"github.com/satont/twir/apps/api/internal/wrappers"
-	"github.com/satont/twir/libs/grpc/generated/api"
-	"github.com/satont/twir/libs/grpc/generated/api/bots"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/api"
+	"github.com/twirapp/twir/libs/api/messages/bots"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
 )
@@ -25,7 +25,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 	twirpHandler := api.NewProtectedServer(
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),
-		//twirp.WithServerInterceptors(opts.Interceptor.Errors),
+		// twirp.WithServerInterceptors(opts.Interceptor.Errors),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.DashboardId),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),
@@ -40,7 +40,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 						return &bots.BotInfo{}
 					},
 				},
-				//interceptors.CacheOpts{
+				// interceptors.CacheOpts{
 				//	CacheMethod:       "CommandsGetAll",
 				//	CacheDuration:     24 * time.Hour,
 				//	ClearMethods:      []string{"CommandsCreate", "CommandsDelete", "CommandsUpdate", "CommandsEnableOrDisable"},
@@ -48,8 +48,8 @@ func NewProtected(opts Opts) handlers.IHandler {
 				//	CastTo: func() any {
 				//		return &commands.CommandsGetAllResponse{}
 				//	},
-				//},
-				//interceptors.CacheOpts{
+				// },
+				// interceptors.CacheOpts{
 				//	CacheMethod:       "EventsGetAll",
 				//	CacheDuration:     24 * time.Hour,
 				//	ClearMethods:      []string{"EventsCreate", "EventsDelete", "EventsUpdate", "EventsEnableOrDisable"},
@@ -57,8 +57,8 @@ func NewProtected(opts Opts) handlers.IHandler {
 				//	CastTo: func() any {
 				//		return &events.GetAllResponse{}
 				//	},
-				//},
-				//interceptors.CacheOpts{
+				// },
+				// interceptors.CacheOpts{
 				//	CacheMethod:       "GreetingsGetAll",
 				//	CacheDuration:     24 * time.Hour,
 				//	ClearMethods:      []string{"GreetingsCreate", "GreetingsDelete", "GreetingsUpdate", "GreetingsEnableOrDisable"},
@@ -66,8 +66,8 @@ func NewProtected(opts Opts) handlers.IHandler {
 				//	CastTo: func() any {
 				//		return &greetings.GetAllResponse{}
 				//	},
-				//},
-				//interceptors.CacheOpts{
+				// },
+				// interceptors.CacheOpts{
 				//	CacheMethod:       "KeywordsGetAll",
 				//	CacheDuration:     24 * time.Hour,
 				//	ClearMethods:      []string{"KeywordsCreate", "KeywordsDelete", "KeywordsUpdate", "KeywordsEnableOrDisable"},
@@ -75,8 +75,8 @@ func NewProtected(opts Opts) handlers.IHandler {
 				//	CastTo: func() any {
 				//		return &keywords.GetAllResponse{}
 				//	},
-				//},
-				//interceptors.CacheOpts{
+				// },
+				// interceptors.CacheOpts{
 				//	CacheMethod:       "TimersGetAll",
 				//	CacheDuration:     24 * time.Hour,
 				//	ClearMethods:      []string{"TimersCreate", "TimersDelete", "TimersUpdate", "TimersEnableOrDisable"},
@@ -84,7 +84,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 				//	CastTo: func() any {
 				//		return &timers.GetResponse{}
 				//	},
-				//},
+				// },
 				// interceptors.CacheOpts{
 				// 	CacheMethod:       "VariablesGetAll",
 				// 	CacheDuration:     24 * time.Hour,

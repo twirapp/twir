@@ -2,7 +2,7 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/vue
 import type {
 	UpdateMessage,
 	PostCodeRequest,
-} from '@twir/grpc/generated/api/api/integrations_discord';
+} from '@twir/api/messages/integrations_discord/integrations_discord';
 
 import { protectedApiClient } from '@/api/twirp';
 

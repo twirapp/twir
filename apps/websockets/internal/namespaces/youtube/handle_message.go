@@ -11,7 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/bots"
 
 	"github.com/satont/twir/libs/types/types/api/modules"
 )

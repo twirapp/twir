@@ -15,7 +15,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"

@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/twitch"
 )
 

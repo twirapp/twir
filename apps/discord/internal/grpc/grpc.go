@@ -10,7 +10,7 @@ import (
 	arikawa_state "github.com/diamondburned/arikawa/v3/state"
 	"github.com/satont/twir/apps/discord/internal/discord_go"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/discord"
+	"github.com/satont/twir/libs/grpc/discord"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"

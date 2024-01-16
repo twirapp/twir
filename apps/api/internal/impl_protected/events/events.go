@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/events"
+	"github.com/twirapp/twir/libs/api/messages/events"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -57,7 +57,10 @@ func (c *Events) convertEntity(entity *model.Event) *events.Event {
 	return event
 }
 
-func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (*events.GetAllResponse, error) {
+func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (
+	*events.GetAllResponse,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var evnts []*model.Event
 	if err := c.Db.
@@ -78,7 +81,10 @@ func (c *Events) EventsGetAll(ctx context.Context, _ *emptypb.Empty) (*events.Ge
 	}, nil
 }
 
-func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdRequest) (*events.Event, error) {
+func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdRequest) (
+	*events.Event,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.Event{}
 	if err := c.Db.
@@ -92,7 +98,10 @@ func (c *Events) EventsGetById(ctx context.Context, request *events.GetByIdReque
 	return c.convertEntity(entity), nil
 }
 
-func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest) (*events.Event, error) {
+func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest) (
+	*events.Event,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := &model.Event{
@@ -140,18 +149,28 @@ func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest
 	return c.convertEntity(entity), nil
 }
 
-func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest) (*emptypb.Empty, error) {
+func (c *Events) EventsDelete(ctx context.Context, request *events.DeleteRequest) (
+	*emptypb.Empty,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`"id" = ? AND "channelId" = ?`, request.Id, dashboardId).Delete(&model.Event{}).Error; err != nil {
+		Where(
+			`"id" = ? AND "channelId" = ?`,
+			request.Id,
+			dashboardId,
+		).Delete(&model.Event{}).Error; err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (*events.Event, error) {
+func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
+	*events.Event,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.Event{}
 	if err := c.Db.
@@ -228,7 +247,10 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 	return c.convertEntity(entity), nil
 }
 
-func (c *Events) EventsEnableOrDisable(ctx context.Context, request *events.PatchRequest) (*events.Event, error) {
+func (c *Events) EventsEnableOrDisable(
+	ctx context.Context,
+	request *events.PatchRequest,
+) (*events.Event, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.Event{}
 	if err := c.Db.

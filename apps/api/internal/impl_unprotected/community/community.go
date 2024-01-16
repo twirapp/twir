@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/community"
+	"github.com/twirapp/twir/libs/api/messages/community"
 	"github.com/twitchtv/twirp"
 )
 

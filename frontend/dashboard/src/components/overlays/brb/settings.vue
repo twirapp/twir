@@ -1,6 +1,17 @@
 <script setup lang="ts">
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
-import { useThemeVars, NButton, NColorPicker, NDivider, NInputNumber, NInput, NSwitch, NModal, useNotification, NAlert } from 'naive-ui';
+import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
+import {
+	useThemeVars,
+	NButton,
+	NColorPicker,
+	NDivider,
+	NInputNumber,
+	NInput,
+	NSwitch,
+	NModal,
+	useNotification,
+	NAlert,
+} from 'naive-ui';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -38,7 +49,11 @@ const defaultSettings = {
 const formValue = ref<Settings>(defaultSettings);
 
 const manager = useBeRightBackOverlayManager();
-const { data: settings, isError: isSettingsError, isLoading: isSettingsLoading } = manager.getSettings();
+const {
+	data: settings,
+	isError: isSettingsError,
+	isLoading: isSettingsLoading,
+} = manager.getSettings();
 const updater = manager.updateSettings();
 
 watch(settings, (v) => {
@@ -58,7 +73,7 @@ const sendIframeMessage = (key: string, data?: any) => {
 	if (!brbIframeRef.value) return;
 	const win = brbIframeRef.value;
 
-  win.contentWindow?.postMessage(JSON.stringify({
+	win.contentWindow?.postMessage(JSON.stringify({
 		key,
 		data: toRaw(data),
 	}));
@@ -92,6 +107,7 @@ watch(() => formValue, () => {
 const { copyOverlayLink } = useCopyOverlayLink('brb');
 
 const message = useNotification();
+
 async function save() {
 	await updater.mutateAsync(formValue.value);
 
@@ -123,13 +139,19 @@ async function save() {
 
 					<div class="item">
 						<div style="display: flex; gap: 4px; flex-direction: column;">
-							<command-button name="brb" :title="t('overlays.brb.settings.main.startCommand.description')" />
+							<command-button
+								name="brb"
+								:title="t('overlays.brb.settings.main.startCommand.description')"
+							/>
 							<n-alert type="info" :show-icon="false">
 								<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
 							</n-alert>
 						</div>
 
-						<command-button name="brbstop" :title="t('overlays.brb.settings.main.stopCommand.description')" />
+						<command-button
+							name="brbstop"
+							:title="t('overlays.brb.settings.main.stopCommand.description')"
+						/>
 					</div>
 
 					<div class="item">
@@ -139,12 +161,18 @@ async function save() {
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.background') }}</span>
-						<n-color-picker v-model:value="formValue.backgroundColor" :modes="['rgb']" show-preview />
+						<n-color-picker
+							v-model:value="formValue.backgroundColor" :modes="['rgb']"
+							show-preview
+						/>
 					</div>
 
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
-						<n-color-picker v-model:value="formValue.fontColor" :modes="['hex', 'rgb']" :show-alpha="false" />
+						<n-color-picker
+							v-model:value="formValue.fontColor" :modes="['hex', 'rgb']"
+							:show-alpha="false"
+						/>
 					</div>
 
 					<div class="item">

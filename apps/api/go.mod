@@ -12,6 +12,7 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/twirapp/twir/libs/api => ../../libs/api
 )
 
 replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify

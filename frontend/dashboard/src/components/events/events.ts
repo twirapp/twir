@@ -19,7 +19,7 @@ import {
 	IconGift,
 	IconUserCancel,
 } from '@tabler/icons-vue';
-import { TwirEventType } from '@twir/grpc/generated/api/api/events';
+import { TwirEventType } from '@twir/api/messages/events/events';
 import { FunctionalComponent } from 'vue';
 
 export type TwirEvent = {

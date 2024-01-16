@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/keywords"
+	"github.com/twirapp/twir/libs/api/messages/keywords"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -30,7 +30,10 @@ func (c *Keywords) convertEntity(entity *model.ChannelsKeywords) *keywords.Keywo
 	}
 }
 
-func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (*keywords.GetAllResponse, error) {
+func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (
+	*keywords.GetAllResponse,
+	error,
+) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var entities []*model.ChannelsKeywords
 	if err := c.Db.WithContext(ctx).
@@ -49,7 +52,10 @@ func (c *Keywords) KeywordsGetAll(ctx context.Context, _ *emptypb.Empty) (*keywo
 	}, nil
 }
 
-func (c *Keywords) KeywordsGetById(ctx context.Context, request *keywords.GetByIdRequest) (*keywords.Keyword, error) {
+func (c *Keywords) KeywordsGetById(
+	ctx context.Context,
+	request *keywords.GetByIdRequest,
+) (*keywords.Keyword, error) {
 	keyword := &model.ChannelsKeywords{}
 	if err := c.Db.WithContext(ctx).Where("id = ?", request.Id).First(keyword).Error; err != nil {
 		return nil, err
@@ -58,7 +64,10 @@ func (c *Keywords) KeywordsGetById(ctx context.Context, request *keywords.GetByI
 	return c.convertEntity(keyword), nil
 }
 
-func (c *Keywords) KeywordsCreate(ctx context.Context, request *keywords.CreateRequest) (*keywords.Keyword, error) {
+func (c *Keywords) KeywordsCreate(
+	ctx context.Context,
+	request *keywords.CreateRequest,
+) (*keywords.Keyword, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	keyword := &model.ChannelsKeywords{
 		ID:               uuid.New().String(),
@@ -80,15 +89,24 @@ func (c *Keywords) KeywordsCreate(ctx context.Context, request *keywords.CreateR
 	return c.convertEntity(keyword), nil
 }
 
-func (c *Keywords) KeywordsDelete(ctx context.Context, request *keywords.DeleteRequest) (*emptypb.Empty, error) {
-	if err := c.Db.WithContext(ctx).Where("id = ?", request.Id).Delete(&model.ChannelsKeywords{}).Error; err != nil {
+func (c *Keywords) KeywordsDelete(
+	ctx context.Context,
+	request *keywords.DeleteRequest,
+) (*emptypb.Empty, error) {
+	if err := c.Db.WithContext(ctx).Where(
+		"id = ?",
+		request.Id,
+	).Delete(&model.ChannelsKeywords{}).Error; err != nil {
 		return nil, err
 	}
 
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Keywords) KeywordsUpdate(ctx context.Context, request *keywords.PutRequest) (*keywords.Keyword, error) {
+func (c *Keywords) KeywordsUpdate(
+	ctx context.Context,
+	request *keywords.PutRequest,
+) (*keywords.Keyword, error) {
 	keyword := &model.ChannelsKeywords{}
 	if err := c.Db.WithContext(ctx).Where("id = ?", request.Id).First(keyword).Error; err != nil {
 		return nil, err

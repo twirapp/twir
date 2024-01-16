@@ -8,7 +8,7 @@ import (
 	"github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/events"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/zap"
 )

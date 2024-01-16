@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/roles"
+	"github.com/twirapp/twir/libs/api/messages/roles"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -111,7 +111,10 @@ func (c *Roles) RolesUpdate(
 
 	txErr := c.Db.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
-			if err := tx.Where(`"roleId" = ?`, entity.ID).Delete(&model.ChannelRoleUser{}).Error; err != nil {
+			if err := tx.Where(
+				`"roleId" = ?`,
+				entity.ID,
+			).Delete(&model.ChannelRoleUser{}).Error; err != nil {
 				return err
 			}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/auth"
+	"github.com/twirapp/twir/libs/api/messages/auth"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

@@ -18,7 +18,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
 	"google.golang.org/grpc"
 
 	"gorm.io/driver/postgres"

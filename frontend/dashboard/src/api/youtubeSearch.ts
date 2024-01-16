@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/vue-query';
-import { GetSearchRequest_Type } from '@twir/grpc/generated/api/api/modules_sr';
+import { GetSearchRequest_Type } from '@twir/api/messages/modules_sr/modules_sr';
 import { type MaybeRef, isRef, toRaw } from 'vue';
 
 import { protectedApiClient } from '@/api/twirp.js';
 
-export const enum YoutubeSearchType  {
+export const enum YoutubeSearchType {
 	Channel = 'channel',
 	Video = 'video',
 }

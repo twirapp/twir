@@ -10,8 +10,8 @@ import (
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/bots"
+	"github.com/satont/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 )
 

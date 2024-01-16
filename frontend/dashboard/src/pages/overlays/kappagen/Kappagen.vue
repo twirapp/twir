@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { RpcError } from '@protobuf-ts/runtime-rpc';
-import { TwirEventType } from '@twir/grpc/generated/api/api/events';
+import { TwirEventType } from '@twir/api/messages/events/events';
 import type {
 	Settings_AnimationSettings,
-} from '@twir/grpc/generated/api/api/overlays_kappagen';
+} from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import { NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -7,7 +7,7 @@ import (
 
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/websockets"
 )
 
 func (c *Activity) ObsSetScene(

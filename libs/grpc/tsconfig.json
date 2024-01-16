@@ -12,11 +12,8 @@
     "esModuleInterop": true
   },
   "includes": [
-    "./**/*.ts"
-  ],
-  "exclude": [
-    "./dist",
-    "gen.ts",
-    "postbuild.ts"
+    "./dist/**/*.ts",
+		"./clients/*.ts",
+		"./constants/*.ts"
   ]
 }

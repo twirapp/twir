@@ -4,7 +4,7 @@ import {
 	GetUsersRequest_SortBy,
 	type GetUsersResponse,
 	ResetStatsRequest_Field,
-} from '@twir/grpc/generated/api/api/community';
+} from '@twir/api/messages/community/community';
 import { Ref, isRef } from 'vue';
 
 import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js';

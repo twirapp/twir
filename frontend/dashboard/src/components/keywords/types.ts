@@ -1,4 +1,4 @@
-import type { CreateRequest } from '@twir/grpc/generated/api/api/keywords';
+import type { CreateRequest } from '@twir/api/messages/keywords/keywords';
 
 
 export type EditableKeyword = CreateRequest & { id?: string }

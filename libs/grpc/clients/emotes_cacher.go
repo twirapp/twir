@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"

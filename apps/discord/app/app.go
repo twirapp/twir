@@ -9,7 +9,7 @@ import (
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	"go.uber.org/fx"

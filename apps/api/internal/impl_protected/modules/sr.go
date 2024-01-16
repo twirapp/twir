@@ -12,8 +12,8 @@ import (
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_sr"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/api/messages/modules_sr"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

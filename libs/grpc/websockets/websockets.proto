@@ -3,7 +3,6 @@ option go_package = "github.com/twirapp/twir/libs/grpc/websockets";
 package websockets;
 import "google/protobuf/empty.proto";
 
-
 service Websocket {
 	rpc YoutubeAddSongToQueue(YoutubeAddSongToQueueRequest) returns (google.protobuf.Empty) {}
 	rpc YoutubeRemoveSongToQueue(YoutubeRemoveSongFromQueueRequest) returns (google.protobuf.Empty) {}
@@ -140,11 +139,9 @@ message TriggerKappagenRequest {
 	repeated Emote emotes = 3;
 }
 
-import "api/events.proto";
-
 message TriggerKappagenByEventRequest {
 	string channel_id = 1;
-	api.events.TwirEventType event = 2;
+	int32 event = 2;
 }
 
 message TriggerShowBrbRequest {

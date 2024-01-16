@@ -6,8 +6,8 @@ import (
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/bots"
+	"github.com/satont/twir/libs/grpc/events"
 )
 
 const followCooldownKey = "follow"

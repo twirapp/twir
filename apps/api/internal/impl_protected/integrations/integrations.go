@@ -6,7 +6,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/integrations"
+	"github.com/satont/twir/libs/grpc/integrations"
 )
 
 type Integrations struct {
@@ -18,7 +18,10 @@ func (c *Integrations) getIntegrationByService(
 	service model.IntegrationService,
 ) (*model.Integrations, error) {
 	integration := &model.Integrations{}
-	if err := c.Db.WithContext(ctx).Where("service = ?", service).First(integration).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Where(
+		"service = ?",
+		service,
+	).First(integration).Error; err != nil {
 		return nil, err
 	}
 

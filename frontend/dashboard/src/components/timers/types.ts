@@ -1,4 +1,4 @@
-import type { CreateData, CreateData_Response } from '@twir/grpc/generated/api/api/timers';
+import type { CreateData, CreateData_Response } from '@twir/api/messages/timers/timers';
 
 export type EditableTimerResponse = CreateData_Response
 

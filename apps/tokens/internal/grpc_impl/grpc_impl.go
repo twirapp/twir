@@ -14,7 +14,7 @@ import (
 	"github.com/satont/twir/libs/crypto"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"

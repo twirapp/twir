@@ -6,7 +6,7 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

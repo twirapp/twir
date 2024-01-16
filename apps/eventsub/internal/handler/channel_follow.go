@@ -9,7 +9,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/satont/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 

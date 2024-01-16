@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/events"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -23,7 +23,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
 	"go.uber.org/zap"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

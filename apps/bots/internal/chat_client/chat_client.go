@@ -21,10 +21,10 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/parser"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/events"
+	"github.com/satont/twir/libs/grpc/parser"
+	"github.com/satont/twir/libs/grpc/tokens"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
@@ -146,7 +146,11 @@ func New(opts Opts) *ChatClient {
 		opts.Logger.Error("No user found", slog.String("bot.id", opts.Model.ID), slog.Any("err", err))
 	}
 	if meReq.ErrorMessage != "" {
-		opts.Logger.Error("No user found", slog.String("bot.id", opts.Model.ID), slog.String("err", meReq.ErrorMessage))
+		opts.Logger.Error(
+			"No user found",
+			slog.String("bot.id", opts.Model.ID),
+			slog.String("err", meReq.ErrorMessage),
+		)
 		os.Exit(1)
 	}
 	if len(meReq.Data.Users) == 0 {

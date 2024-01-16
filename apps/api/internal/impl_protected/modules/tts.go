@@ -9,14 +9,17 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/api/messages/modules_tts"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 const TTSType = "tts"
 
-func (c *Modules) ModulesTTSGet(ctx context.Context, empty *emptypb.Empty) (*modules_tts.GetResponse, error) {
+func (c *Modules) ModulesTTSGet(
+	ctx context.Context,
+	empty *emptypb.Empty,
+) (*modules_tts.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelModulesSettings{}
 	if err := c.Db.
@@ -229,7 +232,10 @@ func (c *Modules) ModulesTTSGetUsersSettings(
 	response := &modules_tts.GetUsersSettingsResponse{
 		Data: lo.Map(
 			entities,
-			func(item model.ChannelModulesSettings, _ int) *modules_tts.GetUsersSettingsResponse_UserSettings {
+			func(
+				item model.ChannelModulesSettings,
+				_ int,
+			) *modules_tts.GetUsersSettingsResponse_UserSettings {
 				settings := &modules.TTSSettings{}
 				if err := json.Unmarshal(item.Settings, settings); err != nil {
 					return nil

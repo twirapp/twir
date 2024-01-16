@@ -8,7 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
-	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/satont/twir/libs/grpc/bots"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/gorm"

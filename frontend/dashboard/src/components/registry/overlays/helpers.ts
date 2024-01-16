@@ -1,4 +1,4 @@
-import { OverlayLayerType } from '@twir/grpc/generated/api/api/overlays';
+import { OverlayLayerType } from '@twir/api/messages/overlays/overlays';
 
 export const convertOverlayLayerTypeToText = (type: OverlayLayerType) => {
 	switch (type) {

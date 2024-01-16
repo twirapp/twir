@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import { type ChatAlertsSettings } from '@twir/grpc/generated/api/api/modules_chat_alerts';
+import { type ChatAlertsSettings } from '@twir/api/messages/modules_chat_alerts/modules_chat_alerts';
 import { MaybeRef, unref } from 'vue';
 
 import { protectedApiClient } from '../twirp';

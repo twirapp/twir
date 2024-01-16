@@ -13,7 +13,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/websockets"
 	youtube "github.com/satont/twir/libs/types/types/api/modules"
 	"gorm.io/gorm"
 )

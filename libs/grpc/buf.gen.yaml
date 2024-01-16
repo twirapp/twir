@@ -3,6 +3,13 @@ plugins:
   - plugin: buf.build/protocolbuffers/go
     out: ./
     opt: paths=source_relative
-  - plugin: buf.build/connectrpc/go
+  - plugin: buf.build/grpc/go
     out: ./
     opt: paths=source_relative
+  - plugin: ts
+    opt:
+      - optimize_code_size
+      - generate_dependencies
+      - eslint_disable
+    out: dist
+

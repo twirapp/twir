@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconPlayerPlay } from '@tabler/icons-vue';
-import type { GetResponse as TTSSettings } from '@twir/grpc/generated/api/api/modules_tts';
+import type { GetResponse as TTSSettings } from '@twir/api/messages/modules_tts/modules_tts';
 import {
 	NSlider,
 	NSpace,

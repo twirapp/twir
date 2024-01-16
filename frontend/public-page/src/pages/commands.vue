@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconVideo, IconSword, IconDiamond, IconUserDollar } from '@tabler/icons-vue';
-import type { Command } from '@twir/grpc/generated/api/api/commands_unprotected';
+import type { Command } from '@twir/api/messages/commands_unprotected/commands_unprotected';
 import { type FunctionalComponent, computed } from 'vue';
 
 import { useCommands } from '@/api/commands.js';

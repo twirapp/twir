@@ -8,7 +8,7 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 )
 
 func (c *ChatClient) createReader() *BotClientIrc {

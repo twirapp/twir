@@ -1,4 +1,4 @@
-import type { CreateRequest } from '@twir/grpc/generated/api/api/greetings';
+import type { CreateRequest } from '@twir/api/messages/greetings/greetings';
 
 export type EditableGreeting = CreateRequest & {
 	id?: string;

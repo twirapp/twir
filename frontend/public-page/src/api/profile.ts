@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query';
-import type { GetPublicUserInfoResponse } from '@twir/grpc/generated/api/api/auth';
-import type { TwitchUser } from '@twir/grpc/generated/api/api/twitch';
+import type { GetPublicUserInfoResponse } from '@twir/api/messages/auth/auth';
+import type { TwitchUser } from '@twir/api/messages/twitch/twitch';
 import { type Ref, unref } from 'vue';
 
 import { unprotectedClient } from './twirp.js';

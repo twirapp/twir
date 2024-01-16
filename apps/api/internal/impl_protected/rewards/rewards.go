@@ -7,8 +7,8 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/libs/grpc/generated/api/rewards"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/api/messages/rewards"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

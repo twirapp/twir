@@ -19,7 +19,6 @@
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
-    "@twir/grpc": "workspace:*",
     "@types/lodash.chunk": "4.2.9",
     "@vueuse/components": "10.7.1",
     "@vueuse/core": "10.7.1",

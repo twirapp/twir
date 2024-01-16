@@ -6,7 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_chat_alerts"
+	"github.com/twirapp/twir/libs/api/messages/modules_chat_alerts"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

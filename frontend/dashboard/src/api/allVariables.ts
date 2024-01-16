@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
-import type { VariableType } from '@twir/api/messages/variables/variables';
+import { VariableType } from '@twir/api/messages/variables/variables';
 
 import { protectedApiClient } from '@/api/twirp.js';
 

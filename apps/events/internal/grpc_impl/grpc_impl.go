@@ -14,14 +14,14 @@ import (
 	"github.com/satont/twir/apps/events/internal/workflows"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/grpc/bots"
 	"github.com/satont/twir/libs/grpc/constants"
-	api_events "github.com/satont/twir/libs/grpc/generated/api/events"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/events"
+	"github.com/satont/twir/libs/grpc/tokens"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/utils"
+	api_events "github.com/twirapp/twir/libs/api/messages/events"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -138,7 +138,7 @@ func (c *EventsGrpcImplementation) Follow(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_FOLLOW,
+					Event:     int32(api_events.TwirEventType_FOLLOW.Number()),
 				},
 			)
 			if err != nil {
@@ -196,7 +196,7 @@ func (c *EventsGrpcImplementation) Subscribe(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_SUBSCRIBE,
+					Event:     int32(api_events.TwirEventType_SUBSCRIBE.Number()),
 				},
 			)
 			if err != nil {
@@ -253,7 +253,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_RESUBSCRIBE,
+					Event:     int32(api_events.TwirEventType_RESUBSCRIBE.Number()),
 				},
 			)
 			if err != nil {
@@ -310,7 +310,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_REDEMPTION_CREATED,
+					Event:     int32(api_events.TwirEventType_REDEMPTION_CREATED.Number()),
 				},
 			)
 			if err != nil {
@@ -360,7 +360,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 					ctx,
 					&websockets.TriggerKappagenByEventRequest{
 						ChannelId: msg.BaseInfo.ChannelId,
-						Event:     api_events.TwirEventType_COMMAND_USED,
+						Event:     int32(api_events.TwirEventType_COMMAND_USED.Number()),
 					},
 				)
 				if err != nil {
@@ -416,7 +416,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 				ctx,
 				&websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_FIRST_USER_MESSAGE,
+					Event:     int32(api_events.TwirEventType_FIRST_USER_MESSAGE.Number()),
 				},
 			)
 			if err != nil {
@@ -472,7 +472,7 @@ func (c *EventsGrpcImplementation) Raided(
 				ctx,
 				&websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_RAIDED,
+					Event:     int32(api_events.TwirEventType_RAIDED.Number()),
 				},
 			)
 			if err != nil {
@@ -515,7 +515,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_TITLE_OR_CATEGORY_CHANGED,
+					Event:     int32(api_events.TwirEventType_TITLE_OR_CATEGORY_CHANGED.Number()),
 				},
 			)
 			if err != nil {
@@ -570,7 +570,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_STREAM_ONLINE,
+					Event:     int32(api_events.TwirEventType_STREAM_ONLINE.Number()),
 				},
 			)
 			if err != nil {
@@ -623,7 +623,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_STREAM_OFFLINE,
+					Event:     int32(api_events.TwirEventType_STREAM_OFFLINE.Number()),
 				},
 			)
 			if err != nil {
@@ -667,7 +667,7 @@ func (c *EventsGrpcImplementation) SubGift(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_SUB_GIFT,
+					Event:     int32(api_events.TwirEventType_SUB_GIFT.Number()),
 				},
 			)
 			if err != nil {
@@ -718,7 +718,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_CHAT_CLEAR,
+					Event:     int32(api_events.TwirEventType_CHAT_CLEAR.Number()),
 				},
 			)
 			if err != nil {
@@ -773,7 +773,7 @@ func (c *EventsGrpcImplementation) Donate(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_DONATE,
+					Event:     int32(api_events.TwirEventType_DONATE.Number()),
 				},
 			)
 			if err != nil {
@@ -819,7 +819,7 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_KEYWORD_USED,
+					Event:     int32(api_events.TwirEventType_KEYWORD_USED.Number()),
 				},
 			)
 			if err != nil {
@@ -865,7 +865,7 @@ func (c *EventsGrpcImplementation) GreetingSended(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_GREETING_SENDED,
+					Event:     int32(api_events.TwirEventType_GREETING_SENDED.Number()),
 				},
 			)
 			if err != nil {
@@ -915,7 +915,7 @@ func (c *EventsGrpcImplementation) PollBegin(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_POLL_STARTED,
+					Event:     int32(api_events.TwirEventType_POLL_STARTED.Number()),
 				},
 			)
 			if err != nil {
@@ -973,7 +973,7 @@ func (c *EventsGrpcImplementation) PollProgress(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_POLL_VOTED,
+					Event:     int32(api_events.TwirEventType_POLL_VOTED.Number()),
 				},
 			)
 			if err != nil {
@@ -1040,7 +1040,7 @@ func (c *EventsGrpcImplementation) PollEnd(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_POLL_ENDED,
+					Event:     int32(api_events.TwirEventType_POLL_ENDED.Number()),
 				},
 			)
 			if err != nil {
@@ -1089,7 +1089,7 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_PREDICTION_STARTED,
+					Event:     int32(api_events.TwirEventType_PREDICTION_STARTED.Number()),
 				},
 			)
 			if err != nil {
@@ -1144,7 +1144,7 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_PREDICTION_VOTED,
+					Event:     int32(api_events.TwirEventType_PREDICTION_VOTED.Number()),
 				},
 			)
 			if err != nil {
@@ -1202,7 +1202,7 @@ func (c *EventsGrpcImplementation) PredictionLock(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_PREDICTION_LOCKED,
+					Event:     int32(api_events.TwirEventType_PREDICTION_LOCKED.Number()),
 				},
 			)
 			if err != nil {
@@ -1272,7 +1272,7 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_PREDICTION_ENDED,
+					Event:     int32(api_events.TwirEventType_PREDICTION_ENDED.Number()),
 				},
 			)
 			if err != nil {
@@ -1312,7 +1312,7 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_FIRST_USER_MESSAGE,
+					Event:     int32(api_events.TwirEventType_FIRST_USER_MESSAGE.Number()),
 				},
 			)
 			if err != nil {
@@ -1368,7 +1368,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 			_, err := c.websocketsGrpc.TriggerKappagenByEvent(
 				ctx, &websockets.TriggerKappagenByEventRequest{
 					ChannelId: msg.BaseInfo.ChannelId,
-					Event:     api_events.TwirEventType_USER_BANNED,
+					Event:     int32(api_events.TwirEventType_USER_BANNED.Number()),
 				},
 			)
 			if err != nil {

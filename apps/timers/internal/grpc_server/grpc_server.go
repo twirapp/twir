@@ -9,7 +9,7 @@ import (
 
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/timers"
+	"github.com/satont/twir/libs/grpc/timers"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"

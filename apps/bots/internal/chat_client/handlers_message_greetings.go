@@ -5,13 +5,13 @@ import (
 	"log/slog"
 
 	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/events"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
 )
 
 func (c *ChatClient) handleGreetings(

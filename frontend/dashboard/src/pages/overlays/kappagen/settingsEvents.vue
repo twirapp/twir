@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TwirEventType } from '@twir/grpc/generated/api/api/events';
+import { TwirEventType } from '@twir/api/messages/events/events';
 import { NTabs, NTabPane, NSwitch, NGrid, NGridItem, NCheckbox } from 'naive-ui';
 import { watch } from 'vue';
 

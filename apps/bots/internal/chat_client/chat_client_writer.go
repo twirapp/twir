@@ -7,7 +7,7 @@ import (
 	"time"
 
 	irc "github.com/gempir/go-twitch-irc/v3"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 )
 
 func (c *ChatClient) CreateWriter() {

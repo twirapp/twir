@@ -5,7 +5,7 @@ import (
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_donate_stream"
+	"github.com/twirapp/twir/libs/api/messages/integrations_donate_stream"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -15,7 +15,11 @@ func (c *Integrations) IntegrationsDonateStreamGet(
 	ctx context.Context, _ *emptypb.Empty,
 ) (*integrations_donate_stream.DonateStreamResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDonateStream,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +33,11 @@ func (c *Integrations) IntegrationsDonateStreamPostSecret(
 	ctx context.Context, request *integrations_donate_stream.DonateStreamPostSecretRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDonateStream,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}

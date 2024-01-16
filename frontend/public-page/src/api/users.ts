@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
-import type { TwitchGetUsersResponse } from '@twir/grpc/generated/api/api/twitch';
+import type { TwitchGetUsersResponse } from '@twir/api/messages/twitch/twitch';
 import { unref, type MaybeRef } from 'vue';
 
 import { unprotectedClient } from './twirp.js';

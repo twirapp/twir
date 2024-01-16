@@ -8,7 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/variables"
+	"github.com/twirapp/twir/libs/api/messages/variables"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -51,7 +51,10 @@ func (c *Variables) convertEntity(entity *model.ChannelsCustomvars) *variables.V
 	}
 }
 
-func (c *Variables) VariablesGetAll(ctx context.Context, req *emptypb.Empty) (*variables.GetAllResponse, error) {
+func (c *Variables) VariablesGetAll(
+	ctx context.Context,
+	req *emptypb.Empty,
+) (*variables.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var entities []*model.ChannelsCustomvars
 	if err := c.Db.
@@ -71,7 +74,10 @@ func (c *Variables) VariablesGetAll(ctx context.Context, req *emptypb.Empty) (*v
 	}, nil
 }
 
-func (c *Variables) VariablesGetById(ctx context.Context, req *variables.GetByIdRequest) (*variables.Variable, error) {
+func (c *Variables) VariablesGetById(
+	ctx context.Context,
+	req *variables.GetByIdRequest,
+) (*variables.Variable, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelsCustomvars{}
 	if err := c.Db.
@@ -84,7 +90,10 @@ func (c *Variables) VariablesGetById(ctx context.Context, req *variables.GetById
 	return c.convertEntity(entity), nil
 }
 
-func (c *Variables) VariablesCreate(ctx context.Context, req *variables.CreateRequest) (*variables.Variable, error) {
+func (c *Variables) VariablesCreate(
+	ctx context.Context,
+	req *variables.CreateRequest,
+) (*variables.Variable, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := &model.ChannelsCustomvars{
@@ -106,7 +115,10 @@ func (c *Variables) VariablesCreate(ctx context.Context, req *variables.CreateRe
 	return c.convertEntity(entity), nil
 }
 
-func (c *Variables) VariablesDelete(ctx context.Context, req *variables.DeleteRequest) (*emptypb.Empty, error) {
+func (c *Variables) VariablesDelete(
+	ctx context.Context,
+	req *variables.DeleteRequest,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	if err := c.Db.Model(&model.ChannelsCustomvars{}).
 		WithContext(ctx).
@@ -118,7 +130,10 @@ func (c *Variables) VariablesDelete(ctx context.Context, req *variables.DeleteRe
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Variables) VariablesUpdate(ctx context.Context, req *variables.PutRequest) (*variables.Variable, error) {
+func (c *Variables) VariablesUpdate(
+	ctx context.Context,
+	req *variables.PutRequest,
+) (*variables.Variable, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
 	entity := &model.ChannelsCustomvars{}

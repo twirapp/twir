@@ -9,7 +9,7 @@ import (
 	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"

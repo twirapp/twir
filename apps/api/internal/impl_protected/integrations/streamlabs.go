@@ -9,7 +9,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_streamlabs"
+	"github.com/twirapp/twir/libs/api/messages/integrations_streamlabs"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -60,7 +60,11 @@ func (c *Integrations) IntegrationsStreamlabsGetData(
 	_ *emptypb.Empty,
 ) (*integrations_streamlabs.GetDataResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceStreamLabs, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceStreamLabs,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +80,11 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 	request *integrations_streamlabs.PostCodeRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	channelIntegration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceStreamLabs, dashboardId)
+	channelIntegration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceStreamLabs,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +143,10 @@ func (c *Integrations) IntegrationsStreamlabsPostCode(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Integrations) IntegrationsStreamlabsLogout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *Integrations) IntegrationsStreamlabsLogout(
+	ctx context.Context,
+	empty *emptypb.Empty,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceStreamLabs, dashboardId,

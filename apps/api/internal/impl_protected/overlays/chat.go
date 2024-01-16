@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/overlays_chat"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/api/messages/overlays_chat"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

@@ -1,3 +1,4 @@
 *.go
 *.ts
 *.js
+!clients/*.go

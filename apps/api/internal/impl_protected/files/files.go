@@ -14,7 +14,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/files"
+	"github.com/twirapp/twir/libs/api/messages/files"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -109,9 +109,11 @@ func (c *Files) FilesUpload(ctx context.Context, req *files.UploadRequest) (
 		return nil, twirp.NewError(twirp.OutOfRange, "File name is too long")
 	}
 
-	if !lo.SomeBy(acceptedMimeTypes, func(t string) bool {
-		return strings.HasPrefix(req.Mimetype, t)
-	}) {
+	if !lo.SomeBy(
+		acceptedMimeTypes, func(t string) bool {
+			return strings.HasPrefix(req.Mimetype, t)
+		},
+	) {
 		return nil, twirp.NewError(twirp.OutOfRange, "Wrong file type")
 	}
 

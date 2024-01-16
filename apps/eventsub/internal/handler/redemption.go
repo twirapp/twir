@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/satont/twir/libs/grpc/websockets"
 	"strconv"
 	"time"
 
@@ -14,9 +14,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/events"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/bots"
+	"github.com/satont/twir/libs/grpc/events"
+	"github.com/satont/twir/libs/grpc/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"go.uber.org/zap"
 )

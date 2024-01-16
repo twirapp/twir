@@ -4,5 +4,5 @@ package messages.meta;
 import "google/protobuf/empty.proto";
 
 message BaseRequestMeta {
-	string channelId = 1;
+	//string channelId = 1;
 }

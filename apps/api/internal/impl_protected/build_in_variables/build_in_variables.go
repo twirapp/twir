@@ -5,8 +5,8 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/libs/grpc/generated/api/built_in_variables"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/satont/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/api/messages/built_in_variables"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

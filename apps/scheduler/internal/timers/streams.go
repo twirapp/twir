@@ -9,7 +9,7 @@ import (
 	"time"
 
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
 	"go.uber.org/fx"

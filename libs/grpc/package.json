@@ -2,35 +2,29 @@
 	"name": "@twir/grpc",
 	"type": "module",
 	"scripts": {
-		"prebuild": "rimraf dist generated",
-		"gen": "node ./gen.js",
-		"build": "node buf.js generate --exclude-path=node_modules --include-imports --include-wkt ./*/**.proto"
+		"build": "node buf.js generate --exclude-path=node_modules --include-imports --include-wkt",
+		"postbuild": "tsc"
 	},
 	"exports": {
 		"./*": {
-			"import": "./dist/*.js",
-			"require": "./dist/*.js"
+			"import": "./dist/**/*.js"
 		}
 	},
 	"typesVersions": {
 		"*": {
-			"*": [
-				"./dist/types/*.ts"
+			".": [
+				"./dist/*.ts"
 			]
 		}
 	},
 	"dependencies": {
+		"@grpc/grpc-js": "1.9.13",
 		"@protobuf-ts/plugin": "2.9.3",
 		"@protobuf-ts/runtime": "2.9.3",
 		"@protobuf-ts/runtime-rpc": "2.9.3",
-		"@protobuf-ts/twirp-transport": "2.9.3",
 		"long": "5.2.3",
 		"nice-grpc": "2.1.7",
 		"nice-grpc-common": "2.0.2",
-		"protobufjs": "7.2.5",
-		"ts-proto": "1.166.2"
-	},
-	"devDependencies": {
-		"@grpc/grpc-js": "1.9.13"
+		"protobufjs": "7.2.5"
 	}
 }

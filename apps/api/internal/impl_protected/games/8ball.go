@@ -7,7 +7,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/games"
+	"github.com/twirapp/twir/libs/api/messages/games"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"

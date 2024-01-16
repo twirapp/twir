@@ -9,8 +9,8 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_spotify"
 	"github.com/satont/twir/libs/integrations/spotify"
+	"github.com/twirapp/twir/libs/api/messages/integrations_spotify"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -53,7 +53,11 @@ func (c *Integrations) IntegrationsSpotifyGetData(
 	_ *emptypb.Empty,
 ) (*integrations_spotify.GetDataResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceSpotify, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceSpotify,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +73,11 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 	request *integrations_spotify.PostCodeRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceSpotify, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceSpotify,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +92,10 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 				"code":         request.Code,
 			},
 		).
-		SetBasicAuth(integration.Integration.ClientID.String, integration.Integration.ClientSecret.String).
+		SetBasicAuth(
+			integration.Integration.ClientID.String,
+			integration.Integration.ClientSecret.String,
+		).
 		SetSuccessResult(&data).
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://accounts.spotify.com/api/token")
@@ -115,7 +126,10 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Integrations) IntegrationsSpotifyLogout(ctx context.Context, empty *emptypb.Empty) (*emptypb.Empty, error) {
+func (c *Integrations) IntegrationsSpotifyLogout(
+	ctx context.Context,
+	empty *emptypb.Empty,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx, model.IntegrationServiceSpotify, dashboardId,

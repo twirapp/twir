@@ -14,8 +14,8 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 
 	"github.com/guregu/null"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
-	"github.com/satont/twir/libs/grpc/generated/ytsr"
+	"github.com/satont/twir/libs/grpc/websockets"
+	"github.com/satont/twir/libs/grpc/ytsr"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/valyala/fasttemplate"
 
