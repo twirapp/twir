@@ -279,12 +279,14 @@ services:
       - twir
       - traefik-public
     deploy:
+      update_config:
+        parallelism: 2
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
       mode: replicated
-      replicas: 1
+      replicas: 4
       endpoint_mode: dnsrr
       labels:
         - traefik.enable=true
