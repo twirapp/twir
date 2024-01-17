@@ -240,9 +240,9 @@ importers:
       '@protobuf-ts/runtime-rpc':
         specifier: 2.9.3
         version: 2.9.3
-      '@tsuwari/vite-plugin-svg-spritemap':
-        specifier: 2.2.3
-        version: 2.2.3(vite@5.0.11)(vue@3.4.14)
+      '@twir/vite-plugin-svg-spritemap':
+        specifier: 1.0.0
+        version: 1.0.0(vite@5.0.11)(vue@3.4.14)
       '@vitejs/plugin-vue':
         specifier: 5.0.3
         version: 5.0.3(vite@5.0.11)(vue@3.4.14)
@@ -316,9 +316,9 @@ importers:
         specifier: 3.4.14
         version: 3.4.14(typescript@5.3.3)
     devDependencies:
-      '@tsuwari/vite-plugin-svg-spritemap':
-        specifier: 2.2.3
-        version: 2.2.3(vite@5.0.11)(vue@3.4.14)
+      '@twir/vite-plugin-svg-spritemap':
+        specifier: 1.0.0
+        version: 1.0.0(vite@5.0.11)(vue@3.4.14)
       '@types/node':
         specifier: 20.11.5
         version: 20.11.5
@@ -1989,8 +1989,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /@tsuwari/vite-plugin-svg-spritemap@2.2.3(vite@5.0.11)(vue@3.4.14):
-    resolution: {integrity: sha512-/QsSoNj7hG/IzFNzYTlV1GZG5uShjX0Ff0XxbzzS7V+tjjIdSZqAU9QgaT6YUjwCLyc2BqtdzG+bYCpUadpB8w==}
+  /@twir/vite-plugin-svg-spritemap@1.0.0(vite@5.0.11)(vue@3.4.14):
+    resolution: {integrity: sha512-qBC3NnEAmxTo2YCPIfIIW812sN7a5hhBnAoSiw9XcfT02VVhTho/8ZjYlzK5xyxzh9FlRAnsfeZc20oed6Zs3Q==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
       vite: '>=5.0.0'
