@@ -2,7 +2,7 @@ import { ChannelCredentials, createChannel, createClient } from 'nice-grpc';
 
 import { CLIENT_OPTIONS, createClientAddr, waitReady } from './helper.js';
 import { PORTS } from '../constants/constants.js';
-import { TokensClient, TokensDefinition } from '../generated/tokens/tokens.js';
+import { TokensClient, TokensDefinition } from '../tokens/tokens.client.js';
 
 export const createTokens = async (env: string): Promise<TokensClient> => {
 	const channel = createChannel(

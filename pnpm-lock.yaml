@@ -477,6 +477,9 @@ importers:
 
   libs/frontend-chat:
     dependencies:
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../api
       '@twir/fontsource':
         specifier: workspace:*
         version: link:../fontsource
@@ -487,9 +490,6 @@ importers:
         specifier: 3.4.5
         version: 3.4.5(typescript@5.3.3)
     devDependencies:
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../grpc
       vue-tsc:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)

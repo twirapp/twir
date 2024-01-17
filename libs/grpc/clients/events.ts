@@ -2,7 +2,7 @@ import { ChannelCredentials, createChannel, createClient } from 'nice-grpc';
 
 import { CLIENT_OPTIONS, createClientAddr, waitReady } from './helper.js';
 import { PORTS } from '../constants/constants.js';
-import { EventsClient, EventsDefinition } from '../generated/events/events.js';
+import { EventsClient, EventsDefinition } from '../events/events.client.js';
 
 export const createEvents = async (env: string): Promise<EventsClient> => {
 	const channel = createChannel(

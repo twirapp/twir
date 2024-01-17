@@ -2,8 +2,8 @@
 	"name": "@twir/grpc",
 	"type": "module",
 	"scripts": {
-		"build": "node buf.js generate --exclude-path=node_modules --include-imports --include-wkt",
-		"postbuild": "tsc"
+		"build": "pnpm -w cli bin --pwd ./libs/grpc buf generate --exclude-path=node_modules --include-imports --include-wkt && pnpm build:ts",
+		"build:ts": "tsc ./**/*.ts"
 	},
 	"exports": {
 		"./*": {
