@@ -13,8 +13,8 @@
 	},
 	"typesVersions": {
 		"*": {
-			".": [
-				"./dist/*.ts"
+			"*": [
+				"./dist/*.d.ts"
 			]
 		}
 	},

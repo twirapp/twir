@@ -9,7 +9,8 @@
     "declarationMap": true,
     "preserveSymlinks": true,
     "composite": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
   },
   "include": [
 		"./clients/*.ts",
