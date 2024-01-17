@@ -51,6 +51,8 @@ import "messages/alerts/alerts.proto";
 import "messages/games/games.proto";
 import "messages/overlays/overlays.proto";
 
+import "messages/feedback/feedback.proto";
+
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
 	rpc AuthSetDashboard(messages.auth.SetDashboard) returns (google.protobuf.Empty) {}
@@ -242,6 +244,8 @@ service Protected {
 
 	rpc UsersRegenerateApiKey(messages.users.RegenerateApiKeyRequest) returns (google.protobuf.Empty) {}
 	rpc UsersUpdate(messages.users.UpdateUserRequest) returns (google.protobuf.Empty) {}
+
+	rpc LeaveFeedback(messages.feedback.LeaveFeedbackRequest) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

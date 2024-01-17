@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { AutoPlay } from '@egjs/flicking-plugins';
 import Flicking from '@egjs/vue3-flicking';
-import type { GetTwirStreamersResponse_Streamer } from '@twir/grpc/generated/api/api/stats';
+import type { GetTwirStreamersResponse_Streamer } from '@twir/api/messages/stats/stats';
 
 defineProps<{
 	streamers: GetTwirStreamersResponse_Streamer[][]
@@ -34,7 +34,10 @@ defineProps<{
 							:src="streamer.avatar" class="rounded-full w-10 h-10" draggable="false"
 							:alt="`streamers-list-${streamer.userDisplayName}`"
 						/>
-						<span v-if="streamer.isLive" class="absolute inline-block bg-red-600 text-white text-xs font-semibold uppercase px-1 rounded-sm -bottom-[8px] left-[3px]">
+						<span
+							v-if="streamer.isLive"
+							class="absolute inline-block bg-red-600 text-white text-xs font-semibold uppercase px-1 rounded-sm -bottom-[8px] left-[3px]"
+						>
 							LIVE
 						</span>
 					</div>
@@ -45,7 +48,16 @@ defineProps<{
 					>
 						<div class="flex items-center">
 							<span>{{ streamer.userDisplayName }}</span>
-							<svg v-if="streamer.isPartner" class="fill-[#a970ff] ml-1" width="16" height="16" viewBox="0 0 16 16" aria-label="Verified Partner"><path fill-rule="evenodd" d="M12.5 3.5 8 2 3.5 3.5 2 8l1.5 4.5L8 14l4.5-1.5L14 8l-1.5-4.5ZM7 11l4.5-4.5L10 5 7 8 5.5 6.5 4 8l3 3Z" clip-rule="evenodd"></path></svg>
+							<svg
+								v-if="streamer.isPartner" class="fill-[#a970ff] ml-1" width="16" height="16"
+								viewBox="0 0 16 16" aria-label="Verified Partner"
+							>
+								<path
+									fill-rule="evenodd"
+									d="M12.5 3.5 8 2 3.5 3.5 2 8l1.5 4.5L8 14l4.5-1.5L14 8l-1.5-4.5ZM7 11l4.5-4.5L10 5 7 8 5.5 6.5 4 8l3 3Z"
+									clip-rule="evenodd"
+								></path>
+							</svg>
 						</div>
 						<span class="text-xs uppercase">{{ streamer.followersCount }} followers</span>
 					</a>

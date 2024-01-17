@@ -26,7 +26,7 @@ for (const integration of integrations) {
 }
 
 /**
-* @type {import('@twir/grpc/generated/integrations/integrations').IntegrationsServiceImplementation}
+* @type {import('@twir/grpc/integrations/integrations').IntegrationsServiceImplementation}
 */
 const integrationsServer = {
 	async addIntegration(data) {

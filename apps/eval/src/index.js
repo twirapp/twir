@@ -17,7 +17,7 @@ const vm = new VM({
 
 
 /**
- * @type {import('@twir/grpc/generated/eval/eval').EvalServiceImplementation}
+ * @type {import('@twir/grpc/eval/eval').EvalServiceImplementation}
  */
 const evalService = {
 	async process(request) {

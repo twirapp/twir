@@ -1,4 +1,4 @@
-import type { Profile } from '@twir/grpc/generated/api/api/auth';
+import type { Profile } from '@twir/api/messages/auth/auth';
 
 declare global {
 	namespace App {

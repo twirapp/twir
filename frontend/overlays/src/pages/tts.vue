@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { TTSMessage } from '@twir/grpc/generated/websockets/websockets';
+import type { TTSMessage } from '@twir/grpc/websockets/websockets';
 import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
