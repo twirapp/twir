@@ -1,0 +1,16 @@
+version: v1
+plugins:
+  - plugin: go
+    out: ./
+    opt: paths=source_relative
+  - plugin: go-grpc
+    out: ./
+    opt: paths=source_relative
+  - name: ts_proto
+    out: dist
+    strategy: all
+    opt:
+      - esModuleInterop=true
+      - importSuffix=.js
+      - outputServices=generic-definitions
+      - outputServices=nice-grpc

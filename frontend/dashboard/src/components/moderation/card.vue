@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconSettings, IconTrash } from '@tabler/icons-vue';
-import { type ItemWithId } from '@twir/grpc/generated/api/api/moderation';
+import { type ItemWithId } from '@twir/api/messages/moderation/moderation';
 import { NSwitch, NButton, NPopconfirm, useNotification } from 'naive-ui';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';

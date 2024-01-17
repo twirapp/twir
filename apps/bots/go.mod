@@ -17,7 +17,6 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gopool v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/pubsub v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
@@ -26,10 +25,11 @@ require (
 	github.com/satont/twir/libs/utils v0.0.0-20231203205548-e635accc6b72
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.8.4
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )
@@ -97,10 +97,10 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/gopool => ../../libs/gopool
-	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 )

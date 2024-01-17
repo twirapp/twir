@@ -13,11 +13,11 @@ import (
 	"github.com/satont/twir/apps/timers/internal/worker"
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/logger"
 	sentryInternal "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 )
 

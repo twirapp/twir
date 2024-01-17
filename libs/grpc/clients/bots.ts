@@ -2,7 +2,7 @@ import { ChannelCredentials, createChannel, createClient } from 'nice-grpc';
 
 import { CLIENT_OPTIONS, createClientAddr, waitReady } from './helper.js';
 import { PORTS } from '../constants/constants.js';
-import { BotsClient, BotsDefinition } from '../generated/bots/bots.js';
+import { BotsClient, BotsDefinition } from '../dist/bots/bots.js';
 
 export const createBots = async (env: string): Promise<BotsClient> => {
 	const channel = createChannel(

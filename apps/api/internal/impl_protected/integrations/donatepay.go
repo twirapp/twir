@@ -5,7 +5,7 @@ import (
 
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_donatepay"
+	"github.com/twirapp/twir/libs/api/messages/integrations_donatepay"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -14,7 +14,11 @@ func (c *Integrations) IntegrationsDonatepayGet(
 	_ *emptypb.Empty,
 ) (*integrations_donatepay.GetResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDonateStream,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +33,11 @@ func (c *Integrations) IntegrationsDonatepayPut(
 	request *integrations_donatepay.PostRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(ctx, model.IntegrationServiceDonateStream, dashboardId)
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceDonateStream,
+		dashboardId,
+	)
 	if err != nil {
 		return nil, err
 	}

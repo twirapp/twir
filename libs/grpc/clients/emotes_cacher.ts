@@ -5,7 +5,7 @@ import { PORTS } from '../constants/constants.js';
 import {
 	EmotesCacherClient,
 	EmotesCacherDefinition,
-} from '../generated/emotes_cacher/emotes_cacher.js';
+} from '../dist/emotes_cacher/emotes_cacher.js';
 
 export const createEmotesCacher = async (env: string): Promise<EmotesCacherClient> => {
 	const channel = createChannel(

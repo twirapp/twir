@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import type { UpdateUserRequest } from '@twir/grpc/generated/api/api/users';
+import type { UpdateUserRequest } from '@twir/api/messages/users/users';
 
 import { profileQueryOptions } from '@/api/auth';
 import { protectedApiClient } from '@/api/twirp';

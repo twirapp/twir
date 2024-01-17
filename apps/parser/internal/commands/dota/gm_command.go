@@ -17,7 +17,7 @@ package dota
 // 	"github.com/satont/twir/apps/parser/internal/types"
 
 // 	model "github.com/satont/twir/libs/gomodels"
-// 	"github.com/satont/twir/libs/grpc/generated/dota"
+// 	"github.com/twirapp/twir/libs/grpc/dota"
 
 // 	variables_cache "github.com/satont/twir/apps/parser/internal/variablescache"
 

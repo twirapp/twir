@@ -1,6 +1,7 @@
 package build
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -14,7 +15,7 @@ var Cmd = &cli.Command{
 	Usage:   "build application",
 	Aliases: []string{"b"},
 	Action: func(c *cli.Context) error {
-		return build("turbo run build --filter=!./apps/dota")
+		return build(`turbo run build --filter=!./apps/dota`)
 	},
 	Subcommands: []*cli.Command{
 		LibsCmd,
@@ -24,7 +25,7 @@ var Cmd = &cli.Command{
 var LibsCmd = &cli.Command{
 	Name: "libs",
 	Action: func(context *cli.Context) error {
-		return build("turbo run build --filter='./libs/*'")
+		return build(`turbo run build --filter=./libs/*`)
 	},
 }
 
@@ -38,6 +39,7 @@ func build(cmd string) error {
 	spinner, _ := pterm.DefaultSpinner.Start("Building...")
 
 	startTime := time.Now()
+	fmt.Println(wd)
 
 	err = shell.ExecCommand(
 		shell.ExecCommandOpts{

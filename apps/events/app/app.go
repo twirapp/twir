@@ -12,12 +12,12 @@ import (
 	"github.com/satont/twir/apps/events/internal/workers"
 	"github.com/satont/twir/apps/events/internal/workflows"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/generated/bots"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 )
 

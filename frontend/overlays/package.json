@@ -10,6 +10,7 @@
   "dependencies": {
     "@plugin-web-update-notification/vite": "1.7.0",
     "@protobuf-ts/twirp-transport": "2.9.3",
+    "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/grpc": "workspace:*",

@@ -1,6 +1,6 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
-import { ProtectedClient } from '@twir/grpc/generated/api/api.client';
-import { UnProtectedClient } from '@twir/grpc/generated/api/api.client';
+import { ProtectedClient } from '@twir/api/api.client';
+import { UnProtectedClient } from '@twir/api/api.client';
 
 const transport = new TwirpFetchTransport({
 	baseUrl: `${window.location.origin}/api/v1`,

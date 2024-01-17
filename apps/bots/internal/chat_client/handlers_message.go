@@ -9,7 +9,7 @@ import (
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 
 	"github.com/samber/lo"
 )

@@ -15,7 +15,7 @@ import { useQueries } from '@tanstack/vue-query';
 import {
 	ChannelType,
 	type GetDataResponse,
-} from '@twir/grpc/generated/api/api/integrations_discord';
+} from '@twir/api/messages/integrations_discord/integrations_discord';
 import {
 	NTabs,
 	NTabPane,

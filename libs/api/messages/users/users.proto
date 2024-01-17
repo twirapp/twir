@@ -1,0 +1,10 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/users";
+package messages.users;
+
+
+message UpdateUserRequest {
+	optional bool hide_on_landing_page = 1;
+}
+
+message RegenerateApiKeyRequest {}

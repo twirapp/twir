@@ -6,8 +6,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/tts_unprotected"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/api/messages/tts_unprotected"
 	"github.com/twitchtv/twirp"
 )
 

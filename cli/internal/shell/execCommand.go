@@ -3,7 +3,10 @@ package shell
 import (
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"runtime"
 )
 
 type ExecCommandOpts struct {
@@ -25,17 +28,30 @@ func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 		opts.Command,
 	)
 
+	pathVarKey := "PATH"
+	path := os.Getenv(pathVarKey)
+	pathDelimiter := ":"
+	if runtime.GOOS == "windows" {
+		pathVarKey = "Path"
+		path = os.Getenv(pathVarKey)
+		pathDelimiter = ";"
+	}
+
+	projectWd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	path += pathDelimiter + filepath.Join(projectWd, ".bin")
+
+	cmd.Env = append(os.Environ(), pathVarKey+"="+path)
+
 	if opts.Pwd != "" {
 		cmd.Dir = opts.Pwd
 	}
 
-	if opts.Stdout != nil {
-		cmd.Stdout = opts.Stdout
-	}
-
-	if opts.Stderr != nil {
-		cmd.Stderr = opts.Stderr
-	}
+	cmd.Stdout = opts.Stdout
+	cmd.Stderr = opts.Stderr
 
 	return cmd, nil
 }

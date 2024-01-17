@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconDeviceFloppy, IconX } from '@tabler/icons-vue';
-import type { Command_Response } from '@twir/grpc/generated/api/api/commands';
+import type { Command_Response } from '@twir/api/messages/commands/commands';
 import { useNotification, NText, NInput, NButton, NPopconfirm } from 'naive-ui';
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

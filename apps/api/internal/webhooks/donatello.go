@@ -12,7 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/handlers"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

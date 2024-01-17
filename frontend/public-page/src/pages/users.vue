@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVueTable, FlexRender, createColumnHelper, getCoreRowModel, type SortingState } from '@tanstack/vue-table';
-import { type GetUsersResponse_User } from '@twir/grpc/generated/api/api/community';
+import { type GetUsersResponse_User } from '@twir/api/messages/community/community';
 import { computed, h, ref } from 'vue';
 
 import { useCommunityUsers, type SortKey } from '@/api/community.js';

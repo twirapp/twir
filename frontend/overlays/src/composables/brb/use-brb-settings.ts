@@ -1,4 +1,4 @@
-import type { Settings } from '@twir/grpc/generated/api/api/overlays_be_right_back';
+import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 

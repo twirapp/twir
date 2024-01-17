@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { DuelSettingsResponse } from '@twir/grpc/generated/api/api/games';
+import type { DuelSettingsResponse } from '@twir/api/messages/games/games';
 import {
 	NModal,
 	useNotification,

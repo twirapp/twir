@@ -9,8 +9,8 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
-	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

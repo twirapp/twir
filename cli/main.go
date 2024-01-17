@@ -7,6 +7,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev"
+	"github.com/twirapp/twir/cli/internal/cmds/execbin"
 	"github.com/twirapp/twir/cli/internal/cmds/generate"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
@@ -44,6 +45,7 @@ func main() {
 			generate.Cmd,
 			build.Cmd,
 			dev.CreateDevCommand(),
+			execbin.Cmd,
 		},
 	}
 

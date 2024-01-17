@@ -9,14 +9,12 @@
     "declarationMap": true,
     "preserveSymlinks": true,
     "composite": false,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+		"allowSyntheticDefaultImports": true
   },
-  "includes": [
-    "./**/*.ts"
+  "include": [
+		"./clients/*.ts",
+		"./constants/*.ts"
   ],
-  "exclude": [
-    "./dist",
-    "gen.ts",
-    "postbuild.ts"
-  ]
+  "exclude": ["node_modules"]
 }

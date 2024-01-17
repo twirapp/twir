@@ -2,7 +2,7 @@ import { ChannelCredentials, createChannel, createClient } from 'nice-grpc';
 
 import { CLIENT_OPTIONS, createClientAddr, waitReady } from './helper.js';
 import { PORTS } from '../constants/constants.js';
-import { WebsocketClient, WebsocketDefinition } from '../generated/websockets/websockets.js';
+import { WebsocketClient, WebsocketDefinition } from '../dist/websockets/websockets.js';
 
 export const createWebsocket = async (env: string): Promise<WebsocketClient> => {
 	const channel = createChannel(

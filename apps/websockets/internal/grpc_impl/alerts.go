@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

@@ -6,7 +6,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/greetings"
+	"github.com/twirapp/twir/libs/api/messages/greetings"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -26,7 +26,10 @@ func (c *Greetings) convertEntity(entity *model.ChannelsGreetings) *greetings.Gr
 	}
 }
 
-func (c *Greetings) GreetingsGetAll(ctx context.Context, _ *emptypb.Empty) (*greetings.GetAllResponse, error) {
+func (c *Greetings) GreetingsGetAll(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*greetings.GetAllResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	var dbGreetings []*model.ChannelsGreetings
 	err := c.Db.WithContext(ctx).Where(`"channelId" = ?`, dashboardId).Find(&dbGreetings).Error
@@ -80,7 +83,10 @@ func (c *Greetings) GreetingsCreate(
 	return c.convertEntity(entity), nil
 }
 
-func (c *Greetings) GreetingsDelete(ctx context.Context, request *greetings.DeleteRequest) (*emptypb.Empty, error) {
+func (c *Greetings) GreetingsDelete(
+	ctx context.Context,
+	request *greetings.DeleteRequest,
+) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	err := c.Db.
 		WithContext(ctx).
@@ -93,7 +99,10 @@ func (c *Greetings) GreetingsDelete(ctx context.Context, request *greetings.Dele
 	return &emptypb.Empty{}, nil
 }
 
-func (c *Greetings) GreetingsUpdate(ctx context.Context, request *greetings.PutRequest) (*greetings.Greeting, error) {
+func (c *Greetings) GreetingsUpdate(
+	ctx context.Context,
+	request *greetings.PutRequest,
+) (*greetings.Greeting, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 	entity := &model.ChannelsGreetings{
 		ChannelID: dashboardId,

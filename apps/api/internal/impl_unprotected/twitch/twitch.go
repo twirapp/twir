@@ -12,8 +12,8 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	generatedTwitch "github.com/satont/twir/libs/grpc/generated/api/twitch"
 	"github.com/satont/twir/libs/twitch"
+	generatedTwitch "github.com/twirapp/twir/libs/api/messages/twitch"
 )
 
 type Twitch struct {

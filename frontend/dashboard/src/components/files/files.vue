@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RpcError } from '@protobuf-ts/runtime-rpc';
 import { IconArchive } from '@tabler/icons-vue';
-import { FileMeta } from '@twir/grpc/generated/api/api/files';
+import { FileMeta } from '@twir/api/messages/files/files';
 import {
 	NAlert,
 	NButton,
@@ -14,7 +14,7 @@ import {
 	NText,
 	NUpload,
 	NUploadDragger,
-useMessage,
+	useMessage,
 } from 'naive-ui';
 import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 

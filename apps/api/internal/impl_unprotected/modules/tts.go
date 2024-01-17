@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/imroc/req/v3"
-	"github.com/satont/twir/libs/grpc/generated/api/modules_tts"
+	"github.com/twirapp/twir/libs/api/messages/modules_tts"
 )
 
 func (c *Modules) ModulesTTSSay(

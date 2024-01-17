@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/bots"
+	"github.com/twirapp/twir/libs/grpc/bots"
 )
 
 type SubscribMessage struct {

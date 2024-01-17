@@ -10,12 +10,12 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@vueuse/core": "10.7.2",
     "vue": "3.4.14"
   },
   "devDependencies": {
-    "@twir/grpc": "workspace:*",
     "vue-tsc": "1.8.27"
   },
   "peerDependencies": {

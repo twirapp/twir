@@ -1,0 +1,12 @@
+version: v1
+name: buf.build/twirapp/grpc
+breaking:
+  use:
+    - WIRE_JSON
+  ignore:
+    - google
+lint:
+  use:
+    - DEFAULT
+  ignore:
+    - google

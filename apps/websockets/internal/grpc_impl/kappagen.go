@@ -7,7 +7,7 @@ import (
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -48,7 +48,7 @@ func (c *GrpcImpl) TriggerKappagenByEvent(
 	ok := lo.SomeBy(
 		parsedSettings.Events,
 		func(item model.KappagenOverlaySettingsEvent) bool {
-			return int32(req.Event.Number()) == item.Event && item.Enabled
+			return req.Event == item.Event && item.Enabled
 		},
 	)
 

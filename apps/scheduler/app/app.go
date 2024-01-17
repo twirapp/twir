@@ -6,13 +6,13 @@ import (
 	"github.com/satont/twir/apps/scheduler/internal/services"
 	"github.com/satont/twir/apps/scheduler/internal/timers"
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
-	"github.com/satont/twir/libs/grpc/generated/parser"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
+	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 )
 

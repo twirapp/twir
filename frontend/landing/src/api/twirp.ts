@@ -1,6 +1,6 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
+import { ProtectedClient, UnProtectedClient } from '@twir/api/api.client';
 import { config } from '@twir/config';
-import { ProtectedClient, UnProtectedClient } from '@twir/grpc/generated/api/api.client';
 
 const host = config.SITE_BASE_URL ?? 'localhost:3005';
 const isDev = config.NODE_ENV === 'development';

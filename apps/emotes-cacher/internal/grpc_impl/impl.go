@@ -10,9 +10,9 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emotes"
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/emotes_cacher"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

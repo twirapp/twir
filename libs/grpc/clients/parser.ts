@@ -2,7 +2,7 @@ import { ChannelCredentials, createChannel, createClient } from 'nice-grpc';
 
 import { CLIENT_OPTIONS, createClientAddr, waitReady } from './helper.js';
 import { PORTS } from '../constants/constants.js';
-import { ParserClient, ParserDefinition } from '../generated/parser/parser.js';
+import { ParserClient, ParserDefinition } from '../dist/parser/parser.js';
 
 export const createParser = async (env: string): Promise<ParserClient> => {
 	const channel = createChannel(

@@ -5,3 +5,5 @@ export type Donate = {
 	message?: string | null;
 	userName?: string | null;
 }
+
+export const onDonation = (donate: Donate) => Promise<void>;

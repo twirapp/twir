@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Timer } from '@twir/grpc/generated/api/api/timers';
-import { type DataTableColumns, NButton, NDataTable, NModal, NPopconfirm, NSpace, NSwitch, NTag } from 'naive-ui';
+import { type Timer } from '@twir/api/messages/timers/timers';
+import {
+	type DataTableColumns,
+	NButton,
+	NDataTable,
+	NModal,
+	NPopconfirm,
+	NSpace,
+	NSwitch,
+	NTag,
+} from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -131,7 +140,8 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 			:disabled="!userCanManageTimers || timersLength >= 10"
 			@click="openModal(null)"
 		>
-			{{ timersLength >= 10 ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{ timersLength }}/10)
+			{{ timersLength >= 10 ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{
+				timersLength }}/10)
 		</n-button>
 	</n-space>
 	<n-data-table

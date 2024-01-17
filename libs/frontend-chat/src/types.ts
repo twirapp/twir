@@ -1,4 +1,4 @@
-import type { Settings as ChatSettings } from '@twir/grpc/generated/api/api/overlays_chat';
+import type { Settings as ChatSettings } from '@twir/api/messages/overlays_chat/overlays_chat';
 
 export enum EmoteFlag {
 	Hidden = 2,

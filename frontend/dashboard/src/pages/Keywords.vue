@@ -1,15 +1,15 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import type { Keyword } from '@twir/grpc/generated/api/api/keywords';
+import type { Keyword } from '@twir/api/messages/keywords/keywords';
 import {
 	type DataTableColumns,
-  NDataTable,
-  NSpace,
-  NTag,
-  NSwitch,
-  NButton,
-  NPopconfirm,
-  NModal,
+	NDataTable,
+	NSpace,
+	NTag,
+	NSwitch,
+	NButton,
+	NPopconfirm,
+	NModal,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -41,7 +41,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 				{
 					default: () => row.text.slice(0, 100) + (row.text.length > 100 ? '...' : ''),
 				},
-				);
+			);
 		},
 	},
 	{
@@ -49,7 +49,10 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		key: 'response',
 		width: 200,
 		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, { default: () => row.response || 'No response' });
+			return h(NTag, {
+				type: 'info',
+				bordered: true,
+			}, { default: () => row.response || 'No response' });
 		},
 	},
 	{
@@ -109,16 +112,18 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 				},
 			);
 
-			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
+			return h(NSpace, {}, { default: () => [editButton, deleteButton] });
 		},
 	},
 ]);
 
 const editableKeyword = ref<EditableKeyword | null>(null);
+
 function openModal(t: EditableKeyword | null) {
 	editableKeyword.value = t;
 	showModal.value = true;
 }
+
 function closeModal() {
 	showModal.value = false;
 }

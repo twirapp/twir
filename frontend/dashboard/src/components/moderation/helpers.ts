@@ -8,7 +8,7 @@ import {
 	IconMoodOff,
 	type SVGProps,
 } from '@tabler/icons-vue';
-import type { ItemCreateMessage, Item as GrpcItem } from '@twir/grpc/generated/api/api/moderation';
+import type { ItemCreateMessage, Item as GrpcItem } from '@twir/api/messages/moderation/moderation';
 import { ref, type FunctionalComponent } from 'vue';
 
 export type Item = ItemCreateMessage & {

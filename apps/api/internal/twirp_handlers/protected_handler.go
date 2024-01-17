@@ -9,9 +9,9 @@ import (
 
 	"github.com/satont/twir/apps/api/internal/interceptors"
 	"github.com/satont/twir/apps/api/internal/wrappers"
-	"github.com/satont/twir/libs/grpc/generated/api"
-	"github.com/satont/twir/libs/grpc/generated/api/bots"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
+	"github.com/twirapp/twir/libs/api"
+	"github.com/twirapp/twir/libs/api/messages/bots"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twitchtv/twirp"
 	"go.uber.org/fx"
 )

@@ -10,8 +10,8 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )

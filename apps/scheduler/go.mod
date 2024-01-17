@@ -5,12 +5,12 @@ go 1.21
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 )
 
 require (
@@ -21,15 +21,15 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/gomodels v0.0.0-20231219061239-afa2b6688b59
-	github.com/satont/twir/libs/grpc v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/logger v0.0.0-20231219061239-afa2b6688b59
 	github.com/satont/twir/libs/pubsub v0.0.0-20231219061239-afa2b6688b59
 	github.com/satont/twir/libs/sentry v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/twitch v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/utils v0.0.0-20231219040737-d6df9f25e101
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231219040737-d6df9f25e101
 	go.uber.org/fx v1.20.1
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )

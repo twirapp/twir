@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 
@@ -13,7 +13,11 @@ func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.Pr
 	out := make([]*events.PredictionInfo_OutCome, 0, len(outcomes))
 
 	for _, outcome := range outcomes {
-		topPredictors := make([]*events.PredictionInfo_OutCome_TopPredictor, 0, len(outcome.TopPredictors))
+		topPredictors := make(
+			[]*events.PredictionInfo_OutCome_TopPredictor,
+			0,
+			len(outcome.TopPredictors),
+		)
 
 		for _, predictor := range outcome.TopPredictors {
 			won := uint64(predictor.ChannelPointsWon)

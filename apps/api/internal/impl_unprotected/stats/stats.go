@@ -11,9 +11,9 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/stats"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
+	"github.com/twirapp/twir/libs/api/messages/stats"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

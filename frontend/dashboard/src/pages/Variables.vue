@@ -1,15 +1,15 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Variable, VariableType } from '@twir/grpc/generated/api/api/variables';
+import { type Variable, VariableType } from '@twir/api/messages/variables/variables';
 import {
 	type DataTableColumns,
-  NDataTable,
-  NSpace,
-  NTag,
-  NAlert,
-  NButton,
-  NPopconfirm,
-  NModal,
+	NDataTable,
+	NSpace,
+	NTag,
+	NAlert,
+	NButton,
+	NPopconfirm,
+	NModal,
 } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -43,7 +43,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
 				default: () => {
-					switch(row.type) {
+					switch (row.type) {
 						case VariableType.SCRIPT:
 							return 'Script';
 						case VariableType.TEXT:
@@ -103,16 +103,18 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 				},
 			);
 
-			return h(NSpace, { }, { default: () => [editButton, deleteButton] });
+			return h(NSpace, {}, { default: () => [editButton, deleteButton] });
 		},
 	},
 ]);
 
 const editableVariable = ref<EditableVariable | null>(null);
+
 function openModal(t: EditableVariable | null) {
 	editableVariable.value = t;
 	showModal.value = true;
 }
+
 function closeModal() {
 	showModal.value = false;
 }

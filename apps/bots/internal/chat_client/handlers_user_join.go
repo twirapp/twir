@@ -9,7 +9,7 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 )
 
 func (c *ChatClient) onUserJoin(message irc.UserJoinMessage) {

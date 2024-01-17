@@ -9,8 +9,8 @@ import (
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/grpc/parser"
 )
 
 func (c *ChatClient) handleTts(msg Message, userBadges []string) {

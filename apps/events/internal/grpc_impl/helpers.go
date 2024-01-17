@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/satont/twir/libs/grpc/generated/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 )
 
 func predictionMapTopPredictors(predictors []*events.PredictionInfo_OutCome_TopPredictor) string {

@@ -1,4 +1,4 @@
-import type { Command, Command_Response } from '@twir/grpc/generated/api/api/commands';
+import type { Command, Command_Response } from '@twir/api/messages/commands/commands';
 
 export type EditableCommand = Omit<
 	Command,

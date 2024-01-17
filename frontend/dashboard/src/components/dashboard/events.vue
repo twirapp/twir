@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { IconSettings } from '@tabler/icons-vue';
-import { EventType } from '@twir/grpc/generated/api/api/dashboard';
+import { EventType } from '@twir/api/messages/dashboard/dashboard';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
 import { NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
 import { computed } from 'vue';
@@ -76,7 +76,10 @@ const enabledEventsOptions = [
 		:content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }"
 	>
 		<template #header-extra>
-			<n-popselect v-model:value="enabledEvents" multiple :options="enabledEventsOptions" trigger="click">
+			<n-popselect
+				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"
+				trigger="click"
+			>
 				<n-button text>
 					<IconSettings />
 				</n-button>
@@ -175,11 +178,12 @@ const enabledEventsOptions = [
 <style scoped>
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.5s ease;
+	transition: all 0.5s ease;
 }
+
 .list-enter-from,
 .list-leave-to {
-  opacity: 0;
-  transform: translateY(30px);
+	opacity: 0;
+	transform: translateY(30px);
 }
 </style>

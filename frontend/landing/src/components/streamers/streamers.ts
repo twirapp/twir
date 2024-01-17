@@ -1,4 +1,4 @@
-import type { GetTwirStreamersResponse_Streamer } from '@twir/grpc/generated/api/api/stats';
+import type { GetTwirStreamersResponse_Streamer } from '@twir/api/messages/stats/stats';
 
 import { unProtectedClient } from '@/api/twirp.js';
 

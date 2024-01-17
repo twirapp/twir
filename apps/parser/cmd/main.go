@@ -16,9 +16,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/queue"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/clients"
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"google.golang.org/grpc"
 
 	"gorm.io/driver/postgres"

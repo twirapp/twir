@@ -6,7 +6,7 @@ import (
 
 	irc "github.com/gempir/go-twitch-irc/v3"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

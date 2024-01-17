@@ -8,7 +8,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/websockets"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 var Kappagen = &types.DefaultCommand{

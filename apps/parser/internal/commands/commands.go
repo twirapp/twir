@@ -31,7 +31,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
-	"github.com/satont/twir/libs/grpc/generated/parser"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/zap"
 )
 

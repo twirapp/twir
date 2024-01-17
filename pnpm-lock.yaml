@@ -170,6 +170,9 @@ importers:
       '@tanstack/vue-query':
         specifier: 4.37.0
         version: 4.37.0(vue@3.4.14)
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@twir/brand':
         specifier: workspace:*
         version: link:../../libs/brand
@@ -179,9 +182,6 @@ importers:
       '@twir/frontend-chat':
         specifier: workspace:*
         version: link:../../libs/frontend-chat
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../../libs/grpc
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
@@ -291,18 +291,18 @@ importers:
       '@protobuf-ts/twirp-transport':
         specifier: 2.9.3
         version: 2.9.3
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@twir/brand':
         specifier: workspace:*
         version: link:../../libs/brand
       '@twir/config':
         specifier: workspace:*
         version: link:../../libs/config
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../../libs/grpc
       astro:
         specifier: 4.1.3
-        version: 4.1.3(@types/node@20.11.5)(sass@1.69.7)
+        version: 4.1.3(@types/node@20.11.5)(sass@1.69.7)(typescript@5.3.3)
       fastify:
         specifier: 4.25.2
         version: 4.25.2
@@ -337,6 +337,9 @@ importers:
       '@protobuf-ts/twirp-transport':
         specifier: 2.9.3
         version: 2.9.3
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@twir/fontsource':
         specifier: workspace:*
         version: link:../../libs/fontsource
@@ -404,12 +407,12 @@ importers:
       '@tanstack/vue-table':
         specifier: 8.11.6
         version: 8.11.6(vue@3.4.14)
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../../libs/api
       '@twir/brand':
         specifier: workspace:*
         version: link:../../libs/brand
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../../libs/grpc
       '@vueuse/components':
         specifier: 10.7.2
         version: 10.7.2(vue@3.4.14)
@@ -445,6 +448,21 @@ importers:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)
 
+  libs/api:
+    dependencies:
+      '@bufbuild/protoc-gen-es':
+        specifier: 1.6.0
+        version: 1.6.0
+      '@protobuf-ts/plugin':
+        specifier: 2.9.3
+        version: 2.9.3
+      '@protobuf-ts/runtime':
+        specifier: 2.9.3
+        version: 2.9.3
+      '@protobuf-ts/runtime-rpc':
+        specifier: 2.9.3
+        version: 2.9.3
+
   libs/brand: {}
 
   libs/config:
@@ -476,6 +494,9 @@ importers:
 
   libs/frontend-chat:
     dependencies:
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../api
       '@twir/fontsource':
         specifier: workspace:*
         version: link:../fontsource
@@ -486,27 +507,12 @@ importers:
         specifier: 3.4.14
         version: 3.4.14(typescript@5.3.3)
     devDependencies:
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../grpc
       vue-tsc:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)
 
   libs/grpc:
     dependencies:
-      '@protobuf-ts/plugin':
-        specifier: 2.9.3
-        version: 2.9.3
-      '@protobuf-ts/runtime':
-        specifier: 2.9.3
-        version: 2.9.3
-      '@protobuf-ts/runtime-rpc':
-        specifier: 2.9.3
-        version: 2.9.3
-      '@protobuf-ts/twirp-transport':
-        specifier: 2.9.3
-        version: 2.9.3
       long:
         specifier: 5.2.3
         version: 5.2.3
@@ -517,15 +523,11 @@ importers:
         specifier: 2.0.2
         version: 2.0.2
       protobufjs:
-        specifier: 7.2.6
-        version: 7.2.6
+        specifier: 7.2.5
+        version: 7.2.5
       ts-proto:
         specifier: 1.166.2
         version: 1.166.2
-    devDependencies:
-      '@grpc/grpc-js':
-        specifier: 1.9.14
-        version: 1.9.14
 
   libs/pubsub:
     dependencies:
@@ -591,7 +593,7 @@ packages:
     peerDependencies:
       astro: ^4.0.0
     dependencies:
-      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)
+      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)(typescript@5.3.3)
       send: 0.18.0
       server-destroy: 1.0.1
     transitivePeerDependencies:
@@ -611,7 +613,7 @@ packages:
       astro: ^3.0.0 || ^4.0.0
       tailwindcss: ^3.0.24
     dependencies:
-      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)
+      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)(typescript@5.3.3)
       autoprefixer: 10.4.16(postcss@8.4.33)
       postcss: 8.4.33
       postcss-load-config: 4.0.2(postcss@8.4.33)
@@ -646,7 +648,7 @@ packages:
       '@vitejs/plugin-vue-jsx': 3.1.0(vite@5.0.11)(vue@3.4.14)
       '@vue/babel-plugin-jsx': 1.1.5(@babel/core@7.23.7)
       '@vue/compiler-sfc': 3.4.5
-      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)
+      astro: 4.1.3(@types/node@20.11.5)(sass@1.69.7)(typescript@5.3.3)
       vue: 3.4.14(typescript@5.3.3)
     transitivePeerDependencies:
       - '@babel/core'
@@ -973,6 +975,35 @@ packages:
 
   /@bbob/plugin-helper@2.9.0:
     resolution: {integrity: sha512-idpUcNQ2co6T1oU/7/DG/ZRfipSSkTn9Ozw9f5vaXH7nzV3qhqZnhFVlHTzGGnRlzKlBwWOBzOdWi4Zeqg1c5A==}
+    dev: false
+
+  /@bufbuild/protobuf@1.6.0:
+    resolution: {integrity: sha512-hp19vSFgNw3wBBcVBx5qo5pufCqjaJ0Cfk5H/pfjNOfNWU+4/w0QVOmfAOZNRrNWRrVuaJWxcN8P2vhOkkzbBQ==}
+    dev: false
+
+  /@bufbuild/protoc-gen-es@1.6.0:
+    resolution: {integrity: sha512-m0akOPWeD5UBfGdZyudrbnmdjI8l/ZHlP8TyEIcj7qMCR4kh68tMtGvrjRzj5ynIpavrr6G7P06XP9F9f2MDRw==}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protobuf': 1.6.0
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+    dependencies:
+      '@bufbuild/protoplugin': 1.6.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@bufbuild/protoplugin@1.6.0:
+    resolution: {integrity: sha512-o53ZsvojHQkAPoC9v5sJifY2OfXdRU8DO3QpPoJ+QuvYcfB9Zb3DZkNMQRyfEbF4TVYiaQ0mZzZl1mESDdyCxA==}
+    dependencies:
+      '@bufbuild/protobuf': 1.6.0
+      '@typescript/vfs': 1.5.0
+      typescript: 4.5.2
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@cfcs/core@0.0.24:
@@ -1405,14 +1436,6 @@ packages:
       '@types/node': 20.11.5
     dev: false
 
-  /@grpc/grpc-js@1.9.14:
-    resolution: {integrity: sha512-nOpuzZ2G3IuMFN+UPPpKrC6NsLmWsTqSsm66IRfnBt1D4pwTqE27lmbpcPM+l2Ua4gE7PfjRHI6uedAy7hoXUw==}
-    engines: {node: ^8.13.0 || >=10.10.0}
-    dependencies:
-      '@grpc/proto-loader': 0.7.10
-      '@types/node': 20.11.5
-    dev: true
-
   /@grpc/proto-loader@0.7.10:
     resolution: {integrity: sha512-CAqDfoaQ8ykFd9zqBDn4k6iWT9loLAlc2ETmDFS9JCD70gDcnA4L3AFEo2iV7KyAtAAHFW9ftq1Fz+Vsgq80RQ==}
     engines: {node: '>=6'}
@@ -1422,6 +1445,7 @@ packages:
       long: 5.2.3
       protobufjs: 7.2.6
       yargs: 17.7.2
+    dev: false
 
   /@guolao/vue-monaco-editor@1.4.1(monaco-editor@0.43.0)(vue@3.4.14):
     resolution: {integrity: sha512-qJKn0AcxCO5vBENh0dA5j47eaaOxX5gT9Tt7adWhOAPcPZUDFWy+ZJjcGVfmXkUMXOoWNyP78TuK8l3olSRoew==}
@@ -1698,36 +1722,46 @@ packages:
 
   /@protobufjs/aspromise@1.1.2:
     resolution: {integrity: sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==}
+    dev: false
 
   /@protobufjs/base64@1.1.2:
     resolution: {integrity: sha512-AZkcAA5vnN/v4PDqKyMR5lx7hZttPDgClv83E//FMNhR2TMcLUhfRUBHCmSl0oi9zMgDDqRUJkSxO3wm85+XLg==}
+    dev: false
 
   /@protobufjs/codegen@2.0.4:
     resolution: {integrity: sha512-YyFaikqM5sH0ziFZCN3xDC7zeGaB/d0IUb9CATugHWbd1FRFwWwt4ld4OYMPWu5a3Xe01mGAULCdqhMlPl29Jg==}
+    dev: false
 
   /@protobufjs/eventemitter@1.1.0:
     resolution: {integrity: sha512-j9ednRT81vYJ9OfVuXG6ERSTdEL1xVsNgqpkxMsbIabzSo3goCjDIveeGv5d03om39ML71RdmrGNjG5SReBP/Q==}
+    dev: false
 
   /@protobufjs/fetch@1.1.0:
     resolution: {integrity: sha512-lljVXpqXebpsijW71PZaCYeIcE5on1w5DlQy5WH6GLbFryLUrBD4932W/E2BSpfRJWseIL4v/KPgBFxDOIdKpQ==}
     dependencies:
       '@protobufjs/aspromise': 1.1.2
       '@protobufjs/inquire': 1.1.0
+    dev: false
 
   /@protobufjs/float@1.0.2:
     resolution: {integrity: sha512-Ddb+kVXlXst9d+R9PfTIxh1EdNkgoRe5tOX6t01f1lYWOvJnSPDBlG241QLzcyPdoNTsblLUdujGSE4RzrTZGQ==}
+    dev: false
 
   /@protobufjs/inquire@1.1.0:
     resolution: {integrity: sha512-kdSefcPdruJiFMVSbn801t4vFK7KB/5gd2fYvrxhuJYg8ILrmn9SKSX2tZdV6V+ksulWqS7aXjBcRXl3wHoD9Q==}
+    dev: false
 
   /@protobufjs/path@1.1.2:
     resolution: {integrity: sha512-6JOcJ5Tm08dOHAbdR3GrvP+yUUfkjG5ePsHYczMFLq3ZmMkAD98cDgcT2iA1lJ9NVwFd4tH/iSSoe44YWkltEA==}
+    dev: false
 
   /@protobufjs/pool@1.1.0:
     resolution: {integrity: sha512-0kELaGSIDBKvcgS4zkjz1PeddatrjYcmMWOlAuAPwAeccUrPHdUqo/J6LiymHHEiJT5NrF1UVwxY14f+fy4WQw==}
+    dev: false
 
   /@protobufjs/utf8@1.1.0:
     resolution: {integrity: sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==}
+    dev: false
 
   /@redis/bloom@1.2.0(@redis/client@1.5.13):
     resolution: {integrity: sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==}
@@ -2322,6 +2356,14 @@ packages:
       eslint-visitor-keys: 3.4.3
     dev: true
 
+  /@typescript/vfs@1.5.0:
+    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==}
+    dependencies:
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
 
@@ -2808,7 +2850,7 @@ packages:
     resolution: {integrity: sha512-wGUIVQXuehL5TCqQun8OW81jGzAWycqzFF8lFp+GOM5BXLYj3bKNsYC4daB7n6XjCqxQA/qgTJ+8ANR3acjrog==}
     dev: false
 
-  /astro@4.1.3(@types/node@20.11.5)(sass@1.69.7):
+  /astro@4.1.3(@types/node@20.11.5)(sass@1.69.7)(typescript@5.3.3):
     resolution: {integrity: sha512-9i8l0mEnpAOAi9F3DMkHGaZ4q56TGtt71XaAxhPXAlhZrVR/6ruobCyYdYwL1Fo0ATpuGXdaod1I7FFxFMcQbw==}
     engines: {node: '>=18.14.1', npm: '>=6.14.0'}
     hasBin: true
@@ -2868,7 +2910,7 @@ packages:
       shikiji: 0.6.13
       string-width: 7.0.0
       strip-ansi: 7.1.0
-      tsconfck: 3.0.1
+      tsconfck: 3.0.1(typescript@5.3.3)
       unist-util-visit: 5.0.0
       vfile: 6.0.1
       vite: 5.0.11(@types/node@20.11.5)(sass@1.69.7)
@@ -5398,6 +5440,7 @@ packages:
 
   /lodash.camelcase@4.3.0:
     resolution: {integrity: sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA==}
+    dev: false
 
   /lodash.chunk@4.2.0:
     resolution: {integrity: sha512-ZzydJKfUHJwHa+hF5X66zLFCBrWn5GeF28OHEr4WVWtNDXlQ/IjWKPBiikqKo2ne0+v6JgCgJ0GzJp8k8bHC7w==}
@@ -5436,6 +5479,7 @@ packages:
 
   /long@5.2.3:
     resolution: {integrity: sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==}
+    dev: false
 
   /longest-streak@3.1.0:
     resolution: {integrity: sha512-9Ri+o0JYgehTaVBBDoMqIl8GXtbWg711O3srftcHhZ0dqnETqLaoIK0x17fUw9rFSlK/0NlsKe0Ahhyl5pXE2g==}
@@ -6771,6 +6815,25 @@ packages:
       long: 4.0.0
     dev: false
 
+  /protobufjs@7.2.5:
+    resolution: {integrity: sha512-gGXRSXvxQ7UiPgfw8gevrfRWcTlSbOFg+p/N+JVJEK5VhueL2miT6qTymqAmjr1Q5WbOCyJbyrk6JfWKwlFn6A==}
+    engines: {node: '>=12.0.0'}
+    requiresBuild: true
+    dependencies:
+      '@protobufjs/aspromise': 1.1.2
+      '@protobufjs/base64': 1.1.2
+      '@protobufjs/codegen': 2.0.4
+      '@protobufjs/eventemitter': 1.1.0
+      '@protobufjs/fetch': 1.1.0
+      '@protobufjs/float': 1.0.2
+      '@protobufjs/inquire': 1.1.0
+      '@protobufjs/path': 1.1.2
+      '@protobufjs/pool': 1.1.0
+      '@protobufjs/utf8': 1.1.0
+      '@types/node': 20.11.5
+      long: 5.2.3
+    dev: false
+
   /protobufjs@7.2.6:
     resolution: {integrity: sha512-dgJaEDDL6x8ASUZ1YqWciTRrdOuYNzoOf27oHNfdyvKqHr5i0FV7FSLU+aIeFjyFgVxrpTOtQUi0BLLBymZaBw==}
     engines: {node: '>=12.0.0'}
@@ -6788,6 +6851,7 @@ packages:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 20.11.5
       long: 5.2.3
+    dev: false
 
   /proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
@@ -7987,7 +8051,7 @@ packages:
       ts-proto-descriptors: 1.15.0
     dev: false
 
-  /tsconfck@3.0.1:
+  /tsconfck@3.0.1(typescript@5.3.3):
     resolution: {integrity: sha512-7ppiBlF3UEddCLeI1JRx5m2Ryq+xk4JrZuq4EuYXykipebaq1dV0Fhgr1hb7CkmHt32QSgOZlcqVLEtHBG4/mg==}
     engines: {node: ^18 || >=20}
     hasBin: true
@@ -7996,6 +8060,8 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+    dependencies:
+      typescript: 5.3.3
     dev: false
 
   /tsconfig-paths@3.15.0:
@@ -8142,6 +8208,12 @@ packages:
 
   /typescript@3.9.10:
     resolution: {integrity: sha512-w6fIxVE/H1PkLKcCPsFqKE7Kv7QUwhU8qQY2MueZXWx5cPZdwFupLgKK3vntcK98BtNHZtAF4LA/yl2a7k8R6Q==}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: false
+
+  /typescript@4.5.2:
+    resolution: {integrity: sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==}
     engines: {node: '>=4.2.0'}
     hasBin: true
     dev: false

@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/events"
 	"github.com/satont/twir/libs/pubsub"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 
@@ -36,7 +36,10 @@ func (c *Handler) handleStreamOffline(
 		return
 	}
 
-	err = c.services.Gorm.Where(`"userId" = ?`, event.BroadcasterUserID).Delete(&model.ChannelsStreams{}).Error
+	err = c.services.Gorm.Where(
+		`"userId" = ?`,
+		event.BroadcasterUserID,
+	).Delete(&model.ChannelsStreams{}).Error
 	if err != nil {
 		zap.S().Error(err)
 	}

@@ -1,16 +1,16 @@
-<script setup lang='ts'>
-import { VariableType } from '@twir/grpc/generated/api/api/variables';
+<script setup lang="ts">
+import { VariableType } from '@twir/api/messages/variables/variables';
 import {
 	type FormInst,
 	type FormRules,
 	type FormItemRule,
 	type SelectOption,
-  NForm,
-  NSpace,
-  NInput,
-  NFormItem,
-  NSelect,
-  NButton,
+	NForm,
+	NSpace,
+	NInput,
+	NFormItem,
+	NSelect,
+	NButton,
 } from 'naive-ui';
 import { ref, onMounted, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';

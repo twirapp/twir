@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/vue-query';
 import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
-} from '@twir/grpc/generated/api/api/community';
+} from '@twir/api/messages/community/community';
 import { type ComputedRef, type Ref, unref } from 'vue';
 
 import { unprotectedClient } from './twirp.js';

@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { IconReload } from '@tabler/icons-vue';
-import { FontSelector, type Font } from '@twir/fontsource';
 import type {
 	Settings,
-} from '@twir/grpc/generated/api/api/overlays_chat';
-import { NButton, NText, NSwitch, NSlider, NSelect, NColorPicker, NDivider, useThemeVars } from 'naive-ui';
+} from '@twir/api/messages/overlays_chat/overlays_chat';
+import { FontSelector, type Font } from '@twir/fontsource';
+import {
+	NButton,
+	NText,
+	NSwitch,
+	NSlider,
+	NSelect,
+	NColorPicker,
+	NDivider,
+	useThemeVars,
+} from 'naive-ui';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 

@@ -1,0 +1,13 @@
+version: v1
+plugins:
+  - plugin: twirp
+    out: ./
+    opt:
+      - paths=source_relative
+  - plugin: ts
+    opt:
+      - optimize_code_size
+      - generate_dependencies
+      - eslint_disable
+      - server_none
+    out: dist

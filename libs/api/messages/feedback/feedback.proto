@@ -1,0 +1,7 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/feedback";
+package messages.feedback;
+
+message LeaveFeedbackRequest {
+	string message = 1;
+}

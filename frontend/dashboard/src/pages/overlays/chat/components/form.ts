@@ -1,6 +1,6 @@
 import type {
 	Settings,
-} from '@twir/grpc/generated/api/api/overlays_chat';
+} from '@twir/api/messages/overlays_chat/overlays_chat';
 import { ref, toRaw } from 'vue';
 
 type SettingsWithOptionalId = Omit<Settings, 'id'> & { id?: string }

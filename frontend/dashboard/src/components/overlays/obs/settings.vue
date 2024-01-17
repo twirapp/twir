@@ -1,7 +1,7 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import type {
 	GetResponse as OBSSettings,
-} from '@twir/grpc/generated/api/api/modules_obs_websocket';
+} from '@twir/api/messages/modules_obs_websocket/modules_obs_websocket';
 import {
 	type FormInst,
 	type FormRules,

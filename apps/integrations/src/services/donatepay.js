@@ -10,7 +10,6 @@ global.XMLHttpRequest = XMLHttpRequest;
 
 export class DonatePay {
 	/**
-	 * @private
 	 * @type {Centrifuge}
 	 */
 	#centrifuge;

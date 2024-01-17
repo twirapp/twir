@@ -6,9 +6,9 @@ require (
 	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
@@ -25,6 +25,6 @@ require (
 
 replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
-replace github.com/satont/twir/libs/grpc => ../../libs/grpc
+replace github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 
 replace github.com/satont/twir/libs/config => ../../libs/config

@@ -1,7 +1,15 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
-import type { Group } from '@twir/grpc/generated/api/api/commands_group';
-import { NDynamicInput, NInput, NColorPicker, NFormItem, NGrid, NGridItem, NButton } from 'naive-ui';
+import type { Group } from '@twir/api/messages/commands_group/commands_group';
+import {
+	NDynamicInput,
+	NInput,
+	NColorPicker,
+	NFormItem,
+	NGrid,
+	NGridItem,
+	NButton,
+} from 'naive-ui';
 import { toRaw, ref, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -89,7 +97,8 @@ const swatches = [
 		</template>
 	</n-dynamic-input>
 	<n-button dashed block @click="() => create(`New Group #${groups.length + 1}`, swatches[0])">
-		<IconPlus /> {{ t('sharedButtons.create') }}
+		<IconPlus />
+		{{ t('sharedButtons.create') }}
 	</n-button>
 </template>
 

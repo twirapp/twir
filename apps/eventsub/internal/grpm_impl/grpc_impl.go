@@ -6,7 +6,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/client"
 	"github.com/satont/twir/apps/eventsub/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/eventsub"
+	"github.com/twirapp/twir/libs/grpc/eventsub"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"

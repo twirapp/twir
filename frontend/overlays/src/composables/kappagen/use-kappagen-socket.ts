@@ -1,10 +1,14 @@
-import type { TriggerKappagenRequest_Emote } from '@twir/grpc/generated/websockets/websockets';
 import { useWebSocket } from '@vueuse/core';
 import type { KappagenAnimations } from 'kappagen';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { type Buidler } from './use-kappagen-builder.js';
+
+type TriggerKappagenRequestEmote = {
+	id: string,
+	positions: string[]
+};
 
 import type { TwirWebSocketEvent } from '@/api.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
@@ -69,7 +73,7 @@ export const useKappagenOverlaySocket = (options: Options) => {
 		if (event.eventName === 'kappagen') {
 			if (!settings.value) return;
 
-			const data = event.data as { text: string, emotes?: TriggerKappagenRequest_Emote[] };
+			const data = event.data as { text: string, emotes?: TriggerKappagenRequestEmote[] };
 
 			const chunks = makeMessageChunks(
 				data.text,

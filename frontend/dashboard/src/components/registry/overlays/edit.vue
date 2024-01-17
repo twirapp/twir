@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { IconCopy } from '@tabler/icons-vue';
 import { IconDeviceFloppy } from '@tabler/icons-vue';
-import { OverlayLayerType, type Overlay } from '@twir/grpc/generated/api/api/overlays';
+import { OverlayLayerType, type Overlay } from '@twir/api/messages/overlays/overlays';
 import { NInput, NFormItem, NButton, NDivider, NInputNumber, NModal, useMessage } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

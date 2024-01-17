@@ -1,6 +1,6 @@
 import type {
 	Settings,
-} from '@twir/grpc/generated/api/api/overlays_kappagen';
+} from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import { ref } from 'vue';
 
 import { animations } from './kappagen_animations';

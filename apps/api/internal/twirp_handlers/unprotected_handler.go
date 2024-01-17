@@ -4,7 +4,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/handlers"
 	"github.com/satont/twir/apps/api/internal/hooks"
 	"github.com/satont/twir/apps/api/internal/wrappers"
-	"github.com/satont/twir/libs/grpc/generated/api"
+	"github.com/twirapp/twir/libs/api"
 	"github.com/twitchtv/twirp"
 )
 

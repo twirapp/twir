@@ -9,7 +9,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/integrations_vk"
+	"github.com/twirapp/twir/libs/api/messages/integrations_vk"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { Alert } from '@twir/grpc/generated/api/api/alerts';
+import { Alert } from '@twir/api/messages/alerts/alerts';
 import { DataTableColumns, NButton, NDataTable, NModal, NPopconfirm, NSpace, NTag } from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';

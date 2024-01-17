@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { EmojiStyle } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import { NSlider, NSwitch, NAlert, NDivider, NSelect, NButton } from 'naive-ui';
 import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
 import { VNodeChild, h } from 'vue';

@@ -7,9 +7,9 @@ import (
 	"net"
 
 	"github.com/satont/twir/apps/scheduler/internal/services"
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/scheduler"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/scheduler"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

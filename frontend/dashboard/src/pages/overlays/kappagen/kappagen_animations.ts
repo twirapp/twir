@@ -1,4 +1,4 @@
-import type { Settings_AnimationSettings } from '@twir/grpc/generated/api/api/overlays_kappagen';
+import type { Settings_AnimationSettings } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 
 export const animations: Settings_AnimationSettings[] = [
 	{

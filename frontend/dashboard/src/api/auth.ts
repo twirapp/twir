@@ -1,5 +1,11 @@
-import { QueryClient, QueryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import { Dashboard, Profile } from '@twir/grpc/generated/api/api/auth';
+import {
+	QueryClient,
+	QueryOptions,
+	useMutation,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/vue-query';
+import type { Dashboard, Profile } from '@twir/api/messages/auth/auth';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';

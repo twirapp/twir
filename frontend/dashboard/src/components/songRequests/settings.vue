@@ -1,5 +1,5 @@
-<script setup lang='ts'>
-import type { YouTubeSettings } from '@twir/grpc/generated/api/api/modules_sr';
+<script setup lang="ts">
+import type { YouTubeSettings } from '@twir/api/messages/modules_sr/modules_sr';
 import { useDebounce } from '@vueuse/core';
 import {
 	type SelectOption,

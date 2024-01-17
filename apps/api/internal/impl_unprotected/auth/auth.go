@@ -7,16 +7,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/satont/twir/libs/grpc/generated/eventsub"
-	"github.com/satont/twir/libs/grpc/generated/scheduler"
+	"github.com/twirapp/twir/libs/grpc/eventsub"
+	"github.com/twirapp/twir/libs/grpc/scheduler"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	"github.com/satont/twir/libs/crypto"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/generated/api/auth"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/api/messages/auth"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )

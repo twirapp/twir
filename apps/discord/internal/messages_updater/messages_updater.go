@@ -9,9 +9,9 @@ import (
 	"github.com/satont/twir/apps/discord/internal/discord_go"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/generated/tokens"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

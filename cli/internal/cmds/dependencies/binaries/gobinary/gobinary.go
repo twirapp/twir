@@ -96,10 +96,6 @@ func (c GoBinary) Install() error {
 	cmd := exec.Command("go", "install", c.Url)
 
 	cmd.Dir = wd
-	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, "GOBIN="+filepath.Join(wd, ".bin"), "GOFLAGS=")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("cannot Install %s: %w", c.Url, err)
