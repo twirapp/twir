@@ -62,7 +62,6 @@ COPY apps/ytsr/go.mod apps/ytsr/go.mod
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
 
 # CLI PART
-COPY patches patches
 COPY cli cli
 COPY libs/config libs/config
 COPY libs/crypto libs/crypto

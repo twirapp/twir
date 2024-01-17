@@ -20,15 +20,15 @@
 		"@twir/brand": "workspace:*",
 		"@twir/config": "workspace:*",
 		"@twir/grpc": "workspace:*",
-		"astro": "4.1.2",
+		"astro": "4.1.3",
 		"fastify": "4.25.2",
 		"ioredis": "5.3.2",
 		"tailwindcss": "3.4.1",
-		"vue": "3.4.10"
+		"vue": "3.4.14"
 	},
 	"devDependencies": {
-		"@spiriit/vite-plugin-svg-spritemap": "2.2.0",
-		"@types/node": "20.11.0",
+		"@tsuwari/vite-plugin-svg-spritemap": "2.2.3",
+		"@types/node": "20.11.5",
 		"sass": "1.69.7",
 		"vite": "5.0.11"
 	}
