@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"prebuild": "rimraf dist",
-		"build": "pnpm -w cli bin --pwd ./libs/grpc buf generate --exclude-path=node_modules --include-imports --include-wkt && pnpm build:ts",
+		"build": "pnpm -w cli bin --pwd ./libs/grpc buf generate --exclude-path=node_modules/protobufjs --include-imports --include-wkt && pnpm build:ts",
 		"build:ts": "tsc"
 	},
 	"exports": {
@@ -19,13 +19,10 @@
 		}
 	},
 	"dependencies": {
-		"@grpc/grpc-js": "1.9.13",
-		"@protobuf-ts/plugin": "2.9.3",
-		"@protobuf-ts/runtime": "2.9.3",
-		"@protobuf-ts/runtime-rpc": "2.9.3",
 		"long": "5.2.3",
 		"nice-grpc": "2.1.7",
 		"nice-grpc-common": "2.0.2",
-		"protobufjs": "7.2.5"
+		"protobufjs": "7.2.5",
+		"ts-proto": "1.166.2"
 	}
 }
