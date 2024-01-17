@@ -5,7 +5,6 @@ plugins:
     opt:
       - paths=source_relative
   - plugin: ts
-    path: ./node_modules/.bin/protoc-gen-ts
     opt:
       - optimize_code_size
       - generate_dependencies

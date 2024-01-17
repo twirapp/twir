@@ -1,7 +1,5 @@
 version: v1
 name: buf.build/twirapp/api
-deps:
-  - buf.build/googleapis/googleapis
 breaking:
   use:
     - WIRE_JSON
