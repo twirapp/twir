@@ -27,7 +27,7 @@
 		"vue": "3.4.14"
 	},
 	"devDependencies": {
-		"@tsuwari/vite-plugin-svg-spritemap": "2.2.3",
+		"@twir/vite-plugin-svg-spritemap": "1.0.0",
 		"@types/node": "20.11.5",
 		"sass": "1.69.7",
 		"vite": "5.0.11"
