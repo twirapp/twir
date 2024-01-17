@@ -12,8 +12,7 @@
     "esModuleInterop": true
   },
   "includes": [
-    "./dist/**/*.ts",
-		"./clients/*.ts",
-		"./constants/*.ts"
-  ]
+    "./**/*.ts"
+  ],
+  "exclude": ["node_modules"]
 }
