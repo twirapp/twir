@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { webUpdateNotice } from '@plugin-web-update-notification/vite';
-import svgSprite from '@tsuwari/vite-plugin-svg-spritemap';
+import svgSprite from '@twir/vite-plugin-svg-spritemap';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
 
