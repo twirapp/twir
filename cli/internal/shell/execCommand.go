@@ -28,14 +28,13 @@ func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 		opts.Command,
 	)
 
-	var path string
-	var pathVarKey string
+	pathVarKey := "PATH"
+	path := os.Getenv(pathVarKey)
+	pathDelimiter := ":"
 	if runtime.GOOS == "windows" {
 		pathVarKey = "Path"
 		path = os.Getenv(pathVarKey)
-	} else {
-		pathVarKey = "PATH"
-		path = os.Getenv(pathVarKey)
+		pathDelimiter = ";"
 	}
 
 	projectWd, err := os.Getwd()
@@ -43,20 +42,15 @@ func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 		return nil, err
 	}
 
-	path += ":" + filepath.Join(projectWd, ".bin")
+	path += pathDelimiter + filepath.Join(projectWd, ".bin")
 	cmd.Env = append(cmd.Env, pathVarKey+"="+path)
 
 	if opts.Pwd != "" {
 		cmd.Dir = opts.Pwd
 	}
 
-	if opts.Stdout != nil {
-		cmd.Stdout = opts.Stdout
-	}
-
-	if opts.Stderr != nil {
-		cmd.Stderr = opts.Stderr
-	}
+	cmd.Stdout = opts.Stdout
+	cmd.Stderr = opts.Stderr
 
 	return cmd, nil
 }

@@ -1,7 +1,7 @@
 version: v1
 name: buf.build/twirapp/grpc
 deps:
-  - buf.build/googleapis/googleapis
+  - github.com/googleapis/googleapis
 breaking:
   use:
     - WIRE_JSON

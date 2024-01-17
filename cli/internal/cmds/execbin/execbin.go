@@ -1,7 +1,6 @@
 package execbin
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
@@ -23,14 +22,12 @@ var Cmd = &cli.Command{
 			pwd = c.String("pwd")
 		}
 
-		fmt.Println(c.Args().Slice(), pwd)
-
 		err := shell.ExecCommand(
 			shell.ExecCommandOpts{
 				Command: strings.Join(c.Args().Slice(), " "),
 				Pwd:     pwd,
 				Stdout:  os.Stdout,
-				Stderr:  os.Stdin,
+				Stderr:  os.Stderr,
 			},
 		)
 
