@@ -18,6 +18,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh
 # DO NOT CHANGE COMMENTS BELOW
 
 # START COPYGEN
+COPY libs/api/package.json libs/api/package.json
 COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/fontsource/package.json libs/fontsource/package.json
@@ -32,6 +33,7 @@ COPY frontend/dashboard/package.json frontend/dashboard/package.json
 COPY frontend/landing/package.json frontend/landing/package.json
 COPY frontend/overlays/package.json frontend/overlays/package.json
 COPY frontend/public-page/package.json frontend/public-page/package.json
+COPY libs/api/go.mod libs/api/go.mod
 COPY libs/config/go.mod libs/config/go.mod
 COPY libs/crypto/go.mod libs/crypto/go.mod
 COPY libs/gomodels/go.mod libs/gomodels/go.mod
