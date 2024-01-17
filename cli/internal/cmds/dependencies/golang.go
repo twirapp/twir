@@ -66,6 +66,8 @@ func goInstallDepsForPath(path string) error {
 		shell.ExecCommandOpts{
 			Command: "go mod download",
 			Pwd:     filepath.Join(wd, path),
+			Stdout:  os.Stdout,
+			Stderr:  os.Stderr,
 		},
 	)
 }

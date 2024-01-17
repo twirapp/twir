@@ -43,7 +43,8 @@ func CreateCommand(opts ExecCommandOpts) (*exec.Cmd, error) {
 	}
 
 	path += pathDelimiter + filepath.Join(projectWd, ".bin")
-	cmd.Env = append(cmd.Env, pathVarKey+"="+path)
+
+	cmd.Env = append(os.Environ(), pathVarKey+"="+path)
 
 	if opts.Pwd != "" {
 		cmd.Dir = opts.Pwd

@@ -3,7 +3,7 @@
 	"type": "module",
 	"scripts": {
 		"build": "pnpm -w cli bin --pwd ./libs/grpc buf generate --exclude-path=node_modules --include-imports --include-wkt && pnpm build:ts",
-		"build:ts": "tsc ./**/*.ts"
+		"build:ts": "tsc"
 	},
 	"exports": {
 		"./*": {
