@@ -1,5 +1,5 @@
 FROM twir-base:builder as builder
-RUN pnpm turbo run build --filter=@twir/grpc
+RUN pnpm turbo run build --filter=@twir/grpc --filter=@twir/api
 RUN cd apps/api && \
     CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_application ./cmd/main.go && \
 	  upx -9 -k /app/twir_application
