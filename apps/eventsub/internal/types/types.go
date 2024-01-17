@@ -3,12 +3,12 @@ package types
 import (
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/bots"
-	"github.com/satont/twir/libs/grpc/events"
-	"github.com/satont/twir/libs/grpc/parser"
-	"github.com/satont/twir/libs/grpc/tokens"
-	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/pubsub"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
 )
 

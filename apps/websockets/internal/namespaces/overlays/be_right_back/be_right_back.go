@@ -13,8 +13,8 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

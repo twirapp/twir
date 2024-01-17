@@ -4,9 +4,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/events/internal/hydrator"
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/bots"
-	"github.com/satont/twir/libs/grpc/tokens"
-	"github.com/satont/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

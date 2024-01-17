@@ -5,19 +5,20 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/websockets"
 	"strconv"
 	"time"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	"github.com/lib/pq"
+	"github.com/twirapp/twir/libs/grpc/websockets"
+
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/bots"
-	"github.com/satont/twir/libs/grpc/events"
-	"github.com/satont/twir/libs/grpc/parser"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/zap"
 )
 

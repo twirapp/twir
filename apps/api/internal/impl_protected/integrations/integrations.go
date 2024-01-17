@@ -6,7 +6,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/integrations"
+	"github.com/twirapp/twir/libs/grpc/integrations"
 )
 
 type Integrations struct {

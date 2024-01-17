@@ -6,13 +6,13 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/crypto => ../../libs/crypto
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/api => ../../libs/api
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 )
 
 replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
@@ -37,7 +37,6 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/integrations/spotify v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/pubsub v0.0.0-20231203205548-e635accc6b72
@@ -46,6 +45,7 @@ require (
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/utils v0.0.0-20231203205548-e635accc6b72
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.20.1
 	golang.org/x/sync v0.5.0
@@ -121,5 +121,5 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )

@@ -3,9 +3,9 @@ package handler
 import (
 	"context"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
-	"github.com/satont/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 

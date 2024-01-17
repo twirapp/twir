@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/events"
 	"github.com/satont/twir/libs/pubsub"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 

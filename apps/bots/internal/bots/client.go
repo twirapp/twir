@@ -5,13 +5,13 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/chat_client"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
-	"github.com/satont/twir/libs/grpc/events"
-	"github.com/satont/twir/libs/grpc/tokens"
-	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/parser"
 
 	model "github.com/satont/twir/libs/gomodels"
 

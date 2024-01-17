@@ -21,13 +21,13 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/gopool"
-	"github.com/satont/twir/libs/grpc/events"
-	"github.com/satont/twir/libs/grpc/parser"
-	"github.com/satont/twir/libs/grpc/tokens"
-	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
 )
 

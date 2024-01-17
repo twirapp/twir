@@ -9,8 +9,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
-	timersGrpc "github.com/satont/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/api/messages/timers"
+	timersGrpc "github.com/twirapp/twir/libs/grpc/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )

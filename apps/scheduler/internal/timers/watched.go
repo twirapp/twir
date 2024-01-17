@@ -8,8 +8,8 @@ import (
 	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/tokens"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )

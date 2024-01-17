@@ -13,9 +13,9 @@ import (
 
 	"github.com/samber/lo"
 	cfg "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/ytsr"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/ytsr"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"

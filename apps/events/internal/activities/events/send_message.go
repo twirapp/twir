@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/bots"
 )
 
 func (c *Activity) SendMessage(

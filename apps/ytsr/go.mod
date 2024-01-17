@@ -4,7 +4,7 @@ go 1.21
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
-	github.com/satont/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 )
@@ -13,7 +13,7 @@ require (
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20231218071827-5dc09a0eae99
-	github.com/satont/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/logger v0.0.0-20231218071827-5dc09a0eae99
 	github.com/satont/twir/libs/sentry v0.0.0-20231218071827-5dc09a0eae99
 	go.uber.org/fx v1.20.1

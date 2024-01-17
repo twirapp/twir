@@ -9,7 +9,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/bots"
 
 	"github.com/samber/lo"
 )

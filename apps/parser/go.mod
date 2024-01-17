@@ -19,18 +19,18 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gopool v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/integrations/spotify v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/tidwall/gjson v1.17.0
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/valyala/fasttemplate v1.2.2
 	go.uber.org/zap v1.26.0
 	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )
@@ -96,7 +96,7 @@ replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 
 replace github.com/satont/twir/libs/types => ../../libs/types
 
-replace github.com/satont/twir/libs/grpc => ../../libs/grpc
+replace github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 
 replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 

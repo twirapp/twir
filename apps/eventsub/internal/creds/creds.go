@@ -4,7 +4,7 @@ import (
 	"context"
 
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

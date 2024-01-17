@@ -10,13 +10,13 @@ import (
 	"time"
 
 	"github.com/lib/pq"
-	"github.com/satont/twir/libs/grpc/events"
-	"github.com/satont/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
 
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/parser"
 )
 
 func (c *ChatClient) handleKeywords(

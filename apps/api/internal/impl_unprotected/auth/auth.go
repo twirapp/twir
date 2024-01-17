@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/satont/twir/libs/grpc/eventsub"
-	"github.com/satont/twir/libs/grpc/scheduler"
+	"github.com/twirapp/twir/libs/grpc/eventsub"
+	"github.com/twirapp/twir/libs/grpc/scheduler"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"

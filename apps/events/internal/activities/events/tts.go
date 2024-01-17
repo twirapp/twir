@@ -9,8 +9,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/websockets"
 	"github.com/satont/twir/libs/types/types/api/modules"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 func (c *Activity) getTtsSettings(

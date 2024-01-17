@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/satont/twir/libs/grpc/constants"
-	"github.com/satont/twir/libs/grpc/generated/dota"
+	"github.com/twirapp/twir/libs/grpc/constants"
+	"github.com/twirapp/twir/libs/grpc/dota"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"

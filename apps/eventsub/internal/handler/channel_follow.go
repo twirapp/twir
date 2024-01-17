@@ -8,8 +8,8 @@ import (
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/satont/twir/libs/grpc/events"
+	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 

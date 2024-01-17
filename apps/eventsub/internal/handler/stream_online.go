@@ -8,9 +8,9 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/grpc/events"
 	"github.com/satont/twir/libs/pubsub"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
 
