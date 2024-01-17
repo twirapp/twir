@@ -1,5 +1,5 @@
 import { PORTS } from '@twir/grpc/constants/constants';
-import * as Integrations from '@twir/grpc/generated/integrations/integrations';
+import * as Integrations from '@twir/grpc/integrations/integrations';
 import { createServer } from 'nice-grpc';
 
 import { getIntegrations, Services } from './libs/db.js';

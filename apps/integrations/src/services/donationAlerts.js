@@ -5,13 +5,12 @@ import { onDonation } from '../utils/onDonation.js';
 
 export class DonationAlerts {
 	/**
-	 * @private
-	 * @type {Centrifuge}
+	 * @type {Centrifuge | null}
 	 */
 	#socket;
 	/**
 	 *
-	 * @type {Centrifuge.Subscription}
+	 * @type {Centrifuge.Subscription | null}
 	 */
 	#channel;
 
