@@ -1172,11 +1172,6 @@ github.com/sanity-io/litter v1.5.5 h1:iE+sBxPBzoK6uaEP5Lt3fHNgpKcHXc/A2HGETy0uJQ
 github.com/sanity-io/litter v1.5.5/go.mod h1:9gzJgR2i4ZpjZHsKvUXIRQVk7P+yM3e+jAF7bU2UI5U=
 github.com/satont/go-helix/v2 v2.7.25 h1:YbmU6pNO1qFLeYxZySVonXviCc3fvN1T2AGkh1M1WuA=
 github.com/satont/go-helix/v2 v2.7.28 h1:7ZkRVEXv2XwwahWqsawFo5949XSXsdJctW4aBBq+0G4=
-github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72 h1:6V2TvpQQ4RIAbRLKijh5cTBaopT9qwTxXU5EnJViJ/E=
-github.com/satont/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72/go.mod h1:hgDr9//WZNz54KL4txWL865Ktw4b+dqrGfizRgJFew8=
-github.com/satont/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7/go.mod h1:HjELP3lVcvdMHFMaB3r7NXlPjuCqO+eLHkjNa6uJfPo=
-github.com/satont/twir/libs/grpc v0.0.0-20231219040737-d6df9f25e101 h1:/am8oWOnnf1dfMG3yyWhbiDb3GlPQi75crXni6dQEJE=
-github.com/satont/twir/libs/grpc v0.0.0-20231219040737-d6df9f25e101/go.mod h1:t/R3N/euW4VTA3jYTxPQJ/WUoPlnt3ZKEB7b4YcIG1o=
 github.com/satont/twir/libs/nats v0.0.0-20221125194658-5cb70dbdbf2a h1:iFXq4KPOwiGuIqXRJO/23K3fb4157wzCx+NZAKIcuw4=
 github.com/satont/twir/libs/nats v0.0.0-20221125194658-5cb70dbdbf2a/go.mod h1:LA8UWSbN3DkNFsE1tOW/tElSpP4eAddQKV7Y14hH1q8=
 github.com/schollz/closestmatch v2.1.0+incompatible h1:Uel2GXEpJqOWBrlyI+oY9LTiyyjYS17cCYRqP13/SHk=
