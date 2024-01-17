@@ -6,14 +6,7 @@ plugins:
   - plugin: go-grpc
     out: ./
     opt: paths=source_relative
-#  - plugin: ts
-#    opt:
-#      - optimize_code_size
-#      - generate_dependencies
-#      - eslint_disable
-#    out: dist
-  - name: ts
-    path: ./node_modules/ts-proto/protoc-gen-ts_proto
+  - name: ts_proto
     out: dist
     strategy: all
     opt:
