@@ -14,7 +14,7 @@ var Cmd = &cli.Command{
 	Usage:   "build application",
 	Aliases: []string{"b"},
 	Action: func(c *cli.Context) error {
-		return build("turbo run build --filter=!./apps/dota")
+		return build("pnpm turbo run build --filter=!./apps/dota")
 	},
 	Subcommands: []*cli.Command{
 		LibsCmd,
@@ -24,7 +24,7 @@ var Cmd = &cli.Command{
 var LibsCmd = &cli.Command{
 	Name: "libs",
 	Action: func(context *cli.Context) error {
-		return build("turbo run build --filter='./libs/*'")
+		return build("pnpm turbo run build --filter='./libs/*'")
 	},
 }
 
@@ -44,6 +44,7 @@ func build(cmd string) error {
 			Command: cmd,
 			Pwd:     wd,
 			Stderr:  os.Stderr,
+			Stdout:  os.Stdout,
 		},
 	)
 	if err != nil {
