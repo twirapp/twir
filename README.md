@@ -8,6 +8,11 @@
 
 * [Docker](https://docs.docker.com/engine/)
 
+## Cli
+
+> [!NOTE]
+> For MOST of project management tasks we use own written cli. You can use `pnpm cli help` for print cli usage
+
 * Run needed services (Postgres, Adminer, Redis, Minio)
 ```bash
 docker compose -f docker-compose.dev.yml up -d

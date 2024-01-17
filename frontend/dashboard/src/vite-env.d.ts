@@ -1,3 +1,3 @@
 /// <reference types="vite/client" />
-/// <reference types="vite-svg-loader" />
+/// <reference types="@twir/vite-plugin-svg-spritemap/dist/client" />
 declare module '*.vue';

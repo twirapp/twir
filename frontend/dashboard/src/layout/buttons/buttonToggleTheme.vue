@@ -1,6 +1,5 @@
 <script setup lang="ts">
-
-import { useTheme } from '@/hooks';
+import { useTheme } from '@/composables/use-theme.js';
 
 const { theme, toggleTheme } = useTheme();
 </script>

@@ -102,4 +102,5 @@ message YouTubeSettings {
 	YouTubeDenyList deny_list = 9;
 	YouTubeTranslations translations = 10;
 	bool take_song_from_donation_messages = 11;
+	bool player_no_cookie_mode = 12;
 }

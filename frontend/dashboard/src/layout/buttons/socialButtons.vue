@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import { GITHUB_REPOSITORY_URL, DISCORD_INVITE_URL } from '@twir/brand';
+
 import LinkButton from './linkButton.vue';
 
-import DiscordLogo from '@/assets/icons/integrations/discord.svg?component';
-import GithubLogo from '@/assets/icons/integrations/github.svg?component';
+import DiscordLogo from '@/assets/integrations/discord.svg?use';
+import GithubLogo from '@/assets/integrations/github.svg?use';
 
-const GITHUB_URL = 'https://github.com/twirapp/twir';
-const DISCORD_URL = 'https://discord.gg/Q9NBZq3zVV';
 </script>
 
 <template>
-	<link-button :url="GITHUB_URL">
+	<link-button :url="GITHUB_REPOSITORY_URL">
 		<github-logo />
 	</link-button>
-	<link-button :url="DISCORD_URL">
+	<link-button :url="DISCORD_INVITE_URL">
 		<discord-logo />
 	</link-button>
 </template>

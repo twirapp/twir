@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/twirapp/twir/cli/internal/shell"
 	"github.com/urfave/cli/v2"
@@ -19,6 +20,10 @@ var Cmd = &cli.Command{
 		}
 
 		caddyPath := filepath.Join(wd, ".bin", "caddy")
+
+		if runtime.GOOS == "windows" {
+			caddyPath += ".exe"
+		}
 
 		return shell.ExecCommand(
 			shell.ExecCommandOpts{

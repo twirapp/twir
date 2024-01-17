@@ -31,7 +31,9 @@ func getSettings(
 		Where(`"channelId" = ?`, channelId).
 		Where(`"type" = ?`, "tts")
 
-	if userId != "" {
+	if userId == channelId {
+		query = query.Where(`"userId" IS NULL`)
+	} else if userId != "" {
 		query = query.Where(`"userId" = ?`, userId)
 	} else {
 		query = query.Where(`"userId" IS NULL`)

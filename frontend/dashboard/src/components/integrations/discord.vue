@@ -38,10 +38,10 @@ import { useI18n } from 'vue-i18n';
 import WithSettings from './variants/withSettings.vue';
 import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 
-import TwirCircle from '@/../public/TwirInCircle.svg?url';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
-import IconDiscord from '@/assets/icons/integrations/discord.svg?component';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
+import IconDiscord from '@/assets/integrations/discord.svg?use';
+import TwirLogo from '@/components/twir-logo.vue';
 
 const themeVars = useThemeVars();
 
@@ -187,7 +187,7 @@ const { data: currentUser } = useProfile();
 						<div style="display: flex; gap: 5px; align-items: center; justify-content: center">
 							<n-avatar
 								round
-								:src="`https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`"
+								:src="`https://cdn.discordapp.com/${guild.id}/${guild.icon}.png`"
 								class="guild-avatar"
 								:render-fallback="() => guild.name.charAt(0)"
 							/>
@@ -300,7 +300,7 @@ const { data: currentUser } = useProfile();
 
 							<div style="width: 50%">
 								<DiscordMessages>
-									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirCircle">
+									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirLogo">
 										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
 											<DiscordMention
 												v-if="m.startsWith('@')"
@@ -320,7 +320,7 @@ const { data: currentUser } = useProfile();
 												embedTitle="Today we are doing amazing things!"
 												:url="`https://twitch.tv/${currentUser?.login}`"
 												:timestamp="new Date()"
-												:footerIcon="TwirCircle"
+												:footerIcon="TwirLogo"
 												borderColor="#6441a5"
 												:thumbnail="guild.liveNotificationShowProfileImage ? currentUser?.avatar : null"
 												:image="guild.liveNotificationShowPreview ? StreamStarting : null"

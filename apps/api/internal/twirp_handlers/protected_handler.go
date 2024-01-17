@@ -125,6 +125,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 				twirpHandler,
 				wrappers.WithCors,
 				wrappers.WithApiKeyHeader,
+				wrappers.WithHeaders,
 			),
 		},
 	)

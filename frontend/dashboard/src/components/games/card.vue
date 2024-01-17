@@ -16,6 +16,7 @@ withDefaults(defineProps<{
 	description: string;
 	title: string;
 	icon: FunctionalComponent;
+	iconStroke?: number
 	showSettings?: boolean
 	iconFill?: string
 }>(), { showSettings: true });
@@ -26,7 +27,7 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 </script>
 
 <template>
-	<card :title="title" :icon="icon" :icon-fill="iconFill">
+	<card :title="title" :icon="icon" :icon-stroke="iconStroke" :icon-fill="iconFill">
 		<template #content>
 			<p>{{ description }}</p>
 		</template>

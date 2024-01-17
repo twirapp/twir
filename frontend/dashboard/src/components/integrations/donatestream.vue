@@ -3,7 +3,7 @@ import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup } from 'n
 import { computed, ref } from 'vue';
 
 import { useDonateStreamIntegration } from '@/api/index.js';
-import DonateStreamSVG from '@/assets/icons/integrations/donate.stream.svg?component';
+import DonateStreamSVG from '@/assets/integrations/donatestream.svg?use';
 import CopyInput from '@/components/copyInput.vue';
 import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';

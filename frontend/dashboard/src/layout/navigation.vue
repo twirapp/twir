@@ -29,7 +29,6 @@ import { RouterLink, useRouter } from 'vue-router';
 import DashboardsMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
-
 import { useUserAccessFlagChecker } from '@/api';
 
 defineProps<{
@@ -222,18 +221,20 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="sidebar-dashboards-menu">
-		<dashboards-menu :is-collapsed="isCollapsed" />
+	<div>
+		<div class="sidebar-dashboards-menu">
+			<dashboards-menu :is-collapsed="isCollapsed" />
+		</div>
+
+		<n-divider style="margin-top: 0; margin-bottom: 5px;" />
+
+		<n-menu
+			v-model:value="activeKey"
+			:collapsed-width="64"
+			:collapsed-icon-size="22"
+			:options="menuOptions"
+		/>
 	</div>
-
-	<n-divider style="margin-top: 0; margin-bottom: 5px;" />
-
-	<n-menu
-		v-model:value="activeKey"
-		:collapsed-width="64"
-		:collapsed-icon-size="22"
-		:options="menuOptions"
-	/>
 </template>
 
 <style scoped>

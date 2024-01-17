@@ -8,7 +8,7 @@ import TTSSettings from './tts/settings.vue';
 import UsersSettings from './tts/users.vue';
 
 import { useCommandsManager, useTtsOverlayManager } from '@/api/index.js';
-import TTSIcon from '@/assets/icons/overlays/tts.svg?component';
+import VoiceMessageIcon from '@/assets/overlays/voice-message.svg?use';
 import CommandsList from '@/components/commands/list.vue';
 
 const commandsManager = useCommandsManager();
@@ -28,7 +28,8 @@ const { t } = useI18n();
 <template>
 	<card
 		title="Text to speech"
-		:icon="TTSIcon"
+		:icon="VoiceMessageIcon"
+		:icon-stroke="2"
 		:description="t('overlays.tts.description')"
 		overlay-path="tts"
 		:copy-disabled="!settings || isError"

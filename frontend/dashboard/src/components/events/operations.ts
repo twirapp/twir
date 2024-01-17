@@ -88,7 +88,7 @@ export const OPERATIONS: Record<string, Operation> = {
 	},
 
 	MODS: {
-		name: 'Mamange moderators',
+		name: 'Manage moderators',
 		type: 'group',
 		childrens: {
 			MOD: {

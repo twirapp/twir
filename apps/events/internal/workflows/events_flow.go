@@ -95,6 +95,8 @@ func (c *EventWorkflow) Flow(
 		operations = append(operations, entity.Operations...)
 	}
 
+	workflow.GetLogger(ctx).Info("Scheduled workflow")
+
 	// set workflow execution state
 	info := workflow.GetInfo(ctx)
 	if info.WorkflowExecution.ID == "" {
@@ -115,6 +117,8 @@ func (c *EventWorkflow) Flow(
 		return redisErr
 	}
 	// end set workflow execution state
+
+	workflow.GetLogger(ctx).Info("Got operations", "size", len(operations))
 
 	// execute event operations
 	for _, operation := range operations {

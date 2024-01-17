@@ -12,7 +12,8 @@ import DropdownLanguage from './dropdowns/dropdownLanguage.vue';
 import DropdownProfile from './dropdowns/dropdownProfile.vue';
 import HamburgerMenu from './hamburgerMenu.vue';
 import Stats from './stats.vue';
-import TwirLogo from '../../public/TwirInCircle.svg?component';
+
+import TwirLogo from '@/components/twir-logo.vue';
 
 defineProps<{
 	toggleSidebar: () => void;

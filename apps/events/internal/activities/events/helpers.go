@@ -61,11 +61,18 @@ func (c *Activity) setWorkflowExecutionState(
 	return nil
 }
 
-func (c *Activity) getHelixApiClient(ctx context.Context, channelId string) (
+func (c *Activity) getHelixChannelApiClient(ctx context.Context, channelId string) (
 	*helix.Client,
 	error,
 ) {
 	return twitch.NewUserClientWithContext(ctx, channelId, c.cfg, c.tokensGrpc)
+}
+
+func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
+	*helix.Client,
+	error,
+) {
+	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.tokensGrpc)
 }
 
 func (c *Activity) getChannelMods(client *helix.Client, channelId string) (

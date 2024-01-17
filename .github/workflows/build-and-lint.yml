@@ -42,7 +42,7 @@ jobs:
         ls -la .bin
 
     - name: Build
-      run: pnpm turbo run build --filter='./libs/*'
+      run: pnpm cli build
 
     - name: Lint javascript
       run: pnpm run lint

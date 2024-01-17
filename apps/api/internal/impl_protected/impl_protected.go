@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
 	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
+	"github.com/satont/twir/apps/api/internal/impl_protected/feedback"
 	"github.com/satont/twir/apps/api/internal/impl_protected/files"
 	"github.com/satont/twir/apps/api/internal/impl_protected/games"
 	"github.com/satont/twir/apps/api/internal/impl_protected/greetings"
@@ -65,6 +66,7 @@ type Protected struct {
 	*overlays.Overlays
 	*moderation.Moderation
 	*users.Users
+	*feedback.Feedback
 }
 
 type Opts struct {
@@ -129,5 +131,6 @@ func New(opts Opts) *Protected {
 		Overlays:         &overlays.Overlays{Deps: d},
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},
+		Feedback:         &feedback.Feedback{Deps: d},
 	}
 }

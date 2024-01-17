@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 import Settings from './obs/settings.vue';
 
 import { useObsOverlayManager } from '@/api/index.js';
-import BroadcastIcon from '@/assets/icons/overlays/obs.svg?component';
+import BroadcastIcon from '@/assets/overlays/broadcast.svg?use';
 import Card from '@/components/overlays/card.vue';
 
 const isModalOpened = ref(false);
@@ -19,6 +19,7 @@ const { t } = useI18n();
 <template>
 	<card
 		:icon="BroadcastIcon"
+		:icon-stroke="2"
 		title="OBS"
 		:description="t('overlays.obs.description')"
 		overlay-path="obs"

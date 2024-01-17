@@ -18,6 +18,7 @@ func installNodeDeps() error {
 			Pwd:     wd,
 			Stdout:  os.Stdout,
 			Stderr:  os.Stderr,
+			Stdout:  os.Stdout,
 		},
 	)
 

@@ -98,6 +98,7 @@ export interface YouTubeUserSettings {
 export interface YouTubeSettings {
     enabled?: boolean;
     acceptOnlyWhenOnline?: boolean;
+    playerNoCookieMode?: boolean;
     maxRequests: number;
     channelPointsRewardId: string;
     announcePlay?: boolean;

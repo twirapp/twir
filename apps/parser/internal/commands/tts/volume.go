@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -16,6 +17,7 @@ var VolumeCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Change tts volume. This is not per user, it's global for the channel."),
 		Module:      "TTS",
 		IsReply:     true,
+		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,

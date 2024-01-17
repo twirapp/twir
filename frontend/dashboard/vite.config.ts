@@ -3,14 +3,14 @@ import { fileURLToPath } from 'node:url';
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { webUpdateNotice } from '@plugin-web-update-notification/vite';
+import svgSprite from '@twir/vite-plugin-svg-spritemap';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
-import svg from 'vite-svg-loader';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '');
-	
+
 	return {
 		plugins: [
 			vue({
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
 					defineModel: true,
 				},
 			}),
-			svg({ svgo: false }),
+			svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
 			webUpdateNotice({
 				notificationProps: {
 					title: 'New version',
