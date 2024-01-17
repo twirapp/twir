@@ -11,8 +11,9 @@
     "composite": false,
     "esModuleInterop": true
   },
-  "includes": [
-    "./**/*.ts"
+  "include": [
+		"./clients/*.ts",
+		"./constants/*.ts"
   ],
   "exclude": ["node_modules"]
 }

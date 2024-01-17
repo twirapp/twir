@@ -4,11 +4,11 @@
 	"scripts": {
 		"prebuild": "rimraf dist",
 		"build": "pnpm -w cli bin --pwd ./libs/grpc buf generate --exclude-path=node_modules/protobufjs --include-imports --include-wkt && pnpm build:ts",
-		"build:ts": "tsc"
+		"build:ts": "tsc -p tsconfig.grpc.json && tsc -p tsconfig.json"
 	},
 	"exports": {
 		"./*": {
-			"import": "./dist/**/*.js"
+			"import": "./dist/*.js"
 		}
 	},
 	"typesVersions": {

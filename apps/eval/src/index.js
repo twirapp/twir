@@ -1,5 +1,5 @@
 import { PORTS } from '@twir/grpc/constants/constants';
-import * as Eval from '@twir/grpc/generated/eval/eval';
+import * as Eval from '@twir/grpc/eval/eval';
 import _ from 'lodash';
 import { createServer } from 'nice-grpc';
 import { VM } from 'vm2';
