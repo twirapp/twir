@@ -1,7 +1,7 @@
 import node from '@astrojs/node';
 import tailwind from '@astrojs/tailwind';
 import vue from '@astrojs/vue';
-import svgSprite from '@tsuwari/vite-plugin-svg-spritemap';
+import svgSprite from '@twir/vite-plugin-svg-spritemap';
 import { config } from '@twir/config';
 import { defineConfig } from 'astro/config';
 
