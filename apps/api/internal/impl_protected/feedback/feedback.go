@@ -9,12 +9,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kr/pretty"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/libs/grpc/generated/api/feedback"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/api/messages/feedback"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -188,8 +187,10 @@ func (c *Feedback) sendEmbed(
 		return fmt.Errorf("cannot send request to discord: %w", err)
 	}
 
-	body, _ := io.ReadAll(resp.Body)
-	pretty.Println(string(requestBytes), string(body))
+	_, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("cannot read response body: %w", err)
+	}
 
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("cannot send request to discord with status %v", resp.StatusCode)
