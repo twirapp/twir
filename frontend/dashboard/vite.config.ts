@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { webUpdateNotice } from '@plugin-web-update-notification/vite';
-import svgSprite from '@spiriit/vite-plugin-svg-spritemap';
+import svgSprite from '@tsuwari/vite-plugin-svg-spritemap';
 import vue from '@vitejs/plugin-vue';
 import { defineConfig, loadEnv } from 'vite';
 
@@ -18,9 +18,7 @@ export default defineConfig(({ mode }) => {
 					defineModel: true,
 				},
 			}),
-			svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg'], {
-				injectSVGOnDev: true,
-			}),
+			svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
 			webUpdateNotice({
 				notificationProps: {
 					title: 'New version',
