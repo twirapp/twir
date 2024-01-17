@@ -41,7 +41,7 @@
     "@intlify/unplugin-vue-i18n": "2.0.0",
     "@plugin-web-update-notification/vite": "1.7.0",
     "@protobuf-ts/runtime-rpc": "2.9.3",
-    "@twir/vite-plugin-svg-spritemap": "1.0.0",
+    "@twir/vite-plugin-svg-spritemap": "1.0.1",
     "@vitejs/plugin-vue": "5.0.3",
     "rollup-plugin-visualizer": "5.12.0",
     "sass": "1.69.7",
