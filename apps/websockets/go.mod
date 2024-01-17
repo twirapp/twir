@@ -5,15 +5,14 @@ go 1.21
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/types => ../../libs/types
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 )
 
 require (
 	github.com/goccy/go-json v0.10.2
-	github.com/kr/pretty v0.3.1
 	github.com/nicklaw5/helix/v2 v2.25.2
 	github.com/olahol/melody v1.1.4
 	github.com/prometheus/client_golang v1.17.0
@@ -21,15 +20,15 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
-	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
+	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.5
 )
@@ -52,7 +51,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -61,7 +59,6 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.45.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/rogpeppe/go-internal v1.10.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/samber/slog-common v0.13.0 // indirect
 	github.com/samber/slog-multi v1.0.2 // indirect

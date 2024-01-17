@@ -14,6 +14,7 @@ use (
 	./apps/websockets
 	./apps/ytsr
 	./cli
+	./libs/api
 	./libs/config
 	./libs/crypto
 	./libs/gomodels
@@ -29,5 +30,4 @@ use (
 	./libs/twitch-eventsub-framework
 	./libs/types
 	./libs/utils
-	./libs/api
 )

@@ -8,7 +8,7 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	google.golang.org/grpc v1.60.1
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
