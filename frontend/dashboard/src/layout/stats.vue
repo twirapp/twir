@@ -63,7 +63,7 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="isLoading" style="padding-top: 5px; padding-bottom: 5px; width: 100%">
+		<div v-if="isLoading" class="stats-skeleton">
 			<n-skeleton width="100%" height="43px" :sharp="false" />
 		</div>
 		<div v-else class="stats">
@@ -85,10 +85,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.uptime`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ uptime }}
 				</n-text>
 			</div>
@@ -96,10 +96,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.viewers`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.viewers ?? 0 }}
 				</n-text>
 			</div>
@@ -107,11 +107,11 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.followers`) }}
 				</n-text>
 
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.followers }}
 				</n-text>
 			</div>
@@ -119,10 +119,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.messages`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.chatMessages }}
 				</n-text>
 			</div>
@@ -130,10 +130,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.subs`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.subs }}
 				</n-text>
 			</div>
@@ -141,10 +141,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.usedEmotes }}
 				</n-text>
 			</div>
@@ -152,10 +152,10 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" style="font-size: 11px;">
+				<n-text :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
 				</n-text>
-				<n-text style="font-size: 16px;">
+				<n-text class="stats-display">
 					{{ stats?.requestedSongs }}
 				</n-text>
 			</div>
@@ -172,6 +172,12 @@ function openInfoEditor() {
 .v-enter-from,
 .v-leave-to {
 	opacity: 0;
+}
+
+.stats-skeleton {
+	padding-top: 5px;
+	padding-bottom: 5px;
+	width: 100%
 }
 
 .stats {
@@ -207,5 +213,14 @@ function openInfoEditor() {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+}
+
+.stats-type {
+	font-size: 11px;
+}
+
+.stats-display {
+	font-size: 16px;
+	font-variant-numeric: tabular-nums;
 }
 </style>
