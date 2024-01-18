@@ -18,7 +18,8 @@ import {
 import { ref, toRaw, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useObsOverlayManager } from '@/api/index.js';
+import { useObsOverlayManager, useProfile } from '@/api/index.js';
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
 
 const obsSettingsManager = useObsOverlayManager();
 const { refetch, data: settings } = obsSettingsManager.getSettings();
@@ -37,7 +38,7 @@ const formValue = ref<Omit<OBSSettings, 'isConnected'>>({
 	audioSources: [],
 	scenes: [],
 	sources: [],
-	serverAddress: '',
+	serverAddress: 'localhost',
 	serverPassword: '',
 	serverPort: 4455,
 });
@@ -82,13 +83,12 @@ async function save() {
 
 	await obsSettingsUpdater.mutateAsync(formValue.value);
 	message.success('Settings updated, now you can paste overlay link into obs', {
-		duration: 5000,
+		duration: 2500,
 	});
 }
 
-async function checkConnection() {
-	await refetch();
-}
+const { copyOverlayLink } = useCopyOverlayLink('obs');
+const { data: profile } = useProfile();
 </script>
 
 <template>
@@ -135,8 +135,8 @@ async function checkConnection() {
 		</n-alert>
 
 		<n-space vertical style="margin-top: 10px">
-			<n-button block secondary type="info" @click="checkConnection">
-				{{ t('overlays.obs.checkConnection') }}
+			<n-button :disabled="profile?.id !== profile?.selectedDashboardId" block secondary type="info" @click="copyOverlayLink()">
+				{{ t('overlays.copyOverlayLink') }}
 			</n-button>
 
 			<n-button block secondary type="success" @click="save">
