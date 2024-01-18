@@ -29,8 +29,11 @@ defineProps<MessageComponentProps>();
 				</template>
 			</div>
 			<div v-if="msg.sender" class="username">
-				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}{{ msg.isItalic ? '' : ':' }}
+				{{ normalizeDisplayName(msg.sender!, msg.senderDisplayName!) }}
 			</div>
+			<span v-if="msg.sender">
+				{{ msg.isItalic ? '' : ':' }}
+			</span>
 		</div>
 		<message-content
 			:chunks="msg.chunks"
@@ -50,10 +53,9 @@ defineProps<MessageComponentProps>();
 }
 
 .profile {
-	display: inline-flex;
-	gap: 8px;
-	margin-right: 4px;
+	display: flex;
 	align-items: center;
+	margin-right: 4px;
 }
 
 .badges {

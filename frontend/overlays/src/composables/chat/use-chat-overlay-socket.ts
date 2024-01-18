@@ -28,6 +28,7 @@ export const useChatOverlaySocket = defineStore('chat-socket', () => {
 		direction: 'top',
 		fontStyle: 'normal',
 		fontWeight: 400,
+		paddingContainer: 0,
 	});
 
 	const overlayId = ref<string | undefined>();
@@ -85,6 +86,7 @@ export const useChatOverlaySocket = defineStore('chat-socket', () => {
 			settings.value.direction = data.direction;
 			settings.value.fontStyle = data.font_style;
 			settings.value.fontWeight = data.font_weight;
+			settings.value.paddingContainer = data.padding_container;
 		}
 	});
 

@@ -33,6 +33,7 @@ func (c *Overlays) chatOverlayDbToGrpc(s model.ChatOverlaySettings) *overlays_ch
 		TextShadowSize:      s.TextShadowSize,
 		ChatBackgroundColor: s.ChatBackgroundColor,
 		Direction:           s.Direction,
+		PaddingContainer:    s.PaddingContainer,
 	}
 }
 
@@ -83,6 +84,7 @@ func (c *Overlays) OverlayChatCreate(
 		TextShadowSize:      req.GetTextShadowSize(),
 		ChatBackgroundColor: req.GetChatBackgroundColor(),
 		Direction:           req.GetDirection(),
+		PaddingContainer:    req.GetPaddingContainer(),
 		ChannelID:           dashboardId,
 	}
 
@@ -141,6 +143,7 @@ func (c *Overlays) OverlayChatUpdate(
 	entity.TextShadowSize = req.GetSettings().GetTextShadowSize()
 	entity.ChatBackgroundColor = req.GetSettings().GetChatBackgroundColor()
 	entity.Direction = req.GetSettings().GetDirection()
+	entity.PaddingContainer = req.GetSettings().GetPaddingContainer()
 
 	if err := c.Db.WithContext(ctx).Save(&entity).Error; err != nil {
 		return nil, fmt.Errorf("cannot update settings: %w", err)

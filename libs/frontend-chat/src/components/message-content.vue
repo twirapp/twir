@@ -78,7 +78,7 @@ const mappedChunks = props.chunks.reduce((acc, chunk) => {
 
 <style scoped>
 .text {
-	vertical-align: baseline;
+	vertical-align: top;
 }
 
 .text > span {

@@ -1,8 +1,5 @@
 <script setup lang="ts">
 import { IconReload } from '@tabler/icons-vue';
-import type {
-	Settings,
-} from '@twir/api/messages/overlays_chat/overlays_chat';
 import { FontSelector, type Font } from '@twir/fontsource';
 import {
 	NButton,
@@ -17,31 +14,12 @@ import {
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { defaultChatSettings } from './default-settings';
 import { useChatOverlayForm } from './form.js';
 
 import { useChatOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-
-type SettingsWithOptionalId = Omit<Settings, 'id'> & { id?: string }
-
-const defaultSettings: SettingsWithOptionalId = {
-	fontFamily: 'inter',
-	fontSize: 20,
-	fontWeight: 400,
-	fontStyle: 'normal',
-	hideBots: false,
-	hideCommands: false,
-	messageHideTimeout: 0,
-	messageShowDelay: 0,
-	preset: 'clean',
-	showBadges: true,
-	showAnnounceBadge: true,
-	textShadowColor: 'rgba(0,0,0,1)',
-	textShadowSize: 0,
-	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
-	direction: 'top',
-};
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
@@ -161,6 +139,14 @@ async function save() {
 					/>
 				</div>
 
+				<div class="slider">
+					<span>{{ t('overlays.chat.paddingContainer') }} ({{ formValue.paddingContainer }}px)</span>
+					<n-slider
+						v-model:value="formValue.paddingContainer" :min="0" :max="256"
+						:marks="{ 0: '0', 256: '256'}"
+					/>
+				</div>
+
 				<n-divider />
 				<div>
 					<span>{{ t('overlays.chat.fontFamily') }}</span>
@@ -202,7 +188,7 @@ async function save() {
 						<span>{{ t('overlays.chat.backgroundColor') }}</span>
 						<n-button
 							size="tiny" secondary type="success"
-							@click="formValue.chatBackgroundColor = defaultSettings.chatBackgroundColor"
+							@click="formValue.chatBackgroundColor = defaultChatSettings.chatBackgroundColor"
 						>
 							<IconReload style="height: 15px;" />
 							{{ t('overlays.chat.resetToDefault') }}
