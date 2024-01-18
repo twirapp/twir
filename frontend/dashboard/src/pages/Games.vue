@@ -33,7 +33,3 @@ import RussianRoulette from '@/components/games/russianRoulette.vue';
 		</n-grid>
 	</div>
 </template>
-
-<style scoped>
-
-</style>

@@ -2,7 +2,6 @@
 import type { DuelSettingsResponse } from '@twir/api/messages/games/games';
 import {
 	NModal,
-	useNotification,
 	NButton,
 	NSwitch,
 	NInput,
@@ -10,6 +9,7 @@ import {
 	NInputNumber,
 	NDivider,
 	useThemeVars,
+	NSpace,
 } from 'naive-ui';
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -19,12 +19,13 @@ import CommandButton from '../commandButton.vue';
 
 import { useDuelGame } from '@/api/games/duel';
 import IconDuel from '@/assets/games/duel.svg?use';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 
 const manager = useDuelGame();
 const { data: settings } = manager.useSettings();
 const updater = manager.useUpdate();
 
-const formValue = ref<DuelSettingsResponse>({
+const initialSettings: DuelSettingsResponse = {
 	enabled: false,
 	startMessage: '@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
 	resultMessage: `Sadly, @{loser} couldn't find a way to dodge the bullet and falls apart into eternal slumber.`,
@@ -36,7 +37,9 @@ const formValue = ref<DuelSettingsResponse>({
 	pointsPerWin: 0,
 	pointsPerLose: 0,
 	bothDiePercent: 0,
-});
+};
+
+const formValue = ref<DuelSettingsResponse>({ ...initialSettings });
 
 watch(settings, (v) => {
 	if (!v) return;
@@ -46,15 +49,29 @@ watch(settings, (v) => {
 const isModalOpened = ref(false);
 
 const themeVars = useThemeVars();
-const message = useNotification();
+const { dialog, notification } = useNaiveDiscrete();
 const { t } = useI18n();
 
 async function save() {
 	if (!formValue.value) return;
 	await updater.mutateAsync(formValue.value);
-	message.success({
+	notification.success({
 		title: t('sharedTexts.saved'),
 		duration: 2500,
+	});
+}
+
+function resetSettings() {
+	dialog.create({
+		type: 'warning',
+		title: t('sharedTexts.dangerZone'),
+		content: t('sharedTexts.setDefaultSettings'),
+		positiveText: t('sharedButtons.confirm'),
+		negativeText: t('sharedButtons.close'),
+		onPositiveClick: () => {
+			formValue.value = initialSettings;
+			save();
+		},
 	});
 }
 </script>
@@ -225,14 +242,25 @@ async function save() {
 
 		<n-divider />
 
-		<n-button
-			secondary
-			block
-			type="success"
-			@click="save"
-		>
-			{{ t('sharedButtons.save') }}
-		</n-button>
+		<n-space vertical>
+			<n-button
+				block
+				secondary
+				type="warning"
+				@click="resetSettings"
+			>
+				{{ t('sharedButtons.setDefaultSettings') }}
+			</n-button>
+
+			<n-button
+				secondary
+				block
+				type="success"
+				@click="save"
+			>
+				{{ t('sharedButtons.save') }}
+			</n-button>
+		</n-space>
 	</n-modal>
 </template>
 
