@@ -140,6 +140,7 @@ const countDownFontSize = computed(() => {
 	font-family: v-bind(fontFamily);
 	background-color: v-bind(backgroundColor);
 	color: v-bind(fontColor);
+	font-variant-numeric: tabular-nums;
 }
 
 .count-up {
