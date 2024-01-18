@@ -56,6 +56,7 @@ defineProps<MessageComponentProps>();
 	border-radius: 8px;
 	background-color: #252525;
 	white-space: nowrap;
+	justify-content: center;
 }
 
 .message .badges {
