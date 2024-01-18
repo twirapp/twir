@@ -23,6 +23,7 @@ type ChatOverlaySettings struct {
 	TextShadowSize      uint32    `gorm:"column:text_shadow_size" json:"text_shadow_size"`
 	ChatBackgroundColor string    `gorm:"column:chat_background_color" json:"chat_background_color"`
 	Direction           string    `gorm:"column:direction" json:"direction"`
+	PaddingContainer    uint32    `gorm:"column:padding_container" json:"padding_container"`
 	CreatedAt           time.Time `gorm:"column:created_at" json:"created_at"`
 
 	ChannelID string    `gorm:"column:channel_id;type:text" json:"channel_id"`

@@ -19,6 +19,7 @@ message Settings {
 	string direction = 14;
 	uint32 font_weight = 15;
 	string font_style = 16;
+	uint32 padding_container = 17;
 }
 
 message GetRequest {

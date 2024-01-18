@@ -371,6 +371,7 @@
       "showDelay": "Message Show Delay",
       "showBadges": "Show Badges",
       "showAnnounceBadge": "Show Announcement Border",
+			"paddingContainer": "Inside Container Padding",
       "resetToDefault": "Reset to Default",
       "textShadow": "Text Shadow",
 			"backgroundColor": "Background Color",

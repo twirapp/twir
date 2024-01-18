@@ -41,6 +41,7 @@ const defaultSettings: SettingsWithOptionalId = {
 	textShadowSize: 0,
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
 	direction: 'top',
+	paddingContainer: 0,
 };
 
 const { t } = useI18n();
@@ -158,6 +159,14 @@ async function save() {
 					<n-switch
 						v-model:value="formValue.showAnnounceBadge"
 						:disabled="!formValue.showBadges"
+					/>
+				</div>
+
+				<div class="slider">
+					<span>{{ t('overlays.chat.paddingContainer') }} ({{ formValue.paddingContainer }}px)</span>
+					<n-slider
+						v-model:value="formValue.paddingContainer" :min="0" :max="256"
+						:marks="{ 0: '0', 256: '256'}"
 					/>
 				</div>
 

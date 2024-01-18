@@ -147,6 +147,10 @@ const textShadow = computed(() => {
 
 	return array.join(', ');
 });
+
+const paddingContainer = computed(() => {
+	return `${props.settings.paddingContainer}px`;
+});
 </script>
 
 <template>
@@ -188,6 +192,7 @@ const textShadow = computed(() => {
 	overflow: hidden;
 	height: v-bind(windowHeight);
 	text-shadow: v-bind(textShadow);
+	padding: v-bind(paddingContainer);
 }
 
 .list-enter-active,
