@@ -4,7 +4,6 @@ import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown } from 'naive-ui';
 import { computed } from 'vue';
 
-import Bot from '@/components/dashboard/bot.vue';
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';
 import Stream from '@/components/dashboard/stream.vue';
@@ -49,7 +48,6 @@ const addWidget = (key: string) => {
 				drag-allow-from=".widgets-draggable-handle"
 			>
 				<Chat v-if="item.i === 'chat'" :item="item" class="item" />
-				<Bot v-if="item.i === 'bot'" :item="item" class="item" />
 				<Stream v-if="item.i === 'stream'" :item="item" class="item" />
 				<Events v-if="item.i === 'events'" :item="item" class="item" />
 			</GridItem>

@@ -169,11 +169,12 @@
 			"channelsAccess": "Channels you have access to"
 		},
     "botManage": {
-      "title": "Bot Management",
-      "moderator": "<b>{botName}</b> is a moderator on this channel.",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use <b>/mod {botName}</b>, otherwise bot will not send messages in chat.",
-      "leave": "Leave",
-      "join": "Join"
+      "title": "Bot status",
+      "success": "Enabled and moderator",
+			"notEnabledTitle": "Bot is not enabled on channel",
+      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
+      "leave": "Disable",
+      "join": "Enable"
     },
     "statsWidgets": {
       "streamInfo": {
