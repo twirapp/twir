@@ -74,14 +74,14 @@ const isCollapsed = useLocalStorage('twirIsBotStatusCollapsed', false);
 					<i18n-t
 						keypath="dashboard.botManage.notModerator"
 					>
-						<b>/mod {{ data.botName }}</b>
+						<b>/mod {{ data?.botName }}</b>
 					</i18n-t>
 				</template>
 				<template v-else>
 					<i18n-t
 						keypath="dashboard.botManage.success"
 					>
-						<b>{{ data.botName }}</b>
+						<b>{{ data?.botName }}</b>
 					</i18n-t>
 				</template>
 			</span>
