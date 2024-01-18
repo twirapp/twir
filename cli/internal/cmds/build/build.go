@@ -36,7 +36,6 @@ func build(cmd string) error {
 	}
 
 	pterm.Info.Println("Building twir")
-	spinner, _ := pterm.DefaultSpinner.Start("Building...")
 
 	startTime := time.Now()
 	fmt.Println(wd)
@@ -50,14 +49,14 @@ func build(cmd string) error {
 		},
 	)
 	if err != nil {
-		spinner.Fail(err)
+		pterm.Fatal.Println(err)
 		return err
 	}
 
 	if time.Since(startTime).Milliseconds() < 1000 {
-		spinner.Success(rainbow(">>> FULL TWIR TURBO ") + "🤙 🤙 🤙")
+		pterm.Success.Println(rainbow(">>> FULL TWIR TURBO ") + "🤙 🤙 🤙")
 	} else {
-		spinner.Success("Builded")
+		pterm.Success.Println("Builded")
 	}
 
 	return nil

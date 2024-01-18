@@ -27,50 +27,35 @@ var Cmd = &cli.Command{
 		skipNode := c.Bool("skip-node")
 		skipGo := c.Bool("skip-go")
 
-		multiPrinter := pterm.DefaultMultiPrinter
-		goSpinner, _ := pterm.DefaultSpinner.
-			WithWriter(multiPrinter.NewWriter()).
-			Start("Install golang deps...")
-		nodeSpinner, _ := pterm.DefaultSpinner.
-			WithWriter(multiPrinter.NewWriter()).
-			Start("Install node deps...")
-		binariesSpinner, _ := pterm.DefaultSpinner.
-			WithWriter(multiPrinter.NewWriter()).
-			Start("Install binaries...")
-
-		if _, err := multiPrinter.Start(); err != nil {
-			return err
-		}
-
 		var wg errgroup.Group
 		if !skipGo {
 			wg.Go(
 				func() error {
 					if err := installGolangDeps(); err != nil {
-						goSpinner.Fail(err)
+						pterm.Fatal.Println(err)
 						return err
 					}
-					goSpinner.Success("Golang deps installed")
+					pterm.Success.Println("Golang deps installed")
 					return nil
 				},
 			)
 		} else {
-			go goSpinner.Warning("Golang deps skipped")
+			go pterm.Warning.Println("Golang deps skipped")
 		}
 
 		if !skipNode {
 			wg.Go(
 				func() error {
 					if err := installNodeDeps(); err != nil {
-						nodeSpinner.Fail(err)
+						pterm.Fatal.Println(err)
 						return err
 					}
-					nodeSpinner.Success("Nodejs deps installed")
+					pterm.Success.Println("Nodejs deps installed")
 					return nil
 				},
 			)
 		} else {
-			go nodeSpinner.Warning("Nodejs deps skipped")
+			go pterm.Warning.Println("Nodejs deps skipped")
 		}
 
 		wg.Go(
@@ -85,11 +70,11 @@ var Cmd = &cli.Command{
 				binariesWg.Go(binaries.InstallProtoc)
 
 				if err := binariesWg.Wait(); err != nil {
-					binariesSpinner.Fail(err)
+					pterm.Fatal.Println(err)
 					return err
 				}
 
-				binariesSpinner.Success("Binaries installed")
+				pterm.Success.Println("Binaries installed")
 				return nil
 			},
 		)
@@ -98,9 +83,7 @@ var Cmd = &cli.Command{
 			return err
 		}
 
-		if _, err := multiPrinter.Stop(); err != nil {
-			return err
-		}
+		pterm.Success.Println("All dependencies installed")
 
 		return nil
 	},
