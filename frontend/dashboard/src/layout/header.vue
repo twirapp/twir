@@ -15,10 +15,6 @@ import Stats from './stats.vue';
 
 import TwirLogo from '@/components/twir-logo.vue';
 
-defineProps<{
-	toggleSidebar: () => void;
-}>();
-
 const route = useRoute();
 
 const themeVars = useThemeVars();

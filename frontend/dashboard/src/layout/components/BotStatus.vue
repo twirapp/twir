@@ -8,10 +8,12 @@ import {
 } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
 import { NButton, useThemeVars } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useBotInfo, useBotJoinPart } from '@/api';
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
 const { data, refetch } = useBotInfo();
 const stateMutation = useBotJoinPart();
@@ -43,21 +45,32 @@ const cardBackgroundColor = computed(() => {
 const { t } = useI18n();
 const themeVars = useThemeVars();
 
+
 const isCollapsed = useLocalStorage('twirIsBotStatusCollapsed', false);
+
+const collapsedStore = useSidebarCollapseStore();
+const { isCollapsed: isSidebarCollapsed } = storeToRefs(collapsedStore);
 </script>
 
 <template>
 	<div
 		class="bot-status-card"
 	>
-		<div class="header">
-			<div style="display: flex; gap: 4px; align-items: center">
+		<div
+			class="header"
+			:style="{
+				justifyContent: isSidebarCollapsed ? 'center' : 'space-between',
+				cursor: isSidebarCollapsed ? 'not-allowed' : 'pointer',
+			}"
+			@click="isCollapsed = !isCollapsed"
+		>
+			<div style="display: flex; gap: 4px; align-items: center;">
 				<IconRobotOff v-if="!isMod || !isJoined" />
 				<IconRobot v-else />
-				<span>{{ t('dashboard.botManage.title') }}</span>
+				<span v-if="!isSidebarCollapsed">{{ t('dashboard.botManage.title') }}</span>
 			</div>
 
-			<n-button text @click="isCollapsed = !isCollapsed">
+			<n-button v-if="!isSidebarCollapsed" text>
 				<IconChevronRight
 					:style="{
 						transition: '0.2s transform ease',
@@ -67,7 +80,7 @@ const isCollapsed = useLocalStorage('twirIsBotStatusCollapsed', false);
 			</n-button>
 		</div>
 
-		<div v-if="!isCollapsed" class="body">
+		<div v-if="!isCollapsed && !isSidebarCollapsed" class="body">
 			<span class="title">
 				<template v-if="!isJoined">{{ t('dashboard.botManage.notEnabledTitle') }}</template>
 				<template v-else-if="!isMod">
@@ -85,7 +98,6 @@ const isCollapsed = useLocalStorage('twirIsBotStatusCollapsed', false);
 					</i18n-t>
 				</template>
 			</span>
-
 
 			<n-button
 				v-if="!isCollapsed"
@@ -113,9 +125,11 @@ const isCollapsed = useLocalStorage('twirIsBotStatusCollapsed', false);
 
 .header {
 	display: flex;
-	justify-content: space-between;
 	align-items: center;
 	padding: 4px;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 .body {

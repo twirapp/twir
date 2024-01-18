@@ -6,10 +6,6 @@ import Navigation from './navigation.vue';
 
 import FeedbackButton from '@/layout/feedback/feedback-button.vue';
 
-defineProps<{
-	isCollapsed: boolean
-}>();
-
 </script>
 
 <template>
@@ -17,10 +13,10 @@ defineProps<{
 		<BotStatus />
 
 		<n-scrollbar trigger="none">
-			<navigation :is-collapsed="isCollapsed" />
+			<navigation />
 		</n-scrollbar>
 
-		<feedback-button :is-collapsed="isCollapsed" />
+		<feedback-button />
 	</div>
 </template>
 

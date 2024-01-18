@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {
 	IconActivity,
 	IconBell,
@@ -30,10 +29,6 @@ import DashboardsMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
 import { useUserAccessFlagChecker } from '@/api';
-
-defineProps<{
-	isCollapsed: boolean
-}>();
 
 const { t } = useI18n();
 
@@ -222,9 +217,7 @@ onMounted(async () => {
 
 <template>
 	<div>
-		<div class="sidebar-dashboards-menu">
-			<dashboards-menu :is-collapsed="isCollapsed" />
-		</div>
+		<dashboards-menu />
 
 		<n-divider style="margin-top: 0; margin-bottom: 5px;" />
 
@@ -242,14 +235,5 @@ onMounted(async () => {
 	align-self: stretch;
 	display: flex;
 	align-items: center;
-}
-
-.sidebar-dashboards-menu {
-	width: 100%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	padding-top: 10px;
-	padding-bottom: 10px;
 }
 </style>

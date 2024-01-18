@@ -10,14 +10,12 @@ import {
 	NText,
 	NPopover,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
-
-defineProps<{
-	isCollapsed: boolean
-}>();
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
 const emits = defineEmits<{
 	dashboardSelected: []
@@ -107,6 +105,10 @@ onClickOutside(refPopover, (event) => {
 		togglePopover(false);
 	}
 }, { ignore: [refPopoverList] });
+
+
+const collapsedStore = useSidebarCollapseStore();
+const { isCollapsed } = storeToRefs(collapsedStore);
 </script>
 
 <template>
@@ -119,38 +121,42 @@ onClickOutside(refPopover, (event) => {
 	>
 		<template #trigger>
 			<div
-				class="block selected-dashboard"
+				class="block popover-trigger"
 				style="cursor: pointer;"
 				@click="isSelectDashboardPopoverOpened = true"
 			>
-				<n-avatar
-					style="display: flex; align-self: center; border-radius: 111px;"
-					:src="currentDashboard?.profileImageUrl"
-				/>
-				<div
-					v-if="!isCollapsed"
-					style="
-						display: flex;
-						flex-direction: column;
-						max-width: 100px;
-						white-space: nowrap;
-						overflow: hidden;
-						text-overflow: ellipsis;
-					"
-				>
-					<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
-						{{ t(`dashboard.header.managingUser`) }}
-					</n-text>
-					<n-text>{{ currentDashboard?.displayName }}</n-text>
-				</div>
+				<div class="content" :style="{ justifyContent: isCollapsed ? 'center' : 'space-between' }">
+					<div style="display: flex; gap: 12px">
+						<n-avatar
+							style="display: flex; align-self: center; border-radius: 111px;"
+							:src="currentDashboard?.profileImageUrl"
+						/>
+						<div
+							v-if="!isCollapsed"
+							style="
+								display: flex;
+								flex-direction: column;
+								max-width: 100px;
+								white-space: nowrap;
+								overflow: hidden;
+								text-overflow: ellipsis;
+							"
+						>
+							<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
+								{{ t(`dashboard.header.managingUser`) }}
+							</n-text>
+							<n-text>{{ currentDashboard?.displayName }}</n-text>
+						</div>
+					</div>
 
-				<IconChevronRight
-					v-if="!isCollapsed"
-					:style="{
-						transition: '0.2s transform ease',
-						transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
-					}"
-				/>
+					<IconChevronRight
+						v-if="!isCollapsed"
+						:style="{
+							transition: '0.2s transform ease',
+							transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
+						}"
+					/>
+				</div>
 			</div>
 		</template>
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
@@ -214,13 +220,23 @@ onClickOutside(refPopover, (event) => {
 	align-items: center;
 }
 
-.selected-dashboard {
+.popover-trigger {
+	width: 100%;
+	display: flex;
+
 	-webkit-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
 }
 
-.selected-dashboard :deep(img) {
+.popover-trigger .content {
+	display: flex;
+	align-items: center;
+	padding: 10px 4px;
+	width: 100%;
+}
+
+.popover-trigger :deep(img) {
 	-webkit-user-drag: none;
 }
 </style>

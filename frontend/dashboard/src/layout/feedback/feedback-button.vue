@@ -11,10 +11,7 @@ import FeedbackModal from './feedback-modal.vue';
 
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 import { useFeedbackForm } from '@/layout/feedback/feedback';
-
-defineProps<{
-	isCollapsed: boolean
-}>();
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
 const discrete = useNaiveDiscrete();
 const feedbackFormStore = useFeedbackForm();
@@ -44,6 +41,9 @@ function openFeedbackModal() {
 		},
 	});
 }
+
+const collapsedStore = useSidebarCollapseStore();
+const { isCollapsed } = storeToRefs(collapsedStore);
 </script>
 
 <template>

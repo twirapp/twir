@@ -170,7 +170,7 @@
 		},
     "botManage": {
       "title": "Bot status",
-      "success": "Enabled and moderator",
+      "success": "Enabled and have moderator status",
 			"notEnabledTitle": "Bot is not enabled on channel",
       "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
       "leave": "Disable",

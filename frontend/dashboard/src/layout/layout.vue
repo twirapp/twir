@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLocalStorage, useBreakpoints, breakpointsTailwind } from '@vueuse/core';
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import {
 	darkTheme,
 	lightTheme,
@@ -13,12 +13,14 @@ import {
 	NSpin,
 	NDialogProvider,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 
 import { useTheme } from '@/composables/use-theme.js';
 import Header from '@/layout/header.vue';
 import Sidebar from '@/layout/sidebar.vue';
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
 const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
@@ -34,18 +36,11 @@ const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
 // If we are on a smaller than or equal to md, we want the sidebar to hide and show hamburger menu with drawer.
 const smallerOrEqualMd = breakPoints.smallerOrEqual('md');
 
-const storedSidebarValue = useLocalStorage('twirSidebarIsCollapsed', false);
-
-const toggleSidebar = () => {
-	storedSidebarValue.value = !storedSidebarValue.value;
-};
-
-const isSidebarCollapsed = computed(() => {
-	return storedSidebarValue.value;
-});
+const collapsedStore = useSidebarCollapseStore();
+const { isCollapsed } = storeToRefs(collapsedStore);
 
 watch(smallerOrEqualLg, (v) => {
-	storedSidebarValue.value = v;
+	collapsedStore.set(v);
 });
 </script>
 
@@ -60,7 +55,7 @@ watch(smallerOrEqualLg, (v) => {
 				<n-dialog-provider>
 					<n-layout style="height: 100%">
 						<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
-							<Header :toggleSidebar="toggleSidebar" />
+							<Header />
 						</n-layout-header>
 
 						<n-layout has-sider style="height: calc(100vh - var(--layout-header-height))">
@@ -72,11 +67,11 @@ watch(smallerOrEqualLg, (v) => {
 								:width="240"
 								show-trigger="arrow-circle"
 								:native-scrollbar="false"
-								:collapsed="isSidebarCollapsed"
+								:collapsed="isCollapsed"
 								:show-collapsed-content="false"
-								@update-collapsed="toggleSidebar"
+								@update-collapsed="collapsedStore.toggle"
 							>
-								<Sidebar :is-collapsed="isSidebarCollapsed" />
+								<Sidebar />
 							</n-layout-sider>
 							<n-layout-content>
 								<div v-if="!isRouterReady" class="app-loader">
