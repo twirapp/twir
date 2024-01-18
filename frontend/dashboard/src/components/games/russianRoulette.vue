@@ -9,7 +9,7 @@ import {
 	NButton,
 	NSwitch,
 	NDivider,
-	useMessage,
+	NSpace,
 } from 'naive-ui';
 import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -18,13 +18,14 @@ import Card from './card.vue';
 import Command from '../commandButton.vue';
 
 import { useRussianRouletteSettings, useRussianRouletteUpdateSettings } from '@/api/index.js';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 
 const isModalOpened = ref(false);
 
 const { data: settings } = useRussianRouletteSettings();
 const updater = useRussianRouletteUpdateSettings();
 
-const formValue = ref<UpdateRussianRouletteSettings>({
+const initialSettings: UpdateRussianRouletteSettings = {
 	enabled: false,
 	canBeUsedByModerator: false,
 	timeoutSeconds: 60,
@@ -34,7 +35,9 @@ const formValue = ref<UpdateRussianRouletteSettings>({
 	surviveMessage: '{sender} survives the game of roulette! Luck smiles upon them.',
 	deathMessage: `{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.`,
 	tumberSize: 6,
-});
+};
+
+const formValue = ref<UpdateRussianRouletteSettings>({ ...initialSettings });
 
 watch(settings, (v) => {
 	if (!v) return;
@@ -54,12 +57,29 @@ watch(settings, (v) => {
 
 const { t } = useI18n();
 
-const notifications = useMessage();
+const { dialog, notification } = useNaiveDiscrete();
 
 async function save() {
 	const values = formValue.value;
 	await updater.mutateAsync(values);
-	notifications.success(t('sharedTexts.saved'));
+	notification.success({
+		title: t('sharedTexts.saved'),
+		duration: 2500,
+	});
+}
+
+function resetSettings() {
+	dialog.create({
+		type: 'warning',
+		title: t('sharedTexts.dangerZone'),
+		content: t('sharedTexts.setDefaultSettings'),
+		positiveText: t('sharedButtons.confirm'),
+		negativeText: t('sharedButtons.close'),
+		onPositiveClick: () => {
+			formValue.value = initialSettings;
+			save();
+		},
+	});
 }
 </script>
 
@@ -144,8 +164,14 @@ async function save() {
 
 		<n-divider />
 
-		<n-button block secondary type="success" @click="save">
-			{{ t('sharedButtons.save') }}
-		</n-button>
+		<n-space vertical>
+			<n-button block secondary type="warning" @click="resetSettings">
+				{{ t('sharedButtons.setDefaultSettings') }}
+			</n-button>
+
+			<n-button block secondary type="success" @click="save">
+				{{ t('sharedButtons.save') }}
+			</n-button>
+		</n-space>
 	</n-modal>
 </template>
