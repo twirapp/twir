@@ -167,6 +167,7 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 			<n-virtual-list
 				style="max-height: 400px;" :item-size="42" trigger="none"
 				:items="menuOptions"
+				item-resizable
 			>
 				<template #default="{ item }">
 					<div
@@ -238,5 +239,9 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 
 .popover-trigger :deep(img) {
 	-webkit-user-drag: none;
+}
+
+:deep(.v-vl) {
+	overflow-x: hidden;
 }
 </style>
