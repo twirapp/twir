@@ -33,7 +33,8 @@
     "dangerZone": "Danger Zone",
     "deleted": "Deleted",
     "updated": "Updated",
-    "disabled": "Disabled"
+    "disabled": "Disabled",
+		"setDefaultSettings": "Are you sure you want to set default settings?"
   },
   "sidebar": {
     "dashboard": "Dashboard",

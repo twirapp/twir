@@ -33,7 +33,8 @@
     "dangerZone": "Опасная зона",
     "deleted": "Удалено",
     "updated": "Обновлено",
-    "disabled": "Отключено"
+    "disabled": "Отключено",
+		"setDefaultSettings": "Сбросить настройки по умолчанию?"
   },
   "sidebar": {
     "dashboard": "Панель управления",
