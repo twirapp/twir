@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -36,6 +37,8 @@ var SayCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
+		resultedText := *parseCtx.Text
+
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 		if channelSettings == nil || !*channelSettings.Enabled {
 			return result, nil
@@ -57,7 +60,7 @@ var SayCommand = &types.DefaultCommand{
 
 		if channelSettings.AllowUsersChooseVoiceInMainCommand {
 			voices := getVoices(ctx, parseCtx.Services.Config)
-			splittedChatArgs := strings.Split(*parseCtx.Text, " ")
+			splittedChatArgs := strings.Split(resultedText, " ")
 			targetVoice, targetVoiceFound := lo.Find(
 				voices, func(item Voice) bool {
 					return strings.ToLower(item.Name) == strings.ToLower(splittedChatArgs[0])
@@ -81,11 +84,11 @@ var SayCommand = &types.DefaultCommand{
 					return result, nil
 				}
 
-				*parseCtx.Text = strings.Join(splittedChatArgs[1:], " ")
+				resultedText = strings.Join(splittedChatArgs[1:], " ")
 			}
 		}
 
-		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(*parseCtx.Text) > channelSettings.MaxSymbols {
+		if channelSettings.MaxSymbols > 0 && utf8.RuneCountInString(resultedText) > channelSettings.MaxSymbols {
 			return result, nil
 		}
 
@@ -101,23 +104,21 @@ var SayCommand = &types.DefaultCommand{
 		).Else(channelSettings.Pitch)
 
 		if channelSettings.DoNotReadEmoji {
-			*parseCtx.Text = emojiRx.ReplaceAllString(*parseCtx.Text, ``)
+			resultedText = emojiRx.ReplaceAllString(resultedText, ``)
 		}
 
-		splittedString := strings.Fields(*parseCtx.Text)
-
 		if channelSettings.DoNotReadLinks {
-			for i, part := range splittedString {
+			for _, part := range strings.Fields(resultedText) {
 				isUrl := isValidUrl(part)
 				if isUrl {
-					splittedString[i] = ""
+					resultedText = strings.ReplaceAll(resultedText, part, "")
 				}
 			}
 		}
 
 		if channelSettings.DoNotReadTwitchEmotes {
 			for _, emote := range parseCtx.Emotes {
-				*parseCtx.Text = strings.Replace(*parseCtx.Text, emote.Name, "", -1)
+				resultedText = strings.Replace(resultedText, emote.Name, "", -1)
 			}
 			channelKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
 			channelEmotes := parseCtx.Services.Redis.Keys(
@@ -128,36 +129,34 @@ var SayCommand = &types.DefaultCommand{
 			globalKey := "emotes:global:"
 			globalEmotes := parseCtx.Services.Redis.Keys(
 				ctx,
-				fmt.Sprintf("%s:*", globalKey),
+				fmt.Sprintf("%s*", globalKey),
 			).Val()
 
-			for wordIndex, word := range splittedString {
-				for _, emotePattern := range channelEmotes {
-					emote := strings.Split(emotePattern, channelKey)[1]
-					if emote == word {
-						splittedString[wordIndex] = ""
-					}
-				}
+			for _, emotePattern := range channelEmotes {
+				emote := strings.Split(emotePattern, channelKey)[1]
 
-				for _, emotePattern := range globalEmotes {
-					emote := strings.Split(emotePattern, globalKey)[1]
-					if emote == word {
-						splittedString[wordIndex] = ""
-					}
+				if slices.Contains(strings.Fields(resultedText), emote) {
+					resultedText = strings.ReplaceAll(resultedText, emote, "")
+				}
+			}
+
+			for _, emotePattern := range globalEmotes {
+				emote := strings.Split(emotePattern, globalKey)[1]
+
+				if slices.Contains(strings.Fields(resultedText), emote) {
+					resultedText = strings.ReplaceAll(resultedText, emote, "")
 				}
 			}
 		}
 
-		*parseCtx.Text = strings.TrimSpace(strings.Join(splittedString, " "))
-
-		if len(*parseCtx.Text) == 0 || *parseCtx.Text == parseCtx.Sender.Name {
+		if len(resultedText) == 0 || resultedText == parseCtx.Sender.Name {
 			return result, nil
 		}
 
 		_, err := parseCtx.Services.GrpcClients.WebSockets.TextToSpeechSay(
 			ctx, &websockets.TTSMessage{
 				ChannelId: parseCtx.Channel.ID,
-				Text:      *parseCtx.Text,
+				Text:      resultedText,
 				Voice:     voice,
 				Rate:      strconv.Itoa(rate),
 				Pitch:     strconv.Itoa(pitch),
