@@ -20,8 +20,8 @@ func (c *EventWorkflow) Flow(
 	data shared.EvenData,
 ) error {
 	options := workflow.ActivityOptions{
-		StartToCloseTimeout: time.Second * 5,
-		HeartbeatTimeout:    time.Second * 10,
+		StartToCloseTimeout: time.Second * 15,
+		HeartbeatTimeout:    time.Second * 5,
 		RetryPolicy: &temporal.RetryPolicy{
 			InitialInterval:        time.Second,
 			BackoffCoefficient:     2.0,
@@ -29,6 +29,7 @@ func (c *EventWorkflow) Flow(
 			MaximumAttempts:        3,
 			NonRetryableErrorTypes: []string{},
 		},
+		TaskQueue: shared.EventsWorkerTaskQueueName,
 	}
 	ctx = workflow.WithActivityOptions(ctx, options)
 

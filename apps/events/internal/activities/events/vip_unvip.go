@@ -155,11 +155,11 @@ func (c *Activity) UnvipRandom(
 	data shared.EvenData,
 ) error {
 	slots := operation.Input.String
-	if slots == "" {
+	if operation.Type == model.OperationUnvipRandomIfNoSlots && slots == "" {
 		return errors.New("input is empty")
 	}
 
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(context.TODO(), data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}

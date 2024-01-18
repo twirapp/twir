@@ -80,7 +80,6 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	error,
 ) {
 	var cursor string
-
 	var moderators []helix.Moderator
 
 	for {
@@ -97,11 +96,11 @@ func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 			return nil, fmt.Errorf(modsReq.ErrorMessage)
 		}
 
-		if len(modsReq.Data.Moderators) == 0 {
+		moderators = append(moderators, modsReq.Data.Moderators...)
+
+		if modsReq.Data.Pagination.Cursor == "" {
 			break
 		}
-
-		moderators = append(moderators, modsReq.Data.Moderators...)
 
 		cursor = modsReq.Data.Pagination.Cursor
 	}
@@ -114,7 +113,6 @@ func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
 	error,
 ) {
 	var cursor string
-
 	var vips []helix.ChannelVips
 
 	for {
@@ -131,13 +129,12 @@ func (c *Activity) getChannelVips(client *helix.Client, channelId string) (
 			return nil, fmt.Errorf(vipsReq.ErrorMessage)
 		}
 
-		if len(vipsReq.Data.ChannelsVips) == 0 {
+		vips = append(vips, vipsReq.Data.ChannelsVips...)
+		cursor = vipsReq.Data.Pagination.Cursor
+
+		if vipsReq.Data.Pagination.Cursor == "" {
 			break
 		}
-
-		vips = append(vips, vipsReq.Data.ChannelsVips...)
-
-		cursor = vipsReq.Data.Pagination.Cursor
 	}
 
 	return vips, nil
