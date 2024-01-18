@@ -3,21 +3,24 @@ package helpers
 import (
 	"context"
 	"net"
+	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/localtunnel/go-localtunnel"
 	config "github.com/satont/twir/libs/config"
 )
 
 func GetAppTunnel(ctx context.Context, cfg *config.Config) (net.Listener, error) {
 	if cfg.AppEnv != "production" {
-		tun, err := localtunnel.Listen(
-			localtunnel.Options{},
+		return retry.DoWithData(
+			func() (*localtunnel.Listener, error) {
+				return localtunnel.Listen(
+					localtunnel.Options{},
+				)
+			},
+			retry.Attempts(5),
+			retry.Delay(1*time.Second),
 		)
-		if err != nil {
-			return nil, err
-		}
-
-		return tun, nil
 	} else {
 		return createDefaultTun()
 	}
