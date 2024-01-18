@@ -1,5 +1,7 @@
 ---
 import { features } from "./features.js";
+import { DISCORD_INVITE_URL } from '@twir/brand';
+import ArrowRightIcon from '@/assets/icons/arrow-right.svg?use'
 ---
 
 <section id="features">
@@ -25,5 +27,19 @@ import { features } from "./features.js";
 				</li>
 			))}
     </ul>
+
+
+		<div class="flex flex-col items-center gap-2">
+			<p class="max-w-3xl text-[#ADB0B8] text-sm pt-10 leading-normal">
+				This is by no means an exhaustive list of the bot's capabilities; it will be continuously updated for you as we strive to bring forth new and innovative features.
+			</p>
+			<a
+				class="flex gap-[8px] items-center pr-[10px] pl-2 py-1 rounded-full bg-[#1a1a22] hover:bg-[#272730] border border-[#72757d26] font-medium text-sm text-[#E3E6ED] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#72757d]/80 transition-shadow"
+				href={DISCORD_INVITE_URL}
+				target="_blank">
+				Join our Discord server to stay up to date
+				<ArrowRightIcon class="h-4 w-4 stroke-white/50 stroke-[1.5] flex-shrink-0" />
+			</a>
+		</div>
   </div>
 </section>
