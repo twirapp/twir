@@ -1,44 +1,23 @@
-import type {
-	Settings,
-} from '@twir/api/messages/overlays_chat/overlays_chat';
 import { ref, toRaw } from 'vue';
 
-type SettingsWithOptionalId = Omit<Settings, 'id'> & { id?: string }
+import { defaultChatSettings, type ChatSettingsWithOptionalId } from './default-settings';
 
-const defaultSettings: SettingsWithOptionalId = {
-	fontFamily: 'inter',
-	fontSize: 20,
-	fontWeight: 400,
-	fontStyle: 'normal',
-	hideBots: false,
-	hideCommands: false,
-	messageHideTimeout: 0,
-	messageShowDelay: 0,
-	preset: 'clean',
-	showBadges: true,
-	showAnnounceBadge: true,
-	textShadowColor: 'rgba(0,0,0,1)',
-	textShadowSize: 0,
-	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
-	direction: 'top',
-};
-
-const data = ref<SettingsWithOptionalId>(structuredClone(defaultSettings));
+const data = ref<ChatSettingsWithOptionalId>(structuredClone(defaultChatSettings));
 
 export const useChatOverlayForm = () => {
-	function $setData(d: SettingsWithOptionalId) {
+	function $setData(d: ChatSettingsWithOptionalId) {
 		data.value = structuredClone(toRaw(d));
 	}
 
 	function $reset() {
 		data.value = {
 			id: data.value.id,
-			...structuredClone(defaultSettings),
+			...structuredClone(defaultChatSettings),
 		};
 	}
 
 	function $getDefaultSettings() {
-		return structuredClone(defaultSettings);
+		return structuredClone(defaultChatSettings);
 	}
 
 	return {
