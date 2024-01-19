@@ -29,7 +29,7 @@ async function saveSecret() {
 	<with-settings
 		title="Donate.stream"
 		:icon="DonateStreamSVG"
-		icon-width="100px"
+		icon-width="9rem"
 	>
 		<template #description>
 			<donate-description />
