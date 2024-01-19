@@ -16,7 +16,7 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 	<with-settings
 		title="Donatello"
 		:icon="DonatelloSVG"
-		icon-width="80px"
+		icon-width="48px"
 	>
 		<template #description>
 			<donate-description />
