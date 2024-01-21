@@ -9,7 +9,9 @@ export async function getStreamers() {
 		const sortedStreamers = streamersResponse.response.streamers.sort((a, b) => b.followersCount - a.followersCount);
 
 		if (import.meta.env.DEV) {
-			streamers.push(...chunk(Array.from({ length: 100 }).map(() => sortedStreamers.at(0)!), 3));
+			if (sortedStreamers.length) {
+				streamers.push(...chunk(Array.from({ length: 100 }).map(() => sortedStreamers.at(0)!), 3));
+			}
 		} else {
 			streamers.push(...chunk(sortedStreamers, 3));
 		}

@@ -1,0 +1,9 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_seventv";
+package messages.integrations_seventv;
+
+message GetDataResponse {
+	string bot_username = 1;
+	string bot_user_display_name = 2;
+	bool is_editor = 3;
+}

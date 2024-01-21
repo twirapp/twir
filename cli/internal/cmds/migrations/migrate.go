@@ -11,7 +11,8 @@ import (
 	"github.com/pressly/goose/v3"
 	"github.com/pterm/pterm"
 	cfg "github.com/satont/twir/libs/config"
-	migrationsSeeds "github.com/satont/twir/libs/migrations/seeds"
+	_ "github.com/satont/twir/libs/migrations/migrations"
+	"github.com/satont/twir/libs/migrations/seeds"
 	"github.com/urfave/cli/v2"
 )
 
@@ -57,11 +58,11 @@ var MigrateCmd = &cli.Command{
 
 		slog.SetDefault(slog.New(pterm.NewSlogHandler(&pterm.DefaultLogger)))
 
-		if err := migrationsSeeds.CreateDefaultBot(db, config); err != nil {
+		if err := seeds.CreateDefaultBot(db, config); err != nil {
 			panic(err)
 		}
 
-		if err := migrationsSeeds.CreateIntegrations(db, config); err != nil {
+		if err := seeds.CreateIntegrations(db, config); err != nil {
 			panic(err)
 		}
 

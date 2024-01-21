@@ -241,7 +241,12 @@
     },
     "valorant": {
       "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
-    }
+    },
+		"sevenTv": {
+			"description": "We can manage 7tv channel emotes, when this integration is enabled. You can add, remove through event's system.",
+			"connected": "Connected",
+			"notConnected": "Not connected"
+		}
   },
   "events": {
     "delay": "Delay (in seconds)",
