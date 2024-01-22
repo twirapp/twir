@@ -1,6 +1,6 @@
 import type { Settings as BrbOverlaySettings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import type { Settings as KappagenOverlaySettings } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import type { Emote, KappagenAnimations } from 'kappagen';
+import type { Emote, KappagenAnimations } from '@twirapp/kappagen';
 
 // emotes start
 export type SevenTvEmote = {

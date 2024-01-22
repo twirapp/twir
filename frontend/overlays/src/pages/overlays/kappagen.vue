@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import KappagenOverlay from 'kappagen';
-import type { KappagenEmoteConfig } from 'kappagen';
+import KappagenOverlay from '@twirapp/kappagen';
+import type { KappagenEmoteConfig } from '@twirapp/kappagen';
 import { storeToRefs } from 'pinia';
 import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
-import 'kappagen/style.css';
+import '@twirapp/kappagen/style.css';
 
 import {
 	useKappagenBuilder as useKappagenEmotesBuilder,
