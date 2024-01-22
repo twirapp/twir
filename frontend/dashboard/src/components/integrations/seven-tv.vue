@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconCircleCheck, IconPlugOff } from '@tabler/icons-vue';
-import { useIntervalFn } from '@vueuse/core';
 import { NTag, NTimeline, NTimelineItem, NA, NSpin, useThemeVars } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
@@ -13,11 +12,7 @@ import WithSettings from '@/components/integrations/variants/withSettings.vue';
 const themeVars = useThemeVars();
 const { t } = useI18n();
 const manager = useSevenTvIntegration();
-const { data: sevenTvData, refetch } = manager.useData();
-
-useIntervalFn(() => {
-	refetch();
-}, 5 * 1000);
+const { data: sevenTvData } = manager.useData();
 </script>
 
 <template>
