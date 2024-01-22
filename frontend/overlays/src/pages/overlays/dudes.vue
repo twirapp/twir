@@ -69,8 +69,7 @@ onMounted(async () => {
   await dudesRef.value.initDudes(dudeAssets);
 
 	const apiKey = route.params.apiKey as string;
-	const overlayId = route.query.id as string;
-	chatSocketStore.connect(apiKey, overlayId);
+	chatSocketStore.connect(apiKey);
 });
 </script>
 

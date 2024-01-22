@@ -395,6 +395,9 @@
       "style": "Message Style",
       "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
+		"dudes": {
+			"description": "Animated characters for chatters in your stream"
+		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
       "testKappagen": "Test Kappagen",
