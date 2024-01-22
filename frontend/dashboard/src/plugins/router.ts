@@ -2,19 +2,13 @@ import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import {
-	type PermissionsType,
 	userAccessFlagChecker,
 	profileQueryOptions,
 	dashboardsQueryOptions,
 } from '@/api';
 
-type Route = Omit<RouteRecordRaw, 'meta' | 'children'> & {
-	meta?: { neededPermission?: PermissionsType; noPadding?: boolean },
-	children?: ReadonlyArray<Route>
-}
-
 export const newRouter = (queryClient: QueryClient) => {
-	const routes: ReadonlyArray<Route> = [
+	const routes: ReadonlyArray<RouteRecordRaw> = [
 		{
 			path: '/dashboard/integrations/:integrationName',
 			component: () => import('../pages/IntegrationsCallback.vue'),
@@ -147,6 +141,13 @@ export const newRouter = (queryClient: QueryClient) => {
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('../pages/NoAccess.vue'),
+					meta: { fullScreen: true },
+				},
+				{
+					path: '/:pathMatch(.*)*',
+					name: 'NotFound',
+					component: () => import('../pages/NotFound.vue'),
+					meta: { fullScreen: true },
 				},
 			],
 		},
@@ -170,7 +171,7 @@ export const newRouter = (queryClient: QueryClient) => {
 
 			if (!to.meta.neededPermission) return next();
 
-			const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission as PermissionsType);
+			const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission);
 			if (hasAccess) {
 				return next();
 			}

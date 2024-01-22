@@ -14,9 +14,9 @@ function goToDashboard() {
 <template>
 	<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
 		<n-result
-			status="403"
-			:title="t('haveNoAccess.title')"
-			:description="t('haveNoAccess.description')"
+			status="404"
+			:title="t('pageNotFound.title')"
+			:description="t('pageNotFound.description')"
 		>
 			<template #footer>
 				<n-button @click="goToDashboard">
