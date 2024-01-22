@@ -1,6 +1,6 @@
 import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import type { MessageChunk } from '@twir/frontend-chat';
-import type { Emote } from 'kappagen';
+import type { Emote } from '@twirapp/kappagen';
 import { storeToRefs } from 'pinia';
 import { type Ref, computed } from 'vue';
 
