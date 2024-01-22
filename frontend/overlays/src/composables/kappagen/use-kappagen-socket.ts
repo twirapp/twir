@@ -1,5 +1,5 @@
 import { useWebSocket } from '@vueuse/core';
-import type { KappagenAnimations } from 'kappagen';
+import type { KappagenAnimations } from '@twirapp/kappagen';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 

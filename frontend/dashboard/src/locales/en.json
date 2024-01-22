@@ -14,7 +14,8 @@
     "cancel": "Cancel",
     "confirm": "Confirm",
     "saveSettings": "Save Settings",
-    "setDefaultSettings": "Set Default Settings"
+    "setDefaultSettings": "Set Default Settings",
+		"goToDashboard": "Go to Dashboard"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -79,8 +80,13 @@
     "confirm": "Confirm"
   },
   "haveNoAccess": {
-    "message": "You are not authorized to view this page, ask the broadcaster to provide it."
+		"title": "403 Forbidden",
+    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
   },
+	"pageNotFound": {
+		"title": "404 Not Found",
+		"description": "You know life is always ridiculous."
+	},
   "commands": {
     "name": "Command | Commands",
     "searchPlaceholder": "Search the command...",

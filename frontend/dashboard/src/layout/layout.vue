@@ -82,7 +82,8 @@ watch(smallerOrEqualLg, (v) => {
 										<div
 											:key="route.path"
 											:style="{
-												padding: route.meta?.noPadding ? undefined: '24px'
+												padding: route.meta?.noPadding ? undefined: '24px',
+												height: route.meta?.fullScreen ? 'calc(100% - var(--layout-header-height))' : 'auto'
 											}"
 										>
 											<component :is="Component" />

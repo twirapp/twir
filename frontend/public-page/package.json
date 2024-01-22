@@ -10,22 +10,22 @@
 	"dependencies": {
 		"@protobuf-ts/twirp-transport": "2.9.3",
 		"@tabler/icons-vue": "2.46.0",
-		"@tanstack/vue-query": "5.17.7",
-		"@tanstack/vue-table": "8.11.6",
-		"@twir/brand": "workspace:*",
+		"@tanstack/vue-query": "5.17.19",
+		"@tanstack/vue-table": "8.11.7",
 		"@twir/api": "workspace:*",
+		"@twir/brand": "workspace:*",
 		"@vueuse/components": "10.7.2",
 		"@vueuse/core": "10.7.2",
-		"vue": "3.4.14",
+		"vue": "3.4.15",
 		"vue-router": "4.2.5"
 	},
 	"devDependencies": {
 		"@vitejs/plugin-vue": "5.0.3",
-		"autoprefixer": "10.4.16",
+		"autoprefixer": "10.4.17",
 		"postcss": "8.4.33",
 		"tailwindcss": "3.4.1",
 		"typescript": "5.3.3",
-		"vite": "5.0.11",
+		"vite": "5.0.12",
 		"vue-tsc": "1.8.27"
 	}
 }
