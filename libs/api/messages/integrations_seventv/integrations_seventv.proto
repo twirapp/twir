@@ -2,8 +2,21 @@ syntax = "proto3";
 option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_seventv";
 package messages.integrations_seventv;
 
+message SevenTvProfile {
+	string id = 1;
+	string username = 2;
+	string display_name = 3;
+}
+
 message GetDataResponse {
-	string bot_username = 1;
-	string bot_user_display_name = 2;
-	bool is_editor = 3;
+	bool is_editor = 1;
+	SevenTvProfile bot_seventv_profile = 2;
+	SevenTvProfile user_seventv_profile = 3;
+	optional string reward_id_for_add_emote = 4;
+	optional string reward_id_for_remove_emote = 5;
+}
+
+message UpdateDataRequest {
+	optional string reward_id_for_add_emote = 1;
+	optional string reward_id_for_remove_emote = 2;
 }

@@ -47,14 +47,15 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 				RedemptionTitle:           event.Reward.Title,
 				RedemptionUserName:        event.UserLogin,
 				RedemptionUserDisplayName: event.UserName,
-				RedemptionCost:            fmt.Sprint(event.Reward.Cost),
+				RedemptionCost:            strconv.Itoa(event.Reward.Cost),
 			},
 		},
 	)
 
 	// fire event to events microsevice
 	c.services.Grpc.Events.RedemptionCreated(
-		context.Background(), &events.RedemptionCreatedMessage{
+		context.Background(),
+		&events.RedemptionCreatedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
@@ -229,13 +230,14 @@ func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 		return
 	}
 
-	if len(res.Responses) == 0 {
+	if len(res.GetResponses()) == 0 {
 		return
 	}
 
-	for _, response := range res.Responses {
+	for _, response := range res.GetResponses() {
 		c.services.Grpc.Bots.SendMessage(
-			context.Background(), &bots.SendMessageRequest{
+			context.Background(),
+			&bots.SendMessageRequest{
 				ChannelId:   event.BroadcasterUserID,
 				ChannelName: &event.BroadcasterUserLogin,
 				Message:     fmt.Sprintf("@%s %s", event.UserLogin, response),
@@ -274,4 +276,27 @@ func (c *Handler) handleAlerts(event *eventsub_bindings.EventChannelPointsReward
 	if err != nil {
 		zap.S().Error(err)
 	}
+}
+
+func (c *Handler) handleRewardsSevenTvEmote(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
+	if c.services.Config.SevenTvToken == "" || event.UserInput == "" {
+		return
+	}
+
+	settings := &model.ChannelsIntegrationsSettingsSeventv{}
+	err := c.services.Gorm.
+		Where(`"channelId" = ?`, event.BroadcasterUserID).
+		Find(settings).
+		Error
+	if err != nil {
+		zap.S().Error(err)
+		return
+	}
+
+	// not found
+	if settings.ID.String() == "" {
+		return
+	}
+
+	// TODO: add and remove emotes there
 }

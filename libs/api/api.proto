@@ -250,6 +250,7 @@ service Protected {
 	rpc LeaveFeedback(messages.feedback.LeaveFeedbackRequest) returns (google.protobuf.Empty) {}
 
 	rpc IntegrationsSevenTvGetData(google.protobuf.Empty) returns (messages.integrations_seventv.GetDataResponse) {}
+	rpc IntegrationsSevenTvUpdate(messages.integrations_seventv.UpdateDataRequest) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

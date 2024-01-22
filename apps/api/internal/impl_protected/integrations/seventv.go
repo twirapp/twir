@@ -2,12 +2,16 @@ package integrations
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_seventv"
+	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -26,6 +30,15 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 		WithContext(ctx).
 		Where("id = ? AND type = ?", dashboardId, "DEFAULT").
 		First(&defaultBot).
+		Error; err != nil {
+		return nil, err
+	}
+
+	var sevenTvSettings model.ChannelsIntegrationsSettingsSeventv
+	if err := c.Db.
+		WithContext(ctx).
+		Where("channel_id = ?", dashboardId).
+		Find(&sevenTvSettings).
 		Error; err != nil {
 		return nil, err
 	}
@@ -61,6 +74,10 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 	)
 
 	if err := wg.Wait(); err != nil {
+		if errors.Is(err, errSevenTvProfileNotFound) {
+			return nil, twirp.NewError(twirp.NotFound, "profile_not_found")
+		}
+
 		return nil, err
 	}
 
@@ -77,11 +94,59 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 	}
 
 	return &integrations_seventv.GetDataResponse{
-		BotUsername:        botSevenTvResponse.User.Username,
-		BotUserDisplayName: botSevenTvResponse.User.DisplayName,
-		IsEditor:           isBotEditor,
+		IsEditor: isBotEditor,
+		BotSeventvProfile: &integrations_seventv.SevenTvProfile{
+			Id:          botSevenTvResponse.User.Id,
+			Username:    botSevenTvResponse.User.Username,
+			DisplayName: botSevenTvResponse.User.DisplayName,
+		},
+		UserSeventvProfile: &integrations_seventv.SevenTvProfile{
+			Id:          userSevenTvResponse.User.Id,
+			Username:    userSevenTvResponse.User.Username,
+			DisplayName: userSevenTvResponse.User.DisplayName,
+		},
+		RewardIdForAddEmote:    sevenTvSettings.RewardIdForAddEmote.Ptr(),
+		RewardIdForRemoveEmote: sevenTvSettings.RewardIdForRemoveEmote.Ptr(),
 	}, nil
 }
+
+func (c *Integrations) IntegrationsSevenTvUpdate(
+	ctx context.Context,
+	req *integrations_seventv.UpdateDataRequest,
+) (*emptypb.Empty, error) {
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var sevenTvSettings model.ChannelsIntegrationsSettingsSeventv
+	if err := c.Db.
+		WithContext(ctx).
+		Where("channel_id = ?", dashboardId).
+		Find(&sevenTvSettings).
+		Error; err != nil {
+		return nil, err
+	}
+
+	if sevenTvSettings.ID.String() == "" {
+		sevenTvSettings.ID = uuid.New()
+	}
+
+	sevenTvSettings.ChannelID = dashboardId
+	sevenTvSettings.RewardIdForAddEmote = null.StringFromPtr(req.RewardIdForAddEmote)
+	sevenTvSettings.RewardIdForRemoveEmote = null.StringFromPtr(req.RewardIdForRemoveEmote)
+
+	if err := c.Db.
+		WithContext(ctx).
+		Save(&sevenTvSettings).
+		Error; err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+var errSevenTvProfileNotFound = fmt.Errorf("7tv profile not found")
 
 func (c *Integrations) getSevenTvDataById(ctx context.Context, userId string) (
 	sevenTvResponse,
@@ -96,6 +161,9 @@ func (c *Integrations) getSevenTvDataById(ctx context.Context, userId string) (
 		return response, err
 	}
 	if !resp.IsSuccessState() {
+		if resp.StatusCode == 404 {
+			return response, errSevenTvProfileNotFound
+		}
 		return response, fmt.Errorf("failed to get 7tv data: %s", resp.String())
 	}
 
