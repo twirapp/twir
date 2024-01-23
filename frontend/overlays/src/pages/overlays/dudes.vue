@@ -92,9 +92,7 @@ function onMessage(chatMessage: ChatMessage) {
 		const [command, argument] = chatMessage.rawMessage.split(' ');
 		if (command === '!jump') {
 			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.jump();
-		}
-
-		if (command === '!color') {
+		} else if (command === '!color') {
 			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.tint(argument);
 		}
 	}
