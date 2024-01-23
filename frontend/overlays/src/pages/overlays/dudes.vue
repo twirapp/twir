@@ -76,12 +76,11 @@ function onMessage(chatMessage: ChatMessage) {
 	// 	return;
 	// }
 
-	const currentDude = dudesRef.value.getDude(chatMessage.senderDisplayName!);
-	if (currentDude) {
-		currentDude.addMessage(chatMessage.rawMessage!);
-		currentDude.tint(chatMessage.senderColor!);
+	let dude = dudesRef.value.getDude(chatMessage.senderDisplayName!);
+	if (dude) {
+		dude.addMessage(chatMessage.rawMessage!);
 	} else {
-		createNewDude(
+		dude = createNewDude(
 			chatMessage.senderDisplayName!,
 			chatMessage.rawMessage!,
 			chatMessage.senderColor!,
@@ -91,9 +90,9 @@ function onMessage(chatMessage: ChatMessage) {
 	if (chatMessage.rawMessage?.startsWith('!')) {
 		const [command, argument] = chatMessage.rawMessage.split(' ');
 		if (command === '!jump') {
-			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.jump();
-		} else if (command === '!color') {
-			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.tint(argument);
+			dude.jump();
+		} else if (command === '!color' && argument) {
+			dude.tint(argument);
 		}
 	}
 }
@@ -103,6 +102,7 @@ function createNewDude(sender: string, message: string, color: string) {
 	const dude = dudesRef.value!.createDude(sender, randomDudeSprite);
 	dude.tint(color);
 	setTimeout(() => dude.addMessage(message), 2000);
+	return dude;
 }
 
 const chatSettings = computed<ChatSettings>(() => {
