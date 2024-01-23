@@ -69,19 +69,6 @@ function onMessage(chatMessage: ChatMessage) {
 		return;
 	}
 
-	if (chatMessage.rawMessage?.startsWith('!')) {
-		const [command, argument] = chatMessage.rawMessage.split(' ');
-		if (command === '!jump') {
-			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.jump();
-		}
-
-		if (command === '!color') {
-			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.tint(argument);
-		}
-
-		return;
-	}
-
 	// if (
 	// 	settings.value.hideCommands &&
 	// 	chatMessage.chunks.at(0)?.value.startsWith('!')
@@ -99,6 +86,17 @@ function onMessage(chatMessage: ChatMessage) {
 			chatMessage.rawMessage!,
 			chatMessage.senderColor!,
 		);
+	}
+
+	if (chatMessage.rawMessage?.startsWith('!')) {
+		const [command, argument] = chatMessage.rawMessage.split(' ');
+		if (command === '!jump') {
+			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.jump();
+		}
+
+		if (command === '!color') {
+			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.tint(argument);
+		}
 	}
 }
 
