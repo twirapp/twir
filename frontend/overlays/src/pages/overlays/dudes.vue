@@ -1,16 +1,58 @@
 <script setup lang="ts">
 import DudesOverlay from '@twirapp/dudes';
-import type { DudesOverlayMethods } from '@twirapp/dudes/types';
+import type { DudesOverlayMethods, DudesSettings } from '@twirapp/dudes/types';
 import { storeToRefs } from 'pinia';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
-import { dudeAssets, dudeSprites } from '@/composables/dudes/dudes-config.js';
+import { dudesAssets, dudesSprites, type DudeSprite } from '@/composables/dudes/dudes-config.js';
 import { useChatTmi, type ChatSettings, type ChatMessage, knownBots } from '@/composables/tmi/use-chat-tmi.js';
 
-const dudesRef = ref<DudesOverlayMethods<string> | null>(null);
+const dudesSettings = reactive<DudesSettings>({
+  dude: {
+    color: '#969696',
+    maxLifeTime: 1000 * 60 * 5,
+    gravity: 500,
+    scale: 6,
+  },
+  messageBox: {
+    borderRadius: 10,
+    boxColor: '#000000',
+    fontFamily: 'Courier New',
+    fontSize: 20,
+    padding: 10,
+    showTime: 5 * 1000,
+    fill: '#ffffff',
+  },
+  nameBox: {
+    fontFamily: 'Arial',
+    fontSize: 20,
+    fill: '#ffffff',
+    lineJoin: 'round',
+    strokeThickness: 4,
+    stroke: '#000000',
+    fillGradientStops: [0],
+    fillGradientType: 0,
+    fontStyle: 'normal',
+    fontVariant: 'normal',
+    fontWeight: 'normal',
+    dropShadow: false,
+    dropShadowAlpha: 1,
+    dropShadowAngle: 0,
+    dropShadowBlur: 0.1,
+    dropShadowDistance: 10,
+    dropShadowColor: '#3ac7d9',
+  },
+});
+
+const dudesRef = ref<DudesOverlayMethods<DudeSprite> | null>(null);
+
+watch(dudesSettings, (settings) => {
+  if (!dudesRef.value) return;
+  dudesRef.value.updateSettings(settings);
+});
 
 const route = useRoute();
 const chatSocketStore = useChatOverlaySocket();
@@ -27,12 +69,25 @@ function onMessage(chatMessage: ChatMessage) {
 		return;
 	}
 
-	if (
-		settings.value.hideCommands &&
-		chatMessage.chunks.at(0)?.value.startsWith('!')
-	) {
+	if (chatMessage.rawMessage?.startsWith('!')) {
+		const [command, argument] = chatMessage.rawMessage.split(' ');
+		if (command === '!jump') {
+			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.jump();
+		}
+
+		if (command === '!color') {
+			dudesRef.value.getDude(chatMessage.senderDisplayName!)?.tint(argument);
+		}
+
 		return;
 	}
+
+	// if (
+	// 	settings.value.hideCommands &&
+	// 	chatMessage.chunks.at(0)?.value.startsWith('!')
+	// ) {
+	// 	return;
+	// }
 
 	const currentDude = dudesRef.value.getDude(chatMessage.senderDisplayName!);
 	if (currentDude) {
@@ -48,7 +103,7 @@ function onMessage(chatMessage: ChatMessage) {
 }
 
 function createNewDude(sender: string, message: string, color: string) {
-	const randomDudeSprite = dudeSprites[Math.floor(Math.random() * dudeSprites.length - 1)];
+	const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length - 1)];
 	const dude = dudesRef.value!.createDude(sender, randomDudeSprite);
 	dude.tint(color);
 	setTimeout(() => dude.addMessage(message), 2000);
@@ -66,7 +121,7 @@ useChatTmi(chatSettings);
 
 onMounted(async () => {
   if (!dudesRef.value) return;
-  await dudesRef.value.initDudes(dudeAssets);
+  await dudesRef.value.initDudes();
 
 	const apiKey = route.params.apiKey as string;
 	chatSocketStore.connect(apiKey);
@@ -74,7 +129,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<dudes-overlay ref="dudesRef" />
+	<dudes-overlay ref="dudesRef" :assets="dudesAssets" :settings="dudesSettings" />
 </template>
 
 <style>

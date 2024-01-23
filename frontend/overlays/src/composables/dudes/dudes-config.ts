@@ -1,6 +1,6 @@
 import type { DudeAsset } from '@twirapp/dudes/types';
 
-export const dudeSprites = [
+export const dudesSprites = [
   'dude',
   'sith',
   'agent',
@@ -9,9 +9,11 @@ export const dudeSprites = [
   'santa',
 ] as const;
 
+export type DudeSprite = typeof dudesSprites[number];
+
 const dudesPath = window.location.origin + '/overlays/';
 
-export const dudeAssets: DudeAsset[] = [
+export const dudesAssets: DudeAsset[] = [
   {
     alias: 'dude',
     src: dudesPath + 'dudes/dude/dude.json',
