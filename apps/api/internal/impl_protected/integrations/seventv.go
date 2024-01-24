@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/imroc/req/v3"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_seventv"
+	"github.com/twirapp/twir/libs/integrations/seventv"
 	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -28,7 +28,7 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 	var defaultBot model.Bots
 	if err := c.Db.
 		WithContext(ctx).
-		Where("id = ? AND type = ?", dashboardId, "DEFAULT").
+		Where(`type = ?`, "DEFAULT").
 		First(&defaultBot).
 		Error; err != nil {
 		return nil, err
@@ -43,13 +43,13 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 		return nil, err
 	}
 
-	var botSevenTvResponse sevenTvResponse
-	var userSevenTvResponse sevenTvResponse
+	var botSevenTvResponse seventv.SevenTvProfileResponse
+	var userSevenTvResponse seventv.SevenTvProfileResponse
 
 	wg, wgCtx := errgroup.WithContext(ctx)
 	wg.Go(
 		func() error {
-			resp, err := c.getSevenTvDataById(wgCtx, defaultBot.ID)
+			resp, err := seventv.GetProfile(wgCtx, defaultBot.ID)
 			if err != nil {
 				c.Logger.Error("failed to get 7tv bot data", "err", err)
 				return err
@@ -62,7 +62,7 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 
 	wg.Go(
 		func() error {
-			resp, err := c.getSevenTvDataById(wgCtx, dashboardId)
+			resp, err := seventv.GetProfile(wgCtx, dashboardId)
 			if err != nil {
 				c.Logger.Error("failed to get 7tv channel data", "err", err)
 				return err
@@ -86,14 +86,14 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 		isBotEditor = true
 	} else {
 		for _, editor := range userSevenTvResponse.User.Editors {
-			if editor.Id == defaultBot.ID {
+			if editor.Id == botSevenTvResponse.User.Id {
 				isBotEditor = true
 				break
 			}
 		}
 	}
 
-	return &integrations_seventv.GetDataResponse{
+	resp := &integrations_seventv.GetDataResponse{
 		IsEditor: isBotEditor,
 		BotSeventvProfile: &integrations_seventv.SevenTvProfile{
 			Id:          botSevenTvResponse.User.Id,
@@ -107,7 +107,13 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 		},
 		RewardIdForAddEmote:    sevenTvSettings.RewardIdForAddEmote.Ptr(),
 		RewardIdForRemoveEmote: sevenTvSettings.RewardIdForRemoveEmote.Ptr(),
-	}, nil
+	}
+
+	if userSevenTvResponse.EmoteSet != nil {
+		resp.EmoteSetId = &userSevenTvResponse.EmoteSet.Id
+	}
+
+	return resp, nil
 }
 
 func (c *Integrations) IntegrationsSevenTvUpdate(
@@ -147,72 +153,3 @@ func (c *Integrations) IntegrationsSevenTvUpdate(
 }
 
 var errSevenTvProfileNotFound = fmt.Errorf("7tv profile not found")
-
-func (c *Integrations) getSevenTvDataById(ctx context.Context, userId string) (
-	sevenTvResponse,
-	error,
-) {
-	var response sevenTvResponse
-	resp, err := req.
-		SetContext(ctx).
-		SetSuccessResult(&response).
-		Get("https://7tv.io/v3/users/twitch/" + userId)
-	if err != nil {
-		return response, err
-	}
-	if !resp.IsSuccessState() {
-		if resp.StatusCode == 404 {
-			return response, errSevenTvProfileNotFound
-		}
-		return response, fmt.Errorf("failed to get 7tv data: %s", resp.String())
-	}
-
-	return response, nil
-}
-
-type sevenTvResponse struct {
-	Id            string      `json:"id"`
-	Platform      string      `json:"platform"`
-	Username      string      `json:"username"`
-	DisplayName   string      `json:"display_name"`
-	LinkedAt      int64       `json:"linked_at"`
-	EmoteCapacity int         `json:"emote_capacity"`
-	EmoteSetId    interface{} `json:"emote_set_id"`
-	EmoteSet      struct {
-	} `json:"emote_set"`
-	User struct {
-		Id          string `json:"id"`
-		Username    string `json:"username"`
-		DisplayName string `json:"display_name"`
-		CreatedAt   int64  `json:"created_at"`
-		AvatarUrl   string `json:"avatar_url"`
-		Style       struct {
-		} `json:"style"`
-		Editors []struct {
-			Id          string `json:"id"`
-			Permissions int    `json:"permissions"`
-			Visible     bool   `json:"visible"`
-			AddedAt     int64  `json:"added_at"`
-		} `json:"editors"`
-		Roles       []string `json:"roles"`
-		Connections []struct {
-			Id            string      `json:"id"`
-			Platform      string      `json:"platform"`
-			Username      string      `json:"username"`
-			DisplayName   string      `json:"display_name"`
-			LinkedAt      int64       `json:"linked_at"`
-			EmoteCapacity int         `json:"emote_capacity"`
-			EmoteSetId    interface{} `json:"emote_set_id"`
-			EmoteSet      struct {
-				Id         string        `json:"id"`
-				Name       string        `json:"name"`
-				Flags      int           `json:"flags"`
-				Tags       []interface{} `json:"tags"`
-				Immutable  bool          `json:"immutable"`
-				Privileged bool          `json:"privileged"`
-				Capacity   int           `json:"capacity"`
-				Owner      interface{}   `json:"owner"`
-			} `json:"emote_set"`
-		} `json:"connections"`
-	} `json:"user"`
-}

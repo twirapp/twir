@@ -247,6 +247,23 @@ export const OPERATIONS: Record<string, Operation> = {
 		},
 	},
 
+	SEVENTV: {
+		name: '7tv',
+		type: 'group',
+		childrens: {
+			SEVENTV_ADD_EMOTE: {
+				name: 'Add emote',
+				haveInput: true,
+				color: 'success',
+			},
+			SEVENTV_REMOVE_EMOTE: {
+				name: 'Remove emote',
+				haveInput: true,
+				color: 'error',
+			},
+		},
+	},
+
 	TTS: {
 		name: 'Text to speech (TTS)',
 		type: 'group',

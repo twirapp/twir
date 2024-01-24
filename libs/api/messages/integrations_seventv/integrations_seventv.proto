@@ -14,6 +14,7 @@ message GetDataResponse {
 	SevenTvProfile user_seventv_profile = 3;
 	optional string reward_id_for_add_emote = 4;
 	optional string reward_id_for_remove_emote = 5;
+	optional string emote_set_id = 6;
 }
 
 message UpdateDataRequest {

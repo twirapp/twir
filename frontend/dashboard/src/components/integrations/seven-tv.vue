@@ -59,27 +59,25 @@ async function saveSettings() {
 		</template>
 
 		<template #settings>
-			<template v-if="isNotRegistered">
-				<n-alert type="error">
+			<template v-if="isNotRegistered || !sevenTvData?.emoteSetId">
+				<n-alert v-if="isNotRegistered" type="error">
 					<i18n-t keypath="integrations.sevenTv.notRegistered">
-						<n-a href="https://7tv.io" target="_blank">
+						<n-a href="https://7tv.app" target="_blank">
 							7tv.app
 						</n-a>
 					</i18n-t>
+				</n-alert>
+				<n-alert v-else type="error">
+					Emote set not created on 7tv, please create at least one set on
+					<n-a :href="sevenTvProfileLink" target="_blank">
+						7tv
+					</n-a>
 				</n-alert>
 			</template>
 
 			<template v-else>
 				<n-spin :show="!sevenTvData?.isEditor">
 					<n-form>
-						<n-alert type="info" style="margin-bottom: 10px;">
-							<i18n-t keypath="integrations.sevenTv.alert">
-								<n-a @click="goToEvents">
-									{{ t('sidebar.events').toLocaleLowerCase() }}
-								</n-a>
-							</i18n-t>
-						</n-alert>
-
 						<n-form-item :label="t('integrations.sevenTv.rewardForAddEmote')">
 							<n-space vertical>
 								<rewards-selector v-model="form.rewardIdForAddEmote" clearable />
@@ -98,6 +96,13 @@ async function saveSettings() {
 							</n-space>
 						</n-form-item>
 					</n-form>
+					<n-alert type="info" style="margin-bottom: 10px;">
+						<i18n-t keypath="integrations.sevenTv.alert">
+							<n-a @click="goToEvents">
+								{{ t('sidebar.events').toLocaleLowerCase() }}
+							</n-a>
+						</i18n-t>
+					</n-alert>
 
 					<template #description>
 						<n-timeline>

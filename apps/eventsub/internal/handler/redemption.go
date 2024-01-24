@@ -277,26 +277,3 @@ func (c *Handler) handleAlerts(event *eventsub_bindings.EventChannelPointsReward
 		zap.S().Error(err)
 	}
 }
-
-func (c *Handler) handleRewardsSevenTvEmote(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
-	if c.services.Config.SevenTvToken == "" || event.UserInput == "" {
-		return
-	}
-
-	settings := &model.ChannelsIntegrationsSettingsSeventv{}
-	err := c.services.Gorm.
-		Where(`"channelId" = ?`, event.BroadcasterUserID).
-		Find(settings).
-		Error
-	if err != nil {
-		zap.S().Error(err)
-		return
-	}
-
-	// not found
-	if settings.ID.String() == "" {
-		return
-	}
-
-	// TODO: add and remove emotes there
-}
