@@ -139,8 +139,8 @@ func (c *Integrations) IntegrationsSevenTvUpdate(
 	}
 
 	sevenTvSettings.ChannelID = dashboardId
-	sevenTvSettings.RewardIdForAddEmote = null.StringFromPtr(req.RewardIdForAddEmote)
-	sevenTvSettings.RewardIdForRemoveEmote = null.StringFromPtr(req.RewardIdForRemoveEmote)
+	sevenTvSettings.RewardIdForAddEmote = null.StringFrom(req.GetRewardIdForAddEmote())
+	sevenTvSettings.RewardIdForRemoveEmote = null.StringFrom(req.GetRewardIdForRemoveEmote())
 
 	if err := c.Db.
 		WithContext(ctx).
