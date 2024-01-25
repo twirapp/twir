@@ -16,8 +16,14 @@ const { data, isLoading, isError } = useUserProfile();
 			<Skeleton class="h-4 w-[200px]" />
 		</div>
 	</div>
-	<!--	neogate data for testing login button-->
-	<div v-else-if="!isError && !data" class="flex items-center gap-2">
+	<!--	use !data for test login button -->
+	<div v-else-if="!isError && data" class="flex items-center gap-2">
+		<div class="flex flex-col">
+			<small class="text-xs font-medium leading-none text-muted-foreground">
+				Logged as
+			</small>
+			<span>{{ data.displayName }}</span>
+		</div>
 		<Avatar>
 			<AvatarImage :src="data?.avatar" alt="streamer-profile-image" />
 			<AvatarFallback>{{ data?.login.slice(0, 2) }}</AvatarFallback>
