@@ -62,7 +62,7 @@ const permissionsIconsMapping: Record<string, FunctionalComponent> = {
 			</div>
 		</TableCell>
 		<TableCell>
-			<div class="flex items-center">
+			<div class="flex items-center justify-center">
 				<Tooltip
 					v-for="(permission, permissionIndex) of command.permissions"
 					:key="permissionIndex"
