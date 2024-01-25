@@ -11,7 +11,7 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	plugins: [
 		vue(),
-		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
+		svgSprite(['./src/assets/icons/*/*.svg']),
 	],
 	clearScreen: false,
 	base: '/p',

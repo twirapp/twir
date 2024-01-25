@@ -25,8 +25,12 @@ const { data, isLoading, isError } = useUserProfile();
 	</div>
 	<div v-else>
 		<Button variant="secondary">
-			<TwitchIcon class="w-5 h-5 fill-white" />
-			Login
+			<div class="flex items-center gap-2">
+				<span>
+					Login
+				</span>
+				<TwitchIcon class="w-4 h-4 fill-white" />
+			</div>
 		</Button>
 	</div>
 </template>
