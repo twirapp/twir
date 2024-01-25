@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/vue-query';
 import type { TwitchGetUsersResponse } from '@twir/api/messages/twitch/twitch';
 import { unref, type MaybeRef } from 'vue';
 
-import { unprotectedClient } from './twirp.js';
+import { unprotectedClient } from '@/api/twirp.js';
 
 export const useTwitchGetUsers = (usersIds: MaybeRef<string[]>) => useQuery({
 	queryKey: ['twitchGetUsersByIds', usersIds],

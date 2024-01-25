@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query';
 import { type MaybeRef, unref } from 'vue';
 
-import { unprotectedClient } from './twirp.js';
+import { unprotectedClient } from '@/api/twirp.js';
 
 export const useCommands = (channelId?: MaybeRef<string | null>) => {
 	return useQuery({

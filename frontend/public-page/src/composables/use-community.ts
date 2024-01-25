@@ -5,7 +5,7 @@ import {
 } from '@twir/api/messages/community/community';
 import { type ComputedRef, type Ref, unref } from 'vue';
 
-import { unprotectedClient } from './twirp.js';
+import { unprotectedClient } from '@/api/twirp.js';
 
 const sortBy = {
 	'watched': GetUsersRequest_SortBy.Watched,
@@ -32,7 +32,7 @@ export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | Computed
 			if (!rawOpts.channelId) return;
 			console.log(rawOpts);
 
-			const order = rawOpts.desc ? GetUsersRequest_Order.Desc: GetUsersRequest_Order.Asc;
+			const order = rawOpts.desc ? GetUsersRequest_Order.Desc : GetUsersRequest_Order.Asc;
 			const call = await unprotectedClient.communityGetUsers({
 				limit: rawOpts.limit,
 				page: rawOpts.page,

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query';
 import { unref, type MaybeRef } from 'vue';
 
-import { unprotectedClient } from './twirp.js';
+import { unprotectedClient } from '@/api/twirp.js';
 
 export const useSongsQueue = (channelId: MaybeRef<string | null>) => useQuery({
 	queryKey: ['songsQueue', channelId],

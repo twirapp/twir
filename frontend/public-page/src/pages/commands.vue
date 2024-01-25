@@ -3,7 +3,6 @@
 
 import { storeToRefs } from 'pinia';
 
-import { useCommands } from '@/api/commands';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
@@ -12,6 +11,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { useCommands } from '@/composables/use-commands';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
 import TableRowsCommands from '@/pages/commands/TableRowsCommands.vue';
 

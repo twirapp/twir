@@ -4,7 +4,6 @@ import { storeToRefs } from 'pinia';
 
 import { convertMillisToTime } from '../helpers';
 
-import { useSongsQueue } from '@/api/song-requests.js';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
@@ -14,6 +13,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { useSongsQueue } from '@/composables/use-song-requests';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
 const { profile } = storeToRefs(useStreamerProfile());

@@ -2,8 +2,6 @@
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
-import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/tts-settings.js';
-import { useTwitchGetUsers } from '@/api/users.js';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
@@ -13,6 +11,8 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import { useTTSChannelSettings, useTTSUsersSettings } from '@/composables/use-tts-settings';
+import { useTwitchGetUsers } from '@/composables/use-twitch-users';
 import UserRow from '@/pages/tts/user-row.vue';
 
 const { profile } = storeToRefs(useStreamerProfile());
