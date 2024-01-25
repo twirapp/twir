@@ -24,13 +24,13 @@ defineProps<{
 				{{ name }}
 			</a>
 		</TableCell>
-		<TableCell>
+		<TableCell class="text-center">
 			{{ voice }}
 		</TableCell>
-		<TableCell>
+		<TableCell class="text-center">
 			{{ rate }}
 		</TableCell>
-		<TableCell class="text-right">
+		<TableCell class="text-center">
 			{{ pitch }}
 		</TableCell>
 	</TableRow>
