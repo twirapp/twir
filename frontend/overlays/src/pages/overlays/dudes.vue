@@ -2,12 +2,11 @@
 import DudesOverlay from '@twirapp/dudes';
 import type { DudesOverlayMethods, DudesSettings } from '@twirapp/dudes/types';
 import { storeToRefs } from 'pinia';
-import { onMounted, reactive, ref, watch } from 'vue';
-import { computed } from 'vue';
+import { onMounted, reactive, ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
-import { dudesAssets, dudesSprites, dudesSounds } from '@/composables/dudes/dudes-config.js';
+import { dudesAssets, dudesSprites, dudesSounds, type DudeSprite } from '@/composables/dudes/dudes-config.js';
 import { useChatTmi, type ChatSettings, type ChatMessage, knownBots } from '@/composables/tmi/use-chat-tmi.js';
 
 const dudesSettings = reactive<DudesSettings>({
@@ -80,30 +79,39 @@ function onMessage(chatMessage: ChatMessage) {
 	// 	return;
 	// }
 
-	let dude = dudesRef.value.getDude(chatMessage.senderDisplayName!);
+	const dudeName = chatMessage.senderDisplayName!;
+	let dude = dudesRef.value.getDude(dudeName);
 	if (dude) {
 		dude.addMessage(chatMessage.rawMessage!);
 	} else {
 		dude = createNewDude(
-			chatMessage.senderDisplayName!,
+			dudeName,
 			chatMessage.rawMessage!,
 			chatMessage.senderColor!,
 		);
 	}
 
-	if (chatMessage.rawMessage?.startsWith('!')) {
+	if (chatMessage.rawMessage?.startsWith('!') && dude) {
 		const [command, argument] = chatMessage.rawMessage.split(' ');
 		if (command === '!jump') {
 			dude.jump();
 		} else if (command === '!color' && argument) {
 			dude.tint(argument);
+		} else if (command === '!sprite' && argument) {
+			if (!dudesSprites.includes(argument as DudeSprite)) return;
+			dudesRef.value.createDude(dudeName, argument, {
+				dude: {
+					color: dude.color,
+				},
+			});
 		}
 	}
 }
 
 function createNewDude(sender: string, message: string, color: string) {
+	if (!dudesRef.value) return;
 	const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length - 1)];
-	const dude = dudesRef.value!.createDude(sender, randomDudeSprite);
+	const dude = dudesRef.value.createDude(sender, randomDudeSprite);
 	dude.tint(color);
 	setTimeout(() => dude.addMessage(message), 2000);
 	return dude;
