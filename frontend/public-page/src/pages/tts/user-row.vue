@@ -20,7 +20,9 @@ defineProps<{
 			</Avatar>
 		</TableCell>
 		<TableCell>
-			{{ name }}
+			<a :href="`https://twitch.tv/${name}`" target="_blank" class="hover:underline">
+				{{ name }}
+			</a>
 		</TableCell>
 		<TableCell>
 			{{ voice }}

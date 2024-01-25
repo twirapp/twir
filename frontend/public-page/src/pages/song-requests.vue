@@ -54,7 +54,13 @@ const { data: queue, isLoading } = useSongsQueue(profile.value!.id);
 							</a>
 						</TableCell>
 						<TableCell>
-							{{ song.requestedBy }}
+							<a
+								:href="`https://twitch.tv/${song.requestedBy}`"
+								target="_blank"
+								class="hover:underline"
+							>
+								{{ song.requestedBy }}
+							</a>
 						</TableCell>
 						<TableCell>
 							<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(Number(song.createdAt))">
