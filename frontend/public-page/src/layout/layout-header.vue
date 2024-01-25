@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import LayoutHeaderMenu from './layout-header-menu.vue';
-import LayoutHeaderStreamerProfile from './layout-header-streamer-profile.vue';
+import LayoutHeaderStreamerProfile from './layout-streamer-profile.vue';
 
-import LayoutHeaderUserProfile from '@/layout/layout-header-user-profile.vue';
+import LayoutHeaderUserProfile from '@/layout/layout-sidebar-user-profile.vue';
 </script>
 
 <template>
