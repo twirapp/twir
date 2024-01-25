@@ -16,8 +16,8 @@ func (c *Handler) handleRewardsSevenTvEmote(event *eventsub_bindings.EventChanne
 
 	settings := &model.ChannelsIntegrationsSettingsSeventv{}
 	err := c.services.Gorm.
-		Where(`"channelId" = ?`, event.BroadcasterUserID).
-		Find(settings).
+		Where(`"channel_id" = ?`, event.BroadcasterUserID).
+		First(settings).
 		Error
 	if err != nil {
 		zap.S().Error(err)
