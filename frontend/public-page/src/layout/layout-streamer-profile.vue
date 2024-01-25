@@ -38,9 +38,9 @@ watch(profile, (v) => {
 					<AvatarFallback>{{ profile.login.slice(0, 2) }}</AvatarFallback>
 				</Avatar>
 				<div class="flex flex-col gap-4">
-					<a class="text-4xl" target="_blank" :href="`https://twitch.tv/${profile.login}`">
+					<span class="text-4xl">
 						{{ profile.displayName }}
-					</a>
+					</span>
 					<span class="text-sm">
 						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
 					</span>
