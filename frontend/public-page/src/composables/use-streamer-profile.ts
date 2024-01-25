@@ -1,20 +1,21 @@
-import { useQuery } from '@tanstack/vue-query';
 import type { GetPublicUserInfoResponse } from '@twir/api/messages/auth/auth';
 import type { TwitchUser } from '@twir/api/messages/twitch/twitch';
-import { type Ref, unref } from 'vue';
+import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
-import { unprotectedClient } from './twirp.js';
+import { unprotectedClient } from '@/api/twirp';
 
-type User = TwitchUser & GetPublicUserInfoResponse;
+export type StreamerProfile = TwitchUser & GetPublicUserInfoResponse;
 
-export const useProfile = (userName: string | Ref<string>) => useQuery<User | undefined>({
-	queryKey: ['profile', userName],
-	queryFn: async () => {
-		const name = unref(userName);
-		if (!name) return;
+export const useStreamerProfile = defineStore('streamerProfile', () => {
+	const profile = ref<StreamerProfile | null>();
+	const isLoading = ref(true);
+
+	async function fetchProfile(streamerName: string) {
+		if (profile.value) return;
 
 		const twitchUserCall = await unprotectedClient.twitchGetUsers({
-			names: [name],
+			names: [streamerName],
 			ids: [],
 		});
 
@@ -28,9 +29,16 @@ export const useProfile = (userName: string | Ref<string>) => useQuery<User | un
 		const internalUser = internalUserCall.response;
 		if (!internalUser) return;
 
-		return {
+		profile.value = {
 			...twitchUser,
 			...internalUser,
 		};
-	},
+		isLoading.value = true;
+	}
+
+	return {
+		profile,
+		fetchProfile,
+		isLoading,
+	};
 });

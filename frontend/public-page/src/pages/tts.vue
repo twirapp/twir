@@ -1,0 +1,99 @@
+<script setup lang="ts">
+import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
+
+import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/tts-settings.js';
+import { useTwitchGetUsers } from '@/api/users.js';
+import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
+import {
+	Table,
+	TableBody,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import UserRow from '@/pages/tts/user-row.vue';
+
+const { profile } = storeToRefs(useStreamerProfile());
+
+const {
+	data: channelSettings,
+	isLoading: isChannelSettingsLoading,
+} = useTTSChannelSettings(profile.value!.id);
+const {
+	data: usersSettings,
+	isLoading: isUsersSettingsLoading,
+} = useTTSUsersSettings(profile.value!.id);
+
+const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? []);
+const { data: users, isLoading: isTwitchUsersLoading } = useTwitchGetUsers(usersIds);
+
+const isLoading = computed(() => {
+	return isChannelSettingsLoading.value || isUsersSettingsLoading.value || isTwitchUsersLoading.value;
+});
+
+const usersWithProfiles = computed(() => {
+	if (!users.value?.users) return [];
+
+	return users.value.users.map(u => {
+		const settings = usersSettings.value?.settings.find(s => s.userId === u.id);
+		if (!settings) return;
+
+		return {
+			name: u.displayName,
+			avatar: u.profileImageUrl,
+			...settings,
+		};
+	}).filter(Boolean);
+});
+</script>
+
+<template>
+	<div class="rounded-md border">
+		<Table>
+			<TableHeader>
+				<TableRow>
+					<TableHead class="w-[50px]"></TableHead>
+					<TableHead class="w-full">
+						User
+					</TableHead>
+					<TableHead class="w-[100px]">
+						Voice
+					</TableHead>
+					<TableHead class="w-[50px]">
+						Rate
+					</TableHead>
+					<TableHead class="text-right w-[50px]">
+						Pitch
+					</TableHead>
+				</TableRow>
+			</TableHeader>
+			<Transition name="table-rows" appear mode="out-in">
+				<TableBody v-if="isLoading">
+					<table-rows-skeleton :rows="20" />
+				</TableBody>
+				<TableBody v-else>
+					<user-row
+						v-if="channelSettings"
+						:name="profile?.displayName"
+						:avatar="profile?.profileImageUrl"
+						:pitch="channelSettings.pitch"
+						:rate="channelSettings.rate"
+						:voice="channelSettings.voice"
+					/>
+
+					<user-row
+						v-for="(user) of usersWithProfiles"
+						:key="user?.userId"
+						:name="user?.name"
+						:avatar="user?.avatar"
+						:pitch="user?.pitch"
+						:rate="user?.rate"
+						:voice="user?.voice"
+					/>
+				</TableBody>
+			</Transition>
+		</Table>
+	</div>
+</template>
