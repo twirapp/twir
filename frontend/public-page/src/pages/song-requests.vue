@@ -27,13 +27,13 @@ const { data: queue, isLoading } = useSongsQueue(profile.value!.id);
 			<TableHeader>
 				<TableRow>
 					<TableHead class="w-[10px]"></TableHead>
-					<TableHead class="w-full">
+					<TableHead class="w-full min-w-[500px]">
 						Name
 					</TableHead>
-					<TableHead class="w-[100px]">
+					<TableHead class="w-[150px] min-w-[150px]">
 						Requested by
 					</TableHead>
-					<TableHead class="w-[200px]"></TableHead>
+					<TableHead class="w-[150px] min-w-[150px]"></TableHead>
 					<TableHead class="text-right w-[50px]">
 						Duration
 					</TableHead>
