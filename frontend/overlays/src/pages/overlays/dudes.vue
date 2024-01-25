@@ -7,7 +7,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
-import { dudesAssets, dudesSprites, type DudeSprite } from '@/composables/dudes/dudes-config.js';
+import { dudesAssets, dudesSprites, dudesSounds } from '@/composables/dudes/dudes-config.js';
 import { useChatTmi, type ChatSettings, type ChatMessage, knownBots } from '@/composables/tmi/use-chat-tmi.js';
 
 const dudesSettings = reactive<DudesSettings>({
@@ -16,6 +16,10 @@ const dudesSettings = reactive<DudesSettings>({
     maxLifeTime: 1000 * 60 * 5,
     gravity: 500,
     scale: 6,
+		sounds: {
+			enabled: true,
+			volume: 0.01,
+		},
   },
   messageBox: {
     borderRadius: 10,
@@ -47,7 +51,7 @@ const dudesSettings = reactive<DudesSettings>({
   },
 });
 
-const dudesRef = ref<DudesOverlayMethods<DudeSprite> | null>(null);
+const dudesRef = ref<DudesOverlayMethods | null>(null);
 
 watch(dudesSettings, (settings) => {
   if (!dudesRef.value) return;
@@ -125,7 +129,12 @@ onMounted(async () => {
 </script>
 
 <template>
-	<dudes-overlay ref="dudesRef" :assets="dudesAssets" :settings="dudesSettings" />
+	<dudes-overlay
+		ref="dudesRef"
+		:assets="dudesAssets"
+		:sounds="dudesSounds"
+		:settings="dudesSettings"
+	/>
 </template>
 
 <style>

@@ -1,4 +1,4 @@
-import type { DudeAsset } from '@twirapp/dudes/types';
+import type { SoundAsset, DudeAsset } from '@twirapp/dudes/types';
 
 export const dudesSprites = [
   'dude',
@@ -11,31 +11,38 @@ export const dudesSprites = [
 
 export type DudeSprite = typeof dudesSprites[number];
 
-const dudesPath = window.location.origin + '/overlays/';
+const dudesAssetsPath = window.location.origin + '/overlays/dudes/';
 
 export const dudesAssets: DudeAsset[] = [
   {
     alias: 'dude',
-    src: dudesPath + 'dudes/dude/dude.json',
+    src: dudesAssetsPath + 'sprites/dude/dude.json',
   },
   {
     alias: 'sith',
-    src: dudesPath + './dudes/sith/sith.json',
+    src: dudesAssetsPath + 'sprites/sith/sith.json',
   },
   {
     alias: 'agent',
-    src: dudesPath + './dudes/agent/agent.json',
+    src: dudesAssetsPath + 'sprites/agent/agent.json',
   },
   {
     alias: 'girl',
-    src: dudesPath + './dudes/girl/girl.json',
+    src: dudesAssetsPath + 'sprites/girl/girl.json',
   },
   {
     alias: 'cat',
-    src: dudesPath + './dudes/cat/cat.json',
+    src: dudesAssetsPath + 'sprites/cat/cat.json',
   },
   {
     alias: 'santa',
-    src: dudesPath + './dudes/santa/santa.json',
+    src: dudesAssetsPath + 'sprites/santa/santa.json',
   },
+];
+
+export const dudesSounds: SoundAsset[] = [
+	{
+		alias: 'jump',
+		src: dudesAssetsPath + 'sounds/jump.mp3',
+	},
 ];
