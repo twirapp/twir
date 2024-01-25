@@ -75,11 +75,18 @@ const permissionsIconsMapping: Record<string, FunctionalComponent> = {
 			</Tooltip>
 		</TableCell>
 		<TableCell class="text-right">
-			<div class="flex items-center justify-end gap-0.5">
-				<span>{{ command.cooldown }}</span>
-				<IconWorld v-if="command.cooldownType === 'GLOBAL'" :class="$style.cooldownIcon" />
-				<IconUser v-else :class="$style.cooldownIcon" />
-			</div>
+			<Tooltip>
+				<TooltipTrigger>
+					<div class="flex items-center justify-end gap-0.5">
+						<span>{{ command.cooldown }}</span>
+						<IconWorld v-if="command.cooldownType === 'GLOBAL'" :class="$style.cooldownIcon" />
+						<IconUser v-else :class="$style.cooldownIcon" />
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					{{ command.cooldownType }}
+				</TooltipContent>
+			</Tooltip>
 		</TableCell>
 	</TableRow>
 </template>
