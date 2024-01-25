@@ -70,8 +70,8 @@ const usersWithProfiles = computed(() => {
 				</TableRow>
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
-				<TableBody v-if="isLoading">
-					<table-rows-skeleton :rows="20" />
+				<TableBody v-if="!isLoading">
+					<table-rows-skeleton :rows="20" :colspan="5" />
 				</TableBody>
 				<TableBody v-else>
 					<user-row

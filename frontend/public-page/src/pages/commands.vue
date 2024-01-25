@@ -39,7 +39,7 @@ const { data: commands, isLoading: isCommandsLoading } = useCommands(profile.val
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
 				<TableBody v-if="isCommandsLoading || !commands?.commands">
-					<table-rows-skeleton :rows="20" />
+					<table-rows-skeleton :rows="20" :colspan="4" />
 				</TableBody>
 				<TableBody v-else>
 					<table-rows-commands :commands="commands.commands" />
