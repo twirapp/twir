@@ -1,30 +1,37 @@
 import { useQuery } from '@tanstack/vue-query';
-import { unref, type MaybeRef } from 'vue';
+import { computed } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
-export const useTTSChannelSettings = (channelId: MaybeRef<string>) => useQuery({
-	queryKey: ['channelTTSSettings', channelId],
-	queryFn: async () => {
-		const id = unref(channelId) as string;
-		if (!id) return;
-		const call = await unprotectedClient.getTTSChannelSettings({
-			channelId: id,
-		});
+export const useTTSChannelSettings = () => {
+	const { data: profile } = useStreamerProfile();
 
-		return call.response;
-	},
-});
+	return useQuery({
+		queryKey: ['channelTTSSettings', profile.value?.id],
+		queryFn: async () => {
+			const call = await unprotectedClient.getTTSChannelSettings({
+				channelId: profile.value!.id,
+			});
 
-export const useTTSUsersSettings = (channelId: MaybeRef<string>) => useQuery({
-	queryKey: ['usersTTSSettings', channelId],
-	queryFn: async () => {
-		const id = unref(channelId) as string;
-		if (!id) return;
-		const call = await unprotectedClient.getTTSUsersSettings({
-			channelId: id,
-		});
+			return call.response;
+		},
+		enabled: computed(() => !!profile.value),
+	});
+};
 
-		return call.response;
-	},
-});
+export const useTTSUsersSettings = () => {
+	const { data: profile } = useStreamerProfile();
+
+	return useQuery({
+		queryKey: ['usersTTSSettings', profile.value?.id],
+		queryFn: async () => {
+			const call = await unprotectedClient.getTTSUsersSettings({
+				channelId: profile.value!.id,
+			});
+
+			return call.response;
+		},
+		enabled: computed(() => !!profile.value),
+	});
+};

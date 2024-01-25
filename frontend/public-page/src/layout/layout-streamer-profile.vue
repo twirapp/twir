@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { watch } from 'vue';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -10,8 +9,7 @@ const emits = defineEmits<{
 	updateChannelId: [channelId: string]
 }>();
 
-const profileStore = useStreamerProfile();
-const { profile, isLoading } = storeToRefs(profileStore);
+const { data: profile, isLoading } = useStreamerProfile();
 
 watch(profile, (v) => {
 	if (!v) return;

@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/vue-query';
-import { type MaybeRef, unref } from 'vue';
+import { computed, unref } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
-export const useCommands = (channelId?: MaybeRef<string | null>) => {
+export const useCommands = () => {
+	const { data: profile } = useStreamerProfile();
+
 	return useQuery({
-		queryKey: ['commands', channelId],
+		queryKey: ['commands', profile.value?.id],
 		queryFn: async () => {
-			const id = unref(channelId) as string;
+			const id = unref(profile.value!.id) as string;
 			if (!id) return { commands: [] };
 
 			const call = await unprotectedClient.getChannelCommands({
@@ -16,5 +19,6 @@ export const useCommands = (channelId?: MaybeRef<string | null>) => {
 
 			return call.response;
 		},
+		enabled: computed(() => !!profile.value),
 	});
 };

@@ -3,9 +3,10 @@ import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
 } from '@twir/api/messages/community/community';
-import { type ComputedRef, type Ref, unref } from 'vue';
+import { computed, type ComputedRef, type Ref, unref } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
 const sortBy = {
 	'watched': GetUsersRequest_SortBy.Watched,
@@ -21,16 +22,15 @@ export type GetCommunityUsersOpts = {
 	page: number;
 	desc: boolean;
 	sortBy: SortKey;
-	channelId?: string
 }
 
 export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | ComputedRef<GetCommunityUsersOpts>) => {
+	const { data: profile } = useStreamerProfile();
+
 	return useQuery({
 		queryKey: ['communityUsers', options],
 		queryFn: async () => {
 			const rawOpts = unref(options);
-			if (!rawOpts.channelId) return;
-			console.log(rawOpts);
 
 			const order = rawOpts.desc ? GetUsersRequest_Order.Desc : GetUsersRequest_Order.Asc;
 			const call = await unprotectedClient.communityGetUsers({
@@ -38,9 +38,10 @@ export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | Computed
 				page: rawOpts.page,
 				order,
 				sortBy: sortBy[rawOpts.sortBy],
-				channelId: rawOpts.channelId,
+				channelId: profile.value!.id,
 			}, { timeout: 5000 });
 			return call.response;
 		},
+		enabled: computed(() => !!profile.value),
 	});
 };

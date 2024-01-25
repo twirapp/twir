@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { storeToRefs } from 'pinia';
 
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
@@ -10,12 +9,9 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { useCommands } from '@/composables/use-commands';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
 import TableRowsCommands from '@/pages/commands/TableRowsCommands.vue';
 
-const { profile } = storeToRefs(useStreamerProfile());
-
-const { data: commands, isLoading: isCommandsLoading } = useCommands(profile.value?.id);
+const { data: commands, isLoading: isCommandsLoading } = useCommands();
 </script>
 
 <template>

@@ -1,7 +1,30 @@
 <script lang="ts" setup>
+import { computed, watch } from 'vue';
+import { useRouter } from 'vue-router';
+
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
 import LayoutSidebar from '@/layout/layout-sidebar.vue';
 import LayoutStreamerProfile from '@/layout/layout-streamer-profile.vue';
+import { routeNames } from '@/router';
+
+const router = useRouter();
+const streamerName = computed(() => {
+	const name = router.currentRoute.value.params.channelName;
+	if (typeof name !== 'string') {
+		return null;
+	}
+
+	return name;
+});
+
+const { isError } = useStreamerProfile(streamerName);
+
+watch([streamerName, isError], ([name, error]) => {
+	if (!name || error) {
+		router.push({ name: routeNames.notFound });
+	}
+});
 </script>
 
 <template>

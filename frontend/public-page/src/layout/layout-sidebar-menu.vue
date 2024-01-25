@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 
-import { channelRoutes } from '@/routes';
+import { channelRoutes } from '@/router';
 
 const router = useRouter();
 

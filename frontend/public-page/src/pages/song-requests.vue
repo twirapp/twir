@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { UseTimeAgo } from '@vueuse/components';
-import { storeToRefs } from 'pinia';
 
 import { convertMillisToTime } from '../helpers';
 
@@ -14,11 +13,8 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { useSongsQueue } from '@/composables/use-song-requests';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
-const { profile } = storeToRefs(useStreamerProfile());
-
-const { data: queue, isLoading } = useSongsQueue(profile.value!.id);
+const { data: queue, isLoading } = useSongsQueue();
 </script>
 
 <template>

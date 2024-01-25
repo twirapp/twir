@@ -3,14 +3,14 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import MainApp from './app.vue';
-import { createPublicRouter } from './routes.js';
+import { router } from './router';
 
 import './assets/index.css';
 
 const pinia = createPinia();
 const app = createApp(MainApp)
 	.use(pinia)
-	.use(createPublicRouter());
+	.use(router);
 
 VueQueryPlugin.install(app, {
 	queryClient: new QueryClient({

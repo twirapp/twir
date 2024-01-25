@@ -1,12 +1,9 @@
 import { IconCommand, IconHeadphones, IconUsers } from '@tabler/icons-vue';
-import { storeToRefs } from 'pinia';
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 
 import IconTts from '@/assets/icons/sidebar/tts.svg?use';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
-console.log(IconTts);
 export const publicRouteNames = {
 	commands: 'Commands',
 	songRequests: 'Song Requests',
@@ -14,7 +11,7 @@ export const publicRouteNames = {
 	users: 'Users',
 };
 
-const routeNames = {
+export const routeNames = {
 	notFound: 'Not found',
 };
 
@@ -54,45 +51,20 @@ export const channelRoutes: RouteRecordRaw[] = [
 	},
 ];
 
-export const createPublicRouter = () => {
-	const profileStore = useStreamerProfile();
-	const { profile } = storeToRefs(profileStore);
-
-	const router = createRouter({
-		history: createWebHistory(),
-		routes: [
-			{
-				path: '/p/404',
-				name: routeNames.notFound,
-				component: () => import('./pages/404.vue'),
-			},
-
-			{
-				path: '/p/:channelName',
-				component: () => import('./layout/layout.vue'),
-				children: channelRoutes,
-			},
-		],
-	});
-
-	router.beforeEach(async (to) => {
-		if (to.name === routeNames.notFound) return true;
-
-		const channelName = to.params.channelName;
-		if (typeof channelName !== 'string') {
-			return {
-				name: routeNames.notFound,
-			};
-		}
-
-		profileStore.fetchProfile(channelName).finally(() => {
-			if (!profile.value) {
-				router.push({ name: routeNames.notFound });
-			}
-		});
-	});
-
-	return router;
-};
+export const router = createRouter({
+	history: createWebHistory(),
+	routes: [
+		{
+			path: '/p/404',
+			name: routeNames.notFound,
+			component: () => import('./pages/404.vue'),
+		},
+		{
+			path: '/p/:channelName',
+			component: () => import('./layout/layout.vue'),
+			children: channelRoutes,
+		},
+	],
+});
 
 

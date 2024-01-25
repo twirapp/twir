@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
@@ -15,16 +14,16 @@ import { useTTSChannelSettings, useTTSUsersSettings } from '@/composables/use-tt
 import { useTwitchGetUsers } from '@/composables/use-twitch-users';
 import UserRow from '@/pages/tts/user-row.vue';
 
-const { profile } = storeToRefs(useStreamerProfile());
 
+const { data: profile } = useStreamerProfile();
 const {
 	data: channelSettings,
 	isLoading: isChannelSettingsLoading,
-} = useTTSChannelSettings(profile.value!.id);
+} = useTTSChannelSettings();
 const {
 	data: usersSettings,
 	isLoading: isUsersSettingsLoading,
-} = useTTSUsersSettings(profile.value!.id);
+} = useTTSUsersSettings();
 
 const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? []);
 const { data: users, isLoading: isTwitchUsersLoading } = useTwitchGetUsers(usersIds);

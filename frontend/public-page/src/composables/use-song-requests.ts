@@ -1,19 +1,22 @@
 import { useQuery } from '@tanstack/vue-query';
-import { unref, type MaybeRef } from 'vue';
+import { computed } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
+import { useStreamerProfile } from '@/composables/use-streamer-profile';
 
-export const useSongsQueue = (channelId: MaybeRef<string | null>) => useQuery({
-	queryKey: ['songsQueue', channelId],
-	queryFn: async () => {
-		const id = unref(channelId) as string;
-		if (!id) return;
+export const useSongsQueue = () => {
+	const { data: profile } = useStreamerProfile();
 
-		const call = await unprotectedClient.getSongsQueue({
-			channelId: id,
-		});
+	return useQuery({
+		queryKey: ['songsQueue', profile.value?.id],
+		queryFn: async () => {
+			const call = await unprotectedClient.getSongsQueue({
+				channelId: profile.value!.id,
+			});
 
-		return call.response;
-	},
-	refetchInterval: 1000,
-});
+			return call.response;
+		},
+		refetchInterval: 1000,
+		enabled: computed(() => !!profile.value),
+	});
+};
