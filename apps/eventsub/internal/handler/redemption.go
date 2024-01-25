@@ -74,6 +74,8 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	c.handleYoutubeSongRequests(event)
 
 	c.handleAlerts(event)
+
+	c.handleRewardsSevenTvEmote(event)
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
