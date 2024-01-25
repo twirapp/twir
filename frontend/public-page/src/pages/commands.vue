@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-
-
 import { storeToRefs } from 'pinia';
 
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
