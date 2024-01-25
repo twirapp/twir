@@ -38,8 +38,10 @@ export const useSevenTv = defineStore('sevenTvIntegration', () => {
 
 	async function save(data: MaybeRef<UpdateDataRequest>) {
 		const raw = unref(data);
-
-		await updater.mutateAsync(raw);
+		await updater.mutateAsync({
+			rewardIdForAddEmote: raw.rewardIdForAddEmote ?? undefined,
+			rewardIdForRemoveEmote: raw.rewardIdForRemoveEmote ?? undefined,
+		});
 	}
 
 	return {

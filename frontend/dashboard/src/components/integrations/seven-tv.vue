@@ -17,7 +17,7 @@ import {
 	NText,
 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
@@ -27,14 +27,23 @@ import SevenTVSvg from '@/assets/integrations/seventv.svg?use';
 import { useSevenTv } from '@/components/integrations/use-seven-tv';
 import WithSettings from '@/components/integrations/variants/withSettings.vue';
 import RewardsSelector from '@/components/rewardsSelector.vue';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 
 const themeVars = useThemeVars();
 const { t } = useI18n();
 
+const { notification } = useNaiveDiscrete();
 const sevenTvStore = useSevenTv();
 const { isNotRegistered, data: sevenTvData, sevenTvProfileLink } = storeToRefs(sevenTvStore);
 
 const form = ref<UpdateDataRequest>({});
+watch(sevenTvData, (data) => {
+	if (!data) return;
+	form.value = {
+		rewardIdForAddEmote: data.rewardIdForAddEmote,
+		rewardIdForRemoveEmote: data.rewardIdForRemoveEmote,
+	};
+});
 
 const router = useRouter();
 
@@ -43,7 +52,12 @@ function goToEvents() {
 }
 
 async function saveSettings() {
-	await sevenTvStore.save(form.value);
+	try {
+		await sevenTvStore.save(form.value);
+		notification.success({ title: t('sharedTexts.saved'), duration: 2500 });
+	} catch (err) {
+		notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 });
+	}
 }
 </script>
 
@@ -80,7 +94,7 @@ async function saveSettings() {
 					<n-form>
 						<n-form-item :label="t('integrations.sevenTv.rewardForAddEmote')">
 							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForAddEmote" clearable />
+								<rewards-selector v-model="form.rewardIdForAddEmote" only-with-input clearable />
 								<n-text :depth="3" style="font-size: 12px">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>
@@ -89,7 +103,7 @@ async function saveSettings() {
 
 						<n-form-item :label="t('integrations.sevenTv.rewardForRemoveEmote')">
 							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForRemoveEmote" clearable />
+								<rewards-selector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
 								<n-text :depth="3" style="font-size: 12px">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>

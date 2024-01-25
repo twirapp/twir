@@ -4,6 +4,7 @@ import { computed, VNodeChild, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTwitchRewards } from '@/api';
+import RewardFallbackImg from '@/assets/images/reward-fallback.png?url';
 
 const props = defineProps<{
 	multiple?: boolean
@@ -23,18 +24,30 @@ const {
 } = useTwitchRewards();
 
 const rewardsSelectOptions = computed(() => {
-	return rewardsData.value?.rewards.map(r => ({
-		value: r.id,
-		label: r.title,
-		image: r.image?.url4X,
-		disabled: props.onlyWithInput ?? false,
-	})) ?? [];
+	const rewards = [];
+
+	for (const reward of rewardsData.value?.rewards ?? []) {
+		if (props.onlyWithInput && !reward.isUserInputRequired) continue;
+
+		rewards.push({
+			value: reward.id,
+			label: reward.title,
+			image: reward.image?.url4X,
+			color: reward.backgroundColor,
+		});
+	}
+
+	return rewards;
 });
 
-const renderRewardTag = (option: SelectOption & { image?: string }): VNodeChild => {
+const renderRewardTag = (option: SelectOption & { image?: string, color: string, }): VNodeChild => {
 	return h(NSpace, { align: 'center' }, {
 		default: () => [
-			h(NAvatar, { src: option.image, round: true, size: 'small', style: 'display: flex;' }),
+			h(NAvatar, {
+				src: option.image || RewardFallbackImg,
+				color: option.color,
+				style: 'display: flex; width: 20px; height: 20px; padding: 4px;',
+			}),
 			h(NText, {}, { default: () => option.label }),
 		],
 	});
@@ -52,6 +65,7 @@ const renderRewardTag = (option: SelectOption & { image?: string }): VNodeChild 
 		:render-label="renderRewardTag"
 		:disabled="isRewardsError"
 		:clearable="clearable"
+		:virtual-scroll="false"
 		filterable
 	/>
 </template>
