@@ -62,17 +62,19 @@ const permissionsIconsMapping: Record<string, FunctionalComponent> = {
 			</div>
 		</TableCell>
 		<TableCell>
-			<Tooltip
-				v-for="(permission, permissionIndex) of command.permissions"
-				:key="permissionIndex"
-			>
-				<TooltipTrigger>
-					<component :is="permissionsIconsMapping[permission.type]" />
-				</TooltipTrigger>
-				<TooltipContent>
-					{{ permission.name }}
-				</TooltipContent>
-			</Tooltip>
+			<div class="flex items-center">
+				<Tooltip
+					v-for="(permission, permissionIndex) of command.permissions"
+					:key="permissionIndex"
+				>
+					<TooltipTrigger>
+						<component :is="permissionsIconsMapping[permission.type]" />
+					</TooltipTrigger>
+					<TooltipContent>
+						{{ permission.name }}
+					</TooltipContent>
+				</Tooltip>
+			</div>
 		</TableCell>
 		<TableCell class="text-right">
 			<Tooltip>
