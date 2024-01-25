@@ -14,7 +14,7 @@
 		"@tanstack/vue-query": "5.17.19",
 		"@tanstack/vue-table": "8.11.7",
 		"@twir/api": "workspace:*",
-		"@twir/brand": "workspace:*",
+		"@twirapp/vite-plugin-svg-spritemap": "0.0.0",
 		"@vueuse/components": "10.7.2",
 		"@vueuse/core": "10.7.2",
 		"class-variance-authority": "0.7.0",

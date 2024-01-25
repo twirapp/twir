@@ -33,7 +33,7 @@ export const useStreamerProfile = defineStore('streamerProfile', () => {
 			...twitchUser,
 			...internalUser,
 		};
-		isLoading.value = true;
+		isLoading.value = false;
 	}
 
 	return {

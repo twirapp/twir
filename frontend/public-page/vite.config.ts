@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'node:url';
 
+import svgSprite from '@twirapp/vite-plugin-svg-spritemap';
 import vue from '@vitejs/plugin-vue';
 import autoprefixer from 'autoprefixer';
 import tailwind from 'tailwindcss';
@@ -8,7 +9,10 @@ import { defineConfig } from 'vite';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [vue()],
+	plugins: [
+		vue(),
+		svgSprite(['./src/assets/*/*.svg', './src/assets/*.svg']),
+	],
 	clearScreen: false,
 	base: '/p',
 	css: {

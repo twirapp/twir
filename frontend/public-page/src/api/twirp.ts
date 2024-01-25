@@ -1,5 +1,5 @@
 import { TwirpFetchTransport } from '@protobuf-ts/twirp-transport';
-import { UnProtectedClient } from '@twir/api/api.client';
+import { ProtectedClient, UnProtectedClient } from '@twir/api/api.client';
 
 const transport = new TwirpFetchTransport({
 	baseUrl: `${window.location.origin}/api/v1`,
@@ -7,3 +7,4 @@ const transport = new TwirpFetchTransport({
 });
 
 export const unprotectedClient = new UnProtectedClient(transport);
+export const protectedClient = new ProtectedClient(transport);

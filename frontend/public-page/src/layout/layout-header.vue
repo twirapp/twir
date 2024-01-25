@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import LayoutHeaderMenu from './layout-header-menu.vue';
 import LayoutHeaderStreamerProfile from './layout-header-streamer-profile.vue';
+
+import LayoutHeaderUserProfile from '@/layout/layout-header-user-profile.vue';
 </script>
 
 <template>
@@ -8,8 +10,9 @@ import LayoutHeaderStreamerProfile from './layout-header-streamer-profile.vue';
 		<div
 			class="container flex flex-col sm:flex-col md:flex-row flex-wrap justify-between min-h-14 items-center gap-4 py-4 md:py-0"
 		>
-			<LayoutHeaderStreamerProfile />
-			<LayoutHeaderMenu />
+			<layout-header-streamer-profile />
+			<layout-header-menu />
+			<layout-header-user-profile />
 		</div>
 	</header>
 </template>
