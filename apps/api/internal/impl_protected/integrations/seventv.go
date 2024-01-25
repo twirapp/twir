@@ -14,6 +14,7 @@ import (
 	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 func (c *Integrations) IntegrationsSevenTvGetData(
@@ -129,13 +130,13 @@ func (c *Integrations) IntegrationsSevenTvUpdate(
 	if err := c.Db.
 		WithContext(ctx).
 		Where("channel_id = ?", dashboardId).
-		Find(&sevenTvSettings).
+		First(&sevenTvSettings).
 		Error; err != nil {
-		return nil, err
-	}
-
-	if sevenTvSettings.ID.String() == "" {
-		sevenTvSettings.ID = uuid.New()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			sevenTvSettings.ID = uuid.New()
+		} else {
+			return nil, err
+		}
 	}
 
 	sevenTvSettings.ChannelID = dashboardId
