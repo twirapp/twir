@@ -28,10 +28,12 @@ watch([streamerName, isError], ([name, error]) => {
 </script>
 
 <template>
-	<div class="flex gap-4">
-		<layout-sidebar />
+	<div class="flex flex-row gap-4 w-full">
+		<aside class="flex h-screen w-auto flex-col justify-between border-e sticky top-0">
+			<layout-sidebar />
+		</aside>
 
-		<div class="flex flex-nowrap container flex-col gap-4 py-5">
+		<div class="flex flex-nowrap container h-screen flex-col gap-4 py-5">
 			<layout-streamer-profile />
 
 			<div>
@@ -45,7 +47,6 @@ watch([streamerName, isError], ([name, error]) => {
 			</div>
 		</div>
 	</div>
-	<!--	<LayoutHeader />-->
 </template>
 
 <script setup lang="ts">
