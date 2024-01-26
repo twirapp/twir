@@ -15,7 +15,7 @@ func (c *Handler) handleChannelChatClear(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatClear,
 ) {
-	defer zap.S().Infow(
+	zap.S().Infow(
 		"channel chat clear",
 		"channelId", event.BroadcasterUserID,
 		"channelName", event.BroadcasterUserLogin,

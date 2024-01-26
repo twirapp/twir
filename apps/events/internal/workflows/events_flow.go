@@ -328,6 +328,13 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
+			case model.OperationSevenTvAddEmote, model.OperationSevenTvRemoveEmote:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.SevenTvEmoteManage,
+					operation,
+					data,
+				).Get(ctx, nil)
 			}
 
 			if operationErr != nil {

@@ -21,6 +21,7 @@ use (
 	./libs/gopool
 	./libs/grpc
 	./libs/integrations/spotify
+	./libs/integrations/seventv
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
