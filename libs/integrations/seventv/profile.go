@@ -13,6 +13,7 @@ var ErrSevenTvProfileNotFound = errors.New("7tv profile not found")
 func GetProfile(ctx context.Context, twitchUserID string) (SevenTvProfileResponse, error) {
 	var profile SevenTvProfileResponse
 	resp, err := req.
+		SetHeader("Cache-Control", "no-cache").
 		SetContext(ctx).
 		SetSuccessResult(&profile).
 		Get("https://7tv.io/v3/users/twitch/" + twitchUserID)
