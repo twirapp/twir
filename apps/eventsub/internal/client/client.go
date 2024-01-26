@@ -182,6 +182,10 @@ func (c *SubClient) SubscribeToNeededEvents(ctx context.Context, userId, botId s
 			Version:   "1",
 			Condition: channelConditionWithBotId,
 		},
+		"channel.chat.message": {
+			Version:   "1",
+			Condition: channelConditionWithBotId,
+		},
 	}
 
 	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)

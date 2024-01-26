@@ -1158,3 +1158,135 @@ type ChatNotificationBitsBadgeTierEvent struct {
 	// The tier of the Bits badge the user just earned. For example, 100, 1000, or 10000.
 	Tier int `json:"tier"`
 }
+
+type EventChatMessage struct {
+	// BroadcasterUserID The broadcaster user ID.
+	BroadcasterUserID string `json:"broadcaster_user_id"`
+	// BroadcasterUserName The broadcaster display name.
+	BroadcasterUserName string `json:"broadcaster_user_name"`
+	// BroadcasterUserLogin The broadcaster login.
+	BroadcasterUserLogin string `json:"broadcaster_user_login"`
+	// ChatterUserID The user ID of the user that sent the message.
+	ChatterUserID string `json:"chatter_user_id"`
+	// ChatterUserName The user name of the user that sent the message.
+	ChatterUserName string `json:"chatter_user_name"`
+	// ChatterUserLogin The user login of the user that sent the message.
+	ChatterUserLogin string `json:"chatter_user_login"`
+	// MessageID A UUID that identifies the message.
+	MessageID string `json:"message_id"`
+	// Message The structured chat message.
+	Message ChatMessageMessage `json:"message"`
+	// Color The color of the user’s name in the chat room.
+	// This is a hexadecimal RGB color code in the form, #<RGB>. This tag may be empty if it is never set.
+	Color string `json:"color"`
+	// Badges
+	Badges []ChatMessageBadge `json:"badges"`
+	// MessageType The type of message. Possible values:
+	// text
+	// channel_points_highlighted
+	// channel_points_sub_only
+	// user_intro
+	MessageType string `json:"message_type"`
+	// Cheer Optional. Metadata if this message is a cheer.
+	Cheer *ChatMessageCheer `json:"cheer"`
+	// Reply Optional. Metadata if this message is a reply.
+	Reply *ChatMessageReply `json:"reply"`
+	// ChannelPointsCustomRewardID Optional.
+	// The ID of a channel points custom reward that was redeemed.
+	ChannelPointsCustomRewardID string `json:"channel_points_custom_reward_id"`
+}
+
+type ChatMessageMessage struct {
+	// Text The chat message in plain text.
+	Text string `json:"text"`
+	// Fragments Ordered list of chat message fragments.
+	Fragments []ChatMessageMessageFragment `json:"fragments"`
+}
+
+type ChatMessageMessageFragment struct {
+	// Type The type of message fragment. Possible values:
+	// text
+	// cheermote
+	// emote
+	// mention
+	Type string `json:"type"`
+	// Message text in fragment.
+	Text string `json:"text"`
+	// Cheermote Optional. Metadata pertaining to the cheermote.
+	Cheermote *ChatMessageMessageFragmentCheermote `json:"cheermote"`
+	// Emote Optional. Metadata pertaining to the emote.
+	Emote *ChatMessageMessageFragmentEmote `json:"emote"`
+	// Mention Optional. Metadata pertaining to the mention.
+	Mention *ChatMessageMessageFragmentMention `json:"mention"`
+}
+
+type ChatMessageMessageFragmentCheermote struct {
+	// Prefix The name portion of the Cheermote string that you use in chat to cheer Bits.
+	// The full Cheermote string is the concatenation of {prefix} + {number of Bits}.
+	// For example, if the prefix is “Cheer” and you want to cheer 100 Bits, the full Cheermote string is Cheer100.
+	// When the Cheermote string is entered in chat, Twitch converts it to the image associated with the Bits tier that was cheered.
+	Prefix string `json:"prefix"`
+	// Bits The amount of bits cheered.
+	Bits int `json:"bits"`
+	// The tier level of the cheermote.
+	Tier int `json:"tier"`
+}
+
+type ChatMessageMessageFragmentEmote struct {
+	// ID An ID that uniquely identifies this emote.
+	ID string `json:"id"`
+	// EmoteSetId An ID that identifies the emote set that the emote belongs to.
+	EmoteSetID string `json:"emote_set_id"`
+	// OwnerID The ID of the broadcaster who owns the emote.
+	OwnerID string `json:"owner_id"`
+	// Format The formats that the emote is available in. For example, if the emote is available only as a static PNG, the array contains only static. But if the emote is available as a static PNG and an animated GIF, the array contains static and animated. The possible formats are:
+	//
+	// animated — An animated GIF is available for this emote.
+	// static — A static PNG file is available for this emote.
+	Format []string `json:"format"`
+}
+
+type ChatMessageMessageFragmentMention struct {
+	// UserID The user ID of the mentioned user.
+	UserID string `json:"user_id"`
+	// UserName The user name of the mentioned user.
+	UserName string `json:"user_name"`
+	// UserLogin The user login of the mentioned user.
+	UserLogin string `json:"user_login"`
+}
+
+type ChatMessageBadge struct {
+	// ID An ID that identifies this version of the badge. The ID can be any value. For example, for Bits, the ID is the Bits tier level, but for World of Warcraft, it could be Alliance or Horde.
+	ID string `json:"id"`
+	// SetID An ID that identifies this set of chat badges. For example, Bits or Subscriber.
+	SetID string `json:"set_id"`
+	// Info Contains metadata related to the chat badges in the badges tag. Currently, this tag contains metadata only for subscriber badges, to indicate the number of months the user has been a subscriber.
+	Info string `json:"info"`
+}
+
+type ChatMessageCheer struct {
+	// Bits The amount of Bits the user cheered.
+	Bits int
+}
+
+type ChatMessageReply struct {
+	// ParentMessageID An ID that uniquely identifies the parent message that this message is
+	// replying to.
+	ParentMessageID string `json:"parent_message_id"`
+	// ParentMessageBody The message body of the parent message.
+	ParentMessageBody string `json:"parent_message_body"`
+	// ParentUserID User ID of the sender of the parent message.
+	ParentUserID string `json:"parent_user_id"`
+	// ParentUserName User name of the sender of the parent message.
+	ParentUserName string `json:"parent_user_name"`
+	// ParentUserLogin User login of the sender of the parent message.
+	ParentUserLogin string `json:"parent_user_login"`
+	// ThreadMessageID An ID that identifies the parent message of the reply thread.
+	ThreadMessageID string `json:"thread_message_id"`
+	// ThreadUserID User ID of the sender of the thread’s parent message.
+	ThreadUserID string `json:"thread_user_id"`
+	// ThreadUserName User name of the sender of the thread’s parent message.
+	ThreadUserName string `json:"thread_user_name"`
+	// ThreadUserLogin User login of the sender of the thread’s parent message.
+	ThreadUserLogin string `json:"thread_user_login"`
+}

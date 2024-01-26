@@ -388,3 +388,15 @@ func (s *Subscription) ConditionChannelChatNotification() (
 		return &condition, json.Unmarshal(data, &condition)
 	}
 }
+
+func (s *Subscription) ConditionChannelChatMessage() (
+	*ConditionChannelChatMessage,
+	error,
+) {
+	if data, err := json.Marshal(s.Condition); err != nil {
+		return nil, err
+	} else {
+		var condition ConditionChannelChatMessage
+		return &condition, json.Unmarshal(data, &condition)
+	}
+}

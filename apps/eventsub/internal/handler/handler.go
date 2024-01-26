@@ -40,6 +40,7 @@ func NewHandler(services *types.Services) *Handler {
 	manager.HandleChannelRaid = myHandler.handleChannelRaid
 	manager.HandleChannelChatClear = myHandler.handleChannelChatClear
 	manager.HandleChannelChatNotification = myHandler.handleChannelChatNotification
+	manager.HandleChannelChatMessage = myHandler.handleChannelChatMessage
 
 	return myHandler
 }
