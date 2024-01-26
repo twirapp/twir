@@ -2,12 +2,15 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 
-CREATE TABLE "channels_integrations_seventv" (
-		"id" uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-		"channel_id" text NOT NULL,
-		"reward_id_for_add_emote" text,
-		"reward_id_for_remove_emote" text,
-		CONSTRAINT "channels_integrations_seventv_channel_id_fk" FOREIGN KEY ("channel_id") REFERENCES "channels" ("id") ON DELETE CASCADE
+CREATE TABLE "channels_integrations_seventv"
+(
+	"id"                              uuid PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+	"channel_id"                      text             NOT NULL,
+	"reward_id_for_add_emote"         text,
+	"reward_id_for_remove_emote"      text,
+	"delete_emotes_only_added_by_app" boolean          NOT NULL DEFAULT true,
+	"added_emotes"                    text[]           NOT NULL DEFAULT '{}',
+	CONSTRAINT "channels_integrations_seventv_channel_id_fk" FOREIGN KEY ("channel_id") REFERENCES "channels" ("id") ON DELETE CASCADE
 );
 
 CREATE INDEX "channels_integrations_seventv_channel_id_idx" ON "channels_integrations_seventv" ("channel_id");

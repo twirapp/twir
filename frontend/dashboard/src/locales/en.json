@@ -254,6 +254,8 @@
 			"connected": "Connected",
 			"notConnected": "Not connected",
 			"notRegistered": "You are not registered at {0}",
+			"errorSameReward": "You cannot use the same reward for adding and removing emotes!",
+			"deleteOnlyAddedByApp": "Remove emotes only added by Twir",
 			"connectSteps": {
 				"step1": "Open your {0} profile",
 				"step2": "Click on \"Add editors\" button",

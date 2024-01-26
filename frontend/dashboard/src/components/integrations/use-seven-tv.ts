@@ -41,6 +41,7 @@ export const useSevenTv = defineStore('sevenTvIntegration', () => {
 		await updater.mutateAsync({
 			rewardIdForAddEmote: raw.rewardIdForAddEmote ?? undefined,
 			rewardIdForRemoveEmote: raw.rewardIdForRemoveEmote ?? undefined,
+			deleteEmotesOnlyAddedByApp: raw.deleteEmotesOnlyAddedByApp,
 		});
 	}
 

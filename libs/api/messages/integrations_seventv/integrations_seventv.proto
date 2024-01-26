@@ -15,9 +15,11 @@ message GetDataResponse {
 	optional string reward_id_for_add_emote = 4;
 	optional string reward_id_for_remove_emote = 5;
 	optional string emote_set_id = 6;
+	bool delete_emotes_only_added_by_app = 7;
 }
 
 message UpdateDataRequest {
 	optional string reward_id_for_add_emote = 1;
 	optional string reward_id_for_remove_emote = 2;
+	bool delete_emotes_only_added_by_app = 3;
 }

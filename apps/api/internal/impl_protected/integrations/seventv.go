@@ -106,8 +106,9 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 			Username:    userSevenTvResponse.User.Username,
 			DisplayName: userSevenTvResponse.User.DisplayName,
 		},
-		RewardIdForAddEmote:    sevenTvSettings.RewardIdForAddEmote.Ptr(),
-		RewardIdForRemoveEmote: sevenTvSettings.RewardIdForRemoveEmote.Ptr(),
+		RewardIdForAddEmote:        sevenTvSettings.RewardIdForAddEmote.Ptr(),
+		RewardIdForRemoveEmote:     sevenTvSettings.RewardIdForRemoveEmote.Ptr(),
+		DeleteEmotesOnlyAddedByApp: sevenTvSettings.DeleteEmotesOnlyAddedByApp,
 	}
 
 	if userSevenTvResponse.EmoteSet != nil {
@@ -142,6 +143,7 @@ func (c *Integrations) IntegrationsSevenTvUpdate(
 	sevenTvSettings.ChannelID = dashboardId
 	sevenTvSettings.RewardIdForAddEmote = null.StringFromPtr(req.RewardIdForAddEmote)       //nolint:protogetter
 	sevenTvSettings.RewardIdForRemoveEmote = null.StringFromPtr(req.RewardIdForRemoveEmote) //nolint:protogetter
+	sevenTvSettings.DeleteEmotesOnlyAddedByApp = req.GetDeleteEmotesOnlyAddedByApp()
 
 	if err := c.Db.
 		WithContext(ctx).

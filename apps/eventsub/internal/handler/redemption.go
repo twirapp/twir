@@ -26,7 +26,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
-	defer zap.S().Infow(
+	zap.S().Infow(
 		"channel points reward redemption add",
 		"reward", event.Reward.Title,
 		"userName", event.UserLogin,
@@ -180,7 +180,6 @@ func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 		return
 	}
 	if entity.ID == "" {
-		zap.S().Warnln("no settings for youtube_song_requests", "channelId", event.BroadcasterUserID)
 		return
 	}
 
