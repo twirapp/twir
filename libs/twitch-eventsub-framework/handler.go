@@ -2,6 +2,7 @@ package eventsub_framework
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -135,6 +136,11 @@ type SubHandler struct {
 	HandleChannelChatNotification func(
 		h *esb.ResponseHeaders,
 		event *esb.EventChannelChatNotification,
+	)
+
+	HandleChannelChatMessage func(
+		h *esb.ResponseHeaders,
+		event *esb.EventChatMessage,
 	)
 }
 
@@ -629,6 +635,17 @@ func (s *SubHandler) handleNotification(
 		}
 		if s.HandleChannelChatNotification != nil {
 			go s.HandleChannelChatNotification(h, &data)
+		}
+	case "channel.chat.message":
+		var data esb.EventChatMessage
+		if err := json.Unmarshal(event, &data); err != nil {
+			fmt.Println(string(event))
+			fmt.Println(err)
+			http.Error(w, "Invalid JSON body", http.StatusBadRequest)
+			return
+		}
+		if s.HandleChannelChatMessage != nil {
+			go s.HandleChannelChatMessage(h, &data)
 		}
 	default:
 		http.Error(w, "Unknown notification type", http.StatusBadRequest)
