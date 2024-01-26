@@ -13,6 +13,8 @@ export type ThirdPartyEmotesOptions = {
 	ffz?: boolean;
 };
 
+const ONE_MINUTE = 60 * 1000;
+
 export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 	const { fetchSevenTvEmotes, connect: connectSevenTv, destroy: destroySevenTv } = useSevenTv();
 	const { fetchBttvEmotes } = useBetterTv();
@@ -28,15 +30,15 @@ export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 		fetchFrankerFaceZEmotes(options.value.channelId);
 	}
 
-	const { pause: bttvPause, resume: bttvResume } = useIntervalFn(fetchBetterTv, 60 * 1000);
-	const { pause: ffzPause, resume: ffzResume } = useIntervalFn(fetchFrankerFaceZ, 120 * 1000);
+	const { pause: bttvPause, resume: bttvResume } = useIntervalFn(fetchBetterTv, ONE_MINUTE * 5);
+	const { pause: ffzPause, resume: ffzResume } = useIntervalFn(fetchFrankerFaceZ, ONE_MINUTE * 10);
 
 	watch(() => options.value, async (options) => {
 		if (!options.channelId) return;
 
 		if (options.sevenTv) {
-			connectSevenTv(options.channelId);
 			await fetchSevenTvEmotes();
+			connectSevenTv(options.channelId);
 		}
 
 		if (options.bttv) {
