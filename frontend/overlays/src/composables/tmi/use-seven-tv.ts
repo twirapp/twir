@@ -56,7 +56,6 @@ function sevenTvPayload(opcode: Opcode, data: any): string {
 }
 
 export const useSevenTv = defineStore('seven-tv', () => {
-	const channelId = ref('');
 	const sevenTvUserId = ref('');
 	const currentEmoteSetId = ref('');
 
@@ -151,14 +150,14 @@ export const useSevenTv = defineStore('seven-tv', () => {
 		}
 	});
 
-	async function fetchSevenTvEmotes() {
+	async function fetchSevenTvEmotes(channelId: string) {
 		try {
 			const [globalEmotes, channelEmotes] = await Promise.all([
 				requestWithOutCache<SevenTvGlobalResponse>(
 					'https://7tv.io/v3/emote-sets/global',
 				),
 				requestWithOutCache<SevenTvChannelResponse>(
-					`https://7tv.io/v3/users/twitch/${channelId.value}`,
+					`https://7tv.io/v3/users/twitch/${channelId}`,
 				),
 			]);
 
@@ -172,9 +171,8 @@ export const useSevenTv = defineStore('seven-tv', () => {
 		}
 	}
 
-	function connect(_channelId: string): void {
+	function connect(): void {
 		if (status.value === 'OPEN') return;
-		channelId.value = _channelId;
 		open();
 	}
 

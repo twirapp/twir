@@ -37,8 +37,8 @@ export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 		if (!options.channelId) return;
 
 		if (options.sevenTv) {
-			await fetchSevenTvEmotes();
-			connectSevenTv(options.channelId);
+			fetchSevenTvEmotes(options.channelId)
+				.then(() => connectSevenTv());
 		}
 
 		if (options.bttv) {
