@@ -4,6 +4,7 @@ import { ref, watch } from 'vue';
 
 import { useEmotes } from './use-emotes.js';
 
+import { requestWithOutCache } from '@/helpers.js';
 import type { SevenTvChannelResponse, SevenTvEmote, SevenTvGlobalResponse } from '@/types.js';
 
 // opcodes https://github.com/SevenTV/EventAPI#opcodes
@@ -140,8 +141,9 @@ export const useSevenTv = defineStore('seven-tv', () => {
 					// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 					// @ts-ignore
 					const newEmoteSetId = body.updated[0].value[0].value.id;
-					const response = await fetch(`https://7tv.io/v3/emote-sets/${newEmoteSetId}?ts=${Date.now()}`);
-					const newEmotes = (await response.json()) as SevenTvGlobalResponse;
+					const newEmotes = await requestWithOutCache<SevenTvGlobalResponse>(
+						`https://7tv.io/v3/emote-sets/${newEmoteSetId}`,
+					);
 					emotesStore.setSevenTvEmotes(newEmotes);
 					currentEmoteSetId.value = newEmoteSetId;
 				}
@@ -151,15 +153,16 @@ export const useSevenTv = defineStore('seven-tv', () => {
 
 	async function fetchSevenTvEmotes() {
 		try {
-			const [global, channel] = await Promise.all([
-				fetch('https://7tv.io/v3/emote-sets/global'),
-				fetch(`https://7tv.io/v3/users/twitch/${channelId.value}?ts=${Date.now()}`),
+			const [globalEmotes, channelEmotes] = await Promise.all([
+				requestWithOutCache<SevenTvGlobalResponse>(
+					'https://7tv.io/v3/emote-sets/global',
+				),
+				requestWithOutCache<SevenTvChannelResponse>(
+					`https://7tv.io/v3/users/twitch/${channelId.value}`,
+				),
 			]);
 
-			const globalEmotes = (await global.json()) as SevenTvGlobalResponse;
 			emotesStore.setSevenTvEmotes(globalEmotes);
-
-			const channelEmotes = (await channel.json()) as SevenTvChannelResponse;
 			emotesStore.setSevenTvEmotes(channelEmotes);
 
 			currentEmoteSetId.value = channelEmotes.emote_set.id;

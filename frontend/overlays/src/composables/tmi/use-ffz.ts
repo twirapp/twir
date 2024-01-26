@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import { useEmotes } from './use-emotes.js';
 
+import { requestWithOutCache } from '@/helpers.js';
 import type { FfzChannelResponse, FfzGlobalResponse } from '@/types.js';
 
 export const useFrankerFaceZ = defineStore('ffz', () => {
@@ -9,13 +10,17 @@ export const useFrankerFaceZ = defineStore('ffz', () => {
 
 	async function fetchFrankerFaceZEmotes(channelId: string): Promise<void> {
 		try {
-			const [global, channel] = await Promise.all([
-				fetch('https://api.frankerfacez.com/v1/set/global'),
-				fetch(`https://api.frankerfacez.com/v1/room/id/${channelId}?ts=${Date.now()}`),
+			const [globalEmotes, channelEmotes] = await Promise.all([
+				requestWithOutCache<FfzGlobalResponse>(
+					'https://api.frankerfacez.com/v1/set/global',
+				),
+				requestWithOutCache<FfzChannelResponse>(
+					`https://api.frankerfacez.com/v1/room/id/${channelId}`,
+				),
 			]);
 
-			setFrankerFaceZEmotes((await global.json()) as FfzGlobalResponse);
-			setFrankerFaceZEmotes((await channel.json()) as FfzChannelResponse);
+			setFrankerFaceZEmotes(globalEmotes);
+			setFrankerFaceZEmotes(channelEmotes);
 		} catch (err) {
 			console.error(err);
 		}
