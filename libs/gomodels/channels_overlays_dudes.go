@@ -23,7 +23,7 @@ type ChannelsOverlaysDudes struct {
 	MessageBoxFill            string          `gorm:"type:text;not null;"  json:"messageBoxFill"`
 	NameBoxFontFamily         string          `gorm:"type:text;not null;" json:"nameBoxFontFamily"`
 	NameBoxFontSize           int32           `gorm:"type:integer;not null;" json:"nameBoxFontSize"`
-	NameBoxFill               string          `gorm:"type:text;not null;" json:"nameBoxFill"`
+	NameBoxFill               pq.StringArray  `gorm:"type:text[];not null;" json:"nameBoxFill"`
 	NameBoxLineJoin           string          `gorm:"type:text;not null;" json:"nameBoxLineJoin"`
 	NameBoxStrokeThickness    int32           `gorm:"type:integer;not null;" json:"nameBoxStrokeThickness"`
 	NameBoxStroke             string          `gorm:"type:text;not null;" json:"nameBoxStroke"`

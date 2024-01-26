@@ -20,7 +20,7 @@ CREATE TABLE "channels_overlays_dudes" (
 	"message_box_fill" text NOT NULL,
 	"name_box_font_family" text NOT NULL,
 	"name_box_font_size" integer NOT NULL,
-	"name_box_fill" text NOT NULL,
+	"name_box_fill" text[] NOT NULL,
 	"name_box_line_join" text NOT NULL,
 	"name_box_stroke_thickness" integer NOT NULL,
 	"name_box_stroke" text NOT NULL,

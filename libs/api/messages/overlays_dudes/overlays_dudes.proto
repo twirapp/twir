@@ -24,7 +24,7 @@ message MessageBoxSettings {
 message NameBoxSettings {
 	string font_family = 1;
 	int32 font_size = 2;
-	string fill = 3;
+	repeated string fill = 3;
 	string line_join = 4;
 	int32 stroke_thickness = 5;
 	string stroke = 6;
