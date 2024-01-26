@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/eventsub
 
-go 1.21.5
+go 1.21
 
 replace (
 	github.com/dnsge/twitch-eventsub-bindings => ../../libs/twitch-eventsub-bindings
@@ -11,13 +11,14 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-	github.com/twirapp/twir/libs/integrations/seventv => ../../libs/integrations/seventv
 )
 
 require (
+	github.com/avast/retry-go/v4 v4.5.1
 	github.com/dnsge/twitch-eventsub-bindings v1.2.0
 	github.com/dnsge/twitch-eventsub-framework v1.2.4
 	github.com/google/uuid v1.5.0
+	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
 	github.com/localtunnel/go-localtunnel v0.0.0-20170326223115-8a804488f275
 	github.com/nicklaw5/helix/v2 v2.25.2
@@ -49,7 +50,6 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/imroc/req/v3 v3.42.3 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.1 // indirect
@@ -66,7 +66,6 @@ require (
 	github.com/quic-go/quic-go v0.40.1 // indirect
 	github.com/refraction-networking/utls v1.6.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/twirapp/twir/libs/integrations/seventv v0.0.0-00010101000000-000000000000 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.17.0 // indirect
