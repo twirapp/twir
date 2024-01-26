@@ -53,6 +53,8 @@ import "messages/overlays/overlays.proto";
 
 import "messages/feedback/feedback.proto";
 
+import "messages/integrations_seventv/integrations_seventv.proto";
+
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
 	rpc AuthSetDashboard(messages.auth.SetDashboard) returns (google.protobuf.Empty) {}
@@ -246,6 +248,9 @@ service Protected {
 	rpc UsersUpdate(messages.users.UpdateUserRequest) returns (google.protobuf.Empty) {}
 
 	rpc LeaveFeedback(messages.feedback.LeaveFeedbackRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsSevenTvGetData(google.protobuf.Empty) returns (messages.integrations_seventv.GetDataResponse) {}
+	rpc IntegrationsSevenTvUpdate(messages.integrations_seventv.UpdateDataRequest) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

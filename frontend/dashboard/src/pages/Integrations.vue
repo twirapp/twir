@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { NGrid, NGridItem } from 'naive-ui';
 
 import { responsiveCols } from '@/components/consants.js';
@@ -9,6 +9,7 @@ import Donatestream from '@/components/integrations/donatestream.vue';
 import Donationalerts from '@/components/integrations/donationalerts.vue';
 import Faceit from '@/components/integrations/faceit.vue';
 import Lastfm from '@/components/integrations/lastfm.vue';
+import SevenTv from '@/components/integrations/seven-tv.vue';
 import Spotify from '@/components/integrations/spotify.vue';
 import Streamlabs from '@/components/integrations/streamlabs.vue';
 import Valorant from '@/components/integrations/valorant.vue';
@@ -18,6 +19,9 @@ import Vk from '@/components/integrations/vk.vue';
 <template>
 	<div class="integrations">
 		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
+			<n-grid-item :span="1">
+				<SevenTv />
+			</n-grid-item>
 			<n-grid-item :span="1">
 				<Discord />
 			</n-grid-item>

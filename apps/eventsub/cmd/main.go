@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -61,7 +62,7 @@ func main() {
 	}
 
 	appAddr := lo.
-		If(cfg.AppEnv != "production", appTun.Addr().String()).
+		If(cfg.AppEnv != "production", strings.Replace(appTun.Addr().String(), "https://", "", 1)).
 		Else(fmt.Sprintf("eventsub.%s", cfg.SiteBaseUrl))
 
 	pb, err := pubsub.NewPubSub(cfg.RedisUrl)
@@ -130,6 +131,7 @@ func main() {
 	signal.Notify(exitSignal, syscall.SIGINT, syscall.SIGTERM)
 	<-exitSignal
 	appCtxCancel()
+	grpcServer.Stop()
 	appTun.Close()
 	d.Close()
 	logger.Sugar().Info("Closing...")

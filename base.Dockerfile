@@ -62,6 +62,7 @@ COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
+COPY libs/integrations/seventv/go.mod libs/integrations/seventv/go.mod
 
 # CLI PART
 COPY cli cli

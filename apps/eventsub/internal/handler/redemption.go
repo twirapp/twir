@@ -26,7 +26,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
 ) {
-	defer zap.S().Infow(
+	zap.S().Infow(
 		"channel points reward redemption add",
 		"reward", event.Reward.Title,
 		"userName", event.UserLogin,
@@ -47,14 +47,15 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 				RedemptionTitle:           event.Reward.Title,
 				RedemptionUserName:        event.UserLogin,
 				RedemptionUserDisplayName: event.UserName,
-				RedemptionCost:            fmt.Sprint(event.Reward.Cost),
+				RedemptionCost:            strconv.Itoa(event.Reward.Cost),
 			},
 		},
 	)
 
 	// fire event to events microsevice
 	c.services.Grpc.Events.RedemptionCreated(
-		context.Background(), &events.RedemptionCreatedMessage{
+		context.Background(),
+		&events.RedemptionCreatedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			UserName:        event.UserLogin,
 			UserDisplayName: event.UserName,
@@ -73,6 +74,8 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	c.handleYoutubeSongRequests(event)
 
 	c.handleAlerts(event)
+
+	c.handleRewardsSevenTvEmote(event)
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(
@@ -177,7 +180,6 @@ func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 		return
 	}
 	if entity.ID == "" {
-		zap.S().Warnln("no settings for youtube_song_requests", "channelId", event.BroadcasterUserID)
 		return
 	}
 
@@ -229,13 +231,14 @@ func (c *Handler) handleYoutubeSongRequests(event *eventsub_bindings.EventChanne
 		return
 	}
 
-	if len(res.Responses) == 0 {
+	if len(res.GetResponses()) == 0 {
 		return
 	}
 
-	for _, response := range res.Responses {
+	for _, response := range res.GetResponses() {
 		c.services.Grpc.Bots.SendMessage(
-			context.Background(), &bots.SendMessageRequest{
+			context.Background(),
+			&bots.SendMessageRequest{
 				ChannelId:   event.BroadcasterUserID,
 				ChannelName: &event.BroadcasterUserLogin,
 				Message:     fmt.Sprintf("@%s %s", event.UserLogin, response),
