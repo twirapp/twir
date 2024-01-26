@@ -56,6 +56,7 @@ function sevenTvPayload(opcode: Opcode, data: any): string {
 }
 
 export const useSevenTv = defineStore('seven-tv', () => {
+	const countRefetch = ref(0);
 	const sevenTvUserId = ref('');
 	const currentEmoteSetId = ref('');
 
@@ -151,6 +152,8 @@ export const useSevenTv = defineStore('seven-tv', () => {
 	});
 
 	async function fetchSevenTvEmotes(channelId: string) {
+		if (status.value === 'OPEN' || countRefetch.value > 3) return;
+
 		try {
 			const [globalEmotes, channelEmotes] = await Promise.all([
 				requestWithOutCache<SevenTvGlobalResponse>(
@@ -166,22 +169,21 @@ export const useSevenTv = defineStore('seven-tv', () => {
 
 			currentEmoteSetId.value = channelEmotes.emote_set.id;
 			sevenTvUserId.value = channelEmotes.user.id;
+
+			open();
 		} catch (err) {
+			countRefetch.value++;
+			fetchSevenTvEmotes(channelId);
 			console.error(err);
 		}
 	}
 
-	function connect(): void {
-		if (status.value === 'OPEN') return;
-		open();
-	}
-
 	function destroy(): void {
+		if (status.value !== 'OPEN') return;
 		close();
 	}
 
 	return {
-		connect,
 		destroy,
 		fetchSevenTvEmotes,
 	};

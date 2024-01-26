@@ -16,7 +16,7 @@ export type ThirdPartyEmotesOptions = {
 const ONE_MINUTE = 60 * 1000;
 
 export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
-	const { fetchSevenTvEmotes, connect: connectSevenTv, destroy: destroySevenTv } = useSevenTv();
+	const { fetchSevenTvEmotes, destroy: destroySevenTv } = useSevenTv();
 	const { fetchBttvEmotes } = useBetterTv();
 	const { fetchFrankerFaceZEmotes } = useFrankerFaceZ();
 
@@ -37,8 +37,7 @@ export function useThirdPartyEmotes(options: Ref<ThirdPartyEmotesOptions>) {
 		if (!options.channelId) return;
 
 		if (options.sevenTv) {
-			fetchSevenTvEmotes(options.channelId)
-				.then(() => connectSevenTv());
+			fetchSevenTvEmotes(options.channelId);
 		}
 
 		if (options.bttv) {
