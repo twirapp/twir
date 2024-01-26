@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_seventv"
@@ -36,11 +37,27 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 	}
 
 	var sevenTvSettings model.ChannelsIntegrationsSettingsSeventv
-	if err := c.Db.
+	err = c.Db.
 		WithContext(ctx).
 		Where("channel_id = ?", dashboardId).
-		Find(&sevenTvSettings).
-		Error; err != nil {
+		First(&sevenTvSettings).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		sevenTvSettings.ID = uuid.New()
+		sevenTvSettings.ChannelID = dashboardId
+		sevenTvSettings.RewardIdForAddEmote = null.StringFromPtr(nil)
+		sevenTvSettings.RewardIdForRemoveEmote = null.StringFromPtr(nil)
+		sevenTvSettings.DeleteEmotesOnlyAddedByApp = false
+		sevenTvSettings.AddedEmotes = pq.StringArray{}
+
+		if err := c.Db.
+			WithContext(ctx).
+			Save(&sevenTvSettings).
+			Error; err != nil {
+			return nil, err
+		}
+	} else if err != nil {
 		return nil, err
 	}
 
