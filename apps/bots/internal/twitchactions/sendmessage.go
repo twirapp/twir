@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
@@ -35,22 +36,45 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	}
 
 	text := strings.ReplaceAll(opts.Message, "\n", " ")
+	textParts := splitTextByLength(text)
 
-	resp, err := twitchClient.SendChatMessage(
-		&helix.SendChatMessageParams{
-			BroadcasterID:        opts.BroadcasterID,
-			SenderID:             opts.SenderID,
-			Message:              validateResponseSlashes(text),
-			ReplyParentMessageID: opts.ReplyParentMessageID,
-		},
-	)
-	if err != nil {
-		return err
-	}
+	for i, part := range textParts {
+		if i > 2 {
+			return nil
+		}
+		resp, err := twitchClient.SendChatMessage(
+			&helix.SendChatMessageParams{
+				BroadcasterID:        opts.BroadcasterID,
+				SenderID:             opts.SenderID,
+				Message:              validateResponseSlashes(part),
+				ReplyParentMessageID: opts.ReplyParentMessageID,
+			},
+		)
+		if err != nil {
+			return err
+		}
 
-	if resp.ErrorMessage != "" {
-		return fmt.Errorf("cannot send message: %w", resp.ErrorMessage)
+		if resp.ErrorMessage != "" {
+			return fmt.Errorf("cannot send message: %w", resp.ErrorMessage)
+		}
 	}
 
 	return nil
+}
+
+func splitTextByLength(text string) []string {
+	var parts []string
+
+	i := 500
+	for utf8.RuneCountInString(text) > 0 {
+		if utf8.RuneCountInString(text) < 500 {
+			parts = append(parts, text)
+			break
+		}
+		runned := []rune(text)
+		parts = append(parts, string(runned[:i]))
+		text = string(runned[i:])
+	}
+
+	return parts
 }
