@@ -29,6 +29,7 @@ require (
 require golang.org/x/net v0.20.0 // indirect
 
 require (
+	github.com/alitto/pond v1.8.3 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

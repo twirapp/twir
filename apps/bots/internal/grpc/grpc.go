@@ -7,12 +7,11 @@ import (
 	"net"
 	"time"
 
-	"github.com/kr/pretty"
-	"github.com/nicklaw5/helix/v2"
+	"github.com/satont/twir/apps/bots/internal/messagehandler"
+	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/constants"
@@ -34,15 +33,19 @@ type Opts struct {
 	Cfg    cfg.Config
 	LC     fx.Lifecycle
 
-	TokensGrpc tokens.TokensClient
+	TokensGrpc     tokens.TokensClient
+	TwitchActions  *twitchactions.TwitchActions
+	MessageHandler *messagehandler.MessageHandler
 }
 
 func New(opts Opts) (*Grpc, error) {
 	impl := &Grpc{
-		gorm:       opts.Gorm,
-		logger:     opts.Logger,
-		config:     opts.Cfg,
-		tokensGrpc: opts.TokensGrpc,
+		gorm:           opts.Gorm,
+		logger:         opts.Logger,
+		config:         opts.Cfg,
+		tokensGrpc:     opts.TokensGrpc,
+		twitchactions:  opts.TwitchActions,
+		messageHandler: opts.MessageHandler,
 	}
 
 	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.BOTS_SERVER_PORT))
@@ -80,10 +83,12 @@ func New(opts Opts) (*Grpc, error) {
 type Grpc struct {
 	bots.UnimplementedBotsServer
 
-	gorm       *gorm.DB
-	logger     logger.Logger
-	config     cfg.Config
-	tokensGrpc tokens.TokensClient
+	gorm           *gorm.DB
+	logger         logger.Logger
+	config         cfg.Config
+	tokensGrpc     tokens.TokensClient
+	twitchactions  *twitchactions.TwitchActions
+	messageHandler *messagehandler.MessageHandler
 }
 
 var _ bots.BotsServer = (*Grpc)(nil)
@@ -107,27 +112,21 @@ func (c *Grpc) DeleteMessage(ctx context.Context, req *bots.DeleteMessagesReques
 		return &emptypb.Empty{}, nil
 	}
 
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, channel.BotID, c.config, c.tokensGrpc)
-	if err != nil {
-		return nil, err
-	}
-
 	wg := utils.NewGoroutinesGroup()
 
 	for _, m := range req.GetMessageIds() {
 		wg.Go(
 			func() {
-				request, e := twitchClient.DeleteChatMessage(
-					&helix.DeleteChatMessageParams{
-						BroadcasterID: channel.ID,
+				e := c.twitchactions.DeleteMessage(
+					ctx,
+					twitchactions.DeleteMessageOpts{
+						BroadcasterID: req.GetChannelId(),
 						ModeratorID:   channel.BotID,
 						MessageID:     m,
 					},
 				)
 				if e != nil {
 					c.logger.Error("cannot delete message", slog.Any("err", e))
-				} else if request.ErrorMessage != "" {
-					c.logger.Error("cannot delete message", slog.String("err", request.ErrorMessage))
 				}
 			},
 		)
@@ -142,7 +141,33 @@ func (c *Grpc) SendMessage(ctx context.Context, req *bots.SendMessageRequest) (
 	*emptypb.Empty,
 	error,
 ) {
-	pretty.Println(req.GetMessage())
+	channel := model.Channels{}
+	err := c.gorm.WithContext(ctx).Where("id = ?", req.GetChannelId()).Find(&channel).Error
+	if err != nil {
+		c.logger.Error(
+			"cannot get channel",
+			slog.String("channelId", req.GetChannelId()),
+			slog.String("channelName", req.GetChannelName()),
+		)
+		return &emptypb.Empty{}, nil
+	}
+
+	if channel.ID == "" {
+		return &emptypb.Empty{}, nil
+	}
+
+	err = c.twitchactions.SendMessage(
+		ctx,
+		twitchactions.SendMessageOpts{
+			BroadcasterID:        req.GetChannelId(),
+			SenderID:             channel.BotID,
+			Message:              req.GetMessage(),
+			ReplyParentMessageID: req.GetReplyTo(),
+		},
+	)
+	if err != nil {
+		c.logger.Error("cannot send message", slog.Any("err", err))
+	}
 	return &emptypb.Empty{}, nil
 }
 
@@ -150,35 +175,13 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 	*emptypb.Empty,
 	error,
 ) {
-	channel := model.Channels{}
-	err := c.gorm.WithContext(ctx).Where("id = ?", req.GetBroadcasterUserId()).Find(&channel).Error
+	err := c.messageHandler.Handle(ctx, req)
 	if err != nil {
 		c.logger.Error(
-			"cannot get channel",
+			"cannot handle message",
 			slog.String("channelId", req.GetBroadcasterUserId()),
 			slog.String("channelName", req.GetBroadcasterUserLogin()),
 		)
-		return &emptypb.Empty{}, nil
-	}
-
-	if !channel.IsEnabled {
-		return &emptypb.Empty{}, nil
-	}
-
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, channel.BotID, c.config, c.tokensGrpc)
-	if err != nil {
-		return nil, err
-	}
-
-	if req.GetMessage().GetText() == "ping" {
-		_, err := twitchClient.SendChatMessage(
-			&helix.SendChatMessageParams{
-				BroadcasterID: req.GetBroadcasterUserId(),
-				SenderID:      channel.BotID,
-				Message:       "pong!",
-			},
-		)
-		fmt.Println(err)
 	}
 
 	return &emptypb.Empty{}, nil
