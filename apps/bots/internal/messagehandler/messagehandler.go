@@ -138,6 +138,8 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 		c.handleKeywords,
 		c.handleEmotesUsages,
 		c.handleStoreMessage,
+		c.handleTts,
+		c.handleRemoveLurker,
 	}
 
 	for _, f := range funcsForExecute {
