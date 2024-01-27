@@ -12,7 +12,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/bots"
 	"github.com/twirapp/twir/libs/api/messages/meta"
-	botsGrtpc "github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/eventsub"
 	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -152,20 +152,9 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 	}
 
 	if dbChannel.IsEnabled {
-		c.Grpc.Bots.Join(
-			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
-				BotId:    dbChannel.BotID,
-				UserName: twitchUsers.Data.Users[0].Login,
-				UserId:   twitchUsers.Data.Users[0].ID,
-			},
-		)
-	} else {
-		c.Grpc.Bots.Leave(
-			context.Background(), &botsGrtpc.JoinOrLeaveRequest{
-				BotId:    dbChannel.BotID,
-				UserName: twitchUsers.Data.Users[0].Login,
-				UserId:   twitchUsers.Data.Users[0].ID,
-			},
+		c.Grpc.EventSub.SubscribeToEvents(
+			ctx,
+			&eventsub.SubscribeToEventsRequest{ChannelId: dashboardId},
 		)
 	}
 

@@ -2,13 +2,13 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleChannelChatNotification(
@@ -25,26 +25,21 @@ func (c *Handler) handleChannelChatNotification(
 
 func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChatNotification) {
 	if event.SubGift == nil {
-		zap.S().Errorw(
-			"subgift event has no subgift data",
-			"channelId", event.BroadcasterUserID,
-			"channelName", event.BroadcasterUserLogin,
-		)
 		return
 	}
 
 	tier := getSubPlan(event.SubGift.SubTier)
 
-	defer zap.S().Infow(
+	c.logger.Info(
 		"subgift",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"targetUserName", event.SubGift.RecipientUserName,
-		"targetUserId", event.SubGift.RecipientUserID,
-		"level", event.SubGift.SubTier,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("targetUserName", event.SubGift.RecipientUserName),
+		slog.String("targetUserId", event.SubGift.RecipientUserID),
+		slog.String("level", event.SubGift.SubTier),
 	)
 
-	if err := c.services.Gorm.Create(
+	if err := c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
@@ -59,17 +54,15 @@ func (c *Handler) _notificationSubGift(event *eventsub_bindings.EventChannelChat
 			},
 		},
 	).Error; err != nil {
-		zap.S().Errorw(
-			"cannot create subgift entity",
-			"channelId", event.BroadcasterUserID,
-			"channelName", event.BroadcasterUserLogin,
-			"userId", event.ChatterUserID,
-			"userName", event.ChatterUserLogin,
-			"error", err,
+		c.logger.Error(
+			err.Error(),
+			slog.Any("err", err),
+			slog.String("channelId", event.BroadcasterUserID),
 		)
 	}
-	c.services.Grpc.Events.SubGift(
-		context.Background(), &events.SubGiftMessage{
+	c.eventsGrpc.SubGift(
+		context.Background(),
+		&events.SubGiftMessage{
 			BaseInfo:          &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			SenderUserId:      event.ChatterUserID,
 			SenderUserName:    event.ChatterUserLogin,

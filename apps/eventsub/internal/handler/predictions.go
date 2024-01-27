@@ -2,11 +2,11 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.PredictionInfo_OutCome {
@@ -52,17 +52,16 @@ func (c *Handler) handleChannelPredictionBegin(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionBegin,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Prediction begin",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"title", event.Title,
-		"outcomes", event.Outcomes,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("title", event.Title),
 	)
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.services.Grpc.Events.PredictionBegin(
+	_, err := c.eventsGrpc.PredictionBegin(
 		context.Background(),
 		&events.PredictionBeginMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
@@ -76,7 +75,7 @@ func (c *Handler) handleChannelPredictionBegin(
 	)
 
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
@@ -84,17 +83,16 @@ func (c *Handler) handleChannelPredictionProgress(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionProgress,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Prediction progress",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"title", event.Title,
-		"outcomes", event.Outcomes,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("title", event.Title),
 	)
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.services.Grpc.Events.PredictionProgress(
+	_, err := c.eventsGrpc.PredictionProgress(
 		context.Background(),
 		&events.PredictionProgressMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
@@ -108,7 +106,7 @@ func (c *Handler) handleChannelPredictionProgress(
 	)
 
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
@@ -116,17 +114,16 @@ func (c *Handler) handleChannelPredictionLock(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionLock,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Prediction lock",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"title", event.Title,
-		"outcomes", event.Outcomes,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("title", event.Title),
 	)
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.services.Grpc.Events.PredictionLock(
+	_, err := c.eventsGrpc.PredictionLock(
 		context.Background(),
 		&events.PredictionLockMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
@@ -140,7 +137,7 @@ func (c *Handler) handleChannelPredictionLock(
 	)
 
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
@@ -148,13 +145,12 @@ func (c *Handler) handleChannelPredictionEnd(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPredictionEnd,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Prediction end",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"title", event.Title,
-		"outcomes", event.Outcomes,
-		"status", event.Status,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("title", event.Title),
+		slog.String("status", event.Status),
 	)
 
 	if event.Status != "resolved" {
@@ -163,7 +159,7 @@ func (c *Handler) handleChannelPredictionEnd(
 
 	outComes := convertOutCome(event.Outcomes)
 
-	_, err := c.services.Grpc.Events.PredictionEnd(
+	_, err := c.eventsGrpc.PredictionEnd(
 		context.Background(),
 		&events.PredictionEndMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
@@ -178,6 +174,6 @@ func (c *Handler) handleChannelPredictionEnd(
 	)
 
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
