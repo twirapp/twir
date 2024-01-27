@@ -29,4 +29,5 @@ use (
 	./libs/twitch
 	./libs/types
 	./libs/utils
+	./libs/helix
 )

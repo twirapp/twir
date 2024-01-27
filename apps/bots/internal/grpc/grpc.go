@@ -39,8 +39,10 @@ type Opts struct {
 
 func New(opts Opts) (*Grpc, error) {
 	impl := &Grpc{
-		gorm:   opts.Gorm,
-		logger: opts.Logger,
+		gorm:       opts.Gorm,
+		logger:     opts.Logger,
+		config:     opts.Cfg,
+		tokensGrpc: opts.TokensGrpc,
 	}
 
 	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.BOTS_SERVER_PORT))
@@ -148,6 +150,36 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 	*emptypb.Empty,
 	error,
 ) {
-	pretty.Println(req.Message.GetFragments())
+	channel := model.Channels{}
+	err := c.gorm.WithContext(ctx).Where("id = ?", req.GetBroadcasterUserId()).Find(&channel).Error
+	if err != nil {
+		c.logger.Error(
+			"cannot get channel",
+			slog.String("channelId", req.GetBroadcasterUserId()),
+			slog.String("channelName", req.GetBroadcasterUserLogin()),
+		)
+		return &emptypb.Empty{}, nil
+	}
+
+	if !channel.IsEnabled {
+		return &emptypb.Empty{}, nil
+	}
+
+	twitchClient, err := twitch.NewBotClientWithContext(ctx, channel.BotID, c.config, c.tokensGrpc)
+	if err != nil {
+		return nil, err
+	}
+
+	if req.GetMessage().GetText() == "ping" {
+		_, err := twitchClient.SendChatMessage(
+			&helix.SendChatMessageParams{
+				BroadcasterID: req.GetBroadcasterUserId(),
+				SenderID:      channel.BotID,
+				Message:       "pong!",
+			},
+		)
+		fmt.Println(err)
+	}
+
 	return &emptypb.Empty{}, nil
 }
