@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/gorm"
 	"github.com/satont/twir/apps/bots/internal/grpc"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
+	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
@@ -55,6 +56,7 @@ var App = fx.Module(
 			return redis.NewClient(redisOpts), nil
 		},
 		twitchactions.New,
+		moderationhelpers.New,
 		messagehandler.New,
 	),
 	fx.Invoke(

@@ -3,12 +3,18 @@ package messagehandler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
+	"reflect"
+	"runtime"
 	"sync"
+	"time"
 
 	"github.com/alitto/pond"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -23,24 +29,28 @@ import (
 type Opts struct {
 	fx.In
 
-	Logger         logger.Logger
-	Gorm           *gorm.DB
-	Redis          *redis.Client
-	TwitchActions  *twitchactions.TwitchActions
-	ParserGrpc     parser.ParserClient
-	WebsocketsGrpc websockets.WebsocketClient
-	EventsGrpc     events.EventsClient
+	Logger            logger.Logger
+	Gorm              *gorm.DB
+	Redis             *redis.Client
+	TwitchActions     *twitchactions.TwitchActions
+	ParserGrpc        parser.ParserClient
+	WebsocketsGrpc    websockets.WebsocketClient
+	EventsGrpc        events.EventsClient
+	ModerationHelpers *moderationhelpers.ModerationHelpers
+	Config            cfg.Config
 }
 
 type MessageHandler struct {
-	logger         logger.Logger
-	gorm           *gorm.DB
-	redis          *redis.Client
-	pool           *pond.WorkerPool
-	twitchActions  *twitchactions.TwitchActions
-	parserGrpc     parser.ParserClient
-	websocketsGrpc websockets.WebsocketClient
-	eventsGrpc     events.EventsClient
+	logger            logger.Logger
+	gorm              *gorm.DB
+	redis             *redis.Client
+	pool              *pond.WorkerPool
+	twitchActions     *twitchactions.TwitchActions
+	parserGrpc        parser.ParserClient
+	websocketsGrpc    websockets.WebsocketClient
+	eventsGrpc        events.EventsClient
+	moderationHelpers *moderationhelpers.ModerationHelpers
+	config            cfg.Config
 }
 
 func New(opts Opts) *MessageHandler {
@@ -55,14 +65,16 @@ func New(opts Opts) *MessageHandler {
 		),
 	)
 	return &MessageHandler{
-		logger:         opts.Logger,
-		gorm:           opts.Gorm,
-		redis:          opts.Redis,
-		pool:           pool,
-		twitchActions:  opts.TwitchActions,
-		parserGrpc:     opts.ParserGrpc,
-		websocketsGrpc: opts.WebsocketsGrpc,
-		eventsGrpc:     opts.EventsGrpc,
+		logger:            opts.Logger,
+		gorm:              opts.Gorm,
+		redis:             opts.Redis,
+		pool:              pool,
+		twitchActions:     opts.TwitchActions,
+		parserGrpc:        opts.ParserGrpc,
+		websocketsGrpc:    opts.WebsocketsGrpc,
+		eventsGrpc:        opts.EventsGrpc,
+		moderationHelpers: opts.ModerationHelpers,
+		config:            opts.Config,
 	}
 }
 
@@ -74,13 +86,11 @@ type handleMessage struct {
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessage) error {
-	c.logger.Info("new message", slog.String("text", req.GetMessage().GetText()))
-
 	msg := handleMessage{
 		TwitchChatMessage: req,
 	}
 
-	errwg, errWgCtx := errgroup.WithContext(ctx)
+	errwg, errWgCtx := errgroup.WithContext(context.TODO())
 
 	errwg.Go(
 		func() error {
@@ -129,26 +139,38 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 	msg.DbUser = dbUser
 
+	if req.GetChatterUserId() == msg.DbChannel.BotID && c.config.AppEnv == "production" {
+		return nil
+	}
+
 	var wg sync.WaitGroup
 
 	funcsForExecute := [...]func(ctx context.Context, msg handleMessage) error{
-		c.handleIncrementStreamMessages,
 		c.handleCommand,
+		c.handleIncrementStreamMessages,
 		c.handleGreetings,
 		c.handleKeywords,
 		c.handleEmotesUsages,
 		c.handleStoreMessage,
 		c.handleTts,
 		c.handleRemoveLurker,
+		c.handleModeration,
+		c.handleFirstStreamUserJoin,
 	}
 
+	start := time.Now()
 	for _, f := range funcsForExecute {
 		wg.Add(1)
 
+		f := f
+
 		c.pool.Submit(
 			func() {
-				if err := f(ctx, msg); err != nil {
-					c.logger.Error("cannot execute handle function", slog.Any("err", err))
+				if err := f(context.TODO(), msg); err != nil {
+					c.logger.Error(
+						"error when executing message handler function", slog.Any("err", err),
+						slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
+					)
 				}
 				wg.Done()
 			},
@@ -156,6 +178,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	wg.Wait()
+	fmt.Println(time.Since(start))
 
 	return nil
 }

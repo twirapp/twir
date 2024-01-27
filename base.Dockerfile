@@ -63,6 +63,7 @@ COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
 COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
 COPY libs/integrations/seventv/go.mod libs/integrations/seventv/go.mod
+COPY libs/integrations/helix/go.mod libs/integrations/helix/go.mod
 
 # CLI PART
 COPY cli cli

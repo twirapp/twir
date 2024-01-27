@@ -71,6 +71,8 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 				continue
 			}
 
+			r := r
+
 			go func() {
 				e := c.twitchActions.SendMessage(
 					ctx,
