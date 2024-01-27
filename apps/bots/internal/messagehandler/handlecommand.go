@@ -12,9 +12,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) {
+func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) error {
 	if !strings.HasPrefix(msg.GetMessage().GetText(), "!") {
-		return
+		return nil
 	}
 
 	requestStruct := &parser.ProcessCommandRequest{
@@ -22,8 +22,7 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) {
 			Id:          msg.GetChatterUserId(),
 			Name:        msg.GetChatterUserLogin(),
 			DisplayName: msg.GetChatterUserName(),
-			// TODO: add
-			Badges: []string{},
+			Badges:      createUserBadges(msg.Badges),
 		},
 		Channel: &parser.Channel{
 			Id:   msg.GetBroadcasterUserId(),
@@ -36,15 +35,15 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) {
 		},
 	}
 
-	resp, err := c.parserGrpc.ProcessCommand(context.Background(), requestStruct)
+	resp, err := c.parserGrpc.ProcessCommand(ctx, requestStruct)
 	if err != nil {
 		st, ok := status.FromError(err)
 		if ok && st.Code() == codes.NotFound {
-			return
+			return nil
 		}
 
 		c.logger.Error("cannot process command", slog.Any("err", err))
-		return
+		return nil
 	}
 
 	if resp.GetKeepOrder() {
@@ -88,4 +87,6 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) {
 			}()
 		}
 	}
+
+	return nil
 }

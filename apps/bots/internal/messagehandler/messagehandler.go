@@ -2,15 +2,19 @@ package messagehandler
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"sync"
 
 	"github.com/alitto/pond"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/shared"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -19,11 +23,24 @@ import (
 type Opts struct {
 	fx.In
 
-	Logger        logger.Logger
-	Gorm          *gorm.DB
-	Redis         *redis.Client
-	TwitchActions *twitchactions.TwitchActions
-	ParserGrpc    parser.ParserClient
+	Logger         logger.Logger
+	Gorm           *gorm.DB
+	Redis          *redis.Client
+	TwitchActions  *twitchactions.TwitchActions
+	ParserGrpc     parser.ParserClient
+	WebsocketsGrpc websockets.WebsocketClient
+	EventsGrpc     events.EventsClient
+}
+
+type MessageHandler struct {
+	logger         logger.Logger
+	gorm           *gorm.DB
+	redis          *redis.Client
+	pool           *pond.WorkerPool
+	twitchActions  *twitchactions.TwitchActions
+	parserGrpc     parser.ParserClient
+	websocketsGrpc websockets.WebsocketClient
+	eventsGrpc     events.EventsClient
 }
 
 func New(opts Opts) *MessageHandler {
@@ -38,31 +55,27 @@ func New(opts Opts) *MessageHandler {
 		),
 	)
 	return &MessageHandler{
-		logger:        opts.Logger,
-		gorm:          opts.Gorm,
-		redis:         opts.Redis,
-		pool:          pool,
-		twitchActions: opts.TwitchActions,
-		parserGrpc:    opts.ParserGrpc,
+		logger:         opts.Logger,
+		gorm:           opts.Gorm,
+		redis:          opts.Redis,
+		pool:           pool,
+		twitchActions:  opts.TwitchActions,
+		parserGrpc:     opts.ParserGrpc,
+		websocketsGrpc: opts.WebsocketsGrpc,
+		eventsGrpc:     opts.EventsGrpc,
 	}
-}
-
-type MessageHandler struct {
-	logger        logger.Logger
-	gorm          *gorm.DB
-	redis         *redis.Client
-	pool          *pond.WorkerPool
-	twitchActions *twitchactions.TwitchActions
-	parserGrpc    parser.ParserClient
 }
 
 type handleMessage struct {
 	*shared.TwitchChatMessage
 	DbChannel *model.Channels
 	DbStream  *model.ChannelsStreams
+	DbUser    *model.Users
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessage) error {
+	c.logger.Info("new message", slog.String("text", req.GetMessage().GetText()))
+
 	msg := handleMessage{
 		TwitchChatMessage: req,
 	}
@@ -75,10 +88,14 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				`"userId" = ?`,
 				req.GetBroadcasterUserId(),
-			).Find(stream).Error; err != nil {
+			).First(stream).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
-			msg.DbStream = stream
+			if stream.ID == "" {
+				msg.DbStream = nil
+			} else {
+				msg.DbStream = stream
+			}
 			return nil
 		},
 	)
@@ -89,7 +106,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				"id = ?",
 				req.GetBroadcasterUserId(),
-			).Find(dbChannel).
+			).First(dbChannel).
 				Error; err != nil {
 				return err
 			}
@@ -106,11 +123,37 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 		return nil
 	}
 
-	c.pool.SubmitAndWait(
-		func() {
-			c.handleCommand(context.TODO(), msg)
-		},
-	)
+	dbUser, err := c.ensureUser(ctx, msg)
+	if err != nil {
+		return err
+	}
+	msg.DbUser = dbUser
+
+	var wg sync.WaitGroup
+
+	funcsForExecute := [...]func(ctx context.Context, msg handleMessage) error{
+		c.handleIncrementStreamMessages,
+		c.handleCommand,
+		c.handleGreetings,
+		c.handleKeywords,
+		c.handleEmotesUsages,
+		c.handleStoreMessage,
+	}
+
+	for _, f := range funcsForExecute {
+		wg.Add(1)
+
+		c.pool.Submit(
+			func() {
+				if err := f(ctx, msg); err != nil {
+					c.logger.Error("cannot execute handle function", slog.Any("err", err))
+				}
+				wg.Done()
+			},
+		)
+	}
+
+	wg.Wait()
 
 	return nil
 }

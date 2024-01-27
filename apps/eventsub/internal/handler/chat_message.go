@@ -8,6 +8,21 @@ import (
 	"github.com/twirapp/twir/libs/grpc/shared"
 )
 
+func convertFragmentTypeToEnumValue(t string) shared.FragmentType {
+	switch t {
+	case "text":
+		return shared.FragmentType_TEXT
+	case "cheermote":
+		return shared.FragmentType_CHEERMOTE
+	case "emote":
+		return shared.FragmentType_EMOTE
+	case "mention":
+		return shared.FragmentType_MENTION
+	default:
+		return shared.FragmentType_TEXT
+	}
+}
+
 func (c *Handler) handleChannelChatMessage(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatMessage,
@@ -46,7 +61,7 @@ func (c *Handler) handleChannelChatMessage(
 
 		fragments = append(
 			fragments, &shared.ChatMessageMessageFragment{
-				Type:      fragment.Type,
+				Type:      convertFragmentTypeToEnumValue(fragment.Type),
 				Text:      fragment.Text,
 				Cheermote: cheerMote,
 				Emote:     emote,
@@ -88,7 +103,7 @@ func (c *Handler) handleChannelChatMessage(
 	}
 
 	_, err := c.botsGrpc.HandleChatMessage(
-		context.TODO(),
+		context.Background(),
 		&shared.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,

@@ -22,8 +22,15 @@ message ChatMessageMessageFragmentMention {
 	string user_login = 3;
 }
 
+enum FragmentType {
+	TEXT = 0;
+	CHEERMOTE = 1;
+	EMOTE = 2;
+	MENTION = 3;
+}
+
 message ChatMessageMessageFragment {
-	string type = 1;
+	FragmentType type = 1;
 	string text = 2;
 	ChatMessageMessageFragmentCheermote cheermote = 3;
 	ChatMessageMessageFragmentEmote emote = 4;

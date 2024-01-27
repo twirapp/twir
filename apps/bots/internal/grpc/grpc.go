@@ -181,6 +181,7 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 			"cannot handle message",
 			slog.String("channelId", req.GetBroadcasterUserId()),
 			slog.String("channelName", req.GetBroadcasterUserLogin()),
+			slog.Any("err", err),
 		)
 	}
 
