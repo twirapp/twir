@@ -33,7 +33,7 @@ func New(opts Opts) *MessageHandler {
 		pond.Strategy(pond.Balanced()),
 		pond.PanicHandler(
 			func(i interface{}) {
-				opts.Logger.Error("paniced", slog.Any("err", i))
+				opts.Logger.Error("panic", slog.Any("err", i))
 			},
 		),
 	)
