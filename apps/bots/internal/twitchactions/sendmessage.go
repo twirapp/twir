@@ -15,6 +15,7 @@ type SendMessageOpts struct {
 	SenderID             string
 	Message              string
 	ReplyParentMessageID string
+	IsAnnounce           bool
 }
 
 func validateResponseSlashes(response string) string {
@@ -42,20 +43,39 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		if i > 2 {
 			return nil
 		}
-		resp, err := twitchClient.SendChatMessage(
-			&helix.SendChatMessageParams{
-				BroadcasterID:        opts.BroadcasterID,
-				SenderID:             opts.SenderID,
-				Message:              validateResponseSlashes(part),
-				ReplyParentMessageID: opts.ReplyParentMessageID,
-			},
-		)
-		if err != nil {
+
+		var msgErr error
+		var errorMessage string
+
+		if !opts.IsAnnounce {
+			resp, err := twitchClient.SendChatMessage(
+				&helix.SendChatMessageParams{
+					BroadcasterID:        opts.BroadcasterID,
+					SenderID:             opts.SenderID,
+					Message:              validateResponseSlashes(part),
+					ReplyParentMessageID: opts.ReplyParentMessageID,
+				},
+			)
+			msgErr = err
+			errorMessage = resp.ErrorMessage
+		} else {
+			resp, err := twitchClient.SendChatAnnouncement(
+				&helix.SendChatAnnouncementParams{
+					BroadcasterID: opts.BroadcasterID,
+					ModeratorID:   opts.SenderID,
+					Message:       validateResponseSlashes(part),
+				},
+			)
+			msgErr = err
+			errorMessage = resp.ErrorMessage
+		}
+
+		if msgErr != nil {
 			return err
 		}
 
-		if resp.ErrorMessage != "" {
-			return fmt.Errorf("cannot send message: %w", resp.ErrorMessage)
+		if errorMessage != "" {
+			return fmt.Errorf("cannot send message: %w", errorMessage)
 		}
 	}
 

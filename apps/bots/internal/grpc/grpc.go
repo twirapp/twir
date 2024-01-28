@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
@@ -163,6 +164,7 @@ func (c *Grpc) SendMessage(ctx context.Context, req *bots.SendMessageRequest) (
 			SenderID:             channel.BotID,
 			Message:              req.GetMessage(),
 			ReplyParentMessageID: req.GetReplyTo(),
+			IsAnnounce:           lo.FromPtr(req.IsAnnounce),
 		},
 	)
 	if err != nil {
