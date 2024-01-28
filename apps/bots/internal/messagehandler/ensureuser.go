@@ -3,7 +3,6 @@ package messagehandler
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -63,7 +62,6 @@ func (c *MessageHandler) ensureUser(ctx context.Context, msg handleMessage) (*mo
 			Emotes:            0,
 		}
 	} else if msg.DbStream != nil {
-		fmt.Println(msg.DbStream)
 		user.Stats.Messages += 1
 	}
 

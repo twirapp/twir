@@ -16,9 +16,9 @@ import (
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
-	// if msg.DbStream == nil {
-	// 	return nil
-	// }
+	if msg.DbStream == nil {
+		return nil
+	}
 
 	entity := model.ChannelsGreetings{}
 	err := c.gorm.
