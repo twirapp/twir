@@ -205,7 +205,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	var cmdParams *string
-	params := strings.TrimSpace(requestData.Message.Text[len(command.FoundBy):])
+	params := strings.TrimSpace(requestData.GetMessage().GetText()[len(command.FoundBy):])
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
@@ -222,34 +222,34 @@ func (c *Commands) ParseCommandResponses(
 		}
 	}
 
-	defer c.services.Gorm.
+	go c.services.Gorm.
 		WithContext(ctx).
 		Create(
 			&model.ChannelsCommandsUsages{
 				ID:        uuid.New().String(),
-				UserID:    requestData.Sender.Id,
-				ChannelID: requestData.Channel.Id,
+				UserID:    requestData.GetSender().GetId(),
+				ChannelID: requestData.GetChannel().GetId(),
 				CommandID: command.Cmd.ID,
 			},
 		)
 
 	parseCtxChannel := &types.ParseContextChannel{
-		ID:   requestData.Channel.Id,
-		Name: requestData.Channel.Name,
+		ID:   requestData.GetChannel().GetId(),
+		Name: requestData.GetChannel().GetName(),
 	}
 	parseCtxSender := &types.ParseContextSender{
-		ID:          requestData.Sender.Id,
-		Name:        requestData.Sender.Name,
-		DisplayName: requestData.Sender.DisplayName,
-		Badges:      requestData.Sender.Badges,
+		ID:          requestData.GetSender().GetId(),
+		Name:        requestData.GetSender().GetName(),
+		DisplayName: requestData.GetSender().GetDisplayName(),
+		Badges:      requestData.GetSender().GetBadges(),
 	}
 
 	parseCtx := &types.ParseContext{
-		MessageId: requestData.Message.Id,
+		MessageId: requestData.GetMessage().GetId(),
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
-		RawText:   requestData.Message.Text,
+		RawText:   requestData.GetMessage().GetText(),
 		IsCommand: true,
 		Services:  c.services,
 		Cacher: cacher.NewCacher(
@@ -261,17 +261,20 @@ func (c *Commands) ParseCommandResponses(
 			},
 		),
 		Emotes: lo.Map(
-			requestData.Message.Emotes, func(e *parser.Message_Emote, _ int) *types.ParseContextEmote {
+			requestData.GetMessage().GetEmotes(), func(
+				e *parser.Message_Emote,
+				_ int,
+			) *types.ParseContextEmote {
 				return &types.ParseContextEmote{
-					Name:  e.Name,
-					ID:    e.Id,
-					Count: e.Count,
+					Name:  e.GetName(),
+					ID:    e.GetId(),
+					Count: e.GetCount(),
 					Positions: lo.Map(
-						e.Positions,
+						e.GetPositions(),
 						func(p *parser.Message_EmotePosition, _ int) *types.ParseContextEmotePosition {
 							return &types.ParseContextEmotePosition{
-								Start: p.Start,
-								End:   p.End,
+								Start: p.GetStart(),
+								End:   p.GetEnd(),
 							}
 						},
 					),

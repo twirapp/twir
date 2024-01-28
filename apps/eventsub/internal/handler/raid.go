@@ -10,23 +10,22 @@ import (
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleChannelRaid(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelRaid,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"channel raid",
-		"channelId", event.ToBroadcasterUserID,
-		"channelName", event.ToBroadcasterUserName,
-		"userId", event.FromBroadcasterUserID,
-		"userName", event.FromBroadcasterUserLogin,
-		"viewers", event.Viewers,
+		slog.String("channelId", event.ToBroadcasterUserID),
+		slog.String("channelName", event.ToBroadcasterUserName),
+		slog.String("userId", event.FromBroadcasterUserID),
+		slog.String("userName", event.FromBroadcasterUserLogin),
+		slog.Int("viewers", event.Viewers),
 	)
 
-	if err := c.services.Gorm.Create(
+	if err := c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.ToBroadcasterUserID,
@@ -40,15 +39,10 @@ func (c *Handler) handleChannelRaid(
 			},
 		},
 	).Error; err != nil {
-		zap.S().Error(
-			"cannot create raid entity",
-			slog.String("channelId", event.ToBroadcasterUserID),
-			slog.String("userId", event.FromBroadcasterUserID),
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.services.Grpc.Events.Raided(
+	if _, err := c.eventsGrpc.Raided(
 		context.Background(),
 		&events.RaidedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.ToBroadcasterUserID},
@@ -58,11 +52,6 @@ func (c *Handler) handleChannelRaid(
 			UserId:          event.FromBroadcasterUserID,
 		},
 	); err != nil {
-		zap.S().Error(
-			"cannot fire raid event",
-			slog.String("channelId", event.ToBroadcasterUserID),
-			slog.String("userId", event.FromBroadcasterUserID),
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }

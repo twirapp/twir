@@ -63,6 +63,7 @@ func (c *GoApps) Start(ctx context.Context) error {
 			}
 
 			for range chann {
+				pterm.Info.Println("ReStarting " + app.name)
 				if err := app.start(); err != nil {
 					pterm.Error.Println(err)
 				}

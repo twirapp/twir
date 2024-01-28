@@ -3,28 +3,33 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/pubsub"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleStreamOffline(
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventStreamOffline,
+	_ *eventsub_bindings.ResponseHeaders,
+	event *eventsub_bindings.EventStreamOffline,
 ) {
-	defer zap.S().Infow(
-		"stream offline", ""+
-			"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
+	c.logger.Info(
+		"stream offline",
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	c.services.Grpc.Events.StreamOffline(
-		context.Background(), &events.StreamOfflineMessage{
+	_, err := c.eventsGrpc.StreamOffline(
+		context.Background(),
+		&events.StreamOfflineMessage{
 			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 		},
 	)
+	if err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	bytes, err := json.Marshal(
 		&pubsub.StreamOfflineMessage{
@@ -32,17 +37,17 @@ func (c *Handler) handleStreamOffline(
 		},
 	)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 
-	err = c.services.Gorm.Where(
+	err = c.gorm.Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).Delete(&model.ChannelsStreams{}).Error
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	c.services.PubSub.Publish("stream.offline", bytes)
+	c.pubSub.Client.Publish("stream.offline", bytes)
 }

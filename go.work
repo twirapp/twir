@@ -27,8 +27,7 @@ use (
 	./libs/pubsub
 	./libs/sentry
 	./libs/twitch
-	./libs/twitch-eventsub-bindings
-	./libs/twitch-eventsub-framework
 	./libs/types
 	./libs/utils
+	./libs/helix
 )

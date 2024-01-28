@@ -2,12 +2,14 @@ module github.com/satont/twir/libs/twitch
 
 go 1.21
 
+replace github.com/nicklaw5/helix/v2 => ../helix
+
 require (
-	github.com/nicklaw5/helix/v2 v2.25.2
+	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/samber/lo v1.39.0
-	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
-	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
-	google.golang.org/grpc v1.60.1
+	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
+	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
+	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 )
 
@@ -16,11 +18,11 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
-	golang.org/x/exp v0.0.0-20231214170342-aacd6d4b4611 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
+	golang.org/x/net v0.20.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20231212172506-995d672761c0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
 )
 
 replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels

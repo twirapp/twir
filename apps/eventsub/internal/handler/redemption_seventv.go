@@ -13,52 +13,48 @@ import (
 	"gorm.io/gorm"
 )
 
-func (c *Handler) handleRewardsSevenTvEmote(event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd) {
-	if c.services.Config.SevenTvToken == "" || event.UserInput == "" {
-		return
+func (c *Handler) handleRewardsSevenTvEmote(
+	event *eventsub_bindings.EventChannelPointsRewardRedemptionAdd,
+) error {
+	if c.config.SevenTvToken == "" || event.UserInput == "" {
+		return nil
 	}
 
 	settings := &model.ChannelsIntegrationsSettingsSeventv{}
-	err := c.services.Gorm.
+	err := c.gorm.
 		Where(`"channel_id" = ?`, event.BroadcasterUserID).
 		First(settings).
 		Error
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			zap.S().Error(err)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
 		}
-		return
-	}
-
-	// not found
-	if settings.ID.String() == "" {
-		return
+		return err
 	}
 
 	ctx := context.TODO()
 	broadcasterProfile, err := seventv.GetProfile(ctx, event.BroadcasterUserID)
 	if err != nil {
-		zap.S().Error(err)
-		return
+		return err
 	}
 
 	if broadcasterProfile.EmoteSet == nil {
-		return
+		return nil
 	}
 
 	emoteId := seventv.FindEmoteIdInInput(event.UserInput)
 	if emoteId == "" {
-		return
+		return nil
 	}
 
 	if event.Reward.ID == settings.RewardIdForRemoveEmote.String {
 		if settings.DeleteEmotesOnlyAddedByApp && !slices.Contains(settings.AddedEmotes, emoteId) {
-			return
+			return nil
 		}
 
 		err = seventv.RemoveEmote(
 			ctx,
-			c.services.Config.SevenTvToken,
+			c.config.SevenTvToken,
 			event.UserInput,
 			broadcasterProfile.EmoteSet.Id,
 		)
@@ -73,32 +69,26 @@ func (c *Handler) handleRewardsSevenTvEmote(event *eventsub_bindings.EventChanne
 			},
 		)
 
-		err = c.services.Gorm.Save(settings).Error
-		if err != nil {
-			zap.S().Error(err)
-		}
+		err = c.gorm.Save(settings).Error
 
-		return
+		return err
 	}
 
 	if event.Reward.ID == settings.RewardIdForAddEmote.String {
 		err = seventv.AddEmote(
 			ctx,
-			c.services.Config.SevenTvToken,
+			c.config.SevenTvToken,
 			event.UserInput,
 			broadcasterProfile.EmoteSet.Id,
 		)
 		if err != nil {
-			zap.S().Error(err)
-			return
+			return err
 		}
 
 		settings.AddedEmotes = append(settings.AddedEmotes, emoteId)
-		err = c.services.Gorm.Save(settings).Error
-		if err != nil {
-			zap.S().Error(err)
-		}
-
-		return
+		err = c.gorm.Save(settings).Error
+		return err
 	}
+
+	return nil
 }
