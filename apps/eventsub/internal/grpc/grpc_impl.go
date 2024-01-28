@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	model "github.com/satont/twir/libs/gomodels"
@@ -13,7 +12,6 @@ import (
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -44,13 +42,7 @@ func New(opts Opts) (*EventSubGrpcImpl, error) {
 	if err != nil {
 		return nil, err
 	}
-	grpcServer := grpc.NewServer(
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{
-				MaxConnectionAge: 1 * time.Minute,
-			},
-		),
-	)
+	grpcServer := grpc.NewServer()
 	eventsub.RegisterEventSubServer(grpcServer, impl)
 
 	opts.Lc.Append(

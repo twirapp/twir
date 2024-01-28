@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"time"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
@@ -20,7 +19,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -53,13 +51,7 @@ func New(opts Opts) (*Grpc, error) {
 	if err != nil {
 		return nil, err
 	}
-	grpcServer := grpc.NewServer(
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{
-				MaxConnectionAge: 1 * time.Minute,
-			},
-		),
-	)
+	grpcServer := grpc.NewServer()
 	bots.RegisterBotsServer(grpcServer, impl)
 
 	opts.LC.Append(
