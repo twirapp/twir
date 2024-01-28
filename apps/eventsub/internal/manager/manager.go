@@ -57,23 +57,25 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				var channels []model.Channels
-				err := manager.gorm.WithContext(ctx).Where(
-					`"isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
-					true,
-					false,
-					false,
-				).Find(&channels).Error
-				if err != nil {
-					return err
-				}
-
-				for _, channel := range channels {
-					err = manager.SubscribeToNeededEvents(ctx, channel.ID, channel.BotID)
+				go func() {
+					var channels []model.Channels
+					err := manager.gorm.Where(
+						`"isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
+						true,
+						false,
+						false,
+					).Find(&channels).Error
 					if err != nil {
-						return err
+						panic(err)
 					}
-				}
+
+					for _, channel := range channels {
+						err = manager.SubscribeToNeededEvents(ctx, channel.ID, channel.BotID)
+						if err != nil {
+							continue
+						}
+					}
+				}()
 
 				return nil
 			},
