@@ -14,12 +14,11 @@ func (c *MessageHandler) handleIncrementStreamMessages(
 		return nil
 	}
 
-	if err := c.gorm.WithContext(ctx).Model(&model.ChannelsStreams{}).Update(
-		"parsedMessages",
-		msg.DbStream.ParsedMessages+1,
-	).Error; err != nil {
-		return err
-	}
-
-	return nil
+	return c.gorm.
+		WithContext(ctx).
+		Model(&model.ChannelsStreams{}).
+		Update(
+			"parsedMessages",
+			msg.DbStream.ParsedMessages+1,
+		).Error
 }

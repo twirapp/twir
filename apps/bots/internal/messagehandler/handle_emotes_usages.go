@@ -12,6 +12,10 @@ import (
 )
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
+	if msg.DbStream == nil {
+		return nil
+	}
+
 	emotes := make(map[string]int)
 
 	for _, f := range msg.GetMessage().GetFragments() {

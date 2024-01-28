@@ -6,15 +6,19 @@ import (
 	"log/slog"
 
 	"github.com/lib/pq"
+	"github.com/samber/lo"
+	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
-		return nil
-	}
+	// if msg.DbStream == nil {
+	// 	return nil
+	// }
 
 	entity := model.ChannelsGreetings{}
 	err := c.gorm.
@@ -62,6 +66,62 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			)
 		},
 	)
+
+	if err = c.gorm.WithContext(ctx).Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
+		map[string]any{
+			"processed": true,
+		},
+	).Error; err != nil {
+		return err
+	}
+
+	requestStruct := &parser.ParseTextRequestData{
+		Channel: &parser.Channel{
+			Id:   msg.GetBroadcasterUserId(),
+			Name: msg.GetBroadcasterUserLogin(),
+		},
+		Message: &parser.Message{
+			Text: entity.Text,
+			Id:   msg.GetMessageId(),
+		},
+		Sender: &parser.Sender{
+			Id:          msg.GetChatterUserId(),
+			Name:        msg.GetChatterUserLogin(),
+			DisplayName: msg.GetChatterUserName(),
+			Badges:      createUserBadges(msg.GetBadges()),
+		},
+		ParseVariables: lo.ToPtr(true),
+	}
+
+	res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
+	if err != nil {
+		return err
+	}
+
+	for _, r := range res.Responses {
+		c.twitchActions.SendMessage(
+			ctx, twitchactions.SendMessageOpts{
+				BroadcasterID:        msg.GetBroadcasterUserId(),
+				SenderID:             msg.DbChannel.BotID,
+				Message:              r,
+				ReplyParentMessageID: lo.If(entity.IsReply, msg.GetMessageId()).Else(""),
+			},
+		)
+	}
+
+	_, err = c.eventsGrpc.GreetingSended(
+		context.Background(),
+		&events.GreetingSendedMessage{
+			BaseInfo:        &events.BaseInfo{ChannelId: msg.GetBroadcasterUserId()},
+			UserId:          msg.GetChatterUserId(),
+			UserName:        msg.GetChatterUserLogin(),
+			UserDisplayName: msg.GetChatterUserName(),
+			GreetingText:    entity.Text,
+		},
+	)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
