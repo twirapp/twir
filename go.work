@@ -20,8 +20,9 @@ use (
 	./libs/gomodels
 	./libs/gopool
 	./libs/grpc
-	./libs/integrations/spotify
+	./libs/helix
 	./libs/integrations/seventv
+	./libs/integrations/spotify
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
@@ -29,5 +30,4 @@ use (
 	./libs/twitch
 	./libs/types
 	./libs/utils
-	./libs/helix
 )

@@ -5,7 +5,7 @@ go 1.21
 replace github.com/satont/twir/libs/config => ../config
 
 require (
-	github.com/getsentry/sentry-go v0.25.0
+	github.com/getsentry/sentry-go v0.26.0
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 )
 
