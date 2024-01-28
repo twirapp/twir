@@ -58,6 +58,7 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
+					requestContext := context.Background()
 					var channels []model.Channels
 					err := manager.gorm.Where(
 						`"isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
@@ -70,7 +71,7 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 					}
 
 					for _, channel := range channels {
-						err = manager.SubscribeToNeededEvents(ctx, channel.ID, channel.BotID)
+						err = manager.SubscribeToNeededEvents(requestContext, channel.ID, channel.BotID)
 						if err != nil {
 							continue
 						}
