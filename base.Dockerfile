@@ -19,6 +19,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh
 
 # START COPYGEN
 COPY libs/api/package.json libs/api/package.json
+COPY libs/brand/package.json libs/brand/package.json
 COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/fontsource/package.json libs/fontsource/package.json
@@ -39,13 +40,12 @@ COPY libs/crypto/go.mod libs/crypto/go.mod
 COPY libs/gomodels/go.mod libs/gomodels/go.mod
 COPY libs/gopool/go.mod libs/gopool/go.mod
 COPY libs/grpc/go.mod libs/grpc/go.mod
+COPY libs/helix/go.mod libs/helix/go.mod
 COPY libs/logger/go.mod libs/logger/go.mod
 COPY libs/migrations/go.mod libs/migrations/go.mod
 COPY libs/pubsub/go.mod libs/pubsub/go.mod
 COPY libs/sentry/go.mod libs/sentry/go.mod
 COPY libs/twitch/go.mod libs/twitch/go.mod
-COPY libs/twitch-eventsub-bindings/go.mod libs/twitch-eventsub-bindings/go.mod
-COPY libs/twitch-eventsub-framework/go.mod libs/twitch-eventsub-framework/go.mod
 COPY libs/types/go.mod libs/types/go.mod
 COPY libs/utils/go.mod libs/utils/go.mod
 COPY apps/api/go.mod apps/api/go.mod
