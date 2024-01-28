@@ -185,7 +185,7 @@ func (c *MessageHandler) keywordsParseResponse(
 		)
 	}
 
-	return strings.Join(res.Responses, " ")
+	return strings.Join(res.GetResponses(), " ")
 }
 
 func (c *MessageHandler) keywordsTriggerAlert(

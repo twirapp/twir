@@ -3,12 +3,10 @@ package messagehandler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"reflect"
 	"runtime"
 	"sync"
-	"time"
 
 	"github.com/alitto/pond"
 	"github.com/redis/go-redis/v9"
@@ -158,7 +156,9 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 		c.handleFirstStreamUserJoin,
 	}
 
-	start := time.Now()
+	// TODO: i dont know why grpc context canceling before this function finished
+	funcsCtx := context.Background()
+
 	for _, f := range funcsForExecute {
 		wg.Add(1)
 
@@ -166,7 +166,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 
 		c.pool.Submit(
 			func() {
-				if err := f(context.TODO(), msg); err != nil {
+				if err := f(funcsCtx, msg); err != nil {
 					c.logger.Error(
 						"error when executing message handler function", slog.Any("err", err),
 						slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
@@ -178,7 +178,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	wg.Wait()
-	fmt.Println(time.Since(start))
 
 	return nil
 }

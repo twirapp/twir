@@ -18,6 +18,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 
 	entity := model.ChannelsGreetings{}
 	err := c.gorm.
+		WithContext(ctx).
 		Where(
 			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
 			msg.GetBroadcasterUserId(),
@@ -37,11 +38,13 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 	c.pool.Submit(
 		func() {
 			alert := model.ChannelAlert{}
-			if err := c.gorm.Where(
-				"channel_id = ? AND greetings_ids && ?",
-				msg.GetBroadcasterUserId(),
-				pq.StringArray{entity.ID},
-			).Find(&alert).Error; err != nil {
+			if err := c.gorm.
+				WithContext(ctx).
+				Where(
+					"channel_id = ? AND greetings_ids && ?",
+					msg.GetBroadcasterUserId(),
+					pq.StringArray{entity.ID},
+				).Find(&alert).Error; err != nil {
 				c.logger.Error("cannot find channel alert", slog.Any("err", err))
 				return
 			}
@@ -51,7 +54,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			}
 
 			c.websocketsGrpc.TriggerAlert(
-				context.Background(),
+				ctx,
 				&websockets.TriggerAlertRequest{
 					ChannelId: msg.GetBroadcasterUserId(),
 					AlertId:   alert.ID,

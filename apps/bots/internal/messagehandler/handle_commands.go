@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/shared"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -15,6 +16,21 @@ import (
 func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) error {
 	if !strings.HasPrefix(msg.GetMessage().GetText(), "!") {
 		return nil
+	}
+
+	emotes := make([]*parser.Message_Emote, 0, len(msg.GetMessage().GetFragments()))
+
+	for _, f := range msg.GetMessage().GetFragments() {
+		if f.GetType() != shared.FragmentType_EMOTE {
+			continue
+		}
+
+		emotes = append(
+			emotes, &parser.Message_Emote{
+				Id:   f.GetEmote().GetId(),
+				Name: f.GetText(),
+			},
+		)
 	}
 
 	requestStruct := &parser.ProcessCommandRequest{
@@ -31,7 +47,7 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 		Message: &parser.Message{
 			Id:     msg.GetMessageId(),
 			Text:   msg.GetMessage().GetText(),
-			Emotes: []*parser.Message_Emote{},
+			Emotes: emotes,
 		},
 	}
 
