@@ -120,10 +120,10 @@ func (c *Overlays) OverlayDudesGetAll(
 	}
 
 	entities := []model.ChannelsOverlaysDudes{}
-	if err := c.Db.WithContext(ctx).Where(
-		"channel_id = ?",
-		dashboardId,
-	).First(&entities).
+	if err := c.Db.WithContext(ctx).
+		Where("channel_id = ?", dashboardId).
+		// Order("created_at asc").
+		Find(&entities).
 		Error; err != nil {
 		return nil, err
 	}

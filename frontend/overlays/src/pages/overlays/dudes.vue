@@ -1,83 +1,39 @@
 <script setup lang="ts">
 import DudesOverlay from '@twirapp/dudes';
-import type { DudesOverlayMethods, DudesSettings } from '@twirapp/dudes/types';
+import type { DudesOverlayMethods } from '@twirapp/dudes/types';
 import { storeToRefs } from 'pinia';
-import { onMounted, reactive, ref, watch, computed } from 'vue';
+import { onMounted, ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { useChatOverlaySocket } from '@/composables/chat/use-chat-overlay-socket.js';
 import { dudesAssets, dudesSprites, dudesSounds, type DudeSprite } from '@/composables/dudes/dudes-config.js';
-import { useChatTmi, type ChatSettings, type ChatMessage, knownBots } from '@/composables/tmi/use-chat-tmi.js';
-
-const dudesSettings = reactive<DudesSettings>({
-  dude: {
-    color: '#969696',
-    maxLifeTime: 1000 * 60 * 5,
-    gravity: 500,
-    scale: 6,
-		sounds: {
-			enabled: true,
-			volume: 0.01,
-		},
-  },
-  messageBox: {
-    borderRadius: 10,
-    boxColor: '#000000',
-    fontFamily: 'Courier New',
-    fontSize: 20,
-    padding: 10,
-    showTime: 5 * 1000,
-    fill: '#ffffff',
-  },
-  nameBox: {
-    fontFamily: 'Arial',
-    fontSize: 20,
-    fill: '#ffffff',
-    lineJoin: 'round',
-    strokeThickness: 4,
-    stroke: '#000000',
-    fillGradientStops: [0],
-    fillGradientType: 0,
-    fontStyle: 'normal',
-    fontVariant: 'normal',
-    fontWeight: 'normal',
-    dropShadow: false,
-    dropShadowAlpha: 1,
-    dropShadowAngle: 0,
-    dropShadowBlur: 0.1,
-    dropShadowDistance: 10,
-    dropShadowColor: '#3ac7d9',
-  },
-});
+import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
+import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
+import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
 
 const dudesRef = ref<DudesOverlayMethods | null>(null);
 
-watch(dudesSettings, (settings) => {
-  if (!dudesRef.value) return;
-  dudesRef.value.updateSettings(settings);
-});
-
+const dudesSettingStore = useDudesSettings();
+const { dudesSettings } = storeToRefs(dudesSettingStore);
 const route = useRoute();
-const chatSocketStore = useChatOverlaySocket();
-const { settings } = storeToRefs(chatSocketStore);
+
+watch(() => dudesSettings.value, (settings) => {
+	if (!dudesRef.value) return;
+	dudesRef.value.updateSettings(settings);
+
+	if (window.frameElement) {
+		dudesRef.value.createDude('Twir', 'dude', {
+			dude: {
+				color: 'rgb(132, 75, 255)',
+			},
+		});
+	}
+	// dudesRef.value.clearDudes();
+}, { deep: true });
+
+const dudesSocket = useDudesSocket();
 
 function onMessage(chatMessage: ChatMessage) {
 	if (!dudesRef.value || chatMessage.type === 'system') return;
-
-	if (
-		chatMessage.sender &&
-		settings.value.hideBots &&
-		knownBots.has(chatMessage.sender)
-	) {
-		return;
-	}
-
-	// if (
-	// 	settings.value.hideCommands &&
-	// 	chatMessage.chunks.at(0)?.value.startsWith('!')
-	// ) {
-	// 	return;
-	// }
 
 	const dudeName = chatMessage.senderDisplayName!;
 	let dude = dudesRef.value.getDude(dudeName);
@@ -119,8 +75,8 @@ function createNewDude(sender: string, message: string, color: string) {
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: settings.value.channelId,
-		channelName: settings.value.channelName,
+		channelId: dudesSettingStore.channelInfo?.channelId ?? '',
+		channelName: dudesSettingStore.channelInfo?.channelName ?? '',
 		onMessage,
 	};
 });
@@ -130,9 +86,9 @@ useChatTmi(chatSettings);
 onMounted(async () => {
   if (!dudesRef.value) return;
   await dudesRef.value.initDudes();
-
 	const apiKey = route.params.apiKey as string;
-	chatSocketStore.connect(apiKey);
+	const overlayId = route.params.id as string;
+	dudesSocket.connect(apiKey, overlayId);
 });
 </script>
 
@@ -141,7 +97,7 @@ onMounted(async () => {
 		ref="dudesRef"
 		:assets="dudesAssets"
 		:sounds="dudesSounds"
-		:settings="dudesSettings"
+		:settings="dudesSettingStore.dudesSettings"
 	/>
 </template>
 

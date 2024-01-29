@@ -18,10 +18,15 @@ type settings struct {
 func (c *Dudes) SendSettings(userId string, overlayId string) error {
 	entity := model.ChannelsOverlaysDudes{}
 
-	query := c.gorm.Where(`"channel_id" = ?`, userId)
+	query := c.gorm.Where("channel_id = ?", userId)
 
 	if overlayId != "" {
 		query = query.Where("id = ?", overlayId)
+	}
+
+	err := query.First(&entity).Error
+	if err != nil {
+		return err
 	}
 
 	twitchClient, err := twitch.NewUserClient(userId, c.config, c.tokensGrpc)

@@ -419,7 +419,13 @@
       "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
 		"dudes": {
-			"description": "Animated characters for chatters in your stream"
+			"description": "Animated characters for chatters in your stream",
+			"dudeColor": "Color",
+			"dudeGravity": "Gravity",
+			"dudeMaxLifeTime": "Max life time (in seconds)",
+			"dudeScale": "Scale",
+			"dudeSounds": "Sounds",
+			"dudeSoundsVolume": "Sound volume"
 		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
