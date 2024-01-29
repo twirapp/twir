@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/websockets
 
-go 1.21
+go 1.21.5
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -8,23 +8,26 @@ replace (
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/types => ../../libs/types
+	github.com/twirapp/twir/libs/api => ../../libs/api
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/twitch => ../../libs/twitch
 )
 
 require (
 	github.com/goccy/go-json v0.10.2
-	github.com/nicklaw5/helix/v2 v2.25.2
+	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/olahol/melody v1.1.4
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
-	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
-	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
+	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
+	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/twitch v0.0.0-20240129045902-98120ce2e77b
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/api v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	go.uber.org/fx v1.20.1
 	go.uber.org/zap v1.26.0
 	google.golang.org/grpc v1.61.0
@@ -58,14 +61,12 @@ require (
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.46.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/samber/slog-common v0.15.0 // indirect
 	github.com/samber/slog-multi v1.0.2 // indirect
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
