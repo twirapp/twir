@@ -65,6 +65,7 @@ type GrpcOpts struct {
 	ChatServer             *chat.Chat
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
+	DudesServer            *dudes.Dudes
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -80,6 +81,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		chatServer:             opts.ChatServer,
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
+		dudesServer:            opts.DudesServer,
 	}
 
 	grpcServer := grpc.NewServer()
