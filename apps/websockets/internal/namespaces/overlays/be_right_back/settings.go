@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/goccy/go-json"
+	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/api/messages/overlays_be_right_back"
 )
 
 func (c *BeRightBack) SendSettings(userId string) error {
@@ -26,9 +28,27 @@ func (c *BeRightBack) SendSettings(userId string) error {
 		return fmt.Errorf("cannot unmarshal dbSettings: %w", err)
 	}
 
+	overlaySettings := overlays_be_right_back.Settings{
+		Text: data.Text,
+		Late: &overlays_be_right_back.Settings_Late{
+			Enabled:        data.Late.Enabled,
+			Text:           data.Late.Text,
+			DisplayBrbTime: data.Late.DisplayBrbTime,
+		},
+		BackgroundColor: data.BackgroundColor,
+		FontSize:        data.FontSize,
+		FontColor:       data.FontColor,
+		FontFamily:      data.FontFamily,
+	}
+
+	d, err := protoutils.CreateJsonWithProto(&overlaySettings, nil)
+	if err != nil {
+		return err
+	}
+
 	return c.SendEvent(
 		userId,
 		"settings",
-		data,
+		d,
 	)
 }
