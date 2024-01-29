@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
@@ -45,6 +46,7 @@ type GrpcImpl struct {
 	chatServer             *chat.Chat
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
+	dudesServer            *dudes.Dudes
 }
 
 type GrpcOpts struct {
