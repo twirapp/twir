@@ -77,6 +77,8 @@ func (c *twirApp) build() error {
 
 	buildCmd := exec.Command("go", "build", "-o", tmpFilePath, "./cmd/main.go")
 	buildCmd.Dir = c.path
+	buildCmd.Stdout = os.Stdout
+	buildCmd.Stderr = os.Stderr
 
 	if err := buildCmd.Run(); err != nil {
 		return err
