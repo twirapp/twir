@@ -2,7 +2,6 @@ package messagehandler
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"strings"
 
@@ -15,9 +14,7 @@ import (
 )
 
 func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) error {
-	fmt.Println("handling command", msg.GetBroadcasterUserLogin(), msg.GetChatterUserLogin())
 	if !strings.HasPrefix(msg.GetMessage().GetText(), "!") {
-		fmt.Println("not a command", msg.GetMessage().GetText())
 		return nil
 	}
 
@@ -54,13 +51,10 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 		},
 	}
 
-	fmt.Println("requesting commands")
 	resp, err := c.parserGrpc.ProcessCommand(ctx, requestStruct)
 	if err != nil {
-		fmt.Println(err)
 		st, ok := status.FromError(err)
 		if ok && st.Code() == codes.NotFound {
-			fmt.Println("command not found")
 			return nil
 		}
 
