@@ -14,7 +14,7 @@ import (
 
 type settings struct {
 	overlays_chat.Settings
-	ChannelID          string                     `protobuf:"bytes,8,opt,name=channelId,json=channelId,proto3" json:"channelId"`
+	ChannelID          string                     `json:"channelId"`
 	ChannelName        string                     `json:"channelName"`
 	ChannelDisplayName string                     `json:"channelDisplayName"`
 	GlobalBadges       map[string]helix.ChatBadge `json:"globalBadges"`
