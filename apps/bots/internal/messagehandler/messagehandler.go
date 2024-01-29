@@ -170,17 +170,27 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 
 		f := f
 
-		c.pool.Submit(
-			func() {
-				if err := f(c, funcsCtx, msg); err != nil {
-					c.logger.Error(
-						"error when executing message handler function", slog.Any("err", err),
-						slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
-					)
-				}
-				wg.Done()
-			},
-		)
+		go func() {
+			if err := f(c, funcsCtx, msg); err != nil {
+				c.logger.Error(
+					"error when executing message handler function", slog.Any("err", err),
+					slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
+				)
+			}
+			wg.Done()
+		}()
+
+		// c.pool.Submit(
+		// 	func() {
+		// 		if err := f(c, funcsCtx, msg); err != nil {
+		// 			c.logger.Error(
+		// 				"error when executing message handler function", slog.Any("err", err),
+		// 				slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
+		// 			)
+		// 		}
+		// 		wg.Done()
+		// 	},
+		// )
 	}
 
 	wg.Wait()
