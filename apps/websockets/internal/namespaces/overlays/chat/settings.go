@@ -89,9 +89,11 @@ func (c *Chat) SendSettings(userId string, overlayId string) error {
 		globalBadges[badge.SetID] = badge
 	}
 
-	channelBadges := map[string]helix.ChatBadge{}
+	channelBadges := map[string]helix.BadgeVersion{}
 	for _, badge := range channelBadgesReq.Data.Badges {
-		channelBadges[badge.SetID] = badge
+		for _, version := range badge.Versions {
+			channelBadges[badge.SetID+"-"+version.ID] = version
+		}
 	}
 
 	data, err := protoutils.CreateJsonWithProto(

@@ -6,16 +6,19 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (string, error) {
+func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (
+	json.RawMessage,
+	error,
+) {
 	var result map[string]any
 
 	protoBytes, err := protojson.Marshal(msg)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if err := json.Unmarshal(protoBytes, &result); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	for k, v := range additionalFields {
@@ -24,8 +27,8 @@ func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (st
 
 	b, err := json.Marshal(result)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(b), err
+	return b, err
 }

@@ -54,21 +54,19 @@ export const useChatOverlaySocket = defineStore('chat-socket', () => {
 
 			const data = event.data;
 
-			for (const [, badge] of data.globalBadges) {
+			settings.value = {
+				...data,
+				globalBadges: new Map(),
+				channelBadges: new Map(),
+			};
+
+			for (const [, badge] of Object.entries(data.globalBadges)) {
 				settings.value.globalBadges.set(badge.set_id, badge);
 			}
 
-			// :)
-			for (const [, badge] of data.channelBadges as any as Map<string, ChatBadge>) {
-				for (const version of badge.versions) {
-					settings.value.channelBadges.set(
-						`${badge.set_id}-${version.id}`,
-						version,
-					);
-				}
+			for (const [, badge] of Object.entries(data.channelBadges)) {
+				settings.value.channelBadges.set(badge.set_id, badge);
 			}
-
-			settings.value = data;
 		}
 	});
 
