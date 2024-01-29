@@ -3,6 +3,7 @@ package messagehandler
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"reflect"
 	"runtime"
@@ -128,6 +129,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	if !msg.DbChannel.IsEnabled {
+		fmt.Println("channel not enabled", msg.DbChannel.ID)
 		return nil
 	}
 
@@ -138,6 +140,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	msg.DbUser = dbUser
 
 	if req.GetChatterUserId() == msg.DbChannel.BotID && c.config.AppEnv == "production" {
+		fmt.Println("same bot user", req.GetChatterUserId(), msg.DbChannel.BotID)
 		return nil
 	}
 
