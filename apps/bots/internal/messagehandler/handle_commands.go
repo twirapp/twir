@@ -19,6 +19,7 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 		fmt.Println("not a command", msg.GetMessage().GetText())
 		return nil
 	}
+	fmt.Println("handling command", msg.GetBroadcasterUserLogin(), msg.GetChatterUserLogin())
 
 	emotes := make([]*parser.Message_Emote, 0, len(msg.GetMessage().GetFragments()))
 
