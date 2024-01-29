@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const getEmoteWidth = (isGrowX: boolean, width?: number) => {
 	if (isGrowX) {
-		return `${width ? width * 2 : 50}px`;
+		return `${width ? `${width * 2}px` : 'auto'}`;
 	}
 
 	if (width) {

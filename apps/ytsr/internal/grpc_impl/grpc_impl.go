@@ -9,7 +9,6 @@ import (
 	"regexp"
 	"strings"
 	"sync"
-	"time"
 
 	"github.com/samber/lo"
 	cfg "github.com/satont/twir/libs/config"
@@ -18,7 +17,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/ytsr"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 )
 
 type YtsrServer struct {
@@ -52,13 +50,7 @@ func New(opts Opts) error {
 	if err != nil {
 		return err
 	}
-	grpcServer := grpc.NewServer(
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{
-				MaxConnectionAge: 1 * time.Minute,
-			},
-		),
-	)
+	grpcServer := grpc.NewServer()
 	ytsr.RegisterYtsrServer(grpcServer, impl)
 
 	opts.Lc.Append(

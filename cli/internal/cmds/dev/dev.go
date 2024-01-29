@@ -43,25 +43,30 @@ func CreateDevCommand() *cli.Command {
 			}
 
 			if err := build.LibsCmd.Run(c); err != nil {
+				pterm.Fatal.Println(err)
 				return err
 			}
 
 			if err := migrations.MigrateCmd.Run(c); err != nil {
+				pterm.Fatal.Println(err)
 				return err
 			}
 
 			golangApps, err := golang.New()
 			if err != nil {
+				pterm.Fatal.Println(err)
 				return err
 			}
 
 			frontendApps, err := frontend.New()
 			if err != nil {
+				pterm.Fatal.Println(err)
 				return err
 			}
 
 			nodejsApps, err := nodejs.New()
 			if err != nil {
+				pterm.Fatal.Println(err)
 				return err
 			}
 

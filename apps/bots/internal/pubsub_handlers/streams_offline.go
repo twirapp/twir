@@ -9,7 +9,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *handlers) streamsOffline(data []byte) {
+func (c *PubSubHandlers) streamsOffline(data []byte) {
 	streamOfflineStruct := &pubsub.StreamOfflineMessage{}
 	if err := json.Unmarshal(data, &streamOfflineStruct); err != nil {
 		c.logger.Error("cannot unmarshal incoming data", slog.Any("err", err))
@@ -26,7 +26,7 @@ func (c *handlers) streamsOffline(data []byte) {
 		return
 	}
 
-	//db.Model(&model.ChannelsGreetings{}).
+	// db.Model(&model.ChannelsGreetings{}).
 	//	Where(`"channelId" = ?`, channel.ID).
 	//	Update("processed", false)
 }

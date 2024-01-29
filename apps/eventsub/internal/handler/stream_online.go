@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/lib/pq"
@@ -15,18 +16,18 @@ import (
 )
 
 func (c *Handler) handleStreamOnline(
-	h *eventsub_bindings.ResponseHeaders,
+	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventStreamOnline,
 ) {
-	defer zap.S().Infow(
+	c.logger.Info(
 		"stream online",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	twitchClient, err := twitch.NewAppClient(*c.services.Config, c.services.Grpc.Tokens)
+	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 
@@ -36,8 +37,13 @@ func (c *Handler) handleStreamOnline(
 		},
 	)
 
-	if err != nil || streamsReq.ErrorMessage != "" {
-		zap.S().Error(err, streamsReq.ErrorMessage)
+	if err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+		return
+	}
+
+	if streamsReq.ErrorMessage != "" {
+		c.logger.Error(streamsReq.ErrorMessage)
 		return
 	}
 
@@ -47,7 +53,7 @@ func (c *Handler) handleStreamOnline(
 
 	stream := streamsReq.Data.Streams[0]
 
-	err = c.services.Gorm.Where(
+	err = c.gorm.Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
 	).Delete(&model.ChannelsStreams{}).Error
@@ -61,7 +67,7 @@ func (c *Handler) handleStreamOnline(
 			tagIds = append(tagIds, tagId)
 		}
 
-		err = c.services.Gorm.Create(
+		err = c.gorm.Create(
 			&model.ChannelsStreams{
 				ID:             event.ID,
 				UserId:         event.BroadcasterUserID,
@@ -87,13 +93,17 @@ func (c *Handler) handleStreamOnline(
 		}
 	}
 
-	c.services.Grpc.Events.StreamOnline(
-		context.Background(), &events.StreamOnlineMessage{
+	_, err = c.eventsGrpc.StreamOnline(
+		context.Background(),
+		&events.StreamOnlineMessage{
 			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			Title:    streamsReq.Data.Streams[0].Title,
 			Category: streamsReq.Data.Streams[0].GameName,
 		},
 	)
+	if err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
 
 	bytes, err := json.Marshal(
 		&pubsub.StreamOnlineMessage{
@@ -102,9 +112,9 @@ func (c *Handler) handleStreamOnline(
 		},
 	)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 
-	c.services.PubSub.Publish("stream.online", bytes)
+	c.pubSub.Client.Publish("stream.online", bytes)
 }

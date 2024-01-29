@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"strconv"
 	"time"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func getSubPlan(plan string) string {
@@ -30,7 +30,14 @@ func (c *Handler) handleChannelSubscribe(
 ) {
 	level := getSubPlan(event.Tier)
 
-	if err := c.services.Gorm.Create(
+	c.logger.Info(
+		"channel subscribe",
+		slog.String("channel_id", event.BroadcasterUserID),
+		slog.String("user_id", event.UserID),
+		slog.String("level", level),
+	)
+
+	if err := c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
@@ -43,15 +50,10 @@ func (c *Handler) handleChannelSubscribe(
 			},
 		},
 	).Error; err != nil {
-		zap.S().Error(
-			"cannot create sub entity",
-			"channelId", event.BroadcasterUserID,
-			"userId", event.UserID,
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.services.Grpc.Events.Subscribe(
+	if _, err := c.eventsGrpc.Subscribe(
 		context.Background(), &events.SubscribeMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			UserName:        event.UserLogin,
@@ -60,12 +62,7 @@ func (c *Handler) handleChannelSubscribe(
 			UserId:          event.UserID,
 		},
 	); err != nil {
-		zap.S().Error(
-			"cannot fire subscribe event",
-			"channelId", event.BroadcasterUserID,
-			"userId", event.UserID,
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
@@ -75,8 +72,15 @@ func (c *Handler) handleChannelSubscriptionMessage(
 	event *eventsub_bindings.EventChannelSubscriptionMessage,
 ) {
 	level := getSubPlan(event.Tier)
+	c.logger.Info(
+		"channel resubscribe",
+		slog.String("channel_id", event.BroadcasterUserID),
+		slog.String("user_id", event.UserID),
+		slog.String("level", level),
+		slog.Int("months", event.CumulativeTotal),
+	)
 
-	if err := c.services.Gorm.Create(
+	if err := c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
@@ -91,15 +95,10 @@ func (c *Handler) handleChannelSubscriptionMessage(
 			},
 		},
 	).Error; err != nil {
-		zap.S().Error(
-			"cannot create resub entity",
-			"channelId", event.BroadcasterUserID,
-			"userLogin", event.UserLogin,
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	if _, err := c.services.Grpc.Events.ReSubscribe(
+	if _, err := c.eventsGrpc.ReSubscribe(
 		context.Background(), &events.ReSubscribeMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			UserName:        event.UserLogin,
@@ -112,12 +111,6 @@ func (c *Handler) handleChannelSubscriptionMessage(
 			UserId:          event.UserID,
 		},
 	); err != nil {
-		zap.S().Error(
-			"cannot fire resub event",
-			"channelId", event.BroadcasterUserID,
-			"userLogin", event.UserLogin,
-			"userId", event.UserID,
-			zap.Error(err),
-		)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }

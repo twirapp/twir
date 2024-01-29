@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"strconv"
-	"time"
 
 	arikawa_state "github.com/diamondburned/arikawa/v3/state"
 	"github.com/satont/twir/apps/discord/internal/discord_go"
@@ -15,7 +14,6 @@ import (
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
 
 	arikawa_discord "github.com/diamondburned/arikawa/v3/discord"
@@ -41,13 +39,7 @@ func New(opts Opts) (discord.DiscordServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	grpcServer := grpc.NewServer(
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{
-				MaxConnectionAge: 1 * time.Minute,
-			},
-		),
-	)
+	grpcServer := grpc.NewServer()
 
 	discord.RegisterDiscordServer(grpcServer, service)
 

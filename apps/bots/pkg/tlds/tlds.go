@@ -7,14 +7,13 @@ import (
 	"time"
 
 	"github.com/imroc/req/v3"
-	"go.uber.org/fx"
 )
 
 type TLDS struct {
 	List []string
 }
 
-func New(lc fx.Lifecycle) (*TLDS, error) {
+func New() (*TLDS, error) {
 	tlds := &TLDS{}
 
 	err := tlds.fetch()
