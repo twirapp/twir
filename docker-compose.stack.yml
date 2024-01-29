@@ -61,14 +61,14 @@ services:
   pgpool:
     image: bitnami/pgpool:4
     environment:
-      PGPOOL_BACKEND_NODES: 0:postgres:5432
-      PGPOOL_ENABLE_LDAP: no
-      PGPOOL_POSTGRES_USERNAME: twir
+      PGPOOL_BACKEND_NODES: "0:postgres:5432"
+      PGPOOL_ENABLE_LDAP: "no"
+      PGPOOL_POSTGRES_USERNAME: "twir"
       PGPOOL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      PGPOOL_SR_CHECK_USER: twir
+      PGPOOL_SR_CHECK_USER: "twir"
       PGPOOL_SR_CHECK_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      PGPOOL_ADMIN_USERNAME: pgpool
-      PGPOOL_ADMIN_PASSWORD: pgpool
+      PGPOOL_ADMIN_USERNAME: "pgpool"
+      PGPOOL_ADMIN_PASSWORD: "pgpool"
     secrets:
       - twir_postgres_user
       - twir_postgres_password
