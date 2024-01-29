@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays_dudes"
@@ -12,6 +13,7 @@ import (
 
 func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dudes.Settings {
 	return &overlays_dudes.Settings{
+		Id: lo.ToPtr(entity.ID.String()),
 		DudeSettings: &overlays_dudes.DudeSettings{
 			Color:         entity.DudeColor,
 			MaxLifeTime:   entity.DudeMaxLifeTime,

@@ -45,6 +45,7 @@ message Settings {
 	DudeSettings dude_settings = 1;
 	MessageBoxSettings message_box_settings = 2;
 	NameBoxSettings name_box_settings = 3;
+	optional string id = 4;
 }
 
 message GetRequest {
