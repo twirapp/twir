@@ -6,17 +6,12 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/events"
 	"github.com/twirapp/twir/libs/api/messages/overlays_kappagen"
 )
-
-type settings struct {
-	overlays_kappagen.Settings
-	ChannelID   string `json:"channelId"`
-	ChannelName string `json:"channelName"`
-}
 
 func (c *Kappagen) SendSettings(userId string) error {
 	entity := &model.ChannelModulesSettings{}
@@ -123,13 +118,13 @@ func (c *Kappagen) SendSettings(userId string) error {
 		ExcludedEmotes: parsedEntitySettings.ExcludedEmotes,
 	}
 
-	settingsMap := settings{
-		ChannelID:   user.ID,
-		ChannelName: user.Login,
-		Settings:    kappagenSettings,
-	}
-
-	settingsBytes, err := json.Marshal(&settingsMap)
+	d, err := protoutils.CreateJsonWithProto(
+		&kappagenSettings,
+		map[string]any{
+			"channelId":   user.ID,
+			"channelName": user.Login,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -137,6 +132,6 @@ func (c *Kappagen) SendSettings(userId string) error {
 	return c.SendEvent(
 		userId,
 		"settings",
-		string(settingsBytes),
+		d,
 	)
 }

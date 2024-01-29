@@ -1,25 +1,16 @@
 package chat
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/overlays_chat"
 	"gorm.io/gorm"
 )
-
-type settings struct {
-	overlays_chat.Settings
-	ChannelID          string                     `json:"channelId"`
-	ChannelName        string                     `json:"channelName"`
-	ChannelDisplayName string                     `json:"channelDisplayName"`
-	GlobalBadges       map[string]helix.ChatBadge `json:"globalBadges"`
-	ChannelBadges      map[string]helix.ChatBadge `json:"channelBadges"`
-}
 
 func (c *Chat) SendSettings(userId string, overlayId string) error {
 	entity := model.ChatOverlaySettings{}
@@ -103,16 +94,15 @@ func (c *Chat) SendSettings(userId string, overlayId string) error {
 		channelBadges[badge.SetID] = badge
 	}
 
-	data := settings{
-		ChannelID:          user.ID,
-		ChannelName:        user.Login,
-		ChannelDisplayName: user.DisplayName,
-		GlobalBadges:       globalBadges,
-		ChannelBadges:      channelBadges,
-		Settings:           overlaySettings,
-	}
-
-	settingsBytes, err := json.Marshal(data)
+	data, err := protoutils.CreateJsonWithProto(
+		&overlaySettings, map[string]any{
+			"channelId":          user.ID,
+			"channelName":        user.Login,
+			"channelDisplayName": user.DisplayName,
+			"globalBadges":       globalBadges,
+			"channelBadges":      channelBadges,
+		},
+	)
 	if err != nil {
 		return err
 	}
@@ -120,6 +110,6 @@ func (c *Chat) SendSettings(userId string, overlayId string) error {
 	return c.SendEvent(
 		userId,
 		"settings",
-		string(settingsBytes),
+		data,
 	)
 }

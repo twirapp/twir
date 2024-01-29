@@ -1,0 +1,31 @@
+package protoutils
+
+import (
+	"github.com/goccy/go-json"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
+)
+
+func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (string, error) {
+	var result map[string]any
+
+	protoBytes, err := protojson.Marshal(msg)
+	if err != nil {
+		return "", err
+	}
+
+	if err := json.Unmarshal(protoBytes, &result); err != nil {
+		return "", err
+	}
+
+	for k, v := range additionalFields {
+		result[k] = v
+	}
+
+	b, err := json.Marshal(result)
+	if err != nil {
+		return "", err
+	}
+
+	return string(b), err
+}
