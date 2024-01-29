@@ -168,15 +168,6 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 	*emptypb.Empty,
 	error,
 ) {
-	c.logger.Info(
-		"bots get message",
-		slog.Group(
-			"channel",
-			slog.String("id", req.GetBroadcasterUserId()),
-			slog.String("name", req.GetBroadcasterUserLogin()),
-		),
-	)
-
 	err := c.messageHandler.Handle(ctx, req)
 	if err != nil {
 		c.logger.Error(

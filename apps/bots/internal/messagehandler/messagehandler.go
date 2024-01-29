@@ -84,6 +84,23 @@ type handleMessage struct {
 	DbUser    *model.Users
 }
 
+var handlersForExecute = []func(
+	c *MessageHandler,
+	ctx context.Context,
+	msg handleMessage,
+) error{
+	(*MessageHandler).handleCommand,
+	(*MessageHandler).handleIncrementStreamMessages,
+	(*MessageHandler).handleGreetings,
+	(*MessageHandler).handleKeywords,
+	(*MessageHandler).handleEmotesUsages,
+	(*MessageHandler).handleStoreMessage,
+	(*MessageHandler).handleTts,
+	(*MessageHandler).handleRemoveLurker,
+	(*MessageHandler).handleModeration,
+	(*MessageHandler).handleFirstStreamUserJoin,
+}
+
 func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessage) error {
 	msg := handleMessage{
 		TwitchChatMessage: req,
@@ -129,7 +146,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	if !msg.DbChannel.IsEnabled {
-		fmt.Println("channel not enabled", msg.DbChannel.ID)
 		return nil
 	}
 
@@ -146,30 +162,17 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 
 	var wg sync.WaitGroup
 
-	funcsForExecute := [...]func(ctx context.Context, msg handleMessage) error{
-		c.handleCommand,
-		c.handleIncrementStreamMessages,
-		c.handleGreetings,
-		c.handleKeywords,
-		c.handleEmotesUsages,
-		c.handleStoreMessage,
-		c.handleTts,
-		c.handleRemoveLurker,
-		c.handleModeration,
-		c.handleFirstStreamUserJoin,
-	}
-
 	// TODO: i dont know why grpc context canceling before this function finished
 	funcsCtx := context.Background()
 
-	for _, f := range funcsForExecute {
+	for _, f := range handlersForExecute {
 		wg.Add(1)
 
 		f := f
 
 		c.pool.Submit(
 			func() {
-				if err := f(funcsCtx, msg); err != nil {
+				if err := f(c, funcsCtx, msg); err != nil {
 					c.logger.Error(
 						"error when executing message handler function", slog.Any("err", err),
 						slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
