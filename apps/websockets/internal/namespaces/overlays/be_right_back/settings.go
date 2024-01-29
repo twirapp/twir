@@ -5,6 +5,7 @@ import (
 
 	"github.com/goccy/go-json"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/api/messages/overlays_be_right_back"
 )
 
 func (c *BeRightBack) SendSettings(userId string) error {
@@ -26,9 +27,27 @@ func (c *BeRightBack) SendSettings(userId string) error {
 		return fmt.Errorf("cannot unmarshal dbSettings: %w", err)
 	}
 
+	overlaysSettings := overlays_be_right_back.Settings{
+		Text: data.Text,
+		Late: &overlays_be_right_back.Settings_Late{
+			Enabled:        data.Late.Enabled,
+			Text:           data.Late.Text,
+			DisplayBrbTime: data.Late.DisplayBrbTime,
+		},
+		BackgroundColor: data.BackgroundColor,
+		FontSize:        data.FontSize,
+		FontColor:       data.FontColor,
+		FontFamily:      data.FontFamily,
+	}
+
+	settingsBytes, err := json.Marshal(&overlaysSettings)
+	if err != nil {
+		return err
+	}
+
 	return c.SendEvent(
 		userId,
 		"settings",
-		data,
+		string(settingsBytes),
 	)
 }
