@@ -1,6 +1,12 @@
 package clients
 
-import "fmt"
+import (
+	"fmt"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
+)
 
 func createClientAddr(env, service string, port int) string {
 	ip := fmt.Sprintf("dns:///%s", service)
@@ -9,4 +15,16 @@ func createClientAddr(env, service string, port int) string {
 	}
 
 	return fmt.Sprintf("%s:%v", ip, port)
+}
+
+var defaultClientsOptions = []grpc.DialOption{
+	grpc.WithTransportCredentials(insecure.NewCredentials()),
+	grpc.WithDefaultServiceConfig(
+		fmt.Sprintf(
+			`{"loadBalancingPolicy":"%s", "lb_policy_name": "%s", "loadBalancingConfig": [{"%s":{}}]}`,
+			roundrobin.Name,
+			roundrobin.Name,
+			roundrobin.Name,
+		),
+	),
 }
