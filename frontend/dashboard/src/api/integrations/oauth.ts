@@ -130,3 +130,11 @@ export const useDonationAlertsIntegration = () => createIntegrationOauth({
 	useLogout: protectedApiClient.integrationsDonationAlertsLogout,
 });
 
+export const useValorantIntegration = () => createIntegrationOauth({
+	integrationName: 'valorant',
+	getData: protectedApiClient.integrationsValorantGetData,
+	getAuthLink: protectedApiClient.integrationsValorantGetAuthLink,
+	usePostCode: protectedApiClient.integrationsValorantPostCode,
+	useLogout: protectedApiClient.integrationsValorantLogout,
+});
+

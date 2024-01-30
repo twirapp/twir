@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { NSpin } from 'naive-ui';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -10,21 +10,23 @@ import {
 	useStreamlabsIntegration,
 	useDonationAlertsIntegration,
 	useFaceitIntegration,
-	useDiscordIntegration,
+	useDiscordIntegration, useValorantIntegration,
 } from '@/api/index.js';
 
 const router = useRouter();
 const route = useRoute();
 
-const integrationsHooks: { [x: string]: {
-	manager: {
-		usePostCode: (...args: any) => any | Promise<any>,
-		useData?: () => {
-			refetch: (...args: any) => any | Promise<any>
-		}
-	},
-	closeWindow?: boolean,
-} } = {
+const integrationsHooks: {
+	[x: string]: {
+		manager: {
+			usePostCode: (...args: any) => any | Promise<any>,
+			useData?: () => {
+				refetch: (...args: any) => any | Promise<any>
+			}
+		},
+		closeWindow?: boolean,
+	}
+} = {
 	'spotify': {
 		manager: useSpotifyIntegration(),
 		closeWindow: true,
@@ -51,6 +53,10 @@ const integrationsHooks: { [x: string]: {
 	},
 	'discord': {
 		manager: useDiscordIntegration(),
+		closeWindow: true,
+	},
+	'valorant': {
+		manager: useValorantIntegration(),
 		closeWindow: true,
 	},
 };
@@ -93,7 +99,7 @@ onMounted(async () => {
 
 <template>
 	<div class="body">
-		<n-spin size="large" />
+		<n-spin size="large"/>
 	</div>
 </template>
 
