@@ -14,8 +14,9 @@ func New(cfg config.Config) (*gorm.DB, error) {
 		return nil, err
 	}
 	d, _ := db.DB()
-	d.SetMaxOpenConns(5)
-	d.SetConnMaxIdleTime(1 * time.Minute)
+	d.SetMaxIdleConns(1)
+	d.SetMaxOpenConns(10)
+	d.SetConnMaxLifetime(time.Hour)
 
 	return db, nil
 }
