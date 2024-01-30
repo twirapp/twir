@@ -19,17 +19,16 @@ const internalSocket = useWebSocket(obsUrl, {
 	autoReconnect: {
 		delay: 500,
 	},
+	onConnected(ws) {
+		ws.send(JSON.stringify({ eventName: 'requestSettings' }));
+	},
 });
 
 const settings = ref<Record<string, any> | null>(null);
 
 watch(internalSocket.data, (message) => {
 	const { eventName, data } = JSON.parse(message);
-
-	if (eventName === 'connected') {
-		internalSocket.send(JSON.stringify({ eventName: 'requestSettings' }));
-	}
-
+	
 	switch (eventName) {
 		case 'settings':
 			settings.value = data;

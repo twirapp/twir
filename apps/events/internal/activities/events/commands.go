@@ -34,7 +34,7 @@ func (c *Activity) CommandAllowOrRemoveUserPermission(
 	}
 
 	command := &model.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", data.CommandID).First(command).Error
+	commandErr := c.db.Where("id = ?", operation.Target.String).First(command).Error
 	if commandErr != nil {
 		return fmt.Errorf("command not found")
 	}
@@ -84,7 +84,7 @@ func (c *Activity) CommandDenyOrRemoveUserPermission(
 	}
 
 	command := &model.ChannelsCommands{}
-	commandErr := c.db.Where("id = ?", data.CommandID).First(command).Error
+	commandErr := c.db.Where("id = ?", operation.Target.String).First(command).Error
 	if commandErr != nil {
 		return fmt.Errorf("command not found: %w", commandErr)
 	}
