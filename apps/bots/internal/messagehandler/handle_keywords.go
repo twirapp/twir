@@ -196,7 +196,7 @@ func (c *MessageHandler) keywordsTriggerAlert(
 	if err := c.gorm.WithContext(ctx).Where(
 		"channel_id = ? AND keywords_ids && ?",
 		keyword.ChannelID,
-		pq.StringArray{keyword.ChannelID},
+		pq.StringArray{keyword.ID},
 	).Find(&alert).Error; err != nil {
 		c.logger.Error(
 			"cannot get alert",
@@ -209,11 +209,18 @@ func (c *MessageHandler) keywordsTriggerAlert(
 	if alert.ID == "" {
 		return
 	}
-	c.websocketsGrpc.TriggerAlert(
+
+	if _, err := c.websocketsGrpc.TriggerAlert(
 		context.Background(),
 		&websockets.TriggerAlertRequest{
 			ChannelId: keyword.ChannelID,
 			AlertId:   alert.ID,
 		},
-	)
+	); err != nil {
+		c.logger.Error(
+			"cannot trigger alert",
+			slog.Any("err", err),
+			slog.String("channelId", keyword.ChannelID),
+		)
+	}
 }
