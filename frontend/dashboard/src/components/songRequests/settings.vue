@@ -19,8 +19,9 @@ import {
 import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import RewardsSelector from '../rewardsSelector.vue';
+
 import {
-	useTwitchRewards,
 	useYoutubeVideoOrChannelSearch,
 	YoutubeSearchType,
 } from '@/api/index.js';
@@ -109,18 +110,6 @@ async function save() {
 	await youtubeModuleUpdater.mutateAsync({ data });
 	message.success(t('sharedTexts.saved'));
 }
-
-const twitchRewards = useTwitchRewards();
-const rewardsOptions = computed(() => {
-	return twitchRewards.data?.value?.rewards.map((reward) => {
-		return {
-			label: reward.title,
-			value: reward.id,
-			image: reward.image?.url4X ?? '',
-			disabled: !reward.isUserInputRequired,
-		};
-	}) ?? [];
-});
 
 const renderSelectOption = (option: SelectOption & { image: string }): VNodeChild => {
 	return h(NSpace,
@@ -234,15 +223,10 @@ const songsSearchOptions = computed(() => {
 						:label="t('songRequests.settings.channelReward')"
 						path="channelPointsRewardId"
 					>
-						<n-select
-							v-model:value="formValue.channelPointsRewardId"
-							:loading="twitchRewards.isLoading.value"
-							remote
-							filterable
-							:options="rewardsOptions"
-							:render-label="renderSelectOption as any"
+						<rewards-selector
+							v-model="formValue.channelPointsRewardId"
+							only-with-input
 							clearable
-							:disabled="twitchRewards.isError.value"
 						/>
 					</n-form-item>
 
@@ -259,7 +243,7 @@ const songsSearchOptions = computed(() => {
 							clearable
 							multiple
 							:clear-filter-after-select="false"
-							:render-label="renderSelectOption as any"
+							:render-label="renderSelectOption"
 							@search="(v) => channelsSearchValue = v"
 						/>
 					</n-form-item>
