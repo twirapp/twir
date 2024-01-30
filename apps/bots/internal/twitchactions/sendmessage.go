@@ -31,7 +31,7 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.SenderID, c.Config, c.TokensGrpc)
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.TokensGrpc)
 	if err != nil {
 		return err
 	}
