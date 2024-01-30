@@ -6,7 +6,7 @@ message DudeSettings {
 	string color = 1;
 	int32 max_life_time = 2;
 	int32 gravity = 3;
-	int32 scale = 4;
+	float scale = 4;
 	bool sounds_enabled = 5;
 	float sounds_volume = 6;
 }
@@ -32,7 +32,7 @@ message NameBoxSettings {
 	int32 fill_gradient_type = 8;
 	string font_style = 9;
 	string font_variant = 10;
-	string font_weight = 11;
+	int32 font_weight = 11;
 	bool drop_shadow = 12;
 	float drop_shadow_alpha = 13;
 	float drop_shadow_angle = 14;

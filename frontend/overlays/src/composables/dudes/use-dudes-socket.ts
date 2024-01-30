@@ -27,7 +27,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	watch(data, (d) => {
 		const parsedData = JSON.parse(d) as TwirWebSocketEvent;
 		if (parsedData.eventName === 'settings') {
-			const settings = parsedData.data as any;
+			const settings = parsedData.data;
 			updateSettings(settings);
 		}
 	});

@@ -17,14 +17,14 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 		messageBox: {
 			borderRadius: 10,
 			boxColor: '#eeeeee',
-			fontFamily: 'Arial',
+			fontFamily: 'roboto',
 			fontSize: 20,
 			padding: 10,
 			showTime: 5 * 1000,
 			fill: '#333333',
 		},
 		nameBox: {
-			fontFamily: 'Arial',
+			fontFamily: 'roboto',
 			fontSize: 18,
 			fill: '#ffffff',
 			lineJoin: 'round',
@@ -34,7 +34,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 			fillGradientType: 0,
 			fontStyle: 'normal',
 			fontVariant: 'normal',
-			fontWeight: 'normal',
+			fontWeight: 400,
 			dropShadow: false,
 			dropShadowAlpha: 1,
 			dropShadowAngle: 0,
@@ -46,7 +46,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 
 	const channelInfo = ref<{ channelId: string, channelName: string }>();
 
-	function updateSettings(settings: any) {
+	function updateSettings(settings: Record<string, any>) {
 		if (settings.channelId && settings.channelName) {
 			channelInfo.value = {
 				channelId: settings.channelId,
@@ -68,7 +68,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 		dudesSettings.messageBox = {
 			borderRadius: settings.messageBoxBorderRadius,
 			boxColor: settings.messageBoxBoxColor,
-			fontFamily: settings.messageBoxFontFamily,
+			fontFamily: settings.nameBoxFontSize, // TODO: change target
 			fontSize: settings.messageBoxFontSize,
 			padding: settings.messageBoxPadding,
 			showTime: settings.messageBoxShowTime,
@@ -86,7 +86,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 			fillGradientType: settings.nameBoxFillGradientType,
 			fontStyle: settings.nameBoxFontStyle,
 			fontVariant: settings.nameBoxFontVariant,
-			fontWeight: settings.nameBoxFontWeight,
+			fontWeight: Number(settings.nameBoxFontWeight),
 			dropShadow: settings.nameBoxDropShadow,
 			dropShadowAlpha: settings.nameBoxDropShadowAlpha,
 			dropShadowAngle: settings.nameBoxDropShadowAngle,

@@ -12,6 +12,7 @@ const props = defineProps<{
 	fontFamily: string
 	fontWeight: number
 	fontStyle: string
+	subsets?: string[]
 }>();
 
 const emits = defineEmits<{
@@ -24,7 +25,7 @@ const fontSource = useFontSource();
 const availableSubsets = ref<Set<string>>(new Set());
 const filteredSubsets = ref<string[]>([]);
 
-watch(fontSource.fontList, (v) => {
+const unsubscripteFontList = watch(fontSource.fontList, (v) => {
 	if (!v) return;
 
 	for (const font of v) {
@@ -33,6 +34,13 @@ watch(fontSource.fontList, (v) => {
 		}
 	}
 });
+
+if (props.subsets) {
+	unsubscripteFontList();
+	for (const subset of props.subsets) {
+		availableSubsets.value.add(subset);
+	}
+}
 
 // eslint-disable-next-line no-undef
 const selectedFont = defineModel<string>('selectedFont', { default: '' });
@@ -89,7 +97,7 @@ function renderLabel(option: SelectOption) {
 		:disabled="fontSource.loading.value"
 		check-strategy="child"
 	>
-		<template #action>
+		<template v-if="!props.subsets" #action>
 			{{ t('overlays.chat.availabeFonts') }}: {{ fontOptions.length }}
 			<n-select
 				v-model:value="filteredSubsets"

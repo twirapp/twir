@@ -10,7 +10,10 @@ export const useDudesForm = () => {
 	}
 
 	function $reset() {
-		data.value = structuredClone(defaultDudesSettings);
+		data.value = {
+			...$getDefaultSettings(),
+			id: data.value.id,
+		};
 	}
 
 	function $getDefaultSettings() {

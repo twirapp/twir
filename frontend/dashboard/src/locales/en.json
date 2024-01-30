@@ -420,12 +420,19 @@
     },
 		"dudes": {
 			"description": "Animated characters for chatters in your stream",
-			"dudeColor": "Color",
+			"dudeDefaultColor": "Default color",
 			"dudeGravity": "Gravity",
 			"dudeMaxLifeTime": "Max life time (in seconds)",
 			"dudeScale": "Scale",
 			"dudeSounds": "Sounds",
-			"dudeSoundsVolume": "Sound volume"
+			"dudeSoundsVolume": "Sound volume",
+			"nameBoxFill": "Colors",
+			"nameFillGradientStops": "Colors of gradient stops",
+			"nameFillGradientStopsError": "Colors of gradient range should be from 0 to 1",
+			"nameBoxGradientType": "Gradient type",
+			"nameBoxFontFamily": "Font family",
+			"nameBoxFontSize": "Font size",
+			"nameBoxFontWeight": "Font weight"
 		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",

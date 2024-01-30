@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useFontSource } from '@twir/fontsource';
 import DudesOverlay from '@twirapp/dudes';
 import type { DudesOverlayMethods } from '@twirapp/dudes/types';
 import { storeToRefs } from 'pinia';
@@ -12,23 +13,39 @@ import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/t
 
 const dudesRef = ref<DudesOverlayMethods | null>(null);
 
+const fontSource = useFontSource(false);
 const dudesSettingStore = useDudesSettings();
 const { dudesSettings } = storeToRefs(dudesSettingStore);
 const route = useRoute();
 
-watch(() => dudesSettings.value, (settings) => {
+watch(() => dudesSettings.value, async (settings) => {
 	if (!dudesRef.value) return;
-	dudesRef.value.updateSettings(settings);
 
+	dudesRef.value.updateSettings(settings);
 	if (window.frameElement) {
-		dudesRef.value.createDude('Twir', 'dude', {
-			dude: {
-				color: 'rgb(132, 75, 255)',
-			},
-		});
+		dudesRef.value.createDude('Twir', 'dude');
 	}
 	// dudesRef.value.clearDudes();
 }, { deep: true });
+
+watch(() => dudesSettings.value.nameBox.fontFamily, async (fontFamily) => {
+	if (!fontFamily) return;
+
+	try {
+		const loadedFont = await fontSource.loadFont(
+			fontFamily,
+			Number(dudesSettings.value.nameBox.fontWeight),
+			dudesSettings.value.nameBox.fontStyle,
+		);
+
+		if (loadedFont) {
+			dudesSettings.value.nameBox.fontFamily = loadedFont.id;
+			dudesSettings.value.messageBox.fontFamily = loadedFont.id;
+		}
+	} catch (err) {
+		console.error(err);
+	}
+});
 
 const dudesSocket = useDudesSocket();
 

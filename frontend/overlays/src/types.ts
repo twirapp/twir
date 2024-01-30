@@ -86,3 +86,7 @@ export type KappagenSpawnAnimatedEmotesFn = (
 export type KappagenSpawnEmotesFn = (emotes: Emote[]) => void;
 export type KappagenSetSettingsFn = (settings: KappagenSettings) => void;
 // kappagen end
+
+// dudes start
+export type A = ''
+// dudes end

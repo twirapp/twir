@@ -31,7 +31,7 @@ type ChannelsOverlaysDudes struct {
 	NameBoxFillGradientType   int32           `gorm:"type:integer;not null;" json:"nameBoxFillGradientType"`
 	NameBoxFontStyle          string          `gorm:"type:text;not null;" json:"nameBoxFontStyle"`
 	NameBoxFontVariant        string          `gorm:"type:text;not null;" json:"nameBoxFontVariant"`
-	NameBoxFontWeight         string          `gorm:"type:text;not null;" json:"nameBoxFontWeight"`
+	NameBoxFontWeight         string          `gorm:"type:integer;not null;" json:"nameBoxFontWeight"`
 	NameBoxDropShadow         bool            `gorm:"type:boolean;not null;" json:"nameBoxDropShadow"`
 	NameBoxDropShadowAlpha    float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowAlpha"`
 	NameBoxDropShadowAngle    float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowAngle"`
