@@ -32,6 +32,11 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		return err
 	}
 
+	if event.Reward.ID != settings.RewardIdForRemoveEmote.String &&
+		event.Reward.ID != settings.RewardIdForAddEmote.String {
+		return nil
+	}
+
 	ctx := context.TODO()
 	broadcasterProfile, err := seventv.GetProfile(ctx, event.BroadcasterUserID)
 	if err != nil {

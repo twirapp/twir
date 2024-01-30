@@ -4,19 +4,13 @@ import (
 	"errors"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/api/messages/overlays_chat"
 	"gorm.io/gorm"
 )
-
-type settings struct {
-	model.ChatOverlaySettings
-	ChannelID          string            `json:"channel_id"`
-	ChannelName        string            `json:"channel_name"`
-	ChannelDisplayName string            `json:"channel_display_name"`
-	GlobalBadges       []helix.ChatBadge `json:"global_badges"`
-	ChannelBadges      []helix.ChatBadge `json:"channel_badges"`
-}
 
 func (c *Chat) SendSettings(userId string, overlayId string) error {
 	entity := model.ChatOverlaySettings{}
@@ -70,13 +64,49 @@ func (c *Chat) SendSettings(userId string, overlayId string) error {
 		return err
 	}
 
-	data := settings{
-		ChannelID:           user.ID,
-		ChannelName:         user.Login,
-		ChannelDisplayName:  user.DisplayName,
-		GlobalBadges:        globalBadgesReq.Data.Badges,
-		ChannelBadges:       channelBadgesReq.Data.Badges,
-		ChatOverlaySettings: entity,
+	overlaySettings := overlays_chat.Settings{
+		Id:                  lo.ToPtr(entity.ID.String()),
+		MessageHideTimeout:  entity.MessageHideTimeout,
+		MessageShowDelay:    entity.MessageShowDelay,
+		Preset:              entity.Preset,
+		FontSize:            entity.FontSize,
+		HideCommands:        entity.HideCommands,
+		HideBots:            entity.HideBots,
+		FontFamily:          entity.FontFamily,
+		ShowBadges:          entity.ShowBadges,
+		ShowAnnounceBadge:   entity.ShowAnnounceBadge,
+		TextShadowColor:     entity.TextShadowColor,
+		TextShadowSize:      entity.TextShadowSize,
+		ChatBackgroundColor: entity.ChatBackgroundColor,
+		Direction:           entity.Direction,
+		FontWeight:          entity.FontWeight,
+		FontStyle:           entity.FontStyle,
+		PaddingContainer:    entity.PaddingContainer,
+	}
+
+	globalBadges := map[string]helix.ChatBadge{}
+	for _, badge := range globalBadgesReq.Data.Badges {
+		globalBadges[badge.SetID] = badge
+	}
+
+	channelBadges := map[string]helix.BadgeVersion{}
+	for _, badge := range channelBadgesReq.Data.Badges {
+		for _, version := range badge.Versions {
+			channelBadges[badge.SetID+"-"+version.ID] = version
+		}
+	}
+
+	data, err := protoutils.CreateJsonWithProto(
+		&overlaySettings, map[string]any{
+			"channelId":          user.ID,
+			"channelName":        user.Login,
+			"channelDisplayName": user.DisplayName,
+			"globalBadges":       globalBadges,
+			"channelBadges":      channelBadges,
+		},
+	)
+	if err != nil {
+		return err
 	}
 
 	return c.SendEvent(

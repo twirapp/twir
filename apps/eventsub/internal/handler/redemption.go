@@ -86,21 +86,21 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	go func() {
 		e := c.handleYoutubeSongRequests(event)
 		if e != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(e.Error(), slog.Any("e", err))
 		}
 	}()
 
 	go func() {
 		e := c.handleAlerts(event)
 		if e != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(e.Error(), slog.Any("e", err))
 		}
 	}()
 
 	go func() {
 		e := c.handleRewardsSevenTvEmote(event)
 		if e != nil {
-			c.logger.Error(err.Error(), slog.Any("err", err))
+			c.logger.Error(e.Error(), slog.Any("err", e))
 		}
 	}()
 

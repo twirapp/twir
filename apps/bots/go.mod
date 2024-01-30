@@ -6,7 +6,6 @@ replace github.com/nicklaw5/helix/v2 => ../../libs/helix
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
-	github.com/alitto/pond v1.8.3
 	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.6.0
 	github.com/imroc/req/v3 v3.42.3
@@ -21,6 +20,7 @@ require (
 	github.com/satont/twir/libs/pubsub v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/sentry v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/twitch v0.0.0-20240126231400-72985ccc25a5
+	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/utils v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	go.uber.org/fx v1.20.1
@@ -66,14 +66,12 @@ require (
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/refraction-networking/utls v1.6.1 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/samber/slog-common v0.15.0 // indirect
 	github.com/samber/slog-multi v1.0.2 // indirect
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect

@@ -17,7 +17,7 @@ func (c *Activity) ObsSetScene(
 ) error {
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		operation.Target.String,
 		data,
 	)
 	if hydratedErr != nil {
@@ -48,7 +48,7 @@ func (c *Activity) ObsToggleSource(
 ) error {
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		operation.Target.String,
 		data,
 	)
 	if hydratedErr != nil {
@@ -79,7 +79,7 @@ func (c *Activity) ObsToggleAudio(
 ) error {
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		operation.Target.String,
 		data,
 	)
 	if hydratedErr != nil {
@@ -107,7 +107,7 @@ func (c *Activity) ObsAudioChangeVolume(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Input.String, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,7 @@ func (c *Activity) ObsAudioSetVolume(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
-	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Input.String, data)
+	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
 	if err != nil {
 		return err
 	}

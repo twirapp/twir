@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/imroc/req/v3"
 )
@@ -16,7 +17,7 @@ func GetProfile(ctx context.Context, twitchUserID string) (SevenTvProfileRespons
 		SetHeader("Cache-Control", "no-cache").
 		SetContext(ctx).
 		SetSuccessResult(&profile).
-		Get("https://7tv.io/v3/users/twitch/" + twitchUserID)
+		Get(fmt.Sprintf("https://7tv.io/v3/users/twitch/%s?t=%v", twitchUserID, time.Now().UnixMilli()))
 	if err != nil {
 		return profile, err
 	}

@@ -223,7 +223,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	go c.services.Gorm.
-		WithContext(ctx).
+		WithContext(context.TODO()).
 		Create(
 			&model.ChannelsCommandsUsages{
 				ID:        uuid.New().String(),

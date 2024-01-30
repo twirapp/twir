@@ -9,7 +9,6 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/alitto/pond"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -43,7 +42,6 @@ type MessageHandler struct {
 	logger            logger.Logger
 	gorm              *gorm.DB
 	redis             *redis.Client
-	pool              *pond.WorkerPool
 	twitchActions     *twitchactions.TwitchActions
 	parserGrpc        parser.ParserClient
 	websocketsGrpc    websockets.WebsocketClient
@@ -53,21 +51,10 @@ type MessageHandler struct {
 }
 
 func New(opts Opts) *MessageHandler {
-	pool := pond.New(
-		10,
-		1000,
-		pond.Strategy(pond.Balanced()),
-		pond.PanicHandler(
-			func(i interface{}) {
-				opts.Logger.Error("panic", slog.Any("err", i))
-			},
-		),
-	)
 	return &MessageHandler{
 		logger:            opts.Logger,
 		gorm:              opts.Gorm,
 		redis:             opts.Redis,
-		pool:              pool,
 		twitchActions:     opts.TwitchActions,
 		parserGrpc:        opts.ParserGrpc,
 		websocketsGrpc:    opts.WebsocketsGrpc,
@@ -82,6 +69,23 @@ type handleMessage struct {
 	DbChannel *model.Channels
 	DbStream  *model.ChannelsStreams
 	DbUser    *model.Users
+}
+
+var handlersForExecute = []func(
+	c *MessageHandler,
+	ctx context.Context,
+	msg handleMessage,
+) error{
+	(*MessageHandler).handleCommand,
+	(*MessageHandler).handleIncrementStreamMessages,
+	(*MessageHandler).handleGreetings,
+	(*MessageHandler).handleKeywords,
+	(*MessageHandler).handleEmotesUsages,
+	(*MessageHandler).handleStoreMessage,
+	(*MessageHandler).handleTts,
+	(*MessageHandler).handleRemoveLurker,
+	(*MessageHandler).handleModeration,
+	(*MessageHandler).handleFirstStreamUserJoin,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessage) error {
@@ -129,7 +133,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	if !msg.DbChannel.IsEnabled {
-		fmt.Println("channel not enabled", msg.DbChannel.ID)
 		return nil
 	}
 
@@ -146,38 +149,23 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 
 	var wg sync.WaitGroup
 
-	funcsForExecute := [...]func(ctx context.Context, msg handleMessage) error{
-		c.handleCommand,
-		c.handleIncrementStreamMessages,
-		c.handleGreetings,
-		c.handleKeywords,
-		c.handleEmotesUsages,
-		c.handleStoreMessage,
-		c.handleTts,
-		c.handleRemoveLurker,
-		c.handleModeration,
-		c.handleFirstStreamUserJoin,
-	}
-
 	// TODO: i dont know why grpc context canceling before this function finished
 	funcsCtx := context.Background()
 
-	for _, f := range funcsForExecute {
+	for _, f := range handlersForExecute {
 		wg.Add(1)
 
 		f := f
 
-		c.pool.Submit(
-			func() {
-				if err := f(funcsCtx, msg); err != nil {
-					c.logger.Error(
-						"error when executing message handler function", slog.Any("err", err),
-						slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
-					)
-				}
-				wg.Done()
-			},
-		)
+		go func() {
+			if err := f(c, funcsCtx, msg); err != nil {
+				c.logger.Error(
+					"error when executing message handler function", slog.Any("err", err),
+					slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
+				)
+			}
+			wg.Done()
+		}()
 	}
 
 	wg.Wait()

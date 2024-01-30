@@ -39,33 +39,31 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	c.pool.Submit(
-		func() {
-			alert := model.ChannelAlert{}
-			if err := c.gorm.
-				WithContext(ctx).
-				Where(
-					"channel_id = ? AND greetings_ids && ?",
-					msg.GetBroadcasterUserId(),
-					pq.StringArray{entity.ID},
-				).Find(&alert).Error; err != nil {
-				c.logger.Error("cannot find channel alert", slog.Any("err", err))
-				return
-			}
+	go func() {
+		alert := model.ChannelAlert{}
+		if err := c.gorm.
+			WithContext(ctx).
+			Where(
+				"channel_id = ? AND greetings_ids && ?",
+				msg.GetBroadcasterUserId(),
+				pq.StringArray{entity.ID},
+			).Find(&alert).Error; err != nil {
+			c.logger.Error("cannot find channel alert", slog.Any("err", err))
+			return
+		}
 
-			if alert.ID == "" {
-				return
-			}
+		if alert.ID == "" {
+			return
+		}
 
-			c.websocketsGrpc.TriggerAlert(
-				ctx,
-				&websockets.TriggerAlertRequest{
-					ChannelId: msg.GetBroadcasterUserId(),
-					AlertId:   alert.ID,
-				},
-			)
-		},
-	)
+		c.websocketsGrpc.TriggerAlert(
+			ctx,
+			&websockets.TriggerAlertRequest{
+				ChannelId: msg.GetBroadcasterUserId(),
+				AlertId:   alert.ID,
+			},
+		)
+	}()
 
 	if err = c.gorm.WithContext(ctx).Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
 		map[string]any{
