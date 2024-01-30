@@ -33,7 +33,8 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 	const { settings } = storeToRefs(kappagenSettingsStore);
 
 	const kappagenEmotes = computed(() => {
-		const emotesArray = Object.values(emotes);
+		if (!emotes.value) return [];
+		const emotesArray = Object.values(emotes.value);
 		return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier);
 	});
 

@@ -3,6 +3,7 @@ package messagehandler
 import (
 	"context"
 	"log/slog"
+	"regexp"
 	"strings"
 
 	"github.com/samber/lo"
@@ -25,10 +26,24 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 			continue
 		}
 
+		re := regexp.MustCompile(f.GetText())
+		var emotePositions []*parser.Message_EmotePosition
+
+		for _, match := range re.FindAllStringSubmatchIndex(msg.GetMessage().GetText(), -1) {
+			emotePositions = append(
+				emotePositions,
+				&parser.Message_EmotePosition{
+					Start: int64(match[0]),
+					End:   int64(match[1]),
+				},
+			)
+		}
+
 		emotes = append(
 			emotes, &parser.Message_Emote{
-				Id:   f.GetEmote().GetId(),
-				Name: f.GetText(),
+				Id:        f.GetEmote().GetId(),
+				Name:      f.GetText(),
+				Positions: emotePositions,
 			},
 		)
 	}

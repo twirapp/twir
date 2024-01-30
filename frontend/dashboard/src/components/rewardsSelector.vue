@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SelectOption, NSpace, NAvatar, NText, NSelect } from 'naive-ui';
+import { type SelectOption, NSpace, NAvatar, NText, NSelect } from 'naive-ui';
 import { computed, VNodeChild, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -23,10 +23,16 @@ const {
 	isError: isRewardsError,
 } = useTwitchRewards();
 
-const rewardsSelectOptions = computed(() => {
-	const rewards = [];
+type RewardSelectOptions = SelectOption & {
+	image?: string,
+	color: string,
+};
 
-	for (const reward of rewardsData.value?.rewards ?? []) {
+const rewardsSelectOptions = computed(() => {
+	const rewards: RewardSelectOptions[] = [];
+	if (!rewardsData.value?.rewards) return rewards;
+
+	for (const reward of rewardsData.value.rewards) {
 		if (props.onlyWithInput && !reward.isUserInputRequired) continue;
 
 		rewards.push({
@@ -34,13 +40,14 @@ const rewardsSelectOptions = computed(() => {
 			label: reward.title,
 			image: reward.image?.url4X,
 			color: reward.backgroundColor,
+			disabled: !reward.isEnabled,
 		});
 	}
 
 	return rewards;
 });
 
-const renderRewardTag = (option: SelectOption & { image?: string, color: string, }): VNodeChild => {
+const renderRewardTag = (option: RewardSelectOptions): VNodeChild => {
 	return h(NSpace, { align: 'center' }, {
 		default: () => [
 			h(NAvatar, {
@@ -48,7 +55,13 @@ const renderRewardTag = (option: SelectOption & { image?: string, color: string,
 				color: option.color,
 				style: 'display: flex; width: 20px; height: 20px; padding: 4px;',
 			}),
-			h(NText, {}, { default: () => option.label }),
+			h(NText, {
+				style: {
+					color: option.disabled
+						? 'var(--n-text-disabled-color)'
+						: 'var(--n-text-color)',
+				},
+			}, { default: () => option.label }),
 		],
 	});
 };
