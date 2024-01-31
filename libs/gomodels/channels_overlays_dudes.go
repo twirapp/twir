@@ -1,6 +1,8 @@
 package model
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
@@ -11,7 +13,7 @@ type ChannelsOverlaysDudes struct {
 	DudeColor                 string          `gorm:"type:text;not null;" json:"dudeColor"`
 	DudeMaxLifeTime           int32           `gorm:"type:integer;not null;" json:"dudeMaxLifeTime"`
 	DudeGravity               int32           `gorm:"type:integer;not null;" json:"dudeGravity"`
-	DudeScale                 int32           `gorm:"type:integer;not null;" json:"dudeScale"`
+	DudeScale                 float32         `gorm:"type:integer;not null;" json:"dudeScale"`
 	DudeSoundsEnabled         bool            `gorm:"type:boolean;not null;" json:"dudeSoundsEnabled"`
 	DudeSoundsVolume          float32         `gorm:"type:real;not null;"  json:"dudeSoundsVolume"`
 	MessageBoxBorderRadius    int32           `gorm:"type:integer;not null;"  json:"messageBoxBorderRadius"`
@@ -31,13 +33,15 @@ type ChannelsOverlaysDudes struct {
 	NameBoxFillGradientType   int32           `gorm:"type:integer;not null;" json:"nameBoxFillGradientType"`
 	NameBoxFontStyle          string          `gorm:"type:text;not null;" json:"nameBoxFontStyle"`
 	NameBoxFontVariant        string          `gorm:"type:text;not null;" json:"nameBoxFontVariant"`
-	NameBoxFontWeight         string          `gorm:"type:integer;not null;" json:"nameBoxFontWeight"`
+	NameBoxFontWeight         int32           `gorm:"type:integer;not null;" json:"nameBoxFontWeight"`
 	NameBoxDropShadow         bool            `gorm:"type:boolean;not null;" json:"nameBoxDropShadow"`
 	NameBoxDropShadowAlpha    float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowAlpha"`
 	NameBoxDropShadowAngle    float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowAngle"`
 	NameBoxDropShadowBlur     float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowBlur"`
 	NameBoxDropShadowDistance float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowDistance"`
 	NameBoxDropShadowColor    string          `gorm:"type:text;not null;" json:"nameBoxDropShadowColor"`
+
+	CreatedAt time.Time `gorm:"type:datetime;not null;" json:"createdAt"`
 }
 
 func (ChannelsOverlaysDudes) TableName() string {

@@ -15,8 +15,7 @@ const router = useRouter();
 		:icon="DudesIcon"
 		title="Dudes"
 		:description="t('overlays.dudes.description')"
-		overlay-path="dudes"
-		:show-copy="true"
+		:show-copy="false"
 		@open-settings="router.push({ name: 'DudesOverlay' })"
 	>
 	</card>

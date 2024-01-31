@@ -49,8 +49,6 @@ async function save() {
 		settings: formValue.value,
 	});
 
-	dudesIframeStore.dudesIframe?.contentWindow?.location.reload();
-
 	discrete.notification.success({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
@@ -58,7 +56,7 @@ async function save() {
 }
 
 function formatDuration(duration: number) {
-	const { hours = 0,  minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: duration });
+	const { hours = 0, minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: duration });
 	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
 }
 
@@ -139,11 +137,11 @@ const fontWeightOptions = computed(() => {
 					/>
 				</div>
 
-				<n-divider />
+				<n-divider/>
 
 				<div class="switch">
 					<span>{{ t('overlays.dudes.dudeSounds') }}</span>
-					<n-switch v-model:value="formValue.dudeSettings.soundsEnabled" />
+					<n-switch v-model:value="formValue.dudeSettings.soundsEnabled"/>
 				</div>
 
 				<div>
@@ -157,7 +155,7 @@ const fontWeightOptions = computed(() => {
 					/>
 				</div>
 
-				<n-divider />
+				<n-divider/>
 
 				<div>
 					<span>{{ t('overlays.dudes.nameBoxFill') }}</span>

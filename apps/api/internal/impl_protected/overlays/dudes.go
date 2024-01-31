@@ -2,12 +2,15 @@ package overlays
 
 import (
 	"context"
+	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays_dudes"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -122,7 +125,7 @@ func (c *Overlays) OverlayDudesGetAll(
 	entities := []model.ChannelsOverlaysDudes{}
 	if err := c.Db.WithContext(ctx).
 		Where("channel_id = ?", dashboardId).
-		// Order("created_at asc").
+		Order("created_at asc").
 		Find(&entities).
 		Error; err != nil {
 		return nil, err
@@ -148,6 +151,7 @@ func (c *Overlays) OverlayDudesCreate(
 	entity := convertDudesGrpcToDb(req)
 	entity.ID = uuid.New()
 	entity.ChannelID = dashboardId
+	entity.CreatedAt = time.Now()
 
 	if err := c.Db.WithContext(ctx).Save(&entity).Error; err != nil {
 		return nil, err
@@ -180,6 +184,17 @@ func (c *Overlays) OverlayDudesUpdate(
 
 	if err := c.Db.WithContext(ctx).Save(&newEntity).Error; err != nil {
 		return nil, err
+	}
+
+	if _, err := c.Grpc.Websockets.RefreshOverlaySettings(
+		ctx,
+		&websockets.RefreshOverlaysRequest{
+			ChannelId:   dashboardId,
+			OverlayName: websockets.RefreshOverlaySettingsName_DUDES,
+			OverlayId:   lo.ToPtr(existedEntity.ID.String()),
+		},
+	); err != nil {
+		c.Logger.Error("cannot refresh chat overlay settings", slog.Any("err", err))
 	}
 
 	return convertDudesEntityToGrpc(newEntity), nil

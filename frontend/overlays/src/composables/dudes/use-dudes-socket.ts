@@ -1,4 +1,5 @@
 import { useWebSocket } from '@vueuse/core';
+import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
@@ -25,10 +26,20 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	);
 
 	watch(data, (d) => {
-		const parsedData = JSON.parse(d) as TwirWebSocketEvent;
+		const parsedData = JSON.parse(d) as TwirWebSocketEvent<Required<Settings>>;
 		if (parsedData.eventName === 'settings') {
-			const settings = parsedData.data;
-			updateSettings(settings);
+			const data = parsedData.data;
+			updateSettings({
+				dude: {
+					...data.dudeSettings,
+					sounds: {
+						enabled: data.dudeSettings.soundsEnabled,
+						volume: data.dudeSettings.soundsVolume,
+					},
+				},
+				nameBox: data.nameBoxSettings,
+				messageBox: data.messageBoxSettings,
+			});
 		}
 	});
 

@@ -4,8 +4,11 @@ import (
 	"errors"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/api/messages/overlays_dudes"
 )
 
 type settings struct {
@@ -49,11 +52,55 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 
 	user := usersReq.Data.Users[0]
 
-	data := settings{
-		ChannelID:             user.ID,
-		ChannelName:           user.Login,
-		ChannelDisplayName:    user.DisplayName,
-		ChannelsOverlaysDudes: entity,
+	dudesGrpcSettings := overlays_dudes.Settings{
+		Id: lo.ToPtr(entity.ID.String()),
+		DudeSettings: &overlays_dudes.DudeSettings{
+			Color:         entity.DudeColor,
+			MaxLifeTime:   entity.DudeMaxLifeTime,
+			Gravity:       entity.DudeGravity,
+			Scale:         entity.DudeScale,
+			SoundsEnabled: entity.DudeSoundsEnabled,
+			SoundsVolume:  entity.DudeSoundsVolume,
+		},
+		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
+			BorderRadius: entity.MessageBoxBorderRadius,
+			BoxColor:     entity.MessageBoxBoxColor,
+			FontFamily:   entity.MessageBoxFontFamily,
+			FontSize:     entity.MessageBoxFontSize,
+			Padding:      entity.MessageBoxPadding,
+			ShowTime:     entity.MessageBoxShowTime,
+			Fill:         entity.MessageBoxFill,
+		},
+		NameBoxSettings: &overlays_dudes.NameBoxSettings{
+			FontFamily:         entity.NameBoxFontFamily,
+			FontSize:           entity.NameBoxFontSize,
+			Fill:               entity.NameBoxFill,
+			LineJoin:           entity.NameBoxLineJoin,
+			StrokeThickness:    entity.NameBoxStrokeThickness,
+			Stroke:             entity.NameBoxStroke,
+			FillGradientStops:  entity.NameBoxFillGradientStops,
+			FillGradientType:   entity.NameBoxFillGradientType,
+			FontStyle:          entity.NameBoxFontStyle,
+			FontVariant:        entity.NameBoxFontVariant,
+			FontWeight:         entity.NameBoxFontWeight,
+			DropShadow:         entity.NameBoxDropShadow,
+			DropShadowAlpha:    entity.NameBoxDropShadowAlpha,
+			DropShadowAngle:    entity.NameBoxDropShadowAngle,
+			DropShadowBlur:     entity.NameBoxDropShadowBlur,
+			DropShadowDistance: entity.NameBoxDropShadowDistance,
+			DropShadowColor:    entity.NameBoxDropShadowColor,
+		},
+	}
+
+	data, err := protoutils.CreateJsonWithProto(
+		&dudesGrpcSettings, map[string]any{
+			"channelId":          user.ID,
+			"channelName":        user.Login,
+			"channelDisplayName": user.DisplayName,
+		},
+	)
+	if err != nil {
+		return err
 	}
 
 	return c.SendEvent(

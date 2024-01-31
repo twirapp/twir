@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
@@ -106,4 +107,39 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 	)
 
 	return impl, nil
+}
+
+func (c *GrpcImpl) RefreshOverlaySettings(
+	_ context.Context,
+	req *websockets.RefreshOverlaysRequest,
+) (
+	*emptypb.Empty,
+	error,
+) {
+	var err error
+
+	switch req.GetOverlayName() {
+	case websockets.RefreshOverlaySettingsName_CUSTOM:
+		err = c.overlaysRegistryServer.SendEvent(
+			req.GetChannelId(),
+			"refreshOverlays",
+			nil,
+		)
+	case websockets.RefreshOverlaySettingsName_KAPPAGEN:
+		err = c.kappagenServer.SendSettings(req.GetChannelId())
+	case websockets.RefreshOverlaySettingsName_BRB:
+		err = c.beRightBackServer.SendSettings(req.GetChannelId())
+	case websockets.RefreshOverlaySettingsName_DUDES:
+		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
+	case websockets.RefreshOverlaySettingsName_CHAT:
+		err = c.chatServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
+	default:
+		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
+	}
+
+	if err != nil {
+		c.logger.Error(err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

@@ -23,17 +23,22 @@ service Websocket {
 	rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshOverlays(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
-
-	rpc RefreshChatOverlaySettings(RefreshChatSettingsRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshKappagenOverlaySettings(RefreshKappagenOverlaySettingsRequest) returns (google.protobuf.Empty) {}
 
 	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerKappagenByEvent(TriggerKappagenByEventRequest) returns (google.protobuf.Empty) {}
 
 	rpc TriggerShowBrb(TriggerShowBrbRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerHideBrb(TriggerHideBrbRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshBrbSettings(RefreshBrbSettingsRequest) returns (google.protobuf.Empty) {}
+
+	rpc RefreshOverlaySettings(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
+}
+
+enum RefreshOverlaySettingsName {
+	CUSTOM = 0;
+	KAPPAGEN = 1;
+	BRB = 2;
+	DUDES = 3;
+	CHAT = 4;
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -117,15 +122,8 @@ message TriggerAlertRequest {
 
 message RefreshOverlaysRequest {
 	string channel_id = 1;
-}
-
-message RefreshChatSettingsRequest {
-	string channel_id = 1;
-	string id = 2;
-}
-
-message RefreshKappagenOverlaySettingsRequest {
-	string channel_id = 1;
+	RefreshOverlaySettingsName overlay_name = 2;
+	optional string overlay_id = 3;
 }
 
 message TriggerKappagenRequest {
@@ -151,9 +149,5 @@ message TriggerShowBrbRequest {
 }
 
 message TriggerHideBrbRequest {
-	string channel_id = 1;
-}
-
-message RefreshBrbSettingsRequest {
 	string channel_id = 1;
 }
