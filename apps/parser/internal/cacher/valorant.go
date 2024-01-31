@@ -2,6 +2,7 @@ package cacher
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/imroc/req/v3"
@@ -28,21 +29,20 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch 
 		},
 	)
 
-	if !ok || integration.Data == nil || integration.Data.UserName == nil {
+	if !ok || integration.Data == nil || integration.Data.UserName == nil ||
+		integration.Data.ValorantActiveRegion == nil {
 		return nil
 	}
+
+	apiUrl := fmt.Sprintf(
+		"https://api.henrikdev.xyz/valorant/v3/matches/%s/",
+		*integration.Data.ValorantActiveRegion,
+	)
 
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(&data).
-		Get(
-			"https://api.henrikdev.xyz/valorant/v3/matches/eu/" + strings.Replace(
-				*integration.Data.UserName,
-				"#",
-				"/",
-				1,
-			),
-		)
+		Get(apiUrl + strings.Replace(*integration.Data.UserName, "#", "/", 1))
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
@@ -69,22 +69,21 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 		},
 	)
 
-	if !ok || integration.Data == nil || integration.Data.UserName == nil {
+	if !ok || integration.Data == nil || integration.Data.UserName == nil ||
+		integration.Data.ValorantActiveRegion == nil {
 		return nil
 	}
+
+	apiUrl := fmt.Sprintf(
+		"https://api.henrikdev.xyz/valorant/v3/matches/%s/",
+		*integration.Data.ValorantActiveRegion,
+	)
 
 	c.cache.valorantProfile = &types.ValorantProfile{}
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(c.cache.valorantProfile).
-		Get(
-			"https://api.henrikdev.xyz/valorant/v1/mmr/eu/" + strings.Replace(
-				*integration.Data.UserName,
-				"#",
-				"/",
-				1,
-			),
-		)
+		Get(apiUrl + strings.Replace(*integration.Data.UserName, "#", "/", 1))
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil

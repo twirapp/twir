@@ -46,6 +46,8 @@ type ChannelsIntegrationsData struct {
 	Game     *string `json:"game,omitempty"`
 	UserId   *string `json:"userId,omitempty"`
 
+	ValorantActiveRegion *string `json:"valorantActiveRegion,omitempty"`
+
 	Discord *ChannelIntegrationDataDiscord `json:"discord,omitempty"`
 }
 

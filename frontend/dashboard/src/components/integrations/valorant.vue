@@ -1,35 +1,24 @@
 <script setup lang="ts">
-import { NInput, NFormItem, useThemeVars } from 'naive-ui';
-import { ref, watch } from 'vue';
+import { useThemeVars } from 'naive-ui';
 
 import { useValorantIntegration } from '@/api/index.js';
-import ValorantSVG from '@/assets/integrations/valorant.svg?use';
-import WithSettings from '@/components/integrations/variants/withSettings.vue';
+import IconValorant from '@/assets/integrations/valorant.svg?use';
+import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
 const themeVars = useThemeVars();
-
 const manager = useValorantIntegration();
-const { data } = manager.useGetData();
-const { mutateAsync } = manager.usePost();
-
-const userName = ref<string>('');
-
-watch(data, (value) => {
-	if (value?.userName) {
-		userName.value = value.userName;
-	}
-});
-
-async function save() {
-	await mutateAsync(userName.value);
-}
+const { data } = manager.useData();
+const logout = manager.useLogout();
+const { data: authLink } = manager.useAuthLink();
 </script>
 
 <template>
-	<with-settings
+	<oauth-component
 		title="Valorant"
-		:save="save"
-		:icon="ValorantSVG"
+		:data="data"
+		:logout="() => logout.mutateAsync({})"
+		:authLink="authLink?.link"
+		:icon="IconValorant"
 	>
 		<template #description>
 			<i18n-t
@@ -39,16 +28,7 @@ async function save() {
 				<b class="variable">$(valorant.profile.tier)</b>
 			</i18n-t>
 		</template>
-		<template #settings>
-			<n-form-item label="Valorant username with tag">
-				<n-input
-					v-model:value="userName"
-					type="text"
-					placeholder="username#tag"
-				/>
-			</n-form-item>
-		</template>
-	</with-settings>
+	</oauth-component>
 </template>
 
 <style scoped>
