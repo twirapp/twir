@@ -70,7 +70,7 @@ services:
       PGPOOL_ADMIN_USERNAME: "pgpool"
       PGPOOL_ADMIN_PASSWORD: "pgpool"
       PGPOOL_MAX_POOL: 25
-      PGPOOL_ENABLE_LOG_CONNECTIONS: true
+      PGPOOL_ENABLE_LOG_CONNECTIONS: "yes"
     secrets:
       - twir_postgres_user
       - twir_postgres_password
