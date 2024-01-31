@@ -69,6 +69,8 @@ services:
       PGPOOL_SR_CHECK_PASSWORD_FILE: /run/secrets/twir_postgres_password
       PGPOOL_ADMIN_USERNAME: "pgpool"
       PGPOOL_ADMIN_PASSWORD: "pgpool"
+      PGPOOL_MAX_POOL: 25
+      PGPOOL_ENABLE_LOG_CONNECTIONS: true
     secrets:
       - twir_postgres_user
       - twir_postgres_password
