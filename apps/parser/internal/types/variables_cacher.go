@@ -22,7 +22,7 @@ type DataCacher interface {
 	GetTwitchSenderUser(ctx context.Context) *helix.User
 	GetTwitchUserById(ctx context.Context, userId string) (*helix.User, error)
 	GetTwitchUserByName(ctx context.Context, userId string) (*helix.User, error)
-	GetValorantMatches(ctx context.Context) []*ValorantMatch
+	GetValorantMatches(ctx context.Context) []ValorantMatch
 	GetValorantProfile(ctx context.Context) *ValorantProfile
 
 	GetCurrentSong(ctx context.Context) *CurrentSong

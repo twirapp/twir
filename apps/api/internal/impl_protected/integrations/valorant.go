@@ -37,6 +37,17 @@ type ValorantShardResponse struct {
 	ActiveShard string `json:"activeShard"`
 }
 
+type ValorantHenrikResponse struct {
+	Status int `json:"status"`
+	Data   struct {
+		Puuid        string `json:"puuid"`
+		Region       string `json:"region"`
+		AccountLevel int    `json:"account_level"`
+		Name         string `json:"name"`
+		Tag          string `json:"tag"`
+	} `json:"data"`
+}
+
 const api_base = "https://europe.api.riotgames.com"
 
 func (c *Integrations) IntegrationsValorantGetAuthLink(
@@ -163,6 +174,23 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
 	}
 
+	henrikResponse := ValorantHenrikResponse{}
+	henrikReq, err := req.
+		SetSuccessResult(&henrikResponse).
+		Get(
+			fmt.Sprintf(
+				"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
+				accountResponse.UserName,
+				accountResponse.TagLine,
+			),
+		)
+	if err != nil {
+		return nil, err
+	}
+	if !henrikReq.IsSuccessState() {
+		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+	}
+
 	userName := fmt.Sprintf(
 		"%s#%s",
 		accountResponse.UserName,
@@ -173,6 +201,7 @@ func (c *Integrations) IntegrationsValorantPostCode(
 	integration.RefreshToken = null.StringFrom(tokenResponse.RefreshToken)
 	integration.Data.ValorantActiveRegion = &shardResponse.ActiveShard
 	integration.Data.UserName = &userName
+	integration.Data.ValorantPuuid = &henrikResponse.Data.Puuid
 	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {

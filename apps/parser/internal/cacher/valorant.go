@@ -3,7 +3,6 @@ package cacher
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
@@ -12,15 +11,13 @@ import (
 )
 
 // GetValorantMatches implements types.VariablesCacher
-func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch {
-	c.locks.valorantMatch.Lock()
-	defer c.locks.valorantMatch.Unlock()
+func (c *cacher) GetValorantMatches(ctx context.Context) []types.ValorantMatch {
+	c.locks.valorantMatches.Lock()
+	defer c.locks.valorantMatches.Unlock()
 
 	if c.cache.valorantMatches != nil {
 		return c.cache.valorantMatches
 	}
-
-	var data *types.ValorantMatchesResponse
 
 	integrations := c.GetEnabledChannelIntegrations(ctx)
 	integration, ok := lo.Find(
@@ -29,20 +26,22 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []*types.ValorantMatch 
 		},
 	)
 
-	if !ok || integration.Data == nil || integration.Data.UserName == nil ||
-		integration.Data.ValorantActiveRegion == nil {
+	if !ok || !integration.Enabled || integration.Data == nil || integration.Data.UserName == nil ||
+		integration.Data.ValorantActiveRegion == nil || integration.Data.ValorantPuuid == nil {
 		return nil
 	}
 
 	apiUrl := fmt.Sprintf(
-		"https://api.henrikdev.xyz/valorant/v3/matches/%s/",
+		"https://api.henrikdev.xyz/valorant/v3/by-puuid/matches/%s/%s",
 		*integration.Data.ValorantActiveRegion,
+		*integration.Data.ValorantPuuid,
 	)
 
+	var data *types.ValorantMatchesResponse
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(&data).
-		Get(apiUrl + strings.Replace(*integration.Data.UserName, "#", "/", 1))
+		Get(apiUrl)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
@@ -69,21 +68,22 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 		},
 	)
 
-	if !ok || integration.Data == nil || integration.Data.UserName == nil ||
-		integration.Data.ValorantActiveRegion == nil {
+	if !ok || !integration.Enabled || integration.Data == nil || integration.Data.UserName == nil ||
+		integration.Data.ValorantActiveRegion == nil || integration.Data.ValorantPuuid == nil {
 		return nil
 	}
 
 	apiUrl := fmt.Sprintf(
-		"https://api.henrikdev.xyz/valorant/v3/matches/%s/",
+		"https://api.henrikdev.xyz/valorant/v2/by-puuid/mmr/%s/%s",
 		*integration.Data.ValorantActiveRegion,
+		*integration.Data.ValorantPuuid,
 	)
 
 	c.cache.valorantProfile = &types.ValorantProfile{}
 	_, err := req.R().
 		SetContext(ctx).
 		SetSuccessResult(c.cache.valorantProfile).
-		Get(apiUrl + strings.Replace(*integration.Data.UserName, "#", "/", 1))
+		Get(apiUrl)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil

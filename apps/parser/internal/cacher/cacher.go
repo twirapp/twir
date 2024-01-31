@@ -25,7 +25,7 @@ type locks struct {
 	faceitUserData sync.Mutex
 
 	valorantProfile sync.Mutex
-	valorantMatch   sync.Mutex
+	valorantMatches sync.Mutex
 
 	currentSong sync.Mutex
 }
@@ -44,7 +44,7 @@ type cache struct {
 	faceitData *types.FaceitResult
 
 	valorantProfile *types.ValorantProfile
-	valorantMatches []*types.ValorantMatch
+	valorantMatches []types.ValorantMatch
 
 	currentSong *types.CurrentSong
 }

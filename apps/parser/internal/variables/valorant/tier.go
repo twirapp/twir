@@ -2,7 +2,7 @@ package valorant
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -22,7 +22,7 @@ var Tier = &types.Variable{
 			return nil, nil
 		}
 
-		result.Result = fmt.Sprintf("%v", profile.Data.CurrentTier)
+		result.Result = strconv.Itoa(profile.Data.CurrentData.Currenttier)
 
 		return &result, nil
 	},
@@ -41,7 +41,7 @@ var TierText = &types.Variable{
 			return nil, nil
 		}
 
-		result.Result = profile.Data.CurrentTierpatched
+		result.Result = profile.Data.CurrentData.Currenttierpatched
 
 		return &result, nil
 	},
@@ -60,7 +60,7 @@ var RankInTier = &types.Variable{
 			return nil, nil
 		}
 
-		result.Result = fmt.Sprintf("%v", profile.Data.RankingInTier)
+		result.Result = strconv.Itoa(profile.Data.CurrentData.RankingInTier)
 
 		return &result, nil
 	},
