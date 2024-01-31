@@ -7,6 +7,8 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/KnutZuidema/golio"
+	"github.com/KnutZuidema/golio/api"
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	"github.com/satont/twir/apps/api/internal/helpers"
@@ -132,9 +134,6 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, fmt.Errorf("failed to get valorant tokens: %s", resp.String())
 	}
 
-	integration.AccessToken = null.StringFrom(tokenResponse.AccessToken)
-	integration.RefreshToken = null.StringFrom(tokenResponse.RefreshToken)
-
 	accountResponse := ValorantAccountResp{}
 	accountReq, err := req.
 		SetSuccessResult(&accountResponse).
@@ -147,7 +146,10 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, fmt.Errorf("cannot get valorant account info: %s", accountReq.String())
 	}
 
-	fmt.Println(accountReq.String())
+	golio.NewClient(
+		integration.Integration.APIKey.String,
+		golio.WithRegion(api.RegionEuropeWest),
+	)
 
 	shardResponse := ValorantShardResponse{}
 	shardReq, err := req.
@@ -171,14 +173,16 @@ func (c *Integrations) IntegrationsValorantPostCode(
 	fmt.Println(shardReq.String())
 
 	userName := fmt.Sprintf(
-		"%s#%s (%s)",
+		"%s#%s",
 		accountResponse.UserName,
 		accountResponse.TagLine,
-		shardResponse.ActiveShard,
 	)
 
+	integration.AccessToken = null.StringFrom(tokenResponse.AccessToken)
+	integration.RefreshToken = null.StringFrom(tokenResponse.RefreshToken)
 	integration.Data.ValorantActiveRegion = &shardResponse.ActiveShard
 	integration.Data.UserName = &userName
+	integration.Enabled = true
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
