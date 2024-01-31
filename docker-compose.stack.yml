@@ -479,7 +479,7 @@ services:
       replicas: 6
 
   tts:
-    image: twirapp/tts:latest
+    image: aculeasis/rhvoice-rest:latest
     networks:
       - twir
     deploy:
