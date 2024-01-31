@@ -19,6 +19,7 @@ import {
 	useDudesOverlayManager, useProfile, useUserAccessFlagChecker,
 } from '@/api/index.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+import CommandButton from '@/components/commandButton.vue';
 
 const themeVars = useThemeVars();
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
@@ -101,6 +102,7 @@ const addable = computed(() => {
 			/>
 		</div>
 		<div style="width: 50%; height: 100%;">
+			<command-button name="jump"/>
 			<n-tabs
 				v-model:value="openedTab"
 				type="card"
@@ -121,7 +123,7 @@ const addable = computed(() => {
 						:name="entity.id!"
 					>
 						<n-scrollbar style="max-height: 75vh;" trigger="none">
-							<dudes-settings-form />
+							<dudes-settings-form/>
 						</n-scrollbar>
 					</n-tab-pane>
 				</template>

@@ -24,7 +24,7 @@ const { dudesSettings } = storeToRefs(dudesSettingStore);
 const route = useRoute();
 
 watch(() => dudesSettings.value, async (settings) => {
-	if (!dudesRef.value) return;
+	if (!settings || !dudesRef.value) return;
 
 	dudesRef.value.updateSettings(settings);
 	if (window.frameElement) {
@@ -33,8 +33,8 @@ watch(() => dudesSettings.value, async (settings) => {
 	// dudesRef.value.clearDudes();
 }, { deep: true });
 
-watch(() => dudesSettings.value.nameBox.fontFamily, async (fontFamily) => {
-	if (!fontFamily) return;
+watch(() => dudesSettings.value?.nameBox.fontFamily, async (fontFamily) => {
+	if (!dudesSettings.value || !fontFamily) return;
 
 	try {
 		const loadedFont = await fontSource.loadFont(
@@ -106,11 +106,12 @@ const chatSettings = computed<ChatSettings>(() => {
 useChatTmi(chatSettings);
 
 onMounted(async () => {
-	if (!dudesRef.value) return;
-	await dudesRef.value.initDudes();
 	const apiKey = route.params.apiKey as string;
 	const overlayId = route.params.id as string;
 	dudesSocket.connect(apiKey, overlayId);
+
+	if (!dudesRef.value) return;
+	await dudesRef.value.initDudes();
 });
 </script>
 
