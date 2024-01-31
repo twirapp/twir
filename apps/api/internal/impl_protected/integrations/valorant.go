@@ -9,14 +9,13 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/kr/pretty"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_valorant"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type valorantTokenResponse struct {
+type ValorantTokenResponse struct {
 	Scope        string `json:"scope"`
 	ExpiresIn    int    `json:"expires_in"`
 	TokenType    string `json:"token_type"`
@@ -25,6 +24,20 @@ type valorantTokenResponse struct {
 	SubSid       string `json:"sub_sid"`
 	AccessToken  string `json:"access_token"`
 }
+
+type ValorantAccountResp struct {
+	Puuid    string `json:"puuid"`
+	UserName string `json:"gameName"`
+	TagLine  string `json:"tagLine"`
+}
+
+type ValorantShardResponse struct {
+	Puuid       string `json:"puuid"`
+	Game        string `json:"game"`
+	ActiveShard string `json:"activeShard"`
+}
+
+const api_base = "https://europe.api.riotgames.com"
 
 func (c *Integrations) IntegrationsValorantGetAuthLink(
 	ctx context.Context,
@@ -57,7 +70,10 @@ func (c *Integrations) IntegrationsValorantGetData(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*integrations_valorant.GetDataResponse, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
 		model.IntegrationServiceValorant,
@@ -90,7 +106,7 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 
-	data := valorantTokenResponse{}
+	tokenResponse := ValorantTokenResponse{}
 	resp, err := req.R().
 		SetContext(ctx).
 		SetFormData(
@@ -106,7 +122,7 @@ func (c *Integrations) IntegrationsValorantPostCode(
 			integration.Integration.ClientID.String,
 			integration.Integration.ClientSecret.String,
 		).
-		SetSuccessResult(&data).
+		SetSuccessResult(&tokenResponse).
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://auth.riotgames.com/token")
 	if err != nil {
@@ -116,30 +132,57 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, fmt.Errorf("failed to get valorant tokens: %s", resp.String())
 	}
 
-	integration.AccessToken = null.StringFrom(data.AccessToken)
-	integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	integration.AccessToken = null.StringFrom(tokenResponse.AccessToken)
+	integration.RefreshToken = null.StringFrom(tokenResponse.RefreshToken)
+
+	accountResponse := ValorantAccountResp{}
+	accountReq, err := req.
+		SetSuccessResult(&accountResponse).
+		SetBearerAuthToken(tokenResponse.AccessToken).
+		Get(api_base + "/riot/account/v1/accounts/me")
+	if err != nil {
+		return nil, err
+	}
+	if !accountReq.IsSuccessState() {
+		return nil, fmt.Errorf("cannot get valorant account info: %s", accountReq.String())
+	}
+
+	fmt.Println(accountReq.String())
+
+	shardResponse := ValorantShardResponse{}
+	shardReq, err := req.
+		SetHeader("X-Riot-Token", integration.Integration.APIKey.String).
+		SetSuccessResult(&shardResponse).
+		Get(
+			fmt.Sprintf(
+				"%s/riot/account/v1/active-shards/by-game/%s/by-puuid/%s",
+				api_base,
+				"val",
+				accountResponse.Puuid,
+			),
+		)
+	if err != nil {
+		return nil, err
+	}
+	if !shardReq.IsSuccessState() {
+		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+	}
+
+	fmt.Println(shardReq.String())
+
+	userName := fmt.Sprintf(
+		"%s#%s (%s)",
+		accountResponse.UserName,
+		accountResponse.TagLine,
+		shardResponse.ActiveShard,
+	)
+
+	integration.Data.ValorantActiveRegion = &shardResponse.ActiveShard
+	integration.Data.UserName = &userName
 
 	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
 		return nil, err
 	}
-
-	type valAccountResp struct {
-		Puuid string `json:"puuid"`
-	}
-
-	v := &valAccountResp{}
-
-	req.SetSuccessResult(v).SetBearerAuthToken(data.AccessToken).Get(
-		"https://europe.api." +
-			"riotgames.com/riot/account/v1/accounts/me",
-	)
-
-	pretty.Println(v)
-
-	q, err := req.SetBearerAuthToken(data.AccessToken).Get(
-		"https://eu.api.riotgames.com/val/match/v1/matchlists/by-puuid/" + v.Puuid,
-	)
-	fmt.Println(err, q)
 
 	return &emptypb.Empty{}, nil
 }

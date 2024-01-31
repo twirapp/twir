@@ -1,8 +1,7 @@
 <script setup lang="ts">
 
-import { useDonationAlertsIntegration, useValorantIntegration } from '@/api/index.js';
-import IconDonationAlerts from '@/assets/integrations/donationalerts.svg?use';
-import DonateDescription from '@/components/integrations/helpers/donateDescription.vue';
+import { useValorantIntegration } from '@/api/index.js';
+import IconValorant from '@/assets/integrations/valorant.svg?use';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
 
 const manager = useValorantIntegration();
@@ -17,7 +16,7 @@ const { data: authLink } = manager.useAuthLink();
 		:data="data"
 		:logout="() => logout.mutateAsync({})"
 		:authLink="authLink?.link"
-		:icon="IconDonationAlerts"
+		:icon="IconValorant"
 	>
 		<template #description>
 			123
