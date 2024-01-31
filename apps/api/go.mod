@@ -46,6 +46,7 @@ require (
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/utils v0.0.0-20231203205548-e635accc6b72
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
+	github.com/twirapp/twir/libs/api v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/integrations/seventv v0.0.0-00010101000000-000000000000
 	github.com/twitchtv/twirp v8.1.3+incompatible
@@ -56,7 +57,6 @@ require (
 )
 
 require (
-	github.com/KnutZuidema/golio v0.0.0-20231120132142-dbe175146b47 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
 	github.com/chenzhuoyu/iasm v0.9.1 // indirect
@@ -85,7 +85,6 @@ require (
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/refraction-networking/utls v1.6.1 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/samber/slog-common v0.15.0 // indirect
@@ -119,7 +118,6 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
-	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
