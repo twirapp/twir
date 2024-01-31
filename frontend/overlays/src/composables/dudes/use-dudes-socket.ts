@@ -1,5 +1,6 @@
-import { useWebSocket } from '@vueuse/core';
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
+import type { DudesJumpRequest } from '@twir/grpc/websockets/websockets';
+import { useWebSocket } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { ref, watch } from 'vue';
 
@@ -26,9 +27,9 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	);
 
 	watch(data, (d) => {
-		const parsedData = JSON.parse(d) as TwirWebSocketEvent<Required<Settings>>;
+		const parsedData = JSON.parse(d) as TwirWebSocketEvent;
 		if (parsedData.eventName === 'settings') {
-			const data = parsedData.data;
+			const data = parsedData.data as Required<Settings>;
 			updateSettings({
 				dude: {
 					...data.dudeSettings,
@@ -40,6 +41,11 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 				nameBox: data.nameBoxSettings,
 				messageBox: data.messageBoxSettings,
 			});
+		}
+
+		if (parsedData.eventName === 'jump') {
+			const data = parsedData.data as DudesJumpRequest;
+			console.log(data);
 		}
 	});
 

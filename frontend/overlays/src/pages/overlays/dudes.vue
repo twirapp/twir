@@ -6,7 +6,12 @@ import { storeToRefs } from 'pinia';
 import { onMounted, ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
 
-import { dudesAssets, dudesSprites, dudesSounds, type DudeSprite } from '@/composables/dudes/dudes-config.js';
+import {
+	dudesAssets,
+	dudesSprites,
+	dudesSounds,
+	type DudeSprite,
+} from '@/composables/dudes/dudes-config.js';
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
 import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
@@ -101,8 +106,8 @@ const chatSettings = computed<ChatSettings>(() => {
 useChatTmi(chatSettings);
 
 onMounted(async () => {
-  if (!dudesRef.value) return;
-  await dudesRef.value.initDudes();
+	if (!dudesRef.value) return;
+	await dudesRef.value.initDudes();
 	const apiKey = route.params.apiKey as string;
 	const overlayId = route.params.id as string;
 	dudesSocket.connect(apiKey, overlayId);
@@ -120,6 +125,6 @@ onMounted(async () => {
 
 <style>
 body {
-  overflow: hidden;
+	overflow: hidden;
 }
 </style>

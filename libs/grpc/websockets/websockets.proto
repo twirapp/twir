@@ -31,6 +31,8 @@ service Websocket {
 	rpc TriggerHideBrb(TriggerHideBrbRequest) returns (google.protobuf.Empty) {}
 
 	rpc RefreshOverlaySettings(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
+
+	rpc DudesJump(DudesJumpRequest) returns (google.protobuf.Empty) {}
 }
 
 enum RefreshOverlaySettingsName {
@@ -106,7 +108,6 @@ message TTSSkipMessage {
 	string channelId = 1;
 }
 
-
 message ObsCheckUserConnectedRequest {
 	string user_id = 1;
 }
@@ -150,4 +151,11 @@ message TriggerShowBrbRequest {
 
 message TriggerHideBrbRequest {
 	string channel_id = 1;
+}
+
+message DudesJumpRequest {
+	string channel_id = 1;
+	string user_id = 2;
+	string user_display_name = 3;
+	string user_name = 4;
 }
