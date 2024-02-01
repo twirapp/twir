@@ -136,9 +136,6 @@ service Protected {
 	rpc IntegrationsDiscordGetGuildChannels(messages.integrations_discord.GetGuildChannelsRequest) returns (messages.integrations_discord.GetGuildChannelsResponse) {}
 	rpc IntegrationsDiscordGetGuildInfo(messages.integrations_discord.GetGuildInfoRequest) returns (messages.integrations_discord.GetGuildInfoResponse) {}
 
-	rpc IntegrationsValorantGet(google.protobuf.Empty) returns (messages.integrations_valorant.GetResponse) {}
-	rpc IntegrationsValorantUpdate(messages.integrations_valorant.PostRequest) returns (google.protobuf.Empty) {}
-
 	rpc KeywordsGetAll(google.protobuf.Empty) returns (messages.keywords.GetAllResponse) {}
 	rpc KeywordsGetById(messages.keywords.GetByIdRequest) returns (messages.keywords.Keyword) {}
 	rpc KeywordsCreate(messages.keywords.CreateRequest) returns (messages.keywords.Keyword) {}
@@ -258,6 +255,11 @@ service Protected {
 	rpc OverlayDudesCreate(messages.overlays_dudes.Settings) returns (messages.overlays_dudes.Settings) {}
 	rpc OverlayDudesUpdate(messages.overlays_dudes.UpdateRequest) returns (messages.overlays_dudes.Settings) {}
 	rpc OverlayDudesDelete(messages.overlays_dudes.DeleteRequest) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsValorantGetAuthLink(google.protobuf.Empty) returns (messages.integrations_valorant.GetAuthLink) {}
+	rpc IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse) {}
+	rpc IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 }
 
 // UnProtected

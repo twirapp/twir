@@ -1,6 +1,8 @@
 module github.com/satont/twir/apps/parser
 
-go 1.21
+go 1.21.1
+
+toolchain go1.21.5
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -68,7 +70,6 @@ require (
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/refraction-networking/utls v1.6.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
