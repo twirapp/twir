@@ -6,10 +6,21 @@ export const dudesSprites = [
   'agent',
   'girl',
   'cat',
-  'santa',
-] as const;
+];
 
-export type DudeSprite = typeof dudesSprites[number];
+const dudesEventSpites = [
+	'santa',
+];
+
+const day = new Date().getDate();
+const month = new Date().getMonth();
+const isMaryChristmas =
+	(month === 11 && day >= 25) ||
+	(month === 0 && day <= 15);
+
+if (isMaryChristmas) {
+	dudesSprites.push(...dudesEventSpites);
+}
 
 const dudesAssetsPath = window.location.origin + '/overlays/dudes/';
 
