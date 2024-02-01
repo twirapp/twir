@@ -5,12 +5,20 @@ import { ref } from 'vue';
 
 import type { ChannelData } from '@/types.js';
 
+export type DudesSettingsStore = {
+	dude: DudesSettings['dude'];
+	messageBox: DudesSettings['messageBox'] & {
+		ignoreCommands: boolean
+	}
+	nameBox: DudesSettings['nameBox'];
+}
+
 export const useDudesSettings = defineStore('dudes-settings', () => {
 	const fontSource = useFontSource();
-	const dudesSettings = ref<DudesSettings | null>(null);
+	const dudesSettings = ref<DudesSettingsStore | null>(null);
 	const channelData = ref<ChannelData>();
 
-	function updateSettings(settings: DudesSettings): void {
+	function updateSettings(settings: DudesSettingsStore): void {
 		dudesSettings.value = settings;
 	}
 

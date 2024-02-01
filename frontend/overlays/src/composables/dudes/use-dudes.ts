@@ -1,4 +1,4 @@
-import type { DudesOverlayMethods } from '@twirapp/dudes/types';
+import type { DudesOverlayMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
@@ -39,10 +39,21 @@ export const useDudes = defineStore('dudes', () => {
 		}
 
 		if (message) {
-			setTimeout(() => dude.addMessage(message), 1000);
+			setTimeout(() => showDudeMessage(dude, message), 1000);
 		}
 
 		return dude;
+	}
+
+	function showDudeMessage(dude: Dude, message: string): void {
+		if (
+			dudesSettings.value?.messageBox.ignoreCommands &&
+			message.startsWith('!')
+		) {
+			return;
+		}
+
+		dude.addMessage(message);
 	}
 
 	function createNewDudeFromIframe() {
@@ -68,6 +79,7 @@ export const useDudes = defineStore('dudes', () => {
 		dudes,
 		jumpDude,
 		createNewDude,
+		showDudeMessage,
 		createNewDudeFromIframe,
 		isDudeOverlayReady,
 	};

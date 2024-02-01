@@ -18,6 +18,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	},
 	messageBoxSettings: {
 		enabled: true,
+		ignoreCommands: true,
 		borderRadius: 10,
 		boxColor: '#EEEEEE',
 		fontFamily: 'roboto',

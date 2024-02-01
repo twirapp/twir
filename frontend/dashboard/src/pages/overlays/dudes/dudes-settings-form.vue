@@ -97,6 +97,10 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 	label: capitalize(lineJoin),
 	value: lineJoin,
 }));
+
+const isMessageBoxDisabled = computed(() => {
+	return !formValue.value.messageBoxSettings.enabled;
+});
 </script>
 
 <template>
@@ -181,6 +185,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 						:max="1"
 						:step="0.01"
 						:format-tooltip="(value) => `${(value * 100).toFixed(0)}%`"
+						:disabled="!formValue.dudeSettings.soundsEnabled"
 					/>
 				</n-form-item>
 
@@ -191,7 +196,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFill')">
 					<n-dynamic-tags
 						v-model:value="formValue.nameBoxSettings.fill"
-						:max="3"
+						:max="6"
 						:render-tag="(tag: string, index: number) => {
 							const rgb = hexToRgb(tag)
 							const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
@@ -411,6 +416,17 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 					<n-switch v-model:value="formValue.messageBoxSettings.enabled" />
 				</n-form-item>
 
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.messageBoxIgnoreCommands')"
+				>
+					<n-switch
+						v-model:value="formValue.messageBoxSettings.ignoreCommands"
+						:disabled="isMessageBoxDisabled"
+					/>
+				</n-form-item>
+
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
 					<n-slider
 						v-model:value="formValue.messageBoxSettings.showTime"
@@ -418,6 +434,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 						:max="60 * 1000"
 						:step="1000"
 						:format-tooltip="(value) => `${Math.round(value / 1000)}s`"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 
@@ -425,6 +442,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 					<n-color-picker
 						v-model:value="formValue.messageBoxSettings.fill"
 						:modes="['hex']"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 
@@ -432,6 +450,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 					<n-color-picker
 						v-model:value="formValue.messageBoxSettings.boxColor"
 						:modes="['hex']"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 
@@ -441,6 +460,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 						:min="0"
 						:max="64"
 						:step="1"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 
@@ -450,6 +470,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 						:min="0"
 						:max="64"
 						:step="1"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 
@@ -459,6 +480,7 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 						:min="12"
 						:max="64"
 						:step="1"
+						:disabled="isMessageBoxDisabled"
 					/>
 				</n-form-item>
 			</div>

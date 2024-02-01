@@ -448,6 +448,7 @@
 			"nameBoxDropShadowDistance": "Shadow distance",
 			"nameBoxDropShadowAngle": "Shadow angle",
 			"messageBoxEnabled": "Enable message box",
+			"messageBoxIgnoreCommands": "Ignore commands",
 			"messageBoxDivider": "Message box",
 			"messageBoxShowTime": "Show time",
 			"messageBoxFill": "Text color",

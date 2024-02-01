@@ -20,6 +20,7 @@ message MessageBoxSettings {
 	int32 show_time = 6;
 	string fill = 7;
 	bool enabled = 8;
+	bool ignore_commands = 9;
 }
 
 message NameBoxSettings {

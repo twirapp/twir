@@ -19,23 +19,22 @@ const dudesStore = useDudes();
 const { dudes } = storeToRefs(dudesStore);
 
 const dudesSettingStore = useDudesSettings();
-const { channelInfo } = storeToRefs(dudesSettingStore);
+const { dudesSettings, channelInfo } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
 
 function onMessage(chatMessage: ChatMessage) {
 	if (!dudes.value || chatMessage.type === 'system') return;
 
-	const dudeName = chatMessage.senderDisplayName!;
-	const dude = dudes.value.getDude(dudeName);
+	const message = chatMessage.rawMessage!;
+	const displayName = chatMessage.senderDisplayName!;
+	const color = chatMessage.senderColor ?? dudesSettings.value?.dude.color;
+
+	const dude = dudes.value.getDude(displayName);
 	if (dude) {
-		dude.addMessage(chatMessage.rawMessage!);
+		dudesStore.showDudeMessage(dude, message);
 	} else {
-		dudesStore.createNewDude(
-			dudeName,
-			chatMessage.senderColor,
-			chatMessage.rawMessage,
-		);
+		dudesStore.createNewDude(displayName, color, message);
 	}
 }
 

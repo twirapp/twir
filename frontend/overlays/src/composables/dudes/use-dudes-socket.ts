@@ -13,6 +13,7 @@ import type { ChannelData } from '@/types.js';
 
 const nameBoxDefaults: Partial<Settings['nameBoxSettings']> = {
 	strokeThickness: 0,
+	fillGradientType: 0,
 	dropShadow: false,
 	dropShadowAlpha: 0,
 	dropShadowBlur: 0,
@@ -21,6 +22,7 @@ const nameBoxDefaults: Partial<Settings['nameBoxSettings']> = {
 };
 
 const messageBoxDefaults: Partial<Settings['messageBoxSettings']> = {
+	ignoreCommands: false,
 	enabled: false,
 	padding: 0,
 	borderRadius: 0,
