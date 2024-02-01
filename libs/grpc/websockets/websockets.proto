@@ -158,4 +158,5 @@ message DudesJumpRequest {
 	string user_id = 2;
 	string user_display_name = 3;
 	string user_name = 4;
+	string user_color = 5;
 }

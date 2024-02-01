@@ -218,6 +218,7 @@ func (c *ParserGrpcServer) ParseTextResponse(
 		ID:          data.Sender.Id,
 		Name:        data.Sender.Name,
 		DisplayName: data.Sender.DisplayName,
+		Color:       data.Sender.Color,
 		Badges:      data.Sender.Badges,
 	}
 	parseCtx := &types.ParseContext{

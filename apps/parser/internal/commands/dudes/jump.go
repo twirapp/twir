@@ -29,6 +29,7 @@ var Jump = &types.DefaultCommand{
 				UserId:          parseCtx.Sender.ID,
 				UserDisplayName: parseCtx.Sender.DisplayName,
 				UserName:        parseCtx.Sender.Name,
+				UserColor:       parseCtx.Sender.Color,
 			},
 		)
 

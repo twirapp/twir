@@ -21,6 +21,7 @@ const nameBoxDefaults: Partial<Settings['nameBoxSettings']> = {
 };
 
 const messageBoxDefaults: Partial<Settings['messageBoxSettings']> = {
+	enabled: false,
 	padding: 0,
 	borderRadius: 0,
 };
@@ -89,7 +90,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			if (dude) {
 				dudesStore.jumpDude(userData);
 			} else {
-				dudesStore.createNewDude(userData.userDisplayName);
+				dudesStore.createNewDude(userData.userDisplayName, userData.userColor);
 			}
 		}
 	});

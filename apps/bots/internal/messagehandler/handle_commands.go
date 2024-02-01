@@ -54,6 +54,7 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 			Name:        msg.GetChatterUserLogin(),
 			DisplayName: msg.GetChatterUserName(),
 			Badges:      createUserBadges(msg.Badges),
+			Color:       msg.GetColor(),
 		},
 		Channel: &parser.Channel{
 			Id:   msg.GetBroadcasterUserId(),

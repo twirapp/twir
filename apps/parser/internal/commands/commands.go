@@ -244,6 +244,7 @@ func (c *Commands) ParseCommandResponses(
 		Name:        requestData.GetSender().GetName(),
 		DisplayName: requestData.GetSender().GetDisplayName(),
 		Badges:      requestData.GetSender().GetBadges(),
+		Color:       requestData.GetSender().GetColor(),
 	}
 
 	parseCtx := &types.ParseContext{
