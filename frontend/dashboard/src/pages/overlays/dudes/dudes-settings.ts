@@ -18,7 +18,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	},
 	messageBoxSettings: {
 		borderRadius: 10,
-		boxColor: '#eeeeee',
+		boxColor: '#EEEEEE',
 		fontFamily: 'roboto',
 		fontSize: 20,
 		padding: 10,
@@ -28,7 +28,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	nameBoxSettings: {
 		fontFamily: 'roboto',
 		fontSize: 18,
-		fill: ['#ffffff'],
+		fill: ['#FFFFFF'],
 		lineJoin: 'round',
 		strokeThickness: 4,
 		stroke: '#000000',
@@ -42,6 +42,6 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		dropShadowAngle: 0,
 		dropShadowBlur: 1,
 		dropShadowDistance: 1,
-		dropShadowColor: '#3ac7d9',
+		dropShadowColor: '#3AC7D9',
 	},
 };

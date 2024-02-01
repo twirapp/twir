@@ -14,7 +14,7 @@
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/grpc": "workspace:*",
-    "@twirapp/dudes": "0.3.2",
+    "@twirapp/dudes": "0.3.5",
     "@twirapp/kappagen": "0.0.0",
     "@vueuse/core": "10.7.2",
     "emoji-regex": "10.3.0",

@@ -107,7 +107,7 @@ export const newRouter = (queryClient: QueryClient) => {
 					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
 					meta: {
 						neededPermission: 'MANAGE_OVERLAYS',
-						noPadding: true,
+						fullScreen: true,
 					},
 				},
 				{

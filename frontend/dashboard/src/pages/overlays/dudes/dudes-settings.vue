@@ -3,7 +3,6 @@ import {
 	NTabs,
 	NTabPane,
 	NAlert,
-	NScrollbar,
 	useThemeVars,
 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
@@ -18,8 +17,8 @@ import { useDudesIframe } from './use-dudes-frame.js';
 import {
 	useDudesOverlayManager, useProfile, useUserAccessFlagChecker,
 } from '@/api/index.js';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import CommandButton from '@/components/commandButton.vue';
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 
 const themeVars = useThemeVars();
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
@@ -92,8 +91,8 @@ const addable = computed(() => {
 </script>
 
 <template>
-	<div style="display: flex; gap: 42px; height: 100%; padding: 24px;">
-		<div style="width: 50%">
+	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
+		<div style="width: 70%">
 			<iframe
 				v-if="dudesIframeUrl"
 				ref="dudesIframe"
@@ -101,13 +100,14 @@ const addable = computed(() => {
 				class="iframe"
 			/>
 		</div>
-		<div style="width: 50%; height: 100%;">
-			<command-button name="jump"/>
+		<div style="width: 30%;">
+			<command-button name="jump" />
 			<n-tabs
 				v-model:value="openedTab"
 				type="card"
 				:closable="userCanEditOverlays"
 				:addable="addable"
+				style="margin-top: 1rem;"
 				tab-style="min-width: 80px;"
 				@close="handleClose"
 				@add="handleAdd"
@@ -122,9 +122,7 @@ const addable = computed(() => {
 						:tab="`#${entityIndex+1}`"
 						:name="entity.id!"
 					>
-						<n-scrollbar style="max-height: 75vh;" trigger="none">
-							<dudes-settings-form/>
-						</n-scrollbar>
+						<dudes-settings-form />
 					</n-tab-pane>
 				</template>
 			</n-tabs>
@@ -136,6 +134,8 @@ const addable = computed(() => {
 </template>
 
 <style scope>
+@import '../styles.css';
+
 .iframe {
 	height: 100%;
 	width: 100%;

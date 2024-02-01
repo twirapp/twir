@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
-import { FontSelector } from '@twir/fontsource';
+import { Font, FontSelector } from '@twir/fontsource';
 import {
 	useThemeVars,
 	NButton,
@@ -118,6 +118,13 @@ const canCopyLink = computed(() => {
 function setDefaultSettings() {
 	formValue.value = structuredClone(defaultSettings);
 }
+
+// TODO: fontWeight and fontStyle should be a select
+const fontData = ref<Font | null>(null);
+watch(() => fontData.value, (font) => {
+	if (!font) return;
+	formValue.value.fontFamily = font.id;
+});
 </script>
 
 <template>
@@ -195,7 +202,7 @@ function setDefaultSettings() {
 					<div class="item">
 						<span>{{ t('overlays.brb.settings.main.font.family') }}</span>
 						<font-selector
-							v-model:selected-font="formValue.fontFamily"
+							v-model:font="fontData"
 							:font-family="formValue.fontFamily"
 							font-style="normal"
 							:font-weight="400"

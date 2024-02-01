@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Font, FontSelector } from '@twir/fontsource';
-import { addZero, hexToRgb, colorBrightness } from '@zero-dependency/utils';
+import { addZero, hexToRgb, colorBrightness, capitalize } from '@zero-dependency/utils';
 import { intervalToDuration } from 'date-fns';
 import {
 	NButton,
@@ -13,12 +13,13 @@ import {
 	NDynamicTags,
 	NTag,
 	NInputNumber,
+	NFormItem,
+	NScrollbar,
 } from 'naive-ui';
 import { h, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDudesForm } from './use-dudes-form.js';
-import { useDudesIframe } from './use-dudes-frame.js';
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
@@ -37,7 +38,6 @@ const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
 });
 
-const dudesIframeStore = useDudesIframe();
 const manager = useDudesOverlayManager();
 const updater = manager.useUpdate();
 
@@ -60,18 +60,43 @@ function formatDuration(duration: number) {
 	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
 }
 
+const fillGradientStops = computed(() => {
+	if (!formValue.value) return [];
+	return formValue.value.nameBoxSettings.fillGradientStops.map((stop) => `${stop}`);
+});
+
 const fontData = ref<Font | null>(null);
 watch(() => fontData.value, (font) => {
 	if (!font) return;
 	formValue.value.nameBoxSettings.fontFamily = font.id;
-	formValue.value.nameBoxSettings.fontWeight = font.weights[0];
 	formValue.value.messageBoxSettings.fontFamily = font.id;
 });
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return [];
-	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
+	return fontData.value.weights.map((weight) => ({
+		label: `${weight}`,
+		value: weight,
+	}));
 });
+
+const fontStyleOptions = computed(() => {
+	if (!fontData.value) return [];
+	return fontData.value.styles.map((style) => ({
+		label: capitalize(style),
+		value: style,
+	}));
+});
+
+const fontVariantOptions = ['normal', 'small-caps'].map((variant) => ({
+	label: capitalize(variant),
+	value: variant,
+}));
+
+const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
+	label: capitalize(lineJoin),
+	value: lineJoin,
+}));
 </script>
 
 <template>
@@ -97,27 +122,28 @@ const fontWeightOptions = computed(() => {
 			</n-button>
 		</div>
 
-		<div class="card-body">
+		<n-scrollbar style="max-height: calc(70vh - var(--layout-header-height)); padding-right: 12px;" trigger="none">
 			<div class="card-body-column">
-				<div style="margin-top: 1rem;">
-					<span>{{ t('overlays.dudes.dudeDefaultColor') }}</span>
+				<n-divider title-placement="left">
+					{{ t('overlays.dudes.dudeDivider') }}
+				</n-divider>
+
+				<n-form-item :label="t('overlays.dudes.dudeColor')">
 					<n-color-picker
 						v-model:value="formValue.dudeSettings.color"
 						:modes="['hex']"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.dudeGravity') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeGravity')">
 					<n-slider
 						v-model:value="formValue.dudeSettings.gravity"
 						:min="100"
 						:max="5000"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.dudeMaxLifeTime') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeMaxLifeTime')">
 					<n-slider
 						v-model:value="formValue.dudeSettings.maxLifeTime"
 						:min="1000"
@@ -125,27 +151,30 @@ const fontWeightOptions = computed(() => {
 						:step="1000"
 						:format-tooltip="(value) => formatDuration(value)"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.dudeScale') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeScale')">
 					<n-slider
 						v-model:value="formValue.dudeSettings.scale"
 						:min="1"
 						:max="10"
 						:step="1"
 					/>
-				</div>
+				</n-form-item>
 
-				<n-divider/>
+				<n-divider title-placement="left">
+					{{ t('overlays.dudes.dudeSoundsDivider') }}
+				</n-divider>
 
-				<div class="switch">
-					<span>{{ t('overlays.dudes.dudeSounds') }}</span>
-					<n-switch v-model:value="formValue.dudeSettings.soundsEnabled"/>
-				</div>
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.dudeSoundsEnable')"
+				>
+					<n-switch v-model:value="formValue.dudeSettings.soundsEnabled" />
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.dudeSoundsVolume') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeSoundsVolume')">
 					<n-slider
 						v-model:value="formValue.dudeSettings.soundsVolume"
 						:min="0.01"
@@ -153,12 +182,13 @@ const fontWeightOptions = computed(() => {
 						:step="0.01"
 						:format-tooltip="(value) => `${(value * 100).toFixed(0)}%`"
 					/>
-				</div>
+				</n-form-item>
 
-				<n-divider/>
+				<n-divider title-placement="left">
+					{{ t('overlays.dudes.nameBoxDivider') }}
+				</n-divider>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameBoxFill') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFill')">
 					<n-dynamic-tags
 						v-model:value="formValue.nameBoxSettings.fill"
 						:max="3"
@@ -185,10 +215,7 @@ const fontWeightOptions = computed(() => {
 					>
 						<template #input="{ submit, deactivate }">
 							<n-color-picker
-								:style="{
-									position: 'absolute',
-									width: '80px'
-								}"
+								style="width: 80px;"
 								size="small"
 								default-show
 								:show-alpha="false"
@@ -200,15 +227,11 @@ const fontWeightOptions = computed(() => {
 							/>
 						</template>
 					</n-dynamic-tags>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameFillGradientStops') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameFillGradientStops')">
 					<n-dynamic-tags
-						v-model:value="formValue.nameBoxSettings.fillGradientStops"
-						:on-create="(label) => {
-							return Number(label)
-						}"
+						v-model:value="fillGradientStops"
 						:render-tag="(tag: string, index: number) => {
 							return h(NTag, {
 								closable: true,
@@ -218,13 +241,13 @@ const fontWeightOptions = computed(() => {
 							}, { default: () => tag })
 						}"
 						:max="formValue.nameBoxSettings.fill.length"
+						@update:value="(values: string[]) => {
+							formValue.nameBoxSettings.fillGradientStops = values.map(Number)
+						}"
 					>
 						<template #input="{ submit, deactivate }">
 							<n-input-number
-								:style="{
-									position: 'absolute',
-									width: '100px'
-								}"
+								style="width: 100px;"
 								autofocus
 								placeholder=""
 								:max="1"
@@ -243,10 +266,9 @@ const fontWeightOptions = computed(() => {
 							/>
 						</template>
 					</n-dynamic-tags>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameBoxGradientType') }}</span>
+				<n-form-item :label="t('overlays.dudes.nameBoxGradientType')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.fillGradientType"
 						:disabled="formValue.nameBoxSettings.fill.length < 2"
@@ -261,38 +283,178 @@ const fontWeightOptions = computed(() => {
 							}
 						]"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameBoxFontFamily') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontFamily')">
 					<font-selector
-						v-model:selected-font="formValue.nameBoxSettings.fontFamily"
+						v-model:font="fontData"
 						:font-family="formValue.nameBoxSettings.fontFamily"
 						:font-weight="formValue.nameBoxSettings.fontWeight"
 						:font-style="formValue.nameBoxSettings.fontStyle"
 						:subsets="['latin', 'cyrillic']"
-						@update-font="(v) => fontData = v"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameBoxFontSize') }}</span>
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontWeight')">
+					<n-select
+						v-model:value="formValue.nameBoxSettings.fontWeight"
+						:options="fontWeightOptions"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontStyle')">
+					<n-select
+						v-model:value="formValue.nameBoxSettings.fontStyle"
+						:options="fontStyleOptions"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontVariant')">
+					<n-select
+						v-model:value="formValue.nameBoxSettings.fontVariant"
+						:options="fontVariantOptions"
+					/>
+				</n-form-item>
+
+				<n-form-item :label="t('overlays.dudes.nameBoxFontSize')">
 					<n-slider
 						v-model:value="formValue.nameBoxSettings.fontSize"
 						:min="1"
 						:max="128"
 					/>
-				</div>
+				</n-form-item>
 
-				<div>
-					<span>{{ t('overlays.dudes.nameBoxFontWeight') }}</span>
-					<n-select
-						v-model:value="formValue.nameBoxSettings.fontWeight"
-						:options="fontWeightOptions"
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxStroke')">
+					<n-color-picker
+						v-model:value="formValue.nameBoxSettings.stroke"
+						:modes="['hex']"
 					/>
-				</div>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameStrokeThickness')">
+					<n-slider
+						v-model:value="formValue.nameBoxSettings.strokeThickness"
+						:min="0"
+						:max="16"
+						:step="1"
+					/>
+				</n-form-item>
+
+				<n-form-item :label="t('overlays.dudes.nameBoxLineJoin')">
+					<n-select
+						v-model:value="formValue.nameBoxSettings.lineJoin"
+						:options="lineJoinOptions"
+					/>
+				</n-form-item>
+
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.nameBoxDropShadow')"
+				>
+					<n-switch v-model:value="formValue.nameBoxSettings.dropShadow" />
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowColor')">
+					<n-color-picker
+						v-model:value="formValue.nameBoxSettings.dropShadowColor"
+						:modes="['hex']"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAlpha')">
+					<n-slider
+						v-model:value="formValue.nameBoxSettings.dropShadowAlpha"
+						:min="0"
+						:max="1"
+						:step="0.01"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowBlur')">
+					<n-slider
+						v-model:value="formValue.nameBoxSettings.dropShadowBlur"
+						:min="0"
+						:max="32"
+						:step="0.1"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowDistance')">
+					<n-slider
+						v-model:value="formValue.nameBoxSettings.dropShadowDistance"
+						:min="0"
+						:max="32"
+						:step="0.1"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAngle')">
+					<n-slider
+						v-model:value="formValue.nameBoxSettings.dropShadowAngle"
+						:min="0"
+						:max="Math.PI * 2"
+						:step="0.01"
+						:format-tooltip="(value) => `${Math.round((value * 180) / Math.PI)}°`"
+					/>
+				</n-form-item>
+
+				<n-divider title-placement="left">
+					{{ t('overlays.dudes.messageBoxDivider') }}
+				</n-divider>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
+					<n-slider
+						v-model:value="formValue.messageBoxSettings.showTime"
+						:min="1000"
+						:max="60 * 1000"
+						:step="1000"
+						:format-tooltip="(value) => `${Math.round(value / 1000)}s`"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxFill')">
+					<n-color-picker
+						v-model:value="formValue.messageBoxSettings.fill"
+						:modes="['hex']"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxBackground')">
+					<n-color-picker
+						v-model:value="formValue.messageBoxSettings.boxColor"
+						:modes="['hex']"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxPadding')">
+					<n-slider
+						v-model:value="formValue.messageBoxSettings.padding"
+						:min="0"
+						:max="64"
+						:step="1"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxBorderRadius')">
+					<n-slider
+						v-model:value="formValue.messageBoxSettings.borderRadius"
+						:min="0"
+						:max="64"
+						:step="1"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxFontSize')">
+					<n-slider
+						v-model:value="formValue.messageBoxSettings.fontSize"
+						:min="12"
+						:max="64"
+						:step="1"
+					/>
+				</n-form-item>
 			</div>
-		</div>
+		</n-scrollbar>
 	</div>
 </template>
 
@@ -309,9 +471,10 @@ const fontWeightOptions = computed(() => {
 	padding-bottom: 1rem;
 }
 
-.switch {
+.form-item-switch {
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 }
 
 .card {

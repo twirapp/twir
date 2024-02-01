@@ -197,15 +197,6 @@ func (c *Overlays) OverlayDudesUpdate(
 		c.Logger.Error("cannot refresh chat overlay settings", slog.Any("err", err))
 	}
 
-	c.Grpc.Websockets.DudesJump(
-		ctx, &websockets.DudesJumpRequest{
-			ChannelId:       dashboardId,
-			UserId:          dashboardId,
-			UserDisplayName: "fukushine",
-			UserName:        "fukushine",
-		},
-	)
-
 	return convertDudesEntityToGrpc(newEntity), nil
 }
 

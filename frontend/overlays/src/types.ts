@@ -88,5 +88,16 @@ export type KappagenSetSettingsFn = (settings: KappagenSettings) => void;
 // kappagen end
 
 // dudes start
-export type A = ''
+export type ChannelData = {
+	channelDisplayName: string
+	channelId: string
+	channelName: string
+}
+
+export type UserData = {
+	channelId: string
+	userDisplayName: string
+	userId: string
+	userName: string
+}
 // dudes end
