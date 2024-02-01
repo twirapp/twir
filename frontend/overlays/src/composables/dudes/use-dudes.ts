@@ -31,7 +31,7 @@ export const useDudes = defineStore('dudes', () => {
 	function createNewDude(name: string, color?: string, message?: string) {
 		if (!dudes.value) return;
 
-		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length - 1)];
+		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
 		const dude = dudes.value.createDude(name, randomDudeSprite);
 
 		if (color) {
