@@ -47,6 +47,7 @@ export const useDudes = defineStore('dudes', () => {
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
+		// TODO: fix types and fix ignore commands
 		if (
 			dudesSettings.value?.messageBox.ignoreCommands &&
 			messageChunks?.at(0)?.value.startsWith('!')

@@ -12,6 +12,7 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 func (c *Handler) handleBan(
@@ -69,6 +70,16 @@ func (c *Handler) handleBan(
 				ModeratorDisplayName: event.ModeratorUserName,
 				ModeratorName:        event.ModeratorUserLogin,
 			},
+		},
+	)
+
+	go c.websocketsGrpc.DudesUserPunished(
+		context.TODO(),
+		&websockets.DudesUserPunishedRequest{
+			ChannelId:       event.BroadcasterUserID,
+			UserId:          event.UserID,
+			UserDisplayName: event.UserName,
+			UserName:        event.UserLogin,
 		},
 	)
 }

@@ -20,7 +20,6 @@ message MessageBoxSettings {
 	int32 show_time = 6;
 	string fill = 7;
 	bool enabled = 8;
-	bool ignore_commands = 9;
 }
 
 message NameBoxSettings {
@@ -43,11 +42,18 @@ message NameBoxSettings {
 	string drop_shadow_color = 17;
 }
 
+message IgnoreSettings {
+	bool ignore_commands = 1;
+	bool ignore_users = 2;
+	repeated string users = 3;
+}
+
 message Settings {
 	DudeSettings dude_settings = 1;
 	MessageBoxSettings message_box_settings = 2;
 	NameBoxSettings name_box_settings = 3;
 	optional string id = 4;
+	IgnoreSettings ignore_settings = 5;
 }
 
 message GetRequest {

@@ -23,3 +23,19 @@ func (c *GrpcImpl) DudesJump(_ context.Context, req *websockets.DudesJumpRequest
 		json,
 	)
 }
+
+func (c *GrpcImpl) DudesUserPunished(_ context.Context, req *websockets.DudesUserPunishedRequest) (
+	*emptypb.Empty,
+	error,
+) {
+	json, err := protoutils.CreateJsonWithProto(req, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, c.dudesServer.SendEvent(
+		req.GetChannelId(),
+		"punished",
+		json,
+	)
+}

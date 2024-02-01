@@ -63,15 +63,14 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 			SoundsVolume:  entity.DudeSoundsVolume,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
-			Enabled:        entity.MessageBoxEnabled,
-			IgnoreCommands: entity.MessageBoxIgnoreCommands,
-			BorderRadius:   entity.MessageBoxBorderRadius,
-			BoxColor:       entity.MessageBoxBoxColor,
-			FontFamily:     entity.MessageBoxFontFamily,
-			FontSize:       entity.MessageBoxFontSize,
-			Padding:        entity.MessageBoxPadding,
-			ShowTime:       entity.MessageBoxShowTime,
-			Fill:           entity.MessageBoxFill,
+			Enabled:      entity.MessageBoxEnabled,
+			BorderRadius: entity.MessageBoxBorderRadius,
+			BoxColor:     entity.MessageBoxBoxColor,
+			FontFamily:   entity.MessageBoxFontFamily,
+			FontSize:     entity.MessageBoxFontSize,
+			Padding:      entity.MessageBoxPadding,
+			ShowTime:     entity.MessageBoxShowTime,
+			Fill:         entity.MessageBoxFill,
 		},
 		NameBoxSettings: &overlays_dudes.NameBoxSettings{
 			FontFamily:         entity.NameBoxFontFamily,
@@ -91,6 +90,11 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 			DropShadowBlur:     entity.NameBoxDropShadowBlur,
 			DropShadowDistance: entity.NameBoxDropShadowDistance,
 			DropShadowColor:    entity.NameBoxDropShadowColor,
+		},
+		IgnoreSettings: &overlays_dudes.IgnoreSettings{
+			IgnoreCommands: entity.IgnoreCommands,
+			IgnoreUsers:    entity.IgnoreUsers,
+			Users:          entity.IgnoredUsers,
 		},
 	}
 

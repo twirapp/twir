@@ -17,7 +17,6 @@ type ChannelsOverlaysDudes struct {
 	DudeSoundsEnabled         bool            `gorm:"type:boolean;not null;" json:"dudeSoundsEnabled"`
 	DudeSoundsVolume          float32         `gorm:"type:real;not null;"  json:"dudeSoundsVolume"`
 	MessageBoxEnabled         bool            `gorm:"type:boolean;not null;"  json:"messageBoxEnabled"`
-	MessageBoxIgnoreCommands  bool            `gorm:"type:boolean;not null;"  json:"messageBoxIgnoreCommands"`
 	MessageBoxBorderRadius    int32           `gorm:"type:integer;not null;"  json:"messageBoxBorderRadius"`
 	MessageBoxBoxColor        string          `gorm:"type:text;not null;"  json:"messageBoxBoxColor"`
 	MessageBoxFontFamily      string          `gorm:"type:text;not null;"  json:"messageBoxFontFamily"`
@@ -42,6 +41,10 @@ type ChannelsOverlaysDudes struct {
 	NameBoxDropShadowBlur     float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowBlur"`
 	NameBoxDropShadowDistance float32         `gorm:"type:real;not null;" json:"nameBoxDropShadowDistance"`
 	NameBoxDropShadowColor    string          `gorm:"type:text;not null;" json:"nameBoxDropShadowColor"`
+
+	IgnoreCommands bool           `gorm:"type:boolean;not null;"  json:"ignoreCommands"`
+	IgnoreUsers    bool           `gorm:"type:boolean;not null;"  json:"ignoreUsers"`
+	IgnoredUsers   pq.StringArray `gorm:"type:text[];not null;" json:"ignoredUsers"`
 
 	CreatedAt time.Time `gorm:"type:datetime;not null;" json:"createdAt"`
 }

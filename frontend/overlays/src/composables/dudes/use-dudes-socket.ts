@@ -1,5 +1,5 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import type { DudesJumpRequest } from '@twir/grpc/websockets/websockets';
+import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
@@ -98,9 +98,9 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			}
 		}
 
-		if (['ban', 'timeout'].includes(parsedData.eventName)) {
-			// TODO: infer type
-			dudes.value.removeDude(parsedData.data.userDisplayName);
+		if (parsedData.eventName === 'punished') {
+			const data = parsedData.data as DudesUserPunishedRequest;
+			dudes.value.removeDude(data.userDisplayName);
 		}
 	});
 

@@ -33,6 +33,7 @@ service Websocket {
 	rpc RefreshOverlaySettings(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
 
 	rpc DudesJump(DudesJumpRequest) returns (google.protobuf.Empty) {}
+	rpc DudesUserPunished(DudesUserPunishedRequest) returns (google.protobuf.Empty) {}
 }
 
 enum RefreshOverlaySettingsName {
@@ -159,4 +160,11 @@ message DudesJumpRequest {
 	string user_display_name = 3;
 	string user_name = 4;
 	string user_color = 5;
+}
+
+message DudesUserPunishedRequest {
+	string channel_id = 1;
+	string user_id = 2;
+	string user_display_name = 3;
+	string user_name = 4;
 }
