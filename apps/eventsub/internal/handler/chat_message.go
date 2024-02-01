@@ -109,7 +109,7 @@ func (c *Handler) handleChannelChatMessage(
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
 			ChatterUserId:        event.ChatterUserID,
-			ChatterUserName:      event.BroadcasterUserName,
+			ChatterUserName:      event.ChatterUserName,
 			ChatterUserLogin:     event.ChatterUserLogin,
 			MessageId:            event.MessageID,
 			Message: &shared.ChatMessageMessage{
