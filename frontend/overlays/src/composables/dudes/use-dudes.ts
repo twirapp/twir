@@ -1,3 +1,4 @@
+import type { MessageChunk } from '@twir/frontend-chat';
 import type { DudesOverlayMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
@@ -28,7 +29,7 @@ export const useDudes = defineStore('dudes', () => {
 		}
 	}
 
-	function createDude(name: string, color?: string, message?: string) {
+	function createDude(name: string, color?: string, messageChunks?: MessageChunk[]) {
 		if (!dudes.value) return;
 
 		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
@@ -38,22 +39,44 @@ export const useDudes = defineStore('dudes', () => {
 			dude.tint(color);
 		}
 
-		if (message) {
-			setTimeout(() => showMessageDude(dude, message), 1000);
+		if (messageChunks) {
+			setTimeout(() => showMessageDude(dude, messageChunks), 1000);
 		}
 
 		return dude;
 	}
 
-	function showMessageDude(dude: Dude, message: string): void {
+	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
 		if (
 			dudesSettings.value?.messageBox.ignoreCommands &&
-			message.startsWith('!')
+			messageChunks?.at(0)?.value.startsWith('!')
 		) {
 			return;
 		}
 
+		const message = messageChunks
+			.filter((chunk) => chunk.type === 'text' || chunk.type === 'emoji')
+			.map((chunk) => chunk.value)
+			.join(' ');
+		const emotes = messageChunks
+			.filter((chunk) => chunk.type === '3rd_party_emote' || chunk.type === 'emote')
+			.map((chunk) => {
+				// twitch emote
+				if (chunk.type === 'emote') {
+					return getProxiedEmoteUrl(`https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`);
+				}
+				return getProxiedEmoteUrl(chunk.value);
+			});
+
 		dude.addMessage(message);
+
+		if (emotes.length) {
+			dude.spitEmotes(emotes);
+		}
+	}
+
+	function getProxiedEmoteUrl(url: string) {
+		return `${window.location.origin}/api/proxy?url=${url}`;
 	}
 
 	function deleteDude(displayName: string): void {
@@ -63,7 +86,20 @@ export const useDudes = defineStore('dudes', () => {
 
 	function createNewDudeFromIframe() {
 		if (window.frameElement) {
-			createDude('TWIR', '#8a2be2', `Hello, ${channelInfo.value!.channelDisplayName}!`);
+			createDude(
+				'TWIR',
+				'#8a2be2',
+				[
+					{
+						type: 'text',
+						value: `Hello, ${channelInfo.value!.channelDisplayName}!`,
+					},
+					{
+						type: '3rd_party_emote',
+						value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/1x.webp',
+					},
+				],
+			);
 		}
 	}
 

@@ -12,6 +12,7 @@ import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
 import { useDudes } from '@/composables/dudes/use-dudes.js';
 import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
+import { useThirdPartyEmotes } from '@/composables/tmi/use-third-party-emotes';
 
 const route = useRoute();
 
@@ -26,15 +27,14 @@ const dudesSocketStore = useDudesSocket();
 function onMessage(chatMessage: ChatMessage) {
 	if (!dudes.value || chatMessage.type === 'system') return;
 
-	const message = chatMessage.rawMessage!;
 	const displayName = chatMessage.senderDisplayName!;
 	const color = chatMessage.senderColor ?? dudesSettings.value?.dude.color;
 
 	const dude = dudes.value.getDude(displayName);
 	if (dude) {
-		dudesStore.showMessageDude(dude, message);
+		dudesStore.showMessageDude(dude, chatMessage.chunks);
 	} else {
-		dudesStore.createDude(displayName, color, message);
+		dudesStore.createDude(displayName, color, chatMessage.chunks);
 	}
 }
 
@@ -47,6 +47,17 @@ const chatSettings = computed<ChatSettings>(() => {
 });
 
 useChatTmi(chatSettings);
+
+const emotesSettings = computed(() => {
+	return {
+		channelId: chatSettings.value.channelId,
+		channelName: chatSettings.value.channelName,
+		ffz: true,
+		bttv: true,
+		sevenTv: true,
+	};
+});
+useThirdPartyEmotes(emotesSettings);
 
 onMounted(async () => {
 	const apiKey = route.params.apiKey as string;
