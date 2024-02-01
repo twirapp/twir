@@ -32,9 +32,9 @@ function onMessage(chatMessage: ChatMessage) {
 
 	const dude = dudes.value.getDude(displayName);
 	if (dude) {
-		dudesStore.showDudeMessage(dude, message);
+		dudesStore.showMessageDude(dude, message);
 	} else {
-		dudesStore.createNewDude(displayName, color, message);
+		dudesStore.createDude(displayName, color, message);
 	}
 }
 

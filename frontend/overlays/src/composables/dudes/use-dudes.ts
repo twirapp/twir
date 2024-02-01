@@ -24,11 +24,11 @@ export const useDudes = defineStore('dudes', () => {
 		if (dude) {
 			dude.jump();
 		} else {
-			createNewDude(userData.userDisplayName);
+			createDude(userData.userDisplayName);
 		}
 	}
 
-	function createNewDude(name: string, color?: string, message?: string) {
+	function createDude(name: string, color?: string, message?: string) {
 		if (!dudes.value) return;
 
 		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
@@ -39,13 +39,13 @@ export const useDudes = defineStore('dudes', () => {
 		}
 
 		if (message) {
-			setTimeout(() => showDudeMessage(dude, message), 1000);
+			setTimeout(() => showMessageDude(dude, message), 1000);
 		}
 
 		return dude;
 	}
 
-	function showDudeMessage(dude: Dude, message: string): void {
+	function showMessageDude(dude: Dude, message: string): void {
 		if (
 			dudesSettings.value?.messageBox.ignoreCommands &&
 			message.startsWith('!')
@@ -56,9 +56,14 @@ export const useDudes = defineStore('dudes', () => {
 		dude.addMessage(message);
 	}
 
+	function deleteDude(displayName: string): void {
+		if (!dudes.value) return;
+		dudes.value.removeDude(displayName);
+	}
+
 	function createNewDudeFromIframe() {
 		if (window.frameElement) {
-			createNewDude('TWIR', '#8a2be2', `Hello, ${channelInfo.value!.channelDisplayName}!`);
+			createDude('TWIR', '#8a2be2', `Hello, ${channelInfo.value!.channelDisplayName}!`);
 		}
 	}
 
@@ -78,8 +83,9 @@ export const useDudes = defineStore('dudes', () => {
 	return {
 		dudes,
 		jumpDude,
-		createNewDude,
-		showDudeMessage,
+		deleteDude,
+		createDude,
+		showMessageDude,
 		createNewDudeFromIframe,
 		isDudeOverlayReady,
 	};

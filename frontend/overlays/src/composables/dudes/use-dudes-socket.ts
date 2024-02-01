@@ -48,8 +48,10 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		},
 	);
 
-	watch(data, async (d) => {
-		const parsedData = JSON.parse(d) as TwirWebSocketEvent;
+	watch(data, async (recieviedData) => {
+		if (!dudes.value) return;
+
+		const parsedData = JSON.parse(recieviedData) as TwirWebSocketEvent;
 		if (parsedData.eventName === 'settings') {
 			const data = parsedData.data as Required<Settings & ChannelData>;
 
@@ -87,13 +89,18 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		}
 
 		if (parsedData.eventName === 'jump') {
-			const userData = parsedData.data as DudesJumpRequest;
-			const dude = dudes.value?.getDude(userData.userDisplayName);
+			const data = parsedData.data as DudesJumpRequest;
+			const dude = dudes.value.getDude(data.userDisplayName);
 			if (dude) {
-				dudesStore.jumpDude(userData);
+				dudesStore.jumpDude(data);
 			} else {
-				dudesStore.createNewDude(userData.userDisplayName, userData.userColor);
+				dudesStore.createDude(data.userDisplayName, data.userColor);
 			}
+		}
+
+		if (['ban', 'timeout'].includes(parsedData.eventName)) {
+			// TODO: infer type
+			dudes.value.removeDude(parsedData.data.userDisplayName);
 		}
 	});
 
