@@ -26,6 +26,7 @@ func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dude
 			SoundsVolume:  entity.DudeSoundsVolume,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
+			Enabled:      entity.MessageBoxEnabled,
 			BorderRadius: entity.MessageBoxBorderRadius,
 			BoxColor:     entity.MessageBoxBoxColor,
 			FontFamily:   entity.MessageBoxFontFamily,
@@ -64,6 +65,7 @@ func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverl
 		DudeScale:                 settings.GetDudeSettings().GetScale(),
 		DudeSoundsEnabled:         settings.GetDudeSettings().GetSoundsEnabled(),
 		DudeSoundsVolume:          settings.GetDudeSettings().GetSoundsVolume(),
+		MessageBoxEnabled:         settings.GetMessageBoxSettings().GetEnabled(),
 		MessageBoxBorderRadius:    settings.GetMessageBoxSettings().GetBorderRadius(),
 		MessageBoxBoxColor:        settings.GetMessageBoxSettings().GetBoxColor(),
 		MessageBoxFontFamily:      settings.GetMessageBoxSettings().GetFontFamily(),

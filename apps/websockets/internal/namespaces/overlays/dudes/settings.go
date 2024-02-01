@@ -63,6 +63,7 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 			SoundsVolume:  entity.DudeSoundsVolume,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
+			Enabled:      entity.MessageBoxEnabled,
 			BorderRadius: entity.MessageBoxBorderRadius,
 			BoxColor:     entity.MessageBoxBoxColor,
 			FontFamily:   entity.MessageBoxFontFamily,

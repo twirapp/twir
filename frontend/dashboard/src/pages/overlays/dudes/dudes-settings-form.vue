@@ -403,6 +403,14 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 					{{ t('overlays.dudes.messageBoxDivider') }}
 				</n-divider>
 
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.messageBoxEnabled')"
+				>
+					<n-switch v-model:value="formValue.messageBoxSettings.enabled" />
+				</n-form-item>
+
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
 					<n-slider
 						v-model:value="formValue.messageBoxSettings.showTime"

@@ -19,6 +19,7 @@ message MessageBoxSettings {
 	int32 padding = 5;
 	int32 show_time = 6;
 	string fill = 7;
+	bool enabled = 8;
 }
 
 message NameBoxSettings {

@@ -17,6 +17,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		soundsVolume: 0.01,
 	},
 	messageBoxSettings: {
+		enabled: true,
 		borderRadius: 10,
 		boxColor: '#EEEEEE',
 		fontFamily: 'roboto',

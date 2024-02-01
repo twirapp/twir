@@ -19,7 +19,7 @@ const dudesStore = useDudes();
 const { dudes } = storeToRefs(dudesStore);
 
 const dudesSettingStore = useDudesSettings();
-const { channelInfo, dudesSettings } = storeToRefs(dudesSettingStore);
+const { channelInfo } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
 
@@ -57,14 +57,11 @@ onMounted(async () => {
 </script>
 
 <template>
-	<template v-if="dudesSettings">
-		<dudes-overlay
-			ref="dudes"
-			:assets="dudesAssets"
-			:sounds="dudesSounds"
-			:settings="dudesSettings"
-		/>
-	</template>
+	<dudes-overlay
+		ref="dudes"
+		:assets="dudesAssets"
+		:sounds="dudesSounds"
+	/>
 </template>
 
 <style>

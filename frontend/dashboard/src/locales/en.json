@@ -447,6 +447,7 @@
 			"nameBoxDropShadowBlur": "Shadow blur",
 			"nameBoxDropShadowDistance": "Shadow distance",
 			"nameBoxDropShadowAngle": "Shadow angle",
+			"messageBoxEnabled": "Enable message box",
 			"messageBoxDivider": "Message box",
 			"messageBoxShowTime": "Show time",
 			"messageBoxFill": "Text color",
