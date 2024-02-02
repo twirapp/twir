@@ -102,6 +102,10 @@ const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 const isMessageBoxDisabled = computed(() => {
 	return !formValue.value.messageBoxSettings.enabled;
 });
+
+const isDropShadowDisabled = computed(() => {
+	return !formValue.value.nameBoxSettings.dropShadow;
+});
 </script>
 
 <template>
@@ -389,6 +393,7 @@ const isMessageBoxDisabled = computed(() => {
 					<n-color-picker
 						v-model:value="formValue.nameBoxSettings.dropShadowColor"
 						:modes="['hex']"
+						:disabled="isDropShadowDisabled"
 					/>
 				</n-form-item>
 
@@ -398,6 +403,7 @@ const isMessageBoxDisabled = computed(() => {
 						:min="0"
 						:max="1"
 						:step="0.01"
+						:disabled="isDropShadowDisabled"
 					/>
 				</n-form-item>
 
@@ -407,6 +413,7 @@ const isMessageBoxDisabled = computed(() => {
 						:min="0"
 						:max="32"
 						:step="0.1"
+						:disabled="isDropShadowDisabled"
 					/>
 				</n-form-item>
 
@@ -416,6 +423,7 @@ const isMessageBoxDisabled = computed(() => {
 						:min="0"
 						:max="32"
 						:step="0.1"
+						:disabled="isDropShadowDisabled"
 					/>
 				</n-form-item>
 
@@ -426,6 +434,7 @@ const isMessageBoxDisabled = computed(() => {
 						:max="Math.PI * 2"
 						:step="0.01"
 						:format-tooltip="(value) => `${Math.round((value * 180) / Math.PI)}°`"
+						:disabled="isDropShadowDisabled"
 					/>
 				</n-form-item>
 
