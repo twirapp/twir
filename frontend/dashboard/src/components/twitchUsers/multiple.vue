@@ -146,7 +146,3 @@ const renderLabel = (option: Option) => {
 		@search="handleSearch"
 	/>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>

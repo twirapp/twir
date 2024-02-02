@@ -6,8 +6,53 @@ type DeepRequired<T> = Required<{
 
 export type DudesSettingsWithOptionalId = DeepRequired<Omit<Settings, 'id'> & { id?: string }>;
 
+interface User {
+	id: string;
+	displayName: string;
+}
+
+const twitchBots: User[] = [
+	{
+		id: '870280719',
+		displayName: 'TwirApp',
+	},
+	{
+		id: '19264788',
+		displayName: 'Nightbot',
+	},
+	{
+		id: '1564983',
+		displayName: 'Moobot',
+	},
+	{
+		id: '105166207',
+		displayName: 'Streamlabs',
+	},
+	{
+		id: '100135110',
+		displayName: 'StreamElements',
+	},
+	{
+		id: '52268235',
+		displayName: 'WizeBot',
+	},
+	{
+		id: '496585194',
+		displayName: 'DonationAlerts_',
+	},
+	{
+		id: '237719657',
+		displayName: 'Fossabot',
+	},
+];
+
 export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	id: '',
+	ignoreSettings: {
+		ignoreCommands: true,
+		ignoreUsers: true,
+		users: twitchBots.map(bot => bot.id),
+	},
 	dudeSettings: {
 		color: '#969696',
 		maxLifeTime: 1000 * 60 * 30,
@@ -18,7 +63,6 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	},
 	messageBoxSettings: {
 		enabled: true,
-		ignoreCommands: true,
 		borderRadius: 10,
 		boxColor: '#EEEEEE',
 		fontFamily: 'roboto',

@@ -23,6 +23,7 @@ import { useDudesForm } from './use-dudes-form.js';
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
+import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 
 const { t } = useI18n();
@@ -164,6 +165,30 @@ const isMessageBoxDisabled = computed(() => {
 						:max="10"
 						:step="1"
 					/>
+				</n-form-item>
+
+				<n-divider title-placement="left">
+					{{ t('overlays.dudes.ignoreDivider') }}
+				</n-divider>
+
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.ignoreCommands')"
+				>
+					<n-switch v-model:value="formValue.ignoreSettings.ignoreCommands" />
+				</n-form-item>
+
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.ignoreUsers')"
+				>
+					<n-switch v-model:value="formValue.ignoreSettings.ignoreUsers" />
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.ignoreUsersList')">
+					<select-twitch-users v-model="formValue.ignoreSettings.users" />
 				</n-form-item>
 
 				<n-divider title-placement="left">
@@ -414,17 +439,6 @@ const isMessageBoxDisabled = computed(() => {
 					:label="t('overlays.dudes.messageBoxEnabled')"
 				>
 					<n-switch v-model:value="formValue.messageBoxSettings.enabled" />
-				</n-form-item>
-
-				<n-form-item
-					class="form-item-switch"
-					:show-feedback="false"
-					:label="t('overlays.dudes.messageBoxIgnoreCommands')"
-				>
-					<n-switch
-						v-model:value="formValue.messageBoxSettings.ignoreCommands"
-						:disabled="isMessageBoxDisabled"
-					/>
 				</n-form-item>
 
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
