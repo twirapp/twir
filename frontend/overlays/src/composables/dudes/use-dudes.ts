@@ -10,7 +10,7 @@ import type { UserData } from '@/types.js';
 
 export const useDudes = defineStore('dudes', () => {
 	const dudesSettigsStore = useDudesSettings();
-	const { channelInfo, dudesSettings } = storeToRefs(dudesSettigsStore);
+	const { channelData, dudesSettings } = storeToRefs(dudesSettigsStore);
 
 	const dudes = ref<DudesOverlayMethods | null>(null);
 	const isDudeReady = ref(false);
@@ -47,37 +47,36 @@ export const useDudes = defineStore('dudes', () => {
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
-		// TODO: fix types and fix ignore commands
 		if (
-			dudesSettings.value?.messageBox.ignoreCommands &&
+			dudesSettings.value?.ignore.ignoreCommands &&
 			messageChunks?.at(0)?.value.startsWith('!')
 		) {
 			return;
 		}
 
 		const message = messageChunks
-			.filter((chunk) => chunk.type === 'text' || chunk.type === 'emoji')
+			.filter((chunk) => chunk.type === 'text')
 			.map((chunk) => chunk.value)
 			.join(' ');
-		const emotes = messageChunks
-			.filter((chunk) => chunk.type === '3rd_party_emote' || chunk.type === 'emote')
-			.map((chunk) => {
-				// twitch emote
-				if (chunk.type === 'emote') {
-					return getProxiedEmoteUrl(`https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`);
-				}
-				return getProxiedEmoteUrl(chunk.value);
-			});
 
 		dude.addMessage(message);
+
+		const emotes = messageChunks
+			.filter((chunk) => chunk.type !== 'text')
+			.map(getProxiedEmoteUrl);
 
 		if (emotes.length) {
 			dude.spitEmotes(emotes);
 		}
 	}
 
-	function getProxiedEmoteUrl(url: string) {
-		return `${window.location.origin}/api/proxy?url=${url}`;
+	function getProxiedEmoteUrl(messageChunk: MessageChunk): string {
+		if (messageChunk.type === 'emoji') {
+			const code = messageChunk.value.codePointAt(0)?.toString(16);
+			return `https://cdn.frankerfacez.com/static/emoji/images/twemoji/${code}.png`;
+		}
+
+		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`;
 	}
 
 	function deleteDude(displayName: string): void {
@@ -93,11 +92,11 @@ export const useDudes = defineStore('dudes', () => {
 				[
 					{
 						type: 'text',
-						value: `Hello, ${channelInfo.value!.channelDisplayName}!`,
+						value: `Hello, ${channelData.value!.channelDisplayName}!`,
 					},
 					{
 						type: '3rd_party_emote',
-						value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/1x.webp',
+						value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/3x.webp',
 					},
 				],
 			);
@@ -113,7 +112,7 @@ export const useDudes = defineStore('dudes', () => {
 	watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 		if (!isReady || !settings || !dudes.value) return;
 		dudes.value.clearDudes();
-		dudes.value.updateSettings(settings);
+		dudes.value.updateSettings(settings.dudes);
 		createNewDudeFromIframe();
 	});
 

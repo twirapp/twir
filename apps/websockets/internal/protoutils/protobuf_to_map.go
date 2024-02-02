@@ -12,7 +12,10 @@ func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (
 ) {
 	var result map[string]any
 
-	protoBytes, err := protojson.Marshal(msg)
+	protoBytes, err := protojson.MarshalOptions{
+		UseEnumNumbers: true,
+	}.Marshal(msg)
+
 	if err != nil {
 		return nil, err
 	}

@@ -6,17 +6,11 @@ import { computed, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import '@twirapp/kappagen/style.css';
 
-import {
-	useKappagenBuilder as useKappagenEmotesBuilder,
-} from '@/composables/kappagen/use-kappagen-builder.js';
+import { useKappagenEmotesBuilder } from '@/composables/kappagen/use-kappagen-builder.js';
 import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js';
-import { useChatTmi, type ChatSettings } from '@/composables/tmi/use-chat-tmi.js';
-import {
-	useThirdPartyEmotes,
-	type ThirdPartyEmotesOptions,
-} from '@/composables/tmi/use-third-party-emotes.js';
+import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
 import type { KappagenSpawnAnimatedEmotesFn, KappagenSpawnEmotesFn } from '@/types.js';
 
 const kappagen = ref<InstanceType<typeof KappagenOverlay>>();
@@ -132,37 +126,30 @@ const iframe = useKappagenIframe({
 	},
 });
 
-const emotesOptions = computed<ThirdPartyEmotesOptions>(() => {
-	return {
-		channelName: settings.value?.channelName,
-		channelId: settings.value?.channelId,
-		ffz: settings.value?.emotes?.ffzEnabled,
-		bttv: settings.value?.emotes?.bttvEnabled,
-		sevenTv: settings.value?.emotes?.sevenTvEnabled,
-	};
-});
+function onMessage(msg: ChatMessage): void {
+	if (msg.type === 'system' || !settings.value?.enableSpawn) return;
 
-useThirdPartyEmotes(emotesOptions);
+	const firstChunk = msg.chunks.at(0)!;
+	if (firstChunk.type === 'text' && firstChunk.value.startsWith('!')) {
+		return;
+	}
+
+	const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
+	if (!generatedEmotes.length) return;
+	kappagen.value?.emote.addEmotes(generatedEmotes);
+	kappagen.value?.emote.showEmotes();
+}
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: emotesOptions.value.channelId!,
-		channelName: emotesOptions.value.channelName!,
-		onMessage: (msg) => {
-			if (msg.type === 'system') return;
-
-			const firstChunk = msg.chunks.at(0)!;
-			if (firstChunk.type === 'text' && firstChunk.value.startsWith('!')) {
-				return;
-			}
-
-			if (!settings.value?.enableSpawn) return;
-
-			const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
-			if (!generatedEmotes.length) return;
-			kappagen.value?.emote.addEmotes(generatedEmotes);
-			kappagen.value?.emote.showEmotes();
+		channelId: settings.value?.channelId ?? '',
+		channelName: settings.value?.channelName ?? '',
+		emotes: {
+			ffz: settings.value?.emotes?.ffzEnabled,
+			bttv: settings.value?.emotes?.bttvEnabled,
+			sevenTv: settings.value?.emotes?.sevenTvEnabled,
 		},
+		onMessage,
 	};
 });
 

@@ -25,7 +25,9 @@ export type Buidler = {
 	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[];
 }
 
-export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Buidler => {
+export const useKappagenEmotesBuilder = (
+	emojiStyle: Ref<EmojiStyle | undefined>,
+): Buidler => {
 	const emotesStore = useEmotes();
 	const { emotes } = storeToRefs(emotesStore);
 
@@ -40,11 +42,11 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 
 	// chat events
 	const buildSpawnEmotes = (chunks: MessageChunk[]) => {
-		const emotesChunks = chunks.filter(c => c.type !== 'text');
+		console.log(chunks);
 
-		const result: Emote[] = [];
+		const emotes: Emote[] = [];
 
-		for (const chunk of emotesChunks) {
+		for (const chunk of chunks) {
 			if (chunk.type === 'text') continue;
 
 			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
@@ -52,15 +54,15 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 			if (chunk.emoteName && settings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
 
 			if (chunk.type === 'emote') {
-				result.push({
-					url: `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/3.0`,
+				emotes.push({
+					url: chunk.value,
 					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
 				});
 				continue;
 			}
 
 			if (chunk.type === '3rd_party_emote') {
-				result.push({
+				emotes.push({
 					url: chunk.value,
 					zwe,
 					width: chunk.emoteWidth,
@@ -69,17 +71,16 @@ export const useKappagenBuilder = (emojiStyle?: Ref<EmojiStyle | undefined>): Bu
 				continue;
 			}
 
-			if (chunk.type === 'emoji' && emojiStyle && emojiStyle.value) {
+			if (chunk.type === 'emoji' && emojiStyle.value) {
 				const code = chunk.value.codePointAt(0)?.toString(16);
 				if (!code) continue;
-
-				result.push({
+				emotes.push({
 					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle.value)}/${code}.png`,
 				});
 			}
 		}
 
-		return result;
+		return emotes;
 	};
 
 	// command, twitch events

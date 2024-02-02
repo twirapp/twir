@@ -1,3 +1,4 @@
+import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { useFontSource } from '@twir/fontsource';
 import type { DudesSettings } from '@twirapp/dudes/types';
 import { defineStore } from 'pinia';
@@ -5,20 +6,17 @@ import { ref } from 'vue';
 
 import type { ChannelData } from '@/types.js';
 
-export type DudesSettingsStore = {
-	dude: DudesSettings['dude'];
-	messageBox: DudesSettings['messageBox'] & {
-		ignoreCommands: boolean
-	}
-	nameBox: DudesSettings['nameBox'];
+export type DudesConfig = {
+	ignore: IgnoreSettings
+	dudes: DudesSettings
 }
 
 export const useDudesSettings = defineStore('dudes-settings', () => {
 	const fontSource = useFontSource();
-	const dudesSettings = ref<DudesSettingsStore | null>(null);
+	const dudesSettings = ref<DudesConfig | null>(null);
 	const channelData = ref<ChannelData>();
 
-	function updateSettings(settings: DudesSettingsStore): void {
+	function updateSettings(settings: DudesConfig): void {
 		dudesSettings.value = settings;
 	}
 
@@ -26,7 +24,11 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 		channelData.value = data;
 	}
 
-	async function loadFont(fontFamily: string, fontWeight: number, fontStyle: string): Promise<string> {
+	async function loadFont(
+		fontFamily: string,
+		fontWeight: number,
+		fontStyle: string,
+	): Promise<string> {
 		try {
 			await fontSource.loadFont(
 				fontFamily,
@@ -43,7 +45,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 	}
 
 	return {
-		channelInfo: channelData,
+		channelData,
 		updateChannelData,
 		dudesSettings,
 		updateSettings,

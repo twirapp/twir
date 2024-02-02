@@ -12,7 +12,6 @@ import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
 import { useDudes } from '@/composables/dudes/use-dudes.js';
 import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
-import { useThirdPartyEmotes } from '@/composables/tmi/use-third-party-emotes';
 
 const route = useRoute();
 
@@ -20,7 +19,7 @@ const dudesStore = useDudes();
 const { dudes } = storeToRefs(dudesStore);
 
 const dudesSettingStore = useDudesSettings();
-const { dudesSettings, channelInfo } = storeToRefs(dudesSettingStore);
+const { channelData, dudesSettings } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
 
@@ -28,7 +27,7 @@ function onMessage(chatMessage: ChatMessage) {
 	if (!dudes.value || chatMessage.type === 'system') return;
 
 	const displayName = chatMessage.senderDisplayName!;
-	const color = chatMessage.senderColor ?? dudesSettings.value?.dude.color;
+	const color = chatMessage.senderColor ?? dudesSettings.value?.dudes.dude.color;
 
 	const dude = dudes.value.getDude(displayName);
 	if (dude) {
@@ -40,24 +39,19 @@ function onMessage(chatMessage: ChatMessage) {
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: channelInfo.value?.channelId ?? '',
-		channelName: channelInfo.value?.channelName ?? '',
+		channelId: channelData.value?.channelId ?? '',
+		channelName: channelData.value?.channelName ?? '',
+		emotes: {
+			isSmaller: true,
+			bttv: true,
+			ffz: true,
+			sevenTv: true,
+		},
 		onMessage,
 	};
 });
 
 useChatTmi(chatSettings);
-
-const emotesSettings = computed(() => {
-	return {
-		channelId: chatSettings.value.channelId,
-		channelName: chatSettings.value.channelName,
-		ffz: true,
-		bttv: true,
-		sevenTv: true,
-	};
-});
-useThirdPartyEmotes(emotesSettings);
 
 onMounted(async () => {
 	const apiKey = route.params.apiKey as string;

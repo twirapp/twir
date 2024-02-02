@@ -4,12 +4,17 @@ import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
-import { useDudesSettings } from './use-dudes-settings';
+import { useDudesSettings, type DudesConfig } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
 import { generateSocketUrlWithParams } from '@/helpers.js';
 import type { ChannelData } from '@/types.js';
+
+const soundsDefaults: Partial<DudesConfig['dudes']['dude']['sounds']> = {
+	enabled: false,
+	volume: 0,
+};
 
 const nameBoxDefaults: Partial<Settings['nameBoxSettings']> = {
 	strokeThickness: 0,
@@ -22,7 +27,6 @@ const nameBoxDefaults: Partial<Settings['nameBoxSettings']> = {
 };
 
 const messageBoxDefaults: Partial<Settings['messageBoxSettings']> = {
-	ignoreCommands: false,
 	enabled: false,
 	padding: 0,
 	borderRadius: 0,
@@ -68,22 +72,26 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			);
 
 			updateSettings({
-				dude: {
-					...data.dudeSettings,
-					sounds: {
-						enabled: data.dudeSettings.soundsEnabled,
-						volume: data.dudeSettings.soundsVolume,
+				ignore: data.ignoreSettings,
+				dudes: {
+					dude: {
+						...data.dudeSettings,
+						sounds: {
+							...soundsDefaults,
+							enabled: data.dudeSettings.soundsEnabled,
+							volume: data.dudeSettings.soundsVolume,
+						},
 					},
-				},
-				nameBox: {
-					...nameBoxDefaults,
-					...data.nameBoxSettings,
-					fontFamily,
-				},
-				messageBox: {
-					...messageBoxDefaults,
-					...data.messageBoxSettings,
-					fontFamily,
+					nameBox: {
+						...nameBoxDefaults,
+						...data.nameBoxSettings,
+						fontFamily,
+					},
+					messageBox: {
+						...messageBoxDefaults,
+						...data.messageBoxSettings,
+						fontFamily,
+					},
 				},
 			});
 		}
