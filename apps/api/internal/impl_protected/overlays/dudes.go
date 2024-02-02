@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/kr/pretty"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
@@ -194,8 +193,6 @@ func (c *Overlays) OverlayDudesUpdate(
 	newEntity.ID = existedEntity.ID
 	newEntity.ChannelID = existedEntity.ChannelID
 	newEntity.CreatedAt = existedEntity.CreatedAt
-
-	pretty.Println(newEntity)
 
 	if err := c.Db.WithContext(ctx).Save(&newEntity).Error; err != nil {
 		return nil, err
