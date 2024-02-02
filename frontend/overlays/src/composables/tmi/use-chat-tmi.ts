@@ -18,7 +18,12 @@ type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
 export type ChatMessage = Omit<
 	MakeOptional<Message, 'isItalic' | 'isAnnounce'>,
 	'createdAt' | 'internalId'
-> & { rawMessage?: string, messageHideTimeout?: number, messageShowDelay?: number; }
+> & {
+	senderId?: string;
+	rawMessage?: string;
+	messageHideTimeout?: number;
+	messageShowDelay?: number;
+}
 
 export const knownBots = new Set([
 	'moobot',
@@ -103,7 +108,8 @@ export const useChatTmi = (options: Ref<ChatSettings>) => {
 				type: 'message',
 				rawMessage: message,
 				chunks: messageChunks(message, tags),
-				sender: tags.username!,
+				sender: tags.username,
+				senderId: tags['user-id']!,
 				senderColor: tags.color,
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,
@@ -120,6 +126,7 @@ export const useChatTmi = (options: Ref<ChatSettings>) => {
 				rawMessage: message,
 				chunks: messageChunks(message, tags),
 				sender: tags.login,
+				senderId: tags['user-id'],
 				senderColor: tags.color,
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,

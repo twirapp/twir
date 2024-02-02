@@ -29,7 +29,11 @@ export const useDudes = defineStore('dudes', () => {
 		}
 	}
 
-	function createDude(name: string, color?: string, messageChunks?: MessageChunk[]) {
+	function createDude(
+		name: string,
+		color?: string,
+		messageChunks?: MessageChunk[],
+	): void {
 		if (!dudes.value) return;
 
 		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
@@ -42,8 +46,6 @@ export const useDudes = defineStore('dudes', () => {
 		if (messageChunks) {
 			setTimeout(() => showMessageDude(dude, messageChunks), 1000);
 		}
-
-		return dude;
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
@@ -84,23 +86,23 @@ export const useDudes = defineStore('dudes', () => {
 		dudes.value.removeDude(displayName);
 	}
 
-	function createNewDudeFromIframe() {
-		if (window.frameElement) {
-			createDude(
-				'TWIR',
-				'#8a2be2',
-				[
-					{
-						type: 'text',
-						value: `Hello, ${channelData.value!.channelDisplayName}!`,
-					},
-					{
-						type: '3rd_party_emote',
-						value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/3x.webp',
-					},
-				],
-			);
-		}
+	function createNewDudeFromIframe(): void {
+		if (!window.frameElement) return;
+
+		createDude(
+			'TWIR',
+			'#8a2be2',
+			[
+				{
+					type: 'text',
+					value: `Hello, ${channelData.value!.channelDisplayName}!`,
+				},
+				{
+					type: '3rd_party_emote',
+					value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/3x.webp',
+				},
+			],
+		);
 	}
 
 	watch(() => dudes.value, async (dudes) => {

@@ -112,13 +112,13 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		}
 	});
 
-	function destroy() {
+	function destroy(): void {
 		if (status.value === 'OPEN') {
 			close();
 		}
 	}
 
-	function connect(apiKey: string, id: string) {
+	function connect(apiKey: string, id: string): void {
 		overlayId.value = id;
 		dudesUrl.value = generateSocketUrlWithParams('/overlays/dudes', {
 			apiKey,

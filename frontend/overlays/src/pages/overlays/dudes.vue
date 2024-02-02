@@ -23,8 +23,15 @@ const { channelData, dudesSettings } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
 
-function onMessage(chatMessage: ChatMessage) {
+function onMessage(chatMessage: ChatMessage): void {
 	if (!dudes.value || chatMessage.type === 'system') return;
+
+	if (
+		dudesSettings.value?.ignore.ignoreUsers &&
+		dudesSettings.value.ignore.users.includes(chatMessage.senderId!)
+	) {
+		return;
+	}
 
 	const displayName = chatMessage.senderDisplayName!;
 	const color = chatMessage.senderColor ?? dudesSettings.value?.dudes.dude.color;
@@ -51,12 +58,16 @@ const chatSettings = computed<ChatSettings>(() => {
 	};
 });
 
-useChatTmi(chatSettings);
+const { destroy } = useChatTmi(chatSettings);
 
 onMounted(async () => {
 	const apiKey = route.params.apiKey as string;
 	const overlayId = route.params.id as string;
 	dudesSocketStore.connect(apiKey, overlayId);
+});
+
+onMounted(() => {
+	destroy();
 });
 </script>
 
