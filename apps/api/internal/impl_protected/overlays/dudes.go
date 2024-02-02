@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/kr/pretty"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
@@ -97,7 +99,7 @@ func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverl
 		NameBoxDropShadowColor:    settings.GetNameBoxSettings().GetDropShadowColor(),
 		IgnoreCommands:            settings.GetIgnoreSettings().GetIgnoreCommands(),
 		IgnoreUsers:               settings.GetIgnoreSettings().GetIgnoreUsers(),
-		IgnoredUsers:              settings.GetIgnoreSettings().GetUsers(),
+		IgnoredUsers:              append(pq.StringArray{}, settings.GetIgnoreSettings().GetUsers()...),
 	}
 }
 
@@ -191,6 +193,9 @@ func (c *Overlays) OverlayDudesUpdate(
 	newEntity := reqModel
 	newEntity.ID = existedEntity.ID
 	newEntity.ChannelID = existedEntity.ChannelID
+	newEntity.CreatedAt = existedEntity.CreatedAt
+
+	pretty.Println(newEntity)
 
 	if err := c.Db.WithContext(ctx).Save(&newEntity).Error; err != nil {
 		return nil, err
