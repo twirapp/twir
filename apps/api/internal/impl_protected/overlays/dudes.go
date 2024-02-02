@@ -95,8 +95,8 @@ func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverl
 		NameBoxDropShadowBlur:     settings.GetNameBoxSettings().GetDropShadowBlur(),
 		NameBoxDropShadowDistance: settings.GetNameBoxSettings().GetDropShadowDistance(),
 		NameBoxDropShadowColor:    settings.GetNameBoxSettings().GetDropShadowColor(),
-		IgnoreCommands:            settings.IgnoreSettings.GetIgnoreCommands(),
-		IgnoreUsers:               settings.IgnoreSettings.GetIgnoreCommands(),
+		IgnoreCommands:            settings.GetIgnoreSettings().GetIgnoreCommands(),
+		IgnoreUsers:               settings.GetIgnoreSettings().GetIgnoreUsers(),
 		IgnoredUsers:              settings.GetIgnoreSettings().GetUsers(),
 	}
 }
