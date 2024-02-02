@@ -12,12 +12,13 @@ export async function loadFont(
 	fontId: string,
 	fontWeight: number,
 	fontStyle: string,
-): Promise<Font> {
+): Promise<Font | undefined> {
+	if (!fontId) return;
+
 	const response = await fetch(`${FONTSOURCE_API_URL}/fonts/${fontId}`);
 	const font = await response.json() as Font;
 
 	for (const subset of font.subsets) {
-		// @ts-ignore
 		const fontSource = `url(${font.variants[fontWeight][fontStyle][subset].url.woff2})`;
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle);
 		const fontFace = new FontFace(fontKey, fontSource);

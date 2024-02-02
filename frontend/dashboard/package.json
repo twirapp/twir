@@ -23,6 +23,7 @@
     "@types/lodash.chunk": "4.2.9",
     "@vueuse/components": "10.7.2",
     "@vueuse/core": "10.7.2",
+    "@zero-dependency/utils": "1.7.5",
     "date-fns": "3.3.1",
     "grid-layout-plus": "1.0.3",
     "kappagen": "0.3.5",

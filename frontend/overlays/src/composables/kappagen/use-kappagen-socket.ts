@@ -1,5 +1,5 @@
-import { useWebSocket } from '@vueuse/core';
 import type { KappagenAnimations } from '@twirapp/kappagen';
+import { useWebSocket } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
@@ -75,12 +75,19 @@ export const useKappagenOverlaySocket = (options: Options) => {
 
 			const data = event.data as { text: string, emotes?: TriggerKappagenRequestEmote[] };
 
+			const emotesList: Record<string, string[]> = {};
+			if (data.emotes) {
+				for (const emote of data.emotes) {
+					emotesList[emote.id] = emote.positions;
+				}
+			}
+
 			const chunks = makeMessageChunks(
 				data.text,
-				data.emotes?.reduce((acc, curr) => {
-					acc[curr.id] = curr.positions;
-					return acc;
-				}, {} as Record<string, string[]>),
+				{
+					isSmaller: false,
+					emotesList,
+				},
 			);
 			const emotesForKappagen = options.emotesBuilder.buildKappagenEmotes(chunks);
 

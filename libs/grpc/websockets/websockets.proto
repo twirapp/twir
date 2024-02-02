@@ -23,17 +23,25 @@ service Websocket {
 	rpc TextToSpeechSkip(TTSSkipMessage) returns (google.protobuf.Empty) {}
 
 	rpc TriggerAlert(TriggerAlertRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshOverlays(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
-
-	rpc RefreshChatOverlaySettings(RefreshChatSettingsRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshKappagenOverlaySettings(RefreshKappagenOverlaySettingsRequest) returns (google.protobuf.Empty) {}
 
 	rpc TriggerKappagen(TriggerKappagenRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerKappagenByEvent(TriggerKappagenByEventRequest) returns (google.protobuf.Empty) {}
 
 	rpc TriggerShowBrb(TriggerShowBrbRequest) returns (google.protobuf.Empty) {}
 	rpc TriggerHideBrb(TriggerHideBrbRequest) returns (google.protobuf.Empty) {}
-	rpc RefreshBrbSettings(RefreshBrbSettingsRequest) returns (google.protobuf.Empty) {}
+
+	rpc RefreshOverlaySettings(RefreshOverlaysRequest) returns (google.protobuf.Empty) {}
+
+	rpc DudesJump(DudesJumpRequest) returns (google.protobuf.Empty) {}
+	rpc DudesUserPunished(DudesUserPunishedRequest) returns (google.protobuf.Empty) {}
+}
+
+enum RefreshOverlaySettingsName {
+	CUSTOM = 0;
+	KAPPAGEN = 1;
+	BRB = 2;
+	DUDES = 3;
+	CHAT = 4;
 }
 
 message YoutubeAddSongToQueueRequest {
@@ -101,7 +109,6 @@ message TTSSkipMessage {
 	string channelId = 1;
 }
 
-
 message ObsCheckUserConnectedRequest {
 	string user_id = 1;
 }
@@ -117,15 +124,8 @@ message TriggerAlertRequest {
 
 message RefreshOverlaysRequest {
 	string channel_id = 1;
-}
-
-message RefreshChatSettingsRequest {
-	string channel_id = 1;
-	string id = 2;
-}
-
-message RefreshKappagenOverlaySettingsRequest {
-	string channel_id = 1;
+	RefreshOverlaySettingsName overlay_name = 2;
+	optional string overlay_id = 3;
 }
 
 message TriggerKappagenRequest {
@@ -154,6 +154,17 @@ message TriggerHideBrbRequest {
 	string channel_id = 1;
 }
 
-message RefreshBrbSettingsRequest {
+message DudesJumpRequest {
 	string channel_id = 1;
+	string user_id = 2;
+	string user_display_name = 3;
+	string user_name = 4;
+	string user_color = 5;
+}
+
+message DudesUserPunishedRequest {
+	string channel_id = 1;
+	string user_id = 2;
+	string user_display_name = 3;
+	string user_name = 4;
 }

@@ -14,17 +14,18 @@ export const useMessageHelpers = defineStore('message-helpers', () => {
 
 	function makeMessageChunks(
 		message: string,
-		emotes?: Record<string, string[]>,
+		emotes: {
+			isSmaller: boolean,
+			emotesList: Record<string, string[]>
+		},
 	): MessageChunk[] {
 		const chunks: MessageChunk[] = [];
 		const parsedTwitchEmotes: TwitchEmotes = {};
 
-		if (emotes) {
-			for (const [emoteId, positions] of Object.entries(emotes)) {
-				for (const position of positions) {
-					const [from] = position.split('-').map(Number);
-					parsedTwitchEmotes[from] = emoteId;
-				}
+		for (const [emoteId, positions] of Object.entries(emotes.emotesList)) {
+			for (const position of positions) {
+				const [from] = position.split('-').map(Number);
+				parsedTwitchEmotes[from] = emoteId;
 			}
 		}
 
@@ -42,12 +43,12 @@ export const useMessageHelpers = defineStore('message-helpers', () => {
 			} else if (emote) {
 				chunks.push({
 					type: 'emote',
-					value: emote,
+					value: `https://static-cdn.jtvnw.net/emoticons/v2/${emote}/default/dark/${emotes.isSmaller ? 1 : 3}.0`,
 				});
 			} else if (thirdPartyEmote) {
 				const isZeroWidthModifier = thirdPartyEmote.isZeroWidth;
 				const isModifier = typeof thirdPartyEmote.modifierFlag !== 'undefined';
-				const url = thirdPartyEmote.urls.at(-1)!;
+				const url = thirdPartyEmote.urls.at(emotes.isSmaller ? 0 : -1)!;
 				const latestChunk = chunks.at(-1)!;
 
 				if (isZeroWidthModifier && latestChunk) {

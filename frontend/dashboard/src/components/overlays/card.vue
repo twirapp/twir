@@ -12,16 +12,18 @@ import Card from '@/components/card/card.vue';
 const props = withDefaults(defineProps<{
 	description: string;
 	title: string;
-	overlayPath: string;
+	overlayPath?: string;
 	icon: FunctionalComponent;
-	iconStroke?: number
-	showSettings?: boolean
-	copyDisabled?: boolean,
-	showCopy?: boolean
+	iconStroke?: number;
+	showSettings?: boolean;
+	copyDisabled?: boolean;
+	showCopy?: boolean;
 }>(), {
 	showSettings: true,
 	copyDisabled: false,
 	showCopy: true,
+	iconStroke: 1,
+	overlayPath: '',
 });
 
 defineEmits<{

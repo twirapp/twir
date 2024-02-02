@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
+	"github.com/satont/twir/apps/parser/internal/commands/dudes"
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
@@ -98,6 +99,7 @@ func New(opts *Opts) *Commands {
 			games.Duel,
 			games.DuelAccept,
 			games.DuelStats,
+			dudes.Jump,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -242,6 +244,7 @@ func (c *Commands) ParseCommandResponses(
 		Name:        requestData.GetSender().GetName(),
 		DisplayName: requestData.GetSender().GetDisplayName(),
 		Badges:      requestData.GetSender().GetBadges(),
+		Color:       requestData.GetSender().GetColor(),
 	}
 
 	parseCtx := &types.ParseContext{

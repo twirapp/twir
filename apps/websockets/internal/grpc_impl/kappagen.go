@@ -58,17 +58,3 @@ func (c *GrpcImpl) TriggerKappagenByEvent(
 
 	return &emptypb.Empty{}, nil
 }
-
-func (c *GrpcImpl) RefreshKappagenOverlaySettings(
-	_ context.Context,
-	req *websockets.RefreshKappagenOverlaySettingsRequest,
-) (
-	*emptypb.Empty,
-	error,
-) {
-	if err := c.kappagenServer.SendSettings(req.ChannelId); err != nil {
-		return nil, err
-	}
-
-	return &emptypb.Empty{}, nil
-}

@@ -237,7 +237,7 @@ func (c *Overlays) OverlaysUpdate(ctx context.Context, req *overlays.UpdateReque
 		return nil, err
 	}
 
-	_, err = c.Grpc.Websockets.RefreshOverlays(
+	_, err = c.Grpc.Websockets.RefreshOverlaySettings(
 		ctx,
 		&websockets.RefreshOverlaysRequest{ChannelId: dashboardId},
 	)

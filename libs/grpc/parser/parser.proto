@@ -15,6 +15,7 @@ message Sender {
   string name = 2;
   string displayName = 3;
   repeated string badges = 4;
+	string color = 5;
 }
 
 message Channel {
