@@ -423,7 +423,7 @@
 			"dudeDivider": "Dude",
 			"dudeColor": "Default user color",
 			"dudeGravity": "Gravity",
-			"dudeMaxLifeTime": "Max life time (in seconds)",
+			"dudeMaxLifeTime": "Max life time",
 			"dudeScale": "Scale",
 			"dudeSoundsDivider": "Sounds",
 			"dudeSoundsEnable": "Enable",
