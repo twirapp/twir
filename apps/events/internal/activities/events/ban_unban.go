@@ -205,12 +205,19 @@ func (c *Activity) BanRandom(
 		return errors.New("cannot get random user")
 	}
 
+	timeoutTime := operation.TimeoutTime
+	if operation.Type == model.OperationBanRandom {
+		timeoutTime = 0
+	} else if timeoutTime == 0 {
+		timeoutTime = 600
+	}
+
 	banReq, err := twitchClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: data.ChannelID,
 			ModeratorId:   data.ChannelID,
 			Body: helix.BanUserRequestBody{
-				Duration: operation.TimeoutTime,
+				Duration: timeoutTime,
 				Reason:   computeBanReason(operation.TimeoutMessage),
 				UserId:   randomOnlineUser.UserId.String,
 			},

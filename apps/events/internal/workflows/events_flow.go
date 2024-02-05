@@ -153,7 +153,7 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
-			case model.OperationBanRandom:
+			case model.OperationBanRandom, model.OperationTimeoutRandom:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.BanRandom,
@@ -300,6 +300,13 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
+			case model.OperationTTSSkip:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.TtsSkip,
+					operation,
+					data,
+				).Get(ctx, nil)
 			case model.OperationChangeVariable:
 				operationErr = workflow.ExecuteActivity(
 					ctx,
@@ -339,6 +346,13 @@ func (c *EventWorkflow) Flow(
 				operationErr = workflow.ExecuteActivity(
 					ctx,
 					c.eventsActivity.RaidChannel,
+					operation,
+					data,
+				).Get(ctx, nil)
+			case model.OperationTriggerAlert:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.TriggerAlert,
 					operation,
 					data,
 				).Get(ctx, nil)
