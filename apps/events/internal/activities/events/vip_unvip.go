@@ -11,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -19,6 +20,8 @@ func (c *Activity) VipOrUnvip(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbChannelErr != nil {
 		return dbChannelErr
@@ -154,6 +157,8 @@ func (c *Activity) UnvipRandom(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	slots := operation.Input.String
 	if operation.Type == model.OperationUnvipRandomIfNoSlots && slots == "" {
 		return errors.New("input is empty")

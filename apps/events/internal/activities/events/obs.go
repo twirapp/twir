@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) ObsSetScene(
@@ -15,6 +16,8 @@ func (c *Activity) ObsSetScene(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Target.String,
@@ -46,6 +49,8 @@ func (c *Activity) ObsToggleSource(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Target.String,
@@ -107,6 +112,8 @@ func (c *Activity) ObsAudioChangeVolume(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
 	if err != nil {
 		return err
@@ -157,6 +164,8 @@ func (c *Activity) ObsAudioSetVolume(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Target.String, data)
 	if err != nil {
 		return err
@@ -194,6 +203,8 @@ func (c *Activity) ObsEnableOrDisableAudio(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if operation.Target.String == "" {
 		return nil
 	}
@@ -232,6 +243,8 @@ func (c *Activity) ObsStartOrStopStream(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if operation.Type == model.OperationObsStartStream {
 		_, err := c.websocketsGrpc.ObsStartStream(
 			ctx,

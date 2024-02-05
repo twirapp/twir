@@ -10,6 +10,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -26,6 +27,8 @@ func (c *Activity) Ban(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Input.String,
@@ -115,6 +118,8 @@ func (c *Activity) Unban(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedName, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Input.String,
@@ -163,6 +168,8 @@ func (c *Activity) BanRandom(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbChannel, err := c.getChannelDbEntity(ctx, data.ChannelID)
 	if err != nil {
 		return err

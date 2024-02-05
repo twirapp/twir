@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,6 +19,8 @@ func (c *Activity) ModOrUnmod(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedName, hydrationErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID, operation.Input.String,
 		data,
@@ -132,6 +135,8 @@ func (c *Activity) UnmodRandom(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbChannelErr != nil {
 		return dbChannelErr

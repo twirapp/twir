@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) SwitchEmoteOnly(
@@ -15,6 +16,8 @@ func (c *Activity) SwitchEmoteOnly(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbEntity, dbEntityErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbEntityErr != nil {
 		return dbEntityErr
@@ -51,6 +54,8 @@ func (c *Activity) SwitchSubMode(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbEntity, dbEntityErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbEntityErr != nil {
 		return dbEntityErr

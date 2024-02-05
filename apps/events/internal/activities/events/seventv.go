@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	"go.temporal.io/sdk/activity"
 	"gorm.io/gorm"
 )
 
@@ -18,6 +19,8 @@ func (c *Activity) SevenTvEmoteManage(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedString, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Input.String,
