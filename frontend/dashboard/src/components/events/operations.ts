@@ -300,6 +300,18 @@ export const OPERATIONS: Record<string, Operation> = {
 		},
 	},
 
+	RAIDS: {
+		name: 'Raids',
+		type: 'group',
+		childrens: {
+			RAID_CHANNEL: {
+				name: 'Raid channel',
+				haveInput: true,
+				color: 'warning',
+			},
+		},
+	},
+
 	COMMANDS: {
 		name: 'Commands manage',
 		type: 'group',

@@ -68,6 +68,7 @@ func NewEventsWorker(opts EventsWorkerOpts) error {
 	temporalWorker.RegisterActivity(opts.Activities.VipOrUnvip)
 	temporalWorker.RegisterActivity(opts.Activities.UnvipRandom)
 	temporalWorker.RegisterActivity(opts.Activities.SevenTvEmoteManage)
+	temporalWorker.RegisterActivity(opts.Activities.RaidChannel)
 
 	opts.Lc.Append(
 		fx.Hook{

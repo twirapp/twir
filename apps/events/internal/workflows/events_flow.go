@@ -335,6 +335,13 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
+			case model.OperationRaidChannel:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.RaidChannel,
+					operation,
+					data,
+				).Get(ctx, nil)
 			}
 
 			if operationErr != nil {
