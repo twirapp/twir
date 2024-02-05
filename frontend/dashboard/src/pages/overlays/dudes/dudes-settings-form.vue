@@ -20,6 +20,7 @@ import { h, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDudesForm } from './use-dudes-form.js';
+import { useDudesIframe } from './use-dudes-frame.js';
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
@@ -34,6 +35,12 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const { data: profile } = useProfile();
 
 const { data: formValue, $reset } = useDudesForm();
+const { sendIframeMessage } = useDudesIframe();
+
+watch(formValue, (form) => {
+	if (!form) return;
+	sendIframeMessage('settings', form);
+});
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;

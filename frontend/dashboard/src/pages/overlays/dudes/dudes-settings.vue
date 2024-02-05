@@ -4,6 +4,8 @@ import {
 	NTabPane,
 	NAlert,
 	useThemeVars,
+	NButton,
+	NSpace,
 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
@@ -92,13 +94,22 @@ const addable = computed(() => {
 
 <template>
 	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
-		<div style="width: 70%">
+		<div style="width: 70%; position: relative;">
 			<iframe
 				v-if="dudesIframeUrl"
 				ref="dudesIframe"
+				style="position: absolute;"
 				:src="dudesIframeUrl"
 				class="iframe"
 			/>
+			<n-space :size="6" style="position: absolute; top: 18px; left: 8px;">
+				<n-button @click="dudesIframeStore.sendIframeMessage('spawn-emote')">
+					Spawn emote
+				</n-button>
+				<n-button @click="dudesIframeStore.sendIframeMessage('jump')">
+					Jump
+				</n-button>
+			</n-space>
 		</div>
 		<div style="width: 30%;">
 			<command-button name="jump" />

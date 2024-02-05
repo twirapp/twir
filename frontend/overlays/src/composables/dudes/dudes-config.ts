@@ -1,5 +1,7 @@
 import type { SoundAsset, DudeAsset } from '@twirapp/dudes/types';
 
+export const dudesTwir = 'TWIR';
+
 export const dudesSprites = [
   'dude',
   'sith',
