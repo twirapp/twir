@@ -171,6 +171,14 @@ const isDropShadowDisabled = computed(() => {
 					/>
 				</n-form-item>
 
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.spitterEmoteEnabled')"
+				>
+					<n-switch v-model:value="formValue.spitterEmoteSettings.enabled" />
+				</n-form-item>
+
 				<n-divider title-placement="left">
 					{{ t('overlays.dudes.ignoreDivider') }}
 				</n-divider>

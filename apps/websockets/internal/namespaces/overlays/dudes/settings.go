@@ -96,6 +96,9 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 			IgnoreUsers:    entity.IgnoreUsers,
 			Users:          entity.IgnoredUsers,
 		},
+		SpitterEmoteSettings: &overlays_dudes.SpitterEmoteSettings{
+			Enabled: entity.SpitterEmoteEnabled,
+		},
 	}
 
 	data, err := protoutils.CreateJsonWithProto(

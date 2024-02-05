@@ -353,8 +353,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/grpc
       '@twirapp/dudes':
-        specifier: 0.3.7
-        version: 0.3.7(vue@3.4.15)
+        specifier: 0.4.4
+        version: 0.4.4(vue@3.4.15)
       '@twirapp/kappagen':
         specifier: 0.0.0
         version: 0.0.0(vue@3.4.15)
@@ -1568,7 +1568,7 @@ packages:
       '@monaco-editor/loader': 1.4.0(monaco-editor@0.45.0)
       monaco-editor: 0.45.0
       vue: 3.4.15(typescript@5.3.3)
-      vue-demi: 0.14.6(vue@3.4.15)
+      vue-demi: 0.14.7(vue@3.4.15)
     dev: false
 
   /@humanwhocodes/config-array@0.11.13:
@@ -2131,8 +2131,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /@twirapp/dudes@0.3.7(vue@3.4.15):
-    resolution: {integrity: sha512-048BNJKXf1xj8GNB02zwa7W8B/X2J4ejVToS7BBOynQQ2zwRt70K/91vvtNy+Y0N4hoygti/OQ8lt2A8EPLP8g==}
+  /@twirapp/dudes@0.4.4(vue@3.4.15):
+    resolution: {integrity: sha512-jXYFXrkLme215Dqk998kxSbNlL21MlzlV+khwwjFDerVL8O2QdcECa5DpKmI1rFP9WcuIbglnLesYnk2XA0tQA==}
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:
@@ -8672,6 +8672,21 @@ packages:
 
   /vue-demi@0.14.6(vue@3.4.15):
     resolution: {integrity: sha512-8QA7wrYSHKaYgUxDA5ZC24w+eHm3sYCbp0EzcDwKqN3p6HqtTCGR/GVsPyZW92unff4UlcSh++lmqDWN3ZIq4w==}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    peerDependencies:
+      '@vue/composition-api': ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      '@vue/composition-api':
+        optional: true
+    dependencies:
+      vue: 3.4.15(typescript@5.3.3)
+    dev: false
+
+  /vue-demi@0.14.7(vue@3.4.15):
+    resolution: {integrity: sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==}
     engines: {node: '>=12'}
     hasBin: true
     requiresBuild: true

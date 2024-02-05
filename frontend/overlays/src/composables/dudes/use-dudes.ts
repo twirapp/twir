@@ -68,7 +68,7 @@ export const useDudes = defineStore('dudes', () => {
 			.map(getProxiedEmoteUrl);
 
 		if (emotes.length) {
-			dude.spitEmotes(emotes);
+			dude.spitEmotes([...new Set(emotes)]);
 		}
 	}
 

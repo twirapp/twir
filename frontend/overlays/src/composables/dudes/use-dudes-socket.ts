@@ -32,6 +32,10 @@ const messageBoxDefaults: Partial<Settings['messageBoxSettings']> = {
 	borderRadius: 0,
 };
 
+const spitterEmoteDefaults: Partial<Settings['spitterEmoteSettings']> = {
+	enabled: false,
+};
+
 export const useDudesSocket = defineStore('dudes-socket', () => {
 	const dudesStore = useDudes();
 	const { dudes } = storeToRefs(dudesStore);
@@ -82,15 +86,19 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 							volume: data.dudeSettings.soundsVolume,
 						},
 					},
-					nameBox: {
+					name: {
 						...nameBoxDefaults,
 						...data.nameBoxSettings,
 						fontFamily,
 					},
-					messageBox: {
+					message: {
 						...messageBoxDefaults,
 						...data.messageBoxSettings,
 						fontFamily,
+					},
+					spitter: {
+						...spitterEmoteDefaults,
+						...data.spitterEmoteSettings,
 					},
 				},
 			});

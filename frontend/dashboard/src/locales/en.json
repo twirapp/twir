@@ -459,7 +459,8 @@
 			"messageBoxBackground": "Background color",
 			"messageBoxPadding": "Padding",
 			"messageBoxBorderRadius": "Border radius",
-			"messageBoxFontSize": "Font size"
+			"messageBoxFontSize": "Font size",
+			"spitterEmoteEnabled": "Show twitch emotes"
 		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",

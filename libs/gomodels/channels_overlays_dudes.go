@@ -46,6 +46,8 @@ type ChannelsOverlaysDudes struct {
 	IgnoreUsers    bool           `gorm:"type:boolean;not null;"  json:"ignoreUsers"`
 	IgnoredUsers   pq.StringArray `gorm:"type:text[];not null;" json:"ignoredUsers"`
 
+	SpitterEmoteEnabled bool `gorm:"type:boolean;not null;" json:"spitterEmoteEnabled"`
+
 	CreatedAt time.Time `gorm:"type:datetime;not null;" json:"createdAt"`
 }
 

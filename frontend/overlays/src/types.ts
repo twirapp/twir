@@ -8,6 +8,7 @@ export type SevenTvEmote = {
 	name: string;
 	flags: number;
 	data: {
+		animated: boolean;
 		host: {
 			url: string;
 			files: Array<{ name: string; format: string; height: number; width: number }>;
@@ -33,6 +34,7 @@ export type BttvEmote = {
 	code: string;
 	imageType: string;
 	id: string;
+	animated: boolean;
 	height?: number;
 	width?: number;
 	modifier?: boolean;
