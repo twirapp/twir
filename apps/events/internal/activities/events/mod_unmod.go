@@ -31,8 +31,8 @@ func (c *Activity) ModOrUnmod(
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	errWg, errWgCtx := errgroup.WithContext(ctx)
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(errWgCtx, data.ChannelID)
+	var errWg errgroup.Group
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -66,7 +66,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			ch, err := c.getChannelDbEntity(errWgCtx, data.ChannelID)
+			ch, err := c.getChannelDbEntity(ctx, data.ChannelID)
 			if err != nil {
 				return err
 			}

@@ -45,9 +45,8 @@ func (c *Activity) Ban(
 		return err
 	}
 
-	errwg, errwgCtx := errgroup.WithContext(ctx)
-
-	twitchClient, twitchClientError := c.getHelixBotApiClient(errwgCtx, dbChannel.BotID)
+	var errwg errgroup.Group
+	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}

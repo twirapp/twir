@@ -41,8 +41,8 @@ func (c *Activity) VipOrUnvip(
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	errWg, errWgCtx := errgroup.WithContext(ctx)
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(errWgCtx, data.ChannelID)
+	var errWg errgroup.Group
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
