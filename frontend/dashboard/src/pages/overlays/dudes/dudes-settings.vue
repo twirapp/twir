@@ -4,6 +4,8 @@ import {
 	NTabPane,
 	NAlert,
 	useThemeVars,
+	NButton,
+	NSpace,
 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
@@ -39,7 +41,7 @@ const openedTab = ref<string>();
 const dudesIframeStore = useDudesIframe();
 const { dudesIframe } = storeToRefs(dudesIframeStore);
 const dudesIframeUrl = computed(() => {
-	if (!profile.value) return null;
+	if (!profile.value || !openedTab.value) return null;
 	return `${window.location.origin}/overlays/${profile.value.apiKey}/dudes?id=${openedTab.value}`;
 });
 
@@ -92,13 +94,26 @@ const addable = computed(() => {
 
 <template>
 	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
-		<div style="width: 70%">
-			<iframe
-				v-if="dudesIframeUrl"
-				ref="dudesIframe"
-				:src="dudesIframeUrl"
-				class="iframe"
-			/>
+		<div style="width: 70%; position: relative;">
+			<div v-if="dudesIframeUrl">
+				<iframe
+					ref="dudesIframe"
+					style="position: absolute;"
+					:src="dudesIframeUrl"
+					class="iframe"
+				/>
+				<n-space :size="6" style="position: absolute; top: 18px; left: 8px;">
+					<n-button @click="dudesIframeStore.sendIframeMessage('spawn-emote')">
+						Emote
+					</n-button>
+					<n-button @click="dudesIframeStore.sendIframeMessage('show-message')">
+						Message
+					</n-button>
+					<n-button @click="dudesIframeStore.sendIframeMessage('jump')">
+						Jump
+					</n-button>
+				</n-space>
+			</div>
 		</div>
 		<div style="width: 30%;">
 			<command-button name="jump" />

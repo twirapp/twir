@@ -15,11 +15,13 @@ import {
 	NInputNumber,
 	NFormItem,
 	NScrollbar,
+	NForm,
 } from 'naive-ui';
 import { h, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useDudesForm } from './use-dudes-form.js';
+import { useDudesIframe } from './use-dudes-frame.js';
 
 import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
@@ -34,6 +36,13 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const { data: profile } = useProfile();
 
 const { data: formValue, $reset } = useDudesForm();
+const { sendIframeMessage } = useDudesIframe();
+
+watch(formValue, (form) => {
+	if (!form) return;
+	if (!form.nameBoxSettings.fill.length) return;
+	sendIframeMessage('settings', form);
+}, { deep: true });
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
@@ -64,6 +73,22 @@ function formatDuration(duration: number) {
 const fillGradientStops = computed(() => {
 	if (!formValue.value) return [];
 	return formValue.value.nameBoxSettings.fillGradientStops.map((stop) => `${stop}`);
+});
+
+const fillGradidentStopMessage = computed(() => {
+	if (!formValue.value.nameBoxSettings.fillGradientStops.length) {
+		return t('overlays.dudes.nameBoxFillGradientStopsError');
+	}
+
+	return '';
+});
+
+const nameBoxFillMessage = computed(() => {
+	if (!formValue.value.nameBoxSettings.fill.length) {
+		return t('overlays.dudes.nameBoxFillError');
+	}
+
+	return '';
 });
 
 const fontData = ref<Font | null>(null);
@@ -171,6 +196,14 @@ const isDropShadowDisabled = computed(() => {
 					/>
 				</n-form-item>
 
+				<n-form-item
+					class="form-item-switch"
+					:show-feedback="false"
+					:label="t('overlays.dudes.spitterEmoteEnabled')"
+				>
+					<n-switch v-model:value="formValue.spitterEmoteSettings.enabled" />
+				</n-form-item>
+
 				<n-divider title-placement="left">
 					{{ t('overlays.dudes.ignoreDivider') }}
 				</n-divider>
@@ -222,85 +255,97 @@ const isDropShadowDisabled = computed(() => {
 					{{ t('overlays.dudes.nameBoxDivider') }}
 				</n-divider>
 
-				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFill')">
-					<n-dynamic-tags
-						v-model:value="formValue.nameBoxSettings.fill"
-						:max="6"
-						:render-tag="(tag: string, index: number) => {
-							const rgb = hexToRgb(tag)
-							const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
-
-							return h(NTag, {
-								closable: true,
-								onClose: () => {
-									formValue.nameBoxSettings.fill.splice(index, 1)
-								},
-								style: {
-									'--n-close-icon-color': textColor,
-									'--n-close-icon-color-hover': textColor,
-								},
-								color: {
-									color: tag,
-									borderColor: tag,
-									textColor,
-								}
-							}, { default: () => tag })
-						}"
+				<n-form>
+					<n-form-item
+						:validation-status="nameBoxFillMessage ? 'error' : undefined"
+						:feedback="nameBoxFillMessage"
+						:label="t('overlays.dudes.nameBoxFill')"
 					>
-						<template #input="{ submit, deactivate }">
-							<n-color-picker
-								style="width: 80px;"
-								size="small"
-								default-show
-								:show-alpha="false"
-								:modes="['hex']"
-								:actions="['confirm']"
-								@confirm="submit($event)"
-								@update-show="deactivate"
-								@blur="deactivate"
-							/>
-						</template>
-					</n-dynamic-tags>
-				</n-form-item>
+						<n-dynamic-tags
+							v-model:value="formValue.nameBoxSettings.fill"
+							:max="6"
+							:render-tag="(tag: string, index: number) => {
+								const rgb = hexToRgb(tag)
+								const textColor = rgb && colorBrightness(rgb) > 128 ? '#000' : '#fff'
 
-				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameFillGradientStops')">
-					<n-dynamic-tags
-						v-model:value="fillGradientStops"
-						:render-tag="(tag: string, index: number) => {
-							return h(NTag, {
-								closable: true,
-								onClose: () => {
-									formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
-								}
-							}, { default: () => tag })
-						}"
-						:max="formValue.nameBoxSettings.fill.length"
-						@update:value="(values: string[]) => {
-							formValue.nameBoxSettings.fillGradientStops = values.map(Number)
-						}"
+								return h(NTag, {
+									closable: true,
+									onClose: () => {
+										formValue.nameBoxSettings.fill.splice(index, 1)
+									},
+									style: {
+										'--n-close-icon-color': textColor,
+										'--n-close-icon-color-hover': textColor,
+									},
+									color: {
+										color: tag,
+										borderColor: tag,
+										textColor,
+									}
+								}, { default: () => tag })
+							}"
+						>
+							<template #input="{ submit, deactivate }">
+								<n-color-picker
+									style="width: 80px;"
+									size="small"
+									default-show
+									:show-alpha="false"
+									:modes="['hex']"
+									:actions="['confirm']"
+									@confirm="submit($event)"
+									@update-show="deactivate"
+									@blur="deactivate"
+								/>
+							</template>
+						</n-dynamic-tags>
+					</n-form-item>
+				</n-form>
+
+				<n-form>
+					<n-form-item
+						:validation-status="fillGradidentStopMessage ? 'error' : undefined"
+						:feedback="fillGradidentStopMessage"
+						:label="t('overlays.dudes.nameBoxFillGradientStops')"
 					>
-						<template #input="{ submit, deactivate }">
-							<n-input-number
-								style="width: 100px;"
-								autofocus
-								placeholder=""
-								:max="1"
-								:min="0"
-								:step="0.01"
-								:default-value="0.1"
-								size="small"
-								:update-value-on-input="false"
-								:parse="(v) => {
-									const parsedNum = Number(v)
-									return Number.isNaN(parsedNum) ? 0 : parsedNum
-								}"
-								@keyup.enter="submit($event.target.value)"
-								@confirm="submit($event)"
-								@blur="deactivate"
-							/>
-						</template>
-					</n-dynamic-tags>
-				</n-form-item>
+						<n-dynamic-tags
+							v-model:value="fillGradientStops"
+							:render-tag="(tag: string, index: number) => {
+								return h(NTag, {
+									closable: true,
+									onClose: () => {
+										formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
+									}
+								}, { default: () => tag })
+							}"
+							:max="formValue.nameBoxSettings.fill.length"
+							@update:value="(values: string[]) => {
+								formValue.nameBoxSettings.fillGradientStops = values.map(Number)
+							}"
+						>
+							<template #input="{ submit, deactivate }">
+								<n-input-number
+									style="width: 100px;"
+									autofocus
+									placeholder=""
+									:max="1"
+									:min="0"
+									:step="0.01"
+									:default-value="0.1"
+									size="small"
+									:update-value-on-input="false"
+									:parse="(v) => {
+										const parsedNum = Number(v)
+										return Number.isNaN(parsedNum) ? 0 : parsedNum
+									}"
+									@keyup.enter="submit($event.target.value)"
+									@confirm="submit($event)"
+									@blur="deactivate"
+								/>
+							</template>
+						</n-dynamic-tags>
+					</n-form-item>
+				</n-form>
 
 				<n-form-item :label="t('overlays.dudes.nameBoxGradientType')">
 					<n-select

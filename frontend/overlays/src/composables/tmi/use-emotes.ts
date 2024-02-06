@@ -28,9 +28,10 @@ function isZeroWidthEmote(flags: number): boolean {
 	return flags === 1 << 0;
 }
 
-function bttvEmoteUrls(id: string): string[] {
+function bttvEmoteUrls(id: string, isAnimated: boolean): string[] {
+	const emoteExt = isAnimated ? 'gif' : 'webp';
 	return Array.from({ length: 3 }).map(
-		(_, index) => `https://cdn.betterttv.net/emote/${id}/${index + 1}x.webp`,
+		(_, index) => `https://cdn.betterttv.net/emote/${id}/${index + 1}x.${emoteExt}`,
 	);
 }
 
@@ -61,7 +62,7 @@ export const useEmotes = defineStore('emotes', () => {
 
 		for (const emote of emotesForParse) {
 			emotes.value[emote.code] = {
-				urls: bttvEmoteUrls(emote.id),
+				urls: bttvEmoteUrls(emote.id, emote.animated),
 				name: emote.code,
 				service: 'bttv',
 				height: emote.height,
@@ -98,9 +99,10 @@ export const useEmotes = defineStore('emotes', () => {
 	function updateSevenTvEmote(emote: SevenTvEmote): void {
 		const files = emote.data.host.files.filter((file) => file.format === 'WEBP');
 		const { height, width } = files.at(0)!;
+		const isAnimated = emote.data.animated;
 
 		emotes.value[emote.name] = {
-			urls: files.map((file) => `https:${emote.data.host.url}/${file.name}`),
+			urls: files.map((file) => `https:${emote.data.host.url}/${isAnimated ? file.name.replace('.webp', '.gif') : file.name}`),
 			isZeroWidth: isZeroWidthEmote(emote.flags),
 			name: emote.name,
 			service: '7tv',

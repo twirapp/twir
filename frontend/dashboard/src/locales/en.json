@@ -434,8 +434,9 @@
 			"ignoreUsersList": "List of ignored users",
 			"nameBoxDivider": "Name box",
 			"nameBoxFill": "Text colors",
-			"nameFillGradientStops": "Text colors of gradient stops",
-			"nameFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
+			"nameBoxFillError": "Color is required",
+			"nameBoxFillGradientStops": "Text colors of gradient stops",
+			"nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
 			"nameBoxGradientType": "Gradient type",
 			"nameBoxFontFamily": "Font family",
 			"nameBoxFontSize": "Font size",
@@ -459,7 +460,8 @@
 			"messageBoxBackground": "Background color",
 			"messageBoxPadding": "Padding",
 			"messageBoxBorderRadius": "Border radius",
-			"messageBoxFontSize": "Font size"
+			"messageBoxFontSize": "Font size",
+			"spitterEmoteEnabled": "Show twitch emotes"
 		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",

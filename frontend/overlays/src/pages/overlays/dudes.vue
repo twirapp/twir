@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import DudesOverlay from '@twirapp/dudes';
 import { storeToRefs } from 'pinia';
-import { onMounted, computed } from 'vue';
+import { onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import {
 	dudesAssets,
 	dudesSounds,
 } from '@/composables/dudes/dudes-config.js';
+import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js';
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
 import { useDudes } from '@/composables/dudes/use-dudes.js';
@@ -16,12 +17,24 @@ import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/t
 const route = useRoute();
 
 const dudesStore = useDudes();
-const { dudes } = storeToRefs(dudesStore);
+const { dudes, isDudeOverlayReady } = storeToRefs(dudesStore);
 
 const dudesSettingStore = useDudesSettings();
 const { channelData, dudesSettings } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
+
+const iframe = useDudesIframe();
+
+watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
+	if (!isReady || !settings || !dudes.value) return;
+	dudes.value.updateSettings(settings.dudes);
+
+	if (iframe.isIframe) {
+		iframe.spawnIframeDude();
+		dudesSocketStore.destroy();
+	}
+});
 
 function onMessage(chatMessage: ChatMessage): void {
 	if (!dudes.value || chatMessage.type === 'system') return;
@@ -64,10 +77,12 @@ onMounted(async () => {
 	const apiKey = route.params.apiKey as string;
 	const overlayId = route.params.id as string;
 	dudesSocketStore.connect(apiKey, overlayId);
+	iframe.connect();
 });
 
-onMounted(() => {
+onUnmounted(() => {
 	destroy();
+	iframe.destroy();
 });
 </script>
 

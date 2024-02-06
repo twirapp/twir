@@ -10,7 +10,7 @@ import type { UserData } from '@/types.js';
 
 export const useDudes = defineStore('dudes', () => {
 	const dudesSettigsStore = useDudesSettings();
-	const { channelData, dudesSettings } = storeToRefs(dudesSettigsStore);
+	const { dudesSettings } = storeToRefs(dudesSettigsStore);
 
 	const dudes = ref<DudesOverlayMethods | null>(null);
 	const isDudeReady = ref(false);
@@ -68,7 +68,7 @@ export const useDudes = defineStore('dudes', () => {
 			.map(getProxiedEmoteUrl);
 
 		if (emotes.length) {
-			dude.spitEmotes(emotes);
+			dude.spitEmotes([...new Set(emotes)]);
 		}
 	}
 
@@ -86,36 +86,10 @@ export const useDudes = defineStore('dudes', () => {
 		dudes.value.removeDude(displayName);
 	}
 
-	function createNewDudeFromIframe(): void {
-		if (!window.frameElement) return;
-
-		createDude(
-			'TWIR',
-			'#8a2be2',
-			[
-				{
-					type: 'text',
-					value: `Hello, ${channelData.value!.channelDisplayName}!`,
-				},
-				{
-					type: '3rd_party_emote',
-					value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/3x.webp',
-				},
-			],
-		);
-	}
-
 	watch(() => dudes.value, async (dudes) => {
 		if (!dudes) return;
 		await dudes.initDudes();
 		isDudeReady.value = true;
-	});
-
-	watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
-		if (!isReady || !settings || !dudes.value) return;
-		dudes.value.clearDudes();
-		dudes.value.updateSettings(settings.dudes);
-		createNewDudeFromIframe();
 	});
 
 	return {
@@ -124,7 +98,7 @@ export const useDudes = defineStore('dudes', () => {
 		deleteDude,
 		createDude,
 		showMessageDude,
-		createNewDudeFromIframe,
+		getProxiedEmoteUrl,
 		isDudeOverlayReady,
 	};
 });

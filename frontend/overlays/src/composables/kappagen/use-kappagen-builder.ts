@@ -42,8 +42,6 @@ export const useKappagenEmotesBuilder = (
 
 	// chat events
 	const buildSpawnEmotes = (chunks: MessageChunk[]) => {
-		console.log(chunks);
-
 		const emotes: Emote[] = [];
 
 		for (const chunk of chunks) {

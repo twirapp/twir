@@ -60,6 +60,9 @@ func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dude
 			IgnoreUsers:    entity.IgnoreUsers,
 			Users:          entity.IgnoredUsers,
 		},
+		SpitterEmoteSettings: &overlays_dudes.SpitterEmoteSettings{
+			Enabled: entity.SpitterEmoteEnabled,
+		},
 	}
 }
 
@@ -99,6 +102,7 @@ func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverl
 		IgnoreCommands:            settings.GetIgnoreSettings().GetIgnoreCommands(),
 		IgnoreUsers:               settings.GetIgnoreSettings().GetIgnoreUsers(),
 		IgnoredUsers:              append(pq.StringArray{}, settings.GetIgnoreSettings().GetUsers()...),
+		SpitterEmoteEnabled:       settings.GetSpitterEmoteSettings().GetEnabled(),
 	}
 }
 
