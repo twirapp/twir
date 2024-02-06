@@ -90,4 +90,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		dropShadowDistance: 1,
 		dropShadowColor: '#3AC7D9',
 	},
+	spitterEmoteSettings: {
+		enabled: true,
+	},
 };

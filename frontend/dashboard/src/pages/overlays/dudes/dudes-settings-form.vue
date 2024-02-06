@@ -40,7 +40,7 @@ const { sendIframeMessage } = useDudesIframe();
 watch(formValue, (form) => {
 	if (!form) return;
 	sendIframeMessage('settings', form);
-});
+}, { deep: true });
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;

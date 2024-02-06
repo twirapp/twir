@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia';
-import { ref, toRaw, watch } from 'vue';
-
-import { useDudesForm } from './use-dudes-form';
+import { ref, toRaw } from 'vue';
 
 export const useDudesIframe = defineStore('dudes-iframe', () => {
-	const { data } = useDudesForm();
 	const dudesIframe = ref<HTMLIFrameElement | null>(null);
 
 	function sendIframeMessage(action: string, data?: any) {
@@ -15,15 +12,6 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		});
 		dudesIframe.value.contentWindow?.postMessage(payload);
 	}
-
-	watch(dudesIframe, (iframe) => {
-		if (!iframe) return;
-		iframe.contentWindow?.addEventListener('message', (event) => {
-			const parsedData = JSON.parse(event.data);
-			if (parsedData.action !== 'get-settings') return;
-			sendIframeMessage('settings', data.value);
-		});
-	});
 
 	return {
 		dudesIframe,

@@ -16,9 +16,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	const dudesSettingsStore = useDudesSettings();
 
 	function onPostMessage(msg: MessageEvent<string>) {
-		console.log(msg);
-
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
+		console.log(parsedData);
 
 		if (parsedData.action === 'settings' && parsedData.data) {
 			const settings = parsedData.data as Settings;
@@ -39,14 +38,20 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 					},
 				},
 			});
+
+			return;
 		}
 
-		if (parsedData.action === 'jump') {
-			dudesStore.dudes?.getDude(dudesTwir)?.jump();
-		}
-
-		if (parsedData.action === 'spawn-emote') {
-			dudesStore.dudes?.getDude(dudesTwir)?.spitEmotes([]);
+		const dude = dudesStore.dudes?.getDude(dudesTwir);
+		if (parsedData.action === 'jump' && dude) {
+			dude.jump();
+		} else if (parsedData.action === 'spawn-emote' && dude) {
+			dude.spitEmotes([
+				'https://cdn.7tv.app/emote/613937fcf7977b64f644c0d2/1x.webp',
+				'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.webp',
+			]);
+		} else if (parsedData.action === 'show-message' && dude) {
+			dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}!`);
 		}
 	}
 
@@ -60,10 +65,6 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 					type: 'text',
 					value: `Hello, ${dudesSettingsStore.channelData!.channelDisplayName}!`,
 				},
-				{
-					type: '3rd_party_emote',
-					value: 'https://cdn.7tv.app/emote/63706216d49eb6644629aa52/1x.gif',
-				},
 			],
 		);
 	}
@@ -71,7 +72,6 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	function create() {
 		if (!isIframe) return;
 		window.addEventListener('message', onPostMessage);
-		window.parent.postMessage(JSON.stringify({ action: 'get-settings' }));
 	}
 
 	function destroy() {
