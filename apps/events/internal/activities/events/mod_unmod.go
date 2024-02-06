@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -18,6 +19,8 @@ func (c *Activity) ModOrUnmod(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedName, hydrationErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID, operation.Input.String,
 		data,
@@ -28,8 +31,8 @@ func (c *Activity) ModOrUnmod(
 
 	hydratedName = strings.TrimSpace(strings.ReplaceAll(hydratedName, "@", ""))
 
-	errWg, errWgCtx := errgroup.WithContext(ctx)
-	twitchClient, twitchClientErr := c.getHelixChannelApiClient(errWgCtx, data.ChannelID)
+	var errWg errgroup.Group
+	twitchClient, twitchClientErr := c.getHelixChannelApiClient(ctx, data.ChannelID)
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -63,7 +66,7 @@ func (c *Activity) ModOrUnmod(
 
 	errWg.Go(
 		func() error {
-			ch, err := c.getChannelDbEntity(errWgCtx, data.ChannelID)
+			ch, err := c.getChannelDbEntity(ctx, data.ChannelID)
 			if err != nil {
 				return err
 			}
@@ -132,6 +135,8 @@ func (c *Activity) UnmodRandom(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	dbChannel, dbChannelErr := c.getChannelDbEntity(ctx, data.ChannelID)
 	if dbChannelErr != nil {
 		return dbChannelErr

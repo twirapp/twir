@@ -71,6 +71,7 @@ const (
 	OperationTriggerAlert             EventOperationType = "TRIGGER_ALERT"
 	OperationSevenTvAddEmote          EventOperationType = "SEVENTV_ADD_EMOTE"
 	OperationSevenTvRemoveEmote       EventOperationType = "SEVENTV_REMOVE_EMOTE"
+	OperationRaidChannel              EventOperationType = "RAID_CHANNEL"
 )
 
 type EventOperation struct {

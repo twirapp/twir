@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/bots"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) SendMessage(
@@ -15,6 +16,8 @@ func (c *Activity) SendMessage(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	msg, err := c.hydrator.HydrateStringWithData(data.ChannelID, operation.Input.String, data)
 	if err != nil {
 		return fmt.Errorf("cannot hydrate string %w", err)

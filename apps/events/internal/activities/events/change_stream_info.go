@@ -8,6 +8,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) ChangeCategory(
@@ -15,6 +16,8 @@ func (c *Activity) ChangeCategory(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedCategory, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Input.String,
@@ -68,6 +71,8 @@ func (c *Activity) ChangeTitle(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	hydratedTitle, err := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
 		operation.Input.String,
