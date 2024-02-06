@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DudesOverlay from '@twirapp/dudes';
 import { storeToRefs } from 'pinia';
-import { onMounted, computed, watch } from 'vue';
+import { onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import {
@@ -24,19 +24,14 @@ const { channelData, dudesSettings } = storeToRefs(dudesSettingStore);
 
 const dudesSocketStore = useDudesSocket();
 
-const {
-	isIframe,
-	spawnIframeDude,
-	create: createIframeConnection,
-	destroy: destroyIframeConnection,
-} = useDudesIframe();
+const iframe = useDudesIframe();
 
 watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 	if (!isReady || !settings || !dudes.value) return;
 	dudes.value.updateSettings(settings.dudes);
 
-	if (isIframe) {
-		spawnIframeDude();
+	if (iframe.isIframe) {
+		iframe.spawnIframeDude();
 		dudesSocketStore.destroy();
 	}
 });
@@ -82,12 +77,12 @@ onMounted(async () => {
 	const apiKey = route.params.apiKey as string;
 	const overlayId = route.params.id as string;
 	dudesSocketStore.connect(apiKey, overlayId);
-	createIframeConnection();
+	iframe.connect();
 });
 
-onMounted(() => {
+onUnmounted(() => {
 	destroy();
-	destroyIframeConnection();
+	iframe.destroy();
 });
 </script>
 

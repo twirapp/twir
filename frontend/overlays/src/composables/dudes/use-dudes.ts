@@ -98,6 +98,7 @@ export const useDudes = defineStore('dudes', () => {
 		deleteDude,
 		createDude,
 		showMessageDude,
+		getProxiedEmoteUrl,
 		isDudeOverlayReady,
 	};
 });

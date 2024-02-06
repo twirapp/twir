@@ -69,39 +69,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 				channelDisplayName: data.channelDisplayName,
 			});
 
-			const fontFamily = await loadFont(
-				data.nameBoxSettings.fontFamily,
-				data.nameBoxSettings.fontWeight,
-				data.nameBoxSettings.fontStyle,
-			);
-
-			updateSettings({
-				ignore: data.ignoreSettings,
-				dudes: {
-					dude: {
-						...data.dudeSettings,
-						sounds: {
-							...soundsDefaults,
-							enabled: data.dudeSettings.soundsEnabled,
-							volume: data.dudeSettings.soundsVolume,
-						},
-					},
-					name: {
-						...nameBoxDefaults,
-						...data.nameBoxSettings,
-						fontFamily,
-					},
-					message: {
-						...messageBoxDefaults,
-						...data.messageBoxSettings,
-						fontFamily,
-					},
-					spitter: {
-						...spitterEmoteDefaults,
-						...data.spitterEmoteSettings,
-					},
-				},
-			});
+			updateSettingFromSocket(data);
 		}
 
 		if (parsedData.eventName === 'jump') {
@@ -119,6 +87,42 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudes.value.removeDude(data.userDisplayName);
 		}
 	});
+
+	async function updateSettingFromSocket(data: Required<Settings>) {
+		const fontFamily = await loadFont(
+			data.nameBoxSettings.fontFamily,
+			data.nameBoxSettings.fontWeight,
+			data.nameBoxSettings.fontStyle,
+		);
+
+		updateSettings({
+			ignore: data.ignoreSettings,
+			dudes: {
+				dude: {
+					...data.dudeSettings,
+					sounds: {
+						...soundsDefaults,
+						enabled: data.dudeSettings.soundsEnabled,
+						volume: data.dudeSettings.soundsVolume,
+					},
+				},
+				name: {
+					...nameBoxDefaults,
+					...data.nameBoxSettings,
+					fontFamily,
+				},
+				message: {
+					...messageBoxDefaults,
+					...data.messageBoxSettings,
+					fontFamily,
+				},
+				spitter: {
+					...spitterEmoteDefaults,
+					...data.spitterEmoteSettings,
+				},
+			},
+		});
+	}
 
 	function destroy(): void {
 		if (status.value === 'OPEN') {
@@ -138,5 +142,6 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	return {
 		destroy,
 		connect,
+		updateSettingFromSocket,
 	};
 });
