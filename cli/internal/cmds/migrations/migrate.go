@@ -51,7 +51,10 @@ var MigrateCmd = &cli.Command{
 
 		log.SetOutput(&emptyLogWriter{})
 
-		if err := goose.Up(db, migrationsDir); err != nil {
+		if err := goose.Up(
+			db, migrationsDir,
+			goose.WithAllowMissing(),
+		); err != nil {
 			pterm.Error.Println(err)
 			return err
 		}
