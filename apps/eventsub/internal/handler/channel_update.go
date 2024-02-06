@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
@@ -10,18 +11,17 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/pubsub"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleChannelUpdate(
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate,
+	_ *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelUpdate,
 ) {
-	defer zap.S().Infow(
+	c.logger.Info(
 		"channel update",
-		"title", event.Title,
-		"category", event.CategoryName,
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
+		slog.String("title", event.Title),
+		slog.String("category", event.CategoryName),
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
 	pbMessage := pubsub.StreamUpdateMessage{
@@ -31,12 +31,12 @@ func (c *Handler) handleChannelUpdate(
 	}
 	bytes, err := json.Marshal(pbMessage)
 	if err != nil {
-		zap.S().Errorw("failed to marshal message", "error", err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
-	c.services.PubSub.Publish("stream.update", bytes)
+	c.pubSub.Client.Publish("stream.update", bytes)
 
-	c.services.Grpc.Events.TitleOrCategoryChanged(
+	c.eventsGrpc.TitleOrCategoryChanged(
 		context.Background(), &events.TitleOrCategoryChangedMessage{
 			BaseInfo:    &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			NewTitle:    event.Title,
@@ -44,7 +44,7 @@ func (c *Handler) handleChannelUpdate(
 		},
 	)
 
-	err = c.services.Gorm.Create(
+	err = c.gorm.Create(
 		&model.ChannelInfoHistory{
 			ID:        uuid.New().String(),
 			Category:  event.CategoryName,
@@ -55,10 +55,10 @@ func (c *Handler) handleChannelUpdate(
 	).Error
 
 	if err != nil {
-		zap.S().Errorw("failed to save channel info history", "error", err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	err = c.services.Gorm.
+	err = c.gorm.
 		Model(&model.ChannelsStreams{}).
 		Where(`"userId" = ?`, event.BroadcasterUserID).
 		Updates(
@@ -68,6 +68,6 @@ func (c *Handler) handleChannelUpdate(
 			},
 		).Error
 	if err != nil {
-		zap.S().Errorw("failed to update channel stream", "error", err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }

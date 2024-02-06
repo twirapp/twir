@@ -50,10 +50,14 @@ func New() (*GoApps, error) {
 func (c *GoApps) Start(ctx context.Context) error {
 	for _, app := range c.apps {
 		app := app
-		pterm.Info.Println("Starting " + app.name)
 
-		if err := app.start(); err != nil {
-			return err
+		for i := 0; i < 3; i++ {
+			pterm.Info.Println("Starting " + app.name)
+			if err := app.start(); err != nil {
+				return err
+			}
+
+			break
 		}
 
 		go func() {
@@ -63,6 +67,7 @@ func (c *GoApps) Start(ctx context.Context) error {
 			}
 
 			for range chann {
+				pterm.Info.Println("ReStarting " + app.name)
 				if err := app.start(); err != nil {
 					pterm.Error.Println(err)
 				}

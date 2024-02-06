@@ -1,45 +1,121 @@
 package handler
 
 import (
+	"context"
+	"errors"
+	"net"
+	"net/http"
+
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
-	"github.com/satont/twir/apps/eventsub/internal/types"
+	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/eventsub/internal/manager"
+	"github.com/satont/twir/apps/eventsub/internal/pubsub"
+	"github.com/satont/twir/apps/eventsub/internal/tunnel"
+	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/grpc/websockets"
+	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Handler struct {
-	Manager  *eventsub_framework.SubHandler
-	services *types.Services
+	manager *manager.Manager
+
+	logger      logger.Logger
+	config      cfg.Config
+	pubSub      *pubsub.PubSub
+	gorm        *gorm.DB
+	redisClient *redis.Client
+
+	eventsGrpc     events.EventsClient
+	botsGrpc       bots.BotsClient
+	parserGrpc     parser.ParserClient
+	websocketsGrpc websockets.WebsocketClient
+	tokensGrpc     tokens.TokensClient
 }
 
-func NewHandler(services *types.Services) *Handler {
-	manager := eventsub_framework.NewSubHandler(true, []byte(services.Config.TwitchClientSecret))
+type Opts struct {
+	fx.In
+	Lc fx.Lifecycle
+
+	Config  cfg.Config
+	Tunn    *tunnel.AppTunnel
+	Manager *manager.Manager
+	Logger  logger.Logger
+	PubSub  *pubsub.PubSub
+	Gorm    *gorm.DB
+	Redis   *redis.Client
+
+	EventsGrpc     events.EventsClient
+	BotsGrpc       bots.BotsClient
+	ParserGrpc     parser.ParserClient
+	WebsocketsGrpc websockets.WebsocketClient
+	TokensGrpc     tokens.TokensClient
+}
+
+func New(opts Opts) *Handler {
+	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
 
 	myHandler := &Handler{
-		Manager:  manager,
-		services: services,
+		manager:        opts.Manager,
+		logger:         opts.Logger,
+		config:         opts.Config,
+		pubSub:         opts.PubSub,
+		gorm:           opts.Gorm,
+		redisClient:    opts.Redis,
+		eventsGrpc:     opts.EventsGrpc,
+		botsGrpc:       opts.BotsGrpc,
+		parserGrpc:     opts.ParserGrpc,
+		websocketsGrpc: opts.WebsocketsGrpc,
+		tokensGrpc:     opts.TokensGrpc,
 	}
 
-	manager.HandleChannelUpdate = myHandler.handleChannelUpdate
-	manager.HandleStreamOnline = myHandler.handleStreamOnline
-	manager.HandleStreamOffline = myHandler.handleStreamOffline
-	manager.HandleUserUpdate = myHandler.handleUserUpdate
-	manager.HandleChannelFollow = myHandler.handleChannelFollow
-	manager.HandleChannelModeratorAdd = myHandler.handleChannelModeratorAdd
-	manager.HandleChannelModeratorRemove = myHandler.handleChannelModeratorRemove
-	manager.HandleChannelPointsRewardRedemptionAdd = myHandler.handleChannelPointsRewardRedemptionAdd
-	manager.HandleChannelPointsRewardRedemptionUpdate = myHandler.handleChannelPointsRewardRedemptionUpdate
-	manager.HandleChannelPollBegin = myHandler.handleChannelPollBegin
-	manager.HandleChannelPollProgress = myHandler.handleChannelPollProgress
-	manager.HandleChannelPollEnd = myHandler.handleChannelPollEnd
-	manager.HandleChannelPredictionBegin = myHandler.handleChannelPredictionBegin
-	manager.HandleChannelPredictionProgress = myHandler.handleChannelPredictionProgress
-	manager.HandleChannelPredictionLock = myHandler.handleChannelPredictionLock
-	manager.HandleChannelPredictionEnd = myHandler.handleChannelPredictionEnd
-	manager.HandleChannelBan = myHandler.handleBan
-	manager.HandleChannelSubscribe = myHandler.handleChannelSubscribe
-	manager.HandleChannelSubscriptionMessage = myHandler.handleChannelSubscriptionMessage
-	manager.HandleChannelRaid = myHandler.handleChannelRaid
-	manager.HandleChannelChatClear = myHandler.handleChannelChatClear
-	manager.HandleChannelChatNotification = myHandler.handleChannelChatNotification
+	handler.HandleChannelUpdate = myHandler.handleChannelUpdate
+	handler.HandleStreamOnline = myHandler.handleStreamOnline
+	handler.HandleStreamOffline = myHandler.handleStreamOffline
+	handler.HandleUserUpdate = myHandler.handleUserUpdate
+	handler.HandleChannelFollow = myHandler.handleChannelFollow
+	handler.HandleChannelModeratorAdd = myHandler.handleChannelModeratorAdd
+	handler.HandleChannelModeratorRemove = myHandler.handleChannelModeratorRemove
+	handler.HandleChannelPointsRewardRedemptionAdd = myHandler.handleChannelPointsRewardRedemptionAdd
+	handler.HandleChannelPointsRewardRedemptionUpdate = myHandler.handleChannelPointsRewardRedemptionUpdate
+	handler.HandleChannelPollBegin = myHandler.handleChannelPollBegin
+	handler.HandleChannelPollProgress = myHandler.handleChannelPollProgress
+	handler.HandleChannelPollEnd = myHandler.handleChannelPollEnd
+	handler.HandleChannelPredictionBegin = myHandler.handleChannelPredictionBegin
+	handler.HandleChannelPredictionProgress = myHandler.handleChannelPredictionProgress
+	handler.HandleChannelPredictionLock = myHandler.handleChannelPredictionLock
+	handler.HandleChannelPredictionEnd = myHandler.handleChannelPredictionEnd
+	handler.HandleChannelBan = myHandler.handleBan
+	handler.HandleChannelSubscribe = myHandler.handleChannelSubscribe
+	handler.HandleChannelSubscriptionMessage = myHandler.handleChannelSubscriptionMessage
+	handler.HandleChannelRaid = myHandler.handleChannelRaid
+	handler.HandleChannelChatClear = myHandler.handleChannelChatClear
+	handler.HandleChannelChatNotification = myHandler.handleChannelChatNotification
+	handler.HandleChannelChatMessage = myHandler.handleChannelChatMessage
+
+	opts.Lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				go func() {
+					if err := http.Serve(opts.Tunn, handler); err != nil && !errors.Is(
+						err,
+						net.ErrClosed,
+					) {
+						panic(err)
+					}
+				}()
+
+				opts.Logger.Info("Handler started")
+
+				return nil
+			},
+		},
+	)
 
 	return myHandler
 }

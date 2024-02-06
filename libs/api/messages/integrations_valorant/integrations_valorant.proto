@@ -2,10 +2,15 @@ syntax = "proto3";
 option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_valorant";
 package messages.integrations_valorant;
 
-message GetResponse {
-	optional string user_name = 1;
+message GetAuthLink {
+	string link = 1;
 }
 
-message PostRequest {
-	string user_name = 2;
+message GetDataResponse {
+	optional string user_name = 1;
+	optional string avatar = 2;
+}
+
+message PostCodeRequest {
+	string code = 1;
 }

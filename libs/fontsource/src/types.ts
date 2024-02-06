@@ -1,14 +1,3 @@
-export type FontVariants =
-  | '100'
-  | '200'
-  | '300'
-  | '400'
-  | '500'
-  | '600'
-  | '700'
-  | '800'
-  | '900'
-
 export type FontStyle = 'normal' | 'italic'
 export type FontSubset = 'latin' | 'cyrillic' | string
 export type FontType = 'woff2' | 'woff'
@@ -28,8 +17,8 @@ export interface FontItem {
 }
 
 export type FontVariant = {
-  [key in FontVariants]: {
-    [key in FontStyle]: {
+  [weight: string]: {
+    [style: string]: {
       [key in FontSubset]: {
         url: {
           [key in FontType]: string

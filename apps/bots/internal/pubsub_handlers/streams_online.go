@@ -8,7 +8,7 @@ import (
 	"github.com/satont/twir/libs/pubsub"
 )
 
-func (c *handlers) streamsOnline(data []byte) {
+func (c *PubSubHandlers) streamsOnline(data []byte) {
 	streamOnlineStruct := &pubsub.StreamOnlineMessage{}
 	if err := json.Unmarshal(data, &streamOnlineStruct); err != nil {
 		c.logger.Error("cannot unmarshal incoming data", slog.Any("err", err))
@@ -17,7 +17,10 @@ func (c *handlers) streamsOnline(data []byte) {
 
 	channel := model.Channels{}
 	if err := c.db.Where("id = ?", streamOnlineStruct.ChannelID).Find(&channel).Error; err != nil {
-		c.logger.Error("cannot find channel", slog.String("channelId", streamOnlineStruct.ChannelID))
+		c.logger.Error(
+			"cannot find channel",
+			slog.String("channelId", streamOnlineStruct.ChannelID),
+		)
 		return
 	}
 
@@ -30,7 +33,8 @@ func (c *handlers) streamsOnline(data []byte) {
 		Update("processed", false).Error
 	if err != nil {
 		c.logger.Error(
-			"cannot update channel greetings", slog.String("channelId", streamOnlineStruct.ChannelID),
+			"cannot update channel greetings",
+			slog.String("channelId", streamOnlineStruct.ChannelID),
 			slog.Any("err", err),
 		)
 	}

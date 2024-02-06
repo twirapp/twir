@@ -28,13 +28,14 @@ var Matches = &types.Variable{
 			},
 		)
 
-		if !ok || integration.Data == nil || integration.Data.UserName == nil {
-			return nil, nil
+		if !ok || integration.Data == nil || integration.Data.UserName == nil ||
+			integration.Data.ValorantPuuid == nil {
+			return &result, nil
 		}
 
 		matches := parseCtx.Cacher.GetValorantMatches(ctx)
 		if len(matches) == 0 {
-			return nil, nil
+			return &result, nil
 		}
 
 		var trend []string
@@ -46,7 +47,7 @@ var Matches = &types.Variable{
 
 			player, ok := lo.Find(
 				match.Players.AllPlayers, func(el types.ValorantMatchPlayer) bool {
-					return fmt.Sprintf("%s#%s", el.Name, el.Tag) == *integration.Data.UserName
+					return el.Puuid == *integration.Data.ValorantPuuid
 				},
 			)
 

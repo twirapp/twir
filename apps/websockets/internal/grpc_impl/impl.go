@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
@@ -19,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
@@ -45,6 +47,7 @@ type GrpcImpl struct {
 	chatServer             *chat.Chat
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
+	dudesServer            *dudes.Dudes
 }
 
 type GrpcOpts struct {
@@ -63,6 +66,7 @@ type GrpcOpts struct {
 	ChatServer             *chat.Chat
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
+	DudesServer            *dudes.Dudes
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -78,6 +82,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		chatServer:             opts.ChatServer,
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
+		dudesServer:            opts.DudesServer,
 	}
 
 	grpcServer := grpc.NewServer()
@@ -102,4 +107,39 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 	)
 
 	return impl, nil
+}
+
+func (c *GrpcImpl) RefreshOverlaySettings(
+	_ context.Context,
+	req *websockets.RefreshOverlaysRequest,
+) (
+	*emptypb.Empty,
+	error,
+) {
+	var err error
+
+	switch req.GetOverlayName() {
+	case websockets.RefreshOverlaySettingsName_CUSTOM:
+		err = c.overlaysRegistryServer.SendEvent(
+			req.GetChannelId(),
+			"refreshOverlays",
+			nil,
+		)
+	case websockets.RefreshOverlaySettingsName_KAPPAGEN:
+		err = c.kappagenServer.SendSettings(req.GetChannelId())
+	case websockets.RefreshOverlaySettingsName_BRB:
+		err = c.beRightBackServer.SendSettings(req.GetChannelId())
+	case websockets.RefreshOverlaySettingsName_DUDES:
+		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
+	case websockets.RefreshOverlaySettingsName_CHAT:
+		err = c.chatServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
+	default:
+		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
+	}
+
+	if err != nil {
+		c.logger.Error(err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

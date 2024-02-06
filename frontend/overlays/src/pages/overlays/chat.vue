@@ -12,10 +12,6 @@ import {
 	useChatTmi,
 	knownBots,
 } from '@/composables/tmi/use-chat-tmi.js';
-import {
-	useThirdPartyEmotes,
-	type ThirdPartyEmotesOptions,
-} from '@/composables/tmi/use-third-party-emotes.js';
 
 const route = useRoute();
 
@@ -24,18 +20,6 @@ const maxMessages = ref(30);
 
 const chatSocketStore = useChatOverlaySocket();
 const { settings } = storeToRefs(chatSocketStore);
-
-const emotesOptions = computed<ThirdPartyEmotesOptions>(() => {
-	return {
-		channelName: settings.value.channelName,
-		channelId: settings.value.channelId,
-		ffz: true,
-		bttv: true,
-		sevenTv: true,
-	};
-});
-
-useThirdPartyEmotes(emotesOptions);
 
 const removeMessageByInternalId = (id: string) => {
 	messages.value = messages.value.filter(m => m.internalId !== id);
@@ -87,6 +71,11 @@ const chatSettings = computed<ChatSettings>(() => {
 	return {
 		channelId: settings.value.channelId,
 		channelName: settings.value.channelName,
+		emotes: {
+			ffz: true,
+			bttv: true,
+			sevenTv: true,
+		},
 		onMessage,
 		onRemoveMessage: removeMessageById,
 		onRemoveMessageByUser: removeMessageByUserName,

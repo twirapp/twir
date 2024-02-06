@@ -69,6 +69,9 @@ const (
 	OperationTTSEnableAutoRead        EventOperationType = "TTS_ENABLE_AUTOREAD"
 	OperationTTSDisableAutoRead       EventOperationType = "TTS_DISABLE_AUTOREAD"
 	OperationTriggerAlert             EventOperationType = "TRIGGER_ALERT"
+	OperationSevenTvAddEmote          EventOperationType = "SEVENTV_ADD_EMOTE"
+	OperationSevenTvRemoveEmote       EventOperationType = "SEVENTV_REMOVE_EMOTE"
+	OperationRaidChannel              EventOperationType = "RAID_CHANNEL"
 )
 
 type EventOperation struct {

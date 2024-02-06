@@ -48,45 +48,25 @@ export const useChatOverlaySocket = defineStore('chat-socket', () => {
 	);
 
 	watch(data, (d: string) => {
-		const event = JSON.parse(d) as TwirWebSocketEvent;
-
+		const event = JSON.parse(d) as TwirWebSocketEvent<Settings>;
 		if (event.eventName === 'settings') {
 			if (overlayId.value && event.data.id !== overlayId.value) return;
 
 			const data = event.data;
 
-			for (const badge of data.global_badges) {
+			settings.value = {
+				...data,
+				globalBadges: new Map(),
+				channelBadges: new Map(),
+			};
+
+			for (const badge of Object.values(data.globalBadges)) {
 				settings.value.globalBadges.set(badge.set_id, badge);
 			}
 
-			for (const badge of data.channel_badges) {
-				for (const version of badge.versions) {
-					settings.value.channelBadges.set(
-						`${badge.set_id}-${version.id}`,
-						version,
-					);
-				}
+			for (const [setId, version] of Object.entries(data.channelBadges)) {
+				settings.value.channelBadges.set(setId, version);
 			}
-
-			settings.value.channelId = data.channel_id;
-			settings.value.channelName = data.channel_name;
-			settings.value.channelDisplayName = data.channel_display_name;
-			settings.value.messageHideTimeout = data.message_hide_timeout;
-			settings.value.messageShowDelay = data.message_show_delay;
-			settings.value.preset = data.preset;
-			settings.value.fontSize = data.font_size;
-			settings.value.hideBots = data.hide_bots;
-			settings.value.hideCommands = data.hide_commands;
-			settings.value.fontFamily = data.font_family;
-			settings.value.showAnnounceBadge = data.show_announce_badge;
-			settings.value.showBadges = data.show_badges;
-			settings.value.textShadowColor = data.text_shadow_color;
-			settings.value.textShadowSize = data.text_shadow_size;
-			settings.value.chatBackgroundColor = data.chat_background_color;
-			settings.value.direction = data.direction;
-			settings.value.fontStyle = data.font_style;
-			settings.value.fontWeight = data.font_weight;
-			settings.value.paddingContainer = data.padding_container;
 		}
 	});
 

@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
 	"github.com/satont/twir/apps/api/internal/interceptors"
+	"github.com/satont/twir/apps/api/internal/proxy"
 	"github.com/satont/twir/apps/api/internal/sessions"
 	"github.com/satont/twir/apps/api/internal/twirp_handlers"
 	"github.com/satont/twir/apps/api/internal/webhooks"
@@ -108,8 +109,9 @@ var App = fx.Options(
 				return nil, err
 			}
 			d, _ := db.DB()
-			d.SetMaxOpenConns(5)
-			d.SetConnMaxIdleTime(1 * time.Minute)
+			d.SetMaxIdleConns(1)
+			d.SetMaxOpenConns(10)
+			d.SetConnMaxLifetime(time.Hour)
 
 			lc.Append(
 				fx.Hook{
@@ -129,6 +131,7 @@ var App = fx.Options(
 		handlers.AsHandler(webhooks.NewDonateStream),
 		handlers.AsHandler(webhooks.NewDonatello),
 		handlers.AsHandler(files.NewFiles),
+		handlers.AsHandler(proxy.New),
 		fx.Annotate(
 			func(handlers []handlers.IHandler) *http.ServeMux {
 				mux := http.NewServeMux()

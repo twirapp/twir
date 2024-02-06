@@ -2,11 +2,12 @@ package gorm
 
 import (
 	"context"
+	"time"
+
 	cfg "github.com/satont/twir/libs/config"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"time"
 )
 
 func New(config cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
@@ -19,8 +20,9 @@ func New(config cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.SetMaxOpenConns(2)
-	d.SetConnMaxIdleTime(1 * time.Minute)
+	d.SetMaxIdleConns(1)
+	d.SetMaxOpenConns(10)
+	d.SetConnMaxLifetime(time.Hour)
 
 	lc.Append(
 		fx.Hook{

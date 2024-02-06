@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
-	"time"
 
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	"github.com/satont/twir/libs/logger"
@@ -13,7 +12,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/timers"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -41,13 +39,7 @@ func New(opts Opts) error {
 	if err != nil {
 		return err
 	}
-	grpcServer := grpc.NewServer(
-		grpc.KeepaliveParams(
-			keepalive.ServerParameters{
-				MaxConnectionAge: 1 * time.Minute,
-			},
-		),
-	)
+	grpcServer := grpc.NewServer()
 	timers.RegisterTimersServer(grpcServer, s)
 
 	opts.Lc.Append(

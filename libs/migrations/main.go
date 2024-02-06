@@ -36,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := goose.Up(db, "migrations"); err != nil {
+	if err := goose.Up(db, "migrations", goose.WithAllowMissing()); err != nil {
 		panic(err)
 	}
 

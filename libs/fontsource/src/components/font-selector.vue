@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { SelectOption } from 'naive-ui';
 import { NSelect } from 'naive-ui';
 import { computed, watch, h, ref } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { generateFontKey } from '../api.js';
@@ -12,43 +12,39 @@ const props = defineProps<{
 	fontFamily: string
 	fontWeight: number
 	fontStyle: string
-}>();
-
-const emits = defineEmits<{
-	'update-font': [font: Font]
+	subsets?: string[]
 }>();
 
 const { t } = useI18n();
 const fontSource = useFontSource();
+const font = defineModel<Font | null>('font');
 
+const selectedFont = ref<string>('');
 const availableSubsets = ref<Set<string>>(new Set());
-const filteredSubsets = ref<string[]>([]);
+const filteredSubsets = ref<string[]>(props.subsets ?? []);
 
-watch(fontSource.fontList, (v) => {
-	if (!v) return;
+watch(() => fontSource.fontList.value, (fonts) => {
+	if (!fonts) return;
 
-	for (const font of v) {
+	for (const font of fonts) {
 		for (const subset of font.subsets) {
 			availableSubsets.value.add(subset);
 		}
 	}
 });
 
-// eslint-disable-next-line no-undef
-const selectedFont = defineModel<string>('selectedFont', { default: '' });
-
-watch(selectedFont, (v) => {
-	if (!v) return;
-	const font = fontSource.getFont(v);
-	if (!font) return;
-	emits('update-font', font);
+watch(() => selectedFont.value, (selectedFont) => {
+	font.value = fontSource.getFont(selectedFont);
 });
 
-watch(() => props.fontFamily, (v) => {
-	selectedFont.value = v;
-});
+type FontOption = {
+	label: string
+	value: string
+	fontWeight: number
+	fontStyle: string
+};
 
-const fontOptions = computed((): SelectOption[] => {
+const fontOptions = computed((): FontOption[] => {
 	return fontSource.fontList.value
 		.filter((font) => {
 			if (!filteredSubsets.value.length) return true;
@@ -57,6 +53,8 @@ const fontOptions = computed((): SelectOption[] => {
 		.map((font) => ({
 			label: font.family,
 			value: font.id,
+			fontWeight: font.weights.includes(400) ? 400 : font.weights[0],
+			fontStyle: font.styles.includes('normal') ? 'normal' : font.styles[0],
 		}));
 });
 
@@ -65,18 +63,28 @@ const availableSubsetsOptions = computed(() => {
 		.map(subset => ({ label: subset, value: subset }));
 });
 
-function renderLabel(option: SelectOption) {
+function renderLabel(option: FontOption) {
 	if (!fontSource.loading.value) {
-		fontSource.loadFont(option.value as string, props.fontWeight, props.fontStyle);
+		fontSource.loadFont(option.value, option.fontWeight, option.fontStyle);
 	}
 
-	const fontFamily = generateFontKey(option.value as string, props.fontWeight, props.fontStyle);
+	const fontFamily = generateFontKey(option.value!, option.fontWeight, option.fontStyle);
 	return h(
 		'div',
 		{ style: { 'font-family': `"${fontFamily}"` } },
 		{ default: () => option.label },
 	);
 }
+
+onMounted(async () => {
+	const loadedFont = await fontSource
+		.loadFont(props.fontFamily, props.fontWeight, props.fontStyle);
+
+	if (loadedFont) {
+		font.value = loadedFont;
+		selectedFont.value = loadedFont.id;
+	}
+});
 </script>
 
 <template>
@@ -89,7 +97,7 @@ function renderLabel(option: SelectOption) {
 		:disabled="fontSource.loading.value"
 		check-strategy="child"
 	>
-		<template #action>
+		<template v-if="!props.subsets" #action>
 			{{ t('overlays.chat.availabeFonts') }}: {{ fontOptions.length }}
 			<n-select
 				v-model:value="filteredSubsets"

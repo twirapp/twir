@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const getEmoteWidth = (isGrowX: boolean, width?: number) => {
 	if (isGrowX) {
-		return `${width ? width * 2 : 50}px`;
+		return `${width ? `${width * 2}px` : 'auto'}`;
 	}
 
 	if (width) {
@@ -49,10 +49,7 @@ const mappedChunks = props.chunks.reduce((acc, chunk) => {
 				class="emote"
 			>
 				<img
-					:src="chunk.type === 'emote'
-						? `https://static-cdn.jtvnw.net/emoticons/v2/${chunk.value}/default/dark/1.0`
-						: chunk.value
-					"
+					:src="chunk.value"
 					:class="{
 						'emote-cursed': chunk.flags?.includes(EmoteFlag.Cursed),
 						'flipX': chunk.flags?.includes(EmoteFlag.FlipX),

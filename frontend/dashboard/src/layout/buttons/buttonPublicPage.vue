@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconShare } from '@tabler/icons-vue';
+import { IconExternalLink } from '@tabler/icons-vue';
 import { NButton, NTooltip } from 'naive-ui';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -29,7 +29,7 @@ const publicPageHref = computed<string>(() => {
 	<n-tooltip>
 		<template #trigger>
 			<n-button tag="a" circle quaternary target="_blank" :href="publicPageHref">
-				<IconShare />
+				<IconExternalLink/>
 			</n-button>
 		</template>
 		{{ t('navbar.publicPage') }}

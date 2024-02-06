@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<{
 	modalWidth?: string,
 	iconWidth?: string,
 	isLoading?: boolean,
+	saveDisabled?: boolean
 }>(), {
 	modalWidth: '600px',
 });
@@ -102,7 +103,7 @@ onUnmounted(() => showSettings.value = false);
 				<n-button secondary @click="showSettings = false">
 					{{ t('sharedButtons.close') }}
 				</n-button>
-				<n-button v-if="save" secondary type="success" @click="callSave">
+				<n-button v-if="save" secondary type="success" :disabled="saveDisabled" @click="callSave">
 					{{ t('sharedButtons.save') }}
 				</n-button>
 			</n-space>

@@ -118,9 +118,10 @@ func (c *Overlays) OverlayBeRightBackUpdate(
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}
 
-	c.Grpc.Websockets.RefreshBrbSettings(
-		ctx, &websockets.RefreshBrbSettingsRequest{
-			ChannelId: dashboardId,
+	c.Grpc.Websockets.RefreshOverlaySettings(
+		ctx, &websockets.RefreshOverlaysRequest{
+			ChannelId:   dashboardId,
+			OverlayName: websockets.RefreshOverlaySettingsName_BRB,
 		},
 	)
 

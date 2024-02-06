@@ -8,6 +8,7 @@ export type SevenTvEmote = {
 	name: string;
 	flags: number;
 	data: {
+		animated: boolean;
 		host: {
 			url: string;
 			files: Array<{ name: string; format: string; height: number; width: number }>;
@@ -17,8 +18,8 @@ export type SevenTvEmote = {
 
 export type SevenTvChannelResponse = {
 	user: {
-		id: string
-	}
+		id: string;
+	};
 	emote_set: {
 		id: string;
 		emotes: Array<SevenTvEmote>;
@@ -33,6 +34,7 @@ export type BttvEmote = {
 	code: string;
 	imageType: string;
 	id: string;
+	animated: boolean;
 	height?: number;
 	width?: number;
 	modifier?: boolean;
@@ -78,8 +80,26 @@ export type BrbOnStopFn = () => void;
 // brb end
 
 // kappagen start
-export type KappagenSettings = KappagenOverlaySettings & { channelName: string, channelId: string };
-export type KappagenSpawnAnimatedEmotesFn = (emotes: Emote[], animation: KappagenAnimations) => void;
+export type KappagenSettings = KappagenOverlaySettings & { channelName: string; channelId: string };
+export type KappagenSpawnAnimatedEmotesFn = (
+	emotes: Emote[],
+	animation: KappagenAnimations
+) => void;
 export type KappagenSpawnEmotesFn = (emotes: Emote[]) => void;
 export type KappagenSetSettingsFn = (settings: KappagenSettings) => void;
 // kappagen end
+
+// dudes start
+export type ChannelData = {
+	channelDisplayName: string
+	channelId: string
+	channelName: string
+}
+
+export type UserData = {
+	channelId: string
+	userDisplayName: string
+	userId: string
+	userName: string
+}
+// dudes end

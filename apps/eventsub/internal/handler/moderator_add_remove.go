@@ -1,19 +1,20 @@
 package handler
 
 import (
+	"log/slog"
+
 	"github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleChannelModeratorAdd(
 	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd,
 ) {
-	defer zap.S().Infow(
+	c.logger.Info(
 		"channel moderator add",
-		"channelId", event.BroadcasterUserID,
-		"userId", event.UserID,
-		"userName", event.UserLogin,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("userId", event.UserID),
+		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
 }
@@ -21,20 +22,20 @@ func (c *Handler) handleChannelModeratorAdd(
 func (c *Handler) handleChannelModeratorRemove(
 	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove,
 ) {
-	defer zap.S().Infow(
+	c.logger.Info(
 		"channel moderator remove",
-		"channelId", event.BroadcasterUserID,
-		"userId", event.UserID,
-		"userName", event.UserLogin,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("userId", event.UserID),
+		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, false)
 }
 
 func (c *Handler) updateBotStatus(channelId string, userId string, newStatus bool) {
 	channel := model.Channels{}
-	err := c.services.Gorm.Where("id = ?", channelId).First(&channel).Error
+	err := c.gorm.Where("id = ?", channelId).First(&channel).Error
 	if err != nil {
-		zap.S().Errorw("failed to get channel", "error", err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 		return
 	}
 
@@ -43,8 +44,8 @@ func (c *Handler) updateBotStatus(channelId string, userId string, newStatus boo
 	}
 
 	channel.IsBotMod = newStatus
-	err = c.services.Gorm.Save(&channel).Error
+	err = c.gorm.Save(&channel).Error
 	if err != nil {
-		zap.S().Errorw("failed to update channel", "error", err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }

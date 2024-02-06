@@ -32,6 +32,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/discord"
+	"github.com/twirapp/twir/libs/grpc/eventsub"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
@@ -85,6 +86,7 @@ type Opts struct {
 	SchedulerGrpc    scheduler.SchedulerClient
 	TimersGrpc       timersGrpc.TimersClient
 	DiscordGrpc      discord.DiscordClient
+	EventSub         eventsub.EventSubClient
 	Logger           logger.Logger
 }
 
@@ -103,6 +105,7 @@ func New(opts Opts) *Protected {
 			Scheduler:    opts.SchedulerGrpc,
 			Timers:       opts.TimersGrpc,
 			Discord:      opts.DiscordGrpc,
+			EventSub:     opts.EventSub,
 		},
 		Logger: opts.Logger,
 	}

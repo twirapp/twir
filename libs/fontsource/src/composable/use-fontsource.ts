@@ -23,19 +23,17 @@ export function useFontSource(preloadFonts = true) {
 		fontId: string,
 		fontWeight: number,
 		fontStyle: string,
-		// subsets = ['latin', 'cyrillic'],
 	): Promise<Font | undefined> {
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle);
 		for (const fontFace of document.fonts.values()) {
 			if (fontFace.family === fontKey) return getFont(fontId);
-			// for (const subset of subsets) {
-			// 	if (fontFace.family === fontKey + '-' + subset) return getFont(fontId);
-			// }
 		}
 
 		try {
 			const font = await loadFontById(fontId, fontWeight, fontStyle);
+			if (!font) return;
 			fonts.value.push(font);
+			return font;
 		} catch (err) {
 			console.error(err);
 		}
@@ -51,5 +49,6 @@ export function useFontSource(preloadFonts = true) {
 		fontList,
 		loadFont,
 		getFont,
+		generateFontKey,
 	};
 }

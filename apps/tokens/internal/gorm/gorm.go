@@ -20,8 +20,9 @@ func New(config cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
 	if err != nil {
 		return nil, err
 	}
-	d.SetMaxOpenConns(2)
-	d.SetConnMaxIdleTime(1 * time.Minute)
+	d.SetMaxIdleConns(1)
+	d.SetMaxOpenConns(10)
+	d.SetConnMaxLifetime(time.Hour)
 
 	lc.Append(
 		fx.Hook{

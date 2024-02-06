@@ -46,3 +46,8 @@ export function millisecondsToTime(ms: number): string {
 
 	return `${hours ? pad2Num(hours) + ':' : ''}${pad2Num(minutes)}:${pad2Num(seconds)}`;
 }
+
+export async function requestWithOutCache<T>(url: string): Promise<T> {
+	const res = await fetch(url, { cache: 'no-cache' });
+	return await res.json();
+}

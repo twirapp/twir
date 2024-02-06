@@ -3,18 +3,19 @@ package app
 import (
 	"net/http"
 
-	"github.com/getsentry/sentry-go"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/bots/internal/bots"
 	"github.com/satont/twir/apps/bots/internal/gorm"
-	"github.com/satont/twir/apps/bots/internal/grpc_impl"
+	"github.com/satont/twir/apps/bots/internal/grpc"
+	"github.com/satont/twir/apps/bots/internal/messagehandler"
+	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
+	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
-	sentryInternal "github.com/satont/twir/libs/sentry"
+	"github.com/satont/twir/libs/sentry"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -28,16 +29,8 @@ var App = fx.Module(
 	fx.Provide(
 		cfg.NewFx,
 		tlds.New,
-		sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "bots"}),
-		func(config cfg.Config, s *sentry.Client) logger.Logger {
-			return logger.New(
-				logger.Opts{
-					Env:     config.AppEnv,
-					Service: "bots",
-					Sentry:  s,
-				},
-			)
-		},
+		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "bots"}),
+		logger.NewFx(logger.Opts{Service: "bots"}),
 		gorm.New,
 		func(config cfg.Config) (*pubsub.PubSub, error) {
 			return pubsub.NewPubSub(config.RedisUrl)
@@ -62,7 +55,9 @@ var App = fx.Module(
 
 			return redis.NewClient(redisOpts), nil
 		},
-		bots.NewBotsService,
+		twitchactions.New,
+		moderationhelpers.New,
+		messagehandler.New,
 	),
 	fx.Invoke(
 		func(config cfg.Config) {
@@ -72,6 +67,9 @@ var App = fx.Module(
 			}
 		},
 		pubsub_handlers.New,
-		grpc_impl.NewServer,
+		grpc.New,
+		func(l logger.Logger) {
+			l.Info("Bots started")
+		},
 	),
 )

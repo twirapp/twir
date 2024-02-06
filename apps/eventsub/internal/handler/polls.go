@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -30,11 +31,11 @@ func (c *Handler) handleChannelPollBegin(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollBegin,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Poll begin",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"pollTitle", event.Title,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("pollTitle", event.Title),
 	)
 
 	choices := convertChoices(event.Choices)
@@ -57,7 +58,7 @@ func (c *Handler) handleChannelPollBegin(
 		},
 	}
 
-	_, err := c.services.Grpc.Events.PollBegin(context.Background(), msg)
+	_, err := c.eventsGrpc.PollBegin(context.Background(), msg)
 	if err != nil {
 		zap.S().Error(err)
 	}
@@ -67,11 +68,11 @@ func (c *Handler) handleChannelPollProgress(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollProgress,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Poll Progress",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"pollTitle", event.Title,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("pollTitle", event.Title),
 	)
 
 	choices := convertChoices(event.Choices)
@@ -94,9 +95,9 @@ func (c *Handler) handleChannelPollProgress(
 		},
 	}
 
-	_, err := c.services.Grpc.Events.PollProgress(context.Background(), msg)
+	_, err := c.eventsGrpc.PollProgress(context.Background(), msg)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
 
@@ -104,11 +105,11 @@ func (c *Handler) handleChannelPollEnd(
 	h *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelPollEnd,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"Poll end",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"pollTitle", event.Title,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("pollTitle", event.Title),
 	)
 
 	choices := convertChoices(event.Choices)
@@ -131,8 +132,8 @@ func (c *Handler) handleChannelPollEnd(
 		},
 	}
 
-	_, err := c.services.Grpc.Events.PollEnd(context.Background(), msg)
+	_, err := c.eventsGrpc.PollEnd(context.Background(), msg)
 	if err != nil {
-		zap.S().Error(err)
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }

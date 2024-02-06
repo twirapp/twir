@@ -2,7 +2,7 @@ package valorant
 
 import (
 	"context"
-	"fmt"
+	"strconv"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -22,7 +22,7 @@ var Elo = &types.Variable{
 			return nil, nil
 		}
 
-		result.Result = fmt.Sprintf("%v", profile.Data.Elo)
+		result.Result = strconv.Itoa(profile.Data.CurrentData.Elo)
 
 		return &result, nil
 	},

@@ -24,6 +24,10 @@ export const routes = createRouter({
 			component: () => import('@/pages/overlays/chat.vue'),
 		},
 		{
+			path: '/:apiKey/dudes',
+			component: () => import('@/pages/overlays/dudes.vue'),
+		},
+		{
 			path: '/:apiKey/kappagen',
 			component: () => import('@/pages/overlays/kappagen.vue'),
 		},

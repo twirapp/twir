@@ -1,9 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import type { Message } from '@twir/frontend-chat';
-import { Client } from 'tmi.js';
+import { Client, type ChatUserstate } from 'tmi.js';
 import { type Ref, unref, watch } from 'vue';
 
 import { useMessageHelpers } from './use-message-helpers.js';
+import { useThirdPartyEmotes } from './use-third-party-emotes.js';
+
+declare module 'tmi.js' {
+	export interface Events {
+		usernotice: (msgId: string, channel: string, tags: ChatUserstate, msg: string) => void
+	}
+}
 
 type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
 	Partial<Pick<Type, Key>>;
@@ -11,7 +18,12 @@ type MakeOptional<Type, Key extends keyof Type> = Omit<Type, Key> &
 export type ChatMessage = Omit<
 	MakeOptional<Message, 'isItalic' | 'isAnnounce'>,
 	'createdAt' | 'internalId'
-> & { messageHideTimeout?: number, messageShowDelay?: number; }
+> & {
+	senderId?: string;
+	rawMessage?: string;
+	messageHideTimeout?: number;
+	messageShowDelay?: number;
+}
 
 export const knownBots = new Set([
 	'moobot',
@@ -27,36 +39,56 @@ type MaybePromise = any | Promise<any>
 
 export type ChatSettings = {
 	channelName: string,
-	channelId: string
+	channelId: string,
+	emotes: ThirdPartyEmotesOptions
 	onMessage: (message: ChatMessage) => MaybePromise
 	onRemoveMessage?: (msgId: string) => MaybePromise
 	onRemoveMessageByUser?: (userName: string) => MaybePromise
 	onChatClear?: () => void
 }
 
+export type ThirdPartyEmotesOptions = {
+	/**
+	 * @default false
+	 */
+	isSmaller?: boolean;
+	sevenTv?: boolean;
+	bttv?: boolean;
+	ffz?: boolean;
+};
+
 export const useChatTmi = (options: Ref<ChatSettings>) => {
+	const { destroy: destroyThirdPartyEmotes } = useThirdPartyEmotes(options);
 	const { makeMessageChunks } = useMessageHelpers();
 
 	let client: Client | null = null;
 
-	const createMessage = (opts: ChatMessage) => {
+	function createMessage(chatMessage: ChatMessage) {
 		const internalId = crypto.randomUUID();
 
 		return {
-			...opts,
-			isItalic: opts.isItalic ?? false,
+			...chatMessage,
+			isItalic: chatMessage.isItalic ?? false,
 			createdAt: new Date(),
 			internalId,
-			isAnnounce: opts.isAnnounce ?? false,
+			isAnnounce: chatMessage.isAnnounce ?? false,
 		};
-	};
+	}
+
+	function messageChunks(message: string, tags: ChatUserstate) {
+		return makeMessageChunks(message, {
+			isSmaller: options.value.emotes.isSmaller ?? false,
+			emotesList: tags.emotes ?? {},
+		});
+	}
 
 	async function destroy() {
-		if (client) {
-			await client.disconnect();
-			client.removeAllListeners();
-			client = null;
-		}
+		if (!client) return;
+
+		await client.disconnect();
+		client.removeAllListeners();
+		client = null;
+		destroyThirdPartyEmotes();
 	}
 
 	async function create(channel: string) {
@@ -70,12 +102,14 @@ export const useChatTmi = (options: Ref<ChatSettings>) => {
 			channels: [],
 		});
 
-		client.on('message', (_, tags, message) => {
+		client.on('message', (_channel, tags, message) => {
 			options.value.onMessage(createMessage({
 				id: tags.id,
 				type: 'message',
-				chunks: makeMessageChunks(message, tags.emotes),
-				sender: tags.username!,
+				rawMessage: message,
+				chunks: messageChunks(message, tags),
+				sender: tags.username,
+				senderId: tags['user-id']!,
 				senderColor: tags.color,
 				senderDisplayName: tags['display-name'],
 				badges: tags.badges as Record<string, string> | undefined,
@@ -83,25 +117,22 @@ export const useChatTmi = (options: Ref<ChatSettings>) => {
 			}));
 		});
 
-		// @ts-ignore
-		client.on('usernotice', (msgId, channel, tags, msg) => {
-			if (msgId === 'announcement') {
-				options.value.onMessage(createMessage({
-					id: msgId,
-					type: 'message',
-					// @ts-ignore
-					chunks: makeMessageChunks(msg, tags.emotes),
-					// @ts-ignore
-					sender: tags.login,
-					// @ts-ignore
-					senderColor: tags.color,
-					senderDisplayName: tags['display-name'],
-					// @ts-ignore
-					badges: tags.badges as Record<string, string> | undefined,
-					isItalic: tags['message-type'] === 'action',
-					isAnnounce: true,
-				}));
-			}
+		client.on('usernotice', (msgId, _channel, tags, message) => {
+			if (msgId !== 'announcement') return;
+
+			options.value.onMessage(createMessage({
+				id: msgId,
+				type: 'message',
+				rawMessage: message,
+				chunks: messageChunks(message, tags),
+				sender: tags.login,
+				senderId: tags['user-id'],
+				senderColor: tags.color,
+				senderDisplayName: tags['display-name'],
+				badges: tags.badges as Record<string, string> | undefined,
+				isItalic: tags['message-type'] === 'action',
+				isAnnounce: true,
+			}));
 		});
 
 		client.on('messagedeleted', (_channel, _username, _msgText, userState) => {

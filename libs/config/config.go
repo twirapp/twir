@@ -39,6 +39,8 @@ type Config struct {
 	OpenWeatherMapApiKey string `required:"false" envconfig:"OPENWEATHERMAP_API_KEY"`
 
 	TemporalHost string `required:"false" default:"localhost:7233" envconfig:"TEMPORAL_HOST"`
+
+	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

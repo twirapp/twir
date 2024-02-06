@@ -9,6 +9,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) ChangeVariableValue(
@@ -16,12 +17,14 @@ func (c *Activity) ChangeVariableValue(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if operation.Target.String == "" {
 		return fmt.Errorf("target is empty")
 	}
 	hydratedInput, hydrateErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
-		operation.Input.String,
+		operation.Target.String,
 		data,
 	)
 	if hydrateErr != nil {
@@ -62,6 +65,8 @@ func (c *Activity) IncrementORDecrementVariable(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if operation.Target.String == "" {
 		return fmt.Errorf("target is empty")
 	}

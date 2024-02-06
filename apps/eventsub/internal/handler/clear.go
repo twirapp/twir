@@ -2,26 +2,26 @@ package handler
 
 import (
 	"context"
+	"log/slog"
 	"time"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
 )
 
 func (c *Handler) handleChannelChatClear(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatClear,
 ) {
-	defer zap.S().Infow(
+	c.logger.Info(
 		"channel chat clear",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	c.services.Gorm.Create(
+	c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
@@ -30,7 +30,8 @@ func (c *Handler) handleChannelChatClear(
 			Data:      &model.ChannelsEventsListItemData{},
 		},
 	)
-	c.services.Grpc.Events.ChatClear(
+	
+	c.eventsGrpc.ChatClear(
 		context.Background(),
 		&events.ChatClearMessage{
 			BaseInfo: &events.BaseInfo{ChannelId: event.BroadcasterUserID},

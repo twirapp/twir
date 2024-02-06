@@ -77,8 +77,9 @@ func main() {
 		panic("failed to connect database")
 	}
 	d, _ := db.DB()
+	d.SetMaxIdleConns(1)
 	d.SetMaxOpenConns(10)
-	d.SetConnMaxIdleTime(1 * time.Minute)
+	d.SetConnMaxLifetime(time.Hour)
 	defer d.Close()
 
 	// sqlx

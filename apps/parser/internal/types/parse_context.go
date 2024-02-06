@@ -9,6 +9,7 @@ type ParseContextSender struct {
 	ID          string
 	Name        string
 	DisplayName string
+	Color       string
 	Badges      []string
 }
 

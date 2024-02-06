@@ -19,6 +19,7 @@ import Card from '@/components/card/card.vue';
 import { responsiveCols } from '@/components/consants.js';
 import Brb from '@/components/overlays/brb.vue';
 import Chat from '@/components/overlays/chat.vue';
+import Dudes from '@/components/overlays/dudes.vue';
 import Kappagen from '@/components/overlays/kappagen.vue';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
@@ -76,6 +77,9 @@ const editCustomOverlay = (id?: string) => router.push({
 			</n-grid-item>
 			<n-grid-item :span="1">
 				<Kappagen />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Dudes />
 			</n-grid-item>
 			<n-grid-item :span="1">
 				<Brb />

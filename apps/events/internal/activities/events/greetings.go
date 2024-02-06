@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) CreateGreeting(
@@ -14,6 +15,8 @@ func (c *Activity) CreateGreeting(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if data.RewardInput == nil {
 		return errors.New("reward input is empty")
 	}

@@ -231,9 +231,10 @@ func (c *Overlays) OverlayKappaGenUpdate(
 		return nil, fmt.Errorf("cannot parse settings: %w", err)
 	}
 
-	c.Grpc.Websockets.RefreshKappagenOverlaySettings(
-		ctx, &websockets.RefreshKappagenOverlaySettingsRequest{
-			ChannelId: dashboardId,
+	c.Grpc.Websockets.RefreshOverlaySettings(
+		ctx, &websockets.RefreshOverlaysRequest{
+			ChannelId:   dashboardId,
+			OverlayName: websockets.RefreshOverlaySettingsName_KAPPAGEN,
 		},
 	)
 

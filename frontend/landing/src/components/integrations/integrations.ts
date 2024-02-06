@@ -7,6 +7,8 @@ import Faceit from '@/assets/social/faceit.svg?use';
 import LastFm from '@/assets/social/lastfm.svg?use';
 import OBS from '@/assets/social/obs.svg?use';
 import Spotify from '@/assets/social/spotify.svg?use';
+import SevenTv from '@/assets/social/seventv.svg?use';
+
 // import StreamElements from '@/assets/social/streamelements.svg?use';
 import Streamlabs from '@/assets/social/streamlabs.svg?use';
 import Twitch from '@/assets/social/twitch.svg?use';
@@ -28,11 +30,16 @@ export const integrations: Integration[] = [
 		href: 'https://twitch.tv',
 	},
 	{
+		icon: SevenTv,
+		label: '7TV',
+		href: 'https://7tv.app',
+	},
+	{
 		icon: OBS,
 		label: 'OBS',
 		href: 'https://obsproject.com',
 	},
-  {
+	{
 		icon: DonationAlerts,
 		label: 'DonationAlerts',
 		href: 'https://donationalerts.com',
@@ -59,12 +66,12 @@ export const integrations: Integration[] = [
 		label: 'Discord',
 		href: 'https://discord.com',
 	},
-  // {
+	// {
 	// 	icon: StreamElements,
 	// 	label: 'Stream Elements',
 	// 	href: 'https://streamelements.com',
 	// },
-  {
+	{
 		icon: Streamlabs,
 		label: 'Streamlabs',
 		href: 'https://streamlabs.com',
@@ -79,7 +86,7 @@ export const integrations: Integration[] = [
 		label: 'Valorant',
 		href: 'https://playvalorant.com/en-us/',
 	},
-  {
+	{
 		icon: Vk,
 		label: 'VK',
 		href: 'https://vk.com',
@@ -89,7 +96,7 @@ export const integrations: Integration[] = [
 		label: 'Spotify',
 		href: 'https://spotify.com',
 	},
-  {
+	{
 		icon: LastFm,
 		label: 'LastFM',
 		href: 'https://last.fm',

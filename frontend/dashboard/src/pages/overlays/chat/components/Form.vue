@@ -11,7 +11,7 @@ import {
 	NDivider,
 	useThemeVars,
 } from 'naive-ui';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { defaultChatSettings } from './default-settings';
@@ -46,10 +46,16 @@ const directionOptions = computed(() => {
 });
 
 const fontData = ref<Font | null>(null);
+watch(() => fontData.value, (font) => {
+	if (!font) return;
+	formValue.value.fontFamily = font.id;
+});
+
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return [];
 	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
 });
+
 const fontStyleOptions = computed(() => {
 	if (!fontData.value) return [];
 	return fontData.value.styles.map((style) => ({ label: style, value: style }));
@@ -151,11 +157,10 @@ async function save() {
 				<div>
 					<span>{{ t('overlays.chat.fontFamily') }}</span>
 					<font-selector
-						v-model:selected-font="formValue.fontFamily"
+						v-model:font="fontData"
 						:font-family="formValue.fontFamily"
 						:font-weight="formValue.fontWeight"
 						:font-style="formValue.fontStyle"
-						@update-font="(v) => fontData = v"
 					/>
 				</div>
 

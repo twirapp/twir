@@ -100,13 +100,12 @@ const sendSettings = () => sendIframeMessage('settings', {
 
 watch(kappagenIframeRef, (v) => {
 	if (!v) return;
-	v.contentWindow?.addEventListener('message', (e) => {
-		if (e.data !== 'getSettings') return;
-
+	v.contentWindow?.addEventListener('message', (event) => {
+		const data = JSON.parse(event.data);
+		if (data.key !== 'getSettings') return;
 		sendSettings();
 	});
 });
-
 
 const playKappaPreview = (animation: Settings_AnimationSettings) => {
 	sendIframeMessage('kappaWithAnimation', { animation });

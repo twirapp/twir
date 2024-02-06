@@ -20,14 +20,14 @@ use (
 	./libs/gomodels
 	./libs/gopool
 	./libs/grpc
+	./libs/helix
+	./libs/integrations/seventv
 	./libs/integrations/spotify
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
 	./libs/sentry
 	./libs/twitch
-	./libs/twitch-eventsub-bindings
-	./libs/twitch-eventsub-framework
 	./libs/types
 	./libs/utils
 )

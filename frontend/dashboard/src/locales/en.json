@@ -247,7 +247,24 @@
     },
     "valorant": {
       "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
-    }
+    },
+		"sevenTv": {
+			"description": "We can manage 7tv channel emotes, when this integration is enabled.",
+			"alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+			"connected": "Connected",
+			"notConnected": "Not connected",
+			"notRegistered": "You are not registered at {0}",
+			"errorSameReward": "You cannot use the same reward for adding and removing emotes!",
+			"deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+			"connectSteps": {
+				"step1": "Open your {0} profile",
+				"step2": "Click on \"Add editors\" button",
+				"step3": "Add {0} as an editor"
+			},
+			"rewardForAddEmote": "Reward for adding emote",
+			"rewardForRemoveEmote": "Reward for removing emote",
+			"rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+		}
   },
   "events": {
     "delay": "Delay (in seconds)",
@@ -401,6 +418,51 @@
       "style": "Message Style",
       "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
+		"dudes": {
+			"description": "Animated characters for chatters in your stream",
+			"dudeDivider": "Dude",
+			"dudeColor": "Default user color",
+			"dudeGravity": "Gravity",
+			"dudeMaxLifeTime": "Max life time",
+			"dudeScale": "Scale",
+			"dudeSoundsDivider": "Sounds",
+			"dudeSoundsEnable": "Enable",
+			"dudeSoundsVolume": "Volume",
+			"ignoreDivider": "Ignoring",
+			"ignoreCommands": "Ignore commands",
+			"ignoreUsers": "Ignore users",
+			"ignoreUsersList": "List of ignored users",
+			"nameBoxDivider": "Name box",
+			"nameBoxFill": "Text colors",
+			"nameBoxFillError": "Color is required",
+			"nameBoxFillGradientStops": "Text colors of gradient stops",
+			"nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
+			"nameBoxGradientType": "Gradient type",
+			"nameBoxFontFamily": "Font family",
+			"nameBoxFontSize": "Font size",
+			"nameBoxFontWeight": "Font weight",
+			"nameBoxFontStyle": "Font style",
+			"nameBoxFontVariant": "Font variant",
+			"nameBoxStroke": "Stroke color",
+			"nameStrokeThickness": "Stroke thickness",
+			"nameBoxLineJoin": "Stroke line join",
+			"nameBoxDropShadow": "Drop shadow",
+			"nameBoxDropShadowColor": "Shadow color",
+			"nameBoxDropShadowAlpha": "Shadow alpha",
+			"nameBoxDropShadowBlur": "Shadow blur",
+			"nameBoxDropShadowDistance": "Shadow distance",
+			"nameBoxDropShadowAngle": "Shadow angle",
+			"messageBoxEnabled": "Enable message box",
+			"messageBoxIgnoreCommands": "Ignore commands",
+			"messageBoxDivider": "Message box",
+			"messageBoxShowTime": "Show time",
+			"messageBoxFill": "Text color",
+			"messageBoxBackground": "Background color",
+			"messageBoxPadding": "Padding",
+			"messageBoxBorderRadius": "Border radius",
+			"messageBoxFontSize": "Font size",
+			"spitterEmoteEnabled": "Show twitch emotes"
+		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
       "testKappagen": "Test Kappagen",

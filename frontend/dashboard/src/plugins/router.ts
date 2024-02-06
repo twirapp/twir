@@ -102,6 +102,15 @@ export const newRouter = (queryClient: QueryClient) => {
 					},
 				},
 				{
+					name: 'DudesOverlay',
+					path: '/dashboard/overlays/dudes',
+					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
+					meta: {
+						neededPermission: 'MANAGE_OVERLAYS',
+						fullScreen: true,
+					},
+				},
+				{
 					path: '/dashboard/events/chat-alerts',
 					component: () => import('../pages/ChatAlerts.vue'),
 					meta: { neededPermission: 'VIEW_EVENTS' },

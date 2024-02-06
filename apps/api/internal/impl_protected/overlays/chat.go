@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays_chat"
@@ -149,11 +150,12 @@ func (c *Overlays) OverlayChatUpdate(
 		return nil, fmt.Errorf("cannot update settings: %w", err)
 	}
 
-	if _, err := c.Grpc.Websockets.RefreshChatOverlaySettings(
+	if _, err := c.Grpc.Websockets.RefreshOverlaySettings(
 		ctx,
-		&websockets.RefreshChatSettingsRequest{
-			ChannelId: dashboardId,
-			Id:        entity.ID.String(),
+		&websockets.RefreshOverlaysRequest{
+			ChannelId:   dashboardId,
+			OverlayName: websockets.RefreshOverlaySettingsName_CHAT,
+			OverlayId:   lo.ToPtr(entity.ID.String()),
 		},
 	); err != nil {
 		c.Logger.Error("cannot refresh chat overlay settings", slog.Any("err", err))

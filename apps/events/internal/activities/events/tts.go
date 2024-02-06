@@ -11,6 +11,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"go.temporal.io/sdk/activity"
 )
 
 func (c *Activity) getTtsSettings(
@@ -21,6 +22,8 @@ func (c *Activity) getTtsSettings(
 	*modules.TTSSettings,
 	*model.ChannelModulesSettings,
 ) {
+	activity.RecordHeartbeat(ctx, nil)
+
 	settings := &model.ChannelModulesSettings{}
 	query := c.db.
 		WithContext(ctx).
@@ -52,6 +55,8 @@ func (c *Activity) TtsSay(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	if operation.Input.String == "" {
 		return nil
 	}
@@ -108,6 +113,8 @@ func (c *Activity) TtsSkip(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	_, err := c.websocketsGrpc.TextToSpeechSkip(
 		ctx, &websockets.TTSSkipMessage{
 			ChannelId: data.ChannelID,
@@ -125,6 +132,8 @@ func (c *Activity) TtsChangeState(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	currentSettings, dbModel := c.getTtsSettings(ctx, data.ChannelID, "")
 	if currentSettings == nil {
 		return nil
@@ -154,6 +163,8 @@ func (c *Activity) TtsChangeAutoReadState(
 	operation model.EventOperation,
 	data shared.EvenData,
 ) error {
+	activity.RecordHeartbeat(ctx, nil)
+
 	currentSettings, dbModel := c.getTtsSettings(ctx, data.ChannelID, "")
 	if currentSettings == nil {
 		return nil

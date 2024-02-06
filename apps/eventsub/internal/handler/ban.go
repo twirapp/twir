@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"math"
 	"time"
 
@@ -11,21 +12,21 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"go.uber.org/zap"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
 func (c *Handler) handleBan(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelBan,
 ) {
-	zap.S().Infow(
+	c.logger.Info(
 		"channel ban",
-		"channelId", event.BroadcasterUserID,
-		"channelName", event.BroadcasterUserLogin,
-		"userId", event.UserID,
-		"userName", event.UserLogin,
-		"moderatorName", event.ModeratorUserName,
-		"moderatorId", event.ModeratorUserID,
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserLogin),
+		slog.String("userId", event.UserID),
+		slog.String("userName", event.UserLogin),
+		slog.String("moderatorName", event.ModeratorUserName),
+		slog.String("moderatorId", event.ModeratorUserID),
 	)
 
 	t, _ := time.Parse(time.RFC3339, event.EndsAt)
@@ -37,7 +38,7 @@ func (c *Handler) handleBan(
 		),
 	)
 
-	c.services.Grpc.Events.ChannelBan(
+	c.eventsGrpc.ChannelBan(
 		context.TODO(), &events.ChannelBanMessage{
 			BaseInfo: &events.BaseInfo{
 				ChannelId: event.BroadcasterUserID,
@@ -54,7 +55,7 @@ func (c *Handler) handleBan(
 		},
 	)
 
-	c.services.Gorm.Create(
+	c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
@@ -69,6 +70,16 @@ func (c *Handler) handleBan(
 				ModeratorDisplayName: event.ModeratorUserName,
 				ModeratorName:        event.ModeratorUserLogin,
 			},
+		},
+	)
+
+	go c.websocketsGrpc.DudesUserPunished(
+		context.TODO(),
+		&websockets.DudesUserPunishedRequest{
+			ChannelId:       event.BroadcasterUserID,
+			UserId:          event.UserID,
+			UserDisplayName: event.UserName,
+			UserName:        event.UserLogin,
 		},
 	)
 }

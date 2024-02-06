@@ -3,11 +3,12 @@ option go_package = "github.com/twirapp/twir/libs/grpc/bots";
 package bots;
 import "google/protobuf/empty.proto";
 
+import "shared/twitch_chat_message.proto";
+
 service Bots {
 	rpc DeleteMessage(DeleteMessagesRequest) returns (google.protobuf.Empty) {}
 	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty) {}
-	rpc Join(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
-	rpc Leave(JoinOrLeaveRequest) returns (google.protobuf.Empty) {}
+	rpc HandleChatMessage(shared.TwitchChatMessage) returns (google.protobuf.Empty) {}
 }
 
 message DeleteMessagesRequest {

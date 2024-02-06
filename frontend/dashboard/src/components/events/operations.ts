@@ -247,6 +247,23 @@ export const OPERATIONS: Record<string, Operation> = {
 		},
 	},
 
+	SEVENTV: {
+		name: '7tv',
+		type: 'group',
+		childrens: {
+			SEVENTV_ADD_EMOTE: {
+				name: 'Add emote',
+				haveInput: true,
+				color: 'success',
+			},
+			SEVENTV_REMOVE_EMOTE: {
+				name: 'Remove emote',
+				haveInput: true,
+				color: 'error',
+			},
+		},
+	},
+
 	TTS: {
 		name: 'Text to speech (TTS)',
 		type: 'group',
@@ -279,6 +296,18 @@ export const OPERATIONS: Record<string, Operation> = {
 			TTS_ENABLE_AUTOREAD: {
 				name: 'Enable autoread messages',
 				color: 'info',
+			},
+		},
+	},
+
+	RAIDS: {
+		name: 'Raids',
+		type: 'group',
+		childrens: {
+			RAID_CHANNEL: {
+				name: 'Raid channel',
+				haveInput: true,
+				color: 'warning',
 			},
 		},
 	},

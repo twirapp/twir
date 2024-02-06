@@ -1,10 +1,11 @@
 package kappagen
 
 import (
-	"encoding/json"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/goccy/go-json"
 
 	"github.com/olahol/melody"
 	"github.com/prometheus/client_golang/prometheus"
