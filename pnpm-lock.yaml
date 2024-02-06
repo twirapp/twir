@@ -353,8 +353,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/grpc
       '@twirapp/dudes':
-        specifier: 0.4.4
-        version: 0.4.4(vue@3.4.15)
+        specifier: 0.4.5
+        version: 0.4.5(vue@3.4.15)
       '@twirapp/kappagen':
         specifier: 0.0.0
         version: 0.0.0(vue@3.4.15)
@@ -2131,8 +2131,8 @@ packages:
     engines: {node: '>=10.13.0'}
     dev: true
 
-  /@twirapp/dudes@0.4.4(vue@3.4.15):
-    resolution: {integrity: sha512-jXYFXrkLme215Dqk998kxSbNlL21MlzlV+khwwjFDerVL8O2QdcECa5DpKmI1rFP9WcuIbglnLesYnk2XA0tQA==}
+  /@twirapp/dudes@0.4.5(vue@3.4.15):
+    resolution: {integrity: sha512-wU00iUlohcBgvZ2FIB8Xd2AaHvn//oagknzsA64XpyFB/ESm6znxX6N0Roxct0i7mIGBKtgb4FA8qyX7u8YiIw==}
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:
