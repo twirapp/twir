@@ -10,8 +10,6 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/bots"
-
-	"github.com/samber/lo"
 )
 
 var Command = &types.DefaultCommand{
@@ -27,17 +25,16 @@ var Command = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		var messages []model.ChannelChatMessage
-
 		if parseCtx.Text == nil {
 			return nil, nil
 		}
 
+		var messages []model.ChannelChatMessage
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
-				`"canBeDeleted" = ? AND text LIKE ?`,
-				true,
+				`"canBeDeleted" IS TRUE AND text LIKE ? AND "createdAt" > NOW() - INTERVAL '60 minutes' AND "channelId" = ?`,
 				"%"+strings.ToLower(*parseCtx.Text)+"%",
+				parseCtx.Channel.ID,
 			).
 			Find(&messages).
 			Error
@@ -52,22 +49,21 @@ var Command = &types.DefaultCommand{
 			return nil, nil
 		}
 
-		messages = lo.Filter(
-			messages, func(m model.ChannelChatMessage, _ int) bool {
-				return m.CanBeDeleted
-			},
-		)
-		mappedMessages := lo.Map(
-			messages, func(m model.ChannelChatMessage, _ int) string {
-				return m.MessageId
-			},
-		)
+		mappedMessagesIds := make([]string, 0, len(messages))
+
+		for _, message := range messages {
+			if !message.CanBeDeleted {
+				continue
+			}
+
+			mappedMessagesIds = append(mappedMessagesIds, message.MessageId)
+		}
 
 		if _, err = parseCtx.Services.GrpcClients.Bots.DeleteMessage(
 			ctx,
 			&bots.DeleteMessagesRequest{
 				ChannelId:   parseCtx.Channel.ID,
-				MessageIds:  mappedMessages,
+				MessageIds:  mappedMessagesIds,
 				ChannelName: parseCtx.Channel.Name,
 			},
 		); err != nil {
@@ -77,7 +73,7 @@ var Command = &types.DefaultCommand{
 			}
 		}
 
-		if err = parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessages).
+		if err = parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessagesIds).
 			Delete(&model.ChannelChatMessage{}).Error; err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot delete messages from db",
