@@ -63,12 +63,13 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 		spoti: spoti,
 	}
 
+	redisKey := fmt.Sprintf("overlays:nowplaying:%s", userId)
 	for {
 		select {
 		case <-ctx.Done():
 			return nil
 		case <-ticker.C:
-			cachedValue := c.redis.Get(ctx, fmt.Sprintf("overlays:nowplaying:%s", userId)).Val()
+			cachedValue := c.redis.Get(ctx, redisKey).Val()
 			if cachedValue != "" {
 				_ = c.SendEvent(userId, "nowplaying", cachedValue)
 				continue
@@ -76,7 +77,7 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 
 			track := fetcher.fetch()
 			if track != nil {
-				c.redis.Set(ctx, fmt.Sprintf("overlays:nowplaying:%s", userId), track, 10*time.Second)
+				c.redis.Set(ctx, redisKey, track, 10*time.Second)
 			}
 
 			_ = c.SendEvent(userId, "nowplaying", track)
