@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,6 +30,7 @@ var App = fx.Options(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "eventsub"}),
 		logger.NewFx(logger.Opts{Service: "eventsub"}),
+		uptrace.NewFx("eventsub"),
 		func(config cfg.Config) (*gorm.DB, error) {
 			db, err := gorm.Open(
 				postgres.Open(config.DatabaseUrl), &gorm.Config{
@@ -75,6 +77,7 @@ var App = fx.Options(
 		handler.New,
 	),
 	fx.Invoke(
+		uptrace.NewFx("eventsub"),
 		handler.New,
 		grpc.New,
 	),

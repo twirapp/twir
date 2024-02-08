@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -32,6 +33,7 @@ var App = fx.Module(
 				Level:   slog.LevelDebug,
 			},
 		),
+		uptrace.NewFx("events"),
 		func(config cfg.Config) bots.BotsClient {
 			return clients.NewBots(config.AppEnv)
 		},
@@ -49,6 +51,7 @@ var App = fx.Module(
 		chat_alerts.New,
 	),
 	fx.Invoke(
+		uptrace.NewFx("events"),
 		workers.NewEventsWorker,
 		grpc_impl.New,
 		func(l logger.Logger) {

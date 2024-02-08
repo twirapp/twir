@@ -1,6 +1,7 @@
 package twirp_handlers
 
 import (
+	"github.com/bakins/twirpotel"
 	"github.com/satont/twir/apps/api/internal/handlers"
 	"github.com/satont/twir/apps/api/internal/hooks"
 	"github.com/satont/twir/apps/api/internal/wrappers"
@@ -12,6 +13,7 @@ func NewUnProtected(opts Opts) handlers.IHandler {
 	twirpHandler := api.NewUnProtectedServer(
 		opts.ImplUnProtected,
 		twirp.WithServerPathPrefix("/v1"),
+		twirp.WithServerInterceptors(twirpotel.ServerInterceptor()),
 		twirp.WithServerHooks(hooks.NewLoggingServerHooks(opts.Logger)),
 		twirp.WithServerInterceptors(
 			opts.Interceptor.NewCacheInterceptor(

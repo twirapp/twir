@@ -6,6 +6,7 @@ import (
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/twirapp/twir/libs/grpc/shared"
+	"go.opentelemetry.io/otel/attribute"
 )
 
 func convertFragmentTypeToEnumValue(t string) shared.FragmentType {
@@ -27,6 +28,14 @@ func (c *Handler) handleChannelChatMessage(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelChatMessage,
 ) {
+	ctx := context.Background()
+	_, span := c.tracer.Start(ctx, "handleChannelChatMessage")
+	span.SetAttributes(
+		attribute.String("message_id", event.MessageID),
+		attribute.String("channel_id", event.BroadcasterUserID),
+	)
+	defer span.End()
+
 	fragments := make([]*shared.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
 
 	for _, fragment := range event.Message.Fragments {
@@ -103,7 +112,7 @@ func (c *Handler) handleChannelChatMessage(
 	}
 
 	_, err := c.botsGrpc.HandleChatMessage(
-		context.Background(),
+		ctx,
 		&shared.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,

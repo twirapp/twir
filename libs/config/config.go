@@ -43,6 +43,7 @@ type Config struct {
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 
 	NgrokAuthToken string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
+	UptraceDsn     string `required:"false" envconfig:"UPTRACE_DSN"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

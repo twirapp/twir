@@ -7,6 +7,7 @@ import (
 
 	"github.com/satont/twir/apps/api/internal/handlers"
 
+	"github.com/bakins/twirpotel"
 	"github.com/satont/twir/apps/api/internal/interceptors"
 	"github.com/satont/twir/apps/api/internal/wrappers"
 	"github.com/twirapp/twir/libs/api"
@@ -27,6 +28,7 @@ func NewProtected(opts Opts) handlers.IHandler {
 		opts.ImplProtected,
 		twirp.WithServerPathPrefix("/v1"),
 		// twirp.WithServerInterceptors(opts.Interceptor.Errors),
+		twirp.WithServerInterceptors(twirpotel.ServerInterceptor()),
 		twirp.WithServerInterceptors(opts.Interceptor.DbUserInterceptor),
 		twirp.WithServerInterceptors(opts.Interceptor.DashboardId),
 		twirp.WithServerInterceptors(opts.Interceptor.ChannelAccessInterceptor),

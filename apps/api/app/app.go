@@ -32,6 +32,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -52,6 +53,7 @@ var App = fx.Options(
 			},
 		),
 		logger.NewFx(logger.Opts{Service: "api"}),
+		uptrace.NewFx("api"),
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
 		},
@@ -144,6 +146,7 @@ var App = fx.Options(
 		),
 	),
 	fx.Invoke(
+		uptrace.NewFx("api"),
 		func(
 			mux *http.ServeMux,
 			sessionManager *scs.SessionManager,

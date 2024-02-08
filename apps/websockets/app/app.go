@@ -23,6 +23,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -34,6 +35,7 @@ var App = fx.Module(
 		config.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
 		logger.NewFx(logger.Opts{Service: service}),
+		uptrace.NewFx(service),
 		redis.New,
 		gorm.New,
 		func(cfg config.Config) bots.BotsClient {
@@ -56,6 +58,7 @@ var App = fx.Module(
 		dudes.New,
 	),
 	fx.Invoke(
+		uptrace.NewFx(service),
 		func() {
 			http.Handle("/metrics", promhttp.Handler())
 

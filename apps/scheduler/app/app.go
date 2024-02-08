@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -24,6 +25,7 @@ var App = fx.Module(
 		config.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
 		logger.NewFx(logger.Opts{Service: service}),
+		uptrace.NewFx(service),
 		func(c config.Config) parser.ParserClient {
 			return clients.NewParser(c.AppEnv)
 		},
@@ -41,6 +43,7 @@ var App = fx.Module(
 		services.NewCommands,
 	),
 	fx.Invoke(
+		uptrace.NewFx(service),
 		grpc_impl.New,
 		timers.NewEmotes,
 		timers.NewOnlineUsers,

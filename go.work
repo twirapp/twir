@@ -29,5 +29,6 @@ use (
 	./libs/sentry
 	./libs/twitch
 	./libs/types
+	./libs/uptrace
 	./libs/utils
 )

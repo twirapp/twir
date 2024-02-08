@@ -148,23 +148,22 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 
 	var wg sync.WaitGroup
+	wg.Add(len(handlersForExecute))
 
 	// TODO: i dont know why grpc context canceling before this function finished
 	funcsCtx := context.Background()
 
 	for _, f := range handlersForExecute {
-		wg.Add(1)
-
 		f := f
 
 		go func() {
+			defer wg.Done()
 			if err := f(c, funcsCtx, msg); err != nil {
 				c.logger.Error(
 					"error when executing message handler function", slog.Any("err", err),
 					slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
 				)
 			}
-			wg.Done()
 		}()
 	}
 
