@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/nowplaying"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -56,6 +57,7 @@ var App = fx.Module(
 		overlays.New,
 		be_right_back.New,
 		dudes.New,
+		nowplaying.New,
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),
