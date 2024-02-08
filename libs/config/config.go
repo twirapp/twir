@@ -41,6 +41,8 @@ type Config struct {
 	TemporalHost string `required:"false" default:"localhost:7233" envconfig:"TEMPORAL_HOST"`
 
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
+
+	NgrokAuthToken string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

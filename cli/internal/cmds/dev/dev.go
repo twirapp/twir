@@ -1,11 +1,14 @@
 package dev
 
 import (
+	"errors"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/pterm/pterm"
+	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/cli/internal/cmds/build"
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"
@@ -32,6 +35,23 @@ func CreateDevCommand() *cli.Command {
 				Value: false,
 				Usage: "skip dependencies installation",
 			},
+		},
+		Before: func(context *cli.Context) error {
+			wd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+
+			config, err := cfg.NewWithEnvPath(filepath.Join(wd, ".env"))
+			if err != nil {
+				return err
+			}
+
+			if config.NgrokAuthToken == "" {
+				return errors.New("NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok")
+			}
+
+			return nil
 		},
 		Action: func(c *cli.Context) error {
 			skipDeps := c.Bool("skip-deps")
