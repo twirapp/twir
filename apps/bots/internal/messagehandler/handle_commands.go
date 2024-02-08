@@ -26,7 +26,7 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 			continue
 		}
 
-		re := regexp.MustCompile(f.GetText())
+		re := regexp.MustCompile(regexp.QuoteMeta(f.GetText()))
 		var emotePositions []*parser.Message_EmotePosition
 
 		for _, match := range re.FindAllStringSubmatchIndex(msg.GetMessage().GetText(), -1) {
