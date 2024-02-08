@@ -7,6 +7,7 @@ import { useRoute } from 'vue-router';
 import {
 	dudesAssets,
 	dudesSounds,
+	assetsLoadOptions,
 } from '@/composables/dudes/dudes-config.js';
 import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js';
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
@@ -88,6 +89,7 @@ onUnmounted(() => {
 <template>
 	<dudes-overlay
 		ref="dudes"
+		:assets-load-options="assetsLoadOptions"
 		:assets="dudesAssets"
 		:sounds="dudesSounds"
 	/>

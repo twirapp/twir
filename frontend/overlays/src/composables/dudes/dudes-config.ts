@@ -1,4 +1,4 @@
-import type { SoundAsset, DudeAsset } from '@twirapp/dudes/types';
+import type { SoundAsset, DudeAsset, AssetsLoadOptions } from '@twirapp/dudes/types';
 
 export const dudesTwir = 'Twir';
 
@@ -24,38 +24,43 @@ if (isMaryChristmas) {
 	dudesSprites.push(...dudesEventSpites);
 }
 
-const dudesAssetsPath = window.location.origin + '/overlays/dudes/';
+export const assetsLoadOptions: AssetsLoadOptions = {
+  basePath: location.origin + '/overlays/dudes/sprites/',
+  defaultSearchParams: {
+    ts: Date.now(),
+  },
+};
 
 export const dudesAssets: DudeAsset[] = [
   {
     alias: 'dude',
-    src: dudesAssetsPath + 'sprites/dude/dude.json',
+    src: 'dude/dude.json',
   },
   {
     alias: 'sith',
-    src: dudesAssetsPath + 'sprites/sith/sith.json',
+    src: 'sith/sith.json',
   },
   {
     alias: 'agent',
-    src: dudesAssetsPath + 'sprites/agent/agent.json',
+    src: 'agent/agent.json',
   },
   {
     alias: 'girl',
-    src: dudesAssetsPath + 'sprites/girl/girl.json',
+    src: 'girl/girl.json',
   },
   {
     alias: 'cat',
-    src: dudesAssetsPath + 'sprites/cat/cat.json',
+    src: 'cat/cat.json',
   },
   {
     alias: 'santa',
-    src: dudesAssetsPath + 'sprites/santa/santa.json',
+    src: 'santa/santa.json',
   },
 ];
 
 export const dudesSounds: SoundAsset[] = [
 	{
 		alias: 'jump',
-		src: dudesAssetsPath + 'sounds/jump.mp3',
+		src: location.origin + '/overlays/dudes/sounds/jump.mp3',
 	},
 ];
