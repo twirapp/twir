@@ -21,7 +21,6 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gopool v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/integrations/spotify v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satori/go.uuid v1.2.0
@@ -35,7 +34,7 @@ require (
 	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.6
+	gorm.io/gorm v1.25.7
 )
 
 require (
@@ -94,8 +93,6 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
 )
 
-replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
-
 replace github.com/satont/twir/libs/config => ../../libs/config
 
 replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
@@ -107,3 +104,5 @@ replace github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 
 replace github.com/satont/twir/libs/gopool => ../../libs/gopool
+
+replace github.com/twirapp/twir/libs/integrations => ../../libs/integrations

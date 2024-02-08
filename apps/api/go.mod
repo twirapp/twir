@@ -13,11 +13,9 @@ replace (
 	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/api => ../../libs/api
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-	github.com/twirapp/twir/libs/integrations/seventv => ../../libs/integrations/seventv
+	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
-
-replace github.com/satont/twir/libs/integrations/spotify => ../../libs/integrations/spotify
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
@@ -40,7 +38,6 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/integrations/spotify v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/pubsub v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
@@ -50,13 +47,12 @@ require (
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/twir/libs/api v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
-	github.com/twirapp/twir/libs/integrations/seventv v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.20.1
 	golang.org/x/sync v0.6.0
 	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.6
+	gorm.io/gorm v1.25.7
 )
 
 require (

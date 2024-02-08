@@ -41,6 +41,7 @@ COPY libs/gomodels/go.mod libs/gomodels/go.mod
 COPY libs/gopool/go.mod libs/gopool/go.mod
 COPY libs/grpc/go.mod libs/grpc/go.mod
 COPY libs/helix/go.mod libs/helix/go.mod
+COPY libs/integrations/go.mod libs/integrations/go.mod
 COPY libs/logger/go.mod libs/logger/go.mod
 COPY libs/migrations/go.mod libs/migrations/go.mod
 COPY libs/pubsub/go.mod libs/pubsub/go.mod
@@ -62,8 +63,6 @@ COPY apps/tokens/go.mod apps/tokens/go.mod
 COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
-COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
-COPY libs/integrations/seventv/go.mod libs/integrations/seventv/go.mod
 COPY libs/helix/go.mod libs/helix/go.mod
 
 # CLI PART
