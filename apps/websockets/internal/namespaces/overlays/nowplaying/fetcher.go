@@ -11,12 +11,6 @@ import (
 	"github.com/twirapp/twir/libs/integrations/spotify"
 )
 
-type Track struct {
-	Artist   string `json:"artist"`
-	Title    string `json:"title"`
-	ImageUrl string `json:"image_url,omitempty"`
-}
-
 func (c *NowPlaying) fetcher(ctx context.Context, userId string) error {
 	ticker := time.NewTicker(1 * time.Second)
 
@@ -64,7 +58,10 @@ func (c *NowPlaying) fetcher(ctx context.Context, userId string) error {
 		spoti = spotify.New(spotifyEntity, c.gorm)
 	}
 
-	fmt.Println(lfm, spoti)
+	fetcher := &channelSongFetcher{
+		lfm:   lfm,
+		spoti: spoti,
+	}
 
 	for {
 		select {
@@ -73,47 +70,56 @@ func (c *NowPlaying) fetcher(ctx context.Context, userId string) error {
 		case <-ticker.C:
 			cachedValue := c.redis.Get(ctx, fmt.Sprintf("overlays:nowplaying:%s", userId)).Val()
 			if cachedValue != "" {
-				c.SendEvent(userId, "nowplaying", cachedValue)
+				_ = c.SendEvent(userId, "nowplaying", cachedValue)
 				continue
 			}
 
-			var track *Track
-			if spoti != nil {
-				spotifyTrack := spoti.GetTrack()
-				if spotifyTrack != nil {
-					track = &Track{
-						Artist:   spotifyTrack.Artist,
-						Title:    spotifyTrack.Title,
-						ImageUrl: spotifyTrack.Image,
-					}
-				}
-			}
+			track := fetcher.fetch()
 			if track != nil {
 				c.redis.Set(ctx, fmt.Sprintf("overlays:nowplaying:%s", userId), track, 10*time.Second)
-				c.SendEvent(userId, "nowplaying", track)
-				continue
 			}
 
-			if lfm != nil {
-				lastfmTrack, err := lfm.GetTrack()
-				if err != nil {
-					c.logger.Error("cannot get lastfm track", err)
-				}
-				if lastfmTrack != nil {
-					track = &Track{
-						Artist:   lastfmTrack.Artist,
-						Title:    lastfmTrack.Title,
-						ImageUrl: lastfmTrack.Image,
-					}
-				}
-			}
-			if track != nil {
-				c.redis.Set(ctx, fmt.Sprintf("overlays:nowplaying:%s", userId), track, 10*time.Second)
-				c.SendEvent(userId, "nowplaying", track)
-				continue
-			}
-
-			c.SendEvent(userId, "nowplaying", nil)
+			_ = c.SendEvent(userId, "nowplaying", track)
 		}
 	}
+}
+
+type Track struct {
+	Artist   string `json:"artist"`
+	Title    string `json:"title"`
+	ImageUrl string `json:"image_url,omitempty"`
+}
+
+type channelSongFetcher struct {
+	lfm   *lastfm.Lastfm
+	spoti *spotify.Spotify
+}
+
+func (c *channelSongFetcher) fetch() *Track {
+	if c.spoti != nil {
+		spotifyTrack := c.spoti.GetTrack()
+		if spotifyTrack != nil {
+			return &Track{
+				Artist:   spotifyTrack.Artist,
+				Title:    spotifyTrack.Title,
+				ImageUrl: spotifyTrack.Image,
+			}
+		}
+	}
+
+	if c.lfm != nil {
+		lastfmTrack, err := c.lfm.GetTrack()
+		if err != nil {
+			return nil
+		}
+		if lastfmTrack != nil {
+			return &Track{
+				Artist:   lastfmTrack.Artist,
+				Title:    lastfmTrack.Title,
+				ImageUrl: lastfmTrack.Image,
+			}
+		}
+	}
+
+	return nil
 }
