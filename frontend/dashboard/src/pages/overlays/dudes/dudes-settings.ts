@@ -55,6 +55,8 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	},
 	dudeSettings: {
 		color: '#969696',
+		eyesColor: '#FFFFFF',
+		cosmeticsColor: '#FFFFFF',
 		maxLifeTime: 1000 * 60 * 30,
 		gravity: 400,
 		scale: 4,

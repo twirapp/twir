@@ -32,7 +32,6 @@ watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 
 	if (iframe.isIframe) {
 		iframe.spawnIframeDude();
-		dudesSocketStore.destroy();
 	}
 });
 

@@ -19,12 +19,14 @@ func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dude
 	return &overlays_dudes.Settings{
 		Id: lo.ToPtr(entity.ID.String()),
 		DudeSettings: &overlays_dudes.DudeSettings{
-			Color:         entity.DudeColor,
-			MaxLifeTime:   entity.DudeMaxLifeTime,
-			Gravity:       entity.DudeGravity,
-			Scale:         entity.DudeScale,
-			SoundsEnabled: entity.DudeSoundsEnabled,
-			SoundsVolume:  entity.DudeSoundsVolume,
+			Color:          entity.DudeColor,
+			EyesColor:      entity.DudeEyesColor,
+			CosmeticsColor: entity.DudeCosmeticsColor,
+			MaxLifeTime:    entity.DudeMaxLifeTime,
+			Gravity:        entity.DudeGravity,
+			Scale:          entity.DudeScale,
+			SoundsEnabled:  entity.DudeSoundsEnabled,
+			SoundsVolume:   entity.DudeSoundsVolume,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
 			Enabled:      entity.MessageBoxEnabled,
@@ -69,6 +71,8 @@ func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dude
 func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverlaysDudes {
 	return model.ChannelsOverlaysDudes{
 		DudeColor:                 settings.GetDudeSettings().GetColor(),
+		DudeEyesColor:             settings.GetDudeSettings().GetEyesColor(),
+		DudeCosmeticsColor:        settings.GetDudeSettings().GetCosmeticsColor(),
 		DudeMaxLifeTime:           settings.GetDudeSettings().GetMaxLifeTime(),
 		DudeGravity:               settings.GetDudeSettings().GetGravity(),
 		DudeScale:                 settings.GetDudeSettings().GetScale(),
