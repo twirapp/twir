@@ -47,6 +47,7 @@ COPY libs/pubsub/go.mod libs/pubsub/go.mod
 COPY libs/sentry/go.mod libs/sentry/go.mod
 COPY libs/twitch/go.mod libs/twitch/go.mod
 COPY libs/types/go.mod libs/types/go.mod
+COPY libs/uptrace/go.mod libs/uptrace/go.mod
 COPY libs/utils/go.mod libs/utils/go.mod
 COPY apps/api/go.mod apps/api/go.mod
 COPY apps/bots/go.mod apps/bots/go.mod
