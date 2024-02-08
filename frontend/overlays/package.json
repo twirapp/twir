@@ -14,7 +14,7 @@
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/grpc": "workspace:*",
-    "@twirapp/dudes": "0.4.6",
+    "@twirapp/dudes": "0.4.9",
     "@twirapp/kappagen": "0.0.0",
     "@vueuse/core": "10.7.2",
     "@zero-dependency/utils": "1.7.5",
