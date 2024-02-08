@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"regexp"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/lib/pq"
@@ -31,9 +30,6 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 	if len(keywords) == 0 {
 		return nil
 	}
-
-	wg := sync.WaitGroup{}
-	wg.Add(len(keywords))
 
 	message := msg.GetMessage().GetText()
 	var messagesForSend []string
@@ -94,7 +90,6 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 		c.keywordsTriggerAlert(ctx, k)
 	}
 
-	wg.Wait()
 	return nil
 }
 
