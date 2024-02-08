@@ -6,6 +6,7 @@ import { computed, ref, watch } from 'vue';
 import { dudesSprites } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 
+import { randomRgbColor } from '@/helpers.js';
 import type { UserData } from '@/types.js';
 
 export const useDudes = defineStore('dudes', () => {
@@ -40,7 +41,11 @@ export const useDudes = defineStore('dudes', () => {
 		const dude = dudes.value.createDude(name, randomDudeSprite);
 
 		if (color) {
-			dude.tint(color);
+			dude.bodyTint(color);
+		}
+
+		if (randomDudeSprite === 'sith') {
+			dude.cosmeticsTint(randomRgbColor());
 		}
 
 		if (messageChunks) {

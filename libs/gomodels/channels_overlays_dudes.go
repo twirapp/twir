@@ -11,6 +11,8 @@ type ChannelsOverlaysDudes struct {
 	ID                        uuid.UUID       `gorm:"type:uuid;primary_key;"  json:"id"`
 	ChannelID                 string          `gorm:"type:text;not null;" json:"channelId"`
 	DudeColor                 string          `gorm:"type:text;not null;" json:"dudeColor"`
+	DudeEyesColor             string          `gorm:"type:text;not null;" json:"dudeEyesColor"`
+	DudeCosmeticsColor        string          `gorm:"type:text;not null;" json:"dudeCosmeticsColor"`
 	DudeMaxLifeTime           int32           `gorm:"type:integer;not null;" json:"dudeMaxLifeTime"`
 	DudeGravity               int32           `gorm:"type:integer;not null;" json:"dudeGravity"`
 	DudeScale                 float32         `gorm:"type:integer;not null;" json:"dudeScale"`
