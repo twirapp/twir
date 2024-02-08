@@ -11,7 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/integrations/spotify"
 )
 
-func (c *NowPlaying) fetcher(ctx context.Context, userId string) error {
+func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error {
 	ticker := time.NewTicker(1 * time.Second)
 
 	var channelIntegrations []*model.ChannelsIntegrations

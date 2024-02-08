@@ -76,9 +76,9 @@ func New(opts Opts) *NowPlaying {
 			defer fetcherMutex.Unlock()
 
 			go func() {
-				if err := np.fetcher(session.Request.Context(), castedUserId); err != nil {
-					opts.Logger.Error("cannot run fetcher", slog.Any("err", err))
-					session.CloseWithMsg([]byte(`{"eventName":"error","data":"cannot run fetcher"}`))
+				if err := np.startTrackUpdater(session.Request.Context(), castedUserId); err != nil {
+					opts.Logger.Error("cannot run startTrackUpdater", slog.Any("err", err))
+					session.CloseWithMsg([]byte(`{"eventName":"error","data":"cannot run startTrackUpdater"}`))
 				}
 			}()
 		},
