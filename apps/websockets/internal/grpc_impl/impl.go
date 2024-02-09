@@ -92,8 +92,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
-	fmt.Println(impl.nowplayingServer)
-
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {

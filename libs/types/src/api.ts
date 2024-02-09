@@ -1,6 +1,10 @@
 /* Do not change, this code is generated from Golang structs */
 
 
+export enum ChannelOverlayNowPlayingPreset {
+    TRANSPARENT = "TRANSPARENT",
+    AIDEN_REDESIGN = "AIDEN_REDESIGN",
+}
 export interface BotInfo {
     isMod: boolean;
     botId: string;

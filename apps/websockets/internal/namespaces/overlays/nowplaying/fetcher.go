@@ -13,6 +13,7 @@ import (
 
 func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error {
 	ticker := time.NewTicker(1 * time.Second)
+	mu := c.redisLock.NewMutex("overlays:nowplaying:lock:" + userId)
 
 	var channelIntegrations []*model.ChannelsIntegrations
 	if err := c.gorm.
@@ -69,6 +70,7 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 		case <-ctx.Done():
 			return nil
 		case <-ticker.C:
+			_ = mu.Lock()
 			cachedValue := c.redis.Get(ctx, redisKey).Val()
 			if cachedValue != "" {
 				_ = c.SendEvent(userId, "nowplaying", cachedValue)
@@ -81,6 +83,7 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 			}
 
 			_ = c.SendEvent(userId, "nowplaying", track)
+			mu.Unlock()
 		}
 	}
 }

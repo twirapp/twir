@@ -27,6 +27,7 @@
     "vue-router": "4.2.5"
   },
   "devDependencies": {
+    "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
     "@vitejs/plugin-vue": "5.0.3",
     "typescript": "5.3.3",

@@ -6,8 +6,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/go-redsync/redsync/v4"
 	"github.com/goccy/go-json"
 
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/olahol/melody"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
@@ -27,6 +29,7 @@ type NowPlaying struct {
 	redis      *redis.Client
 	config     config.Config
 	tokensGrpc tokens.TokensClient
+	redisLock  *redsync.Redsync
 }
 
 type Opts struct {
@@ -49,6 +52,7 @@ func New(opts Opts) *NowPlaying {
 		redis:      opts.Redis,
 		config:     opts.Config,
 		tokensGrpc: opts.TokensGrpc,
+		redisLock:  redsync.New(goredis.NewPool(opts.Redis)),
 	}
 
 	var fetcherMutex sync.Mutex
@@ -62,6 +66,12 @@ func New(opts Opts) *NowPlaying {
 				return
 			}
 
+			overlayId := session.Request.URL.Query().Get("id")
+			if overlayId == "" {
+				session.CloseWithMsg([]byte(`{"eventName":"error","data":"overlay id is required"}`))
+				return
+			}
+
 			userId, ok := session.Get("userId")
 			if !ok {
 				return
@@ -70,7 +80,7 @@ func New(opts Opts) *NowPlaying {
 			if !ok {
 				return
 			}
-			_ = np.SendSettings(castedUserId)
+			_ = np.SendSettings(castedUserId, overlayId)
 
 			fetcherMutex.Lock()
 			defer fetcherMutex.Unlock()

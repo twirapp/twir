@@ -55,6 +55,7 @@ import "messages/overlays/overlays.proto";
 import "messages/feedback/feedback.proto";
 
 import "messages/integrations_seventv/integrations_seventv.proto";
+import "messages/overlays_now_playing/overlays_now_playing.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
@@ -260,6 +261,11 @@ service Protected {
 	rpc IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse) {}
 	rpc IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc OverlaysNowPlayingGetAll(google.protobuf.Empty) returns (messages.overlays_now_playing.GetAllResponse) {}
+	rpc OverlaysNowPlayingUpdate(messages.overlays_now_playing.UpdateRequest) returns (messages.overlays_now_playing.Settings) {}
+	rpc OverlaysNowPlayingDelete(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc OverlaysNowPlayingCreate(google.protobuf.Empty) returns (messages.overlays_now_playing.Settings) {}
 }
 
 // UnProtected

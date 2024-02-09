@@ -1,3 +1,5 @@
+import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
+import type { ChannelOverlayNowPlayingPreset } from '@twir/types/api';
 import { useWebSocket } from '@vueuse/core';
 import { ref, watch } from 'vue';
 
@@ -6,19 +8,24 @@ import { generateSocketUrlWithParams } from '@/helpers.js';
 
 type Options = {
 	apiKey: string,
+	overlayId: string,
 }
 
-type Track = {
+export type Track = {
 	artist: string,
 	title: string,
 	image_url?: string,
 }
 
+type SettingsWithTypedPreset = Settings & { preset: ChannelOverlayNowPlayingPreset }
+
 export const useNowPlayingSocket = (options: Options) => {
 	const brbUrl = generateSocketUrlWithParams('/overlays/nowplaying', {
 		apiKey: options.apiKey,
+		id: options.overlayId,
 	});
 	const track = ref<Track | null | undefined>();
+	const settings = ref<SettingsWithTypedPreset>();
 
 	const { data, open, close } = useWebSocket(
 		brbUrl,
@@ -32,6 +39,10 @@ export const useNowPlayingSocket = (options: Options) => {
 
 	watch(data, (v) => {
 		const parsedData = JSON.parse(v) as TwirWebSocketEvent;
+		if (parsedData.eventName === 'settings') {
+			settings.value = parsedData.data as SettingsWithTypedPreset;
+		}
+
 		if (parsedData.eventName === 'nowplaying') {
 			track.value = parsedData.data as Track | null;
 		}
@@ -49,5 +60,6 @@ export const useNowPlayingSocket = (options: Options) => {
 		connect,
 		destroy,
 		track,
+		settings,
 	};
 };

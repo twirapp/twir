@@ -2,9 +2,13 @@
   "name": "@twir/types",
   "type": "module",
   "scripts": {
-    "build": "go run gen.go"
+    "build": "go run gen.go; tsc"
   },
-  "typesVersions": {
+	"exports": {
+		".": "./dist/index.js",
+		"./api": "./dist/api.js"
+	},
+	"typesVersions": {
     "*": {
       "api": [
         "./src/api.d.ts"
