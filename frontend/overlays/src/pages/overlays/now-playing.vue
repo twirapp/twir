@@ -1,55 +1,29 @@
 <script setup lang="ts">
-import { ChannelOverlayNowPlayingPreset } from '@twir/types/api';
-import { storeToRefs } from 'pinia';
-import { computed, onMounted, onUnmounted } from 'vue';
+import { NowPlaying } from '@twir/frontend-now-playing';
+import { onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 
-import PresetAidenRedesign from '@/components/now-playing/aiden-redesign.vue';
-import PresetTransparent from '@/components/now-playing/transparent.vue';
-import { useNowPlayingData } from '@/composables/now-playing/use-now-playing-data.ts';
-import { useNowPlayingIframe } from '@/composables/now-playing/use-now-playing-iframe.ts';
 import { useNowPlayingSocket } from '@/composables/now-playing/use-now-playing-socket.ts';
 
 const route = useRoute();
 
-const socket = useNowPlayingSocket({
+const { connect, destroy, currentTrack, settings } = useNowPlayingSocket({
 	apiKey: route.params.apiKey as string,
 	overlayId: route.query.id as string,
 });
-const iframe = useNowPlayingIframe();
-const { settings } = storeToRefs(useNowPlayingData());
 
 onMounted(() => {
-	iframe.connect();
-
-	if (route.params.apiKey && route.query.id && !iframe.isIframe) {
-		socket.connect();
+	console.log(route.params.apiKey, route.query.id);
+	if (route.params.apiKey && route.query.id) {
+		connect();
 	}
 });
 
 onUnmounted(() => {
-	iframe.destroy();
-	socket.destroy();
-});
-
-const presetComponent = computed(() => {
-	switch (settings.value?.preset) {
-		case ChannelOverlayNowPlayingPreset.TRANSPARENT:
-			return PresetTransparent;
-		case ChannelOverlayNowPlayingPreset.AIDEN_REDESIGN:
-			return PresetAidenRedesign;
-		default:
-			return PresetTransparent;
-	}
+	destroy();
 });
 </script>
 
 <template>
-	<component :is="presetComponent" />
+	<NowPlaying v-if="settings" :settings="settings" :track="currentTrack" />
 </template>
-
-<style>
-body {
-	background-color: #000;
-}
-</style>

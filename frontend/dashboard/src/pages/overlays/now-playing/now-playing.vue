@@ -1,31 +1,30 @@
 <script setup lang="ts">
-import { NAlert, NTabPane, NTabs } from 'naive-ui';
+import { NowPlaying } from '@twir/frontend-now-playing';
+import { NAlert, NTabPane, NTabs, useThemeVars } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import {
 	useNowPlayingOverlayManager,
-	useProfile,
 	useUserAccessFlagChecker,
 } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue';
-import { useNowPlayingIframe } from '@/pages/overlays/now-playing/now-playing-iframe';
 import { useNowPlayingForm } from '@/pages/overlays/now-playing/use-now-playing-form';
 
+
+const themeVars = useThemeVars();
 const { t } = useI18n();
 const { dialog } = useNaiveDiscrete();
 
-const { data: profile } = useProfile();
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const nowPlayingOverlayManager = useNowPlayingOverlayManager();
 const creator = nowPlayingOverlayManager.useCreate();
 const deleter = nowPlayingOverlayManager.useDelete();
 
-const iframeStore = useNowPlayingIframe();
-const { nowPlayingIframe } = storeToRefs(iframeStore);
-const { $setData } = useNowPlayingForm();
+const formStore = useNowPlayingForm();
+const { data: settings } = storeToRefs(formStore);
 
 const {
 	data: entities,
@@ -41,11 +40,6 @@ function resetTab() {
 
 	openedTab.value = entities.value.settings.at(0)?.id;
 }
-
-const overlayIframeUrl = computed(() => {
-	if (!profile.value || !openedTab.value) return null;
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/now-playing?id=${openedTab.value}`;
-});
 
 async function handleAdd() {
 	await creator.mutateAsync();
@@ -75,7 +69,7 @@ const addable = computed(() => {
 watch(openedTab, async (v) => {
 	const entity = entities.value?.settings.find(s => s.id === v);
 	if (!entity) return;
-	$setData(entity);
+	formStore.$setData(entity);
 });
 
 watch(entities, () => {
@@ -86,12 +80,10 @@ watch(entities, () => {
 <template>
 	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
 		<div style="width: 70%; position: relative;">
-			<div v-if="overlayIframeUrl">
-				<iframe
-					ref="nowPlayingIframe"
-					style="position: absolute;"
-					:src="overlayIframeUrl"
-					class="iframe"
+			<div v-if="settings" class="iframe" style="padding: 10px">
+				<NowPlaying
+					:settings="settings"
+					:track="{artist: '123', title: 'asd'}"
 				/>
 			</div>
 		</div>
@@ -129,4 +121,9 @@ watch(entities, () => {
 
 <style scoped>
 @import '../styles.css';
+
+.iframe {
+	border: 1px solid v-bind('themeVars.borderColor');
+	border-radius: 8px;
+}
 </style>

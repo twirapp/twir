@@ -13,6 +13,7 @@
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
+    "@twir/frontend-now-playing": "workspace:*",
     "@twir/grpc": "workspace:*",
     "@twirapp/dudes": "0.4.9",
     "@twirapp/kappagen": "0.0.0",

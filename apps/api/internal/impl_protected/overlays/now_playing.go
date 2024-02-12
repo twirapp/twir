@@ -63,14 +63,15 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 		WithContext(ctx).
 		Where(
 			"id = ? AND channel_id = ?",
-			dashboardId,
 			req.GetId(),
+			dashboardId,
 		).
 		First(&overlay).Error; err != nil {
 		return nil, err
 	}
 
 	overlay.Preset = overlays.ChannelOverlayNowPlayingPreset(req.GetPreset())
+
 	if err := c.Db.
 		WithContext(ctx).
 		Save(&overlay).Error; err != nil {

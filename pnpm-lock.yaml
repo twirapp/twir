@@ -182,6 +182,9 @@ importers:
       '@twir/frontend-chat':
         specifier: workspace:*
         version: link:../../libs/frontend-chat
+      '@twir/frontend-now-playing':
+        specifier: workspace:*
+        version: link:../../libs/frontend-now-playing
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
@@ -349,6 +352,9 @@ importers:
       '@twir/frontend-chat':
         specifier: workspace:*
         version: link:../../libs/frontend-chat
+      '@twir/frontend-now-playing':
+        specifier: workspace:*
+        version: link:../../libs/frontend-now-playing
       '@twir/grpc':
         specifier: workspace:*
         version: link:../../libs/grpc
@@ -519,6 +525,25 @@ importers:
         specifier: 3.4.15
         version: 3.4.15(typescript@5.3.3)
     devDependencies:
+      vue-tsc:
+        specifier: 1.8.27
+        version: 1.8.27(typescript@5.3.3)
+
+  libs/frontend-now-playing:
+    dependencies:
+      '@twir/types':
+        specifier: workspace:*
+        version: link:../types
+      api:
+        specifier: link:@twir/types/api
+        version: link:@twir/types/api
+      vue:
+        specifier: 3.4.15
+        version: 3.4.15(typescript@5.3.3)
+    devDependencies:
+      '@twir/api':
+        specifier: workspace:*
+        version: link:../api
       vue-tsc:
         specifier: 1.8.27
         version: 1.8.27(typescript@5.3.3)
@@ -937,7 +962,6 @@ packages:
     hasBin: true
     dependencies:
       '@babel/types': 7.23.9
-    dev: false
 
   /@babel/plugin-syntax-jsx@7.23.3(@babel/core@7.23.7):
     resolution: {integrity: sha512-EB2MELswq55OHUoRZLGg/zC7QWUKfNLpE57m/S2yr1uEneIgsTgrSzXP3NXEsMkVn76OlaVVnzN+ugObuYGwhg==}
@@ -1079,7 +1103,6 @@ packages:
       '@babel/helper-string-parser': 7.23.4
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
-    dev: false
 
   /@bbob/parser@2.9.0:
     resolution: {integrity: sha512-tldSYsMoEclke/B1nqL7+HbYMWZHTKvpbEHRSHuY+sZvS1o7Jpdfjb+KPpwP9wLI3p3r7GPv69/wGy+Xibs9yA==}
@@ -3025,7 +3048,7 @@ packages:
   /@vue/compiler-sfc@3.4.15:
     resolution: {integrity: sha512-LCn5M6QpkpFsh3GQvs2mJUOAlBQcCco8D60Bcqmf3O3w5a+KWS5GvYbrrJBkgvL1BDnTp+e8q0lXCLgHhKguBA==}
     dependencies:
-      '@babel/parser': 7.23.6
+      '@babel/parser': 7.23.9
       '@vue/compiler-core': 3.4.15
       '@vue/compiler-dom': 3.4.15
       '@vue/compiler-ssr': 3.4.15

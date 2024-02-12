@@ -1,24 +1,24 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import type { Track } from '../types.js';
 
-import { useNowPlayingData } from '@/composables/now-playing/use-now-playing-data.ts';
-
-const { currentTrack } = storeToRefs(useNowPlayingData());
+defineProps<{
+	track?: Track | null
+}>();
 </script>
 
 <template>
-	<div v-if="currentTrack" class="spotify">
-		<img class="cover" :src="currentTrack.image_url ?? '/overlays/public/images/play.png'"/>
+	<div v-if="track" class="spotify">
+		<img class="cover" :src="track.image_url ?? '/overlays/public/images/play.png'" />
 		<div class="info">
 			<span
 				class="artist"
 			>
-				{{ currentTrack.artist }}
+				{{ track.artist }}
 			</span>
 			<span
 				class="name"
 			>
-				{{ currentTrack.title }}
+				{{ track.title }}
 			</span>
 		</div>
 	</div>
@@ -56,7 +56,7 @@ const { currentTrack } = storeToRefs(useNowPlayingData());
 .info {
 	display: flex;
 	flex-direction: column;
-	padding-left: 5px;
+	padding-left: 15px;
 	overflow: hidden;
 	white-space: nowrap;
 }

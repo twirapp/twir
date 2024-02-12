@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { NButton } from 'naive-ui';
+import { NButton, NSelect, NFormItem, useThemeVars } from 'naive-ui';
 import { storeToRefs } from 'pinia';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNowPlayingForm } from './use-now-playing-form';
@@ -13,12 +13,12 @@ import {
 } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import { useNowPlayingIframe } from '@/pages/overlays/now-playing/now-playing-iframe';
 
 const { t } = useI18n();
 
+const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
-const { copyOverlayLink } = useCopyOverlayLink('nowplaying');
+const { copyOverlayLink } = useCopyOverlayLink('now-playing');
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const { data: profile } = useProfile();
 
@@ -44,14 +44,6 @@ async function save() {
 		duration: 1500,
 	});
 }
-
-const iframeStore = useNowPlayingIframe();
-
-watch(formValue, (form) => {
-	if (!form) return;
-	console.log('sending settings');
-	iframeStore.sendIframeMessage('settings', form);
-}, { immediate: true, deep: true });
 </script>
 
 <template>
@@ -71,8 +63,23 @@ watch(formValue, (form) => {
 		</div>
 
 		<div class="card-body-column">
-			qwe
-			{{ formValue }}
+			<n-form-item label="Style">
+				<n-select
+					v-model:value="formValue.preset"
+					:options="[
+						{ label: 'Aiden Redesign', value: 'AIDEN_REDESIGN' },
+						{ label: 'Transparent', value: 'TRANSPARENT' },
+					]"
+				/>
+			</n-form-item>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+@import '../styles.css';
+
+.card {
+	background-color: v-bind('themeVars.cardColor');
+}
+</style>

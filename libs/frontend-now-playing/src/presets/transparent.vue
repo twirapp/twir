@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
+import type { Track } from '../types.js';
 
-import { useNowPlayingData } from '@/composables/now-playing/use-now-playing-data.ts';
-
-const { currentTrack } = storeToRefs(useNowPlayingData());
+defineProps<{
+	track?: Track | null
+}>();
 </script>
 
 <template>
-	<div v-if="currentTrack" class="spotify">
-		<img class="image" :src="currentTrack.image_url ?? '/overlays/public/images/play.png'" />
+	<div v-if="track" class="spotify">
+		<img class="image" :src="track.image_url ?? '/overlays/public/images/play.png'" />
 		<div class="info">
-			<span class="name">{{ currentTrack.title }}</span>
+			<span class="name">{{ track.title }}</span>
 			<div class="artist">
-				{{ currentTrack.artist }}
+				{{ track.artist }}
 			</div>
 		</div>
 	</div>
