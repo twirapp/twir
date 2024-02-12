@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { NowPlaying } from '@twir/frontend-now-playing';
-import { NAlert, NTabPane, NTabs, useThemeVars } from 'naive-ui';
+import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import {
-	useNowPlayingOverlayManager,
+	useLastfmIntegration,
+	useNowPlayingOverlayManager, useSpotifyIntegration,
 	useUserAccessFlagChecker,
 } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
@@ -22,6 +23,13 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 const nowPlayingOverlayManager = useNowPlayingOverlayManager();
 const creator = nowPlayingOverlayManager.useCreate();
 const deleter = nowPlayingOverlayManager.useDelete();
+
+const { data: spotifyData } = useSpotifyIntegration().useData();
+const { data: lastFmData } = useLastfmIntegration().useData();
+
+const isSomeSongIntegrationEnabled = computed(() => {
+	return spotifyData.value?.userName || lastFmData.value?.userName;
+});
 
 const formStore = useNowPlayingForm();
 const { data: settings } = storeToRefs(formStore);
@@ -83,12 +91,32 @@ watch(entities, () => {
 			<div v-if="settings" class="iframe" style="padding: 10px">
 				<NowPlaying
 					:settings="settings"
-					:track="{artist: '123', title: 'asd'}"
+					:track="{
+						image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
+						artist: 'Slipknot',
+						title: 'Psychosocial'
+					}"
 				/>
 			</div>
 		</div>
 		<div style="width: 30%;">
+			<n-result
+				v-if="!isSomeSongIntegrationEnabled"
+				status="warning"
+				title="No enabled song integrations!"
+			>
+				<template #footer>
+					Connect Spotify or Last.fm in
+					<router-link :to="{ name: 'Integrations'}" #="{ navigate, href }" custom>
+						<n-a :href="href" @click="navigate">
+							{{ t('sidebar.integrations') }}
+						</n-a>
+					</router-link>
+					to use this overlay
+				</template>
+			</n-result>
 			<n-tabs
+				v-if="isSomeSongIntegrationEnabled"
 				v-model:value="openedTab"
 				type="card"
 				:closable="userCanEditOverlays"
