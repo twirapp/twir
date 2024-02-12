@@ -24,6 +24,7 @@ COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/fontsource/package.json libs/fontsource/package.json
 COPY libs/frontend-chat/package.json libs/frontend-chat/package.json
+COPY libs/frontend-now-playing/package.json libs/frontend-now-playing/package.json
 COPY libs/grpc/package.json libs/grpc/package.json
 COPY libs/pubsub/package.json libs/pubsub/package.json
 COPY libs/types/package.json libs/types/package.json

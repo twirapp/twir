@@ -2,17 +2,20 @@
   "name": "@twir/types",
   "type": "module",
   "scripts": {
+		"prebuild": "rimraf dist",
     "build": "go run gen.go; tsc"
   },
 	"exports": {
-		".": "./dist/index.js",
-		"./api": "./dist/api.js"
+		"./*": {
+			"import": "./dist/*.js",
+			"require": "./dist/*.js"
+		}
 	},
 	"typesVersions": {
-    "*": {
-      "api": [
-        "./src/api.d.ts"
-      ]
-    }
-  }
+		"*": {
+			"*": [
+				"./dist/*.d.ts"
+			]
+		}
+	}
 }
