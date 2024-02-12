@@ -82,7 +82,7 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 
 func (c *Overlays) OverlaysNowPlayingDelete(
 	ctx context.Context,
-	_ *emptypb.Empty,
+	req *overlays_now_playing.DeleteRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
 	if err != nil {
@@ -92,8 +92,9 @@ func (c *Overlays) OverlaysNowPlayingDelete(
 	if err := c.Db.
 		WithContext(ctx).
 		Where(
-			"channel_id = ?",
+			"channel_id = ? AND id = ?",
 			dashboardId,
+			req.GetId(),
 		).
 		Delete(&model.ChannelOverlayNowPlaying{}).Error; err != nil {
 		return nil, err

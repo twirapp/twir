@@ -16,3 +16,7 @@ message UpdateRequest {
 	string id = 1;
 	string preset = 2;
 }
+
+message DeleteRequest {
+	string id = 1;
+}

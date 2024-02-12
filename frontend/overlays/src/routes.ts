@@ -36,8 +36,8 @@ export const routes = createRouter({
 			component: () => import('@/pages/overlays/be-right-back.vue'),
 		},
 		{
-			path: '/:apiKey/nowplaying',
-			component: () => import('@/pages/overlays/nowplaying.vue'),
+			path: '/:apiKey/now-playing',
+			component: () => import('@/pages/overlays/now-playing.vue'),
 		},
 	],
 });
