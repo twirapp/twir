@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
+	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/nowplaying"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -49,6 +50,7 @@ type GrpcImpl struct {
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
+	nowplayingServer       *nowplaying.NowPlaying
 }
 
 type GrpcOpts struct {
@@ -68,6 +70,7 @@ type GrpcOpts struct {
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
+	NowplayingServer       *nowplaying.NowPlaying
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -84,6 +87,7 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
+		nowplayingServer:       opts.NowplayingServer,
 	}
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))

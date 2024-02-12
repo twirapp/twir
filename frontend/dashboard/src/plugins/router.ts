@@ -147,6 +147,12 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'MANAGE_MODERATION' },
 				},
 				{
+					name: 'NowPlaying',
+					path: '/dashboard/overlays/now-playing',
+					component: () => import('../pages/overlays/now-playing/now-playing.vue'),
+					meta: { neededPermission: 'MANAGE_MODERATION' },
+				},
+				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('../pages/NoAccess.vue'),

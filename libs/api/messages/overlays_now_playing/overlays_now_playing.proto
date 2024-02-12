@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/overlays_now_playing";
+package messages.overlays_now_playing;
+
+message Settings {
+	string id = 1;
+	string preset = 2;
+	string channel_id = 3;
+}
+
+message GetAllResponse {
+	repeated Settings settings = 1;
+}
+
+message UpdateRequest {
+	string id = 1;
+	string preset = 2;
+}
+
+message DeleteRequest {
+	string id = 1;
+}
