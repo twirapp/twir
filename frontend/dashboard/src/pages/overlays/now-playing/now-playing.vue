@@ -89,7 +89,10 @@ watch(entities, () => {
 	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
 		<div style="width: 70%; position: relative;">
 			<n-h1>Preview</n-h1>
-			<div class="iframe" style="padding: 10px">
+			<div
+				class="iframe"
+				style="padding: 10px; display: flex; align-items: center; justify-content: center"
+			>
 				<NowPlaying
 					:settings="settings ?? { preset: 'TRANSPARENT' }"
 					:track="{
