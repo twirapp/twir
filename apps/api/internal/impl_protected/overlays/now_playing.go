@@ -13,9 +13,12 @@ import (
 
 func convertEntityToProto(entity model.ChannelOverlayNowPlaying) *overlays_now_playing.Settings {
 	return &overlays_now_playing.Settings{
-		Id:        entity.ID.String(),
-		Preset:    entity.Preset.String(),
-		ChannelId: entity.ChannelID,
+		Id:              entity.ID.String(),
+		Preset:          entity.Preset.String(),
+		ChannelId:       entity.ChannelID,
+		FontFamily:      entity.FontFamily,
+		FontWeight:      entity.FontWeight,
+		BackgroundColor: entity.BackgroundColor,
 	}
 }
 
@@ -71,6 +74,9 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 	}
 
 	overlay.Preset = overlays.ChannelOverlayNowPlayingPreset(req.GetPreset())
+	overlay.FontFamily = req.GetFontFamily()
+	overlay.FontWeight = req.GetFontWeight()
+	overlay.BackgroundColor = req.GetBackgroundColor()
 
 	if err := c.Db.
 		WithContext(ctx).
@@ -106,7 +112,7 @@ func (c *Overlays) OverlaysNowPlayingDelete(
 
 func (c *Overlays) OverlaysNowPlayingCreate(
 	ctx context.Context,
-	_ *emptypb.Empty,
+	req *overlays_now_playing.CreateRequest,
 ) (*overlays_now_playing.Settings, error) {
 	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
 	if err != nil {
@@ -114,9 +120,12 @@ func (c *Overlays) OverlaysNowPlayingCreate(
 	}
 
 	overlay := model.ChannelOverlayNowPlaying{
-		ID:        uuid.New(),
-		ChannelID: dashboardId,
-		Preset:    overlays.ChannelOverlayNowPlayingPresetTransparent,
+		ID:              uuid.New(),
+		Preset:          overlays.ChannelOverlayNowPlayingPresetTransparent,
+		FontFamily:      req.GetFontFamily(),
+		FontWeight:      req.GetFontWeight(),
+		BackgroundColor: req.GetBackgroundColor(),
+		ChannelID:       dashboardId,
 	}
 
 	if err := c.Db.

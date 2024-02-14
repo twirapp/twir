@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@twir/fontsource": "workspace:*",
     "@twir/types": "workspace:*",
     "vue": "3.4.18"
   },

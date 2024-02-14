@@ -1,9 +1,21 @@
 <script setup lang="ts">
+import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
+import { computed } from 'vue';
+
 import type { Track } from '../types.js';
 
-defineProps<{
+const props = defineProps<{
 	track?: Track | null
+	settings: Settings
 }>();
+
+const bgColor = computed(() => {
+	if (props.settings.backgroundColor === 'rgba(0, 0, 0, 0)') {
+		return '#1E1E1E';
+	}
+
+	return props.settings.backgroundColor;
+});
 </script>
 
 <template>
@@ -28,7 +40,7 @@ defineProps<{
 .spotify {
 	height: 70px;
 	width: 350px;
-	background: #1E1E1E;
+	background-color: v-bind(bgColor);
 	display: flex;
 	align-items: center;
 

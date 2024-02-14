@@ -4,6 +4,7 @@
 export enum ChannelOverlayNowPlayingPreset {
     TRANSPARENT = "TRANSPARENT",
     AIDEN_REDESIGN = "AIDEN_REDESIGN",
+    SIMPLE_LINE = "SIMPLE_LINE",
 }
 export interface BotInfo {
     isMod: boolean;

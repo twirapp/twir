@@ -12,8 +12,10 @@ import {
 } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue';
-import { useNowPlayingForm } from '@/pages/overlays/now-playing/use-now-playing-form';
-
+import {
+	useNowPlayingForm,
+	defaultSettings,
+} from '@/pages/overlays/now-playing/use-now-playing-form';
 
 const themeVars = useThemeVars();
 const { t } = useI18n();
@@ -50,7 +52,7 @@ function resetTab() {
 }
 
 async function handleAdd() {
-	await creator.mutateAsync();
+	await creator.mutateAsync(defaultSettings);
 }
 
 async function handleClose(id: string) {

@@ -2,8 +2,17 @@ import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_p
 import { defineStore } from 'pinia';
 import { ref, toRaw } from 'vue';
 
+export const defaultSettings: Settings = {
+	id: '',
+	preset: 'TRANSPARENT',
+	backgroundColor: 'rgba(0, 0, 0, 0)',
+	channelId: '',
+	fontFamily: 'inter',
+	fontWeight: 400,
+};
+
 export const useNowPlayingForm = defineStore('now-playing-form', () => {
-	const data = ref<Settings>();
+	const data = ref<Settings>(structuredClone(defaultSettings));
 
 	function $setData(d: Settings) {
 		data.value = structuredClone(toRaw(d));

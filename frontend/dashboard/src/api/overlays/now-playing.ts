@@ -2,6 +2,7 @@ import { useQueryClient, useQuery, useMutation } from '@tanstack/vue-query';
 import type {
 	UpdateRequest,
 	GetAllResponse,
+	CreateRequest,
 } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
 import { unref } from 'vue';
 import type { MaybeRef } from 'vue';
@@ -22,8 +23,8 @@ export const useNowPlayingOverlayManager = () => {
 		}),
 		useCreate: () => useMutation({
 			mutationKey: ['nowPlayingOverlayCreate'],
-			mutationFn: async () => {
-				const call = await protectedApiClient.overlaysNowPlayingCreate({});
+			mutationFn: async (opts: CreateRequest) => {
+				const call = await protectedApiClient.overlaysNowPlayingCreate(opts);
 				return call.response;
 			},
 			onSuccess: async () => {

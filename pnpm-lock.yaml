@@ -531,6 +531,9 @@ importers:
 
   libs/frontend-now-playing:
     dependencies:
+      '@twir/fontsource':
+        specifier: workspace:*
+        version: link:../fontsource
       '@twir/types':
         specifier: workspace:*
         version: link:../types

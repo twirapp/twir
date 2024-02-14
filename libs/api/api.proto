@@ -265,7 +265,7 @@ service Protected {
 	rpc OverlaysNowPlayingGetAll(google.protobuf.Empty) returns (messages.overlays_now_playing.GetAllResponse) {}
 	rpc OverlaysNowPlayingUpdate(messages.overlays_now_playing.UpdateRequest) returns (messages.overlays_now_playing.Settings) {}
 	rpc OverlaysNowPlayingDelete(messages.overlays_now_playing.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc OverlaysNowPlayingCreate(google.protobuf.Empty) returns (messages.overlays_now_playing.Settings) {}
+	rpc OverlaysNowPlayingCreate(messages.overlays_now_playing.CreateRequest) returns (messages.overlays_now_playing.Settings) {}
 }
 
 // UnProtected
