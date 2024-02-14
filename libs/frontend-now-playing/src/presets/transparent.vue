@@ -11,7 +11,10 @@ defineProps<{
 
 <template>
 	<div v-if="track" class="spotify">
-		<img class="image" :src="track.image_url ?? '/overlays/public/images/play.png'" />
+		<img
+			v-if="settings.showImage" class="image"
+			:src="track.image_url ?? '/overlays/public/images/play.png'"
+		/>
 		<div class="info">
 			<span class="name">{{ track.title }}</span>
 			<div class="artist">

@@ -20,7 +20,10 @@ const bgColor = computed(() => {
 
 <template>
 	<div v-if="track" class="spotify">
-		<img class="cover" :src="track.image_url ?? '/overlays/public/images/play.png'" />
+		<img
+			v-if="settings.showImage" class="cover"
+			:src="track.image_url ?? '/overlays/public/images/play.png'"
+		/>
 		<div class="info">
 			<span
 				class="artist"

@@ -9,6 +9,7 @@ export const defaultSettings: Settings = {
 	channelId: '',
 	fontFamily: 'inter',
 	fontWeight: 400,
+	showImage: true,
 };
 
 export const useNowPlayingForm = defineStore('now-playing-form', () => {

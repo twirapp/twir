@@ -9,6 +9,7 @@ message Settings {
 	string font_family = 4;
 	uint32 font_weight = 5;
 	string background_color = 6;
+	bool show_image = 7;
 }
 
 message GetAllResponse {
@@ -21,6 +22,7 @@ message UpdateRequest {
 	string font_family = 3;
 	uint32 font_weight = 4;
 	string background_color = 5;
+	bool show_image = 6;
 }
 
 message CreateRequest {
@@ -28,6 +30,7 @@ message CreateRequest {
 	string font_family = 2;
 	uint32 font_weight = 3;
 	string background_color = 4;
+	bool show_image = 5;
 }
 
 message DeleteRequest {

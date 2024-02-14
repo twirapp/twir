@@ -19,6 +19,7 @@ func convertEntityToProto(entity model.ChannelOverlayNowPlaying) *overlays_now_p
 		FontFamily:      entity.FontFamily,
 		FontWeight:      entity.FontWeight,
 		BackgroundColor: entity.BackgroundColor,
+		ShowImage:       entity.ShowImage,
 	}
 }
 
@@ -77,6 +78,7 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 	overlay.FontFamily = req.GetFontFamily()
 	overlay.FontWeight = req.GetFontWeight()
 	overlay.BackgroundColor = req.GetBackgroundColor()
+	overlay.ShowImage = req.GetShowImage()
 
 	if err := c.Db.
 		WithContext(ctx).
@@ -126,6 +128,7 @@ func (c *Overlays) OverlaysNowPlayingCreate(
 		FontWeight:      req.GetFontWeight(),
 		BackgroundColor: req.GetBackgroundColor(),
 		ChannelID:       dashboardId,
+		ShowImage:       req.GetShowImage(),
 	}
 
 	if err := c.Db.

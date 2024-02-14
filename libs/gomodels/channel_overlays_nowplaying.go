@@ -11,6 +11,7 @@ type ChannelOverlayNowPlaying struct {
 	FontFamily      string                                  `gorm:"column:font_family;type:text" json:"fontFamily"`
 	FontWeight      uint32                                  `gorm:"column:font_weight;type:int" json:"fontWeight"`
 	BackgroundColor string                                  `gorm:"column:background_color;type:text" json:"backgroundColor"`
+	ShowImage       bool                                    `gorm:"column:show_image;type:boolean" json:"showImage"`
 
 	ChannelID string    `gorm:"column:channel_id;type:text" json:"channel_id"`
 	Channel   *Channels `gorm:"foreignkey:ChannelID;" json:"channel"`

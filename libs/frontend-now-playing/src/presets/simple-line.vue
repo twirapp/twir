@@ -12,6 +12,10 @@ defineProps<{
 <template>
 	<div v-if="track" class="spotify">
 		<div class="info">
+			<img
+				v-if="settings.showImage" class="cover"
+				:src="track.image_url ?? '/overlays/public/images/play.png'"
+			/>
 			<span class="name">{{ track.title }}</span>
 			<span>–</span>
 			<div class="artist">
@@ -43,9 +47,16 @@ body {
 	border-radius: 8px;
 }
 
+.cover {
+	width: 30px;
+	height: 30px;
+	border-radius: 5px;
+}
+
 .info {
 	display: flex;
 	flex-direction: row;
 	gap: 4px;
+	align-items: center;
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Font, FontSelector } from '@twir/fontsource';
-import { NButton, NSelect, NFormItem, useThemeVars, NColorPicker } from 'naive-ui';
+import { NButton, NSelect, NFormItem, useThemeVars, NColorPicker, NSwitch } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -41,6 +41,7 @@ async function save() {
 		fontFamily: formValue.value.fontFamily,
 		fontWeight: formValue.value.fontWeight,
 		backgroundColor: formValue.value.backgroundColor,
+		showImage: formValue.value.showImage,
 	});
 
 	discrete.notification.success({
@@ -87,6 +88,10 @@ const fontWeightOptions = computed(() => {
 						{ label: 'Simple line', value: 'SIMPLE_LINE' },
 					]"
 				/>
+			</n-form-item>
+
+			<n-form-item label="Show image">
+				<n-switch v-model:value="formValue.showImage" />
 			</n-form-item>
 
 			<n-form-item label="Background color">
