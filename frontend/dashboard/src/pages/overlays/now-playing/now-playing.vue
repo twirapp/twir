@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NowPlaying } from '@twir/frontend-now-playing';
-import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA } from 'naive-ui';
+import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA, NH1 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -88,9 +88,10 @@ watch(entities, () => {
 <template>
 	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
 		<div style="width: 70%; position: relative;">
-			<div v-if="settings" class="iframe" style="padding: 10px">
+			<n-h1>Preview</n-h1>
+			<div class="iframe" style="padding: 10px">
 				<NowPlaying
-					:settings="settings"
+					:settings="settings ?? { preset: 'TRANSPARENT' }"
 					:track="{
 						image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
 						artist: 'Slipknot',
@@ -107,7 +108,7 @@ watch(entities, () => {
 			>
 				<template #footer>
 					Connect Spotify or Last.fm in
-					<router-link :to="{ name: 'Integrations'}" #="{ navigate, href }" custom>
+					<router-link :to="{ name: 'Integrations' }" #="{ navigate, href }" custom>
 						<n-a :href="href" @click="navigate">
 							{{ t('sidebar.integrations') }}
 						</n-a>
@@ -115,34 +116,35 @@ watch(entities, () => {
 					to use this overlay
 				</template>
 			</n-result>
-			<n-tabs
-				v-if="isSomeSongIntegrationEnabled"
-				v-model:value="openedTab"
-				type="card"
-				:closable="userCanEditOverlays"
-				:addable="addable"
-				style="margin-top: 1rem;"
-				tab-style="min-width: 80px;"
-				@close="handleClose"
-				@add="handleAdd"
-			>
-				<template #prefix>
-					{{ t('overlays.chat.presets') }}
-				</template>
-				<template v-if="entities?.settings.length">
-					<n-tab-pane
-						v-for="(entity, entityIndex) in entities?.settings"
-						:key="entity.id"
-						:tab="`#${entityIndex+1}`"
-						:name="entity.id!"
-					>
-						<now-playing-form />
-					</n-tab-pane>
-				</template>
-			</n-tabs>
-			<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
-				Create new overlay for edit settings
-			</n-alert>
+			<template v-if="isSomeSongIntegrationEnabled">
+				<n-tabs
+					v-model:value="openedTab"
+					type="card"
+					:closable="userCanEditOverlays"
+					:addable="addable"
+					style="margin-top: 1rem;"
+					tab-style="min-width: 80px;"
+					@close="handleClose"
+					@add="handleAdd"
+				>
+					<template #prefix>
+						{{ t('overlays.chat.presets') }}
+					</template>
+					<template v-if="entities?.settings.length">
+						<n-tab-pane
+							v-for="(entity, entityIndex) in entities?.settings"
+							:key="entity.id"
+							:tab="`#${entityIndex+1}`"
+							:name="entity.id!"
+						>
+							<now-playing-form />
+						</n-tab-pane>
+					</template>
+				</n-tabs>
+				<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
+					Create new overlay for edit settings
+				</n-alert>
+			</template>
 		</div>
 	</div>
 </template>
