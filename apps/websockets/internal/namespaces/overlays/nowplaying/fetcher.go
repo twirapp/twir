@@ -2,9 +2,13 @@ package nowplaying
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
@@ -71,19 +75,25 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 			return nil
 		case <-ticker.C:
 			_ = mu.Lock()
-			cachedValue := c.redis.Get(ctx, redisKey).Val()
-			if cachedValue != "" {
-				_ = c.SendEvent(userId, "nowplaying", cachedValue)
+			track := &Track{}
+			err := c.redis.Get(ctx, redisKey).Scan(track)
+			if err == nil {
+				_ = c.SendEvent(userId, "nowplaying", track)
 				continue
+			} else if !errors.Is(err, redis.Nil) {
+				c.logger.Error("cannot get redis key", slog.Any("err", err))
 			}
 
-			track := fetcher.fetch()
+			track = fetcher.fetch()
 			if track != nil {
-				c.redis.Set(ctx, redisKey, track, 10*time.Second)
+				err := c.redis.Set(ctx, redisKey, track, 10*time.Second).Err()
+				if err != nil {
+					c.logger.Error("cannot set redis key", slog.Any("err", err))
+				}
 			}
 
 			_ = c.SendEvent(userId, "nowplaying", track)
-			mu.Unlock()
+			_, _ = mu.Unlock()
 		}
 	}
 }
@@ -92,6 +102,14 @@ type Track struct {
 	Artist   string `json:"artist"`
 	Title    string `json:"title"`
 	ImageUrl string `json:"image_url,omitempty"`
+}
+
+func (i Track) MarshalBinary() ([]byte, error) {
+	return json.Marshal(i)
+}
+
+func (i *Track) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, i)
 }
 
 type channelSongFetcher struct {
