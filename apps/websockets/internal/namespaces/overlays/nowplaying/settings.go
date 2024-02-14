@@ -1,9 +1,7 @@
 package nowplaying
 
 import (
-	"github.com/satont/twir/apps/websockets/internal/protoutils"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/api/messages/overlays_now_playing"
 )
 
 func (c *NowPlaying) SendSettings(userId string, overlayId string) error {
@@ -19,21 +17,9 @@ func (c *NowPlaying) SendSettings(userId string, overlayId string) error {
 		return err
 	}
 
-	d, err := protoutils.CreateJsonWithProto(
-		&overlays_now_playing.Settings{
-			Id:        entity.ID.String(),
-			Preset:    entity.Preset.String(),
-			ChannelId: entity.ChannelID,
-		},
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
 	return c.SendEvent(
 		userId,
 		"settings",
-		d,
+		entity,
 	)
 }

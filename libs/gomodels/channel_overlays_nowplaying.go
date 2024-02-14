@@ -13,7 +13,7 @@ type ChannelOverlayNowPlaying struct {
 	BackgroundColor string                                  `gorm:"column:background_color;type:text" json:"backgroundColor"`
 	ShowImage       bool                                    `gorm:"column:show_image;type:boolean" json:"showImage"`
 
-	ChannelID string    `gorm:"column:channel_id;type:text" json:"channel_id"`
+	ChannelID string    `gorm:"column:channel_id;type:text" json:"channelId"`
 	Channel   *Channels `gorm:"foreignkey:ChannelID;" json:"channel"`
 }
 
