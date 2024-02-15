@@ -10,8 +10,8 @@ defineProps<{
 	settings: Settings
 }>();
 
-const spotifyRef = ref<HTMLElement | null>(null);
-const infoRef = ref<HTMLElement | null>(null);
+const spotifyRef = ref<HTMLElement>();
+const infoRef = ref<HTMLElement>();
 
 
 const { width: spotifyWidth } = useElementSize(spotifyRef);

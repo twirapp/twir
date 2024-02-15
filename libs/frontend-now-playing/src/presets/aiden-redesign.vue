@@ -18,9 +18,9 @@ const bgColor = computed(() => {
 	return props.settings.backgroundColor;
 });
 
-const infoRef = ref<HTMLElement | null>(null);
-const nameRef = ref<HTMLElement | null>(null);
-const artistRef = ref<HTMLElement | null>(null);
+const infoRef = ref<HTMLElement>();
+const nameRef = ref<HTMLElement>();
+const artistRef = ref<HTMLElement>();
 
 const { width: infoWidth } = useElementSize(infoRef);
 const { width: nameWidth } = useElementSize(nameRef);
