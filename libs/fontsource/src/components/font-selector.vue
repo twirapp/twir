@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NSelect } from 'naive-ui';
 import { computed, watch, h, ref } from 'vue';
-import { onMounted } from 'vue';
+import { onMounted, type VNodeChild } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { generateFontKey } from '../api.js';
@@ -63,7 +63,7 @@ const availableSubsetsOptions = computed(() => {
 		.map(subset => ({ label: subset, value: subset }));
 });
 
-function renderLabel(option: FontOption) {
+function renderLabel(option: FontOption): VNodeChild {
 	if (!fontSource.loading.value) {
 		fontSource.loadFont(option.value, option.fontWeight, option.fontStyle);
 	}
