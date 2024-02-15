@@ -48,6 +48,21 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 		)
 	}
 
+	mentions := make([]*parser.Message_Mention, 0, len(msg.GetMessage().GetFragments()))
+	for _, m := range msg.GetMessage().GetFragments() {
+		if m.Type != shared.FragmentType_MENTION {
+			continue
+		}
+
+		mentions = append(
+			mentions, &parser.Message_Mention{
+				UserId:    m.GetMention().GetUserId(),
+				UserName:  m.GetMention().GetUserName(),
+				UserLogin: m.GetMention().GetUserLogin(),
+			},
+		)
+	}
+
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
 			Id:          msg.GetChatterUserId(),
@@ -61,9 +76,10 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 			Name: msg.GetBroadcasterUserLogin(),
 		},
 		Message: &parser.Message{
-			Id:     msg.GetMessageId(),
-			Text:   msg.GetMessage().GetText(),
-			Emotes: emotes,
+			Id:       msg.GetMessageId(),
+			Text:     msg.GetMessage().GetText(),
+			Emotes:   emotes,
+			Mentions: mentions,
 		},
 	}
 

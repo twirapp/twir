@@ -246,6 +246,17 @@ func (c *Commands) ParseCommandResponses(
 		Badges:      requestData.GetSender().GetBadges(),
 		Color:       requestData.GetSender().GetColor(),
 	}
+	mentions := make([]types.ParseContextMention, 0, len(requestData.GetMessage().GetMentions()))
+	for _, m := range requestData.GetMessage().GetMentions() {
+		mentions = append(
+			mentions,
+			types.ParseContextMention{
+				UserId:    m.GetUserId(),
+				UserName:  m.GetUserName(),
+				UserLogin: m.GetUserLogin(),
+			},
+		)
+	}
 
 	parseCtx := &types.ParseContext{
 		MessageId: requestData.GetMessage().GetId(),
@@ -284,7 +295,8 @@ func (c *Commands) ParseCommandResponses(
 				}
 			},
 		),
-		Command: command.Cmd,
+		Mentions: mentions,
+		Command:  command.Cmd,
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
@@ -345,8 +357,8 @@ func (c *Commands) ParseCommandResponses(
 		response := r
 		c.parseResponsesPool.Submit(
 			func() {
+				defer wg.Done()
 				result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
-				wg.Done()
 			},
 		)
 	}

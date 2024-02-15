@@ -10,7 +10,7 @@ import (
 )
 
 type songsRequestedDurationSumResult struct {
-	Sum int64 //or int ,or some else
+	Sum int64 // or int ,or some else
 }
 
 var SongsRequestedDuration = &types.Variable{
@@ -22,12 +22,19 @@ var SongsRequestedDuration = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		targetUserId := lo.
+			IfF(
+				len(parseCtx.Mentions) > 0, func() string {
+					return parseCtx.Mentions[0].UserId
+				},
+			).
+			Else(parseCtx.Sender.ID)
 		sum := &songsRequestedDurationSumResult{}
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Table("channels_requested_songs").
 			Select("sum(duration) as sum").
-			Where(`"channelId" = ? AND "orderedById" = ?`, parseCtx.Channel.ID, parseCtx.Sender.ID).
+			Where(`"channelId" = ? AND "orderedById" = ?`, parseCtx.Channel.ID, targetUserId).
 			Scan(&sum).
 			Error
 

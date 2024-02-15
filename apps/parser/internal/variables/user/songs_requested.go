@@ -18,11 +18,18 @@ var SongsRequested = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := &types.VariableHandlerResult{}
 
+		targetUserId := lo.
+			IfF(
+				len(parseCtx.Mentions) > 0, func() string {
+					return parseCtx.Mentions[0].UserId
+				},
+			).
+			Else(parseCtx.Sender.ID)
 		var count int64
 		err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Model(&model.RequestedSong{}).
-			Where(`"channelId" =? AND "orderedById" = ?`, parseCtx.Channel.ID, parseCtx.Sender.ID).
+			Where(`"channelId" =? AND "orderedById" = ?`, parseCtx.Channel.ID, targetUserId).
 			Count(&count).
 			Error
 

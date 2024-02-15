@@ -134,7 +134,7 @@ func (c *cacher) GetTwitchUserFollow(ctx context.Context, userID string) *helix.
 }
 
 // GetGbUser implements types.VariablesCacher
-func (c *cacher) GetGbUserStats(ctx context.Context) *model.UsersStats {
+func (c *cacher) GetGbUserStats(ctx context.Context, userId string) *model.UsersStats {
 	c.locks.dbUserStats.Lock()
 	defer c.locks.dbUserStats.Unlock()
 
@@ -146,7 +146,7 @@ func (c *cacher) GetGbUserStats(ctx context.Context) *model.UsersStats {
 
 	err := c.services.Gorm.
 		WithContext(ctx).
-		Where(`"userId" = ? AND "channelId" = ?`, c.parseCtxSender.ID, c.parseCtxChannel.ID).
+		Where(`"userId" = ? AND "channelId" = ?`, userId, c.parseCtxChannel.ID).
 		Find(result).
 		Error
 	if err == nil {

@@ -36,9 +36,16 @@ message Message {
     repeated EmotePosition positions = 4;
   }
 
+	message Mention {
+		string user_id = 1;
+		string user_name = 2;
+		string user_login = 3;
+	}
+
   string text = 1;
   string id = 2;
   repeated Emote emotes = 3;
+	repeated Mention mentions = 4;
 }
 
 message ProcessCommandRequest {

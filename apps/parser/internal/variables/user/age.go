@@ -2,9 +2,7 @@ package user
 
 import (
 	"context"
-	"strings"
 
-	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/pkg/helpers"
@@ -19,20 +17,16 @@ var Age = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		var user *helix.User
-		if parseCtx.Text != nil {
-			userName := strings.ReplaceAll(*parseCtx.Text, "@", "")
-
-			cachedUser, err := parseCtx.Cacher.GetTwitchUserByName(ctx, userName)
-			if err != nil {
-				return nil, err
-			}
-
-			if cachedUser != nil {
-				user = cachedUser
-			}
-		} else {
-			user = parseCtx.Cacher.GetTwitchSenderUser(ctx)
+		targetUserId := lo.
+			IfF(
+				len(parseCtx.Mentions) > 0, func() string {
+					return parseCtx.Mentions[0].UserId
+				},
+			).
+			Else(parseCtx.Sender.ID)
+		user, err := parseCtx.Cacher.GetTwitchUserById(ctx, targetUserId)
+		if err != nil {
+			return nil, err
 		}
 
 		if user == nil {
