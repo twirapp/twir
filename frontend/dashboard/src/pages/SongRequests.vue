@@ -1,8 +1,8 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import {
-  NGrid,
-  NGridItem,
-  NModal,
+	NGrid,
+	NGridItem,
+	NModal,
 } from 'naive-ui';
 import { computed, ref } from 'vue';
 
@@ -64,7 +64,7 @@ const noCookie = computed(() => {
 		:segmented="true"
 		preset="card"
 		title="Settings"
-		:style="{ width: '600px',top: '50px' }"
+		:style="{ width: '70%',top: '50px' }"
 	>
 		<settings-modal />
 	</n-modal>

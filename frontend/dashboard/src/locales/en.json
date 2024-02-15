@@ -42,10 +42,7 @@
     "commands": {
       "label": "Commands",
       "custom": "Custom",
-      "stats": "Stats",
-      "moderation": "Moderation",
-      "songs": "Songs",
-      "manage": "Manage"
+      "builtin": "Built-in"
     },
     "integrations": "Integrations",
     "events": "Events",

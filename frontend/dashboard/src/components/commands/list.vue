@@ -17,9 +17,11 @@ const props = withDefaults(defineProps<{
 	commands: Command[]
 	showHeader?: boolean
 	showCreateButton?: boolean,
+	groupByModule?: boolean,
 }>(), {
 	showHeader: false,
 	showCreateButton: false,
+	groupByModule: false,
 });
 
 const commandsWithGroups = computed<ListRowData[]>(() => {
@@ -35,20 +37,38 @@ const commandsWithGroups = computed<ListRowData[]>(() => {
 		} as any as ListRowData,
 	};
 
-	for (const command of commands) {
-		i++;
-		const group = command.group?.name ?? 'no-group';
-		if (!groups[group]) {
-			groups[group] = {
-				name: group,
-				children: [],
-				isGroup: true,
-				groupColor: command.group!.color,
-				index: i,
-			} as any as ListRowData;
-		}
+	if (props.groupByModule) {
+		for (const command of commands) {
+			i++;
+			const group = command.module;
+			if (!groups[group]) {
+				groups[group] = {
+					name: group,
+					children: [],
+					isGroup: true,
+					groupColor: '',
+					index: i,
+				} as any as ListRowData;
+			}
 
-		groups[group]!.children!.push(command as ListRowData);
+			groups[group]!.children!.push(command as ListRowData);
+		}
+	} else {
+		for (const command of commands) {
+			i++;
+			const group = command.group?.name ?? 'no-group';
+			if (!groups[group]) {
+				groups[group] = {
+					name: group,
+					children: [],
+					isGroup: true,
+					groupColor: command.group!.color,
+					index: i,
+				} as any as ListRowData;
+			}
+
+			groups[group]!.children!.push(command as ListRowData);
+		}
 	}
 
 	return [
@@ -122,6 +142,7 @@ const columns = createColumns(editCommand);
 		</div>
 
 		<n-data-table
+			size="small"
 			:columns="columns"
 			:data="filteredCommands"
 			:bordered="false"

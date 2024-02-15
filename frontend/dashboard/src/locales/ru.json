@@ -42,10 +42,7 @@
     "commands": {
       "label": "Команды",
       "custom": "Пользовательские",
-      "stats": "Статистика",
-      "moderation": "Модерация",
-      "songs": "Песни",
-      "manage": "Управление"
+      "builtin": "Встроенные"
     },
     "integrations": "Интеграции",
     "events": "События",

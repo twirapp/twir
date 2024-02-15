@@ -117,10 +117,7 @@
     "commands": {
       "label": "Команди",
       "custom": "Персональні",
-      "stats": "Статистика",
-      "moderation": "Модерація",
-      "songs": "Пісні",
-      "manage": "Керування"
+     	"builtin": "Вбудовані"
     },
     "integrations": "Інтеграції",
     "events": "Події",

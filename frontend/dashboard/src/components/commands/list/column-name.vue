@@ -109,7 +109,7 @@ function setEdit() {
 }
 
 .command-name {
-	display: flex;
+	display: inline-flex;
 	align-items: flex-start;
 	gap: 4px;
 	justify-content: space-between;
