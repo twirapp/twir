@@ -138,6 +138,8 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	case websockets.RefreshOverlaySettingsName_CHAT:
 		err = c.chatServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
+	case websockets.RefreshOverlaySettingsName_NOW_PLAYING:
+		err = c.nowplayingServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	default:
 		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
 	}

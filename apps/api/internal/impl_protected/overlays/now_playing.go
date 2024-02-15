@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/overlays"
 	"github.com/twirapp/twir/libs/api/messages/overlays_now_playing"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -85,6 +87,15 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 		Save(&overlay).Error; err != nil {
 		return nil, err
 	}
+
+	c.Grpc.Websockets.RefreshOverlaySettings(
+		ctx,
+		&websockets.RefreshOverlaysRequest{
+			ChannelId:   dashboardId,
+			OverlayName: websockets.RefreshOverlaySettingsName_NOW_PLAYING,
+			OverlayId:   lo.ToPtr(overlay.ID.String()),
+		},
+	)
 
 	return convertEntityToProto(overlay), nil
 }
