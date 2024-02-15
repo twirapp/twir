@@ -7,7 +7,7 @@ import (
 
 type ChannelOverlayNowPlaying struct {
 	ID              uuid.UUID                               `gorm:"primary_key;column:id;type:UUID;"  json:"id"`
-	Preset          overlays.ChannelOverlayNowPlayingPreset `gorm:"primary_key;column:preset;type:varchar;"  json:"preset"`
+	Preset          overlays.ChannelOverlayNowPlayingPreset `gorm:"column:preset;type:varchar;"  json:"preset"`
 	FontFamily      string                                  `gorm:"column:font_family;type:text" json:"fontFamily"`
 	FontWeight      uint32                                  `gorm:"column:font_weight;type:int" json:"fontWeight"`
 	BackgroundColor string                                  `gorm:"column:background_color;type:text" json:"backgroundColor"`

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import { computed } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { computed, ref } from 'vue';
 
 import type { Track } from '../types.js';
 
@@ -16,6 +17,22 @@ const bgColor = computed(() => {
 
 	return props.settings.backgroundColor;
 });
+
+const infoRef = ref<HTMLElement | null>(null);
+const nameRef = ref<HTMLElement | null>(null);
+const artistRef = ref<HTMLElement | null>(null);
+
+const { width: infoWidth } = useElementSize(infoRef);
+const { width: nameWidth } = useElementSize(nameRef);
+const { width: artistWidth } = useElementSize(artistRef);
+
+const nameMarqueEnabled = computed(() => {
+	return nameWidth.value > infoWidth.value;
+});
+
+const artistMarqueEnabled = computed(() => {
+	return artistWidth.value > infoWidth.value;
+});
 </script>
 
 <template>
@@ -24,25 +41,23 @@ const bgColor = computed(() => {
 			v-if="settings.showImage" class="cover"
 			:src="track.image_url ?? '/overlays/public/images/play.png'"
 		/>
-		<div class="info">
-			<span
-				class="artist"
-			>
+		<div ref="infoRef" class="info">
+			<div ref="artistRef" class="artist" :class="{ marque: artistMarqueEnabled }">
 				{{ track.artist }}
-			</span>
-			<span
-				class="name"
-			>
+			</div>
+			<div ref="nameRef" class="name" :class="{ marque: nameMarqueEnabled }">
 				{{ track.title }}
-			</span>
+			</div>
 		</div>
 	</div>
 </template>
 
 <style scoped>
 .spotify {
+	white-space: nowrap;
+	overflow: hidden;
+
 	height: 70px;
-	width: 350px;
 	background-color: v-bind(bgColor);
 	display: flex;
 	align-items: center;
@@ -69,16 +84,18 @@ const bgColor = computed(() => {
 }
 
 .info {
-	display: flex;
-	flex-direction: column;
 	padding-left: 15px;
 	overflow: hidden;
-	white-space: nowrap;
 }
 
 .info span {
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+
+.name, .artist {
+	white-space: nowrap;
+	width: max-content;
 }
 
 .name {

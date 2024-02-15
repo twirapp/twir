@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
+import { useElementSize } from '@vueuse/core';
+import { computed, ref } from 'vue';
 
 import type { Track } from '../types.js';
 
@@ -7,17 +9,32 @@ defineProps<{
 	track?: Track | null
 	settings: Settings
 }>();
+
+const spotifyRef = ref<HTMLElement | null>(null);
+const infoRef = ref<HTMLElement | null>(null);
+
+
+const { width: spotifyWidth } = useElementSize(spotifyRef);
+const { width: infoWidth } = useElementSize(infoRef);
+
+const nameMarqueEnabled = computed(() => {
+	return infoWidth.value > spotifyWidth.value;
+});
 </script>
 
 <template>
-	<div v-if="track" class="spotify">
-		<div class="info">
-			<img
-				v-if="settings.showImage" class="cover"
-				:src="track.image_url ?? '/overlays/public/images/play.png'"
-			/>
-			<span class="name">{{ track.title }}</span>
-			<span>–</span>
+	<div v-if="track" ref="spotifyRef" class="spotify">
+		<img
+			v-if="settings.showImage" class="cover"
+			:src="track.image_url ?? '/overlays/public/images/play.png'"
+		/>
+		<div ref="infoRef" class="info" :class="{ marque: nameMarqueEnabled }">
+			<div class="name">
+				{{ track.title }}
+			</div>
+			<div class="separator">
+				–
+			</div>
 			<div class="artist">
 				{{ track.artist }}
 			</div>
@@ -26,11 +43,9 @@ defineProps<{
 </template>
 
 <style scoped>
-body {
-	display: flex;
-}
-
 .spotify {
+	white-space: nowrap;
+	overflow: hidden;
 	display: flex;
 	align-items: center;
 	column-gap: 16px;
@@ -54,9 +69,10 @@ body {
 }
 
 .info {
-	display: flex;
-	flex-direction: row;
-	gap: 4px;
-	align-items: center;
+	overflow: hidden;
+}
+
+.name, .separator, .artist {
+	display: inline-block;
 }
 </style>

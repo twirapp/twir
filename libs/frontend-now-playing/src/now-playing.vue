@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import './assets/style.css';
+
 import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
 import { useFontSource } from '@twir/fontsource';
 import { ChannelOverlayNowPlayingPreset } from '@twir/types/api';
@@ -50,6 +52,10 @@ const fontFamily = computed(() => {
 </template>
 
 <style>
+body {
+	background-color: #000;
+}
+
 .artist {
 	font-family: v-bind(fontFamily);
 	font-weight: v-bind('props.settings.fontWeight');
