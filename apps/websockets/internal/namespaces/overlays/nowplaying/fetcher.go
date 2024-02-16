@@ -52,11 +52,9 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 				Integration: lfmEntity,
 			},
 		)
-		if err != nil {
-			return err
+		if err == nil {
+			lfm = l
 		}
-
-		lfm = l
 	}
 
 	if spotifyEntity != nil {
