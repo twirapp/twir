@@ -1,11 +1,25 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
 import { Alert } from '@twir/api/messages/alerts/alerts';
-import { DataTableColumns, NButton, NDataTable, NModal, NPopconfirm, NSpace, NTag } from 'naive-ui';
+import {
+	DataTableColumns,
+	NButton,
+	NDataTable,
+	NModal,
+	NPopconfirm,
+	NSpace,
+	NTag,
+	NImage,
+} from 'naive-ui';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useAlertsManager, useUserAccessFlagChecker } from '@/api';
+import {
+	useAlertsManager,
+	useCommandsManager,
+	useTwitchRewards,
+	useUserAccessFlagChecker,
+} from '@/api';
 import AlertModal from '@/components/alerts/modal.vue';
 import { type EditableAlert } from '@/components/alerts/types.js';
 import { renderIcon } from '@/helpers';
@@ -28,6 +42,8 @@ const { data, isLoading } = manager.getAll({});
 const { t } = useI18n();
 
 const userCanManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
+const { data: rewards } = useTwitchRewards();
+const { data: commands } = useCommandsManager().getAll({});
 
 const columns = computed<DataTableColumns<Alert>>(() => [
 	{
@@ -39,6 +55,59 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 				{ type: 'info', bordered: false },
 				{
 					default: () => row.name,
+				},
+			);
+		},
+	},
+	{
+		title: 'Rewards',
+		key: 'rewardId',
+		render(row) {
+			const selectedRewards = rewards?.value?.rewards.filter(r => row.rewardIds.includes(r.id));
+			if (!selectedRewards?.length) {
+				return '';
+			}
+
+			const mappedRewards = selectedRewards.map(r => h(NSpace, {
+				type: 'success',
+				bordered: false,
+				style: `background-color: ${r.backgroundColor}; border-radius: 8px; padding: 4px;`,
+				align: 'center',
+			}, {
+				default: () => [
+					h(NImage, {
+						src: r.image?.url1X || r.defaultImage?.url4X,
+						width: 20,
+						height: 20,
+						style: 'display: flex; align-items: center',
+					}),
+					r.title,
+				],
+			}));
+
+			return h(
+				NSpace,
+				{ vertical: true },
+				{
+					default: () => mappedRewards,
+				},
+			);
+		},
+	},
+	{
+		title: 'Commands',
+		key: 'commands',
+		render(row) {
+			const selectedCommands = commands?.value?.commands.filter(r => row.commandIds.includes(r.id));
+			if (!selectedCommands?.length) {
+				return '';
+			}
+
+			return h(
+				NSpace,
+				{ vertical: true },
+				{
+					default: () => selectedCommands.map(c => `!${c.name}`),
 				},
 			);
 		},

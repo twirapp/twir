@@ -17,7 +17,7 @@ type DataCacher interface {
 	ComputeFaceitGainLoseEstimate(ctx context.Context) (*FaceitEstimateGainLose, error)
 
 	GetTwitchUserFollow(ctx context.Context, userId string) *helix.ChannelFollow
-	GetGbUserStats(ctx context.Context) *model.UsersStats
+	GetGbUserStats(ctx context.Context, userId string) *model.UsersStats
 	GetTwitchChannel(ctx context.Context) *helix.ChannelInformation
 	GetTwitchSenderUser(ctx context.Context) *helix.User
 	GetTwitchUserById(ctx context.Context, userId string) (*helix.User, error)

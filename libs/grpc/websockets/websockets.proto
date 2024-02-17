@@ -42,6 +42,7 @@ enum RefreshOverlaySettingsName {
 	BRB = 2;
 	DUDES = 3;
 	CHAT = 4;
+	NOW_PLAYING = 5;
 }
 
 message YoutubeAddSongToQueueRequest {

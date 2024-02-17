@@ -176,6 +176,7 @@ func (c *Variables) ParseVariablesInText(
 		str := s
 		c.goroutinesPool.Submit(
 			func() {
+				defer wg.Done()
 				res, err := variable.Handler(
 					ctx,
 					variablesParseCtx,
@@ -190,7 +191,6 @@ func (c *Variables) ParseVariablesInText(
 					input = strings.ReplaceAll(input, str, res.Result)
 					mu.Unlock()
 				}
-				wg.Done()
 			},
 		)
 	}

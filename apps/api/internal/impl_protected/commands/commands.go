@@ -121,7 +121,7 @@ func (c *Commands) CommandsCreate(
 	ctx context.Context,
 	request *commands.CreateRequest,
 ) (*commands.Command, error) {
-	if len(request.Responses) >= 3 {
+	if len(request.Responses) > 3 {
 		return nil, twirp.NewError(twirp.InvalidArgument, "command responses limit is 3")
 	}
 
@@ -217,7 +217,7 @@ func (c *Commands) CommandsUpdate(
 		return nil, twirp.NewError(twirp.NotFound, "command not found")
 	}
 
-	if len(request.Command.Responses) >= 3 {
+	if len(request.Command.Responses) > 3 {
 		return nil, twirp.NewError(twirp.InvalidArgument, "command responses limit is 3")
 	}
 

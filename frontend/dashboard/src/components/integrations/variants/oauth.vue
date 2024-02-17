@@ -58,7 +58,7 @@ const { t } = useI18n();
 		:is-loading="isLoading"
 	>
 		<template #content>
-			<slot class="description" name="description"/>
+			<slot class="description" name="description" />
 		</template>
 
 		<template #footer>
@@ -73,7 +73,7 @@ const { t } = useI18n();
 					>
 						<div style="display: flex; gap: 4px;">
 							<span>{{ t('sharedButtons.settings') }}</span>
-							<IconSettings/>
+							<IconSettings />
 						</div>
 					</n-button>
 					<n-button
@@ -87,13 +87,13 @@ const { t } = useI18n();
 							<span>
 								{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
 							</span>
-							<IconLogout v-if="data?.userName"/>
-							<IconLogin v-else/>
+							<IconLogout v-if="data?.userName" />
+							<IconLogin v-else />
 						</div>
 					</n-button>
 				</div>
 				<div v-if="data?.userName" class="profile">
-					<n-avatar round :src="data?.avatar" v-if="data?.avatar"/>
+					<n-avatar v-if="data?.avatar" round :src="data?.avatar" />
 					<span>{{ data.userName }}</span>
 				</div>
 			</div>
@@ -117,7 +117,7 @@ const { t } = useI18n();
 		<template #header>
 			{{ title }}
 		</template>
-		<slot name="settings"/>
+		<slot name="settings" />
 
 		<template #action>
 			<n-space justify="end">

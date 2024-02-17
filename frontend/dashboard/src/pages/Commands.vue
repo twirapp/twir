@@ -11,7 +11,14 @@ const { data: commandsResponse } = commandsManager.getAll({});
 
 const commands = computed(() => {
 	const system = Array.isArray(route.params.system) ? route.params.system[0] : route.params.system;
-	return commandsResponse.value?.commands.filter(c => c.module.toLowerCase() === system.toLowerCase()) ?? [];
+
+	return commandsResponse.value?.commands.filter(c => {
+		if (system.toUpperCase() === 'CUSTOM') {
+			return c.module === 'CUSTOM';
+		}
+
+		return c.module != 'CUSTOM';
+	}) ?? [];
 });
 </script>
 
@@ -20,6 +27,7 @@ const commands = computed(() => {
 		:commands="commands"
 		:showHeader="true"
 		:showCreateButton="route.params.system === 'custom'"
+		:enable-groups="true"
 	/>
 </template>
 

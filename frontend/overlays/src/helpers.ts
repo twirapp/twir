@@ -1,3 +1,5 @@
+import { randomNum, addZero } from '@zero-dependency/utils';
+
 export function generateSocketUrlWithParams(
 	path: string,
 	params: Record<string, string | undefined>,
@@ -32,10 +34,6 @@ export function getTimeDiffInMilliseconds(minutes: number): number {
 	return diff;
 }
 
-export function pad2Num(num: number): string {
-	return num.toString().padStart(2, '0');
-}
-
 export function millisecondsToTime(ms: number): string {
 	const milliseconds = ms % 1000;
 	ms = (ms - milliseconds) / 1000;
@@ -44,10 +42,14 @@ export function millisecondsToTime(ms: number): string {
 	const minutes = ms % 60;
 	const hours = (ms - minutes) / 60;
 
-	return `${hours ? pad2Num(hours) + ':' : ''}${pad2Num(minutes)}:${pad2Num(seconds)}`;
+	return `${hours ? addZero(hours) + ':' : ''}${addZero(minutes)}:${addZero(seconds)}`;
 }
 
 export async function requestWithOutCache<T>(url: string): Promise<T> {
 	const res = await fetch(url, { cache: 'no-cache' });
 	return await res.json();
+}
+
+export function randomRgbColor(): string {
+  return `rgb(${randomNum(0, 255)}, ${randomNum(0, 255)}, ${randomNum(0, 255)})`;
 }

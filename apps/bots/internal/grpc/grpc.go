@@ -16,6 +16,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/shared"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -34,6 +37,7 @@ type Opts struct {
 	TokensGrpc     tokens.TokensClient
 	TwitchActions  *twitchactions.TwitchActions
 	MessageHandler *messagehandler.MessageHandler
+	Tracer         trace.Tracer
 }
 
 func New(opts Opts) (*Grpc, error) {
@@ -44,13 +48,16 @@ func New(opts Opts) (*Grpc, error) {
 		tokensGrpc:     opts.TokensGrpc,
 		twitchactions:  opts.TwitchActions,
 		messageHandler: opts.MessageHandler,
+		tracer:         opts.Tracer,
 	}
 
 	grpcNetListener, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.BOTS_SERVER_PORT))
 	if err != nil {
 		return nil, err
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(
+		grpc.StatsHandler(otelgrpc.NewServerHandler()),
+	)
 	bots.RegisterBotsServer(grpcServer, impl)
 
 	opts.LC.Append(
@@ -81,6 +88,7 @@ type Grpc struct {
 	tokensGrpc     tokens.TokensClient
 	twitchactions  *twitchactions.TwitchActions
 	messageHandler *messagehandler.MessageHandler
+	tracer         trace.Tracer
 }
 
 var _ bots.BotsServer = (*Grpc)(nil)
@@ -168,6 +176,14 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 	*emptypb.Empty,
 	error,
 ) {
+	span := trace.SpanFromContext(ctx)
+	// End the span when the operation we are measuring is done.
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("message_id", req.GetMessageId()),
+		attribute.String("channel_id", req.GetBroadcasterUserId()),
+	)
+
 	err := c.messageHandler.Handle(ctx, req)
 	if err != nil {
 		c.logger.Error(

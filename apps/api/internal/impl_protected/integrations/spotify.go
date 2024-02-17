@@ -9,8 +9,8 @@ import (
 	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/api/messages/integrations_spotify"
+	"github.com/twirapp/twir/libs/integrations/spotify"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 

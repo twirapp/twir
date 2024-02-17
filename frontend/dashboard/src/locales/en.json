@@ -42,10 +42,7 @@
     "commands": {
       "label": "Commands",
       "custom": "Custom",
-      "stats": "Stats",
-      "moderation": "Moderation",
-      "songs": "Songs",
-      "manage": "Manage"
+      "builtin": "Built-in"
     },
     "integrations": "Integrations",
     "events": "Events",
@@ -353,6 +350,9 @@
     "uncongirured": "You should configure overlay first!",
     "noAccess": "You do not have access to this overlay!",
     "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+		"nowPlaying": {
+			"description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+		},
     "tts": {
       "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
       "eventsHint": "Hint: You can use events system to trigger TTS on specific event.",

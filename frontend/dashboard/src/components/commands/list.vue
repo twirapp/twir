@@ -1,15 +1,32 @@
 <script setup lang="ts">
+import { IconChevronRight, IconChevronDown } from '@tabler/icons-vue';
+import type { ColumnDef } from '@tanstack/vue-table';
+import {
+    FlexRender,
+    getCoreRowModel,
+    useVueTable,
+		getExpandedRowModel,
+} from '@tanstack/vue-table';
 import { type Command } from '@twir/api/messages/commands/commands';
-import { NDataTable, NButton, NSpace, NModal, NInput } from 'naive-ui';
-import { ref, toRaw, computed } from 'vue';
+import { NButton, NSpace, NModal, NInput } from 'naive-ui';
+import { ref, h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import ColumnActions from './list/column-actions.vue';
+import { type Group, isCommand, createGroups } from './list/create-groups';
+
 import { useUserAccessFlagChecker } from '@/api/index.js';
-import { createColumns } from '@/components/commands/list/createColumns';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
-import type { EditableCommand, ListRowData } from '@/components/commands/types.js';
-
+import type { EditableCommand } from '@/components/commands/types.js';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
 
 const { t } = useI18n();
 
@@ -17,63 +34,19 @@ const props = withDefaults(defineProps<{
 	commands: Command[]
 	showHeader?: boolean
 	showCreateButton?: boolean,
+	enableGroups?: boolean,
 }>(), {
 	showHeader: false,
 	showCreateButton: false,
-});
-
-const commandsWithGroups = computed<ListRowData[]>(() => {
-	const commands = props.commands;
-	let i = 0;
-	const groups: Record<string, ListRowData> = {
-		'no-group': {
-			name: 'no-group',
-			children: [],
-			isGroup: true,
-			groupColor: '',
-			index: i,
-		} as any as ListRowData,
-	};
-
-	for (const command of commands) {
-		i++;
-		const group = command.group?.name ?? 'no-group';
-		if (!groups[group]) {
-			groups[group] = {
-				name: group,
-				children: [],
-				isGroup: true,
-				groupColor: command.group!.color,
-				index: i,
-			} as any as ListRowData;
-		}
-
-		groups[group]!.children!.push(command as ListRowData);
-	}
-
-	return [
-		...groups['no-group']!.children!,
-		...Object.entries(groups)
-			.filter(([groupName]) => groupName !== 'no-group').map(([, group]) => group),
-	];
+	enableGroups: false,
 });
 
 const commandsFilter = ref('');
-const filteredCommands = computed<ListRowData[]>(() => {
-	return commandsWithGroups.value.filter(c => {
-		return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value));
-	});
-});
 
 const showCommandEditModal = ref(false);
 const showManageGroupsModal = ref(false);
 
 const editableCommand = ref<EditableCommand | null>(null);
-
-function editCommand(command: EditableCommand) {
-	editableCommand.value = structuredClone(toRaw(command));
-	showCommandEditModal.value = true;
-}
 
 function onModalClose() {
 	editableCommand.value = null;
@@ -81,7 +54,99 @@ function onModalClose() {
 
 const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 
-const columns = createColumns(editCommand);
+const columns: ColumnDef<Command | Group>[] = [
+  {
+    accessorKey: 'name',
+		size: 10,
+    header: () => h('div', {}, 'Name'),
+    cell: ({ row }) => {
+			const chevron = row.getCanExpand() ? h(row.getIsExpanded() ? IconChevronDown : IconChevronRight) : null;
+
+			if (isCommand(row.original)) {
+				return h(
+					'div',
+					{ class: 'flex gap-2 font-medium items-center select-none' },
+					[chevron, row.getValue('name') as string],
+				);
+			}
+
+      return h(
+				'div',
+				{ class: `flex gap-2 font-medium items-center select-none` },
+				[
+					chevron,
+					h(
+						'span',
+						{ class: `p-1 rounded`, style: `background-color: ${row.original.color}` },
+						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
+					),
+				],
+			);
+    },
+  },
+	{
+    accessorKey: 'responses',
+    header: () => h('div', {  }, 'Responses'),
+		size: 85,
+    cell: ({ row }) => {
+			if (!isCommand(row.original)) {
+				return;
+			}
+
+			const responses: Command['responses'] = row.getValue('responses');
+			if (!responses.length) {
+				return row.original.description;
+			}
+
+			const mappedResponses = responses.map((r) => h('span', {}, r.text));
+      return h('div', { class: 'font-medium flex flex-col' }, mappedResponses);
+    },
+  },
+	{
+		id: 'actions',
+		size: 5,
+    cell: ({ row }) => {
+			if (!isCommand(row.original)) {
+				return;
+			}
+
+			return h(
+				ColumnActions,
+				{
+					row: row.original,
+					onEdit: () => {
+						// typescript hi-hi + ha-ha
+						editableCommand.value = row.original as Command;
+						showCommandEditModal.value = true;
+					},
+				},
+			);
+    },
+  },
+];
+
+const filteredCommands = computed(() => {
+	return props.commands
+		.filter(c => c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value)));
+});
+
+const tableValue = computed(() => props.enableGroups ? createGroups(filteredCommands.value) : filteredCommands.value);
+
+const table = useVueTable({
+	get data() {
+		return tableValue.value;
+	},
+	get columns() {
+		return columns;
+	},
+	getCoreRowModel: getCoreRowModel(),
+	getExpandedRowModel: getExpandedRowModel(),
+	getSubRows: (original) => {
+		if ('commands' in original) {
+			return original.commands;
+		}
+	},
+});
 </script>
 
 <template>
@@ -121,12 +186,6 @@ const columns = createColumns(editCommand);
 			</div>
 		</div>
 
-		<n-data-table
-			:columns="columns"
-			:data="filteredCommands"
-			:bordered="false"
-			:row-key="r => r.index"
-		/>
 
 		<n-modal
 			v-model:show="showCommandEditModal"
@@ -149,6 +208,62 @@ const columns = createColumns(editCommand);
 				}"
 			/>
 		</n-modal>
+
+		<div class="mt-5 border border-zinc-600 rounded-md bg-zinc-800 text-slate-50">
+			<Table>
+				<TableHeader>
+					<TableRow
+						v-for="headerGroup in table.getHeaderGroups()"
+						:key="headerGroup.id"
+						class="border-b border-zinc-600 text-slate-50"
+					>
+						<TableHead
+							v-for="header in headerGroup.headers"
+							:key="header.id"
+							:style="{ width: `${header.getSize()}%` }"
+						>
+							<FlexRender
+								v-if="!header.isPlaceholder"
+								:render="header.column.columnDef.header"
+								:props="header.getContext()"
+							/>
+						</TableHead>
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					<template v-if="table.getRowModel().rows?.length">
+						<TableRow
+							v-for="row in table.getRowModel().rows" :key="row.id"
+							:data-state="row.getIsSelected() ? 'selected' : undefined"
+							class="border-b border-zinc-600"
+							:class="{ 'cursor-pointer': !isCommand(row.original) }"
+						>
+							<TableCell
+								v-for="cell in row.getVisibleCells()"
+								:key="cell.id"
+								@click="() => {
+									if (row.getCanExpand()) {
+										row.getToggleExpandedHandler()()
+									}
+								}"
+							>
+								<FlexRender
+									:render="cell.column.columnDef.cell"
+									:props="cell.getContext()"
+								/>
+							</TableCell>
+						</TableRow>
+					</template>
+					<template v-else>
+						<TableRow>
+							<TableCell :colSpan="columns.length" class="h-24 text-center">
+								No commands
+							</TableCell>
+						</TableRow>
+					</template>
+				</TableBody>
+			</Table>
+		</div>
 
 		<n-modal
 			v-model:show="showManageGroupsModal"

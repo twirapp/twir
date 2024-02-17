@@ -300,7 +300,7 @@ const { data: currentUser } = useProfile();
 
 							<div style="width: 50%">
 								<DiscordMessages>
-									<DiscordMessage :bot="true" author="TwirApp" :avatar="TwirLogo">
+									<DiscordMessage :bot="true" author="TwirApp" avatar="/twir.svg">
 										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
 											<DiscordMention
 												v-if="m.startsWith('@')"

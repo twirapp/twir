@@ -1,1 +1,4 @@
 apps/dota
+libs/types
+libs/api
+frontend/dashboard/src/components/ui

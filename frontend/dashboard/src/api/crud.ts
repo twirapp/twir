@@ -45,7 +45,9 @@ const createCrudManager = <
 			},
 		}),
 		getOne: opts.getOne
-			? (req: Parameters<typeof opts.getOne>[0] & { isQueryDisabled?: boolean }) => useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
+			? (req: Parameters<typeof opts.getOne>[0] & {
+				isQueryDisabled?: boolean
+			}) => useQuery<Awaited<ReturnType<typeof opts.getOne>['response']>>({
 				queryKey: [opts.queryKey],
 				queryFn: async () => {
 					const call = await opts.getOne!(req);

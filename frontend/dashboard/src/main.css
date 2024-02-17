@@ -1,5 +1,6 @@
 :root {
 	--layout-header-height: 65px;
+	color-scheme: dark;
 }
 
 html, body {

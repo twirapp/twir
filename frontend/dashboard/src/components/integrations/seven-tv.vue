@@ -105,7 +105,7 @@ async function saveSettings() {
 					<n-form>
 						<n-form-item :label="t('integrations.sevenTv.rewardForAddEmote')">
 							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForAddEmote" only-with-input clearable/>
+								<rewards-selector v-model="form.rewardIdForAddEmote" only-with-input clearable />
 								<n-text :depth="3" style="font-size: 12px">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>
@@ -114,14 +114,14 @@ async function saveSettings() {
 
 						<n-form-item :label="t('integrations.sevenTv.rewardForRemoveEmote')">
 							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForRemoveEmote" only-with-input clearable/>
+								<rewards-selector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
 								<n-text :depth="3" style="font-size: 12px">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>
 
 								<div style="display: flex; gap: 4px">
 									<span>{{ t('integrations.sevenTv.deleteOnlyAddedByApp') }}</span>
-									<n-switch v-model:value="form.deleteEmotesOnlyAddedByApp"/>
+									<n-switch v-model:value="form.deleteEmotesOnlyAddedByApp" />
 								</div>
 							</n-space>
 						</n-form-item>
@@ -154,13 +154,12 @@ async function saveSettings() {
 							<n-timeline-item>
 								<div style="display: flex; flex-direction: column">
 									<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
-									<img :src="SevenTvButtonEditors" height="50" width="100"/>
+									<img :src="SevenTvButtonEditors" height="50" width="100" />
 								</div>
 							</n-timeline-item>
 							<n-timeline-item>
 								<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
-									<b :style="{color: themeVars.successColor}"
-									>{{ sevenTvData?.botSeventvProfile?.username }}</b>
+									<b :style="{color: themeVars.successColor}">{{ sevenTvData?.botSeventvProfile?.username }}</b>
 								</i18n-t>
 							</n-timeline-item>
 						</n-timeline>
@@ -176,8 +175,8 @@ async function saveSettings() {
 				:type="sevenTvData?.isEditor ? 'success' : 'error'"
 			>
 				<template #icon>
-					<IconCircleCheck v-if="sevenTvData?.isEditor"/>
-					<IconPlugOff v-else/>
+					<IconCircleCheck v-if="sevenTvData?.isEditor" />
+					<IconPlugOff v-else />
 				</template>
 				<template v-if="sevenTvData?.isEditor">
 					{{ t('integrations.sevenTv.connected') }}

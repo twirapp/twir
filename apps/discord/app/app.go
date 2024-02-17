@@ -12,6 +12,7 @@ import (
 	twirsentry "github.com/satont/twir/libs/sentry"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -25,6 +26,7 @@ var App = fx.Module(
 		messages_updater.New,
 		discord_go.New,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "discord"}),
+		uptrace.NewFx("discord"),
 		logger.NewFx(
 			logger.Opts{
 				Service: "discord",
@@ -36,6 +38,7 @@ var App = fx.Module(
 		grpc.New,
 	),
 	fx.Invoke(
+		uptrace.NewFx("discord"),
 		redis.New,
 		gorm.New,
 		// discord_go.New,

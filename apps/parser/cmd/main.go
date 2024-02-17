@@ -19,6 +19,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/uptrace"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 
 	"gorm.io/driver/postgres"
@@ -57,6 +59,8 @@ func main() {
 			},
 		)
 	}
+
+	uptrace.New(*config, "parser")
 
 	var logger *zap.Logger
 
@@ -166,7 +170,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 	defer grpcServer.GracefulStop()
 	parser.RegisterParserServer(
 		grpcServer,

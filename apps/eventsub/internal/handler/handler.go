@@ -18,6 +18,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -36,6 +38,7 @@ type Handler struct {
 	parserGrpc     parser.ParserClient
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
+	tracer         trace.Tracer
 }
 
 type Opts struct {
@@ -55,6 +58,8 @@ type Opts struct {
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
+
+	Tracer trace.Tracer
 }
 
 func New(opts Opts) *Handler {
@@ -72,6 +77,7 @@ func New(opts Opts) *Handler {
 		parserGrpc:     opts.ParserGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
 		tokensGrpc:     opts.TokensGrpc,
+		tracer:         opts.Tracer,
 	}
 
 	handler.HandleChannelUpdate = myHandler.handleChannelUpdate
@@ -98,11 +104,13 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelChatNotification = myHandler.handleChannelChatNotification
 	handler.HandleChannelChatMessage = myHandler.handleChannelChatMessage
 
+	httpHandler := otelhttp.NewHandler(handler, "")
+
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				go func() {
-					if err := http.Serve(opts.Tunn, handler); err != nil && !errors.Is(
+					if err := http.Serve(opts.Tunn, httpHandler); err != nil && !errors.Is(
 						err,
 						net.ErrClosed,
 					) {

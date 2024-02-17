@@ -21,13 +21,13 @@ use (
 	./libs/gopool
 	./libs/grpc
 	./libs/helix
-	./libs/integrations/seventv
-	./libs/integrations/spotify
+	./libs/integrations
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
 	./libs/sentry
 	./libs/twitch
 	./libs/types
+	./libs/uptrace
 	./libs/utils
 )

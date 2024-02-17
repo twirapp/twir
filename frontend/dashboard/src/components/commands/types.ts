@@ -12,9 +12,3 @@ export type EditableCommand = Omit<
 	responses: Array<Omit<Command_Response, 'id' | 'commandId' | 'order'>>,
 	id?: string
 };
-
-export type ListRowData = Command & {
-	isGroup?: boolean,
-	groupColor?: string,
-	children?: ListRowData[],
-};

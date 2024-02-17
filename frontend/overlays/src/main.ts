@@ -6,9 +6,9 @@ import { routes } from './routes.js';
 import './style.css';
 
 const pinia = createPinia();
-createApp(MainApp).use(routes).use(pinia).mount('#app');
+createApp(MainApp).use(pinia).use(routes).mount('#app');
 
 // refresh the page when new version comes
 document.body.addEventListener('plugin_web_update_notice', () => {
-  window.location.reload();
+	window.location.reload();
 });

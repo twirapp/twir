@@ -21,6 +21,7 @@ import Brb from '@/components/overlays/brb.vue';
 import Chat from '@/components/overlays/chat.vue';
 import Dudes from '@/components/overlays/dudes.vue';
 import Kappagen from '@/components/overlays/kappagen.vue';
+import NowPlaying from '@/components/overlays/now-playing.vue';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js';
@@ -66,6 +67,9 @@ const editCustomOverlay = (id?: string) => router.push({
 		"
 	>
 		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
+			<n-grid-item :span="1">
+				<now-playing />
+			</n-grid-item>
 			<n-grid-item :span="1">
 				<TTS />
 			</n-grid-item>

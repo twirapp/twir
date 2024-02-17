@@ -2,7 +2,6 @@ package spotify
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -91,8 +90,9 @@ type SpotifyResponse struct {
 }
 
 type GetTrackResponse struct {
-	Name  string `json:"name"`
-	Image string `json:"image"`
+	Title  string `json:"title"`
+	Artist string `json:"artist"`
+	Image  string `json:"image"`
 }
 
 func (c *Spotify) GetTrack() *GetTrackResponse {
@@ -122,19 +122,15 @@ func (c *Spotify) GetTrack() *GetTrackResponse {
 		},
 	)
 
-	name := fmt.Sprintf(
-		"%s — %s",
-		strings.Join(artistsMap, ", "),
-		data.Track.Name,
-	)
 	var imageUrl string
 	if len(data.Track.Album.Images) > 0 {
 		imageUrl = data.Track.Album.Images[0].URL
 	}
 
 	return &GetTrackResponse{
-		Name:  name,
-		Image: imageUrl,
+		Artist: strings.Join(artistsMap, ", "),
+		Title:  data.Track.Name,
+		Image:  imageUrl,
 	}
 }
 

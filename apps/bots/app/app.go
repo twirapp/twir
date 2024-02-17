@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -32,6 +33,7 @@ var App = fx.Module(
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "bots"}),
 		logger.NewFx(logger.Opts{Service: "bots"}),
 		gorm.New,
+		uptrace.NewFx("bots"),
 		func(config cfg.Config) (*pubsub.PubSub, error) {
 			return pubsub.NewPubSub(config.RedisUrl)
 		},
@@ -60,6 +62,7 @@ var App = fx.Module(
 		messagehandler.New,
 	),
 	fx.Invoke(
+		uptrace.NewFx("bots"),
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
 				http.Handle("/metrics", promhttp.Handler())

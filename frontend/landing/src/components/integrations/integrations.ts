@@ -6,9 +6,8 @@ import DonationAlerts from '@/assets/social/donationalerts.svg?use';
 import Faceit from '@/assets/social/faceit.svg?use';
 import LastFm from '@/assets/social/lastfm.svg?use';
 import OBS from '@/assets/social/obs.svg?use';
-import Spotify from '@/assets/social/spotify.svg?use';
 import SevenTv from '@/assets/social/seventv.svg?use';
-
+import Spotify from '@/assets/social/spotify.svg?use';
 // import StreamElements from '@/assets/social/streamelements.svg?use';
 import Streamlabs from '@/assets/social/streamlabs.svg?use';
 import Twitch from '@/assets/social/twitch.svg?use';

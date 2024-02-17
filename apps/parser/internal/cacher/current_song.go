@@ -9,8 +9,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/integrations/spotify"
 	lfm "github.com/shkh/lastfm-go/lastfm"
+	"github.com/twirapp/twir/libs/integrations/spotify"
 )
 
 func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
@@ -87,7 +87,7 @@ checkServices:
 			track := spoti.GetTrack()
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{
-					Name:  track.Name,
+					Name:  track.Artist + " — " + track.Title,
 					Image: track.Image,
 				}
 				break checkServices
@@ -101,7 +101,7 @@ checkServices:
 
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{
-					Name:  track.Name,
+					Name:  fmt.Sprintf("%s — %s", track.Artist, track.Title),
 					Image: track.Image,
 				}
 				break checkServices
@@ -170,8 +170,9 @@ func newLastfm(integration *model.ChannelsIntegrations) *lastFm {
 }
 
 type LFMGetTrackResponse struct {
-	Name  string
-	Image string
+	Title  string
+	Artist string
+	Image  string
 }
 
 func (c *lastFm) GetTrack() *LFMGetTrackResponse {
@@ -205,11 +206,10 @@ func (c *lastFm) GetTrack() *LFMGetTrackResponse {
 		cover = track.Images[0].Url
 	}
 
-	name := fmt.Sprintf("%s — %s", track.Artist.Name, track.Name)
-
 	return &LFMGetTrackResponse{
-		Name:  name,
-		Image: cover,
+		Title:  track.Name,
+		Artist: track.Artist.Name,
+		Image:  cover,
 	}
 }
 

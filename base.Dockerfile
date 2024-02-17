@@ -24,6 +24,7 @@ COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/fontsource/package.json libs/fontsource/package.json
 COPY libs/frontend-chat/package.json libs/frontend-chat/package.json
+COPY libs/frontend-now-playing/package.json libs/frontend-now-playing/package.json
 COPY libs/grpc/package.json libs/grpc/package.json
 COPY libs/pubsub/package.json libs/pubsub/package.json
 COPY libs/types/package.json libs/types/package.json
@@ -41,12 +42,14 @@ COPY libs/gomodels/go.mod libs/gomodels/go.mod
 COPY libs/gopool/go.mod libs/gopool/go.mod
 COPY libs/grpc/go.mod libs/grpc/go.mod
 COPY libs/helix/go.mod libs/helix/go.mod
+COPY libs/integrations/go.mod libs/integrations/go.mod
 COPY libs/logger/go.mod libs/logger/go.mod
 COPY libs/migrations/go.mod libs/migrations/go.mod
 COPY libs/pubsub/go.mod libs/pubsub/go.mod
 COPY libs/sentry/go.mod libs/sentry/go.mod
 COPY libs/twitch/go.mod libs/twitch/go.mod
 COPY libs/types/go.mod libs/types/go.mod
+COPY libs/uptrace/go.mod libs/uptrace/go.mod
 COPY libs/utils/go.mod libs/utils/go.mod
 COPY apps/api/go.mod apps/api/go.mod
 COPY apps/bots/go.mod apps/bots/go.mod
@@ -61,8 +64,6 @@ COPY apps/tokens/go.mod apps/tokens/go.mod
 COPY apps/websockets/go.mod apps/websockets/go.mod
 COPY apps/ytsr/go.mod apps/ytsr/go.mod
 # END COPYGEN
-COPY libs/integrations/spotify/go.mod libs/integrations/spotify/go.mod
-COPY libs/integrations/seventv/go.mod libs/integrations/seventv/go.mod
 COPY libs/helix/go.mod libs/helix/go.mod
 
 # CLI PART

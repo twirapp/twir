@@ -30,11 +30,18 @@ type ParseContextEmote struct {
 	Positions []*ParseContextEmotePosition
 }
 
+type ParseContextMention struct {
+	UserId    string
+	UserName  string
+	UserLogin string
+}
+
 type ParseContext struct {
 	MessageId string
 	Channel   *ParseContextChannel
 	Sender    *ParseContextSender
 	Emotes    []*ParseContextEmote
+	Mentions  []ParseContextMention
 
 	Text      *string
 	RawText   string

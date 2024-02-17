@@ -19,13 +19,16 @@ import {
 import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+
 import RewardsSelector from '../rewardsSelector.vue';
 
 import {
+	useCommandsManager,
 	useYoutubeVideoOrChannelSearch,
 	YoutubeSearchType,
 } from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
+import CommandList from '@/components/commands/list.vue';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
 
 const { t } = useI18n();
@@ -174,6 +177,11 @@ const songsSearchOptions = computed(() => {
 		};
 	}) ?? [];
 });
+
+const { data: allCommands } = useCommandsManager().getAll({});
+const srCommands = computed(() => {
+	return allCommands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
+});
 </script>
 
 <template>
@@ -185,7 +193,7 @@ const songsSearchOptions = computed(() => {
 			<n-tab-pane name="general" :tab="t('songRequests.tabs.general')">
 				<n-space vertical>
 					<n-space justify="space-between">
-						<n-text>{{ t("sharedTexts.enabled") }}</n-text>
+						<n-text>{{ t('sharedTexts.enabled') }}</n-text>
 						<n-switch v-model:value="formValue.enabled" />
 					</n-space>
 
@@ -205,10 +213,10 @@ const songsSearchOptions = computed(() => {
 					</n-space>
 
 					<n-space justify="space-between" style="margin-bottom: 12px;">
-						<n-text>{{ t("songRequests.settings.playerNoCookieMode") }}</n-text>
+						<n-text>{{ t('songRequests.settings.playerNoCookieMode') }}</n-text>
 						<n-switch v-model:value="formValue.playerNoCookieMode" />
 						<n-text style="font-size: 12px; margin-top: 4px;">
-							{{ t("songRequests.settings.playerNoCookieModeDescription") }}
+							{{ t('songRequests.settings.playerNoCookieModeDescription') }}
 						</n-text>
 					</n-space>
 
@@ -261,6 +269,10 @@ const songsSearchOptions = computed(() => {
 						/>
 					</n-form-item>
 				</n-space>
+			</n-tab-pane>
+
+			<n-tab-pane name="commands" :tab="t('commands.name')">
+				<CommandList class="mb-2" :commands="srCommands" />
 			</n-tab-pane>
 
 			<n-tab-pane name="users" :tab="t('songRequests.tabs.users')">

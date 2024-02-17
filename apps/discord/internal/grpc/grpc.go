@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/discord"
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
@@ -39,7 +40,7 @@ func New(opts Opts) (discord.DiscordServer, error) {
 	if err != nil {
 		return nil, err
 	}
-	grpcServer := grpc.NewServer()
+	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	discord.RegisterDiscordServer(grpcServer, service)
 

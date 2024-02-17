@@ -1,4 +1,4 @@
-import ChatAlertsSvg from '@/assets/features/chat-alerts.svg?use';
+import AlertsSvg from '@/assets/features/alerts.svg?use';
 import CommandsSvg from '@/assets/features/commands.svg?use';
 import ConnectionSvg from '@/assets/features/connection.svg?use';
 import EventsSvg from '@/assets/features/events.svg?use';
@@ -71,13 +71,18 @@ export const features: Feature[] = [
 	},
 	{
 		title: 'Overlays',
-		description: 'An assortment of pre-designed overlays, including chat, emote wall, and AFK displays',
+		description: 'An assortment of pre-designed overlays, including now playing, chat, emote wall, pixel dudes, and AFK displays',
 		icon: OverlaysSvg,
 	},
+	// {
+	// 	title: 'Chat alerts',
+	// 	description: `If you seek streamlined chat notifications without the complexity of the entire event system, you're in the right place! Our simplified system is here to meet your needs`,
+	// 	icon: ChatAlertsSvg,
+	// },
 	{
-		title: 'Chat alerts',
-		description: `If you seek streamlined chat notifications without the complexity of the entire event system, you're in the right place! Our simplified system is here to meet your needs`,
-		icon: ChatAlertsSvg,
+		title: 'Alerts',
+		description: 'Want to sound alerts on rewards? We got you covered! Create custom alerts for your channel points, commands, keywords triggers',
+		icon: AlertsSvg,
 	},
 	{
 		title: 'Games',

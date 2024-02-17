@@ -8,6 +8,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -21,6 +22,7 @@ var App = fx.Module(
 		cfg.NewFx,
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
 		logger.NewFx(logger.Opts{Service: service}),
+		uptrace.NewFx("emotes-cacher"),
 		func(cfg cfg.Config) (*gorm.DB, error) {
 			db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 			if err != nil {
@@ -43,6 +45,7 @@ var App = fx.Module(
 		},
 	),
 	fx.Invoke(
+		uptrace.NewFx("emotes-cacher"),
 		grpc_impl.NewEmotesCacher,
 		func(l logger.Logger) {
 			l.Info("Emotes Cacher started")

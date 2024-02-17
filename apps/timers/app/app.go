@@ -18,6 +18,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -27,6 +28,7 @@ var App = fx.Module(
 		cfg.NewFx,
 		sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),
 		logger.NewFx(logger.Opts{Level: slog.LevelInfo, Service: "timers"}),
+		uptrace.NewFx("timers"),
 		gorm.New,
 		redis.New,
 		timers.NewGorm,
@@ -42,6 +44,7 @@ var App = fx.Module(
 		},
 	),
 	fx.Invoke(
+		uptrace.NewFx("timers"),
 		worker.New,
 		grpc_server.New,
 		func(l logger.Logger) {

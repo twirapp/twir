@@ -18,7 +18,14 @@ var Watched = &types.Variable{
 	) (*types.VariableHandlerResult, error) {
 		result := types.VariableHandlerResult{}
 
-		dbUser := parseCtx.Cacher.GetGbUserStats(ctx)
+		targetUserId := lo.
+			IfF(
+				len(parseCtx.Mentions) > 0, func() string {
+					return parseCtx.Mentions[0].UserId
+				},
+			).
+			Else(parseCtx.Sender.ID)
+		dbUser := parseCtx.Cacher.GetGbUserStats(ctx, targetUserId)
 
 		var watched int64 = 0
 

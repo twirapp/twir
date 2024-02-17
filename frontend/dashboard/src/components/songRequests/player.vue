@@ -47,8 +47,8 @@ const emits = defineEmits<{
 	playing: []
 }>();
 
-const player = ref<HTMLVideoElement | null>(null);
-const plyr = ref<Plyr | null>(null);
+const player = ref<HTMLVideoElement>();
+const plyr = ref<Plyr>();
 
 const playNext = () => {
 	emits('next');

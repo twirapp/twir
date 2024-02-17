@@ -1,0 +1,38 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/overlays_now_playing";
+package messages.overlays_now_playing;
+
+message Settings {
+	string id = 1;
+	string preset = 2;
+	string channel_id = 3;
+	string font_family = 4;
+	uint32 font_weight = 5;
+	string background_color = 6;
+	bool show_image = 7;
+}
+
+message GetAllResponse {
+	repeated Settings settings = 1;
+}
+
+message UpdateRequest {
+	string id = 1;
+	string preset = 2;
+	string font_family = 3;
+	uint32 font_weight = 4;
+	string background_color = 5;
+	bool show_image = 6;
+}
+
+message CreateRequest {
+	string preset = 1;
+	string font_family = 2;
+	uint32 font_weight = 3;
+	string background_color = 4;
+	bool show_image = 5;
+}
+
+message DeleteRequest {
+	string id = 1;
+}

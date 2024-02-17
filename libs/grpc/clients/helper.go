@@ -3,6 +3,7 @@ package clients
 import (
 	"fmt"
 
+	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
@@ -27,4 +28,5 @@ var defaultClientsOptions = []grpc.DialOption{
 			roundrobin.Name,
 		),
 	),
+	grpc.WithStatsHandler(otelgrpc.NewClientHandler()),
 }
