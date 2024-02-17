@@ -29,7 +29,7 @@ const publicPageHref = computed<string>(() => {
 	<n-tooltip>
 		<template #trigger>
 			<n-button tag="a" circle quaternary target="_blank" :href="publicPageHref">
-				<IconExternalLink/>
+				<IconExternalLink />
 			</n-button>
 		</template>
 		{{ t('navbar.publicPage') }}

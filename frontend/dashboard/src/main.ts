@@ -1,4 +1,5 @@
 import './main.css';
+import './assets/index.css';
 
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
@@ -33,6 +34,10 @@ broadcastQueryClient({
 VueQueryPlugin.install(app, {
 	queryClient,
 });
+
+const meta = document.createElement('meta');
+meta.name = 'naive-ui-style';
+document.head.appendChild(meta);
 
 app
 	.use(pinia)

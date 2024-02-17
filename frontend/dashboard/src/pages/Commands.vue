@@ -27,7 +27,7 @@ const commands = computed(() => {
 		:commands="commands"
 		:showHeader="true"
 		:showCreateButton="route.params.system === 'custom'"
-		:group-by-module="route.params.system !== 'custom'"
+		:enable-groups="true"
 	/>
 </template>
 

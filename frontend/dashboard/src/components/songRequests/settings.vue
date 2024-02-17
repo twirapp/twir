@@ -180,7 +180,7 @@ const songsSearchOptions = computed(() => {
 
 const { data: allCommands } = useCommandsManager().getAll({});
 const srCommands = computed(() => {
-	return allCommands.value?.commands.filter((c) => c.module === 'SONGS') ?? [];
+	return allCommands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
 });
 </script>
 
@@ -272,7 +272,7 @@ const srCommands = computed(() => {
 			</n-tab-pane>
 
 			<n-tab-pane name="commands" :tab="t('commands.name')">
-				<CommandList :commands="srCommands" />
+				<CommandList class="mb-2" :commands="srCommands" />
 			</n-tab-pane>
 
 			<n-tab-pane name="users" :tab="t('songRequests.tabs.users')">

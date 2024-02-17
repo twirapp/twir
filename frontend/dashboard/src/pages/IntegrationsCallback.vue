@@ -99,7 +99,7 @@ onMounted(async () => {
 
 <template>
 	<div class="body">
-		<n-spin size="large"/>
+		<n-spin size="large" />
 	</div>
 </template>
 

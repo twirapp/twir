@@ -21,9 +21,9 @@ import Brb from '@/components/overlays/brb.vue';
 import Chat from '@/components/overlays/chat.vue';
 import Dudes from '@/components/overlays/dudes.vue';
 import Kappagen from '@/components/overlays/kappagen.vue';
+import NowPlaying from '@/components/overlays/now-playing.vue';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
-import NowPlaying from '@/components/overlays/now-playing.vue';
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js';
 import { copyToClipBoard } from '@/helpers/index.js';
 
@@ -68,25 +68,25 @@ const editCustomOverlay = (id?: string) => router.push({
 	>
 		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
-				<now-playing/>
+				<now-playing />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<TTS/>
+				<TTS />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<OBS/>
+				<OBS />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<Chat/>
+				<Chat />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<Kappagen/>
+				<Kappagen />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<Dudes/>
+				<Dudes />
 			</n-grid-item>
 			<n-grid-item :span="1">
-				<Brb/>
+				<Brb />
 			</n-grid-item>
 
 			<n-grid-item v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
@@ -114,7 +114,7 @@ const editCustomOverlay = (id?: string) => router.push({
 								@click="editCustomOverlay(overlay.id)"
 							>
 								<span>{{ t('sharedButtons.settings') }}</span>
-								<IconSettings/>
+								<IconSettings />
 							</n-button>
 
 							<n-button
@@ -125,7 +125,7 @@ const editCustomOverlay = (id?: string) => router.push({
 								@click="copyUrl(overlay.id)"
 							>
 								<span>{{ t('overlays.copyOverlayLink') }}</span>
-								<IconSettings/>
+								<IconSettings />
 							</n-button>
 
 							<n-popconfirm
@@ -137,7 +137,7 @@ const editCustomOverlay = (id?: string) => router.push({
 								<template #trigger>
 									<n-button secondary size="large" type="error" :disabled="!userCanManageOverlays">
 										<span>{{ t('sharedButtons.delete') }}</span>
-										<IconTrash/>
+										<IconTrash />
 									</n-button>
 								</template>
 							</n-popconfirm>
@@ -160,7 +160,7 @@ const editCustomOverlay = (id?: string) => router.push({
 					embedded
 					@click="() => editCustomOverlay()"
 				>
-					<IconPlus style="height: 80px; width: 80px;"/>
+					<IconPlus style="height: 80px; width: 80px;" />
 				</n-card>
 			</n-grid-item>
 		</n-grid>

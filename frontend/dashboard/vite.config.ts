@@ -5,13 +5,21 @@ import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { webUpdateNotice } from '@plugin-web-update-notification/vite';
 import svgSprite from '@twirapp/vite-plugin-svg-spritemap';
 import vue from '@vitejs/plugin-vue';
+import autoprefixer from 'autoprefixer';
+import tailwind from 'tailwindcss';
 import { defineConfig, loadEnv } from 'vite';
+
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, path.resolve(process.cwd(), '..', '..'), '');
 
 	return {
+		css: {
+			postcss: {
+				plugins: [tailwind(), autoprefixer()],
+			},
+		},
 		plugins: [
 			vue({
 				script: {
