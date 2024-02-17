@@ -40,7 +40,7 @@ watch(profile, (v) => {
 						{{ profile.displayName }}
 					</span>
 					<span class="text-sm">
-						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed vitae
+						{{ profile.description }}
 					</span>
 				</div>
 			</div>

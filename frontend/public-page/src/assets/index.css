@@ -82,6 +82,8 @@ html, body {
 	line-height: 1.5;
 	font-weight: 400;
 	scrollbar-gutter: stable;
+	background-color: var(--background);
+	color-scheme: dark;
 }
 
 /* inter-latin-400-normal */
