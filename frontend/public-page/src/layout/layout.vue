@@ -1,9 +1,11 @@
 <script lang="ts" setup>
+import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
 import { computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import LayoutNavbar from '@/layout/layout-navbar.vue';
 import LayoutSidebar from '@/layout/layout-sidebar.vue';
 import LayoutStreamerProfile from '@/layout/layout-streamer-profile.vue';
 import { routeNames } from '@/router';
@@ -25,11 +27,18 @@ watch([streamerName, isError], ([name, error]) => {
 		router.push({ name: routeNames.notFound });
 	}
 });
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const lgAndSmaller = breakpoints.smallerOrEqual('lg');
 </script>
 
 <template>
+	<layout-navbar v-if="lgAndSmaller" />
 	<div class="flex flex-row gap-4">
-		<aside class="flex w-auto flex-col justify-between border-e h-screen sticky top-0">
+		<aside
+			v-if="!lgAndSmaller"
+			class="flex w-auto flex-col justify-between border-e h-screen sticky top-0"
+		>
 			<layout-sidebar />
 		</aside>
 

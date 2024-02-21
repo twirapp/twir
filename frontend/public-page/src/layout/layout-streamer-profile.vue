@@ -29,8 +29,8 @@ watch(profile, (v) => {
 			</div>
 		</div>
 
-		<div v-else class="flex gap-2 justify-between w-full">
-			<div class="flex gap-4">
+		<div v-else class="flex gap-2 justify-between flex-wrap w-full">
+			<div class="flex flex-wrap gap-4">
 				<Avatar :class="$style.avatar">
 					<AvatarImage :src="profile.profileImageUrl" alt="streamer-profile-image" />
 					<AvatarFallback>{{ profile.login.slice(0, 2) }}</AvatarFallback>
@@ -44,7 +44,7 @@ watch(profile, (v) => {
 					</span>
 				</div>
 			</div>
-			<div>
+			<div class="flex md:flex-col sm:flex-row gap-2">
 				<a :href="`https://twitch.tv/${profile.login}`" class="underline" target="_blank">
 					Twitch
 				</a>
