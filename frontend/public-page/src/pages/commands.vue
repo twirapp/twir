@@ -125,7 +125,7 @@ const isSmall = breakpoints.smaller('xl');
 				<Badge variant="secondary">
 					Cooldown | {{ command.cooldown }}s
 				</Badge>
-				<Badge v-for="perm of command.permissions" :key="perm" variant="secondary">
+				<Badge v-for="perm of command.permissions" :key="perm.name" variant="secondary">
 					<div class="flex items-center gap-1">
 						<component :is="permissionsIconsMapping[perm.type]" class="w-4 h-4" />
 						{{ perm.name.charAt(0).toUpperCase() + perm.name.slice(1).toLowerCase() }}
