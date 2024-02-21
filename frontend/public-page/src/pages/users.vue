@@ -1,10 +1,26 @@
 <script setup lang="ts">
-import { useVueTable, FlexRender, createColumnHelper, getCoreRowModel, type SortingState } from '@tanstack/vue-table';
+import {
+	useVueTable,
+	FlexRender,
+	createColumnHelper,
+	getCoreRowModel,
+	type SortingState,
+} from '@tanstack/vue-table';
 import { type GetUsersResponse_User } from '@twir/api/messages/community/community';
 import { computed, h, ref } from 'vue';
 
-import { useCommunityUsers, type SortKey } from '@/api/community.js';
-import { useTwitchGetUsers } from '@/api/users.js';
+import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
+import { Button } from '@/components/ui/button';
+import {
+	Table,
+	TableBody,
+	TableHead,
+	TableHeader,
+	TableRow,
+	TableCell,
+} from '@/components/ui/table';
+import { useCommunityUsers, type SortKey } from '@/composables/use-community';
+import { useTwitchGetUsers } from '@/composables/use-twitch-users';
 
 const props = defineProps<{
 	channelId: string
@@ -35,7 +51,7 @@ const usersOpts = computed(() => ({
 	sortBy: computedOrderAndSorting.value.sortBy,
 }));
 
-const { data } = useCommunityUsers(usersOpts);
+const { data, isLoading } = useCommunityUsers(usersOpts);
 
 const usersIdsForRequest = computed(() => {
 	return data.value?.users.map((user) => user.id) ?? [];
@@ -45,7 +61,7 @@ const { data: twitchUsers } = useTwitchGetUsers(usersIdsForRequest);
 const columnHelper = createColumnHelper<GetUsersResponse_User>();
 const HOUR = 1000 * 60 * 60;
 
-const table = useVueTable({
+const vueTable = useVueTable({
 	get data() {
 		return data.value?.users ?? [];
 	},
@@ -53,17 +69,17 @@ const table = useVueTable({
 	state: {
 		get sorting() {
 			return tableSorting.value;
-    },
-  },
+		},
+	},
 
 	manualPagination: true,
 	manualSorting: true,
 	onSortingChange: updaterOrValue => {
 		tableSorting.value =
-		typeof updaterOrValue === 'function'
-		? updaterOrValue(tableSorting.value)
-		: updaterOrValue;
-  },
+			typeof updaterOrValue === 'function'
+				? updaterOrValue(tableSorting.value)
+				: updaterOrValue;
+	},
 
 	getCoreRowModel: getCoreRowModel(),
 
@@ -72,16 +88,17 @@ const table = useVueTable({
 			header: '',
 			id: 'avatar',
 			cell: (ctx) => {
-				const user = twitchUsers.value?.users.find(u => u.id === ctx.row.original.id );
+				const user = twitchUsers.value?.users.find(u => u.id === ctx.row.original.id);
 				return h('img', { src: user?.profileImageUrl, class: 'rounded-full w-8 h-8' });
 			},
+			size: 5,
 			enableSorting: false,
 		}),
 
 		columnHelper.accessor('id', {
 			header: 'User',
 			cell: (ctx) => {
-				const user = twitchUsers.value?.users.find(u => u.id === ctx.getValue() );
+				const user = twitchUsers.value?.users.find(u => u.id === ctx.getValue());
 				return h('span', {}, {
 					default: () => user?.displayName.toLocaleLowerCase() === user?.login
 						? user?.displayName
@@ -89,6 +106,7 @@ const table = useVueTable({
 				});
 			},
 			enableSorting: false,
+			size: 30,
 		}),
 
 		columnHelper.accessor('watched', {
@@ -98,18 +116,22 @@ const table = useVueTable({
 					default: () => `${(Number(ctx.row.original.watched) / HOUR).toFixed(1)}h`,
 				});
 			},
+			size: 5,
 		}),
 
 		columnHelper.accessor('messages', {
 			header: 'Messages',
+			size: 20,
 		}),
 
 		columnHelper.accessor('emotes', {
 			header: 'Used emotes',
+			size: 20,
 		}),
 
 		columnHelper.accessor('usedChannelPoints', {
 			header: 'Used channel points',
+			size: 20,
 		}),
 	],
 });
@@ -121,77 +143,97 @@ const pagesCount = computed(() => Math.ceil((data.value?.totalUsers ?? 0) / 100)
 	<div>
 		<div class="flex justify-between items-center gap-2 pb-2">
 			<div class="text-slate-200">
-				Total	{{ data?.totalUsers }} users
+				Total {{ data?.totalUsers ?? 0 }} users
 			</div>
 			<div class="flex items-center gap-2">
 				<div class="text-slate-200">
 					Page {{ page }} of {{ pagesCount }}
 				</div>
-				<button
+				<Button
+					variant="outline"
 					:disabled="page === 1"
-					class="p-1 rounded shadow-lg"
-					:class="[page === 1 ? 'bg-neutral-700 cursor-not-allowed' : 'bg-neutral-600']"
+					size="icon"
 					@click="page--"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="text-slate-200" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg" class="text-slate-200" width="24" height="24"
+						viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round"
+					>
 						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
 						<path d="M14 6l-6 6l6 6v-12" />
 					</svg>
-				</button>
-				<button
+				</Button>
+				<Button
+					variant="outline"
 					:disabled="page === pagesCount"
-					class="p-1 rounded shadow-lg"
-					:class="[page === pagesCount ? 'bg-neutral-700 cursor-not-allowed' : 'bg-neutral-600']"
+					size="icon"
 					@click="page++"
 				>
-					<svg xmlns="http://www.w3.org/2000/svg" class="text-slate-200" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+					<svg
+						xmlns="http://www.w3.org/2000/svg" class="text-slate-200" width="24" height="24"
+						viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+						stroke-linecap="round" stroke-linejoin="round"
+					>
 						<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
 						<path d="M10 18l6 -6l-6 -6v12"></path>
 					</svg>
-				</button>
+				</Button>
 			</div>
 		</div>
-		<div class="overflow-auto overflow-y-hidden rounded-lg border-gray-200 shadow-lg">
-			<table class="w-full border-collapse text-left text-sm text-slate-200 relative">
-				<thead class="bg-neutral-700 text-slate-200">
-					<tr
-						v-for="headerGroup in table.getHeaderGroups()"
+
+		<div class="rounded-md border">
+			<Table>
+				<TableHeader>
+					<TableRow
+						v-for="headerGroup in vueTable.getHeaderGroups()"
 						:key="headerGroup.id"
+						class="text-slate-50"
 					>
-						<th
+						<TableHead
 							v-for="header in headerGroup.headers"
 							:key="header.id"
-							:colSpan="header.colSpan"
-							scope="col" class="px-6 py-4 font-medium"
-							:class="header.column.getCanSort() ? 'cursor-pointer select-none' : ''"
-							@click="header.column.getToggleSortingHandler()?.($event)"
+							:style="{ width: `${header.getSize()}px` }"
 						>
-							<template v-if="!header.isPlaceholder">
-								<FlexRender
-									:render="header.column.columnDef.header"
-									:props="header.getContext()"
-								/>
-
-								{{
-									{ asc: ' 🔼', desc: ' 🔽' }[
-										header.column.getIsSorted() as string
-									]
-								}}
-							</template>
-						</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-neutral-600 border-t border-neutral-600 bg-neutral-700">
-					<tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-neutral-600">
-						<td v-for="cell in row.getVisibleCells()" :key="cell.id" class="px-6 py-4">
 							<FlexRender
-								:render="cell.column.columnDef.cell"
-								:props="cell.getContext()"
+								v-if="!header.isPlaceholder"
+								:render="header.column.columnDef.header"
+								:props="header.getContext()"
 							/>
-						</td>
-					</tr>
-				</tbody>
-			</table>
+						</TableHead>
+					</TableRow>
+				</TableHeader>
+				<Transition name="table-rows" appear mode="out-in">
+					<TableBody v-if="isLoading">
+						<table-rows-skeleton :rows="20" :colspan="5" />
+					</TableBody>
+					<TableBody v-else>
+						<TableRow v-for="row in vueTable.getRowModel().rows" :key="row.id">
+							<TableCell
+								v-for="cell in row.getVisibleCells()"
+								:key="cell.id"
+							>
+								<FlexRender
+									:render="cell.column.columnDef.cell"
+									:props="cell.getContext()"
+								/>
+							</TableCell>
+						</TableRow>
+					</TableBody>
+				</Transition>
+			</Table>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.table-rows-enter-active,
+.table-rows-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.table-rows-enter-from,
+.table-rows-leave-to {
+	opacity: 0;
+}
+</style>

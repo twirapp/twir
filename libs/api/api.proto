@@ -288,7 +288,7 @@ service UnProtected {
 	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
 
 	rpc AuthGetLink(messages.auth.GetLinkRequest) returns (messages.auth.GetLinkResponse) {}
-	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (messages.auth.PostCodeResponse) {}
 
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
 

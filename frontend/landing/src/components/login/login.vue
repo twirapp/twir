@@ -6,6 +6,7 @@ import UiButton from '@/components/ui/ui-button.vue';
 
 const url = new URL(window.location.href);
 const code = url.searchParams.get('code');
+const state = url.searchParams.get('state');
 const error = ref(url.searchParams.get('error'));
 const loading = ref(true);
 
@@ -14,16 +15,18 @@ onMounted(async () => {
 		return;
 	}
 
-	if (!code) {
+	if (!code || !state) {
 		error.value = `Something unexpected happened, because authorization code wasn't provided. Please try to log in again`;
 		return;
 	}
 
 	try {
-		await browserUnProtectedClient.authPostCode({
+		const req = await browserUnProtectedClient.authPostCode({
 			code,
+			state,
 		});
-		window.location.replace('/dashboard');
+
+		window.location.replace(req.response.redirectTo);
 	} catch (requestError) {
 		console.error(requestError);
 		error.value = 'Internal error happened, please contact devs in discord';

@@ -28,11 +28,10 @@ const assignProfile = async (context: APIContext) => {
 };
 
 const assignLoginLink = async (context: APIContext) => {
-	const location = context.url.origin;
+	const redirectTo = `${context.url.origin}/dashboard`;
 
 	try {
-		const state = Buffer.from(location, 'base64').toString('hex');
-		const request = await unProtectedClient.authGetLink({ state });
+		const request = await unProtectedClient.authGetLink({ redirectTo });
 		context.locals.authLink = request.response.link;
 	} catch { /* empty */
 	}

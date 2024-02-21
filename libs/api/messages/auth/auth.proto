@@ -3,7 +3,7 @@ option go_package = "github.com/twirapp/twir/libs/api/messages/auth";
 package messages.auth;
 
 message GetLinkRequest {
-	string state = 1;
+	string redirect_to = 1;
 }
 
 message GetLinkResponse {
@@ -12,6 +12,11 @@ message GetLinkResponse {
 
 message PostCodeRequest {
 	string code = 1;
+	string state = 2;
+}
+
+message PostCodeResponse {
+	string redirect_to = 1;
 }
 
 message Dashboard {
