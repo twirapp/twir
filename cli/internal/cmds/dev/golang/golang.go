@@ -22,6 +22,7 @@ var appsForStart = []twirApp{
 	{name: "websockets"},
 	{name: "ytsr"},
 	{name: "scheduler"},
+	{name: "discord"},
 	// {Name: "bots", FxModule: bots.App},
 	// {Name: "discord", FxModule: discord.App},
 	// {Name: "timers", FxModule: timers.App},
