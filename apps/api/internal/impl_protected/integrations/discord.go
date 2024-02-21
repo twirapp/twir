@@ -1,15 +1,19 @@
 package integrations
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"fmt"
 	"net/url"
+	"slices"
+	"strings"
 	"sync"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_discord"
 	"github.com/twirapp/twir/libs/grpc/discord"
@@ -46,7 +50,10 @@ func (c *Integrations) IntegrationsDiscordGetData(
 	ctx context.Context,
 	_ *empty.Empty,
 ) (*integrations_discord.GetDataResponse, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	channelIntegration, err := c.getChannelIntegrationByService(
 		ctx,
@@ -87,27 +94,27 @@ func (c *Integrations) IntegrationsDiscordGetData(
 					return err
 				}
 
-				channels := make([]*integrations_discord.GuildChannel, 0, len(g.Channels))
-				for _, channel := range g.Channels {
+				channels := make([]*integrations_discord.GuildChannel, 0, len(g.GetChannels()))
+				for _, channel := range g.GetChannels() {
 					channels = append(
 						channels,
 						&integrations_discord.GuildChannel{
-							Id:              channel.Id,
-							Name:            channel.Name,
-							Type:            integrations_discord.ChannelType(channel.Type.Number()),
-							CanSendMessages: channel.CanSendMessages,
+							Id:              channel.GetId(),
+							Name:            channel.GetName(),
+							Type:            integrations_discord.ChannelType(channel.GetType().Number()),
+							CanSendMessages: channel.GetCanSendMessages(),
 						},
 					)
 				}
 
-				roles := make([]*integrations_discord.GuildRole, 0, len(g.Roles))
+				roles := make([]*integrations_discord.GuildRole, 0, len(g.GetRoles()))
 				for _, role := range g.Roles {
 					roles = append(
 						roles,
 						&integrations_discord.GuildRole{
-							Id:    role.Id,
-							Name:  role.Name,
-							Color: role.Color,
+							Id:    role.GetId(),
+							Name:  role.GetName(),
+							Color: role.GetColor(),
 						},
 					)
 				}
@@ -116,9 +123,9 @@ func (c *Integrations) IntegrationsDiscordGetData(
 				guilds = append(
 					guilds,
 					&integrations_discord.DiscordGuild{
-						Id:                                       g.Id,
-						Name:                                     g.Name,
-						Icon:                                     g.Icon,
+						Id:                                       g.GetId(),
+						Name:                                     g.GetName(),
+						Icon:                                     g.GetIcon(),
 						LiveNotificationEnabled:                  guild.LiveNotificationEnabled,
 						LiveNotificationChannelsIds:              guild.LiveNotificationChannelsIds,
 						LiveNotificationShowTitle:                guild.LiveNotificationShowTitle,
@@ -146,6 +153,13 @@ func (c *Integrations) IntegrationsDiscordGetData(
 		return nil, fmt.Errorf("failed to get guilds: %w", err)
 	}
 
+	slices.SortFunc(
+		guilds,
+		func(a, b *integrations_discord.DiscordGuild) int {
+			return cmp.Compare(strings.ToLower(a.GetName()), strings.ToLower(b.GetName()))
+		},
+	)
+
 	return &integrations_discord.GetDataResponse{
 		Guilds: guilds,
 	}, nil
@@ -155,7 +169,10 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 	ctx context.Context,
 	req *integrations_discord.UpdateMessage,
 ) (*empty.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	channelIntegration, err := c.getChannelIntegrationByService(
 		ctx,
@@ -166,23 +183,23 @@ func (c *Integrations) IntegrationsDiscordUpdate(
 		return nil, fmt.Errorf("failed to get channel integration: %w", err)
 	}
 
-	newGuilds := make([]model.ChannelIntegrationDataDiscordGuild, 0, len(req.Guilds))
-	for _, guild := range req.Guilds {
+	newGuilds := make([]model.ChannelIntegrationDataDiscordGuild, 0, len(req.GetGuilds()))
+	for _, guild := range req.GetGuilds() {
 		newGuilds = append(
 			newGuilds,
 			model.ChannelIntegrationDataDiscordGuild{
-				ID:                               guild.Id,
-				LiveNotificationEnabled:          guild.LiveNotificationEnabled,
-				LiveNotificationChannelsIds:      guild.LiveNotificationChannelsIds,
-				LiveNotificationShowTitle:        guild.LiveNotificationShowTitle,
-				LiveNotificationShowCategory:     guild.LiveNotificationShowCategory,
-				LiveNotificationShowViewers:      guild.LiveNotificationShowViewers,
-				LiveNotificationMessage:          guild.LiveNotificationMessage,
-				OfflineNotificationMessage:       guild.OfflineNotificationMessage,
-				LiveNotificationShowPreview:      guild.LiveNotificationShowPreview,
-				LiveNotificationShowProfileImage: guild.LiveNotificationShowProfileImage,
-				ShouldDeleteMessageOnOffline:     guild.ShouldDeleteMessageOnOffline,
-				AdditionalUsersIdsForLiveCheck:   guild.AdditionalUsersIdsForLiveCheck,
+				ID:                               guild.GetId(),
+				LiveNotificationEnabled:          guild.GetLiveNotificationEnabled(),
+				LiveNotificationChannelsIds:      guild.GetLiveNotificationChannelsIds(),
+				LiveNotificationShowTitle:        guild.GetLiveNotificationShowTitle(),
+				LiveNotificationShowCategory:     guild.GetLiveNotificationShowCategory(),
+				LiveNotificationShowViewers:      guild.GetLiveNotificationShowViewers(),
+				LiveNotificationMessage:          guild.GetLiveNotificationMessage(),
+				OfflineNotificationMessage:       guild.GetOfflineNotificationMessage(),
+				LiveNotificationShowPreview:      guild.GetLiveNotificationShowPreview(),
+				LiveNotificationShowProfileImage: guild.GetLiveNotificationShowProfileImage(),
+				ShouldDeleteMessageOnOffline:     guild.GetShouldDeleteMessageOnOffline(),
+				AdditionalUsersIdsForLiveCheck:   guild.GetAdditionalUsersIdsForLiveCheck(),
 			},
 		)
 	}
@@ -211,7 +228,10 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 	ctx context.Context,
 	data *integrations_discord.PostCodeRequest,
 ) (*empty.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	res := DiscordPostCodeResponse{}
 	r, err := req.
@@ -220,7 +240,7 @@ func (c *Integrations) IntegrationDiscordConnectGuild(
 		SetFormData(
 			map[string]string{
 				"grant_type": "authorization_code",
-				"code":       data.Code,
+				"code":       data.GetCode(),
 				"redirect_uri": fmt.Sprintf(
 					"https://%s/dashboard/integrations/discord",
 					c.Config.SiteBaseUrl,
@@ -283,8 +303,10 @@ func (c *Integrations) IntegrationsDiscordDisconnectGuild(
 	ctx context.Context,
 	req *integrations_discord.DisconnectGuildMessage,
 ) (*empty.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
-	fmt.Println("dashboardId", dashboardId)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	channelIntegration, err := c.getChannelIntegrationByService(
 		ctx,
