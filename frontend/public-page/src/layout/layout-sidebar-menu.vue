@@ -4,9 +4,13 @@ import { useRouter } from 'vue-router';
 import { channelRoutes } from '@/router';
 
 const router = useRouter();
+const emits = defineEmits<{
+	navigate: []
+}>();
 
 function goToRoute(name: string) {
 	router.push({ name });
+	emits('navigate');
 }
 </script>
 

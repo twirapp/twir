@@ -16,7 +16,7 @@ const sheetOpened = ref(false);
 </script>
 
 <template>
-	<header class="w-full flex border-b border-border h-14 items-center px-2 justify-between">
+	<header class="w-full flex border-b border-border h-14 items-center px-2 justify-between px-4">
 		<a class="flex h-16 w-16 gap-2 items-center" href="/">
 			<img :src="TwirLogo" class="w-10 h-10" alt="twir-logo" />
 			<span class="text-2xl font-semibold text-white" data-astro-cid-aygicng6="">Twir</span>
@@ -29,7 +29,7 @@ const sheetOpened = ref(false);
 
 	<Sheet v-model:open="sheetOpened">
 		<SheetContent class="sm:w-[100%] w-[100%] sm:max-w-[100%]">
-			<layout-sidebar-menu class="mt-2" />
+			<layout-sidebar-menu class="mt-2" @navigate="sheetOpened = false" />
 			<Separator class="my-4" />
 			<layout-sidebar-user-profile />
 		</SheetContent>
