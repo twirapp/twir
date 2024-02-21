@@ -3,7 +3,7 @@ import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
 } from '@twir/api/messages/community/community';
-import { computed, type ComputedRef, type Ref, unref } from 'vue';
+import { type ComputedRef, type Ref, unref } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
@@ -42,6 +42,6 @@ export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | Computed
 			}, { timeout: 5000 });
 			return call.response;
 		},
-		enabled: computed(() => !!profile.value),
+		enabled: () => !!profile.value,
 	});
 };

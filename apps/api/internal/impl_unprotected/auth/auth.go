@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"database/sql"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"time"
@@ -18,7 +19,6 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/auth"
 	"github.com/twitchtv/twirp"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type Auth struct {
@@ -30,8 +30,8 @@ func (c *Auth) AuthGetLink(
 	ctx context.Context,
 	request *auth.GetLinkRequest,
 ) (*auth.GetLinkResponse, error) {
-	if request.State == "" {
-		return nil, twirp.NewError("400", "no state provided")
+	if request.RedirectTo == "" {
+		return nil, twirp.NewError("400", "no redirect provided")
 	}
 
 	twitchClient, err := helix.NewClientWithContext(
@@ -44,11 +44,13 @@ func (c *Auth) AuthGetLink(
 		return nil, err
 	}
 
+	state := base64.StdEncoding.EncodeToString([]byte(request.RedirectTo))
+
 	url := twitchClient.GetAuthorizationURL(
 		&helix.AuthorizationURLParams{
 			ResponseType: "code",
 			Scopes:       c.TwitchScopes,
-			State:        request.State,
+			State:        state,
 			ForceVerify:  false,
 		},
 	)
@@ -57,14 +59,26 @@ func (c *Auth) AuthGetLink(
 }
 
 func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (
-	*emptypb.Empty,
+	*auth.PostCodeResponse,
 	error,
 ) {
+	if request.GetCode() == "" {
+		return nil, twirp.NewError("400", "no code provided")
+	}
+	if request.GetState() == "" {
+		return nil, twirp.NewError("400", "no state provided")
+	}
+
+	redirectTo, err := base64.StdEncoding.DecodeString(request.GetState())
+	if err != nil {
+		return nil, fmt.Errorf("cannot decode state: %w", err)
+	}
+
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create twitch client: %w", err)
 	}
-	tokens, err := twitchClient.RequestUserAccessToken(request.Code)
+	tokens, err := twitchClient.RequestUserAccessToken(request.GetCode())
 	if err != nil {
 		return nil, fmt.Errorf("cannot user data from twitch: %w", err)
 	}
@@ -192,7 +206,9 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		},
 	)
 
-	return &emptypb.Empty{}, nil
+	return &auth.PostCodeResponse{
+		RedirectTo: string(redirectTo),
+	}, nil
 }
 
 func (c *Auth) GetPublicUserInfo(ctx context.Context, req *auth.GetPublicUserInfoRequest) (

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/vue-query';
-import { computed, unref } from 'vue';
+import { unref } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
@@ -19,6 +19,6 @@ export const useCommands = () => {
 
 			return call.response;
 		},
-		enabled: computed(() => !!profile.value),
+		enabled: () => !!profile.value,
 	});
 };

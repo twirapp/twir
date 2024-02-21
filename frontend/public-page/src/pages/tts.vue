@@ -74,7 +74,7 @@ const usersWithProfiles = computed(() => {
 				</TableBody>
 				<TableBody v-else>
 					<user-row
-						v-if="channelSettings"
+						v-if="channelSettings && profile"
 						:name="profile?.displayName"
 						:avatar="profile?.profileImageUrl"
 						:pitch="channelSettings.pitch"
@@ -84,12 +84,12 @@ const usersWithProfiles = computed(() => {
 
 					<user-row
 						v-for="(user) of usersWithProfiles"
-						:key="user?.userId"
-						:name="user?.name"
-						:avatar="user?.avatar"
-						:pitch="user?.pitch"
-						:rate="user?.rate"
-						:voice="user?.voice"
+						:key="user!.userId"
+						:name="user!.name"
+						:avatar="user!.avatar"
+						:pitch="user!.pitch"
+						:rate="user!.rate"
+						:voice="user!.voice"
 					/>
 				</TableBody>
 			</Transition>

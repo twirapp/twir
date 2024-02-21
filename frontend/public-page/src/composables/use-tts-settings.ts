@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/vue-query';
-import { computed } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
@@ -16,7 +15,7 @@ export const useTTSChannelSettings = () => {
 
 			return call.response;
 		},
-		enabled: computed(() => !!profile.value),
+		enabled: () => !!profile.value,
 	});
 };
 
@@ -32,6 +31,6 @@ export const useTTSUsersSettings = () => {
 
 			return call.response;
 		},
-		enabled: computed(() => !!profile.value),
+		enabled: () => !!profile.value,
 	});
 };

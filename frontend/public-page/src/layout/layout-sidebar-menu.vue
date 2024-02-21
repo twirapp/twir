@@ -21,7 +21,7 @@ function goToRoute(name: string) {
 					[$style.itemActive]: router.currentRoute.value.name === route.name
 				}
 			]"
-			@click="goToRoute(route.name)"
+			@click="goToRoute(route.name as string)"
 		>
 			<component
 				:is="route.meta?.icon"

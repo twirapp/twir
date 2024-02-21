@@ -1,7 +1,13 @@
 <script lang="ts" setup>
-import { type ColumnDef, getCoreRowModel, useVueTable, FlexRender } from '@tanstack/vue-table';
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	useVueTable,
+	FlexRender,
+	getExpandedRowModel, type Cell,
+} from '@tanstack/vue-table';
 import type { Command } from '@twir/api/messages/commands_unprotected/commands_unprotected';
-import { computed, h } from 'vue';
+import { computed, h, onMounted } from 'vue';
 
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
@@ -17,52 +23,75 @@ import CommandsCooldownCell from '@/pages/commands/commands-cooldown-cell.vue';
 import CommandsNameCell from '@/pages/commands/commands-name-cell.vue';
 import CommandsPermissionsCell from '@/pages/commands/commands-permissions-cell.vue';
 import CommandsResponsesCell from '@/pages/commands/commands-responses-cell.vue';
+import { createGroups, type Group, isCommand } from '@/pages/commands/create-group';
 
 const { data, isLoading: isCommandsLoading } = useCommands();
 
-const commands = computed(() => data.value?.commands ?? []);
+const commandsWithGroups = computed(() => createGroups(data.value?.commands ?? []));
 
-const columns: ColumnDef<Command>[] = [
+const columns: ColumnDef<Command | Group>[] = [
 	{
 		accessorKey: 'Name',
 		size: 10,
-		cell: ({ row }) => h(CommandsNameCell, {
+		cell: ({ row }) => isCommand(row.original) ? h(CommandsNameCell, {
 			name: row.original.name,
-			aliases: row.original.aliases,
-		}),
+			aliases: isCommand(row.original) ? row.original.aliases : [],
+		}) : h('div', {}, row.original.name),
 	},
 	{
 		accessorKey: 'Response',
 		size: 80,
-		cell: ({ row }) => h(CommandsResponsesCell, {
+		cell: ({ row }) => isCommand(row.original) ? h(CommandsResponsesCell, {
 			responses: row.original.responses,
 			description: row.original.description,
-		}),
+		}) : null,
 	},
 	{
 		accessorKey: 'Permissions',
 		size: 5,
-		cell: ({ row }) => h(CommandsPermissionsCell, { permissions: row.original.permissions }),
+		cell: ({ row }) => isCommand(row.original) ? h(CommandsPermissionsCell, {
+			permissions: row.original.permissions,
+		}) : null,
 	},
 	{
 		accessorKey: 'Cooldown',
 		size: 5,
-		cell: ({ row }) => h(CommandsCooldownCell, {
+		cell: ({ row }) => isCommand(row.original) ? h(CommandsCooldownCell, {
 			cooldown: row.original.cooldown,
 			cooldownType: row.original.cooldownType,
-		}),
+		}) : null,
 	},
 ];
 
 const table = useVueTable({
 	get data() {
-		return commands.value;
+		return commandsWithGroups.value;
 	},
 	get columns() {
 		return columns;
 	},
 	getCoreRowModel: getCoreRowModel(),
+	getExpandedRowModel: getExpandedRowModel(),
+	getSubRows: (original) => {
+		if ('commands' in original) {
+			return original.commands;
+		}
+	},
 });
+
+onMounted(() => {
+	table.toggleAllRowsExpanded();
+});
+
+function computeCellSpan(cell: Cell<Command | Group, unknown>) {
+	const isGroup = !isCommand(cell.row.original);
+
+	if (isGroup && cell.column.id === 'Name') {
+		return columns.length;
+	}
+
+	return 1;
+}
 </script>
 
 <template>
@@ -95,15 +124,23 @@ const table = useVueTable({
 					<TableRow
 						v-for="row in table.getRowModel().rows" :key="row.id"
 					>
-						<TableCell
+						<template
 							v-for="cell in row.getVisibleCells()"
 							:key="cell.id"
 						>
-							<FlexRender
-								:render="cell.column.columnDef.cell"
-								:props="cell.getContext()"
-							/>
-						</TableCell>
+							<TableCell
+								v-if="isCommand(cell.row.original) || cell.column.id === 'Name'"
+								:colspan="computeCellSpan(cell)"
+							>
+								<FlexRender
+									:render="cell.column.columnDef.cell"
+									:props="cell.getContext()"
+									:class="{
+										'flex items-center justify-center': !isCommand(cell.row.original),
+									}"
+								/>
+							</TableCell>
+						</template>
 					</TableRow>
 				</TableBody>
 			</Transition>

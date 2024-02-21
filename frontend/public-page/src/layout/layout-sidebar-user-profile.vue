@@ -5,9 +5,12 @@ import TwitchIcon from '@/assets/icons/socials/twitch.svg?use';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useUserProfile } from '@/composables/use-user-profile';
+import { useUserProfile, useLogout, useLoginLink } from '@/composables/use-user-profile';
 
 const { data, isLoading, isError } = useUserProfile();
+const logout = useLogout();
+
+const { data: loginLink, isError: isLoginLinkError } = useLoginLink();
 </script>
 
 <template>
@@ -23,8 +26,8 @@ const { data, isLoading, isError } = useUserProfile();
 			<!--	use !data for test login button -->
 			<div v-else-if="!isError && data" class="flex items-center gap-4">
 				<Avatar>
-					<AvatarImage :src="data?.avatar" alt="streamer-profile-image" />
-					<AvatarFallback>{{ data?.login.slice(0, 2) }}</AvatarFallback>
+					<AvatarImage :src="data.avatar" alt="streamer-profile-image" />
+					<AvatarFallback>{{ data.login.slice(0, 2) }}</AvatarFallback>
 				</Avatar>
 				<div class="flex flex-col">
 					<span>{{ data.displayName }}</span>
@@ -32,10 +35,10 @@ const { data, isLoading, isError } = useUserProfile();
 						Logged as
 					</small>
 				</div>
-				<IconLogout class="cursor-pointer" />
+				<IconLogout class="cursor-pointer" @click="logout.mutate()" />
 			</div>
 			<div v-else>
-				<Button variant="secondary" class="w-full">
+				<Button variant="secondary" class="w-full" as="a" :href="loginLink" :disabled="isLoginLinkError">
 					<div class="flex items-center gap-2">
 						<span>
 							Login

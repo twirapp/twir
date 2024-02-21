@@ -22,15 +22,15 @@ const { data: queue, isLoading } = useSongsQueue();
 		<Table>
 			<TableHeader>
 				<TableRow>
-					<TableHead class="w-[10px]"></TableHead>
-					<TableHead class="w-full min-w-[500px]">
+					<TableHead class="w-[5%]"></TableHead>
+					<TableHead class="w-[70%]">
 						Name
 					</TableHead>
-					<TableHead class="w-[150px] min-w-[150px]">
+					<TableHead class="w-[10%]">
 						Requested by
 					</TableHead>
-					<TableHead class="w-[150px] min-w-[150px]"></TableHead>
-					<TableHead class="text-right w-[50px]">
+					<TableHead class="w-[10%]"></TableHead>
+					<TableHead class="text-right w-[5%]">
 						Duration
 					</TableHead>
 				</TableRow>
@@ -38,6 +38,15 @@ const { data: queue, isLoading } = useSongsQueue();
 			<Transition name="table-rows" appear mode="out-in">
 				<TableBody v-if="isLoading">
 					<table-rows-skeleton :rows="20" :colspan="5" />
+				</TableBody>
+				<TableBody v-else-if="!queue?.songs?.length">
+					<TableRow>
+						<TableCell :colspan="5">
+							<div class="flex items-center justify-center">
+								No songs in queue
+							</div>
+						</TableCell>
+					</TableRow>
 				</TableBody>
 				<TableBody v-else>
 					<TableRow v-for="(song, idx) in queue?.songs" :key="song.title">

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/vue-query';
-import { computed } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
 import { useStreamerProfile } from '@/composables/use-streamer-profile';
@@ -17,6 +16,6 @@ export const useSongsQueue = () => {
 			return call.response;
 		},
 		refetchInterval: 1000,
-		enabled: computed(() => !!profile.value),
+		enabled: () => !!profile.value,
 	});
 };
