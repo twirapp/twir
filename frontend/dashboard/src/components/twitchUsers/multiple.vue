@@ -1,4 +1,4 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import { refDebounced } from '@vueuse/core';
 import { NSelect, NTag, NAvatar } from 'naive-ui';
 import { computed, ref, watch, h } from 'vue';
@@ -133,7 +133,7 @@ const renderLabel = (option: Option) => {
 	<n-select
 		v-model:value="usersIds"
 		multiple
-		filterable
+		:filterable="max ? usersIds.length !== max : true"
 		placeholder="Search users..."
 		:options="options"
 		:loading="twitchSearch.isLoading.value"
@@ -142,7 +142,7 @@ const renderLabel = (option: Option) => {
 		:clear-filter-after-select="true"
 		:render-label="renderLabel as any"
 		:render-tag="renderMultipleSelectTag as any"
-		:disabled="max ? usersIds.length === max : false"
 		@search="handleSearch"
+		@update-value="userName = ''"
 	/>
 </template>
