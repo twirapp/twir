@@ -28,7 +28,7 @@ const sheetOpened = ref(false);
 	</header>
 
 	<Sheet v-model:open="sheetOpened">
-		<SheetContent class="sm:w-[100%] w-[100%]">
+		<SheetContent class="sm:w-[100%] w-[100%] sm:max-w-[100%]">
 			<layout-sidebar-menu class="mt-2" />
 			<Separator class="my-4" />
 			<layout-sidebar-user-profile />
