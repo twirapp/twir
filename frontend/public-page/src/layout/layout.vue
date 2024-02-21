@@ -29,14 +29,14 @@ watch([streamerName, isError], ([name, error]) => {
 });
 
 const breakpoints = useBreakpoints(breakpointsTailwind);
-const lgAndSmaller = breakpoints.smallerOrEqual('lg');
+const mdAndSmaller = breakpoints.smallerOrEqual('md');
 </script>
 
 <template>
-	<layout-navbar v-if="lgAndSmaller" />
+	<layout-navbar v-if="mdAndSmaller" />
 	<div class="flex flex-row gap-4">
 		<aside
-			v-if="!lgAndSmaller"
+			v-if="!mdAndSmaller"
 			class="flex w-auto flex-col justify-between border-e h-screen sticky top-0"
 		>
 			<layout-sidebar />

@@ -1,22 +1,25 @@
-<script setup lang="ts">
+<script lang="ts">
 import { IconDiamond, IconSword, IconUserDollar, IconVideo } from '@tabler/icons-vue';
+import type { FunctionalComponent } from 'vue';
+
+export const permissionsIconsMapping: Record<string, FunctionalComponent> = {
+	'BROADCASTER': IconVideo,
+	'MODERATOR': IconSword,
+	'SUBSCRIBER': IconUserDollar,
+	'VIP': IconDiamond,
+};
+</script>
+
+<script setup lang="ts">
 import type {
 	Command_Permission,
 } from '@twir/api/messages/commands_unprotected/commands_unprotected';
-import type { FunctionalComponent } from 'vue';
 
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 
 defineProps<{
 	permissions: Command_Permission[]
 }>();
-
-const permissionsIconsMapping: Record<string, FunctionalComponent> = {
-	'BROADCASTER': IconVideo,
-	'MODERATOR': IconSword,
-	'SUBSCRIBER': IconUserDollar,
-	'VIP': IconDiamond,
-};
 </script>
 
 <template>

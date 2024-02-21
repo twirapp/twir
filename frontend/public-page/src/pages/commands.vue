@@ -7,9 +7,11 @@ import {
 	getExpandedRowModel, type Cell,
 } from '@tanstack/vue-table';
 import type { Command } from '@twir/api/messages/commands_unprotected/commands_unprotected';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { computed, h, onMounted } from 'vue';
 
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
+import { Badge } from '@/components/ui/badge';
 import {
 	Table,
 	TableBody,
@@ -21,7 +23,9 @@ import {
 import { useCommands } from '@/composables/use-commands';
 import CommandsCooldownCell from '@/pages/commands/commands-cooldown-cell.vue';
 import CommandsNameCell from '@/pages/commands/commands-name-cell.vue';
-import CommandsPermissionsCell from '@/pages/commands/commands-permissions-cell.vue';
+import CommandsPermissionsCell, {
+	permissionsIconsMapping,
+} from '@/pages/commands/commands-permissions-cell.vue';
 import CommandsResponsesCell from '@/pages/commands/commands-responses-cell.vue';
 import { createGroups, type Group, isCommand } from '@/pages/commands/create-group';
 
@@ -92,10 +96,45 @@ function computeCellSpan(cell: Cell<Command | Group, unknown>) {
 
 	return 1;
 }
+
+const breakpoints = useBreakpoints(breakpointsTailwind);
+const isSmall = breakpoints.smaller('xl');
 </script>
 
 <template>
-	<div class="rounded-md border">
+	<div v-if="isSmall" class="flex flex-col gap-2">
+		<div
+			v-for="command of data?.commands"
+			:key="command.name"
+			class="flex flex-col gap-2 rounded-md border p-5"
+		>
+			<h3>
+				!{{ command.name }}
+			</h3>
+			<template v-if="command.responses.length">
+				<span
+					v-for="(r, idx) of command.responses" :key="idx"
+					class="text-sm text-muted-foreground"
+				>{{ r }}</span>
+			</template>
+			<span v-else class="text-sm text-muted-foreground">{{ command.description }}</span>
+			<div class="flex flex-wrap gap-1">
+				<Badge v-if="command.group || command.module !== 'CUSTOM'" variant="secondary">
+					{{ command.group || command.module }}
+				</Badge>
+				<Badge variant="secondary">
+					Cooldown | {{ command.cooldown }}s
+				</Badge>
+				<Badge v-for="perm of command.permissions" :key="perm" variant="secondary">
+					<div class="flex items-center gap-1">
+						<component :is="permissionsIconsMapping[perm.type]" class="w-4 h-4" />
+						{{ perm.name.charAt(0).toUpperCase() + perm.name.slice(1).toLowerCase() }}
+					</div>
+				</Badge>
+			</div>
+		</div>
+	</div>
+	<div v-else class="rounded-md border">
 		<Table>
 			<TableHeader>
 				<TableRow
