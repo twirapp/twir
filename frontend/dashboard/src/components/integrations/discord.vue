@@ -41,7 +41,6 @@ import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
 import IconDiscord from '@/assets/integrations/discord.svg?use';
-import TwirLogo from '@/components/twir-logo.vue';
 
 const themeVars = useThemeVars();
 
