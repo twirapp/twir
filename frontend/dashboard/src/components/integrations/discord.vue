@@ -262,6 +262,9 @@ const { data: currentUser } = useProfile();
 										v-model="guild.additionalUsersIdsForLiveCheck"
 										:max="10"
 									/>
+									<span v-if="guild.additionalUsersIdsForLiveCheck.length >= 10" class="text-orange-500">
+										Maximum additional users selected
+									</span>
 								</div>
 
 								<div class="form-item">
