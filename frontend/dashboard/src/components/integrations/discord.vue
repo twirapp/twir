@@ -78,10 +78,15 @@ const isConnectDisabled = computed(() => {
 	return (discordIntegrationData?.value?.guilds?.length || 0) >= 2;
 });
 
-const currentTab = ref<string>('');
+const currentTab = ref<string>();
 watch(discordIntegrationData, (v) => {
 	if (!v) return;
-	currentTab.value = v.guilds?.[0]?.name;
+
+	if (!currentTab.value) currentTab.value = v.guilds?.at(0)?.name;
+	if (!v.guilds.some(g => g.name === currentTab.value)) {
+		currentTab.value = v.guilds?.at(0)?.name;
+	}
+
 	formValue.value = toRaw(v);
 }, { immediate: true });
 
