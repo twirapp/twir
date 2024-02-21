@@ -52,9 +52,10 @@ async function save() {
 
 const fontData = ref<Font | null>(null);
 watch(() => fontData.value, (font) => {
+	console.log(font);
 	if (!font) return;
 	formValue.value.fontFamily = font.id;
-});
+}, { deep: true });
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return [];
