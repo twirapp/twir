@@ -42,7 +42,10 @@ const mdAndSmaller = breakpoints.smallerOrEqual('md');
 			<layout-sidebar />
 		</aside>
 
-		<div class="flex flex-nowrap container flex-col gap-4 py-5">
+		<div
+			class="flex flex-nowrap container flex-col gap-4 py-5"
+			:class="{ 'mt-[3.5rem]': mdAndSmaller }"
+		>
 			<layout-streamer-profile />
 
 			<div>

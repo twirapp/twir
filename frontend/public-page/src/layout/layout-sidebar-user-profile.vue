@@ -24,21 +24,26 @@ const { data: loginLink, isError: isLoginLinkError } = useLoginLink();
 				</div>
 			</div>
 			<!--	use !data for test login button -->
-			<div v-else-if="!isError && data" class="flex items-center gap-4">
-				<Avatar>
-					<AvatarImage :src="data.avatar" alt="streamer-profile-image" />
-					<AvatarFallback>{{ data.login.slice(0, 2) }}</AvatarFallback>
-				</Avatar>
-				<div class="flex flex-col">
-					<span>{{ data.displayName }}</span>
-					<small class="text-xs font-medium leading-none text-muted-foreground">
-						Logged as
-					</small>
+			<div v-else-if="!isError && data" class="flex items-center gap-4 justify-between">
+				<div class="flex items-center gap-2">
+					<Avatar>
+						<AvatarImage :src="data.avatar" alt="streamer-profile-image" />
+						<AvatarFallback>{{ data.login.slice(0, 2) }}</AvatarFallback>
+					</Avatar>
+					<div class="flex flex-col">
+						<span>{{ data.displayName }}</span>
+						<small class="text-xs font-medium leading-none text-muted-foreground">
+							Logged as
+						</small>
+					</div>
 				</div>
 				<IconLogout class="cursor-pointer" @click="logout.mutate()" />
 			</div>
 			<div v-else>
-				<Button variant="secondary" class="w-full" as="a" :href="loginLink" :disabled="isLoginLinkError">
+				<Button
+					variant="secondary" class="w-full" as="a" :href="loginLink"
+					:disabled="isLoginLinkError"
+				>
 					<div class="flex items-center gap-2">
 						<span>
 							Login
