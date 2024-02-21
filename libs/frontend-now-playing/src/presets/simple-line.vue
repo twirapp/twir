@@ -26,7 +26,7 @@ const nameMarqueEnabled = computed(() => {
 	<div v-if="track" ref="spotifyRef" class="spotify">
 		<img
 			v-if="settings.showImage" class="cover"
-			:src="track.image_url ?? '/overlays/public/images/play.png'"
+			:src="track.image_url ?? '/overlays/images/play.png'"
 		/>
 		<div ref="infoRef" class="info" :class="{ marque: nameMarqueEnabled }">
 			<div class="name">
