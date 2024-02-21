@@ -72,6 +72,7 @@ function goToRoute(name: string) {
 	height: 1.3rem;
 	stroke: hsl(var(--accent-foreground));
 	color: hsl(var(--accent-foreground));
+	stroke-width: 2;
 }
 
 </style>
