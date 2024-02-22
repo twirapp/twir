@@ -36,10 +36,10 @@ watch(profile, (v) => {
 					<AvatarFallback>{{ profile.login.slice(0, 2) }}</AvatarFallback>
 				</Avatar>
 				<div class="flex flex-col gap-4">
-					<span class="text-4xl">
+					<span class="text-4xl break-all">
 						{{ profile.displayName }}
 					</span>
-					<span class="text-sm">
+					<span class="text-sm break-all">
 						{{ profile.description }}
 					</span>
 				</div>

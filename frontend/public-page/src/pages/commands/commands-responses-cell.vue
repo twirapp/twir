@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-	<div v-if="responses.length" class="flex flex-col">
+	<div v-if="!description" class="flex flex-col break-words">
 		<span v-for="(response, responseIndex) of responses" :key="responseIndex">
 			{{ response }}
 		</span>

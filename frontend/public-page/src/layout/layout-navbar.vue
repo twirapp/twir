@@ -20,7 +20,7 @@ const opened = ref(false);
 
 <template>
 	<header
-		class="w-screen flex border-b border-border h-14 items-center justify-between px-6 z-20 absolute inset-0 pointer-events-auto"
+		class="flex border-b container border-border h-14 items-center justify-between px-6 z-20 absolute inset-0 pointer-events-auto"
 	>
 		<a class="flex h-16 w-16 gap-2 items-center" href="/">
 			<img :src="TwirLogo" class="w-9 h-9" alt="twir-logo" />

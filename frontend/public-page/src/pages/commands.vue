@@ -111,13 +111,14 @@ const isSmall = breakpoints.smaller('xl');
 			<h3>
 				!{{ command.name }}
 			</h3>
-			<template v-if="command.responses.length">
+
+			<span v-if="command.description" class="text-sm text-muted-foreground break-all">{{ command.description }}</span>
+			<template v-else>
 				<span
 					v-for="(r, idx) of command.responses" :key="idx"
-					class="text-sm text-muted-foreground"
+					class="text-sm text-muted-foreground break-all"
 				>{{ r }}</span>
 			</template>
-			<span v-else class="text-sm text-muted-foreground">{{ command.description }}</span>
 			<div class="flex flex-wrap gap-1">
 				<Badge v-if="command.group || command.module !== 'CUSTOM'" variant="secondary">
 					{{ command.group || command.module }}
@@ -134,6 +135,7 @@ const isSmall = breakpoints.smaller('xl');
 			</div>
 		</div>
 	</div>
+
 	<div v-else class="rounded-md border">
 		<Table>
 			<TableHeader>
