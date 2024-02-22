@@ -68,7 +68,7 @@ func (c *Integrations) IntegrationsDiscordGetData(
 		return nil, errors.New("integration not found")
 	}
 
-	if channelIntegration.Data == nil {
+	if channelIntegration.Data == nil || channelIntegration.Data.Discord == nil {
 		return &integrations_discord.GetDataResponse{}, nil
 	}
 
