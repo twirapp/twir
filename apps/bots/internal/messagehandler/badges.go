@@ -3,16 +3,16 @@ package messagehandler
 import (
 	"strings"
 
-	"github.com/twirapp/twir/libs/grpc/shared"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 )
 
-func createUserBadges(badges []*shared.ChatMessageBadge) []string {
+func createUserBadges(badges []twitch.ChatMessageBadge) []string {
 	outer := make([]string, len(badges))
 
 	for i, b := range badges {
-		outer[i] = strings.ToUpper(b.GetSetId())
+		outer[i] = strings.ToUpper(b.SetId)
 
-		if b.GetSetId() == "founder" {
+		if b.SetId == "founder" {
 			outer = append(outer, "SUBSCRIBER")
 		}
 	}

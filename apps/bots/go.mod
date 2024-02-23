@@ -2,14 +2,13 @@ module github.com/satont/twir/apps/bots
 
 go 1.21
 
-replace github.com/nicklaw5/helix/v2 => ../../libs/helix
-
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.6.0
 	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
+	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.4.0
@@ -63,6 +62,8 @@ require (
 	github.com/klauspost/compress v1.17.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
@@ -94,7 +95,6 @@ require (
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/gopool => ../../libs/gopool
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
@@ -102,4 +102,5 @@ replace (
 	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
+	github.com/nicklaw5/helix/v2 => ../../libs/helix
 )

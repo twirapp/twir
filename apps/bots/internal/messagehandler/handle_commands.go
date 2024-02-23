@@ -8,28 +8,28 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/shared"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) error {
-	if !strings.HasPrefix(msg.GetMessage().GetText(), "!") {
+	if !strings.HasPrefix(msg.Message.Text, "!") {
 		return nil
 	}
 
-	emotes := make([]*parser.Message_Emote, 0, len(msg.GetMessage().GetFragments()))
+	emotes := make([]*parser.Message_Emote, 0, len(msg.Message.Fragments))
 
-	for _, f := range msg.GetMessage().GetFragments() {
-		if f.GetType() != shared.FragmentType_EMOTE {
+	for _, f := range msg.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE {
 			continue
 		}
 
-		re := regexp.MustCompile(regexp.QuoteMeta(f.GetText()))
+		re := regexp.MustCompile(regexp.QuoteMeta(f.Text))
 		var emotePositions []*parser.Message_EmotePosition
 
-		for _, match := range re.FindAllStringSubmatchIndex(msg.GetMessage().GetText(), -1) {
+		for _, match := range re.FindAllStringSubmatchIndex(msg.Message.Text, -1) {
 			emotePositions = append(
 				emotePositions,
 				&parser.Message_EmotePosition{
@@ -41,43 +41,43 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 
 		emotes = append(
 			emotes, &parser.Message_Emote{
-				Id:        f.GetEmote().GetId(),
-				Name:      f.GetText(),
+				Id:        f.Emote.Id,
+				Name:      f.Text,
 				Positions: emotePositions,
 			},
 		)
 	}
 
-	mentions := make([]*parser.Message_Mention, 0, len(msg.GetMessage().GetFragments()))
-	for _, m := range msg.GetMessage().GetFragments() {
-		if m.Type != shared.FragmentType_MENTION {
+	mentions := make([]*parser.Message_Mention, 0, len(msg.Message.Fragments))
+	for _, m := range msg.Message.Fragments {
+		if m.Type != twitch.FragmentType_MENTION {
 			continue
 		}
 
 		mentions = append(
 			mentions, &parser.Message_Mention{
-				UserId:    m.GetMention().GetUserId(),
-				UserName:  m.GetMention().GetUserName(),
-				UserLogin: m.GetMention().GetUserLogin(),
+				UserId:    m.Mention.UserId,
+				UserName:  m.Mention.UserName,
+				UserLogin: m.Mention.UserLogin,
 			},
 		)
 	}
 
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
-			Id:          msg.GetChatterUserId(),
-			Name:        msg.GetChatterUserLogin(),
-			DisplayName: msg.GetChatterUserName(),
+			Id:          msg.ChatterUserId,
+			Name:        msg.ChatterUserLogin,
+			DisplayName: msg.ChatterUserName,
 			Badges:      createUserBadges(msg.Badges),
-			Color:       msg.GetColor(),
+			Color:       msg.Color,
 		},
 		Channel: &parser.Channel{
-			Id:   msg.GetBroadcasterUserId(),
-			Name: msg.GetBroadcasterUserLogin(),
+			Id:   msg.BroadcasterUserId,
+			Name: msg.BroadcasterUserLogin,
 		},
 		Message: &parser.Message{
-			Id:       msg.GetMessageId(),
-			Text:     msg.GetMessage().GetText(),
+			Id:       msg.MessageId,
+			Text:     msg.Message.Text,
 			Emotes:   emotes,
 			Mentions: mentions,
 		},
@@ -103,10 +103,10 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 			err := c.twitchActions.SendMessage(
 				ctx,
 				twitchactions.SendMessageOpts{
-					BroadcasterID:        msg.GetBroadcasterUserId(),
+					BroadcasterID:        msg.BroadcasterUserId,
 					SenderID:             msg.DbChannel.BotID,
 					Message:              r,
-					ReplyParentMessageID: lo.If(resp.GetIsReply(), msg.GetMessageId()).Else(""),
+					ReplyParentMessageID: lo.If(resp.GetIsReply(), msg.MessageId).Else(""),
 				},
 			)
 			if err != nil {
@@ -125,10 +125,10 @@ func (c *MessageHandler) handleCommand(ctx context.Context, msg handleMessage) e
 				e := c.twitchActions.SendMessage(
 					ctx,
 					twitchactions.SendMessageOpts{
-						BroadcasterID:        msg.GetBroadcasterUserId(),
+						BroadcasterID:        msg.BroadcasterUserId,
 						SenderID:             msg.DbChannel.BotID,
 						Message:              r,
-						ReplyParentMessageID: lo.If(resp.GetIsReply(), msg.GetMessageId()).Else(""),
+						ReplyParentMessageID: lo.If(resp.GetIsReply(), msg.MessageId).Else(""),
 					},
 				)
 				if e != nil {

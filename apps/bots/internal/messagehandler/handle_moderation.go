@@ -16,8 +16,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 	"github.com/satont/twir/libs/utils"
-	"github.com/twirapp/twir/libs/grpc/shared"
 )
 
 type moderationHandleResult struct {
@@ -43,13 +43,13 @@ var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 }
 
 func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage) error {
-	badges := createUserBadges(msg.GetBadges())
+	badges := createUserBadges(msg.Badges)
 
 	if lo.Some(badges, []string{"broadcaster", "moderator"}) {
 		return nil
 	}
 
-	settings, err := c.getChannelModerationSettings(ctx, msg.GetBroadcasterUserId())
+	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
@@ -65,11 +65,11 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			continue
 		}
 
-		if _, exists := messagesTimeouterStore.Get(msg.GetBroadcasterUserId()); !exists {
+		if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
 			opts := twitchactions.SendMessageOpts{
 				Message:       entity.BanMessage,
 				SenderID:      msg.DbChannel.BotID,
-				BroadcasterID: msg.GetBroadcasterUserId(),
+				BroadcasterID: msg.BroadcasterUserId,
 			}
 			if res.IsDelete {
 				opts.Message = entity.WarningMessage
@@ -77,23 +77,23 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			if opts.Message != "" {
 				c.twitchActions.SendMessage(ctx, opts)
 			}
-			messagesTimeouterStore.Add(msg.GetBroadcasterUserId(), struct{}{})
+			messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
 		}
 
 		if res.IsDelete {
 			err := c.twitchActions.DeleteMessage(
 				ctx,
 				twitchactions.DeleteMessageOpts{
-					BroadcasterID: msg.GetBroadcasterUserId(),
+					BroadcasterID: msg.BroadcasterUserId,
 					ModeratorID:   msg.DbChannel.BotID,
-					MessageID:     msg.GetMessageId(),
+					MessageID:     msg.MessageId,
 				},
 			)
 			if err != nil {
 				c.logger.Error(
 					"cannot delete message",
-					slog.String("userId", msg.GetChatterUserId()),
-					slog.String("channelId", msg.GetBroadcasterUserId()),
+					slog.String("userId", msg.ChatterUserId),
+					slog.String("channelId", msg.BroadcasterUserId),
 					slog.Any("err", err),
 				)
 			}
@@ -102,8 +102,8 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				ctx, twitchactions.BanOpts{
 					Duration:      res.Time,
 					Reason:        entity.BanMessage,
-					BroadcasterID: msg.GetBroadcasterUserId(),
-					UserID:        msg.GetChatterUserId(),
+					BroadcasterID: msg.BroadcasterUserId,
+					UserID:        msg.ChatterUserId,
 					ModeratorID:   msg.DbChannel.BotID,
 				},
 			)
@@ -111,8 +111,8 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			if err != nil {
 				c.logger.Error(
 					"cannot ban user",
-					slog.String("userId", msg.GetChatterUserId()),
-					slog.String("channelId", msg.GetBroadcasterUserId()),
+					slog.String("userId", msg.ChatterUserId),
+					slog.String("channelId", msg.BroadcasterUserId),
 					slog.Any("err", err),
 				)
 			}
@@ -166,7 +166,7 @@ func (c *MessageHandler) moderationHandleResult(
 	settings model.ChannelModerationSettings,
 ) *moderationHandleResult {
 	var channelRoles []model.ChannelRole
-	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.GetChatterUserId()).Where(
+	if err := c.gorm.WithContext(ctx).Preload("Users", `"userId" = ?`, msg.ChatterUserId).Where(
 		`"channelId" = ?`,
 		settings.ChannelID,
 	).
@@ -176,7 +176,7 @@ func (c *MessageHandler) moderationHandleResult(
 		return nil
 	}
 
-	badges := createUserBadges(msg.GetBadges())
+	badges := createUserBadges(msg.Badges)
 
 	for _, r := range channelRoles {
 		if r.Type == model.ChannelRoleTypeCustom {
@@ -217,7 +217,7 @@ func (c *MessageHandler) moderationHandleResult(
 
 	warningRedisKey := fmt.Sprintf(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
-		msg.GetChatterUserId(), settings.Type,
+		msg.ChatterUserId, settings.Type,
 	)
 	warningsKeys, err := c.redis.Keys(ctx, warningRedisKey).Result()
 	if err != nil {
@@ -231,7 +231,7 @@ func (c *MessageHandler) moderationHandleResult(
 			fmt.Sprintf(
 				"channels:%s:moderation_warns:%s:%s:%v",
 				settings.ChannelID,
-				msg.GetChatterUserId(),
+				msg.ChatterUserId,
 				settings.Type,
 				time.Now().Unix(),
 			),
@@ -263,7 +263,7 @@ func (c *MessageHandler) moderationLinksParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
-	containLink := c.moderationHelpers.HasLink(msg.GetMessage().GetText())
+	containLink := c.moderationHelpers.HasLink(msg.Message.Text)
 
 	if !containLink {
 		return nil
@@ -273,7 +273,7 @@ func (c *MessageHandler) moderationLinksParser(
 	err := c.gorm.WithContext(ctx).Where(
 		`"channelId" = ? AND "userId" = ?`,
 		settings.ChannelID,
-		msg.GetChatterUserId(),
+		msg.ChatterUserId,
 	).
 		Find(&permit).
 		Error
@@ -298,7 +298,7 @@ func (c *MessageHandler) moderationDenyListParser(
 		return nil
 	}
 
-	hasDeniedWord := c.moderationHelpers.HasDeniedWord(msg.GetMessage().GetText(), settings.DenyList)
+	hasDeniedWord := c.moderationHelpers.HasDeniedWord(msg.Message.Text, settings.DenyList)
 	if !hasDeniedWord {
 		return nil
 	}
@@ -311,12 +311,12 @@ func (c *MessageHandler) moderationSymbolsParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
-	if utf8.RuneCountInString(msg.GetMessage().GetText()) < settings.TriggerLength {
+	if utf8.RuneCountInString(msg.Message.Text) < settings.TriggerLength {
 		return nil
 	}
 
 	isToMuchSymbols, _ := c.moderationHelpers.IsToMuchSymbols(
-		msg.GetMessage().GetText(),
+		msg.Message.Text,
 		settings.MaxPercentage+1,
 	)
 	if !isToMuchSymbols {
@@ -331,7 +331,7 @@ func (c *MessageHandler) moderationLongMessageParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
-	isToLong := c.moderationHelpers.IsTooLong(msg.GetMessage().GetText(), settings.TriggerLength)
+	isToLong := c.moderationHelpers.IsTooLong(msg.Message.Text, settings.TriggerLength)
 
 	if !isToLong {
 		return nil
@@ -345,10 +345,10 @@ func (c *MessageHandler) moderationCapsParser(
 	settings model.ChannelModerationSettings,
 	msg handleMessage,
 ) *moderationHandleResult {
-	text := msg.GetMessage().GetText()
+	text := msg.Message.Text
 
-	for _, f := range msg.GetMessage().GetFragments() {
-		if f.Type != shared.FragmentType_EMOTE && f.Type != shared.FragmentType_CHEERMOTE {
+	for _, f := range msg.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE && f.Type != twitch.FragmentType_CHEERMOTE {
 			continue
 		}
 
@@ -379,8 +379,8 @@ func (c *MessageHandler) moderationEmotesParser(
 
 	length := 0
 
-	for _, f := range msg.GetMessage().GetFragments() {
-		if f.Type != shared.FragmentType_EMOTE {
+	for _, f := range msg.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE {
 			continue
 		}
 
@@ -403,7 +403,7 @@ func (c *MessageHandler) moderationEmotesParser(
 		key = strings.Replace(key, fmt.Sprintf("emotes:channel:%s:", settings.ChannelID), "", 1)
 	}
 
-	splittedMsg := strings.Split(msg.GetMessage().GetText(), " ")
+	splittedMsg := strings.Split(msg.Message.Text, " ")
 
 	for _, word := range splittedMsg {
 		if slices.Contains(channelEmotesKeys, word) {
@@ -464,7 +464,7 @@ func (c *MessageHandler) moderationLanguageParser(
 	msg handleMessage,
 ) *moderationHandleResult {
 
-	detected, err := c.moderationDetectLanguage(msg.GetMessage().GetText())
+	detected, err := c.moderationDetectLanguage(msg.Message.Text)
 	if err != nil || len(detected) == 0 {
 		return nil
 	}

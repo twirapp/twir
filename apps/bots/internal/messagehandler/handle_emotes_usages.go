@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/shared"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 )
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
@@ -18,16 +18,16 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 
 	emotes := make(map[string]int)
 
-	for _, f := range msg.GetMessage().GetFragments() {
-		if f.GetType() != shared.FragmentType_EMOTE {
+	for _, f := range msg.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE {
 			continue
 		}
-		emotes[f.GetText()] += 1
+		emotes[f.Text] += 1
 	}
 
 	channelEmotes, err := c.redis.Keys(
 		ctx,
-		fmt.Sprintf("emotes:channel:%s:*", msg.GetBroadcasterUserId()),
+		fmt.Sprintf("emotes:channel:%s:*", msg.BroadcasterUserId),
 	).Result()
 	if err != nil {
 		return err
@@ -38,13 +38,13 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		return err
 	}
 
-	splittedMsg := strings.Split(msg.GetMessage().GetText(), " ")
+	splittedMsg := strings.Split(msg.Message.Text, " ")
 
 	countEmotes(
 		emotes,
 		channelEmotes,
 		splittedMsg,
-		fmt.Sprintf("emotes:channel:%s:", msg.GetBroadcasterUserId()),
+		fmt.Sprintf("emotes:channel:%s:", msg.BroadcasterUserId),
 	)
 	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
 
@@ -55,8 +55,8 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 			emotesForCreate = append(
 				emotesForCreate, &model.ChannelEmoteUsage{
 					ID:        uuid.NewString(),
-					ChannelID: msg.GetBroadcasterUserId(),
-					UserID:    msg.GetChatterUserId(),
+					ChannelID: msg.BroadcasterUserId,
+					UserID:    msg.ChatterUserId,
 					Emote:     key,
 					CreatedAt: time.Now().UTC(),
 				},

@@ -11,13 +11,13 @@ import (
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
-	if strings.HasPrefix(msg.GetMessage().GetText(), "!") {
+	if strings.HasPrefix(msg.Message.Text, "!") {
 		return nil
 	}
 
 	settings := &model.ChannelModulesSettings{}
 	query := c.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, msg.GetBroadcasterUserId()).
+		Where(`"channelId" = ?`, msg.BroadcasterUserId).
 		Where(`"userId" IS NULL`).
 		Where(`"type" = ?`, "tts")
 
@@ -42,7 +42,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 
 	ttsCommand := &model.ChannelsCommands{}
 	err = c.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, msg.GetBroadcasterUserId()).
+		Where(`"channelId" = ?`, msg.BroadcasterUserId).
 		Where(`"module" = ?`, "TTS").
 		Where(`"defaultName" = ?`, "tts").
 		Find(&ttsCommand).
@@ -63,26 +63,26 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	msgText.WriteString("!" + ttsCommand.Name)
 
 	if data.ReadChatMessagesNicknames {
-		msgText.WriteString(" " + msg.GetChatterUserLogin())
+		msgText.WriteString(" " + msg.ChatterUserLogin)
 	}
 
-	msgText.WriteString(" " + msg.GetMessage().GetText())
+	msgText.WriteString(" " + msg.Message.Text)
 
 	text := msgText.String()
 
 	requestStruct := &parser.ProcessCommandRequest{
 		Sender: &parser.Sender{
-			Id:          msg.GetChatterUserId(),
-			Name:        msg.GetChatterUserLogin(),
-			DisplayName: msg.GetChatterUserName(),
-			Badges:      createUserBadges(msg.GetBadges()),
+			Id:          msg.ChatterUserId,
+			Name:        msg.ChatterUserLogin,
+			DisplayName: msg.ChatterUserName,
+			Badges:      createUserBadges(msg.Badges),
 		},
 		Channel: &parser.Channel{
-			Id:   msg.GetBroadcasterUserId(),
-			Name: msg.GetBroadcasterUserLogin(),
+			Id:   msg.BroadcasterUserId,
+			Name: msg.BroadcasterUserLogin,
 		},
 		Message: &parser.Message{
-			Id:     msg.GetMessageId(),
+			Id:     msg.MessageId,
 			Text:   text,
 			Emotes: []*parser.Message_Emote{},
 		},

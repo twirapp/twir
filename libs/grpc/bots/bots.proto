@@ -8,7 +8,6 @@ import "shared/twitch_chat_message.proto";
 service Bots {
 	rpc DeleteMessage(DeleteMessagesRequest) returns (google.protobuf.Empty) {}
 	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty) {}
-	rpc HandleChatMessage(shared.TwitchChatMessage) returns (google.protobuf.Empty) {}
 }
 
 message DeleteMessagesRequest {

@@ -5,22 +5,24 @@ import (
 	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/twirapp/twir/libs/grpc/shared"
+	"github.com/nats-io/nats.go"
+	"github.com/satont/twir/libs/types/types/services"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 	"go.opentelemetry.io/otel/attribute"
 )
 
-func convertFragmentTypeToEnumValue(t string) shared.FragmentType {
+func convertFragmentTypeToEnumValue(t string) twitch.FragmentType {
 	switch t {
 	case "text":
-		return shared.FragmentType_TEXT
+		return twitch.FragmentType_TEXT
 	case "cheermote":
-		return shared.FragmentType_CHEERMOTE
+		return twitch.FragmentType_CHEERMOTE
 	case "emote":
-		return shared.FragmentType_EMOTE
+		return twitch.FragmentType_EMOTE
 	case "mention":
-		return shared.FragmentType_MENTION
+		return twitch.FragmentType_MENTION
 	default:
-		return shared.FragmentType_TEXT
+		return twitch.FragmentType_TEXT
 	}
 }
 
@@ -36,15 +38,15 @@ func (c *Handler) handleChannelChatMessage(
 	)
 	defer span.End()
 
-	fragments := make([]*shared.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
+	fragments := make([]twitch.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
 
 	for _, fragment := range event.Message.Fragments {
-		var cheerMote *shared.ChatMessageMessageFragmentCheermote
-		var emote *shared.ChatMessageMessageFragmentEmote
-		var mention *shared.ChatMessageMessageFragmentMention
+		var cheerMote *twitch.ChatMessageMessageFragmentCheermote
+		var emote *twitch.ChatMessageMessageFragmentEmote
+		var mention *twitch.ChatMessageMessageFragmentMention
 
 		if fragment.Cheermote != nil {
-			cheerMote = &shared.ChatMessageMessageFragmentCheermote{
+			cheerMote = &twitch.ChatMessageMessageFragmentCheermote{
 				Prefix: fragment.Cheermote.Prefix,
 				Bits:   int64(fragment.Cheermote.Bits),
 				Tier:   int64(fragment.Cheermote.Tier),
@@ -52,7 +54,7 @@ func (c *Handler) handleChannelChatMessage(
 		}
 
 		if fragment.Emote != nil {
-			emote = &shared.ChatMessageMessageFragmentEmote{
+			emote = &twitch.ChatMessageMessageFragmentEmote{
 				Id:         fragment.Emote.ID,
 				EmoteSetId: fragment.Emote.EmoteSetID,
 				OwnerId:    fragment.Emote.OwnerID,
@@ -61,7 +63,7 @@ func (c *Handler) handleChannelChatMessage(
 		}
 
 		if fragment.Mention != nil {
-			mention = &shared.ChatMessageMessageFragmentMention{
+			mention = &twitch.ChatMessageMessageFragmentMention{
 				UserId:    fragment.Mention.UserID,
 				UserName:  fragment.Mention.UserName,
 				UserLogin: fragment.Mention.UserLogin,
@@ -69,7 +71,8 @@ func (c *Handler) handleChannelChatMessage(
 		}
 
 		fragments = append(
-			fragments, &shared.ChatMessageMessageFragment{
+			fragments,
+			twitch.ChatMessageMessageFragment{
 				Type:      convertFragmentTypeToEnumValue(fragment.Type),
 				Text:      fragment.Text,
 				Cheermote: cheerMote,
@@ -79,11 +82,11 @@ func (c *Handler) handleChannelChatMessage(
 		)
 	}
 
-	badges := make([]*shared.ChatMessageBadge, 0, len(event.Badges))
+	badges := make([]twitch.ChatMessageBadge, 0, len(event.Badges))
 	for _, badge := range event.Badges {
 		badges = append(
 			badges,
-			&shared.ChatMessageBadge{
+			twitch.ChatMessageBadge{
 				Id:    badge.ID,
 				SetId: badge.SetID,
 				Info:  badge.Info,
@@ -91,14 +94,14 @@ func (c *Handler) handleChannelChatMessage(
 		)
 	}
 
-	var cheer *shared.ChatMessageCheer
+	var cheer *twitch.ChatMessageCheer
 	if event.Cheer != nil {
-		cheer = &shared.ChatMessageCheer{Bits: int64(event.Cheer.Bits)}
+		cheer = &twitch.ChatMessageCheer{Bits: int64(event.Cheer.Bits)}
 	}
 
-	var reply *shared.ChatMessageReply
+	var reply *twitch.ChatMessageReply
 	if event.Reply != nil {
-		reply = &shared.ChatMessageReply{
+		reply = &twitch.ChatMessageReply{
 			ParentMessageId:   event.Reply.ParentMessageID,
 			ParentMessageBody: event.Reply.ParentMessageBody,
 			ParentUserId:      event.Reply.ParentUserID,
@@ -111,9 +114,8 @@ func (c *Handler) handleChannelChatMessage(
 		}
 	}
 
-	_, err := c.botsGrpc.HandleChatMessage(
-		ctx,
-		&shared.TwitchChatMessage{
+	msg, err := services.Encode(
+		twitch.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,
 			BroadcasterUserLogin: event.BroadcasterUserLogin,
@@ -121,7 +123,7 @@ func (c *Handler) handleChannelChatMessage(
 			ChatterUserName:      event.ChatterUserName,
 			ChatterUserLogin:     event.ChatterUserLogin,
 			MessageId:            event.MessageID,
-			Message: &shared.ChatMessageMessage{
+			Message: &twitch.ChatMessageMessage{
 				Text:      event.Message.Text,
 				Fragments: fragments,
 			},
@@ -131,6 +133,13 @@ func (c *Handler) handleChannelChatMessage(
 			Cheer:                       cheer,
 			Reply:                       reply,
 			ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+		},
+	)
+
+	err = c.nc.PublishMsg(
+		&nats.Msg{
+			Subject: twitch.TOPIC_CHAT_MESSAGE,
+			Data:    msg,
 		},
 	)
 

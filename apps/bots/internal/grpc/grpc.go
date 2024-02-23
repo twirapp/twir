@@ -184,15 +184,15 @@ func (c *Grpc) HandleChatMessage(ctx context.Context, req *shared.TwitchChatMess
 		attribute.String("channel_id", req.GetBroadcasterUserId()),
 	)
 
-	err := c.messageHandler.Handle(ctx, req)
-	if err != nil {
-		c.logger.Error(
-			"cannot handle message",
-			slog.String("channelId", req.GetBroadcasterUserId()),
-			slog.String("channelName", req.GetBroadcasterUserLogin()),
-			slog.Any("err", err),
-		)
-	}
+	// err := c.messageHandler.Handle(ctx, req)
+	// if err != nil {
+	// 	c.logger.Error(
+	// 		"cannot handle message",
+	// 		slog.String("channelId", req.GetBroadcasterUserId()),
+	// 		slog.String("channelName", req.GetBroadcasterUserLogin()),
+	// 		slog.Any("err", err),
+	// 	)
+	// }
 
 	return &emptypb.Empty{}, nil
 }

@@ -16,7 +16,7 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 	ignoredUser := &model.IgnoredUser{}
 	err := c.gorm.
 		WithContext(ctx).
-		Where("login = ? OR id = ?", msg.GetChatterUserLogin(), msg.GetChatterUserId()).
+		Where("login = ? OR id = ?", msg.ChatterUserLogin, msg.ChatterUserId).
 		Find(ignoredUser).Error
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 		return nil
 	}
 
-	redisKey := "first:stream:user:join:" + msg.GetChatterUserId()
+	redisKey := "first:stream:user:join:" + msg.ChatterUserId
 
 	exists, err := c.redis.Exists(ctx, redisKey).Result()
 	if err != nil {
@@ -44,9 +44,9 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 	_, err = c.eventsGrpc.StreamFirstUserJoin(
 		ctx, &events.StreamFirstUserJoinMessage{
 			BaseInfo: &events.BaseInfo{
-				ChannelId: msg.GetBroadcasterUserId(),
+				ChannelId: msg.BroadcasterUserId,
 			},
-			UserName: msg.GetChatterUserName(),
+			UserName: msg.ChatterUserName,
 		},
 	)
 	if err != nil {

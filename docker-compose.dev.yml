@@ -135,6 +135,16 @@ services:
     ports:
       - "7234:8080"
 
+  nats:
+    image: nats:2.10.11-scratch
+    command: -js
+    restart: always
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    networks:
+      - tsuwari-dev
+
 volumes:
   redis-data:
   postgres-data:

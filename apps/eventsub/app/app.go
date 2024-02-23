@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/grpc"
 	"github.com/satont/twir/apps/eventsub/internal/handler"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
+	"github.com/satont/twir/apps/eventsub/internal/nats"
 	"github.com/satont/twir/apps/eventsub/internal/pubsub"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
@@ -70,6 +71,7 @@ var App = fx.Options(
 			redisClient := redis.NewClient(redisUrl)
 			return redisClient, nil
 		},
+		nats.New,
 		pubsub.New,
 		tunnel.New,
 		manager.NewCreds,

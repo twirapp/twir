@@ -9,7 +9,7 @@ import (
 )
 
 func (c *MessageHandler) handleStoreMessage(ctx context.Context, msg handleMessage) error {
-	badges := createUserBadges(msg.GetBadges())
+	badges := createUserBadges(msg.Badges)
 
 	canBeDeleted := !lo.Some(
 		badges,
@@ -17,11 +17,11 @@ func (c *MessageHandler) handleStoreMessage(ctx context.Context, msg handleMessa
 	)
 
 	entity := model.ChannelChatMessage{
-		MessageId:    msg.GetMessageId(),
-		ChannelId:    msg.GetBroadcasterUserId(),
-		UserId:       msg.GetChatterUserId(),
-		UserName:     msg.GetChatterUserLogin(),
-		Text:         msg.GetMessage().GetText(),
+		MessageId:    msg.MessageId,
+		ChannelId:    msg.BroadcasterUserId,
+		UserId:       msg.ChatterUserId,
+		UserName:     msg.ChatterUserLogin,
+		Text:         msg.Message.Text,
 		CanBeDeleted: canBeDeleted,
 		CreatedAt:    time.Now().UTC(),
 	}

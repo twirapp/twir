@@ -15,6 +15,7 @@ replace (
 )
 
 require (
+	github.com/go-redsync/redsync/v4 v4.11.0
 	github.com/goccy/go-json v0.10.2
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/olahol/melody v1.1.4
@@ -45,11 +46,14 @@ require (
 	github.com/getsentry/sentry-go v0.26.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/websocket v1.5.1 // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
+	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/jackc/pgx/v5 v5.5.2 // indirect

@@ -20,7 +20,7 @@ import (
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
 	var keywords []model.ChannelsKeywords
 	err := c.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND "enabled" = ?`, msg.GetBroadcasterUserId(),
+		`"channelId" = ? AND "enabled" = ?`, msg.BroadcasterUserId,
 		true,
 	).Find(&keywords).Error
 	if err != nil {
@@ -31,7 +31,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 		return nil
 	}
 
-	message := msg.GetMessage().GetText()
+	message := msg.Message.Text
 	var messagesForSend []string
 
 	matchedKeywords := make([]model.ChannelsKeywords, 0, len(keywords))
@@ -80,10 +80,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 		c.keywordsTriggerEvent(ctx, msg, k, response)
 		c.twitchActions.SendMessage(
 			ctx, twitchactions.SendMessageOpts{
-				BroadcasterID:        msg.GetBroadcasterUserId(),
+				BroadcasterID:        msg.BroadcasterUserId,
 				SenderID:             msg.DbChannel.BotID,
 				Message:              response,
-				ReplyParentMessageID: lo.If(k.IsReply, msg.GetMessageId()).Else(""),
+				ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
 			},
 		)
 		c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID])
@@ -125,21 +125,21 @@ func (c *MessageHandler) keywordsTriggerEvent(
 	_, err := c.eventsGrpc.KeywordMatched(
 		ctx,
 		&events.KeywordMatchedMessage{
-			BaseInfo:        &events.BaseInfo{ChannelId: msg.GetBroadcasterUserId()},
+			BaseInfo:        &events.BaseInfo{ChannelId: msg.BroadcasterUserId},
 			KeywordId:       keyword.ID,
 			KeywordName:     keyword.Text,
 			KeywordResponse: response,
-			UserId:          msg.GetChatterUserId(),
-			UserName:        msg.GetChatterUserLogin(),
-			UserDisplayName: msg.GetChatterUserName(),
+			UserId:          msg.ChatterUserId,
+			UserName:        msg.ChatterUserLogin,
+			UserDisplayName: msg.ChatterUserName,
 		},
 	)
 	if err != nil {
 		c.logger.Error(
 			"cannot send keywords matched event",
 			slog.Any("err", err),
-			slog.String("channelId", msg.GetBroadcasterUserId()),
-			slog.String("userId", msg.GetChatterUserId()),
+			slog.String("channelId", msg.BroadcasterUserId),
+			slog.String("userId", msg.ChatterUserId),
 		)
 	}
 }
@@ -155,18 +155,18 @@ func (c *MessageHandler) keywordsParseResponse(
 
 	requestStruct := &parser.ParseTextRequestData{
 		Channel: &parser.Channel{
-			Id:   msg.GetMessageId(),
-			Name: msg.GetBroadcasterUserLogin(),
+			Id:   msg.MessageId,
+			Name: msg.BroadcasterUserLogin,
 		},
 		Sender: &parser.Sender{
-			Id:          msg.GetChatterUserId(),
-			Name:        msg.GetChatterUserLogin(),
-			DisplayName: msg.GetChatterUserName(),
+			Id:          msg.ChatterUserId,
+			Name:        msg.ChatterUserLogin,
+			DisplayName: msg.ChatterUserName,
 			Badges:      createUserBadges(msg.Badges),
 		},
 		Message: &parser.Message{
 			Text: keyword.Response,
-			Id:   msg.GetMessageId(),
+			Id:   msg.MessageId,
 		},
 		ParseVariables: lo.ToPtr(true),
 	}
@@ -176,7 +176,7 @@ func (c *MessageHandler) keywordsParseResponse(
 		c.logger.Error(
 			"cannot parse keyword response",
 			slog.Any("err", err),
-			slog.String("channelId", msg.GetBroadcasterUserId()),
+			slog.String("channelId", msg.BroadcasterUserId),
 		)
 	}
 

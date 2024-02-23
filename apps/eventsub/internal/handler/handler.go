@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/pubsub"
@@ -39,6 +40,7 @@ type Handler struct {
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
 	tracer         trace.Tracer
+	nc             *nats.Conn
 }
 
 type Opts struct {
@@ -58,6 +60,7 @@ type Opts struct {
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
+	Nats           *nats.Conn
 
 	Tracer trace.Tracer
 }
@@ -78,6 +81,7 @@ func New(opts Opts) *Handler {
 		websocketsGrpc: opts.WebsocketsGrpc,
 		tokensGrpc:     opts.TokensGrpc,
 		tracer:         opts.Tracer,
+		nc:             opts.Nats,
 	}
 
 	handler.HandleChannelUpdate = myHandler.handleChannelUpdate

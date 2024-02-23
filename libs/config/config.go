@@ -44,6 +44,7 @@ type Config struct {
 
 	NgrokAuthToken string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
 	UptraceDsn     string `required:"false" envconfig:"UPTRACE_DSN"`
+	NatsUrl        string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

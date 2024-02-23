@@ -15,9 +15,9 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/shared"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -65,7 +65,7 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	*shared.TwitchChatMessage
+	twitch.TwitchChatMessage
 	DbChannel *model.Channels
 	DbStream  *model.ChannelsStreams
 	DbUser    *model.Users
@@ -88,7 +88,7 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleFirstStreamUserJoin,
 }
 
-func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessage) error {
+func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {
 	msg := handleMessage{
 		TwitchChatMessage: req,
 	}
@@ -100,7 +100,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 			stream := &model.ChannelsStreams{}
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				`"userId" = ?`,
-				req.GetBroadcasterUserId(),
+				req.BroadcasterUserId,
 			).First(stream).Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return err
 			}
@@ -118,7 +118,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 			dbChannel := &model.Channels{}
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				"id = ?",
-				req.GetBroadcasterUserId(),
+				req.BroadcasterUserId,
 			).First(dbChannel).
 				Error; err != nil {
 				return err
@@ -142,8 +142,8 @@ func (c *MessageHandler) Handle(ctx context.Context, req *shared.TwitchChatMessa
 	}
 	msg.DbUser = dbUser
 
-	if req.GetChatterUserId() == msg.DbChannel.BotID && c.config.AppEnv == "production" {
-		fmt.Println("same bot user", req.GetChatterUserId(), msg.DbChannel.BotID)
+	if req.ChatterUserId == msg.DbChannel.BotID && c.config.AppEnv == "production" {
+		fmt.Println("same bot user", req.ChatterUserId, msg.DbChannel.BotID)
 		return nil
 	}
 

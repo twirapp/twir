@@ -17,7 +17,7 @@ func (c *MessageHandler) handleIncrementStreamMessages(
 	return c.gorm.
 		WithContext(ctx).
 		Model(&model.ChannelsStreams{}).
-		Where(`"userId" = ?`, msg.GetBroadcasterUserId()).
+		Where(`"userId" = ?`, msg.BroadcasterUserId).
 		Update(
 			"parsedMessages",
 			msg.DbStream.ParsedMessages+1,

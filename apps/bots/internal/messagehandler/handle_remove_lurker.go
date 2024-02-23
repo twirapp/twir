@@ -8,7 +8,7 @@ import (
 
 func (c *MessageHandler) handleRemoveLurker(ctx context.Context, msg handleMessage) error {
 	ignoredUser := &model.IgnoredUser{}
-	err := c.gorm.WithContext(ctx).Where(`"id" = ?`, msg.GetChatterUserId()).Find(ignoredUser).Error
+	err := c.gorm.WithContext(ctx).Where(`"id" = ?`, msg.ChatterUserId).Find(ignoredUser).Error
 	if err != nil {
 		return err
 	}
