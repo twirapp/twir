@@ -137,7 +137,7 @@ services:
 
   nats:
     image: nats:2.10.11-scratch
-    command: -js
+    command: -js -m 8222
     restart: always
     ports:
       - "4222:4222"

@@ -19,7 +19,7 @@ services:
   nats:
     image: nats:2.10.11-scratch
     restart: always
-    command: -js
+    command: -js -m 8222
     networks:
       - twir
       - traefik-public
