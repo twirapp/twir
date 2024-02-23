@@ -22,6 +22,7 @@ services:
     command: -js
     networks:
       - twir
+      - traefik-public
     deploy:
       restart_policy:
         condition: any
