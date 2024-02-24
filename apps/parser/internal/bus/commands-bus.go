@@ -2,7 +2,6 @@ package bus
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	"github.com/satont/twir/apps/parser/internal/commands"
@@ -13,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/bots"
+	"go.uber.org/zap"
 )
 
 type CommandsBus struct {
@@ -100,7 +100,7 @@ func (c *CommandsBus) Subscribe() error {
 		) struct{} {
 			res, err := c.commandService.ProcessChatMessage(ctx, data)
 			if err != nil {
-				fmt.Println(err)
+				zap.S().Error(err)
 				return struct{}{}
 			}
 			if res == nil {

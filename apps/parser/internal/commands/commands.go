@@ -209,7 +209,7 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	var cmdParams *string
-	params := strings.TrimSpace(requestData.Message.Text[len(command.FoundBy):])
+	params := strings.TrimSpace(requestData.Message.Text[1:][len(command.FoundBy):])
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
