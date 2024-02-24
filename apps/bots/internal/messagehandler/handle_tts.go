@@ -7,7 +7,6 @@ import (
 	"github.com/goccy/go-json"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"github.com/twirapp/twir/libs/grpc/parser"
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
@@ -69,26 +68,9 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	msgText.WriteString(" " + msg.Message.Text)
 
 	text := msgText.String()
+	msg.Message.Text = text
 
-	requestStruct := &parser.ProcessCommandRequest{
-		Sender: &parser.Sender{
-			Id:          msg.ChatterUserId,
-			Name:        msg.ChatterUserLogin,
-			DisplayName: msg.ChatterUserName,
-			Badges:      createUserBadges(msg.Badges),
-		},
-		Channel: &parser.Channel{
-			Id:   msg.BroadcasterUserId,
-			Name: msg.BroadcasterUserLogin,
-		},
-		Message: &parser.Message{
-			Id:     msg.MessageId,
-			Text:   text,
-			Emotes: []*parser.Message_Emote{},
-		},
-	}
-
-	_, err = c.parserGrpc.ProcessCommand(ctx, requestStruct)
+	_, err = c.bus.ParserProcessMessageAsCommand.Request(ctx, msg.TwitchChatMessage)
 	if err != nil {
 		return err
 	}

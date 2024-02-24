@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/parser/internal/queue"
+	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/dota"
@@ -33,5 +33,5 @@ type Services struct {
 	Sqlx            *sqlx.DB
 	Redis           *redis.Client
 	GrpcClients     *Grpc
-	TaskDistributor queue.TaskDistributor
+	TaskDistributor task_queue.TaskDistributor
 }

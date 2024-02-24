@@ -4,14 +4,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"strings"
 
 	"github.com/goccy/go-json"
 	"github.com/olahol/melody"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 )
 
 type parseLayerVariablesMessage struct {
@@ -70,29 +68,19 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 
 		text := base64ToText(layer.Settings.HtmlOverlayHTML)
 
-		res, err := c.parserGrpc.ParseTextResponse(
-			context.TODO(),
-			&parser.ParseTextRequestData{
-				Sender: &parser.Sender{},
-				Channel: &parser.Channel{
-					Id: layer.Overlay.ChannelID,
-				},
-				Message: &parser.Message{
-					Text: text,
-				},
-				ParseVariables: lo.ToPtr(true),
-			},
-		)
+		res, err := c.bus.ParserParseVariablesInText.Request(context.Background(), parser.ParseVariablesInTextRequest{
+			ChannelID: layer.Overlay.ChannelID,
+			Text:      text,
+		})
 		if err != nil {
 			c.logger.Error(err.Error())
 			return
 		}
 
-		responses := strings.Join(res.Responses, " ")
 		if err := session.Write(
 			[]byte(fmt.Sprintf(
 				`{"eventName":"parsedLayerVariables", "data": "%s", "layerId": "%s"}`,
-				textToBase64(responses),
+				textToBase64(res.Data.Text),
 				layer.ID.String(),
 			)),
 		); err != nil {

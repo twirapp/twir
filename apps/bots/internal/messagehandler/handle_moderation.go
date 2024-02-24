@@ -16,8 +16,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/services/twitch"
 	"github.com/satont/twir/libs/utils"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 type moderationHandleResult struct {

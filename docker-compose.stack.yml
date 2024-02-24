@@ -80,36 +80,6 @@ services:
         constraints:
           - node.role == manager
 
-  # https://www.pgpool.net/mediawiki/index.php/Main_Page
-  pgpool:
-    image: bitnami/pgpool:4
-    environment:
-      PGPOOL_BACKEND_NODES: "0:postgres:5432"
-      PGPOOL_ENABLE_LDAP: "no"
-      PGPOOL_POSTGRES_USERNAME: "twir"
-      PGPOOL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      PGPOOL_SR_CHECK_USER: "twir"
-      PGPOOL_SR_CHECK_PASSWORD_FILE: /run/secrets/twir_postgres_password
-      PGPOOL_ADMIN_USERNAME: "pgpool"
-      PGPOOL_ADMIN_PASSWORD: "pgpool"
-      PGPOOL_MAX_POOL: 25
-      PGPOOL_ENABLE_LOG_CONNECTIONS: "yes"
-    secrets:
-      - twir_postgres_user
-      - twir_postgres_password
-      - twir_postgres_db
-    networks:
-      - twir
-    deploy:
-      endpoint_mode: dnsrr
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      placement:
-        constraints:
-          - node.role == manager
-
   temporal:
     depends_on:
       - postgres

@@ -1,4 +1,4 @@
-package queue
+package task_queue
 
 import (
 	"context"

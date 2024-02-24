@@ -36,10 +36,10 @@ COPY frontend/landing/package.json frontend/landing/package.json
 COPY frontend/overlays/package.json frontend/overlays/package.json
 COPY frontend/public-page/package.json frontend/public-page/package.json
 COPY libs/api/go.mod libs/api/go.mod
+COPY libs/bus-core/go.mod libs/bus-core/go.mod
 COPY libs/config/go.mod libs/config/go.mod
 COPY libs/crypto/go.mod libs/crypto/go.mod
 COPY libs/gomodels/go.mod libs/gomodels/go.mod
-COPY libs/gopool/go.mod libs/gopool/go.mod
 COPY libs/grpc/go.mod libs/grpc/go.mod
 COPY libs/helix/go.mod libs/helix/go.mod
 COPY libs/integrations/go.mod libs/integrations/go.mod

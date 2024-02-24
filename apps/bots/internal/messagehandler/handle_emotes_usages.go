@@ -8,7 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {

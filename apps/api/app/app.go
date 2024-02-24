@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
 	"github.com/satont/twir/apps/api/internal/interceptors"
+	"github.com/satont/twir/apps/api/internal/nats"
 	"github.com/satont/twir/apps/api/internal/proxy"
 	"github.com/satont/twir/apps/api/internal/sessions"
 	"github.com/satont/twir/apps/api/internal/twirp_handlers"
@@ -21,6 +22,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	internalSentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
@@ -125,6 +127,8 @@ var App = fx.Options(
 
 			return db, nil
 		},
+		nats.New,
+		buscore.NewNatsBus,
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,

@@ -3,11 +3,10 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"unicode/utf8"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/nats-io/nats.go"
-	"github.com/satont/twir/libs/types/types/services"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.opentelemetry.io/otel/attribute"
 )
 
@@ -40,6 +39,7 @@ func (c *Handler) handleChannelChatMessage(
 
 	fragments := make([]twitch.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
 
+	startFragmentPosition := 0
 	for _, fragment := range event.Message.Fragments {
 		var cheerMote *twitch.ChatMessageMessageFragmentCheermote
 		var emote *twitch.ChatMessageMessageFragmentEmote
@@ -70,6 +70,11 @@ func (c *Handler) handleChannelChatMessage(
 			}
 		}
 
+		position := twitch.ChatMessageMessageFragmentPosition{
+			Start: startFragmentPosition,
+			End:   startFragmentPosition + utf8.RuneCountInString(fragment.Text),
+		}
+
 		fragments = append(
 			fragments,
 			twitch.ChatMessageMessageFragment{
@@ -78,8 +83,11 @@ func (c *Handler) handleChannelChatMessage(
 				Cheermote: cheerMote,
 				Emote:     emote,
 				Mention:   mention,
+				Position:  position,
 			},
 		)
+
+		startFragmentPosition += utf8.RuneCountInString(fragment.Text)
 	}
 
 	badges := make([]twitch.ChatMessageBadge, 0, len(event.Badges))
@@ -114,36 +122,33 @@ func (c *Handler) handleChannelChatMessage(
 		}
 	}
 
-	msg, err := services.Encode(
-		twitch.TwitchChatMessage{
-			BroadcasterUserId:    event.BroadcasterUserID,
-			BroadcasterUserName:  event.BroadcasterUserName,
-			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			ChatterUserId:        event.ChatterUserID,
-			ChatterUserName:      event.ChatterUserName,
-			ChatterUserLogin:     event.ChatterUserLogin,
-			MessageId:            event.MessageID,
-			Message: &twitch.ChatMessageMessage{
-				Text:      event.Message.Text,
-				Fragments: fragments,
-			},
-			Color:                       event.Color,
-			Badges:                      badges,
-			MessageType:                 event.MessageType,
-			Cheer:                       cheer,
-			Reply:                       reply,
-			ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+	data := twitch.TwitchChatMessage{
+		BroadcasterUserId:    event.BroadcasterUserID,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.ChatterUserID,
+		ChatterUserName:      event.ChatterUserName,
+		ChatterUserLogin:     event.ChatterUserLogin,
+		MessageId:            event.MessageID,
+		Message: &twitch.ChatMessageMessage{
+			Text:      event.Message.Text,
+			Fragments: fragments,
 		},
-	)
+		Color:                       event.Color,
+		Badges:                      badges,
+		MessageType:                 event.MessageType,
+		Cheer:                       cheer,
+		Reply:                       reply,
+		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+	}
 
-	err = c.nc.PublishMsg(
-		&nats.Msg{
-			Subject: twitch.TOPIC_CHAT_MESSAGE,
-			Data:    msg,
-		},
-	)
-
-	if err != nil {
+	if err := c.bus.BotsMessages.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
+	}
+
+	if data.Message.Text[0] == '!' {
+		if err := c.bus.ParserProcessMessageAsCommand.Publish(data); err != nil {
+			c.logger.Error("cannot process command", slog.Any("err", err))
+		}
 	}
 }

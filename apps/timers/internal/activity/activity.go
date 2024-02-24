@@ -10,6 +10,8 @@ import (
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	config "github.com/satont/twir/libs/config"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
@@ -25,6 +27,7 @@ type Opts struct {
 	ParserGrpc         parser.ParserClient
 	BotsGrpc           bots.BotsClient
 	Redis              *redis.Client
+	Bus                *buscore.Bus
 }
 
 func New(opts Opts) *Activity {
@@ -36,6 +39,7 @@ func New(opts Opts) *Activity {
 		parserGrpc:         opts.ParserGrpc,
 		botsGrpc:           opts.BotsGrpc,
 		redis:              opts.Redis,
+		bus:                opts.Bus,
 	}
 }
 
@@ -47,6 +51,7 @@ type Activity struct {
 	parserGrpc         parser.ParserClient
 	botsGrpc           bots.BotsClient
 	redis              *redis.Client
+	bus                *buscore.Bus
 }
 
 func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
@@ -130,37 +135,27 @@ func (c *Activity) sendMessage(
 	channelId, text string,
 	isAnnounce bool,
 ) error {
-	parseReq, err := c.parserGrpc.ParseTextResponse(
-		ctx,
-		&parser.ParseTextRequestData{
-			Sender: &parser.Sender{
-				Id:          "",
-				Name:        "bot",
-				DisplayName: "Bot",
-				Badges:      []string{"BROADCASTER"},
-			},
-			Channel: &parser.Channel{Id: stream.UserID, Name: stream.UserLogin},
-			Message: &parser.Message{Text: text},
-		},
-	)
+	parseReq, err := c.bus.ParserParseVariablesInText.Request(ctx, busparser.ParseVariablesInTextRequest{
+		ChannelID:   stream.UserID,
+		ChannelName: stream.UserLogin,
+		Text:        text,
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, message := range parseReq.Responses {
-		_, err = c.botsGrpc.SendMessage(
-			ctx,
-			&bots.SendMessageRequest{
-				ChannelId:      channelId,
-				ChannelName:    &stream.UserLogin,
-				Message:        message,
-				IsAnnounce:     &isAnnounce,
-				SkipRateLimits: true,
-			},
-		)
-		if err != nil {
-			return err
-		}
+	_, err = c.botsGrpc.SendMessage(
+		ctx,
+		&bots.SendMessageRequest{
+			ChannelId:      channelId,
+			ChannelName:    &stream.UserLogin,
+			Message:        parseReq.Data.Text,
+			IsAnnounce:     &isAnnounce,
+			SkipRateLimits: true,
+		},
+	)
+	if err != nil {
+		return err
 	}
 
 	return nil

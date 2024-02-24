@@ -8,8 +8,11 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
@@ -31,15 +34,15 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/gopool"
-	"github.com/twirapp/twir/libs/grpc/parser"
+	busparser "github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/grpc/events"
+	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
 )
 
 type Commands struct {
-	DefaultCommands    map[string]*types.DefaultCommand
-	parseResponsesPool *gopool.Pool
-
+	DefaultCommands  map[string]*types.DefaultCommand
 	services         *services.Services
 	variablesService *variables.Variables
 }
@@ -106,10 +109,9 @@ func New(opts *Opts) *Commands {
 	)
 
 	ctx := &Commands{
-		DefaultCommands:    commands,
-		parseResponsesPool: gopool.NewPool(100),
-		services:           opts.Services,
-		variablesService:   opts.VariablesService,
+		DefaultCommands:  commands,
+		services:         opts.Services,
+		variablesService: opts.VariablesService,
 	}
 
 	return ctx
@@ -199,15 +201,15 @@ func (c *Commands) FindChannelCommandInInput(
 func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
-	requestData *parser.ProcessCommandRequest,
-) *parser.ProcessCommandResponse {
-	result := &parser.ProcessCommandResponse{
-		KeepOrder: &command.Cmd.KeepResponsesOrder,
+	requestData twitch.TwitchChatMessage,
+) *busparser.CommandParseResponse {
+	result := &busparser.CommandParseResponse{
+		KeepOrder: command.Cmd.KeepResponsesOrder,
 		IsReply:   command.Cmd.IsReply,
 	}
 
 	var cmdParams *string
-	params := strings.TrimSpace(requestData.GetMessage().GetText()[len(command.FoundBy):])
+	params := strings.TrimSpace(requestData.Message.Text[1:][len(command.FoundBy):])
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
@@ -229,41 +231,62 @@ func (c *Commands) ParseCommandResponses(
 		Create(
 			&model.ChannelsCommandsUsages{
 				ID:        uuid.New().String(),
-				UserID:    requestData.GetSender().GetId(),
-				ChannelID: requestData.GetChannel().GetId(),
+				UserID:    requestData.ChatterUserId,
+				ChannelID: requestData.BroadcasterUserId,
 				CommandID: command.Cmd.ID,
 			},
 		)
 
 	parseCtxChannel := &types.ParseContextChannel{
-		ID:   requestData.GetChannel().GetId(),
-		Name: requestData.GetChannel().GetName(),
+		ID:   requestData.BroadcasterUserId,
+		Name: requestData.BroadcasterUserLogin,
 	}
 	parseCtxSender := &types.ParseContextSender{
-		ID:          requestData.GetSender().GetId(),
-		Name:        requestData.GetSender().GetName(),
-		DisplayName: requestData.GetSender().GetDisplayName(),
-		Badges:      requestData.GetSender().GetBadges(),
-		Color:       requestData.GetSender().GetColor(),
+		ID:          requestData.ChatterUserId,
+		Name:        requestData.ChatterUserLogin,
+		DisplayName: requestData.ChatterUserName,
+		Badges:      []string{},
+		Color:       requestData.Color,
 	}
-	mentions := make([]types.ParseContextMention, 0, len(requestData.GetMessage().GetMentions()))
-	for _, m := range requestData.GetMessage().GetMentions() {
-		mentions = append(
-			mentions,
-			types.ParseContextMention{
-				UserId:    m.GetUserId(),
-				UserName:  m.GetUserName(),
-				UserLogin: m.GetUserLogin(),
+
+	mentions := make(
+		[]twitch.ChatMessageMessageFragmentMention,
+		0,
+		len(requestData.Message.Fragments),
+	)
+	for _, f := range requestData.Message.Fragments {
+		if f.Type != twitch.FragmentType_MENTION {
+			continue
+		}
+		mentions = append(mentions, *f.Mention)
+	}
+
+	emotes := make([]*types.ParseContextEmote, 0, len(requestData.Message.Fragments))
+	for _, f := range requestData.Message.Fragments {
+		if f.Type != twitch.FragmentType_EMOTE {
+			continue
+		}
+		emotes = append(
+			emotes, &types.ParseContextEmote{
+				Name:  f.Text,
+				ID:    f.Emote.Id,
+				Count: 1,
+				Positions: []*types.ParseContextEmotePosition{
+					{
+						Start: int64(f.Position.Start),
+						End:   int64(f.Position.End),
+					},
+				},
 			},
 		)
 	}
 
 	parseCtx := &types.ParseContext{
-		MessageId: requestData.GetMessage().GetId(),
+		MessageId: requestData.MessageId,
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
-		RawText:   requestData.GetMessage().GetText(),
+		RawText:   requestData.Message.Text[1:],
 		IsCommand: true,
 		Services:  c.services,
 		Cacher: cacher.NewCacher(
@@ -274,27 +297,7 @@ func (c *Commands) ParseCommandResponses(
 				ParseCtxText:    cmdParams,
 			},
 		),
-		Emotes: lo.Map(
-			requestData.GetMessage().GetEmotes(), func(
-				e *parser.Message_Emote,
-				_ int,
-			) *types.ParseContextEmote {
-				return &types.ParseContextEmote{
-					Name:  e.GetName(),
-					ID:    e.GetId(),
-					Count: e.GetCount(),
-					Positions: lo.Map(
-						e.GetPositions(),
-						func(p *parser.Message_EmotePosition, _ int) *types.ParseContextEmotePosition {
-							return &types.ParseContextEmotePosition{
-								Start: p.GetStart(),
-								End:   p.GetEnd(),
-							}
-						},
-					),
-				}
-			},
-		),
+		Emotes:   emotes,
 		Mentions: mentions,
 		Command:  command.Cmd,
 	}
@@ -307,13 +310,13 @@ func (c *Commands) ParseCommandResponses(
 				zap.Error(err),
 				zap.Dict(
 					"channel",
-					zap.String("id", requestData.Channel.Id),
-					zap.String("name", requestData.Channel.Name),
+					zap.String("id", requestData.BroadcasterUserId),
+					zap.String("name", requestData.BroadcasterUserLogin),
 				),
 				zap.Dict(
 					"sender",
-					zap.String("id", requestData.Sender.Id),
-					zap.String("name", requestData.Sender.Name),
+					zap.String("id", requestData.ChatterUserId),
+					zap.String("name", requestData.ChatterUserLogin),
 				),
 				zap.String("message", requestData.Message.Text),
 				zap.Dict("command", zap.String("id", command.Cmd.ID), zap.String("name", command.Cmd.Name)),
@@ -355,14 +358,153 @@ func (c *Commands) ParseCommandResponses(
 
 		index := i
 		response := r
-		c.parseResponsesPool.Submit(
-			func() {
-				defer wg.Done()
-				result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
-			},
-		)
+		go func() {
+			defer wg.Done()
+			result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
+		}()
 	}
 	wg.Wait()
 
 	return result
+}
+
+func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchChatMessage) (
+	*busparser.CommandParseResponse,
+	error,
+) {
+	if data.Message.Text[0] != '!' {
+		return nil, nil
+	}
+
+	cmds, err := c.GetChannelCommands(ctx, data.BroadcasterUserId)
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := c.FindChannelCommandInInput(data.Message.Text[1:], cmds)
+	if cmd.Cmd == nil {
+		return nil, nil
+	}
+
+	if cmd.Cmd.OnlineOnly {
+		stream := &model.ChannelsStreams{}
+		err = c.services.Gorm.
+			WithContext(ctx).
+			Where(`"userId" = ?`, data.BroadcasterUserId).
+			Find(stream).Error
+		if err != nil {
+			return nil, err
+		}
+		if stream == nil || stream.ID == "" {
+			return nil, nil
+		}
+	}
+
+	convertedBadges := make([]string, 0, len(data.Badges))
+	for _, badge := range data.Badges {
+		convertedBadges = append(convertedBadges, badge.Id)
+	}
+
+	dbUser, _, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
+		ctx,
+		data.ChatterUserId,
+		data.BroadcasterUserId,
+		convertedBadges,
+		cmd.Cmd,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	shouldCheckCooldown := c.shouldCheckCooldown(convertedBadges, cmd.Cmd, userRoles)
+	if cmd.Cmd.CooldownType == "GLOBAL" && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
+		key := fmt.Sprintf("commands:%s:cooldowns:global", cmd.Cmd.ID)
+		rErr := c.services.Redis.Get(ctx, key).Err()
+
+		if errors.Is(rErr, redis.Nil) {
+			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+		} else if rErr != nil {
+			c.services.Logger.Sugar().Error(rErr)
+			return nil, errors.New("error while setting redis cooldown for command")
+		} else {
+			return nil, nil
+		}
+	}
+
+	if cmd.Cmd.CooldownType == "PER_USER" && cmd.Cmd.Cooldown.Int64 > 0 && shouldCheckCooldown {
+		key := fmt.Sprintf("commands:%s:cooldowns:user:%s", cmd.Cmd.ID, data.ChatterUserId)
+		rErr := c.services.Redis.Get(ctx, key).Err()
+
+		if rErr == redis.Nil {
+			c.services.Redis.Set(ctx, key, "", time.Duration(cmd.Cmd.Cooldown.Int64)*time.Second)
+		} else if rErr != nil {
+			zap.S().Error(rErr)
+			return nil, errors.New("error while setting redis cooldown for command")
+		} else {
+			return nil, nil
+		}
+	}
+
+	hasPerm := c.isUserHasPermissionToCommand(
+		data.ChatterUserId,
+		data.BroadcasterUserId,
+		cmd.Cmd,
+		dbUser,
+		userRoles,
+		commandRoles,
+	)
+
+	if !hasPerm {
+		return nil, nil
+	}
+
+	go func() {
+		gCtx := context.Background()
+
+		c.services.GrpcClients.Events.CommandUsed(
+			// this should be background, because we don't want to wait for response
+			gCtx,
+			&events.CommandUsedMessage{
+				BaseInfo:           &events.BaseInfo{ChannelId: data.BroadcasterUserId},
+				CommandId:          cmd.Cmd.ID,
+				CommandName:        cmd.Cmd.Name,
+				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+				UserName:           data.ChatterUserLogin,
+				UserDisplayName:    data.ChatterUserName,
+				UserId:             data.ChatterUserId,
+				IsDefault:          cmd.Cmd.Default,
+				DefaultCommandName: cmd.Cmd.DefaultName.String,
+			},
+		)
+
+		alert := model.ChannelAlert{}
+		if err := c.services.Gorm.Where(
+			"channel_id = ? AND command_ids && ?",
+			data.BroadcasterUserId,
+			pq.StringArray{cmd.Cmd.ID},
+		).Find(&alert).Error; err != nil {
+			zap.S().Error(err)
+			return
+		}
+
+		if alert.ID == "" {
+			return
+		}
+		c.services.GrpcClients.WebSockets.TriggerAlert(
+			gCtx,
+			&websockets.TriggerAlertRequest{
+				ChannelId: data.BroadcasterUserId,
+				AlertId:   alert.ID,
+			},
+		)
+	}()
+
+	// TODO: refactor parsectx to new chat message struct
+	result := c.ParseCommandResponses(
+		ctx,
+		cmd,
+		data,
+	)
+
+	return result, nil
 }
