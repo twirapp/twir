@@ -1,6 +1,8 @@
 package twitch
 
-const TOPIC_CHAT_MESSAGE = "twitch.chat_message"
+const (
+	CHAT_MESSAGE_BOTS_QUEUE = "bots.chat_message"
+)
 
 type TwitchChatMessage struct {
 	BroadcasterUserId           string

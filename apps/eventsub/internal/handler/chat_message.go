@@ -5,8 +5,6 @@ import (
 	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/nats-io/nats.go"
-	"github.com/satont/twir/libs/types/types/services"
 	"github.com/satont/twir/libs/types/types/services/twitch"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -114,35 +112,34 @@ func (c *Handler) handleChannelChatMessage(
 		}
 	}
 
-	msg, err := services.Encode(
-		twitch.TwitchChatMessage{
-			BroadcasterUserId:    event.BroadcasterUserID,
-			BroadcasterUserName:  event.BroadcasterUserName,
-			BroadcasterUserLogin: event.BroadcasterUserLogin,
-			ChatterUserId:        event.ChatterUserID,
-			ChatterUserName:      event.ChatterUserName,
-			ChatterUserLogin:     event.ChatterUserLogin,
-			MessageId:            event.MessageID,
-			Message: &twitch.ChatMessageMessage{
-				Text:      event.Message.Text,
-				Fragments: fragments,
-			},
-			Color:                       event.Color,
-			Badges:                      badges,
-			MessageType:                 event.MessageType,
-			Cheer:                       cheer,
-			Reply:                       reply,
-			ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+	data := twitch.TwitchChatMessage{
+		BroadcasterUserId:    event.BroadcasterUserID,
+		BroadcasterUserName:  event.BroadcasterUserName,
+		BroadcasterUserLogin: event.BroadcasterUserLogin,
+		ChatterUserId:        event.ChatterUserID,
+		ChatterUserName:      event.ChatterUserName,
+		ChatterUserLogin:     event.ChatterUserLogin,
+		MessageId:            event.MessageID,
+		Message: &twitch.ChatMessageMessage{
+			Text:      event.Message.Text,
+			Fragments: fragments,
 		},
-	)
+		Color:                       event.Color,
+		Badges:                      badges,
+		MessageType:                 event.MessageType,
+		Cheer:                       cheer,
+		Reply:                       reply,
+		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
+	}
 
-	err = c.nc.PublishMsg(
-		&nats.Msg{
-			Subject: twitch.TOPIC_CHAT_MESSAGE,
-			Data:    msg,
-		},
-	)
+	if data.Message.Text[0] == '!' {
+		err := c.bus.ParserCommands.Publish(data)
+		if err != nil {
+			c.logger.Error("cannot process command", slog.Any("err", err))
+		}
+	}
 
+	err := c.bus.BotsMessages.Publish(data)
 	if err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}

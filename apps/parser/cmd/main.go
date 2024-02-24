@@ -14,8 +14,11 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/satont/twir/apps/parser/internal/queue"
+	"github.com/satont/twir/apps/parser/internal/nats"
+	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
+	service_parser "github.com/satont/twir/libs/types/types/services/parser"
+	"github.com/satont/twir/libs/types/types/services/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -33,6 +36,8 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
+
+	twir_services "github.com/satont/twir/libs/types/types/services"
 )
 
 func main() {
@@ -86,6 +91,12 @@ func main() {
 	d.SetConnMaxLifetime(time.Hour)
 	defer d.Close()
 
+	nc, err := nats.New(nats.Opts{Config: *config})
+	if err != nil {
+		panic(err)
+	}
+	defer nc.Close()
+
 	// sqlx
 	dbConnOpts, err := pq.ParseURL(config.DatabaseUrl)
 	if err != nil {
@@ -118,9 +129,9 @@ func main() {
 
 	tokensGrpc := clients.NewTokens(config.AppEnv)
 
-	queueDistributor := queue.NewRedisTaskDistributor(config, logger)
-	queueProcessor := queue.NewRedisTaskProcessor(
-		queue.RedisTaskProcessorOpts{
+	taskQueueDistributor := task_queue.NewRedisTaskDistributor(config, logger)
+	queueProcessor := task_queue.NewRedisTaskProcessor(
+		task_queue.RedisTaskProcessorOpts{
 			Cfg:        *config,
 			Logger:     logger,
 			Gorm:       db,
@@ -151,7 +162,7 @@ func main() {
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor: queueDistributor,
+		TaskDistributor: taskQueueDistributor,
 	}
 
 	variablesService := variables.New(
@@ -165,6 +176,18 @@ func main() {
 			VariablesService: variablesService,
 		},
 	)
+
+	bus := twir_services.NewNatsBus(nc)
+	bus.ParserCommands.Subscribe(
+		func(ctx context.Context, data twitch.TwitchChatMessage) service_parser.CommandParseResponse {
+			return service_parser.CommandParseResponse{
+				Responses: []string{"1"},
+				IsReply:   false,
+				KeepOrder: false,
+			}
+		},
+	)
+	defer bus.ParserCommands.Unsubscribe()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
 	if err != nil {
