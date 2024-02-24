@@ -4,16 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
+	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/overlays"
-	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -327,26 +326,20 @@ func (c *Overlays) OverlaysCreate(ctx context.Context, req *overlays.CreateReque
 func (c *Overlays) OverlaysParseHtml(ctx context.Context, req *overlays.ParseHtmlOverlayRequest) (
 	*overlays.ParseHtmlOverlayResponse, error,
 ) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-	res, err := c.Grpc.Parser.ParseTextResponse(
-		context.TODO(),
-		&parser.ParseTextRequestData{
-			Sender: &parser.Sender{},
-			Channel: &parser.Channel{
-				Id: dashboardId,
-			},
-			Message: &parser.Message{
-				Text: base64ToText(req.Html),
-			},
-			ParseVariables: lo.ToPtr(true),
-		},
-	)
+	res, err := c.Bus.ParserParseVariablesInText.Request(ctx, parser.ParseVariablesInTextRequest{
+		ChannelID: dashboardId,
+		Text:      base64ToText(req.GetHtml()),
+	})
 	if err != nil {
 		return nil, err
 	}
 
 	return &overlays.ParseHtmlOverlayResponse{
-		Html: textToBase64(strings.Join(res.Responses, " ")),
+		Html: textToBase64(res.Data.Text),
 	}, nil
 }

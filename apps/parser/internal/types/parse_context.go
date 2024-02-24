@@ -3,6 +3,7 @@ package types
 import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 type ParseContextSender struct {
@@ -30,18 +31,12 @@ type ParseContextEmote struct {
 	Positions []*ParseContextEmotePosition
 }
 
-type ParseContextMention struct {
-	UserId    string
-	UserName  string
-	UserLogin string
-}
-
 type ParseContext struct {
 	MessageId string
 	Channel   *ParseContextChannel
 	Sender    *ParseContextSender
 	Emotes    []*ParseContextEmote
-	Mentions  []ParseContextMention
+	Mentions  []twitch.ChatMessageMessageFragmentMention
 
 	Text      *string
 	RawText   string

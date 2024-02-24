@@ -15,7 +15,8 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -36,6 +37,7 @@ type Opts struct {
 	EventsGrpc        events.EventsClient
 	ModerationHelpers *moderationhelpers.ModerationHelpers
 	Config            cfg.Config
+	Bus               *buscore.Bus
 }
 
 type MessageHandler struct {
@@ -48,10 +50,11 @@ type MessageHandler struct {
 	eventsGrpc        events.EventsClient
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
+	bus               *buscore.Bus
 }
 
 func New(opts Opts) *MessageHandler {
-	return &MessageHandler{
+	handler := &MessageHandler{
 		logger:            opts.Logger,
 		gorm:              opts.Gorm,
 		redis:             opts.Redis,
@@ -61,7 +64,10 @@ func New(opts Opts) *MessageHandler {
 		eventsGrpc:        opts.EventsGrpc,
 		moderationHelpers: opts.ModerationHelpers,
 		config:            opts.Config,
+		bus:               opts.Bus,
 	}
+
+	return handler
 }
 
 type handleMessage struct {
@@ -76,7 +82,6 @@ var handlersForExecute = []func(
 	ctx context.Context,
 	msg handleMessage,
 ) error{
-	(*MessageHandler).handleCommand,
 	(*MessageHandler).handleIncrementStreamMessages,
 	(*MessageHandler).handleGreetings,
 	(*MessageHandler).handleKeywords,
@@ -160,7 +165,8 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 			defer wg.Done()
 			if err := f(c, funcsCtx, msg); err != nil {
 				c.logger.Error(
-					"error when executing message handler function", slog.Any("err", err),
+					"error when executing message handler function",
+					slog.Any("err", err),
 					slog.String("functionName", runtime.FuncForPC(reflect.ValueOf(f).Pointer()).Name()),
 				)
 			}

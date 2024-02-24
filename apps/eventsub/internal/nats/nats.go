@@ -16,7 +16,7 @@ type Opts struct {
 }
 
 func New(opts Opts) (*nats.Conn, error) {
-	nc, err := nats.Connect(opts.Config.NatsUrl)
+	nc, err := nats.Connect(opts.Config.NatsUrl, nats.Name("eventsub"))
 	if err != nil {
 		return nil, err
 	}

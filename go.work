@@ -15,10 +15,10 @@ use (
 	./apps/ytsr
 	./cli
 	./libs/api
+	./libs/bus-core
 	./libs/config
 	./libs/crypto
 	./libs/gomodels
-	./libs/gopool
 	./libs/grpc
 	./libs/helix
 	./libs/integrations

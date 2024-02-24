@@ -14,13 +14,13 @@ require (
 	github.com/imroc/req/v3 v3.42.3
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/lib/pq v1.10.9
+	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/gopool v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satori/go.uuid v1.2.0
@@ -64,6 +64,8 @@ require (
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-sqlite3 v1.14.16 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
 	github.com/prometheus/client_model v0.5.0 // indirect
 	github.com/prometheus/common v0.46.0 // indirect
@@ -94,15 +96,8 @@ require (
 )
 
 replace github.com/satont/twir/libs/config => ../../libs/config
-
 replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-
 replace github.com/satont/twir/libs/types => ../../libs/types
-
 replace github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-
 replace github.com/satont/twir/libs/twitch => ../../libs/twitch
-
-replace github.com/satont/twir/libs/gopool => ../../libs/gopool
-
 replace github.com/twirapp/twir/libs/integrations => ../../libs/integrations

@@ -35,13 +35,11 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/custom_var"
 	"github.com/satont/twir/apps/parser/internal/variables/emotes"
 	"github.com/satont/twir/apps/parser/internal/variables/faceit"
-	"github.com/satont/twir/libs/gopool"
 )
 
 type Variables struct {
-	Store          map[string]*types.Variable
-	services       *services.Services
-	goroutinesPool *gopool.Pool
+	Store    map[string]*types.Variable
+	services *services.Services
 }
 
 type Opts struct {
@@ -131,9 +129,8 @@ func New(opts *Opts) *Variables {
 	)
 
 	variables := &Variables{
-		services:       opts.Services,
-		goroutinesPool: gopool.NewPool(500),
-		Store:          store,
+		services: opts.Services,
+		Store:    store,
 	}
 
 	return variables
@@ -174,25 +171,23 @@ func (c *Variables) ParseVariablesInText(
 		}
 
 		str := s
-		c.goroutinesPool.Submit(
-			func() {
-				defer wg.Done()
-				res, err := variable.Handler(
-					ctx,
-					variablesParseCtx,
-					&types.VariableData{
-						Key:    all,
-						Params: &params,
-					},
-				)
+		go func() {
+			defer wg.Done()
+			res, err := variable.Handler(
+				ctx,
+				variablesParseCtx,
+				&types.VariableData{
+					Key:    all,
+					Params: &params,
+				},
+			)
 
-				if err == nil {
-					mu.Lock()
-					input = strings.ReplaceAll(input, str, res.Result)
-					mu.Unlock()
-				}
-			},
-		)
+			if err == nil {
+				mu.Lock()
+				input = strings.ReplaceAll(input, str, res.Result)
+				mu.Unlock()
+			}
+		}()
 	}
 
 	wg.Wait()

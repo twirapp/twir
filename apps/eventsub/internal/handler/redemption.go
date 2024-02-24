@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
@@ -19,7 +20,6 @@ import (
 	"github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"github.com/twirapp/twir/libs/grpc/parser"
 )
 
 func (c *Handler) handleChannelPointsRewardRedemptionAdd(
@@ -231,35 +231,29 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	res, err := c.parserGrpc.ProcessCommand(
-		context.Background(), &parser.ProcessCommandRequest{
-			Sender: &parser.Sender{
-				Id:          event.UserID,
-				Name:        event.UserLogin,
-				DisplayName: event.UserName,
-				Badges:      []string{"VIEWER"},
-			},
-			Channel: &parser.Channel{
-				Id:   event.BroadcasterUserID,
-				Name: event.BroadcasterUserName,
-			},
-			Message: &parser.Message{
-				Text:   fmt.Sprintf("!%s %s", command.Name, event.UserInput),
-				Id:     event.ID,
-				Emotes: nil,
+	res, err := c.bus.ParserGetCommandResponse.Request(
+		context.Background(), twitch.TwitchChatMessage{
+			BroadcasterUserId:    event.BroadcasterUserID,
+			BroadcasterUserName:  event.BroadcasterUserName,
+			BroadcasterUserLogin: event.BroadcasterUserLogin,
+			ChatterUserId:        event.UserID,
+			ChatterUserName:      event.UserName,
+			ChatterUserLogin:     event.UserLogin,
+			MessageId:            event.ID,
+			Message: &twitch.ChatMessageMessage{
+				Text: fmt.Sprintf("!%s %s", command.Name, event.UserInput),
 			},
 		},
 	)
-
 	if err != nil {
 		return err
 	}
 
-	if len(res.GetResponses()) == 0 {
+	if len(res.Data.Responses) == 0 {
 		return nil
 	}
 
-	for _, response := range res.GetResponses() {
+	for _, response := range res.Data.Responses {
 		c.botsGrpc.SendMessage(
 			context.Background(),
 			&bots.SendMessageRequest{

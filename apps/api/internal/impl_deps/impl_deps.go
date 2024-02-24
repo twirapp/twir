@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/eventsub"
@@ -36,4 +37,5 @@ type Deps struct {
 	Grpc           *Grpc
 	SessionManager *scs.SessionManager
 	Logger         logger.Logger
+	Bus            *buscore.Bus
 }

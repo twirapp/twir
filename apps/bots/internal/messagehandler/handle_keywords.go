@@ -12,8 +12,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 )
 
@@ -153,25 +153,14 @@ func (c *MessageHandler) keywordsParseResponse(
 		return ""
 	}
 
-	requestStruct := &parser.ParseTextRequestData{
-		Channel: &parser.Channel{
-			Id:   msg.MessageId,
-			Name: msg.BroadcasterUserLogin,
-		},
-		Sender: &parser.Sender{
-			Id:          msg.ChatterUserId,
-			Name:        msg.ChatterUserLogin,
-			DisplayName: msg.ChatterUserName,
-			Badges:      createUserBadges(msg.Badges),
-		},
-		Message: &parser.Message{
-			Text: keyword.Response,
-			Id:   msg.MessageId,
-		},
-		ParseVariables: lo.ToPtr(true),
-	}
-
-	res, err := c.parserGrpc.ParseTextResponse(ctx, requestStruct)
+	res, err := c.bus.ParserParseVariablesInText.Request(ctx, parser.ParseVariablesInTextRequest{
+		ChannelID:   msg.BroadcasterUserId,
+		ChannelName: msg.BroadcasterUserLogin,
+		Text:        keyword.Response,
+		UserID:      msg.ChatterUserId,
+		UserLogin:   msg.ChatterUserLogin,
+		UserName:    msg.ChatterUserName,
+	})
 	if err != nil {
 		c.logger.Error(
 			"cannot parse keyword response",
@@ -180,7 +169,7 @@ func (c *MessageHandler) keywordsParseResponse(
 		)
 	}
 
-	return strings.Join(res.GetResponses(), " ")
+	return res.Data.Text
 }
 
 func (c *MessageHandler) keywordsTriggerAlert(

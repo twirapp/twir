@@ -12,7 +12,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/hibiken/asynq"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/satont/twir/apps/parser/internal/queue"
+	"github.com/satont/twir/apps/parser/internal/task-queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
@@ -222,7 +222,7 @@ func (c *duelHandler) timeoutUser(
 	if isMod {
 		err := c.parseCtx.Services.TaskDistributor.DistributeModUser(
 			ctx,
-			&queue.TaskModUserPayload{
+			&task_queue.TaskModUserPayload{
 				ChannelID: c.parseCtx.Channel.ID,
 				UserID:    userID,
 			}, asynq.ProcessIn(time.Duration(settings.TimeoutSeconds+2)*time.Second),

@@ -12,7 +12,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/queue"
+	"github.com/satont/twir/apps/parser/internal/task-queue"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
@@ -145,7 +145,7 @@ var RussianRoulette = &types.DefaultCommand{
 			if parsedSettings.CanBeUsedByModerators && isModerator && parsedSettings.TimeoutSeconds > 0 {
 				err = parseCtx.Services.TaskDistributor.DistributeModUser(
 					ctx,
-					&queue.TaskModUserPayload{
+					&task_queue.TaskModUserPayload{
 						ChannelID: parseCtx.Channel.ID,
 						UserID:    parseCtx.Sender.ID,
 					},

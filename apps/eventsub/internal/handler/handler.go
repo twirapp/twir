@@ -7,13 +7,13 @@ import (
 	"net/http"
 
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
-	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/pubsub"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -40,7 +40,7 @@ type Handler struct {
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
 	tracer         trace.Tracer
-	nc             *nats.Conn
+	bus            *bus_core.Bus
 }
 
 type Opts struct {
@@ -60,7 +60,7 @@ type Opts struct {
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
-	Nats           *nats.Conn
+	Bus            *bus_core.Bus
 
 	Tracer trace.Tracer
 }
@@ -81,7 +81,7 @@ func New(opts Opts) *Handler {
 		websocketsGrpc: opts.WebsocketsGrpc,
 		tokensGrpc:     opts.TokensGrpc,
 		tracer:         opts.Tracer,
-		nc:             opts.Nats,
+		bus:            opts.Bus,
 	}
 
 	handler.HandleChannelUpdate = myHandler.handleChannelUpdate
