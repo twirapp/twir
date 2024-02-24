@@ -19,25 +19,25 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 	return &Bus{
 		ParserGetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
 			nc,
-			PARSER_COMMANDS_QUEUE,
+			PARSER_COMMANDS_SUBJECT,
 			30*time.Minute,
 		),
 
 		ParserParseVariablesInText: NewNatsQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse](
 			nc,
-			PARSER_TEXT_VARIABLES_QUEUE,
+			PARSER_TEXT_VARIABLES_SUBJECT,
 			1*time.Minute,
 		),
 
 		ParserProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 			nc,
-			PARSER_PROCESS_MESSAGE_AS_COMMAND,
+			PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
 			30*time.Minute,
 		),
 
 		BotsMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 			nc,
-			CHAT_MESSAGE_BOTS_QUEUE,
+			CHAT_MESSAGE_BOTS_SUBJECT,
 			30*time.Minute,
 		),
 	}
