@@ -16,6 +16,7 @@ type QueueSubscribeCallback[Req, Res any] func(ctx context.Context, data Req) Re
 type Queue[Req, Res any] interface {
 	Publish(data Req) error
 	Request(ctx context.Context, data Req) (*QueueResponse[Res], error)
+	SubscribeGroup(data QueueSubscribeCallback[Req, Res]) error
 	Subscribe(data QueueSubscribeCallback[Req, Res]) error
 	Unsubscribe()
 }
@@ -51,6 +52,24 @@ func (c *NatsQueue[Req, Res]) Request(ctx context.Context, req Req) (*QueueRespo
 	return &QueueResponse[Res]{
 		Data: res,
 	}, nil
+}
+
+func (c *NatsQueue[Req, Res]) SubscribeGroup(
+	cb QueueSubscribeCallback[Req, Res],
+) error {
+	sub, err := c.nc.QueueSubscribe(
+		c.queue,
+		c.queue,
+		func(subject, reply string, data *Req) {
+			ctx, _ := context.WithTimeout(context.Background(), c.timeout)
+			response := cb(ctx, *data)
+			c.nc.Publish(reply, &response)
+		},
+	)
+
+	c.subscription = sub
+
+	return err
 }
 
 func (c *NatsQueue[Req, Res]) Subscribe(
