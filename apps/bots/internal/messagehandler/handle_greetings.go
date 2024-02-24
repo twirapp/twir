@@ -9,8 +9,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
-	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
 )
@@ -73,39 +73,26 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	requestStruct := &parser.ParseTextRequestData{
-		Channel: &parser.Channel{
-			Id:   msg.BroadcasterUserId,
-			Name: msg.BroadcasterUserLogin,
-		},
-		Message: &parser.Message{
-			Text: entity.Text,
-			Id:   msg.MessageId,
-		},
-		Sender: &parser.Sender{
-			Id:          msg.ChatterUserId,
-			Name:        msg.ChatterUserLogin,
-			DisplayName: msg.ChatterUserName,
-			Badges:      createUserBadges(msg.Badges),
-		},
-		ParseVariables: lo.ToPtr(true),
-	}
-
-	res, err := c.parserGrpc.ParseTextResponse(context.Background(), requestStruct)
+	res, err := c.bus.ParserParseVariablesInText.Request(ctx, parser.ParseVariablesInTextRequest{
+		ChannelID:   msg.BroadcasterUserId,
+		ChannelName: msg.BroadcasterUserLogin,
+		Text:        entity.Text,
+		UserID:      msg.ChatterUserId,
+		UserLogin:   msg.ChatterUserLogin,
+		UserName:    msg.ChatterUserName,
+	})
 	if err != nil {
 		return err
 	}
 
-	for _, r := range res.Responses {
-		c.twitchActions.SendMessage(
-			ctx, twitchactions.SendMessageOpts{
-				BroadcasterID:        msg.BroadcasterUserId,
-				SenderID:             msg.DbChannel.BotID,
-				Message:              r,
-				ReplyParentMessageID: lo.If(entity.IsReply, msg.MessageId).Else(""),
-			},
-		)
-	}
+	c.twitchActions.SendMessage(
+		ctx, twitchactions.SendMessageOpts{
+			BroadcasterID:        msg.BroadcasterUserId,
+			SenderID:             msg.DbChannel.BotID,
+			Message:              res.Data.Text,
+			ReplyParentMessageID: lo.If(entity.IsReply, msg.MessageId).Else(""),
+		},
+	)
 
 	_, err = c.eventsGrpc.GreetingSended(
 		context.Background(),

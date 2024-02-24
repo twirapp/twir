@@ -4,60 +4,8 @@ package parser;
 import "google/protobuf/empty.proto";
 
 service Parser {
-  rpc ProcessCommand (ProcessCommandRequest) returns (ProcessCommandResponse) {}
-  rpc ParseTextResponse (ParseTextRequestData) returns (ParseTextResponseData) {}
-  rpc GetDefaultCommands (google.protobuf.Empty) returns (GetDefaultCommandsResponse) {}
-  rpc GetDefaultVariables (google.protobuf.Empty) returns (GetVariablesResponse) {}
-}
-
-message Sender {
-  string id = 1;
-  string name = 2;
-  string displayName = 3;
-  repeated string badges = 4;
-	string color = 5;
-}
-
-message Channel {
-  string id = 1;
-  string name = 2;
-}
-
-message Message {
-  message EmotePosition {
-    int64 start = 1;
-    int64 end = 2;
-  }
-
-  message Emote {
-    string name = 1;
-    string id = 2;
-    int64 count = 3;
-    repeated EmotePosition positions = 4;
-  }
-
-	message Mention {
-		string user_id = 1;
-		string user_name = 2;
-		string user_login = 3;
-	}
-
-  string text = 1;
-  string id = 2;
-  repeated Emote emotes = 3;
-	repeated Mention mentions = 4;
-}
-
-message ProcessCommandRequest {
-  Sender sender = 1;
-  Channel channel = 2;
-  Message message = 3;
-}
-
-message ProcessCommandResponse {
-  repeated string responses = 1;
-  bool isReply = 2;
-  optional bool keepOrder = 3;
+  rpc GetDefaultCommands(google.protobuf.Empty) returns (GetDefaultCommandsResponse) {}
+  rpc GetDefaultVariables(google.protobuf.Empty) returns (GetVariablesResponse) {}
 }
 
 message GetVariablesResponse {
@@ -83,15 +31,4 @@ message GetDefaultCommandsResponse {
     repeated string aliases = 8;
   }
   repeated DefaultCommand list = 1;
-}
-
-message ParseTextRequestData {
-  Sender sender = 1;
-  Channel channel = 2;
-  Message message = 3;
-  optional bool parseVariables = 4;
-}
-
-message ParseTextResponseData {
-  repeated string responses = 1;
 }

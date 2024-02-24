@@ -3,9 +3,10 @@ package handler
 import (
 	"context"
 	"log/slog"
+	"unicode/utf8"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.opentelemetry.io/otel/attribute"
 )
 
@@ -38,6 +39,7 @@ func (c *Handler) handleChannelChatMessage(
 
 	fragments := make([]twitch.ChatMessageMessageFragment, 0, len(event.Message.Fragments))
 
+	startFragmentPosition := 0
 	for _, fragment := range event.Message.Fragments {
 		var cheerMote *twitch.ChatMessageMessageFragmentCheermote
 		var emote *twitch.ChatMessageMessageFragmentEmote
@@ -68,6 +70,11 @@ func (c *Handler) handleChannelChatMessage(
 			}
 		}
 
+		position := twitch.ChatMessageMessageFragmentPosition{
+			Start: startFragmentPosition,
+			End:   startFragmentPosition + utf8.RuneCountInString(fragment.Text),
+		}
+
 		fragments = append(
 			fragments,
 			twitch.ChatMessageMessageFragment{
@@ -76,8 +83,11 @@ func (c *Handler) handleChannelChatMessage(
 				Cheermote: cheerMote,
 				Emote:     emote,
 				Mention:   mention,
+				Position:  position,
 			},
 		)
+
+		startFragmentPosition += utf8.RuneCountInString(fragment.Text)
 	}
 
 	badges := make([]twitch.ChatMessageBadge, 0, len(event.Badges))
@@ -132,15 +142,13 @@ func (c *Handler) handleChannelChatMessage(
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
 	}
 
-	if data.Message.Text[0] == '!' {
-		err := c.bus.ParserCommands.Publish(data)
-		if err != nil {
-			c.logger.Error("cannot process command", slog.Any("err", err))
-		}
+	if err := c.bus.BotsMessages.Publish(data); err != nil {
+		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 
-	err := c.bus.BotsMessages.Publish(data)
-	if err != nil {
-		c.logger.Error("cannot handle message", slog.Any("err", err))
+	if data.Message.Text[0] == '!' {
+		if err := c.bus.ParserProcessMessageAsCommand.Publish(data); err != nil {
+			c.logger.Error("cannot process command", slog.Any("err", err))
+		}
 	}
 }

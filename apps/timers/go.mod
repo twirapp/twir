@@ -10,6 +10,7 @@ replace (
 )
 
 require (
+	github.com/nats-io/nats.go v1.33.1
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
@@ -50,9 +51,12 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
+	github.com/klauspost/compress v1.17.5 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

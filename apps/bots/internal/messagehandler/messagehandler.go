@@ -15,8 +15,8 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/types/types/services"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -37,7 +37,7 @@ type Opts struct {
 	EventsGrpc        events.EventsClient
 	ModerationHelpers *moderationhelpers.ModerationHelpers
 	Config            cfg.Config
-	Bus               *services.Bus
+	Bus               *buscore.Bus
 }
 
 type MessageHandler struct {
@@ -50,7 +50,7 @@ type MessageHandler struct {
 	eventsGrpc        events.EventsClient
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
-	bus               *services.Bus
+	bus               *buscore.Bus
 }
 
 func New(opts Opts) *MessageHandler {

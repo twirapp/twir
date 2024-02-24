@@ -5,8 +5,8 @@ import (
 
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/types/types/services"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.uber.org/fx"
 )
 
@@ -16,13 +16,13 @@ type Opts struct {
 
 	MessageHandler *messagehandler.MessageHandler
 	Logger         logger.Logger
-	Bus            *services.Bus
+	Bus            *bus_core.Bus
 }
 
 type QueueListener struct {
 	messageHandler *messagehandler.MessageHandler
 	logger         logger.Logger
-	bus            *services.Bus
+	bus            *bus_core.Bus
 }
 
 func New(opts Opts) (*QueueListener, error) {
@@ -34,33 +34,23 @@ func New(opts Opts) (*QueueListener, error) {
 
 	opts.LC.Append(
 		fx.Hook{
-			OnStart: func(ctx context.Context) error {
-				return listener.subscribe()
+			OnStart: func(_ context.Context) error {
+				return listener.bus.BotsMessages.Subscribe(
+					func(ctx context.Context, data twitch.TwitchChatMessage) struct{} {
+						if err := listener.messageHandler.Handle(ctx, data); err != nil {
+							listener.logger.Error("failed to handle message", "error", err)
+						}
+
+						return struct{}{}
+					},
+				)
 			},
 			OnStop: func(ctx context.Context) error {
-				listener.unsubscribe()
+				listener.bus.BotsMessages.Unsubscribe()
 				return nil
 			},
 		},
 	)
 
 	return listener, nil
-}
-
-func (c *QueueListener) subscribe() error {
-	c.bus.BotsMessages.Subscribe(
-		func(ctx context.Context, data twitch.TwitchChatMessage) struct{} {
-			if err := c.messageHandler.Handle(ctx, data); err != nil {
-				c.logger.Error("failed to handle message", "error", err)
-			}
-
-			return struct{}{}
-		},
-	)
-
-	return nil
-}
-
-func (c *QueueListener) unsubscribe() {
-	c.bus.BotsMessages.Unsubscribe()
 }

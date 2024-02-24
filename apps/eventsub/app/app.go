@@ -13,7 +13,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
-	"github.com/satont/twir/libs/types/types/services"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -73,7 +73,7 @@ var App = fx.Options(
 			return redisClient, nil
 		},
 		nats.New,
-		services.NewNatsBus,
+		buscore.NewNatsBus,
 		pubsub.New,
 		tunnel.New,
 		manager.NewCreds,

@@ -17,8 +17,8 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
-	"github.com/satont/twir/libs/sentry"
-	"github.com/satont/twir/libs/types/types/services"
+	twirsentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -38,7 +38,7 @@ var App = fx.Module(
 		gorm.New,
 		nats.New,
 		uptrace.NewFx("bots"),
-		services.NewNatsBus,
+		buscore.NewNatsBus,
 		func(config cfg.Config) (*pubsub.PubSub, error) {
 			return pubsub.NewPubSub(config.RedisUrl)
 		},

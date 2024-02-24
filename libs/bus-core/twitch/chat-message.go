@@ -1,9 +1,5 @@
 package twitch
 
-const (
-	CHAT_MESSAGE_BOTS_QUEUE = "bots.chat_message"
-)
-
 type TwitchChatMessage struct {
 	BroadcasterUserId           string
 	BroadcasterUserName         string
@@ -30,6 +26,11 @@ const (
 	FragmentType_MENTION   FragmentType = 3
 )
 
+type ChatMessageMessageFragmentPosition struct {
+	Start int
+	End   int
+}
+
 type ChatMessageMessageFragmentEmote struct {
 	Id         string
 	EmoteSetId string
@@ -55,6 +56,7 @@ type ChatMessageMessageFragment struct {
 	Cheermote *ChatMessageMessageFragmentCheermote
 	Emote     *ChatMessageMessageFragmentEmote
 	Mention   *ChatMessageMessageFragmentMention
+	Position  ChatMessageMessageFragmentPosition
 }
 
 type ChatMessageMessage struct {

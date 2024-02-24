@@ -3,7 +3,7 @@ package messagehandler
 import (
 	"strings"
 
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
 
 func createUserBadges(badges []twitch.ChatMessageBadge) []string {

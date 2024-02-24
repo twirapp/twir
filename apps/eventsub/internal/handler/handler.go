@@ -13,7 +13,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/types/types/services"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -40,7 +40,7 @@ type Handler struct {
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
 	tracer         trace.Tracer
-	bus            *services.Bus
+	bus            *bus_core.Bus
 }
 
 type Opts struct {
@@ -60,7 +60,7 @@ type Opts struct {
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
-	Bus            *services.Bus
+	Bus            *bus_core.Bus
 
 	Tracer trace.Tracer
 }

@@ -1,18 +1,16 @@
-package grpc_impl
+package commands
 
 import (
 	"context"
-	"encoding/json"
 	"slices"
 	"time"
 
+	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-// var defaultBadges = []string{"BROADCASTER", "MODERATOR", "SUBSCRIBER", "VIP"}
-
-func (c *ParserGrpcServer) shouldCheckCooldown(
+func (c *Commands) shouldCheckCooldown(
 	badges []string,
 	command *model.ChannelsCommands,
 	userRoles []model.ChannelRole,
@@ -45,7 +43,7 @@ func (c *ParserGrpcServer) shouldCheckCooldown(
 	return false
 }
 
-func (c *ParserGrpcServer) prepareCooldownAndPermissionsCheck(
+func (c *Commands) prepareCooldownAndPermissionsCheck(
 	ctx context.Context,
 	userId,
 	channelId string,
@@ -105,7 +103,7 @@ func (c *ParserGrpcServer) prepareCooldownAndPermissionsCheck(
 	return
 }
 
-func (c *ParserGrpcServer) isUserHasPermissionToCommand(
+func (c *Commands) isUserHasPermissionToCommand(
 	userId,
 	channelId string,
 	command *model.ChannelsCommands,

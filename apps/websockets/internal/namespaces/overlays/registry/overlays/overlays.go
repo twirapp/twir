@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
 	"github.com/satont/twir/libs/logger"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -22,6 +23,7 @@ type Registry struct {
 	logger     logger.Logger
 	redis      *redis.Client
 	parserGrpc parser.ParserClient
+	bus        *buscore.Bus
 }
 
 type Opts struct {
@@ -31,6 +33,7 @@ type Opts struct {
 	Logger     logger.Logger
 	Redis      *redis.Client
 	ParserGrpc parser.ParserClient
+	Bus        *buscore.Bus
 }
 
 func New(opts Opts) *Registry {
@@ -42,6 +45,7 @@ func New(opts Opts) *Registry {
 		logger:     opts.Logger,
 		redis:      opts.Redis,
 		parserGrpc: opts.ParserGrpc,
+		bus:        opts.Bus,
 	}
 
 	overlaysRegistry.manager.HandleConnect(

@@ -14,11 +14,11 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"github.com/satont/twir/apps/parser/internal/bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
 	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
-	service_parser "github.com/satont/twir/libs/types/types/services/parser"
-	"github.com/satont/twir/libs/types/types/services/twitch"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -36,8 +36,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	"go.uber.org/zap"
-
-	twir_services "github.com/satont/twir/libs/types/types/services"
 )
 
 func main() {
@@ -177,17 +175,9 @@ func main() {
 		},
 	)
 
-	bus := twir_services.NewNatsBus(nc)
-	bus.ParserCommands.Subscribe(
-		func(ctx context.Context, data twitch.TwitchChatMessage) service_parser.CommandParseResponse {
-			return service_parser.CommandParseResponse{
-				Responses: []string{"1"},
-				IsReply:   false,
-				KeepOrder: false,
-			}
-		},
-	)
-	defer bus.ParserCommands.Unsubscribe()
+	bus := bus.New(buscore.NewNatsBus(nc), s, commandsService, variablesService)
+	bus.Subscribe()
+	defer bus.Unsubscribe()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
 	if err != nil {
