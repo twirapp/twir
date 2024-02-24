@@ -112,6 +112,12 @@ const addable = computed(() => {
 					<n-button @click="dudesIframeStore.sendIframeMessage('jump')">
 						Jump
 					</n-button>
+					<n-button @click="dudesIframeStore.sendIframeMessage('grow')">
+						Grow
+					</n-button>
+					<n-button @click="dudesIframeStore.sendIframeMessage('reset')">
+						Reset
+					</n-button>
 				</n-space>
 			</div>
 		</div>

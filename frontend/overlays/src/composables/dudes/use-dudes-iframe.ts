@@ -6,6 +6,8 @@ import { useDudesSettings } from './use-dudes-settings.js';
 import { useDudesSocket } from './use-dudes-socket.js';
 import { useDudes } from './use-dudes.js';
 
+import { randomEmoji } from '@/helpers.js';
+
 interface DudesPostMessage {
 	action: string;
 	data?: any
@@ -27,16 +29,31 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		}
 
 		const dude = dudesStore.dudes?.getDude(dudesTwir);
-		if (parsedData.action === 'jump' && dude) {
+		if (!dude) return;
+
+		if (parsedData.action === 'reset') {
+			dudesStore.dudes?.clearDudes();
+			spawnIframeDude();
+		}
+
+		if (parsedData.action === 'jump') {
 			dude.jump();
-		} else if (parsedData.action === 'spawn-emote' && dude) {
+		}
+
+		if (parsedData.action === 'grow') {
+			dude.grow();
+		}
+
+		if (parsedData.action === 'spawn-emote') {
 			const emote = dudesStore.getProxiedEmoteUrl({
 				type: '3rd_party_emote',
 				value: 'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.gif',
 			});
 			dude.spitEmotes([emote]);
-		} else if (parsedData.action === 'show-message' && dude) {
-			dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}!`);
+		}
+
+		if (parsedData.action === 'show-message') {
+			dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
 		}
 	}
 
@@ -54,7 +71,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			[
 				{
 					type: 'text',
-					value: `Hello, ${dudesSettingsStore.channelData!.channelDisplayName}!`,
+					value: `Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`,
 				},
 				{
 					type: '3rd_party_emote',

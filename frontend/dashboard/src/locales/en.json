@@ -432,6 +432,7 @@
 			"ignoreCommands": "Ignore commands",
 			"ignoreUsers": "Ignore users",
 			"ignoreUsersList": "List of ignored users",
+			"nameBoxVisible": "Visible",
 			"nameBoxDivider": "Name box",
 			"nameBoxFill": "Text colors",
 			"nameBoxFillError": "Color is required",
@@ -461,7 +462,10 @@
 			"messageBoxPadding": "Padding",
 			"messageBoxBorderRadius": "Border radius",
 			"messageBoxFontSize": "Font size",
-			"spitterEmoteEnabled": "Show twitch emotes"
+			"spitterEmoteEnabled": "Show twitch emotes",
+			"growDivider": "Grow",
+			"growTime": "Grow time",
+			"growMaxScale": "Max scale"
 		},
     "kappagen": {
       "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",

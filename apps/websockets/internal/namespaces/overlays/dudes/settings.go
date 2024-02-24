@@ -61,6 +61,9 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 			Scale:         entity.DudeScale,
 			SoundsEnabled: entity.DudeSoundsEnabled,
 			SoundsVolume:  entity.DudeSoundsVolume,
+			VisibleName:   entity.DudeVisibleName,
+			GrowTime:      entity.DudeGrowTime,
+			GrowMaxScale:  entity.DudeGrowMaxScale,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
 			Enabled:      entity.MessageBoxEnabled,

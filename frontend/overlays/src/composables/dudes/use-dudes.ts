@@ -64,8 +64,7 @@ export const useDudes = defineStore('dudes', () => {
 		const message = messageChunks
 			.filter((chunk) => chunk.type === 'text')
 			.map((chunk) => chunk.value)
-			.join(' ')
-			.trim();
+			.join(' ');
 
 		dude.addMessage(message);
 
