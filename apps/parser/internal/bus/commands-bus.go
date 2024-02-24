@@ -38,7 +38,7 @@ func New(
 }
 
 func (c *CommandsBus) Subscribe() error {
-	c.bus.ParserGetCommandResponse.Subscribe(
+	c.bus.ParserGetCommandResponse.SubscribeGroup(
 		func(ctx context.Context, data twitch.TwitchChatMessage) parser.CommandParseResponse {
 			res, err := c.commandService.ProcessChatMessage(ctx, data)
 			if err != nil || res == nil {
@@ -49,7 +49,7 @@ func (c *CommandsBus) Subscribe() error {
 		},
 	)
 
-	c.bus.ParserParseVariablesInText.Subscribe(
+	c.bus.ParserParseVariablesInText.SubscribeGroup(
 		func(
 			ctx context.Context,
 			data parser.ParseVariablesInTextRequest,
@@ -93,7 +93,7 @@ func (c *CommandsBus) Subscribe() error {
 		},
 	)
 
-	c.bus.ParserProcessMessageAsCommand.Subscribe(
+	c.bus.ParserProcessMessageAsCommand.SubscribeGroup(
 		func(
 			ctx context.Context,
 			data twitch.TwitchChatMessage,

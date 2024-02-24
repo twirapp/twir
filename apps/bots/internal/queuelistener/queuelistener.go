@@ -35,7 +35,7 @@ func New(opts Opts) (*QueueListener, error) {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
-				return listener.bus.BotsMessages.Subscribe(
+				return listener.bus.BotsMessages.SubscribeGroup(
 					func(ctx context.Context, data twitch.TwitchChatMessage) struct{} {
 						if err := listener.messageHandler.Handle(ctx, data); err != nil {
 							listener.logger.Error("failed to handle message", "error", err)
