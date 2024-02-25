@@ -8,6 +8,7 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/mazznoer/csscolorparser"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
@@ -38,7 +39,7 @@ var Color = &types.DefaultCommand{
 
 		if *parseCtx.Text == "" {
 			if entity.UserID != "" {
-				result.Result = []string{fmt.Sprintf("Your color is %s", entity.DudeColor.String)}
+				result.Result = []string{fmt.Sprintf("Your color is %s", *entity.DudeColor)}
 				return &result, nil
 			}
 
@@ -61,7 +62,7 @@ var Color = &types.DefaultCommand{
 			entity.UserID = parseCtx.Sender.ID
 		}
 
-		entity.DudeColor = null.StringFrom(color.HexString())
+		entity.DudeColor = lo.ToPtr(color.HexString())
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Save(&entity).Error; err != nil {

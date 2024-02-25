@@ -71,7 +71,7 @@ export interface DudesUserSettings {
     id: number[];
     channelId: string;
     userId: string;
-    dudeColor: string;
+    dudeColor?: string;
     createdAt: Time;
     updatedAt: Time;
     channel?: Channels;
