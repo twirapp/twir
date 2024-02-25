@@ -17,8 +17,8 @@ type Bus struct {
 
 	BotsMessages Queue[twitch.TwitchChatMessage, struct{}]
 
-	WebsocketsDudesGrow        Queue[websockets.DudesGrowRequest, struct{}]
-	WebsocketsDudesChangeColor Queue[websockets.DudesChangeColorRequest, struct{}]
+	WebsocketsDudesGrow         Queue[websockets.DudesGrowRequest, struct{}]
+	WebsocketsDudesUserSettings Queue[websockets.DudesChangeUserSettingsRequest, struct{}]
 }
 
 const parserQueue = "parser"
@@ -62,7 +62,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			1*time.Minute,
 		),
 
-		WebsocketsDudesChangeColor: NewNatsQueue[websockets.DudesChangeColorRequest, struct{}](
+		WebsocketsDudesUserSettings: NewNatsQueue[websockets.DudesChangeUserSettingsRequest, struct{}](
 			nc,
 			WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT,
 			websocketsQueue,

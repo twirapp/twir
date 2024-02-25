@@ -2,7 +2,6 @@ import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes'
 import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
 import type {
 	DudesGrowRequest,
-	DudesChangeColorRequest,
 	DudesUserSettings,
 } from '@twir/types/overlays';
 import { useWebSocket } from '@vueuse/core';
@@ -44,10 +43,6 @@ const spitterEmoteDefaults: Partial<Settings['spitterEmoteSettings']> = {
 export const useDudesSocket = defineStore('dudes-socket', () => {
 	const dudesStore = useDudes();
 	const { dudes } = storeToRefs(dudesStore);
-	// сюда добавил просто для демонстрации как с этим работать. По сути нам нужно каждый раз очищать этот массив
-	// когда мы коннектимся к сокету, потому что сокет каждый раз отправляет все настройки всех юзеров при коннекте
-	// смотри onConnected
-	const usersSettings = ref<DudesUserSettings[]>([]);
 
 	const { updateSettings, updateChannelData, loadFont } = useDudesSettings();
 	const overlayId = ref('');
@@ -61,7 +56,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			},
 			onConnected() {
 				send(JSON.stringify({ eventName: 'getSettings' }));
-				usersSettings.value = [];
+				send(JSON.stringify({ eventName: 'getUserSettings', data: '1039971625' }));
 			},
 		},
 	);
@@ -97,20 +92,19 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudes.value.removeDude(data.userDisplayName);
 		}
 
-		// for each 100 users, we get a new event with 100 settings entities
-		if (parsedData.eventName === 'usersSettings') {
-			const data = parsedData.data as DudesUserSettings[];
-			usersSettings.value = [...usersSettings.value, ...data];
-		}
-
-		if (parsedData.eventName === 'changeColor') {
-			const data = parsedData.data as DudesChangeColorRequest;
+		if (parsedData.eventName === 'userSettings') {
+			const data = parsedData.data as DudesUserSettings;
 
 			const dude = dudes.value.getDude(data.userName);
 			if (dude) {
-				dude.bodyTint(data.color);
+				if (data.dudeColor) {
+					dude.bodyTint(data.dudeColor);
+				}
+				if (data.dudeSprite) {
+					// TODO: set sprite
+				}
 			} else {
-				dudesStore.createDude(data.userName, data.color);
+				dudesStore.createDude(data.userName, data.dudeColor);
 			}
 		}
 

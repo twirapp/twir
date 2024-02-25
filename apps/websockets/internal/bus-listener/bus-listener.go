@@ -7,6 +7,7 @@ import (
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -15,25 +16,28 @@ type Opts struct {
 
 	Bus   *bus_core.Bus
 	Dudes *dudes.Dudes
+	Gorm  *gorm.DB
 }
 
 type BusListener struct {
 	bus   *bus_core.Bus
 	dudes *dudes.Dudes
+	gorm  *gorm.DB
 }
 
 func New(opts Opts) *BusListener {
 	listener := &BusListener{
 		bus:   opts.Bus,
 		dudes: opts.Dudes,
+		gorm:  opts.Gorm,
 	}
 
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
-				if err := listener.bus.WebsocketsDudesChangeColor.SubscribeGroup(
-					func(ctx context.Context, data websockets.DudesChangeColorRequest) struct{} {
-						listener.dudes.SendEvent(data.ChannelID, "changeColor", data)
+				if err := listener.bus.WebsocketsDudesUserSettings.SubscribeGroup(
+					func(ctx context.Context, data websockets.DudesChangeUserSettingsRequest) struct{} {
+						listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
 
 						return struct{}{}
 					},
@@ -53,7 +57,7 @@ func New(opts Opts) *BusListener {
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				listener.bus.WebsocketsDudesChangeColor.Unsubscribe()
+				listener.bus.WebsocketsDudesUserSettings.Unsubscribe()
 				listener.bus.WebsocketsDudesGrow.Unsubscribe()
 				return nil
 			},

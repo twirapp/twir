@@ -12,6 +12,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/overlays"
+	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
 
 var Sprite = &types.DefaultCommand{
@@ -78,6 +79,19 @@ var Sprite = &types.DefaultCommand{
 			WithContext(ctx).
 			Save(&entity).Error; err != nil {
 			return nil, err
+		}
+
+		err := parseCtx.Services.Bus.WebsocketsDudesUserSettings.Publish(
+			websockets.DudesChangeUserSettingsRequest{
+				ChannelID: parseCtx.Channel.ID,
+				UserID:    parseCtx.Sender.ID,
+			},
+		)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot trigger dudes sprite",
+				Err:     err,
+			}
 		}
 
 		result.Result = []string{fmt.Sprintf("Sprite changed to %s", sprite.String())}

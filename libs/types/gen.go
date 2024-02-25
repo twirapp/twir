@@ -30,7 +30,6 @@ func main() {
 
 	overlaysConverter := typescriptify.New().
 		Add(overlays.DudesGrowRequest{}).
-		Add(overlays.DudesChangeColorRequest{}).
 		Add(overlays.DudesUserSettings{}).
 		AddEnum(overlays.AllDudesSpriteEnumValues)
 	overlaysConverter.CreateInterface = true

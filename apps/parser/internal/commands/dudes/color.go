@@ -69,13 +69,10 @@ var Color = &types.DefaultCommand{
 			return nil, err
 		}
 
-		err = parseCtx.Services.Bus.WebsocketsDudesChangeColor.Publish(
-			websockets.DudesChangeColorRequest{
+		err = parseCtx.Services.Bus.WebsocketsDudesUserSettings.Publish(
+			websockets.DudesChangeUserSettingsRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,
-				UserName:  parseCtx.Sender.DisplayName,
-				UserLogin: parseCtx.Sender.Name,
-				Color:     color.HexString(),
 			},
 		)
 		if err != nil {

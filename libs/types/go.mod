@@ -3,9 +3,9 @@ module github.com/satont/twir/libs/types
 go 1.21.5
 
 require (
-	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/tkrajina/typescriptify-golang-structs v0.1.11
-	github.com/twirapp/twir/libs/bus-core v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 )
 
 require (
