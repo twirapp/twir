@@ -13,7 +13,9 @@ func CreateJsonWithProto(msg proto.Message, additionalFields map[string]any) (
 	var result map[string]any
 
 	protoBytes, err := protojson.MarshalOptions{
-		UseEnumNumbers: true,
+		UseEnumNumbers:    true,
+		EmitDefaultValues: true,
+		EmitUnpopulated:   true,
 	}.Marshal(msg)
 
 	if err != nil {

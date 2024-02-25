@@ -109,7 +109,8 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 	}
 
 	data, err := protoutils.CreateJsonWithProto(
-		&dudesGrpcSettings, map[string]any{
+		&dudesGrpcSettings,
+		map[string]any{
 			"channelId":          user.ID,
 			"channelName":        user.Login,
 			"channelDisplayName": user.DisplayName,
