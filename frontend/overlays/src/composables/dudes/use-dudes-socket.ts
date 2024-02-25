@@ -103,7 +103,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			usersSettings.value = [...usersSettings.value, ...data];
 		}
 
-		if (parsedData.eventName === 'dudes:changeColor') {
+		if (parsedData.eventName === 'changeColor') {
 			const data = parsedData.data as DudesChangeColorRequest;
 
 			const dude = dudes.value.getDude(data.userName);
@@ -114,7 +114,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			}
 		}
 
-		if (parsedData.eventName === 'dudes:grow') {
+		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
 			const dude = dudes.value.getDude(data.userName);
 			if (dude) {

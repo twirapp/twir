@@ -33,7 +33,7 @@ func New(opts Opts) *BusListener {
 			OnStart: func(_ context.Context) error {
 				if err := listener.bus.WebsocketsDudesChangeColor.SubscribeGroup(
 					func(ctx context.Context, data websockets.DudesChangeColorRequest) struct{} {
-						listener.dudes.SendEvent(data.ChannelID, "dudes:changeColor", data)
+						listener.dudes.SendEvent(data.ChannelID, "changeColor", data)
 
 						return struct{}{}
 					},
@@ -42,7 +42,7 @@ func New(opts Opts) *BusListener {
 				}
 				if err := listener.bus.WebsocketsDudesGrow.SubscribeGroup(
 					func(ctx context.Context, data websockets.DudesGrowRequest) struct{} {
-						listener.dudes.SendEvent(data.ChannelID, "dudes:grow", data)
+						listener.dudes.SendEvent(data.ChannelID, "grow", data)
 
 						return struct{}{}
 					},
