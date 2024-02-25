@@ -1,4 +1,4 @@
-package bus
+package commands_bus
 
 import (
 	"context"

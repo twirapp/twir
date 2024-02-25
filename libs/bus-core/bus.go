@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
+	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 )
@@ -47,5 +48,16 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			botsQueue,
 			30*time.Minute,
 		),
+	}
+}
+
+func NewNatsBusFx(serviceName string) func(config cfg.Config) (*Bus, error) {
+	return func(config cfg.Config) (*Bus, error) {
+		nc, err := nats.Connect(config.NatsUrl, nats.Name(serviceName))
+		if err != nil {
+			return nil, err
+		}
+
+		return NewNatsBus(nc), nil
 	}
 }

@@ -14,7 +14,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"github.com/satont/twir/apps/parser/internal/bus"
+	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
 	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
@@ -175,7 +175,7 @@ func main() {
 		},
 	)
 
-	bus := bus.New(buscore.NewNatsBus(nc), s, commandsService, variablesService)
+	bus := commands_bus.New(buscore.NewNatsBus(nc), s, commandsService, variablesService)
 	bus.Subscribe()
 	defer bus.Unsubscribe()
 
