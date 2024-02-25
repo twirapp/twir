@@ -10,6 +10,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/redis/go-redis/v9"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
@@ -80,7 +81,10 @@ func New(opts Opts) *Dudes {
 				opts.Logger.Error("cannot get user settings", slog.Any("err", err))
 				return
 			}
-			dudes.SendEvent(channelId.(string), "usersSettings", usersSettings)
+			chunks := lo.Chunk(usersSettings, 100)
+			for _, chunk := range chunks {
+				dudes.SendEvent(channelId.(string), "usersSettings", chunk)
+			}
 		},
 	)
 

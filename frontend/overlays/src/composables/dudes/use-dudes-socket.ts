@@ -44,6 +44,10 @@ const spitterEmoteDefaults: Partial<Settings['spitterEmoteSettings']> = {
 export const useDudesSocket = defineStore('dudes-socket', () => {
 	const dudesStore = useDudes();
 	const { dudes } = storeToRefs(dudesStore);
+	// сюда добавил просто для демонстрации как с этим работать. По сути нам нужно каждый раз очищать этот массив
+	// когда мы коннектимся к сокету, потому что сокет каждый раз отправляет все настройки всех юзеров при коннекте
+	// смотри onConnected
+	const usersSettings = ref<DudesUserSettings[]>([]);
 
 	const { updateSettings, updateChannelData, loadFont } = useDudesSettings();
 	const overlayId = ref('');
@@ -57,6 +61,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			},
 			onConnected() {
 				send(JSON.stringify({ eventName: 'getSettings' }));
+				usersSettings.value = [];
 			},
 		},
 	);
@@ -92,10 +97,10 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudes.value.removeDude(data.userDisplayName);
 		}
 
+		// for each 100 users, we get a new event with 100 settings entities
 		if (parsedData.eventName === 'usersSettings') {
 			const data = parsedData.data as DudesUserSettings[];
-			// TODO: store that data and set dude color when user sends a message
-			console.log(data);
+			usersSettings.value = [...usersSettings.value, ...data];
 		}
 
 		if (parsedData.eventName === 'dudes:changeColor') {
