@@ -386,8 +386,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/grpc
       '@twirapp/dudes':
-        specifier: 0.5.1
-        version: 0.5.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18)
+        specifier: 0.5.2
+        version: 0.5.2(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18)
       '@twirapp/kappagen':
         specifier: 0.0.0
         version: 0.0.0(vue@3.4.18)
@@ -2966,8 +2966,8 @@ packages:
       path-browserify: 1.0.1
     dev: true
 
-  /@twirapp/dudes@0.5.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18):
-    resolution: {integrity: sha512-vGKUhcbmVGAkRBdKwExgkSQZESBdyumiR/VoctPb6Mti0IL1dXfFJKxxyF2D24eAs7B9lDcYByyNiVBDShVF6w==}
+  /@twirapp/dudes@0.5.2(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18):
+    resolution: {integrity: sha512-sneVOEQZ19VLq9mJQtI9EJM/Nm0PWPHFz6PoBQIyi2vByueoom7Ob9dNIvQh7GUKdkRUxbPnEjVBbG/BkCe3rg==}
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:
