@@ -7,10 +7,11 @@ import (
 )
 
 type ChannelsOverlaysDudesUserSettings struct {
-	ID        uuid.UUID `gorm:"type:uuid;primary_key;"  json:"id"`
-	ChannelID string    `gorm:"type:text;not null;" json:"channelId"`
-	UserID    string    `gorm:"type:text;not null;" json:"userId"`
-	DudeColor *string   `gorm:"type:text;not null;" json:"dudeColor"`
+	ID         uuid.UUID `gorm:"type:uuid;primary_key;column:id"  json:"id"`
+	ChannelID  string    `gorm:"type:text;not null;column:channel_id" json:"channelId"`
+	UserID     string    `gorm:"type:text;not null;column:user_id" json:"userId"`
+	DudeColor  *string   `gorm:"type:text;column:dude_color" json:"dudeColor"`
+	DudeSprite *string   `gorm:"type:text;column:dude_sprite" json:"dudeSprite"`
 
 	CreatedAt time.Time `gorm:"type:datetime;not null;" json:"createdAt"`
 	UpdatedAt time.Time `gorm:"type:datetime;not null;" json:"updatedAt"`

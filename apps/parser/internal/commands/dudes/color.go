@@ -37,8 +37,8 @@ var Color = &types.DefaultCommand{
 			return nil, err
 		}
 
-		if *parseCtx.Text == "" {
-			if entity.UserID != "" {
+		if parseCtx.Text == nil || *parseCtx.Text == "" {
+			if entity.UserID != "" && entity.DudeColor != nil {
 				result.Result = []string{fmt.Sprintf("Your color is %s", *entity.DudeColor)}
 				return &result, nil
 			}

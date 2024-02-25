@@ -2,12 +2,22 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 
+CREATE TYPE channels_overlays_dudes_user_settings_dude_sprite AS ENUM (
+	'agent',
+	'cat',
+	'dude',
+	'girl',
+	'santa',
+	'sith'
+);
+
 CREATE TABLE channels_overlays_dudes_user_settings
 (
 	id         UUID PRIMARY KEY   default uuid_generate_v4(),
 	channel_id TEXT      NOT NULL,
 	user_id    TEXT      NOT NULL,
 	dude_color TEXT,
+	dude_sprite channels_overlays_dudes_user_settings_dude_sprite,
 	created_at timestamp NOT NULL DEFAULT now(),
 	updated_at timestamp NOT NULL DEFAULT now(),
 	FOREIGN KEY (channel_id) REFERENCES channels (id),
