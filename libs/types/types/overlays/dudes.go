@@ -19,12 +19,13 @@ type DudesUserSettings struct {
 type DudesSprite string
 
 const (
-	DudeSpriteAgent DudesSprite = "agent"
-	DudeSpriteCat   DudesSprite = "cat"
-	DudeSpriteDude  DudesSprite = "dude"
-	DudeSpriteGirl  DudesSprite = "girl"
-	DudeSpriteSanta DudesSprite = "santa"
-	DudeSpriteSith  DudesSprite = "sith"
+	DudeSpriteRandom DudesSprite = "random"
+	DudeSpriteAgent  DudesSprite = "agent"
+	DudeSpriteCat    DudesSprite = "cat"
+	DudeSpriteDude   DudesSprite = "dude"
+	DudeSpriteGirl   DudesSprite = "girl"
+	DudeSpriteSanta  DudesSprite = "santa"
+	DudeSpriteSith   DudesSprite = "sith"
 )
 
 var AllDudesSpriteEnumValues = []DudesSprite{
@@ -34,6 +35,7 @@ var AllDudesSpriteEnumValues = []DudesSprite{
 	DudeSpriteGirl,
 	DudeSpriteSanta,
 	DudeSpriteSith,
+	DudeSpriteRandom,
 }
 
 func (c DudesSprite) String() string {
@@ -54,6 +56,8 @@ func (c DudesSprite) TSName() string {
 		return DudeSpriteSanta.String()
 	case DudeSpriteSith:
 		return DudeSpriteSith.String()
+	case DudeSpriteRandom:
+		return DudeSpriteRandom.String()
 	default:
 		return ""
 	}
@@ -61,7 +65,8 @@ func (c DudesSprite) TSName() string {
 
 func (c DudesSprite) IsValid() bool {
 	switch c {
-	case DudeSpriteAgent, DudeSpriteCat, DudeSpriteDude, DudeSpriteGirl, DudeSpriteSanta, DudeSpriteSith:
+	case DudeSpriteAgent, DudeSpriteCat, DudeSpriteDude, DudeSpriteGirl, DudeSpriteSanta,
+		DudeSpriteSith, DudeSpriteRandom:
 		return true
 	default:
 		return false

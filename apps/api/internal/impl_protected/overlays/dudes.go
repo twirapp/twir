@@ -30,6 +30,8 @@ func convertDudesEntityToGrpc(entity model.ChannelsOverlaysDudes) *overlays_dude
 			VisibleName:    entity.DudeVisibleName,
 			GrowTime:       entity.DudeGrowTime,
 			GrowMaxScale:   entity.DudeGrowMaxScale,
+			MaxOnScreen:    entity.DudeMaxOnScreen,
+			DefaultSprite:  entity.DudeDefaultSprite,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
 			Enabled:      entity.MessageBoxEnabled,
@@ -84,6 +86,8 @@ func convertDudesGrpcToDb(settings *overlays_dudes.Settings) model.ChannelsOverl
 		DudeVisibleName:           settings.GetDudeSettings().GetVisibleName(),
 		DudeGrowTime:              settings.GetDudeSettings().GetGrowTime(),
 		DudeGrowMaxScale:          settings.GetDudeSettings().GetGrowMaxScale(),
+		DudeDefaultSprite:         settings.GetDudeSettings().GetDefaultSprite(),
+		DudeMaxOnScreen:           settings.GetDudeSettings().GetMaxOnScreen(),
 		MessageBoxEnabled:         settings.GetMessageBoxSettings().GetEnabled(),
 		MessageBoxBorderRadius:    settings.GetMessageBoxSettings().GetBorderRadius(),
 		MessageBoxBoxColor:        settings.GetMessageBoxSettings().GetBoxColor(),
