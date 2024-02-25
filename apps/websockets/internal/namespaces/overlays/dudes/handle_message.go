@@ -7,6 +7,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/olahol/melody"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
@@ -93,12 +94,17 @@ func (c *Dudes) SendUserSettings(
 
 	user := usersReq.Data.Users[0]
 
+	var sprite *overlays.DudesSprite
+	if entity.DudeSprite != nil {
+		sprite = lo.ToPtr(overlays.DudesSprite(*entity.DudeSprite))
+	}
+
 	c.SendEvent(
 		channelId,
 		"userSettings",
 		&overlays.DudesUserSettings{
 			DudeColor:  entity.DudeColor,
-			DudeSprite: entity.DudeSprite,
+			DudeSprite: sprite,
 			UserID:     user.ID,
 			UserName:   user.DisplayName,
 			UserLogin:  user.Login,

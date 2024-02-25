@@ -18,7 +18,7 @@ export interface DudesGrowRequest {
 }
 export interface DudesUserSettings {
     dudeColor?: string;
-    dudeSprite?: string;
+    dudeSprite?: DudesSprite;
     userId: string;
     userName: string;
     userLogin: string;

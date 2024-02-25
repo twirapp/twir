@@ -9,11 +9,11 @@ type DudesGrowRequest struct {
 }
 
 type DudesUserSettings struct {
-	DudeColor  *string `json:"dudeColor"`
-	DudeSprite *string `json:"dudeSprite"`
-	UserID     string  `json:"userId"`
-	UserName   string  `json:"userName"`
-	UserLogin  string  `json:"userLogin"`
+	DudeColor  *string      `json:"dudeColor"`
+	DudeSprite *DudesSprite `json:"dudeSprite"`
+	UserID     string       `json:"userId"`
+	UserName   string       `json:"userName"`
+	UserLogin  string       `json:"userLogin"`
 }
 
 type DudesSprite string
@@ -22,7 +22,7 @@ const (
 	DudeSpriteAgent DudesSprite = "agent"
 	DudeSpriteCat   DudesSprite = "cat"
 	DudeSpriteDude  DudesSprite = "dude"
-	DudeSprite      DudesSprite = "girl"
+	DudeSpriteGirl  DudesSprite = "girl"
 	DudeSpriteSanta DudesSprite = "santa"
 	DudeSpriteSith  DudesSprite = "sith"
 )
@@ -31,7 +31,7 @@ var AllDudesSpriteEnumValues = []DudesSprite{
 	DudeSpriteAgent,
 	DudeSpriteCat,
 	DudeSpriteDude,
-	DudeSprite,
+	DudeSpriteGirl,
 	DudeSpriteSanta,
 	DudeSpriteSith,
 }
@@ -48,8 +48,8 @@ func (c DudesSprite) TSName() string {
 		return DudeSpriteCat.String()
 	case DudeSpriteDude:
 		return DudeSpriteDude.String()
-	case DudeSprite:
-		return DudeSprite.String()
+	case DudeSpriteGirl:
+		return DudeSpriteGirl.String()
 	case DudeSpriteSanta:
 		return DudeSpriteSanta.String()
 	case DudeSpriteSith:
@@ -61,7 +61,7 @@ func (c DudesSprite) TSName() string {
 
 func (c DudesSprite) IsValid() bool {
 	switch c {
-	case DudeSpriteAgent, DudeSpriteCat, DudeSpriteDude, DudeSprite, DudeSpriteSanta, DudeSpriteSith:
+	case DudeSpriteAgent, DudeSpriteCat, DudeSpriteDude, DudeSpriteGirl, DudeSpriteSanta, DudeSpriteSith:
 		return true
 	default:
 		return false
