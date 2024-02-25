@@ -38,7 +38,7 @@ var Color = &types.DefaultCommand{
 
 		if *parseCtx.Text == "" {
 			if entity.UserID != "" {
-				result.Result = []string{fmt.Sprintf("Your color is %s", entity.DudeColor)}
+				result.Result = []string{fmt.Sprintf("Your color is %s", entity.DudeColor.String)}
 				return &result, nil
 			}
 
@@ -61,7 +61,7 @@ var Color = &types.DefaultCommand{
 			entity.UserID = parseCtx.Sender.ID
 		}
 
-		entity.DudeColor = color.HexString()
+		entity.DudeColor = null.StringFrom(color.HexString())
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Save(&entity).Error; err != nil {
