@@ -55,12 +55,19 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 	dudesGrpcSettings := overlays_dudes.Settings{
 		Id: lo.ToPtr(entity.ID.String()),
 		DudeSettings: &overlays_dudes.DudeSettings{
-			Color:         entity.DudeColor,
-			MaxLifeTime:   entity.DudeMaxLifeTime,
-			Gravity:       entity.DudeGravity,
-			Scale:         entity.DudeScale,
-			SoundsEnabled: entity.DudeSoundsEnabled,
-			SoundsVolume:  entity.DudeSoundsVolume,
+			Color:          entity.DudeColor,
+			EyesColor:      entity.DudeEyesColor,
+			CosmeticsColor: entity.DudeCosmeticsColor,
+			MaxLifeTime:    entity.DudeMaxLifeTime,
+			Gravity:        entity.DudeGravity,
+			Scale:          entity.DudeScale,
+			SoundsEnabled:  entity.DudeSoundsEnabled,
+			SoundsVolume:   entity.DudeSoundsVolume,
+			VisibleName:    entity.DudeVisibleName,
+			GrowTime:       entity.DudeGrowTime,
+			GrowMaxScale:   entity.DudeGrowMaxScale,
+			MaxOnScreen:    entity.DudeMaxOnScreen,
+			DefaultSprite:  entity.DudeDefaultSprite,
 		},
 		MessageBoxSettings: &overlays_dudes.MessageBoxSettings{
 			Enabled:      entity.MessageBoxEnabled,
@@ -102,7 +109,8 @@ func (c *Dudes) SendSettings(userId string, overlayId string) error {
 	}
 
 	data, err := protoutils.CreateJsonWithProto(
-		&dudesGrpcSettings, map[string]any{
+		&dudesGrpcSettings,
+		map[string]any{
 			"channelId":          user.ID,
 			"channelName":        user.Login,
 			"channelDisplayName": user.DisplayName,

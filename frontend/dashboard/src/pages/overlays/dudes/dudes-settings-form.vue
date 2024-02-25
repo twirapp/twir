@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Font, FontSelector } from '@twir/fontsource';
+import { DudesSprite } from '@twir/types/overlays';
 import { addZero, hexToRgb, colorBrightness, capitalize } from '@zero-dependency/utils';
 import { intervalToDuration } from 'date-fns';
 import {
@@ -27,6 +28,7 @@ import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
@@ -67,6 +69,10 @@ async function save() {
 
 function formatDuration(duration: number) {
 	const { hours = 0, minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: duration });
+	if (hours === 0) {
+		return `${addZero(minutes)}:${addZero(seconds)}`;
+	}
+
 	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
 }
 
@@ -128,9 +134,18 @@ const isMessageBoxDisabled = computed(() => {
 	return !formValue.value.messageBoxSettings.enabled;
 });
 
-const isDropShadowDisabled = computed(() => {
-	return !formValue.value.nameBoxSettings.dropShadow;
+const isNameBoxDisabled = computed(() => {
+	return !formValue.value.dudeSettings.visibleName;
 });
+
+const isDropShadowDisabled = computed(() => {
+	return isNameBoxDisabled.value || !formValue.value.nameBoxSettings.dropShadow;
+});
+
+const dudesSprites = Object.keys(DudesSprite).map((key) => ({
+	label: capitalize(key),
+	value: key,
+}));
 </script>
 
 <template>
@@ -161,6 +176,29 @@ const isDropShadowDisabled = computed(() => {
 				<n-divider title-placement="left">
 					{{ t('overlays.dudes.dudeDivider') }}
 				</n-divider>
+
+				<n-form-item :label="t('overlays.dudes.dudeDefaultSprite')">
+					<n-select
+						v-model:value="formValue.dudeSettings.defaultSprite"
+						:options="dudesSprites"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
+					<n-slider
+						v-model:value="formValue.dudeSettings.maxOnScreen"
+						:min="0"
+						:max="128"
+						:step="1"
+						:format-tooltip="(value) => {
+							if (value === 0) {
+								return t('overlays.dudes.dudeMaxOnScreenUnlimited');
+							}
+
+							return value;
+						}"
+					/>
+				</n-form-item>
 
 				<n-form-item :label="t('overlays.dudes.dudeColor')">
 					<n-color-picker
@@ -252,10 +290,41 @@ const isDropShadowDisabled = computed(() => {
 				</n-form-item>
 
 				<n-divider title-placement="left">
+					{{ t('overlays.dudes.growDivider') }}
+				</n-divider>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.growTime')">
+					<n-slider
+						v-model:value="formValue.dudeSettings.growTime"
+						:min="5000"
+						:max="1000 * 60 * 60"
+						:step="1000"
+						:format-tooltip="(value) => formatDuration(value)"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.growMaxScale')">
+					<n-slider
+						v-model:value="formValue.dudeSettings.growMaxScale"
+						:min="formValue.dudeSettings.scale + 1"
+						:max="32"
+						:step="1"
+					/>
+				</n-form-item>
+
+				<n-divider title-placement="left">
 					{{ t('overlays.dudes.nameBoxDivider') }}
 				</n-divider>
 
 				<n-form>
+					<n-form-item
+						class="form-item-switch"
+						:show-feedback="false"
+						:label="t('overlays.dudes.nameBoxVisible')"
+					>
+						<n-switch v-model:value="formValue.dudeSettings.visibleName" />
+					</n-form-item>
+
 					<n-form-item
 						:validation-status="nameBoxFillMessage ? 'error' : undefined"
 						:feedback="nameBoxFillMessage"
@@ -263,6 +332,7 @@ const isDropShadowDisabled = computed(() => {
 					>
 						<n-dynamic-tags
 							v-model:value="formValue.nameBoxSettings.fill"
+							:disabled="isNameBoxDisabled"
 							:max="6"
 							:render-tag="(tag: string, index: number) => {
 								const rgb = hexToRgb(tag)
@@ -304,6 +374,7 @@ const isDropShadowDisabled = computed(() => {
 
 				<n-form>
 					<n-form-item
+						:disabled="isNameBoxDisabled"
 						:validation-status="fillGradidentStopMessage ? 'error' : undefined"
 						:feedback="fillGradidentStopMessage"
 						:label="t('overlays.dudes.nameBoxFillGradientStops')"
@@ -350,7 +421,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :label="t('overlays.dudes.nameBoxGradientType')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.fillGradientType"
-						:disabled="formValue.nameBoxSettings.fill.length < 2"
+						:disabled="isNameBoxDisabled || formValue.nameBoxSettings.fill.length < 2"
 						:options="[
 							{
 								label: 'Vertical',
@@ -367,6 +438,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontFamily')">
 					<font-selector
 						v-model:font="fontData"
+						:disabled="isNameBoxDisabled"
 						:font-family="formValue.nameBoxSettings.fontFamily"
 						:font-weight="formValue.nameBoxSettings.fontWeight"
 						:font-style="formValue.nameBoxSettings.fontStyle"
@@ -377,6 +449,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontWeight')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.fontWeight"
+						:disabled="isNameBoxDisabled"
 						:options="fontWeightOptions"
 					/>
 				</n-form-item>
@@ -384,6 +457,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontStyle')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.fontStyle"
+						:disabled="isNameBoxDisabled"
 						:options="fontStyleOptions"
 					/>
 				</n-form-item>
@@ -391,6 +465,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontVariant')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.fontVariant"
+						:disabled="isNameBoxDisabled"
 						:options="fontVariantOptions"
 					/>
 				</n-form-item>
@@ -398,6 +473,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :label="t('overlays.dudes.nameBoxFontSize')">
 					<n-slider
 						v-model:value="formValue.nameBoxSettings.fontSize"
+						:disabled="isNameBoxDisabled"
 						:min="1"
 						:max="128"
 					/>
@@ -406,6 +482,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxStroke')">
 					<n-color-picker
 						v-model:value="formValue.nameBoxSettings.stroke"
+						:disabled="isNameBoxDisabled"
 						:modes="['hex']"
 					/>
 				</n-form-item>
@@ -413,6 +490,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameStrokeThickness')">
 					<n-slider
 						v-model:value="formValue.nameBoxSettings.strokeThickness"
+						:disabled="isNameBoxDisabled"
 						:min="0"
 						:max="16"
 						:step="1"
@@ -422,6 +500,7 @@ const isDropShadowDisabled = computed(() => {
 				<n-form-item :label="t('overlays.dudes.nameBoxLineJoin')">
 					<n-select
 						v-model:value="formValue.nameBoxSettings.lineJoin"
+						:disabled="isNameBoxDisabled"
 						:options="lineJoinOptions"
 					/>
 				</n-form-item>
@@ -431,7 +510,10 @@ const isDropShadowDisabled = computed(() => {
 					:show-feedback="false"
 					:label="t('overlays.dudes.nameBoxDropShadow')"
 				>
-					<n-switch v-model:value="formValue.nameBoxSettings.dropShadow" />
+					<n-switch
+						v-model:value="formValue.nameBoxSettings.dropShadow"
+						:disabled="isNameBoxDisabled"
+					/>
 				</n-form-item>
 
 				<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowColor')">

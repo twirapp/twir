@@ -11,6 +11,11 @@ message DudeSettings {
 	float scale = 6;
 	bool sounds_enabled = 7;
 	float sounds_volume = 8;
+	bool visible_name = 9;
+	int32 grow_time = 10;
+	int32 grow_max_scale = 11;
+	int32 max_on_screen = 12;
+	string default_sprite = 13;
 }
 
 message MessageBoxSettings {

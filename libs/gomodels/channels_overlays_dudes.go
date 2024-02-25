@@ -18,6 +18,11 @@ type ChannelsOverlaysDudes struct {
 	DudeScale                 float32         `gorm:"type:integer;not null;" json:"dudeScale"`
 	DudeSoundsEnabled         bool            `gorm:"type:boolean;not null;" json:"dudeSoundsEnabled"`
 	DudeSoundsVolume          float32         `gorm:"type:real;not null;"  json:"dudeSoundsVolume"`
+	DudeVisibleName           bool            `gorm:"type:boolean;not null;"  json:"dudeVisibleName"`
+	DudeGrowTime              int32           `gorm:"type:integer;not null;"  json:"dudeGrowTime"`
+	DudeGrowMaxScale          int32           `gorm:"type:integer;not null;"  json:"dudeGrowMaxScale"`
+	DudeMaxOnScreen           int32           `gorm:"type:integer;not null;"  json:"dudeMaxOnScreen"`
+	DudeDefaultSprite         string          `gorm:"type:text;not null;"  json:"dudeDefaultSprite"`
 	MessageBoxEnabled         bool            `gorm:"type:boolean;not null;"  json:"messageBoxEnabled"`
 	MessageBoxBorderRadius    int32           `gorm:"type:integer;not null;"  json:"messageBoxBorderRadius"`
 	MessageBoxBoxColor        string          `gorm:"type:text;not null;"  json:"messageBoxBoxColor"`

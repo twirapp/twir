@@ -54,10 +54,15 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		users: twitchBots.map(bot => bot.id),
 	},
 	dudeSettings: {
+		maxOnScreen: 0,
+		defaultSprite: "random",
+		visibleName: true,
 		color: '#969696',
 		eyesColor: '#FFFFFF',
 		cosmeticsColor: '#FFFFFF',
-		maxLifeTime: 1000 * 60 * 30,
+		maxLifeTime: 1000 * 60 * 30, // 30 minutes
+		growTime: 1000 * 60 * 5, // 5 minutes
+    growMaxScale: 10,
 		gravity: 400,
 		scale: 4,
 		soundsEnabled: true,

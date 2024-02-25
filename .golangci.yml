@@ -146,3 +146,7 @@ issues:
       linters:
         - goerr113
         - revive
+    # exclude libs/gomodels from tagliatelle
+    - path: ^libs/gomodels\/.+\.go
+      linters:
+        - tagliatelle

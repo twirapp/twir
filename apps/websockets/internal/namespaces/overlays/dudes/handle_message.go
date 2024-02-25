@@ -1,16 +1,22 @@
 package dudes
 
 import (
+	"errors"
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/olahol/melody"
+	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
+	"github.com/satont/twir/libs/types/types/overlays"
 )
 
 func (c *Dudes) handleMessage(session *melody.Session, msg []byte) {
-	userId, ok := session.Get("userId")
-	if userId == nil || userId == "" || !ok {
+	channelId, ok := session.Get("userId")
+	if channelId == nil || channelId == "" || !ok {
 		return
 	}
 
@@ -34,9 +40,76 @@ func (c *Dudes) handleMessage(session *melody.Session, msg []byte) {
 	}
 
 	if data.EventName == "getSettings" {
-		err := c.SendSettings(userId.(string), overlayId)
+		err := c.SendSettings(channelId.(string), overlayId)
 		if err != nil {
 			c.logger.Error(err.Error())
 		}
 	}
+
+	if data.EventName == "getUserSettings" {
+		userId, ok := data.Data.(string)
+		if !ok {
+			return
+		}
+
+		err := c.SendUserSettings(channelId.(string), userId)
+		if err != nil {
+			c.logger.Error(err.Error())
+		}
+	}
+}
+
+func (c *Dudes) SendUserSettings(
+	channelId string,
+	userId string,
+) error {
+	entity := model.ChannelsOverlaysDudesUserSettings{}
+
+	err := c.gorm.
+		Where("channel_id = ? AND user_id = ?", channelId, userId).
+		First(&entity).Error
+	if err != nil {
+		return err
+	}
+
+	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
+	if err != nil {
+		c.logger.Error(err.Error())
+		return err
+	}
+	usersReq, err := twitchClient.GetUsers(
+		&helix.UsersParams{
+			IDs: []string{userId},
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if usersReq.ErrorMessage != "" {
+		return errors.New(usersReq.ErrorMessage)
+	}
+	if len(usersReq.Data.Users) == 0 {
+		return nil
+	}
+
+	user := usersReq.Data.Users[0]
+
+	var sprite *overlays.DudesSprite
+	if entity.DudeSprite != nil {
+		sprite = lo.ToPtr(overlays.DudesSprite(*entity.DudeSprite))
+	}
+
+	c.SendEvent(
+		channelId,
+		"userSettings",
+		&overlays.DudesUserSettings{
+			DudeColor:  entity.DudeColor,
+			DudeSprite: sprite,
+			UserID:     user.ID,
+			UserName:   user.DisplayName,
+			UserLogin:  user.Login,
+		},
+	)
+
+	return nil
 }

@@ -5,19 +5,20 @@ import (
 	"os"
 
 	"github.com/satont/twir/libs/types/types/api"
-	"github.com/satont/twir/libs/types/types/api/overlays"
+	apioverlays "github.com/satont/twir/libs/types/types/api/overlays"
+	"github.com/satont/twir/libs/types/types/overlays"
 	"github.com/tkrajina/typescriptify-golang-structs/typescriptify"
 )
 
 func main() {
-	files := []string{"api"}
+	files := []string{"api", "overlays"}
 	for _, f := range files {
 		_ = os.Remove(fmt.Sprintf("src/%s.ts", f))
 	}
 
 	apiConverter := typescriptify.New().
 		Add(api.V1{}).
-		AddEnum(overlays.AllPresets)
+		AddEnum(apioverlays.AllPresets)
 	apiConverter.CreateInterface = true
 	apiConverter.CreateConstructor = false
 	apiConverter.CreateFromMethod = false
@@ -25,5 +26,17 @@ func main() {
 	err := apiConverter.ConvertToFile("src/api.ts")
 	if err != nil {
 		panic(err.Error())
+	}
+
+	overlaysConverter := typescriptify.New().
+		Add(overlays.DudesGrowRequest{}).
+		Add(overlays.DudesUserSettings{}).
+		AddEnum(overlays.AllDudesSpriteEnumValues)
+	overlaysConverter.CreateInterface = true
+	overlaysConverter.CreateConstructor = false
+	overlaysConverter.CreateFromMethod = false
+	err = overlaysConverter.ConvertToFile("src/overlays.ts")
+	if err != nil {
+		panic(err)
 	}
 }
