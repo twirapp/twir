@@ -1,8 +1,8 @@
-
 import { useWebSocket } from '@vueuse/core';
+import { defineStore } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 
-import { useProfile } from '@/api/index.js';
+import { useProfile, useYoutubeModuleSettings } from '@/api/index.js';
 
 export type Video = {
 	id: string
@@ -19,11 +19,53 @@ export type Video = {
 	videoId: string
 }
 
-export const useYoutubeSocket = () => {
+export const useYoutubeSocket = defineStore('youtubeSocket', () => {
+	const youtubeModuleManager = useYoutubeModuleSettings();
+	const { data: youtubeSettings } = youtubeModuleManager.getAll();
+	const youtubeModuleUpdater = youtubeModuleManager.update();
+
 	const videos = ref<Video[]>([]);
 	const currentVideo = computed(() => videos.value[0]);
 
 	const { data: userProfile } = useProfile();
+
+	async function banUser(userId: string) {
+		await youtubeModuleUpdater.mutateAsync({
+			data: {
+				...youtubeSettings.value!.data!,
+				denyList: {
+					...youtubeSettings.value!.data!.denyList!,
+					users: [
+						...youtubeSettings.value!.data!.denyList!.users,
+						userId,
+					],
+				},
+			},
+		});
+
+		callWsSkip(videos.value.filter(video => video.orderedById === userId).map(video => video.id));
+		videos.value = videos.value.filter(video => video.orderedById !== userId);
+	}
+
+	async function banSong(videoId: string) {
+		await youtubeModuleUpdater.mutateAsync({
+			data: {
+				...youtubeSettings.value!.data!,
+				denyList: {
+					...youtubeSettings.value!.data!.denyList!,
+					songs: [
+						...youtubeSettings.value!.data!.denyList!.songs,
+						videoId,
+					],
+				},
+			},
+		});
+
+		const video = videos.value.find(video => video.videoId === videoId);
+
+		callWsSkip(video!.id);
+		videos.value = videos.value.filter(video => video.videoId !== videoId);
+	}
 
 	const socketUrl = computed(() => {
 		if (!userProfile?.value) return;
@@ -42,19 +84,19 @@ export const useYoutubeSocket = () => {
 
 	watch(websocket.data, (data) => {
 		const parsedData = JSON.parse(data);
-			if (parsedData.eventName === 'currentQueue') {
-				const incomingVideos = parsedData.data;
+		if (parsedData.eventName === 'currentQueue') {
+			const incomingVideos = parsedData.data;
 
-				videos.value = incomingVideos;
-			}
+			videos.value = incomingVideos;
+		}
 
-			if (parsedData.eventName === 'newTrack') {
-				videos.value.push(parsedData.data);
-			}
+		if (parsedData.eventName === 'newTrack') {
+			videos.value.push(parsedData.data);
+		}
 
-			if (parsedData.eventName === 'removeTrack') {
-				videos.value = videos.value.filter(video => video.id !== parsedData.data.id);
-			}
+		if (parsedData.eventName === 'removeTrack') {
+			videos.value = videos.value.filter(video => video.id !== parsedData.data.id);
+		}
 	});
 
 	watch(socketUrl, (v) => {
@@ -98,7 +140,7 @@ export const useYoutubeSocket = () => {
 		videos.value.splice(newPosition, 0, itemToMove);
 
 		videos.value.forEach((video, index) => {
-			video.queuePosition = index+1;
+			video.queuePosition = index + 1;
 		});
 
 		const request = JSON.stringify({
@@ -129,6 +171,8 @@ export const useYoutubeSocket = () => {
 		deleteAllVideos,
 		moveVideo,
 		sendPlaying,
+		banUser,
+		banSong,
 	};
-};
+});
 

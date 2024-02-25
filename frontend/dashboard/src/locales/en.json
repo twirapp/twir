@@ -570,7 +570,13 @@
       "general": "General",
       "users": "Users",
       "songs": "Songs"
-    }
+    },
+	"ban": {
+		"user": "Ban user",
+		"song": "Ban song",
+		"userConfirm": "Are you sure you want to ban this user?",
+		"songConfirm": "Are you sure you want to ban this song?"
+	}
   },
   "timers": {
     "table": {

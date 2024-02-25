@@ -1,4 +1,4 @@
-<script lang='ts' setup>
+<script lang="ts" setup>
 import 'plyr/dist/plyr.css';
 import {
 	IconEyeOff,
@@ -12,46 +12,45 @@ import {
 	IconPlayerPlayFilled,
 	IconPlayerSkipForwardFilled,
 	IconPlayerPauseFilled,
+	IconBan,
 } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
 import {
-  NCard,
-  NButton,
-  NSpace,
-  NList,
-  NListItem,
-  NSlider,
-  NGrid,
-  NGridItem,
-  NEmpty,
-  NSpin,
+	NCard,
+	NButton,
+	NSpace,
+	NList,
+	NListItem,
+	NSlider,
+	NGrid,
+	NGridItem,
+	NEmpty,
+	NSpin,
 	NResult,
+	NPopconfirm,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import Plyr from 'plyr';
 import { ref, onMounted, watch, onUnmounted, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile } from '@/api/index.js';
-import { Video } from '@/components/songRequests/hook.js';
+import { useYoutubeSocket } from '@/components/songRequests/hook.js';
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
 const props = defineProps<{
-	currentVideo?: Video | null
 	noCookie: boolean
-	nextVideo: boolean
 	openSettingsModal: () => void
 }>();
 
-const emits = defineEmits<{
-	next: []
-	playing: []
-}>();
+const socket = useYoutubeSocket();
+const { currentVideo } = storeToRefs(socket);
 
 const player = ref<HTMLVideoElement>();
 const plyr = ref<Plyr>();
 
 const playNext = () => {
-	emits('next');
+	socket.nextVideo();
 
 	plyr.value!.once('ready', () => {
 		plyr.value!.play();
@@ -76,7 +75,7 @@ onMounted(() => {
 	plyr.value.on('play', () => {
 		isPlaying.value = true;
 		plyr.value!.volume = volume.value / 100;
-		emits('playing');
+		socket.sendPlaying();
 	});
 
 	plyr.value.on('pause', () => {
@@ -94,7 +93,7 @@ onMounted(() => {
 });
 
 const isFirstLoad = ref(true);
-watch(() => props.currentVideo, (video) => {
+watch(currentVideo, (video) => {
 	if (!plyr.value) return;
 	if (!video) {
 		plyr.value.source = {
@@ -178,7 +177,6 @@ const { t } = useI18n();
 			</n-result>
 		</div>
 
-
 		<div v-else>
 			<video
 				ref="player"
@@ -251,7 +249,10 @@ const { t } = useI18n();
 
 		<template #header-extra>
 			<n-space :wrap="false" :wrap-item="false">
-				<n-button tertiary size="small" @click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'">
+				<n-button
+					tertiary size="small"
+					@click="playerDisplay = playerDisplay === 'block' ? 'none' : 'block'"
+				>
 					<IconEyeOff v-if="playerDisplay === 'block'" />
 					<IconEye v-else />
 				</n-button>
@@ -261,39 +262,82 @@ const { t } = useI18n();
 			</n-space>
 		</template>
 		<template #footer>
-			<n-list v-if="currentVideo" :show-divider="false">
-				<n-list-item>
-					<template #prefix>
-						<IconPlaylist class="card-icon" />
-					</template>
+			<template v-if="currentVideo">
+				<n-list :show-divider="false">
+					<n-list-item>
+						<template #prefix>
+							<IconPlaylist class="card-icon" />
+						</template>
 
-					{{ currentVideo?.title }}
-				</n-list-item>
+						{{ currentVideo?.title }}
+					</n-list-item>
 
-				<n-list-item>
-					<template #prefix>
-						<IconUser class="card-icon" />
-					</template>
+					<n-list-item>
+						<template #prefix>
+							<IconUser class="card-icon" />
+						</template>
 
-					{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
-				</n-list-item>
+						{{ currentVideo?.orderedByDisplayName || currentVideo?.orderedByName }}
+					</n-list-item>
 
-				<n-list-item>
-					<template #prefix>
-						<IconLink class="card-icon" />
-					</template>
+					<n-list-item>
+						<template #prefix>
+							<IconLink class="card-icon" />
+						</template>
 
-					<n-button
-						tag="a"
-						type="primary"
-						text
-						:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
-						target="_blank"
+						<n-button
+							tag="a"
+							type="primary"
+							text
+							:href="currentVideo.songLink ?? `https://youtu.be/${currentVideo?.videoId}`"
+							target="_blank"
+						>
+							{{ currentVideo.songLink || `youtu.be/${currentVideo?.videoId}` }}
+						</n-button>
+					</n-list-item>
+				</n-list>
+				<n-space justify="end">
+					<n-popconfirm
+						:positive-text="t('deleteConfirmation.confirm')"
+						:negative-text="t('deleteConfirmation.cancel')"
+						@positive-click="() => socket.banSong(currentVideo.videoId)"
 					>
-						{{ currentVideo.songLink || `youtu.be/${currentVideo?.videoId}` }}
-					</n-button>
-				</n-list-item>
-			</n-list>
+						<template #trigger>
+							<n-button
+								secondary
+								type="warning"
+							>
+								<div style="display: flex; gap: 4px; align-items: center">
+									<IconBan />
+									{{ t('songRequests.ban.song') }}
+								</div>
+							</n-button>
+						</template>
+
+						{{ t('songRequests.ban.songConfirm') }}
+					</n-popconfirm>
+					<n-popconfirm
+						:positive-text="t('deleteConfirmation.confirm')"
+						:negative-text="t('deleteConfirmation.cancel')"
+						@positive-click="() => socket.banUser(currentVideo.orderedById)
+						"
+					>
+						<template #trigger>
+							<n-button
+								secondary
+								type="error"
+							>
+								<div style="display: flex; gap: 4px; align-items: center">
+									<IconBan />
+									{{ t('songRequests.ban.user') }}
+								</div>
+							</n-button>
+						</template>
+
+						{{ t('songRequests.ban.userConfirm') }}
+					</n-popconfirm>
+				</n-space>
+			</template>
 			<n-empty v-else :description="t('songRequests.waiting')">
 				<template #icon>
 					<n-spin size="small" stroke="#959596" />

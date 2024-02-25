@@ -1,35 +1,31 @@
-<script setup lang='ts'>
+<script setup lang="ts">
 import {
 	IconTrash,
 	IconChevronUp,
 	IconChevronDown,
+	IconBan,
 } from '@tabler/icons-vue';
 import {
-  type DataTableCreateSummary,
-  NDataTable,
-  NTag,
-  NSpin,
-  NSpace,
-  NText,
-  NCard,
-  NButton,
+	type DataTableCreateSummary,
+	NDataTable,
+	NSpin,
+	NSpace,
+	NText,
+	NCard,
+	NButton,
 	NTime,
+	NPopconfirm,
 } from 'naive-ui';
 import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
+import { storeToRefs } from 'pinia';
 import { h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import type { Video } from '@/components/songRequests/hook.js';
+import { useYoutubeSocket, Video } from '@/components/songRequests/hook.js';
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
-const props = defineProps<{
-	queue: Video[]
-}>();
-const emits = defineEmits<{
-	deleteVideo: [id: string]
-	deleteAllVideos: []
-	moveVideo: [id: string, newPosition: number]
-}>();
+const socket = useYoutubeSocket();
+const { videos } = storeToRefs(socket);
 
 const { t } = useI18n();
 
@@ -39,7 +35,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 		key: 'position',
 		width: 50,
 		render(_, index) {
-			return index+1;
+			return index + 1;
 		},
 	},
 	{
@@ -47,23 +43,77 @@ const columns = computed<TableColumn<Video>[]>(() => [
 		key: 'title',
 		ellipsis: true,
 		render(row) {
-			return h(NButton, {
-				tag: 'a',
-				type: 'primary',
-				text: true,
-				target: '_blank',
-				href: row.songLink,
-			}, {
-				default: () => row.title,
-			});
+			const banButton = h(
+				NPopconfirm,
+				{
+					onPositiveClick: () => socket.banSong(row.videoId),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
+				},
+				{
+					trigger: () => h(NButton, {
+						text: true,
+						size: 'small',
+					}, {
+						default: () => h(IconBan),
+					}),
+					default: () => t('songRequests.ban.songConfirm'),
+				},
+			);
+
+			return h(
+				'div',
+				{
+					style: 'display: flex; align-items: center; gap: 4px;',
+				},
+				[
+					banButton,
+					h(NButton, {
+						tag: 'a',
+						type: 'primary',
+						text: true,
+						target: '_blank',
+						href: row.songLink,
+					}, {
+						default: () => row.title,
+					}),
+				],
+			);
 		},
 	},
 	{
 		title: t('songRequests.table.columns.author'),
 		key: 'author',
-		width: 150,
+		width: 300,
 		render(row) {
-			return h(NTag, { bordered: false, type: 'info' }, { default: () => row.orderedByDisplayName || row.orderedByName });
+			const banButton = h(
+				NPopconfirm,
+				{
+					onPositiveClick: () => socket.banUser(row.orderedById),
+					positiveText: t('deleteConfirmation.confirm'),
+					negativeText: t('deleteConfirmation.cancel'),
+				},
+				{
+					trigger: () => h(NButton, {
+						text: true,
+						size: 'small',
+					}, {
+						default: () => h(IconBan),
+					}),
+					default: () => t('songRequests.ban.userConfirm'),
+				},
+			);
+
+			return h(
+				'div',
+				{
+					style: 'display: flex; align-items: center; gap: 4px;',
+				},
+				[
+					banButton,
+					row.orderedByDisplayName || row.orderedByName,
+				],
+			);
 		},
 	},
 	{
@@ -71,7 +121,11 @@ const columns = computed<TableColumn<Video>[]>(() => [
 		key: 'createdAt',
 		width: 150,
 		render(row) {
-			return h(NTime, { time: 0, to: Date.now() - new Date(row.createdAt).getTime(), type: 'relative' });
+			return h(NTime, {
+				time: 0,
+				to: Date.now() - new Date(row.createdAt).getTime(),
+				type: 'relative',
+			});
 		},
 	},
 	{
@@ -93,7 +147,9 @@ const columns = computed<TableColumn<Video>[]>(() => [
 					size: 'tiny',
 					type: 'error',
 					text: true,
-					onClick: () => emits('deleteVideo', row.id),
+					onClick: () => {
+						socket.deleteVideo(row.id);
+					},
 				}, {
 					default: () => h(IconTrash),
 				},
@@ -104,7 +160,9 @@ const columns = computed<TableColumn<Video>[]>(() => [
 				type: 'primary',
 				text: true,
 				disabled: index === 0,
-				onClick: () => emits('moveVideo', row.id, index-1),
+				onClick: () => {
+					socket.moveVideo(row.id, index - 1);
+				},
 			}, {
 				default: () => h(IconChevronUp),
 			});
@@ -113,8 +171,10 @@ const columns = computed<TableColumn<Video>[]>(() => [
 				size: 'tiny',
 				type: 'primary',
 				text: true,
-				disabled: index+1 === props.queue.length,
-				onClick: () => emits('moveVideo', row.id, index+1),
+				disabled: index + 1 === videos.value.length,
+				onClick: () => {
+					socket.moveVideo(row.id, index + 1);
+				},
 			}, {
 				default: () => h(IconChevronDown),
 			});
@@ -134,7 +194,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 ]);
 
 const createSummary: DataTableCreateSummary<Video> = (pageData) => {
-	return{
+	return {
 		position: {
 			value: h(
 				'span',
@@ -169,8 +229,8 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 		</template>
 		<n-data-table
 			:columns="columns"
-			:data="queue"
-			:loading="!queue.length"
+			:data="videos"
+			:loading="!videos.length"
 			:bordered="false"
 			:summary="createSummary"
 		>

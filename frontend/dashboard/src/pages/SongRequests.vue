@@ -15,15 +15,7 @@ import SettingsModal from '@/components/songRequests/settings.vue';
 const isSettingsModalOpened = ref(false);
 const openSettingsModal = () => isSettingsModalOpened.value = true;
 
-const {
-	videos,
-	currentVideo,
-	nextVideo,
-	deleteVideo,
-	deleteAllVideos,
-	moveVideo,
-	sendPlaying,
-} = useYoutubeSocket();
+useYoutubeSocket();
 
 const youtubeModuleManager = useYoutubeModuleSettings();
 const youtubeModuleData = youtubeModuleManager.getAll();
@@ -38,22 +30,13 @@ const noCookie = computed(() => {
 		<n-grid-item :span="1">
 			<player
 				v-if="!youtubeModuleData.isLoading.value"
-				:current-video="currentVideo"
-				:next-video="videos.length > 1"
 				:no-cookie="noCookie"
 				:open-settings-modal="openSettingsModal"
-				@next="nextVideo"
-				@playing="sendPlaying"
 			/>
 		</n-grid-item>
 
 		<n-grid-item :span="2">
-			<videos-queue
-				:queue="videos"
-				@delete-video="(id) => deleteVideo(id)"
-				@delete-all-videos="deleteAllVideos"
-				@move-video="(id, index) => moveVideo(id, index)"
-			/>
+			<videos-queue />
 		</n-grid-item>
 	</n-grid>
 
