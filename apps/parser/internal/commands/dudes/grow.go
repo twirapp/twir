@@ -35,7 +35,7 @@ var Grow = &types.DefaultCommand{
 
 		var color string
 		if entity.UserID != "" {
-			color = entity.DudeColor
+			color = *entity.DudeColor
 		} else {
 			color = parseCtx.Sender.Color
 		}
