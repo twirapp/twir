@@ -69,6 +69,7 @@ func NewRedisTaskProcessor(opts RedisTaskProcessorOpts) *RedisTaskProcessor {
 					opts.Logger.Error("error processing task", zap.Any("task", task), zap.Error(err))
 				},
 			),
+			LogLevel: asynq.ErrorLevel,
 		},
 	)
 
