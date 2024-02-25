@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/apps/websockets/types"
 	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -70,6 +71,16 @@ func New(opts Opts) *Dudes {
 
 			dudes.counter.Inc()
 			session.Write([]byte(`{"eventName":"connected to dudes namespace"}`))
+
+			channelId, _ := session.Get("userId")
+
+			var usersSettings []model.ChannelsOverlaysDudesUserSettings
+			err = opts.Gorm.Where("channel_id = ?", channelId.(string)).Find(&usersSettings).Error
+			if err != nil {
+				opts.Logger.Error("cannot get user settings", slog.Any("err", err))
+				return
+			}
+			dudes.SendEvent(channelId.(string), "usersSettings", usersSettings)
 		},
 	)
 

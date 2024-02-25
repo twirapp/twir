@@ -12,6 +12,7 @@ replace (
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/twitch => ../../libs/twitch
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 )
 
 require (

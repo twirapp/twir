@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	bus_listener "github.com/satont/twir/apps/websockets/internal/bus-listener"
 	"github.com/satont/twir/apps/websockets/internal/gorm"
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
@@ -63,6 +64,7 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),
+		bus_listener.New,
 		func() {
 			http.Handle("/metrics", promhttp.Handler())
 

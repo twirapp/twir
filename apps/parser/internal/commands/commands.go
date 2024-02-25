@@ -103,6 +103,8 @@ func New(opts *Opts) *Commands {
 			games.DuelAccept,
 			games.DuelStats,
 			dudes.Jump,
+			dudes.Grow,
+			dudes.Color,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

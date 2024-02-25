@@ -1,5 +1,10 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
+import type {
+	DudesGrowRequest,
+	DudesChangeColorRequest,
+	DudesUserSettings,
+} from '@twir/types/overlays';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
@@ -85,6 +90,33 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		if (parsedData.eventName === 'punished') {
 			const data = parsedData.data as DudesUserPunishedRequest;
 			dudes.value.removeDude(data.userDisplayName);
+		}
+
+		if (parsedData.eventName === 'usersSettings') {
+			const data = parsedData.data as DudesUserSettings[];
+			// TODO: store that data and set dude color when user sends a message
+			console.log(data);
+		}
+
+		if (parsedData.eventName === 'dudes:changeColor') {
+			const data = parsedData.data as DudesChangeColorRequest;
+
+			const dude = dudes.value.getDude(data.userName);
+			if (dude) {
+				dude.bodyTint(data.color);
+			} else {
+				dudesStore.createDude(data.userName, data.color);
+			}
+		}
+
+		if (parsedData.eventName === 'dudes:grow') {
+			const data = parsedData.data as DudesGrowRequest;
+			const dude = dudes.value.getDude(data.userName);
+			if (dude) {
+				dude.grow();
+			} else {
+				dudesStore.createDude(data.userName, data.color);
+			}
 		}
 	});
 

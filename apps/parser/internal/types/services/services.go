@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/eval"
@@ -34,4 +35,5 @@ type Services struct {
 	Redis           *redis.Client
 	GrpcClients     *Grpc
 	TaskDistributor task_queue.TaskDistributor
+	Bus             *buscore.Bus
 }

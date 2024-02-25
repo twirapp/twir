@@ -145,6 +145,8 @@ func main() {
 		}
 	}()
 
+	bus := buscore.NewNatsBus(nc)
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -161,6 +163,7 @@ func main() {
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
 		TaskDistributor: taskQueueDistributor,
+		Bus:             bus,
 	}
 
 	variablesService := variables.New(
@@ -175,9 +178,9 @@ func main() {
 		},
 	)
 
-	bus := commands_bus.New(buscore.NewNatsBus(nc), s, commandsService, variablesService)
-	bus.Subscribe()
-	defer bus.Unsubscribe()
+	cmdBus := commands_bus.New(bus, s, commandsService, variablesService)
+	cmdBus.Subscribe()
+	defer cmdBus.Unsubscribe()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
 	if err != nil {
