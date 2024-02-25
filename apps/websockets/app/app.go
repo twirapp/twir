@@ -16,7 +16,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
-	"github.com/satont/twir/apps/websockets/internal/nats"
 	"github.com/satont/twir/apps/websockets/internal/redis"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -41,8 +40,7 @@ var App = fx.Module(
 		uptrace.NewFx(service),
 		redis.New,
 		gorm.New,
-		nats.New,
-		buscore.NewNatsBus,
+		buscore.NewNatsBusFx(service),
 		func(cfg config.Config) bots.BotsClient {
 			return clients.NewBots(cfg.AppEnv)
 		},

@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/bots/internal/grpc"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
-	"github.com/satont/twir/apps/bots/internal/nats"
 	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
 	"github.com/satont/twir/apps/bots/internal/queuelistener"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -36,9 +35,8 @@ var App = fx.Module(
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "bots"}),
 		logger.NewFx(logger.Opts{Service: "bots"}),
 		gorm.New,
-		nats.New,
 		uptrace.NewFx("bots"),
-		buscore.NewNatsBus,
+		buscore.NewNatsBusFx("bots"),
 		func(config cfg.Config) (*pubsub.PubSub, error) {
 			return pubsub.NewPubSub(config.RedisUrl)
 		},
@@ -69,7 +67,6 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		uptrace.NewFx("bots"),
-		nats.New,
 		queuelistener.New,
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {

@@ -14,7 +14,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected"
 	"github.com/satont/twir/apps/api/internal/interceptors"
-	"github.com/satont/twir/apps/api/internal/nats"
 	"github.com/satont/twir/apps/api/internal/proxy"
 	"github.com/satont/twir/apps/api/internal/sessions"
 	"github.com/satont/twir/apps/api/internal/twirp_handlers"
@@ -127,8 +126,7 @@ var App = fx.Options(
 
 			return db, nil
 		},
-		nats.New,
-		buscore.NewNatsBus,
+		buscore.NewNatsBusFx("api"),
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,

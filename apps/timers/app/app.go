@@ -6,7 +6,6 @@ import (
 	"github.com/satont/twir/apps/timers/internal/activity"
 	"github.com/satont/twir/apps/timers/internal/gorm"
 	"github.com/satont/twir/apps/timers/internal/grpc_server"
-	"github.com/satont/twir/apps/timers/internal/nats"
 	"github.com/satont/twir/apps/timers/internal/redis"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
@@ -32,8 +31,7 @@ var App = fx.Module(
 		logger.NewFx(logger.Opts{Level: slog.LevelInfo, Service: "timers"}),
 		uptrace.NewFx("timers"),
 		gorm.New,
-		nats.New,
-		buscore.NewNatsBus,
+		buscore.NewNatsBusFx("timers"),
 		redis.New,
 		timers.NewGorm,
 		activity.New,
