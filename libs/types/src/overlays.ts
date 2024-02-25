@@ -8,6 +8,7 @@ export enum DudesSprite {
     girl = "girl",
     santa = "santa",
     sith = "sith",
+    random = "random",
 }
 export interface DudesGrowRequest {
     channelId: string;
