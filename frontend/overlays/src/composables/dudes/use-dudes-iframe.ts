@@ -1,4 +1,5 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
+import { DudesSprite } from '@twir/types/overlays';
 import { defineStore } from 'pinia';
 
 import { dudesTwir } from './dudes-config.js';
@@ -58,27 +59,17 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	}
 
 	function spawnIframeDude() {
-		if (dudesStore.dudes?.getDude(dudesTwir)) return;
+		if (!dudesStore.dudes || dudesStore.dudes.getDude(dudesTwir)) return;
 
 		const emote = dudesStore.getProxiedEmoteUrl({
 			type: '3rd_party_emote',
 			value: 'https://cdn.7tv.app/emote/65413498dc0468e8c1fbcdc6/1x.gif',
 		});
 
-		dudesStore.createDude(
-			dudesTwir,
-			'#8a2be2',
-			[
-				{
-					type: 'text',
-					value: `Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`,
-				},
-				{
-					type: '3rd_party_emote',
-					value: emote,
-				},
-			],
-		);
+		const dude = dudesStore.dudes.createDude(dudesTwir, DudesSprite.dude);
+		dude.bodyTint('#8a2be2');
+		dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
+		dude.spitEmotes([emote]);
 	}
 
 	function connect() {

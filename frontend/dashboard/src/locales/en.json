@@ -421,6 +421,9 @@
 		"dudes": {
 			"description": "Animated characters for chatters in your stream",
 			"dudeDivider": "Dude",
+			"dudeDefaultSprite": "Default sprite",
+			"dudeMaxOnScreen": "Max on screen",
+			"dudeMaxOnScreenUnlimited": "Unlimited",
 			"dudeColor": "Default user color",
 			"dudeGravity": "Gravity",
 			"dudeMaxLifeTime": "Max life time",

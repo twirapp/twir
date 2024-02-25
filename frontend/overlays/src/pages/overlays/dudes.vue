@@ -47,14 +47,11 @@ function onMessage(chatMessage: ChatMessage): void {
 	}
 
 	const displayName = chatMessage.senderDisplayName!;
-	const color = chatMessage.senderColor ?? dudesSettings.value?.dudes.dude.color;
+	const userId = chatMessage.senderId!;
+	const color = chatMessage.senderColor;
 
-	const dude = dudes.value.getDude(displayName);
-	if (dude) {
-		dudesStore.showMessageDude(dude, chatMessage.chunks);
-	} else {
-		dudesStore.createDude(displayName, color, chatMessage.chunks);
-	}
+	dudesStore.createDude(displayName, userId, color)
+		?.showMessage(chatMessage.chunks);
 }
 
 const chatSettings = computed<ChatSettings>(() => {

@@ -54,6 +54,8 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 		users: twitchBots.map(bot => bot.id),
 	},
 	dudeSettings: {
+		maxOnScreen: 0,
+		defaultSprite: "random",
 		visibleName: true,
 		color: '#969696',
 		eyesColor: '#FFFFFF',

@@ -1,27 +1,12 @@
+import { DudesSprite } from '@twir/types/overlays';
 import type { SoundAsset, DudeAsset, AssetsLoadOptions } from '@twirapp/dudes/types';
 
 export const dudesTwir = 'Twir';
+export const dudesSprites = Object.keys(DudesSprite)
+	.filter(sprite => sprite !== 'random') as (keyof typeof DudesSprite)[];
 
-export const dudesSprites = [
-  'dude',
-  'sith',
-  'agent',
-  'girl',
-  'cat',
-];
-
-const dudesEventSpites = [
-	'santa',
-];
-
-const day = new Date().getDate();
-const month = new Date().getMonth();
-const isMaryChristmas =
-	(month === 11 && day >= 25) ||
-	(month === 0 && day <= 15);
-
-if (isMaryChristmas) {
-	dudesSprites.push(...dudesEventSpites);
+export function getRandomSprite() {
+	return dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
 }
 
 export const assetsLoadOptions: AssetsLoadOptions = {

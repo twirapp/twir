@@ -1,17 +1,17 @@
 import type { MessageChunk } from '@twir/frontend-chat';
+import { DudesSprite } from '@twir/types/overlays';
 import type { DudesOverlayMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-import { dudesSprites } from './dudes-config.js';
+import { getRandomSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 
 import { randomRgbColor } from '@/helpers.js';
-import type { UserData } from '@/types.js';
 
 export const useDudes = defineStore('dudes', () => {
-	const dudesSettigsStore = useDudesSettings();
-	const { dudesSettings } = storeToRefs(dudesSettigsStore);
+	const dudesSettingsStore = useDudesSettings();
+	const { dudesSettings } = storeToRefs(dudesSettingsStore);
 
 	const dudes = ref<DudesOverlayMethods | null>(null);
 	const isDudeReady = ref(false);
@@ -19,38 +19,58 @@ export const useDudes = defineStore('dudes', () => {
 		return dudes.value && dudesSettings.value && isDudeReady.value;
 	});
 
-	function jumpDude(userData: UserData): void {
-		if (!dudes.value) return;
-
-		const dude = dudes.value.getDude(userData.userDisplayName);
-		if (dude) {
-			dude.jump();
-		} else {
-			createDude(userData.userDisplayName);
-		}
+	function createDudeInstance(dude: Dude) {
+		return {
+			dude,
+			isCreated: false,
+			showMessage: function (messageChunks: MessageChunk[]) {
+				if (this.isCreated) {
+					setTimeout(() => showMessageDude(this.dude, messageChunks), 1000);
+				} else {
+					showMessageDude(this.dude, messageChunks);
+				}
+			},
+		};
 	}
 
 	function createDude(
-		name: string,
+		displayName: string,
+		userId: string,
 		color?: string,
-		messageChunks?: MessageChunk[],
-	): void {
-		if (!dudes.value) return;
+	) {
+		if (!dudes.value || !dudesSettings.value) return;
 
-		const randomDudeSprite = dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
-		const dude = dudes.value.createDude(name, randomDudeSprite);
-
-		if (color) {
-			dude.bodyTint(color);
+		const dudeFromCanvas = dudes.value.dudes.get(displayName) as Dude;
+		if (dudeFromCanvas) {
+			return createDudeInstance(dudeFromCanvas);
 		}
 
-		if (randomDudeSprite === 'sith') {
+		if (
+			dudesSettings.value.overlay.maxOnScreen !== 0 &&
+			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
+		) return;
+
+		const userSettings = getDudeUserSettings(userId);
+		const dudeColor = userSettings?.dudeColor
+			?? color
+			?? dudesSettings.value.dudes.dude.color;
+
+		let dudeSprite = (userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite) as keyof typeof DudesSprite;
+		if (dudeSprite === DudesSprite.random) {
+			dudeSprite = getRandomSprite();
+		}
+
+		const dude = dudes.value.createDude(displayName, dudeSprite);
+		dude.bodyTint(dudeColor);
+
+		if (dudeSprite === DudesSprite.sith) {
 			dude.cosmeticsTint(randomRgbColor());
 		}
 
-		if (messageChunks) {
-			setTimeout(() => showMessageDude(dude, messageChunks), 1000);
-		}
+		const dudeInstance = createDudeInstance(dude);
+		dudeInstance.isCreated = true;
+
+		return dudeInstance;
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
@@ -91,6 +111,12 @@ export const useDudes = defineStore('dudes', () => {
 		dudes.value.removeDude(displayName);
 	}
 
+	function getDudeUserSettings(userId: string) {
+		const userSettings = dudesSettingsStore.dudesUserSettings.get(userId);
+		if (userSettings) return userSettings;
+		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }));
+	}
+
 	watch(() => dudes.value, async (dudes) => {
 		if (!dudes) return;
 		await dudes.initDudes();
@@ -99,7 +125,6 @@ export const useDudes = defineStore('dudes', () => {
 
 	return {
 		dudes,
-		jumpDude,
 		deleteDude,
 		createDude,
 		showMessageDude,

@@ -1,19 +1,27 @@
 import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { useFontSource } from '@twir/fontsource';
+import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays';
 import type { DudesSettings } from '@twirapp/dudes/types';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
 import type { ChannelData } from '@/types.js';
 
+export type DudesOverlaySettings = {
+	maxOnScreen: number
+	defaultSprite: keyof typeof DudesSprite
+}
+
 export type DudesConfig = {
 	ignore: IgnoreSettings
 	dudes: DudesSettings
+	overlay: DudesOverlaySettings
 }
 
 export const useDudesSettings = defineStore('dudes-settings', () => {
 	const fontSource = useFontSource();
 	const dudesSettings = ref<DudesConfig | null>(null);
+	const dudesUserSettings = new Map<string, DudesUserSettings>();
 	const channelData = ref<ChannelData>();
 
 	function updateSettings(settings: DudesConfig): void {
@@ -48,6 +56,7 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 		channelData,
 		updateChannelData,
 		dudesSettings,
+		dudesUserSettings,
 		updateSettings,
 		loadFont,
 	};

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Font, FontSelector } from '@twir/fontsource';
+import { DudesSprite } from '@twir/types/overlays';
 import { addZero, hexToRgb, colorBrightness, capitalize } from '@zero-dependency/utils';
 import { intervalToDuration } from 'date-fns';
 import {
@@ -27,6 +28,7 @@ import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
@@ -139,6 +141,11 @@ const isNameBoxDisabled = computed(() => {
 const isDropShadowDisabled = computed(() => {
 	return isNameBoxDisabled.value || !formValue.value.nameBoxSettings.dropShadow;
 });
+
+const dudesSprites = Object.keys(DudesSprite).map((key) => ({
+	label: capitalize(key),
+	value: key,
+}));
 </script>
 
 <template>
@@ -169,6 +176,29 @@ const isDropShadowDisabled = computed(() => {
 				<n-divider title-placement="left">
 					{{ t('overlays.dudes.dudeDivider') }}
 				</n-divider>
+
+				<n-form-item :label="t('overlays.dudes.dudeDefaultSprite')">
+					<n-select
+						v-model:value="formValue.dudeSettings.defaultSprite"
+						:options="dudesSprites"
+					/>
+				</n-form-item>
+
+				<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
+					<n-slider
+						v-model:value="formValue.dudeSettings.maxOnScreen"
+						:min="0"
+						:max="128"
+						:step="1"
+						:format-tooltip="(value) => {
+							if (value === 0) {
+								return t('overlays.dudes.dudeMaxOnScreenUnlimited');
+							}
+
+							return value;
+						}"
+					/>
+				</n-form-item>
 
 				<n-form-item :label="t('overlays.dudes.dudeColor')">
 					<n-color-picker
