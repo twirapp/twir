@@ -122,7 +122,11 @@ const addable = computed(() => {
 			</div>
 		</div>
 		<div style="width: 30%;">
-			<command-button name="jump" />
+			<div style="display: flex; gap: 8px; flex-wrap: wrap">
+				<command-button title="Jump command" name="jump" />
+				<command-button title="Color command" name="dudes color" />
+				<command-button title="Grow command" name="dudes grow" />
+			</div>
 			<n-tabs
 				v-model:value="openedTab"
 				type="card"
