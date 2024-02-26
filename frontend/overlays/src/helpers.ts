@@ -68,3 +68,11 @@ export function randomEmoji(range: NamedCharRange): string {
 	const codePoint = Math.floor(Math.random() * (max - min) + min);
 	return String.fromCodePoint(codePoint);
 }
+
+export function normalizeDisplayName(displayName: string, userName: string): string {
+	if (displayName.toLowerCase() === userName) {
+		return displayName;
+	}
+
+	return userName;
+}

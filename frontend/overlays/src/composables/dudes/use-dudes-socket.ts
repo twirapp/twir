@@ -14,7 +14,7 @@ import { useDudesSettings } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { generateSocketUrlWithParams } from '@/helpers.js';
+import { generateSocketUrlWithParams, normalizeDisplayName } from '@/helpers.js';
 import type { ChannelData } from '@/types.js';
 
 declare global {
@@ -61,9 +61,11 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 
 		if (parsedData.eventName === 'userSettings') {
 			const data = parsedData.data as DudesUserSettings;
-			dudesSettingsStore.dudesUserSettings.set(data.userId, data);
+			// TODO: fix naming
+			const dudeName = normalizeDisplayName(data.userName, data.userLogin);
+			dudesSettingsStore.dudesUserSettings.set(dudeName, data);
 
-			const dude = dudesStore.createDude(data.userName, data.userId)?.dude;
+			const dude = dudesStore.createDude(dudeName, data.userId)?.dude;
 			if (!dude) return;
 
 			if (data.dudeColor) {
@@ -83,17 +85,21 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 
 		if (parsedData.eventName === 'jump') {
 			const data = parsedData.data as DudesJumpRequest;
-			dudesStore.createDude(data.userDisplayName, data.userColor)?.dude.jump();
+			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
+			dudesStore.createDude(dudeName, data.userColor)?.dude.jump();
 		}
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
-			dudesStore.createDude(data.userName, data.color)?.dude.grow();
+			// TODO: fix naming
+			const dudeName = normalizeDisplayName(data.userName, data.userLogin);
+			dudesStore.createDude(dudeName, data.color)?.dude.grow();
 		}
 
 		if (parsedData.eventName === 'punished') {
 			const data = parsedData.data as DudesUserPunishedRequest;
-			dudes.value.removeDude(data.userDisplayName);
+			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
+			dudes.value.removeDude(dudeName);
 			dudesSettingsStore.dudesUserSettings.delete(data.userId);
 		}
 	});

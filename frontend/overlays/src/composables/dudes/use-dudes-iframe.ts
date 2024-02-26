@@ -21,6 +21,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	const dudesSettingsStore = useDudesSettings();
 
 	async function onPostMessage(msg: MessageEvent<string>) {
+		if (!dudesStore.dudes) return;
+
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
 
 		if (parsedData.action === 'settings' && parsedData.data) {
@@ -29,11 +31,11 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			return;
 		}
 
-		const dude = dudesStore.dudes?.getDude(dudesTwir);
+		const dude = dudesStore.dudes.getDude(dudesTwir);
 		if (!dude) return;
 
 		if (parsedData.action === 'reset') {
-			dudesStore.dudes?.clearDudes();
+			dudesStore.dudes.removeAllDudes();
 			spawnIframeDude();
 		}
 

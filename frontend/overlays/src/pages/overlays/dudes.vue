@@ -14,6 +14,7 @@ import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
 import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
 import { useDudes } from '@/composables/dudes/use-dudes.js';
 import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
+import { normalizeDisplayName } from '@/helpers.js';
 
 const route = useRoute();
 
@@ -46,11 +47,10 @@ function onMessage(chatMessage: ChatMessage): void {
 		return;
 	}
 
-	const displayName = chatMessage.senderDisplayName!;
-	const userId = chatMessage.senderId!;
+	const displayName = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
 	const color = chatMessage.senderColor;
 
-	dudesStore.createDude(displayName, userId, color)
+	dudesStore.createDude(displayName, color)
 		?.showMessage(chatMessage.chunks);
 }
 

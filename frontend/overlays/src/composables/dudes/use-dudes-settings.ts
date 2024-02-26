@@ -1,7 +1,7 @@
 import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { useFontSource } from '@twir/fontsource';
 import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays';
-import type { DudesSettings } from '@twirapp/dudes/types';
+import type { DudesTypes } from '@twirapp/dudes/types';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -14,7 +14,12 @@ export type DudesOverlaySettings = {
 
 export type DudesConfig = {
 	ignore: IgnoreSettings
-	dudes: DudesSettings
+	dudes: {
+		dude: DudesTypes.DudeParams
+		name: DudesTypes.NameBoxParams
+		message: DudesTypes.MessageBoxParams
+		spitter: DudesTypes.EmoteSpitterParams
+	}
 	overlay: DudesOverlaySettings
 }
 
