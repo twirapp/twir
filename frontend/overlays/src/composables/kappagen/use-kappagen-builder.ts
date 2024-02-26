@@ -1,8 +1,8 @@
 import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import type { MessageChunk } from '@twir/frontend-chat';
-import type { Emote } from '@twirapp/kappagen';
+import type { Emote } from '@twirapp/kappagen/types';
 import { storeToRefs } from 'pinia';
-import { type Ref, computed } from 'vue';
+import { computed } from 'vue';
 
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 import { useEmotes } from '@/composables/tmi/use-emotes.js';
@@ -25,14 +25,12 @@ export type Buidler = {
 	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[];
 }
 
-export const useKappagenEmotesBuilder = (
-	emojiStyle: Ref<EmojiStyle | undefined>,
-): Buidler => {
+export const useKappagenEmotesBuilder = (): Buidler => {
 	const emotesStore = useEmotes();
 	const { emotes } = storeToRefs(emotesStore);
 
 	const kappagenSettingsStore = useKappagenSettings();
-	const { settings } = storeToRefs(kappagenSettingsStore);
+	const { overlaySettings } = storeToRefs(kappagenSettingsStore);
 
 	const kappagenEmotes = computed(() => {
 		if (!emotes.value) return [];
@@ -49,7 +47,7 @@ export const useKappagenEmotesBuilder = (
 
 			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
 
-			if (chunk.emoteName && settings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
+			if (chunk.emoteName && overlaySettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
 
 			if (chunk.type === 'emote') {
 				emotes.push({
@@ -69,11 +67,12 @@ export const useKappagenEmotesBuilder = (
 				continue;
 			}
 
-			if (chunk.type === 'emoji' && emojiStyle.value) {
+			const emojiStyle = overlaySettings.value?.emotes?.emojiStyle;
+			if (chunk.type === 'emoji' && emojiStyle) {
 				const code = chunk.value.codePointAt(0)?.toString(16);
 				if (!code) continue;
 				emotes.push({
-					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle.value)}/${code}.png`,
+					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle)}/${code}.png`,
 				});
 			}
 		}
@@ -88,7 +87,7 @@ export const useKappagenEmotesBuilder = (
 		const emotesChunks = chunks.filter(c => c.type !== 'text');
 		if (!emotesChunks.length) {
 			const mappedEmotes = kappagenEmotes.value
-				.filter(v => !settings.value?.excludedEmotes?.includes(v.name))
+				.filter(v => !overlaySettings.value?.excludedEmotes?.includes(v.name))
 				.map(v => ({
 					url: v.urls.at(-1)!,
 					width: v.width,

@@ -1,4 +1,4 @@
-import type { KappagenAnimations } from '@twirapp/kappagen';
+import type { KappagenAnimations } from '@twirapp/kappagen/types';
 
 export const animations: KappagenAnimations[] = [
 	{

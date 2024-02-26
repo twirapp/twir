@@ -1,35 +1,24 @@
-import type { KappagenAnimations } from '@twirapp/kappagen';
+import type { KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types';
 import { useWebSocket } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 
 import { type Buidler } from './use-kappagen-builder.js';
 
-type TriggerKappagenRequestEmote = {
-	id: string,
-	positions: string[]
-};
-
 import type { TwirWebSocketEvent } from '@/api.js';
 import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
 import { useMessageHelpers } from '@/composables/tmi/use-message-helpers.js';
 import { generateSocketUrlWithParams } from '@/helpers.js';
-import type {
-	KappagenSpawnAnimatedEmotesFn,
-	KappagenSpawnEmotesFn,
-	KappagenSettings,
-} from '@/types.js';
+import type { KappagenSettings, KappagenTriggerRequestEmote } from '@/types.js';
 
-type Options = {
-	kappagenCallback: KappagenSpawnAnimatedEmotesFn
-	spawnCallback: KappagenSpawnEmotesFn
+type Options = Omit<KappagenMethods, 'clear'> & {
 	emotesBuilder: Buidler
 }
 
 export const useKappagenOverlaySocket = (options: Options) => {
 	const { makeMessageChunks } = useMessageHelpers();
 	const kappagenSettingsStore = useKappagenSettings();
-	const { settings } = storeToRefs(kappagenSettingsStore);
+	const { overlaySettings } = storeToRefs(kappagenSettingsStore);
 
 	const kappagenUrl = ref('');
 	const { data, send, open, close } = useWebSocket(
@@ -46,9 +35,12 @@ export const useKappagenOverlaySocket = (options: Options) => {
 	);
 
 	function randomAnimation() {
-		if (!settings.value) return;
-		const enabledAnimations = settings.value.animations.filter(a => a.enabled);
-		return enabledAnimations[Math.floor(Math.random() * enabledAnimations.length)];
+		if (!overlaySettings.value) return;
+		const enabledAnimations = overlaySettings.value.animations
+			.filter((animation) => animation.enabled);
+
+		const index = Math.floor(Math.random() * enabledAnimations.length)
+		return enabledAnimations[index] as KappagenAnimations;
 	}
 
 	watch(data, (d: string) => {
@@ -56,24 +48,20 @@ export const useKappagenOverlaySocket = (options: Options) => {
 
 		if (event.eventName === 'settings') {
 			const data = event.data as KappagenSettings;
-			kappagenSettingsStore.setSettings(data);
+			kappagenSettingsStore.updateSettings(data);
 		}
 
 		if (event.eventName === 'event') {
-			if (!settings.value) return;
-
 			const generatedEmotes = options.emotesBuilder.buildKappagenEmotes([]);
 
 			const animation = randomAnimation();
 			if (!animation) return;
 
-			options.kappagenCallback(generatedEmotes, animation as KappagenAnimations);
+			options.playAnimation(generatedEmotes, animation);
 		}
 
 		if (event.eventName === 'kappagen') {
-			if (!settings.value) return;
-
-			const data = event.data as { text: string, emotes?: TriggerKappagenRequestEmote[] };
+			const data = event.data as { text: string, emotes?: KappagenTriggerRequestEmote[] };
 
 			const emotesList: Record<string, string[]> = {};
 			if (data.emotes) {
@@ -94,7 +82,7 @@ export const useKappagenOverlaySocket = (options: Options) => {
 			const animation = randomAnimation();
 			if (!animation) return;
 
-			options.kappagenCallback(emotesForKappagen, animation as KappagenAnimations);
+			options.playAnimation(emotesForKappagen, animation);
 		}
 	});
 

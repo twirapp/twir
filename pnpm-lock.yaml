@@ -392,8 +392,8 @@ importers:
         specifier: 0.6.1
         version: 0.6.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18)
       '@twirapp/kappagen':
-        specifier: 0.0.0
-        version: 0.0.0(vue@3.4.18)
+        specifier: 1.0.0
+        version: 1.0.0(vue@3.4.18)
       '@vueuse/core':
         specifier: 10.7.2
         version: 10.7.2(vue@3.4.18)
@@ -2256,7 +2256,6 @@ packages:
 
   /@pixi/gif@2.1.0(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0):
     resolution: {integrity: sha512-g0xVMgHzPdq7bX3UmUR5tiFpMP07u4reCEgSRKLwNQ95AnpRzQq3QtTsKosYMTrE9zZfr7TWlwdx1rFKs28SeA==}
-    engines: {node: '>=16', npm: '>=8', yarn: please-use-npm}
     peerDependencies:
       '@pixi/assets': ^7.0.0
       '@pixi/core': ^7.0.0
@@ -2985,8 +2984,8 @@ packages:
       - '@pixi/sprite'
     dev: false
 
-  /@twirapp/kappagen@0.0.0(vue@3.4.18):
-    resolution: {integrity: sha512-0cjacOb6PaY2YakQBZEExICNsb9C4WMTQk/3fWDrmfEVoDuwrxuRvwtzsd+/s0/+KxQUnBu6elmRhso8VPugZw==}
+  /@twirapp/kappagen@1.0.0(vue@3.4.18):
+    resolution: {integrity: sha512-z3Sft0L8rzGzOlGRbqxJl8FpMG8qNNYDdkyqTb4bCnmZii1taf4mXQvbaL5Hfxu1EC3yx3FA1/Ttka4krz/z9w==}
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:

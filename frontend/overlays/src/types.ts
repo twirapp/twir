@@ -1,6 +1,5 @@
 import type { Settings as BrbOverlaySettings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import type { Settings as KappagenOverlaySettings } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import type { Emote, KappagenAnimations } from '@twirapp/kappagen';
 
 // emotes start
 export type SevenTvEmote = {
@@ -81,12 +80,11 @@ export type BrbOnStopFn = () => void;
 
 // kappagen start
 export type KappagenSettings = KappagenOverlaySettings & { channelName: string; channelId: string };
-export type KappagenSpawnAnimatedEmotesFn = (
-	emotes: Emote[],
-	animation: KappagenAnimations
-) => void;
-export type KappagenSpawnEmotesFn = (emotes: Emote[]) => void;
-export type KappagenSetSettingsFn = (settings: KappagenSettings) => void;
+export type KappagenTriggerRequestEmote = {
+	id: string,
+	positions: string[]
+};
+
 // kappagen end
 
 // dudes start
