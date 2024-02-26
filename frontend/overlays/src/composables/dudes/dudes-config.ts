@@ -1,5 +1,5 @@
 import { DudesSprite } from '@twir/types/overlays';
-import type { SoundAsset, DudeAsset, AssetsLoadOptions } from '@twirapp/dudes/types';
+import type { SoundAsset, DudesAsset, AssetsLoadOptions } from '@twirapp/dudes/types';
 
 export const dudesTwir = 'Twir';
 export const dudesSprites = Object.keys(DudesSprite)
@@ -16,7 +16,7 @@ export const assetsLoadOptions: AssetsLoadOptions = {
   },
 };
 
-export const dudesAssets: DudeAsset[] = [
+export const dudesAssets: DudesAsset[] = [
   {
     alias: 'dude',
     src: 'dude/dude.json',

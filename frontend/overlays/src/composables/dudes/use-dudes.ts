@@ -1,6 +1,6 @@
 import type { MessageChunk } from '@twir/frontend-chat';
 import { DudesSprite } from '@twir/types/overlays';
-import type { DudesOverlayMethods, Dude } from '@twirapp/dudes/types';
+import type { DudesMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
@@ -13,7 +13,7 @@ export const useDudes = defineStore('dudes', () => {
 	const dudesSettingsStore = useDudesSettings();
 	const { dudesSettings } = storeToRefs(dudesSettingsStore);
 
-	const dudes = ref<DudesOverlayMethods | null>(null);
+	const dudes = ref<DudesMethods | null>(null);
 	const isDudeReady = ref(false);
 	const isDudeOverlayReady = computed(() => {
 		return dudes.value && dudesSettings.value && isDudeReady.value;
@@ -33,14 +33,10 @@ export const useDudes = defineStore('dudes', () => {
 		};
 	}
 
-	function createDude(
-		displayName: string,
-		userId: string,
-		color?: string,
-	) {
+	function createDude(name: string, color?: string) {
 		if (!dudes.value || !dudesSettings.value) return;
 
-		const dudeFromCanvas = dudes.value.dudes.get(displayName) as Dude;
+		const dudeFromCanvas = dudes.value.dudes.get(name) as Dude;
 		if (dudeFromCanvas) {
 			return createDudeInstance(dudeFromCanvas);
 		}
@@ -50,7 +46,7 @@ export const useDudes = defineStore('dudes', () => {
 			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
 		) return;
 
-		const userSettings = getDudeUserSettings(userId);
+		const userSettings = getDudeUserSettings(name);
 		const dudeColor = userSettings?.dudeColor
 			?? color
 			?? dudesSettings.value.dudes.dude.color;
@@ -60,7 +56,7 @@ export const useDudes = defineStore('dudes', () => {
 			dudeSprite = getRandomSprite();
 		}
 
-		const dude = dudes.value.createDude(displayName, dudeSprite);
+		const dude = dudes.value.createDude(name, dudeSprite);
 		dude.bodyTint(dudeColor);
 
 		if (dudeSprite === DudesSprite.sith) {
@@ -106,15 +102,10 @@ export const useDudes = defineStore('dudes', () => {
 		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`;
 	}
 
-	function deleteDude(displayName: string): void {
-		if (!dudes.value) return;
-		dudes.value.removeDude(displayName);
-	}
-
-	function getDudeUserSettings(userId: string) {
-		const userSettings = dudesSettingsStore.dudesUserSettings.get(userId);
+	function getDudeUserSettings(name: string) {
+		const userSettings = dudesSettingsStore.dudesUserSettings.get(name);
 		if (userSettings) return userSettings;
-		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }));
+		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: name }));
 	}
 
 	watch(() => dudes.value, async (dudes) => {
@@ -125,7 +116,6 @@ export const useDudes = defineStore('dudes', () => {
 
 	return {
 		dudes,
-		deleteDude,
 		createDude,
 		showMessageDude,
 		getProxiedEmoteUrl,
