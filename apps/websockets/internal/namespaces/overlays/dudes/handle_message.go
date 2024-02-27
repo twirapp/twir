@@ -103,11 +103,11 @@ func (c *Dudes) SendUserSettings(
 		channelId,
 		"userSettings",
 		&overlays.DudesUserSettings{
-			DudeColor:  entity.DudeColor,
-			DudeSprite: sprite,
-			UserID:     user.ID,
-			UserName:   user.DisplayName,
-			UserLogin:  user.Login,
+			DudeColor:       entity.DudeColor,
+			DudeSprite:      sprite,
+			UserID:          user.ID,
+			UserDisplayName: user.DisplayName,
+			UserName:        user.Login,
 		},
 	)
 

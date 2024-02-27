@@ -42,11 +42,11 @@ var Grow = &types.DefaultCommand{
 
 		err := parseCtx.Services.Bus.WebsocketsDudesGrow.Publish(
 			websockets.DudesGrowRequest{
-				ChannelID: parseCtx.Channel.ID,
-				UserID:    parseCtx.Sender.ID,
-				UserName:  parseCtx.Sender.DisplayName,
-				UserLogin: parseCtx.Sender.Name,
-				Color:     color,
+				ChannelID:       parseCtx.Channel.ID,
+				UserID:          parseCtx.Sender.ID,
+				UserDisplayName: parseCtx.Sender.DisplayName,
+				UserName:        parseCtx.Sender.Name,
+				Color:           color,
 			},
 		)
 		if err != nil {

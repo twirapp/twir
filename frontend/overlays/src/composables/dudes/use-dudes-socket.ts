@@ -61,8 +61,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 
 		if (parsedData.eventName === 'userSettings') {
 			const data = parsedData.data as DudesUserSettings;
-			// TODO: fix naming
-			const dudeName = normalizeDisplayName(data.userName, data.userLogin);
+			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			dudesSettingsStore.dudesUserSettings.set(dudeName, data);
 
 			const dude = dudesStore.createDude(dudeName, data.userId)?.dude;
@@ -91,8 +90,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
-			// TODO: fix naming
-			const dudeName = normalizeDisplayName(data.userName, data.userLogin);
+			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			dudesStore.createDude(dudeName, data.color)?.dude.grow();
 		}
 

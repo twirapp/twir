@@ -9,11 +9,11 @@ type DudesGrowRequest struct {
 }
 
 type DudesUserSettings struct {
-	DudeColor  *string      `json:"dudeColor"`
-	DudeSprite *DudesSprite `json:"dudeSprite"`
-	UserID     string       `json:"userId"`
-	UserName   string       `json:"userName"`
-	UserLogin  string       `json:"userLogin"`
+	DudeColor       *string      `json:"dudeColor"`
+	DudeSprite      *DudesSprite `json:"dudeSprite"`
+	UserID          string       `json:"userId"`
+	UserDisplayName string       `json:"userDisplayName"`
+	UserName        string       `json:"userName"`
 }
 
 type DudesSprite string
