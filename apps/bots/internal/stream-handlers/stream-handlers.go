@@ -35,8 +35,8 @@ func New(opts Opts) {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				service.bus.StreamOnline.Subscribe(service.streamsOnline)
-				service.bus.StreamOffline.Subscribe(service.streamsOffline)
+				service.bus.StreamOnline.SubscribeGroup("bots", service.streamsOnline)
+				service.bus.StreamOffline.SubscribeGroup("bots", service.streamsOffline)
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
