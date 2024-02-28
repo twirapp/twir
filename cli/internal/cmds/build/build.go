@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/pterm/pterm"
+	"github.com/twirapp/twir/cli/internal/goapp"
 	"github.com/twirapp/twir/cli/internal/shell"
 	"github.com/urfave/cli/v2"
 )
@@ -51,6 +52,19 @@ func build(cmd string) error {
 	if err != nil {
 		pterm.Fatal.Println(err)
 		return err
+	}
+
+	for _, app := range goapp.Apps {
+		pterm.Info.Printfln("Building %s", app.Name)
+
+		a, err := goapp.NewApplication(app.Name)
+		if err != nil {
+			pterm.Fatal.Println(err)
+		}
+
+		if err := a.Build(); err != nil {
+			pterm.Fatal.Println(err)
+		}
 	}
 
 	if time.Since(startTime).Milliseconds() < 1000 {
