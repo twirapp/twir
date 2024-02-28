@@ -12,10 +12,10 @@ replace (
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/api => ../../libs/api
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
-	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 )
 
 require (
@@ -31,7 +31,6 @@ require (
 	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.65
-	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/redis/go-redis/v9 v9.4.0
@@ -39,7 +38,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/crypto v0.0.0-20231203205548-e635accc6b72
-	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/pubsub v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
@@ -48,6 +47,7 @@ require (
 	github.com/satont/twir/libs/utils v0.0.0-20231203205548-e635accc6b72
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/twir/libs/api v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	github.com/twitchtv/twirp v8.1.3+incompatible
@@ -85,6 +85,7 @@ require (
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/nats-io/nats.go v1.33.1 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect

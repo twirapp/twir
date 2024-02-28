@@ -9,28 +9,28 @@ replace (
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/api => ../../libs/api
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/twitch => ../../libs/twitch
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
-	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 )
 
 require (
 	github.com/go-redsync/redsync/v4 v4.11.0
 	github.com/goccy/go-json v0.10.2
-	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/olahol/melody v1.1.4
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-20240129045902-98120ce2e77b
 	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/api v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.uber.org/fx v1.20.1
@@ -68,6 +68,7 @@ require (
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/nats-io/nats.go v1.33.1 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

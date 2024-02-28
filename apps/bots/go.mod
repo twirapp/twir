@@ -1,6 +1,8 @@
 module github.com/satont/twir/apps/bots
 
-go 1.21
+go 1.21.5
+
+toolchain go1.22.0
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
@@ -8,19 +10,18 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
-	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/prometheus/client_golang v1.18.0
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/gomodels v0.0.0-20240126231400-72985ccc25a5
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/logger v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/pubsub v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/sentry v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/twitch v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/types v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/utils v0.0.0-20240126231400-72985ccc25a5
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.opentelemetry.io/otel v1.23.1
@@ -62,6 +63,7 @@ require (
 	github.com/klauspost/compress v1.17.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
+	github.com/nats-io/nats.go v1.33.1 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
@@ -93,6 +95,7 @@ require (
 )
 
 replace (
+	github.com/nicklaw5/helix/v2 => ../../libs/helix
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/logger => ../../libs/logger
@@ -100,8 +103,7 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
-	github.com/nicklaw5/helix/v2 => ../../libs/helix
-	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 )

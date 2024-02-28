@@ -5,7 +5,6 @@ go 1.21.5
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
@@ -26,7 +25,6 @@ require (
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/logger v0.0.0-20240208100157-ecbe2d7afcfd
-	github.com/satont/twir/libs/pubsub v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/sentry v0.0.0-20240208100157-ecbe2d7afcfd
 	github.com/satont/twir/libs/twitch v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/types v0.0.0-20240126231400-72985ccc25a5

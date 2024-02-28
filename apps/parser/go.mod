@@ -19,13 +19,13 @@ require (
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/gomodels v0.0.0-20240208154120-fc098a9e20a2
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/satori/go.uuid v1.2.0
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/tidwall/gjson v1.17.0
-	github.com/twirapp/twir/libs/bus-core v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/integrations v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/uptrace v0.0.0-20240225000519-a8b08004c468

@@ -7,7 +7,6 @@ import (
 	"github.com/satont/twir/apps/scheduler/internal/timers"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/pubsub"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
@@ -37,9 +36,6 @@ var App = fx.Module(
 			return clients.NewEmotesCacher(c.AppEnv)
 		},
 		gorm.New,
-		func(c config.Config) (*pubsub.PubSub, error) {
-			return pubsub.NewPubSub(c.RedisUrl)
-		},
 		services.NewRoles,
 		services.NewCommands,
 		buscore.NewNatsBusFx(service),

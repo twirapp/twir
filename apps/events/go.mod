@@ -21,7 +21,7 @@ require (
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
+	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/twitch v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/types v0.0.0-20231203205548-e635accc6b72
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
