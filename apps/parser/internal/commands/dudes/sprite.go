@@ -81,7 +81,7 @@ var Sprite = &types.DefaultCommand{
 			return nil, err
 		}
 
-		err := parseCtx.Services.Bus.WebsocketsDudesUserSettings.Publish(
+		err := parseCtx.Services.Bus.Websocket.DudesUserSettings.Publish(
 			websockets.DudesChangeUserSettingsRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,
