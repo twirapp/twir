@@ -46,7 +46,7 @@ var Grow = &types.DefaultCommand{
 				UserID:          parseCtx.Sender.ID,
 				UserDisplayName: parseCtx.Sender.DisplayName,
 				UserName:        parseCtx.Sender.Name,
-				Color:           color,
+				UserColor:       color,
 			},
 		)
 		if err != nil {

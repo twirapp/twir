@@ -9,7 +9,7 @@ import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
 
-import { getRandomSprite } from './dudes-config.js';
+import { getSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
@@ -64,7 +64,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			dudesSettingsStore.dudesUserSettings.set(dudeName, data);
 
-			const dude = dudesStore.createDude(dudeName, data.userId)?.dude;
+			const dude = dudesStore.createDude(dudeName, data.userId, data.dudeColor)?.dude;
 			if (!dude) return;
 
 			if (data.dudeColor) {
@@ -72,12 +72,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			}
 
 			if (data.dudeSprite) {
-				if (data.dudeSprite === DudesSprite.random) {
-					dude.spriteName = getRandomSprite();
-				} else {
-					dude.spriteName = data.dudeSprite;
-				}
-
+				dude.spriteName = getSprite(data.dudeSprite);
 				dude.playAnimation('Run', true);
 			}
 		}
@@ -85,13 +80,13 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		if (parsedData.eventName === 'jump') {
 			const data = parsedData.data as DudesJumpRequest;
 			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.userColor)?.dude.jump();
+			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.jump();
 		}
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
 			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.color)?.dude.grow();
+			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.grow();
 		}
 
 		if (parsedData.eventName === 'punished') {

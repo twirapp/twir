@@ -1,8 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import { DudesSprite } from '@twir/types/overlays';
 import { defineStore } from 'pinia';
 
-import { dudesTwir } from './dudes-config.js';
+import { dudesTwir, getSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 import { useDudesSocket } from './use-dudes-socket.js';
 import { useDudes } from './use-dudes.js';
@@ -25,14 +24,16 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
 
+		const dude = dudesStore.dudes.getDude(dudesTwir);
+		if (!dude) return;
+
 		if (parsedData.action === 'settings' && parsedData.data) {
 			const settings = parsedData.data as Required<Settings>;
 			dudesSocketStore.updateSettingFromSocket(settings);
+			dude.spriteName = getSprite(settings.dudeSettings.defaultSprite);
+			dude.playAnimation('Run', true);
 			return;
 		}
-
-		const dude = dudesStore.dudes.getDude(dudesTwir);
-		if (!dude) return;
 
 		if (parsedData.action === 'reset') {
 			dudesStore.dudes.removeAllDudes();
@@ -61,16 +62,22 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	}
 
 	function spawnIframeDude() {
-		if (!dudesStore.dudes || dudesStore.dudes.getDude(dudesTwir)) return;
+		if (
+			!dudesStore.dudes ||
+			!dudesSettingsStore.dudesSettings ||
+			!dudesSettingsStore.channelData ||
+			dudesStore.dudes.getDude(dudesTwir)
+		) return;
 
 		const emote = dudesStore.getProxiedEmoteUrl({
 			type: '3rd_party_emote',
 			value: 'https://cdn.7tv.app/emote/65413498dc0468e8c1fbcdc6/1x.gif',
 		});
 
-		const dude = dudesStore.dudes.createDude(dudesTwir, DudesSprite.dude);
+		const dudeSprite = getSprite(dudesSettingsStore.dudesSettings.overlay.defaultSprite);
+		const dude = dudesStore.dudes.createDude(dudesTwir, dudeSprite);
 		dude.bodyTint('#8a2be2');
-		dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
+		dude.addMessage(`Hello, ${dudesSettingsStore.channelData.channelDisplayName}! ${randomEmoji('emoticons')}`);
 		dude.spitEmotes([emote]);
 	}
 

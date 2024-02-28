@@ -5,8 +5,11 @@ export const dudesTwir = 'Twir';
 export const dudesSprites = Object.keys(DudesSprite)
 	.filter(sprite => sprite !== 'random') as (keyof typeof DudesSprite)[];
 
-export function getRandomSprite() {
-	return dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
+export function getSprite(sprite?: string) {
+	if (!sprite || sprite === 'random') {
+		return dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
+	}
+	return sprite;
 }
 
 export const assetsLoadOptions: AssetsLoadOptions = {

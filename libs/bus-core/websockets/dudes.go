@@ -5,7 +5,7 @@ type DudesGrowRequest struct {
 	UserID          string `json:"userId"`
 	UserDisplayName string `json:"userDisplayName"`
 	UserName        string `json:"userName"`
-	Color           string `json:"color"`
+	UserColor       string `json:"userColor"`
 }
 
 type DudesChangeUserSettingsRequest struct {

@@ -4,7 +4,7 @@ import type { DudesMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-import { getRandomSprite } from './dudes-config.js';
+import { getSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 
 import { randomRgbColor } from '@/helpers.js';
@@ -33,7 +33,7 @@ export const useDudes = defineStore('dudes', () => {
 		};
 	}
 
-	function createDude(name: string, color?: string) {
+	function createDude(name: string, userId: string, color?: string) {
 		if (!dudes.value || !dudesSettings.value) return;
 
 		const dudeFromCanvas = dudes.value.dudes.get(name) as Dude;
@@ -46,16 +46,12 @@ export const useDudes = defineStore('dudes', () => {
 			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
 		) return;
 
-		const userSettings = getDudeUserSettings(name);
+		const userSettings = getDudeUserSettings(userId);
 		const dudeColor = userSettings?.dudeColor
 			?? color
 			?? dudesSettings.value.dudes.dude.color;
 
-		let dudeSprite = (userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite) as keyof typeof DudesSprite;
-		if (dudeSprite === DudesSprite.random) {
-			dudeSprite = getRandomSprite();
-		}
-
+		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
 		const dude = dudes.value.createDude(name, dudeSprite);
 		dude.bodyTint(dudeColor);
 
@@ -102,10 +98,10 @@ export const useDudes = defineStore('dudes', () => {
 		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`;
 	}
 
-	function getDudeUserSettings(name: string) {
-		const userSettings = dudesSettingsStore.dudesUserSettings.get(name);
+	function getDudeUserSettings(userId: string) {
+		const userSettings = dudesSettingsStore.dudesUserSettings.get(userId);
 		if (userSettings) return userSettings;
-		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: name }));
+		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }));
 	}
 
 	watch(() => dudes.value, async (dudes) => {

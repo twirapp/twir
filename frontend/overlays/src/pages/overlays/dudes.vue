@@ -48,9 +48,9 @@ function onMessage(chatMessage: ChatMessage): void {
 	}
 
 	const displayName = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
-	const color = chatMessage.senderColor;
 
-	dudesStore.createDude(displayName, color)
+	dudesStore
+		.createDude(displayName, chatMessage.senderId!, chatMessage.senderColor)
 		?.showMessage(chatMessage.chunks);
 }
 
