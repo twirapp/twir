@@ -1,4 +1,4 @@
-package pubsub
+package twitch
 
 type StreamUpdateMessage struct {
 	ChannelID string `json:"channelId"`
@@ -13,13 +13,4 @@ type StreamOnlineMessage struct {
 
 type StreamOfflineMessage struct {
 	ChannelID string `json:"channelId"`
-}
-
-type UserUpdateMessage struct {
-	UserID        string `json:"user_id"`
-	UserLogin     string `json:"user_login"`
-	UserName      string `json:"user_name"`
-	Email         string `json:"email"`
-	EmailVerified bool   `json:"email_verified"`
-	Description   string `json:"description"`
 }

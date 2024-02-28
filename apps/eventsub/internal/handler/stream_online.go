@@ -2,15 +2,14 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/pubsub"
 	"github.com/satont/twir/libs/twitch"
+	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"go.uber.org/zap"
 )
@@ -105,16 +104,10 @@ func (c *Handler) handleStreamOnline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	bytes, err := json.Marshal(
-		&pubsub.StreamOnlineMessage{
+	c.bus.StreamOnline.Publish(
+		bustwitch.StreamOnlineMessage{
 			ChannelID: event.BroadcasterUserID,
 			StreamID:  event.ID,
 		},
 	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-		return
-	}
-
-	c.pubSub.Client.Publish("stream.online", bytes)
 }

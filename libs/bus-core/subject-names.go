@@ -7,4 +7,6 @@ const (
 	PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT = "parser.process_message_as_command"
 	WEBSOCKETS_DUDES_GROW_SUBJECT             = "websockets.dudes.grow"
 	WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT     = "websockets.dudes.change_color"
+	STREAM_ONLINE_SUBJECT                     = "stream.online"
+	STREAM_OFFLINE_SUBJECT                    = "stream.offline"
 )

@@ -2,12 +2,11 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/pubsub"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 )
 
@@ -31,16 +30,6 @@ func (c *Handler) handleStreamOffline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	bytes, err := json.Marshal(
-		&pubsub.StreamOfflineMessage{
-			ChannelID: event.BroadcasterUserID,
-		},
-	)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-		return
-	}
-
 	err = c.gorm.Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
@@ -49,5 +38,5 @@ func (c *Handler) handleStreamOffline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	c.pubSub.Client.Publish("stream.offline", bytes)
+	c.bus.StreamOffline.Publish(twitch.StreamOfflineMessage{ChannelID: event.BroadcasterUserID})
 }

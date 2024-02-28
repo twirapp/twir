@@ -9,13 +9,11 @@ import (
 	"github.com/satont/twir/apps/bots/internal/grpc"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
-	"github.com/satont/twir/apps/bots/internal/pubsub_handlers"
-	"github.com/satont/twir/apps/bots/internal/queuelistener"
+	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/pubsub"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
@@ -37,9 +35,6 @@ var App = fx.Module(
 		gorm.New,
 		uptrace.NewFx("bots"),
 		buscore.NewNatsBusFx("bots"),
-		func(config cfg.Config) (*pubsub.PubSub, error) {
-			return pubsub.NewPubSub(config.RedisUrl)
-		},
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
 		},
@@ -63,18 +58,16 @@ var App = fx.Module(
 		twitchactions.New,
 		moderationhelpers.New,
 		messagehandler.New,
-		queuelistener.New,
 	),
 	fx.Invoke(
 		uptrace.NewFx("bots"),
-		queuelistener.New,
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
 				http.Handle("/metrics", promhttp.Handler())
 				go http.ListenAndServe("0.0.0.0:3000", nil)
 			}
 		},
-		pubsub_handlers.New,
+		stream_handlers.New,
 		grpc.New,
 		func(l logger.Logger) {
 			l.Info("Bots started")

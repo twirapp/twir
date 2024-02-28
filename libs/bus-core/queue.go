@@ -16,16 +16,14 @@ type QueueSubscribeCallback[Req, Res any] func(ctx context.Context, data Req) Re
 type Queue[Req, Res any] interface {
 	Publish(data Req) error
 	Request(ctx context.Context, data Req) (*QueueResponse[Res], error)
-	SubscribeGroup(data QueueSubscribeCallback[Req, Res]) error
+	SubscribeGroup(queueGroup string, data QueueSubscribeCallback[Req, Res]) error
 	Subscribe(data QueueSubscribeCallback[Req, Res]) error
 	Unsubscribe()
 }
 
 type NatsQueue[Req, Res any] struct {
-	nc      *nats.EncodedConn
-	subject string
-	// queue name
-	serviceName  string
+	nc           *nats.EncodedConn
+	subject      string
 	timeout      time.Duration
 	subscription *nats.Subscription
 }
@@ -33,15 +31,13 @@ type NatsQueue[Req, Res any] struct {
 func NewNatsQueue[Req, Res any](
 	nc *nats.Conn,
 	subject string,
-	serviceName string,
 	timeout time.Duration,
 ) *NatsQueue[Req, Res] {
 	newNc, _ := nats.NewEncodedConn(nc, nats.GOB_ENCODER)
 	return &NatsQueue[Req, Res]{
-		nc:          newNc,
-		subject:     subject,
-		serviceName: serviceName,
-		timeout:     timeout,
+		nc:      newNc,
+		subject: subject,
+		timeout: timeout,
 	}
 }
 
@@ -59,11 +55,12 @@ func (c *NatsQueue[Req, Res]) Request(ctx context.Context, req Req) (*QueueRespo
 }
 
 func (c *NatsQueue[Req, Res]) SubscribeGroup(
+	queueGroup string,
 	cb QueueSubscribeCallback[Req, Res],
 ) error {
 	sub, err := c.nc.QueueSubscribe(
 		c.subject,
-		c.serviceName,
+		queueGroup,
 		func(subject, reply string, data *Req) {
 			ctx, _ := context.WithTimeout(context.Background(), c.timeout)
 			response := cb(ctx, *data)

@@ -9,7 +9,6 @@ import (
 	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
-	"github.com/satont/twir/apps/eventsub/internal/pubsub"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -30,7 +29,6 @@ type Handler struct {
 
 	logger      logger.Logger
 	config      cfg.Config
-	pubSub      *pubsub.PubSub
 	gorm        *gorm.DB
 	redisClient *redis.Client
 
@@ -51,7 +49,6 @@ type Opts struct {
 	Tunn    *tunnel.AppTunnel
 	Manager *manager.Manager
 	Logger  logger.Logger
-	PubSub  *pubsub.PubSub
 	Gorm    *gorm.DB
 	Redis   *redis.Client
 
@@ -72,7 +69,6 @@ func New(opts Opts) *Handler {
 		manager:        opts.Manager,
 		logger:         opts.Logger,
 		config:         opts.Config,
-		pubSub:         opts.PubSub,
 		gorm:           opts.Gorm,
 		redisClient:    opts.Redis,
 		eventsGrpc:     opts.EventsGrpc,

@@ -2,14 +2,12 @@ package handler
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"time"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/pubsub"
 	"github.com/twirapp/twir/libs/grpc/events"
 )
 
@@ -24,27 +22,16 @@ func (c *Handler) handleChannelUpdate(
 		slog.String("channelName", event.BroadcasterUserLogin),
 	)
 
-	pbMessage := pubsub.StreamUpdateMessage{
-		ChannelID: event.BroadcasterUserID,
-		Title:     event.Title,
-		Category:  event.CategoryName,
-	}
-	bytes, err := json.Marshal(pbMessage)
-	if err != nil {
-		c.logger.Error(err.Error(), slog.Any("err", err))
-		return
-	}
-	c.pubSub.Client.Publish("stream.update", bytes)
-
 	c.eventsGrpc.TitleOrCategoryChanged(
-		context.Background(), &events.TitleOrCategoryChangedMessage{
+		context.Background(),
+		&events.TitleOrCategoryChangedMessage{
 			BaseInfo:    &events.BaseInfo{ChannelId: event.BroadcasterUserID},
 			NewTitle:    event.Title,
 			NewCategory: event.CategoryName,
 		},
 	)
 
-	err = c.gorm.Create(
+	err := c.gorm.Create(
 		&model.ChannelInfoHistory{
 			ID:        uuid.New().String(),
 			Category:  event.CategoryName,

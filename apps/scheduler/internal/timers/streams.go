@@ -2,7 +2,6 @@ package timers
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -10,7 +9,8 @@ import (
 
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/pubsub"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -30,16 +30,16 @@ type StreamOpts struct {
 	Logger logger.Logger
 
 	Gorm       *gorm.DB
-	PubSub     *pubsub.PubSub
 	TokensGrpc tokens.TokensClient
+	Bus        *buscore.Bus
 }
 
 type streams struct {
 	config     config.Config
 	logger     logger.Logger
 	gorm       *gorm.DB
-	pubSub     *pubsub.PubSub
 	tokensGrpc tokens.TokensClient
+	bus        *buscore.Bus
 }
 
 func NewStreams(opts StreamOpts) {
@@ -52,8 +52,8 @@ func NewStreams(opts StreamOpts) {
 		config:     opts.Config,
 		logger:     opts.Logger,
 		gorm:       opts.Gorm,
-		pubSub:     opts.PubSub,
 		tokensGrpc: opts.TokensGrpc,
+		bus:        opts.Bus,
 	}
 
 	opts.Lc.Append(
@@ -233,18 +233,12 @@ func (c *streams) processStreams(ctx context.Context) error {
 						return
 					}
 
-					bytes, err := json.Marshal(
-						&streamOnlineMessage{
-							StreamID:  channelStream.ID,
+					c.bus.StreamOnline.Publish(
+						bustwitch.StreamOnlineMessage{
 							ChannelID: channelStream.UserId,
+							StreamID:  channelStream.ID,
 						},
 					)
-					if err != nil {
-						c.logger.Error("cannot marshal stream online message", slog.Any("err", err))
-						return
-					}
-
-					c.pubSub.Publish("stream.online", bytes)
 				}
 
 				if !twitchStreamExists && dbStreamExists {
@@ -258,17 +252,12 @@ func (c *streams) processStreams(ctx context.Context) error {
 						return
 					}
 
-					bytes, err := json.Marshal(
-						&streamOfflineMessage{
-							ChannelID: channelStream.UserId,
+					c.bus.StreamOffline.Publish(
+						bustwitch.StreamOfflineMessage{
+							ChannelID: channelStream.
+								UserId,
 						},
 					)
-					if err != nil {
-						c.logger.Error("cannot marshal stream offline message", slog.Any("err", err))
-						return
-					}
-
-					c.pubSub.Publish("stream.offline", bytes)
 				}
 			}
 		}(chunk)

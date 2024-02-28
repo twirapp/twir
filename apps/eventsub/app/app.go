@@ -7,7 +7,6 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/grpc"
 	"github.com/satont/twir/apps/eventsub/internal/handler"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
-	"github.com/satont/twir/apps/eventsub/internal/pubsub"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -72,7 +71,6 @@ var App = fx.Options(
 			return redisClient, nil
 		},
 		buscore.NewNatsBusFx("eventsub"),
-		pubsub.New,
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,

@@ -36,6 +36,7 @@ func New(opts Opts) *BusListener {
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
 				if err := listener.bus.WebsocketsDudesUserSettings.SubscribeGroup(
+					"websockets",
 					func(ctx context.Context, data websockets.DudesChangeUserSettingsRequest) struct{} {
 						listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
 
@@ -45,6 +46,7 @@ func New(opts Opts) *BusListener {
 					return err
 				}
 				if err := listener.bus.WebsocketsDudesGrow.SubscribeGroup(
+					"websockets",
 					func(ctx context.Context, data websockets.DudesGrowRequest) struct{} {
 						listener.dudes.SendEvent(data.ChannelID, "grow", data)
 

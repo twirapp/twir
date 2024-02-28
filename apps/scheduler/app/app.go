@@ -9,6 +9,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/pubsub"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -41,6 +42,7 @@ var App = fx.Module(
 		},
 		services.NewRoles,
 		services.NewCommands,
+		buscore.NewNatsBusFx(service),
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),
