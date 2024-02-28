@@ -104,7 +104,7 @@ func (c *Handler) handleStreamOnline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	c.bus.StreamOnline.Publish(
+	c.bus.Channel.StreamOnline.Publish(
 		bustwitch.StreamOnlineMessage{
 			ChannelID: event.BroadcasterUserID,
 			StreamID:  event.ID,

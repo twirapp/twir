@@ -70,7 +70,7 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	text := msgText.String()
 	msg.Message.Text = text
 
-	_, err = c.bus.ParserProcessMessageAsCommand.Request(ctx, msg.TwitchChatMessage)
+	_, err = c.bus.Parser.ProcessMessageAsCommand.Request(ctx, msg.TwitchChatMessage)
 	if err != nil {
 		return err
 	}

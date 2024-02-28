@@ -40,7 +40,7 @@ var Grow = &types.DefaultCommand{
 			color = parseCtx.Sender.Color
 		}
 
-		err := parseCtx.Services.Bus.WebsocketsDudesGrow.Publish(
+		err := parseCtx.Services.Bus.Websocket.DudesGrow.Publish(
 			websockets.DudesGrowRequest{
 				ChannelID:       parseCtx.Channel.ID,
 				UserID:          parseCtx.Sender.ID,

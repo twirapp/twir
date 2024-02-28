@@ -10,39 +10,51 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
 
-type Bus struct {
-	ParserGetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]
-	ParserProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
-	ParserParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
+type parserBus struct {
+	GetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]
+	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
+	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
+}
 
-	BotsMessages Queue[twitch.TwitchChatMessage, struct{}]
+type websocketBus struct {
+	DudesGrow         Queue[websockets.DudesGrowRequest, struct{}]
+	DudesUserSettings Queue[websockets.DudesChangeUserSettingsRequest, struct{}]
+}
 
-	WebsocketsDudesGrow         Queue[websockets.DudesGrowRequest, struct{}]
-	WebsocketsDudesUserSettings Queue[websockets.DudesChangeUserSettingsRequest, struct{}]
-
+type channelBus struct {
 	StreamOnline  Queue[twitch.StreamOnlineMessage, struct{}]
 	StreamOffline Queue[twitch.StreamOfflineMessage, struct{}]
 }
 
+type Bus struct {
+	Parser    *parserBus
+	Websocket *websocketBus
+	Channel   *channelBus
+
+	BotsMessages Queue[twitch.TwitchChatMessage, struct{}]
+}
+
 func NewNatsBus(nc *nats.Conn) *Bus {
 	return &Bus{
-		ParserGetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
-			nc,
-			PARSER_COMMANDS_SUBJECT,
-			30*time.Minute,
-		),
+		Parser: &parserBus{
+			GetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
+				nc,
+				PARSER_COMMANDS_SUBJECT,
+				30*time.Minute,
+			),
 
-		ParserParseVariablesInText: NewNatsQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse](
-			nc,
-			PARSER_TEXT_VARIABLES_SUBJECT,
-			1*time.Minute,
-		),
+			ParseVariablesInText: NewNatsQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse](
+				nc,
+				PARSER_TEXT_VARIABLES_SUBJECT,
+				1*time.Minute,
+			),
 
-		ParserProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
-			nc,
-			PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
-			30*time.Minute,
-		),
+			ProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+				nc,
+				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
+				30*time.Minute,
+			),
+		},
 
 		BotsMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 			nc,
@@ -50,28 +62,32 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			30*time.Minute,
 		),
 
-		WebsocketsDudesGrow: NewNatsQueue[websockets.DudesGrowRequest, struct{}](
-			nc,
-			WEBSOCKETS_DUDES_GROW_SUBJECT,
-			1*time.Minute,
-		),
+		Websocket: &websocketBus{
+			DudesGrow: NewNatsQueue[websockets.DudesGrowRequest, struct{}](
+				nc,
+				WEBSOCKETS_DUDES_GROW_SUBJECT,
+				1*time.Minute,
+			),
 
-		WebsocketsDudesUserSettings: NewNatsQueue[websockets.DudesChangeUserSettingsRequest, struct{}](
-			nc,
-			WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT,
-			1*time.Minute,
-		),
+			DudesUserSettings: NewNatsQueue[websockets.DudesChangeUserSettingsRequest, struct{}](
+				nc,
+				WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT,
+				1*time.Minute,
+			),
+		},
 
-		StreamOnline: NewNatsQueue[twitch.StreamOnlineMessage, struct{}](
-			nc,
-			STREAM_ONLINE_SUBJECT,
-			1*time.Minute,
-		),
-		StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
-			nc,
-			STREAM_OFFLINE_SUBJECT,
-			1*time.Minute,
-		),
+		Channel: &channelBus{
+			StreamOnline: NewNatsQueue[twitch.StreamOnlineMessage, struct{}](
+				nc,
+				STREAM_ONLINE_SUBJECT,
+				1*time.Minute,
+			),
+			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
+				nc,
+				STREAM_OFFLINE_SUBJECT,
+				1*time.Minute,
+			),
+		},
 	}
 }
 

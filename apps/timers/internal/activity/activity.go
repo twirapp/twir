@@ -135,11 +135,14 @@ func (c *Activity) sendMessage(
 	channelId, text string,
 	isAnnounce bool,
 ) error {
-	parseReq, err := c.bus.ParserParseVariablesInText.Request(ctx, busparser.ParseVariablesInTextRequest{
-		ChannelID:   stream.UserID,
-		ChannelName: stream.UserLogin,
-		Text:        text,
-	})
+	parseReq, err := c.bus.Parser.ParseVariablesInText.Request(
+		ctx,
+		busparser.ParseVariablesInTextRequest{
+			ChannelID:   stream.UserID,
+			ChannelName: stream.UserLogin,
+			Text:        text,
+		},
+	)
 	if err != nil {
 		return err
 	}

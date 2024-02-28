@@ -68,10 +68,13 @@ func (c *Registry) handleMessage(session *melody.Session, msg []byte) {
 
 		text := base64ToText(layer.Settings.HtmlOverlayHTML)
 
-		res, err := c.bus.ParserParseVariablesInText.Request(context.Background(), parser.ParseVariablesInTextRequest{
-			ChannelID: layer.Overlay.ChannelID,
-			Text:      text,
-		})
+		res, err := c.bus.Parser.ParseVariablesInText.Request(
+			context.Background(),
+			parser.ParseVariablesInTextRequest{
+				ChannelID: layer.Overlay.ChannelID,
+				Text:      text,
+			},
+		)
 		if err != nil {
 			c.logger.Error(err.Error())
 			return

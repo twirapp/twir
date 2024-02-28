@@ -73,14 +73,16 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	res, err := c.bus.ParserParseVariablesInText.Request(ctx, parser.ParseVariablesInTextRequest{
-		ChannelID:   msg.BroadcasterUserId,
-		ChannelName: msg.BroadcasterUserLogin,
-		Text:        entity.Text,
-		UserID:      msg.ChatterUserId,
-		UserLogin:   msg.ChatterUserLogin,
-		UserName:    msg.ChatterUserName,
-	})
+	res, err := c.bus.Parser.ParseVariablesInText.Request(
+		ctx, parser.ParseVariablesInTextRequest{
+			ChannelID:   msg.BroadcasterUserId,
+			ChannelName: msg.BroadcasterUserLogin,
+			Text:        entity.Text,
+			UserID:      msg.ChatterUserId,
+			UserLogin:   msg.ChatterUserLogin,
+			UserName:    msg.ChatterUserName,
+		},
+	)
 	if err != nil {
 		return err
 	}

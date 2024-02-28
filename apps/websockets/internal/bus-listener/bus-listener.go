@@ -35,7 +35,7 @@ func New(opts Opts) *BusListener {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
-				if err := listener.bus.WebsocketsDudesUserSettings.SubscribeGroup(
+				if err := listener.bus.Websocket.DudesUserSettings.SubscribeGroup(
 					"websockets",
 					func(ctx context.Context, data websockets.DudesChangeUserSettingsRequest) struct{} {
 						listener.dudes.SendUserSettings(data.ChannelID, data.UserID)
@@ -45,7 +45,7 @@ func New(opts Opts) *BusListener {
 				); err != nil {
 					return err
 				}
-				if err := listener.bus.WebsocketsDudesGrow.SubscribeGroup(
+				if err := listener.bus.Websocket.DudesGrow.SubscribeGroup(
 					"websockets",
 					func(ctx context.Context, data websockets.DudesGrowRequest) struct{} {
 						listener.dudes.SendEvent(data.ChannelID, "grow", data)
@@ -59,8 +59,8 @@ func New(opts Opts) *BusListener {
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				listener.bus.WebsocketsDudesUserSettings.Unsubscribe()
-				listener.bus.WebsocketsDudesGrow.Unsubscribe()
+				listener.bus.Websocket.DudesUserSettings.Unsubscribe()
+				listener.bus.Websocket.DudesGrow.Unsubscribe()
 				return nil
 			},
 		},

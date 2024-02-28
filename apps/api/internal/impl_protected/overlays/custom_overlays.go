@@ -331,10 +331,12 @@ func (c *Overlays) OverlaysParseHtml(ctx context.Context, req *overlays.ParseHtm
 		return nil, err
 	}
 
-	res, err := c.Bus.ParserParseVariablesInText.Request(ctx, parser.ParseVariablesInTextRequest{
-		ChannelID: dashboardId,
-		Text:      base64ToText(req.GetHtml()),
-	})
+	res, err := c.Bus.Parser.ParseVariablesInText.Request(
+		ctx, parser.ParseVariablesInTextRequest{
+			ChannelID: dashboardId,
+			Text:      base64ToText(req.GetHtml()),
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

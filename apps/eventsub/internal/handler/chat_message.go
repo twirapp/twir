@@ -147,7 +147,7 @@ func (c *Handler) handleChannelChatMessage(
 	}
 
 	if data.Message.Text[0] == '!' {
-		if err := c.bus.ParserProcessMessageAsCommand.Publish(data); err != nil {
+		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
 	}

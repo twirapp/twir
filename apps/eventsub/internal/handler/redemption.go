@@ -231,7 +231,7 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	res, err := c.bus.ParserGetCommandResponse.Request(
+	res, err := c.bus.Parser.GetCommandResponse.Request(
 		context.Background(), twitch.TwitchChatMessage{
 			BroadcasterUserId:    event.BroadcasterUserID,
 			BroadcasterUserName:  event.BroadcasterUserName,

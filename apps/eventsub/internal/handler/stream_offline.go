@@ -38,5 +38,5 @@ func (c *Handler) handleStreamOffline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
-	c.bus.StreamOffline.Publish(twitch.StreamOfflineMessage{ChannelID: event.BroadcasterUserID})
+	c.bus.Channel.StreamOffline.Publish(twitch.StreamOfflineMessage{ChannelID: event.BroadcasterUserID})
 }
