@@ -6,6 +6,7 @@ import (
 	"unicode/utf8"
 
 	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -144,6 +145,21 @@ func (c *Handler) handleChannelChatMessage(
 
 	if err := c.bus.BotsMessages.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
+	}
+
+	channel := &model.Channels{}
+	if err := c.gorm.WithContext(ctx).Where(
+		"id = ?",
+		data.BroadcasterUserId,
+	).Find(channel).Error; err != nil {
+		c.logger.Error("cannot get channel", slog.Any("err", err))
+		return
+	}
+	if channel.ID == "" {
+		return
+	}
+	if channel.BotID == data.ChatterUserId && c.config.AppEnv == "production" {
+		return
 	}
 
 	if data.Message.Text[0] == '!' {
