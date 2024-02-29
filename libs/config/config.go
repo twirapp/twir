@@ -42,9 +42,10 @@ type Config struct {
 
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 
-	NgrokAuthToken string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
-	UptraceDsn     string `required:"false" envconfig:"UPTRACE_DSN"`
-	NatsUrl        string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
+	NgrokAuthToken       string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
+	UptraceDsn           string `required:"false" envconfig:"UPTRACE_DSN"`
+	NatsUrl              string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
+	ValorantHenrikApiKey string `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

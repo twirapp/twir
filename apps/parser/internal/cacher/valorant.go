@@ -38,10 +38,16 @@ func (c *cacher) GetValorantMatches(ctx context.Context) []types.ValorantMatch {
 	)
 
 	var data *types.ValorantMatchesResponse
-	_, err := req.R().
+
+	r := req.R().
 		SetContext(ctx).
-		SetSuccessResult(&data).
-		Get(apiUrl)
+		SetSuccessResult(&data)
+
+	if c.services.Config.ValorantHenrikApiKey != "" {
+		r.SetHeader("Authorization", c.services.Config.ValorantHenrikApiKey)
+	}
+
+	_, err := r.Get(apiUrl)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
@@ -80,10 +86,16 @@ func (c *cacher) GetValorantProfile(ctx context.Context) *types.ValorantProfile 
 	)
 
 	c.cache.valorantProfile = &types.ValorantProfile{}
-	_, err := req.R().
+
+	r := req.R().
 		SetContext(ctx).
-		SetSuccessResult(c.cache.valorantProfile).
-		Get(apiUrl)
+		SetSuccessResult(c.cache.valorantProfile)
+
+	if c.services.Config.ValorantHenrikApiKey != "" {
+		r.SetHeader("Authorization", c.services.Config.ValorantHenrikApiKey)
+	}
+
+	_, err := r.Get(apiUrl)
 	if err != nil {
 		c.services.Logger.Sugar().Error(err)
 		return nil
