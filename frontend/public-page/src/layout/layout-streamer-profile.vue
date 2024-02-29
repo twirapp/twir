@@ -3,13 +3,14 @@ import { watch } from 'vue';
 
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import { useStreamerProfile, useStreamerPublicSettings } from '@/composables/use-streamer-profile';
 
 const emits = defineEmits<{
 	updateChannelId: [channelId: string]
 }>();
 
 const { data: profile, isLoading } = useStreamerProfile();
+const { data: publicSettings } = useStreamerPublicSettings();
 
 watch(profile, (v) => {
 	if (!v) return;
@@ -40,13 +41,16 @@ watch(profile, (v) => {
 						{{ profile.displayName }}
 					</span>
 					<span class="text-sm break-all">
-						{{ profile.description }}
+						{{ publicSettings?.description || profile.description }}
 					</span>
 				</div>
 			</div>
-			<div class="flex md:flex-col sm:flex-row gap-2">
+			<div class="flex md:flex-col sm:flex-row flex-wrap gap-2">
 				<a :href="`https://twitch.tv/${profile.login}`" class="underline" target="_blank">
 					Twitch
+				</a>
+				<a v-for="link of publicSettings?.socialLinks" :key="link" :href="link.href" class="underline" target="_blank">
+					{{ link.title }}
 				</a>
 			</div>
 		</div>

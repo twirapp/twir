@@ -153,6 +153,12 @@ export const newRouter = (queryClient: QueryClient) => {
 					meta: { neededPermission: 'MANAGE_MODERATION' },
 				},
 				{
+					name: 'Settings',
+					path: '/dashboard/settings',
+					component: () => import('../pages/UserSettings.vue'),
+					meta: { noPadding: true },
+				},
+				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('../pages/NoAccess.vue'),

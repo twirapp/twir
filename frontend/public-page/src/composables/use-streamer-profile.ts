@@ -1,5 +1,8 @@
 import { useQuery } from '@tanstack/vue-query';
 import type { GetPublicUserInfoResponse } from '@twir/api/messages/auth/auth';
+import type {
+	Settings,
+} from '@twir/api/messages/channels_public_settings/channels_public_settings';
 import type { TwitchUser } from '@twir/api/messages/twitch/twitch';
 import { type MaybeRef, unref } from 'vue';
 
@@ -34,5 +37,21 @@ export const useStreamerProfile = (userName?: MaybeRef<string | null>) => {
 				...internalUser,
 			} as StreamerProfile;
 		},
+	});
+};
+
+export const useStreamerPublicSettings = () => {
+	const { isLoading, data } = useStreamerProfile();
+
+	return useQuery({
+		queryKey: ['usePublicSettings'],
+		queryFn: async (): Promise<Settings | undefined> => {
+			if (!data.value) return;
+			const call = await unprotectedClient.getPublicSettings({
+				channelId: data.value!.id,
+			});
+			return call.response;
+		},
+		enabled: () => !isLoading.value,
 	});
 };

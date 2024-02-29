@@ -2,7 +2,6 @@
 import { type DropdownOption, NAvatar, NButton, NDropdown, NSpin } from 'naive-ui';
 import { h } from 'vue';
 
-import DropdownBody from './profile/body.vue';
 import DropdownFooter from './profile/footer.vue';
 import DropdownHeader from './profile/header.vue';
 
@@ -18,15 +17,6 @@ const profileOptions: DropdownOption[] = [
 	},
 	{
 		key: 'header-divider',
-		type: 'divider',
-	},
-	{
-		key: 'body',
-		type: 'render',
-		render: () => h(DropdownBody),
-	},
-	{
-		key: 'body-divider',
 		type: 'divider',
 	},
 	{
