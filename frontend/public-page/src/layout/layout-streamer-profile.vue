@@ -49,7 +49,12 @@ watch(profile, (v) => {
 				<a :href="`https://twitch.tv/${profile.login}`" class="underline" target="_blank">
 					Twitch
 				</a>
-				<a v-for="link of publicSettings?.socialLinks" :key="link" :href="link.href" class="underline" target="_blank">
+				<a
+					v-for="(link, idx) of publicSettings?.socialLinks"
+					:key="idx"
+					:href="link.href"
+					class="underline" target="_blank"
+				>
 					{{ link.title }}
 				</a>
 			</div>
