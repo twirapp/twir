@@ -38,7 +38,7 @@ async function callRegenerateKey() {
 	<div class="account-body">
 		<n-card title="Private" size="small" bordered>
 			<div style="display: flex; gap: 12px;">
-				<n-text>{{ t('navbar.profile.showMeOnLanding') }}</n-text>
+				<n-text>{{ t('userSettings.account.showMeOnLanding') }}</n-text>
 				<n-switch
 					:value="!profile?.hideOnLandingPage"
 					:disabled="updateUser.isLoading.value"
@@ -60,13 +60,13 @@ async function callRegenerateKey() {
 					<n-button secondary type="warning" class="min-w-[150px] sm:w-full" @click="callRegenerateKey">
 						<div class="flex items-center gap-1">
 							<IconRefresh style="height: 20px; width: 20px" />
-							{{ t('navbar.profile.regenerateApiKey.button') }}
+							{{ t('userSettings.account.regenerateApiKey.button') }}
 						</div>
 					</n-button>
 				</div>
 			</n-form-item>
 			<n-text style="font-size: 13px;" depth="3">
-				{{ t('navbar.profile.regenerateApiKey.info') }}
+				{{ t('userSettings.account.regenerateApiKey.info') }}
 			</n-text>
 		</n-card>
 	</div>

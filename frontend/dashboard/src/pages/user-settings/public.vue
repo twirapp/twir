@@ -112,7 +112,7 @@ function removeLink(index: number) {
 <template>
 	<div class="w-full flex flex-wrap gap-4">
 		<n-card title="Description" size="small" bordered>
-			<n-form-item label="Text in your profile">
+			<n-form-item :label="t('userSettings.public.description')">
 				<n-input
 					v-model:value="formData.description"
 					type="textarea"
@@ -128,7 +128,7 @@ function removeLink(index: number) {
 					<n-input
 						v-model:value="linkForm.title"
 						:maxlength="30"
-						placeholder="Enter title"
+						placeholder="Twir"
 						:disabled="!isLinkEdit && linksLimitReached"
 					/>
 				</n-form-item>
@@ -136,7 +136,7 @@ function removeLink(index: number) {
 					<n-input
 						v-model:value="linkForm.href"
 						:maxlength="500"
-						placeholder="Enter link"
+						placeholder="https://twir.app"
 						:disabled="!isLinkEdit && linksLimitReached"
 					/>
 				</n-form-item>
@@ -146,7 +146,7 @@ function removeLink(index: number) {
 					:disabled="!isLinkEdit && linksLimitReached"
 					@click="saveLink"
 				>
-					{{ isLinkEdit ? 'Save' : 'Add' }}
+					{{ isLinkEdit ? t('sharedButtons.save') : t('sharedButtons.add') }}
 				</n-button>
 				<n-button
 					v-if="isLinkEdit"
@@ -154,7 +154,7 @@ function removeLink(index: number) {
 					type="warning"
 					@click="clearLinkForm"
 				>
-					Cancel
+					{{ t('sharedButtons.cancel') }}
 				</n-button>
 			</n-form>
 

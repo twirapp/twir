@@ -15,7 +15,8 @@
     "confirm": "Confirm",
     "saveSettings": "Save Settings",
     "setDefaultSettings": "Set Default Settings",
-		"goToDashboard": "Go to Dashboard"
+		"goToDashboard": "Go to Dashboard",
+		"add": "Add"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -62,14 +63,7 @@
   },
   "navbar": {
     "logout": "Logout",
-    "publicPage": "Public page",
-		"profile": {
-			"showMeOnLanding": "Show yourself on the Landing Page?",
-			"regenerateApiKey": {
-				"button": "Regenerate Private API key",
-				"info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
-			}
-		}
+    "publicPage": "Public page"
   },
   "deleteConfirmation": {
     "text": "Are you sure about deleting this thing?",
@@ -853,6 +847,21 @@
 		"messageLabel": "Message",
 		"validation": {
 			"emptyMessage": "Message cannot be empty"
+		}
+	},
+	"userSettings": {
+		"title": "User settings",
+		"account": {
+			"title": "Account",
+			"showMeOnLanding": "Show yourself on the Landing Page?",
+			"regenerateApiKey": {
+				"button": "Regenerate Private API key",
+				"info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+			}
+		},
+		"public": {
+			"title": "Public page",
+			"description": "Description of channel"
 		}
 	}
 }

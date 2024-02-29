@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useThemeVars } from 'naive-ui';
 import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
+import { useI18n } from 'vue-i18n';
 
 import AccountSettings from './user-settings/account.vue';
 import PublicSettings from './user-settings/public.vue';
 
 import { useTheme } from '@/composables/use-theme';
 
+const { t } = useI18n();
 const themeVars = useThemeVars();
 const { theme } = useTheme();
 </script>
@@ -23,15 +25,15 @@ const { theme } = useTheme();
 		>
 			<div class="container flex flex-col pt-9 gap-2">
 				<h1 class="text-4xl">
-					User settings
+					{{ t('userSettings.title') }}
 				</h1>
 				<div class="flex gap-2">
 					<TabsList class="flex overflow-x-auto -mb-px">
 						<TabsTrigger class="tabs-trigger" value="account">
-							Account
+							{{ t('userSettings.account.title') }}
 						</TabsTrigger>
 						<TabsTrigger class="tabs-trigger" value="public">
-							Public page
+							{{ t('userSettings.public.title') }}
 						</TabsTrigger>
 					</TabsList>
 				</div>
