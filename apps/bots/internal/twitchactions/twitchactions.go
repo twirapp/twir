@@ -5,6 +5,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -13,18 +14,21 @@ type Opts struct {
 	Logger     logger.Logger
 	Config     cfg.Config
 	TokensGrpc tokens.TokensClient
+	Gorm       *gorm.DB
 }
 
 func New(opts Opts) *TwitchActions {
 	return &TwitchActions{
-		Logger:     opts.Logger,
-		Config:     opts.Config,
-		TokensGrpc: opts.TokensGrpc,
+		logger:     opts.Logger,
+		config:     opts.Config,
+		tokensGrpc: opts.TokensGrpc,
+		gorm:       opts.Gorm,
 	}
 }
 
 type TwitchActions struct {
-	Logger     logger.Logger
-	Config     cfg.Config
-	TokensGrpc tokens.TokensClient
+	logger     logger.Logger
+	config     cfg.Config
+	tokensGrpc tokens.TokensClient
+	gorm       *gorm.DB
 }

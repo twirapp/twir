@@ -7,6 +7,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/nicklaw5/helix/v2"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 )
 
@@ -31,12 +32,23 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
+	channel := &model.Channels{}
+	if err := c.gorm.
+		WithContext(ctx).
+		Where("id = ?", opts.BroadcasterID).
+		First(channel).Error; err != nil {
+		return err
+	}
+	if !channel.IsEnabled || !channel.IsBotMod {
+		return nil
+	}
+
 	var twitchClient *helix.Client
 	var err error
 	if !opts.IsAnnounce {
-		twitchClient, err = twitch.NewAppClientWithContext(ctx, c.Config, c.TokensGrpc)
+		twitchClient, err = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	} else {
-		twitchClient, err = twitch.NewBotClientWithContext(ctx, opts.SenderID, c.Config, c.TokensGrpc)
+		twitchClient, err = twitch.NewBotClientWithContext(ctx, opts.SenderID, c.config, c.tokensGrpc)
 	}
 	if err != nil {
 		return err

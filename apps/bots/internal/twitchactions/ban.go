@@ -17,7 +17,7 @@ type BanOpts struct {
 }
 
 func (c *TwitchActions) Ban(ctx context.Context, opts BanOpts) error {
-	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.Config, c.TokensGrpc)
+	twitchClient, err := twitch.NewBotClientWithContext(ctx, opts.ModeratorID, c.config, c.tokensGrpc)
 	if err != nil {
 		return err
 	}
