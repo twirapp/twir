@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { IconEdit, IconTrash, IconArrowUp, IconArrowDown } from '@tabler/icons-vue';
-import type { Settings } from '@twir/api/messages/channels_public_settings/channels_public_settings';
+import type {
+	Settings,
+	SocialLink,
+} from '@twir/api/messages/channels_public_settings/channels_public_settings';
 import {
 	NCard,
 	NInput,
@@ -23,8 +26,11 @@ const manager = usePublicSettings();
 const { data } = manager.useGet();
 const updater = manager.useUpdate();
 
+type SocialLinkWithEdit = SocialLink & { isEditing?: boolean };
+type FormData = Omit<Settings, 'socialLinks'> & { socialLinks: SocialLinkWithEdit[] }
+
 const formRef = ref<FormInst | null>(null);
-const formData = ref<Settings>({
+const formData = ref<FormData>({
 	socialLinks: [],
 	description: undefined,
 });
@@ -32,7 +38,12 @@ const formData = ref<Settings>({
 watch(data, (v) => {
 	if (!v) return;
 
-	formData.value = toRaw(v);
+	const rawData = toRaw(v);
+
+	formData.value = {
+		...rawData,
+		socialLinks: rawData.socialLinks.map((link) => ({ ...link, isEditing: false })),
+	};
 }, { immediate: true });
 
 async function save() {
@@ -67,40 +78,16 @@ const rules: FormRules = {
 
 const linksLimitReached = computed(() => formData.value.socialLinks.length >= 10);
 
-const linkForm = ref<{
-	title: string,
-	href: string,
-	existedIndex?: number
-}>({
+const newLinkForm = ref({
 	title: '',
 	href: '',
 });
-const isLinkEdit = computed(() => typeof linkForm.value.existedIndex != 'undefined');
 
-function clearLinkForm() {
-	linkForm.value = {
+function addLink() {
+	formData.value.socialLinks.push(newLinkForm.value);
+	newLinkForm.value = {
 		title: '',
 		href: '',
-	};
-}
-
-function saveLink() {
-	if (typeof linkForm.value.existedIndex !== 'undefined') {
-		const link = formData.value.socialLinks.at(linkForm.value.existedIndex)!;
-		link.href = linkForm.value.href;
-		link.title = linkForm.value.title;
-	} else {
-		formData.value.socialLinks.push(linkForm.value);
-	}
-	clearLinkForm();
-}
-
-function setLinkFormEdit(index: number) {
-	const existedLink = formData.value.socialLinks.at(index)!;
-	linkForm.value = {
-		href: existedLink.href,
-		title: existedLink.title,
-		existedIndex: index,
 	};
 }
 
@@ -128,41 +115,6 @@ function changeSort(from: number, to: number) {
 		</n-card>
 
 		<n-card title="Social links" size="small" bordered>
-			<n-form ref="formRef" :rules="rules" :model="linkForm" class="flex flex-wrap gap-2 items-center w-full">
-				<n-form-item style="--n-label-height: 0px;" label="Title" class="flex-auto" path="title">
-					<n-input
-						v-model:value="linkForm.title"
-						:maxlength="30"
-						placeholder="Twir"
-						:disabled="!isLinkEdit && linksLimitReached"
-					/>
-				</n-form-item>
-				<n-form-item style="--n-label-height: 0px;" label="Href" class="flex-auto" path="href">
-					<n-input
-						v-model:value="linkForm.href"
-						:maxlength="500"
-						placeholder="https://twir.app"
-						:disabled="!isLinkEdit && linksLimitReached"
-					/>
-				</n-form-item>
-				<n-button
-					secondary
-					type="success"
-					:disabled="!isLinkEdit && linksLimitReached"
-					@click="saveLink"
-				>
-					{{ isLinkEdit ? t('sharedButtons.save') : t('sharedButtons.add') }}
-				</n-button>
-				<n-button
-					v-if="isLinkEdit"
-					secondary
-					type="warning"
-					@click="clearLinkForm"
-				>
-					{{ t('sharedButtons.cancel') }}
-				</n-button>
-			</n-form>
-
 			<div class="flex flex-col gap-1">
 				<n-card
 					v-for="(link, idx) of formData.socialLinks"
@@ -171,7 +123,10 @@ function changeSort(from: number, to: number) {
 					embedded
 				>
 					<template #header>
-						{{ link.title }}
+						<n-input v-if="link.isEditing" v-model:value="link.title" size="small" style="width: 30%" :maxlength="30" />
+						<template v-else>
+							{{ link.title }}
+						</template>
 					</template>
 					<template #header-extra>
 						<div class="flex gap-2">
@@ -189,7 +144,7 @@ function changeSort(from: number, to: number) {
 							>
 								<IconArrowUp class="header-button" />
 							</n-button>
-							<n-button text @click="setLinkFormEdit(idx)">
+							<n-button text @click="link.isEditing = !link.isEditing">
 								<IconEdit class="header-button" />
 							</n-button>
 							<n-button
@@ -200,9 +155,46 @@ function changeSort(from: number, to: number) {
 							</n-button>
 						</div>
 					</template>
-					{{ link.href }}
+
+					<n-input
+						v-if="link.isEditing"
+						v-model:value="link.href"
+						size="small"
+						type="textarea"
+						autosize
+						:maxlength="500"
+					/>
+					<template v-else>
+						{{ link.href }}
+					</template>
 				</n-card>
 			</div>
+			<n-form ref="formRef" :rules="rules" :model="newLinkForm" class="flex flex-wrap gap-2 items-center w-full mt-5">
+				<n-form-item style="--n-label-height: 0px;" label="Title" class="flex-auto" path="title">
+					<n-input
+						v-model:value="newLinkForm.title"
+						:maxlength="30"
+						placeholder="Twir"
+						:disabled=" linksLimitReached"
+					/>
+				</n-form-item>
+				<n-form-item style="--n-label-height: 0px;" label="Href" class="flex-auto" path="href">
+					<n-input
+						v-model:value="newLinkForm.href"
+						:maxlength="500"
+						placeholder="https://twir.app"
+						:disabled="linksLimitReached"
+					/>
+				</n-form-item>
+				<n-button
+					secondary
+					type="success"
+					:disabled="linksLimitReached"
+					@click="addLink"
+				>
+					{{ t('sharedButtons.add') }}
+				</n-button>
+			</n-form>
 		</n-card>
 
 		<div class="flex justify-start w-full">
