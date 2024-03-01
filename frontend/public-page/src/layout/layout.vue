@@ -37,7 +37,7 @@ const mdAndSmaller = breakpoints.smallerOrEqual('md');
 	<div class="flex flex-row gap-4">
 		<aside
 			v-if="!mdAndSmaller"
-			class="flex w-auto flex-col justify-between border-e h-screen sticky top-0"
+			class="flex min-w-[300px] w-[300px] flex-col justify-between border-e h-screen sticky top-0"
 		>
 			<layout-sidebar />
 		</aside>

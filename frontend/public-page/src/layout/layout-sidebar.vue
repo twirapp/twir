@@ -7,7 +7,7 @@ import LayoutSidebarUserProfile from '@/layout/layout-sidebar-user-profile.vue';
 </script>
 
 <template>
-	<div class="flex flex-col gap-x-2 w-max">
+	<div class="flex flex-col gap-x-2">
 		<a class="flex h-16 w-16 gap-2 items-center justify-center w-full" href="/">
 			<img :src="TwirLogo" class="w-10 h-10" alt="twir-logo" />
 			<span class="text-2xl font-semibold text-white" data-astro-cid-aygicng6="">Twir</span>
