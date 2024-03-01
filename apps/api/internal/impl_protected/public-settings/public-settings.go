@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/microcosm-cc/bluemonday"
 	"github.com/satont/twir/apps/api/internal/converters"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
@@ -16,6 +17,8 @@ import (
 type PublicSettings struct {
 	*impl_deps.Deps
 }
+
+var linksParser = bluemonday.NewPolicy()
 
 func (c *PublicSettings) ChannelsPublicSettingsUpdate(
 	ctx context.Context,
@@ -47,13 +50,14 @@ func (c *PublicSettings) ChannelsPublicSettingsUpdate(
 
 	links := make([]model.ChannelPublicSettingsSocialLink, 0, len(req.SocialLinks))
 	for _, link := range req.SocialLinks {
+		// validate is href is valid
 		links = append(
 			links,
 			model.ChannelPublicSettingsSocialLink{
 				ID:         uuid.New(),
 				SettingsID: currentSettings.ID,
 				Title:      link.Title,
-				Href:       link.Href,
+				Href:       linksParser.Sanitize(link.Href),
 			},
 		)
 	}
