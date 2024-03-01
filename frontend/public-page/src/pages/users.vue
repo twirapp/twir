@@ -116,22 +116,22 @@ const vueTable = useVueTable({
 					default: () => `${(Number(ctx.row.original.watched) / HOUR).toFixed(1)}h`,
 				});
 			},
-			size: 5,
+			size: 15,
 		}),
 
 		columnHelper.accessor('messages', {
 			header: 'Messages',
-			size: 20,
+			size: 15,
 		}),
 
 		columnHelper.accessor('emotes', {
 			header: 'Used emotes',
-			size: 20,
+			size: 15,
 		}),
 
 		columnHelper.accessor('usedChannelPoints', {
 			header: 'Used channel points',
-			size: 20,
+			size: 15,
 		}),
 	],
 });
@@ -193,7 +193,7 @@ const pagesCount = computed(() => Math.ceil((data.value?.totalUsers ?? 0) / 100)
 						<TableHead
 							v-for="header in headerGroup.headers"
 							:key="header.id"
-							:style="{ width: `${header.getSize()}px` }"
+							:style="{ width: `${header.column.columnDef.size}%` }"
 						>
 							<FlexRender
 								v-if="!header.isPlaceholder"
@@ -204,8 +204,11 @@ const pagesCount = computed(() => Math.ceil((data.value?.totalUsers ?? 0) / 100)
 					</TableRow>
 				</TableHeader>
 				<Transition name="table-rows" appear mode="out-in">
-					<TableBody v-if="isLoading">
-						<table-rows-skeleton :rows="20" :colspan="5" />
+					<TableBody v-if="!data || isLoading">
+						<table-rows-skeleton
+							:rows="20"
+							:colspan="vueTable.getAllColumns().length"
+						/>
 					</TableBody>
 					<TableBody v-else>
 						<TableRow v-for="row in vueTable.getRowModel().rows" :key="row.id">

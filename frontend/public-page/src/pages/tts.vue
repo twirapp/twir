@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
-	TableBody,
+	TableBody, TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
@@ -69,8 +69,17 @@ const usersWithProfiles = computed(() => {
 				</TableRow>
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
-				<TableBody v-if="isLoading">
+				<TableBody v-if="!usersWithProfiles || isLoading">
 					<table-rows-skeleton :rows="20" :colspan="5" />
+				</TableBody>
+				<TableBody v-else-if="!users?.users?.length">
+					<TableRow>
+						<TableCell :colspan="5">
+							<div class="flex items-center justify-center">
+								No data
+							</div>
+						</TableCell>
+					</TableRow>
 				</TableBody>
 				<TableBody v-else>
 					<user-row
@@ -96,3 +105,15 @@ const usersWithProfiles = computed(() => {
 		</Table>
 	</div>
 </template>
+
+<style scoped>
+.table-rows-enter-active,
+.table-rows-leave-active {
+	transition: opacity 0.5s ease;
+}
+
+.table-rows-enter-from,
+.table-rows-leave-to {
+	opacity: 0;
+}
+</style>

@@ -29,7 +29,7 @@ import CommandsPermissionsCell, {
 import CommandsResponsesCell from '@/pages/commands/commands-responses-cell.vue';
 import { createGroups, type Group, isCommand } from '@/pages/commands/create-group';
 
-const { data, isLoading: isCommandsLoading } = useCommands();
+const { data } = useCommands();
 
 const commandsWithGroups = computed(() => createGroups(data.value?.commands ?? []));
 
@@ -147,7 +147,7 @@ const isSmall = breakpoints.smaller('xl');
 					<TableHead
 						v-for="header in headerGroup.headers"
 						:key="header.id"
-						:style="{ width: `${header.getSize()}%` }"
+						:style="{ width: `${header.column.columnDef.size}%` }"
 					>
 						<FlexRender
 							v-if="!header.isPlaceholder"
@@ -158,12 +158,16 @@ const isSmall = breakpoints.smaller('xl');
 				</TableRow>
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
-				<TableBody v-if="isCommandsLoading">
-					<table-rows-skeleton :rows="20" :colspan="4" />
+				<TableBody v-if="!data">
+					<table-rows-skeleton
+						:rows="20"
+						:colspan="table.getAllColumns().length"
+					/>
 				</TableBody>
 				<TableBody v-else>
 					<TableRow
-						v-for="row in table.getRowModel().rows" :key="row.id"
+						v-for="row in table.getRowModel().rows"
+						:key="row.id"
 					>
 						<template
 							v-for="cell in row.getVisibleCells()"

@@ -16,7 +16,3 @@ defineProps<{
 		</TableCell>
 	</TableRow>
 </template>
-
-<style scoped>
-
-</style>

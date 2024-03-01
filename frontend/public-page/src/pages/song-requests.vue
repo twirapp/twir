@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/table';
 import { useSongsQueue } from '@/composables/use-song-requests';
 
-const { data: queue, isLoading } = useSongsQueue();
+const { data: queue } = useSongsQueue();
 </script>
 
 <template>
@@ -36,7 +36,7 @@ const { data: queue, isLoading } = useSongsQueue();
 				</TableRow>
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
-				<TableBody v-if="isLoading">
+				<TableBody v-if="!queue">
 					<table-rows-skeleton :rows="20" :colspan="5" />
 				</TableBody>
 				<TableBody v-else-if="!queue?.songs?.length">
