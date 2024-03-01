@@ -47,6 +47,18 @@ watch(data, (v) => {
 }, { immediate: true });
 
 async function save() {
+	for (const link of formData.value.socialLinks) {
+		if (linkRegex.test(link.href)) continue;
+
+		notification.create({
+			title: 'Error',
+			type: 'error',
+			description: `"${link.title}" contains not a valid link ${link.href}`,
+			duration: 5000,
+		});
+		return;
+	}
+
 	await updater.mutateAsync(formData.value);
 
 	notification.create({
