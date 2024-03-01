@@ -5,6 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
+	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
@@ -26,12 +27,17 @@ type channelBus struct {
 	StreamOffline Queue[twitch.StreamOfflineMessage, struct{}]
 }
 
+type bots struct {
+	ProcessMessage Queue[twitch.TwitchChatMessage, struct{}]
+	SendMessage    Queue[botsservice.SendMessageRequest, struct{}]
+	DeleteMessage  Queue[botsservice.DeleteMessageRequest, struct{}]
+}
+
 type Bus struct {
 	Parser    *parserBus
 	Websocket *websocketBus
 	Channel   *channelBus
-
-	BotsMessages Queue[twitch.TwitchChatMessage, struct{}]
+	Bots      *bots
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -41,38 +47,58 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				PARSER_COMMANDS_SUBJECT,
 				30*time.Minute,
+				nats.GOB_ENCODER,
 			),
 
 			ParseVariablesInText: NewNatsQueue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse](
 				nc,
 				PARSER_TEXT_VARIABLES_SUBJECT,
 				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 
 			ProcessMessageAsCommand: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 				nc,
 				PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT,
 				30*time.Minute,
+				nats.GOB_ENCODER,
 			),
 		},
 
-		BotsMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
-			nc,
-			CHAT_MESSAGE_BOTS_SUBJECT,
-			30*time.Minute,
-		),
+		Bots: &bots{
+			ProcessMessage: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+				nc,
+				CHAT_MESSAGE_BOTS_SUBJECT,
+				30*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			SendMessage: NewNatsQueue[botsservice.SendMessageRequest, struct{}](
+				nc,
+				botsservice.SendMessageSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			DeleteMessage: NewNatsQueue[botsservice.DeleteMessageRequest, struct{}](
+				nc,
+				botsservice.DeleteMessageSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
 
 		Websocket: &websocketBus{
 			DudesGrow: NewNatsQueue[websockets.DudesGrowRequest, struct{}](
 				nc,
 				WEBSOCKETS_DUDES_GROW_SUBJECT,
 				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 
 			DudesUserSettings: NewNatsQueue[websockets.DudesChangeUserSettingsRequest, struct{}](
 				nc,
 				WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT,
 				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 		},
 
@@ -81,11 +107,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				STREAM_ONLINE_SUBJECT,
 				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
 				nc,
 				STREAM_OFFLINE_SUBJECT,
 				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 		},
 	}

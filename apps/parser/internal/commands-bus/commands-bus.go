@@ -9,9 +9,9 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	"github.com/satont/twir/apps/parser/internal/variables"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"go.uber.org/zap"
 )
 
@@ -23,7 +23,8 @@ type CommandsBus struct {
 }
 
 func New(
-	bus *buscore.Bus, s *services.Services,
+	bus *buscore.Bus,
+	s *services.Services,
 	commandService *commands.Commands,
 	variablesService *variables.Variables,
 ) *CommandsBus {
@@ -110,15 +111,14 @@ func (c *CommandsBus) Subscribe() error {
 				return struct{}{}
 			}
 
-			var replyTo *string
+			var replyTo string
 			if res.IsReply {
-				replyTo = &data.MessageId
+				replyTo = data.MessageId
 			}
 
 			for _, r := range res.Responses {
-				c.services.GrpcClients.Bots.SendMessage(
-					ctx,
-					&bots.SendMessageRequest{
+				c.bus.Bots.SendMessage.Publish(
+					bots.SendMessageRequest{
 						ChannelId:      data.BroadcasterUserId,
 						ChannelName:    &data.BroadcasterUserLogin,
 						Message:        r,

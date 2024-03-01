@@ -8,10 +8,9 @@ import (
 	"time"
 
 	"github.com/olahol/melody"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 
 	"github.com/satont/twir/libs/types/types/api/modules"
 )
@@ -164,12 +163,11 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 			song.OrderedByDisplayName.String,
 		)
 
-		c.botsGrpc.SendMessage(
-			ctx, &bots.SendMessageRequest{
-				ChannelId:   song.ChannelID,
-				ChannelName: nil,
-				Message:     message,
-				IsAnnounce:  lo.ToPtr(true),
+		c.bus.Bots.SendMessage.Publish(
+			bots.SendMessageRequest{
+				ChannelId:  song.ChannelID,
+				Message:    message,
+				IsAnnounce: true,
 			},
 		)
 	}

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/lib/pq"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 
@@ -18,7 +19,6 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/api/modules"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/events"
 )
 
@@ -254,13 +254,12 @@ func (c *Handler) handleYoutubeSongRequests(
 	}
 
 	for _, response := range res.Data.Responses {
-		c.botsGrpc.SendMessage(
-			context.Background(),
-			&bots.SendMessageRequest{
-				ChannelId:   event.BroadcasterUserID,
-				ChannelName: &event.BroadcasterUserLogin,
-				Message:     fmt.Sprintf("@%s %s", event.UserLogin, response),
-				IsAnnounce:  lo.ToPtr(false),
+		c.bus.Bots.SendMessage.Publish(
+			bots.SendMessageRequest{
+				ChannelId:      event.BroadcasterUserID,
+				ChannelName:    &event.BroadcasterUserLogin,
+				Message:        fmt.Sprintf("@%s %s", event.UserLogin, response),
+				SkipRateLimits: true,
 			},
 		)
 	}

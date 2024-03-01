@@ -5,8 +5,8 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
+	bus_listener "github.com/satont/twir/apps/bots/internal/bus-listener"
 	"github.com/satont/twir/apps/bots/internal/gorm"
-	"github.com/satont/twir/apps/bots/internal/grpc"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
@@ -68,7 +68,7 @@ var App = fx.Module(
 			}
 		},
 		stream_handlers.New,
-		grpc.New,
+		bus_listener.New,
 		func(l logger.Logger) {
 			l.Info("Bots started")
 		},

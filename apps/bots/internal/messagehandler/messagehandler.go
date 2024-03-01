@@ -68,27 +68,6 @@ func New(opts Opts) *MessageHandler {
 		bus:               opts.Bus,
 	}
 
-	opts.LC.Append(
-		fx.Hook{
-			OnStart: func(_ context.Context) error {
-				return handler.bus.BotsMessages.SubscribeGroup(
-					"bots",
-					func(ctx context.Context, data twitch.TwitchChatMessage) struct{} {
-						if err := handler.Handle(ctx, data); err != nil {
-							handler.logger.Error("failed to handle message", "error", err)
-						}
-
-						return struct{}{}
-					},
-				)
-			},
-			OnStop: func(ctx context.Context) error {
-				handler.bus.BotsMessages.Unsubscribe()
-				return nil
-			},
-		},
-	)
-
 	return handler
 }
 

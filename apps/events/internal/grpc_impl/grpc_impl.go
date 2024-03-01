@@ -17,7 +17,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/utils"
 	api_events "github.com/twirapp/twir/libs/api/messages/events"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -38,7 +37,6 @@ type Opts struct {
 	Db     *gorm.DB
 	Redis  *redis.Client
 
-	BotsGrpc       bots.BotsClient
 	TokensGrpc     tokens.TokensClient
 	WebsocketsGrpc websockets.WebsocketClient
 
@@ -52,7 +50,6 @@ func New(opts Opts) error {
 		redis:          opts.Redis,
 		logger:         opts.Logger,
 		cfg:            opts.Cfg,
-		botsGrpc:       opts.BotsGrpc,
 		tokensGrpc:     opts.TokensGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
 		chatAlerts:     opts.ChatAlerts,
@@ -91,7 +88,6 @@ type EventsGrpcImplementation struct {
 	logger logger.Logger
 	cfg    cfg.Config
 
-	botsGrpc       bots.BotsClient
 	tokensGrpc     tokens.TokensClient
 	websocketsGrpc websockets.WebsocketClient
 

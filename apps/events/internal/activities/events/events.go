@@ -4,7 +4,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/events/internal/hydrator"
 	config "github.com/satont/twir/libs/config"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
@@ -18,9 +18,9 @@ type Opts struct {
 	Redis          *redis.Client
 	Cfg            config.Config
 	TokensGrpc     tokens.TokensClient
-	BotsGrpc       bots.BotsClient
 	WebsocketsGrpc websockets.WebsocketClient
 	Hydrator       *hydrator.Hydrador
+	Bus            *bus_core.Bus
 }
 
 func New(opts Opts) *Activity {
@@ -29,8 +29,9 @@ func New(opts Opts) *Activity {
 		redis:          opts.Redis,
 		cfg:            opts.Cfg,
 		tokensGrpc:     opts.TokensGrpc,
-		botsGrpc:       opts.BotsGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
+		bus:            opts.Bus,
+		hydrator:       opts.Hydrator,
 	}
 }
 
@@ -39,7 +40,7 @@ type Activity struct {
 	redis          *redis.Client
 	cfg            config.Config
 	tokensGrpc     tokens.TokensClient
-	botsGrpc       bots.BotsClient
 	websocketsGrpc websockets.WebsocketClient
 	hydrator       *hydrator.Hydrador
+	bus            *bus_core.Bus
 }

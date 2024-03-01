@@ -32,8 +32,9 @@ func NewNatsQueue[Req, Res any](
 	nc *nats.Conn,
 	subject string,
 	timeout time.Duration,
+	encoder string,
 ) *NatsQueue[Req, Res] {
-	newNc, _ := nats.NewEncodedConn(nc, nats.GOB_ENCODER)
+	newNc, _ := nats.NewEncodedConn(nc, encoder)
 	return &NatsQueue[Req, Res]{
 		nc:      newNc,
 		subject: subject,

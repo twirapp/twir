@@ -13,7 +13,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -33,7 +32,6 @@ type Handler struct {
 	redisClient *redis.Client
 
 	eventsGrpc     events.EventsClient
-	botsGrpc       bots.BotsClient
 	parserGrpc     parser.ParserClient
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
@@ -53,7 +51,6 @@ type Opts struct {
 	Redis   *redis.Client
 
 	EventsGrpc     events.EventsClient
-	BotsGrpc       bots.BotsClient
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
@@ -72,7 +69,6 @@ func New(opts Opts) *Handler {
 		gorm:           opts.Gorm,
 		redisClient:    opts.Redis,
 		eventsGrpc:     opts.EventsGrpc,
-		botsGrpc:       opts.BotsGrpc,
 		parserGrpc:     opts.ParserGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
 		tokensGrpc:     opts.TokensGrpc,

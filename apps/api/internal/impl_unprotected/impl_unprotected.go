@@ -15,7 +15,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/eventsub"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
@@ -49,7 +48,6 @@ type Opts struct {
 
 	IntegrationsGrpc integrationsGrpc.IntegrationsClient
 	TokensGrpc       tokens.TokensClient
-	BotsGrpc         bots.BotsClient
 	ParserGrpc       parser.ParserClient
 	SchedulerGrpc    scheduler.SchedulerClient
 	TimersGrpc       timers.TimersClient
@@ -67,7 +65,6 @@ func New(opts Opts) *UnProtected {
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
 			Tokens:       opts.TokensGrpc,
-			Bots:         opts.BotsGrpc,
 			Integrations: opts.IntegrationsGrpc,
 			Parser:       opts.ParserGrpc,
 			Scheduler:    opts.SchedulerGrpc,

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 )
 
 type SubscribMessage struct {
@@ -37,14 +37,11 @@ func (c *ChatAlerts) subscribe(
 		return nil
 	}
 
-	_, err := c.botsGrpc.SendMessage(
-		ctx, &bots.SendMessageRequest{
+	return c.bus.Bots.SendMessage.Publish(
+		bots.SendMessageRequest{
 			ChannelId:      req.ChannelId,
 			Message:        sample,
-			IsAnnounce:     nil,
 			SkipRateLimits: true,
 		},
 	)
-
-	return err
 }

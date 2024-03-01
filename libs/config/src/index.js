@@ -33,4 +33,5 @@ export const config = cleanEnv(process.env, {
 	SPOTIFY_CLIENT_SECRET: str({ default: '' }),
 	ODESLI_API_KEY: str({ default: '' }),
 	DISCORD_FEEDBACK_URL: str({ default: '' }),
+	NATS_URL: str({ default: 'nats://localhost:4222' }),
 });

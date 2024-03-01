@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/helpers"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -17,32 +17,32 @@ import (
 type YouTube struct {
 	manager *melody.Melody
 
-	gorm     *gorm.DB
-	logger   logger.Logger
-	redis    *redis.Client
-	botsGrpc bots.BotsClient
+	gorm   *gorm.DB
+	logger logger.Logger
+	redis  *redis.Client
 
 	counter prometheus.Gauge
+	bus     *buscore.Bus
 }
 
 type Opts struct {
 	fx.In
 
-	Gorm     *gorm.DB
-	Logger   logger.Logger
-	Redis    *redis.Client
-	BotsGrpc bots.BotsClient
+	Gorm   *gorm.DB
+	Logger logger.Logger
+	Redis  *redis.Client
+	Bus    *buscore.Bus
 }
 
 func NewYouTube(opts Opts) *YouTube {
 	m := melody.New()
 	m.Config.MaxMessageSize = 1024 * 1024 * 10
 	youTube := &YouTube{
-		manager:  m,
-		gorm:     opts.Gorm,
-		logger:   opts.Logger,
-		redis:    opts.Redis,
-		botsGrpc: opts.BotsGrpc,
+		manager: m,
+		gorm:    opts.Gorm,
+		logger:  opts.Logger,
+		redis:   opts.Redis,
+		bus:     opts.Bus,
 		counter: promauto.NewGauge(
 			prometheus.GaugeOpts{
 				Name:        "websockets_connections_count",

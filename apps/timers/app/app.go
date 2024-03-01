@@ -16,7 +16,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	sentryInternal "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -40,9 +39,6 @@ var App = fx.Module(
 		streams.NewGorm,
 		func(config cfg.Config) parser.ParserClient {
 			return clients.NewParser(config.AppEnv)
-		},
-		func(config cfg.Config) bots.BotsClient {
-			return clients.NewBots(config.AppEnv)
 		},
 	),
 	fx.Invoke(

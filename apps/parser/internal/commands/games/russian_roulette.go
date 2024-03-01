@@ -16,7 +16,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"golang.org/x/exp/rand"
 )
 
@@ -77,13 +77,13 @@ var RussianRoulette = &types.DefaultCommand{
 		)
 
 		replyTo := lo.IfF(
-			parseCtx.Command.IsReply, func() *string {
-				return &parseCtx.MessageId
+			parseCtx.Command.IsReply, func() string {
+				return parseCtx.MessageId
 			},
-		).Else(nil)
+		).Else("")
 
-		_, err := parseCtx.Services.GrpcClients.Bots.SendMessage(
-			ctx, &bots.SendMessageRequest{
+		err := parseCtx.Services.Bus.Bots.SendMessage.Publish(
+			bots.SendMessageRequest{
 				ChannelId:      parseCtx.Channel.ID,
 				ChannelName:    &parseCtx.Channel.Name,
 				Message:        initMessage,
@@ -124,9 +124,8 @@ var RussianRoulette = &types.DefaultCommand{
 			result.Result = []string{surviveMessage}
 			return result, nil
 		} else {
-			_, err = parseCtx.Services.GrpcClients.Bots.SendMessage(
-				ctx,
-				&bots.SendMessageRequest{
+			parseCtx.Services.Bus.Bots.SendMessage.Publish(
+				bots.SendMessageRequest{
 					ChannelId:      parseCtx.Channel.ID,
 					ChannelName:    &parseCtx.Channel.Name,
 					Message:        deathMessage,

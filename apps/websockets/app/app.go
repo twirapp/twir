@@ -22,7 +22,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -42,9 +41,6 @@ var App = fx.Module(
 		redis.New,
 		gorm.New,
 		buscore.NewNatsBusFx(service),
-		func(cfg config.Config) bots.BotsClient {
-			return clients.NewBots(cfg.AppEnv)
-		},
 		func(cfg config.Config) parser.ParserClient {
 			return clients.NewParser(cfg.AppEnv)
 		},

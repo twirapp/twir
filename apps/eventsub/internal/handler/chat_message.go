@@ -143,7 +143,7 @@ func (c *Handler) handleChannelChatMessage(
 		ChannelPointsCustomRewardId: event.ChannelPointsCustomRewardID,
 	}
 
-	if err := c.bus.BotsMessages.Publish(data); err != nil {
+	if err := c.bus.Bots.ProcessMessage.Publish(data); err != nil {
 		c.logger.Error("cannot handle message", slog.Any("err", err))
 	}
 

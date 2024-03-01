@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -23,17 +22,13 @@ func (c *Activity) SendMessage(
 		return fmt.Errorf("cannot hydrate string %w", err)
 	}
 
-	_, err = c.botsGrpc.SendMessage(
-		ctx,
-		&bots.SendMessageRequest{
-			ChannelId:   data.ChannelID,
-			ChannelName: nil,
-			Message:     msg,
-			IsAnnounce:  lo.ToPtr(operation.UseAnnounce),
+	if err = c.bus.Bots.SendMessage.Publish(
+		bots.SendMessageRequest{
+			ChannelId:  data.ChannelID,
+			Message:    msg,
+			IsAnnounce: operation.UseAnnounce,
 		},
-	)
-
-	if err != nil {
+	); err != nil {
 		return fmt.Errorf("cannot send message %w", err)
 	}
 

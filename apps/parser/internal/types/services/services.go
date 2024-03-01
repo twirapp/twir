@@ -6,7 +6,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/eval"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -19,7 +18,6 @@ import (
 
 type Grpc struct {
 	WebSockets websockets.WebsocketClient
-	Bots       bots.BotsClient
 	Dota       dota.DotaClient
 	Eval       eval.EvalClient
 	Tokens     tokens.TokensClient

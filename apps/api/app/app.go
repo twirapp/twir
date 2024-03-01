@@ -22,7 +22,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	internalSentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -57,9 +56,6 @@ var App = fx.Options(
 		uptrace.NewFx("api"),
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
-		},
-		func(c cfg.Config) bots.BotsClient {
-			return clients.NewBots(c.AppEnv)
 		},
 		func(c cfg.Config) integrations.IntegrationsClient {
 			return clients.NewIntegrations(c.AppEnv)

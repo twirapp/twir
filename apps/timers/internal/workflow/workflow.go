@@ -10,7 +10,6 @@ import (
 	"github.com/satont/twir/apps/timers/internal/shared"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/converter"
@@ -32,7 +31,6 @@ type Opts struct {
 	ChannelsRepository channels.Repository
 	StreamsRepository  streams.Repository
 
-	BotsGrpc   bots.BotsClient
 	ParserGrpc parser.ParserClient
 	Activity   *activity.Activity
 }
@@ -55,7 +53,6 @@ func New(opts Opts) (*Workflow, error) {
 		timersRepository:   opts.TimersRepository,
 		channelsRepository: opts.ChannelsRepository,
 		streamsRepository:  opts.StreamsRepository,
-		botsGrpc:           opts.BotsGrpc,
 		parserGrpc:         opts.ParserGrpc,
 		activity:           opts.Activity,
 	}, nil
@@ -71,7 +68,6 @@ type Workflow struct {
 	channelsRepository channels.Repository
 	streamsRepository  streams.Repository
 
-	botsGrpc   bots.BotsClient
 	parserGrpc parser.ParserClient
 	activity   *activity.Activity
 }

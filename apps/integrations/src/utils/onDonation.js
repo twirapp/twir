@@ -1,10 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
-import { botsGrpcClient } from '../libs/botsGrpc.js';
 import { db } from '../libs/db.js';
 import { eventsGrpcClient } from '../libs/eventsGrpc.js';
-import { parserGrpcClient } from '../libs/parserGrpc.js';
-import { ytsrGrpcClient } from '../libs/ytsrGrpc.js';
 
 /**
  * @param {Donate} donate
@@ -34,50 +31,49 @@ export const onDonation = async (donate) => {
 		userName,
 	});
 
-	const songs = await ytsrGrpcClient.search({
-		search: msg,
-		onlyLinks: true,
-	});
+	// const songs = await ytsrGrpcClient.search({
+	// 	search: msg,
+	// 	onlyLinks: true,
+	// });
+	//
+	// if (!songs.songs.length) {
+	// 	return;
+	// }
 
-	if (!songs.songs.length) {
-		return;
-	}
-
-	const srCommand = await getSrCommand(donate.twitchUserId);
-	if (!srCommand?.enabled) {
-		return;
-	}
-
-	for (const song of songs.songs) {
-		try {
-			const parseResult = await parserGrpcClient.processCommand({
-				channel: {
-					id: donate.twitchUserId,
-				},
-				message: {
-					id: '',
-					emotes: [],
-					text: `!${srCommand.name} https://youtu.be/${song.id}`,
-				},
-				sender: {
-					id: donate.twitchUserId,
-					badges: ['BROADCASTER'],
-					name: userName,
-					displayName: userName,
-				},
-			});
-
-			for (const response of parseResult.responses) {
-				await botsGrpcClient.sendMessage({
-					channelId: donate.twitchUserId,
-					message: response,
-					skipRateLimits: true,
-				});
-			}
-		} catch (e) {
-			console.error(e);
-		}
-	}
+	// const srCommand = await getSrCommand(donate.twitchUserId);
+	// if (!srCommand?.enabled) {
+	// 	return;
+	// }
+	//
+	// for (const song of songs.songs) {
+	// 	try {
+	// 		const parseResult = await parserGrpcClient.processCommand({
+	// 			channel: {
+	// 				id: donate.twitchUserId,
+	// 			},
+	// 			message: {
+	// 				id: '',
+	// 				emotes: [],
+	// 				text: `!${srCommand.name} https://youtu.be/${song.id}`,
+	// 			},
+	// 			sender: {
+	// 				id: donate.twitchUserId,
+	// 				badges: ['BROADCASTER'],
+	// 				name: userName,
+	// 				displayName: userName,
+	// 			},
+	// 		});
+	//
+	// 		for (const response of parseResult.responses) {
+	// 			await botsGrpcClient.sendMessage({
+	// 				channelId: donate.twitchUserId,
+	// 				message: response,
+	// 				skipRateLimits: true,
+	// 			});
+	// 		}
+	// 	} catch (e) {
+	// 		console.error(e);
+	// 	}
 };
 
 /**

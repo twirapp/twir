@@ -32,7 +32,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/eventsub"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
@@ -82,7 +81,6 @@ type Opts struct {
 	SessionManager *scs.SessionManager
 
 	TokensGrpc       tokens.TokensClient
-	BotsGrpc         bots.BotsClient
 	IntegrationsGrpc integrationsGrpc.IntegrationsClient
 	ParserGrpc       parser.ParserClient
 	WebsocketsGrpc   websockets.WebsocketClient
@@ -102,7 +100,6 @@ func New(opts Opts) *Protected {
 		SessionManager: opts.SessionManager,
 		Grpc: &impl_deps.Grpc{
 			Tokens:       opts.TokensGrpc,
-			Bots:         opts.BotsGrpc,
 			Integrations: opts.IntegrationsGrpc,
 			Parser:       opts.ParserGrpc,
 			Websockets:   opts.WebsocketsGrpc,

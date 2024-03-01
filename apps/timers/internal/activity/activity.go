@@ -11,8 +11,8 @@ import (
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
 	config "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
-	"github.com/twirapp/twir/libs/grpc/bots"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.uber.org/fx"
 )
@@ -25,7 +25,6 @@ type Opts struct {
 	StreamsRepository  streams.Repository
 	Cfg                config.Config
 	ParserGrpc         parser.ParserClient
-	BotsGrpc           bots.BotsClient
 	Redis              *redis.Client
 	Bus                *buscore.Bus
 }
@@ -37,7 +36,6 @@ func New(opts Opts) *Activity {
 		streamsRepository:  opts.StreamsRepository,
 		cfg:                opts.Cfg,
 		parserGrpc:         opts.ParserGrpc,
-		botsGrpc:           opts.BotsGrpc,
 		redis:              opts.Redis,
 		bus:                opts.Bus,
 	}
@@ -49,7 +47,6 @@ type Activity struct {
 	streamsRepository  streams.Repository
 	cfg                config.Config
 	parserGrpc         parser.ParserClient
-	botsGrpc           bots.BotsClient
 	redis              *redis.Client
 	bus                *buscore.Bus
 }
@@ -147,13 +144,12 @@ func (c *Activity) sendMessage(
 		return err
 	}
 
-	_, err = c.botsGrpc.SendMessage(
-		ctx,
-		&bots.SendMessageRequest{
+	err = c.bus.Bots.SendMessage.Publish(
+		bots.SendMessageRequest{
 			ChannelId:      channelId,
 			ChannelName:    &stream.UserLogin,
 			Message:        parseReq.Data.Text,
-			IsAnnounce:     &isAnnounce,
+			IsAnnounce:     isAnnounce,
 			SkipRateLimits: true,
 		},
 	)

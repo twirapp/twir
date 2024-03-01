@@ -155,7 +155,6 @@ func main() {
 		Redis:  redisClient,
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
-			Bots:       clients.NewBots(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
 			Eval:       clients.NewEval(config.AppEnv),
 			Tokens:     tokensGrpc,

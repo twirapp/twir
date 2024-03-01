@@ -7,9 +7,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
+	"github.com/twirapp/twir/libs/bus-core/bots"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/bots"
 )
 
 var Command = &types.DefaultCommand{
@@ -59,12 +59,11 @@ var Command = &types.DefaultCommand{
 			mappedMessagesIds = append(mappedMessagesIds, message.MessageId)
 		}
 
-		if _, err = parseCtx.Services.GrpcClients.Bots.DeleteMessage(
-			ctx,
-			&bots.DeleteMessagesRequest{
+		if err := parseCtx.Services.Bus.Bots.DeleteMessage.Publish(
+			bots.DeleteMessageRequest{
 				ChannelId:   parseCtx.Channel.ID,
 				MessageIds:  mappedMessagesIds,
-				ChannelName: parseCtx.Channel.Name,
+				ChannelName: &parseCtx.Channel.Name,
 			},
 		); err != nil {
 			return nil, &types.CommandHandlerError{

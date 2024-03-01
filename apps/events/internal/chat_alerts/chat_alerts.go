@@ -11,7 +11,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/api/messages/events"
-	"github.com/twirapp/twir/libs/grpc/bots"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	events_messages "github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -24,9 +24,9 @@ type ChatAlerts struct {
 	redis          *redis.Client
 	logger         logger.Logger
 	cfg            cfg.Config
-	botsGrpc       bots.BotsClient
 	tokensGrpc     tokens.TokensClient
 	websocketsGrpc websockets.WebsocketClient
+	bus            *buscore.Bus
 }
 
 type Opts struct {
@@ -36,9 +36,9 @@ type Opts struct {
 	Redis          *redis.Client
 	Logger         logger.Logger
 	Cfg            cfg.Config
-	BotsGrpc       bots.BotsClient
 	TokensGrpc     tokens.TokensClient
 	WebsocketsGrpc websockets.WebsocketClient
+	Bus            *buscore.Bus
 }
 
 func New(opts Opts) (*ChatAlerts, error) {
@@ -47,7 +47,7 @@ func New(opts Opts) (*ChatAlerts, error) {
 		redis:          opts.Redis,
 		logger:         opts.Logger,
 		cfg:            opts.Cfg,
-		botsGrpc:       opts.BotsGrpc,
+		bus:            opts.Bus,
 		tokensGrpc:     opts.TokensGrpc,
 		websocketsGrpc: opts.WebsocketsGrpc,
 	}, nil
