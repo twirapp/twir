@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconEdit, IconTrash } from '@tabler/icons-vue';
+import { IconEdit, IconTrash, IconArrowUp, IconArrowDown } from '@tabler/icons-vue';
 import type { Settings } from '@twir/api/messages/channels_public_settings/channels_public_settings';
 import {
 	NCard,
@@ -107,6 +107,11 @@ function setLinkFormEdit(index: number) {
 function removeLink(index: number) {
 	formData.value.socialLinks = formData.value.socialLinks.filter((_, i) => i != index);
 }
+
+function changeSort(from: number, to: number) {
+	const element = formData.value.socialLinks.splice(from, 1).at(0)!;
+	formData.value.socialLinks.splice(to, 0, element);
+}
 </script>
 
 <template>
@@ -170,14 +175,28 @@ function removeLink(index: number) {
 					</template>
 					<template #header-extra>
 						<div class="flex gap-2">
+							<n-button
+								text
+								:disabled="!formData.socialLinks[idx+1]"
+								@click="changeSort(idx, idx+1)"
+							>
+								<IconArrowDown class="header-button" />
+							</n-button>
+							<n-button
+								text
+								:disabled="idx === 0"
+								@click="changeSort(idx, idx-1)"
+							>
+								<IconArrowUp class="header-button" />
+							</n-button>
 							<n-button text @click="setLinkFormEdit(idx)">
-								<IconEdit style="height: 18px; width: 18px;" />
+								<IconEdit class="header-button" />
 							</n-button>
 							<n-button
 								text
 								@click="removeLink(idx)"
 							>
-								<IconTrash style="height: 18px; width: 18px;" />
+								<IconTrash class="header-button" />
 							</n-button>
 						</div>
 					</template>
@@ -193,3 +212,10 @@ function removeLink(index: number) {
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.header-button {
+	height: 18px;
+	width: 18px;
+}
+</style>
