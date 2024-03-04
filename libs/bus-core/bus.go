@@ -6,6 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
@@ -33,11 +34,17 @@ type bots struct {
 	DeleteMessage  Queue[botsservice.DeleteMessageRequest, struct{}]
 }
 
+type emotesCacher struct {
+	CacheGlobalEmotes  Queue[struct{}, struct{}]
+	CacheChannelEmotes Queue[emotes_cacher.EmotesCacheRequest, struct{}]
+}
+
 type Bus struct {
-	Parser    *parserBus
-	Websocket *websocketBus
-	Channel   *channelBus
-	Bots      *bots
+	Parser       *parserBus
+	Websocket    *websocketBus
+	Channel      *channelBus
+	Bots         *bots
+	EmotesCacher *emotesCacher
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -112,6 +119,21 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			StreamOffline: NewNatsQueue[twitch.StreamOfflineMessage, struct{}](
 				nc,
 				STREAM_OFFLINE_SUBJECT,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
+
+		EmotesCacher: &emotesCacher{
+			CacheGlobalEmotes: NewNatsQueue[struct{}, struct{}](
+				nc,
+				emotes_cacher.EMOTES_CACHER_GLOBAL_EMOTES_SUBJECT,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			CacheChannelEmotes: NewNatsQueue[emotes_cacher.EmotesCacheRequest, struct{}](
+				nc,
+				emotes_cacher.EMOTES_CACHER_CHANNEL_EMOTES_SUBJECT,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

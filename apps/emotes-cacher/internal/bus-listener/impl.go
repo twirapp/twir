@@ -1,76 +1,72 @@
-package grpc_impl
+package bus_listener
 
 import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
 	"sync"
 	"time"
 
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/emotes-cacher/internal/emotes"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/constants"
-	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
-	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
-	"google.golang.org/grpc"
-	"google.golang.org/protobuf/types/known/emptypb"
 )
 
-type EmotesCacherImpl struct {
-	emotes_cacher.UnimplementedEmotesCacherServer
-
+type BusListener struct {
 	redis  *redis.Client
 	logger logger.Logger
+	bus    *buscore.Bus
 }
 
 type Opts struct {
 	fx.In
+	Lc fx.Lifecycle
 
 	Redis  *redis.Client
 	Logger logger.Logger
-	Lc     fx.Lifecycle
+	Bus    *buscore.Bus
 }
 
-func NewEmotesCacher(opts Opts) {
-	impl := &EmotesCacherImpl{
+func New(opts Opts) {
+	impl := &BusListener{
 		redis:  opts.Redis,
 		logger: opts.Logger,
+		bus:    opts.Bus,
 	}
-
-	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
 
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				lis, err := net.Listen(
-					"tcp",
-					fmt.Sprintf("0.0.0.0:%d", constants.EMOTES_CACHER_SERVER_PORT),
-				)
-				if err != nil {
+				if err := impl.bus.EmotesCacher.CacheGlobalEmotes.SubscribeGroup(
+					"emotes-cacher",
+					impl.cacheGlobalEmotes,
+				); err != nil {
 					return err
 				}
-				emotes_cacher.RegisterEmotesCacherServer(grpcServer, impl)
-				go grpcServer.Serve(lis)
-
+				if err := impl.bus.EmotesCacher.CacheChannelEmotes.SubscribeGroup(
+					"emotes-cacher",
+					impl.cacheChannelEmotes,
+				); err != nil {
+					return err
+				}
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
-				grpcServer.GracefulStop()
 				return nil
 			},
 		},
 	)
 }
 
-func (c *EmotesCacherImpl) CacheChannelEmotes(
+func (c *BusListener) cacheChannelEmotes(
 	_ context.Context,
-	req *emotes_cacher.Request,
-) (*emptypb.Empty, error) {
-	if req.ChannelId == "" {
-		return &emptypb.Empty{}, nil
+	req emotes_cacher.EmotesCacheRequest,
+) struct{} {
+	if req.ChannelID == "" {
+		return struct{}{}
 	}
 
 	wg := sync.WaitGroup{}
@@ -89,7 +85,7 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(
 		f := f
 		go func() {
 			defer wg.Done()
-			res, err := f(req.ChannelId)
+			res, err := f(req.ChannelID)
 			if err != nil {
 				c.logger.Error("cannot get emotes", slog.Any("err", err))
 				return
@@ -111,20 +107,17 @@ func (c *EmotesCacherImpl) CacheChannelEmotes(
 		go func(emote string) {
 			c.redis.Set(
 				context.Background(),
-				fmt.Sprintf("emotes:channel:%s:%s", req.ChannelId, emote),
+				fmt.Sprintf("emotes:channel:%s:%s", req.ChannelID, emote),
 				emote,
 				10*time.Minute,
 			)
 		}(emote)
 	}
 
-	return &emptypb.Empty{}, nil
+	return struct{}{}
 }
 
-func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty) (
-	*emptypb.Empty,
-	error,
-) {
+func (c *BusListener) cacheGlobalEmotes(_ context.Context, _ struct{}) struct{} {
 	wg := sync.WaitGroup{}
 	mu := sync.Mutex{}
 
@@ -184,5 +177,5 @@ func (c *EmotesCacherImpl) CacheGlobalEmotes(_ context.Context, _ *emptypb.Empty
 		}(emote)
 	}
 
-	return &emptypb.Empty{}, nil
+	return struct{}{}
 }

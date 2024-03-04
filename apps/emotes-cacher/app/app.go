@@ -4,10 +4,11 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/emotes-cacher/internal/grpc_impl"
+	bus_listener "github.com/satont/twir/apps/emotes-cacher/internal/bus-listener"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
@@ -23,6 +24,7 @@ var App = fx.Module(
 		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
 		logger.NewFx(logger.Opts{Service: service}),
 		uptrace.NewFx("emotes-cacher"),
+		buscore.NewNatsBusFx("emotes-cacher"),
 		func(cfg cfg.Config) (*gorm.DB, error) {
 			db, err := gorm.Open(postgres.Open(cfg.DatabaseUrl))
 			if err != nil {
@@ -46,7 +48,7 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		uptrace.NewFx("emotes-cacher"),
-		grpc_impl.NewEmotesCacher,
+		bus_listener.New,
 		func(l logger.Logger) {
 			l.Info("Emotes Cacher started")
 		},

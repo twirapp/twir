@@ -10,7 +10,6 @@ import (
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
-	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -31,9 +30,6 @@ var App = fx.Module(
 		},
 		func(c config.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
-		},
-		func(c config.Config) emotes_cacher.EmotesCacherClient {
-			return clients.NewEmotesCacher(c.AppEnv)
 		},
 		gorm.New,
 		services.NewRoles,

@@ -9,9 +9,9 @@ import (
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/libs/grpc/emotes_cacher"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"go.uber.org/fx"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
@@ -22,8 +22,8 @@ type EmotesOpts struct {
 	Logger logger.Logger
 	Config config.Config
 
-	EmotesService emotes_cacher.EmotesCacherClient
-	Gorm          *gorm.DB
+	Bus  *buscore.Bus
+	Gorm *gorm.DB
 }
 
 func NewEmotes(opts EmotesOpts) {
@@ -55,10 +55,9 @@ func NewEmotes(opts EmotesOpts) {
 								opts.Logger.Error("error while getting channels", slog.Any("err", err))
 							} else {
 								for _, channel := range channels {
-									_, err = opts.EmotesService.CacheChannelEmotes(
-										ctx,
-										&emotes_cacher.Request{
-											ChannelId: channel.ID,
+									err = opts.Bus.EmotesCacher.CacheChannelEmotes.Publish(
+										emotes_cacher.EmotesCacheRequest{
+											ChannelID: channel.ID,
 										},
 									)
 									if err != nil {
@@ -77,7 +76,7 @@ func NewEmotes(opts EmotesOpts) {
 							globalTicker.Stop()
 							break
 						case <-globalTicker.C:
-							_, err := opts.EmotesService.CacheGlobalEmotes(ctx, &emptypb.Empty{})
+							err := opts.Bus.EmotesCacher.CacheGlobalEmotes.Publish(struct{}{})
 							if err != nil {
 								opts.Logger.Error("error while caching global emotes", slog.Any("err", err))
 							}
