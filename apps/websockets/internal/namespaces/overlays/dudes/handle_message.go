@@ -1,9 +1,9 @@
 package dudes
 
 import (
-	"errors"
 	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/olahol/melody"
@@ -64,35 +64,69 @@ func (c *Dudes) SendUserSettings(
 	userId string,
 ) error {
 	entity := model.ChannelsOverlaysDudesUserSettings{}
-
-	err := c.gorm.
-		Where("channel_id = ? AND user_id = ?", channelId, userId).
-		First(&entity).Error
-	if err != nil {
-		return err
+	emptySettings := overlays.DudesUserSettings{
+		UserID: userId,
 	}
 
 	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
 	if err != nil {
 		c.logger.Error(err.Error())
-		return err
+		return c.SendEvent(
+			channelId,
+			"userSettings",
+			&emptySettings,
+		)
 	}
-	usersReq, err := twitchClient.GetUsers(
-		&helix.UsersParams{
-			IDs: []string{userId},
+
+	usersReq, err := retry.DoWithData(
+		func() (*helix.UsersResponse, error) {
+			return twitchClient.GetUsers(
+				&helix.UsersParams{
+					IDs: []string{userId},
+				},
+			)
 		},
+		retry.Attempts(5),
 	)
 	if err != nil {
-		return err
+		c.logger.Error(err.Error())
+		return c.SendEvent(
+			channelId,
+			"userSettings",
+			&emptySettings,
+		)
 	}
 	if usersReq.ErrorMessage != "" {
-		return errors.New(usersReq.ErrorMessage)
+		return c.SendEvent(
+			channelId,
+			"userSettings",
+			&emptySettings,
+		)
 	}
 	if len(usersReq.Data.Users) == 0 {
-		return nil
+		c.logger.Warn("cannot get user")
+		return c.SendEvent(
+			channelId,
+			"userSettings",
+			&emptySettings,
+		)
 	}
 
 	user := usersReq.Data.Users[0]
+	emptySettings.UserDisplayName = &user.DisplayName
+	emptySettings.UserName = &user.Login
+
+	err = c.gorm.
+		Where("channel_id = ? AND user_id = ?", channelId, userId).
+		First(&entity).Error
+	if err != nil {
+		c.logger.Error(err.Error())
+		return c.SendEvent(
+			channelId,
+			"userSettings",
+			&emptySettings,
+		)
+	}
 
 	var sprite *overlays.DudesSprite
 	if entity.DudeSprite != nil {
@@ -106,8 +140,8 @@ func (c *Dudes) SendUserSettings(
 			DudeColor:       entity.DudeColor,
 			DudeSprite:      sprite,
 			UserID:          user.ID,
-			UserDisplayName: user.DisplayName,
-			UserName:        user.Login,
+			UserDisplayName: &user.DisplayName,
+			UserName:        &user.Login,
 		},
 	)
 
