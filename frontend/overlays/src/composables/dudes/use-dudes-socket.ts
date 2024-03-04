@@ -1,10 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
-import {
-	DudesSprite,
-	type DudesGrowRequest,
-	type DudesUserSettings,
-} from '@twir/types/overlays';
+import { DudesSprite, type DudesGrowRequest, type DudesUserSettings } from '@twir/types/overlays';
+import { DudesLayers } from '@twirapp/dudes';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
@@ -30,18 +27,15 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	const dudesSettingsStore = useDudesSettings();
 	const overlayId = ref('');
 	const dudesUrl = ref('');
-	const { data, send, open, close, status } = useWebSocket(
-		dudesUrl,
-		{
-			immediate: false,
-			autoReconnect: {
-				delay: 500,
-			},
-			onConnected() {
-				send(JSON.stringify({ eventName: 'getSettings' }));
-			},
+	const { data, send, open, close, status } = useWebSocket(dudesUrl, {
+		immediate: false,
+		autoReconnect: {
+			delay: 500,
 		},
-	);
+		onConnected() {
+			send(JSON.stringify({ eventName: 'getSettings' }));
+		},
+	});
 
 	watch(data, async (recieviedData) => {
 		if (!dudes.value) return;
@@ -59,39 +53,45 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			updateSettingFromSocket(data);
 		}
 
+		if (!parsedData.data?.userDisplayName || !parsedData.data?.userName) {
+			console.warn('Could not find `userDisplayName` or `userName` in userSettings.');
+			return;
+		}
+
+		const dudeName = normalizeDisplayName(
+			parsedData.data.userDisplayName,
+			parsedData.data.userName,
+		);
+
 		if (parsedData.eventName === 'userSettings') {
 			const data = parsedData.data as DudesUserSettings;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesSettingsStore.dudesUserSettings.set(dudeName, data);
-
-			const dude = dudesStore.createDude(dudeName, data.userId, data.dudeColor)?.dude;
+			dudesSettingsStore.dudesUserSettings.set(data.userId, data);
+			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
 			if (!dude) return;
 
+			const dudeSprite = getSprite(data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
+			await dude.updateSpriteData(dudeSprite);
+			dudesStore.updateDudeColors(dude);
+
 			if (data.dudeColor) {
-				dude.bodyTint(data.dudeColor);
+				dude.updateColor(DudesLayers.Body, data.dudeColor);
 			}
 
-			if (data.dudeSprite) {
-				dude.spriteName = getSprite(data.dudeSprite);
-				dude.playAnimation('Run', true);
-			}
+			return;
 		}
 
 		if (parsedData.eventName === 'jump') {
 			const data = parsedData.data as DudesJumpRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.jump();
+			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.jump();
 		}
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.grow();
+			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.grow();
 		}
 
 		if (parsedData.eventName === 'punished') {
 			const data = parsedData.data as DudesUserPunishedRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			dudes.value.removeDude(dudeName);
 			dudesSettingsStore.dudesUserSettings.delete(data.userId);
 		}
@@ -113,6 +113,8 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudes: {
 				dude: {
 					...data.dudeSettings,
+					// TODO: rename and deprecate `eyes_color`, `cosmetics_color`
+					bodyColor: data.dudeSettings.color,
 					sounds: {
 						enabled: data.dudeSettings.soundsEnabled,
 						volume: data.dudeSettings.soundsVolume,
@@ -120,13 +122,15 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 				},
 				name: {
 					...data.nameBoxSettings,
+					// TODO: move to nameBoxSettings
+					enabled: data.dudeSettings.visibleName,
 					fontFamily,
 				},
 				message: {
 					...data.messageBoxSettings,
 					fontFamily,
 				},
-				spitter: data.spitterEmoteSettings,
+				emote: data.spitterEmoteSettings,
 			},
 		});
 	}

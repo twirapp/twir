@@ -389,8 +389,8 @@ importers:
         specifier: workspace:*
         version: link:../../libs/grpc
       '@twirapp/dudes':
-        specifier: 0.6.1
-        version: 0.6.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18)
+        specifier: 1.0.0
+        version: 1.0.0(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18)
       '@twirapp/kappagen':
         specifier: 1.0.0
         version: 1.0.0(vue@3.4.18)
@@ -2260,8 +2260,8 @@ packages:
       '@pixi/core': 7.4.0
     dev: false
 
-  /@pixi/gif@2.1.0(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0):
-    resolution: {integrity: sha512-g0xVMgHzPdq7bX3UmUR5tiFpMP07u4reCEgSRKLwNQ95AnpRzQq3QtTsKosYMTrE9zZfr7TWlwdx1rFKs28SeA==}
+  /@pixi/gif@2.1.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0):
+    resolution: {integrity: sha512-SGA0HP9/9a2gy3cylBkYOWaA13ffFYj0huGfm9c0QY6AM1XQPpsonzsObIHXgwRjJP+tTjNYU66ML2fqsblM+A==}
     peerDependencies:
       '@pixi/assets': ^7.0.0
       '@pixi/core': ^7.0.0
@@ -2974,12 +2974,12 @@ packages:
       path-browserify: 1.0.1
     dev: true
 
-  /@twirapp/dudes@0.6.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18):
-    resolution: {integrity: sha512-miXZLyky4HC7FTCELn/74TUuW2Rj4sVQRJH2jPWjxkByir4PwXRVmO8Gx7jyCJ1GJtBhbTd9RD7xK2TcFeq2kw==}
+  /@twirapp/dudes@1.0.0(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)(vue@3.4.18):
+    resolution: {integrity: sha512-4PLkjQ2JyzPcxnnc5Oz8yeB7IUqy4a5MRg2lnN7smnlBAXsbammq78YejchGyemZomk9W9fj30pt8G9zVLh7pg==}
     peerDependencies:
       vue: '>=3.0.0'
     dependencies:
-      '@pixi/gif': 2.1.0(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)
+      '@pixi/gif': 2.1.1(@pixi/assets@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/sprite@7.4.0)
       gsap: 3.12.5
       pixi.js: 7.4.0
       vue: 3.4.18(typescript@5.3.3)

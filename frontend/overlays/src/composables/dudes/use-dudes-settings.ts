@@ -18,7 +18,7 @@ export type DudesConfig = {
 		dude: DudesTypes.DudeParams
 		name: DudesTypes.NameBoxParams
 		message: DudesTypes.MessageBoxParams
-		spitter: DudesTypes.EmoteSpitterParams
+		emote: DudesTypes.EmotesParams
 	}
 	overlay: DudesOverlaySettings
 }

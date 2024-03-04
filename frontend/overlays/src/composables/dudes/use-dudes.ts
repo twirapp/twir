@@ -1,5 +1,6 @@
 import type { MessageChunk } from '@twir/frontend-chat';
 import { DudesSprite } from '@twir/types/overlays';
+import { DudesLayers } from '@twirapp/dudes';
 import type { DudesMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
@@ -33,7 +34,7 @@ export const useDudes = defineStore('dudes', () => {
 		};
 	}
 
-	function createDude(name: string, userId: string, color?: string) {
+	async function createDude(name: string, userId: string, color?: string) {
 		if (!dudes.value || !dudesSettings.value) return;
 
 		const dudeFromCanvas = dudes.value.dudes.get(name) as Dude;
@@ -46,23 +47,41 @@ export const useDudes = defineStore('dudes', () => {
 			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
 		) return;
 
-		const userSettings = getDudeUserSettings(userId);
-		const dudeColor = userSettings?.dudeColor
+		const userSettings = requestDudeUserSettings(userId);
+		if (!userSettings) return;
+
+		const dudeColor = userSettings.dudeColor
 			?? color
-			?? dudesSettings.value.dudes.dude.color;
+			?? dudesSettings.value.dudes.dude.bodyColor;
 
 		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
-		const dude = dudes.value.createDude(name, dudeSprite);
-		dude.bodyTint(dudeColor);
+		const dude = await dudes.value.createDude(name, dudeSprite);
 
-		if (dudeSprite === DudesSprite.sith) {
-			dude.cosmeticsTint(randomRgbColor());
-		}
+		dude.updateColor(DudesLayers.Body, dudeColor);
+		updateDudeColors(dude);
 
 		const dudeInstance = createDudeInstance(dude);
 		dudeInstance.isCreated = true;
 
 		return dudeInstance;
+	}
+
+	function updateDudeColors(dude: Dude): void {
+		if (dude.spriteData.name.startsWith(DudesSprite.girl)) {
+			dude.updateColor(DudesLayers.Hat, '#FF0000');
+		}
+
+		if (dude.spriteData.name.startsWith(DudesSprite.santa)) {
+			dude.updateColor(DudesLayers.Hat, '#FFF');
+		}
+
+		if (dude.spriteData.name.startsWith(DudesSprite.agent)) {
+			dude.updateColor(DudesLayers.Cosmetics, '#8a2be2');
+		}
+
+		if (dude.spriteData.name.startsWith(DudesSprite.sith)) {
+			dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
+		}
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
@@ -85,7 +104,7 @@ export const useDudes = defineStore('dudes', () => {
 			.map(getProxiedEmoteUrl);
 
 		if (emotes.length) {
-			dude.spitEmotes([...new Set(emotes)]);
+			dude.addEmotes([...new Set(emotes)]);
 		}
 	}
 
@@ -98,7 +117,7 @@ export const useDudes = defineStore('dudes', () => {
 		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`;
 	}
 
-	function getDudeUserSettings(userId: string) {
+	function requestDudeUserSettings(userId: string) {
 		const userSettings = dudesSettingsStore.dudesUserSettings.get(userId);
 		if (userSettings) return userSettings;
 		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }));
@@ -114,6 +133,7 @@ export const useDudes = defineStore('dudes', () => {
 		dudes,
 		createDude,
 		showMessageDude,
+		updateDudeColors,
 		getProxiedEmoteUrl,
 		isDudeOverlayReady,
 	};

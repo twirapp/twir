@@ -1,7 +1,8 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
+import { DudesLayers } from '@twirapp/dudes';
 import { defineStore } from 'pinia';
 
-import { dudesTwir, getSprite } from './dudes-config.js';
+import { dudesTwir, getSprite, type DudeSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 import { useDudesSocket } from './use-dudes-socket.js';
 import { useDudes } from './use-dudes.js';
@@ -30,8 +31,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		if (parsedData.action === 'settings' && parsedData.data) {
 			const settings = parsedData.data as Required<Settings>;
 			dudesSocketStore.updateSettingFromSocket(settings);
-			dude.spriteName = getSprite(settings.dudeSettings.defaultSprite);
-			dude.playAnimation('Run', true);
+			await dude.updateSpriteData(getSprite(settings.dudeSettings.defaultSprite as DudeSprite));
+			dudesStore.updateDudeColors(dude);
 			return;
 		}
 
@@ -53,7 +54,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 				type: '3rd_party_emote',
 				value: 'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.gif',
 			});
-			dude.spitEmotes([emote]);
+			dude.addEmotes([emote]);
 		}
 
 		if (parsedData.action === 'show-message') {
@@ -61,7 +62,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		}
 	}
 
-	function spawnIframeDude() {
+	async function spawnIframeDude() {
 		if (
 			!dudesStore.dudes ||
 			!dudesSettingsStore.dudesSettings ||
@@ -75,10 +76,11 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		});
 
 		const dudeSprite = getSprite(dudesSettingsStore.dudesSettings.overlay.defaultSprite);
-		const dude = dudesStore.dudes.createDude(dudesTwir, dudeSprite);
-		dude.bodyTint('#8a2be2');
+		const dude = await dudesStore.dudes.createDude(dudesTwir, dudeSprite);
+		dude.updateColor(DudesLayers.Body, '#8a2be2');
+		dudesStore.updateDudeColors(dude);
 		dude.addMessage(`Hello, ${dudesSettingsStore.channelData.channelDisplayName}! ${randomEmoji('emoticons')}`);
-		dude.spitEmotes([emote]);
+		dude.addEmotes([emote]);
 	}
 
 	function connect() {
