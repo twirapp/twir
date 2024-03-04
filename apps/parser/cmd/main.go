@@ -156,7 +156,6 @@ func main() {
 		GrpcClients: &services.Grpc{
 			WebSockets: clients.NewWebsocket(config.AppEnv),
 			Dota:       clients.NewDota(config.AppEnv),
-			Eval:       clients.NewEval(config.AppEnv),
 			Tokens:     tokensGrpc,
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),

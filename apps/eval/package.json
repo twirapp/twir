@@ -4,12 +4,14 @@
   "scripts": {
     "prebuild": "rimraf dist",
     "start": "node src/index.js",
-		"dev": "node --watch --watch-preserve-output src/index.js"
+    "dev": "node --watch --watch-preserve-output src/index.js"
   },
   "dependencies": {
+    "@twir/bus-core": "workspace:*",
     "@twir/config": "workspace:*",
     "@twir/grpc": "workspace:*",
     "lodash": "4.17.21",
+    "nats": "2.19.0",
     "nice-grpc": "2.1.7",
     "vm2": "3.9.19"
   },

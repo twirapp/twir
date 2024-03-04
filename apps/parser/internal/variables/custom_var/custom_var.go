@@ -7,7 +7,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/libs/grpc/eval"
+	"github.com/twirapp/twir/libs/bus-core/eval"
 )
 
 var CustomVar = &types.Variable{
@@ -38,10 +38,10 @@ var CustomVar = &types.Variable{
 		}
 
 		if v.Type == model.CustomVarScript {
-			req, err := parseCtx.Services.GrpcClients.Eval.Process(
+			res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
 				ctx,
-				&eval.Evaluate{
-					Script: v.EvalValue,
+				eval.EvalRequest{
+					Expression: v.EvalValue,
 				},
 			)
 
@@ -53,7 +53,7 @@ var CustomVar = &types.Variable{
 				)
 			}
 
-			result.Result = req.Result
+			result.Result = res.Data.Result
 		}
 
 		if v.Type == model.CustomVarText || v.Type == model.CustomVarNumber {

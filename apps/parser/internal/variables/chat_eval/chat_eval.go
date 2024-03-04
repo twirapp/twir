@@ -6,7 +6,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
-	"github.com/twirapp/twir/libs/grpc/eval"
+	"github.com/twirapp/twir/libs/bus-core/eval"
 )
 
 var ChatEval = &types.Variable{
@@ -25,10 +25,10 @@ var ChatEval = &types.Variable{
 
 		script := fmt.Sprintf(`return %s`, *parseCtx.Text)
 
-		req, err := parseCtx.Services.GrpcClients.Eval.Process(
+		res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
 			ctx,
-			&eval.Evaluate{
-				Script: script,
+			eval.EvalRequest{
+				Expression: script,
 			},
 		)
 
@@ -38,7 +38,7 @@ var ChatEval = &types.Variable{
 			return result, nil
 		}
 
-		result.Result = lo.Substring(req.Result, 0, 500)
+		result.Result = lo.Substring(res.Data.Result, 0, 500)
 		return result, nil
 	},
 }

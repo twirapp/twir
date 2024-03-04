@@ -1,0 +1,10 @@
+{
+  "name": "@twir/bus-core",
+  "main": "src/index.js",
+	"types": "src/index.d.ts",
+	"type": "module",
+  "private": true,
+  "dependencies": {
+    "nats": "2.19.0"
+  }
+}

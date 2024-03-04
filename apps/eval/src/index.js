@@ -1,7 +1,7 @@
-import { PORTS } from '@twir/grpc/constants/constants';
-import * as Eval from '@twir/grpc/eval/eval';
+import { newBus } from '@twir/bus-core';
+import { config } from '@twir/config';
 import _ from 'lodash';
-import { createServer } from 'nice-grpc';
+import { connect as natsConnect } from 'nats';
 import { VM } from 'vm2';
 
 const vm = new VM({
@@ -15,32 +15,22 @@ const vm = new VM({
 	eval: false,
 });
 
+const bus = newBus(await natsConnect({ servers: config.NATS_URL }));
 
-/**
- * @type {import('@twir/grpc/eval/eval').EvalServiceImplementation}
- */
-const evalService = {
-	async process(request) {
-		let resultOfExecution;
-		try {
-			const toEval = `(async function () { ${request.script} })()`.split(';\n').join(';');
-			resultOfExecution = await vm.run(toEval);
-		} catch (error) {
-			console.error(error);
-			resultOfExecution = error.message ?? 'unexpected error';
-		}
+bus.Eval.Evaluate.subscribeGroup('eval.evaluate', async (request) => {
+	let resultOfExecution;
+	try {
+		const toEval = `(async function () { ${request.expression} })()`.split(';\n').join(';');
+		resultOfExecution = await vm.run(toEval);
+	} catch (error) {
+		console.error(error);
+		resultOfExecution = error.message ?? 'unexpected error';
+	}
 
-		return {
-			result: String(resultOfExecution).slice(0, 5000),
-		};
-	},
-};
-
-const server = createServer({
-	'grpc.keepalive_time_ms': 1 * 60 * 1000,
+	return {
+		result: String(resultOfExecution).slice(0, 5000),
+	};
 });
 
-server.add(Eval.EvalDefinition, evalService);
 
-await server.listen(`0.0.0.0:${PORTS.EVAL_SERVER_PORT}`);
-console.log('Eval microservice started');
+console.info('Eval service started');
