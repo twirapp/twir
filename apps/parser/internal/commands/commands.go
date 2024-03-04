@@ -244,11 +244,17 @@ func (c *Commands) ParseCommandResponses(
 		ID:   requestData.BroadcasterUserId,
 		Name: requestData.BroadcasterUserLogin,
 	}
+
+	badges := make([]string, 0, len(requestData.Badges))
+	for _, b := range requestData.Badges {
+		badges = append(badges, strings.ToUpper(b.SetId))
+	}
+
 	parseCtxSender := &types.ParseContextSender{
 		ID:          requestData.ChatterUserId,
 		Name:        requestData.ChatterUserLogin,
 		DisplayName: requestData.ChatterUserName,
-		Badges:      []string{},
+		Badges:      badges,
 		Color:       requestData.Color,
 	}
 
