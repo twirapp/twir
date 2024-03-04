@@ -11,7 +11,7 @@ import { useDudesSettings } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { generateSocketUrlWithParams, normalizeDisplayName, randomRgbColor } from '@/helpers.js';
+import { generateSocketUrlWithParams, normalizeDisplayName } from '@/helpers.js';
 import type { ChannelData } from '@/types.js';
 
 declare global {
@@ -53,55 +53,45 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			updateSettingFromSocket(data);
 		}
 
+		if (!parsedData.data?.userDisplayName || !parsedData.data?.userName) {
+			console.warn('Could not find `userDisplayName` or `userName` in userSettings.');
+			return;
+		}
+
+		const dudeName = normalizeDisplayName(
+			parsedData.data.userDisplayName,
+			parsedData.data.userName,
+		);
+
 		if (parsedData.eventName === 'userSettings') {
 			const data = parsedData.data as DudesUserSettings;
 			dudesSettingsStore.dudesUserSettings.set(data.userId, data);
-
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
 			if (!dude) return;
 
-			if (data.dudeSprite) {
-				await dude.updateSpriteData(getSprite(data.dudeSprite));
-			}
+			const dudeSprite = getSprite(data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
+			await dude.updateSpriteData(dudeSprite);
+			dudesStore.updateDudeColors(dude);
 
 			if (data.dudeColor) {
 				dude.updateColor(DudesLayers.Body, data.dudeColor);
 			}
 
-			if (dude.spriteData.name.startsWith(DudesSprite.girl)) {
-				dude.updateColor(DudesLayers.Hat, '#FF0000');
-			}
-
-			if (dude.spriteData.name.startsWith(DudesSprite.santa)) {
-				dude.updateColor(DudesLayers.Hat, '#FFF');
-			}
-
-			if (dude.spriteData.name.startsWith(DudesSprite.agent)) {
-				const color = data.dudeColor ?? dudesSettingsStore.dudesSettings!.dudes.dude.bodyColor!;
-				dude.updateColor(DudesLayers.Cosmetics, color);
-			}
-
-			if (dude.spriteData.name.startsWith(DudesSprite.sith)) {
-				dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
-			}
+			return;
 		}
 
 		if (parsedData.eventName === 'jump') {
 			const data = parsedData.data as DudesJumpRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.jump();
 		}
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.grow();
 		}
 
 		if (parsedData.eventName === 'punished') {
 			const data = parsedData.data as DudesUserPunishedRequest;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
 			dudes.value.removeDude(dudeName);
 			dudesSettingsStore.dudesUserSettings.delete(data.userId);
 		}

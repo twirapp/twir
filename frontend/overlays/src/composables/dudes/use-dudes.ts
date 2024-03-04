@@ -47,15 +47,26 @@ export const useDudes = defineStore('dudes', () => {
 			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
 		) return;
 
-		const userSettings = getDudeUserSettings(userId);
-		const dudeColor = userSettings?.dudeColor
+		const userSettings = requestDudeUserSettings(userId);
+		if (!userSettings) return;
+
+		const dudeColor = userSettings.dudeColor
 			?? color
 			?? dudesSettings.value.dudes.dude.bodyColor;
 
 		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
 		const dude = await dudes.value.createDude(name, dudeSprite);
-		dude.updateColor(DudesLayers.Body, dudeColor);
 
+		dude.updateColor(DudesLayers.Body, dudeColor);
+		updateDudeColors(dude);
+
+		const dudeInstance = createDudeInstance(dude);
+		dudeInstance.isCreated = true;
+
+		return dudeInstance;
+	}
+
+	function updateDudeColors(dude: Dude): void {
 		if (dude.spriteData.name.startsWith(DudesSprite.girl)) {
 			dude.updateColor(DudesLayers.Hat, '#FF0000');
 		}
@@ -64,14 +75,13 @@ export const useDudes = defineStore('dudes', () => {
 			dude.updateColor(DudesLayers.Hat, '#FFF');
 		}
 
+		if (dude.spriteData.name.startsWith(DudesSprite.agent)) {
+			dude.updateColor(DudesLayers.Cosmetics, '#8a2be2');
+		}
+
 		if (dude.spriteData.name.startsWith(DudesSprite.sith)) {
 			dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
 		}
-
-		const dudeInstance = createDudeInstance(dude);
-		dudeInstance.isCreated = true;
-
-		return dudeInstance;
 	}
 
 	function showMessageDude(dude: Dude, messageChunks: MessageChunk[]): void {
@@ -107,7 +117,7 @@ export const useDudes = defineStore('dudes', () => {
 		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`;
 	}
 
-	function getDudeUserSettings(userId: string) {
+	function requestDudeUserSettings(userId: string) {
 		const userSettings = dudesSettingsStore.dudesUserSettings.get(userId);
 		if (userSettings) return userSettings;
 		document.dispatchEvent(new CustomEvent<string>('get-user-settings', { detail: userId }));
@@ -123,6 +133,7 @@ export const useDudes = defineStore('dudes', () => {
 		dudes,
 		createDude,
 		showMessageDude,
+		updateDudeColors,
 		getProxiedEmoteUrl,
 		isDudeOverlayReady,
 	};
