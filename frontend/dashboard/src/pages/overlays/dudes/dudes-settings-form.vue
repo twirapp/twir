@@ -229,14 +229,6 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 							:step="1"
 						/>
 					</n-form-item>
-
-					<n-form-item
-						class="form-item-switch"
-						:show-feedback="false"
-						:label="t('overlays.dudes.enable')"
-					>
-						<n-switch v-model:value="formValue.spitterEmoteSettings.enabled" />
-					</n-form-item>
 				</n-tab-pane>
 
 				<n-tab-pane name="ignoring" :tab="t('overlays.dudes.ignoreDivider')">
@@ -622,6 +614,16 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 							:step="1"
 							:disabled="isMessageBoxDisabled"
 						/>
+					</n-form-item>
+				</n-tab-pane>
+
+				<n-tab-pane name="emote" :tab="t('overlays.dudes.emoteDivider')">
+					<n-form-item
+						class="form-item-switch"
+						:show-feedback="false"
+						:label="t('overlays.dudes.enable')"
+					>
+						<n-switch v-model:value="formValue.spitterEmoteSettings.enabled" />
 					</n-form-item>
 				</n-tab-pane>
 			</n-tabs>

@@ -457,7 +457,7 @@
 			"messageBoxPadding": "Padding",
 			"messageBoxBorderRadius": "Border radius",
 			"messageBoxFontSize": "Font size",
-			"spitterEmoteEnabled": "Show twitch emotes",
+			"emoteDivider": "Emote",
 			"growDivider": "Grow",
 			"growTime": "Grow time",
 			"growMaxScale": "Max scale"
