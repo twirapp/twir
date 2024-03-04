@@ -8,5 +8,6 @@ COPY --from=builder /app/apps/eval /app/apps/eval
 COPY --from=builder /app/libs/config /app/libs/config
 COPY --from=builder /app/libs/bus-core /app/libs/bus-core
 COPY --from=builder /app/node_modules /app/node_modules
+ENV NODE_ENV=production
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["pnpm --filter=@twir/eval start"]

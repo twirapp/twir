@@ -1,5 +1,4 @@
 import { newBus } from '@twir/bus-core';
-import { config } from '@twir/config';
 import _ from 'lodash';
 import { connect as natsConnect } from 'nats';
 import { VM } from 'vm2';
@@ -15,7 +14,10 @@ const vm = new VM({
 	eval: false,
 });
 
-const bus = newBus(await natsConnect({ servers: config.NATS_URL }));
+const nc = await natsConnect({
+	servers: process.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://localhost:4222',
+});
+const bus = newBus(nc);
 
 bus.Eval.Evaluate.subscribeGroup('eval.evaluate', async (request) => {
 	let resultOfExecution;
