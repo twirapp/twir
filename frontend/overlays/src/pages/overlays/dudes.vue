@@ -5,9 +5,8 @@ import { onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
 import {
-	dudesAssets,
 	dudesSounds,
-	assetsLoadOptions,
+	assetsLoaderOptions,
 } from '@/composables/dudes/dudes-config.js';
 import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js';
 import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
@@ -37,7 +36,7 @@ watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
 	}
 });
 
-function onMessage(chatMessage: ChatMessage): void {
+async function onMessage(chatMessage: ChatMessage): Promise<void> {
 	if (!dudes.value || chatMessage.type === 'system') return;
 
 	if (
@@ -48,10 +47,8 @@ function onMessage(chatMessage: ChatMessage): void {
 	}
 
 	const displayName = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
-
-	dudesStore
-		.createDude(displayName, chatMessage.senderId!, chatMessage.senderColor)
-		?.showMessage(chatMessage.chunks);
+	const dude = await dudesStore.createDude(displayName, chatMessage.senderId!, chatMessage.senderColor);
+	dude?.showMessage(chatMessage.chunks);
 }
 
 const chatSettings = computed<ChatSettings>(() => {
@@ -86,8 +83,7 @@ onUnmounted(() => {
 <template>
 	<dudes-overlay
 		ref="dudes"
-		:assets-load-options="assetsLoadOptions"
-		:assets="dudesAssets"
+		:assets-loader-options="assetsLoaderOptions"
 		:sounds="dudesSounds"
 	/>
 </template>

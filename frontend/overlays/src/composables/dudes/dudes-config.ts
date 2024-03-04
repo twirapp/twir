@@ -1,54 +1,134 @@
 import { DudesSprite } from '@twir/types/overlays';
-import type { SoundAsset, DudesAsset, AssetsLoadOptions } from '@twirapp/dudes/types';
+import { DudesLayers } from '@twirapp/dudes';
+import type { SoundAsset, AssetsLoaderOptions, DudesTypes } from '@twirapp/dudes/types';
 
 export const dudesTwir = 'Twir';
-export const dudesSprites = Object.keys(DudesSprite)
-	.filter(sprite => sprite !== 'random') as (keyof typeof DudesSprite)[];
 
-export function getSprite(sprite?: string) {
+export type DudeSprite = keyof typeof DudesSprite
+
+export function getSprite(sprite?: DudeSprite): DudesTypes.SpriteData {
 	if (!sprite || sprite === 'random') {
-		return dudesSprites[Math.floor(Math.random() * dudesSprites.length)];
+		const sprites = Object.values(dudesSprites);
+		return sprites[Math.floor(Math.random() * sprites.length)];
 	}
-	return sprite;
+
+	return dudesSprites[sprite];
 }
 
-export const assetsLoadOptions: AssetsLoadOptions = {
+export const assetsLoaderOptions: AssetsLoaderOptions = {
   basePath: location.origin + '/overlays/dudes/sprites/',
   defaultSearchParams: {
     ts: Date.now(),
   },
 };
 
-export const dudesAssets: DudesAsset[] = [
-  {
-    alias: 'dude',
-    src: 'dude/dude.json',
-  },
-  {
-    alias: 'sith',
-    src: 'sith/sith.json',
-  },
-  {
-    alias: 'agent',
-    src: 'agent/agent.json',
-  },
-  {
-    alias: 'girl',
-    src: 'girl/girl.json',
-  },
-  {
-    alias: 'cat',
-    src: 'cat/cat.json',
-  },
-  {
-    alias: 'santa',
-    src: 'santa/santa.json',
-  },
-];
+export const dudesSprites: Record<
+	Exclude<DudeSprite, 'random'>,
+	DudesTypes.SpriteData
+> = {
+	dude: {
+		name: 'dude',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/dude.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/dude.png',
+			},
+		],
+	},
+	agent: {
+		name: 'agent',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/dude.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/toned-glasses.png',
+			},
+			{
+				layer: DudesLayers.Cosmetics,
+				src: 'cosmetics/gun.png',
+			},
+		],
+	},
+	cat: {
+		name: 'cat',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/cat.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/dude.png',
+			},
+			{
+				layer: DudesLayers.Mouth,
+				src: 'mouth/cat.png',
+			},
+		],
+	},
+	girl: {
+		name: 'girl',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/dude.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/dude.png',
+			},
+			{
+				layer: DudesLayers.Hat,
+				src: 'hat/girl-ribbon.png',
+			},
+		],
+	},
+	santa: {
+		name: 'santa',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/dude.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/dude.png',
+			},
+			{
+				layer: DudesLayers.Hat,
+				src: 'hat/santa.png',
+			},
+		],
+	},
+	sith: {
+		name: 'sith',
+		layers: [
+			{
+				layer: DudesLayers.Body,
+				src: 'body/devil.png',
+			},
+			{
+				layer: DudesLayers.Eyes,
+				src: 'eyes/dude.png',
+			},
+			{
+				layer: DudesLayers.Cosmetics,
+				src: 'cosmetics/lightsaber.png',
+			},
+		],
+	},
+};
 
 export const dudesSounds: SoundAsset[] = [
 	{
-		alias: 'jump',
+		alias: 'Jump',
 		src: location.origin + '/overlays/dudes/sounds/jump.mp3',
 	},
 ];

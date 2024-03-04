@@ -1,10 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
-import {
-	DudesSprite,
-	type DudesGrowRequest,
-	type DudesUserSettings,
-} from '@twir/types/overlays';
+import { DudesSprite, type DudesGrowRequest, type DudesUserSettings } from '@twir/types/overlays';
+import { DudesLayers } from '@twirapp/dudes';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
@@ -14,7 +11,7 @@ import { useDudesSettings } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { generateSocketUrlWithParams, normalizeDisplayName } from '@/helpers.js';
+import { generateSocketUrlWithParams, normalizeDisplayName, randomRgbColor } from '@/helpers.js';
 import type { ChannelData } from '@/types.js';
 
 declare global {
@@ -30,18 +27,15 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	const dudesSettingsStore = useDudesSettings();
 	const overlayId = ref('');
 	const dudesUrl = ref('');
-	const { data, send, open, close, status } = useWebSocket(
-		dudesUrl,
-		{
-			immediate: false,
-			autoReconnect: {
-				delay: 500,
-			},
-			onConnected() {
-				send(JSON.stringify({ eventName: 'getSettings' }));
-			},
+	const { data, send, open, close, status } = useWebSocket(dudesUrl, {
+		immediate: false,
+		autoReconnect: {
+			delay: 500,
 		},
-	);
+		onConnected() {
+			send(JSON.stringify({ eventName: 'getSettings' }));
+		},
+	});
 
 	watch(data, async (recieviedData) => {
 		if (!dudes.value) return;
@@ -61,32 +55,48 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 
 		if (parsedData.eventName === 'userSettings') {
 			const data = parsedData.data as DudesUserSettings;
-			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesSettingsStore.dudesUserSettings.set(dudeName, data);
+			dudesSettingsStore.dudesUserSettings.set(data.userId, data);
 
-			const dude = dudesStore.createDude(dudeName, data.userId, data.dudeColor)?.dude;
+			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
+			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
 			if (!dude) return;
 
-			if (data.dudeColor) {
-				dude.bodyTint(data.dudeColor);
+			if (data.dudeSprite) {
+				await dude.updateSpriteData(getSprite(data.dudeSprite));
 			}
 
-			if (data.dudeSprite) {
-				dude.spriteName = getSprite(data.dudeSprite);
-				dude.playAnimation('Run', true);
+			if (data.dudeColor) {
+				dude.updateColor(DudesLayers.Body, data.dudeColor);
+			}
+
+			if (dude.spriteData.name.startsWith(DudesSprite.girl)) {
+				dude.updateColor(DudesLayers.Hat, '#FF0000');
+			}
+
+			if (dude.spriteData.name.startsWith(DudesSprite.santa)) {
+				dude.updateColor(DudesLayers.Hat, '#FFF');
+			}
+
+			if (dude.spriteData.name.startsWith(DudesSprite.agent)) {
+				const color = data.dudeColor ?? dudesSettingsStore.dudesSettings!.dudes.dude.bodyColor!;
+				dude.updateColor(DudesLayers.Cosmetics, color);
+			}
+
+			if (dude.spriteData.name.startsWith(DudesSprite.sith)) {
+				dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
 			}
 		}
 
 		if (parsedData.eventName === 'jump') {
 			const data = parsedData.data as DudesJumpRequest;
 			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.jump();
+			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.jump();
 		}
 
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
 			const dudeName = normalizeDisplayName(data.userDisplayName, data.userName);
-			dudesStore.createDude(dudeName, data.userId, data.userColor)?.dude.grow();
+			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.grow();
 		}
 
 		if (parsedData.eventName === 'punished') {
@@ -113,6 +123,8 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudes: {
 				dude: {
 					...data.dudeSettings,
+					// TODO: rename and deprecate `eyes_color`, `cosmetics_color`
+					bodyColor: data.dudeSettings.color,
 					sounds: {
 						enabled: data.dudeSettings.soundsEnabled,
 						volume: data.dudeSettings.soundsVolume,
@@ -120,13 +132,15 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 				},
 				name: {
 					...data.nameBoxSettings,
+					// TODO: move to nameBoxSettings
+					enabled: data.dudeSettings.visibleName,
 					fontFamily,
 				},
 				message: {
 					...data.messageBoxSettings,
 					fontFamily,
 				},
-				spitter: data.spitterEmoteSettings,
+				emote: data.spitterEmoteSettings,
 			},
 		});
 	}
