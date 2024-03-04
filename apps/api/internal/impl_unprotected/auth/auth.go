@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/twirapp/twir/libs/grpc/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
 
 	"github.com/google/uuid"
@@ -199,12 +199,13 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	c.SessionManager.Put(ctx, "twitchUser", &twitchUser)
 	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
 
-	c.Grpc.EventSub.SubscribeToEvents(
-		ctx,
-		&eventsub.SubscribeToEventsRequest{
-			ChannelId: dbUser.ID,
+	if err := c.Bus.EventSub.Subscribe.Publish(
+		eventsub.EventsubSubscribeRequest{
+			ChannelID: dbUser.ID,
 		},
-	)
+	); err != nil {
+		return nil, fmt.Errorf("cannot subscribe to eventsub: %w", err)
+	}
 
 	return &auth.PostCodeResponse{
 		RedirectTo: string(redirectTo),

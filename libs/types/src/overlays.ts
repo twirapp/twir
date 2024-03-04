@@ -21,6 +21,6 @@ export interface DudesUserSettings {
     dudeColor?: string;
     dudeSprite?: DudesSprite;
     userId: string;
-    userDisplayName: string;
-    userName: string;
+    userDisplayName?: string;
+    userName?: string;
 }

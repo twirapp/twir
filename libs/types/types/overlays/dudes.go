@@ -12,8 +12,8 @@ type DudesUserSettings struct {
 	DudeColor       *string      `json:"dudeColor"`
 	DudeSprite      *DudesSprite `json:"dudeSprite"`
 	UserID          string       `json:"userId"`
-	UserDisplayName string       `json:"userDisplayName"`
-	UserName        string       `json:"userName"`
+	UserDisplayName *string      `json:"userDisplayName"`
+	UserName        *string      `json:"userName"`
 }
 
 type DudesSprite string

@@ -28,7 +28,7 @@ export const useAllVariables = () => {
 					name: variable.name,
 					description: variable.description,
 					visible: true,
-					example: `$(customvar|${variable.name})`,
+					example: `customvar|${variable.name}`,
 					isBuiltIn: false,
 					canBeUsedInRegistry: variable.type !== VariableType.SCRIPT,
 				});

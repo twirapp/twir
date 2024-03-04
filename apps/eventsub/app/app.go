@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/eventsub/internal/grpc"
+	bus_listener "github.com/satont/twir/apps/eventsub/internal/bus-listener"
 	"github.com/satont/twir/apps/eventsub/internal/handler"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
@@ -75,6 +75,6 @@ var App = fx.Options(
 	fx.Invoke(
 		uptrace.NewFx("eventsub"),
 		handler.New,
-		grpc.New,
+		bus_listener.New,
 	),
 )

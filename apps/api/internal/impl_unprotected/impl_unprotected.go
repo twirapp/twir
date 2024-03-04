@@ -15,8 +15,8 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/twitch"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/grpc/eventsub"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
@@ -49,9 +49,9 @@ type Opts struct {
 	TokensGrpc       tokens.TokensClient
 	ParserGrpc       parser.ParserClient
 	SchedulerGrpc    scheduler.SchedulerClient
-	EventSubGrpc     eventsub.EventSubClient
 	DiscordGrpc      discord.DiscordClient
 
+	Bus    *buscore.Bus
 	Logger logger.Logger
 }
 
@@ -66,9 +66,9 @@ func New(opts Opts) *UnProtected {
 			Integrations: opts.IntegrationsGrpc,
 			Parser:       opts.ParserGrpc,
 			Scheduler:    opts.SchedulerGrpc,
-			EventSub:     opts.EventSubGrpc,
 			Discord:      opts.DiscordGrpc,
 		},
+		Bus:    opts.Bus,
 		Logger: opts.Logger,
 	}
 
