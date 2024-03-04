@@ -20,6 +20,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh
 # START COPYGEN
 COPY libs/api/package.json libs/api/package.json
 COPY libs/brand/package.json libs/brand/package.json
+COPY libs/bus-core/package.json libs/bus-core/package.json
 COPY libs/config/package.json libs/config/package.json
 COPY libs/crypto/package.json libs/crypto/package.json
 COPY libs/fontsource/package.json libs/fontsource/package.json
