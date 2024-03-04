@@ -8,6 +8,7 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -22,6 +23,7 @@ type Bus struct {
 	EmotesCacher *emotesCacherBus
 	Timers       *timersBus
 	Eval         *evalBus
+	EventSub     *eventSubBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -137,6 +139,15 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				eval.EvalEvaluateSubject,
 				1*time.Minute,
 				nats.JSON_ENCODER,
+			),
+		},
+
+		EventSub: &eventSubBus{
+			Subscribe: NewNatsQueue[eventsub.EventsubSubscribeRequest, struct{}](
+				nc,
+				eventsub.EventsubSubscribeSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 		},
 	}

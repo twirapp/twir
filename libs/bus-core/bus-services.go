@@ -4,6 +4,7 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -44,4 +45,8 @@ type timersBus struct {
 
 type evalBus struct {
 	Evaluate Queue[eval.EvalRequest, eval.EvalResponse]
+}
+
+type eventSubBus struct {
+	Subscribe Queue[eventsub.EventsubSubscribeRequest, struct{}]
 }

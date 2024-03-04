@@ -12,7 +12,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/bots"
 	"github.com/twirapp/twir/libs/api/messages/meta"
-	"github.com/twirapp/twir/libs/grpc/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twitchtv/twirp"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -152,9 +152,8 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 	}
 
 	if dbChannel.IsEnabled {
-		c.Grpc.EventSub.SubscribeToEvents(
-			ctx,
-			&eventsub.SubscribeToEventsRequest{ChannelId: dashboardId},
+		c.Bus.EventSub.Subscribe.Publish(
+			eventsub.EventsubSubscribeRequest{ChannelID: dashboardId},
 		)
 	}
 

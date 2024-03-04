@@ -33,7 +33,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/discord"
-	"github.com/twirapp/twir/libs/grpc/eventsub"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
@@ -85,7 +84,6 @@ type Opts struct {
 	WebsocketsGrpc   websockets.WebsocketClient
 	SchedulerGrpc    scheduler.SchedulerClient
 	DiscordGrpc      discord.DiscordClient
-	EventSub         eventsub.EventSubClient
 	Logger           logger.Logger
 	Bus              *buscore.Bus
 }
@@ -103,7 +101,6 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Scheduler:    opts.SchedulerGrpc,
 			Discord:      opts.DiscordGrpc,
-			EventSub:     opts.EventSub,
 		},
 		Logger: opts.Logger,
 		Bus:    opts.Bus,
