@@ -212,13 +212,15 @@ const srCommands = computed(() => {
 						<n-switch v-model:value="formValue.announcePlay" />
 					</n-space>
 
-					<n-space justify="space-between" style="margin-bottom: 12px;">
-						<n-text>{{ t('songRequests.settings.playerNoCookieMode') }}</n-text>
-						<n-switch v-model:value="formValue.playerNoCookieMode" />
+					<div>
+						<n-space justify="space-between">
+							<n-text>{{ t('songRequests.settings.playerNoCookieMode') }}</n-text>
+							<n-switch v-model:value="formValue.playerNoCookieMode" />
+						</n-space>
 						<n-text style="font-size: 12px; margin-top: 4px;">
 							{{ t('songRequests.settings.playerNoCookieModeDescription') }}
 						</n-text>
-					</n-space>
+					</div>
 
 					<n-form-item
 						:label="t('songRequests.settings.neededPercentageForskip')"
