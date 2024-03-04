@@ -5,7 +5,7 @@ import type { DudesMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-import { getSprite } from './dudes-config.js';
+import { dudesTwir, getSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 
 import { randomRgbColor } from '@/helpers.js';
@@ -48,15 +48,12 @@ export const useDudes = defineStore('dudes', () => {
 		) return;
 
 		const userSettings = requestDudeUserSettings(userId);
-		if (!userSettings) return;
-
-		const dudeColor = userSettings.dudeColor
+		const dudeColor = userSettings?.dudeColor
 			?? color
 			?? dudesSettings.value.dudes.dude.bodyColor;
 
-		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
+		const dudeSprite = getSprite(name, userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
 		const dude = await dudes.value.createDude(name, dudeSprite);
-
 		dude.updateColor(DudesLayers.Body, dudeColor);
 		updateDudeColors(dude);
 
@@ -67,19 +64,21 @@ export const useDudes = defineStore('dudes', () => {
 	}
 
 	function updateDudeColors(dude: Dude): void {
-		if (dude.spriteData.name.startsWith(DudesSprite.girl)) {
+		const isTwir = dude.spriteData.name.startsWith(dudesTwir);
+
+		if (dude.spriteData.name.startsWith(DudesSprite.girl) || isTwir) {
 			dude.updateColor(DudesLayers.Hat, '#FF0000');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.santa)) {
+		if (dude.spriteData.name.startsWith(DudesSprite.santa) || isTwir) {
 			dude.updateColor(DudesLayers.Hat, '#FFF');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.agent)) {
+		if (dude.spriteData.name.startsWith(DudesSprite.agent) || isTwir) {
 			dude.updateColor(DudesLayers.Cosmetics, '#8a2be2');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.sith)) {
+		if (dude.spriteData.name.startsWith(DudesSprite.sith) || isTwir) {
 			dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
 		}
 	}

@@ -31,8 +31,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		if (parsedData.action === 'settings' && parsedData.data) {
 			const settings = parsedData.data as Required<Settings>;
 			dudesSocketStore.updateSettingFromSocket(settings);
-			await dude.updateSpriteData(getSprite(settings.dudeSettings.defaultSprite as DudeSprite));
-			dudesStore.updateDudeColors(dude);
+			const spriteData = getSprite(dudesTwir, settings.dudeSettings.defaultSprite as DudeSprite);
+			await dude.updateSpriteData(spriteData);
 			return;
 		}
 
@@ -75,7 +75,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			value: 'https://cdn.7tv.app/emote/65413498dc0468e8c1fbcdc6/1x.gif',
 		});
 
-		const dudeSprite = getSprite(dudesSettingsStore.dudesSettings.overlay.defaultSprite);
+		const dudeSprite = getSprite(dudesTwir, dudesSettingsStore.dudesSettings.overlay.defaultSprite);
 		const dude = await dudesStore.dudes.createDude(dudesTwir, dudeSprite);
 		dude.updateColor(DudesLayers.Body, '#8a2be2');
 		dudesStore.updateDudeColors(dude);
