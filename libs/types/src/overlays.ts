@@ -17,6 +17,12 @@ export interface DudesGrowRequest {
     userName: string;
     userColor: string;
 }
+export interface DudesLeaveRequest {
+    channelId: string;
+    userId: string;
+    userDisplayName: string;
+    userName: string;
+}
 export interface DudesUserSettings {
     dudeColor?: string;
     dudeSprite?: DudesSprite;

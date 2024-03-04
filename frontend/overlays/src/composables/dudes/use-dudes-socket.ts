@@ -1,6 +1,11 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
-import { DudesSprite, type DudesGrowRequest, type DudesUserSettings } from '@twir/types/overlays';
+import {
+	DudesSprite,
+	type DudesGrowRequest,
+	type DudesUserSettings,
+	type DudesLeaveRequest,
+} from '@twir/types/overlays';
 import { DudesLayers } from '@twirapp/dudes';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
@@ -88,6 +93,11 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		if (parsedData.eventName === 'grow') {
 			const data = parsedData.data as DudesGrowRequest;
 			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.grow();
+		}
+
+		if (parsedData.eventName === 'leave') {
+			const data = parsedData.data as DudesLeaveRequest;
+			(await dudesStore.createDude(dudeName, data.userId))?.dude.leave();
 		}
 
 		if (parsedData.eventName === 'punished') {

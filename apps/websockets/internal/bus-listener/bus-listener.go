@@ -56,11 +56,23 @@ func New(opts Opts) *BusListener {
 					return err
 				}
 
+				if err := listener.bus.Websocket.DudesLeave.SubscribeGroup(
+					"websockets",
+					func(ctx context.Context, data websockets.DudesLeaveRequest) struct{} {
+						listener.dudes.SendEvent(data.ChannelID, "leave", data)
+
+						return struct{}{}
+					},
+				); err != nil {
+					return err
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				listener.bus.Websocket.DudesUserSettings.Unsubscribe()
 				listener.bus.Websocket.DudesGrow.Unsubscribe()
+				listener.bus.Websocket.DudesLeave.Unsubscribe()
 				return nil
 			},
 		},

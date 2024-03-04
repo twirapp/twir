@@ -8,6 +8,10 @@ type DudesGrowRequest struct {
 	websockets.DudesGrowRequest
 }
 
+type DudesLeaveRequest struct {
+	websockets.DudesLeaveRequest
+}
+
 type DudesUserSettings struct {
 	DudeColor       *string      `json:"dudeColor"`
 	DudeSprite      *DudesSprite `json:"dudeSprite"`

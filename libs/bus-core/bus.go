@@ -75,14 +75,21 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		Websocket: &websocketBus{
 			DudesGrow: NewNatsQueue[websockets.DudesGrowRequest, struct{}](
 				nc,
-				WEBSOCKETS_DUDES_GROW_SUBJECT,
+				websockets.DudesGrowSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
 
 			DudesUserSettings: NewNatsQueue[websockets.DudesChangeUserSettingsRequest, struct{}](
 				nc,
-				WEBSOCKETS_DUDES_CHANGE_COLOR_SUBJECT,
+				websockets.DudesUserSettingsSubjsect,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+
+			DudesLeave: NewNatsQueue[websockets.DudesLeaveRequest, struct{}](
+				nc,
+				websockets.DudesLeaveSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

@@ -127,6 +127,7 @@ const addable = computed(() => {
 				<command-button title="Color command" name="dudes color" />
 				<command-button title="Grow command" name="dudes grow" />
 				<command-button title="Sprite command" name="dudes sprite" />
+				<command-button title="Leave command" name="dudes leave" />
 			</div>
 			<n-tabs
 				v-model:value="openedTab"

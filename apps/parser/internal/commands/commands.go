@@ -106,6 +106,7 @@ func New(opts *Opts) *Commands {
 			dudes.Grow,
 			dudes.Color,
 			dudes.Sprite,
+			dudes.Leave,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},

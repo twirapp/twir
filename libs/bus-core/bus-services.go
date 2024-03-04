@@ -20,6 +20,7 @@ type parserBus struct {
 type websocketBus struct {
 	DudesGrow         Queue[websockets.DudesGrowRequest, struct{}]
 	DudesUserSettings Queue[websockets.DudesChangeUserSettingsRequest, struct{}]
+	DudesLeave        Queue[websockets.DudesLeaveRequest, struct{}]
 }
 
 type channelBus struct {
