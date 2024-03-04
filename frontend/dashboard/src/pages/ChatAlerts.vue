@@ -131,7 +131,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 					v-model:enabled="formValue.followers.enabled"
 					v-model:messages="formValue.followers.messages"
 					v-model:cooldown="formValue.followers.cooldown"
-					:min-cooldown="3"
+					:min-cooldown="0"
 					:max-messages="20"
 					default-message-text="Yay, there is new follower, say hello to {user}!"
 					:alert-message="`
@@ -227,7 +227,7 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 					v-model:messages="formValue.firstUserMessage.messages"
 					v-model:cooldown="formValue.firstUserMessage.cooldown"
 					:max-messages="20"
-					:min-cooldown="2"
+					:min-cooldown="0"
 					default-message-text="{user} new on the channel! Say hello."
 					:alert-message="`
 						${t('chatAlerts.randomedMessage')}
