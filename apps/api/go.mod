@@ -30,6 +30,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
+	github.com/microcosm-cc/bluemonday v1.0.26
 	github.com/minio/minio-go/v7 v7.0.65
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/raitonoberu/ytsearch v0.2.0
@@ -83,7 +84,6 @@ require (
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/microcosm-cc/bluemonday v1.0.26 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
 	github.com/minio/sha256-simd v1.0.1 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

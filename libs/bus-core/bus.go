@@ -8,43 +8,18 @@ import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
-
-type parserBus struct {
-	GetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]
-	ProcessMessageAsCommand Queue[twitch.TwitchChatMessage, struct{}]
-	ParseVariablesInText    Queue[parser.ParseVariablesInTextRequest, parser.ParseVariablesInTextResponse]
-}
-
-type websocketBus struct {
-	DudesGrow         Queue[websockets.DudesGrowRequest, struct{}]
-	DudesUserSettings Queue[websockets.DudesChangeUserSettingsRequest, struct{}]
-}
-
-type channelBus struct {
-	StreamOnline  Queue[twitch.StreamOnlineMessage, struct{}]
-	StreamOffline Queue[twitch.StreamOfflineMessage, struct{}]
-}
-
-type bots struct {
-	ProcessMessage Queue[twitch.TwitchChatMessage, struct{}]
-	SendMessage    Queue[botsservice.SendMessageRequest, struct{}]
-	DeleteMessage  Queue[botsservice.DeleteMessageRequest, struct{}]
-}
-
-type emotesCacher struct {
-	CacheGlobalEmotes  Queue[struct{}, struct{}]
-	CacheChannelEmotes Queue[emotes_cacher.EmotesCacheRequest, struct{}]
-}
 
 type Bus struct {
 	Parser       *parserBus
 	Websocket    *websocketBus
 	Channel      *channelBus
-	Bots         *bots
-	EmotesCacher *emotesCacher
+	Bots         *botsBus
+	EmotesCacher *emotesCacherBus
+	Timers       *timersBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -72,7 +47,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			),
 		},
 
-		Bots: &bots{
+		Bots: &botsBus{
 			ProcessMessage: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
 				nc,
 				CHAT_MESSAGE_BOTS_SUBJECT,
@@ -124,7 +99,7 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			),
 		},
 
-		EmotesCacher: &emotesCacher{
+		EmotesCacher: &emotesCacherBus{
 			CacheGlobalEmotes: NewNatsQueue[struct{}, struct{}](
 				nc,
 				emotes_cacher.EMOTES_CACHER_GLOBAL_EMOTES_SUBJECT,
@@ -134,6 +109,21 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			CacheChannelEmotes: NewNatsQueue[emotes_cacher.EmotesCacheRequest, struct{}](
 				nc,
 				emotes_cacher.EMOTES_CACHER_CHANNEL_EMOTES_SUBJECT,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
+
+		Timers: &timersBus{
+			AddTimer: NewNatsQueue[timers.AddOrRemoveTimerRequest, struct{}](
+				nc,
+				timers.AddTimerSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			RemoveTimer: NewNatsQueue[timers.AddOrRemoveTimerRequest, struct{}](
+				nc,
+				timers.RemoveTimerSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

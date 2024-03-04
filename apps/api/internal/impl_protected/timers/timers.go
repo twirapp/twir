@@ -10,7 +10,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/timers"
-	timersGrpc "github.com/twirapp/twir/libs/grpc/timers"
+	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
@@ -115,17 +115,17 @@ func (c *Timers) TimersUpdate(
 		return nil, txErr
 	}
 
-	grpcRequest := &timersGrpc.Request{
-		TimerId: entity.ID,
+	timersRequest := timersbusservice.AddOrRemoveTimerRequest{
+		TimerID: entity.ID,
 	}
-	_, err := c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+	err := c.Bus.Timers.RemoveTimer.Publish(timersRequest)
 	if err != nil {
 		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
 		return nil, fmt.Errorf("cannot remove timer from queue: %w", err)
 	}
 
 	if entity.Enabled {
-		_, err := c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+		err := c.Bus.Timers.AddTimer.Publish(timersRequest)
 		if err != nil {
 			c.Logger.Error("cannot add timer to queue", slog.Any("err", err))
 			return nil, fmt.Errorf("cannot add timer to queue: %w", err)
@@ -141,11 +141,8 @@ func (c *Timers) TimersDelete(
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
 
-	if _, err := c.Grpc.Timers.RemoveTimerFromQueue(
-		ctx,
-		&timersGrpc.Request{
-			TimerId: request.Id,
-		},
+	if err := c.Bus.Timers.RemoveTimer.Publish(
+		timersbusservice.AddOrRemoveTimerRequest{TimerID: request.Id},
 	); err != nil {
 		c.Logger.Error("cannot remove timer from queue", slog.Any("err", err))
 	}
@@ -202,13 +199,11 @@ func (c *Timers) TimersCreate(
 		return nil, err
 	}
 
-	grpcRequest := &timersGrpc.Request{
-		TimerId: entity.ID,
-	}
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
 	if entity.Enabled {
-		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+		c.Bus.Timers.AddTimer.Publish(timersReq)
 	} else {
-		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+		c.Bus.Timers.RemoveTimer.Publish(timersReq)
 	}
 
 	return c.convertEntity(entity), nil
@@ -233,13 +228,11 @@ func (c *Timers) TimersEnableOrDisable(
 		return nil, err
 	}
 
-	grpcRequest := &timersGrpc.Request{
-		TimerId: entity.ID,
-	}
+	timersRequest := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
 	if entity.Enabled {
-		c.Grpc.Timers.AddTimerToQueue(ctx, grpcRequest)
+		c.Bus.Timers.AddTimer.Publish(timersRequest)
 	} else {
-		c.Grpc.Timers.RemoveTimerFromQueue(ctx, grpcRequest)
+		c.Bus.Timers.RemoveTimer.Publish(timersRequest)
 	}
 
 	return c.convertEntity(entity), nil

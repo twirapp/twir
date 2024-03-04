@@ -4,8 +4,8 @@ import (
 	"log/slog"
 
 	"github.com/satont/twir/apps/timers/internal/activity"
+	bus_listener "github.com/satont/twir/apps/timers/internal/bus-listener"
 	"github.com/satont/twir/apps/timers/internal/gorm"
-	"github.com/satont/twir/apps/timers/internal/grpc_server"
 	"github.com/satont/twir/apps/timers/internal/redis"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
@@ -44,7 +44,7 @@ var App = fx.Module(
 	fx.Invoke(
 		uptrace.NewFx("timers"),
 		worker.New,
-		grpc_server.New,
+		bus_listener.New,
 		func(l logger.Logger) {
 			l.Info("Timers service started")
 		},

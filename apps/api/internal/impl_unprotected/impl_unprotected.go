@@ -20,7 +20,6 @@ import (
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
-	"github.com/twirapp/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -50,7 +49,6 @@ type Opts struct {
 	TokensGrpc       tokens.TokensClient
 	ParserGrpc       parser.ParserClient
 	SchedulerGrpc    scheduler.SchedulerClient
-	TimersGrpc       timers.TimersClient
 	EventSubGrpc     eventsub.EventSubClient
 	DiscordGrpc      discord.DiscordClient
 
@@ -68,7 +66,6 @@ func New(opts Opts) *UnProtected {
 			Integrations: opts.IntegrationsGrpc,
 			Parser:       opts.ParserGrpc,
 			Scheduler:    opts.SchedulerGrpc,
-			Timers:       opts.TimersGrpc,
 			EventSub:     opts.EventSubGrpc,
 			Discord:      opts.DiscordGrpc,
 		},

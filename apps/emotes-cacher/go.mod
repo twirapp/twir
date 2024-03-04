@@ -6,6 +6,7 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
@@ -16,12 +17,8 @@ require (
 	github.com/satont/twir/libs/config v0.0.0
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/sentry v0.0.0-20231203205548-e635accc6b72
-	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.uber.org/fx v1.20.1
-	google.golang.org/grpc v1.61.0
-	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.7
 )
@@ -66,12 +63,14 @@ require (
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	golang.org/x/crypto v0.18.0 // indirect
+	golang.org/x/crypto v0.19.0 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
+	golang.org/x/sys v0.17.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
+	google.golang.org/grpc v1.61.0 // indirect
+	google.golang.org/protobuf v1.32.0 // indirect
 )

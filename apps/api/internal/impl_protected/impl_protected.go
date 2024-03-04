@@ -37,7 +37,6 @@ import (
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
-	timersGrpc "github.com/twirapp/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/fx"
@@ -85,7 +84,6 @@ type Opts struct {
 	ParserGrpc       parser.ParserClient
 	WebsocketsGrpc   websockets.WebsocketClient
 	SchedulerGrpc    scheduler.SchedulerClient
-	TimersGrpc       timersGrpc.TimersClient
 	DiscordGrpc      discord.DiscordClient
 	EventSub         eventsub.EventSubClient
 	Logger           logger.Logger
@@ -104,7 +102,6 @@ func New(opts Opts) *Protected {
 			Parser:       opts.ParserGrpc,
 			Websockets:   opts.WebsocketsGrpc,
 			Scheduler:    opts.SchedulerGrpc,
-			Timers:       opts.TimersGrpc,
 			Discord:      opts.DiscordGrpc,
 			EventSub:     opts.EventSub,
 		},

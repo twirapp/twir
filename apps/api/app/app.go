@@ -29,7 +29,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
-	"github.com/twirapp/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -71,9 +70,6 @@ var App = fx.Options(
 		},
 		func(c cfg.Config) scheduler.SchedulerClient {
 			return clients.NewScheduler(c.AppEnv)
-		},
-		func(c cfg.Config) timers.TimersClient {
-			return clients.NewTimers(c.AppEnv)
 		},
 		func(c cfg.Config) eventsub.EventSubClient {
 			return clients.NewEventSub(c.AppEnv)

@@ -11,7 +11,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/scheduler"
-	"github.com/twirapp/twir/libs/grpc/timers"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
@@ -23,7 +22,6 @@ type Grpc struct {
 	Parser       parser.ParserClient
 	Websockets   websockets.WebsocketClient
 	Scheduler    scheduler.SchedulerClient
-	Timers       timers.TimersClient
 	EventSub     eventsub.EventSubClient
 	Discord      discord.DiscordClient
 }
