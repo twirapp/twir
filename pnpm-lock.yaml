@@ -90,9 +90,6 @@ importers:
       '@twir/config':
         specifier: workspace:*
         version: link:../../libs/config
-      '@twir/grpc':
-        specifier: workspace:*
-        version: link:../../libs/grpc
       lodash:
         specifier: 4.17.21
         version: 4.17.21
