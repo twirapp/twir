@@ -6,13 +6,17 @@ export const dudesTwir = 'Twir';
 
 export type DudeSprite = keyof typeof DudesSprite
 
-export function getSprite(sprite?: DudeSprite): DudesTypes.SpriteData {
-	if (!sprite || sprite === 'random') {
+export function getSprite(id: string, sprite?: DudeSprite): DudesTypes.SpriteData {
+	if (!sprite || sprite === DudesSprite.random) {
 		const sprites = Object.values(dudesSprites);
-		return sprites[Math.floor(Math.random() * sprites.length)];
+		const spriteData = sprites[Math.floor(Math.random() * sprites.length)];
+		spriteData.name = id;
+		return { ...spriteData };
 	}
 
-	return dudesSprites[sprite];
+	const spriteData = dudesSprites[sprite];
+	spriteData.name = id;
+	return { ...spriteData };
 }
 
 export const assetsLoaderOptions: AssetsLoaderOptions = {

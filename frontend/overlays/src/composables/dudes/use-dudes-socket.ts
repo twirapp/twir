@@ -69,8 +69,9 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
 			if (!dude) return;
 
-			const dudeSprite = getSprite(data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
-			await dude.updateSpriteData(dudeSprite);
+			const spriteData = getSprite(dudeName, data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
+			console.log(spriteData);
+			await dude.updateSpriteData(spriteData);
 			dudesStore.updateDudeColors(dude);
 
 			if (data.dudeColor) {
