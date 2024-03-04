@@ -26,9 +26,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
 
 		const dude = dudesStore.dudes.getDude(dudesTwir);
-		if (!dude) return;
 
-		if (parsedData.action === 'settings' && parsedData.data) {
+		if (parsedData.action === 'settings' && parsedData.data && dude) {
 			const settings = parsedData.data as Required<Settings>;
 			dudesSocketStore.updateSettingFromSocket(settings);
 			const spriteData = getSprite(dudesTwir, settings.dudeSettings.defaultSprite as DudeSprite);
@@ -41,15 +40,19 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			spawnIframeDude();
 		}
 
-		if (parsedData.action === 'jump') {
+		if (parsedData.action === 'jump' && dude) {
 			dude.jump();
 		}
 
-		if (parsedData.action === 'grow') {
+		if (parsedData.action === 'grow' && dude) {
 			dude.grow();
 		}
 
-		if (parsedData.action === 'spawn-emote') {
+		if (parsedData.action === 'leave' && dude) {
+			dude.leave();
+		}
+
+		if (parsedData.action === 'spawn-emote' && dude) {
 			const emote = dudesStore.getProxiedEmoteUrl({
 				type: '3rd_party_emote',
 				value: 'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.gif',
@@ -57,7 +60,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			dude.addEmotes([emote]);
 		}
 
-		if (parsedData.action === 'show-message') {
+		if (parsedData.action === 'show-message' && dude) {
 			dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
 		}
 	}
@@ -66,8 +69,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		if (
 			!dudesStore.dudes ||
 			!dudesSettingsStore.dudesSettings ||
-			!dudesSettingsStore.channelData ||
-			dudesStore.dudes.getDude(dudesTwir)
+			!dudesSettingsStore.channelData
 		) return;
 
 		const emote = dudesStore.getProxiedEmoteUrl({
