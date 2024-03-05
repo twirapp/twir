@@ -6,7 +6,6 @@ import {
 	type DudesUserSettings,
 	type DudesLeaveRequest,
 } from '@twir/types/overlays';
-import { DudesLayers } from '@twirapp/dudes';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
@@ -74,14 +73,9 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
 			if (!dude) return;
 
-			const spriteData = getSprite(dudeName, data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
-			console.log(spriteData);
+			const spriteData = getSprite(data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
 			await dude.updateSpriteData(spriteData);
-			dudesStore.updateDudeColors(dude);
-
-			if (data.dudeColor) {
-				dude.updateColor(DudesLayers.Body, data.dudeColor);
-			}
+			dudesStore.updateDudeColors(dude, data.dudeColor);
 
 			return;
 		}
