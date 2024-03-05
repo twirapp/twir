@@ -46,8 +46,12 @@ async function onMessage(chatMessage: ChatMessage): Promise<void> {
 		return;
 	}
 
-	const displayName = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
-	const dude = await dudesStore.createDude(displayName, chatMessage.senderId!, chatMessage.senderColor);
+	const name = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
+	const dude = await dudesStore.createDude({
+		userName: name,
+		userId: chatMessage.senderId!,
+		color: chatMessage.senderColor,
+	});
 	dude?.showMessage(chatMessage.chunks);
 }
 

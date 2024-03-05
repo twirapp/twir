@@ -34,12 +34,14 @@ export const useDudes = defineStore('dudes', () => {
 		};
 	}
 
-	async function createDude(name: string, userId: string, color?: string) {
+	async function createDude(
+		{ userId, userName, color }: { userId: string, userName?: string, color?: string },
+	) {
 		if (!dudes.value || !dudesSettings.value) return;
 
-		const dudeFromCanvas = dudes.value.dudes.get(userId) as Dude;
-		if (dudeFromCanvas) {
-			return createDudeInstance(dudeFromCanvas);
+		const actualDude = dudes.value.dudes.get(userId) as Dude;
+		if (actualDude) {
+			return createDudeInstance(actualDude);
 		}
 
 		if (
@@ -48,7 +50,14 @@ export const useDudes = defineStore('dudes', () => {
 		) return;
 
 		const userSettings = requestDudeUserSettings(userId);
-		if (!userSettings) return;
+		if (!userSettings) {
+			dudesSettingsStore.dudesUserSettings.set(userId, {
+				userId,
+				userDisplayName: userName,
+				dudeColor: color,
+			});
+			return;
+		}
 
 		const dudeColor = userSettings.dudeColor
 			?? color
@@ -56,8 +65,8 @@ export const useDudes = defineStore('dudes', () => {
 
 		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
 		const dude = await dudes.value.createDude({
-			id: userId,
-			name,
+			id: userSettings.userId,
+			name: userSettings.userDisplayName!,
 			sprite: dudeSprite,
 		});
 
