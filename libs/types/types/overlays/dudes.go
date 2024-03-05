@@ -13,11 +13,9 @@ type DudesLeaveRequest struct {
 }
 
 type DudesUserSettings struct {
-	DudeColor       *string      `json:"dudeColor"`
-	DudeSprite      *DudesSprite `json:"dudeSprite"`
-	UserID          string       `json:"userId"`
-	UserDisplayName *string      `json:"userDisplayName"`
-	UserName        *string      `json:"userName"`
+	DudeColor  *string      `json:"dudeColor"`
+	DudeSprite *DudesSprite `json:"dudeSprite"`
+	UserID     string       `json:"userId"`
 }
 
 type DudesSprite string

@@ -7,11 +7,8 @@ const (
 )
 
 type DudesGrowRequest struct {
-	ChannelID       string `json:"channelId"`
-	UserID          string `json:"userId"`
-	UserDisplayName string `json:"userDisplayName"`
-	UserName        string `json:"userName"`
-	UserColor       string `json:"userColor"`
+	ChannelID string `json:"channelId"`
+	UserID    string `json:"userId"`
 }
 
 type DudesChangeUserSettingsRequest struct {
@@ -20,8 +17,6 @@ type DudesChangeUserSettingsRequest struct {
 }
 
 type DudesLeaveRequest struct {
-	ChannelID       string `json:"channelId"`
-	UserID          string `json:"userId"`
-	UserDisplayName string `json:"userDisplayName"`
-	UserName        string `json:"userName"`
+	ChannelID string `json:"channelId"`
+	UserID    string `json:"userId"`
 }

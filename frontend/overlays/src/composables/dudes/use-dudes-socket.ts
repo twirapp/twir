@@ -1,10 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import type { DudesJumpRequest, DudesUserPunishedRequest } from '@twir/grpc/websockets/websockets';
 import {
 	DudesSprite,
-	type DudesGrowRequest,
 	type DudesUserSettings,
-	type DudesLeaveRequest,
 } from '@twir/types/overlays';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
@@ -15,7 +12,7 @@ import { useDudesSettings } from './use-dudes-settings';
 import { useDudes } from './use-dudes.js';
 
 import type { TwirWebSocketEvent } from '@/api.js';
-import { generateSocketUrlWithParams, normalizeDisplayName } from '@/helpers.js';
+import { generateSocketUrlWithParams } from '@/helpers.js';
 import type { ChannelData } from '@/types.js';
 
 declare global {
@@ -55,49 +52,42 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			});
 
 			updateSettingFromSocket(data);
-		}
-
-		if (!parsedData.data?.userDisplayName || !parsedData.data?.userName) {
-			console.warn('Could not find `userDisplayName` or `userName` in userSettings.');
 			return;
 		}
 
-		const dudeName = normalizeDisplayName(
-			parsedData.data.userDisplayName,
-			parsedData.data.userName,
-		);
+		const data = parsedData.data as DudesUserSettings;
+		const dude = dudes.value.getDude(data?.userId);
 
 		if (parsedData.eventName === 'userSettings') {
-			const data = parsedData.data as DudesUserSettings;
-			dudesSettingsStore.dudesUserSettings.set(data.userId, data);
-			const dude = (await dudesStore.createDude(dudeName, data.userId, data.dudeColor))?.dude;
-			if (!dude) return;
+			const dudeSettings = dudesSettingsStore.dudesUserSettings.get(data.userId);
+			if (!dudeSettings?.userDisplayName) return;
 
-			const spriteData = getSprite(data.dudeSprite ?? dudesSettingsStore.dudesSettings?.overlay.defaultSprite);
-			await dude.updateSpriteData(spriteData);
-			dudesStore.updateDudeColors(dude, data.dudeColor);
+			dudesSettingsStore.dudesUserSettings.set(data.userId, {
+				...data,
+				...dudeSettings,
+			});
 
-			return;
-		}
+			const spriteData = getSprite(
+				data.dudeSprite ??
+				dudesSettingsStore.dudesSettings?.overlay.defaultSprite,
+			);
 
-		if (parsedData.eventName === 'jump') {
-			const data = parsedData.data as DudesJumpRequest;
-			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.jump();
-		}
+			const createdDude = await dudesStore.createDude({
+				userId: dudeSettings.userId,
+			});
 
-		if (parsedData.eventName === 'grow') {
-			const data = parsedData.data as DudesGrowRequest;
-			(await dudesStore.createDude(dudeName, data.userId, data.userColor))?.dude.grow();
-		}
-
-		if (parsedData.eventName === 'leave') {
-			const data = parsedData.data as DudesLeaveRequest;
-			(await dudesStore.createDude(dudeName, data.userId))?.dude.leave();
-		}
-
-		if (parsedData.eventName === 'punished') {
-			const data = parsedData.data as DudesUserPunishedRequest;
-			dudes.value.removeDude(dudeName);
+			if (createdDude?.dude) {
+				await createdDude.dude.updateSpriteData(spriteData);
+				dudesStore.updateDudeColors(createdDude.dude, data.dudeColor);
+			}
+		} else if (parsedData.eventName === 'jump') {
+			dude?.jump();
+		} else if (parsedData.eventName === 'grow') {
+			dude?.grow();
+		} else if (parsedData.eventName === 'leave') {
+			dude?.leave();
+		} else if (parsedData.eventName === 'punished') {
+			dudes.value.removeDude(data.userId);
 			dudesSettingsStore.dudesUserSettings.delete(data.userId);
 		}
 	});

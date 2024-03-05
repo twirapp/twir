@@ -25,28 +25,10 @@ var Grow = &types.DefaultCommand{
 	) {
 		result := types.CommandsHandlerResult{}
 
-		entity := model.ChannelsOverlaysDudesUserSettings{}
-		if err := parseCtx.Services.Gorm.
-			WithContext(ctx).
-			Where(`channel_id = ? AND user_id = ?`, parseCtx.Channel.ID, parseCtx.Sender.ID).
-			Find(&entity).Error; err != nil {
-			return nil, err
-		}
-
-		var color string
-		if entity.UserID != "" {
-			color = *entity.DudeColor
-		} else {
-			color = parseCtx.Sender.Color
-		}
-
 		err := parseCtx.Services.Bus.Websocket.DudesGrow.Publish(
 			websockets.DudesGrowRequest{
-				ChannelID:       parseCtx.Channel.ID,
-				UserID:          parseCtx.Sender.ID,
-				UserDisplayName: parseCtx.Sender.DisplayName,
-				UserName:        parseCtx.Sender.Name,
-				UserColor:       color,
+				ChannelID: parseCtx.Channel.ID,
+				UserID:    parseCtx.Sender.ID,
 			},
 		)
 		if err != nil {

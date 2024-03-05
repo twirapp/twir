@@ -26,7 +26,7 @@ export type DudesConfig = {
 export const useDudesSettings = defineStore('dudes-settings', () => {
 	const fontSource = useFontSource();
 	const dudesSettings = ref<DudesConfig | null>(null);
-	const dudesUserSettings = new Map<string, DudesUserSettings>();
+	const dudesUserSettings = new Map<string, DudesUserSettings & { userDisplayName?: string }>();
 	const channelData = ref<ChannelData>();
 
 	function updateSettings(settings: DudesConfig): void {
