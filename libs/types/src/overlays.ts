@@ -13,20 +13,13 @@ export enum DudesSprite {
 export interface DudesGrowRequest {
     channelId: string;
     userId: string;
-    userDisplayName: string;
-    userName: string;
-    userColor: string;
 }
 export interface DudesLeaveRequest {
     channelId: string;
     userId: string;
-    userDisplayName: string;
-    userName: string;
 }
 export interface DudesUserSettings {
     dudeColor?: string;
     dudeSprite?: DudesSprite;
     userId: string;
-    userDisplayName?: string;
-    userName?: string;
 }
