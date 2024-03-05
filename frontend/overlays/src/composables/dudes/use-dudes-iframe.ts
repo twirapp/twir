@@ -1,8 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import { DudesLayers } from '@twirapp/dudes';
 import { defineStore } from 'pinia';
 
-import { dudesTwir, getSprite, type DudeSprite } from './dudes-config.js';
+import { getSprite, type DudeSprite, dudeMock } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 import { useDudesSocket } from './use-dudes-socket.js';
 import { useDudes } from './use-dudes.js';
@@ -24,14 +23,14 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		if (!dudesStore.dudes) return;
 
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
-
-		const dude = dudesStore.dudes.getDude(dudesTwir);
+		const dude = dudesStore.dudes.getDude(dudeMock.id);
 
 		if (parsedData.action === 'settings' && parsedData.data && dude) {
 			const settings = parsedData.data as Required<Settings>;
 			dudesSocketStore.updateSettingFromSocket(settings);
-			const spriteData = getSprite(dudesTwir, settings.dudeSettings.defaultSprite as DudeSprite);
+			const spriteData = getSprite(settings.dudeSettings.defaultSprite as DudeSprite);
 			await dude.updateSpriteData(spriteData);
+			dudesStore.updateDudeColors(dude, dudeMock.color);
 			return;
 		}
 
@@ -69,7 +68,8 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		if (
 			!dudesStore.dudes ||
 			!dudesSettingsStore.dudesSettings ||
-			!dudesSettingsStore.channelData
+			!dudesSettingsStore.channelData ||
+			dudesStore.dudes.getDude(dudeMock.id)
 		) return;
 
 		const emote = dudesStore.getProxiedEmoteUrl({
@@ -77,10 +77,14 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 			value: 'https://cdn.7tv.app/emote/65413498dc0468e8c1fbcdc6/1x.gif',
 		});
 
-		const dudeSprite = getSprite(dudesTwir, dudesSettingsStore.dudesSettings.overlay.defaultSprite);
-		const dude = await dudesStore.dudes.createDude(dudesTwir, dudeSprite);
-		dude.updateColor(DudesLayers.Body, '#8a2be2');
-		dudesStore.updateDudeColors(dude);
+		const dudeSprite = getSprite(dudesSettingsStore.dudesSettings.overlay.defaultSprite);
+		const dude = await dudesStore.dudes.createDude({
+			id: dudeMock.id,
+			name: dudeMock.name,
+			sprite: dudeSprite,
+		});
+
+		dudesStore.updateDudeColors(dude, dudeMock.color);
 		dude.addMessage(`Hello, ${dudesSettingsStore.channelData.channelDisplayName}! ${randomEmoji('emoticons')}`);
 		dude.addEmotes([emote]);
 	}

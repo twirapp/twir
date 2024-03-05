@@ -5,7 +5,7 @@ import type { DudesMethods, Dude } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
-import { dudesTwir, getSprite } from './dudes-config.js';
+import { getSprite } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 
 import { randomRgbColor } from '@/helpers.js';
@@ -37,7 +37,7 @@ export const useDudes = defineStore('dudes', () => {
 	async function createDude(name: string, userId: string, color?: string) {
 		if (!dudes.value || !dudesSettings.value) return;
 
-		const dudeFromCanvas = dudes.value.dudes.get(name) as Dude;
+		const dudeFromCanvas = dudes.value.dudes.get(userId) as Dude;
 		if (dudeFromCanvas) {
 			return createDudeInstance(dudeFromCanvas);
 		}
@@ -48,14 +48,20 @@ export const useDudes = defineStore('dudes', () => {
 		) return;
 
 		const userSettings = requestDudeUserSettings(userId);
-		const dudeColor = userSettings?.dudeColor
+		if (!userSettings) return;
+
+		const dudeColor = userSettings.dudeColor
 			?? color
 			?? dudesSettings.value.dudes.dude.bodyColor;
 
-		const dudeSprite = getSprite(name, userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
-		const dude = await dudes.value.createDude(name, dudeSprite);
-		dude.updateColor(DudesLayers.Body, dudeColor);
-		updateDudeColors(dude);
+		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
+		const dude = await dudes.value.createDude({
+			id: userId,
+			name,
+			sprite: dudeSprite,
+		});
+
+		updateDudeColors(dude, dudeColor);
 
 		const dudeInstance = createDudeInstance(dude);
 		dudeInstance.isCreated = true;
@@ -63,22 +69,24 @@ export const useDudes = defineStore('dudes', () => {
 		return dudeInstance;
 	}
 
-	function updateDudeColors(dude: Dude): void {
-		const isTwir = dude.spriteData.name.startsWith(dudesTwir);
+	function updateDudeColors(dude: Dude, color?: string): void {
+		if (color) {
+			dude.updateColor(DudesLayers.Body, color);
+		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.girl) || isTwir) {
+		if (dude.config.sprite.name.startsWith(DudesSprite.girl)) {
 			dude.updateColor(DudesLayers.Hat, '#FF0000');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.santa) || isTwir) {
+		if (dude.config.sprite.name.startsWith(DudesSprite.santa)) {
 			dude.updateColor(DudesLayers.Hat, '#FFF');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.agent) || isTwir) {
+		if (dude.config.sprite.name.startsWith(DudesSprite.agent)) {
 			dude.updateColor(DudesLayers.Cosmetics, '#8a2be2');
 		}
 
-		if (dude.spriteData.name.startsWith(DudesSprite.sith) || isTwir) {
+		if (dude.config.sprite.name.startsWith(DudesSprite.sith)) {
 			dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
 		}
 	}

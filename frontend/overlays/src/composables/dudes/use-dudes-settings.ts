@@ -15,10 +15,10 @@ export type DudesOverlaySettings = {
 export type DudesConfig = {
 	ignore: IgnoreSettings
 	dudes: {
-		dude: DudesTypes.DudeParams
-		name: DudesTypes.NameBoxParams
-		message: DudesTypes.MessageBoxParams
-		emote: DudesTypes.EmotesParams
+		dude: DudesTypes.DudeStyles
+		name: DudesTypes.NameBoxStyles
+		message: DudesTypes.MessageBoxStyles
+		emote: DudesTypes.EmotesStyles
 	}
 	overlay: DudesOverlaySettings
 }

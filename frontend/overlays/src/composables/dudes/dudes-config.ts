@@ -2,20 +2,22 @@ import { DudesSprite } from '@twir/types/overlays';
 import { DudesLayers } from '@twirapp/dudes';
 import type { SoundAsset, AssetsLoaderOptions, DudesTypes } from '@twirapp/dudes/types';
 
-export const dudesTwir = 'Twir';
+export const dudeMock = {
+	id: 'Twir',
+	name: 'Twir',
+	color: 	'#8a2be2',
+};
 
 export type DudeSprite = keyof typeof DudesSprite
 
-export function getSprite(id: string, sprite?: DudeSprite): DudesTypes.SpriteData {
+export function getSprite(sprite?: DudeSprite): DudesTypes.SpriteData {
 	if (!sprite || sprite === DudesSprite.random) {
 		const sprites = Object.values(dudesSprites);
 		const spriteData = sprites[Math.floor(Math.random() * sprites.length)];
-		spriteData.name = id;
 		return { ...spriteData };
 	}
 
 	const spriteData = dudesSprites[sprite];
-	spriteData.name = id;
 	return { ...spriteData };
 }
 

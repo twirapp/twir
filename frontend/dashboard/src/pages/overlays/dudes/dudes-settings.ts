@@ -1,4 +1,5 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
+import { DudesSprite } from '@twir/types/overlays';
 
 type DeepRequired<T> = Required<{
 	[K in keyof T]: T[K] extends Required<T[K]> ? T[K] : DeepRequired<T[K]>;
@@ -55,7 +56,7 @@ export const defaultDudesSettings: DudesSettingsWithOptionalId = {
 	},
 	dudeSettings: {
 		maxOnScreen: 0,
-		defaultSprite: "random",
+		defaultSprite: DudesSprite.random,
 		visibleName: true,
 		color: '#969696',
 		eyesColor: '#FFFFFF',
