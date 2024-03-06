@@ -13,7 +13,6 @@ const { connect, destroy, currentTrack, settings } = useNowPlayingSocket({
 });
 
 onMounted(() => {
-	console.log(route.params.apiKey, route.query.id);
 	if (route.params.apiKey && route.query.id) {
 		connect();
 	}
