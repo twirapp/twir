@@ -40,7 +40,7 @@ watch(() => [
 		props.settings.fontWeight,
 		'normal',
 	);
-});
+}, { deep: true, immediate: true });
 
 const fontFamily = computed(() => {
 	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-normal"`;
