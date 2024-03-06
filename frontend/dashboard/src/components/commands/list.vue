@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconChevronRight, IconChevronDown } from '@tabler/icons-vue';
+import { IconChevronRight, IconChevronDown, IconSearch } from '@tabler/icons-vue';
 import type { ColumnDef } from '@tanstack/vue-table';
 import {
     FlexRender,
@@ -8,7 +8,7 @@ import {
 		getExpandedRowModel,
 } from '@tanstack/vue-table';
 import { type Command } from '@twir/api/messages/commands/commands';
-import { NButton, NSpace, NModal, NInput } from 'naive-ui';
+import { NButton, NSpace, NModal, NInput, useThemeVars, NIcon } from 'naive-ui';
 import { ref, h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -29,12 +29,14 @@ import {
 } from '@/components/ui/table';
 
 const { t } = useI18n();
+const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
 	commands: Command[]
 	showHeader?: boolean
 	showCreateButton?: boolean,
 	enableGroups?: boolean,
+	showBackground?: boolean
 }>(), {
 	showHeader: false,
 	showCreateButton: false,
@@ -153,13 +155,14 @@ const table = useVueTable({
 	<div>
 		<div v-if="showHeader" class="header">
 			<div>
-				<n-space align="center">
-					<h2>{{ t('commands.name', 0) }}</h2>
-					<n-input
-						v-model:value="commandsFilter"
-						:placeholder="t('commands.searchPlaceholder')"
-					/>
-				</n-space>
+				<n-input
+					v-model:value="commandsFilter"
+					:placeholder="t('commands.searchPlaceholder')"
+				>
+					<template #prefix>
+						<n-icon :component="IconSearch"></n-icon>
+					</template>
+				</n-input>
 			</div>
 			<div>
 				<n-space>
@@ -209,13 +212,20 @@ const table = useVueTable({
 			/>
 		</n-modal>
 
-		<div class="mt-5 border border-zinc-600 rounded-md bg-zinc-800 text-slate-50">
+		<div
+			class="border rounded-md"
+			:class="{ 'mt-5': showHeader }"
+			:style="{
+				backgroundColor: props.showBackground ? themeVars.cardColor : 'inherit',
+				color: themeVars.textColor2
+			}"
+		>
 			<Table>
 				<TableHeader>
 					<TableRow
 						v-for="headerGroup in table.getHeaderGroups()"
 						:key="headerGroup.id"
-						class="border-b border-zinc-600 text-slate-50"
+						class="border-b"
 					>
 						<TableHead
 							v-for="header in headerGroup.headers"
@@ -235,7 +245,7 @@ const table = useVueTable({
 						<TableRow
 							v-for="row in table.getRowModel().rows" :key="row.id"
 							:data-state="row.getIsSelected() ? 'selected' : undefined"
-							class="border-b border-zinc-600"
+							class="border-b"
 							:class="{ 'cursor-pointer': !isCommand(row.original) }"
 						>
 							<TableCell
@@ -287,5 +297,7 @@ const table = useVueTable({
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+	flex-wrap: wrap;
+	gap: 8px;
 }
 </style>

@@ -25,9 +25,10 @@ const commands = computed(() => {
 <template>
 	<list
 		:commands="commands"
-		:showHeader="true"
+		show-header
+		enable-groups
+		show-background
 		:showCreateButton="route.params.system === 'custom'"
-		:enable-groups="true"
 	/>
 </template>
 
