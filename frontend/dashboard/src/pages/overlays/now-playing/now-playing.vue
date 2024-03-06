@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NowPlaying } from '@twir/frontend-now-playing';
-import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA, NH1 } from 'naive-ui';
+import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -88,24 +88,18 @@ watch(entities, () => {
 </script>
 
 <template>
-	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
-		<div style="width: 70%; position: relative;">
-			<n-h1>Preview</n-h1>
-			<div
-				class="iframe"
-				style="padding: 10px; display: flex; align-items: center; justify-content: center"
-			>
-				<NowPlaying
-					:settings="settings ?? { preset: 'TRANSPARENT' }"
-					:track="{
-						image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
-						artist: 'Slipknot',
-						title: 'Psychosocial'
-					}"
-				/>
-			</div>
+	<div style="display: flex; gap: 12px; flex-direction: column">
+		<div>
+			<NowPlaying
+				:settings="settings ?? { preset: 'TRANSPARENT' }"
+				:track="{
+					image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
+					artist: 'Slipknot',
+					title: 'Psychosocial'
+				}"
+			/>
 		</div>
-		<div style="width: 30%;">
+		<div>
 			<n-result
 				v-if="!isSomeSongIntegrationEnabled"
 				status="warning"
@@ -160,5 +154,12 @@ watch(entities, () => {
 .iframe {
 	border: 1px solid v-bind('themeVars.borderColor');
 	border-radius: 8px;
+	padding: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
 }
 </style>
