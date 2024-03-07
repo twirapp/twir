@@ -68,7 +68,7 @@ const columns: ColumnDef<Command | Group>[] = [
 				return h(
 					'div',
 					{ class: 'flex gap-2 font-medium items-center select-none' },
-					[chevron, row.getValue('name') as string],
+					[chevron, '!' + row.getValue('name') as string],
 				);
 			}
 
