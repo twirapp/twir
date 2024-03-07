@@ -27,7 +27,6 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
-	"github.com/twirapp/twir/libs/grpc/scheduler"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -66,9 +65,6 @@ var App = fx.Options(
 		},
 		func(c cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(c.AppEnv)
-		},
-		func(c cfg.Config) scheduler.SchedulerClient {
-			return clients.NewScheduler(c.AppEnv)
 		},
 		func(c cfg.Config) discord.DiscordClient {
 			return clients.NewDiscord(c.AppEnv)

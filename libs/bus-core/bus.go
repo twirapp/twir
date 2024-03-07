@@ -10,6 +10,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
@@ -24,6 +25,7 @@ type Bus struct {
 	Timers       *timersBus
 	Eval         *evalBus
 	EventSub     *eventSubBus
+	Scheduler    *schedulerBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -153,6 +155,21 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			Subscribe: NewNatsQueue[eventsub.EventsubSubscribeRequest, struct{}](
 				nc,
 				eventsub.EventsubSubscribeSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
+
+		Scheduler: &schedulerBus{
+			CreateDefaultCommands: NewNatsQueue[scheduler.CreateDefaultCommandsRequest, struct{}](
+				nc,
+				scheduler.CreateDefaultCommandsSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+			CreateDefaultRoles: NewNatsQueue[scheduler.CreateDefaultRolesRequest, struct{}](
+				nc,
+				scheduler.CreateDefaultRolesSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),

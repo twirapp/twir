@@ -1,8 +1,8 @@
 package app
 
 import (
+	bus_listener "github.com/satont/twir/apps/scheduler/internal/bus-listener"
 	"github.com/satont/twir/apps/scheduler/internal/gorm"
-	"github.com/satont/twir/apps/scheduler/internal/grpc_impl"
 	"github.com/satont/twir/apps/scheduler/internal/services"
 	"github.com/satont/twir/apps/scheduler/internal/timers"
 	config "github.com/satont/twir/libs/config"
@@ -38,7 +38,7 @@ var App = fx.Module(
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),
-		grpc_impl.New,
+		bus_listener.New,
 		timers.NewEmotes,
 		timers.NewOnlineUsers,
 		timers.NewStreams,

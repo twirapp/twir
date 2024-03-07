@@ -6,6 +6,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/parser"
+	"github.com/twirapp/twir/libs/bus-core/scheduler"
 	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
@@ -50,4 +51,9 @@ type evalBus struct {
 
 type eventSubBus struct {
 	Subscribe Queue[eventsub.EventsubSubscribeRequest, struct{}]
+}
+
+type schedulerBus struct {
+	CreateDefaultCommands Queue[scheduler.CreateDefaultCommandsRequest, struct{}]
+	CreateDefaultRoles    Queue[scheduler.CreateDefaultRolesRequest, struct{}]
 }

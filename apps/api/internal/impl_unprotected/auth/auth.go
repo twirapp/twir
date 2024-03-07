@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
-	"github.com/twirapp/twir/libs/grpc/scheduler"
+	"github.com/twirapp/twir/libs/bus-core/scheduler"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
@@ -179,17 +179,15 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 		return nil, fmt.Errorf("cannot update db user: %w", err)
 	}
 
-	_, err = c.Grpc.Scheduler.CreateDefaultRoles(
-		ctx,
-		&scheduler.CreateDefaultRolesRequest{UsersIds: []string{twitchUser.ID}},
+	err = c.Bus.Scheduler.CreateDefaultRoles.Publish(
+		scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	_, err = c.Grpc.Scheduler.CreateDefaultCommands(
-		ctx,
-		&scheduler.CreateDefaultCommandsRequest{UsersIds: []string{twitchUser.ID}},
+	err = c.Bus.Scheduler.CreateDefaultCommands.Publish(
+		scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
 		return nil, err
