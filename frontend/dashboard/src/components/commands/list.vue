@@ -189,7 +189,6 @@ const table = useVueTable({
 			</div>
 		</div>
 
-
 		<n-modal
 			v-model:show="showCommandEditModal"
 			:mask-closable="false"
@@ -200,8 +199,10 @@ const table = useVueTable({
 			:style="{
 				width: '800px',
 				top: '50px',
+				height: '70dvh',
 			}"
 			:on-close="onModalClose"
+			content-style="padding: 5px;"
 		>
 			<modal
 				:command="editableCommand"
