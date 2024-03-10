@@ -33,8 +33,8 @@ pnpm cli build libs
 Well, now we are almost ready for developing project, just few steps.
 
 * Create twitch application https://dev.twitch.tv/console/apps
-* Set `http://localhost:3005/login` and `https://twitchtokengenerator.com` as your redirect url's for twitch application
-* Go to https://twitchtokengenerator.com, set clientID and clientSecret from your app and generate initial token WITH
+* Set `http://localhost:3005/login` and `https://tokens-generator.twir.app` as your redirect url's for twitch application
+* Go to https://tokens-generator.twir.app, set clientID and clientSecret from your app and generate initial token WITH
   ALL SCOPES
 * `cp .env.example .env` and fill required envs
 
