@@ -198,8 +198,7 @@ const table = useVueTable({
 			class="modal"
 			:style="{
 				width: '800px',
-				top: '50px',
-				height: '70dvh',
+				height: '90dvh',
 			}"
 			:on-close="onModalClose"
 			content-style="padding: 5px;"
