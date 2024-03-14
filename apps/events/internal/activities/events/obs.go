@@ -14,7 +14,7 @@ import (
 func (c *Activity) ObsSetScene(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -47,7 +47,7 @@ func (c *Activity) ObsSetScene(
 func (c *Activity) ObsToggleSource(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -80,7 +80,7 @@ func (c *Activity) ObsToggleSource(
 func (c *Activity) ObsToggleAudio(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	hydratedString, hydratedErr := c.hydrator.HydrateStringWithData(
 		data.ChannelID,
@@ -110,7 +110,7 @@ func (c *Activity) ObsToggleAudio(
 func (c *Activity) ObsAudioChangeVolume(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -162,7 +162,7 @@ func (c *Activity) ObsAudioChangeVolume(
 func (c *Activity) ObsAudioSetVolume(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -201,7 +201,7 @@ func (c *Activity) ObsAudioSetVolume(
 func (c *Activity) ObsEnableOrDisableAudio(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -241,7 +241,7 @@ func (c *Activity) ObsEnableOrDisableAudio(
 func (c *Activity) ObsStartOrStopStream(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

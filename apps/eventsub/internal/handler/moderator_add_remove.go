@@ -3,12 +3,12 @@ package handler
 import (
 	"log/slog"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelModeratorAdd(
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorAdd,
+	_ *esb.ResponseHeaders, event *esb.EventChannelModeratorAdd,
 ) {
 	c.logger.Info(
 		"channel moderator add",
@@ -20,7 +20,7 @@ func (c *Handler) handleChannelModeratorAdd(
 }
 
 func (c *Handler) handleChannelModeratorRemove(
-	h *eventsub_bindings.ResponseHeaders, event *eventsub_bindings.EventChannelModeratorRemove,
+	_ *esb.ResponseHeaders, event *esb.EventChannelModeratorRemove,
 ) {
 	c.logger.Info(
 		"channel moderator remove",

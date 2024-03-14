@@ -87,17 +87,19 @@ type RussianRouletteSetting struct {
 }
 
 type ChatAlertsSettings struct {
-	Followers        ChatAlertsFollowersSettings `json:"followers"`
-	Raids            ChatAlertsRaids             `json:"raids"`
-	Donations        ChatAlertsDonations         `json:"donations"`
-	Subscribers      ChatAlertsSubscribers       `json:"subscribers"`
-	Cheers           ChatAlertsCheers            `json:"cheers"`
-	Redemptions      ChatAlertsRedemptions       `json:"redemptions"`
-	FirstUserMessage ChatAlertsFirstUserMessage  `json:"firstUserMessage"`
-	StreamOnline     ChatAlertsStreamOnline      `json:"streamOnline"`
-	StreamOffline    ChatAlertsStreamOffline     `json:"streamOffline"`
-	ChatCleared      ChatAlertsChatCleared       `json:"chatCleared"`
-	Ban              ChatAlertsBan               `json:"ban"`
+	Followers           ChatAlertsFollowersSettings   `json:"followers"`
+	Raids               ChatAlertsRaids               `json:"raids"`
+	Donations           ChatAlertsDonations           `json:"donations"`
+	Subscribers         ChatAlertsSubscribers         `json:"subscribers"`
+	Cheers              ChatAlertsCheers              `json:"cheers"`
+	Redemptions         ChatAlertsRedemptions         `json:"redemptions"`
+	FirstUserMessage    ChatAlertsFirstUserMessage    `json:"firstUserMessage"`
+	StreamOnline        ChatAlertsStreamOnline        `json:"streamOnline"`
+	StreamOffline       ChatAlertsStreamOffline       `json:"streamOffline"`
+	ChatCleared         ChatAlertsChatCleared         `json:"chatCleared"`
+	Ban                 ChatAlertsBan                 `json:"ban"`
+	UnbanRequestCreate  ChatAlertsUnbanRequestCreate  `json:"unbanRequestCreate"`
+	UnbanRequestResolve ChatAlertsUnbanRequestResolve `json:"unbanRequestResolve"`
 }
 
 type ChatAlertsFollowersSettings struct {
@@ -174,4 +176,16 @@ type ChatAlertsBan struct {
 	Messages          []ChatAlertsCountedMessage `json:"messages"`
 	IgnoreTimeoutFrom []string                   `json:"ignoreTimeoutFrom"`
 	Cooldown          int                        `json:"cooldown"`
+}
+
+type ChatAlertsUnbanRequestCreate struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
+}
+
+type ChatAlertsUnbanRequestResolve struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
 }

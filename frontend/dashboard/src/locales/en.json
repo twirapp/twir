@@ -336,7 +336,8 @@
       "moderatorName": "Event Triggerer Moderator Username",
       "moderatorDisplayName": "Event Triggerer Moderator Display Name",
       "banReason": "Ban Reason",
-      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)"
+      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
+			"message": "Message"
     }
   },
   "overlays": {
@@ -785,7 +786,9 @@
       "streamOnline": "Stream Online",
       "streamOffline": "Stream Offline",
       "chatCleared": "Chat Clear",
-      "userBanned": "User Ban"
+      "userBanned": "User Ban",
+			"channelUnbanRequestCreate": "Unban Request Create",
+			"channelUnbanRequestResolve": "Unban Request Resolve"
     }
   },
   "moderation": {

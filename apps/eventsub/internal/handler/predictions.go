@@ -4,9 +4,9 @@ import (
 	"context"
 	"log/slog"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/libs/grpc/events"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func convertOutCome(outcomes []eventsub_bindings.PredictionOutcome) []*events.PredictionInfo_OutCome {

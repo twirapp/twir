@@ -64,7 +64,7 @@ type EventWorkflow struct {
 func (c *EventWorkflow) Execute(
 	ctx context.Context,
 	eventType model.EventType,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	options := client.StartWorkflowOptions{
 		ID:        fmt.Sprintf("%s - %s", shared.EventsWorkflow, uuid.NewString()),

@@ -1,6 +1,6 @@
 package shared
 
-type EvenData struct {
+type EventData struct {
 	ChannelID string `json:"channelId"`
 
 	//
@@ -31,7 +31,7 @@ type EvenData struct {
 	CommandName  string `json:"commandName,omitempty"`
 	CommandID    string `json:"commandId,omitempty"`
 	CommandInput string `json:"commandInput,omitempty"`
-	
+
 	//
 	TargetUserName        string `json:"targetUserName,omitempty"`
 	TargetUserDisplayName string `json:"targetUserDisplayName,omitempty"`
@@ -68,6 +68,12 @@ type EvenData struct {
 	// ban
 	BanReason        string `json:"banReason,omitempty"`
 	BanEndsInMinutes string `json:"banEndsInMinutes,omitempty"`
+
+	// generic message field
+	Message string `json:"message,omitempty"`
+
+	//
+	ChannelUnbanRequestResolveDeclined bool `json:"channelUnbanRequestResolveStatus,omitempty"`
 }
 
 type EventDataPredictionOutCome struct {

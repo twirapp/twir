@@ -17,7 +17,7 @@ import (
 func (c *EventWorkflow) Flow(
 	ctx workflow.Context,
 	eventType model.EventType,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	options := workflow.ActivityOptions{
 		StartToCloseTimeout: time.Second * 15,
@@ -370,7 +370,7 @@ func (c *EventWorkflow) Flow(
 func (c *EventWorkflow) filtersOk(
 	channelId string,
 	filters []*model.EventOperationFilter,
-	data shared.EvenData,
+	data shared.EventData,
 ) bool {
 	for _, filter := range filters {
 		hydratedRight, _ := c.hydrator.HydrateStringWithData(channelId, filter.Right, data)

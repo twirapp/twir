@@ -53,7 +53,7 @@ func (c *Activity) getTtsSettings(
 func (c *Activity) TtsSay(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -111,7 +111,7 @@ func (c *Activity) TtsSay(
 func (c *Activity) TtsSkip(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -130,7 +130,7 @@ func (c *Activity) TtsSkip(
 func (c *Activity) TtsChangeState(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -161,7 +161,7 @@ func (c *Activity) TtsChangeState(
 func (c *Activity) TtsChangeAutoReadState(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

@@ -17,7 +17,7 @@ import (
 func (c *Activity) ModOrUnmod(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -133,7 +133,7 @@ func (c *Activity) ModOrUnmod(
 func (c *Activity) UnmodRandom(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

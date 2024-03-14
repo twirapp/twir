@@ -14,7 +14,7 @@ import (
 func (c *Activity) SwitchEmoteOnly(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -52,7 +52,7 @@ func (c *Activity) SwitchEmoteOnly(
 func (c *Activity) SwitchSubMode(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

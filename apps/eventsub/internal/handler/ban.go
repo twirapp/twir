@@ -7,12 +7,12 @@ import (
 	"math"
 	"time"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleBan(

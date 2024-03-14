@@ -159,6 +159,18 @@ func (c *ChatAlerts) ProcessEvent(
 			cooldown = parsedSettings.FirstUserMessage.Cooldown
 			processErr = c.firstUserMessage(ctx, parsedSettings, casted)
 		}
+	case events.TwirEventType_CHANNEL_UNBAN_REQUEST_CREATED:
+		casted, ok := data.(*events_messages.ChannelUnbanRequestCreateMessage)
+		if ok {
+			cooldown = parsedSettings.Ban.Cooldown
+			processErr = c.unbanRequestCreate(ctx, parsedSettings, casted)
+		}
+	case events.TwirEventType_CHANNEL_UNBAN_REQUEST_RESOLVED:
+		casted, ok := data.(*events_messages.ChannelUnbanRequestResolveMessage)
+		if ok {
+			cooldown = parsedSettings.Ban.Cooldown
+			processErr = c.unbanRequestResolved(ctx, parsedSettings, casted)
+		}
 	default:
 		c.logger.Warn("unknown event", slog.Any("eventType", eventType))
 	}

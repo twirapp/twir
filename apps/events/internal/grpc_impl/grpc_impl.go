@@ -106,7 +106,7 @@ func (c *EventsGrpcImplementation) Follow(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFollow,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -160,7 +160,7 @@ func (c *EventsGrpcImplementation) Subscribe(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubscribe,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
@@ -218,7 +218,7 @@ func (c *EventsGrpcImplementation) ReSubscribe(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeResubscribe,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					SubLevel:        msg.Level,
@@ -275,7 +275,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeRedemptionCreated,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					RewardCost:      msg.RewardCost,
@@ -334,7 +334,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeCommandUsed,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -383,7 +383,7 @@ func (c *EventsGrpcImplementation) FirstUserMessage(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeFirstUserMessage,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -438,7 +438,7 @@ func (c *EventsGrpcImplementation) Raided(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeRaided,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -493,7 +493,7 @@ func (c *EventsGrpcImplementation) TitleOrCategoryChanged(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeTitleOrCategoryChanged,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:         msg.BaseInfo.ChannelId,
 					OldStreamCategory: msg.OldCategory,
 					NewStreamCategory: msg.NewCategory,
@@ -539,7 +539,7 @@ func (c *EventsGrpcImplementation) StreamOnline(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeStreamOnline,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:      msg.BaseInfo.ChannelId,
 					StreamTitle:    msg.Title,
 					StreamCategory: msg.Category,
@@ -594,7 +594,7 @@ func (c *EventsGrpcImplementation) StreamOffline(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeStreamOffline,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID: msg.BaseInfo.ChannelId,
 				},
 			)
@@ -645,7 +645,7 @@ func (c *EventsGrpcImplementation) SubGift(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeSubGift,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:             msg.BaseInfo.ChannelId,
 					TargetUserName:        msg.TargetUserName,
 					TargetUserDisplayName: msg.TargetDisplayName,
@@ -689,7 +689,7 @@ func (c *EventsGrpcImplementation) ChatClear(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeOnChatClear,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID: msg.BaseInfo.ChannelId,
 				},
 			)
@@ -740,7 +740,7 @@ func (c *EventsGrpcImplementation) Donate(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeDonate,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:      msg.BaseInfo.ChannelId,
 					UserName:       msg.UserName,
 					DonateAmount:   msg.Amount,
@@ -795,7 +795,7 @@ func (c *EventsGrpcImplementation) KeywordMatched(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeKeywordMatched,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -843,7 +843,7 @@ func (c *EventsGrpcImplementation) GreetingSended(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypeGreetingSended,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -887,7 +887,7 @@ func (c *EventsGrpcImplementation) PollBegin(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePollBegin,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -945,7 +945,7 @@ func (c *EventsGrpcImplementation) PollProgress(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePollProgress,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
@@ -1008,7 +1008,7 @@ func (c *EventsGrpcImplementation) PollEnd(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePollEnd,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					PollTitle:       msg.Info.Title,
@@ -1061,7 +1061,7 @@ func (c *EventsGrpcImplementation) PredictionBegin(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePredictionBegin,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
@@ -1116,7 +1116,7 @@ func (c *EventsGrpcImplementation) PredictionProgress(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePredictionProgress,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
@@ -1174,7 +1174,7 @@ func (c *EventsGrpcImplementation) PredictionLock(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePredictionLock,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
@@ -1238,7 +1238,7 @@ func (c *EventsGrpcImplementation) PredictionEnd(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventTypePredictionEnd,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
 					UserDisplayName: msg.UserDisplayName,
 					PredictionTitle: msg.Info.Title,
@@ -1293,7 +1293,7 @@ func (c *EventsGrpcImplementation) StreamFirstUserJoin(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventStreamFirstUserJoin,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID: msg.BaseInfo.ChannelId,
 					UserName:  msg.UserName,
 				},
@@ -1334,7 +1334,7 @@ func (c *EventsGrpcImplementation) ChannelBan(
 			err := c.eventsWorkflow.Execute(
 				ctx,
 				model.EventChannelBan,
-				shared.EvenData{
+				shared.EventData{
 					ChannelID:            msg.BaseInfo.ChannelId,
 					UserDisplayName:      msg.UserName,
 					ModeratorDisplayName: msg.ModeratorUserName,
@@ -1375,6 +1375,58 @@ func (c *EventsGrpcImplementation) ChannelBan(
 	)
 
 	wg.Wait()
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) ChannelUnbanRequestCreate(
+	ctx context.Context,
+	msg *events.ChannelUnbanRequestCreateMessage,
+) (*emptypb.Empty, error) {
+	c.chatAlerts.ProcessEvent(
+		ctx,
+		msg.BaseInfo.ChannelId,
+		api_events.TwirEventType_CHANNEL_UNBAN_REQUEST_CREATED,
+		msg,
+	)
+
+	err := c.eventsWorkflow.Execute(
+		ctx,
+		model.EventChannelUnbanRequestCreate,
+		shared.EventData{
+			ChannelID:       msg.BaseInfo.ChannelId,
+			UserName:        msg.UserLogin,
+			UserDisplayName: msg.UserName,
+			Message:         msg.Text,
+		},
+	)
+	if err != nil {
+		c.logger.Error("Error execute workflow", slog.Any("err", err))
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
+	ctx context.Context,
+	msg *events.ChannelUnbanRequestResolveMessage,
+) (*emptypb.Empty, error) {
+	err := c.eventsWorkflow.Execute(
+		ctx,
+		model.EventChannelUnbanRequestResolve,
+		shared.EventData{
+			ChannelID:                          msg.BaseInfo.ChannelId,
+			UserName:                           msg.UserLogin,
+			UserDisplayName:                    msg.UserName,
+			Message:                            msg.Reason,
+			ChannelUnbanRequestResolveDeclined: msg.Declined,
+			ModeratorName:                      msg.ModeratorUserLogin,
+			ModeratorDisplayName:               msg.ModeratorUserName,
+		},
+	)
+	if err != nil {
+		c.logger.Error("Error execute workflow", slog.Any("err", err))
+	}
 
 	return &emptypb.Empty{}, nil
 }

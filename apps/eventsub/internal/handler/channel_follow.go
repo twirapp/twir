@@ -9,8 +9,8 @@ import (
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/twirapp/twir/libs/grpc/events"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelFollow(

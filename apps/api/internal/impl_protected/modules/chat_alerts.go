@@ -97,6 +97,16 @@ func (c *Modules) convertChatAlertsSettings(
 			Cooldown:          int32(entity.Ban.Cooldown),
 			IgnoreTimeoutFrom: entity.Ban.IgnoreTimeoutFrom,
 		},
+		ChannelUnbanRequestCreate: &modules_chat_alerts.ChatAlertsChannelUnbanRequestCreate{
+			Enabled:  entity.UnbanRequestCreate.Enabled,
+			Messages: c.convertChatAlertsMessages(entity.UnbanRequestCreate.Messages),
+			Cooldown: int32(entity.UnbanRequestCreate.Cooldown),
+		},
+		ChannelUnbanRequestResolve: &modules_chat_alerts.ChatAlertsChannelUnbanRequestResolve{
+			Enabled:  entity.UnbanRequestResolve.Enabled,
+			Messages: c.convertChatAlertsMessages(entity.UnbanRequestResolve.Messages),
+			Cooldown: int32(entity.UnbanRequestResolve.Cooldown),
+		},
 	}
 }
 
@@ -230,6 +240,16 @@ func (c *Modules) ModulesChatAlertsUpdate(
 			Messages:          c.chatAlertsRequestedCountedToDb(req.Ban.Messages),
 			Cooldown:          int(req.Ban.Cooldown),
 			IgnoreTimeoutFrom: req.Ban.IgnoreTimeoutFrom,
+		},
+		UnbanRequestCreate: model.ChatAlertsUnbanRequestCreate{
+			Enabled:  req.ChannelUnbanRequestCreate.Enabled,
+			Messages: c.chatAlertsRequestedToDb(req.ChannelUnbanRequestCreate.Messages),
+			Cooldown: int(req.ChannelUnbanRequestCreate.Cooldown),
+		},
+		UnbanRequestResolve: model.ChatAlertsUnbanRequestResolve{
+			Enabled:  req.ChannelUnbanRequestResolve.Enabled,
+			Messages: c.chatAlertsRequestedToDb(req.ChannelUnbanRequestResolve.Messages),
+			Cooldown: int(req.ChannelUnbanRequestResolve.Cooldown),
 		},
 	}
 

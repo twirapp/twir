@@ -15,7 +15,7 @@ import (
 func (c *Activity) ChangeVariableValue(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -63,7 +63,7 @@ func (c *Activity) ChangeVariableValue(
 func (c *Activity) IncrementORDecrementVariable(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

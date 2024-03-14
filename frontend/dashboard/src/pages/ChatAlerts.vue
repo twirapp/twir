@@ -74,6 +74,16 @@ const formValue = ref<Required<ChatAlertsSettings>>({
 		cooldown: 2,
 		ignoreTimeoutFrom: [],
 	},
+	channelUnbanRequestCreate: {
+		enabled: false,
+		messages: [],
+		cooldown: 0,
+	},
+	channelUnbanRequestResolve: {
+		enabled: false,
+		messages: [],
+		cooldown: 0,
+	},
 });
 
 const { data: settings } = useChatAlertsSettings();
@@ -308,6 +318,36 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 						</n-form-item>
 					</template>
 				</Settings>
+			</n-tab-pane>
+
+			<n-tab-pane name="channelUnbanRequestCreate" :tab="t('chatAlerts.labels.channelUnbanRequestCreate')">
+				<Settings
+					v-model:enabled="formValue.channelUnbanRequestCreate.enabled"
+					v-model:messages="formValue.channelUnbanRequestCreate.messages"
+					v-model:cooldown="formValue.channelUnbanRequestCreate.cooldown"
+					:max-messages="20"
+					:min-cooldown="0"
+					default-message-text="User {userName} requesting unban with message {message}"
+					:alert-message="`
+						${t('chatAlerts.randomedMessage')}
+						${t('chatAlerts.replacedInfo', { vars: '{userName}, {message}'})}
+					`"
+				/>
+			</n-tab-pane>
+
+			<n-tab-pane name="channelUnbanRequestResolve" :tab="t('chatAlerts.labels.channelUnbanRequestResolve')">
+				<Settings
+					v-model:enabled="formValue.channelUnbanRequestResolve.enabled"
+					v-model:messages="formValue.channelUnbanRequestResolve.messages"
+					v-model:cooldown="formValue.channelUnbanRequestResolve.cooldown"
+					:max-messages="20"
+					:min-cooldown="0"
+					default-message-text="User {userName} unban request resolved with message {message} by moderator {moderatorName}"
+					:alert-message="`
+						${t('chatAlerts.randomedMessage')}
+						${t('chatAlerts.replacedInfo', { vars: '{userName}, {moderatorName}, {message}'})}
+					`"
+				/>
 			</n-tab-pane>
 		</n-tabs>
 	</n-card>

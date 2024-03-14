@@ -5,9 +5,9 @@ import (
 	"log/slog"
 	"unicode/utf8"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
 )
 

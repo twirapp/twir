@@ -28,6 +28,8 @@ service Events {
 	rpc PredictionLock(PredictionLockMessage) returns (google.protobuf.Empty) {}
 	rpc PredictionEnd(PredictionEndMessage) returns (google.protobuf.Empty) {}
 	rpc ChannelBan(ChannelBanMessage) returns (google.protobuf.Empty) {}
+	rpc ChannelUnbanRequestCreate(ChannelUnbanRequestCreateMessage) returns (google.protobuf.Empty) {}
+	rpc ChannelUnbanRequestResolve(ChannelUnbanRequestResolveMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -292,4 +294,27 @@ message ChannelBanMessage {
 	string reason = 8;
 	string ends_at = 9;
 	bool is_permanent = 10;
+}
+
+message ChannelUnbanRequestCreateMessage {
+	BaseInfo baseInfo = 1;
+
+	string user_name = 2;
+	string user_login = 3;
+	string broadcaster_user_name = 4;
+	string broadcaster_user_login = 5;
+	string text = 6;
+}
+
+message ChannelUnbanRequestResolveMessage {
+	BaseInfo baseInfo = 1;
+
+	string user_name = 2;
+	string user_login = 3;
+	string broadcaster_user_name = 4;
+	string broadcaster_user_login = 5;
+	string moderator_user_name = 6;
+	string moderator_user_login = 7;
+	bool declined = 8;
+	string reason = 9;
 }

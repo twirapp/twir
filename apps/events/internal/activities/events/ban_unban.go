@@ -25,7 +25,7 @@ func computeBanReason(reason null.String) string {
 func (c *Activity) Ban(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -115,7 +115,7 @@ func (c *Activity) Ban(
 func (c *Activity) Unban(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -165,7 +165,7 @@ func (c *Activity) Unban(
 func (c *Activity) BanRandom(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

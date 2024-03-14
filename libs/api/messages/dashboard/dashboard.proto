@@ -27,6 +27,8 @@ enum EventType {
 	CHAT_CLEAR = 7;
 	REDEMPTION_CREATED = 8;
 	CHANNEL_BAN = 9;
+	CHANNEL_UNBAN_REQUEST_CREATE = 10;
+	CHANNEL_UNBAN_REQUEST_RESOLVE = 11;
 }
 
 message EventData {
@@ -81,6 +83,11 @@ message EventData {
 
 	string moderator_name = 35;
 	string moderator_display_name = 36;
+
+	string message = 37;
+
+	string user_login = 38;
+	string user_name = 39;
 }
 
 message DashboardEventsList {

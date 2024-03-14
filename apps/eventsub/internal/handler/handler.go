@@ -6,7 +6,6 @@ import (
 	"net"
 	"net/http"
 
-	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
@@ -17,6 +16,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -99,6 +99,8 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelChatClear = myHandler.handleChannelChatClear
 	handler.HandleChannelChatNotification = myHandler.handleChannelChatNotification
 	handler.HandleChannelChatMessage = myHandler.handleChannelChatMessage
+	handler.HandleChannelUnbanRequestCreate = myHandler.handleChannelUnbanRequestCreate
+	handler.HandleChannelUnbanRequestResolve = myHandler.handleChannelUnbanRequestResolve
 
 	httpHandler := otelhttp.NewHandler(handler, "")
 

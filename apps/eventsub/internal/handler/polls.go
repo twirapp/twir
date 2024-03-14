@@ -4,8 +4,8 @@ import (
 	"context"
 	"log/slog"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/twirapp/twir/libs/grpc/events"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.uber.org/zap"
 )
 

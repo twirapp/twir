@@ -178,6 +178,10 @@ func (c *Dashboard) convertType(t model.ChannelEventListItemType) dashboard.Even
 		return dashboard.EventType_REDEMPTION_CREATED
 	case model.ChannelEventListItemTypeChannelBan:
 		return dashboard.EventType_CHANNEL_BAN
+	case model.ChannelEventListItemTypeChannelUnbanRequestCreate:
+		return dashboard.EventType_CHANNEL_UNBAN_REQUEST_CREATE
+	case model.ChannelEventListItemTypeChannelUnbanRequestResolve:
+		return dashboard.EventType_CHANNEL_UNBAN_REQUEST_RESOLVE
 	default:
 		return 0
 	}
@@ -242,6 +246,9 @@ func (c *Dashboard) GetDashboardEventsList(ctx context.Context, _ *emptypb.Empty
 				BannedUserLogin:                 entity.Data.BannedUserLogin,
 				ModeratorName:                   entity.Data.ModeratorName,
 				ModeratorDisplayName:            entity.Data.ModeratorDisplayName,
+				Message:                         entity.Data.Message,
+				UserLogin:                       entity.Data.UserLogin,
+				UserName:                        entity.Data.UserDisplayName,
 			},
 			CreatedAt: fmt.Sprint(entity.CreatedAt.UnixMilli()),
 		}

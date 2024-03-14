@@ -5,10 +5,10 @@ import (
 	"log/slog"
 	"time"
 
-	eventsub_bindings "github.com/dnsge/twitch-eventsub-bindings"
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/events"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleChannelChatClear(
@@ -30,7 +30,7 @@ func (c *Handler) handleChannelChatClear(
 			Data:      &model.ChannelsEventsListItemData{},
 		},
 	)
-	
+
 	c.eventsGrpc.ChatClear(
 		context.Background(),
 		&events.ChatClearMessage{

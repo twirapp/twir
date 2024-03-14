@@ -1,23 +1,23 @@
 import {
-	IconDeviceDesktopAnalytics,
-	IconMessageExclamation,
-	IconBracketsContain,
-	IconAccessPointOff,
-	IconHeartHandshake,
-	IconCashBanknote,
 	IconAccessPoint,
-	IconUserDollar,
+	IconAccessPointOff,
+	IconAward,
+	IconBracketsContain,
+	IconCashBanknote,
+	IconDeviceDesktopAnalytics,
+	IconDice6,
+	IconEraser,
+	IconGift,
+	IconHeartHandshake,
+	IconMessageExclamation,
+	IconPick,
+	IconStar,
 	IconTransform,
+	IconUserCancel,
+	IconUserDollar,
 	IconUserHeart,
 	IconUserPlus,
 	IconUserStar,
-	IconEraser,
-	IconAward,
-	IconDice6,
-	IconStar,
-	IconPick,
-	IconGift,
-	IconUserCancel,
 } from '@tabler/icons-vue';
 import { TwirEventType } from '@twir/api/messages/events/events';
 import { FunctionalComponent } from 'vue';
@@ -242,9 +242,25 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 	},
 
 	CHANNEL_BAN: {
-		name: 'User banned/timeouted',
-		icon: IconUserCancel,
-		variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
-		enumValue: TwirEventType.USER_BANNED,
+		name: 'Bans',
+		type: 'group',
+		childrens: {
+			CHANNEL_BAN: {
+				name: 'User banned/timeouted',
+				icon: IconUserCancel,
+				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'banReason', 'banEndsInMinutes'],
+				enumValue: TwirEventType.USER_BANNED,
+			},
+			CHANNEL_UNBAN_REQUEST_CREATE: {
+				name: 'User Unban Request Created',
+				icon: IconUserCancel,
+				variables: ['userName', 'userDisplayName', 'message'],
+			},
+			CHANNEL_UNBAN_REQUEST_RESOLVE: {
+				name: 'User Unban Request Accepted/Declined',
+				icon: IconUserCancel,
+				variables: ['userName', 'userDisplayName', 'moderatorName', 'moderatorDisplayName', 'message'],
+			},
+		},
 	},
 };

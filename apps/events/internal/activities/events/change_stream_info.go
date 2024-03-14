@@ -14,7 +14,7 @@ import (
 func (c *Activity) ChangeCategory(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 
@@ -69,7 +69,7 @@ func (c *Activity) ChangeCategory(
 func (c *Activity) ChangeTitle(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

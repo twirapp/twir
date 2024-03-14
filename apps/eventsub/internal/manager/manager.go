@@ -7,7 +7,6 @@ import (
 	"sync"
 	"sync/atomic"
 
-	eventsub_framework "github.com/dnsge/twitch-eventsub-framework"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
@@ -16,6 +15,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -102,6 +102,11 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 	channelConditionWithBotId := map[string]string{
 		"broadcaster_user_id": userId,
 		"user_id":             botId,
+	}
+
+	channelConditionWithModeratorId := map[string]string{
+		"broadcaster_user_id": userId,
+		"moderator_user_id":   botId,
 	}
 
 	neededSubs := map[string]SubRequest{
@@ -213,6 +218,14 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 		"channel.chat.message": {
 			Version:   "1",
 			Condition: channelConditionWithBotId,
+		},
+		"channel.unban_request.create": {
+			Version:   "beta",
+			Condition: channelConditionWithModeratorId,
+		},
+		"channel.unban_request.resolve": {
+			Version:   "beta",
+			Condition: channelConditionWithModeratorId,
 		},
 	}
 

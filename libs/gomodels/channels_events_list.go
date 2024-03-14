@@ -14,16 +14,18 @@ func (e ChannelEventListItemType) String() string {
 }
 
 const (
-	ChannelEventListItemTypeDonation          ChannelEventListItemType = "DONATION"
-	ChannelEventListItemTypeFollow                                     = "FOLLOW"
-	ChannelEventListItemTypeRaided                                     = "RAIDED"
-	ChannelEventListItemTypeSubscribe                                  = "SUBSCRIBE"
-	ChannelEventListItemTypeReSubscribe                                = "RESUBSCRIBE"
-	ChannelEventListItemTypeSubGift                                    = "SUBGIFT"
-	ChannelEventListItemTypeFirstUserMessage                           = "FIRST_USER_MESSAGE"
-	ChannelEventListItemTypeChatClear                                  = "CHAT_CLEAR"
-	ChannelEventListItemTypeRedemptionCreated                          = "REDEMPTION_CREATED"
-	ChannelEventListItemTypeChannelBan                                 = "CHANNEL_BAN"
+	ChannelEventListItemTypeDonation                   ChannelEventListItemType = "DONATION"
+	ChannelEventListItemTypeFollow                     ChannelEventListItemType = "FOLLOW"
+	ChannelEventListItemTypeRaided                     ChannelEventListItemType = "RAIDED"
+	ChannelEventListItemTypeSubscribe                  ChannelEventListItemType = "SUBSCRIBE"
+	ChannelEventListItemTypeReSubscribe                ChannelEventListItemType = "RESUBSCRIBE"
+	ChannelEventListItemTypeSubGift                    ChannelEventListItemType = "SUBGIFT"
+	ChannelEventListItemTypeFirstUserMessage           ChannelEventListItemType = "FIRST_USER_MESSAGE"
+	ChannelEventListItemTypeChatClear                  ChannelEventListItemType = "CHAT_CLEAR"
+	ChannelEventListItemTypeRedemptionCreated          ChannelEventListItemType = "REDEMPTION_CREATED"
+	ChannelEventListItemTypeChannelBan                 ChannelEventListItemType = "CHANNEL_BAN"
+	ChannelEventListItemTypeChannelUnbanRequestCreate  ChannelEventListItemType = "CHANNEL_UNBAN_REQUEST_CREATE"
+	ChannelEventListItemTypeChannelUnbanRequestResolve ChannelEventListItemType = "CHANNEL_UNBAN_REQUEST_RESOLVE"
 )
 
 type ChannelsEventsListItemData struct {
@@ -82,6 +84,13 @@ type ChannelsEventsListItemData struct {
 	BanEndsInMinutes string `json:"banEndsInMinutes,omitempty"`
 	BannedUserName   string `json:"bannedUserName,omitempty"`
 	BannedUserLogin  string `json:"bannedUserLogin,omitempty"`
+
+	//
+	UserLogin       string `json:"userLogin,omitempty"`
+	UserDisplayName string `json:"userDisplayName,omitempty"`
+
+	//
+	Message string `json:"message,omitempty"`
 }
 
 func (a ChannelsEventsListItemData) Value() (driver.Value, error) {

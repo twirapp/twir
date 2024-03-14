@@ -6,7 +6,6 @@ import { NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
 import { computed } from 'vue';
 
 import Card from './card.vue';
-import Ban from './events/ban.vue';
 import ChatClear from './events/chatClear.vue';
 import Donate from './events/donate.vue';
 import FirstUserMessage from './events/firstUserMessage.vue';
@@ -18,6 +17,8 @@ import SubGift from './events/subgift.vue';
 import Subscribe from './events/subscribe.vue';
 
 import { useDashboardEvents } from '@/api/index.js';
+import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue';
+import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue';
 
 const { data: events, isLoading, refetch } = useDashboardEvents();
 useIntervalFn(refetch, 1000);
@@ -67,6 +68,14 @@ const enabledEventsOptions = [
 	{
 		label: 'Ban/timeout',
 		value: 9,
+	},
+	{
+		label: 'Unban request created',
+		value: 10,
+	},
+	{
+		label: 'Unban request resolved',
+		value: 11,
 	},
 ];
 </script>
@@ -163,6 +172,22 @@ const enabledEventsOptions = [
 						:reason="event.data!.banReason"
 						:user-login="event.data!.bannedUserLogin"
 						:user-name="event.data!.bannedUserName"
+					/>
+					<UnbanRequestCreated
+						v-if="event.type === EventType.CHANNEL_UNBAN_REQUEST_CREATE"
+						:created-at="event.createdAt"
+						:message="event.data!.message"
+						:user-login="event.data!.userLogin"
+						:user-name="event.data!.userName"
+					/>
+					<UnbanRequestResolved
+						v-if="event.type === EventType.CHANNEL_UNBAN_REQUEST_RESOLVE"
+						:created-at="event.createdAt"
+						:message="event.data!.message"
+						:user-login="event.data!.userLogin"
+						:user-name="event.data!.userName"
+						:moderator-user-login="event.data!.moderatorName"
+						:moderator-user-name="event.data!.moderatorDisplayName"
 					/>
 				</template>
 			</TransitionGroup>

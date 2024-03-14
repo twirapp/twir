@@ -14,6 +14,8 @@ message ChatAlertsSettings {
 	ChatAlertsStreamOffline streamOffline = 9;
 	ChatAlertsChatCleared chatCleared = 10;
 	ChatAlertsBan ban = 11;
+	ChatAlertsChannelUnbanRequestCreate channelUnbanRequestCreate = 12;
+	ChatAlertsChannelUnbanRequestResolve channelUnbanRequestResolve = 13;
 }
 
 message ChatAlertsFollowersSettings {
@@ -90,4 +92,16 @@ message ChatAlertsBan {
 	repeated ChatAlertsCountedMessage messages = 2;
 	repeated string ignore_timeout_from = 3;
 	int32 cooldown = 4;
+}
+
+message ChatAlertsChannelUnbanRequestCreate {
+	bool enabled = 1;
+	repeated ChatAlertsMessage messages = 2;
+	int32 cooldown = 3;
+}
+
+message ChatAlertsChannelUnbanRequestResolve {
+	bool enabled = 1;
+	repeated ChatAlertsMessage messages = 2;
+	int32 cooldown = 3;
 }

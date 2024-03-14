@@ -17,7 +17,7 @@ import (
 func (c *Activity) SevenTvEmoteManage(
 	ctx context.Context,
 	operation model.EventOperation,
-	data shared.EvenData,
+	data shared.EventData,
 ) error {
 	activity.RecordHeartbeat(ctx, nil)
 

@@ -3,12 +3,12 @@ package handler
 import (
 	"log/slog"
 
-	"github.com/dnsge/twitch-eventsub-bindings"
+	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
 func (c *Handler) handleUserUpdate(
-	_ *eventsub_bindings.ResponseHeaders,
-	event *eventsub_bindings.EventUserUpdate,
+	_ *esb.ResponseHeaders,
+	event *esb.EventUserUpdate,
 ) {
 	c.logger.Info(
 		"user updated",
