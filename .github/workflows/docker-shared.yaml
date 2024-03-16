@@ -37,7 +37,7 @@ jobs:
         with:
           go-version-file: ./go.work
           check-latest: true
-          cache-dependency-path: "**/*.sum"
+          cache-dependency-path: "./**/*/*.sum"
 
 
   build-matrix:
@@ -77,5 +77,5 @@ jobs:
         with:
           go-version-file: ./go.work
           check-latest: true
-          cache-dependency-path: "**/*.sum"
+          cache-dependency-path: "./**/*/*.sum"
 
