@@ -2,6 +2,7 @@ package binaries
 
 import (
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies/binaries/gobinary"
+	"golang.org/x/sync/errgroup"
 )
 
 var binaries = []gobinary.GoBinary{
@@ -13,29 +14,39 @@ var binaries = []gobinary.GoBinary{
 }
 
 func InstallGoBinaries() error {
+	var wg errgroup.Group
+
 	for _, bin := range binaries {
-		name, version := bin.GetNameAndVersionFromUrl()
+		bin := bin
 
-		isInstalled, err := bin.IsInstalled()
-		if err != nil {
-			return err
-		}
+		wg.Go(
+			func() error {
+				name, version := bin.GetNameAndVersionFromUrl()
 
-		if isInstalled {
-			binaryVersion, err := bin.GetGolangBinaryVersion(name)
-			if err != nil {
-				return err
-			}
+				isInstalled, err := bin.IsInstalled()
+				if err != nil {
+					return err
+				}
 
-			if binaryVersion == version {
-				continue
-			}
-		}
+				if isInstalled {
+					binaryVersion, err := bin.GetGolangBinaryVersion(name)
+					if err != nil {
+						return err
+					}
 
-		if err := bin.Install(); err != nil {
-			return nil
-		}
+					if binaryVersion == version {
+						return nil
+					}
+				}
+
+				if err := bin.Install(); err != nil {
+					return err
+				}
+
+				return nil
+			},
+		)
 	}
 
-	return nil
+	return wg.Wait()
 }
