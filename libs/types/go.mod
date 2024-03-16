@@ -8,7 +8,7 @@ require (
 )
 
 require (
-	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tkrajina/go-reflector v0.5.6 // indirect
 )
 

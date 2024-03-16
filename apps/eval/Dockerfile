@@ -1,13 +1,30 @@
-FROM twir-base:builder as builder
+FROM node:20-alpine as builder
 WORKDIR /app
+RUN npm i -g pnpm@8
+
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY apps/integrations /app/apps/integrations
+COPY libs/config /app/libs/config
+COPY libs/grpc /app/libs/grpc
+COPY libs/pubsub /app/libs/pubsub
+
 RUN pnpm prune --prod
 
-FROM twir-base:node_prod_base
+FROM node:20-alpine as node_prod_base
 WORKDIR /app
-COPY --from=builder /app/apps/eval /app/apps/eval
-COPY --from=builder /app/libs/config /app/libs/config
-COPY --from=builder /app/libs/bus-core /app/libs/bus-core
-COPY --from=builder /app/node_modules /app/node_modules
+RUN apk add wget && \
+    wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
+    echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
+    apk add doppler && apk del wget && \
+    rm -rf /var/cache/apk/*
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh ./
+RUN chmod +x docker-entrypoint.sh
+RUN npm i -g pnpm@8
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+
+FROM node_prod_base
+WORKDIR /app
+COPY --from=builder /app /app
 ENV NODE_ENV=production
 ENTRYPOINT ["/bin/sh", "-c"]
 CMD ["pnpm --filter=@twir/eval start"]

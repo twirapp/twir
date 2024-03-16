@@ -1,0 +1,118 @@
+name: Docker v3
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        folders:
+          - apps/api
+          - apps/bots
+          - apps/discord
+          - apps/emotes-cacher
+          - apps/eval
+          - apps/events
+          - apps/eventsub
+          - apps/integrations
+          - apps/parser
+          - apps/scheduler
+          - apps/timers
+          - apps/tokens
+          - apps/websockets
+          - apps/ytsr
+          - frontend/dashboard
+          - frontend/landing
+          - frontend/overlays
+          - frontend/public-page
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sets the folder and application names for the build
+        id: set-folder
+        run: |
+          echo "folder=$(dirname ${{ matrix.folders }})" >> $GITHUB_ENV
+          echo "app=$(basename ${{ matrix.folders }})" >> $GITHUB_ENV
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install Node.js dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Golang dependencies
+        uses: magnetikonline/action-golang-cache@v5
+        with:
+          go-version-file: go.work
+
+      - name: Install binaries dependencies
+        run: pnpm cli deps -skip-node -skip-go
+
+      - name: Setup turborepo cache
+        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+      - name: Build libraries
+        run: pnpm cli build libs
+
+      - name: Build application
+        run: pnpm cli build app ${{ env.app }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Build docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
+          push: true
+          tags: twirapp/${{ env.app }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Build docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./libs/migrations/Dockerfile
+          push: true
+          tags: twirapp/migrations:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+

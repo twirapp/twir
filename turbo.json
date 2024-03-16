@@ -3,7 +3,7 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", "!dist/**/package.json"]
+      "outputs": ["dist/**", "!dist/**/package.json", "**.pb.go", "api.twirp.go"]
     },
     "generate": {
       "dependsOn": [],
