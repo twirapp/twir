@@ -4,68 +4,38 @@ on:
   push:
   workflow_dispatch:
 
-#        target:
-#          - api
-#          - bots
-#          - discord
-#          - emotes-cacher
-#          - eval
-#          - events
-#          - eventsub
-#          - integrations
-#          - parser
-#          - scheduler
-#          - timers
-#          - tokens
-#          - websockets
-#          - ytsr
-
 jobs:
   build-matrix:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: [apps, frontend]
-        include:
-          - folder: apps
-            app: api
-          - folder: apps
-            app: bots
-          - folder: apps
-            app: discord
-          - folder: apps
-            app: emotes-cacher
-          - folder: apps
-            app: eval
-          - folder: apps
-            app: events
-          - folder: apps
-            app: eventsub
-          - folder: apps
-            app: integrations
-          - folder: apps
-            app: parser
-          - folder: apps
-            app: scheduler
-          - folder: apps
-            app: timers
-          - folder: apps
-            app: tokens
-          - folder: apps
-            app: websockets
-          - folder: apps
-            app: ytsr
-
-          - folder: frontend
-            app: dashboard
-          - folder: frontend
-            app: landing
-          - folder: frontend
-            app: overlays
-          - folder: frontend
-            app: public-page
+        folders:
+          - apps/api
+          - apps/bots
+          - apps/discord
+          - apps/emotes-cacher
+          - apps/eval
+          - apps/events
+          - apps/eventsub
+          - apps/integrations
+          - apps/parser
+          - apps/scheduler
+          - apps/timers
+          - apps/tokens
+          - apps/websockets
+          - apps/ytsr
+          - frontend/dashboard
+          - frontend/landing
+          - frontend/overlays
+          - frontend/public-page
     steps:
       - uses: actions/checkout@v4
+
+      - name: Sets the folder and application names for the build
+        id: set-folder
+        run: |
+          echo "folder=$(dirname ${{ matrix.folders }})" >> $GITHUB_ENV
+          echo "app=$(basename ${{ matrix.folders }})" >> $GITHUB_ENV
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -104,7 +74,7 @@ jobs:
         run: pnpm cli build libs
 
       - name: Build application
-        run: pnpm cli build app ${{ matrix.app }}
+        run: pnpm cli build app ${{ env.app }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -117,9 +87,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./${{ matrix.folder }}/${{ matrix.app }}/Dockerfile
+          file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: false
-          tags: twir/${{ matrix.app }}:latest
+          tags: twir/${{ env.app }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
