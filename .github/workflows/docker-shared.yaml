@@ -33,11 +33,10 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install --frozen-lockfile
 
-      - uses: actions/setup-go@v5
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v5
         with:
-          go-version-file: ./go.work
-          check-latest: true
-          cache-dependency-path: "**/*.sum"
+          go-version-file: go.work
 
   build-matrix:
     runs-on: ubuntu-latest
@@ -74,9 +73,8 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install --frozen-lockfile
 
-      - uses: actions/setup-go@v5
+      - name: Setup Golang with cache
+        uses: magnetikonline/action-golang-cache@v5
         with:
-          go-version-file: ./go.work
-          check-latest: true
-          cache-dependency-path: "**/*.sum"
+          go-version-file: go.work
 
