@@ -67,15 +67,12 @@ func (c *TwirGoApp) Start() error {
 	return c.Cmd.Start()
 }
 
-func (c *TwirGoApp) getTempPath() string {
-	tmp := os.TempDir()
-	return filepath.Join(tmp, "twir-"+c.Name)
+func (c *TwirGoApp) getAppPath() string {
+	return filepath.Join(c.Path, ".out", "twir-"+c.Name)
 }
 
 func (c *TwirGoApp) Build() error {
-	tmpFilePath := c.getTempPath()
-
-	buildCmd := exec.Command("go", "build", "-o", tmpFilePath, "./cmd/main.go")
+	buildCmd := exec.Command("go", "build", "-o", c.getAppPath(), "./cmd/main.go")
 	buildCmd.Dir = c.Path
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
@@ -90,7 +87,7 @@ func (c *TwirGoApp) Build() error {
 func (c *TwirGoApp) CreateAppCommand() (*exec.Cmd, error) {
 	cmd, err := shell.CreateCommand(
 		shell.ExecCommandOpts{
-			Command: c.getTempPath(),
+			Command: c.getAppPath(),
 			Pwd:     c.Path,
 			Stdout:  os.Stdout,
 			Stderr:  os.Stderr,

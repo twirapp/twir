@@ -1,6 +1,7 @@
 package build
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -19,6 +20,7 @@ var Cmd = &cli.Command{
 	},
 	Subcommands: []*cli.Command{
 		LibsCmd,
+		AppBuildCmd,
 	},
 }
 
@@ -26,6 +28,39 @@ var LibsCmd = &cli.Command{
 	Name: "libs",
 	Action: func(context *cli.Context) error {
 		return build(`turbo run build --filter=./libs/*`, false)
+	},
+}
+
+var AppBuildCmd = &cli.Command{
+	Name:      "app",
+	Args:      true,
+	ArgsUsage: "api",
+	Action: func(context *cli.Context) error {
+		argument := context.Args().First()
+
+		var golangApp *goapp.TwirGoApp
+		for _, a := range goapp.Apps {
+			if a.Name != argument {
+				continue
+			}
+
+			foundApp, err := goapp.NewApplication(a.Name)
+			if err != nil {
+				return err
+			}
+			golangApp = foundApp
+		}
+
+		if golangApp != nil {
+			if err := golangApp.Build(); err != nil {
+				return err
+			}
+
+			pterm.Success.Printfln("Builded %s", golangApp.Name)
+			return nil
+		}
+
+		return build(fmt.Sprintf(`turbo run build --filter=@twir/%s`, argument), false)
 	},
 }
 
