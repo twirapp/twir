@@ -31,9 +31,7 @@ require (
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240227201031-fc47186022f4
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
-	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.uber.org/fx v1.20.1
-	google.golang.org/grpc v1.61.0
 	google.golang.org/protobuf v1.32.0
 	gorm.io/driver/postgres v1.5.4
 	gorm.io/gorm v1.25.7
@@ -71,6 +69,7 @@ require (
 	github.com/satont/twir/libs/types v0.0.0-20240227201031-fc47186022f4 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
+	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.46.1 // indirect
 	go.opentelemetry.io/otel v1.23.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v0.44.0 // indirect
@@ -93,4 +92,5 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20240102182953-50ed04b92917 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
+	google.golang.org/grpc v1.61.0 // indirect
 )
