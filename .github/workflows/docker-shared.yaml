@@ -41,7 +41,7 @@ jobs:
 
 
   build-matrix:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         target:
