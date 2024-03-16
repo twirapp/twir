@@ -63,10 +63,11 @@ jobs:
       - name: Build libraries
         run: pnpm cli build libs
 
-      - run: ls -la libs/grpc/tokens
-
       - name: Build application
-        run: pnpm cli build app ${{ matrix.target }}
+#        run: pnpm cli build app ${{ matrix.target }}
+        run: |
+          cd apps/${{ matrix.target }}
+          go build -ldflags="-s -w" -o .out/twir-${{ matrix.target }} ./cmd/main.go
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
