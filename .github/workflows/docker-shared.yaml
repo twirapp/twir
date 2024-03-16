@@ -73,13 +73,13 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Install binaries dependencies
-        run: pnpm cli deps -skip-node -skip-go
-
-      - name: Setup Golang with cache
+      - name: Setup Golang dependencies
         uses: magnetikonline/action-golang-cache@v5
         with:
           go-version-file: go.work
+
+      - name: Install binaries dependencies
+        run: pnpm cli deps -skip-node -skip-go
 
       - name: Setup turborepo cache
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
