@@ -25,45 +25,45 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        folder: ["apps", "frontend"]
+        folder: [apps, frontend]
         include:
-          - folder: "apps"
-            app: "api"
-          - folder: "apps"
-            app: "bots"
-          - folder: "apps"
-            app: "discord"
-          - folder: "apps"
-            app: "emotes-cacher"
-          - folder: "apps"
-            app: "eval"
-          - folder: "apps"
-            app: "events"
-          - folder: "apps"
-            app: "eventsub"
-          - folder: "apps"
-            app: "integrations"
-          - folder: "apps"
-            app: "parser"
-          - folder: "apps"
-            app: "scheduler"
-          - folder: "apps"
-            app: "timers"
-          - folder: "apps"
-            app: "tokens"
-          - folder: "apps"
-            app: "websockets"
-          - folder: "apps"
-            app: "ytsr"
+          - folder: apps
+            app: api
+          - folder: apps
+            app: bots
+          - folder: apps
+            app: discord
+          - folder: apps
+            app: emotes-cacher
+          - folder: apps
+            app: eval
+          - folder: apps
+            app: events
+          - folder: apps
+            app: eventsub
+          - folder: apps
+            app: integrations
+          - folder: apps
+            app: parser
+          - folder: apps
+            app: scheduler
+          - folder: apps
+            app: timers
+          - folder: apps
+            app: tokens
+          - folder: apps
+            app: websockets
+          - folder: apps
+            app: ytsr
 
-          - folder: "frontend"
-            app: "dashboard"
-          - folder: "frontend"
-            app: "landing"
-          - folder: "frontend"
-            app: "overlays"
-          - folder: "frontend"
-            app: "public-page"
+          - folder: frontend
+            app: dashboard
+          - folder: frontend
+            app: landing
+          - folder: frontend
+            app: overlays
+          - folder: frontend
+            app: public-page
     steps:
       - uses: actions/checkout@v4
 
