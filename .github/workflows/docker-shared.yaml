@@ -9,21 +9,29 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target:
-          - api
-          - bots
-          - discord
-          - emotes-cacher
-          - eval
-          - events
-          - eventsub
-          - integrations
-          - parser
-          - scheduler
-          - timers
-          - tokens
-          - websockets
-          - ytsr
+        include:
+          - type: "apps"
+            apps:
+              - api
+              - bots
+              - discord
+              - emotes-cacher
+              - eval
+              - events
+              - eventsub
+              - integrations
+              - parser
+              - scheduler
+              - timers
+              - tokens
+              - websockets
+              - ytsr
+          - type: "frontend"
+            apps:
+              - dashboard
+              - landing
+              - overlays
+              - public-page
     steps:
       - uses: actions/checkout@v4
 
@@ -77,7 +85,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./apps/${{ matrix.target }}/Dockerfile
+          file: ./${{ matrix.type }}/${{ matrix.target }}/Dockerfile
           push: false
           tags: twir/${{ matrix.target }}:latest
           cache-from: type=gha
