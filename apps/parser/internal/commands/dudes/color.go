@@ -18,7 +18,7 @@ var Color = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dudes color",
 		Description: null.StringFrom("Change the color of user in the dudes overlay"),
-		Module:      "GAMES",
+		Module:      "DUDES",
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},

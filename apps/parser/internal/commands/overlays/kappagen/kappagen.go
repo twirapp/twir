@@ -15,7 +15,7 @@ var Kappagen = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "kappagen",
 		Description: null.StringFrom("Magic ball will answer to all your questions!"),
-		Module:      "GAMES",
+		Module:      "OVERLAYS",
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},

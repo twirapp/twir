@@ -14,7 +14,7 @@ var Leave = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dudes leave",
 		Description: null.StringFrom("Leave dude from overlay"),
-		Module:      "GAMES",
+		Module:      "DUDES",
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},

@@ -14,7 +14,7 @@ var Grow = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dudes grow",
 		Description: null.StringFrom("Increase the size of user in the dudes overlay"),
-		Module:      "GAMES",
+		Module:      "DUDES",
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},

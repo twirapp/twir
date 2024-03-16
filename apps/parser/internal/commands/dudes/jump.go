@@ -15,7 +15,7 @@ var Jump = &types.DefaultCommand{
 		Name:        "jump",
 		Description: null.StringFrom("Triggers jump of dude in dudes overlay"),
 		RolesIDS:    pq.StringArray{},
-		Module:      "GAMES",
+		Module:      "DUDES",
 		Visible:     true,
 		IsReply:     true,
 	},

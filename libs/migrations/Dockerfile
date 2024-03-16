@@ -7,7 +7,7 @@ RUN apk add wget && \
     rm -rf /var/cache/apk/*
 COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
+#ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM golang:1.22.1-alpine as builder
 WORKDIR /app
@@ -17,5 +17,6 @@ COPY cli /app/cli
 RUN cd cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_application ./main.go
 
 FROM go_prod_base
-COPY --from=builder /app/twir_application /bin/twir_application
-CMD ["sh", "-c", "/bin/twir_application m run && sleep 60"]
+COPY --from=builder /app/twir_application /app/twir_application
+COPY libs/migrations/migrations /app/migrations/migrations
+CMD ["sh", "-c", "/app/twir_application m run && sleep 60"]

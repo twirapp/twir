@@ -20,7 +20,7 @@ var Sprite = &types.DefaultCommand{
 		Name:        "dudes sprite",
 		Description: null.StringFrom("Triggers jump of dude in dudes overlay"),
 		RolesIDS:    pq.StringArray{},
-		Module:      "GAMES",
+		Module:      "DUDES",
 		Visible:     true,
 		IsReply:     true,
 	},
