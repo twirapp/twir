@@ -12,7 +12,7 @@ import { developers, socialLinkLabels } from './team.js';
     <h3 class="text-white text-4xl font-bold text-center">They're doing their best for you</h3>
   </div>
 
-  <div class="pt-16 flex justify-center flex-wrap gap-8">
+  <div class="pt-16 flex items-center justify-items-center flex-wrap gap-8 px-4">
     {developers.map((developer) => (
       <div class="flex gap-6">
         <img src={developer.avatarUrl} class="w-20 h-20 rounded-full" alt={`Avatar of ${developer.username} from GitHub`} />
