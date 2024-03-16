@@ -4,34 +4,66 @@ on:
   push:
   workflow_dispatch:
 
+#        target:
+#          - api
+#          - bots
+#          - discord
+#          - emotes-cacher
+#          - eval
+#          - events
+#          - eventsub
+#          - integrations
+#          - parser
+#          - scheduler
+#          - timers
+#          - tokens
+#          - websockets
+#          - ytsr
+
 jobs:
   build-matrix:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        type: ["apps", "frontend"]
         include:
           - type: "apps"
-            apps:
-              - api
-              - bots
-              - discord
-              - emotes-cacher
-              - eval
-              - events
-              - eventsub
-              - integrations
-              - parser
-              - scheduler
-              - timers
-              - tokens
-              - websockets
-              - ytsr
+            app: "api"
+          - type: "apps"
+            app: "bots"
+          - type: "apps"
+            app: "discord"
+          - type: "apps"
+            app: "emotes-cacher"
+          - type: "apps"
+            app: "eval"
+          - type: "apps"
+            app: "events"
+          - type: "apps"
+            app: "eventsub"
+          - type: "apps"
+            app: "integrations"
+          - type: "apps"
+            app: "parser"
+          - type: "apps"
+            app: "scheduler"
+          - type: "apps"
+            app: "timers"
+          - type: "apps"
+            app: "tokens"
+          - type: "apps"
+            app: "websockets"
+          - type: "apps"
+            app: "ytsr"
+
           - type: "frontend"
-            apps:
-              - dashboard
-              - landing
-              - overlays
-              - public-page
+            app: "dashboard"
+          - type: "frontend"
+            app: "landing"
+          - type: "frontend"
+            app: "overlays"
+          - type: "frontend"
+            app: "public-page"
     steps:
       - uses: actions/checkout@v4
 
