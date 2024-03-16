@@ -67,14 +67,14 @@ const columns: ColumnDef<Command | Group>[] = [
 			if (isCommand(row.original)) {
 				return h(
 					'div',
-					{ class: 'flex gap-2 font-medium items-center select-none' },
+					{ class: 'flex gap-2 items-center select-none' },
 					[chevron, '!' + row.getValue('name') as string],
 				);
 			}
 
       return h(
 				'div',
-				{ class: `flex gap-2 font-medium items-center select-none` },
+				{ class: `flex gap-2 items-center select-none` },
 				[
 					chevron,
 					h(
@@ -101,7 +101,7 @@ const columns: ColumnDef<Command | Group>[] = [
 			}
 
 			const mappedResponses = responses.map((r) => h('span', {}, r.text));
-      return h('div', { class: 'font-medium flex flex-col' }, mappedResponses);
+      return h('div', { class: 'flex flex-col' }, mappedResponses);
     },
   },
 	{
