@@ -26,6 +26,7 @@ jobs:
     strategy:
       matrix:
         type: ["apps", "frontend"]
+        app: []
         include:
           - type: "apps"
             app: "api"
