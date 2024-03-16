@@ -14,10 +14,10 @@ jobs:
           - bots
           - discord
           - emotes-cacher
-#          - eval
+          - eval
           - events
           - eventsub
-#          - integrations
+          - integrations
           - parser
           - scheduler
           - timers
@@ -64,10 +64,7 @@ jobs:
         run: pnpm cli build libs
 
       - name: Build application
-#        run: pnpm cli build app ${{ matrix.target }}
-        run: |
-          cd apps/${{ matrix.target }}
-          go build -ldflags="-s -w" -o .out/twir-${{ matrix.target }} ./cmd/main.go
+        run: pnpm cli build app ${{ matrix.target }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
