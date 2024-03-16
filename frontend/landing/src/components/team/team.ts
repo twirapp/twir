@@ -16,7 +16,7 @@ export const socialLinkLabels: Record<Social, string> = {
 export const developers: Developer[] = [
 	{
 		username: 'Satont',
-		avatarUrl: 'https://cdn.7tv.app/emote/62c5c34724fb1819d9f08b4d/4x.webp',
+		avatarUrl: 'https://avatars.githubusercontent.com/u/42675886?v=4',
 		description: 'Founder and Backend, Frontend developer',
 		social: {
 			telegram: 'https://t.me/satont',
