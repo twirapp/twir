@@ -73,6 +73,9 @@ jobs:
       - name: Install Node.js dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install binaries dependencies
+        run: pnpm cli deps -skip-node -skip-go
+
       - name: Setup Golang with cache
         uses: magnetikonline/action-golang-cache@v5
         with:
