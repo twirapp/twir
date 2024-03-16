@@ -37,7 +37,9 @@ jobs:
         with:
           go-version-file: ./go.work
           check-latest: true
-          cache-dependency-path: "**/*.sum"
+          cache-dependency-path: |
+            apps/api/go.sum
+            apps/bots/go.sum
 
 
   build-matrix:
@@ -79,5 +81,7 @@ jobs:
         with:
           go-version-file: ./go.work
           check-latest: true
-          cache-dependency-path: "**/*.sum"
+          cache-dependency-path: |
+            apps/api/go.sum
+            apps/bots/go.sum
 
