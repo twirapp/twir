@@ -72,7 +72,7 @@ func (c *TwirGoApp) getAppPath() string {
 }
 
 func (c *TwirGoApp) Build() error {
-	buildCmd := exec.Command("go", "build", "-o", c.getAppPath(), "./cmd/main.go")
+	buildCmd := exec.Command("go", "build", "-ldflags=-s -w", "-o", c.getAppPath(), "./cmd/main.go")
 	buildCmd.Dir = c.Path
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
