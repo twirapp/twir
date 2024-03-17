@@ -10,20 +10,20 @@ import (
 )
 
 type Config struct {
-	BotAccessToken  string `required:"false"    envconfig:"BOT_ACCESS_TOKEN"`
-	BotRefreshToken string `required:"false"    envconfig:"BOT_REFRESH_TOKEN"`
+	BotAccessToken  string `required:"false" envconfig:"BOT_ACCESS_TOKEN"`
+	BotRefreshToken string `required:"false" envconfig:"BOT_REFRESH_TOKEN"`
 
-	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"    envconfig:"REDIS_URL"`
-	TwitchClientId     string `required:"true"                                        envconfig:"TWITCH_CLIENTID"`
-	TwitchClientSecret string `required:"true"                                        envconfig:"TWITCH_CLIENTSECRET"`
-	TwitchCallbackUrl  string `required:"true"  default:"http://localhost:3005/login" envconfig:"TWITCH_CALLBACKURL"`
-	DatabaseUrl        string `required:"true"                                        envconfig:"DATABASE_URL"`
-	AppEnv             string `required:"true"  default:"development"                 envconfig:"APP_ENV"`
-	SentryDsn          string `required:"false"                                       envconfig:"SENTRY_DSN"`
-	SiteBaseUrl        string `required:"false" default:"localhost:3005" envconfig:"SITE_BASE_URL"`
+	RedisUrl           string `required:"true"  default:"redis://localhost:6379/0"         envconfig:"REDIS_URL"`
+	TwitchClientId     string `required:"true"                                             envconfig:"TWITCH_CLIENTID"`
+	TwitchClientSecret string `required:"true"                                             envconfig:"TWITCH_CLIENTSECRET"`
+	TwitchCallbackUrl  string `required:"true"  default:"http://localhost:3005/login"      envconfig:"TWITCH_CALLBACKURL"`
+	DatabaseUrl        string `required:"true"                                             envconfig:"DATABASE_URL"`
+	AppEnv             string `required:"true"  default:"development"                      envconfig:"APP_ENV"`
+	SentryDsn          string `required:"false"                                            envconfig:"SENTRY_DSN"`
+	SiteBaseUrl        string `required:"false" default:"localhost:3005"                   envconfig:"SITE_BASE_URL"`
 	TokensCipherKey    string `required:"false" default:"pnyfwfiulmnqlhkvixaeligpprcnlyke" envconfig:"TOKENS_CIPHER_KEY"`
-	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
-	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
+	TTSServiceUrl      string `required:"false" default:"localhost:7001"                   envconfig:"TTS_SERVICE_URL"`
+	OdesliApiKey       string `required:"false"                                            envconfig:"ODESLI_API_KEY"`
 
 	S3Host        string `required:"false" envconfig:"CDN_HOST"`
 	S3Bucket      string `required:"false" envconfig:"CDN_BUCKET"`
@@ -42,10 +42,11 @@ type Config struct {
 
 	SevenTvToken string `required:"false" envconfig:"SEVENTV_TOKEN"`
 
-	NgrokAuthToken       string `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
-	UptraceDsn           string `required:"false" envconfig:"UPTRACE_DSN"`
-	NatsUrl              string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
-	ValorantHenrikApiKey string `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
+	NgrokAuthToken       string   `required:"false" envconfig:"NGROK_AUTH_TOKEN"`
+	UptraceDsn           string   `required:"false" envconfig:"UPTRACE_DSN"`
+	NatsUrl              string   `required:"false" envconfig:"NATS_URL"                default:"localhost:4222"`
+	ValorantHenrikApiKey string   `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
+	PubgApiKeys          []string `required:"false" envconfig:"PUBG_API_KEYS"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {

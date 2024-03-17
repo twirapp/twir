@@ -16,6 +16,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/variables/donations/top_donate_stream"
 	"github.com/satont/twir/apps/parser/internal/variables/followers"
 	"github.com/satont/twir/apps/parser/internal/variables/keywords"
+	"github.com/satont/twir/apps/parser/internal/variables/pubg/lifetime"
 	"github.com/satont/twir/apps/parser/internal/variables/random"
 	"github.com/satont/twir/apps/parser/internal/variables/request"
 	"github.com/satont/twir/apps/parser/internal/variables/sender"
@@ -123,6 +124,14 @@ func New(opts *Opts) *Variables {
 			user.Reputation,
 			weather.Weather,
 			channel.Name,
+			//PUBG
+			lifetime.LifetimeKDSquad,
+			lifetime.LifetimeKDDuo,
+			lifetime.LifetimeKDSolo,
+			lifetime.LifetimeWinsSolo,
+			lifetime.LifetimeMaxKillsSolo,
+			lifetime.LifetimeWinrateSolo,
+			lifetime.LifetimeAverageDamageSolo,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

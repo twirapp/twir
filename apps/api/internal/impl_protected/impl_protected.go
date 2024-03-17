@@ -37,6 +37,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/pubg"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -84,6 +85,7 @@ type Opts struct {
 	DiscordGrpc      discord.DiscordClient
 	Logger           logger.Logger
 	Bus              *buscore.Bus
+	PubgClient       *pubg.Client
 }
 
 func New(opts Opts) *Protected {
@@ -99,8 +101,9 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},
-		Logger: opts.Logger,
-		Bus:    opts.Bus,
+		Logger:     opts.Logger,
+		Bus:        opts.Bus,
+		PubgClient: opts.PubgClient,
 	}
 
 	return &Protected{

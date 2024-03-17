@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/pubg"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -29,6 +30,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	redis_store "github.com/eko/gocache/store/redis/v4"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/commands"
@@ -147,6 +149,11 @@ func main() {
 
 	bus := buscore.NewNatsBus(nc)
 
+	pubgClient, err := pubg.NewClient(redis_store.NewRedis(redisClient), 3, config.PubgApiKeys...)
+	if err != nil {
+		logger.Fatal("Cannot init pubg client", zap.Error(err))
+	}
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -162,6 +169,7 @@ func main() {
 		},
 		TaskDistributor: taskQueueDistributor,
 		Bus:             bus,
+		PubgClient:      pubgClient,
 	}
 
 	variablesService := variables.New(

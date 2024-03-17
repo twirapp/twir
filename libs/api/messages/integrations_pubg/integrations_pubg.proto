@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_pubg";
+package messages.integrations_pubg;
+
+message GetDataResponse {
+	optional string nickname = 1;
+}
+
+message PostDataRequest {
+	string nickname = 1;
+}

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/alexedwards/scs/v2"
+	redis_store "github.com/eko/gocache/store/redis/v4"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/files"
 	"github.com/satont/twir/apps/api/internal/handlers"
@@ -29,6 +30,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/pubg"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
@@ -130,6 +132,10 @@ var App = fx.Options(
 			},
 			fx.ParamTags(`group:"handlers"`),
 		),
+		func(config cfg.Config, redis *redis.Client) (*pubg.Client, error) {
+			redisStore := redis_store.NewRedis(redis)
+			return pubg.NewClient(redisStore, 5, config.PubgApiKeys...)
+		},
 	),
 	fx.Invoke(
 		uptrace.NewFx("api"),

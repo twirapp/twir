@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/pubg"
 	"gorm.io/gorm"
 )
 
@@ -30,4 +31,5 @@ type Deps struct {
 	SessionManager *scs.SessionManager
 	Logger         logger.Logger
 	Bus            *buscore.Bus
+	PubgClient     *pubg.Client
 }

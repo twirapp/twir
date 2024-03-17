@@ -4,6 +4,7 @@ go 1.21.5
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/NovikovRoman/pubg v1.6.0
 	github.com/getsentry/sentry-go v0.26.0
 	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.6.0
@@ -124,3 +125,5 @@ replace github.com/satont/twir/libs/twitch => ../../libs/twitch
 replace github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 
 replace github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
+
+replace github.com/twirapp/twir/libs/pubg => ../../libs/pubg

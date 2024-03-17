@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 
+	"github.com/NovikovRoman/pubg"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -26,4 +27,7 @@ type DataCacher interface {
 	GetValorantProfile(ctx context.Context) *ValorantProfile
 
 	GetCurrentSong(ctx context.Context) *CurrentSong
+
+	GetPubgLifetimeData(ctx context.Context) (*pubg.LifetimeStatsPlayer, error)
+	GetPubgCurrentSeason(ctx context.Context) (*string, error)
 }
