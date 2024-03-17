@@ -59,7 +59,6 @@ func (c *Client) GetPlayerByNickname(ctx context.Context, nickname string) (*pub
 		return players, nil
 	case redis.Nil:
 	default:
-		// return nil, err
 	}
 
 	players, err = c.sender.PlayersByNames(pubg.SteamPlatform, nickname)
@@ -92,7 +91,6 @@ func (c *Client) GetCurrentSeason(ctx context.Context) (*string, error) {
 		return &seasonId, nil
 	case redis.Nil:
 	default:
-		// return nil, err
 	}
 
 	seasons, err := c.sender.Seasons(pubg.SteamPlatform)
@@ -142,7 +140,6 @@ func (c *Client) GetLifetimeStats(
 			return lifetimeStats, nil
 		case redis.Nil:
 		default:
-			// return nil, err
 		}
 
 		lifetimeStats, err = c.sender.LifetimeStatsPlayer(pubg.SteamPlatform, accountID)
@@ -167,6 +164,5 @@ func (c *Client) GetLifetimeStats(
 		return lifetimeStats, err
 	}
 
-	// This point is reached only if all etries failed
 	return nil, ErrOverloaded
 }
