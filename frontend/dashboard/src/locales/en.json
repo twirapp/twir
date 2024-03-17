@@ -255,6 +255,9 @@
 			"rewardForAddEmote": "Reward for adding emote",
 			"rewardForRemoveEmote": "Reward for removing emote",
 			"rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+		},
+		"pubg": {
+			"description": "Providing access to your PUBG account allows Twir to track your PUBG matches and statistic and will setup command variables such as {0}, {1} and much more. "
 		}
   },
   "events": {
