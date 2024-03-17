@@ -27,7 +27,7 @@ async function save() {
 }
 
 watch(data, () => {
-	nickname.value = data.value;
+	nickname.value = data.value ?? '';
 });
 
 </script>
