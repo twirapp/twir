@@ -183,7 +183,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark style="width: 90%">
 							<n-input-group>
 								<n-input-group-label>!</n-input-group-label>
-								<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" />
+								<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" :on-input="() => formValue.name.startsWith('!') && (formValue.name = formValue.name.slice(1))" />
 							</n-input-group>
 						</n-form-item>
 						<n-form-item :label="t('sharedTexts.enabled')" path="enabled">

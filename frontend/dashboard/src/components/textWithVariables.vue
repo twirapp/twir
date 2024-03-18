@@ -113,6 +113,7 @@ function appendOptionToText(option: SelectMixedOption) {
 			:options="selectVariables"
 			:loading="allVariables.isLoading.value"
 			scrollable
+			trigger="click"
 			:value="null"
 			:render-label="renderVariableSelectLabel as any"
 			:on-update-value="(_, option) => appendOptionToText(option)"
