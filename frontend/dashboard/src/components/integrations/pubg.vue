@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RpcError } from '@protobuf-ts/runtime-rpc';
 import { NFormItem, NInput } from 'naive-ui';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -21,8 +22,10 @@ async function save() {
 	try {
 		await updater.mutateAsync(nickname.value);
 		notification.success({ title: t('sharedTexts.saved'), duration: 2500 });
-	} catch (err) {
-		notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 });
+	} catch (err: any) {
+		if (err instanceof RpcError) {
+			err.code === 'not_found' ? notification.error({ title: 'Player not found', duration: 2500 }) : notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 });
+		}
 	}
 }
 
