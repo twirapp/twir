@@ -63,7 +63,7 @@ func (c *cacher) GetPubgLifetimeData(ctx context.Context) (*pubg.LifetimeStatsPl
 
 	userLifetimeStats, err := c.services.PubgClient.GetLifetimeStats(
 		ctx,
-		*integration.Data.UserId,
+		lo.FromPtr(integration.Data.UserId),
 	)
 	if err != nil {
 		if errors.Is(err, tpubg.ErrOverloaded) {
