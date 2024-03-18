@@ -21,7 +21,7 @@ var LifetimeKDSolo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {
@@ -51,7 +51,7 @@ var LifetimeWinsSolo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {
@@ -81,7 +81,7 @@ var LifetimeMaxKillsSolo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {
@@ -111,7 +111,7 @@ var LifetimeWinrateSolo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {
@@ -141,7 +141,7 @@ var LifetimeAverageDamageSolo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {

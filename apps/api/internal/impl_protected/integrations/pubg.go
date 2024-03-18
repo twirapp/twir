@@ -2,11 +2,12 @@ package integrations
 
 import (
 	"context"
+	"errors"
 
-	"github.com/NovikovRoman/pubg"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_pubg"
+	tpubg "github.com/twirapp/twir/libs/pubg"
 	"github.com/twitchtv/twirp"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -45,7 +46,7 @@ func (c *Integrations) IntegrationsPubgPut(
 
 	players, err := c.PubgClient.GetPlayerByNickname(ctx, req.GetNickname())
 	if err != nil {
-		if _, ok := err.(*pubg.ErrNotFound); ok {
+		if errors.Is(err, tpubg.ErrPubgNotFound) {
 			return nil, twirp.NewError(twirp.NotFound, "player not found")
 		}
 

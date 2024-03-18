@@ -7,10 +7,12 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/integrations"
+	"github.com/twirapp/twir/libs/pubg"
 )
 
 type Integrations struct {
 	*impl_deps.Deps
+	PubgClient *pubg.Client
 }
 
 func (c *Integrations) getIntegrationByService(

@@ -101,13 +101,12 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},
-		Logger:     opts.Logger,
-		Bus:        opts.Bus,
-		PubgClient: opts.PubgClient,
+		Logger: opts.Logger,
+		Bus:    opts.Bus,
 	}
 
 	return &Protected{
-		Integrations:     &integrations.Integrations{Deps: d},
+		Integrations:     &integrations.Integrations{Deps: d, PubgClient: opts.PubgClient},
 		Keywords:         &keywords.Keywords{Deps: d},
 		Modules:          &modules.Modules{Deps: d},
 		Bot:              &bot.Bot{Deps: d},

@@ -20,7 +20,7 @@ var LifetimeKDDuo = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if data == nil {

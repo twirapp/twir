@@ -20,7 +20,7 @@ var LifetimeKDSquad = &types.Variable{
 		data, err := parseCtx.Cacher.GetPubgLifetimeData(ctx)
 		if err != nil {
 			result.Result = err.Error()
-			return result, nil
+			return result, err
 		}
 
 		if len(data.Data.Attributes.GameModeStats) == 0 {

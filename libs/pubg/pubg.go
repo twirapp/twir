@@ -28,6 +28,7 @@ type Client struct {
 
 var ErrOverloaded = errors.New("overloaded, try again later")
 var ErrPubg = errors.New("pubg error")
+var ErrPubgNotFound = errors.New("not found")
 
 func NewClient(
 	cacheStore store.StoreInterface,
@@ -61,23 +62,34 @@ func (c *Client) GetPlayerByNickname(ctx context.Context, nickname string) (*pub
 	default:
 	}
 
-	players, err = c.sender.PlayersByNames(pubg.SteamPlatform, nickname)
-	if err != nil {
-		if _, ok := err.(pubg.ErrTooManyRequest); ok {
-			c.currentKey = (c.currentKey + 1) % len(c.apiKeys)
-			c.sender = pubg.NewClient(c.apiKeys[c.currentKey], nil)
-			return c.GetPlayerByNickname(ctx, nickname)
+	for retry := 0; retry < c.maxRetries; retry++ {
+		players, err = c.sender.PlayersByNames(pubg.SteamPlatform, nickname)
+		if err != nil {
+			if strings.Contains(err.Error(), "429") {
+				c.currentKey = (c.currentKey + 1) % len(c.apiKeys)
+				c.sender = pubg.NewClient(c.apiKeys[c.currentKey], nil)
+				if retry == maxRetries-1 {
+					return nil, errors.Join(err, ErrOverloaded)
+				}
+				continue
+			}
+
+			if _, ok := err.(*pubg.ErrNotFound); ok {
+				return nil, errors.Join(err, ErrPubgNotFound)
+			}
+
+			return nil, errors.Join(err, ErrPubg)
 		}
 
-		return nil, err
+		err = c.marshal.Set(ctx, fmt.Sprintf("player:%s", nickname), players)
+		if err != nil {
+			return nil, err
+		}
+
+		return players, nil
 	}
 
-	err = c.marshal.Set(ctx, fmt.Sprintf("player:%s", nickname), players)
-	if err != nil {
-		return nil, err
-	}
-
-	return players, nil
+	return nil, ErrOverloaded
 }
 
 func (c *Client) GetCurrentSeason(ctx context.Context) (*string, error) {
@@ -93,34 +105,41 @@ func (c *Client) GetCurrentSeason(ctx context.Context) (*string, error) {
 	default:
 	}
 
-	seasons, err := c.sender.Seasons(pubg.SteamPlatform)
-	if err != nil {
-		if _, ok := err.(pubg.ErrTooManyRequest); ok {
-			c.currentKey = (c.currentKey + 1) % len(c.apiKeys)
-			c.sender = pubg.NewClient(c.apiKeys[c.currentKey], nil)
-			return c.GetCurrentSeason(ctx)
-		}
-
-		return nil, err
-	}
-
-	for _, season := range seasons.Data {
-		if season.Attributes.IsCurrentSeason {
-			err = c.marshal.Set(
-				ctx,
-				"seasonId",
-				string(season.ID),
-				store.WithExpiration(30*24*time.Hour),
-			)
-			if err != nil {
-				return nil, err
+	for retry := 0; retry < c.maxRetries; retry++ {
+		seasons, err := c.sender.Seasons(pubg.SteamPlatform)
+		if err != nil {
+			if strings.Contains(err.Error(), "429") {
+				c.currentKey = (c.currentKey + 1) % len(c.apiKeys)
+				c.sender = pubg.NewClient(c.apiKeys[c.currentKey], nil)
+				if retry == maxRetries-1 {
+					return nil, errors.Join(err, ErrOverloaded)
+				}
+				continue
 			}
 
-			return lo.ToPtr(string(season.ID)), nil
+			return nil, errors.Join(err, ErrPubg)
 		}
+
+		for _, season := range seasons.Data {
+			if season.Attributes.IsCurrentSeason {
+				err = c.marshal.Set(
+					ctx,
+					"seasonId",
+					string(season.ID),
+					store.WithExpiration(30*24*time.Hour),
+				)
+				if err != nil {
+					return nil, err
+				}
+
+				return lo.ToPtr(string(season.ID)), nil
+			}
+		}
+
+		return nil, errors.New("error in pubg api")
 	}
 
-	return nil, errors.New("error in pubg api")
+	return nil, ErrOverloaded
 }
 
 const maxRetries = 3
@@ -161,7 +180,11 @@ func (c *Client) GetLifetimeStats(
 			lifetimeStats,
 			store.WithExpiration(3*time.Hour),
 		)
-		return lifetimeStats, err
+		if err != nil {
+			return nil, err
+		}
+
+		return lifetimeStats, nil
 	}
 
 	return nil, ErrOverloaded
