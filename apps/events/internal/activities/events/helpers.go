@@ -75,6 +75,7 @@ func (c *Activity) getHelixBotApiClient(ctx context.Context, botID string) (
 	return twitch.NewBotClientWithContext(ctx, botID, c.cfg, c.tokensGrpc)
 }
 
+// should be used with broadcaster channel client, otherwise it will return error
 func (c *Activity) getChannelMods(client *helix.Client, channelId string) (
 	[]helix.Moderator,
 	error,
