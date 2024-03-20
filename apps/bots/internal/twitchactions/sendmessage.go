@@ -3,6 +3,7 @@ package twitchactions
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 	"unicode/utf8"
 
@@ -32,6 +33,13 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
+	c.logger.Info(
+		"Sending message",
+		slog.String("channel_id", opts.BroadcasterID),
+		slog.String("sender_id", opts.SenderID),
+		slog.Bool("is_announce", opts.IsAnnounce),
+	)
+
 	channel := &model.Channels{}
 	if err := c.gorm.
 		WithContext(ctx).

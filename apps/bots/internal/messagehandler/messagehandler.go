@@ -3,7 +3,6 @@ package messagehandler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"reflect"
 	"runtime"
@@ -149,7 +148,6 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 	msg.DbUser = dbUser
 
 	if req.ChatterUserId == msg.DbChannel.BotID && c.config.AppEnv == "production" {
-		fmt.Println("same bot user", req.ChatterUserId, msg.DbChannel.BotID)
 		return nil
 	}
 
