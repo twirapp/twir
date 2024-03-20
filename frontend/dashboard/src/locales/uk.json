@@ -13,14 +13,14 @@
     "select": "Виберіть",
     "cancel": "Скасувати",
     "confirm": "Підтвердити",
-    "saveSettings": "Save Settings",
+    "saveSettings": "Зберегти налаштування",
     "setDefaultSettings": "Set Default Settings",
-    "goToDashboard": "Go to Dashboard",
-    "add": "Add"
+    "goToDashboard": "Перейти до Панелі управління",
+    "add": "Додати"
   },
   "sharedTexts": {
     "saved": "Збережено",
-    "errorOnSave": "Помилка збереження {error}",
+    "errorOnSave": "Помилка при збереженні {error}",
     "enabled": "Увімкнено",
     "status": "Статус",
     "name": "Ім’я",
@@ -33,7 +33,7 @@
     "response": "Відповідь",
     "userName": "Ім’я користувача",
     "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
-    "deleted": "Deleted",
+    "deleted": "Видалити",
     "updated": "Updated",
     "disabled": "Disabled",
     "setDefaultSettings": "Are you sure you want to set default settings?"
@@ -75,7 +75,7 @@
     "description": "You are not authorized to view this page, ask the broadcaster to provide it."
   },
   "pageNotFound": {
-    "title": "404 Not Found",
+    "title": "Помилка 404",
     "description": "You know life is always ridiculous."
   },
   "commands": {
@@ -162,11 +162,11 @@
   },
   "dashboard": {
     "header": {
-      "managingUser": "Managing user",
+      "managingUser": "Керування користувачами",
       "channelsAccess": "Channels you have access to"
     },
     "botManage": {
-      "title": "Bot status",
+      "title": "Статус бота",
       "success": "Enabled and have moderator status",
       "notEnabledTitle": "Bot is not enabled on channel",
       "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
@@ -213,7 +213,7 @@
       "guildPluralization": "No servers | 1 server | {count} servers",
       "connectedGuilds": "{guilds} connected",
       "alerts": {
-        "label": "Alerts",
+        "label": "Сповіщення",
         "showTitle": "Show Stream Title?",
         "showCategory": "Show Stream Category?",
         "showViewers": "Show Viewers Counter?",
@@ -228,9 +228,9 @@
         "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
         "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
       },
-      "connectGuild": "+ Connect Server",
-      "disconnectGuild": "Disconnect Server",
-      "noGuilds": "No Servers Connected",
+      "connectGuild": "+ Від'єднати сервер",
+      "disconnectGuild": "Від'єднати сервер",
+      "noGuilds": "Немає під'єднаних серверів",
       "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
     },
     "faceit": {
@@ -241,16 +241,16 @@
     },
     "sevenTv": {
       "description": "We can manage 7tv channel emotes, when this integration is enabled.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
-      "connected": "Connected",
-      "notConnected": "Not connected",
-      "notRegistered": "You are not registered at {0}",
+      "alert": "Ви також можете зробити розширений потік через систему {0} для управління 7tv смайлами.",
+      "connected": "Під’єднано",
+      "notConnected": "Не під’єднано",
+      "notRegistered": "Ви не зареєстровані на сайті {0}",
       "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
       "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
       "connectSteps": {
-        "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
-        "step3": "Add {0} as an editor"
+        "step1": "Відкрийте свій {0} профіль",
+        "step2": "Натисніть на кнопку \"Add editors\"",
+        "step3": "Додати {0} як редактора"
       },
       "rewardForAddEmote": "Reward for adding emote",
       "rewardForRemoveEmote": "Reward for removing emote",
@@ -271,7 +271,7 @@
       "divider": "Операції",
       "name": "Операція",
       "inputs": {
-        "message": "Message To Send (supports variables)",
+        "message": "Повідомлення до надсилання (підтримує змінні)",
         "default": "Action Text (supports variables)",
         "vipSlots": "VIP Slots Amount",
         "username": "Username (supports variables)",
@@ -392,21 +392,21 @@
       "showBadges": "Show Badges",
       "showAnnounceBadge": "Show Announcement Border",
       "paddingContainer": "Inside Container Padding",
-      "resetToDefault": "Reset to Default",
-      "textShadow": "Text Shadow",
-      "backgroundColor": "Background Color",
+      "resetToDefault": "Відновити за замовчуванням",
+      "textShadow": "Тінь тексту",
+      "backgroundColor": "Колір заднього фону",
       "direction": "Message Direction",
       "directions": {
-        "left": "Left",
-        "right": "Right",
-        "top": "Top",
-        "bottom": "Bottom"
+        "left": "Зліва",
+        "right": "Справа",
+        "top": "Згори",
+        "bottom": "Знизу"
       },
       "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
-      "fontFamily": "Font Family",
-      "fontSize": "Font Size",
-      "fontStyle": "Font Style",
-      "fontWeight": "Font Weight",
+      "fontFamily": "Сімейство шрифтів",
+      "fontSize": "Розмір шрифту",
+      "fontStyle": "Стиль шрифту",
+      "fontWeight": "Товщина шрифту",
       "availabeFonts": "Available Fonts",
       "hideCommands": "Hide Commands",
       "hideBots": "Hide Other Bots Messages",
@@ -421,11 +421,11 @@
       "dudeMaxOnScreen": "Max on screen",
       "dudeMaxOnScreenUnlimited": "Unlimited",
       "dudeColor": "Default user color",
-      "dudeGravity": "Gravity",
+      "dudeGravity": "Гравітація",
       "dudeMaxLifeTime": "Max life time",
-      "dudeScale": "Scale",
-      "dudeSoundsDivider": "Sounds",
-      "dudeSoundsVolume": "Volume",
+      "dudeScale": "Масштаб",
+      "dudeSoundsDivider": "Звуки",
+      "dudeSoundsVolume": "Гучність",
       "ignoreDivider": "Ignoring",
       "ignoreCommands": "Ignore commands",
       "ignoreUsers": "Ignore users",
@@ -436,10 +436,10 @@
       "nameBoxFillGradientStops": "Text colors of gradient stops",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Gradient type",
-      "nameBoxFontFamily": "Font family",
-      "nameBoxFontSize": "Font size",
+      "nameBoxFontFamily": "Сімейство шрифтів",
+      "nameBoxFontSize": "Розмір шрифту",
       "nameBoxFontWeight": "Font weight",
-      "nameBoxFontStyle": "Font style",
+      "nameBoxFontStyle": "Стиль шрифту",
       "nameBoxFontVariant": "Font variant",
       "nameBoxStroke": "Stroke color",
       "nameStrokeThickness": "Stroke thickness",
@@ -470,8 +470,8 @@
       "clear": "Clear Overlay",
       "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on a command or configured events.",
       "tabs": {
-        "main": "Settings",
-        "events": "Events",
+        "main": "Налаштування",
+        "events": "Події",
         "animations": "Animations"
       },
       "settings": {
@@ -834,7 +834,7 @@
         "triggerLength": "Maximum Emote Usage Limit"
       },
       "language": {
-        "name": "Language",
+        "name": "Мова",
         "description": "Scans and filters out inappropriate languages.",
         "allowedLanguages": "Allowed Languages List",
         "disallowedLanguages": "Disallowed Languages List"
@@ -842,7 +842,7 @@
     }
   },
   "feedback": {
-    "button": "Send feedback",
+    "button": "Надіслати відгук",
     "notification": "Your feedback sended",
     "rateLimited": "You are sending messages to quickly, try again in {time}",
     "messageLabel": "Message",
@@ -861,7 +861,7 @@
       }
     },
     "public": {
-      "title": "Public page",
+      "title": "Публічна сторінка",
       "description": "Description of channel"
     }
   }
