@@ -240,21 +240,21 @@
       "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
+      "description": "Мы можем управлять смайликами 7tv, когда эта интеграция включена.",
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
-      "connected": "Connected",
-      "notConnected": "Not connected",
+      "connected": "Подключено",
+      "notConnected": "Не подключено",
       "notRegistered": "You are not registered at {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "errorSameReward": "Вы не можете использовать одну и ту же награду для добавления и удаления смайликов!",
+      "deleteOnlyAddedByApp": "Удалить смайлики добавленные через Twir",
       "connectSteps": {
-        "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
+        "step1": "Перейти к своему {0} профилю",
+        "step2": "Нажмите на кнопку \"Add editors\"",
         "step3": "Add {0} as an editor"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardForAddEmote": "Награда для добавления смайлика",
+      "rewardForRemoveEmote": "Награда для удаления смайлика",
+      "rewardSelectorDescription": "Вы должны создать награду с вводом. Пользователи должны отправить ссылку на 7tv смайл при использовании награды."
     }
   },
   "events": {
@@ -271,12 +271,12 @@
       "divider": "Действия",
       "name": "Действие",
       "inputs": {
-        "message": "Message To Send (supports variables)",
+        "message": "Сообщение для отправки (поддерживает переменные)",
         "default": "Action Text (supports variables)",
-        "vipSlots": "VIP Slots Amount",
-        "username": "Username (supports variables)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "vipSlots": "Количество VIP слотов",
+        "username": "Имя пользователя (поддерживает переменные)",
+        "variableValue": "Новое значение переменной (поддерживает переменные)",
+        "variableIncrementDecrement": "Увеличить/Уменьшить значение (поддерживает переменные)"
       },
       "banMessage": "Сообщение о муте",
       "banTime": "Время мута",
@@ -337,7 +337,7 @@
       "moderatorDisplayName": "Отображаемое имя пользователя модератора, который вызвал действие",
       "banReason": "Причина бана",
       "banEndsInMinutes": "Мут (в минутах, или укажите \"permanent\" если необходимо выдать бан)",
-      "message": "Message"
+      "message": "Сообщение"
     }
   },
   "overlays": {
@@ -346,7 +346,7 @@
     "noAccess": "У вас нет доступа к данному оверлею!",
     "copied": "Ссылка была успешно скопирована в буфер обмена! Вставьте ее в OBS как источник-браузер.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Оверлей с информацией об играющей песни. Этот оверлей будет работать только в том случае, если вы подключили интеграцию с музыкальным сервисом, например spotify, lastfm."
     },
     "tts": {
       "description": "Этот оверлей позволяет воспроизводить сообщения чата в виде аудио через OBS с набором предварительно настроенных голосов. Вы можете управлять этим оверлеем с помощью команд или событий.",
@@ -414,33 +414,33 @@
       "description": "Этот оверлей позволяет отображать чат Twitch в программном обеспечении для потоковой трансляции. (OBS, XSplit и так далее)"
     },
     "dudes": {
-      "description": "Animated characters for chatters in your stream",
-      "enable": "Enable",
-      "dudeDivider": "Dude",
-      "dudeDefaultSprite": "Default sprite",
+      "description": "Анимированные персонажи для участников чата",
+      "enable": "Включить",
+      "dudeDivider": "Персонаж",
+      "dudeDefaultSprite": "Стандартный скин",
       "dudeMaxOnScreen": "Max on screen",
-      "dudeMaxOnScreenUnlimited": "Unlimited",
-      "dudeColor": "Default user color",
-      "dudeGravity": "Gravity",
+      "dudeMaxOnScreenUnlimited": "Неограниченно",
+      "dudeColor": "Цвет пользователя по умолчанию",
+      "dudeGravity": "Гравитация",
       "dudeMaxLifeTime": "Max life time",
-      "dudeScale": "Scale",
-      "dudeSoundsDivider": "Sounds",
-      "dudeSoundsVolume": "Volume",
+      "dudeScale": "Размер",
+      "dudeSoundsDivider": "Звуки",
+      "dudeSoundsVolume": "Громкость",
       "ignoreDivider": "Ignoring",
-      "ignoreCommands": "Ignore commands",
-      "ignoreUsers": "Ignore users",
-      "ignoreUsersList": "List of ignored users",
+      "ignoreCommands": "Игнорировать команды",
+      "ignoreUsers": "Игнорировать пользователей",
+      "ignoreUsersList": "Список игнорируемых пользователей",
       "nameBoxDivider": "Name box",
-      "nameBoxFill": "Text colors",
-      "nameBoxFillError": "Color is required",
+      "nameBoxFill": "Цвета текста",
+      "nameBoxFillError": "Необходимо указать цвет",
       "nameBoxFillGradientStops": "Text colors of gradient stops",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
-      "nameBoxGradientType": "Gradient type",
-      "nameBoxFontFamily": "Font family",
-      "nameBoxFontSize": "Font size",
-      "nameBoxFontWeight": "Font weight",
-      "nameBoxFontStyle": "Font style",
-      "nameBoxFontVariant": "Font variant",
+      "nameBoxGradientType": "Тип градиента",
+      "nameBoxFontFamily": "Шрифт",
+      "nameBoxFontSize": "Размер шрифта",
+      "nameBoxFontWeight": "Толщина шрифта",
+      "nameBoxFontStyle": "Стиль шрифта",
+      "nameBoxFontVariant": "Вариант шрифта",
       "nameBoxStroke": "Stroke color",
       "nameStrokeThickness": "Stroke thickness",
       "nameBoxLineJoin": "Stroke line join",
@@ -450,14 +450,14 @@
       "nameBoxDropShadowBlur": "Shadow blur",
       "nameBoxDropShadowDistance": "Shadow distance",
       "nameBoxDropShadowAngle": "Shadow angle",
-      "messageBoxIgnoreCommands": "Ignore commands",
+      "messageBoxIgnoreCommands": "Игнорировать команды",
       "messageBoxDivider": "Message box",
       "messageBoxShowTime": "Show time",
-      "messageBoxFill": "Text color",
+      "messageBoxFill": "Цвет текста",
       "messageBoxBackground": "Background color",
       "messageBoxPadding": "Padding",
       "messageBoxBorderRadius": "Border radius",
-      "messageBoxFontSize": "Font size",
+      "messageBoxFontSize": "Размер шрифта",
       "emoteDivider": "Emote",
       "growDivider": "Grow",
       "growTime": "Grow time",
@@ -572,10 +572,10 @@
       "songs": "Звуковые настройки"
     },
     "ban": {
-      "user": "Ban user",
-      "song": "Ban song",
-      "userConfirm": "Are you sure you want to ban this user?",
-      "songConfirm": "Are you sure you want to ban this song?"
+      "user": "Забанить пользователя",
+      "song": "Забанить песню",
+      "userConfirm": "Вы уверены, что хотите забанить этого пользователя?",
+      "songConfirm": "Вы уверены, что хотите забанить эту песню?"
     }
   },
   "timers": {
@@ -683,13 +683,13 @@
       "tumberSize": "Размер барабана в револьвере"
     },
     "duel": {
-      "title": "Duels",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "title": "Дуэли",
+      "description": "Простая чат-игра между двумя пользователями, позволяющая проверить навыки уклонения!",
       "commands": {
         "title": "Duel Commands",
         "duel": "Ask for a Duel",
         "accept": "Accept a Duel",
-        "stats": "Statistics"
+        "stats": "Статистика"
       },
       "cooldown": {
         "title": "Duel Cooldown",
@@ -697,27 +697,27 @@
         "global": "Global"
       },
       "messages": {
-        "title": "Messages",
+        "title": "Сообщения",
         "start": {
           "title": "Initial Message",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "description": "Это сообщение будет отправлено при начале дуэли. Доступные переменные: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
           "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "description": "Это сообщение будет отправлено, когда дуэль завершится. Доступные переменные: {'{loser}, {winner}'}"
         },
         "bothDie": {
-          "title": "«No One Survived» Message",
-          "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+          "title": "Сообщение «Никто не выжил»",
+          "description": "Это сообщение будет отправлено, когда дуэль завершилась и оба дуэлянта погибли. Доступные переменные: {'{target}, {initiator}'}"
         }
       },
       "settings": {
-        "title": "Settings",
-        "secondsToAccept": "Seconds to accept duel",
+        "title": "Настройки",
+        "secondsToAccept": "Время для принятия вызова (сек.)",
         "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "pointsPerWin": "Репутация за победу",
+        "pointsPerLose": "Репутация за поражение",
+        "bothDiePercent": "Вероятность того, что оба пользователя умрут"
       }
     }
   },
@@ -787,8 +787,8 @@
       "streamOffline": "Окончание трансляции",
       "chatCleared": "Очистка чата",
       "userBanned": "Отстранение пользователя",
-      "channelUnbanRequestCreate": "Unban Request Create",
-      "channelUnbanRequestResolve": "Unban Request Resolve"
+      "channelUnbanRequestCreate": "Запрос на разбан создан",
+      "channelUnbanRequestResolve": "Запрос на разбан обработан"
     }
   },
   "moderation": {
@@ -842,12 +842,12 @@
     }
   },
   "feedback": {
-    "button": "Send feedback",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "button": "Отправить отзыв",
+    "notification": "Ваш отзыв отправлен",
+    "rateLimited": "Вы отправляете сообщения слишком быстро, попробуйте снова через {time}",
+    "messageLabel": "Сообщение",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "Сообщение не может быть пустым"
     }
   },
   "userSettings": {
