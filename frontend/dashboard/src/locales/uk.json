@@ -15,7 +15,7 @@
     "confirm": "Підтвердити",
     "saveSettings": "Зберегти налаштування",
     "setDefaultSettings": "Set Default Settings",
-    "goToDashboard": "Перейти до Панелі управління",
+    "goToDashboard": "Перейти до панелі управління",
     "add": "Додати"
   },
   "sharedTexts": {
@@ -34,8 +34,8 @@
     "userName": "Ім’я користувача",
     "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
     "deleted": "Видалити",
-    "updated": "Updated",
-    "disabled": "Disabled",
+    "updated": "Оновлено",
+    "disabled": "Вимкнено",
     "setDefaultSettings": "Are you sure you want to set default settings?"
   },
   "sidebar": {
@@ -211,7 +211,7 @@
     "discord": {
       "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
       "guildPluralization": "No servers | 1 server | {count} servers",
-      "connectedGuilds": "{guilds} connected",
+      "connectedGuilds": "{guilds} підключено",
       "alerts": {
         "label": "Сповіщення",
         "showTitle": "Show Stream Title?",
@@ -272,7 +272,7 @@
       "name": "Операція",
       "inputs": {
         "message": "Повідомлення до надсилання (підтримує змінні)",
-        "default": "Action Text (supports variables)",
+        "default": "Текст дії (підтримує змінні)",
         "vipSlots": "VIP Slots Amount",
         "username": "Username (supports variables)",
         "variableValue": "New Variable Value (supports variables)",
@@ -337,7 +337,7 @@
       "moderatorDisplayName": "Відображуване ім’я модератора, який ініціював дію",
       "banReason": "Причина бану",
       "banEndsInMinutes": "Бан у хвилинах, або \"permanent\" якщо бан назавжди",
-      "message": "Message"
+      "message": "Повідомлення"
     }
   },
   "overlays": {
@@ -407,31 +407,31 @@
       "fontSize": "Розмір шрифту",
       "fontStyle": "Стиль шрифту",
       "fontWeight": "Товщина шрифту",
-      "availabeFonts": "Available Fonts",
-      "hideCommands": "Hide Commands",
-      "hideBots": "Hide Other Bots Messages",
+      "availabeFonts": "Доступні шрифти",
+      "hideCommands": "Приховати команди",
+      "hideBots": "Приховати інші повідомлення бота",
       "style": "Message Style",
       "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
     "dudes": {
       "description": "Animated characters for chatters in your stream",
-      "enable": "Enable",
+      "enable": "Увімкнено",
       "dudeDivider": "Dude",
       "dudeDefaultSprite": "Default sprite",
       "dudeMaxOnScreen": "Max on screen",
       "dudeMaxOnScreenUnlimited": "Unlimited",
       "dudeColor": "Default user color",
       "dudeGravity": "Гравітація",
-      "dudeMaxLifeTime": "Max life time",
+      "dudeMaxLifeTime": "Максимальний термін життя",
       "dudeScale": "Масштаб",
       "dudeSoundsDivider": "Звуки",
       "dudeSoundsVolume": "Гучність",
-      "ignoreDivider": "Ignoring",
+      "ignoreDivider": "Ігнорування",
       "ignoreCommands": "Ignore commands",
       "ignoreUsers": "Ignore users",
       "ignoreUsersList": "List of ignored users",
-      "nameBoxDivider": "Name box",
-      "nameBoxFill": "Text colors",
+      "nameBoxDivider": "Нікнейм",
+      "nameBoxFill": "Колір тексту",
       "nameBoxFillError": "Color is required",
       "nameBoxFillGradientStops": "Text colors of gradient stops",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
@@ -452,10 +452,10 @@
       "nameBoxDropShadowAngle": "Shadow angle",
       "messageBoxIgnoreCommands": "Ignore commands",
       "messageBoxDivider": "Message box",
-      "messageBoxShowTime": "Show time",
-      "messageBoxFill": "Text color",
-      "messageBoxBackground": "Background color",
-      "messageBoxPadding": "Padding",
+      "messageBoxShowTime": "Показати час",
+      "messageBoxFill": "Колір тексту",
+      "messageBoxBackground": "Колір фону",
+      "messageBoxPadding": "Відступ",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Font size",
       "emoteDivider": "Emote",
@@ -476,7 +476,7 @@
       },
       "settings": {
         "spawn": "Spawn an emote on each chat message?",
-        "size": "Size",
+        "size": "Розмір",
         "sizeSmall": "Size for Small Emote Variant",
         "time": "Emote Livespan",
         "maxEmotes": "Emotes Amount",
@@ -496,7 +496,7 @@
       "description": "This overlay allows you to show a countdown on screen for specific events or while you're AFK.",
       "settings": {
         "main": {
-          "label": "Settings",
+          "label": "Налаштування",
           "startCommand": {
             "description": "Overlay Start Command",
             "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
@@ -572,8 +572,8 @@
       "songs": "Звукові налаштування"
     },
     "ban": {
-      "user": "Ban user",
-      "song": "Ban song",
+      "user": "Заблокувати користувача",
+      "song": "Заборонити пісню",
       "userConfirm": "Are you sure you want to ban this user?",
       "songConfirm": "Are you sure you want to ban this song?"
     }
@@ -712,7 +712,7 @@
         }
       },
       "settings": {
-        "title": "Settings",
+        "title": "Налаштування",
         "secondsToAccept": "Seconds to accept duel",
         "timeoutTime": "Timeout time for loser",
         "pointsPerWin": "Reputation for win",
@@ -801,7 +801,7 @@
     "excludedRoles": "Select roles which won't be impacted by this filter:",
     "types": {
       "links": {
-        "name": "Links",
+        "name": "Посилання",
         "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
       },
       "deny_list": {
@@ -862,7 +862,7 @@
     },
     "public": {
       "title": "Публічна сторінка",
-      "description": "Description of channel"
+      "description": "Опис каналу"
     }
   }
 }
