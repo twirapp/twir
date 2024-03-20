@@ -33,13 +33,6 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
-	c.logger.Info(
-		"Sending message",
-		slog.String("channel_id", opts.BroadcasterID),
-		slog.String("sender_id", opts.SenderID),
-		slog.Bool("is_announce", opts.IsAnnounce),
-	)
-
 	channel := &model.Channels{}
 	if err := c.gorm.
 		WithContext(ctx).
@@ -50,6 +43,13 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.IsBanned {
 		return nil
 	}
+
+	c.logger.Info(
+		"Sending message",
+		slog.String("channel_id", opts.BroadcasterID),
+		slog.String("sender_id", opts.SenderID),
+		slog.Bool("is_announce", opts.IsAnnounce),
+	)
 
 	var twitchClient *helix.Client
 	var err error
