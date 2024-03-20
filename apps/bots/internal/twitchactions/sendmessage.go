@@ -47,7 +47,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		First(channel).Error; err != nil {
 		return err
 	}
-	if !channel.IsEnabled || !channel.IsBotMod {
+	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.IsBanned {
 		return nil
 	}
 
