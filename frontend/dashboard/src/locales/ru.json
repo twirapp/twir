@@ -244,13 +244,13 @@
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
       "connected": "Подключено",
       "notConnected": "Не подключено",
-      "notRegistered": "You are not registered at {0}",
+      "notRegistered": "Вы не зарегистрированы на {0}",
       "errorSameReward": "Вы не можете использовать одну и ту же награду для добавления и удаления смайликов!",
       "deleteOnlyAddedByApp": "Удалить смайлики добавленные через Twir",
       "connectSteps": {
         "step1": "Перейти к своему {0} профилю",
         "step2": "Нажмите на кнопку \"Add editors\"",
-        "step3": "Add {0} as an editor"
+        "step3": "Добавить {0} как редактор"
       },
       "rewardForAddEmote": "Награда для добавления смайлика",
       "rewardForRemoveEmote": "Награда для удаления смайлика",
@@ -433,7 +433,7 @@
       "nameBoxDivider": "Никнейм",
       "nameBoxFill": "Цвета текста",
       "nameBoxFillError": "Необходимо указать цвет",
-      "nameBoxFillGradientStops": "Text colors of gradient stops",
+      "nameBoxFillGradientStops": "Цвета текста на градиентах",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Тип градиента",
       "nameBoxFontFamily": "Шрифт",
@@ -482,7 +482,7 @@
         "maxEmotes": "Максимальное количество эмоций на экране",
         "animationsOnAppear": "Анимации появления эмоции",
         "animationsOnDisappear": "Анимации исчезновения эмоции",
-        "excludedEmotes": "Excluded Emotes",
+        "excludedEmotes": "Исключенные эмоции",
         "rave": "Переливающиеся цвета для эмоций",
         "emotes": {
           "bttvEnabled": "Включить эмоции BetterTTV",
@@ -686,13 +686,13 @@
       "title": "Дуэли",
       "description": "Простая чат-игра между двумя пользователями, позволяющая проверить навыки уклонения!",
       "commands": {
-        "title": "Duel Commands",
-        "duel": "Ask for a Duel",
-        "accept": "Accept a Duel",
+        "title": "Команды Дуэли",
+        "duel": "Вызвать на дуэль",
+        "accept": "Принять дуэль",
         "stats": "Статистика"
       },
       "cooldown": {
-        "title": "Duel Cooldown",
+        "title": "Перезарядка Дуэли",
         "user": "Individual",
         "global": "Global"
       },
