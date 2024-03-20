@@ -59,6 +59,8 @@ import "messages/overlays_now_playing/overlays_now_playing.proto";
 
 import "messages/channels_public_settings/channels_public_settings.proto";
 
+import "messages/integrations_pubg/integrations_pubg.proto";
+
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
 	rpc AuthSetDashboard(messages.auth.SetDashboard) returns (google.protobuf.Empty) {}
@@ -138,6 +140,9 @@ service Protected {
 	rpc IntegrationsDiscordDisconnectGuild(messages.integrations_discord.DisconnectGuildMessage) returns (google.protobuf.Empty) {}
 	rpc IntegrationsDiscordGetGuildChannels(messages.integrations_discord.GetGuildChannelsRequest) returns (messages.integrations_discord.GetGuildChannelsResponse) {}
 	rpc IntegrationsDiscordGetGuildInfo(messages.integrations_discord.GetGuildInfoRequest) returns (messages.integrations_discord.GetGuildInfoResponse) {}
+
+	rpc IntegrationsPubgGet(google.protobuf.Empty) returns (messages.integrations_pubg.GetDataResponse) {}
+	rpc IntegrationsPubgPut(messages.integrations_pubg.PostDataRequest) returns (google.protobuf.Empty) {}
 
 	rpc KeywordsGetAll(google.protobuf.Empty) returns (messages.keywords.GetAllResponse) {}
 	rpc KeywordsGetById(messages.keywords.GetByIdRequest) returns (messages.keywords.Keyword) {}

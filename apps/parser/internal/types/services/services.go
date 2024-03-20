@@ -3,7 +3,7 @@ package services
 import (
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
-	"github.com/satont/twir/apps/parser/internal/task-queue"
+	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/dota"
@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
+	"github.com/twirapp/twir/libs/pubg"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -32,4 +33,5 @@ type Services struct {
 	GrpcClients     *Grpc
 	TaskDistributor task_queue.TaskDistributor
 	Bus             *buscore.Bus
+	PubgClient      *pubg.Client
 }

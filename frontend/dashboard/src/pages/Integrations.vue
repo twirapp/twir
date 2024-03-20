@@ -9,6 +9,7 @@ import Donatestream from '@/components/integrations/donatestream.vue';
 import Donationalerts from '@/components/integrations/donationalerts.vue';
 import Faceit from '@/components/integrations/faceit.vue';
 import Lastfm from '@/components/integrations/lastfm.vue';
+import Pubg from '@/components/integrations/pubg.vue';
 import SevenTv from '@/components/integrations/seven-tv.vue';
 import Spotify from '@/components/integrations/spotify.vue';
 import Streamlabs from '@/components/integrations/streamlabs.vue';
@@ -54,6 +55,9 @@ import Vk from '@/components/integrations/vk.vue';
 			</n-grid-item>
 			<n-grid-item :span="1">
 				<Valorant />
+			</n-grid-item>
+			<n-grid-item :span="1">
+				<Pubg />
 			</n-grid-item>
 		</n-grid>
 	</div>
