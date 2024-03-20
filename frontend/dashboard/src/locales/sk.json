@@ -1,121 +1,121 @@
 {
-  "languageName": "English",
+  "languageName": "Angličtina",
   "sharedButtons": {
-    "create": "Create",
-    "save": "Save",
-    "close": "Close",
-    "copy": "Copy",
-    "delete": "Delete",
-    "settings": "Settings",
-    "login": "Sign In",
-    "logout": "Sign Out",
-    "edit": "Edit",
-    "select": "Select",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "saveSettings": "Save Settings",
-    "setDefaultSettings": "Set Default Settings",
-    "goToDashboard": "Go to Dashboard",
-    "add": "Add"
+    "create": "Vytvoriť",
+    "save": "Uložiť",
+    "close": "Zavrieť",
+    "copy": "Kopírovať",
+    "delete": "Vymazať",
+    "settings": "Nastavenia",
+    "login": "Prihlásiť sa",
+    "logout": "Odhlásiť sa",
+    "edit": "Upraviť",
+    "select": "Vybrať",
+    "cancel": "Zrušiť",
+    "confirm": "Potvrdiť",
+    "saveSettings": "Uložiť nastavenia",
+    "setDefaultSettings": "Nastaviť predvolené nastavenia",
+    "goToDashboard": "Prejsť na ovládací panel",
+    "add": "Pridať"
   },
   "sharedTexts": {
-    "saved": "Saved",
-    "errorOnSave": "Error on saving {error}",
-    "enabled": "Enabled",
-    "status": "Status",
-    "name": "Name",
+    "saved": "Uložené",
+    "errorOnSave": "Chyba pri ukladaní {error}",
+    "enabled": "Povolené",
+    "status": "Stav",
+    "name": "Názov",
     "actions": "Actions",
-    "responses": "Responses",
+    "responses": "Odpovede",
     "reply": {
-      "label": "Reply",
+      "label": "Odpovedať",
       "text": "Bot will send commands responses as reply"
     },
-    "response": "Response",
-    "userName": "Username",
+    "response": "Odpoveď",
+    "userName": "Užívateľské meno",
     "dangerZone": "Danger Zone",
     "deleted": "Deleted",
-    "updated": "Updated",
+    "updated": "Aktualizované",
     "disabled": "Disabled",
     "setDefaultSettings": "Are you sure you want to set default settings?"
   },
   "sidebar": {
     "dashboard": "Dashboard",
     "commands": {
-      "label": "Commands",
-      "custom": "Custom",
-      "builtin": "Built-in"
+      "label": "Príkazy",
+      "custom": "Vlastné",
+      "builtin": "Vstavané"
     },
-    "integrations": "Integrations",
-    "events": "Events",
+    "integrations": "Integrácie",
+    "events": "Udalosti",
     "chatAlerts": "Chat Alerts",
-    "overlays": "Overlays",
+    "overlays": "Prekrytia",
     "overlaysRegistry": "Overlays Registry",
     "songRequests": "Song Requests",
     "timers": "Timers",
-    "roles": "Permissions",
-    "keywords": "Keywords",
+    "roles": "Oprávnenia",
+    "keywords": "Kľúčové slová",
     "variables": "Variables",
     "greetings": "Greetings",
     "alerts": "Alerts",
-    "games": "Games",
-    "users": "Users",
-    "moderation": "Moderation"
+    "games": "Hry",
+    "users": "Uživatelia",
+    "moderation": "Moderovanie"
   },
   "navbar": {
-    "logout": "Logout",
+    "logout": "Odhlásiť sa",
     "publicPage": "Public page"
   },
   "deleteConfirmation": {
     "text": "Are you sure about deleting this thing?",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "cancel": "Zrušiť",
+    "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
     "title": "403 Forbidden",
     "description": "You are not authorized to view this page, ask the broadcaster to provide it."
   },
   "pageNotFound": {
-    "title": "404 Not Found",
+    "title": "404 Nenájdená",
     "description": "You know life is always ridiculous."
   },
   "commands": {
-    "name": "Command | Commands",
-    "searchPlaceholder": "Search the command...",
-    "newCommandTitle": "New Command",
+    "name": "Príkaz | Príkazy",
+    "searchPlaceholder": "Vyhľadať príkaz...",
+    "newCommandTitle": "Nový príkaz",
     "groups": {
-      "manageButton": "Manage Groups",
-      "name": "Name",
-      "color": "Color"
+      "manageButton": "Spravovať skupiny",
+      "name": "Názov",
+      "color": "Farba"
     },
     "table": {
       "responses": {
-        "empty": "Responses are empty!"
+        "empty": "Odpovede sú prázdne!"
       }
     },
     "modal": {
       "name": {
-        "label": "Name",
+        "label": "Názov",
         "validations": {
-          "empty": "Command Name is required.",
-          "startsWith": "Command Name should not start with '!'.",
-          "len": "Command Name should be less than 25 characters."
+          "empty": "Názov príkazu je povinný.",
+          "startsWith": "Názov príkazu by nemal začínať na \"!\".",
+          "len": "Názov príkazu by mal mať menej ako 25 znakov."
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Aliasy"
       },
       "description": {
-        "label": "Command Description"
+        "label": "Popis príkazu"
       },
       "responses": {
         "validations": {
-          "empty": "Response should not be empty. Command can be created without a response, so you can skip this field.",
-          "len": "Response should be less than 500 characters."
+          "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
+          "len": "Odpoveď by mala mať menej ako 500 znakov."
         },
-        "defaultWarning": "Responses cannot be edited for default commands."
+        "defaultWarning": "Odpovede predvolených príkazov nie je možné upravovať."
       },
       "permissions": {
-        "divider": "Permissions",
+        "divider": "Oprávnenia",
         "name": "Roles",
         "placeholder": "Select roles to grant permissions to use commands",
         "deniedUsers": "Users, who cannot use that command.",
@@ -170,16 +170,16 @@
       "success": "Enabled and have moderator status",
       "notEnabledTitle": "Bot is not enabled on channel",
       "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
-      "leave": "Disable",
-      "join": "Enable"
+      "leave": "Zakázať",
+      "join": "Povoliť"
     },
     "statsWidgets": {
       "streamInfo": {
         "noTitle": "Cannot get Stream Title!",
         "noCategory": "Cannot get Category!",
         "modalTitle": "Edit Stream Information",
-        "title": "Stream Title",
-        "category": "Category"
+        "title": "Názov streamu",
+        "category": "Kategória"
       },
       "uptime": "Uptime",
       "followers": "Followers",
