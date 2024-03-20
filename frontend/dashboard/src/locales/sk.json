@@ -24,7 +24,7 @@
     "enabled": "Povolené",
     "status": "Stav",
     "name": "Názov",
-    "actions": "Actions",
+    "actions": "Akcie",
     "responses": "Odpovede",
     "reply": {
       "label": "Odpovedať",
@@ -116,10 +116,10 @@
       },
       "permissions": {
         "divider": "Oprávnenia",
-        "name": "Roles",
-        "placeholder": "Select roles to grant permissions to use commands",
-        "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "name": "Roly",
+        "placeholder": "Výber rolí na udelenie oprávnení na používanie príkazov",
+        "deniedUsers": "Používatelia, ktorí tento príkaz nemôžu použiť.",
+        "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz."
       },
       "restrictions": {
         "name": "Obmedzenia podľa štatistík",
@@ -131,9 +131,9 @@
         "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Cooldown per",
+          "name": "Cooldown za",
           "global": "Globálne",
-          "user": "Individual (per user)"
+          "user": "Individuálne (na používateľa)"
         }
       },
       "settings": {
@@ -144,19 +144,19 @@
         },
         "keepOrder": {
           "label": "Keep Order",
-          "text": "Bot will keep this order of responses when sending them into chat."
+          "text": "Bot zachová toto poradie odpovedí pri ich odosielaní do chatu."
         },
         "onlineOnly": {
           "label": "Only When Online",
-          "text": "This command will work only when the stream is online."
+          "text": "Tento príkaz bude fungovať len vtedy, keď je stream online."
         },
         "other": {
-          "divider": "Other",
-          "commandGroup": "Command Group"
+          "divider": "Iné",
+          "commandGroup": "Skupina príkazov"
         }
       },
       "alert": {
-        "label": "Select an alert, which will be triggered when the command used."
+        "label": "Vyberte upozornenie, ktoré sa spustí pri použití príkazu."
       }
     }
   },
@@ -169,7 +169,7 @@
       "title": "Stav bota",
       "success": "Povolené a so statusom moderátora",
       "notEnabledTitle": "Bot nie je povolený na kanáli",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
+      "notModerator": "Zistili sme, že bot nie je moderátorom na tomto kanáli. Prosím, použite {0}, inak bot nebude posielať správy v chate a väčšina funkcií nebude fungovať",
       "leave": "Zakázať",
       "join": "Povoliť"
     },
@@ -177,17 +177,17 @@
       "streamInfo": {
         "noTitle": "Nemôžem získať názov streamu!",
         "noCategory": "Cannot get Category!",
-        "modalTitle": "Edit Stream Information",
+        "modalTitle": "Upravte informácie o streame",
         "title": "Názov streamu",
         "category": "Kategória"
       },
       "uptime": "Uptime",
-      "followers": "Followers",
-      "messages": "Messages",
-      "subs": "Subs",
-      "usedEmotes": "Emotes Sent",
-      "viewers": "Viewers",
-      "requestedSongs": "Requested Songs"
+      "followers": "Sledovatelia",
+      "messages": "Správy",
+      "subs": "Odberatelia",
+      "usedEmotes": "Odoslané emotikony",
+      "viewers": "Diváci",
+      "requestedSongs": "Vyžiadané piesne"
     },
     "widgets": {
       "chat": {
@@ -197,26 +197,26 @@
         "title": "Stream"
       },
       "events": {
-        "title": "Events List"
+        "title": "Zoznam udalostí"
       },
       "bot": {
-        "title": "Bot Management"
+        "title": "Správa bota"
       }
     }
   },
   "integrations": {
-    "notLoggedIn": "You have not logged in!",
-    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when {0} command is being used.",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
+    "notLoggedIn": "Nie ste prihlásení!",
+    "songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú skladbu v chate, keď sa použije príkaz {0}.",
+    "donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce donaty a nastaví pre vás interakcie v kategóriách {0}, {1}.",
     "discord": {
-      "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
-      "guildPluralization": "No servers | 1 server | {count} servers",
-      "connectedGuilds": "{guilds} connected",
+      "description": "Poskytnutie prístupu k službe Discord umožňuje Twiru nastaviť automatické pingy a upozornenia o stave streamu na vašich serveroch Discord.",
+      "guildPluralization": "Žiadne servery | 1 server | {count} servery",
+      "connectedGuilds": "{guilds} pripojené",
       "alerts": {
-        "label": "Alerts",
-        "showTitle": "Show Stream Title?",
-        "showCategory": "Show Stream Category?",
-        "showViewers": "Show Viewers Counter?",
+        "label": "Upozornenia",
+        "showTitle": "Zobraziť názov streamu?",
+        "showCategory": "Zobraziť kategóriu streamu?",
+        "showViewers": "Zobraziť počítadlo divákov?",
         "showPreview": "Show Stream Preview?",
         "showProfileImage": "Show Twitch Profile Avatar?",
         "channelsSelect": "Where alerts will be posted?",
