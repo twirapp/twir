@@ -94,7 +94,7 @@ func (c *Activity) Ban(
 	banReq, err := twitchClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorId:   data.ChannelID,
+			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: operation.TimeoutTime,
 				Reason:   computeBanReason(operation.TimeoutMessage),
@@ -148,7 +148,7 @@ func (c *Activity) Unban(
 	resp, err := twitchClient.UnbanUser(
 		&helix.UnbanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorID:   data.ChannelID,
+			ModeratorID:   dbChannel.BotID,
 			UserID:        targetUser.ID,
 		},
 	)
@@ -215,7 +215,7 @@ func (c *Activity) BanRandom(
 	banReq, err := twitchClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorId:   data.ChannelID,
+			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: timeoutTime,
 				Reason:   computeBanReason(operation.TimeoutMessage),
