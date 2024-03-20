@@ -1,145 +1,145 @@
 {
-  "languageName": "English",
+  "languageName": "Englisch",
   "sharedButtons": {
-    "create": "Create",
-    "save": "Save",
-    "close": "Close",
-    "copy": "Copy",
-    "delete": "Delete",
-    "settings": "Settings",
-    "login": "Sign In",
-    "logout": "Sign Out",
-    "edit": "Edit",
-    "select": "Select",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "saveSettings": "Save Settings",
-    "setDefaultSettings": "Set Default Settings",
-    "goToDashboard": "Go to Dashboard",
-    "add": "Add"
+    "create": "Erstellen",
+    "save": "Speichern",
+    "close": "Schließen",
+    "copy": "Kopieren",
+    "delete": "Löschen",
+    "settings": "Einstellungen",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "edit": "Bearbeiten",
+    "select": "Auswählen",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "saveSettings": "Einstellungen speichern",
+    "setDefaultSettings": "Standardeinstellungen festlegen",
+    "goToDashboard": "Zur Übersicht gehen",
+    "add": "Hinzufügen"
   },
   "sharedTexts": {
-    "saved": "Saved",
-    "errorOnSave": "Error on saving {error}",
-    "enabled": "Enabled",
+    "saved": "Erfolgreich gespeichert",
+    "errorOnSave": "Fehler beim Speichern von {error}",
+    "enabled": "Aktiviert",
     "status": "Status",
     "name": "Name",
-    "actions": "Actions",
-    "responses": "Responses",
+    "actions": "Aktionen",
+    "responses": "Antworten",
     "reply": {
-      "label": "Reply",
-      "text": "Bot will send commands responses as reply"
+      "label": "Antworten",
+      "text": "Bot wird Antworten auf Befehle als Antwort senden"
     },
-    "response": "Response",
-    "userName": "Username",
-    "dangerZone": "Danger Zone",
-    "deleted": "Deleted",
-    "updated": "Updated",
-    "disabled": "Disabled",
-    "setDefaultSettings": "Are you sure you want to set default settings?"
+    "response": "Antwort",
+    "userName": "Benutzername",
+    "dangerZone": "Gefahrenzone",
+    "deleted": "Gelöscht",
+    "updated": "Aktualisiert",
+    "disabled": "Deaktiviert",
+    "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?"
   },
   "sidebar": {
-    "dashboard": "Dashboard",
+    "dashboard": "Übersicht",
     "commands": {
-      "label": "Commands",
-      "custom": "Custom",
-      "builtin": "Built-in"
+      "label": "Befehle",
+      "custom": "Benutzerdefiniert",
+      "builtin": "Integriert"
     },
-    "integrations": "Integrations",
+    "integrations": "Integrationen",
     "events": "Events",
-    "chatAlerts": "Chat Alerts",
-    "overlays": "Overlays",
-    "overlaysRegistry": "Overlays Registry",
-    "songRequests": "Song Requests",
-    "timers": "Timers",
-    "roles": "Permissions",
-    "keywords": "Keywords",
-    "variables": "Variables",
-    "greetings": "Greetings",
-    "alerts": "Alerts",
-    "games": "Games",
-    "users": "Users",
+    "chatAlerts": "Chatbenachrichtigungen",
+    "overlays": "Ebenen",
+    "overlaysRegistry": "Ebenen registrieren",
+    "songRequests": "Songanfragen",
+    "timers": "Alarme",
+    "roles": "Berechtigungen",
+    "keywords": "Schlagwörter",
+    "variables": "Variablen",
+    "greetings": "Begrüßung",
+    "alerts": "Warnungen",
+    "games": "Spiele",
+    "users": "Benutzer",
     "moderation": "Moderation"
   },
   "navbar": {
-    "logout": "Logout",
-    "publicPage": "Public page"
+    "logout": "Abmelden",
+    "publicPage": "Öffentliche Seite"
   },
   "deleteConfirmation": {
-    "text": "Are you sure about deleting this thing?",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "text": "Bist du sicher, dass du das löschen möchtest?",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "403 Forbidden",
-    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
+    "title": "403 Nicht erlaubt",
+    "description": "Sie sind nicht berechtigt, diese Seite zu sehen, bitten Sie den Streamer, sie dafür bereitzustellen."
   },
   "pageNotFound": {
-    "title": "404 Not Found",
-    "description": "You know life is always ridiculous."
+    "title": "404 Nicht gefunden",
+    "description": "Sie wissen, dass das Leben immer lächerlich ist."
   },
   "commands": {
-    "name": "Command | Commands",
-    "searchPlaceholder": "Search the command...",
-    "newCommandTitle": "New Command",
+    "name": "Befehl | Befehle",
+    "searchPlaceholder": "Befehl suchen...",
+    "newCommandTitle": "Neuer Befehl",
     "groups": {
-      "manageButton": "Manage Groups",
+      "manageButton": "Gruppen verwalten",
       "name": "Name",
-      "color": "Color"
+      "color": "Farbe"
     },
     "table": {
       "responses": {
-        "empty": "Responses are empty!"
+        "empty": "Die Antworten sind leer!"
       }
     },
     "modal": {
       "name": {
         "label": "Name",
         "validations": {
-          "empty": "Command Name is required.",
-          "startsWith": "Command Name should not start with '!'.",
-          "len": "Command Name should be less than 25 characters."
+          "empty": "Befehlsname ist erforderlich.",
+          "startsWith": "Befehlsname sollte nicht mit '!' beginnen.",
+          "len": "Der Befehlsname sollte weniger als 25 Zeichen lang sein."
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Aliase"
       },
       "description": {
-        "label": "Command Description"
+        "label": "Befehlsbeschreibung"
       },
       "responses": {
         "validations": {
-          "empty": "Response should not be empty. Command can be created without a response, so you can skip this field.",
-          "len": "Response should be less than 500 characters."
+          "empty": "Die Antwort darf nicht leer sein. Der Befehl kann ohne Antwort erstellt werden, so dass Sie dieses Feld überspringen können.",
+          "len": "Die Antwort sollte weniger als 500 Zeichen lang sein."
         },
-        "defaultWarning": "Responses cannot be edited for default commands."
+        "defaultWarning": "Antworten können für Standardbefehle nicht bearbeitet werden."
       },
       "permissions": {
-        "divider": "Permissions",
-        "name": "Roles",
-        "placeholder": "Select roles to grant permissions to use commands",
-        "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "divider": "Berechtigungen",
+        "name": "Rollen",
+        "placeholder": "Wählen Sie Rollen aus, um Berechtigungen zur Verwendung von Befehlen zu gewähren",
+        "deniedUsers": "Benutzer, die diesen Befehl nicht verwenden können.",
+        "allowedUsers": "Benutzer, die die Rollenbeschränkung für diesen Befehl umgehen können."
       },
       "restrictions": {
-        "name": "Restrictions by stats",
-        "watchTime": "Required watch time to use that command.",
-        "messages": "Required message count to use that command.",
+        "name": "Einschränkungen nach Statistiken",
+        "watchTime": "Benötigte Beobachtungszeit um diesen Befehl zu verwenden.",
+        "messages": "Benötigte Nachrichtenanzahl, um diesen Befehl zu verwenden.",
         "channelsPoints": "Required spent channels points to use that command."
       },
       "cooldown": {
-        "label": "Cooldown",
-        "value": "Cooldown in seconds",
+        "label": "Abklingzeit",
+        "value": "Abklingzeit in Sekunden",
         "type": {
-          "name": "Cooldown per",
+          "name": "Abklingzeit pro",
           "global": "Global",
           "user": "Individual (per user)"
         }
       },
       "settings": {
-        "divider": "Settings",
+        "divider": "Einstellungen",
         "visible": {
-          "label": "Visibility",
+          "label": "Sichtbar",
           "text": "Command visibility on a public commands list page."
         },
         "keepOrder": {
@@ -151,43 +151,43 @@
           "text": "This command will work only when the stream is online."
         },
         "other": {
-          "divider": "Other",
-          "commandGroup": "Command Group"
+          "divider": "Sonstiges",
+          "commandGroup": "Befehlsgruppe"
         }
       },
       "alert": {
-        "label": "Select an alert, which will be triggered when the command used."
+        "label": "Wählen Sie eine Warnung, die ausgelöst wird, wenn der Befehl verwendet wird."
       }
     }
   },
   "dashboard": {
     "header": {
-      "managingUser": "Managing user",
-      "channelsAccess": "Channels you have access to"
+      "managingUser": "Benutzer verwalten",
+      "channelsAccess": "Kanäle auf die Sie Zugriff haben"
     },
     "botManage": {
-      "title": "Bot status",
-      "success": "Enabled and have moderator status",
-      "notEnabledTitle": "Bot is not enabled on channel",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
-      "leave": "Disable",
-      "join": "Enable"
+      "title": "Bot-Status",
+      "success": "Aktiviert und Moderator Status",
+      "notEnabledTitle": "Bot ist im Kanal nicht aktiviert",
+      "notModerator": "Wir haben festgestellt, dass der Bot kein Moderator auf diesem Kanal ist. Bitte verwenden Sie {0}, sonst wird der Bot keine Nachrichten im Chat senden und die meisten Funktionen funktionieren nicht",
+      "leave": "Deaktivieren",
+      "join": "Aktivieren"
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Cannot get Stream Title!",
-        "noCategory": "Cannot get Category!",
-        "modalTitle": "Edit Stream Information",
-        "title": "Stream Title",
-        "category": "Category"
+        "noTitle": "Stream-Titel kann nicht abgerufen werden!",
+        "noCategory": "Kategorie kann nicht abgerufen werden!",
+        "modalTitle": "Stream Information bearbeiten",
+        "title": "Stream-Titel",
+        "category": "Kategorie"
       },
-      "uptime": "Uptime",
-      "followers": "Followers",
-      "messages": "Messages",
-      "subs": "Subs",
-      "usedEmotes": "Emotes Sent",
-      "viewers": "Viewers",
-      "requestedSongs": "Requested Songs"
+      "uptime": "Laufzeit",
+      "followers": "Follower",
+      "messages": "Nachrichten",
+      "subs": "Abonnenten",
+      "usedEmotes": "Gesendete Emotes",
+      "viewers": "Zuschauer",
+      "requestedSongs": "Angeforderte Songs"
     },
     "widgets": {
       "chat": {
@@ -197,40 +197,40 @@
         "title": "Stream"
       },
       "events": {
-        "title": "Events List"
+        "title": "Events-Liste"
       },
       "bot": {
-        "title": "Bot Management"
+        "title": "Bot-Verwaltung"
       }
     }
   },
   "integrations": {
-    "notLoggedIn": "You have not logged in!",
-    "songServicesInfo": "Providing access to this service allows Twir to automatically get and print your currently playing song into chat when {0} command is being used.",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
+    "notLoggedIn": "Sie sind nicht angemeldet!",
+    "songServicesInfo": "Durch die Bereitstellung des Zugriffs auf diesen Service kann Twir den aktuellen Song automatisch in den Chat laden und abspielen, wenn der Befehl {0} benutzt wird.",
+    "donateServicesInfo": "Der Zugriff auf diesen Service ermöglicht es Twir, eingehende Spenden zu hören, und wird Interaktionen für Sie in {0}, {1} Kategorien einrichten.",
     "discord": {
-      "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
-      "guildPluralization": "No servers | 1 server | {count} servers",
-      "connectedGuilds": "{guilds} connected",
+      "description": "Wenn du Zugriff auf Discord gewährst, kann Twir automatische Pings und Warnungen über den Stream-Status auf deinen Discord Servern einrichten.",
+      "guildPluralization": "Keine Server | 1 Server | {count} Server",
+      "connectedGuilds": "{guilds} verbunden",
       "alerts": {
-        "label": "Alerts",
-        "showTitle": "Show Stream Title?",
-        "showCategory": "Show Stream Category?",
-        "showViewers": "Show Viewers Counter?",
-        "showPreview": "Show Stream Preview?",
-        "showProfileImage": "Show Twitch Profile Avatar?",
-        "channelsSelect": "Where alerts will be posted?",
-        "streamOnlineLabel": "Stream Alert Message",
-        "streamOnlinePlaceholder": "This message Twir will send when the stream starts.",
-        "streamOfflineLabel": "Stream Ended Message",
-        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
+        "label": "Warnungen",
+        "showTitle": "Streamtitel anzeigen?",
+        "showCategory": "Stream-Kategorie anzeigen?",
+        "showViewers": "Zuschaueranzahl zeigen?",
+        "showPreview": "Stream Vorschau anzeigen?",
+        "showProfileImage": "Twitch Profil Avatar anzeigen?",
+        "channelsSelect": "Wo werden Warnungen gepostet?",
+        "streamOnlineLabel": "Stream-Warnmeldung",
+        "streamOnlinePlaceholder": "Diese Nachricht wird von Twir gesendet, wenn der Stream gestartet wird.",
+        "streamOfflineLabel": "Stream End-Nachricht",
+        "streamOfflinePlaceholder": "Diese Nachricht wird gesendet, wenn der Stream offline geht.",
         "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
         "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
         "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
       },
       "connectGuild": "+ Connect Server",
       "disconnectGuild": "Disconnect Server",
-      "noGuilds": "No Servers Connected",
+      "noGuilds": "Keine Server verbunden",
       "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
     },
     "faceit": {
@@ -242,15 +242,15 @@
     "sevenTv": {
       "description": "We can manage 7tv channel emotes, when this integration is enabled.",
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
-      "connected": "Connected",
-      "notConnected": "Not connected",
-      "notRegistered": "You are not registered at {0}",
+      "connected": "Verbunden",
+      "notConnected": "Nicht verbunden",
+      "notRegistered": "Sie sind nicht bei {0} registriert",
       "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
       "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
       "connectSteps": {
         "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
-        "step3": "Add {0} as an editor"
+        "step2": "Klicken Sie auf \"Editoren hinzufügen\" Button",
+        "step3": "{0} als Editor hinzufügen"
       },
       "rewardForAddEmote": "Reward for adding emote",
       "rewardForRemoveEmote": "Reward for removing emote",
@@ -262,14 +262,14 @@
     "repeat": "Repeat Count",
     "onlineOnly": "Online-Only Execution",
     "type": "Type",
-    "description": "Description",
+    "description": "Beschreibung",
     "targetCommand": "Target Command",
     "targetVariable": "Target Variable",
     "targetTwitchReward": "Target Twitch Reward",
     "targetKeyword": "Target Keyword",
     "operations": {
-      "divider": "Actions",
-      "name": "Action",
+      "divider": "Aktionen",
+      "name": "Aktion",
       "inputs": {
         "message": "Message To Send (supports variables)",
         "default": "Action Text (supports variables)",
@@ -278,12 +278,12 @@
         "variableValue": "New Variable Value (supports variables)",
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
-      "banMessage": "Ban Message",
+      "banMessage": "Ban-Nachricht",
       "banTime": "Ban Time",
       "obs": {
         "warningTitle": "You need to configure OBS first before proceeding further!",
         "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
-        "scene": "OBS Scene",
+        "scene": "OBS Szene",
         "source": "OBS Source",
         "audioSource": "OBS Audio Source"
       },
@@ -335,9 +335,9 @@
       },
       "moderatorName": "Event Triggerer Moderator Username",
       "moderatorDisplayName": "Event Triggerer Moderator Display Name",
-      "banReason": "Ban Reason",
+      "banReason": "Ban Grund",
       "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
-      "message": "Message"
+      "message": "Nachricht"
     }
   },
   "overlays": {
@@ -359,16 +359,16 @@
       "readChatMessagesNicknames": "Read Usernames",
       "voice": "Default Voice",
       "disallowedVoices": "Disallowed Voices List",
-      "volume": "Volume",
+      "volume": "Lautstärke",
       "pitch": "Pitch",
       "rate": "Rate",
       "users": {
-        "selectAll": "Select All",
+        "selectAll": "Alles Auswählen",
         "undoSelection": "Undo Selection",
         "empty": "No one have created their own customizations yet..."
       },
       "tabs": {
-        "general": "General",
+        "general": "Allgemein",
         "usersSettings": "Individual Settings"
       },
       "previewText": "Preview voice with text, pitch and rate:"
@@ -377,8 +377,8 @@
       "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
       "address": "Address of OBS WebSocket server",
       "port": "Port of OBS WebSocket server",
-      "connected": "Connected!",
-      "notConnected": "Not Connected!",
+      "connected": "Verbunden!",
+      "notConnected": "Nicht verbunden!",
       "checkConnection": "Check Connection"
     },
     "alerts": {
@@ -397,16 +397,16 @@
       "backgroundColor": "Background Color",
       "direction": "Message Direction",
       "directions": {
-        "left": "Left",
-        "right": "Right",
-        "top": "Top",
-        "bottom": "Bottom"
+        "left": "Links",
+        "right": "Rechts",
+        "top": "Oben",
+        "bottom": "Unten"
       },
       "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
       "fontFamily": "Font Family",
-      "fontSize": "Font Size",
-      "fontStyle": "Font Style",
-      "fontWeight": "Font Weight",
+      "fontSize": "Schriftgröße",
+      "fontStyle": "Schriftstil",
+      "fontWeight": "Schriftstärke",
       "availabeFonts": "Available Fonts",
       "hideCommands": "Hide Commands",
       "hideBots": "Hide Other Bots Messages",
@@ -421,7 +421,7 @@
       "dudeMaxOnScreen": "Max on screen",
       "dudeMaxOnScreenUnlimited": "Unlimited",
       "dudeColor": "Default user color",
-      "dudeGravity": "Gravity",
+      "dudeGravity": "Schwerkraft",
       "dudeMaxLifeTime": "Max life time",
       "dudeScale": "Scale",
       "dudeSoundsDivider": "Sounds",
@@ -470,25 +470,25 @@
       "clear": "Clear Overlay",
       "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on a command or configured events.",
       "tabs": {
-        "main": "Settings",
+        "main": "Einstellungen",
         "events": "Events",
         "animations": "Animations"
       },
       "settings": {
         "spawn": "Spawn an emote on each chat message?",
-        "size": "Size",
+        "size": "Größe",
         "sizeSmall": "Size for Small Emote Variant",
         "time": "Emote Livespan",
-        "maxEmotes": "Emotes Amount",
+        "maxEmotes": "Anzahl der Emotes",
         "animationsOnAppear": "Appearing Emote Animation",
         "animationsOnDisappear": "Disappearing Emote Animation",
         "excludedEmotes": "Excluded Emotes",
         "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
-          "bttvEnabled": "Enable BetterTTV Emotes?",
-          "ffzEnabled": "Enable FrankerFaceZ Emotes?",
-          "seventvEnabled": "Enable 7TV Emotes?",
-          "emojiStyle": "Emoji Style"
+          "bttvEnabled": "BetterTTV Emotes aktivieren?",
+          "ffzEnabled": "FrankerFaceZ Emotes aktivieren?",
+          "seventvEnabled": "7TV Emotes aktivieren?",
+          "emojiStyle": "Emoji-Stil"
         }
       }
     },
@@ -509,9 +509,9 @@
           "background": "Overlay Background",
           "backgroundOpacity": "Overlay Background Opacity",
           "font": {
-            "color": "Font Color",
-            "family": "Font Family",
-            "size": "Font Size"
+            "color": "Schriftfarbe",
+            "family": "Schriftart",
+            "size": "Schriftgröße"
           }
         },
         "late": {
@@ -521,24 +521,24 @@
         }
       },
       "preview": {
-        "start": "Start Overlay Preview",
-        "stop": "Stop Overlay Preview"
+        "start": "Overlay-Vorschau starten",
+        "stop": "Overlay-Vorschau stoppen"
       }
     }
   },
   "songRequests": {
     "waiting": "Awaiting a Song Request...",
     "player": {
-      "title": "Current Song",
+      "title": "Aktueller Song",
       "noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
     },
     "table": {
-      "title": "Queue",
+      "title": "Warteschlange",
       "columns": {
-        "title": "Title",
-        "author": "Author",
+        "title": "Titel",
+        "author": "Autor",
         "added": "Added by",
-        "duration": "Duration"
+        "duration": "Dauer"
       }
     },
     "settings": {
@@ -550,30 +550,30 @@
       "channelReward": "Channel Points Reward Request Trigger",
       "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
       "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
-      "deniedUsers": "Banned Users",
-      "deniedSongs": "Banned Songs List",
+      "deniedUsers": "Gesperrter Benutzer",
+      "deniedSongs": "Gesperrte Songliste",
       "takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
         "minimalWatchTime": "Minimal Watch Time (in minutes)",
         "minimalMessages": "Minimal Message Amount",
-        "minimalFollowTime": "Minimal Follow Time (in minutes)"
+        "minimalFollowTime": "Minimale Folgezeit (in Minuten)"
       },
       "songs": {
-        "maxRequests": "Maximum Song Queue Limit",
-        "minLength": "Minimal Song Length (in minutes)",
-        "maxLength": "Maximum Song Length (in minutes)",
+        "maxRequests": "Maximale Song-Warteschlangen-Limit",
+        "minLength": "Minimale Songlänge (in Minuten)",
+        "maxLength": "Maximale Songlänge (in Minuten)",
         "minViews": "Minimal Views Amount"
       }
     },
     "tabs": {
-      "general": "General",
+      "general": "Allgemein",
       "users": "Users",
       "songs": "Songs"
     },
     "ban": {
-      "user": "Ban user",
-      "song": "Ban song",
+      "user": "Benutzer bannen",
+      "song": "Song bannen",
       "userConfirm": "Are you sure you want to ban this user?",
       "songConfirm": "Are you sure you want to ban this song?"
     }
@@ -812,57 +812,57 @@
         "regexpCheatSheet": "cheat sheet"
       },
       "symbols": {
-        "name": "Symbols",
+        "name": "Symbole",
         "description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
         "triggerLength": "Minimal Message Length",
         "maxPercentage": "Maximum Symbols Percentage"
       },
       "long_message": {
-        "name": "Message Length",
+        "name": "Nachrichtenlänge",
         "description": "Identifies and restricts long messages by limiting the length of messages sent into chat.",
-        "triggerLength": "Maximum Message Length"
+        "triggerLength": "Maximale Nachrichtenlänge"
       },
       "caps": {
         "name": "Caps",
         "description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
         "maxPercentage": "Maximum Capital Letters Percentage",
-        "triggerLength": "Minimal Message Length"
+        "triggerLength": "Minimale Nachrichtenlänge"
       },
       "emotes": {
         "name": "Emotes",
         "description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-        "triggerLength": "Maximum Emote Usage Limit"
+        "triggerLength": "Maximales Emote Nutzungslimit"
       },
       "language": {
-        "name": "Language",
+        "name": "Sprache",
         "description": "Scans and filters out inappropriate languages.",
-        "allowedLanguages": "Allowed Languages List",
-        "disallowedLanguages": "Disallowed Languages List"
+        "allowedLanguages": "Liste der erlaubten Sprachen",
+        "disallowedLanguages": "Liste der nicht erlaubten Sprachen"
       }
     }
   },
   "feedback": {
-    "button": "Send feedback",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "button": "Feedback senden",
+    "notification": "Dein Feedback wurde gesendet",
+    "rateLimited": "Sie senden Nachrichten zu schnell, versuchen es in {time} erneut",
+    "messageLabel": "Nachricht",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "Die Nachricht darf nicht leer sein"
     }
   },
   "userSettings": {
-    "title": "User settings",
+    "title": "Benutzereinstellungen",
     "account": {
       "title": "Account",
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
-        "button": "Regenerate Private API key",
+        "button": "Privaten API Schlüssel neu generieren",
         "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
       }
     },
     "public": {
-      "title": "Public page",
-      "description": "Description of channel"
+      "title": "Öffentliche Seite",
+      "description": "Beschreibung des Kanals"
     }
   }
 }
