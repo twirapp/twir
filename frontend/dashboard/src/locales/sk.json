@@ -28,18 +28,18 @@
     "responses": "Odpovede",
     "reply": {
       "label": "Odpovedať",
-      "text": "Bot will send commands responses as reply"
+      "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
     "userName": "Užívateľské meno",
-    "dangerZone": "Danger Zone",
-    "deleted": "Deleted",
+    "dangerZone": "Nebezpečná zóna",
+    "deleted": "Odstránené",
     "updated": "Aktualizované",
-    "disabled": "Disabled",
-    "setDefaultSettings": "Are you sure you want to set default settings?"
+    "disabled": "Vypnuté",
+    "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?"
   },
   "sidebar": {
-    "dashboard": "Dashboard",
+    "dashboard": "Prehľad",
     "commands": {
       "label": "Príkazy",
       "custom": "Vlastné",
@@ -47,36 +47,36 @@
     },
     "integrations": "Integrácie",
     "events": "Udalosti",
-    "chatAlerts": "Chat Alerts",
+    "chatAlerts": "Upozornenia chatu",
     "overlays": "Prekrytia",
     "overlaysRegistry": "Overlays Registry",
-    "songRequests": "Song Requests",
-    "timers": "Timers",
+    "songRequests": "Žiadosti o pieseň",
+    "timers": "Časovače",
     "roles": "Oprávnenia",
     "keywords": "Kľúčové slová",
-    "variables": "Variables",
-    "greetings": "Greetings",
-    "alerts": "Alerts",
+    "variables": "Premenné",
+    "greetings": "Pozdrav",
+    "alerts": "Upozornenia",
     "games": "Hry",
-    "users": "Uživatelia",
+    "users": "Užívatelia",
     "moderation": "Moderovanie"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
-    "publicPage": "Public page"
+    "publicPage": "Verejná stránka"
   },
   "deleteConfirmation": {
-    "text": "Are you sure about deleting this thing?",
+    "text": "Ste si istí, že to chcete odstrániť?",
     "cancel": "Zrušiť",
     "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
-    "title": "403 Forbidden",
-    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
+    "title": "403 Prístup zamietnutý",
+    "description": "Nie ste oprávnení zobraziť túto stránku, požiadajte streamera, aby vám ju poskytol."
   },
   "pageNotFound": {
     "title": "404 Nenájdená",
-    "description": "You know life is always ridiculous."
+    "description": "Viete, život je vždy smiešny."
   },
   "commands": {
     "name": "Príkaz | Príkazy",
@@ -122,25 +122,25 @@
         "allowedUsers": "Users, who can bypass roles restriction for that command."
       },
       "restrictions": {
-        "name": "Restrictions by stats",
-        "watchTime": "Required watch time to use that command.",
-        "messages": "Required message count to use that command.",
-        "channelsPoints": "Required spent channels points to use that command."
+        "name": "Obmedzenia podľa štatistík",
+        "watchTime": "Požadovaný čas sledovania na použitie tohto príkazu.",
+        "messages": "Požadovaný počet správ na použitie tohto príkazu.",
+        "channelsPoints": "Požadované vernostné body kanálov na použitie tohto príkazu."
       },
       "cooldown": {
         "label": "Cooldown",
-        "value": "Cooldown in seconds",
+        "value": "Cooldown v sekundách",
         "type": {
           "name": "Cooldown per",
-          "global": "Global",
+          "global": "Globálne",
           "user": "Individual (per user)"
         }
       },
       "settings": {
-        "divider": "Settings",
+        "divider": "Nastavenia",
         "visible": {
-          "label": "Visibility",
-          "text": "Command visibility on a public commands list page."
+          "label": "Viditeľnosť",
+          "text": "Viditeľnosť príkazov na stránke verejného zoznamu príkazov."
         },
         "keepOrder": {
           "label": "Keep Order",
@@ -163,19 +163,19 @@
   "dashboard": {
     "header": {
       "managingUser": "Managing user",
-      "channelsAccess": "Channels you have access to"
+      "channelsAccess": "Kanály, ku ktorým máš prístup"
     },
     "botManage": {
-      "title": "Bot status",
-      "success": "Enabled and have moderator status",
-      "notEnabledTitle": "Bot is not enabled on channel",
+      "title": "Stav bota",
+      "success": "Povolené a so statusom moderátora",
+      "notEnabledTitle": "Bot nie je povolený na kanáli",
       "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
       "leave": "Zakázať",
       "join": "Povoliť"
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Cannot get Stream Title!",
+        "noTitle": "Nemôžem získať názov streamu!",
         "noCategory": "Cannot get Category!",
         "modalTitle": "Edit Stream Information",
         "title": "Názov streamu",
