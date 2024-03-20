@@ -1,7 +1,7 @@
 import type { MessageChunk } from '@twir/frontend-chat';
 import { DudesSprite } from '@twir/types/overlays';
 import { DudesLayers } from '@twirapp/dudes';
-import type { DudesMethods, Dude } from '@twirapp/dudes/types';
+import type { Dude, DudesMethods } from '@twirapp/dudes/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 

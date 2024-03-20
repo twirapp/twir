@@ -62,6 +62,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			dudesSettingsStore.dudesUserSettings.set(data.userId, {
 				...dudeSettings,
 				...data,
+				dudeColor: data.dudeColor ?? dudeSettings.dudeColor,
 			});
 
 			const spriteData = getSprite(
