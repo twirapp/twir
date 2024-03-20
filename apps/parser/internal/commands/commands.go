@@ -478,7 +478,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				BaseInfo:           &events.BaseInfo{ChannelId: data.BroadcasterUserId},
 				CommandId:          cmd.Cmd.ID,
 				CommandName:        cmd.Cmd.Name,
-				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
 				UserName:           data.ChatterUserLogin,
 				UserDisplayName:    data.ChatterUserName,
 				UserId:             data.ChatterUserId,

@@ -2,6 +2,16 @@ module github.com/satont/twir/apps/parser
 
 go 1.21.5
 
+replace (
+	github.com/satont/twir/libs/config => ../../libs/config
+	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
+	github.com/satont/twir/libs/types => ../../libs/types
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/satont/twir/libs/twitch => ../../libs/twitch
+	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
+	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
+)
+
 require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/getsentry/sentry-go v0.26.0
@@ -79,7 +89,6 @@ require (
 	github.com/refraction-networking/utls v1.6.1 // indirect
 	github.com/robfig/cron/v3 v3.0.1 // indirect
 	github.com/spf13/cast v1.4.1 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
@@ -111,16 +120,3 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304212257-790db918fca8 // indirect
 )
 
-replace github.com/satont/twir/libs/config => ../../libs/config
-
-replace github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-
-replace github.com/satont/twir/libs/types => ../../libs/types
-
-replace github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-
-replace github.com/satont/twir/libs/twitch => ../../libs/twitch
-
-replace github.com/twirapp/twir/libs/integrations => ../../libs/integrations
-
-replace github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core

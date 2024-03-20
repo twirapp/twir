@@ -2,13 +2,11 @@ package channel_game
 
 import (
 	"context"
-	"strings"
-
-	"github.com/samber/lo"
-	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
+	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 
@@ -24,9 +22,24 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
+		}
+
+		if parseCtx.Text == nil || *parseCtx.Text == "" {
+			return result, nil
+		}
+
+		category, err := twitch.SearchCategory(ctx, *parseCtx.Text)
+		if err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "game not found on twitch",
+				Err:     err,
+			}
 		}
 
 		twitchClient, err := twitch.NewUserClientWithContext(
@@ -42,76 +55,24 @@ var SetCommand = &types.DefaultCommand{
 			}
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			return result, nil
-		}
-
-		gameReq, err := twitchClient.GetGames(
-			&helix.GamesParams{
-				Names: []string{*parseCtx.Text},
-			},
-		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get game from twitch",
-				Err:     err,
-			}
-		}
-
-		categoryId := ""
-		categoryName := ""
-
-		if len(gameReq.Data.Games) > 0 {
-			categoryId = gameReq.Data.Games[0].ID
-			categoryName = gameReq.Data.Games[0].Name
-		} else {
-			games, err := twitchClient.SearchCategories(
-				&helix.SearchCategoriesParams{
-					Query: *parseCtx.Text,
-				},
-			)
-			if err != nil {
-				return nil, &types.CommandHandlerError{
-					Message: "cannot get game from twitch",
-					Err:     err,
-				}
-			}
-
-			if len(games.Data.Categories) > 0 {
-				categoryId = games.Data.Categories[0].ID
-				categoryName = games.Data.Categories[0].Name
-
-				for _, category := range games.Data.Categories {
-					if strings.Index(strings.ToLower(category.Name), strings.ToLower(*parseCtx.Text)) == 0 {
-						categoryId = category.ID
-						categoryName = category.Name
-						break
-					}
-				}
-			}
-		}
-
-		if categoryId == "" || categoryName == "" {
-			result.Result = append(result.Result, "❌ game not found on twitch")
-			return result, nil
-		}
-
-		req, err := twitchClient.EditChannelInformation(
+		changeResponse, err := twitchClient.EditChannelInformation(
 			&helix.EditChannelInformationParams{
 				BroadcasterID: parseCtx.Channel.ID,
-				GameID:        categoryId,
+				GameID:        category.ID,
 			},
 		)
 
-		if err != nil || req.StatusCode != 204 {
+		if err != nil || changeResponse.StatusCode != 204 {
 			result.Result = append(
 				result.Result,
-				lo.If(req.ErrorMessage != "", req.ErrorMessage).Else("❌ internal error"),
+				lo.If(changeResponse.ErrorMessage != "", changeResponse.ErrorMessage).Else(
+					"❌ internal error",
+				),
 			)
 			return result, nil
 		}
 
-		result.Result = append(result.Result, "✅ "+categoryName)
+		result.Result = append(result.Result, "✅ "+category.Name)
 		return result, nil
 	},
 }
