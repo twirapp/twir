@@ -76,7 +76,7 @@ func (c *TwirGoApp) Build() error {
 	buildCmd.Dir = c.Path
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr
-	buildCmd.Env = append(os.Environ(), "CGO_ENABLED=0")
+	buildCmd.Env = []string{"CGO_ENABLED=0"}
 
 	if err := buildCmd.Run(); err != nil {
 		return err
