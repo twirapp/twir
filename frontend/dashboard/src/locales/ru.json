@@ -250,7 +250,7 @@
       "connectSteps": {
         "step1": "Перейти к своему {0} профилю",
         "step2": "Нажмите на кнопку \"Add editors\"",
-        "step3": "Добавить {0} как редактор"
+        "step3": "Add {0} as an editor"
       },
       "rewardForAddEmote": "Награда для добавления смайлика",
       "rewardForRemoveEmote": "Награда для удаления смайлика",
