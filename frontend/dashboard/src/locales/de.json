@@ -139,7 +139,7 @@
       "settings": {
         "divider": "Einstellungen",
         "visible": {
-          "label": "Sichtbar",
+          "label": "Sichtbarkeit",
           "text": "Command visibility on a public commands list page."
         },
         "keepOrder": {
@@ -844,7 +844,7 @@
   "feedback": {
     "button": "Feedback senden",
     "notification": "Dein Feedback wurde gesendet",
-    "rateLimited": "Sie senden Nachrichten zu schnell, versuchen es in {time} erneut",
+    "rateLimited": "Sie senden Nachrichten zu schnell, versuchen sie es in {time} erneut",
     "messageLabel": "Nachricht",
     "validation": {
       "emptyMessage": "Die Nachricht darf nicht leer sein"
