@@ -44,8 +44,16 @@ const { sendIframeMessage } = useDudesIframe();
 watch(formValue, (form) => {
 	if (!form) return;
 	if (!form.nameBoxSettings.fill.length) return;
-	sendIframeMessage('settings', form);
+	sendIframeMessage('update-settings', form);
 }, { deep: true });
+
+watch(() => formValue.value.dudeSettings.defaultSprite, (dudeSprite) => {
+	sendIframeMessage('update-sprite', dudeSprite);
+});
+
+watch(() => formValue.value.dudeSettings.color, (dudeColor) => {
+	sendIframeMessage('update-color', dudeColor);
+});
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;

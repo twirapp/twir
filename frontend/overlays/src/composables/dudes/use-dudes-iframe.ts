@@ -1,7 +1,7 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { defineStore } from 'pinia';
 
-import { getSprite, type DudeSprite, dudeMock } from './dudes-config.js';
+import { getSprite, dudeMock } from './dudes-config.js';
 import { useDudesSettings } from './use-dudes-settings.js';
 import { useDudesSocket } from './use-dudes-socket.js';
 import { useDudes } from './use-dudes.js';
@@ -25,42 +25,58 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
 		const dude = dudesStore.dudes.getDude(dudeMock.id);
 
-		if (parsedData.action === 'settings' && parsedData.data && dude) {
-			const settings = parsedData.data as Required<Settings>;
-			dudesSocketStore.updateSettingFromSocket(settings);
-			const spriteData = getSprite(settings.dudeSettings.defaultSprite as DudeSprite);
-			await dude.updateSpriteData(spriteData);
-			dudesStore.updateDudeColors(dude, dudeMock.color);
-			return;
-		}
-
 		if (parsedData.action === 'reset') {
 			dudesStore.dudes.removeAllDudes();
 			spawnIframeDude();
+			return;
 		}
 
-		if (parsedData.action === 'jump' && dude) {
-			dude.jump();
+		if (parsedData.data) {
+			if (parsedData.action === 'update-settings') {
+				const settings = parsedData.data as Required<Settings>;
+				dudesSocketStore.updateSettingFromSocket(settings);
+				return;
+			}
+
+			if (!dude) return;
+
+			if (parsedData.action === 'update-sprite') {
+				const spriteData = getSprite(parsedData.data);
+				await dude.updateSpriteData(spriteData);
+				dudesStore.updateDudeColors(dude);
+				return;
+			}
+
+			if (parsedData.action === 'update-color') {
+				dudesStore.updateDudeColors(dude, parsedData.data);
+				return;
+			}
 		}
 
-		if (parsedData.action === 'grow' && dude) {
-			dude.grow();
-		}
+		if (dude) {
+			if (parsedData.action === 'jump') {
+				dude.jump();
+			}
 
-		if (parsedData.action === 'leave' && dude) {
-			dude.leave();
-		}
+			if (parsedData.action === 'grow') {
+				dude.grow();
+			}
 
-		if (parsedData.action === 'spawn-emote' && dude) {
-			const emote = dudesStore.getProxiedEmoteUrl({
-				type: '3rd_party_emote',
-				value: 'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.gif',
-			});
-			dude.addEmotes([emote]);
-		}
+			if (parsedData.action === 'leave') {
+				dude.leave();
+			}
 
-		if (parsedData.action === 'show-message' && dude) {
-			dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
+			if (parsedData.action === 'spawn-emote') {
+				const emote = dudesStore.getProxiedEmoteUrl({
+					type: '3rd_party_emote',
+					value: 'https://cdn.7tv.app/emote/60b00d1f0d3a78a196f803e3/1x.gif',
+				});
+				dude.addEmotes([emote]);
+			}
+
+			if (parsedData.action === 'show-message') {
+				dude.addMessage(`Hello, ${dudesSettingsStore.channelData!.channelDisplayName}! ${randomEmoji('emoticons')}`);
+			}
 		}
 	}
 
