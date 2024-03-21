@@ -363,7 +363,7 @@
       "pitch": "Pitch",
       "rate": "Rate",
       "users": {
-        "selectAll": "Alles Auswählen",
+        "selectAll": "Alle auswählen",
         "undoSelection": "Undo Selection",
         "empty": "No one have created their own customizations yet..."
       },
