@@ -217,24 +217,24 @@
         "showTitle": "Zobraziť názov streamu?",
         "showCategory": "Zobraziť kategóriu streamu?",
         "showViewers": "Zobraziť počítadlo divákov?",
-        "showPreview": "Show Stream Preview?",
-        "showProfileImage": "Show Twitch Profile Avatar?",
-        "channelsSelect": "Where alerts will be posted?",
-        "streamOnlineLabel": "Stream Alert Message",
-        "streamOnlinePlaceholder": "This message Twir will send when the stream starts.",
-        "streamOfflineLabel": "Stream Ended Message",
-        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
-        "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
-        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
+        "showPreview": "Zobraziť náhľad streamu?",
+        "showProfileImage": "Zobraziť avatar profilu Twitch?",
+        "channelsSelect": "Kde sa budú zverejňovať upozornenia?",
+        "streamOnlineLabel": "Správa o upozornení na stream",
+        "streamOnlinePlaceholder": "Túto správu odošle Twir pri spustení streamu.",
+        "streamOfflineLabel": "Správa o ukončení streamu",
+        "streamOfflinePlaceholder": "Túto správu odošle Twir, keď stream skončí.",
+        "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa uistil, že je synchronizovaná so stavom vášho streamu. (diváci, názov, kategória atď.)",
+        "shouldDeleteMessageOnOffline": "Odstránenie upozorňujúcej správy namiesto jej úpravy, keď je stream vypnutý?",
         "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
       },
       "connectGuild": "+ Connect Server",
       "disconnectGuild": "Disconnect Server",
-      "noGuilds": "No Servers Connected",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "noGuilds": "Žiadne pripojené servery",
+      "cannotSendMessage": "Bot nemá možnosť odosielať správy v tomto kanáli. Pozrite sa na oprávnenia kanála, aby ste to vyriešili."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
     },
     "valorant": {
       "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
