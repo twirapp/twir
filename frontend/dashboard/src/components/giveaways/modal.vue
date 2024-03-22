@@ -109,7 +109,6 @@ const rules: FormRules = {
 
 const participants = useParticipants(formValue.value.id ?? '', '');
 const participantsCount = computed(() => participants.data.value?.totalCount ?? 0);
-console.log(participantsCount.value);
 const isAbleToRoll = computed(
 	() => !formValue.value.isFinished && formValue.value.id,
 );
