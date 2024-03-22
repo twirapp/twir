@@ -168,10 +168,10 @@
     "botManage": {
       "title": "Статус бота",
       "success": "Enabled and have moderator status",
-      "notEnabledTitle": "Bot is not enabled on channel",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
-      "leave": "Disable",
-      "join": "Enable"
+      "notEnabledTitle": "Бот не увімкнений на каналі",
+      "notModerator": "Бот не є модератором на каналі. Будь ласка, скористайтесь {0}. Інакше бот не відповідатиме на команди в чаті та більша частина функціоналу не працюватиме",
+      "leave": "Відключити",
+      "join": "Увімкнути"
     },
     "statsWidgets": {
       "streamInfo": {
@@ -207,7 +207,7 @@
   "integrations": {
     "notLoggedIn": "Ви не авторизовані",
     "songServicesInfo": "Реєстрація через потокові служби, такі як <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, автоматично відправить вашу поточну пісню в чаті, коли використовується команда. <b>!song</b>",
-    "donateServicesInfo": "Providing access to this service allows Twir to listen to incoming donations, and will setup interactions for you in {0}, {1} categories.",
+    "donateServicesInfo": "Підключення цього сервісу дозволить приймати повідомлення про вхідні пожертвування в {0} та {1}.",
     "discord": {
       "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
       "guildPluralization": "No servers | 1 server | {count} servers",
