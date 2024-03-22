@@ -8,11 +8,9 @@ import (
 )
 
 func (c *MessageHandler) handleGiveaways(ctx context.Context, msg handleMessage) error {
-	// TODO: back for production
-	// if msg.DbStream == nil {
-	// 	return nil
-	// }
-	c.logger.Info("handleGiveaways", slog.String("channelId", msg.BroadcasterUserId))
+	if msg.DbStream == nil {
+		return nil
+	}
 
 	go func() {
 		_, err := c.giveawaysGrpc.TryProcessParticipant(
