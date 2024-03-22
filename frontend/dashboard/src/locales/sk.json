@@ -242,8 +242,8 @@
     "sevenTv": {
       "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
-      "connected": "Connected",
-      "notConnected": "Not connected",
+      "connected": "Pripojené",
+      "notConnected": "Nepripojené",
       "notRegistered": "You are not registered at {0}",
       "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
       "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
