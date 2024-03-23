@@ -39,6 +39,7 @@ import { useI18n } from 'vue-i18n';
 import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
 import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
+import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
 
@@ -78,7 +79,9 @@ const formValue = ref<EditableCommand>({
 	groupId: undefined,
 	module: 'CUSTOM',
 	cooldownRolesIds: [],
+	enabledCategories: [],
 });
+
 
 onMounted(() => {
 	if (!props.command) return;
@@ -484,6 +487,10 @@ const createButtonProps = { class: 'create-button' } as any;
 					<n-divider>
 						{{ t('commands.modal.settings.other.divider') }}
 					</n-divider>
+
+					<n-form-item :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
+						<twitch-category-search v-model="formValue.enabledCategories" multiple />
+					</n-form-item>
 
 					<n-form-item :label="t('commands.modal.description.label')" path="description">
 						<n-input
