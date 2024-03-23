@@ -29,6 +29,7 @@ message CreateRequest {
 	uint32 required_messages = 17;
 	uint32 required_used_channel_points = 18;
 	repeated string cooldown_roles_ids = 19;
+	repeated string enabled_categories = 20;
 }
 
 message Command {
@@ -71,6 +72,7 @@ message Command {
 	optional string group_id = 23;
 	optional Group group = 24;
 	repeated string cooldown_roles_ids = 25;
+	repeated string enabled_categories = 26;
 }
 
 message PutRequest {

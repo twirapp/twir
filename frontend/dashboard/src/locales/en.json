@@ -104,6 +104,9 @@
       "aliases": {
         "label": "Aliases"
       },
+			"gameCategories": {
+				"label": "Game Categories(Leave empty for get access in any category)"
+			},
       "description": {
         "label": "Command Description"
       },

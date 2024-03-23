@@ -39,6 +39,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Commands struct {
@@ -370,7 +371,11 @@ func (c *Commands) ParseCommandResponses(
 		response := r
 		go func() {
 			defer wg.Done()
-			result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
+			result.Responses[index] = c.variablesService.ParseVariablesInText(
+				ctx,
+				parseCtx,
+				response,
+			)
 		}()
 	}
 	wg.Wait()
@@ -406,6 +411,30 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 			return nil, err
 		}
 		if stream == nil || stream.ID == "" {
+			return nil, nil
+		}
+	}
+
+	if len(cmd.Cmd.EnabledCategories) != 0 {
+		stream := &model.ChannelsStreams{}
+		err = c.services.Gorm.
+			WithContext(ctx).
+			Where(`"userId" = ?`, data.BroadcasterUserId).
+			First(stream).Error
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, nil
+			}
+
+			return nil, err
+		}
+
+		if !lo.ContainsBy(
+			cmd.Cmd.EnabledCategories,
+			func(category string) bool {
+				return category == stream.GameName
+			},
+		) {
 			return nil, nil
 		}
 	}

@@ -43,7 +43,8 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 		RequiredMessages:          uint32(cmd.RequiredMessages),
 		RequiredUsedChannelPoints: uint32(cmd.RequiredUsedChannelPoints),
 		Responses: lo.Map(
-			cmd.Responses, func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
+			cmd.Responses,
+			func(res *model.ChannelsCommandsResponses, _ int) *commands.Command_Response {
 				return &commands.Command_Response{
 					Id:        res.ID,
 					Text:      res.Text.String,
@@ -63,7 +64,8 @@ func (c *Commands) convertDbToRpc(cmd *model.ChannelsCommands) *commands.Command
 				}
 			},
 		).Else(nil),
-		CooldownRolesIds: cmd.CooldownRolesIDs,
+		CooldownRolesIds:  cmd.CooldownRolesIDs,
+		EnabledCategories: cmd.EnabledCategories,
 	}
 }
 
@@ -157,9 +159,14 @@ func (c *Commands) CommandsCreate(
 		RequiredWatchTime:         int(request.RequiredWatchTime),
 		RequiredMessages:          int(request.RequiredMessages),
 		RequiredUsedChannelPoints: int(request.RequiredUsedChannelPoints),
-		Responses:                 make([]*model.ChannelsCommandsResponses, 0, len(request.Responses)),
-		GroupID:                   null.StringFromPtr(request.GroupId),
-		CooldownRolesIDs:          request.CooldownRolesIds,
+		Responses: make(
+			[]*model.ChannelsCommandsResponses,
+			0,
+			len(request.Responses),
+		),
+		GroupID:           null.StringFromPtr(request.GroupId),
+		CooldownRolesIDs:  request.CooldownRolesIds,
+		EnabledCategories: request.EnabledCategories,
 	}
 
 	for _, res := range request.Responses {
@@ -265,6 +272,11 @@ func (c *Commands) CommandsUpdate(
 			return []string{}
 		},
 	).Else(request.Command.CooldownRolesIds)
+	cmd.EnabledCategories = lo.IfF(
+		request.Command.EnabledCategories == nil, func() []string {
+			return []string{}
+		},
+	).Else(request.Command.EnabledCategories)
 
 	for _, res := range request.Command.Responses {
 		if res.Text == "" {
