@@ -105,7 +105,7 @@
         "label": "Aliases"
       },
 			"gameCategories": {
-				"label": "Game Categories(Leave empty for get access in any category)"
+				"label": "Enable command only in certain categories (leave empty for disable)"
 			},
       "description": {
         "label": "Command Description"

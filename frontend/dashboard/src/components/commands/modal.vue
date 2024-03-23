@@ -41,6 +41,7 @@ import { useI18n } from 'vue-i18n';
 import { useCommandsGroupsManager, useCommandsManager, useRolesManager, useTwitchSearchCategories } from '@/api/index.js';
 import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
+import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
 
@@ -527,20 +528,7 @@ const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 					</n-divider>
 
 					<n-form-item :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
-						<n-select
-							v-model:value="formValue.enabledCategories"
-							multiple
-							filterable
-							placeholder="Search..."
-							:options="categoriesOptions"
-							remote
-							clearable
-							default-value="formValue.enabledCategories"
-							:render-label="renderCategory"
-							:loading="isCategoriesLoading"
-							:render-tag="(t) => t.option.label as string ?? ''"
-							@search="(v) => categoriesSearch = v"
-						/>
+						<twitch-category-search v-model="formValue.enabledCategories" multiple />
 					</n-form-item>
 
 					<n-form-item :label="t('commands.modal.description.label')" path="description">
