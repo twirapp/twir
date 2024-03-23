@@ -7,7 +7,6 @@ import {
 	IconSquare,
 	IconTrash,
 } from '@tabler/icons-vue';
-import { refDebounced } from '@vueuse/core';
 import chunk from 'lodash.chunk';
 import {
 	type FormInst,
@@ -33,12 +32,11 @@ import {
 	NButtonGroup,
 	NTabs,
 	NTabPane,
-SelectOption,
 } from 'naive-ui';
-import { computed, h, onMounted, ref, toRaw, VNodeChild } from 'vue';
+import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsGroupsManager, useCommandsManager, useRolesManager, useTwitchSearchCategories } from '@/api/index.js';
+import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
 import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchCategorySearch from '@/components/twitch-category-search.vue';
@@ -181,43 +179,6 @@ async function save() {
 }
 
 const createButtonProps = { class: 'create-button' } as any;
-
-const categoriesSearch = ref('');
-const categoriesSearchDebounced = refDebounced(categoriesSearch, 500);
-
-const {
-	data: categoriesData,
-	isLoading: isCategoriesLoading,
-} = useTwitchSearchCategories(categoriesSearchDebounced);
-
-const categoriesOptions = computed(() => {
-	return categoriesData.value?.categories.map((c) => ({
-		label: c.name,
-		value: c.name,
-		image: c.image,
-	}));
-});
-
-const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
-	return [h(
-		'div',
-		{
-			style: {
-				display: 'flex',
-				alignItems: 'center',
-				height: '100px',
-				gap: '10px',
-			},
-		},
-		[
-			h('img', {
-				src: o.image?.replace('52x72', '144x192'),
-				style: { height: '80px', width: '60px' },
-			}),
-			h('span', {}, o.label! as string),
-		],
-	)];
-};
 </script>
 
 <template>
