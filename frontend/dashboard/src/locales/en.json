@@ -104,6 +104,9 @@
       "aliases": {
         "label": "Aliases"
       },
+			"gameCategories": {
+				"label": "Enable command only in certain categories (leave empty for disable)"
+			},
       "description": {
         "label": "Command Description"
       },
