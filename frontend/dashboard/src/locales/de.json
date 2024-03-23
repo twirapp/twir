@@ -104,6 +104,9 @@
       "aliases": {
         "label": "Aliase"
       },
+      "gameCategories": {
+        "label": "Enable command only in certain categories (leave empty for disable)"
+      },
       "description": {
         "label": "Befehlsbeschreibung"
       },
@@ -282,20 +285,20 @@
       "banTime": "Banndauer",
       "obs": {
         "warningTitle": "Sie müssen OBS zuerst konfigurieren, bevor Sie fortfahren können!",
-        "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
+        "warningText": "Es scheint, dass Sie Twir nicht mit OBS verbunden haben. Sie können dies auf der Seite \"Overlays\" tun.",
         "scene": "OBS Szene",
-        "source": "OBS Source",
-        "audioSource": "OBS Audio Source"
+        "source": "OBS Quelle",
+        "audioSource": "OBS-Audioquelle"
       },
-      "values": "Values",
-      "triggerAlert": "Trigger Alert"
+      "values": "Werte",
+      "triggerAlert": "Auslöser-Alarm"
     },
     "variables": {
-      "userName": "Event Triggerer Username",
-      "userDisplayName": "Event Triggerer Display Name",
-      "targetUserName": "Event Target Username",
-      "targetDisplayUserName": "Event Target Display Name",
-      "subLevel": "Subscription Levels (such as “1”/“2”/“3”/“prime”)",
+      "userName": "Ereignisauslöser Benutzername",
+      "userDisplayName": "Ereignisauslöser Anzeigename",
+      "targetUserName": "Ereignis Ziel Benutzername",
+      "targetDisplayUserName": "Ereignisziel Anzeigename",
+      "subLevel": "Abo-Stufen (wie \"1\"/\"2\"/\"3\"/\"prime\")",
       "resubMonths": "Abonnent Länge Streak",
       "resubStreak": "Gesamtzahl der Abonnentenmonate",
       "resubMessage": "User Resubscription Message",
