@@ -1,5 +1,5 @@
 {
-  "languageName": "Englisch",
+  "languageName": "Deutsch",
   "sharedButtons": {
     "create": "Erstellen",
     "save": "Speichern",
@@ -537,12 +537,12 @@
       "columns": {
         "title": "Titel",
         "author": "Autor",
-        "added": "Added by",
+        "added": "Hinzugefügt von",
         "duration": "Dauer"
       }
     },
     "settings": {
-      "onlineOnly": "Allow Song Requests when streaming?",
+      "onlineOnly": "Liedanfragen während des Streamens erlauben?",
       "announcePlay": "Announce Current Song into Chat?",
       "playerNoCookieMode": "Incognito mode for player",
       "playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
@@ -630,7 +630,7 @@
     "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
     "validations": {
       "nameRequired": "Variable Name is required!",
-      "nameLong": "Variable Name is too long"
+      "nameLong": "Variablenname ist zu lang"
     }
   },
   "greetings": {
@@ -661,12 +661,12 @@
     "select": {
       "audio": "Confugure an Audio",
       "image": "Configure an Image",
-      "text": "Configure Text"
+      "text": "Text konfigurieren"
     },
     "audioVolume": "Audio Volume ({volume}%)"
   },
   "games": {
-    "command": "Command",
+    "command": "Befehl",
     "8ball": {
       "description": "A simple chat game that allows chatters to ask the magic 8ball something and it will answer to the chatter.",
       "answers": "Answers"
@@ -683,21 +683,21 @@
       "tumberSize": "Revolver Сylinder's Size"
     },
     "duel": {
-      "title": "Duels",
+      "title": "Duelle",
       "description": "A simple chat game between two users allowing to test their dodge skills!",
       "commands": {
-        "title": "Duel Commands",
+        "title": "Duellbefehle",
         "duel": "Ask for a Duel",
-        "accept": "Accept a Duel",
-        "stats": "Statistics"
+        "accept": "Duell akzeptieren",
+        "stats": "Statistiken"
       },
       "cooldown": {
-        "title": "Duel Cooldown",
+        "title": "Duell Abklingzeit",
         "user": "Individual",
         "global": "Global"
       },
       "messages": {
-        "title": "Messages",
+        "title": "Nachrichten",
         "start": {
           "title": "Initial Message",
           "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
@@ -724,16 +724,16 @@
   "community": {
     "users": {
       "table": {
-        "user": "User",
-        "watchedTime": "Watched Time",
+        "user": "Nutzer",
+        "watchedTime": "Zugeschaute Zeit",
         "messages": "Messages",
-        "usedEmotes": "Used Emotes",
-        "usedChannelPoints": "Channel Points Spent"
+        "usedEmotes": "Verwendete Emotes",
+        "usedChannelPoints": "Ausgegebene Kanalpunkte"
       },
       "total": "Total users: {total}",
       "reset": {
-        "button": "Reset",
-        "resetQuestion": "Are you sure you want to reset {title}?"
+        "button": "Zurücksetzen",
+        "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     }
   },
@@ -748,10 +748,10 @@
       "title": "Not Configured",
       "description": "Currently layers of overlays not created"
     },
-    "customWidth": "Width",
-    "customHeight": "Height",
+    "customWidth": "Breite",
+    "customHeight": "Höhe",
     "name": "Overlay Name",
-    "createNewLayer": "Create New Layer",
+    "createNewLayer": "Neue Ebene erstellen",
     "validations": {
       "name": "Overlay Name cannot be empty and longer than 30 symbols!",
       "layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
@@ -774,19 +774,19 @@
     "ban": {
       "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
       "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Ignore Moderators List"
+      "ignoreTimeoutFrom": "Moderatorenliste ignorieren"
     },
     "labels": {
       "followers": "Followers",
       "raids": "Raids",
-      "donations": "Donations",
+      "donations": "Spenden",
       "subscriptions": "Subscriptions",
-      "rewards": "Rewards",
+      "rewards": "Belohnungen",
       "firstUserMessage": "First User Message",
       "streamOnline": "Stream Online",
       "streamOffline": "Stream Offline",
       "chatCleared": "Chat Clear",
-      "userBanned": "User Ban",
+      "userBanned": "Benutzer-Sperren",
       "channelUnbanRequestCreate": "Unban Request Create",
       "channelUnbanRequestResolve": "Unban Request Resolve"
     }
@@ -796,7 +796,7 @@
     "banTime": "Timeout Time",
     "banDescription": "Set to 0 for ban permamently.",
     "banMessage": "Timeout Message",
-    "warningMessage": "Warning Message",
+    "warningMessage": "Warnmeldung",
     "warningMaxCount": "Warning Maximum Count",
     "excludedRoles": "Select roles which won't be impacted by this filter:",
     "types": {
@@ -823,7 +823,7 @@
         "triggerLength": "Maximale Nachrichtenlänge"
       },
       "caps": {
-        "name": "Caps",
+        "name": "Großbuchstaben",
         "description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
         "maxPercentage": "Maximum Capital Letters Percentage",
         "triggerLength": "Minimale Nachrichtenlänge"
