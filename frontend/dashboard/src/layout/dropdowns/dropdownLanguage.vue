@@ -1,13 +1,12 @@
 <script setup lang="ts">
+import { IconWorld } from '@tabler/icons-vue';
 import { useLocalStorage } from '@vueuse/core';
 import { NButton, NDropdown } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-import LanguageFlag, { type Locale } from './languageFlag.vue';
-
 const { t, locale, availableLocales } = useI18n();
 
-const currentLocale = useLocalStorage<Locale>('twirLocale', 'en');
+const currentLocale = useLocalStorage<string>('twirLocale', 'en');
 </script>
 
 <template>
@@ -23,8 +22,11 @@ const currentLocale = useLocalStorage<Locale>('twirLocale', 'en');
 			currentLocale = l
 		}"
 	>
-		<n-button circle quaternary style="padding: 5px; font-size: 25px">
-			<language-flag :locale="currentLocale" />
+		<n-button quaternary style="padding: 5px; font-size: 16px">
+			<div class="flex gap-2 items-center">
+				<IconWorld />
+				{{ currentLocale.toUpperCase() }}
+			</div>
 		</n-button>
 	</n-dropdown>
 </template>
