@@ -133,22 +133,22 @@
         "type": {
           "name": "Abklingzeit pro",
           "global": "Global",
-          "user": "Individual (per user)"
+          "user": "Individuell (pro Benutzer)"
         }
       },
       "settings": {
         "divider": "Einstellungen",
         "visible": {
           "label": "Sichtbarkeit",
-          "text": "Command visibility on a public commands list page."
+          "text": "Sichtbarkeit von Befehlen auf einer öffentlichen Befehlslistenseite."
         },
         "keepOrder": {
-          "label": "Keep Order",
+          "label": "Ordnung halten",
           "text": "Bot will keep this order of responses when sending them into chat."
         },
         "onlineOnly": {
-          "label": "Only When Online",
-          "text": "This command will work only when the stream is online."
+          "label": "Nur wenn online",
+          "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
         },
         "other": {
           "divider": "Sonstiges",
@@ -224,64 +224,64 @@
         "streamOnlinePlaceholder": "Diese Nachricht wird von Twir gesendet, wenn der Stream gestartet wird.",
         "streamOfflineLabel": "Stream End-Nachricht",
         "streamOfflinePlaceholder": "Diese Nachricht wird gesendet, wenn der Stream offline geht.",
-        "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
-        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "updateAlert": "Twir wird die eingebettete Nachricht regelmäßig aktualisieren, um sicherzustellen, dass sie mit Ihrem Stream-Status synchronisiert wird. (Betrachter, Titel, Kategorie, etc.)",
+        "shouldDeleteMessageOnOffline": "Warnmeldung löschen statt bearbeiten, wenn der Stream offline geht?",
+        "additionalUsersIdsForLiveCheck": "Zusätzliche Liste von Twitch-Nutzern, denen Sie folgen können, um Stream-Benachrichtigungen zu senden."
       },
-      "connectGuild": "+ Connect Server",
-      "disconnectGuild": "Disconnect Server",
+      "connectGuild": "+ Verbinde Server",
+      "disconnectGuild": "Server Trennen",
       "noGuilds": "Keine Server verbunden",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "cannotSendMessage": "Der Bot hat keine Möglichkeit, Nachrichten in diesem Kanal zu senden. Prüfen Sie die Kanalberechtigungen, um dieses Problem zu lösen."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Faceit-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+      "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
+      "description": "Wir können 7tv Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
       "connected": "Verbunden",
       "notConnected": "Nicht verbunden",
       "notRegistered": "Sie sind nicht bei {0} registriert",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "errorSameReward": "Du kannst nicht dieselbe Belohnung für das Hinzufügen und Entfernen von Emotes verwenden!",
+      "deleteOnlyAddedByApp": "Nur von Twir hinzugefügte Emotes entfernen",
       "connectSteps": {
-        "step1": "Open your {0} profile",
+        "step1": "Öffne dein {0} Profil",
         "step2": "Klicken Sie auf \"Editoren hinzufügen\" Button",
         "step3": "{0} als Editor hinzufügen"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardForAddEmote": "Belohnung für das Hinzufügen von Emotes",
+      "rewardForRemoveEmote": "Belohnung für das Entfernen von Emotes",
+      "rewardSelectorDescription": "Du solltest Rewards mit Input erstellen. Benutzer müssen den 7tv-Link verwenden, wenn sie die Belohnung aktivieren."
     }
   },
   "events": {
-    "delay": "Delay (in seconds)",
-    "repeat": "Repeat Count",
-    "onlineOnly": "Online-Only Execution",
-    "type": "Type",
+    "delay": "Verzögerung (in Sek.)",
+    "repeat": "Wiederholzahl",
+    "onlineOnly": "Nur Online-Ausführung",
+    "type": "Art",
     "description": "Beschreibung",
-    "targetCommand": "Target Command",
-    "targetVariable": "Target Variable",
-    "targetTwitchReward": "Target Twitch Reward",
-    "targetKeyword": "Target Keyword",
+    "targetCommand": "Ziel-Befehl",
+    "targetVariable": "Ziel-Variable",
+    "targetTwitchReward": "Target Twitch Belohnung",
+    "targetKeyword": "Ziel-Keyword",
     "operations": {
       "divider": "Aktionen",
       "name": "Aktion",
       "inputs": {
-        "message": "Message To Send (supports variables)",
-        "default": "Action Text (supports variables)",
-        "vipSlots": "VIP Slots Amount",
-        "username": "Username (supports variables)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "message": "Zu sendende Nachricht (unterstützt Variablen)",
+        "default": "Aktionstext (unterstützt Variablen)",
+        "vipSlots": "VIP Slots Betrag",
+        "username": "Benutzername (unterstützt Variablen)",
+        "variableValue": "Neuer Variablenwert (unterstützt Variablen)",
+        "variableIncrementDecrement": "Wert inkrementieren/dekrementieren (unterstützt Variablen)"
       },
       "banMessage": "Ban-Nachricht",
-      "banTime": "Ban Time",
+      "banTime": "Banndauer",
       "obs": {
-        "warningTitle": "You need to configure OBS first before proceeding further!",
+        "warningTitle": "Sie müssen OBS zuerst konfigurieren, bevor Sie fortfahren können!",
         "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
         "scene": "OBS Szene",
         "source": "OBS Source",
@@ -296,8 +296,8 @@
       "targetUserName": "Event Target Username",
       "targetDisplayUserName": "Event Target Display Name",
       "subLevel": "Subscription Levels (such as “1”/“2”/“3”/“prime”)",
-      "resubMonths": "Subscriber Length Streak",
-      "resubStreak": "Total Subscriber Months Count",
+      "resubMonths": "Abonnent Länge Streak",
+      "resubStreak": "Gesamtzahl der Abonnentenmonate",
       "resubMessage": "User Resubscription Message",
       "rewardName": "Channel Points Reward Name",
       "rewardCost": "Channel Points Reward Price",
