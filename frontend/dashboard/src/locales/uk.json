@@ -209,7 +209,7 @@
     "songServicesInfo": "Реєстрація через потокові служби, такі як <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, автоматично відправить вашу поточну пісню в чаті, коли використовується команда. <b>!song</b>",
     "donateServicesInfo": "Підключення цього сервісу дозволить приймати повідомлення про вхідні пожертвування в {0} та {1}.",
     "discord": {
-      "description": "Providing access to Discord allows Twir to setup automatic pings and alerts about the stream status on your Discord servers.",
+      "description": "Додавання бота на discord сервер дозволить повідомляти про початок і завершення стриму.",
       "guildPluralization": "No servers | 1 server | {count} servers",
       "connectedGuilds": "{guilds} підключено",
       "alerts": {
