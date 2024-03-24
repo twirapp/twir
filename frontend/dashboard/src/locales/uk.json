@@ -4,7 +4,7 @@
     "create": "Створити",
     "save": "Зберегти",
     "close": "Закрити",
-    "copy": "Копіювати",
+    "copy": "Скопіювати",
     "delete": "Видалити",
     "settings": "Налаштування",
     "login": "Увійти",
@@ -23,17 +23,17 @@
     "errorOnSave": "Помилка при збереженні {error}",
     "enabled": "Увімкнено",
     "status": "Статус",
-    "name": "Ім’я",
+    "name": "Назва",
     "actions": "Дії",
     "responses": "Відповіді",
     "reply": {
-      "label": "Відповідь",
-      "text": "Бот надсилатиме відповіді на команди у відповідь"
+      "label": "Відповісти",
+      "text": "Бот надсилатиме команди відповіді як відповідь"
     },
     "response": "Відповідь",
     "userName": "Ім’я користувача",
-    "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
-    "deleted": "Видалити",
+    "dangerZone": "Небезпечна зона",
+    "deleted": "Видалено",
     "updated": "Оновлено",
     "disabled": "Вимкнено",
     "setDefaultSettings": "Are you sure you want to set default settings?"
@@ -42,7 +42,7 @@
     "dashboard": "Панель керування",
     "commands": {
       "label": "Команди",
-      "custom": "Персональні",
+      "custom": "Користувацькі",
       "builtin": "Вбудовані"
     },
     "integrations": "Інтеграції",
@@ -50,9 +50,9 @@
     "chatAlerts": "Сповіщення чату",
     "overlays": "Оверлеї",
     "overlaysRegistry": "Реєстр оверлеїв",
-    "songRequests": "Замовлення пісень",
+    "songRequests": "Запити на пісні",
     "timers": "Таймери",
-    "roles": "Дозволи",
+    "roles": "Права доступу",
     "keywords": "Ключові слова",
     "variables": "Змінні",
     "greetings": "Привітання",
@@ -71,16 +71,16 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "403 Forbidden",
+    "title": "403 Заборонено",
     "description": "You are not authorized to view this page, ask the broadcaster to provide it."
   },
   "pageNotFound": {
-    "title": "Помилка 404",
+    "title": "404 Не знайдено",
     "description": "You know life is always ridiculous."
   },
   "commands": {
     "name": "Команда | Команди",
-    "searchPlaceholder": "Знайти команду",
+    "searchPlaceholder": "Пошук команди...",
     "newCommandTitle": "Нова команда",
     "groups": {
       "manageButton": "Керування групами",
@@ -89,31 +89,31 @@
     },
     "table": {
       "responses": {
-        "empty": "Відповіді порожні"
+        "empty": "Відповіді порожні!"
       }
     },
     "modal": {
       "name": {
-        "label": "Ім’я",
+        "label": "Назва",
         "validations": {
-          "empty": "Потрібно вказати назву команди",
-          "startsWith": "Назва команди не повинна починатися з !",
-          "len": "Назва команди має бути менше 25-ти символів"
+          "empty": "Потрібно вказати назву команди.",
+          "startsWith": "Назва команди не повинна починатися з '!'.",
+          "len": "Назва команди має бути менше 25-ти символів."
         }
       },
       "aliases": {
         "label": "Псевдоніми"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Увімкнути команду лише в певних категоріях (залиште порожнім для вимкнення)"
       },
       "description": {
         "label": "Опис команди"
       },
       "responses": {
         "validations": {
-          "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповідей, тому ви можете проігнорувати це поле.",
-          "len": "Відповідь має бути менше 500 символів"
+          "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповіді, тому ви можете проігнорувати це поле.",
+          "len": "Відповідь має бути менше аніж 500 символів."
         },
         "defaultWarning": "Відповіді не можуть бути відредаговані у системних командах"
       },
@@ -127,7 +127,7 @@
       "restrictions": {
         "name": "Обмеження за статистикою",
         "watchTime": "Необхідний час перегляду, для використання цієї команди",
-        "messages": "Необхідна к-ть повідомлень для використання цієї команди",
+        "messages": "Необхідна кількість повідомлень, щоб використовувати цю команду.",
         "channelsPoints": "Для використання цієї команди необхідно використати бали каналу"
       },
       "cooldown": {
@@ -136,7 +136,7 @@
         "type": {
           "name": "Час відновлення для",
           "global": "Всіх",
-          "user": "Для кожного юзера (індивідуально)"
+          "user": "Для кожного користувача (індивідуально)"
         }
       },
       "settings": {
@@ -209,7 +209,7 @@
   },
   "integrations": {
     "notLoggedIn": "Ви не авторизовані",
-    "songServicesInfo": "Реєстрація через потокові служби, такі як <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, автоматично відправить вашу поточну пісню в чаті, коли використовується команда. <b>!song</b>",
+    "songServicesInfo": "Надання доступу до цього сервісу дозволяє Twir автоматично отримувати та виводити в чат поточну пісню, що відтворюється, коли використовується команда {0}.",
     "donateServicesInfo": "Підключення цього сервісу дозволить приймати повідомлення про вхідні пожертвування в {0} та {1}.",
     "discord": {
       "description": "Додавання бота на discord сервер дозволить повідомляти про початок і завершення стриму.",
@@ -231,7 +231,7 @@
         "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
         "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
       },
-      "connectGuild": "+ Від'єднати сервер",
+      "connectGuild": "+ Підключити сервер",
       "disconnectGuild": "Від'єднати сервер",
       "noGuilds": "Немає під'єднаних серверів",
       "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
@@ -281,8 +281,8 @@
         "variableValue": "New Variable Value (supports variables)",
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
-      "banMessage": "Повідомлення про бан",
-      "banTime": "Час бану",
+      "banMessage": "Повідомлення про блокування",
+      "banTime": "Час блокування",
       "obs": {
         "warningTitle": "Спочатку вам потрібно налаштувати OBS",
         "warningText": "Схоже, ви не підключили Twir до OBS, будь ласка, зробіть це на сторінці оверлеїв.",
@@ -295,9 +295,9 @@
     },
     "variables": {
       "userName": "Ім’я користувача, який ініціював подію",
-      "userDisplayName": "Відображуване ім’я користувача, який ініціював подію",
+      "userDisplayName": "Ім’я користувача, який ініціював подію",
       "targetUserName": "Обраний користувач",
-      "targetDisplayUserName": "Відображуване ім’я обраного користувача",
+      "targetDisplayUserName": "Відображення ім’я обраного користувача",
       "subLevel": "Рівень підписки, рівний 1/2/3/prime",
       "resubMonths": "Скільки місяців користувач має платну підписку",
       "resubStreak": "Сумарна кількість місяців підписки користувача",
@@ -425,7 +425,7 @@
       "dudeMaxOnScreenUnlimited": "Unlimited",
       "dudeColor": "Default user color",
       "dudeGravity": "Гравітація",
-      "dudeMaxLifeTime": "Максимальний термін життя",
+      "dudeMaxLifeTime": "Максимальний час життя",
       "dudeScale": "Масштаб",
       "dudeSoundsDivider": "Звуки",
       "dudeSoundsVolume": "Гучність",
@@ -617,7 +617,7 @@
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
     "isRegular": "Є регулярним виразом",
-    "regularDescription": "Регулярний вираз має бути написаний для golang!",
+    "regularDescription": "Регулярний вираз має бути записаний у форматі golang! Дивіться {0} тут.",
     "regularDescriptionCheatSheet": "cheat sheet",
     "settings": "Налаштування",
     "cooldown": "Час відновлення (секунди)",
@@ -650,7 +650,7 @@
   "alerts": {
     "title": "Сповіщення",
     "info": "Ви можете створити сповіщення, а потім призначити його команді/події.",
-    "overlayLabel": "Не забудьте вставити оверлей у програмне забезпечення потокового передавання (наприклад, OBS)! ",
+    "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати алерт із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену потокового програмного забезпечення! (наприклад, OBS, XSplit тощо)",
     "name": "Назва",
     "validations": {
       "name": "Назва не може бути порожньою і містити понад 30 символів"
