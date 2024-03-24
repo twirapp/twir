@@ -203,11 +203,9 @@ service Protected {
 	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
 	rpc GetDashboardEventsList(google.protobuf.Empty) returns (messages.dashboard.DashboardEventsList) {}
 
-	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest)
-		returns (messages.twitch_protected.SearchCategoriesResponse
-		) {}
-	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest)
-		returns (google.protobuf.Empty) {}
+	rpc TwitchSearchCategories(messages.twitch_protected.SearchCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
+	rpc TwitchGetCategories(messages.twitch_protected.GetCategoriesRequest) returns (messages.twitch_protected.SearchCategoriesResponse) {}
+	rpc TwitchSetChannelInformation(messages.twitch_protected.SetChannelInformationRequest) returns (google.protobuf.Empty) {}
 
 	rpc FilesGetAll(google.protobuf.Empty) returns (messages.files.GetAllResponse) {}
 	rpc FilesUpload(messages.files.UploadRequest) returns (messages.files.FileMeta) {}
