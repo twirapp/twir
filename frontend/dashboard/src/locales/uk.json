@@ -14,7 +14,7 @@
     "cancel": "Скасувати",
     "confirm": "Підтвердити",
     "saveSettings": "Зберегти налаштування",
-    "setDefaultSettings": "Set Default Settings",
+    "setDefaultSettings": "Встановити параметри за замовчуванням",
     "goToDashboard": "Перейти до панелі управління",
     "add": "Додати"
   },
@@ -36,7 +36,7 @@
     "deleted": "Видалено",
     "updated": "Оновлено",
     "disabled": "Вимкнено",
-    "setDefaultSettings": "Are you sure you want to set default settings?"
+    "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -59,7 +59,7 @@
     "alerts": "Сповіщення",
     "games": "Ігри",
     "users": "Користувачі",
-    "moderation": "Moderation"
+    "moderation": "Модерація"
   },
   "navbar": {
     "logout": "Вийти",
@@ -72,11 +72,11 @@
   },
   "haveNoAccess": {
     "title": "403 Заборонено",
-    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
+    "description": "У Вас недостатньо прав для перегляду цієї сторінки, попросіть стрімера надати права."
   },
   "pageNotFound": {
     "title": "404 Не знайдено",
-    "description": "You know life is always ridiculous."
+    "description": "Знаєте, життя завжди смішне."
   },
   "commands": {
     "name": "Команда | Команди",
@@ -166,11 +166,11 @@
   "dashboard": {
     "header": {
       "managingUser": "Керування користувачами",
-      "channelsAccess": "Channels you have access to"
+      "channelsAccess": "Канали, до яких є доступ"
     },
     "botManage": {
       "title": "Статус бота",
-      "success": "Enabled and have moderator status",
+      "success": "Увімкнено та має статус модератора",
       "notEnabledTitle": "Бот не увімкнений на каналі",
       "notModerator": "Бот не є модератором на каналі. Будь ласка, скористайтесь {0}. Інакше бот не відповідатиме на команди в чаті та більша частина функціоналу не працюватиме",
       "leave": "Відключити",
@@ -225,39 +225,39 @@
         "channelsSelect": "Куди надсилатимуться повідомлення?",
         "streamOnlineLabel": "Повідомлення про початок трансляцію",
         "streamOnlinePlaceholder": "Це повідомлення буде автоматично надіслано ботом, коли трансляцію буде запущено.",
-        "streamOfflineLabel": "Stream Ended Message",
-        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
-        "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
-        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "streamOfflineLabel": "Повідомлення про закінчення трансляції",
+        "streamOfflinePlaceholder": "Це повідомлення Twir буде надсилати коли трансляція буде завершена.",
+        "updateAlert": "Twir буде періодично оновлювати вбудоване повідомлення, щоб переконатися, що воно синхронізовано з вашим станом трансляції. (глядачі, назва, категорії, тощо)",
+        "shouldDeleteMessageOnOffline": "Видалити сповіщення замість редагування тексту, коли трансляція завершується?",
+        "additionalUsersIdsForLiveCheck": "Додатковий список Twitch користувачів, щоб отримувати сповіщення про трансляції."
       },
       "connectGuild": "+ Підключити сервер",
       "disconnectGuild": "Від'єднати сервер",
       "noGuilds": "Немає під'єднаних серверів",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "cannotSendMessage": "Бот не має можливості надсилати повідомлення у цьому каналі. Перевірте права доступу до каналів для вирішення цієї проблеми."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Faceit і налаштує змінні команди, такі як {0}, {1} та інші."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+      "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Valorant і налаштує змінні команди, такі як {0}, {1} та інші. "
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
+      "description": "Ми можемо керувати емодзі 7tv каналів, коли ця інтеграція увімкнена.",
       "alert": "Ви також можете зробити розширений потік через систему {0} для управління 7tv смайлами.",
       "connected": "Під’єднано",
       "notConnected": "Не під’єднано",
       "notRegistered": "Ви не зареєстровані на сайті {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "errorSameReward": "Ви не можете використати таку ж нагороду для додавання і видалення емоцій!",
+      "deleteOnlyAddedByApp": "Видаляти тільки емодзі доданими Twir",
       "connectSteps": {
         "step1": "Відкрийте свій {0} профіль",
         "step2": "Натисніть на кнопку \"Add editors\"",
         "step3": "Додати {0} як редактора"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardForAddEmote": "Нагорода за додавання емодзі",
+      "rewardForRemoveEmote": "Нагорода за видалення емодзі",
+      "rewardSelectorDescription": "Ви повинні створити винагороду з вводом. Користувачі повинні використовувати 7tv посилання для емодзі, коли вони активують нагороду."
     }
   },
   "events": {
@@ -276,10 +276,10 @@
       "inputs": {
         "message": "Повідомлення до надсилання (підтримує змінні)",
         "default": "Текст дії (підтримує змінні)",
-        "vipSlots": "VIP Slots Amount",
-        "username": "Username (supports variables)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "vipSlots": "Кількість VIP-слотів",
+        "username": "Ім'я користувача (підтримує змінні)",
+        "variableValue": "Нове значення змінної (підтримує змінні)",
+        "variableIncrementDecrement": "Збільшує/Зменшує значення (підтримує змінні)"
       },
       "banMessage": "Повідомлення про блокування",
       "banTime": "Час блокування",
@@ -349,7 +349,7 @@
     "noAccess": "Ви не можете копіювати оверлеї інших користувачів",
     "copied": "Посилання скопійовано, вставте його в obs як джерело-браузера",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Оверлей з інформацією про поточну граючу пісню. Цей оверлей буде працювати лише коли ви підключили інтеграцію з сервісом пісень, наприклад, spotify, lastfm."
     },
     "tts": {
       "description": "Відтворюйте аудіо в OBS за допомогою певного набору попередньо налаштованих голосів. Ви можете використовувати цей оверлей за допомогою команд або подій",
