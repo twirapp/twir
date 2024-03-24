@@ -85,7 +85,7 @@ const showDropdown = ref(false);
 		trigger="hover"
 		:options="selectVariables"
 		style="max-width: 100%; max-height: 300px;"
-		:render-label="renderVariableSelectLabel"
+		:render-label="renderVariableSelectLabel as any"
 		scrollable
 		@select="appendOptionToText"
 	>
