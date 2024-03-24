@@ -28,7 +28,7 @@
     "responses": "Ответы",
     "reply": {
       "label": "Ответить",
-      "text": "Бот будет отправлять команду как ответ."
+      "text": "Бот будет отправлять команду как ответ"
     },
     "response": "Ответ",
     "userName": "Имя пользователя",
@@ -188,7 +188,7 @@
       "followers": "Фоловеров",
       "messages": "Сообщений отправлено",
       "subs": "Подписчики",
-      "usedEmotes": "Эмоций отправлено",
+      "usedEmotes": "Смайликов отправлено",
       "viewers": "Зрителей",
       "requestedSongs": "Заказанных песен"
     },
@@ -208,11 +208,11 @@
     }
   },
   "integrations": {
-    "notLoggedIn": "Вы не вошли в систему",
+    "notLoggedIn": "Вы не вошли в систему!",
     "songServicesInfo": "При предоставлении доступа к этому сервису, Twir сможет автоматически получать информацию о треке и при использовании команды {0} в чате будет автоматически выводиться проигрываемая в данный момент песня.",
-    "donateServicesInfo": "Подключение этого сервиса, позволит принимать уведомление о входящем пожертвовании в {0} и {1}.",
+    "donateServicesInfo": "Подключение этого сервиса позволит принимать уведомление о входящем пожертвовании в {0} и {1}.",
     "discord": {
-      "description": "При предоставлении доступа к Discord, Twir сможет позволить Вам настроить автоматическую отправку оповещений о статусе стрима на ваших Discord серверах.",
+      "description": "Добавления бота на discord сервер, позволит уведомлять об начале и завершении стрима.",
       "guildPluralization": "0 серверов | 1 сервер | {count} серверов",
       "connectedGuilds": "Подключено {guilds}",
       "alerts": {
@@ -326,7 +326,7 @@
       "pollWinnerTitle": "Название победившего варианта опроса",
       "pollWinnerBitsVotes": "Голоса битсами победившего варианта опроса",
       "pollWinnerChannelsPointsVotes": "Голоса за баллы канала победившего варианта опроса",
-      "pollWinnerTotalVotes": "Общее количество голосов победившего варианта опроса.",
+      "pollWinnerTotalVotes": "Общее количество голосов победившего варианта опроса",
       "predictionTitle": "Название прогноза",
       "predictionOptionsNames": "Варианты прогноза (разделенные · символом)",
       "predictionTotalChannelPoints": "Общее количество использованных баллов канала в прогнозе",
@@ -354,11 +354,11 @@
     "tts": {
       "description": "Этот оверлей позволяет воспроизводить сообщения чата в виде аудио через OBS с набором предварительно настроенных голосов. Вы можете управлять этим оверлеем с помощью команд или событий.",
       "eventsHint": "Подсказка: вы можете использовать систему событий для запуска TTS при помощи специальных событий.",
-      "allowUsersChooseVoice": "Разрешить пользователям использовать разные голоса в команде !tts?",
+      "allowUsersChooseVoice": "Разрешить пользователям использовать голоса?",
       "doNotReadEmoji": "Не читать эмодзи",
-      "doNotReadTwitchEmotes": "Не читать эмоции Twitch, включая 7TV, FFZ, BTTV",
+      "doNotReadTwitchEmotes": "Не читать смайлики Twitch, включая 7TV, FFZ, BTTV",
       "doNotReadLinks": "Не читать ссылки",
-      "readChatMessages": "Читать все сообщения чата?",
+      "readChatMessages": "Читать все сообщения чата",
       "readChatMessagesNicknames": "Читать имена пользователей?",
       "voice": "Голос",
       "disallowedVoices": "Запрещенные голоса",
@@ -431,7 +431,7 @@
       "dudeSoundsVolume": "Громкость",
       "ignoreDivider": "Игнорировать",
       "ignoreCommands": "Игнорировать команды",
-      "ignoreUsers": "Игнорировать пользователей",
+      "ignoreUsers": "Игнорируемые пользователи",
       "ignoreUsersList": "Список игнорируемых пользователей",
       "nameBoxDivider": "Никнейм",
       "nameBoxFill": "Цвета текста",
@@ -461,9 +461,9 @@
       "messageBoxPadding": "Padding",
       "messageBoxBorderRadius": "Радиус закругления",
       "messageBoxFontSize": "Размер шрифта",
-      "emoteDivider": "Эмодзи",
+      "emoteDivider": "Смайлики",
       "growDivider": "Увеличение",
-      "growTime": "Длительность действия увеличения",
+      "growTime": "Длительность увеличения",
       "growMaxScale": "Max scale"
     },
     "kappagen": {
@@ -630,17 +630,17 @@
   "variables": {
     "title": "Переменные",
     "type": "Тип",
-    "info": "Переменные — это тип контекста, который можно использовать в ответах, командах и других частях бота. Вы можете указать постоянное значение или добавить скрипт для получения некоторых значений, к которым бот обычно не может легко получить доступ. Скриптовые переменные рекомендуются опытным пользователям.",
+    "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
     "validations": {
       "nameRequired": "Название не должно быть пустым!",
-      "nameLong": "Слишком длинное название!"
+      "nameLong": "Слишком длинное название"
     }
   },
   "greetings": {
     "title": "Приветствия",
     "info": {
       "title": "Информация о приветствиях",
-      "text": "Приветствия — это тип сообщений, которые бот использует, чтобы приветствовать новых зрителей трансляции, когда они отправляют свое первое сообщение в чат. Если вы хотите поприветствовать каждого пользователя в чате, вместо «Приветствий» вы можете просмотреть категорию «События»."
+      "text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
     },
     "validations": {
       "userName": "Имя пользователя не должно быть пустым!",
@@ -650,7 +650,7 @@
   "alerts": {
     "title": "Оповещения",
     "info": "Информация по оповещениям",
-    "overlayLabel": "Оповещения — это графическая часть реализации команды или события. Вы можете настроить оповещение с указанным звуком, изображением и текстом, а затем привязать его к определенной команде, событию, ключевому слову или приветствию. Также не забудьте вставить URL-адрес оверлея в качестве источника браузера в сцену вашего программного обеспечения для потоковой трансляции! (например, OBS, XSplit и так далее)",
+    "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
     "name": "Название",
     "validations": {
       "name": "Имя не может быть пустым или содержать более 30 символов!"
@@ -757,21 +757,21 @@
     "createNewLayer": "Создать новый слой",
     "validations": {
       "name": "Имя не может быть пустым или длиннее чем 30 символов!",
-      "layers": "Слои не могут быть пустыми! Этот оверлей не может иметь более 15 слоев!"
+      "layers": "Слои не могут быть пустыми! Этот оверлей не может иметь более 15 слоев."
     },
     "html": {
-      "description": "Позволяет использовать пользовательский HTML, CSS и переменные бота",
-      "updateInterval": "Интервал, с которым будут обновляться переменные HTML",
+      "description": "Позволяет использовать пользовательский HTML, CSS и переменные бота.",
+      "updateInterval": "Интервал, с которым будет обновляться HTML",
       "variablesAlert": {
         "title": "Вы можете использовать переменные бота в HTML. Нажмите на список ниже, чтобы отобразить доступные параметры.",
-        "selectToCopy": "Выберите переменную, чтобы скопировать ее в буфер обмена!"
+        "selectToCopy": "Выберите переменную, чтобы скопировать ее в буфер обмена."
       },
       "periodicallyRefetchData": "Периодически получать и обновлять HTML-данные с сервера?"
     }
   },
   "chatAlerts": {
-    "randomedMessage": "Сообщение будет случайным<br>",
-    "randomMessageWithCount": "Сообщение будет случайным при одинаковом счётчике<br>",
+    "randomedMessage": "Если существует несколько вариантов оповещений, то они будут выбраны случайным образом.<br>",
+    "randomMessageWithCount": "Если будет несколько вариантов с одинаковым числом, то они будут выбраны случайным образом.<br>",
     "replacedInfo": "Доступные переменные: {vars}. Они будут заменены актуальной информацией в оповещении.<br>",
     "cooldown": "Перезарядка между сообщениями (в секундах)",
     "ban": {
@@ -797,11 +797,11 @@
   "moderation": {
     "createNewRule": "Создать новое правило модерации",
     "banTime": "Время отстранения",
-    "banDescription": "Установите значение 0 для перманентного бана",
+    "banDescription": "Установите значение 0 для перманентного бана.",
     "banMessage": "Сообщение и причина отстранения",
     "warningMessage": "Сообщение для предупреждения",
     "warningMaxCount": "Количество предупреждений до отстранения пользователя",
-    "excludedRoles": "Выберите роли, которые не будут затронуты данным фильтром",
+    "excludedRoles": "Выберите роли, которые не будут затронуты данным фильтром:",
     "types": {
       "links": {
         "name": "Ссылки",
@@ -810,8 +810,8 @@
       "deny_list": {
         "name": "Список запрещённых слов",
         "description": "Помогает поддерживать чистоту чата, отфильтровывая слова и фразы, указанные в предопределенном списке, предотвращая их отправку.",
-        "empty": "Список запрещенных слов пуст, добавьте хотя бы одно",
-        "regexp": "Если вы опытный пользователь, список запрещенных слов также поддерживает регулярные выражения. Регулярное выражение должно быть написано в формате golang! См. {0} здесь.",
+        "empty": "Список запрещенных слов пуст, добавьте хотя бы одно.",
+        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
         "regexpCheatSheet": "шпаргалку"
       },
       "symbols": {
