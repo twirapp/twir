@@ -104,6 +104,9 @@
       "aliases": {
         "label": "Псевдоніми"
       },
+      "gameCategories": {
+        "label": "Enable command only in certain categories (leave empty for disable)"
+      },
       "description": {
         "label": "Опис команди"
       },

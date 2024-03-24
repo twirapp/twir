@@ -104,6 +104,9 @@
       "aliases": {
         "label": "Aliasy"
       },
+      "gameCategories": {
+        "label": "Enable command only in certain categories (leave empty for disable)"
+      },
       "description": {
         "label": "Popis príkazu"
       },
@@ -143,11 +146,11 @@
           "text": "Viditeľnosť príkazov na stránke verejného zoznamu príkazov."
         },
         "keepOrder": {
-          "label": "Keep Order",
+          "label": "Zachovať poradie",
           "text": "Bot zachová toto poradie odpovedí pri ich odosielaní do chatu."
         },
         "onlineOnly": {
-          "label": "Only When Online",
+          "label": "Len ak online",
           "text": "Tento príkaz bude fungovať len vtedy, keď je stream online."
         },
         "other": {
@@ -162,7 +165,7 @@
   },
   "dashboard": {
     "header": {
-      "managingUser": "Managing user",
+      "managingUser": "Spravujúci užívateľ",
       "channelsAccess": "Kanály, ku ktorým máš prístup"
     },
     "botManage": {
@@ -226,10 +229,10 @@
         "streamOfflinePlaceholder": "Túto správu odošle Twir, keď stream skončí.",
         "updateAlert": "Twir bude pravidelne aktualizovať vloženú správu, aby sa uistil, že je synchronizovaná so stavom vášho streamu. (diváci, názov, kategória atď.)",
         "shouldDeleteMessageOnOffline": "Odstránenie upozorňujúcej správy namiesto jej úpravy, keď je stream vypnutý?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "additionalUsersIdsForLiveCheck": "Ďalší zoznam používateľov služby Twitch, ktorých môžete sledovať na odosielanie upozornení na stream."
       },
-      "connectGuild": "+ Connect Server",
-      "disconnectGuild": "Disconnect Server",
+      "connectGuild": "+ Pripojiť server",
+      "disconnectGuild": "Odpojiť server",
       "noGuilds": "Žiadne pripojené servery",
       "cannotSendMessage": "Bot nemá možnosť odosielať správy v tomto kanáli. Pozrite sa na oprávnenia kanála, aby ste to vyriešili."
     },
@@ -244,37 +247,37 @@
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
-      "notRegistered": "You are not registered at {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "notRegistered": "Nie ste registrovaný na {0}",
+      "errorSameReward": "Nemôžete použiť rovnakú odmenu za pridanie a odstránenie emotov!",
+      "deleteOnlyAddedByApp": "Vymazať emotikony pridané Twirom",
       "connectSteps": {
-        "step1": "Open your {0} profile",
-        "step2": "Click on \"Add editors\" button",
-        "step3": "Add {0} as an editor"
+        "step1": "Otvorte svoj profil {0}",
+        "step2": "Kliknite na tlačidlo \"Pridať editorov\"",
+        "step3": "Pridať {0} ako editora"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardForAddEmote": "Odmena za pridanie emotu",
+      "rewardForRemoveEmote": "Odmena za odstránenie emotu",
+      "rewardSelectorDescription": "Mali by ste vytvárať odmeny so vstupom. Užívatelia musia pri aktivácii odmeny použiť odkaz 7tv."
     }
   },
   "events": {
-    "delay": "Delay (in seconds)",
-    "repeat": "Repeat Count",
+    "delay": "Oneskorenie (v sekundách)",
+    "repeat": "Počet opakovaní",
     "onlineOnly": "Online-Only Execution",
-    "type": "Type",
-    "description": "Description",
-    "targetCommand": "Target Command",
-    "targetVariable": "Target Variable",
+    "type": "Typ",
+    "description": "Popis",
+    "targetCommand": "Cieľový príkaz",
+    "targetVariable": "Cieľová premenná",
     "targetTwitchReward": "Target Twitch Reward",
-    "targetKeyword": "Target Keyword",
+    "targetKeyword": "Cielené kľúčové slovo",
     "operations": {
-      "divider": "Actions",
-      "name": "Action",
+      "divider": "Akcie",
+      "name": "Činnosť",
       "inputs": {
-        "message": "Message To Send (supports variables)",
-        "default": "Action Text (supports variables)",
-        "vipSlots": "VIP Slots Amount",
-        "username": "Username (supports variables)",
+        "message": "Správa na odoslanie (podporuje premenné)",
+        "default": "Text činnosti (podporuje premenné)",
+        "vipSlots": "Množstvo VIP slotov",
+        "username": "Používateľské meno (podporuje premenné)",
         "variableValue": "New Variable Value (supports variables)",
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
@@ -435,7 +438,7 @@
       "nameBoxFillError": "Color is required",
       "nameBoxFillGradientStops": "Text colors of gradient stops",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
-      "nameBoxGradientType": "Gradient type",
+      "nameBoxGradientType": "Typ prechodu",
       "nameBoxFontFamily": "Font family",
       "nameBoxFontSize": "Font size",
       "nameBoxFontWeight": "Font weight",
@@ -581,7 +584,7 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (in minutes)",
+        "intervalInMinutes": "Interval (v minútach)",
         "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
       }
     },
@@ -626,7 +629,7 @@
   },
   "variables": {
     "title": "Variables",
-    "type": "Type",
+    "type": "Typ",
     "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
     "validations": {
       "nameRequired": "Variable Name is required!",
@@ -650,7 +653,7 @@
     "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
     "name": "Name",
     "validations": {
-      "name": "Name cannot be empty or longer than 30 symbols!"
+      "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
     "trigger": {
       "commands": "Command Trigger",
@@ -753,7 +756,7 @@
     "name": "Overlay Name",
     "createNewLayer": "Create New Layer",
     "validations": {
-      "name": "Overlay Name cannot be empty and longer than 30 symbols!",
+      "name": "Názov prekrytia nemôže byť prázdny a dlhší ako 30 znakov!",
       "layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
     },
     "html": {
@@ -792,7 +795,7 @@
     }
   },
   "moderation": {
-    "createNewRule": "Create a New Moderation Rule",
+    "createNewRule": "Vytvorenie nového pravidla moderácie",
     "banTime": "Timeout Time",
     "banDescription": "Set to 0 for ban permamently.",
     "banMessage": "Timeout Message",
@@ -801,43 +804,43 @@
     "excludedRoles": "Select roles which won't be impacted by this filter:",
     "types": {
       "links": {
-        "name": "Links",
+        "name": "Odkazy",
         "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
       },
       "deny_list": {
-        "name": "Disallowed Words List",
+        "name": "Zoznam zakázaných slov",
         "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
         "empty": "List of disallowed words is empty! You can add one there.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
         "regexpCheatSheet": "cheat sheet"
       },
       "symbols": {
-        "name": "Symbols",
-        "description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
-        "triggerLength": "Minimal Message Length",
-        "maxPercentage": "Maximum Symbols Percentage"
+        "name": "Symboly",
+        "description": "Identifikuje a obmedzuje nadmerné používanie symbolov, čím zabraňuje neprehľadnosti, chaosu a zachováva čitateľnosť v chate.",
+        "triggerLength": "Minimálna dĺžka správy",
+        "maxPercentage": "Maximálny percentuálny podiel symbolov"
       },
       "long_message": {
-        "name": "Message Length",
-        "description": "Identifies and restricts long messages by limiting the length of messages sent into chat.",
-        "triggerLength": "Maximum Message Length"
+        "name": "Dĺžka správy",
+        "description": "Identifikuje a obmedzuje dlhé správy obmedzením dĺžky správ odosielaných do chatu.",
+        "triggerLength": "Maximálna dĺžka správy"
       },
       "caps": {
-        "name": "Caps",
-        "description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-        "maxPercentage": "Maximum Capital Letters Percentage",
+        "name": "Veľké písmená",
+        "description": "Identifikuje a obmedzuje nadmerné používanie veľkých písmen, čím podporuje vyváženejšiu a úctivejšiu konverzáciu v chate.",
+        "maxPercentage": "Maximálny percentuálny podiel veľkých písmen",
         "triggerLength": "Minimal Message Length"
       },
       "emotes": {
-        "name": "Emotes",
-        "description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-        "triggerLength": "Maximum Emote Usage Limit"
+        "name": "Emoty",
+        "description": "Zisťuje frekvenciu a množstvo emotikonov používaných v správach a zabraňuje ich nadmernému používaniu a spamu.",
+        "triggerLength": "Maximálny limit používania emotov"
       },
       "language": {
-        "name": "Language",
-        "description": "Scans and filters out inappropriate languages.",
-        "allowedLanguages": "Allowed Languages List",
-        "disallowedLanguages": "Disallowed Languages List"
+        "name": "Jazyk",
+        "description": "Skontroluje a odfiltruje nevhodné jazyky.",
+        "allowedLanguages": "Zoznam povolených jazykov",
+        "disallowedLanguages": "Zoznam nepovolených jazykov"
       }
     }
   },
