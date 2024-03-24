@@ -1,5 +1,5 @@
 {
-  "languageName": "Slovenská",
+  "languageName": "Slovenčina",
   "sharedButtons": {
     "create": "Vytvoriť",
     "save": "Uložiť",
@@ -134,7 +134,7 @@
         "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Cooldown za",
+          "name": "Vychladnutie za",
           "global": "Globálne",
           "user": "Individuálne (na používateľa)"
         }
@@ -187,8 +187,8 @@
       "uptime": "Uptime",
       "followers": "Sledovatelia",
       "messages": "Správy",
-      "subs": "Odberatelia",
-      "usedEmotes": "Odoslané emotikony",
+      "subs": "Predplatitelia",
+      "usedEmotes": "Emotes Sent",
       "viewers": "Diváci",
       "requestedSongs": "Vyžiadané piesne"
     },
