@@ -1,5 +1,5 @@
 {
-  "languageName": "Deutsch",
+  "languageName": "Englisch",
   "sharedButtons": {
     "create": "Erstellen",
     "save": "Speichern",
@@ -128,7 +128,7 @@
         "name": "Einschränkungen nach Statistiken",
         "watchTime": "Benötigte Beobachtungszeit um diesen Befehl zu verwenden.",
         "messages": "Benötigte Nachrichtenanzahl, um diesen Befehl zu verwenden.",
-        "channelsPoints": "Required spent channels points to use that command."
+        "channelsPoints": "Benötigte Anzahl an ausgegebenen Kanalpunkten, um diesen Befehl zu verwenden."
       },
       "cooldown": {
         "label": "Abklingzeit",
@@ -571,7 +571,7 @@
     },
     "tabs": {
       "general": "Allgemein",
-      "users": "Users",
+      "users": "Benutzer",
       "songs": "Songs"
     },
     "ban": {
@@ -606,7 +606,7 @@
       "requiredWatchTime": "Required Watch Time",
       "requiredMessages": "Required Messages Amount",
       "requiredChannelPoints": "Required Channel Points Spent",
-      "permissions": "Permissions"
+      "permissions": "Berechtigungen"
     },
     "validations": {
       "nameRequired": "Name is required!"
