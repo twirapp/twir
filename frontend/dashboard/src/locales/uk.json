@@ -4,7 +4,7 @@
     "create": "Створити",
     "save": "Зберегти",
     "close": "Закрити",
-    "copy": "Копіювати",
+    "copy": "Скопіювати",
     "delete": "Видалити",
     "settings": "Налаштування",
     "login": "Увійти",
@@ -14,7 +14,7 @@
     "cancel": "Скасувати",
     "confirm": "Підтвердити",
     "saveSettings": "Зберегти налаштування",
-    "setDefaultSettings": "Set Default Settings",
+    "setDefaultSettings": "Встановити стандартні параметри",
     "goToDashboard": "Перейти до панелі управління",
     "add": "Додати"
   },
@@ -23,20 +23,20 @@
     "errorOnSave": "Помилка при збереженні {error}",
     "enabled": "Увімкнено",
     "status": "Статус",
-    "name": "Ім’я",
+    "name": "Назва",
     "actions": "Дії",
     "responses": "Відповіді",
     "reply": {
-      "label": "Відповідь",
-      "text": "Бот надсилатиме відповіді на команди у відповідь"
+      "label": "Відповісти",
+      "text": "Бот надсилатиме команди відповіді як відповідь"
     },
     "response": "Відповідь",
     "userName": "Ім’я користувача",
-    "dangerZone": "НЕБЕЗПЕЧНА ЗОНА",
-    "deleted": "Видалити",
+    "dangerZone": "Небезпечна зона",
+    "deleted": "Видалено",
     "updated": "Оновлено",
     "disabled": "Вимкнено",
-    "setDefaultSettings": "Are you sure you want to set default settings?"
+    "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -50,16 +50,16 @@
     "chatAlerts": "Сповіщення чату",
     "overlays": "Оверлеї",
     "overlaysRegistry": "Реєстр оверлеїв",
-    "songRequests": "Замовлення пісень",
+    "songRequests": "Запити на пісні",
     "timers": "Таймери",
-    "roles": "Дозволи",
+    "roles": "Права доступу",
     "keywords": "Ключові слова",
     "variables": "Змінні",
     "greetings": "Привітання",
     "alerts": "Сповіщення",
     "games": "Ігри",
     "users": "Користувачі",
-    "moderation": "Moderation"
+    "moderation": "Модерація"
   },
   "navbar": {
     "logout": "Вийти",
@@ -71,16 +71,16 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "403 Forbidden",
-    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
+    "title": "403 Заборонено",
+    "description": "У Вас недостатньо прав для перегляду цієї сторінки, попросіть стрімера надати права."
   },
   "pageNotFound": {
-    "title": "Помилка 404",
-    "description": "You know life is always ridiculous."
+    "title": "404 Не знайдено",
+    "description": "Знаєте, життя завжди смішне."
   },
   "commands": {
     "name": "Команда | Команди",
-    "searchPlaceholder": "Знайти команду",
+    "searchPlaceholder": "Пошук команди...",
     "newCommandTitle": "Нова команда",
     "groups": {
       "manageButton": "Керування групами",
@@ -89,46 +89,46 @@
     },
     "table": {
       "responses": {
-        "empty": "Відповіді порожні"
+        "empty": "Відповіді порожні!"
       }
     },
     "modal": {
       "name": {
-        "label": "Ім’я",
+        "label": "Назва",
         "validations": {
-          "empty": "Потрібно вказати назву команди",
-          "startsWith": "Назва команди не повинна починатися з !",
-          "len": "Назва команди має бути менше 25-ти символів"
+          "empty": "Потрібно вказати назву команди.",
+          "startsWith": "Назва команди не повинна починатися з '!'.",
+          "len": "Назва команди має бути менше 25-ти символів."
         }
       },
       "aliases": {
         "label": "Псевдоніми"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Увімкнути команду лише в певних категоріях (залиште порожнім для вимкнення)"
       },
       "description": {
         "label": "Опис команди"
       },
       "responses": {
         "validations": {
-          "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповідей, тому ви можете проігнорувати це поле.",
-          "len": "Відповідь має бути менше 500 символів"
+          "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповіді, тому ви можете проігнорувати це поле.",
+          "len": "Відповідь має бути менше аніж 500 символів."
         },
-        "defaultWarning": "Відповіді не можуть бути відредаговані у системних командах"
+        "defaultWarning": "Відповіді не можуть бути відредаговані у системних командах."
       },
       "permissions": {
         "divider": "Дозволи",
         "name": "Ролі",
-        "placeholder": "Виберіть ролі, які матимуть дозволи на використання команд",
-        "deniedUsers": "Користувачі, які не можуть використовувати цю команду",
-        "allowedUsers": "Користувачі, які можуть обійти обмеження ролей для цієї команди"
+        "placeholder": "Оберіть ролі, які матимуть дозволи на використання команд",
+        "deniedUsers": "Користувачі, які не можуть використовувати цю команду.",
+        "allowedUsers": "Користувачі, які можуть обійти обмеження ролей для цієї команди."
       },
       "restrictions": {
         "name": "Обмеження за статистикою",
-        "watchTime": "Необхідний час перегляду, для використання цієї команди",
-        "messages": "Необхідна к-ть повідомлень для використання цієї команди",
-        "channelsPoints": "Для використання цієї команди необхідно використати бали каналу"
+        "watchTime": "Необхідний час перегляду, для використання цієї команди.",
+        "messages": "Необхідна кількість повідомлень, щоб використовувати цю команду.",
+        "channelsPoints": "Для використання цієї команди необхідно використати бали каналу."
       },
       "cooldown": {
         "label": "Час відновлення",
@@ -136,22 +136,22 @@
         "type": {
           "name": "Час відновлення для",
           "global": "Всіх",
-          "user": "Для кожного юзера (індивідуально)"
+          "user": "Для кожного користувача (індивідуально)"
         }
       },
       "settings": {
         "divider": "Налаштування",
         "visible": {
           "label": "Видимість",
-          "text": "Видимість команд на публічній сторінці, у змінній списку команд."
+          "text": "Видимість команд на сторінці публічного списку команд."
         },
         "keepOrder": {
           "label": "Зберігання порядку відповідей",
-          "text": "Бот зберігатиме ваш порядок відповідей, коли вони надіслані в чаті"
+          "text": "Бот зберігатиме ваш порядок відповідей, коли вони надіслані в чаті."
         },
         "onlineOnly": {
-          "label": "Тільки онлайн",
-          "text": "Команда працюватиме лише коли трансляція онлайн"
+          "label": "Тільки під час трансляції",
+          "text": "Команда працюватиме лише коли трансляція онлайн."
         },
         "other": {
           "divider": "Інші",
@@ -159,18 +159,18 @@
         }
       },
       "alert": {
-        "label": "Виберіть сповіщення, яке буде активовано під час використання команди"
+        "label": "Оберіть сповіщення, яке буде активовано під час використання команди."
       }
     }
   },
   "dashboard": {
     "header": {
-      "managingUser": "Керування користувачами",
-      "channelsAccess": "Channels you have access to"
+      "managingUser": "Керування",
+      "channelsAccess": "Канали, до яких є доступ"
     },
     "botManage": {
       "title": "Статус бота",
-      "success": "Enabled and have moderator status",
+      "success": "Увімкнено та має статус модератора",
       "notEnabledTitle": "Бот не увімкнений на каналі",
       "notModerator": "Бот не є модератором на каналі. Будь ласка, скористайтесь {0}. Інакше бот не відповідатиме на команди в чаті та більша частина функціоналу не працюватиме",
       "leave": "Відключити",
@@ -178,17 +178,17 @@
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Неможливо отримати назву",
-        "noCategory": "Неможливо отримати категорію",
-        "modalTitle": "Редагувати інформацію про потік",
+        "noTitle": "Неможливо отримати назву!",
+        "noCategory": "Неможливо отримати категорію!",
+        "modalTitle": "Редагувати інформацію про трансляцію",
         "title": "Назва трансляції",
         "category": "Категорія"
       },
       "uptime": "Час трансляції",
       "followers": "Фоловери",
       "messages": "Повідомлення",
-      "subs": "Платних підписників",
-      "usedEmotes": "Використано емоцій",
+      "subs": "Підписники",
+      "usedEmotes": "Використано емодзі",
       "viewers": "Глядачі",
       "requestedSongs": "Замовлено пісень"
     },
@@ -208,8 +208,8 @@
     }
   },
   "integrations": {
-    "notLoggedIn": "Ви не авторизовані",
-    "songServicesInfo": "Реєстрація через потокові служби, такі як <i>last.fm</i>, <i>spotify</i>, <i>vk</i>, автоматично відправить вашу поточну пісню в чаті, коли використовується команда. <b>!song</b>",
+    "notLoggedIn": "Ви не авторизовані!",
+    "songServicesInfo": "Надання доступу до цього сервісу дозволяє Twir автоматично отримувати та виводити в чат поточну пісню, що відтворюється, коли використовується команда {0}.",
     "donateServicesInfo": "Підключення цього сервісу дозволить приймати повідомлення про вхідні пожертвування в {0} та {1}.",
     "discord": {
       "description": "Додавання бота на discord сервер дозволить повідомляти про початок і завершення стриму.",
@@ -225,39 +225,39 @@
         "channelsSelect": "Куди надсилатимуться повідомлення?",
         "streamOnlineLabel": "Повідомлення про початок трансляцію",
         "streamOnlinePlaceholder": "Це повідомлення буде автоматично надіслано ботом, коли трансляцію буде запущено.",
-        "streamOfflineLabel": "Stream Ended Message",
-        "streamOfflinePlaceholder": "This message Twir will send when the stream goes offline.",
-        "updateAlert": "Twir will update embed message periodically to make sure it is synced with your stream state. (viewers, title, category, etc.)",
-        "shouldDeleteMessageOnOffline": "Delete alert message instead of editing it when stream goes offline?",
-        "additionalUsersIdsForLiveCheck": "Additional list of Twitch users to follow to send stream alerts."
+        "streamOfflineLabel": "Повідомлення про закінчення трансляції",
+        "streamOfflinePlaceholder": "Це повідомлення Twir буде надсилати коли трансляція буде завершена.",
+        "updateAlert": "Twir буде періодично оновлювати вбудоване повідомлення, щоб переконатися, що воно синхронізовано з вашим станом трансляції. (глядачі, назва, категорії, тощо)",
+        "shouldDeleteMessageOnOffline": "Видалити сповіщення замість редагування тексту, коли трансляція завершується?",
+        "additionalUsersIdsForLiveCheck": "Додатковий список Twitch користувачів, щоб отримувати сповіщення про трансляції."
       },
-      "connectGuild": "+ Від'єднати сервер",
+      "connectGuild": "+ Підключити сервер",
       "disconnectGuild": "Від'єднати сервер",
       "noGuilds": "Немає під'єднаних серверів",
-      "cannotSendMessage": "Bot has no ability to send messages in that channel. Check out channel permissions to solve this."
+      "cannotSendMessage": "Бот не має можливості надсилати повідомлення у цьому каналі. Перевірте права доступу до каналів для вирішення цієї проблеми."
     },
     "faceit": {
-      "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
+      "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Faceit і налаштує змінні команди, такі як {0}, {1} та інші."
     },
     "valorant": {
-      "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
+      "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Valorant і налаштує змінні команди, такі як {0}, {1} та інші. "
     },
     "sevenTv": {
-      "description": "We can manage 7tv channel emotes, when this integration is enabled.",
+      "description": "Ми можемо керувати емодзі 7tv каналів, коли ця інтеграція увімкнена.",
       "alert": "Ви також можете зробити розширений потік через систему {0} для управління 7tv смайлами.",
       "connected": "Під’єднано",
       "notConnected": "Не під’єднано",
-      "notRegistered": "Ви не зареєстровані на сайті {0}",
-      "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
-      "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
+      "notRegistered": "Ви не зареєстровані на {0}",
+      "errorSameReward": "Ви не можете використати таку ж нагороду для додавання і видалення емодзі!",
+      "deleteOnlyAddedByApp": "Видаляти тільки емодзі доданими Twir",
       "connectSteps": {
         "step1": "Відкрийте свій {0} профіль",
         "step2": "Натисніть на кнопку \"Add editors\"",
         "step3": "Додати {0} як редактора"
       },
-      "rewardForAddEmote": "Reward for adding emote",
-      "rewardForRemoveEmote": "Reward for removing emote",
-      "rewardSelectorDescription": "You should create reward with input. Users must use 7tv link to emote when they're activating reward."
+      "rewardForAddEmote": "Нагорода за додавання емодзі",
+      "rewardForRemoveEmote": "Нагорода за видалення емодзі",
+      "rewardSelectorDescription": "Ви повинні створити винагороду з вводом. Користувачі повинні використовувати 7tv посилання для емодзі, коли вони активують нагороду."
     }
   },
   "events": {
@@ -266,25 +266,25 @@
     "onlineOnly": "Виконувати тільки коли трансляція онлайн",
     "type": "Тип",
     "description": "Опис",
-    "targetCommand": "Виберіть команду",
-    "targetVariable": "Виберіть змінну",
-    "targetTwitchReward": "Виберіть винагороду каналу",
-    "targetKeyword": "Виберіть ключове слово",
+    "targetCommand": "Оберіть команду",
+    "targetVariable": "Оберіть змінну",
+    "targetTwitchReward": "Оберіть винагороду каналу",
+    "targetKeyword": "Оберіть ключове слово",
     "operations": {
       "divider": "Операції",
       "name": "Операція",
       "inputs": {
         "message": "Повідомлення до надсилання (підтримує змінні)",
         "default": "Текст дії (підтримує змінні)",
-        "vipSlots": "VIP Slots Amount",
-        "username": "Username (supports variables)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "vipSlots": "Кількість VIP-слотів",
+        "username": "Ім'я користувача (підтримує змінні)",
+        "variableValue": "Нове значення змінної (підтримує змінні)",
+        "variableIncrementDecrement": "Збільшує/Зменшує значення (підтримує змінні)"
       },
-      "banMessage": "Повідомлення про бан",
-      "banTime": "Час бану",
+      "banMessage": "Повідомлення про блокування",
+      "banTime": "Час блокування",
       "obs": {
-        "warningTitle": "Спочатку вам потрібно налаштувати OBS",
+        "warningTitle": "Спочатку вам потрібно налаштувати OBS!",
         "warningText": "Схоже, ви не підключили Twir до OBS, будь ласка, зробіть це на сторінці оверлеїв.",
         "scene": "Сцена OBS",
         "source": "Джерело OBS",
@@ -295,117 +295,117 @@
     },
     "variables": {
       "userName": "Ім’я користувача, який ініціював подію",
-      "userDisplayName": "Відображуване ім’я користувача, який ініціював подію",
+      "userDisplayName": "Ім’я користувача, який ініціював подію",
       "targetUserName": "Обраний користувач",
-      "targetDisplayUserName": "Відображуване ім’я обраного користувача",
-      "subLevel": "Рівень підписки, рівний 1/2/3/prime",
-      "resubMonths": "Скільки місяців користувач має платну підписку",
+      "targetDisplayUserName": "Відображуване ім'я обраного користувача",
+      "subLevel": "Рівень підписки (такі як \"1\"/\"2\"/\"3\"/\"prime\")",
+      "resubMonths": "Серія підписки користувача",
       "resubStreak": "Сумарна кількість місяців підписки користувача",
-      "resubMessage": "Повідомлення, введене користувачем при повторній платній підписці",
+      "resubMessage": "Повідомлення користувача при повторній підписці",
       "rewardName": "Назва використаної винагороди",
       "rewardCost": "Вартість використаної нагороди",
       "rewardInput": "Текст, вказаний у нагороді",
       "commandName": "Назва команди",
-      "commandInput": "Параметри команди. Наприклад, хтось використав '!hello world' і 'world' є параметром",
+      "commandInput": "Параметри команди",
       "raidViewers": "Кількість глядачів з рейду",
-      "oldStreamTitle": "Стара назва потоку",
-      "newStreamTitle": "Нова назва потоку",
-      "oldStreamCategory": "Стара категорія потоку",
-      "newStreamCategory": "Нова категорія потоку",
-      "streamTitle": "Назва потоку",
-      "streamCategory": "Категорія потоку",
+      "oldStreamTitle": "Стара назва трансляції",
+      "newStreamTitle": "Нова назва трансляції",
+      "oldStreamCategory": "Стара категорія трансляції",
+      "newStreamCategory": "Нова категорія трансляції",
+      "streamTitle": "Назва трансляції",
+      "streamCategory": "Категорія трансляції",
       "donateAmount": "Сума пожертви",
       "donateCurrency": "Валюта пожертвування",
       "donateMessage": "Повідомлення пожертвування",
       "keywordName": "Назва ключового слова",
-      "keywordResponse": "Відповіді на ключове слово, об’єднані пробілом",
+      "keywordResponse": "Відповіді на ключове слово (розділені пробілом)",
       "greetingText": "Вітальне повідомлення",
       "pollTitle": "Назва опитування",
-      "pollOptionsNames": "Варіанти відповідей, розділені комою",
+      "pollOptionsNames": "Варіанти відповідей (розділені комою)",
       "pollTotalVotes": "Загальна кількість голосів в опитуванні",
-      "pollWinnerTitle": "Ім’я переможця в опитуванні",
-      "pollWinnerBitsVotes": "Голоса за бітси переможця опитування",
-      "pollWinnerChannelsPointsVotes": "Голоса за бали канала переможця опитування",
-      "pollWinnerTotalVotes": "Загальна кількість голосів переможця опитування. Він включає голосування за бітси та бали каналу",
-      "predictionTitle": "Назва передбачення",
-      "predictionOptionsNames": "Варіанти передбачення, об’єднані · символом",
+      "pollWinnerTitle": "Назва варіанта опитування, що переміг",
+      "pollWinnerBitsVotes": "Голоси бітсами варіанту опитування, що переміг",
+      "pollWinnerChannelsPointsVotes": "Голоси за бали канала переможця опитування",
+      "pollWinnerTotalVotes": "Загальна кількість голосів варіанта опитування, що переміг",
+      "predictionTitle": "Назва прогнозу",
+      "predictionOptionsNames": "Варіанти прогнозу (розділені · символом)",
       "predictionTotalChannelPoints": "Загальна кількість використаних балів каналу для прогнозування",
       "predictionWinner": {
         "title": "Назва варіанту переможця",
         "totalUsers": "Загальна кількість користувачів, які проголосували за переможний варіант",
-        "totalPoints": "Загальна кількість балів каналу для варіанта-переможця",
-        "topUsers": "Топ-10 користувачів, які проголосували за варіант переможця"
+        "totalPoints": "Загальна кількість використаних очок каналу для варіанта, що переміг",
+        "topUsers": "Топ 10 користувачів, які проголосували за варіант переможця"
       },
       "moderatorName": "Ім’я модератора, який ініціював дію",
       "moderatorDisplayName": "Відображуване ім’я модератора, який ініціював дію",
-      "banReason": "Причина бану",
-      "banEndsInMinutes": "Бан у хвилинах, або \"permanent\" якщо бан назавжди",
+      "banReason": "Причина блокування",
+      "banEndsInMinutes": "Мут (у хвилинах, або вкажіть \"permanent\" якщо необхідно заблокувати)",
       "message": "Повідомлення"
     }
   },
   "overlays": {
-    "copyOverlayLink": "Копіювати посилання на оверлеї",
-    "uncongirured": "Спочатку слід налаштувати оверлеї",
-    "noAccess": "Ви не можете копіювати оверлеї інших користувачів",
-    "copied": "Посилання скопійовано, вставте його в obs як джерело-браузера",
+    "copyOverlayLink": "Скопіювати посилання на оверлей",
+    "uncongirured": "Спочатку слід налаштувати оверлеї!",
+    "noAccess": "Ви не можете копіювати оверлеї інших користувачів!",
+    "copied": "Посилання скопійовано, вставте його в obs як джерело-браузера.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Оверлей з інформацією про поточну граючу пісню. Цей оверлей буде працювати лише коли ви підключили інтеграцію з сервісом пісень, наприклад, spotify, lastfm."
     },
     "tts": {
-      "description": "Відтворюйте аудіо в OBS за допомогою певного набору попередньо налаштованих голосів. Ви можете використовувати цей оверлей за допомогою команд або подій",
-      "eventsHint": "Підказка: ви можете використовувати систему подій, щоб запускати tts за винагороду.",
-      "allowUsersChooseVoice": "Дозволити користувачам використовувати різні голоси в команді (!tts)",
+      "description": "Відтворюйте аудіо в OBS за допомогою певного набору попередньо налаштованих голосів. Ви можете використовувати цей оверлей за допомогою команд або подій.",
+      "eventsHint": "Підказка: ви можете використовувати систему подій, щоб запускати TTS за винагороду.",
+      "allowUsersChooseVoice": "Дозволити користувачам використовувати голоси?",
       "doNotReadEmoji": "Не читати емодзі",
-      "doNotReadTwitchEmotes": "Не читати емоції Twitch, включаючи 7TV, FFZ та BTTV",
+      "doNotReadTwitchEmotes": "Не читати емодзі Twitch (включаючи 7TV, FFZ та BTTV)",
       "doNotReadLinks": "Не читати посилання",
       "readChatMessages": "Читати всі повідомлення чату в оверлеї",
-      "readChatMessagesNicknames": "Читати нікнейми під час читання повідомлень з чату",
-      "voice": "Голос",
-      "disallowedVoices": "Заборонені голоса для використання в голосовій команді !tts voice",
+      "readChatMessagesNicknames": "Читати нікнейми",
+      "voice": "Стандартний голос",
+      "disallowedVoices": "Заборонені голоси",
       "volume": "Гучність",
       "pitch": "Висота тону",
       "rate": "Швидкість",
       "users": {
-        "selectAll": "Вибрати все",
+        "selectAll": "Обрати все",
         "undoSelection": "Скасувати вибір",
-        "empty": "Ніхто ще не створив свої власні налаштування."
+        "empty": "Ніхто ще не створив свої власні налаштування..."
       },
       "tabs": {
-        "general": "Загальний",
-        "usersSettings": "Налаштування користувачів"
+        "general": "Загальне",
+        "usersSettings": "Персональні налаштування користувачів"
       },
-      "previewText": "Preview voice with text, pitch and rate:"
+      "previewText": "Попередній перегляд голосу з текстом, висотою та швидкістю:"
     },
     "obs": {
-      "description": "Цей оверлей використовується для зв’язку Twir з OBS. Він надає можливість боту управляти вашими джерелами, сценами і аудіо-джерелами за допомогою подій.",
+      "description": "Цей оверлей використовується для зв’язку Twir з OBS. Він надає можливість боту управляти вашими джерелами, сценами та аудіо-джерелами за допомогою подій.",
       "address": "Адреса сервера OBS WebSocket",
       "port": "Порт сервера OBS WebSocket",
-      "connected": "З’єднано",
-      "notConnected": "Не з’єднано",
+      "connected": "З’єднано!",
+      "notConnected": "Не з’єднано!",
       "checkConnection": "Перевірте з’єднання"
     },
     "alerts": {
-      "description": "Цей оверлей використовується для відтворення налаштованих сповіщень"
+      "description": "Цей оверлей використовується для відтворення налаштованих сповіщень."
     },
     "chat": {
-      "presets": "Presets",
-      "selectSubsetPlaceholder": "Select preferable subsets",
-      "hideTimeout": "Message Hide Timeout",
-      "showDelay": "Message Show Delay",
-      "showBadges": "Show Badges",
-      "showAnnounceBadge": "Show Announcement Border",
-      "paddingContainer": "Inside Container Padding",
-      "resetToDefault": "Відновити за замовчуванням",
+      "presets": "Шаблони",
+      "selectSubsetPlaceholder": "Оберіть найкращі передналаштування",
+      "hideTimeout": "Час приховування повідомлення",
+      "showDelay": "Затримка відображення повідомлення",
+      "showBadges": "Показувати значки",
+      "showAnnounceBadge": "Показувати рамку оголошення",
+      "paddingContainer": "Внутрішній відступ в контейнері",
+      "resetToDefault": "Відновити стандартні налаштування",
       "textShadow": "Тінь тексту",
       "backgroundColor": "Колір заднього фону",
-      "direction": "Message Direction",
+      "direction": "Напрямок повідомлення",
       "directions": {
-        "left": "Зліва",
-        "right": "Справа",
+        "left": "Ліворуч",
+        "right": "Праворуч",
         "top": "Згори",
         "bottom": "Знизу"
       },
-      "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
+      "directionWarning": "Для використання \"ліворуч\" і \"праворуч\" ви повинні встановити висоту накладання на 50х для коректного відображення чату!",
       "fontFamily": "Сімейство шрифтів",
       "fontSize": "Розмір шрифту",
       "fontStyle": "Стиль шрифту",
@@ -413,37 +413,37 @@
       "availabeFonts": "Доступні шрифти",
       "hideCommands": "Приховати команди",
       "hideBots": "Приховати інші повідомлення бота",
-      "style": "Message Style",
-      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
+      "style": "Стиль повідомлення",
+      "description": "Цей оверлей дозволяє вам показувати ваш Twitch чат у вашому додатку для трансляцій (наприклад, OBS, XSplit тощо)"
     },
     "dudes": {
-      "description": "Animated characters for chatters in your stream",
+      "description": "Анімовані персонажі для чаттерів вашої трансляції",
       "enable": "Увімкнено",
-      "dudeDivider": "Dude",
-      "dudeDefaultSprite": "Default sprite",
-      "dudeMaxOnScreen": "Max on screen",
-      "dudeMaxOnScreenUnlimited": "Unlimited",
-      "dudeColor": "Default user color",
+      "dudeDivider": "Чувак",
+      "dudeDefaultSprite": "Стандартний спрайт",
+      "dudeMaxOnScreen": "Максимум на екрані",
+      "dudeMaxOnScreenUnlimited": "Необмежено",
+      "dudeColor": "Стандартний колір користувача",
       "dudeGravity": "Гравітація",
-      "dudeMaxLifeTime": "Максимальний термін життя",
+      "dudeMaxLifeTime": "Максимальний час життя",
       "dudeScale": "Масштаб",
       "dudeSoundsDivider": "Звуки",
       "dudeSoundsVolume": "Гучність",
       "ignoreDivider": "Ігнорування",
-      "ignoreCommands": "Ignore commands",
-      "ignoreUsers": "Ignore users",
-      "ignoreUsersList": "List of ignored users",
+      "ignoreCommands": "Ігнорувати команди",
+      "ignoreUsers": "Ігнорувати користувачів",
+      "ignoreUsersList": "Список ігнорованих користувачів",
       "nameBoxDivider": "Нікнейм",
       "nameBoxFill": "Колір тексту",
-      "nameBoxFillError": "Color is required",
-      "nameBoxFillGradientStops": "Text colors of gradient stops",
+      "nameBoxFillError": "Необхідно вказати колір",
+      "nameBoxFillGradientStops": "Колір тексту на градієнті",
       "nameBoxFillGradientStopsError": "Колір тексту градієнта має бути від 0 до 1",
-      "nameBoxGradientType": "Gradient type",
+      "nameBoxGradientType": "Тип градієнту",
       "nameBoxFontFamily": "Сімейство шрифтів",
       "nameBoxFontSize": "Розмір шрифту",
-      "nameBoxFontWeight": "Font weight",
+      "nameBoxFontWeight": "Товщина шрифту",
       "nameBoxFontStyle": "Стиль шрифту",
-      "nameBoxFontVariant": "Font variant",
+      "nameBoxFontVariant": "Вибір шрифту",
       "nameBoxStroke": "Колір контуру",
       "nameStrokeThickness": "Товщина контуру",
       "nameBoxLineJoin": "Форма контуру",
@@ -453,87 +453,87 @@
       "nameBoxDropShadowBlur": "Розмиття тіні",
       "nameBoxDropShadowDistance": "Відстань тіні",
       "nameBoxDropShadowAngle": "Кут тіні",
-      "messageBoxIgnoreCommands": "Ignore commands",
+      "messageBoxIgnoreCommands": "Ігнорувати команди",
       "messageBoxDivider": "Повідомлення",
       "messageBoxShowTime": "Показати час",
       "messageBoxFill": "Колір тексту",
       "messageBoxBackground": "Колір фону",
       "messageBoxPadding": "Відступ",
       "messageBoxBorderRadius": "Радіус округлення",
-      "messageBoxFontSize": "Font size",
-      "emoteDivider": "Емоції",
+      "messageBoxFontSize": "Розмір шрифту",
+      "emoteDivider": "Емодзі",
       "growDivider": "Збільшення",
       "growTime": "Тривалість дії збільшення",
-      "growMaxScale": "Max scale"
+      "growMaxScale": "Максимальне збільшення"
     },
     "kappagen": {
-      "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
-      "testKappagen": "Test Kappagen",
-      "testSpawn": "Test Emote Spawn",
-      "clear": "Clear Overlay",
-      "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on a command or configured events.",
+      "description": "Цей оверлей дозволяє вам заповнити ваш екран вибухами, переміщеннями, феєрверками, стінами з емодзі з допомогою чату.",
+      "testKappagen": "Перевірити Kappagen",
+      "testSpawn": "Запустить спаун",
+      "clear": "Очистити оверлей",
+      "info": "Spawn відображатиме на екрані емодзі, поки користувачі просто спілкуються. Kappagen відображатиме налаштовану кількість емодзі та запускається за командою або за допомогою заздалегідь налаштованої події.",
       "tabs": {
         "main": "Налаштування",
         "events": "Події",
-        "animations": "Animations"
+        "animations": "Анімації"
       },
       "settings": {
-        "spawn": "Spawn an emote on each chat message?",
+        "spawn": "Появлення емодзі на екрані при кожному повідомлення в чаті?",
         "size": "Розмір",
-        "sizeSmall": "Size for Small Emote Variant",
-        "time": "Emote Livespan",
-        "maxEmotes": "Emotes Amount",
-        "animationsOnAppear": "Appearing Emote Animation",
-        "animationsOnDisappear": "Disappearing Emote Animation",
-        "excludedEmotes": "Excluded Emotes",
-        "rave": "Show Rave (Rainbow) Emotes",
+        "sizeSmall": "Розмір для маленького варіанту емодзі",
+        "time": "Час відображення емодзі на екрані",
+        "maxEmotes": "Максимальна кількість емодзі на екрані",
+        "animationsOnAppear": "Анімація з'явлення емодзі",
+        "animationsOnDisappear": "Анімація зникнення емодзі",
+        "excludedEmotes": "Виключені емодзі",
+        "rave": "Переливчасті кольори (райдуга) для емодзі",
         "emotes": {
-          "bttvEnabled": "Enable BetterTTV Emotes?",
-          "ffzEnabled": "Enable FrankerFaceZ Emotes?",
-          "seventvEnabled": "Enable 7TV Emotes?",
-          "emojiStyle": "Emoji Style"
+          "bttvEnabled": "Увімкнути BetterTTV емодзі?",
+          "ffzEnabled": "Увімкнути FrankerFaceZ емодзі?",
+          "seventvEnabled": "Увімкнути 7TV емодзі?",
+          "emojiStyle": "Стиль емодзі"
         }
       }
     },
     "brb": {
-      "description": "This overlay allows you to show a countdown on screen for specific events or while you're AFK.",
+      "description": "Цей оверлей дозволяє відображати на екрані зворотній відлік для певних подій або поки ви знаходитесь в AFK.",
       "settings": {
         "main": {
           "label": "Налаштування",
           "startCommand": {
-            "description": "Overlay Start Command",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "description": "Команда для старту відліку",
+            "example": "<b>!brb 1 Кава</b> – почне відлік таймера в одну хвилину з текстом 'Кава'<br><b>!brb 1</b> – почне відлік таймера в одну хвилину зі стандартним текстом оверлею."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Команда для запинки лічильника",
             "example": "!brbstop"
           },
-          "text": "Overlay Text",
-          "background": "Overlay Background",
-          "backgroundOpacity": "Overlay Background Opacity",
+          "text": "Текст, який буде показано на екрані",
+          "background": "Фон оверлею",
+          "backgroundOpacity": "Прозорість оверлею",
           "font": {
-            "color": "Font Color",
-            "family": "Font Family",
-            "size": "Font Size"
+            "color": "Колір шрифту",
+            "family": "Сімейство шрифтів",
+            "size": "Розмір шрифту"
           }
         },
         "late": {
-          "label": "Post-Timer Settings",
-          "text": "Overlay Post-Timer Text",
-          "displayBrb": "Display Countdown Information"
+          "label": "Налаштування по закінченню лічильника",
+          "text": "Текст для відображення",
+          "displayBrb": "Відображати інформація про відлік"
         }
       },
       "preview": {
-        "start": "Start Overlay Preview",
-        "stop": "Stop Overlay Preview"
+        "start": "Почати попередній перегляд",
+        "stop": "Зупинити попередній перегляд"
       }
     }
   },
   "songRequests": {
-    "waiting": "Очікуємо на пісні",
+    "waiting": "Очікуємо на пісні...",
     "player": {
       "title": "Поточна пісня",
-      "noAccess": "Плеєр доступний тільки на вашій панелі керування, ви не можете слухати пісні на панелях управління інших користувачів"
+      "noAccess": "Плеєр доступний тільки на вашій панелі керування, ви не можете слухати пісні на панелях управління інших користувачів."
     },
     "table": {
       "title": "Черга",
@@ -545,17 +545,17 @@
       }
     },
     "settings": {
-      "onlineOnly": "Приймати запити лише під час трансляції онлайн",
-      "announcePlay": "Оголосити назву відтворення в чаті",
-      "playerNoCookieMode": "Incognito mode for player",
-      "playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
-      "neededPercentageForskip": "Потрібний відсоток онлайн-користувачів для пропуска пісні",
+      "onlineOnly": "Приймати запити лише під час трансляції онлайн?",
+      "announcePlay": "Оголосити назву відтворення в чаті?",
+      "playerNoCookieMode": "Режим інкогніто для плеєра",
+      "playerNoCookieModeDescription": "Включення цієї опції дозволить вам прослухати пісні без кукі та перегляду історії. Після активації вам необхідно оновити сторінку.",
+      "neededPercentageForskip": "Потрібний відсоток онлайн-користувачів для пропуску пісні",
       "channelReward": "Винагорода каналу за запит на пісню",
-      "deniedChannels": "Заблоковані YouTube канали",
-      "deniedWords": "Заборонені слова в назві пісні та автора",
+      "deniedChannels": "Список заблокованих каналів YouTube (з запропонованих пісень)",
+      "deniedWords": "Список заборонених слів (впливає на назви каналів із заголовків і YouTube)",
       "deniedUsers": "Користувачі, які не можуть замовляти пісні",
       "deniedSongs": "Заблоковані для замовлення пісні",
-      "takeSongFromDonationMessage": "Бере посилання пісні з донат повідомлень",
+      "takeSongFromDonationMessage": "Бере посилання пісні з донат повідомлень?",
       "users": {
         "maxRequests": "Максимальна кількість замовлень для користувача",
         "minimalWatchTime": "Мінімальний час перегляду для замовлення пісні (у хвилинах)",
@@ -570,90 +570,90 @@
       }
     },
     "tabs": {
-      "general": "Загальні налаштування",
+      "general": "Загальні",
       "users": "Налаштування користувачів",
       "songs": "Звукові налаштування"
     },
     "ban": {
       "user": "Заблокувати користувача",
       "song": "Заборонити пісню",
-      "userConfirm": "Are you sure you want to ban this user?",
-      "songConfirm": "Are you sure you want to ban this song?"
+      "userConfirm": "Ви впевнені, що хочете заблокувати цього користувача?",
+      "songConfirm": "Ви впевнені, що хочете заблокувати цю пісню?"
     }
   },
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Інтервал у хвилинах",
+        "intervalInMinutes": "Інтервал (у хвилинах)",
         "intervalInMessages": "Інтервал у повідомленнях (встановіть 0, щоб вимкнути)"
       }
     },
     "modal": {
-      "timelineDescription": "Одне повідомлення буде надсилатися кожні N хвилин в інтервалів, наприклад:",
+      "timelineDescription": "Кожна відповідь буде надіслана після виконання обох умов інтервалу.",
       "validations": {
-        "nameLong": "Назва надто довга",
-        "nameRequired": "Необхідно вказати ім’я",
-        "responseRequired": "Потрібно вказати відповідь",
-        "responseLong": "Відповідь надто довга"
+        "nameLong": "Назва занадто довга!",
+        "nameRequired": "Необхідно вказати ім’я!",
+        "responseRequired": "Потрібно вказати відповідь!",
+        "responseLong": "Відповідь занадто довга!"
       }
     },
-    "limitExceeded": "Ліміт перевищено"
+    "limitExceeded": "Ліміт перевищено!"
   },
   "roles": {
     "modal": {
-      "accessToUsers": "Користувачі, які мають доступ",
-      "accessByStats": "Статистика для отримання цієї ролі",
+      "accessToUsers": "Дозволені користувачі",
+      "accessByStats": "Дозволені користувачі (по статистиці)",
       "requiredWatchTime": "Необхідний час перегляду",
       "requiredMessages": "Необхідна кількість повідомлень",
       "requiredChannelPoints": "Необхідна кількість балів каналу",
       "permissions": "Дозволи"
     },
     "validations": {
-      "nameRequired": "Необхідно вказати назву"
+      "nameRequired": "Необхідно вказати назву!"
     }
   },
   "keywords": {
     "title": "Ключові слова",
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
-    "isRegular": "Є регулярним виразом",
-    "regularDescription": "Регулярний вираз має бути написаний для golang!",
-    "regularDescriptionCheatSheet": "cheat sheet",
+    "isRegular": "Є регулярним виразом?",
+    "regularDescription": "Регулярний вираз має бути записаний у форматі golang! Дивіться {0} тут.",
+    "regularDescriptionCheatSheet": "шпаргалка",
     "settings": "Налаштування",
     "cooldown": "Час відновлення (секунди)",
     "validations": {
-      "triggerRequired": "Текст тригеру є обов’язковим",
-      "triggerLong": "Текст тригеру надто довгий",
-      "responseLong": "Відповідь надто довга"
+      "triggerRequired": "Текст тригеру є обов’язковим!",
+      "triggerLong": "Текст тригеру занадто довгий!",
+      "responseLong": "Відповідь занадто довга!"
     }
   },
   "variables": {
     "title": "Змінні",
     "type": "Тип",
-    "info": "Коли ви створюєте змінну, ви можете використовувати її у відповідях бота.",
+    "info": "Змінні - це тип контексту, який може бути використаний при відповідях ботів, командах та інших частинах бота. Ви можете вказати постійне значення або додати скрипт, щоб отримати деякі значення, до яких зазвичай, не можуть бути легко доступними ботом. Змінні скрипта рекомендується для досвідчених користувачів.",
     "validations": {
-      "nameRequired": "Необхідно вказати назву",
-      "nameLong": "Назва надто довга"
+      "nameRequired": "Необхідно вказати назву!",
+      "nameLong": "Назва занадто довга"
     }
   },
   "greetings": {
     "title": "Привітання",
     "info": {
-      "title": "Система привітань, яка використовується для привітання нових користувачів, які набрали своє перше повідомлення в потоці.",
-      "text": "Якщо ви хочете вітати кожного користувача в чаті, а не тільки вказаного - то ви можете використовувати систему подій."
+      "title": "Інформація про привітання",
+      "text": "Привітання - це той тип повідомлень, які використовує бот, щоб привітати відомих глядачів трансляції, коли вони надсилають своє перше повідомлення в чаті. Якщо ви бажаєте вітати кожного користувача у чаті, ви можете подивитися на категорію подій замість категорії привітань."
     },
     "validations": {
-      "userName": "Потрібно вказати ім’я користувача",
-      "textRequired": "Потрібна відповідь"
+      "userName": "Ім'я користувача не може бути порожнім!",
+      "textRequired": "Відповідь не може бути порожньою!"
     }
   },
   "alerts": {
     "title": "Сповіщення",
-    "info": "Ви можете створити сповіщення, а потім призначити його команді/події.",
-    "overlayLabel": "Не забудьте вставити оверлей у програмне забезпечення потокового передавання (наприклад, OBS)! ",
+    "info": "Інформація про сповіщення",
+    "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати сповіщення із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену додатку для трансляцій! (наприклад, OBS, XSplit тощо)",
     "name": "Назва",
     "validations": {
-      "name": "Назва не може бути порожньою і містити понад 30 символів"
+      "name": "Назва не може бути порожньою і містити понад 30 символів!"
     },
     "trigger": {
       "commands": "Команди для тригера",
@@ -671,56 +671,56 @@
   "games": {
     "command": "Команда",
     "8ball": {
-      "description": "Поставте питання чарівній кулі, і він відповість вам.",
+      "description": "Проста гра в чаті, яка дає змогу співрозмовникам про щось запитувати чарівну вісімку, і вона відповість що-небудь.",
       "answers": "Відповіді"
     },
     "russianRoulette": {
-      "description": "Випробуйте удачу в класичній російській веселій* рулетці.",
-      "canBeUsedByModerator": "Тайм-аут модераторів? Буде знято модератора -> тайм-аут -> модератор знову.",
-      "timeoutSeconds": "Час тайм-ауту (секунди). Залиште як 0, якщо ви хочете вимкнути тайм-аут.",
-      "decisionSeconds": "Час до надходження результату (секунди).",
-      "initMessage": "Перше повідомлення, надіслане ботом, що анонсує початок гри.",
-      "surviveMessage": "Повідомлення, якщо користувач вижив.",
-      "deathMessage": "Повідомлення, якщо користувач програв і час очікування закінчився.",
-      "chargedBullets": "Заряджені кулі в револьвер (розмір барабана револьвера {tumberSize}). Чим більше число - тим більше шансів померти.",
-      "tumberSize": "Розмір барабана в револьвері."
+      "description": "Проста гра в чаті, що дає змогу співрозмовникам перевірити удачу в класичній російській кумедній* грі в рулетку.",
+      "canBeUsedByModerator": "Мутити модераторів? *Привілеї модератора буде надано знову після закінчення часу очікування.",
+      "timeoutSeconds": "Час муту (у секундах, залиште 0, якщо ви хочете вимкнути мут)",
+      "decisionSeconds": "Час до надходження результату (секунди)",
+      "initMessage": "Оголошення про натискання тригера (стартове повідомлення гри)",
+      "surviveMessage": "Повідомлення, якщо користувач вижив",
+      "deathMessage": "Повідомлення, якщо користувач програв",
+      "chargedBullets": "Кількість заряджених куль: {tumberSize}",
+      "tumberSize": "Розмір барабана в револьвері"
     },
     "duel": {
-      "title": "Duels",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "title": "Дуелі",
+      "description": "Проста чат-гра між двома користувачами, яка дає змогу перевірити навички ухилення!",
       "commands": {
-        "title": "Duel Commands",
-        "duel": "Ask for a Duel",
-        "accept": "Accept a Duel",
-        "stats": "Statistics"
+        "title": "Команди дуелі",
+        "duel": "Визвати на дуель",
+        "accept": "Прийняти дуель",
+        "stats": "Статистика"
       },
       "cooldown": {
-        "title": "Duel Cooldown",
-        "user": "Individual",
-        "global": "Global"
+        "title": "Перезарядка дуелі",
+        "user": "Індивідуально",
+        "global": "Глобально"
       },
       "messages": {
-        "title": "Messages",
+        "title": "Повідомлення",
         "start": {
-          "title": "Initial Message",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "title": "Початкове повідомлення",
+          "description": "Надсилає це повідомлення при ініціалізації дуелів. Доступні змінні: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Підсумкове повідомлення",
+          "description": "Надсилає це повідомлення коли дуель відбулась. Доступні змінні: {'{loser}, {winner}'}"
         },
         "bothDie": {
-          "title": "«No One Survived» Message",
-          "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+          "title": "Повідомлення \"Ніхто не вижив\"",
+          "description": "Надсилає це повідомлення, коли дуель відбулась та обидва дуелісти мертві. Змінні: {'{target}, {initiator}'}"
         }
       },
       "settings": {
         "title": "Налаштування",
-        "secondsToAccept": "Seconds to accept duel",
-        "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "secondsToAccept": "Кількість секунд для прийняття виклику",
+        "timeoutTime": "Час очікування для програшу",
+        "pointsPerWin": "Репутація за виграш",
+        "pointsPerLose": "Репутація за програш",
+        "bothDiePercent": "Відсоток шансів, що обидва користувача помруть"
       }
     }
   },
@@ -730,7 +730,7 @@
         "user": "Користувач",
         "watchedTime": "Час перегляду",
         "messages": "Повідомлення",
-        "usedEmotes": "Використано емоцій",
+        "usedEmotes": "Використано емодзі",
         "usedChannelPoints": "Використані бали каналу"
       },
       "total": "Всього {total} користувачів",
@@ -741,126 +741,126 @@
     }
   },
   "filePicker": {
-    "innerText": "Виберіть або перетягніть {type}",
+    "innerText": "Оберіть або перетягніть {type}.",
     "usedSpace": "Використано {used} / {max} МБ",
-    "emptyText": "Не завантажено файлів типу {type}"
+    "emptyText": "Файли типу {type} не були завантажені."
   },
   "overlaysRegistry": {
-    "description": "Ця система дозволяє створювати персонально налаштовані оверлеї для OBS. Наразі він підтримує лише HTML оверлеї, але ми додамо для вас більше. <3",
+    "description": "Ця категорія дозволяє створювати користувацькі накладання конфігурації для OBS. На даний час підтримуються тільки накладення HTML, але інші варіанти перекриття будуть додані пізніше. Дякуємо за терпіння. <3",
     "noLayersCreated": {
       "title": "Не налаштовано",
       "description": "Наразі шари в оверлеї не створені"
     },
-    "customWidth": "Спеціальна ширина",
-    "customHeight": "Спеціальна висота",
+    "customWidth": "Ширина",
+    "customHeight": "Висота",
     "name": "Назва оверлея",
-    "createNewLayer": "Створить новий шар",
+    "createNewLayer": "Створити новий шар",
     "validations": {
-      "name": "Назва не може бути порожньою і містити більше ніж 30 символів",
-      "layers": "Шари не можуть бути порожніми та не можуть містити більше ніж 15 шарів"
+      "name": "Назва не може бути порожньою і містити більше ніж 30 символів!",
+      "layers": "Шари не можуть бути порожніми! Цей оверлей не може містити більше ніж 15 шарів."
     },
     "html": {
-      "description": "Дозволяє використовувати персональний html, css код та змінні бота",
+      "description": "Дозволяє використовувати персональні HTML, CSS код та змінні бота.",
       "updateInterval": "Інтервал, за який будуть оновлюватися змінні html",
       "variablesAlert": {
-        "title": "Ви можете використовувати деякі змінні в html, натисніть кнопку, щоб показати доступні параметри",
-        "selectToCopy": "Виберіть змінну, щоб скопіювати її в буфер обміну"
+        "title": "Ви можете використовувати змінні бота в HTML. Натисніть на список нижче, щоб відобразити доступні параметри.",
+        "selectToCopy": "Оберіть змінну, щоб скопіювати її в буфер обміну."
       },
-      "periodicallyRefetchData": "Періодично аналізуйте дані html із сервера"
+      "periodicallyRefetchData": "Періодично отримувати й оновлювати HTML-дані з сервера?"
     }
   },
   "chatAlerts": {
-    "randomedMessage": "Повідомлення буде випадковим.<br>",
-    "randomMessageWithCount": "Повідомлення буде рандомізовано для однакової кількості.<br>",
-    "replacedInfo": "{vars} – буде замінено актуальною інформацією.<br>",
-    "cooldown": "Час перезарядки надсилання повідомлення (секунди)",
+    "randomedMessage": "Якщо існує кілька варіантів сповіщень, то вони будуть обрані випадковим чином.<br>",
+    "randomMessageWithCount": "Якщо буде кілька варіантів з однаковим числом, то вони будуть обрані випадковим чином.<br>",
+    "replacedInfo": "Доступні змінні: {vars}. Вони будуть замінені актуальною інформацією в сповіщенні.<br>",
+    "cooldown": "Час перезарядки надсилання повідомлення (у секундах)",
     "ban": {
-      "alertInfo": "Встановіть час на 0, щоб надрукувати повідомлення про постійну заборону.<br>",
-      "countLabel": "Час (хвилини)",
-      "ignoreTimeoutFrom": "Ігнорувати тайм-аути для користувачів"
+      "alertInfo": "Встановіть час на 0, щоб виводити повідомлення в разі перманентного блокування<br>",
+      "countLabel": "Час (у хвилинах)",
+      "ignoreTimeoutFrom": "Ігнорувати мути від наступних користувачів"
     },
     "labels": {
       "followers": "Фоловери",
       "raids": "Рейди",
-      "donations": "Донати",
+      "donations": "Пожертвування",
       "subscriptions": "Платна підписка",
       "rewards": "Нагороди",
       "firstUserMessage": "Перше повідомлення користувача",
-      "streamOnline": "Потокова трансляція онлайн",
-      "streamOffline": "Потокова трансляція офлайн",
+      "streamOnline": "Трансляція онлайн",
+      "streamOffline": "Трансляція завершена",
       "chatCleared": "Чат очищено",
-      "userBanned": "Користувач заблокований",
-      "channelUnbanRequestCreate": "Unban Request Create",
-      "channelUnbanRequestResolve": "Unban Request Resolve"
+      "userBanned": "Заблокувати користувача",
+      "channelUnbanRequestCreate": "Запит на зняття блокування створений",
+      "channelUnbanRequestResolve": "Запит на зняття блокування вирішений"
     }
   },
   "moderation": {
-    "createNewRule": "Create a New Moderation Rule",
-    "banTime": "Timeout Time",
-    "banDescription": "Set to 0 for ban permamently.",
-    "banMessage": "Timeout Message",
-    "warningMessage": "Warning Message",
-    "warningMaxCount": "Warning Maximum Count",
-    "excludedRoles": "Select roles which won't be impacted by this filter:",
+    "createNewRule": "Створити нове правило модерації",
+    "banTime": "Час очікування",
+    "banDescription": "Встановіть значення 0 для перманентного блокування.",
+    "banMessage": "Повідомлення та причина тайм-ауту",
+    "warningMessage": "Повідомлення для попередження",
+    "warningMaxCount": "Максимальна кількість попереджень",
+    "excludedRoles": "Оберіть ролі, на які не впливатиме цей фільтр:",
     "types": {
       "links": {
         "name": "Посилання",
-        "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
+        "description": "Сканує Twitch чат на будь-які посилання та прибирає їх для запобігання спаму або небезпечному надсиланню змісту у чат."
       },
       "deny_list": {
-        "name": "Disallowed Words List",
-        "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
-        "empty": "List of disallowed words is empty! You can add one there.",
-        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-        "regexpCheatSheet": "cheat sheet"
+        "name": "Заборонений список слів",
+        "description": "Допомагає підтримувати чистий чат, фільтрувавши слова чи фрази, вказані у попередньо визначеному списку, не дозволяючи їм відображатися.",
+        "empty": "Список заборонених слів порожній! Ви можете додати нове.",
+        "regexp": "Якщо ви досвідчений користувач, заборонений список слів також підтримує регулярні вирази. Регулярний вираз повинен бути написаний у форматі golang! Дивіться {0}.",
+        "regexpCheatSheet": "шпаргалка"
       },
       "symbols": {
-        "name": "Symbols",
-        "description": "Identifies and restricts excessive use of symbols, preventing clutter, chaos and maintaining readability in the chat.",
-        "triggerLength": "Minimal Message Length",
-        "maxPercentage": "Maximum Symbols Percentage"
+        "name": "Символи",
+        "description": "Визначає та обмежує надмірне використання символів, запобігаючи безладу, хаосу та зберігаючи читабельність у чаті.",
+        "triggerLength": "Мінімальна довжина повідомлення",
+        "maxPercentage": "Максимальний відсоток символів"
       },
       "long_message": {
-        "name": "Message Length",
-        "description": "Identifies and restricts long messages by limiting the length of messages sent into chat.",
-        "triggerLength": "Maximum Message Length"
+        "name": "Довжина повідомлення",
+        "description": "Ідентифікує та обмежує довгі повідомлення через обмеження довжини повідомлень, надісланих у чат.",
+        "triggerLength": "Максимальна довжина повідомлення"
       },
       "caps": {
-        "name": "Caps",
-        "description": "Identifies and restricts excessive use of capital letters, promoting a more balanced and respectful conversation in the chat.",
-        "maxPercentage": "Maximum Capital Letters Percentage",
-        "triggerLength": "Minimal Message Length"
+        "name": "Капс",
+        "description": "Визначає та обмежує надмірне використання знаків верхнього регістру, просуваючи більш збалансовану та шанобливу розмову в чаті.",
+        "maxPercentage": "Максимальна кількість знаків верхнього регістру",
+        "triggerLength": "Мінімальна довжина повідомлення"
       },
       "emotes": {
-        "name": "Emotes",
-        "description": "Detects the frequency and amount of emoticons used in messages, avoiding overuse and spam of them.",
-        "triggerLength": "Maximum Emote Usage Limit"
+        "name": "Емодзі",
+        "description": "Виявляє частоту та кількість смайликів, які використовуються в повідомленнях, уникаючи їх надмірного використання та спаму.",
+        "triggerLength": "Максимальна кількість використання емодзі"
       },
       "language": {
         "name": "Мова",
-        "description": "Scans and filters out inappropriate languages.",
-        "allowedLanguages": "Allowed Languages List",
-        "disallowedLanguages": "Disallowed Languages List"
+        "description": "Сканування та фільтрація невідповідних мов.",
+        "allowedLanguages": "Список дозволених мов",
+        "disallowedLanguages": "Список заборонених мов"
       }
     }
   },
   "feedback": {
     "button": "Надіслати відгук",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "notification": "Ваш відгук надіслано",
+    "rateLimited": "Ви надсилаєте повідомлення занадто швидко, спробуйте знову через {time}",
+    "messageLabel": "Повідомлення",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "Повідомлення не може бути порожнім"
     }
   },
   "userSettings": {
-    "title": "User settings",
+    "title": "Налаштування користувача",
     "account": {
-      "title": "Account",
-      "showMeOnLanding": "Show yourself on the Landing Page?",
+      "title": "Обліковий запис",
+      "showMeOnLanding": "Показувати себе на головній сторінці?",
       "regenerateApiKey": {
-        "button": "Regenerate Private API key",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "button": "Згенерувати приватний API ключ",
+        "info": "Цей ключ використовується у посиланнях на всі оверлеї. Коли ви генеруєте новий ключ, вам необхідно перевірити всі ваші оверлеї у вашому додатку для трансляцій та замінити посилання на нові."
       }
     },
     "public": {

@@ -1,5 +1,5 @@
 {
-  "languageName": "Slovenská",
+  "languageName": "Slovenčina",
   "sharedButtons": {
     "create": "Vytvoriť",
     "save": "Uložiť",
@@ -134,7 +134,7 @@
         "label": "Cooldown",
         "value": "Cooldown v sekundách",
         "type": {
-          "name": "Cooldown za",
+          "name": "Vychladnutie za",
           "global": "Globálne",
           "user": "Individuálne (na používateľa)"
         }
@@ -187,8 +187,8 @@
       "uptime": "Uptime",
       "followers": "Sledovatelia",
       "messages": "Správy",
-      "subs": "Odberatelia",
-      "usedEmotes": "Odoslané emotikony",
+      "subs": "Predplatitelia",
+      "usedEmotes": "Odoslané emoty",
       "viewers": "Diváci",
       "requestedSongs": "Vyžiadané piesne"
     },
@@ -333,7 +333,7 @@
       "predictionWinner": {
         "title": "Prediction Winner Outcome",
         "totalUsers": "Total Winner Outcome Users",
-        "totalPoints": "Total Channel Points Placed on Winner Outcome",
+        "totalPoints": "Celkový počet vernostných bodov stavených na víťazný výsledok",
         "topUsers": "Top 10 Users of Winner Outcome"
       },
       "moderatorName": "Event Triggerer Moderator Username",
@@ -640,7 +640,7 @@
     "title": "Greetings",
     "info": {
       "title": "Greetings Information",
-      "text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
+      "text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
     },
     "validations": {
       "userName": "Username is required!",
@@ -659,25 +659,25 @@
       "commands": "Command Trigger",
       "rewards": "Channel Points Reward Trigger",
       "keywords": "Keyword Trigger",
-      "greetings": "Greeting Trigger"
+      "greetings": "Spúšťač pozdravu"
     },
     "select": {
       "audio": "Confugure an Audio",
       "image": "Configure an Image",
       "text": "Configure Text"
     },
-    "audioVolume": "Audio Volume ({volume}%)"
+    "audioVolume": "Hlasitosť zvuku ({volume}%)"
   },
   "games": {
-    "command": "Command",
+    "command": "Príkaz",
     "8ball": {
-      "description": "A simple chat game that allows chatters to ask the magic 8ball something and it will answer to the chatter.",
-      "answers": "Answers"
+      "description": "Jednoduchá chatovacia hra, ktorá umožňuje chatujúcim opýtať sa na niečo magickej 8ball a tá odpovie chatujúcemu.",
+      "answers": "Odpovede"
     },
     "russianRoulette": {
-      "description": "A simple chat game that allows chatters to test luck in a classic russian funny* roulette game.",
-      "canBeUsedByModerator": "Timeout Moderators? *Moderator privileges will be granted again after the timeout.",
-      "timeoutSeconds": "Timeout Time (in seconds, set it to 0 to disable a timeout)",
+      "description": "Jednoduchá chatovacia hra, ktorá umožňuje chatujúcim vyskúšať šťastie v klasickej ruskej zábavnej* rulete.",
+      "canBeUsedByModerator": "Dočasne zablokovať moderátora? *Právomoci moderátora budú po uplynutí timeoutu opäť udelené.",
+      "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete vypnúť timeout, nastavte ho na 0)",
       "decisionSeconds": "Result Delay (in seconds)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
@@ -692,11 +692,11 @@
         "title": "Duel Commands",
         "duel": "Ask for a Duel",
         "accept": "Accept a Duel",
-        "stats": "Statistics"
+        "stats": "Štatistiky"
       },
       "cooldown": {
         "title": "Duel Cooldown",
-        "user": "Individual",
+        "user": "Individuálne",
         "global": "Global"
       },
       "messages": {
@@ -715,7 +715,7 @@
         }
       },
       "settings": {
-        "title": "Settings",
+        "title": "Nastavenia",
         "secondsToAccept": "Seconds to accept duel",
         "timeoutTime": "Timeout time for loser",
         "pointsPerWin": "Reputation for win",
@@ -727,11 +727,11 @@
   "community": {
     "users": {
       "table": {
-        "user": "User",
-        "watchedTime": "Watched Time",
-        "messages": "Messages",
-        "usedEmotes": "Used Emotes",
-        "usedChannelPoints": "Channel Points Spent"
+        "user": "Užívateľ",
+        "watchedTime": "Čas sledovania",
+        "messages": "Správy",
+        "usedEmotes": "Použité emoty",
+        "usedChannelPoints": "Uplatnené vernostné body"
       },
       "total": "Total users: {total}",
       "reset": {
@@ -780,12 +780,12 @@
       "ignoreTimeoutFrom": "Ignore Moderators List"
     },
     "labels": {
-      "followers": "Followers",
-      "raids": "Raids",
+      "followers": "Sledovatelia",
+      "raids": "Nájazdy",
       "donations": "Donations",
-      "subscriptions": "Subscriptions",
+      "subscriptions": "Predplatné",
       "rewards": "Rewards",
-      "firstUserMessage": "First User Message",
+      "firstUserMessage": "Prvá správa používateľa",
       "streamOnline": "Stream Online",
       "streamOffline": "Stream Offline",
       "chatCleared": "Chat Clear",
@@ -809,7 +809,7 @@
       },
       "deny_list": {
         "name": "Zoznam zakázaných slov",
-        "description": "Helps to maintain clean chat by filtering out words or phrases specified in a predefined list, preventing them from being displayed.",
+        "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
         "empty": "List of disallowed words is empty! You can add one there.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
         "regexpCheatSheet": "cheat sheet"

@@ -1,5 +1,5 @@
 {
-  "languageName": "Deutsch",
+  "languageName": "Englisch",
   "sharedButtons": {
     "create": "Erstellen",
     "save": "Speichern",
@@ -128,7 +128,7 @@
         "name": "Einschränkungen nach Statistiken",
         "watchTime": "Benötigte Beobachtungszeit um diesen Befehl zu verwenden.",
         "messages": "Benötigte Nachrichtenanzahl, um diesen Befehl zu verwenden.",
-        "channelsPoints": "Required spent channels points to use that command."
+        "channelsPoints": "Benötigte Anzahl an ausgegebenen Kanalpunkten, um diesen Befehl zu verwenden."
       },
       "cooldown": {
         "label": "Abklingzeit",
@@ -147,7 +147,7 @@
         },
         "keepOrder": {
           "label": "Ordnung halten",
-          "text": "Bot will keep this order of responses when sending them into chat."
+          "text": "Der Bot behält diese Reihenfolge der Antworten bei, wenn er sie in den Chat sendet."
         },
         "onlineOnly": {
           "label": "Nur wenn online",
@@ -244,7 +244,7 @@
     },
     "sevenTv": {
       "description": "Wir können 7tv Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "alert": "Sie können auch fortgeschrittenen Fluss über {0} System tun, um 7tv emotes zu verwalten.",
       "connected": "Verbunden",
       "notConnected": "Nicht verbunden",
       "notRegistered": "Sie sind nicht bei {0} registriert",
@@ -301,119 +301,119 @@
       "subLevel": "Abo-Stufen (wie \"1\"/\"2\"/\"3\"/\"prime\")",
       "resubMonths": "Abonnent Länge Streak",
       "resubStreak": "Gesamtzahl der Abonnentenmonate",
-      "resubMessage": "User Resubscription Message",
-      "rewardName": "Channel Points Reward Name",
-      "rewardCost": "Channel Points Reward Price",
-      "rewardInput": "Channel Points Reward Custom Message",
-      "commandName": "Command Name",
-      "commandInput": "Command Arguments",
-      "raidViewers": "Amount of Raiders",
-      "oldStreamTitle": "Old Stream Title",
-      "newStreamTitle": "New Stream Title",
-      "oldStreamCategory": "Old Stream Category",
-      "newStreamCategory": "New Stream Category",
-      "streamTitle": "Stream Title",
-      "streamCategory": "Stream Category",
-      "donateAmount": "Donation Amount",
-      "donateCurrency": "Donation Currency",
-      "donateMessage": "Donation Message",
-      "keywordName": "Keyword Name",
-      "keywordResponse": "Keyword Responses (separated by space)",
-      "greetingText": "Greeting Message",
-      "pollTitle": "Poll Title",
-      "pollOptionsNames": "Poll Settings (separated by comma)",
-      "pollTotalVotes": "Total Poll Votes",
-      "pollWinnerTitle": "Poll Winner Name",
-      "pollWinnerBitsVotes": "Number of Winner's Bits Votes",
-      "pollWinnerChannelsPointsVotes": "Number of Winner's Channel Points Votes",
-      "pollWinnerTotalVotes": "Total Winner's Poll Votes",
-      "predictionTitle": "Prediction Title",
-      "predictionOptionsNames": "Prediction Outcomes (separated by · symbol)",
-      "predictionTotalChannelPoints": "Total Channel Points Placed",
+      "resubMessage": "Benutzer-Abo Nachricht",
+      "rewardName": "Kanalpunkte Belohnung Name",
+      "rewardCost": "Kanalpunkte Belohnung Preis",
+      "rewardInput": "Kanal-Punkte-Belohnung Benutzerdefinierte Nachricht",
+      "commandName": "Befehlname",
+      "commandInput": "Befehlsargumente",
+      "raidViewers": "Anzahl der Raider",
+      "oldStreamTitle": "Alter Stream-Titel",
+      "newStreamTitle": "Neuer Stream Titel",
+      "oldStreamCategory": "Alte Stream Kategorie",
+      "newStreamCategory": "Neue Stream Kategorie",
+      "streamTitle": "Stream-Titel",
+      "streamCategory": "Stream Kategorie",
+      "donateAmount": "Spendenbetrag ",
+      "donateCurrency": "Spendenwährung",
+      "donateMessage": "Spenden-Nachricht",
+      "keywordName": "Schlüsselwortname",
+      "keywordResponse": "Schlüsselwort Antworten (durch Leerzeichen getrennt)",
+      "greetingText": "Grußnachricht",
+      "pollTitle": "Umfrage Name:",
+      "pollOptionsNames": "Umfrageeinstellungen (durch Komma getrennt)",
+      "pollTotalVotes": "Gesamtzahl der Abstimmungen",
+      "pollWinnerTitle": "Umfrage Gewinner Name",
+      "pollWinnerBitsVotes": "Anzahl der Stimmen des Gewinner Bits",
+      "pollWinnerChannelsPointsVotes": "Anzahl der Stimmen der Gewinner Kanal-Punkte",
+      "pollWinnerTotalVotes": "Anzahl der Channel-Punkte des Gewinners Abstimmungen",
+      "predictionTitle": "Anzahl der Channel-Punkte des Gewinners Abstimmungen",
+      "predictionOptionsNames": "Anzahl der Channel-Punkte des Gewinners Votes",
+      "predictionTotalChannelPoints": "Anzahl der Channel-Punkte des Gewinners Abstimmungen",
       "predictionWinner": {
-        "title": "Prediction Winner Outcome",
+        "title": "Vorhersage Gewinner Ergebnis",
         "totalUsers": "Total Winner Outcome Users",
-        "totalPoints": "Total Channel Points Placed on Winner Outcome",
+        "totalPoints": "Gesamte Channel-Punkte, die auf das Ergebnis des Gewinners gesetzt werden",
         "topUsers": "Top 10 Users of Winner Outcome"
       },
-      "moderatorName": "Event Triggerer Moderator Username",
-      "moderatorDisplayName": "Event Triggerer Moderator Display Name",
+      "moderatorName": "Ereignisauslöser Moderator Benutzername",
+      "moderatorDisplayName": "Ereignisauslöser Moderator Anzeigename",
       "banReason": "Ban Grund",
-      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
+      "banEndsInMinutes": "Timeout (in Minuten, oder auf \"permanent\" gesetzt, um dauerhaft zu sperren)",
       "message": "Nachricht"
     }
   },
   "overlays": {
-    "copyOverlayLink": "Copy Overlay Link",
-    "uncongirured": "You should configure overlay first!",
-    "noAccess": "You do not have access to this overlay!",
-    "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+    "copyOverlayLink": "Overlay-Link kopieren",
+    "uncongirured": "Du solltest zuerst das Overlay konfigurieren!",
+    "noAccess": "Sie haben keinen Zugriff auf dieses Overlay!",
+    "copied": "Overlay-Link-URL erfolgreich kopiert! Sie müssen diese als Browser-Quelle in OBS einstellen.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Overlay mit aktuellen Informationen zu abspielbaren Songs. Dieses Overlay funktioniert nur, wenn Sie Ihre Song-Service-Integration wie Spotify, Lastfm verbunden haben."
     },
     "tts": {
-      "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
-      "eventsHint": "Hint: You can use events system to trigger TTS on specific event.",
-      "allowUsersChooseVoice": "Allow chatters to use different voices?",
-      "doNotReadEmoji": "Do Not Read Emojis",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes (including 7TV, FFZ, BTTV",
-      "doNotReadLinks": "Do Not Read Links",
-      "readChatMessages": "Read All Chat Messages",
-      "readChatMessagesNicknames": "Read Usernames",
-      "voice": "Default Voice",
-      "disallowedVoices": "Disallowed Voices List",
+      "description": "Mit diesem Overlay können Sie Chat-Nachrichten als Audio über das OBS mit einer Reihe von vorkonfigurierten Stimmen abspielen. Sie können dieses Overlay über Befehle oder Ereignisse steuern.",
+      "eventsHint": "Tipp: Sie können das Ereignissystem verwenden, um TTS bei bestimmten Ereignissen auszulösen.",
+      "allowUsersChooseVoice": "Erlauben Sie den Chattern, verschiedene Stimmen zu verwenden?",
+      "doNotReadEmoji": "Emojis nicht lesen",
+      "doNotReadTwitchEmotes": "Twitch-Emotes nicht lesen (inklusive 7TV, FFZ, BTTV",
+      "doNotReadLinks": "Links nicht lesen",
+      "readChatMessages": "Alle Chat-Nachrichten lesen",
+      "readChatMessagesNicknames": "Benutzernamen lesen",
+      "voice": "Standardstimme",
+      "disallowedVoices": "Nicht erlaubte Stimmliste",
       "volume": "Lautstärke",
-      "pitch": "Pitch",
-      "rate": "Rate",
+      "pitch": "Tonhöhe",
+      "rate": "Bewerten",
       "users": {
         "selectAll": "Alle auswählen",
-        "undoSelection": "Undo Selection",
-        "empty": "No one have created their own customizations yet..."
+        "undoSelection": "Auswahl rückgängig",
+        "empty": "Niemand hat bisher seine eigenen Anpassungen erstellt..."
       },
       "tabs": {
         "general": "Allgemein",
-        "usersSettings": "Individual Settings"
+        "usersSettings": "Individuelle Einstellungen"
       },
-      "previewText": "Preview voice with text, pitch and rate:"
+      "previewText": "Sprachvorschau mit Text, Tonhöhe und Geschwindigkeit:"
     },
     "obs": {
-      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
-      "address": "Address of OBS WebSocket server",
-      "port": "Port of OBS WebSocket server",
+      "description": "Dieses Overlay ermöglicht es Ihnen, Twir mit Ihrem OBS zu verbinden. Es bietet die Möglichkeit, Ihre Quellen, Szenen, Audioquellen und Ereignisse zu verwalten.",
+      "address": "Adresse des OBS WebSocket-Servers",
+      "port": "Port des OBS WebSocket-Servers",
       "connected": "Verbunden!",
       "notConnected": "Nicht verbunden!",
-      "checkConnection": "Check Connection"
+      "checkConnection": "Verbindung prüfen"
     },
     "alerts": {
-      "description": "This overlay allows you to play configured alerts from the “Alerts” section."
+      "description": "Mit diesem Overlay können Sie konfigurierte Alarme aus dem Bereich \"Alarme\" abspielen."
     },
     "chat": {
-      "presets": "Presets",
-      "selectSubsetPlaceholder": "Select preferable subsets",
-      "hideTimeout": "Message Hide Timeout",
-      "showDelay": "Message Show Delay",
-      "showBadges": "Show Badges",
-      "showAnnounceBadge": "Show Announcement Border",
-      "paddingContainer": "Inside Container Padding",
-      "resetToDefault": "Reset to Default",
-      "textShadow": "Text Shadow",
-      "backgroundColor": "Background Color",
-      "direction": "Message Direction",
+      "presets": "Voreinstellungen",
+      "selectSubsetPlaceholder": "Wählen Sie bevorzugte Untergruppen",
+      "hideTimeout": "Zeitüberschreitung beim Ausblenden von Nachrichten",
+      "showDelay": "Verzögerung der Nachrichtenanzeige",
+      "showBadges": "Abzeichen anzeigen",
+      "showAnnounceBadge": "Ankündigungsrahmen anzeigen",
+      "paddingContainer": "Container-Polster innen",
+      "resetToDefault": "Auf Standard zurücksetzen",
+      "textShadow": "Textschatten",
+      "backgroundColor": "Hintergrundfarbe",
+      "direction": "Nachrichtenrichtung",
       "directions": {
         "left": "Links",
         "right": "Rechts",
         "top": "Oben",
         "bottom": "Unten"
       },
-      "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
-      "fontFamily": "Font Family",
+      "directionWarning": "Um 'Links' und 'Rechts' zu verwenden, sollten Sie die Overlay-Höhe auf 50x einstellen, damit der Chat richtig angezeigt wird!",
+      "fontFamily": "Schriftart",
       "fontSize": "Schriftgröße",
       "fontStyle": "Schriftstil",
       "fontWeight": "Schriftstärke",
-      "availabeFonts": "Available Fonts",
-      "hideCommands": "Hide Commands",
-      "hideBots": "Hide Other Bots Messages",
-      "style": "Message Style",
+      "availabeFonts": "Verfügbare Schriftarten",
+      "hideCommands": "Befehle ausblenden",
+      "hideBots": "Andere Nachrichten von Bots verstecken",
+      "style": "Nachrichten Style",
       "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
     },
     "dudes": {
@@ -467,20 +467,20 @@
       "growMaxScale": "Max scale"
     },
     "kappagen": {
-      "description": "This overlay allows you to fill up your screen with explosions, movements, fireworks, walls of emotes through the chat.",
-      "testKappagen": "Test Kappagen",
-      "testSpawn": "Test Emote Spawn",
-      "clear": "Clear Overlay",
-      "info": "Spawn will show emotes on screen while users just chatting around and sending emotes. Kappagen will show configured amount of emotes on a command or configured events.",
+      "description": "Dieses Overlay erlaubt es dir, deinen Bildschirm mit Explosionen, Bewegungen, Feuerwerken, Emotes durch den Chat zu füllen.",
+      "testKappagen": "Kappagen testen",
+      "testSpawn": "Emote-Spawn testen",
+      "clear": "Overlay clearen",
+      "info": "Spawn zeigt Emotes auf dem Bildschirm an, während Benutzer nur chatten und Emotes senden. Kappagen zeigt die konfigurierte Anzahl von Emotes auf einen Befehl oder konfigurierte Ereignisse.",
       "tabs": {
         "main": "Einstellungen",
-        "events": "Events",
-        "animations": "Animations"
+        "events": "Ereignisse",
+        "animations": "Animationen"
       },
       "settings": {
-        "spawn": "Spawn an emote on each chat message?",
+        "spawn": "Ein Emote für jede Chat-Nachricht spawnen?",
         "size": "Größe",
-        "sizeSmall": "Size for Small Emote Variant",
+        "sizeSmall": "Größe für kleine Emote-Variante",
         "time": "Emote Livespan",
         "maxEmotes": "Anzahl der Emotes",
         "animationsOnAppear": "Appearing Emote Animation",
@@ -571,7 +571,7 @@
     },
     "tabs": {
       "general": "Allgemein",
-      "users": "Users",
+      "users": "Benutzer",
       "songs": "Songs"
     },
     "ban": {
@@ -606,7 +606,7 @@
       "requiredWatchTime": "Required Watch Time",
       "requiredMessages": "Required Messages Amount",
       "requiredChannelPoints": "Required Channel Points Spent",
-      "permissions": "Permissions"
+      "permissions": "Berechtigungen"
     },
     "validations": {
       "nameRequired": "Name is required!"
