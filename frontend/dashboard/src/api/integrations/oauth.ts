@@ -1,6 +1,8 @@
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 
+import { createIntegrationOauth } from './oauth';
+
 import { protectedApiClient } from '@/api/twirp.js';
 
 type CallFunc<
@@ -136,5 +138,13 @@ export const useValorantIntegration = () => createIntegrationOauth({
 	getAuthLink: protectedApiClient.integrationsValorantGetAuthLink,
 	usePostCode: protectedApiClient.integrationsValorantPostCode,
 	useLogout: protectedApiClient.integrationsValorantLogout,
+});
+
+export const useNightbotIntegration = () => createIntegrationOauth({
+	integrationName: 'nightbot',
+	getData: protectedApiClient.integrationsNightbotGetData,
+	getAuthLink: protectedApiClient.integrationsNightbotGetAuthLink,
+	usePostCode: protectedApiClient.integrationsNightbotPostCode,
+	useLogout: protectedApiClient.integrationsNightbotLogout,
 });
 
