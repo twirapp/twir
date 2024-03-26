@@ -1,8 +1,6 @@
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 
-import { createIntegrationOauth } from './oauth';
-
 import { protectedApiClient } from '@/api/twirp.js';
 
 type CallFunc<
