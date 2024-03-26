@@ -5,6 +5,7 @@ import { createServer } from 'nice-grpc';
 import { getIntegrations, Services } from './libs/db.js';
 import { addIntegration as addDonatePayIntegration, removeIntegration as removeDonatePayIntegration } from './store/donatePay.js';
 import { addIntegration as addDonationAlertsIntegration, removeIntegration as removeDonationAlertsIntegration } from './store/donationAlerts.js';
+import { addIntegration as addNightbotIntegration, removeIntegration as removeNightbotIntegration } from './store/nightbot.js';
 import { addIntegration as addStreamlabsIntegration, removeIntegration as removeStreamlabsIntegration } from './store/streamlabs.js';
 
 import './pubsub.js';
@@ -22,6 +23,10 @@ for (const integration of integrations) {
 
 	if (integration.integration.service === Services.DONATEPAY) {
 		addDonatePayIntegration(integration);
+	}
+
+	if (integration.integration.service === Services.NIGHTBOT) {
+		addNightbotIntegration(integration);
 	}
 }
 
@@ -46,6 +51,9 @@ const integrationsServer = {
 		}
 		if (integration.integration.service === Services.DONATEPAY) {
 			await addDonatePayIntegration(integration);
+		}
+		if (integration.integration.service === Services.NIGHTBOT) {
+			await addNightbotIntegration(integration);
 		}
 
 		return {};
@@ -87,6 +95,10 @@ export async function removeIntegration(integration) {
 
 	if (integration.integration.service === Services.DONATEPAY) {
 		removeDonatePayIntegration(integration.channelId);
+	}
+
+	if (integration.integration.service === Services.NIGHTBOT) {
+		removeNightbotIntegration(integration.channelId);
 	}
 }
 
