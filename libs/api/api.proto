@@ -31,6 +31,7 @@ import "messages/integrations_streamlabs/integrations_streamlabs.proto";
 import "messages/integrations_vk/integrations_vk.proto";
 import "messages/integrations_valorant/integrations_valorant.proto";
 import "messages/integrations_discord/integrations_discord.proto";
+import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
@@ -125,6 +126,12 @@ service Protected {
 	rpc IntegrationsStreamlabsGetData(google.protobuf.Empty) returns (messages.integrations_streamlabs.GetDataResponse) {}
 	rpc IntegrationsStreamlabsPostCode(messages.integrations_streamlabs.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsStreamlabsLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+
+	rpc IntegrationsNightbotGetAuthLink(google.protobuf.Empty) returns (messages.integrations_nightbot.GetAuthLink) {}
+	rpc IntegrationsNightbotGetData(google.protobuf.Empty) returns (messages.integrations_nightbot.GetDataResponse) {}
+	rpc IntegrationsNightbotPostCode(messages.integrations_nightbot.PostCodeRequest) returns (google.protobuf.Empty) {}
+	rpc IntegrationsNightbotLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+	rpc IntegrationsNightbotImportCommands(google.protobuf.Empty) returns (messages.integrations_nightbot.ImportCommandsResponse) {}
 
 	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink) {}
 	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}

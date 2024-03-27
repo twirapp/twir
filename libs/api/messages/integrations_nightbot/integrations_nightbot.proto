@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/integrations_nightbot";
+package messages.integrations_nightbot;
+
+message GetAuthLink {
+	string link = 1;
+}
+
+message GetDataResponse {
+	optional string user_name = 1;
+	optional string avatar = 2;
+}
+
+message PostCodeRequest {
+	string code = 1;
+}
+
+message ImportCommandsResponse {
+	int32 imported_count = 1;
+	int32 failed_count = 2;
+	repeated string failed_commands_names = 3;
+}

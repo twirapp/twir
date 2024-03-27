@@ -23,6 +23,7 @@ for (const integration of integrations) {
 	if (integration.integration.service === Services.DONATEPAY) {
 		addDonatePayIntegration(integration);
 	}
+
 }
 
 /**
