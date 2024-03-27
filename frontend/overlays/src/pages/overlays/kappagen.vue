@@ -16,13 +16,8 @@ const route = useRoute();
 const { kappagenSettings, overlaySettings } = storeToRefs(useKappagenSettings());
 
 const playAnimation = (emotes: Emote[], animation: KappagenAnimations) => {
-	return new Promise<void>((resolve) => {
-		if (kappagen.value) {
-			kappagen.value.playAnimation(emotes, animation);
-		}
-
-		resolve();
-	});
+	if (!kappagen.value) return Promise.resolve();
+	return kappagen.value.playAnimation(emotes, animation);
 };
 
 const showEmotes = (emotes: Emote[]) => {
