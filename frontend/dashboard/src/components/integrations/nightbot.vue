@@ -10,6 +10,7 @@ const logout = manager.useLogout();
 
 const { data: authLink } = manager.useAuthLink();
 
+
 </script>
 
 <template>

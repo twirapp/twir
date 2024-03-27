@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_nightbot"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -48,7 +49,10 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*integrations_nightbot.ImportCommandsResponse, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
 
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
@@ -232,7 +236,13 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 				}
 			}
 
-			return nil, err
+			failedCount++
+			failedCommandsNames = append(
+				failedCommandsNames,
+				command.Name+" (twir internal error)",
+			)
+
+			continue
 		}
 		importedCount++
 	}
@@ -276,7 +286,11 @@ func (c *Integrations) IntegrationsNightbotGetData(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*integrations_nightbot.GetDataResponse, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
 		model.IntegrationServiceNightbot,
@@ -296,7 +310,11 @@ func (c *Integrations) IntegrationsNightbotPostCode(
 	ctx context.Context,
 	request *integrations_nightbot.PostCodeRequest,
 ) (*emptypb.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	channelIntegration, err := c.getChannelIntegrationByService(
 		ctx,
 		model.IntegrationServiceNightbot,
@@ -319,7 +337,6 @@ func (c *Integrations) IntegrationsNightbotPostCode(
 			},
 		).
 		SetSuccessResult(&tokensData).
-		SetContentType("application/x-www-form-urlencoded").
 		Post("https://api.nightbot.tv/oauth2/token")
 	if err != nil {
 		return nil, err
@@ -353,10 +370,6 @@ func (c *Integrations) IntegrationsNightbotPostCode(
 		return nil, err
 	}
 
-	if err = c.sendGrpcEvent(ctx, channelIntegration.ID, channelIntegration.Enabled); err != nil {
-		return nil, err
-	}
-
 	return &emptypb.Empty{}, nil
 }
 
@@ -364,7 +377,11 @@ func (c *Integrations) IntegrationsNightbotLogout(
 	ctx context.Context,
 	empty *emptypb.Empty,
 ) (*emptypb.Empty, error) {
-	dashboardId := ctx.Value("dashboardId").(string)
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
 		model.IntegrationServiceNightbot,
@@ -380,10 +397,6 @@ func (c *Integrations) IntegrationsNightbotLogout(
 	integration.Enabled = false
 
 	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
-		return nil, err
-	}
-
-	if err = c.sendGrpcEvent(ctx, integration.ID, integration.Enabled); err != nil {
 		return nil, err
 	}
 

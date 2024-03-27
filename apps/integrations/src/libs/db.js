@@ -10,7 +10,6 @@ export const Services = Object.freeze({
 	DONATIONALERTS: 'DONATIONALERTS',
 	STREAMLABS: 'STREAMLABS',
 	DONATEPAY: 'DONATEPAY',
-	NIGHTBOT: 'NIGHTBOT',
 });
 
 /**
