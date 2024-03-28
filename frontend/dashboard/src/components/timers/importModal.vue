@@ -29,7 +29,7 @@ async function onImportClick() {
 }
 
 const isNightbotIntegrationEnabled = computed(() => {
-	return !data.value?.userName;
+	return !!data.value?.userName;
 });
 
 const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
@@ -58,7 +58,7 @@ const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 			</div>
 
 			<template #footer>
-				<n-button secondary type="success" :disabled="userCanManageTimers && isNightbotIntegrationEnabled" :loading="nightbotTimersImporter.isLoading.value" @click="onImportClick">
+				<n-button secondary type="success" :disabled="!userCanManageTimers || !isNightbotIntegrationEnabled" :loading="nightbotTimersImporter.isLoading.value" @click="onImportClick">
 					IMPORT
 				</n-button>
 			</template>
