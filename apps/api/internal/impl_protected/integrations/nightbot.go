@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -45,6 +48,63 @@ type nightbotCustomCommandsResponse struct {
 	TotalCount int `json:"_total"`
 }
 
+type nightbotTimersResponse struct {
+	TotalCount int `json:"_total"`
+	Timers     []struct {
+		ID       string `json:"_id"`
+		Name     string `json:"name"`
+		Message  string `json:"message"`
+		Interval string `json:"interval"`
+		Lines    int    `json:"lines"`
+		Enabled  bool   `json:"enabled"`
+	}
+}
+
+type nightbotRefreshResponse struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+	TokenType    string `json:"token_type"`
+	ExpiresIn    int    `json:"expires_in"`
+	Scope        string `json:"scope"`
+}
+
+func (c *Integrations) refreshNightbotTokens(
+	ctx context.Context,
+	integration *model.ChannelsIntegrations,
+) error {
+	refreshData := nightbotRefreshResponse{}
+	resp, err := req.R().
+		SetContext(ctx).
+		SetFormData(
+			map[string]string{
+				"grant_type":    "refresh_token",
+				"client_id":     integration.ClientID.String,
+				"client_secret": integration.ClientSecret.String,
+				"refresh_token": integration.RefreshToken.String,
+			},
+		).
+		SetSuccessResult(&refreshData).
+		Post("https://api.nightbot.tv/oauth2/token")
+	if err != nil {
+		return err
+	}
+
+	if !resp.IsSuccessState() {
+		return fmt.Errorf("nightbot integration error: %s", resp.String())
+	}
+
+	integration.AccessToken = null.StringFrom(refreshData.AccessToken)
+	integration.RefreshToken = null.StringFrom(refreshData.RefreshToken)
+	integration.Enabled = true
+
+	err = c.Db.WithContext(ctx).Save(integration).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Integrations) IntegrationsNightbotImportCommands(
 	ctx context.Context,
 	_ *emptypb.Empty,
@@ -77,6 +137,12 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		return nil, err
 	}
 	if !resp.IsSuccessState() {
+		if resp.StatusCode == http.StatusUnauthorized {
+			err = c.refreshNightbotTokens(ctx, integration)
+			if err != nil {
+				return nil, err
+			}
+		}
 		return nil, fmt.Errorf("nightbot integration error: %s", resp.String())
 	}
 
@@ -134,7 +200,13 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 			Find(&twirCommand).
 			Error
 		if err != nil {
-			return nil, err
+			failedCount++
+			failedCommandsNames = append(
+				failedCommandsNames,
+				command.Name+" (twir internal error)",
+			)
+
+			continue
 		}
 
 		if twirCommand.ID != "" {
@@ -251,6 +323,155 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		ImportedCount:       int32(importedCount),
 		FailedCount:         int32(failedCount),
 		FailedCommandsNames: failedCommandsNames,
+	}, nil
+}
+
+func (c *Integrations) IntegrationsNightbotImportTimers(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*integrations_nightbot.ImportTimersResponse, error) {
+	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	integration, err := c.getChannelIntegrationByService(
+		ctx,
+		model.IntegrationServiceNightbot,
+		dashboardId,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if !integration.AccessToken.Valid {
+		return nil, errors.New("enable nightbot integration first")
+	}
+
+	timersData := nightbotTimersResponse{}
+	resp, err := req.R().
+		SetContext(ctx).
+		SetBearerAuthToken(integration.AccessToken.String).
+		SetSuccessResult(&timersData).
+		Get("https://api.nightbot.tv/1/timers")
+	if err != nil {
+		return nil, err
+	}
+	if !resp.IsSuccessState() {
+		if resp.StatusCode == http.StatusUnauthorized {
+			err = c.refreshNightbotTokens(ctx, integration)
+			if err != nil {
+				return nil, err
+			}
+		}
+		return nil, fmt.Errorf("nightbot integration error: %s", resp.String())
+	}
+
+	if len(timersData.Timers) == 0 {
+		return &integrations_nightbot.ImportTimersResponse{
+			ImportedCount:     0,
+			FailedCount:       0,
+			FailedTimersNames: []string{},
+		}, nil
+	}
+
+	importedCount := 0
+	failedCount := 0
+	failedTimersNames := []string{}
+
+	var currentCount int64
+	if err := c.Db.Model(&model.ChannelsTimers{}).Where(
+		`"channelId" = ?`,
+		dashboardId,
+	).Count(&currentCount).Error; err != nil {
+		return nil, fmt.Errorf("cannot get timers count time: %w", err)
+	}
+
+	spaceLeft := 10 - currentCount
+	re := regexp.MustCompile(`\*/(\d+)|(\d+) \* \* \* \*`)
+	for _, timer := range timersData.Timers {
+		if spaceLeft == 0 {
+			failedCount++
+			failedTimersNames = append(failedTimersNames, timer.Name+" (no space left)")
+			continue
+		}
+
+		var interval string
+
+		match := re.FindStringSubmatch(timer.Interval)
+		for i := 1; i < len(match); i++ {
+			if match[i] != "" {
+				interval = match[i]
+				break
+			}
+		}
+
+		if interval == "" {
+			failedCount++
+			failedTimersNames = append(
+				failedTimersNames,
+				timer.Name+" (invalid timer interval)",
+			)
+			continue
+		}
+		parsedInterval, err := strconv.Atoi(interval)
+		if parsedInterval == 0 {
+			parsedInterval = 60
+		}
+
+		if err != nil {
+			failedCount++
+			failedTimersNames = append(
+				failedTimersNames,
+				timer.Name+" (invalid timer interval)",
+			)
+			continue
+		}
+
+		entity := &model.ChannelsTimers{
+			ID:              uuid.NewString(),
+			ChannelID:       dashboardId,
+			Name:            timer.Name,
+			Enabled:         timer.Enabled,
+			TimeInterval:    int32(parsedInterval),
+			MessageInterval: int32(timer.Lines),
+			Responses: []*model.ChannelsTimersResponses{
+				{
+					ID:         uuid.NewString(),
+					Text:       timer.Message,
+					IsAnnounce: false,
+				},
+			},
+		}
+
+		if err := c.Db.WithContext(ctx).Create(&entity).Error; err != nil {
+			if pgerr, ok := err.(*pgconn.PgError); ok {
+				if pgerr.Code == "23505" {
+					failedCount++
+					failedTimersNames = append(
+						failedTimersNames,
+						timer.Name+" (timer already exists)",
+					)
+					continue
+				}
+			}
+
+			failedCount++
+			failedTimersNames = append(
+				failedTimersNames,
+				timer.Name+" (twir internal error)",
+			)
+			continue
+		}
+
+		importedCount++
+		spaceLeft--
+	}
+
+	return &integrations_nightbot.ImportTimersResponse{
+		ImportedCount:     int32(importedCount),
+		FailedCount:       int32(failedCount),
+		FailedTimersNames: failedTimersNames,
 	}, nil
 }
 

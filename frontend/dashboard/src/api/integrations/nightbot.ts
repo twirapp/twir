@@ -10,6 +10,13 @@ export const useNightbotIntegrationImporter = () => {
 				const call = await protectedApiClient.integrationsNightbotImportCommands({});
 				return call.response;
 			},
-	}),
+		}),
+		useTimersImporter: () => useMutation({
+			mutationKey: ['integrationsNightbotImportTimers'],
+			mutationFn: async () => {
+				const call = await protectedApiClient.integrationsNightbotImportTimers({});
+				return call.response;
+			},
+		}),
 	};
 };

@@ -132,6 +132,7 @@ service Protected {
 	rpc IntegrationsNightbotPostCode(messages.integrations_nightbot.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsNightbotLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
 	rpc IntegrationsNightbotImportCommands(google.protobuf.Empty) returns (messages.integrations_nightbot.ImportCommandsResponse) {}
+	rpc IntegrationsNightbotImportTimers(google.protobuf.Empty) returns (messages.integrations_nightbot.ImportTimersResponse) {}
 
 	rpc IntegrationsVKGetAuthLink(google.protobuf.Empty) returns (messages.integrations_vk.GetAuthLink) {}
 	rpc IntegrationsVKGetData(google.protobuf.Empty) returns (messages.integrations_vk.GetDataResponse) {}

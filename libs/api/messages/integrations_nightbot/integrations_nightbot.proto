@@ -20,3 +20,9 @@ message ImportCommandsResponse {
 	int32 failed_count = 2;
 	repeated string failed_commands_names = 3;
 }
+
+message ImportTimersResponse {
+	int32 imported_count = 1;
+	int32 failed_count = 2;
+	repeated string failed_timers_names = 3;
+}
