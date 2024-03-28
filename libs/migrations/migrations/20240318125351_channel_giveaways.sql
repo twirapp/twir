@@ -41,6 +41,9 @@ CREATE TABLE "channels_giveaways_participants" (
 	"user_stats_watched_time" bigint not null
 );
 
+ALTER TYPE "channels_roles_permissions_enum" ADD VALUE 'VIEW_GIVEAWAYS';
+ALTER TYPE "channels_roles_permissions_enum" ADD VALUE 'MANAGE_GIVEAWAYS';
+
 ALTER TABLE "channels_giveaways" ADD CONSTRAINT "channels_giveaways_channels_channel_fk" FOREIGN KEY ("channel_id") REFERENCES "channels"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "channels_giveaways_participants" ADD CONSTRAINT "channel_giveaways_channel_giveaways_participants_giveaway_fk" FOREIGN KEY ("giveaway_id") REFERENCES "channels_giveaways"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
 ALTER TABLE "channels_giveaways_participants" ADD CONSTRAINT "channel_giveaways_channel_giveaways_participants_user_fk" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
