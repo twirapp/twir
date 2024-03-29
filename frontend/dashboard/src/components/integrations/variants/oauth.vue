@@ -93,8 +93,10 @@ const { t } = useI18n();
 					</n-button>
 				</div>
 				<div v-if="data?.userName" class="profile">
-					<n-avatar v-if="data?.avatar" round :src="data?.avatar" />
-					<span>{{ data.userName }}</span>
+					<div class="flex items-center gap-2 h-full px-4 py-2">
+						<n-avatar v-if="data?.avatar" round :src="data?.avatar" style="height: 25px; width: 25px" />
+						<span>{{ data.userName }}</span>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -149,8 +151,6 @@ const { t } = useI18n();
 
 .profile {
 	display: flex;
-	align-items: center;
-	padding: 10px;
 	background-color: v-bind('themeVars.buttonColor2');
 	border-radius: 4px;
 	gap: 8px;
