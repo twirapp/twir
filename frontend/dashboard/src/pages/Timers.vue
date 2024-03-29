@@ -133,17 +133,22 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>{{ t('sidebar.timers') }}</h2>
-		<n-button
-			secondary type="success"
-			:disabled="!userCanManageTimers || timersLength >= 10"
-			@click="openModal(null)"
-		>
-			{{ timersLength >= 10 ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{
-				timersLength }}/10)
-		</n-button>
+	<n-space justify="space-between" align="center" class="mb-2">
+		<h1 class="text-2xl">
+			{{ t('sidebar.timers') }}
+		</h1>
+		<div>
+			<n-button
+				secondary type="success"
+				:disabled="!userCanManageTimers || timersLength >= 10"
+				@click="openModal(null)"
+			>
+				{{ timersLength >= 10 ? t('timers.limitExceeded') : t('sharedButtons.create') }} ({{
+					timersLength }}/10)
+			</n-button>
+		</div>
 	</n-space>
+
 	<n-data-table
 		:isLoading="timers.isLoading.value"
 		:columns="columns"

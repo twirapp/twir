@@ -63,7 +63,7 @@ const { t } = useI18n();
 
 		<template #footer>
 			<div class="footer">
-				<div style="display: flex; gap: 8px;">
+				<div class="flex gap-2 flex-wrap">
 					<n-button
 						v-if="withSettings"
 						:disabled="!userCanManageIntegrations"

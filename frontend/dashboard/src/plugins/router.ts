@@ -1,11 +1,7 @@
 import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import {
-	userAccessFlagChecker,
-	profileQueryOptions,
-	dashboardsQueryOptions,
-} from '@/api';
+import { dashboardsQueryOptions, profileQueryOptions, userAccessFlagChecker } from '@/api';
 
 export const newRouter = (queryClient: QueryClient) => {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
@@ -151,6 +147,11 @@ export const newRouter = (queryClient: QueryClient) => {
 					path: '/dashboard/settings',
 					component: () => import('../pages/UserSettings.vue'),
 					meta: { noPadding: true },
+				},
+				{
+					name: 'Import',
+					path: '/dashboard/import',
+					component: () => import('../pages/Import.vue'),
 				},
 				{
 					name: 'Forbidden',
