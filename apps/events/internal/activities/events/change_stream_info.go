@@ -8,6 +8,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -33,26 +34,15 @@ func (c *Activity) ChangeCategory(
 		return twitchClientErr
 	}
 
-	searchCategory, err := twitchClient.SearchCategories(
-		&helix.SearchCategoriesParams{
-			Query: hydratedCategory,
-		},
-	)
+	category, err := twitch.SearchCategory(ctx, hydratedCategory)
 	if err != nil {
 		return err
-	}
-	if searchCategory.ErrorMessage != "" {
-		return fmt.Errorf("cannot get category with that name: %s", searchCategory.ErrorMessage)
-	}
-
-	if len(searchCategory.Data.Categories) == 0 {
-		return errors.New("cannot get category with that name")
 	}
 
 	editReq, err := twitchClient.EditChannelInformation(
 		&helix.EditChannelInformationParams{
 			BroadcasterID: data.ChannelID,
-			GameID:        searchCategory.Data.Categories[0].ID,
+			GameID:        category.ID,
 		},
 	)
 	if err != nil {

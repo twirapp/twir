@@ -370,7 +370,11 @@ func (c *Commands) ParseCommandResponses(
 		response := r
 		go func() {
 			defer wg.Done()
-			result.Responses[index] = c.variablesService.ParseVariablesInText(ctx, parseCtx, response)
+			result.Responses[index] = c.variablesService.ParseVariablesInText(
+				ctx,
+				parseCtx,
+				response,
+			)
 		}()
 	}
 	wg.Wait()
@@ -407,6 +411,28 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		}
 		if stream == nil || stream.ID == "" {
 			return nil, nil
+		}
+	}
+
+	if len(cmd.Cmd.EnabledCategories) != 0 {
+		stream := &model.ChannelsStreams{}
+		err = c.services.Gorm.
+			WithContext(ctx).
+			Where(`"userId" = ?`, data.BroadcasterUserId).
+			Find(stream).Error
+		if err != nil {
+			return nil, err
+		}
+
+		if stream.ID != "" {
+			if !lo.ContainsBy(
+				cmd.Cmd.EnabledCategories,
+				func(category string) bool {
+					return category == stream.GameId
+				},
+			) {
+				return nil, nil
+			}
 		}
 	}
 
@@ -478,7 +504,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				BaseInfo:           &events.BaseInfo{ChannelId: data.BroadcasterUserId},
 				CommandId:          cmd.Cmd.ID,
 				CommandName:        cmd.Cmd.Name,
-				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy):]),
+				CommandInput:       strings.TrimSpace(data.Message.Text[len(cmd.FoundBy)+1:]),
 				UserName:           data.ChatterUserLogin,
 				UserDisplayName:    data.ChatterUserName,
 				UserId:             data.ChatterUserId,

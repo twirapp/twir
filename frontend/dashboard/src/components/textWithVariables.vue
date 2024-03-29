@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { IconVariable } from '@tabler/icons-vue';
-import { NText, NInput, NInputGroup, NButton, NPopselect } from 'naive-ui';
+import { IconSearch } from '@tabler/icons-vue';
+import { NInput, NDropdown, NTooltip } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
 import { computed, VNodeChild, h, FunctionalComponent, ref } from 'vue';
 
@@ -24,6 +24,24 @@ defineSlots<{
 const allVariables = useAllVariables();
 const search = ref('');
 
+const header = {
+	key: 'header',
+	type: 'render',
+	render: () => {
+		return h(
+			NInput,
+			{
+				value: search.value,
+				onInput: (v: string) => search.value = v, placeholder: 'Search for variable...',
+				size: 'small',
+			},
+			{
+				suffix: () => h(IconSearch),
+			},
+		);
+	},
+};
+
 const selectVariables = computed<SelectMixedOption[]>(() => {
 	const variables = allVariables.data?.value;
 	if (!variables) return [];
@@ -32,6 +50,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 	const custom = variables.filter((variable) => !variable.isBuiltIn);
 
 	return [
+		header,
 		{
 			type: 'group',
 			label: 'Custom',
@@ -40,7 +59,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})).filter(v => v.value.includes(search.value)),
+			})).filter(v => v.value.includes(search.value) || v.description?.includes(search.value)),
 		},
 		{
 			type: 'group',
@@ -50,7 +69,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})).filter(v => v.value.includes(search.value)),
+			})).filter(v => v.value.includes(search.value) || v.description?.includes(search.value)),
 		},
 	];
 });
@@ -64,69 +83,45 @@ function renderVariableSelectLabel(option: {
 	if (!option.description) return option.label;
 
 	return h(
-		'div',
+		NTooltip,
+		{ placement: 'left' },
 		{
-			style: {
-				display: 'flex',
-				alignItems: 'center',
-			},
+			default: () => option.description,
+			trigger: () => h('span', { style: { width: '100%', display: 'flex' } }, `$(${option.label})`),
 		},
-		[
-			h(
-				'div',
-				{
-					style: {
-						padding: '4px 0',
-					},
-				},
-				[
-					h('div', null, `$(${option.label})`),
-					h(
-						NText,
-						{ depth: 3, tag: 'div' },
-						{
-							default: () => option.description,
-						},
-					),
-				],
-			),
-		],
 	);
 }
 
-function appendOptionToText(option: SelectMixedOption) {
+function appendOptionToText(_: unknown, option: SelectMixedOption) {
 	const newText = ` $(${option.value})`;
 	text.value += newText;
 }
+
+const showDropdown = ref(false);
 </script>
 
 <template>
-	<n-input-group>
+	<n-dropdown
+		trigger="hover"
+		:options="selectVariables"
+		style="max-width: 100%; max-height: 300px;"
+		:render-label="renderVariableSelectLabel as any"
+		scrollable
+		@select="appendOptionToText"
+	>
 		<n-input
 			v-model:value="text"
 			style="width: 100%"
 			:type="inputType"
 			:autosize="inputType === 'text' ? {} : { minRows, maxRows }"
 			placeholder="Response text"
+			@click="showDropdown = true"
 		/>
-		<n-popselect
-			:options="selectVariables"
-			:loading="allVariables.isLoading.value"
-			scrollable
-			:value="null"
-			:render-label="renderVariableSelectLabel as any"
-			:on-update-value="(_, option) => appendOptionToText(option)"
-		>
-			<n-button style="height:auto">
-				<IconVariable />
-			</n-button>
-			<template #action>
-				<n-input v-model:value="search" placeholder="Search..." size="small" />
-			</template>
-		</n-popselect>
-	</n-input-group>
+	</n-dropdown>
 </template>
 
-<style scoped lang='postcss'>
-
+<style scoped>
+:deep(.n-base-select-menu) {
+	max-width: 400px;
+}
 </style>

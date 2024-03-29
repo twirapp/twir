@@ -63,7 +63,6 @@ require (
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/stretchr/testify v1.9.0 // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect

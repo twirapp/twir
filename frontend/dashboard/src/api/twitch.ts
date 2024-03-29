@@ -4,7 +4,7 @@ import type {
 	TwitchGetUsersResponse,
 	TwitchSearchChannelsResponse,
 } from '@twir/api/messages/twitch/twitch';
-import { ComputedRef, isRef, Ref } from 'vue';
+import { ComputedRef, isRef, MaybeRef, Ref } from 'vue';
 
 import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js';
 
@@ -66,7 +66,6 @@ export const useTwitchRewards = () => useQuery({
 	},
 });
 
-
 export const useTwitchSearchCategories = (query: string | Ref<string>) => useQuery({
 	queryKey: ['twitchSearchCategories', query || ''],
 	queryFn: async () => {
@@ -74,6 +73,17 @@ export const useTwitchSearchCategories = (query: string | Ref<string>) => useQue
 		if (!input) return { categories: [] };
 
 		const call = await protectedApiClient.twitchSearchCategories({ query: input });
+		return call.response;
+	},
+});
+
+export const useTwitchGetCategories = (ids: MaybeRef<string[]> | ComputedRef<string[]>) => useQuery({
+	queryKey: ['twitchGetCategories', ids || ''],
+	queryFn: async () => {
+		const input = isRef(ids) ? ids.value : ids;
+		if (!input) return { categories: [] };
+
+		const call = await protectedApiClient.twitchGetCategories({ ids: input });
 		return call.response;
 	},
 });

@@ -99,7 +99,7 @@ func (c *Donatello) Handler() http.Handler {
 			integrationsMessage := &pbMessage{
 				TwitchUserId: integration.ChannelID,
 				Amount:       body.Amount,
-				Currency:     "RUB",
+				Currency:     body.Currency,
 				Message:      body.Message,
 				UserName:     body.ClientName,
 			}

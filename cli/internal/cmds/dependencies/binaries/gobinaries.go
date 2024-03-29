@@ -10,7 +10,7 @@ var binaries = []gobinary.GoBinary{
 	{Url: "google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0"},
 	{Url: "github.com/twitchtv/twirp/protoc-gen-twirp@v8.1.3"},
 	{Url: "github.com/caddyserver/caddy/v2/cmd/caddy@v2.7.6"},
-	{Url: "github.com/bufbuild/buf/cmd/buf@v1.30.0"},
+	{Url: "github.com/bufbuild/buf/cmd/buf@v1.27.0"},
 }
 
 func InstallGoBinaries() error {

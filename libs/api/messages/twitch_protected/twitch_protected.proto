@@ -7,6 +7,10 @@ message SearchCategoriesRequest {
 	string query = 1;
 }
 
+message GetCategoriesRequest {
+	repeated string ids = 1;
+}
+
 message SearchCategoriesResponse {
 	message Category {
 		string id = 1;

@@ -3,6 +3,7 @@ package twitchactions
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 	"unicode/utf8"
 
@@ -39,9 +40,16 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		First(channel).Error; err != nil {
 		return err
 	}
-	if !channel.IsEnabled || !channel.IsBotMod {
+	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.IsBanned {
 		return nil
 	}
+
+	c.logger.Info(
+		"Sending message",
+		slog.String("channel_id", opts.BroadcasterID),
+		slog.String("sender_id", opts.SenderID),
+		slog.Bool("is_announce", opts.IsAnnounce),
+	)
 
 	var twitchClient *helix.Client
 	var err error

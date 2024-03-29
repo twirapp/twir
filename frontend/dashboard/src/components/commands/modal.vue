@@ -17,7 +17,6 @@ import {
 	NCard,
 	NDivider,
 	NDynamicInput,
-	NDynamicTags,
 	NForm,
 	NFormItem,
 	NGrid,
@@ -40,7 +39,9 @@ import { useI18n } from 'vue-i18n';
 import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
 import type { EditableCommand } from '@/components/commands/types.js';
 import TextWithVariables from '@/components/textWithVariables.vue';
+import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
+import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
 
 const { t } = useI18n();
 
@@ -56,7 +57,11 @@ const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableCommand>({
 	name: '',
 	aliases: [],
-	responses: [],
+	responses: [
+		{
+			text: '',
+		},
+	],
 	description: '',
 	rolesIds: [],
 	deniedUsersIds: [],
@@ -74,7 +79,9 @@ const formValue = ref<EditableCommand>({
 	groupId: undefined,
 	module: 'CUSTOM',
 	cooldownRolesIds: [],
+	enabledCategories: [],
 });
+
 
 onMounted(() => {
 	if (!props.command) return;
@@ -183,7 +190,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark style="width: 90%">
 							<n-input-group>
 								<n-input-group-label>!</n-input-group-label>
-								<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" />
+								<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" :on-input="() => formValue.name.startsWith('!') && (formValue.name = formValue.name.slice(1))" />
 							</n-input-group>
 						</n-form-item>
 						<n-form-item :label="t('sharedTexts.enabled')" path="enabled">
@@ -192,14 +199,14 @@ const createButtonProps = { class: 'create-button' } as any;
 					</div>
 
 					<n-form-item :label="t('commands.modal.aliases.label')" path="aliases">
-						<n-dynamic-tags v-model:value="formValue.aliases" :input-props="{ maxlength: 25 }" />
-					</n-form-item>
+						<TagsInput v-model="formValue.aliases" :max="25" class="bg-zinc-700 w-full">
+							<TagsInputItem v-for="item in formValue.aliases" :key="item" :value="item">
+								<TagsInputItemText />
+								<TagsInputItemDelete />
+							</TagsInputItem>
 
-					<n-form-item :label="t('commands.modal.description.label')" path="description">
-						<n-input
-							v-model:value="formValue.description" placeholder="Description" type="textarea"
-							autosize
-						/>
+							<TagsInputInput placeholder="Write new aliase here..." />
+						</TagsInput>
 					</n-form-item>
 
 					<n-divider>
@@ -480,6 +487,17 @@ const createButtonProps = { class: 'create-button' } as any;
 					<n-divider>
 						{{ t('commands.modal.settings.other.divider') }}
 					</n-divider>
+
+					<n-form-item :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
+						<twitch-category-search v-model="formValue.enabledCategories" multiple />
+					</n-form-item>
+
+					<n-form-item :label="t('commands.modal.description.label')" path="description">
+						<n-input
+							v-model:value="formValue.description" placeholder="Description" type="textarea"
+							autosize
+						/>
+					</n-form-item>
 
 					<n-form-item :label="t('commands.modal.settings.other.commandGroup')" path="groupId">
 						<n-button v-if="!commandsGroupsOptions.length" secondary disabled>

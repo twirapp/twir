@@ -46,16 +46,20 @@ func (c *Activity) Ban(
 	}
 
 	var errwg errgroup.Group
-	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
+	}
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	if twitchBotClientError != nil {
+		return twitchBotClientError
 	}
 
 	var targetUser helix.User
 
 	errwg.Go(
 		func() error {
-			u, err := c.getHelixUserByLogin(twitchClient, hydratedName)
+			u, err := c.getHelixUserByLogin(broadcasterTwitchClient, hydratedName)
 			if err != nil {
 				return err
 			}
@@ -68,7 +72,7 @@ func (c *Activity) Ban(
 
 	errwg.Go(
 		func() error {
-			m, err := c.getChannelMods(twitchClient, data.ChannelID)
+			m, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelID)
 			if err != nil {
 				return err
 			}
@@ -91,10 +95,10 @@ func (c *Activity) Ban(
 		}
 	}
 
-	banReq, err := twitchClient.BanUser(
+	banReq, err := botTwitchClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorId:   data.ChannelID,
+			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: operation.TimeoutTime,
 				Reason:   computeBanReason(operation.TimeoutMessage),
@@ -102,6 +106,7 @@ func (c *Activity) Ban(
 			},
 		},
 	)
+
 	if err != nil {
 		return fmt.Errorf("cannot ban targetUser: %w", err)
 	}
@@ -135,20 +140,24 @@ func (c *Activity) Unban(
 		return dbChannelErr
 	}
 
-	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	if twitchBotClientError != nil {
+		return twitchBotClientError
+	}
 
-	targetUser, userErr := c.getHelixUserByLogin(twitchClient, hydratedName)
+	targetUser, userErr := c.getHelixUserByLogin(broadcasterTwitchClient, hydratedName)
 	if userErr != nil {
 		return userErr
 	}
 
-	resp, err := twitchClient.UnbanUser(
+	resp, err := botTwitchClient.UnbanUser(
 		&helix.UnbanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorID:   data.ChannelID,
+			ModeratorID:   dbChannel.BotID,
 			UserID:        targetUser.ID,
 		},
 	)
@@ -174,12 +183,16 @@ func (c *Activity) BanRandom(
 		return err
 	}
 
-	twitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
+	botTwitchClient, twitchClientError := c.getHelixBotApiClient(ctx, dbChannel.BotID)
 	if twitchClientError != nil {
 		return twitchClientError
 	}
+	broadcasterTwitchClient, twitchBotClientError := c.getHelixChannelApiClient(ctx, dbChannel.ID)
+	if twitchBotClientError != nil {
+		return twitchBotClientError
+	}
 
-	mods, err := c.getChannelMods(twitchClient, data.ChannelID)
+	mods, err := c.getChannelMods(broadcasterTwitchClient, data.ChannelID)
 	if err != nil {
 		return err
 	}
@@ -212,10 +225,10 @@ func (c *Activity) BanRandom(
 		timeoutTime = 600
 	}
 
-	banReq, err := twitchClient.BanUser(
+	banReq, err := botTwitchClient.BanUser(
 		&helix.BanUserParams{
 			BroadcasterID: data.ChannelID,
-			ModeratorId:   data.ChannelID,
+			ModeratorId:   dbChannel.BotID,
 			Body: helix.BanUserRequestBody{
 				Duration: timeoutTime,
 				Reason:   computeBanReason(operation.TimeoutMessage),

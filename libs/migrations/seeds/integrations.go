@@ -42,6 +42,14 @@ func CreateIntegrations(db *sql.DB, config *cfg.Config) error {
 
 	_, err = db.Query(
 		`INSERT INTO integrations (service) VALUES ($1) ON CONFLICT DO NOTHING`,
+		"NIGHTBOT",
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query(
+		`INSERT INTO integrations (service) VALUES ($1) ON CONFLICT DO NOTHING`,
 		"PUBG",
 	)
 	if err != nil {

@@ -342,4 +342,10 @@ export const OPERATIONS: Record<string, Operation> = {
 			},
 		},
 	},
+
+	SHOUTOUT_CHANNEL: {
+		name: 'Shoutout channel',
+		haveInput: true,
+		color: 'info',
+	},
 };

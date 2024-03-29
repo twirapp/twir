@@ -82,6 +82,7 @@
     "name": "Command | Commands",
     "searchPlaceholder": "Search the command...",
     "newCommandTitle": "New Command",
+		"importCommands": "Import commands",
     "groups": {
       "manageButton": "Manage Groups",
       "name": "Name",
@@ -104,6 +105,9 @@
       "aliases": {
         "label": "Aliases"
       },
+			"gameCategories": {
+				"label": "Enable command only in certain categories (leave empty for disable)"
+			},
       "description": {
         "label": "Command Description"
       },
@@ -236,6 +240,9 @@
     "faceit": {
       "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
     },
+		"nightbot": {
+			"info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+		},
     "valorant": {
       "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "
     },

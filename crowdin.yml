@@ -1,0 +1,3 @@
+files:
+  - source: /frontend/dashboard/src/locales/en.json
+    translation: /frontend/dashboard/src/locales/%two_letters_code%.json

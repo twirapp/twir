@@ -356,6 +356,13 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
+			case model.OperationShoutoutChannel:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.ShoutoutChannel,
+					operation,
+					data,
+				).Get(ctx, nil)
 			}
 
 			if operationErr != nil {

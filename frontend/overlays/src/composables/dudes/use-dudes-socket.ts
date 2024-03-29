@@ -1,8 +1,5 @@
 import type { Settings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import {
-	DudesSprite,
-	type DudesUserSettings,
-} from '@twir/types/overlays';
+import { DudesSprite, type DudesUserSettings } from '@twir/types/overlays';
 import { useWebSocket } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
 import { onMounted, ref, watch } from 'vue';
@@ -63,8 +60,9 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 			if (!dudeSettings?.userDisplayName) return;
 
 			dudesSettingsStore.dudesUserSettings.set(data.userId, {
-				...data,
 				...dudeSettings,
+				...data,
+				dudeColor: data.dudeColor ?? dudeSettings.dudeColor,
 			});
 
 			const spriteData = getSprite(
