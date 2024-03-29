@@ -241,7 +241,7 @@
       "info": "Providing access to this service allows Twir to track your Faceit matches and will setup command variables such as {0}, {1} and much more."
     },
 		"nightbot": {
-			"info": "Providing access to this service allows Twir to import faster from Nightbot."
+			"info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
 		},
     "valorant": {
       "info": "Providing access to this service allows Twir to track your Valorant matches and will setup command variables such as {0}, {1} and much more. "

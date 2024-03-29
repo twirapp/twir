@@ -15,7 +15,6 @@ import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useTimersManager, useUserAccessFlagChecker } from '@/api/index.js';
-import ImportModal from '@/components/timers/importModal.vue';
 import Modal from '@/components/timers/modal.vue';
 import { type EditableTimer } from '@/components/timers/types.js';
 import { renderIcon } from '@/helpers/index.js';
@@ -121,8 +120,6 @@ const showModal = ref(false);
 
 const editableTimer = ref<EditableTimer | null>(null);
 
-const showImportModal = ref(false);
-
 function openModal(t: EditableTimer | null) {
 	editableTimer.value = t;
 	showModal.value = true;
@@ -136,15 +133,11 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>{{ t('sidebar.timers') }}</h2>
+	<n-space justify="space-between" align="center" class="mb-2">
+		<h1 class="text-2xl">
+			{{ t('sidebar.timers') }}
+		</h1>
 		<div>
-			<n-button
-				:disabled="!userCanManageTimers" secondary type="info"
-				@click="showImportModal = true"
-			>
-				Import
-			</n-button>
 			<n-button
 				secondary type="success"
 				:disabled="!userCanManageTimers || timersLength >= 10"
@@ -155,27 +148,12 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 			</n-button>
 		</div>
 	</n-space>
+
 	<n-data-table
 		:isLoading="timers.isLoading.value"
 		:columns="columns"
 		:data="timers.data.value?.timers ?? []"
 	/>
-
-	<n-modal
-		v-model:show="showImportModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		title="Import timers"
-		class="modal"
-		:style="{
-			width: '600px',
-			top: '50px',
-		}"
-		:on-close="() => showImportModal = false"
-	>
-		<import-modal @close="showImportModal = false" />
-	</n-modal>
 
 	<n-modal
 		v-model:show="showModal"

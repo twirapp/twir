@@ -16,7 +16,6 @@ import ColumnActions from './list/column-actions.vue';
 import { type Group, isCommand, createGroups } from './list/create-groups';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
-import ImportModal from '@/components/commands/importModal.vue';
 import ManageGroups from '@/components/commands/manageGroups.vue';
 import Modal from '@/components/commands/modal.vue';
 import type { EditableCommand } from '@/components/commands/types.js';
@@ -150,9 +149,6 @@ const table = useVueTable({
 		}
 	},
 });
-
-const showImportModal = ref(false);
-
 </script>
 
 <template>
@@ -170,12 +166,6 @@ const showImportModal = ref(false);
 			</div>
 			<div>
 				<n-space>
-					<n-button
-						:disabled="!userCanManageCommands" secondary type="info"
-						@click="showImportModal = true"
-					>
-						Import
-					</n-button>
 					<n-button
 						:disabled="!userCanManageCommands" secondary type="info"
 						@click="showManageGroupsModal = true"
@@ -198,15 +188,6 @@ const showImportModal = ref(false);
 				</n-space>
 			</div>
 		</div>
-
-		<n-modal
-			v-model:show="showImportModal" :mask-closable="false" :segmented="true" preset="card" :title="t('commands.importCommands')" class="modal" :style="{
-				width: '800px',
-				height: '60dvh',
-			}"
-		>
-			<import-modal @close="showImportModal = false" />
-		</n-modal>
 
 		<n-modal
 			v-model:show="showCommandEditModal"

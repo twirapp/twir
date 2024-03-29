@@ -159,27 +159,35 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 	if err != nil {
 		return nil, errors.New("twir internal error")
 	}
-	broadcasterRole, ok := lo.Find(twirRoles, func(r model.ChannelRole) bool {
-		return r.Name == "BROADCASTER"
-	})
+	broadcasterRole, ok := lo.Find(
+		twirRoles, func(r model.ChannelRole) bool {
+			return r.Type == model.ChannelRoleTypeBroadcaster
+		},
+	)
 	if !ok {
 		return nil, errors.New("twir internal error")
 	}
-	moderatorRole, ok := lo.Find(twirRoles, func(r model.ChannelRole) bool {
-		return r.Name == "MODERATOR"
-	})
+	moderatorRole, ok := lo.Find(
+		twirRoles, func(r model.ChannelRole) bool {
+			return r.Type == model.ChannelRoleTypeModerator
+		},
+	)
 	if !ok {
 		return nil, errors.New("twir internal error")
 	}
-	subscriberRole, ok := lo.Find(twirRoles, func(r model.ChannelRole) bool {
-		return r.Name == "SUBSCRIBER"
-	})
+	subscriberRole, ok := lo.Find(
+		twirRoles, func(r model.ChannelRole) bool {
+			return r.Type == model.ChannelRoleTypeSubscriber
+		},
+	)
 	if !ok {
 		return nil, errors.New("twir internal error")
 	}
-	vipRole, ok := lo.Find(twirRoles, func(r model.ChannelRole) bool {
-		return r.Name == "VIP"
-	})
+	vipRole, ok := lo.Find(
+		twirRoles, func(r model.ChannelRole) bool {
+			return r.Type == model.ChannelRoleTypeVip
+		},
+	)
 	if !ok {
 		return nil, errors.New("twir internal error")
 	}
@@ -288,11 +296,13 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 			Description:       null.String{},
 		}
 
-		newCommand.Responses = append(newCommand.Responses, &model.ChannelsCommandsResponses{
-			ID:    uuid.NewString(),
-			Text:  null.StringFrom(commandResponse),
-			Order: 0,
-		})
+		newCommand.Responses = append(
+			newCommand.Responses, &model.ChannelsCommandsResponses{
+				ID:    uuid.NewString(),
+				Text:  null.StringFrom(commandResponse),
+				Order: 0,
+			},
+		)
 
 		err = c.Db.WithContext(ctx).Create(&newCommand).Error
 		if err != nil {
