@@ -22,6 +22,9 @@ export const useNightbotIntegrationImporter = () => {
 				const call = await protectedApiClient.integrationsNightbotImportTimers({});
 				return call.response;
 			},
+			onSuccess: async () => {
+				await queryClient.invalidateQueries(['timers']);
+			},
 		}),
 	};
 };
