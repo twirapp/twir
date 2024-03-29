@@ -10,7 +10,7 @@ import {
 	useStreamlabsIntegration,
 	useDonationAlertsIntegration,
 	useFaceitIntegration,
-	useDiscordIntegration, useValorantIntegration,
+	useDiscordIntegration, useValorantIntegration, useNightbotIntegration,
 } from '@/api/index.js';
 
 const router = useRouter();
@@ -57,6 +57,10 @@ const integrationsHooks: {
 	},
 	'valorant': {
 		manager: useValorantIntegration(),
+		closeWindow: true,
+	},
+	'nightbot': {
+		manager: useNightbotIntegration(),
 		closeWindow: true,
 	},
 };

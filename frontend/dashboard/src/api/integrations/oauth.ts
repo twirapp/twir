@@ -138,3 +138,11 @@ export const useValorantIntegration = () => createIntegrationOauth({
 	useLogout: protectedApiClient.integrationsValorantLogout,
 });
 
+export const useNightbotIntegration = () => createIntegrationOauth({
+	integrationName: 'nightbot',
+	getData: protectedApiClient.integrationsNightbotGetData,
+	getAuthLink: protectedApiClient.integrationsNightbotGetAuthLink,
+	usePostCode: protectedApiClient.integrationsNightbotPostCode,
+	useLogout: protectedApiClient.integrationsNightbotLogout,
+});
+
