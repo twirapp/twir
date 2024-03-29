@@ -82,6 +82,7 @@
     "name": "Befehl | Befehle",
     "searchPlaceholder": "Befehl suchen...",
     "newCommandTitle": "Neuer Befehl",
+    "importCommands": "Import commands",
     "groups": {
       "manageButton": "Gruppen verwalten",
       "name": "Name",
@@ -238,6 +239,9 @@
     },
     "faceit": {
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Faceit-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten."
+    },
+    "nightbot": {
+      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
     },
     "valorant": {
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
