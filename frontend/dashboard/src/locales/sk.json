@@ -82,6 +82,7 @@
     "name": "Príkaz | Príkazy",
     "searchPlaceholder": "Vyhľadať príkaz...",
     "newCommandTitle": "Nový príkaz",
+    "importCommands": "Import commands",
     "groups": {
       "manageButton": "Spravovať skupiny",
       "name": "Názov",
@@ -238,6 +239,9 @@
     },
     "faceit": {
       "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
+    },
+    "nightbot": {
+      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
     },
     "valorant": {
       "info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. "
