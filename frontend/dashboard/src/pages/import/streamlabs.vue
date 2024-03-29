@@ -7,6 +7,8 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue';
 	<oauth-component
 		title="Streamlabs"
 		:icon="IconStreamLabs"
+		:data="{}"
+		:logout="() => {}"
 	>
 		<template #description>
 			Soon...

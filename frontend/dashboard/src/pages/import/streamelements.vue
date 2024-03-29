@@ -8,6 +8,8 @@ import OauthComponent from '@/components/integrations/variants/oauth.vue';
 		title="StreamElements"
 		:icon="IconStreamElements"
 		icon-width="200px"
+		:data="{}"
+		:logout="() => {}"
 	>
 		<template #description>
 			Soon...
