@@ -82,6 +82,7 @@
     "name": "Команда | Команды",
     "searchPlaceholder": "Найти команду",
     "newCommandTitle": "Новая команда",
+    "importCommands": "Import commands",
     "groups": {
       "manageButton": "Управление группами",
       "name": "Имя",
@@ -238,6 +239,9 @@
     },
     "faceit": {
       "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи с Faceit и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
+    },
+    "nightbot": {
+      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
     },
     "valorant": {
       "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
