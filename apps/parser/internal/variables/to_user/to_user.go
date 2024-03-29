@@ -19,9 +19,16 @@ var ToUser = &types.Variable{
 			Result: parseCtx.Sender.Name,
 		}
 
-		if parseCtx.Text != nil {
-			result.Result = strings.ReplaceAll(*parseCtx.Text, "@", "")
+		var mentions []string
+		for _, m := range parseCtx.Mentions {
+			mentions = append(mentions, "@"+m.UserName)
 		}
+
+		if mentions == nil {
+			mentions = append(mentions, "@"+parseCtx.Sender.DisplayName)
+		}
+
+		result.Result = strings.Join(mentions, ", ")
 
 		return result, nil
 	},
