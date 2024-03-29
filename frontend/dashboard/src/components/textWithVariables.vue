@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { IconSearch } from '@tabler/icons-vue';
 import { NInput, NDropdown, NTooltip } from 'naive-ui';
 import { type SelectMixedOption } from 'naive-ui/es/select/src/interface';
 import { computed, VNodeChild, h, FunctionalComponent, ref } from 'vue';
@@ -23,6 +24,24 @@ defineSlots<{
 const allVariables = useAllVariables();
 const search = ref('');
 
+const header = {
+	key: 'header',
+	type: 'render',
+	render: () => {
+		return h(
+			NInput,
+			{
+				value: search.value,
+				onInput: (v: string) => search.value = v, placeholder: 'Search for variable...',
+				size: 'small',
+			},
+			{
+				suffix: () => h(IconSearch),
+			},
+		);
+	},
+};
+
 const selectVariables = computed<SelectMixedOption[]>(() => {
 	const variables = allVariables.data?.value;
 	if (!variables) return [];
@@ -31,6 +50,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 	const custom = variables.filter((variable) => !variable.isBuiltIn);
 
 	return [
+		header,
 		{
 			type: 'group',
 			label: 'Custom',
@@ -39,7 +59,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})).filter(v => v.value.includes(search.value)),
+			})).filter(v => v.value.includes(search.value) || v.description?.includes(search.value)),
 		},
 		{
 			type: 'group',
@@ -49,7 +69,7 @@ const selectVariables = computed<SelectMixedOption[]>(() => {
 				label: v.name,
 				value: v.example || v.name,
 				description: v.description,
-			})).filter(v => v.value.includes(search.value)),
+			})).filter(v => v.value.includes(search.value) || v.description?.includes(search.value)),
 		},
 	];
 });
