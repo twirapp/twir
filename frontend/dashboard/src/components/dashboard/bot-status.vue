@@ -54,7 +54,7 @@ const alertContent = computed(() => {
 
 </script>
 <template>
-	<div v-if="haveIssues" class="p-4" :title="t('dashboard.botManage.notEnabledTitle')">
+	<div v-if="data && haveIssues" class="p-4" :title="t('dashboard.botManage.notEnabledTitle')">
 		<n-alert type="error">
 			<div class="flex flex-col">
 				<component :is="alertContent" />
