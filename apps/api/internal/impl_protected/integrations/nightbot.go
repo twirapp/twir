@@ -134,7 +134,6 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		SetBearerAuthToken(integration.AccessToken.String).
 		SetSuccessResult(&commandsData).
 		Get("https://api.nightbot.tv/1/commands")
-	fmt.Println(resp.String())
 	if err != nil {
 		return nil, err
 	}
