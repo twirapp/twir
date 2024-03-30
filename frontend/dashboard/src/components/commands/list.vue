@@ -8,7 +8,7 @@ import {
 		getExpandedRowModel,
 } from '@tanstack/vue-table';
 import { type Command } from '@twir/api/messages/commands/commands';
-import { rgbToHex, hexToRgb, colorBrightness } from '@zero-dependency/utils'
+import { rgbToHex, hexToRgb, colorBrightness } from '@zero-dependency/utils';
 import { NButton, NSpace, NModal, NInput, useThemeVars, NIcon } from 'naive-ui';
 import { ref, h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
