@@ -201,8 +201,8 @@ importers:
         specifier: 10.7.2
         version: 10.7.2(vue@3.4.18)
       '@zero-dependency/utils':
-        specifier: 1.7.5
-        version: 1.7.5
+        specifier: 1.7.7
+        version: 1.7.7
       class-variance-authority:
         specifier: 0.7.0
         version: 0.7.0
@@ -398,8 +398,8 @@ importers:
         specifier: 10.7.2
         version: 10.7.2(vue@3.4.18)
       '@zero-dependency/utils':
-        specifier: 1.7.5
-        version: 1.7.5
+        specifier: 1.7.7
+        version: 1.7.7
       emoji-regex:
         specifier: 10.3.0
         version: 10.3.0
@@ -4236,8 +4236,8 @@ packages:
     resolution: {integrity: sha512-2WALfTl4xo2SkGCYRt6rDTFfk9R1czmBvUQy12gK2KuRKIpWEhcbbzy8EZXtz/jkRqHX8bFEc6FC1HjX4TUWYw==}
     engines: {node: '>=10.0.0'}
 
-  /@zero-dependency/utils@1.7.5:
-    resolution: {integrity: sha512-Go1jSo/fOTEf/0k5+9qfaFRwJ7MQnjPRgFB+F5ujSOkif5xweTMjNwdoJir9PujM6iwfsRg/g8LQONraO0ZWgQ==}
+  /@zero-dependency/utils@1.7.7:
+    resolution: {integrity: sha512-yVHb1gljLa3rUlo9Fp2Cj5H6EfFrr/vngObdthDskzobyVoFhTknVDh6rnQMXiWhLqZz5V1lbROWit5Kc60s8g==}
     dev: false
 
   /abort-controller-x@0.4.3:

@@ -8,6 +8,7 @@ import {
 		getExpandedRowModel,
 } from '@tanstack/vue-table';
 import { type Command } from '@twir/api/messages/commands/commands';
+import { rgbToHex, hexToRgb, colorBrightness } from '@zero-dependency/utils';
 import { NButton, NSpace, NModal, NInput, useThemeVars, NIcon } from 'naive-ui';
 import { ref, h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -72,6 +73,9 @@ const columns: ColumnDef<Command | Group>[] = [
 				);
 			}
 
+			const color = rgbToHex(row.original.color ?? 'rgb(255, 255, 255)');
+			const textColor = colorBrightness(hexToRgb(color)!) >= 128 ? '#000' : '#fff';
+
       return h(
 				'div',
 				{ class: `flex gap-2 items-center select-none` },
@@ -79,7 +83,7 @@ const columns: ColumnDef<Command | Group>[] = [
 					chevron,
 					h(
 						'span',
-						{ class: `p-1 rounded`, style: `background-color: ${row.original.color}` },
+						{ class: `p-1 rounded`, style: `background-color: ${row.original.color}; color: ${textColor}` },
 						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
 					),
 				],

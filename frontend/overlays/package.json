@@ -18,7 +18,7 @@
     "@twirapp/dudes": "1.1.1",
     "@twirapp/kappagen": "1.0.1",
     "@vueuse/core": "10.7.2",
-    "@zero-dependency/utils": "1.7.5",
+    "@zero-dependency/utils": "1.7.7",
     "emoji-regex": "10.3.0",
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.4",
