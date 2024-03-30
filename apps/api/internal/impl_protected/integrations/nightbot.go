@@ -39,11 +39,12 @@ type nightbotChannelResponse struct {
 
 type nightbotCustomCommandsResponse struct {
 	Commands []struct {
-		Name      string `json:"name"`
-		Message   string `json:"message"`
-		CoolDown  int    `json:"coolDown"`
-		Count     int    `json:"count"`
-		UserLevel string `json:"userLevel"`
+		Name      string  `json:"name"`
+		Message   string  `json:"message"`
+		CoolDown  int     `json:"coolDown"`
+		Count     int     `json:"count"`
+		UserLevel string  `json:"userLevel"`
+		Alias     *string `json:"alias,omitempty"`
 	} `json:"commands"`
 	TotalCount int `json:"_total"`
 }
@@ -133,6 +134,7 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 		SetBearerAuthToken(integration.AccessToken.String).
 		SetSuccessResult(&commandsData).
 		Get("https://api.nightbot.tv/1/commands")
+	fmt.Println(resp.String())
 	if err != nil {
 		return nil, err
 	}
@@ -196,6 +198,10 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 	failedCount := 0
 	failedCommandsNames := []string{}
 	for _, command := range commandsData.Commands {
+		if command.Alias != nil {
+			continue
+		}
+
 		commandName := strings.ToLower(command.Name)
 		if command.Name[0] == '!' {
 			commandName = commandName[1:]
@@ -264,6 +270,13 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 			)
 		}
 
+		aliases := pq.StringArray{}
+		for _, cmd := range commandsData.Commands {
+			if cmd.Alias != nil && *cmd.Alias == command.Name && strings.HasPrefix(cmd.Name, "!") {
+				aliases = append(aliases, cmd.Name[1:])
+			}
+		}
+
 		newCommand := model.ChannelsCommands{
 			ID:                        uuid.NewString(),
 			Name:                      commandName,
@@ -290,7 +303,7 @@ func (c *Integrations) IntegrationsNightbotImportCommands(
 			EnabledCategories: pq.StringArray{},
 			CooldownRolesIDs:  pq.StringArray{},
 			Enabled:           true,
-			Aliases:           pq.StringArray{},
+			Aliases:           aliases,
 			Visible:           true,
 			ChannelID:         dashboardId,
 			Description:       null.String{},
