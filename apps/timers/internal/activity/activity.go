@@ -3,6 +3,7 @@ package activity
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -51,7 +52,11 @@ type Activity struct {
 	bus                *buscore.Bus
 }
 
-func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
+func getLastTriggerMessageNumberKey(timerId, streamId string) string {
+	return fmt.Sprintf("timers:last_trigger_message_number:%s:%s", timerId, streamId)
+}
+
+func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 	int,
 	error,
 ) {
@@ -85,8 +90,17 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
 		return currentResponse, err
 	}
 
+	lastTriggerMessageNumber, err := c.redis.Get(
+		ctx,
+		getLastTriggerMessageNumberKey(timerId, stream.ID),
+	).
+		Int()
+	if err != nil && !errors.Is(err, redis.Nil) {
+		return 0, err
+	}
+
 	if timer.MessageInterval != 0 &&
-		timer.LastTriggerMessageNumber-stream.ParsedMessages+timer.MessageInterval > 0 {
+		lastTriggerMessageNumber-stream.ParsedMessages+timer.MessageInterval > 0 {
 		return currentResponse, nil
 	}
 
@@ -113,12 +127,15 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string, _ int) (
 		nextIndex = 0
 	}
 
-	err = c.timersRepository.UpdateTriggerMessageNumber(timerId, stream.ParsedMessages)
+	err = c.redis.Set(ctx, "timers:current_response:"+timerId, nextIndex, 24*time.Hour).Err()
 	if err != nil {
 		return nextIndex, err
 	}
 
-	err = c.redis.Set(ctx, "timers:current_response:"+timerId, nextIndex, 24*time.Hour).Err()
+	err = c.redis.Set(
+		ctx, getLastTriggerMessageNumberKey(timerId, stream.ID), stream.ParsedMessages,
+		24*time.Hour,
+	).Err()
 	if err != nil {
 		return nextIndex, err
 	}

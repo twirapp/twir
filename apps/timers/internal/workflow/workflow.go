@@ -12,7 +12,6 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"go.temporal.io/sdk/client"
-	"go.temporal.io/sdk/converter"
 	"go.temporal.io/sdk/log"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
@@ -87,30 +86,12 @@ func (c *Workflow) Flow(ctx workflow.Context, timer timers.Timer) error {
 	}
 	ctx = workflow.WithActivityOptions(ctx, options)
 
-	workflowInfo := workflow.GetInfo(ctx)
-	lastResponseValue := workflowInfo.Memo.Fields["lastResponse"]
-	var currentResponse int
-	err := converter.GetDefaultDataConverter().FromPayload(lastResponseValue, &currentResponse)
-	if err != nil {
-		return err
-	}
-
 	var newResponse int
-	err = workflow.ExecuteActivity(
+	err := workflow.ExecuteActivity(
 		ctx,
 		c.activity.SendMessage,
 		timer.ID,
-		currentResponse,
 	).Get(ctx, &newResponse)
-	if err != nil {
-		return err
-	}
-
-	memo := map[string]interface{}{
-		"lastResponse": newResponse,
-	}
-
-	err = workflow.UpsertMemo(ctx, memo)
 	if err != nil {
 		return err
 	}
