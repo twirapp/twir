@@ -36,7 +36,8 @@
     "deleted": "Deleted",
     "updated": "Updated",
     "disabled": "Disabled",
-		"setDefaultSettings": "Are you sure you want to set default settings?"
+		"setDefaultSettings": "Are you sure you want to set default settings?",
+		"placeCursorMessage": "Place the cursor after \"$\" to change the variable"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -112,6 +113,8 @@
         "label": "Command Description"
       },
       "responses": {
+				"add": "Add Response",
+				"description": "This is your command response. You can use command variables like {0}.",
         "validations": {
           "empty": "Response should not be empty. Command can be created without a response, so you can skip this field.",
           "len": "Response should be less than 500 characters."
