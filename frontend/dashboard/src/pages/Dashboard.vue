@@ -2,7 +2,7 @@
 import { IconPencilPlus } from '@tabler/icons-vue';
 import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown } from 'naive-ui';
-import { computed } from 'vue';
+import { computed, nextTick, onMounted, ref } from 'vue';
 
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';
@@ -27,6 +27,23 @@ const addWidget = (key: string) => {
 	item.x = (widgetsLength * 2) % 12;
 	item.y = widgetsLength + 12;
 };
+
+const showEmptyItem = ref(false);
+onMounted(async () => {
+	await nextTick();
+
+	document.querySelectorAll('.vgl-item__resizer').forEach((el) => {
+		el.addEventListener('mousedown', () => {
+			console.log('here');
+			showEmptyItem.value = true;
+		});
+
+		el.addEventListener('mouseup', () => {
+			console.log('here 2');
+			showEmptyItem.value = false;
+		});
+	});
+});
 </script>
 
 <template>
@@ -46,7 +63,9 @@ const addWidget = (key: string) => {
 				:min-w="item.minW"
 				:min-h="item.minH"
 				drag-allow-from=".widgets-draggable-handle"
+				@mouseup="showEmptyItem = false;"
 			>
+				<div v-if="showEmptyItem" class="w-full h-full absolute z-50"></div>
 				<Chat v-if="item.i === 'chat'" :item="item" class="item" />
 				<Stream v-if="item.i === 'stream'" :item="item" class="item" />
 				<Events v-if="item.i === 'events'" :item="item" class="item" />
@@ -69,5 +88,9 @@ const addWidget = (key: string) => {
 
 .item {
 	height: 100%;
+}
+
+:deep(.vgl-item__resizer) {
+	z-index: 51;
 }
 </style>

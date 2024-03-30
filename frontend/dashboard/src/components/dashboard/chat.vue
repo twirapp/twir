@@ -43,11 +43,8 @@ const chatUrl = computed(() => {
 		<iframe
 			v-if="chatUrl"
 			:src="chatUrl"
-			width="100%"
-			height="100%"
 			frameborder="0"
-			scrolling="no"
-			allowfullscreen="true"
+			class="w-full h-full"
 		>
 		</iframe>
 	</card>
