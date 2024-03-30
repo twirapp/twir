@@ -83,7 +83,7 @@
     "name": "Príkaz | Príkazy",
     "searchPlaceholder": "Vyhľadať príkaz...",
     "newCommandTitle": "Nový príkaz",
-    "importCommands": "Import commands",
+    "importCommands": "Importovať príkazy",
     "groups": {
       "manageButton": "Spravovať skupiny",
       "name": "Názov",
@@ -114,7 +114,7 @@
       },
       "responses": {
         "add": "Add Response",
-        "description": "This is your command response. You can use command variables like {0}.",
+        "description": "Toto je vaša odpoveď na príkaz. Môžete použiť príkazové premenné ako {0}.",
         "validations": {
           "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
           "len": "Odpoveď by mala mať menej ako 500 znakov."
@@ -183,7 +183,7 @@
     "statsWidgets": {
       "streamInfo": {
         "noTitle": "Nemôžem získať názov streamu!",
-        "noCategory": "Cannot get Category!",
+        "noCategory": "Nemožno získať kategóriu!",
         "modalTitle": "Upravte informácie o streame",
         "title": "Názov streamu",
         "category": "Kategória"
@@ -244,7 +244,7 @@
       "info": "Poskytnutie prístupu k tejto službe umožní Twiru sledovať vaše zápasy Faceit a nastaví príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Poskytnutie prístupu k tejto službe umožňuje Twiru importovať príkazy a časovače zo služby Nightbot."
     },
     "valorant": {
       "info": "Poskytnutie prístupu k tejto službe umožňuje Twiru sledovať vaše zápasy Valorant a nastaviť príkazové premenné, ako napríklad {0}, {1} a mnoho ďalších. "
@@ -289,15 +289,15 @@
         "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
       },
       "banMessage": "Ban Message",
-      "banTime": "Ban Time",
+      "banTime": "Čas banu",
       "obs": {
-        "warningTitle": "You need to configure OBS first before proceeding further!",
-        "warningText": "Seems like you have not connected Twir with OBS. You can do it on the “Overlays” page.",
-        "scene": "OBS Scene",
+        "warningTitle": "Pred ďalším postupom musíte najskôr nakonfigurovať OBS!",
+        "warningText": "Zdá sa, že ste neprepojili Twir s OBS. Môžete to urobiť na stránke \"Overlays\".",
+        "scene": "Scéna OBS",
         "source": "OBS Source",
         "audioSource": "OBS Audio Source"
       },
-      "values": "Values",
+      "values": "Hodnoty",
       "triggerAlert": "Trigger Alert"
     },
     "variables": {
@@ -312,18 +312,18 @@
       "rewardName": "Channel Points Reward Name",
       "rewardCost": "Channel Points Reward Price",
       "rewardInput": "Channel Points Reward Custom Message",
-      "commandName": "Command Name",
-      "commandInput": "Command Arguments",
-      "raidViewers": "Amount of Raiders",
-      "oldStreamTitle": "Old Stream Title",
-      "newStreamTitle": "New Stream Title",
-      "oldStreamCategory": "Old Stream Category",
-      "newStreamCategory": "New Stream Category",
-      "streamTitle": "Stream Title",
-      "streamCategory": "Stream Category",
-      "donateAmount": "Donation Amount",
-      "donateCurrency": "Donation Currency",
-      "donateMessage": "Donation Message",
+      "commandName": "Názov Príkazu",
+      "commandInput": "Argumenty príkazu",
+      "raidViewers": "Počet raiderov",
+      "oldStreamTitle": "Starý názov streamu",
+      "newStreamTitle": "Nový názov streamu",
+      "oldStreamCategory": "Stará kategória streamu",
+      "newStreamCategory": "Nová kategória streamu",
+      "streamTitle": "Názov streamu",
+      "streamCategory": "Kategória streamu",
+      "donateAmount": "Výška donate",
+      "donateCurrency": "Donate mena",
+      "donateMessage": "Donate správa",
       "keywordName": "Keyword Name",
       "keywordResponse": "Keyword Responses (separated by space)",
       "greetingText": "Greeting Message",
@@ -360,7 +360,7 @@
     },
     "tts": {
       "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
-      "eventsHint": "Hint: You can use events system to trigger TTS on specific event.",
+      "eventsHint": "Tip: Na spustenie TTS pri konkrétnej udalosti môžete použiť systém udalostí.",
       "allowUsersChooseVoice": "Allow chatters to use different voices?",
       "doNotReadEmoji": "Do Not Read Emojis",
       "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes (including 7TV, FFZ, BTTV",
@@ -468,9 +468,9 @@
       "messageBoxPadding": "Padding",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Font size",
-      "emoteDivider": "Emote",
-      "growDivider": "Grow",
-      "growTime": "Grow time",
+      "emoteDivider": "Emot",
+      "growDivider": "Rast",
+      "growTime": "Čas rastu",
       "growMaxScale": "Max scale"
     },
     "kappagen": {
@@ -503,10 +503,10 @@
       }
     },
     "brb": {
-      "description": "This overlay allows you to show a countdown on screen for specific events or while you're AFK.",
+      "description": "Toto prekrytie vám umožňuje zobraziť na obrazovke odpočítavanie pre konkrétne udalosti alebo keď ste AFK.",
       "settings": {
         "main": {
-          "label": "Settings",
+          "label": "Nastavenia",
           "startCommand": {
             "description": "Overlay Start Command",
             "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
@@ -543,12 +543,12 @@
       "noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
     },
     "table": {
-      "title": "Queue",
+      "title": "Fronta",
       "columns": {
         "title": "Title",
-        "author": "Author",
-        "added": "Added by",
-        "duration": "Duration"
+        "author": "Autor",
+        "added": "Pridal/a",
+        "duration": "Dĺžka"
       }
     },
     "settings": {
@@ -570,7 +570,7 @@
         "minimalFollowTime": "Minimal Follow Time (in minutes)"
       },
       "songs": {
-        "maxRequests": "Maximum Song Queue Limit",
+        "maxRequests": "Maximálny limit frontu skladieb",
         "minLength": "Minimal Song Length (in minutes)",
         "maxLength": "Maximum Song Length (in minutes)",
         "minViews": "Minimal Views Amount"
@@ -621,7 +621,7 @@
   },
   "keywords": {
     "title": "Keywords",
-    "triggerText": "Trigger Text",
+    "triggerText": "Spúšťací text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
     "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
@@ -630,7 +630,7 @@
     "cooldown": "Cooldown (in seconds)",
     "validations": {
       "triggerRequired": "Trigger Text is required!",
-      "triggerLong": "Trigger Text is too long!",
+      "triggerLong": "Spúšťací text je príliš dlhy!",
       "responseLong": "Response Text is too long!"
     }
   },
@@ -657,21 +657,21 @@
   "alerts": {
     "title": "Alerts",
     "info": "Alerts Information",
-    "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+    "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
     "name": "Name",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
     "trigger": {
-      "commands": "Command Trigger",
+      "commands": "Spúšťací príkaz",
       "rewards": "Channel Points Reward Trigger",
-      "keywords": "Keyword Trigger",
+      "keywords": "Spúštacie kľúčové slovo",
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
       "audio": "Confugure an Audio",
-      "image": "Configure an Image",
-      "text": "Configure Text"
+      "image": "Vybrať obrázok",
+      "text": "Konfigurovať text"
     },
     "audioVolume": "Hlasitosť zvuku ({volume}%)"
   },
@@ -685,7 +685,7 @@
       "description": "Jednoduchá chatovacia hra, ktorá umožňuje chatujúcim vyskúšať šťastie v klasickej ruskej zábavnej* rulete.",
       "canBeUsedByModerator": "Dočasne zablokovať moderátora? *Právomoci moderátora budú po uplynutí timeoutu opäť udelené.",
       "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete vypnúť timeout, nastavte ho na 0)",
-      "decisionSeconds": "Result Delay (in seconds)",
+      "decisionSeconds": "Oneskorenie (v sek.)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
       "deathMessage": "User Lost Message",
@@ -693,21 +693,21 @@
       "tumberSize": "Revolver Сylinder's Size"
     },
     "duel": {
-      "title": "Duels",
+      "title": "Duely",
       "description": "A simple chat game between two users allowing to test their dodge skills!",
       "commands": {
-        "title": "Duel Commands",
+        "title": "Príkazy duelu",
         "duel": "Ask for a Duel",
-        "accept": "Accept a Duel",
+        "accept": "Akceptovať duel",
         "stats": "Štatistiky"
       },
       "cooldown": {
-        "title": "Duel Cooldown",
+        "title": "Vychladnutie duelu",
         "user": "Individuálne",
         "global": "Global"
       },
       "messages": {
-        "title": "Messages",
+        "title": "Správy",
         "start": {
           "title": "Initial Message",
           "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
@@ -742,8 +742,8 @@
       },
       "total": "Total users: {total}",
       "reset": {
-        "button": "Reset",
-        "resetQuestion": "Are you sure you want to reset {title}?"
+        "button": "Resetovať",
+        "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     }
   },
@@ -758,10 +758,10 @@
       "title": "Not Configured",
       "description": "Currently layers of overlays not created"
     },
-    "customWidth": "Width",
-    "customHeight": "Height",
+    "customWidth": "Šírka",
+    "customHeight": "Výška",
     "name": "Overlay Name",
-    "createNewLayer": "Create New Layer",
+    "createNewLayer": "Vytvoriť novú vrstvu",
     "validations": {
       "name": "Názov prekrytia nemôže byť prázdny a dlhší ako 30 znakov!",
       "layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
@@ -789,9 +789,9 @@
     "labels": {
       "followers": "Sledovatelia",
       "raids": "Nájazdy",
-      "donations": "Donations",
+      "donations": "Donaty",
       "subscriptions": "Predplatné",
-      "rewards": "Rewards",
+      "rewards": "Odmeny",
       "firstUserMessage": "Prvá správa používateľa",
       "streamOnline": "Stream Online",
       "streamOffline": "Stream Offline",
@@ -806,7 +806,7 @@
     "banTime": "Timeout Time",
     "banDescription": "Set to 0 for ban permamently.",
     "banMessage": "Timeout Message",
-    "warningMessage": "Warning Message",
+    "warningMessage": "Varovná správa",
     "warningMaxCount": "Warning Maximum Count",
     "excludedRoles": "Select roles which won't be impacted by this filter:",
     "types": {
