@@ -36,7 +36,8 @@
     "deleted": "Видалено",
     "updated": "Оновлено",
     "disabled": "Вимкнено",
-    "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?"
+    "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
+    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -112,6 +113,8 @@
         "label": "Опис команди"
       },
       "responses": {
+        "add": "Add Response",
+        "description": "This is your command response. You can use command variables like {0}.",
         "validations": {
           "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповіді, тому ви можете проігнорувати це поле.",
           "len": "Відповідь має бути менше аніж 500 символів."
