@@ -14,8 +14,8 @@ import { useI18n } from 'vue-i18n';
 
 import { useGreetingsManager } from '@/api/index.js';
 import type { EditableGreeting } from '@/components/greetings/types.js';
-import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchUserSearch from '@/components/twitchUsers/single.vue';
+import VariableInput from '@/components/variable-input.vue';
 
 const props = defineProps<{
 	greeting?: EditableGreeting | null
@@ -100,7 +100,7 @@ const rules: FormRules = {
 				/>
 			</n-form-item>
 			<n-form-item :label="t('sharedTexts.response')" path="text" show-require-mark>
-				<text-with-variables v-model="formValue.text" input-type="textarea" />
+				<variable-input v-model="formValue.text" input-type="textarea" />
 			</n-form-item>
 
 			<n-form-item :label="t('sharedTexts.reply.text')" path="text">
