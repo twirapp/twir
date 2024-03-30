@@ -4,6 +4,7 @@ import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown } from 'naive-ui';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
+import BotStatus from '@/components/dashboard/bot-status.vue';
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';
 import Stream from '@/components/dashboard/stream.vue';
@@ -52,6 +53,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+	<bot-status />
 	<div style="width: 100%; height: 100%; padding-left: 5px;">
 		<GridLayout
 			v-model:layout="widgets"

@@ -2,7 +2,6 @@
 import { IconDownload } from '@tabler/icons-vue';
 import { NScrollbar, NButton, NA } from 'naive-ui';
 
-import BotStatus from './components/BotStatus.vue';
 import Navigation from './navigation.vue';
 
 import FeedbackButton from '@/layout/feedback/feedback-button.vue';
@@ -10,8 +9,6 @@ import FeedbackButton from '@/layout/feedback/feedback-button.vue';
 
 <template>
 	<div class="sidebar">
-		<BotStatus />
-
 		<n-scrollbar trigger="none">
 			<navigation />
 		</n-scrollbar>
