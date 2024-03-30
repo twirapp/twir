@@ -36,7 +36,8 @@
     "deleted": "Gelöscht",
     "updated": "Aktualisiert",
     "disabled": "Deaktiviert",
-    "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?"
+    "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
+    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -112,6 +113,8 @@
         "label": "Befehlsbeschreibung"
       },
       "responses": {
+        "add": "Add Response",
+        "description": "This is your command response. You can use command variables like {0}.",
         "validations": {
           "empty": "Die Antwort darf nicht leer sein. Der Befehl kann ohne Antwort erstellt werden, so dass Sie dieses Feld überspringen können.",
           "len": "Die Antwort sollte weniger als 500 Zeichen lang sein."
