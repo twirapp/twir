@@ -2,7 +2,7 @@
 import { IconSettings } from '@tabler/icons-vue';
 import { EventType } from '@twir/api/messages/dashboard/dashboard';
 import { useIntervalFn, useLocalStorage } from '@vueuse/core';
-import { NScrollbar, NResult, NSpin, NButton, NPopselect } from 'naive-ui';
+import { NScrollbar, NText, NButton, NPopselect } from 'naive-ui';
 import { computed } from 'vue';
 
 import Card from './card.vue';
@@ -192,11 +192,11 @@ const enabledEventsOptions = [
 				</template>
 			</TransitionGroup>
 		</n-scrollbar>
-		<n-result v-else status="404" title="Waiting for events" style="margin-top: 15px;">
-			<template #icon>
-				<n-spin />
-			</template>
-		</n-result>
+		<div v-else class="flex items-center justify-center h-full">
+			<n-text class="text-4xl">
+				No events
+			</n-text>
+		</div>
 	</card>
 </template>
 
