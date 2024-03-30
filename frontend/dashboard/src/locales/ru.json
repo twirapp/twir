@@ -36,7 +36,8 @@
     "deleted": "Удалено",
     "updated": "Обновлено",
     "disabled": "Отключено",
-    "setDefaultSettings": "Сбросить настройки по умолчанию?"
+    "setDefaultSettings": "Сбросить настройки по умолчанию?",
+    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -112,6 +113,8 @@
         "label": "Описание команды"
       },
       "responses": {
+        "add": "Add Response",
+        "description": "This is your command response. You can use command variables like {0}.",
         "validations": {
           "empty": "Ответ не должен быть пустым. Команду можно создать без ответа, поэтому вы можете пропустить это поле.",
           "len": "Ответ должен содержать менее 500 символов"
