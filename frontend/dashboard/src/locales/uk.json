@@ -37,7 +37,7 @@
     "updated": "Оновлено",
     "disabled": "Вимкнено",
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
-    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+    "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -83,7 +83,7 @@
     "name": "Команда | Команди",
     "searchPlaceholder": "Пошук команди...",
     "newCommandTitle": "Нова команда",
-    "importCommands": "Import commands",
+    "importCommands": "Імпортувати команди",
     "groups": {
       "manageButton": "Керування групами",
       "name": "Назва",
@@ -113,8 +113,8 @@
         "label": "Опис команди"
       },
       "responses": {
-        "add": "Add Response",
-        "description": "This is your command response. You can use command variables like {0}.",
+        "add": "Додати відповідь",
+        "description": "Цей ваша відповідь на команду. Ви можете використовувати змінні, наприклад {0}.",
         "validations": {
           "empty": "Відповідь не повинна бути порожньою. Команда може бути створена без відповіді, тому ви можете проігнорувати це поле.",
           "len": "Відповідь має бути менше аніж 500 символів."
@@ -244,7 +244,7 @@
       "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Faceit і налаштує змінні команди, такі як {0}, {1} та інші."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Надання доступу до цієї служби дозволяє Twir імпортувати команди та таймери з Nightbot."
     },
     "valorant": {
       "info": "Надання доступу до цієї служби дозволяє Twir відстежувати ваші матчі Valorant і налаштує змінні команди, такі як {0}, {1} та інші. "
