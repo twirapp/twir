@@ -685,7 +685,7 @@
       "description": "Ein einfaches Chatspiel, mit dem Chatter Glück in einem klassischen russisch-lustigen Roulette-Spiel testen können.",
       "canBeUsedByModerator": "Timeout Moderatoren? *Moderatorenrechte werden nach dem Timeout wieder gewährt.",
       "timeoutSeconds": "Timeout-Zeit (in Sekunden, setzen Sie es auf 0, um ein Timeout zu deaktivieren)",
-      "decisionSeconds": "Result Delay (in seconds)",
+      "decisionSeconds": "Verzögerung (in Sek.)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
       "deathMessage": "User Lost Message",
