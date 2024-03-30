@@ -2,7 +2,7 @@
 import { IconPencilPlus } from '@tabler/icons-vue';
 import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown } from 'naive-ui';
-import { computed, nextTick, onMounted, ref } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';
@@ -29,20 +29,25 @@ const addWidget = (key: string) => {
 };
 
 const showEmptyItem = ref(false);
+
+const onMouseUp = () => {
+	showEmptyItem.value = false;
+};
+
 onMounted(async () => {
 	await nextTick();
 
 	document.querySelectorAll('.vgl-item__resizer').forEach((el) => {
 		el.addEventListener('mousedown', () => {
-			console.log('here');
 			showEmptyItem.value = true;
 		});
 
-		el.addEventListener('mouseup', () => {
-			console.log('here 2');
-			showEmptyItem.value = false;
-		});
+		window.addEventListener('mouseup', onMouseUp);
 	});
+});
+
+onBeforeUnmount(() => {
+	window.removeEventListener('mouseup', onMouseUp);
 });
 </script>
 
@@ -63,7 +68,6 @@ onMounted(async () => {
 				:min-w="item.minW"
 				:min-h="item.minH"
 				drag-allow-from=".widgets-draggable-handle"
-				@mouseup="showEmptyItem = false;"
 			>
 				<div v-if="showEmptyItem" class="w-full h-full absolute z-50"></div>
 				<Chat v-if="item.i === 'chat'" :item="item" class="item" />
