@@ -37,7 +37,7 @@
     "updated": "Aktualisiert",
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
-    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+    "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -83,7 +83,7 @@
     "name": "Befehl | Befehle",
     "searchPlaceholder": "Befehl suchen...",
     "newCommandTitle": "Neuer Befehl",
-    "importCommands": "Import commands",
+    "importCommands": "Befehle importieren",
     "groups": {
       "manageButton": "Gruppen verwalten",
       "name": "Name",
@@ -113,8 +113,8 @@
         "label": "Befehlsbeschreibung"
       },
       "responses": {
-        "add": "Add Response",
-        "description": "This is your command response. You can use command variables like {0}.",
+        "add": "Antwort hinzufügen",
+        "description": "Dies ist Ihre Befehlsantwort. Sie können Befehlsvariablen wie {0} verwenden.",
         "validations": {
           "empty": "Die Antwort darf nicht leer sein. Der Befehl kann ohne Antwort erstellt werden, so dass Sie dieses Feld überspringen können.",
           "len": "Die Antwort sollte weniger als 500 Zeichen lang sein."
@@ -244,7 +244,7 @@
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Faceit-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Durch den Zugriff auf diesen Service kann Twir Befehle und Timer von Nightbot importieren."
     },
     "valorant": {
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
@@ -339,9 +339,9 @@
       "predictionTotalChannelPoints": "Anzahl der Channel-Punkte des Gewinners Abstimmungen",
       "predictionWinner": {
         "title": "Vorhersage Gewinner Ergebnis",
-        "totalUsers": "Total Winner Outcome Users",
+        "totalUsers": "Gesamte Gewinner Ergebnis Benutzer",
         "totalPoints": "Gesamte Channel-Punkte, die auf das Ergebnis des Gewinners gesetzt werden",
-        "topUsers": "Top 10 Users of Winner Outcome"
+        "topUsers": "Top 10 Benutzer der Gewinner Ergebnisse"
       },
       "moderatorName": "Ereignisauslöser Moderator Benutzername",
       "moderatorDisplayName": "Ereignisauslöser Moderator Anzeigename",
@@ -421,28 +421,28 @@
       "hideCommands": "Befehle ausblenden",
       "hideBots": "Andere Nachrichten von Bots verstecken",
       "style": "Nachrichten Style",
-      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
+      "description": "Dieses Overlay erlaubt es dir, deinen Twitch-Chat in deiner Streaming-Software anzuzeigen (z.B. OBS, XSplit, etc).)"
     },
     "dudes": {
-      "description": "Animated characters for chatters in your stream",
-      "enable": "Enable",
-      "dudeDivider": "Dude",
-      "dudeDefaultSprite": "Default sprite",
-      "dudeMaxOnScreen": "Max on screen",
-      "dudeMaxOnScreenUnlimited": "Unlimited",
-      "dudeColor": "Default user color",
+      "description": "Animierte Zeichen für Chatter in deinem Stream",
+      "enable": "Aktivieren",
+      "dudeDivider": "Typ",
+      "dudeDefaultSprite": "Standardstimme",
+      "dudeMaxOnScreen": "Maximal auf Bildschirm",
+      "dudeMaxOnScreenUnlimited": "Unbegrenzt",
+      "dudeColor": "Standard-Benutzerfarbe",
       "dudeGravity": "Schwerkraft",
-      "dudeMaxLifeTime": "Max life time",
-      "dudeScale": "Scale",
-      "dudeSoundsDivider": "Sounds",
-      "dudeSoundsVolume": "Volume",
-      "ignoreDivider": "Ignoring",
-      "ignoreCommands": "Ignore commands",
-      "ignoreUsers": "Ignore users",
-      "ignoreUsersList": "List of ignored users",
-      "nameBoxDivider": "Name box",
-      "nameBoxFill": "Text colors",
-      "nameBoxFillError": "Color is required",
+      "dudeMaxLifeTime": "Maximale Lebensdauer",
+      "dudeScale": "Skalierung",
+      "dudeSoundsDivider": "Töne",
+      "dudeSoundsVolume": "Lautstärke",
+      "ignoreDivider": "Ignorieren",
+      "ignoreCommands": "Befehle ignorieren",
+      "ignoreUsers": "Ignorierte Benutzer",
+      "ignoreUsersList": "Liste der ignorierten Benutzer",
+      "nameBoxDivider": "Namensfeld",
+      "nameBoxFill": "Textfarbe",
+      "nameBoxFillError": "Farbe ist erforderlich",
       "nameBoxFillGradientStops": "Text colors of gradient stops",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Gradient type",
