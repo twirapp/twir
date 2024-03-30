@@ -113,7 +113,7 @@ const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 							secondary
 							type="success"
 							:disabled="!isNightbotIntegrationEnabled || !userCanManageTimers"
-							:loading="nightbotCommandsImporter.isLoading.value"
+							:loading="nightbotTimersImporter.isLoading.value"
 							block
 							@click="importTimers"
 						>
