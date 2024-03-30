@@ -24,7 +24,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useKeywordsManager } from '@/api/index.js';
 import type { EditableKeyword } from '@/components/keywords/types.js';
-import TextWithVariables from '@/components/textWithVariables.vue';
+import VariableInput from '@/components/variable-input.vue';
 
 const props = defineProps<{
 	keyword?: EditableKeyword | null
@@ -128,7 +128,7 @@ const rules: FormRules = {
 			</n-space>
 
 			<n-form-item :label="t('sharedTexts.response')" path="response">
-				<text-with-variables
+				<variable-input
 					v-model="formValue.response"
 					:min-rows="1"
 					:max-rows="6"

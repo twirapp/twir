@@ -32,16 +32,17 @@ import {
 	NButtonGroup,
 	NTabs,
 	NTabPane,
+	NTag,
 } from 'naive-ui';
 import { computed, onMounted, ref, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useCommandsGroupsManager, useCommandsManager, useRolesManager } from '@/api/index.js';
 import type { EditableCommand } from '@/components/commands/types.js';
-import TextWithVariables from '@/components/textWithVariables.vue';
 import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
+import VariableInput from '@/components/variable-input.vue';
 
 const { t } = useI18n();
 
@@ -136,7 +137,7 @@ const rules: FormRules = {
 		},
 	},
 	responses: {
-		trigger: ['input', 'blur', 'focus'],
+		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
 				return new Error(t('commands.modal.responses.validations.empty'));
@@ -213,6 +214,12 @@ const createButtonProps = { class: 'create-button' } as any;
 						{{ t('sharedTexts.responses') }}
 					</n-divider>
 
+					<n-text>
+						<i18n-t keypath="commands.modal.responses.description">
+							<n-tag>$(sender)</n-tag>
+						</i18n-t>
+					</n-text>
+
 					<div v-if="formValue.module === 'CUSTOM'">
 						<n-dynamic-input
 							v-if="formValue.module === 'CUSTOM'"
@@ -227,13 +234,12 @@ const createButtonProps = { class: 'create-button' } as any;
 									:path="`responses[${index}].text`"
 									:rule="rules.responses"
 								>
-									<text-with-variables
+									<variable-input
 										v-model="value.text"
 										inputType="textarea"
 										:minRows="3"
 										:maxRows="6"
-									>
-									</text-with-variables>
+									/>
 								</n-form-item>
 							</template>
 
@@ -271,7 +277,7 @@ const createButtonProps = { class: 'create-button' } as any;
 							@click="() => formValue.responses.push({ text: '' })"
 						>
 							<IconPlus />
-							{{ t('sharedButtons.create') }}
+							{{ t('commands.modal.responses.add') }}
 						</n-button>
 					</div>
 
