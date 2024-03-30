@@ -36,7 +36,8 @@
     "deleted": "Odstránené",
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
-    "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?"
+    "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
+    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -112,6 +113,8 @@
         "label": "Popis príkazu"
       },
       "responses": {
+        "add": "Add Response",
+        "description": "This is your command response. You can use command variables like {0}.",
         "validations": {
           "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
           "len": "Odpoveď by mala mať menej ako 500 znakov."
