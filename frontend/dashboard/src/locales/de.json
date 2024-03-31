@@ -107,7 +107,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Aktiviere den Befehl nur in bestimmten Kategorien (leer lassen für deaktiviert)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
@@ -154,7 +154,7 @@
           "text": "Der Bot behält diese Reihenfolge der Antworten bei, wenn er sie in den Chat sendet."
         },
         "onlineOnly": {
-          "label": "Nur wenn online",
+          "label": "Nur wenn Online",
           "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
         },
         "other": {
