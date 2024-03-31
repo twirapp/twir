@@ -321,7 +321,7 @@
       "rewardInput": "Channel Points Reward Custom Message",
       "commandName": "Názov Príkazu",
       "commandInput": "Argumenty príkazu",
-      "raidViewers": "Počet raiderov",
+      "raidViewers": "Počet nájazdcov",
       "oldStreamTitle": "Starý názov streamu",
       "newStreamTitle": "Nový názov streamu",
       "oldStreamCategory": "Stará kategória streamu",
@@ -691,7 +691,7 @@
     "russianRoulette": {
       "description": "Jednoduchá chatovacia hra, ktorá umožňuje chatujúcim vyskúšať šťastie v klasickej ruskej zábavnej* rulete.",
       "canBeUsedByModerator": "Dočasne zablokovať moderátora? *Právomoci moderátora budú po uplynutí timeoutu opäť udelené.",
-      "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete vypnúť timeout, nastavte ho na 0)",
+      "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete zrušiť timeout, nastavte ho na 0)",
       "decisionSeconds": "Oneskorenie (v sek.)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
@@ -701,10 +701,10 @@
     },
     "duel": {
       "title": "Duely",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "description": "Jednoduchá chatovacia hra medzi dvoma používateľmi, ktorá umožňuje otestovať ich uhýbacie schopnosti!",
       "commands": {
         "title": "Príkazy duelu",
-        "duel": "Ask for a Duel",
+        "duel": "Požiadať o duel",
         "accept": "Akceptovať duel",
         "stats": "Štatistiky"
       },
@@ -716,12 +716,12 @@
       "messages": {
         "title": "Správy",
         "start": {
-          "title": "Initial Message",
+          "title": "Úvodná správa",
           "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Výsledná správa",
+          "description": "Odošle túto správu, keď dôjde k súboju. Dostupné premenné: {'{loser}, {winner}'}"
         },
         "bothDie": {
           "title": "«No One Survived» Message",
@@ -730,11 +730,11 @@
       },
       "settings": {
         "title": "Nastavenia",
-        "secondsToAccept": "Seconds to accept duel",
-        "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "secondsToAccept": "Sekundy na prijatie duelu",
+        "timeoutTime": "Čas timeoutu pre porazeného",
+        "pointsPerWin": "Povesť za víťazstvo",
+        "pointsPerLose": "Povesť za prehru",
+        "bothDiePercent": "Percentuálna šanca, že obaja používatelia zomrú"
       }
     }
   },
