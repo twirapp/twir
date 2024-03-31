@@ -503,10 +503,10 @@
       }
     },
     "brb": {
-      "description": "This overlay allows you to show a countdown on screen for specific events or while you're AFK.",
+      "description": "Dieses Overlay erlaubt Ihnen, einen Countdown auf dem Bildschirm für bestimmte Ereignisse oder während Sie AFK sind.",
       "settings": {
         "main": {
-          "label": "Settings",
+          "label": "Einstellungen",
           "startCommand": {
             "description": "Overlay Start Command",
             "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
@@ -515,8 +515,8 @@
             "description": "Overlay Stop Command",
             "example": "!brbstop"
           },
-          "text": "Overlay Text",
-          "background": "Overlay Background",
+          "text": "Overlay-Text",
+          "background": "",
           "backgroundOpacity": "Overlay Background Opacity",
           "font": {
             "color": "Schriftfarbe",
@@ -610,7 +610,7 @@
     "modal": {
       "accessToUsers": "Permitted Users",
       "accessByStats": "Permitted Users (by stats)",
-      "requiredWatchTime": "Required Watch Time",
+      "requiredWatchTime": "Erforderliche Beobachtungszeit",
       "requiredMessages": "Benötigte Nachrichtenanzahl",
       "requiredChannelPoints": "Benötigte Kanalpunkte",
       "permissions": "Berechtigungen"
@@ -717,17 +717,17 @@
           "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
         },
         "bothDie": {
-          "title": "«No One Survived» Message",
-          "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+          "title": "«Niemand überlebt» Nachricht",
+          "description": "Sendet diese Nachricht wenn Duell passiert ist und beide Duellisten tot sind. Verfügbare Variablen: {'{target}, {initiator}'}"
         }
       },
       "settings": {
-        "title": "Settings",
-        "secondsToAccept": "Seconds to accept duel",
-        "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "title": "Einstellungen",
+        "secondsToAccept": "Sekunden zum Akzeptieren des Duells",
+        "timeoutTime": "Zeitlimit für Verlierer",
+        "pointsPerWin": "Ruf zum Sieg",
+        "pointsPerLose": "Ruf für Verlust",
+        "bothDiePercent": "Prozentsatz zufällig sterben beide Benutzer"
       }
     }
   },
@@ -736,11 +736,11 @@
       "table": {
         "user": "Nutzer",
         "watchedTime": "Zugeschaute Zeit",
-        "messages": "Messages",
+        "messages": "Nachrichten",
         "usedEmotes": "Verwendete Emotes",
         "usedChannelPoints": "Ausgegebene Kanalpunkte"
       },
-      "total": "Total users: {total}",
+      "total": "Gesamte Benutzer: {total}",
       "reset": {
         "button": "Zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
