@@ -7,6 +7,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/aidenwallis/go-ratelimiting/redis"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
@@ -33,8 +34,23 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
+	resp, err := c.rateLimiter.Use(
+		ctx,
+		&redis.SlidingWindowOptions{
+			Key:             fmt.Sprintf("bots:rate_limit:send_message:%s", opts.BroadcasterID),
+			MaximumCapacity: 20,
+			Window:          30,
+		},
+	)
+	if err != nil {
+		return err
+	}
+	if !resp.Success {
+		return nil
+	}
+
 	channel := &model.Channels{}
-	if err := c.gorm.
+	if err = c.gorm.
 		WithContext(ctx).
 		Where("id = ?", opts.BroadcasterID).
 		First(channel).Error; err != nil {
@@ -52,14 +68,19 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	)
 
 	var twitchClient *helix.Client
-	var err error
+	var twitchClientErr error
 	if !opts.IsAnnounce {
-		twitchClient, err = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	} else {
-		twitchClient, err = twitch.NewBotClientWithContext(ctx, opts.SenderID, c.config, c.tokensGrpc)
+		twitchClient, twitchClientErr = twitch.NewBotClientWithContext(
+			ctx,
+			opts.SenderID,
+			c.config,
+			c.tokensGrpc,
+		)
 	}
-	if err != nil {
-		return err
+	if twitchClientErr != nil {
+		return twitchClientErr
 	}
 
 	text := strings.ReplaceAll(opts.Message, "\n", " ")

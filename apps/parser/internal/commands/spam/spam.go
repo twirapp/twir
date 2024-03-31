@@ -38,7 +38,7 @@ var Command = &types.DefaultCommand{
 			count = newCount
 		}
 
-		if count > 20 || count <= 0 {
+		if count > 10 || count <= 0 {
 			result.Result = []string{"count cannot be more than 20 and fewer then 1"}
 			return result, nil
 		}
