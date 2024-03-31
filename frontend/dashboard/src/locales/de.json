@@ -235,8 +235,8 @@
         "shouldDeleteMessageOnOffline": "Warnmeldung löschen statt bearbeiten, wenn der Stream offline geht?",
         "additionalUsersIdsForLiveCheck": "Zusätzliche Liste von Twitch-Nutzern, denen Sie folgen können, um Stream-Benachrichtigungen zu senden."
       },
-      "connectGuild": "+ Verbinde Server",
-      "disconnectGuild": "Server Trennen",
+      "connectGuild": "+ Server verbinden",
+      "disconnectGuild": "Server trennen",
       "noGuilds": "Keine Server verbunden",
       "cannotSendMessage": "Der Bot hat keine Möglichkeit, Nachrichten in diesem Kanal zu senden. Prüfen Sie die Kanalberechtigungen, um dieses Problem zu lösen."
     },
@@ -250,8 +250,8 @@
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
     },
     "sevenTv": {
-      "description": "Wir können 7tv Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
-      "alert": "Sie können auch fortgeschrittenen Fluss über {0} System tun, um 7tv emotes zu verwalten.",
+      "description": "Wir können 7TV Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
+      "alert": "Sie können auch den erweiterten Fluss über das {0} System ausführen, um 7TV Emotes zu verwalten.",
       "connected": "Verbunden",
       "notConnected": "Nicht verbunden",
       "notRegistered": "Sie sind nicht bei {0} registriert",
@@ -264,7 +264,7 @@
       },
       "rewardForAddEmote": "Belohnung für das Hinzufügen von Emotes",
       "rewardForRemoveEmote": "Belohnung für das Entfernen von Emotes",
-      "rewardSelectorDescription": "Du solltest Rewards mit Input erstellen. Benutzer müssen den 7tv-Link verwenden, wenn sie die Belohnung aktivieren."
+      "rewardSelectorDescription": "Du solltest eine Belohnung mit Eingabe erstellen. Benutzer müssen einen 7TV Link verwenden, um die Belohnung zu aktivieren."
     }
   },
   "events": {
@@ -275,15 +275,15 @@
     "description": "Beschreibung",
     "targetCommand": "Ziel-Befehl",
     "targetVariable": "Ziel-Variable",
-    "targetTwitchReward": "Target Twitch Belohnung",
-    "targetKeyword": "Ziel-Keyword",
+    "targetTwitchReward": "Ziel Twitch Belohnung",
+    "targetKeyword": "Ziel-Suchwort",
     "operations": {
       "divider": "Aktionen",
       "name": "Aktion",
       "inputs": {
         "message": "Zu sendende Nachricht (unterstützt Variablen)",
         "default": "Aktionstext (unterstützt Variablen)",
-        "vipSlots": "VIP Slots Betrag",
+        "vipSlots": "VIP Slots Anzahl",
         "username": "Benutzername (unterstützt Variablen)",
         "variableValue": "Neuer Variablenwert (unterstützt Variablen)",
         "variableIncrementDecrement": "Wert inkrementieren/dekrementieren (unterstützt Variablen)"
@@ -306,7 +306,7 @@
       "targetUserName": "Ereignis Ziel Benutzername",
       "targetDisplayUserName": "Ereignisziel Anzeigename",
       "subLevel": "Abo-Stufen (wie \"1\"/\"2\"/\"3\"/\"prime\")",
-      "resubMonths": "Abonnent Länge Streak",
+      "resubMonths": "Abonnentenlängenserie",
       "resubStreak": "Gesamtzahl der Abonnentenmonate",
       "resubMessage": "Benutzer-Abo Nachricht",
       "rewardName": "Kanalpunkte Belohnung Name",
@@ -420,7 +420,7 @@
       "availabeFonts": "Verfügbare Schriftarten",
       "hideCommands": "Befehle ausblenden",
       "hideBots": "Andere Nachrichten von Bots verstecken",
-      "style": "Nachrichten Style",
+      "style": "Nachrichten Stil",
       "description": "Dieses Overlay erlaubt es dir, deinen Twitch-Chat in deiner Streaming-Software anzuzeigen (z.B. OBS, XSplit, etc).)"
     },
     "dudes": {
@@ -625,11 +625,11 @@
     "usages": "Anzahl der Verwendungen",
     "isRegular": "Ist ein regulärer Ausdruck?",
     "regularDescription": "Regulärer Ausdruck sollte im golang-Format geschrieben werden! Siehe {0} hier.",
-    "regularDescriptionCheatSheet": "spickzettel",
+    "regularDescriptionCheatSheet": "Spickzettel",
     "settings": "Einstellungen",
     "cooldown": "Abklingzeit (in Sekunden)",
     "validations": {
-      "triggerRequired": "Triggerfeld ist erforderlich!",
+      "triggerRequired": "Auslösefeld ist erforderlich!",
       "triggerLong": "Auslösetext ist zu lang!",
       "responseLong": "Antwort-Text ist zu lang!"
     }
