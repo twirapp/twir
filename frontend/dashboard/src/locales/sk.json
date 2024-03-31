@@ -113,7 +113,7 @@
         "label": "Popis príkazu"
       },
       "responses": {
-        "add": "Add Response",
+        "add": "Pridať odpoveď",
         "description": "Toto je vaša odpoveď na príkaz. Môžete použiť príkazové premenné ako {0}.",
         "validations": {
           "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
@@ -348,18 +348,18 @@
         "title": "Prediction Winner Outcome",
         "totalUsers": "Total Winner Outcome Users",
         "totalPoints": "Celkový počet vernostných bodov stavených na víťazný výsledok",
-        "topUsers": "Top 10 Users of Winner Outcome"
+        "topUsers": "Top 10 používateľov výsledku víťaza"
       },
       "moderatorName": "Event Triggerer Moderator Username",
       "moderatorDisplayName": "Event Triggerer Moderator Display Name",
-      "banReason": "Ban Reason",
-      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
-      "message": "Message"
+      "banReason": "Dôvod banu",
+      "banEndsInMinutes": "Timeout (v minútach alebo nastavte na \"permanent\" pre trvalý ban)",
+      "message": "Správa"
     }
   },
   "overlays": {
-    "copyOverlayLink": "Copy Overlay Link",
-    "uncongirured": "You should configure overlay first!",
+    "copyOverlayLink": "Kopírovať link prekrytia",
+    "uncongirured": "Najprv by ste mali nakonfigurovať prekrytie!",
     "noAccess": "You do not have access to this overlay!",
     "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
     "nowPlaying": {
@@ -629,7 +629,7 @@
   "keywords": {
     "title": "Keywords",
     "triggerText": "Spúšťací text",
-    "usages": "Usage Count",
+    "usages": "Počet použití",
     "isRegular": "Is a Regular Expression?",
     "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
     "regularDescriptionCheatSheet": "cheat sheet",
@@ -859,12 +859,12 @@
     }
   },
   "feedback": {
-    "button": "Send feedback",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "button": "Odoslať spätnú väzbu",
+    "notification": "Vaša spätná väzba bola odoslaná",
+    "rateLimited": "Správy odosielate rýchlo, skúste to znova za {time}",
+    "messageLabel": "Správa",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "Správa nemôže byť prázdna"
     }
   },
   "userSettings": {
