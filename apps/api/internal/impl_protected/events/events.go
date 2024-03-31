@@ -8,6 +8,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
+	eventstypes "github.com/satont/twir/libs/types/types/events"
 	"github.com/twirapp/twir/libs/api/messages/events"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
@@ -135,7 +136,7 @@ func (c *Events) EventsCreate(ctx context.Context, request *events.CreateRequest
 
 		for j, filter := range operation.Filters {
 			entity.Operations[i].Filters[j] = &model.EventOperationFilter{
-				Type:  model.EventOperationFilterType(filter.Type),
+				Type:  eventstypes.EventOperationFilterType(filter.Type),
 				Left:  filter.Left,
 				Right: filter.Right,
 			}
@@ -211,7 +212,7 @@ func (c *Events) EventsUpdate(ctx context.Context, request *events.PutRequest) (
 			entity.Operations[i].Filters[j] = &model.EventOperationFilter{
 				ID:          uuid.New().String(),
 				OperationID: entity.Operations[i].ID,
-				Type:        model.EventOperationFilterType(filter.Type),
+				Type:        eventstypes.EventOperationFilterType(filter.Type),
 				Left:        filter.Left,
 				Right:       filter.Right,
 			}

@@ -10,6 +10,7 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/types/types/events"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
@@ -386,73 +387,73 @@ func (c *EventWorkflow) filtersOk(
 		numericRight, _ := strconv.Atoi(hydratedRight)
 		numericLeft, _ := strconv.Atoi(hydratedLeft)
 
-		if filter.Type == model.EventOperationFilterTypeEquals {
+		if filter.Type == events.EventOperationFilterTypeEquals {
 			if hydratedLeft != hydratedRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeNotEquals {
+		if filter.Type == events.EventOperationFilterTypeNotEquals {
 			if hydratedLeft == hydratedRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeContains {
+		if filter.Type == events.EventOperationFilterTypeContains {
 			if !strings.Contains(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeStartsWith {
+		if filter.Type == events.EventOperationFilterTypeStartsWith {
 			if !strings.HasPrefix(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeEndsWith {
+		if filter.Type == events.EventOperationFilterTypeEndsWith {
 			if !strings.HasSuffix(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeNotContains {
+		if filter.Type == events.EventOperationFilterTypeNotContains {
 			if strings.Contains(hydratedLeft, hydratedRight) {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeGreaterThan {
+		if filter.Type == events.EventOperationFilterTypeGreaterThan {
 			if numericLeft <= numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeLessThan {
+		if filter.Type == events.EventOperationFilterTypeLessThan {
 			if numericLeft >= numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeGreaterThanOrEquals {
+		if filter.Type == events.EventOperationFilterTypeGreaterThanOrEquals {
 			if numericLeft < numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeLessThanOrEquals {
+		if filter.Type == events.EventOperationFilterTypeLessThanOrEquals {
 			if numericLeft > numericRight {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeIsEmpty {
+		if filter.Type == events.EventOperationFilterTypeIsEmpty {
 			if hydratedLeft != "" {
 				return false
 			}
 		}
 
-		if filter.Type == model.EventOperationFilterTypeIsNotEmpty {
+		if filter.Type == events.EventOperationFilterTypeIsNotEmpty {
 			if hydratedLeft == "" {
 				return false
 			}

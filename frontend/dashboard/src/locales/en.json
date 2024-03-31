@@ -298,7 +298,14 @@
         "audioSource": "OBS Audio Source"
       },
       "values": "Values",
-      "triggerAlert": "Trigger Alert"
+      "triggerAlert": "Trigger Alert",
+			"filters": {
+				"label": "Filters",
+				"description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
+				"placeholderLeft": "Left side of the condition",
+				"placeholderRight": "Right side of the condition",
+				"empty": "No filters added yet"
+			}
     },
     "variables": {
       "userName": "Event Triggerer Username",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
+import { EventOperationFilterType } from '@twir/types/events';
 import {
 	type FormInst,
 	type FormItemRule,
@@ -24,7 +25,6 @@ import { computed, onMounted, ref, watch, nextTick } from 'vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
-
 import {
 	eventTypeSelectOptions,
 	operationTypeSelectOptions,
@@ -32,7 +32,6 @@ import {
 	flatEvents,
 } from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
-
 
 import {
 	useAlertsManager,
@@ -284,6 +283,11 @@ function getOperationLabel(type: string): string {
 			return t('events.operations.inputs.default');
 	}
 }
+
+const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map((item) => ({
+	label: item.toLowerCase().split('_').join(' '),
+	value: item,
+}));
 </script>
 
 <template>
@@ -567,6 +571,66 @@ function getOperationLabel(type: string): string {
 							</n-form-item>
 						</n-grid-item>
 					</n-grid>
+
+					<n-divider title-placement="left" style="margin-top: 0px">
+						{{ t('events.operations.filters.label') }}
+					</n-divider>
+
+					<div class="flex flex-col gap-2">
+						<n-text :depth="3">
+							{{ t('events.operations.filters.description') }}
+						</n-text>
+
+						<div
+							v-if="!currentOperation.filters.length"
+							class="flex p-4 border border-yellow-700 justify-center rounded items-center"
+						>
+							{{ t('events.operations.filters.empty') }}
+						</div>
+
+						<div
+							v-for="(_, index) of currentOperation.filters"
+							:key="index"
+							class="flex flex-col gap-0.5 border border-zinc-600 p-2 rounded"
+						>
+							<n-input
+								v-model:value="currentOperation.filters[index].left"
+								:placeholder="t('events.operations.filters.placeholderLeft')"
+							/>
+							<n-select
+								v-model:value="currentOperation.filters[index].type"
+								:options="eventsOperationsFiltersTypes"
+							/>
+							<n-input
+								v-model:value="currentOperation.filters[index].right"
+								:placeholder="t('events.operations.filters.placeholderRight')"
+							/>
+							<div class="flex justify-end mt-2">
+								<n-button
+									type="error"
+									secondary
+									@click="currentOperation.filters.splice(index, 1)"
+								>
+									<IconTrash />
+									{{ t('sharedButtons.delete') }}
+								</n-button>
+							</div>
+						</div>
+					</div>
+					<n-button
+						secondary
+						type="info"
+						block
+						style="margin-top: 6px;"
+						:disabled="currentOperation.filters.length >= 5"
+						@click="currentOperation.filters.push({
+							left: '',
+							right: '',
+							type: EventOperationFilterType.EQUALS,
+						})"
+					>
+						{{ t('sharedButtons.create') }}
+					</n-button>
 				</n-space>
 			</div>
 		</n-space>
