@@ -300,7 +300,7 @@
       "values": "Werte",
       "triggerAlert": "Auslöser-Alarm",
       "filters": {
-        "label": "Filters",
+        "label": "Filter",
         "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
         "placeholderLeft": "Left side of the condition",
         "placeholderRight": "Right side of the condition",
@@ -756,13 +756,13 @@
   },
   "filePicker": {
     "innerText": "Select or drop {type} here.",
-    "usedSpace": "Used {used} / {max} MB",
+    "usedSpace": "{used} / {max} MB verwendet",
     "emptyText": "No {type} uploaded."
   },
   "overlaysRegistry": {
     "description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
     "noLayersCreated": {
-      "title": "Not Configured",
+      "title": "Nicht konfiguriert",
       "description": "Currently layers of overlays not created"
     },
     "customWidth": "Breite",
