@@ -307,6 +307,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 								minRows: 1,
 								maxRows: 5
 							}"
+							:maxlength="500"
 						/>
 					</n-form-item>
 
@@ -452,7 +453,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 						v-if="getOperation(currentOperation.type)?.haveInput"
 						:label="getOperationLabel(currentOperation.type)"
 					>
-						<n-input v-model:value="currentOperation.input" />
+						<n-input v-model:value="currentOperation.input" :maxlength="500" />
 					</n-form-item>
 
 					<n-form-item v-if="currentOperation.type === 'SEND_MESSAGE'" label="Use announce">
@@ -467,7 +468,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 								:path="`operations[${selectedOperationsTab}].timeoutMessage`"
 								:rule="rules.timeoutMessage"
 							>
-								<n-input v-model:value="currentOperation.timeoutMessage" />
+								<n-input v-model:value="currentOperation.timeoutMessage" :maxlength="500" />
 							</n-form-item>
 						</n-grid-item>
 
@@ -596,6 +597,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 							<n-input
 								v-model:value="currentOperation.filters[index].left"
 								:placeholder="t('events.operations.filters.placeholderLeft')"
+								:maxlength="50"
 							/>
 							<n-select
 								v-model:value="currentOperation.filters[index].type"
@@ -604,6 +606,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 							<n-input
 								v-model:value="currentOperation.filters[index].right"
 								:placeholder="t('events.operations.filters.placeholderRight')"
+								:maxlength="50"
 							/>
 							<div class="flex justify-end mt-2">
 								<n-button
