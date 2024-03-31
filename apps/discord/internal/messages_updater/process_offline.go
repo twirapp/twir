@@ -19,15 +19,6 @@ func (c *MessagesUpdater) processOffline(
 	ctx context.Context,
 	twitchChannelId string,
 ) error {
-	// settings, err := c.getChannelDiscordIntegration(ctx, twitchChannelId)
-	// if err != nil {
-	// 	return err
-	// }
-	//
-	// if settings.Data.Discord == nil || len(settings.Data.Discord.Guilds) == 0 {
-	// 	return nil
-	// }
-
 	messages, err := c.store.GetByChannelId(ctx, twitchChannelId)
 	if err != nil {
 		return fmt.Errorf("failed to get messages: %w", err)

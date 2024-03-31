@@ -12,22 +12,31 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (c *MessagesUpdater) sendOnlineMessage(
+func (c *MessagesUpdater) processOnline(
 	ctx context.Context,
-	stream model.ChannelsStreams,
-) ([]sended_messages_store.Message, error) {
+	channelId string,
+) error {
+	stream := model.ChannelsStreams{}
+	err := c.db.
+		Where(`"userId" = ?`, channelId).
+		First(&stream).
+		Error
+	if err != nil {
+		return err
+	}
+
 	settings, err := c.getChannelDiscordIntegration(ctx, stream.UserId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if settings.Data.Discord == nil || len(settings.Data.Discord.Guilds) == 0 {
-		return nil, nil
+		return nil
 	}
 
 	twitchUser, err := c.getTwitchUser(stream.UserId)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var sendedMessage []sended_messages_store.Message
@@ -89,5 +98,5 @@ func (c *MessagesUpdater) sendOnlineMessage(
 		}
 	}
 
-	return sendedMessage, nil
+	return nil
 }

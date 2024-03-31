@@ -10,6 +10,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -22,6 +23,7 @@ var App = fx.Module(
 		cfg.NewFx,
 		gorm.New,
 		redis.New,
+		buscore.NewNatsBusFx("discord"),
 		sended_messages_store.New,
 		messages_updater.New,
 		discord_go.New,

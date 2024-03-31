@@ -194,7 +194,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 				channelStream := &model.ChannelsStreams{
 					ID:             twitchStream.ID,
-					UserId:         twitchStream.UserID,
+					UserId:         userId,
 					UserLogin:      twitchStream.UserLogin,
 					UserName:       twitchStream.UserName,
 					GameId:         twitchStream.GameID,
@@ -254,8 +254,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 					c.bus.Channel.StreamOffline.Publish(
 						bustwitch.StreamOfflineMessage{
-							ChannelID: channelStream.
-								UserId,
+							ChannelID: channelStream.UserId,
 						},
 					)
 				}

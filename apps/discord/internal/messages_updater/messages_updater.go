@@ -2,15 +2,16 @@ package messages_updater
 
 import (
 	"context"
-	"time"
+	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/discord/internal/discord_go"
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	bustwitch "github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -25,6 +26,7 @@ type Opts struct {
 	Config  cfg.Config
 	DB      *gorm.DB
 	Discord *discord_go.Discord
+	Bus     *buscore.Bus
 
 	TokensGrpc tokens.TokensClient
 }
@@ -42,21 +44,40 @@ func New(opts Opts) (*MessagesUpdater, error) {
 		db:           opts.DB,
 		discord:      opts.Discord,
 		tokensGrpc:   opts.TokensGrpc,
-		stopChan:     make(chan struct{}),
 		twitchClient: twitchClient,
 	}
 
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(_ context.Context) error {
-				go updater.poll()
-				updater.logger.Info("Messages updater is running")
+				opts.Bus.Channel.StreamOnline.SubscribeGroup(
+					"discord",
+					func(ctx context.Context, data bustwitch.StreamOnlineMessage) struct{} {
+						if err := updater.processOnline(ctx, data.ChannelID); err != nil {
+							opts.Logger.Error("Failed to process online", slog.Any("err", err))
+						}
+
+						return struct{}{}
+					},
+				)
+
+				opts.Bus.Channel.StreamOffline.SubscribeGroup(
+					"discord",
+					func(ctx context.Context, data bustwitch.StreamOfflineMessage) struct{} {
+						if err := updater.processOffline(ctx, data.ChannelID); err != nil {
+							opts.Logger.Error("Failed to process offline", slog.Any("err", err))
+						}
+
+						return struct{}{}
+					},
+				)
 
 				return nil
 			},
 			OnStop: func(_ context.Context) error {
-				updater.stopChan <- struct{}{}
-				close(updater.stopChan)
+				opts.Bus.Channel.StreamOnline.Unsubscribe()
+				opts.Bus.Channel.StreamOffline.Unsubscribe()
+
 				return nil
 			},
 		},
@@ -74,27 +95,4 @@ type MessagesUpdater struct {
 
 	tokensGrpc   tokens.TokensClient
 	twitchClient *helix.Client
-
-	stopChan chan struct{}
-}
-
-func (c *MessagesUpdater) poll() {
-	ticker := time.NewTicker(
-		lo.If(
-			c.config.AppEnv != "production",
-			10*time.Second,
-		).Else(5 * time.Minute),
-	)
-
-	ctx, cancel := context.WithCancel(context.Background())
-
-	for {
-		select {
-		case <-c.stopChan:
-			cancel()
-			break
-		case <-ticker.C:
-			c.process(ctx)
-		}
-	}
 }
