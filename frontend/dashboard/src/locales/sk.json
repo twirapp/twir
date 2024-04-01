@@ -60,7 +60,8 @@
     "alerts": "Upozornenia",
     "games": "Hry",
     "users": "Užívatelia",
-    "moderation": "Moderovanie"
+    "moderation": "Moderovanie",
+    "import": "Import"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
