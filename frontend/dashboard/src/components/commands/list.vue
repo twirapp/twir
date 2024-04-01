@@ -8,7 +8,7 @@ import {
 		getExpandedRowModel,
 } from '@tanstack/vue-table';
 import { type Command } from '@twir/api/messages/commands/commands';
-import { rgbToHex, hexToRgb, colorBrightness } from '@zero-dependency/utils';
+import { rgbToHex, hexToRgb, colorBrightness, type Rgb } from '@zero-dependency/utils';
 import { NButton, NSpace, NModal, NInput, useThemeVars, NIcon } from 'naive-ui';
 import { ref, h, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -73,8 +73,14 @@ const columns: ColumnDef<Command | Group>[] = [
 				);
 			}
 
-			const color = rgbToHex(row.original.color ?? 'rgb(255, 255, 255)');
-			const textColor = colorBrightness(hexToRgb(color)!) >= 128 ? '#000' : '#fff';
+			let rgbColor: Rgb | null = null;
+			if (row.original.color) {
+				rgbColor = hexToRgb(rgbToHex(row.original.color));
+			}
+
+			const color = rgbColor
+				? (colorBrightness(rgbColor) >= 128 ? '#000' : '#fff')
+				: 'var(--n-text-color)';
 
       return h(
 				'div',
@@ -83,7 +89,10 @@ const columns: ColumnDef<Command | Group>[] = [
 					chevron,
 					h(
 						'span',
-						{ class: `p-1 rounded`, style: `background-color: ${row.original.color}; color: ${textColor}` },
+						{
+							class: `p-1 rounded`,
+							style: `background-color: ${row.original.color}; color: ${color}`,
+						},
 						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
 					),
 				],
