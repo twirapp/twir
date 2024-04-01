@@ -46,18 +46,25 @@ async function switchEnabled(newValue: boolean) {
 			class="data-[state=unchecked]:bg-zinc-400"
 			@update:checked="switchEnabled"
 		/>
-		<Button :disabled="!userCanManageCommands" size="icon" @click="edit">
-			<IconPencil class="h-5 w-5" />
-		</Button>
-		<Button
-			v-if="row.module === 'CUSTOM'"
-			:disabled="!userCanManageCommands"
-			variant="destructive"
-			size="icon"
-			@click="showDelete = true"
-		>
-			<IconTrash class="h-5 w-5" />
-		</Button>
+		<div class="flex gap-0.5">
+			<Button
+				v-if="row.module === 'CUSTOM'"
+				:disabled="!userCanManageCommands"
+				variant="ghost"
+				size="sm"
+				@click="showDelete = true"
+			>
+				<IconTrash class="h-5 w-5" />
+			</Button>
+			<Button
+				:disabled="!userCanManageCommands"
+				size="sm"
+				variant="ghost"
+				@click="edit"
+			>
+				<IconPencil class="h-5 w-5" />
+			</Button>
+		</div>
 	</div>
 
 	<DeleteConfirmation
