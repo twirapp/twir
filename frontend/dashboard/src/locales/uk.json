@@ -60,7 +60,8 @@
     "alerts": "Сповіщення",
     "games": "Ігри",
     "users": "Користувачі",
-    "moderation": "Модерація"
+    "moderation": "Модерація",
+    "import": "Import"
   },
   "navbar": {
     "logout": "Вийти",
