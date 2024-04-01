@@ -60,7 +60,8 @@
     "alerts": "Alerts",
     "games": "Games",
     "users": "Users",
-    "moderation": "Moderation"
+    "moderation": "Moderation",
+		"import": "Import"
   },
   "navbar": {
     "logout": "Logout",
