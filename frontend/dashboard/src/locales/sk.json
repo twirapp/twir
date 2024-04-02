@@ -880,7 +880,15 @@
     },
     "public": {
       "title": "Public page",
-      "description": "Description of channel"
+      "description": "Description of channel",
+      "socialLinks": "Social links",
+      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
+      "errorInvalidLength": "Invalid length",
+      "errorInvalidLink": "Invalid link",
+      "errorEmpty": "Cannot be empty",
+      "errorTooLong": "Too long",
+      "linkTitle": "Title",
+      "linkLabel": "Link"
     }
   }
 }
