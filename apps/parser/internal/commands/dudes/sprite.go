@@ -18,7 +18,7 @@ import (
 var Sprite = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "dudes sprite",
-		Description: null.StringFrom("Triggers jump of dude in dudes overlay"),
+		Description: null.StringFrom("Change sprite of dude"),
 		RolesIDS:    pq.StringArray{},
 		Module:      "DUDES",
 		Visible:     true,
