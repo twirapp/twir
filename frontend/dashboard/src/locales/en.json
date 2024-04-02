@@ -16,7 +16,8 @@
     "saveSettings": "Save Settings",
     "setDefaultSettings": "Set Default Settings",
 		"goToDashboard": "Go to Dashboard",
-		"add": "Add"
+		"add": "Add",
+		"send": "Send"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -889,6 +890,12 @@
 			"errorTooLong": "Too long",
 			"linkTitle": "Title",
 			"linkLabel": "Link"
+		},
+		"notifications": {
+			"title": "Notifications",
+			"createNotification": "Create a new notification",
+			"messageLabel": "Message",
+			"urlLabel": "Click URL (optional)"
 		}
 	}
 }

@@ -42,7 +42,7 @@ async function callRegenerateKey() {
 				<n-switch
 					:value="!profile?.hideOnLandingPage"
 					:disabled="updateUser.isLoading.value"
-					@change="changeLandingVisibility"
+					@update-value="changeLandingVisibility"
 				/>
 			</div>
 		</n-card>

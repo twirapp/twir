@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { useThemeVars } from 'naive-ui';
 import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
+import { ref } from 'vue';
+import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import AccountSettings from './user-settings/account.vue';
+import Notifications from './user-settings/notifications.vue';
 import PublicSettings from './user-settings/public.vue';
 
 import { useTheme } from '@/composables/use-theme';
@@ -11,14 +15,32 @@ import { useTheme } from '@/composables/use-theme';
 const { t } = useI18n();
 const themeVars = useThemeVars();
 const { theme } = useTheme();
+
+const router = useRouter();
+
+const AVAILABLE_TABS = ['account', 'public', 'notifications'];
+const activeTab = ref('account');
+
+function onChangeTab(tab: string, replace = false): void {
+	router.push({ query: { ...router.currentRoute.value.query, tab }, replace });
+}
+
+onMounted(() => {
+	const tab = router.currentRoute.value.query.tab as string;
+	if (AVAILABLE_TABS.includes(tab)) {
+		activeTab.value = tab;
+	} else {
+		onChangeTab(activeTab.value, true);
+	}
+});
 </script>
 
 <template>
-	<TabsRoot default-value="account">
+	<TabsRoot v-model="activeTab" @update:model-value="onChangeTab">
 		<div
 			class="after:inset-0 after:bottom-0 after:block after:h-px after:w-full after:content-['']"
 			:class="[theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]']"
-			:style="{'background-color': themeVars.cardColor}"
+			:style="{ 'background-color': themeVars.cardColor }"
 		>
 			<div class="container flex flex-col pt-9 gap-2">
 				<h1 class="text-4xl">
@@ -32,6 +54,9 @@ const { theme } = useTheme();
 						<TabsTrigger class="tabs-trigger" value="public">
 							{{ t('userSettings.public.title') }}
 						</TabsTrigger>
+						<TabsTrigger class="tabs-trigger" value="notifications">
+							{{ t('userSettings.notifications.title') }}
+						</TabsTrigger>
 					</TabsList>
 				</div>
 			</div>
@@ -42,6 +67,9 @@ const { theme } = useTheme();
 			</TabsContent>
 			<TabsContent value="public">
 				<PublicSettings />
+			</TabsContent>
+			<TabsContent value="notifications">
+				<Notifications />
 			</TabsContent>
 		</div>
 	</TabsRoot>
