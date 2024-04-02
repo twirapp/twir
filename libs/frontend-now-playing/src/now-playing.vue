@@ -52,10 +52,6 @@ const fontFamily = computed(() => {
 </template>
 
 <style>
-body {
-	background-color: #000;
-}
-
 .artist {
 	font-family: v-bind(fontFamily);
 	font-weight: v-bind('props.settings.fontWeight');
