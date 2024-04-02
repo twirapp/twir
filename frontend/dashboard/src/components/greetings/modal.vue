@@ -92,7 +92,7 @@ const rules: FormRules = {
 		:model="formValue"
 		:rules="rules"
 	>
-		<n-space vertical style="width: 100%">
+		<n-space vertical class="w-full">
 			<n-form-item :label="t('sharedTexts.userName')" path="userId" show-require-mark>
 				<twitch-user-search
 					v-model="formValue.userId"

@@ -157,14 +157,8 @@ const { t } = useI18n();
 
 		<n-divider />
 
-		<n-button secondary type="success" block style="margin-top:15px" @click="save">
+		<n-button secondary type="success" block class="mt-3.5" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
 </template>
-
-<style scoped>
-.card-tabs .n-tabs-nav--bar-type {
-	padding-left: 4px;
-}
-</style>

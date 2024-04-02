@@ -101,8 +101,8 @@ function resetSettings() {
 		content-style="padding: 10px; width: 100%"
 		style="width: 500px; max-width: calc(100vw - 40px)"
 	>
-		<div style="display: flex; gap: 24px;">
-			<div style="display: flex; flex-direction: column; gap: 4px; align-items: start;">
+		<div class="flex gap-6">
+			<div class="flex flex-col gap-1 items-start">
 				<span>{{ t('sharedTexts.enabled') }}</span>
 				<n-switch v-model:value="formValue.enabled" />
 			</div>
@@ -112,7 +112,7 @@ function resetSettings() {
 
 		<n-divider />
 
-		<div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px">
+		<div class="flex flex-col gap-2 mt-[10px]">
 			<n-form-item :label="t('games.russianRoulette.canBeUsedByModerator')">
 				<n-switch v-model:value="formValue.canBeUsedByModerator" />
 			</n-form-item>

@@ -145,7 +145,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 		:model="formValue"
 		:rules="rules"
 	>
-		<n-space vertical style="width: 100%">
+		<n-space vertical class="w-full">
 			<n-form-item label="Name" path="name" show-require-mark>
 				<n-input v-model:value="formValue.name" :maxlength="30" />
 			</n-form-item>
@@ -189,8 +189,8 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			<n-divider />
 
 			<n-form-item :label="t('alerts.select.audio')">
-				<div style="display: flex; gap: 10px; width: 85%">
-					<n-button style="overflow: hidden; text-wrap: nowrap;" block type="info" @click="showAudioModal = true">
+				<div class="flex gap-2.5 w-[85%]">
+					<n-button class="overflow-hidden text-nowrap" block type="info" @click="showAudioModal = true">
 						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
 					</n-button>
 					<n-button

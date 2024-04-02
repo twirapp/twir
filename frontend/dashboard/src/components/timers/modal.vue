@@ -137,7 +137,7 @@ const sliderMarks = {
 		:model="formValue"
 		:rules="rules"
 	>
-		<n-space vertical style="width: 100%">
+		<n-space vertical class="w-full">
 			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
 				<n-input
 					v-model:value="formValue.name" :placeholder="t('sharedTexts.name')"
@@ -171,7 +171,7 @@ const sliderMarks = {
 					</n-grid>
 				</n-form-item>
 
-				<n-divider dashed style="padding: 0; margin: 0">
+				<n-divider dashed class="p-0 m-0">
 					AND
 				</n-divider>
 
@@ -195,7 +195,7 @@ const sliderMarks = {
 				:create-button-props="{ class: 'create-button' } as any"
 			>
 				<template #default="{ value, index }: { value: EditableTimerResponse, index: number }">
-					<n-space vertical style="width: 100%">
+					<n-space vertical class="w-full">
 						<n-form-item
 							:path="`responses[${index}].text`" :rule="rules.responses"
 							show-require-mark
@@ -217,7 +217,7 @@ const sliderMarks = {
 				</template>
 
 				<template #action="{ index, remove, move }">
-					<div class="group-actions">
+					<div class="flex gap-x-[5px] items-center ml-2.5">
 						<n-button size="small" type="error" quaternary @click="() => remove(index)">
 							<IconTrash />
 						</n-button>
@@ -269,7 +269,7 @@ const sliderMarks = {
 
 			<n-divider />
 
-			<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+			<n-button secondary type="success" block class="mt-2.5" @click="save">
 				{{ t('sharedButtons.save') }}
 			</n-button>
 		</n-space>
@@ -279,12 +279,5 @@ const sliderMarks = {
 <style scoped>
 .groups :deep(.create-button) {
 	display: none;
-}
-
-.group-actions {
-	display: flex;
-	column-gap: 5px;
-	align-items: center;
-	margin-left: 10px;
 }
 </style>

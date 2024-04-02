@@ -62,29 +62,20 @@ const renderMultipleSelectTag = ({ option }: {
 	return !option.label ? h('p') : h(
 		NTag,
 		{
-			style: {
-				padding: '0 6px 0 4px',
-			},
+			class: 'pr-1.5 pl-1',
 			round: true,
 		},
 		{
 			default: () =>
 				h(
 					'div',
-					{
-						style: {
-							display: 'flex',
-							alignItems: 'center',
-						},
-					},
+					{ class: 'flex items-center' },
 					[
 						h(NAvatar, {
 							src: option.profileImageUrl,
 							round: true,
 							size: 22,
-							style: {
-								marginRight: '4px',
-							},
+							class: 'mr-1',
 						}),
 						option.label as string,
 					],
@@ -96,12 +87,7 @@ const renderMultipleSelectTag = ({ option }: {
 const renderLabel = (option: Option | undefined) => {
 	return !option ? null : h(
 		'div',
-		{
-			style: {
-				display: 'flex',
-				alignItems: 'center',
-			},
-		},
+		{ class: 'flex items-center' },
 		[
 			h(NAvatar, {
 				src: option.profileImageUrl,
@@ -110,15 +96,8 @@ const renderLabel = (option: Option | undefined) => {
 			}),
 			h(
 				'div',
-				{
-					style: {
-						marginLeft: '12px',
-						padding: '4px 0',
-					},
-				},
-				[
-					h('div', null, option.label),
-				],
+				{ class: 'ml-3 py-1' },
+				[h('div', null, option.label)],
 			),
 		],
 	);
@@ -140,7 +119,3 @@ const renderLabel = (option: Option | undefined) => {
 		@search="handleSearch"
 	/>
 </template>
-
-<style scoped lang='postcss'>
-
-</style>

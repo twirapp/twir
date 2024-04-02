@@ -35,9 +35,9 @@ async function callRegenerateKey() {
 </script>
 
 <template>
-	<div class="account-body">
+	<div class="flex flex-col p-2 gap-3">
 		<n-card title="Private" size="small" bordered>
-			<div style="display: flex; gap: 12px;">
+			<div class="flex gap-3">
 				<n-text>{{ t('userSettings.account.showMeOnLanding') }}</n-text>
 				<n-switch
 					:value="!profile?.hideOnLandingPage"
@@ -59,25 +59,15 @@ async function callRegenerateKey() {
 					/>
 					<n-button secondary type="warning" class="min-w-[150px] sm:w-full" @click="callRegenerateKey">
 						<div class="flex items-center gap-1">
-							<IconRefresh style="height: 20px; width: 20px" />
+							<IconRefresh class="h-5 w-5" />
 							{{ t('userSettings.account.regenerateApiKey.button') }}
 						</div>
 					</n-button>
 				</div>
 			</n-form-item>
-			<n-text style="font-size: 13px;" depth="3">
+			<n-text class="text-sx" depth="3">
 				{{ t('userSettings.account.regenerateApiKey.info') }}
 			</n-text>
 		</n-card>
 	</div>
 </template>
-
-<style scoped>
-.account-body {
-	display: flex;
-	flex-direction: column;
-	padding: 8px;
-	gap: 12px;
-}
-
-</style>

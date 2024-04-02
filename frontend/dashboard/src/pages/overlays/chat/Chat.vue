@@ -150,20 +150,20 @@ const addable = computed(() => {
 
 <template>
 	<div class="page">
-		<div class="chatBox" style="width: 70%">
+		<div class="chatBox w-[70%]">
 			<ChatBox
 				v-if="openedTab"
 				class="chatBox"
 				:messages="messagesMock"
 				:settings="chatBoxSettings"
 			/>
-			<div v-else style="display: flex; justify-content: center; align-items: center; height: 100%;">
-				<n-text style="font-size: 1rem;">
+			<div v-else class="flex justify-center items-center h-full">
+				<n-text class="text-base">
 					Preview of chat will be here when you select some preset
 				</n-text>
 			</div>
 		</div>
-		<div style="width: 30%">
+		<div class="w-[30%]">
 			<n-tabs
 				v-model:value="openedTab"
 				type="card"
@@ -183,13 +183,13 @@ const addable = computed(() => {
 						:tab="`#${entityIndex+1}`"
 						:name="entity.id!"
 					>
-						<n-scrollbar style="max-height: 75vh;" trigger="none">
+						<n-scrollbar class="max-h-[75vh]" trigger="none">
 							<Form />
 						</n-scrollbar>
 					</n-tab-pane>
 				</template>
 			</n-tabs>
-			<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
+			<n-alert v-if="!entities?.settings.length" type="info" class="mt-2">
 				Create new overlay for edit settings
 			</n-alert>
 		</div>

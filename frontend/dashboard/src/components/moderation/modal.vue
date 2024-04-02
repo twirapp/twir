@@ -65,7 +65,7 @@ async function saveSettings() {
 </script>
 
 <template>
-	<div style="display: flex; flex-direction: column; gap: 12px;">
+	<div class="flex flex-col gap-3">
 		<modal-symbols
 			v-if="editableItem?.data?.type === 'symbols'"
 			class="form-block"
@@ -110,7 +110,7 @@ async function saveSettings() {
 			</n-form-item>
 		</div>
 
-		<n-divider style="margin: 0; padding: 0" />
+		<n-divider class="m-0 p-0" />
 
 		<div class="form-block">
 			<n-form-item v-if="editableItem?.data" :label="t('moderation.warningMessage')">
@@ -131,11 +131,11 @@ async function saveSettings() {
 			</n-form-item>
 		</div>
 
-		<n-divider style="margin: 0; padding: 0" />
+		<n-divider class="m-0 p-0" />
 
 		<div class="form-block">
 			<span>{{ t('moderation.excludedRoles') }}</span>
-			<div v-if="editableItem?.data" style="display: flex; flex-direction: column; gap: 5px;">
+			<div v-if="editableItem?.data" class="flex flex-col gap-1">
 				<n-button-group
 					v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 					:key="index"
@@ -168,7 +168,7 @@ async function saveSettings() {
 			class="form-block"
 		/>
 
-		<n-divider style="margin: 0; padding: 0" />
+		<n-divider class="m-0 p-0" />
 
 		<n-button type="success" secondary @click="saveSettings">
 			{{ t('sharedButtons.save') }}
@@ -178,16 +178,10 @@ async function saveSettings() {
 
 <style scoped>
 .form-block {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
-.form-block .content {
-	padding: 8px;
+	@apply flex flex-col gap-2;
 }
 
 .form-block :deep(.n-input-number) {
-	width: 100%;
+	@apply w-full;
 }
 </style>

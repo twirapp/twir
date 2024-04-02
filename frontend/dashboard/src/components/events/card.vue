@@ -32,7 +32,7 @@ const userCanEditEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
 </script>
 
 <template>
-	<card style="height:100%" :icon="flatEvents[event.type]?.icon" :title="getEventName(event.type)">
+	<card class="h-full" :icon="flatEvents[event.type]?.icon" :title="getEventName(event.type)">
 		<template #headerExtra>
 			<n-switch
 				:value="event.enabled"
@@ -44,7 +44,7 @@ const userCanEditEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
 		<template #content>
 			<n-space vertical>
 				<n-text>{{ event.description }}</n-text>
-				<n-row style="gap: 8px;">
+				<n-row class="gap-2">
 					<n-tooltip v-for="(operation, index) of event.operations" :key="index">
 						<template #trigger>
 							<n-tag

@@ -93,7 +93,7 @@ const { t } = useI18n();
 		title="Settings"
 		style="width: 50vw"
 	>
-		<div style="display: flex; flex-direction: column; gap: 20px">
+		<div class="flex flex-col gap-5">
 			<n-form-item :label="t('overlaysRegistry.html.periodicallyRefetchData')">
 				<n-switch v-model:value="periodicallyRefetchData" />
 			</n-form-item>

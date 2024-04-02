@@ -17,6 +17,10 @@ import { useI18n } from 'vue-i18n';
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
+const props = withDefaults(defineProps<{ isDrawer: boolean }>(), {
+	isDrawer: false,
+});
+
 const emits = defineEmits<{
 	dashboardSelected: []
 }>();
@@ -106,51 +110,60 @@ onClickOutside(refPopover, (event) => {
 	}
 }, { ignore: [refPopoverList] });
 
-
 const collapsedStore = useSidebarCollapseStore();
 const { isCollapsed } = storeToRefs(collapsedStore);
+
+const displayNameLength = computed(() => {
+	if (!currentDashboard.value) return 0;
+	return currentDashboard.value.displayName.length;
+});
+
+const isDrawerCollapsed = computed(() => {
+	return props.isDrawer || !isCollapsed.value;
+});
+
+const popoverPlacement = computed(() => {
+	if (props.isDrawer) return 'bottom';
+	return isCollapsed.value ? 'right-start' : 'bottom-start';
+});
 </script>
 
 <template>
 	<n-popover
 		ref="refPopover"
-		placement="bottom-start"
+		:placement="popoverPlacement"
 		trigger="manual"
+		class="w-[240px] !m-0"
 		:show="isSelectDashboardPopoverOpened"
 		:show-arrow="false"
 	>
 		<template #trigger>
 			<div
-				class="block popover-trigger"
-				style="cursor: pointer;"
+				class="popover-trigger flex items-center gap-4 rounded-[10px] cursor-pointer"
 				@click="isSelectDashboardPopoverOpened = true"
 			>
-				<div class="content" :style="{ justifyContent: isCollapsed ? 'center' : 'space-between' }">
-					<div style="display: flex; gap: 12px">
+				<div class="flex items-center justify-between w-full py-3 px-3.5 ">
+					<div class="flex gap-3">
 						<n-avatar
-							style="display: flex; align-self: center; border-radius: 111px;"
+							round
+							class="flex self-center"
 							:src="currentDashboard?.profileImageUrl"
 						/>
 						<div
-							v-if="!isCollapsed"
-							style="
-								display: flex;
-								flex-direction: column;
-								max-width: 100px;
-								white-space: nowrap;
-								overflow: hidden;
-								text-overflow: ellipsis;
-							"
+							v-if="isDrawerCollapsed"
+							class="flex flex-col whitespace-nowrap overflow-hidden overflow-ellipsis"
 						>
-							<n-text :depth="3" style="font-size: 11px; white-space: nowrap;">
+							<n-text :depth="3" class="whitespace-nowrap text-xs">
 								{{ t(`dashboard.header.managingUser`) }}
 							</n-text>
-							<n-text>{{ currentDashboard?.displayName }}</n-text>
+							<n-text :class="[displayNameLength > 16 ? 'text-xs' : 'text-sm']">
+								{{ currentDashboard?.displayName }}
+							</n-text>
 						</div>
 					</div>
 
 					<IconChevronRight
-						v-if="!isCollapsed"
+						v-if="isDrawerCollapsed"
 						:style="{
 							transition: '0.2s transform ease',
 							transform: `rotate(${!isSelectDashboardPopoverOpened ? 90 : -90}deg)`
@@ -161,19 +174,20 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 		</template>
 		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
 		<div v-else ref="refPopoverList" class="dashboards-container">
-			<n-text :depth="3" style="font-size: 11px">
+			<n-text :depth="3" class="text-xs">
 				{{ t(`dashboard.header.channelsAccess`) }}
 			</n-text>
 			<n-virtual-list
-				style="max-height: 400px;" :item-size="42" trigger="none"
+				class="max-h-[400px]"
+				:item-size="42"
+				trigger="none"
 				:items="menuOptions"
 				item-resizable
 			>
 				<template #default="{ item }">
 					<div
 						:key="item.key"
-						class="item"
-						style="height: 42px"
+						class="item h-10"
 						@click="onSelectDashboard(item.key)"
 					>
 						<n-avatar :src="item.icon" round size="small" />
@@ -190,9 +204,7 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 
 <style scoped>
 .dashboards-container {
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
+	@apply select-none;
 }
 
 .dashboards-container :deep(img) {
@@ -200,41 +212,16 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 }
 
 .item {
-	display: flex;
-	gap: 12px;
-	align-items: center;
-	width: 100%;
+	@apply flex items-center gap-3 w-full p-1.5 rounded-md cursor-pointer;
 	background-color: v-bind(blockColor);
-	padding: 6px;
-	border-radius: 6px;
-	cursor: pointer;
 }
 
 .dashboards-menu > .item:hover {
 	background-color: v-bind(blockColor2);
 }
 
-.block {
-	display: flex;
-	gap: 16px;
-	border-radius: 10px;
-	align-items: center;
-}
-
 .popover-trigger {
-	width: 100%;
-	display: flex;
-
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-}
-
-.popover-trigger .content {
-	display: flex;
-	align-items: center;
-	padding: 10px 4px;
-	width: 100%;
+	@apply flex w-full select-none;
 }
 
 .popover-trigger :deep(img) {
@@ -242,6 +229,6 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 }
 
 :deep(.v-vl) {
-	overflow-x: hidden;
+	@apply overflow-x-hidden;
 }
 </style>

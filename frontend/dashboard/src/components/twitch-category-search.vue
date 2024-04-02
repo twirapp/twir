@@ -46,14 +46,7 @@ const categoriesOptions = computed(() => {
 const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 	return [h(
 		'div',
-		{
-			style: {
-				display: 'flex',
-				alignItems: 'center',
-				height: '100px',
-				gap: '10px',
-			},
-		},
+		{ class: 'flex gap-2.5 h-24 items-center' },
 		[
 			h('img', {
 				src: o.image,
@@ -80,7 +73,3 @@ const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 		@search="(v) => categoriesSearch = v"
 	/>
 </template>
-
-<style scoped>
-
-</style>

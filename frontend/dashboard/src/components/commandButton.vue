@@ -22,13 +22,11 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<div style="display: flex; flex-direction: column;">
+	<div class="flex flex-col">
 		<span>{{ props.title ?? t('games.command') }}</span>
-		<div v-if="command" style="display: flex; gap: 5px;">
+		<div v-if="command" class="flex gap-1">
 			<n-button secondary type="success" @click="() => showCommandEditModal = true">
-				<div
-					style="display: flex; align-items: center; min-width: 80px; justify-content: space-between;"
-				>
+				<div class="flex items-center min-w-20 justify-between">
 					<span>!{{ command.name }}</span>
 					<IconPencil />
 				</div>

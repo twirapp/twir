@@ -72,14 +72,14 @@ async function removeItem() {
 		</template>
 
 		<template #footer>
-			<div style="display: flex; gap: 8px;">
+			<div class="flex gap-2">
 				<n-button
 					:disabled="!userCanManageModeration"
 					secondary
 					size="large"
 					@click="$emit('showSettings')"
 				>
-					<div style="display: flex; gap: 4px;">
+					<div class="flex gap-1">
 						<span>{{ t('sharedButtons.settings') }}</span>
 						<IconSettings />
 					</div>
@@ -96,7 +96,7 @@ async function removeItem() {
 							size="large"
 							type="error"
 						>
-							<div style="display: flex; gap: 4px;">
+							<div class="flex gap-1">
 								<span>{{ t('sharedButtons.delete') }}</span>
 								<IconTrash />
 							</div>

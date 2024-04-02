@@ -2,7 +2,7 @@
 import { IconEdit } from '@tabler/icons-vue';
 import { useIntervalFn } from '@vueuse/core';
 import { intervalToDuration } from 'date-fns';
-import { useThemeVars, NSkeleton, NText } from 'naive-ui';
+import { NSkeleton, NText } from 'naive-ui';
 import { computed, onBeforeUnmount, ref, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -11,8 +11,6 @@ import StreamInfoEditor from './components/StreamInfoEditor.vue';
 import { useDashboardStats } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime';
-
-const themeVars = useThemeVars();
 
 const { data: stats, refetch, isLoading } = useDashboardStats();
 
@@ -63,15 +61,12 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="isLoading" class="stats-skeleton">
+		<div v-if="isLoading" class="py-1 w-full">
 			<n-skeleton width="100%" height="43px" :sharp="false" />
 		</div>
-		<div v-else class="stats">
-			<div class="item stats-uptime" style="cursor: pointer;" @click="openInfoEditor">
-				<div
-					class="stats-item"
-					style="padding-right: 10px;"
-				>
+		<div v-else class="flex gap-3 w-full px-4">
+			<div class="item flex items-center cursor-pointer" @click="openInfoEditor">
+				<div class="stats-item pr-2.5">
 					<n-text>
 						{{ stats?.title ?? 'No title' }}
 					</n-text>
@@ -79,7 +74,7 @@ function openInfoEditor() {
 						{{ stats?.categoryName ?? 'No category' }}
 					</n-text>
 				</div>
-				<IconEdit class="stats-edit-icon" />
+				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
 
 			<div class="divider" />
@@ -174,53 +169,23 @@ function openInfoEditor() {
 	opacity: 0;
 }
 
-.stats-skeleton {
-	padding-top: 5px;
-	padding-bottom: 5px;
-	width: 100%
-}
-
-.stats {
-	display: flex;
-	gap: 12px;
-	width: 100%;
-	padding-right: 16px;
-	padding-left: 16px;
-}
-
-.stats-uptime {
-	display: flex;
-	align-items: center;
-}
-
-.stats-edit-icon {
-	height: 20px;
-	width: 20px;
-	cursor: pointer;
-}
-
 .item {
-	min-width: max-content;
+	@apply min-w-max;
 }
 
 .divider {
-	border-left: 1px solid v-bind('themeVars.borderColor');
-	margin-top: 0.5rem;
-	margin-bottom: 0.5rem;
+	@apply my-2 border-l-[color:var(--n-border-color)] border-l border-solid;
 }
 
 .stats-item {
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
+	@apply flex flex-col justify-between;
 }
 
 .stats-type {
-	font-size: 11px;
+	@apply text-xs;
 }
 
 .stats-display {
-	font-size: 16px;
-	font-variant-numeric: tabular-nums;
+	@apply text-base tabular-nums;
 }
 </style>

@@ -35,7 +35,7 @@ const { t } = useI18n();
 <template>
 	<n-space align="center" justify="center" vertical>
 		<n-card
-			class="card"
+			class="min-w-[400px]"
 			:style="{ cursor: userCanManageRoles ? 'pointer' : 'not-allowed' }"
 			size="small"
 			bordered
@@ -47,7 +47,7 @@ const { t } = useI18n();
 			}"
 		>
 			<n-space align="center" justify="center" vertical>
-				<n-text class="text">
+				<n-text class="text-[30px]">
 					<IconPlus />
 				</n-text>
 			</n-space>
@@ -56,11 +56,11 @@ const { t } = useI18n();
 			v-for="role in roles?.roles"
 			:key="role.id"
 			size="small"
-			class="card"
+			class="min-w-[400px]"
 			hoverable
 		>
 			<n-space justify="space-between" align="center">
-				<n-text class="text">
+				<n-text class="text-[30px]">
 					{{ role.name }}
 				</n-text>
 				<n-space>
@@ -96,13 +96,3 @@ const { t } = useI18n();
 		</n-modal>
 	</n-space>
 </template>
-
-<style scoped>
-.card {
-	min-width: 400px;
-}
-
-.card .text {
-	font-size: 30px;
-}
-</style>

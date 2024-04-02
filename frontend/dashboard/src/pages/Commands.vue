@@ -31,12 +31,3 @@ const commands = computed(() => {
 		:showCreateButton="route.params.system === 'custom'"
 	/>
 </template>
-
-<style scoped>
-.title {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-</style>
-

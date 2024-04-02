@@ -39,7 +39,7 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 </script>
 
 <template>
-	<card :title="title" :icon="icon" :icon-stroke="iconStroke" style="height: 100%;">
+	<card :title="title" :icon="icon" :icon-stroke="iconStroke" class="h-full">
 		<template #content>
 			{{ description }}
 		</template>
@@ -49,7 +49,7 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 				v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large"
 				@click="$emit('openSettings')"
 			>
-				<div class="button-content">
+				<div class="flex gap-1">
 					<span>{{ t('sharedButtons.settings') }}</span>
 					<IconSettings />
 				</div>
@@ -61,7 +61,7 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 						:disabled="copyDisabled || profile?.id != profile?.selectedDashboardId"
 						@click="copyOverlayLink()"
 					>
-						<div class="button-content">
+						<div class="flex gap-1">
 							<span>{{ t('overlays.copyOverlayLink') }}</span>
 							<IconCopy />
 						</div>
@@ -73,10 +73,3 @@ const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
 		</template>
 	</card>
 </template>
-
-<style scoped>
-.button-content {
-	display: flex;
-	gap: 4px;
-}
-</style>

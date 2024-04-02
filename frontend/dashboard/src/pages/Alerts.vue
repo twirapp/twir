@@ -15,7 +15,7 @@ const overlayLink = computed(() => {
 </script>
 
 <template>
-	<n-alert style="min-height: 100px;" type="info" :title="t('alerts.info')">
+	<n-alert type="info" :title="t('alerts.info')">
 		<span>{{ t('alerts.overlayLabel') }}</span>
 		<copy-input type="password" :text="overlayLink" size="medium" />
 	</n-alert>

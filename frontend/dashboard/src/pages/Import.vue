@@ -11,7 +11,3 @@ import Streamlabs from './import/streamlabs.vue';
 		<streamlabs />
 	</div>
 </template>
-
-<style scoped>
-
-</style>

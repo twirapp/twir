@@ -61,8 +61,7 @@ const swatches = [
 	<n-dynamic-input
 		v-model:value="groups"
 		:on-remove="(a) => deleteGroup(a)"
-		style="width: 100%"
-		class="groups"
+		class="groups w-full"
 		:create-button-props="{ class: 'create-button' } as any"
 	>
 		<template #default="{ value }: { value: FormGroup }">
@@ -104,12 +103,10 @@ const swatches = [
 
 <style scoped>
 .groups :deep(.create-button) {
-	display: none;
+	@apply hidden;
 }
 
 .group-actions {
-	display: flex;
-	column-gap: 5px;
-	align-items: center
+	@apply flex gap-x-1 items-center;
 }
 </style>

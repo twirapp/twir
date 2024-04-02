@@ -31,11 +31,11 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 	return [
 		h(
 			'div',
-			{ style: 'display: flex; align-items: center; gap: 4px;' },
+			{ class: 'flex items-center gap-1' },
 			{
 				default: () => [
 					h('span', undefined, { default: () => option.label }),
-					h('img', { style: 'height: 20px; width: 20px', src: preview }),
+					h('img', { class: 'h-5 w-5', src: preview }),
 				],
 			},
 		),
@@ -45,7 +45,7 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 
 <template>
 	<div class="tab">
-		<n-alert type="info" :show-icon="false" style="margin-top: 5px;">
+		<n-alert type="info" :show-icon="false" class="mt-1">
 			{{ t('overlays.kappagen.info') }}
 		</n-alert>
 		<CommandButton name="kappagen" />
@@ -170,7 +170,7 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 
 		<n-divider />
 
-		<div style="display: flex; flex-direction: column; gap: 4px;">
+		<div class="flex flex-col gap-1">
 			<span>{{ t('overlays.kappagen.settings.excludedEmotes') }}</span>
 
 			<n-select

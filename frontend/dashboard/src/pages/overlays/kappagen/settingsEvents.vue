@@ -38,7 +38,7 @@ watch(formValue.value.events, (v) => {
 			:tab="availableEvents.find(e => e.value === event.event)?.name"
 		>
 			<template #tab>
-				<div style="display: flex; justify-content: space-between; width: 100%; gap: 12px;">
+				<div class="flex justify-between w-full gap-3">
 					<span>
 						{{ availableEvents.find(e => e.value === event.event)?.name }}
 					</span>

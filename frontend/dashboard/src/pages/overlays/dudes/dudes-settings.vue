@@ -93,8 +93,8 @@ const addable = computed(() => {
 </script>
 
 <template>
-	<div style="display: flex; gap: 42px; height: calc(100% - var(--layout-header-height));">
-		<div style="width: 70%; position: relative;">
+	<div class="flex gap-10" style="height: calc(100% - var(--layout-header-height));">
+		<div class="relative w-[70%]">
 			<div v-if="dudesIframeUrl">
 				<iframe
 					ref="dudesIframe"
@@ -102,7 +102,7 @@ const addable = computed(() => {
 					:src="dudesIframeUrl"
 					class="iframe"
 				/>
-				<n-space :size="6" style="position: absolute; top: 18px; left: 8px;">
+				<n-space :size="6" class="absolute top-[18px] left-2">
 					<n-button @click="dudesIframeStore.sendIframeMessage('spawn-emote')">
 						Emote
 					</n-button>
@@ -124,8 +124,8 @@ const addable = computed(() => {
 				</n-space>
 			</div>
 		</div>
-		<div style="width: 30%;">
-			<div style="display: flex; gap: 8px; flex-wrap: wrap">
+		<div class="w-[30%]">
+			<div class="flex gap-2 flex-wrap">
 				<command-button title="Jump command" name="jump" />
 				<command-button title="Color command" name="dudes color" />
 				<command-button title="Grow command" name="dudes grow" />
@@ -156,7 +156,7 @@ const addable = computed(() => {
 					</n-tab-pane>
 				</template>
 			</n-tabs>
-			<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
+			<n-alert v-if="!entities?.settings.length" type="info" class="mt-2">
 				Create new overlay for edit settings
 			</n-alert>
 		</div>

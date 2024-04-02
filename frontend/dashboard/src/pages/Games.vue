@@ -9,15 +9,7 @@ import RussianRoulette from '@/components/games/russianRoulette.vue';
 </script>
 
 <template>
-	<div
-		style="
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			max-width: 60vw;
-			margin: 0 auto;
-		"
-	>
+	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
 		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<EightBall />

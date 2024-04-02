@@ -14,8 +14,8 @@ const logout = useLogout();
 	<n-button size="large" :disabled="isProfileLoading" @click="logout.mutate">
 		<n-spin v-if="isProfileLoading" size="small" />
 		<template v-else>
-			<IconLogout style="width: 22px; height: 22px" />
-			<span style="display: inline-block; margin-left: 5px">{{ t('navbar.logout') }}</span>
+			<IconLogout class="w-5 h-5" />
+			<span class="inline-block ml-1">{{ t('navbar.logout') }}</span>
 		</template>
 	</n-button>
 </template>

@@ -86,7 +86,7 @@ async function save() {
 
 <template>
 	<div v-if="formValue" class="card">
-		<div class="card-header">
+		<div class="flex-wrap justify-start">
 			<n-button
 				secondary
 				type="error"
@@ -117,7 +117,7 @@ async function save() {
 				<div>
 					<span>{{ t('overlays.chat.direction') }}</span>
 					<n-select v-model:value="formValue.direction" :options="directionOptions" />
-					<n-text style="font-size: 12px; margin-top: 4px;">
+					<n-text class="text-xd mt-1">
 						{{ t('overlays.chat.directionWarning') }}
 					</n-text>
 				</div>
@@ -189,13 +189,13 @@ async function save() {
 				</div>
 
 				<div class="slider">
-					<div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+					<div class="flex justify-between mb-1">
 						<span>{{ t('overlays.chat.backgroundColor') }}</span>
 						<n-button
 							size="tiny" secondary type="success"
 							@click="formValue.chatBackgroundColor = defaultChatSettings.chatBackgroundColor"
 						>
-							<IconReload style="height: 15px;" />
+							<IconReload class="h-4 w-4" />
 							{{ t('overlays.chat.resetToDefault') }}
 						</n-button>
 					</div>
@@ -241,18 +241,12 @@ async function save() {
 <style scoped>
 @import '../../styles.css';
 
-.card-header {
-	flex-wrap: wrap;
-	justify-content: flex-start;
-}
-
 .card-body-column {
 	width: 100%;
 }
 
 .switch {
-	display: flex;
-	justify-content: space-between;
+	@apply flex justify-between;
 }
 
 .card {

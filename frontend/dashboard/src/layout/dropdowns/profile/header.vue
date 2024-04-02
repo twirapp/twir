@@ -8,11 +8,11 @@ const { data: profileData } = useProfile();
 </script>
 
 <template>
-	<div class="header">
-		<div v-if="profileData" style="display: flex; gap: 12px; align-items: center;">
+	<div class="flex items-center px-3 py-2">
+		<div v-if="profileData" class="flex gap-3 items-center">
 			<n-avatar :src="profileData?.avatar" round />
-			<div style="display: flex; flex-direction: column;">
-				<n-text :depth="3" style="font-size: 11px">
+			<div class="flex flex-col">
+				<n-text :depth="3" class="text-xs">
 					Logged as
 				</n-text>
 				<n-text>
@@ -22,11 +22,3 @@ const { data: profileData } = useProfile();
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.header {
-	display: flex;
-	align-items: center;
-	padding: 8px 12px;
-}
-</style>

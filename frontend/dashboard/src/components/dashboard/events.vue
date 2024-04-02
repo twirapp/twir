@@ -81,9 +81,7 @@ const enabledEventsOptions = [
 </script>
 
 <template>
-	<card
-		:content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }"
-	>
+	<card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }">
 		<template #header-extra>
 			<n-popselect
 				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"

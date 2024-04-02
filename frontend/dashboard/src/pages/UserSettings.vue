@@ -17,10 +17,7 @@ const { theme } = useTheme();
 	<TabsRoot default-value="account">
 		<div
 			class="after:inset-0 after:bottom-0 after:block after:h-px after:w-full after:content-['']"
-			:class="{
-				'after:bg-white/[.15]': theme === 'dark',
-				'after:bg-zinc-600/[.15]': theme === 'light'
-			}"
+			:class="[theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]']"
 			:style="{'background-color': themeVars.cardColor}"
 		>
 			<div class="container flex flex-col pt-9 gap-2">

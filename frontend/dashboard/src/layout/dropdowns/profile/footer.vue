@@ -17,7 +17,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<div class="footer">
+	<div class="flex flex-col gap-1 p-2">
 		<router-link :to="{ name: 'Settings' }" #="{ navigate, href }" custom>
 			<n-button
 				:href="href"
@@ -50,13 +50,3 @@ const { t } = useI18n();
 		</n-button>
 	</div>
 </template>
-
-
-<style scoped>
-.footer {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-	padding: 8px;
-}
-</style>

@@ -11,7 +11,7 @@ defineProps<{
 <template>
 	<Base :icon="IconEraser" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction:column">
+			<div class="flex flex-col">
 				<span>Chat Cleared</span>
 			</div>
 		</template>

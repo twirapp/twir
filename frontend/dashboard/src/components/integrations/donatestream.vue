@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup } from 'naive-ui';
+import { NTimeline, NTimelineItem, NText, NInput, NButton, NInputGroup, NA } from 'naive-ui';
 import { computed, ref } from 'vue';
 
 import { useDonateStreamIntegration } from '@/api/index.js';
@@ -39,25 +39,24 @@ async function saveSecret() {
 				<n-timeline-item type="info" title="Step 1">
 					<n-text>
 						Paste that link into input on the
-						<a
+						<n-a
 							href="https://lk.donate.stream/settings/api"
 							target="_blank"
-							class="link"
 						>
 							https://lk.donate.stream/settings/api
-						</a>
-						<copy-input :text="webhookUrl" style="margin-top: 5px" />
+						</n-a>
+						<copy-input :text="webhookUrl" class="mt-1" />
 					</n-text>
 				</n-timeline-item>
 				<n-timeline-item type="info" title="Step 2">
 					<n-text>
-						Paste the <a
+						Paste the
+						<n-a
 							href="https://i.imgur.com/OtW97pV.png"
 							target="_blank"
-							class="link"
 						>
 							secret key
-						</a>
+						</n-a>
 						from page and click SAVE
 					</n-text>
 					<n-input-group>
@@ -77,10 +76,3 @@ async function saveSecret() {
 		</template>
 	</with-settings>
 </template>
-
-<style scoped>
-.link {
-	color: #41c489;
-	text-decoration: none
-}
-</style>

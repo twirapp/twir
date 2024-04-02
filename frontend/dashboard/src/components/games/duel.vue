@@ -100,7 +100,7 @@ function resetSettings() {
 			'--title-border': `1px solid ${themeVars.borderColor}`
 		}"
 	>
-		<div class="form">
+		<div class="flex flex-col gap-2">
 			<n-form-item label="Enabled" label-placement="left" :show-feedback="false">
 				<n-switch
 					v-model:value="formValue.enabled"
@@ -157,7 +157,7 @@ function resetSettings() {
 					<div class="title">
 						{{ t('games.duel.messages.title') }}
 					</div>
-					<div class="form-item" style="flex-direction: column;">
+					<div class="form-item flex-col">
 						<n-form-item
 							:label="t('games.duel.messages.start.title')"
 							:feedback="t('games.duel.messages.start.description', {}, {escapeParameter: false})"
@@ -265,45 +265,23 @@ function resetSettings() {
 </template>
 
 <style scoped>
-.form {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-}
-
 .card {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	height: 100%;
-	border-radius: 4px;
-	background-color: var(--card-background);
+	@apply flex flex-col gap-2 h-full rounded bg-[color:var(--card-background)];
 }
 
 .card .content {
-	padding: 4px;
+	@apply p-1;
 }
 
 .card .content .settings {
-	padding-top: 5px;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
+	@apply flex flex-col gap-2 pt-1;
 }
 
 .card .title {
-	display: flex;
-	justify-content: space-between;
-	width: 100%;
-	padding-bottom: 3px;
-	border-bottom: var(--title-border)
+	@apply flex justify-between w-full pb-1 border-b-[length:var(--title-border)];
 }
 
 .card .form-item {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 12px;
-	padding: 8px;
-	width: 100%;
+	@apply flex flex-wrap gap-3 p-2 w-full;
 }
 </style>

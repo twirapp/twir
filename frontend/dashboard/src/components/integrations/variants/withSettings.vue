@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { IconSettings } from '@tabler/icons-vue';
-import { NButton, NModal, NSpace, useThemeVars } from 'naive-ui';
+import { NButton, NModal, NSpace } from 'naive-ui';
 import { FunctionalComponent, onUnmounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api';
 import Card from '@/components/card/card.vue';
-
-const themeVars = useThemeVars();
 
 const props = withDefaults(defineProps<{
 	title: string
@@ -58,7 +56,7 @@ onUnmounted(() => showSettings.value = false);
 		</template>
 
 		<template #footer>
-			<div class="footer">
+			<div class="flex justify-between flex-wrap w-full items-center gap-2">
 				<div>
 					<n-button
 						:disabled="!userCanManageIntegrations"
@@ -66,7 +64,7 @@ onUnmounted(() => showSettings.value = false);
 						size="large"
 						@click="showSettings = true"
 					>
-						<div style="display: flex; gap: 4px;">
+						<div class="flex gap-1">
 							<span>{{ t('sharedButtons.settings') }}</span>
 							<IconSettings />
 						</div>
@@ -110,19 +108,3 @@ onUnmounted(() => showSettings.value = false);
 		</template>
 	</n-modal>
 </template>
-
-<style scoped>
-.description :deep(a) {
-	color: v-bind('themeVars.successColor');
-	text-decoration: none;
-}
-
-.footer {
-	display: flex;
-	justify-content: space-between;
-	flex-wrap: wrap;
-	width: 100%;
-	align-items: center;
-	gap: 8px;
-}
-</style>

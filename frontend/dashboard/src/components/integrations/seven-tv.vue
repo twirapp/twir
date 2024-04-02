@@ -9,7 +9,6 @@ import {
 	NTimelineItem,
 	NA,
 	NSpin,
-	useThemeVars,
 	NAlert,
 	NForm,
 	NFormItem,
@@ -30,7 +29,6 @@ import WithSettings from '@/components/integrations/variants/withSettings.vue';
 import RewardsSelector from '@/components/rewardsSelector.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 
-const themeVars = useThemeVars();
 const { t } = useI18n();
 
 const { notification } = useNaiveDiscrete();
@@ -106,7 +104,7 @@ async function saveSettings() {
 						<n-form-item :label="t('integrations.sevenTv.rewardForAddEmote')">
 							<n-space vertical>
 								<rewards-selector v-model="form.rewardIdForAddEmote" only-with-input clearable />
-								<n-text :depth="3" style="font-size: 12px">
+								<n-text :depth="3" class="text-xs">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>
 							</n-space>
@@ -115,11 +113,11 @@ async function saveSettings() {
 						<n-form-item :label="t('integrations.sevenTv.rewardForRemoveEmote')">
 							<n-space vertical>
 								<rewards-selector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
-								<n-text :depth="3" style="font-size: 12px">
+								<n-text :depth="3" class="text-xs">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
 								</n-text>
 
-								<div style="display: flex; gap: 4px">
+								<div class="flex gap-1">
 									<span>{{ t('integrations.sevenTv.deleteOnlyAddedByApp') }}</span>
 									<n-switch v-model:value="form.deleteEmotesOnlyAddedByApp" />
 								</div>
@@ -128,12 +126,12 @@ async function saveSettings() {
 					</n-form>
 
 
-					<div style="display: flex; flex-direction: column; gap: 4px">
+					<div class="flex flex-col gap-1">
 						<n-alert v-if="isSameRewardsChoosed" type="error">
 							{{ t('integrations.sevenTv.errorSameReward') }}
 						</n-alert>
 
-						<n-alert type="info" style="margin-bottom: 10px;">
+						<n-alert type="info" class="mb-2.5">
 							<i18n-t keypath="integrations.sevenTv.alert">
 								<n-a @click="goToEvents">
 									{{ t('sidebar.events').toLocaleLowerCase() }}
@@ -152,14 +150,14 @@ async function saveSettings() {
 								</i18n-t>
 							</n-timeline-item>
 							<n-timeline-item>
-								<div style="display: flex; flex-direction: column">
+								<div class="flex flex-col">
 									<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
 									<img :src="SevenTvButtonEditors" height="50" width="100" />
 								</div>
 							</n-timeline-item>
 							<n-timeline-item>
 								<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
-									<b :style="{color: themeVars.successColor}">{{ sevenTvData?.botSeventvProfile?.username }}</b>
+									<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
 								</i18n-t>
 							</n-timeline-item>
 						</n-timeline>
@@ -170,7 +168,7 @@ async function saveSettings() {
 
 		<template #additionalFooter>
 			<n-tag
-				style="padding: 20px;"
+				class="!p-5"
 				:bordered="false"
 				:type="sevenTvData?.isEditor ? 'success' : 'error'"
 			>
@@ -188,7 +186,3 @@ async function saveSettings() {
 		</template>
 	</with-settings>
 </template>
-
-<style scoped>
-
-</style>

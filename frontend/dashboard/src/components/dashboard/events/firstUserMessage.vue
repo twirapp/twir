@@ -17,9 +17,12 @@ defineProps<{
 <template>
 	<Base :icon="IconMoodPlus" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction:column">
-				<span>{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">first time joined chat</b></span>
-				<span style="font-size: 11px">{{ message }}</span>
+			<div class="flex flex-col">
+				<span>
+					{{ createUserName(userName, userDisplayName) }}
+					<b class="text-sx">first time joined chat</b>
+				</span>
+				<span class="text-sx">{{ message }}</span>
 			</div>
 		</template>
 	</Base>

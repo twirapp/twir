@@ -7,19 +7,8 @@ defineProps<{
 </script>
 
 <template>
-	<div class="hamburger">
+	<div class="flex cursor-pointer h-9 w-9 items-center justify-center">
 		<icon-menu2 v-if="!isOpen" />
 		<icon-x v-else />
 	</div>
 </template>
-
-<style scoped>
-.hamburger {
-	cursor: pointer;
-	width: 38px;
-	height: 38px !important;
-	display: flex;
-	align-items: center !important;
-	justify-content: center !important;
-}
-</style>

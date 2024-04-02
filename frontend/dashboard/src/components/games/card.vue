@@ -39,7 +39,7 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 				size="large"
 				@click="$emit('openSettings')"
 			>
-				<div style="display: flex; gap: 6px">
+				<div class="flex gap-[6px]">
 					<span>{{ t('sharedButtons.settings') }}</span>
 					<IconSettings />
 				</div>
@@ -47,7 +47,3 @@ const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
 		</template>
 	</card>
 </template>
-
-<style scoped>
-
-</style>

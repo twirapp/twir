@@ -20,10 +20,10 @@ defineProps<{
 	<Base :icon="IconGift" :created-at="createdAt">
 		<template #leftContent>
 			<span>
-				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">gifted sub to</b> {{ createUserName(targetUserName, targetUserDisplayName) }}
+				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">gifted sub to</b> {{ createUserName(targetUserName, targetUserDisplayName) }}
 			</span>
 			<span>
-				<span style="font-size: 11px">
+				<span class="text-xs">
 					{{ level }} tier
 				</span>
 			</span>

@@ -124,14 +124,14 @@ async function previewVoice() {
 </script>
 
 <template>
-	<n-space vertical style="padding: 20px;">
+	<n-space vertical class="p-5">
 		<n-alert type="info">
 			{{ t('overlays.tts.eventsHint') }}
 		</n-alert>
 
 		<n-skeleton v-if="!formValue || ttsSettings.isLoading.value" :sharp="false" size="large" />
 
-		<n-form v-else style="margin-top: 15px">
+		<n-form v-else class="mt-4">
 			<n-grid cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="20" :y-gap="20">
 				<n-grid-item :span="1">
 					<n-space justify="space-between">
@@ -141,7 +141,7 @@ async function previewVoice() {
 				</n-grid-item>
 
 				<n-grid-item :span="1">
-					<n-row justify-content="space-between" align-items="flex-start" style="flex-wrap: nowrap">
+					<n-row justify-content="space-between" align-items="flex-start" class="flex-nowrap">
 						<n-text>{{ t('overlays.tts.allowUsersChooseVoice') }}</n-text>
 						<n-switch v-model:value="formValue.allowUsersChooseVoiceInMainCommand" />
 					</n-row>
@@ -205,7 +205,7 @@ async function previewVoice() {
 				/>
 			</n-form-item>
 
-			<n-space style="width:100%" vertical size="small">
+			<n-space class="w-full" vertical size="small">
 				<n-form-item :label="t('overlays.tts.volume')" size="small">
 					<n-slider v-model:value="formValue.volume" :step="1" />
 				</n-form-item>
@@ -217,13 +217,13 @@ async function previewVoice() {
 				</n-form-item>
 			</n-space>
 
-			<n-divider style="margin: 0; margin-bottom: 10px" />
+			<n-divider class="m-0 mb-2.5" />
 
 			<n-form-item :label="`🎤 ${t('overlays.tts.previewText')}`">
-				<div style="display: flex; gap: 4px; width: 100%">
+				<div class="flex gap-1 w-full">
 					<n-input
 						v-model:value="previewText" :placeholder="t('overlays.tts.previewText')"
-						style="width: 50%"
+						class="w-1/2"
 					/>
 					<n-button text @click="previewVoice">
 						<IconPlayerPlay />
@@ -232,12 +232,8 @@ async function previewVoice() {
 			</n-form-item>
 		</n-form>
 
-		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+		<n-button secondary type="success" block class="mt-2.5" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-space>
 </template>
-
-<style scoped lang="postcss">
-
-</style>

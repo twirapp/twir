@@ -27,7 +27,7 @@ defineEmits<{
 <template>
 	<n-card
 		:title="convertOverlayLayerTypeToText(type)"
-		style="cursor: pointer;"
+		class="cursor-pointer"
 		:style="{
 			border: isFocused ? `1px solid ${activeLayourCardColor}` : undefined
 		}"
@@ -35,15 +35,18 @@ defineEmits<{
 	>
 		<slot />
 
-		<div style="display: flex; gap: 12px; width: 100%">
+		<div class="flex gap-3 w-full">
 			<n-button
-				style="flex: 1" secondary
+				secondary
+				class="flex-1"
 				@click="$emit('openSettings')"
 			>
 				<IconSettings />
 			</n-button>
 			<n-button
-				style="flex: 1" secondary type="error"
+				secondary
+				class="flex-1"
+				type="error"
 				@click="$emit('remove', layerIndex)"
 			>
 				<IconTrash />

@@ -60,8 +60,8 @@ async function save() {
 		content-style="padding: 10px; width: 100%"
 		style="width: 500px; max-width: calc(100vw - 40px)"
 	>
-		<div style="display: flex; gap: 24px">
-			<div style="display: flex; flex-direction: column; gap: 4px; align-items: start;">
+		<div class="flex gap-6">
+			<div class="flex flex-col gap-1 items-center">
 				<span>{{ t('sharedTexts.enabled') }}</span>
 				<n-switch v-model:value="formValue.enabled"></n-switch>
 			</div>
@@ -73,11 +73,11 @@ async function save() {
 
 		<h3>{{ t('games.8ball.answers') }} ({{ formValue.answers.length }}/{{ maxAnswers }})</h3>
 
-		<div style="display: flex; flex-direction: column; gap: 8px">
+		<div class="flex flex-col gap-2">
 			<div
 				v-for="(_, index) of formValue.answers"
 				:key="index"
-				style="display: flex; gap: 4px;"
+				class="flex gap-1"
 			>
 				<n-input
 					v-model:value="formValue.answers[index]"
@@ -113,7 +113,3 @@ async function save() {
 		</n-button>
 	</n-modal>
 </template>
-
-<style scoped>
-
-</style>

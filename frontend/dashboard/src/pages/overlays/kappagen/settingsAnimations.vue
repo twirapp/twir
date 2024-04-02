@@ -37,7 +37,7 @@ watch(formValue.value.animations, (v) => {
 						<div class="info">
 							<span>{{ animation.style }}</span>
 							<n-button text size="tiny" @click="$emit('play', animation)">
-								<IconPlayerPlay style="display: flex; height: 18px;" />
+								<IconPlayerPlay class="flex h-4" />
 							</n-button>
 						</div>
 						<n-switch v-model:value="animation.enabled" />
@@ -83,10 +83,7 @@ watch(formValue.value.animations, (v) => {
 							/>
 						</div>
 
-						<div
-							v-if="animation.style === 'Text'"
-							style="display: flex; flex-direction: column; gap: 4px;"
-						>
+						<div v-if="animation.style === 'Text'" class="flex flex-col gap-1">
 							<span>Texts</span>
 							<n-dynamic-input
 								v-model:value="animation.prefs!.message"

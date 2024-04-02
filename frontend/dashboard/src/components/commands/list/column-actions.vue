@@ -72,10 +72,3 @@ async function switchEnabled(newValue: boolean) {
 		@confirm="deleter.mutateAsync({ commandId: row.id })"
 	/>
 </template>
-
-<style scoped>
-.actions {
-	display: flex;
-	gap: 4px;
-}
-</style>

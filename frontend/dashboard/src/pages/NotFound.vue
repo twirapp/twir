@@ -12,7 +12,7 @@ function goToDashboard() {
 </script>
 
 <template>
-	<div style="display: flex; justify-content: center; align-items: center; height: 100%;">
+	<div class="flex items-center justify-center h-full">
 		<n-result
 			status="404"
 			:title="t('pageNotFound.title')"

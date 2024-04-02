@@ -124,15 +124,9 @@ const renderSelectOption = (option: SelectOption & { image: string }): VNodeChil
 				h(NAvatar, {
 					src: option.image,
 					round: true,
-					style: 'height: 25px; width: 25px; display: flex',
+					class: 'flex h-5 w-5',
 				}),
-				h(NText, {
-					style: {
-						marginLeft: '0.5rem',
-					},
-				}, {
-					default: () => option.label,
-				}),
+				h(NText, { class: 'ml-2' }, { default: () => option.label }),
 			],
 		});
 };
@@ -217,7 +211,7 @@ const srCommands = computed(() => {
 							<n-text>{{ t('songRequests.settings.playerNoCookieMode') }}</n-text>
 							<n-switch v-model:value="formValue.playerNoCookieMode" />
 						</n-space>
-						<n-text style="font-size: 12px; margin-top: 4px;">
+						<n-text class="text-xs mt-1">
 							{{ t('songRequests.settings.playerNoCookieModeDescription') }}
 						</n-text>
 					</div>

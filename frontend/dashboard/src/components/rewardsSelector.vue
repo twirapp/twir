@@ -53,7 +53,7 @@ const renderRewardTag = (option: RewardSelectOptions): VNodeChild => {
 			h(NAvatar, {
 				src: option.image || RewardFallbackImg,
 				color: option.color,
-				style: 'display: flex; width: 20px; height: 20px; padding: 4px;',
+				class: 'flex w-5 h-5 p-1',
 			}),
 			h(NText, {
 				style: {

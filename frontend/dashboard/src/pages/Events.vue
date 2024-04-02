@@ -54,7 +54,7 @@ const events = computed(() => {
 			</n-grid-item>
 		</n-grid>
 
-		<n-input v-model:value="search" clearable placeholder="Search..." style="width: 30%" />
+		<n-input v-model:value="search" clearable placeholder="Search..." class="w-[30%]"/>
 
 		<n-grid
 			v-if="!isLoading"
@@ -66,19 +66,12 @@ const events = computed(() => {
 		>
 			<n-grid-item>
 				<n-card
-					class="new-event-card"
-					content-style="
-						display: flex;
-						align-items: center;
-						justify-content: center;
-					"
-					:style="{
-						cursor: userCanManageEvents ? 'pointer' : 'not-allowed'
-					}"
+					class="new-event-card h-full flex items-center justify-center"
+					:style="{ cursor: userCanManageEvents ? 'pointer' : 'not-allowed' }"
 					embedded
 					@click="openSettings"
 				>
-					<IconCalendarPlus style="height: 80px; width: 80px;" />
+					<IconCalendarPlus class="w-20 h-20" />
 				</n-card>
 			</n-grid-item>
 			<n-grid-item v-for="event of events" :key="event.id">
@@ -104,11 +97,6 @@ const events = computed(() => {
 </template>
 
 <style scoped>
-.new-event-card {
-	/* height: 120px; */
-	height: 100%;
-}
-
 .new-event-card:hover {
 	background-color: v-bind(cardHoverColor);
 }

@@ -25,6 +25,6 @@ const { t } = useI18n();
 			/>
 		</n-form-item>
 
-		<n-divider style="margin: 0px; padding: 0px;" />
+		<n-divider class="m-0 p-0" />
 	</div>
 </template>

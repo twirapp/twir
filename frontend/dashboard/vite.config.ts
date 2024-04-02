@@ -42,6 +42,7 @@ export default defineConfig(({ mode }) => {
 				],
 				strictMessage: false,
 				escapeHtml: false,
+				runtimeOnly: true,
 			}),
 		],
 		base: '/dashboard',

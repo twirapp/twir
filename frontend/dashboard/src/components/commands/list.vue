@@ -84,13 +84,13 @@ const columns: ColumnDef<Command | Group>[] = [
 
       return h(
 				'div',
-				{ class: `flex gap-2 items-center select-none` },
+				{ class: 'flex gap-2 items-center select-none' },
 				[
 					chevron,
 					h(
 						'span',
 						{
-							class: `p-1 rounded`,
+							class: 'p-1 rounded',
 							style: `background-color: ${row.original.color}; color: ${color}`,
 						},
 						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
@@ -166,7 +166,7 @@ const table = useVueTable({
 
 <template>
 	<div>
-		<div v-if="showHeader" class="header">
+		<div v-if="showHeader" class="flex justify-between items-center flex-wrap gap-2">
 			<div>
 				<n-input
 					v-model:value="commandsFilter"
@@ -304,13 +304,3 @@ const table = useVueTable({
 		</n-modal>
 	</div>
 </template>
-
-<style scoped>
-.header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 8px;
-}
-</style>
