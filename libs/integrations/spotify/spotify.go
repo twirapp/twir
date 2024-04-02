@@ -86,13 +86,15 @@ type SpotifyTrack struct {
 }
 
 type SpotifyResponse struct {
-	Track *SpotifyTrack `json:"item"`
+	Track     *SpotifyTrack `json:"item"`
+	IsPlaying bool          `json:"is_playing"`
 }
 
 type GetTrackResponse struct {
-	Title  string `json:"title"`
-	Artist string `json:"artist"`
-	Image  string `json:"image"`
+	Title     string `json:"title"`
+	Artist    string `json:"artist"`
+	Image     string `json:"image"`
+	IsPlaying bool   `json:"isPlaying"`
 }
 
 func (c *Spotify) GetTrack() *GetTrackResponse {
@@ -128,9 +130,10 @@ func (c *Spotify) GetTrack() *GetTrackResponse {
 	}
 
 	return &GetTrackResponse{
-		Artist: strings.Join(artistsMap, ", "),
-		Title:  data.Track.Name,
-		Image:  imageUrl,
+		Artist:    strings.Join(artistsMap, ", "),
+		Title:     data.Track.Name,
+		Image:     imageUrl,
+		IsPlaying: data.IsPlaying,
 	}
 }
 
