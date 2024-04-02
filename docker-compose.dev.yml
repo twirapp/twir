@@ -7,7 +7,7 @@ services:
     ports:
       - "8085:8080"
     environment:
-      - ADMINER_DEFAULT_SERVER=pgpool:5432
+      - ADMINER_DEFAULT_SERVER=postgres:5432
       - ADMINER_PLUGINS=enum-types enum-option json-column
     networks:
       - tsuwari-dev
