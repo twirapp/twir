@@ -438,7 +438,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 	convertedBadges := make([]string, 0, len(data.Badges))
 	for _, badge := range data.Badges {
-		convertedBadges = append(convertedBadges, badge.Id)
+		convertedBadges = append(convertedBadges, strings.ToUpper(badge.SetId))
 	}
 
 	dbUser, _, userRoles, commandRoles, err := c.prepareCooldownAndPermissionsCheck(
