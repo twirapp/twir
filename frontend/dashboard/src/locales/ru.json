@@ -78,11 +78,11 @@
   },
   "pageNotFound": {
     "title": "404 Страница не найдена",
-    "description": "Такой страницы не существует."
+    "description": "Знаете, жизнь всегда смешна."
   },
   "commands": {
     "name": "Команда | Команды",
-    "searchPlaceholder": "Найти команду",
+    "searchPlaceholder": "Поиск",
     "newCommandTitle": "Новая команда",
     "importCommands": "Импортировать команды",
     "groups": {
