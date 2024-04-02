@@ -6,7 +6,7 @@ const props = defineProps<{
 	aliases: string[]
 }>();
 
-const mappedAliases = props.aliases.map((alias) => alias).join(', ');
+const mappedAliases = props.aliases.join(', ');
 </script>
 
 <template>
