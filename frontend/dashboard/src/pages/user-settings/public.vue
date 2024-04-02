@@ -53,7 +53,7 @@ async function save() {
 		notification.create({
 			title: 'Error',
 			type: 'error',
-			description: t('userSettings.public.errorLink', { title: link.title, href: link.href }),
+			description: t('userSettings.public.errorCreateLink', { title: link.title, href: link.href }),
 			duration: 5000,
 		});
 		return;
@@ -69,18 +69,34 @@ async function save() {
 }
 
 const rules: FormRules = {
+	title: {
+		trigger: ['input', 'blur'],
+		validator: (_: FormItemRule, value: string) => {
+			if (value.length === 0) {
+				return new Error(t('userSettings.public.errorEmpty'));
+			}
+
+			if (value.length > 30) {
+				return new Error(t('userSettings.public.errorTooLong'));
+			}
+
+			return true;
+		},
+	},
 	href: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
 				return new Error(t('userSettings.public.errorEmpty'));
 			}
-			if (value.length > 500) {
-				return new Error(t('userSettings.public.errorInvalidLink'));
+
+			if (value.length > 256) {
+				return new Error(t('userSettings.public.errorTooLong'));
 			}
+
 			const isLink = linkRegex.test(value);
 			if (!isLink) {
-				return new Error(t('userSettings.public.errorLink'));
+				return new Error(t('userSettings.public.errorInvalidLink'));
 			}
 
 			return true;
@@ -95,7 +111,8 @@ const newLinkForm = ref({
 	href: '',
 });
 
-function addLink() {
+async function addLink() {
+	await formRef.value?.validate();
 	formData.value.socialLinks.push(newLinkForm.value);
 	newLinkForm.value = {
 		title: '',
@@ -193,7 +210,7 @@ function changeSort(from: number, to: number) {
 				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
 					<n-input
 						v-model:value="newLinkForm.href"
-						:maxlength="500"
+						:maxlength="256"
 						placeholder="https://twir.app"
 						:disabled="linksLimitReached"
 					/>
