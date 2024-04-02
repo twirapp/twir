@@ -157,12 +157,12 @@ watch(() => fontData.value, (font) => {
 
 			<div class="card-body">
 				<div class="card-body-column">
-					<n-divider style="margin: 0">
+					<n-divider class="!my-0">
 						{{ t('overlays.brb.settings.main.label') }}
 					</n-divider>
 
 					<div class="item">
-						<div style="display: flex; gap: 4px; flex-direction: column;">
+						<div class="flex flex-col gap-1">
 							<command-button
 								name="brb"
 								:title="t('overlays.brb.settings.main.startCommand.description')"
@@ -216,7 +216,7 @@ watch(() => fontData.value, (font) => {
 				</div>
 
 				<div class="card-body-column">
-					<n-divider style="margin: 0">
+					<n-divider class="!my-0">
 						{{ t('overlays.brb.settings.late.label') }}
 					</n-divider>
 
@@ -225,12 +225,12 @@ watch(() => fontData.value, (font) => {
 						<n-input v-model:value="formValue.late!.text" :maxlength="500" />
 					</div>
 
-					<div style="display: flex; gap: 8px">
+					<div class="flex gap-2">
 						<n-switch v-model:value="formValue.late!.enabled" />
 						<span>{{ t('sharedTexts.enabled') }}</span>
 					</div>
 
-					<div style="display: flex; gap: 8px">
+					<div class="flex gap-2">
 						<n-switch v-model:value="formValue.late!.displayBrbTime" />
 						<span>{{ t('overlays.brb.settings.late.displayBrb') }}</span>
 					</div>
@@ -246,8 +246,8 @@ watch(() => fontData.value, (font) => {
 				class="iframe"
 				border="0"
 			/>
-			<div style="position: absolute; top: 35px; right: 40px; font-weight: 500;">
-				<div style="display: flex; gap: 8px">
+			<div class="absolute top-9 right-10 font-medium">
+				<div class="flex gap-2">
 					<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
 						{{ t('overlays.brb.preview.stop') }}
 					</n-button>

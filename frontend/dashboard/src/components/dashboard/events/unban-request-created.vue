@@ -17,12 +17,12 @@ defineProps<{
 <template>
 	<Base :icon="IconUserCancel" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction: column">
+			<div class="flex flex-col">
 				<span>
 					{{ createUserName(userLogin, userName) }}
-					<b style="font-size: 11px">requested unban</b>
+					<b class="text-xs">requested unban</b>
 				</span>
-				<span style="font-size: 11px">{{ message }}</span>
+				<span class="text-xs">{{ message }}</span>
 			</div>
 		</template>
 	</Base>

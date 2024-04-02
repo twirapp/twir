@@ -51,13 +51,11 @@ watch(props, (p) => {
 <template>
 	<div
 		:id="'layer-' + index"
-		style="position: absolute;"
+		class="absolute overflow-hidden text-nowrap"
 		:style="{
 			transform: `translate(${posX}px, ${posY}px)`,
 			width: `${width}px`,
 			height: `${height}px`,
-			'text-wrap': 'nowrap',
-			overflow: 'hidden'
 		}"
 	>
 		<component :is="'style'">
@@ -68,6 +66,6 @@ watch(props, (p) => {
 			}}
 		</component>
 
-		<div :id="'layersExampleRender'+index" style="width: 100%; height: 100%" v-html="exampleValue" />
+		<div :id="'layersExampleRender'+index" class="w-full h-full" v-html="exampleValue" />
 	</div>
 </template>

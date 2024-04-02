@@ -61,7 +61,7 @@ const columns = ref<Array<TableBaseColumn & { resetableKey?: CommunityResetStats
 
 			return h(NAvatar, {
 				src: twitchUser?.profileImageUrl,
-				style: 'display: flex;',
+				class: 'flex',
 			});
 		},
 	},
@@ -167,7 +167,7 @@ async function handleReset(field: CommunityResetStatsField) {
 </script>
 
 <template>
-	<n-space justify="space-between" style="margin-bottom: 15px;">
+	<n-space justify="space-between" class="mb-4">
 		<n-space>
 			<n-popconfirm
 				v-for="item of columns.filter(c => c.resetableKey !== undefined)"
@@ -193,7 +193,7 @@ async function handleReset(field: CommunityResetStatsField) {
 		remote
 		@update:sorter="handleSorterChange"
 	/>
-	<n-space justify="end" style="margin-top: 15px;">
+	<n-space justify="end" class="mt-4">
 		<Pagination />
 	</n-space>
 </template>

@@ -18,12 +18,11 @@ import {
 	IconSword,
 	IconUsers,
 } from '@tabler/icons-vue';
-import { MenuDividerOption, MenuOption, NBadge, NMenu, NDivider } from 'naive-ui';
+import { MenuDividerOption, MenuOption, NBadge, NMenu } from 'naive-ui';
 import { computed, h, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink, useRouter } from 'vue-router';
 
-import DashboardsMenu from './dashboardsMenu.vue';
 import { renderIcon } from '../helpers/index.js';
 
 import { useUserAccessFlagChecker } from '@/api';
@@ -199,24 +198,16 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div>
-		<dashboards-menu />
-
-		<n-divider style="margin-top: 0; margin-bottom: 5px;" />
-
-		<n-menu
-			v-model:value="activeKey"
-			:collapsed-width="64"
-			:collapsed-icon-size="22"
-			:options="menuOptions"
-		/>
-	</div>
+	<n-menu
+		v-model:value="activeKey"
+		:collapsed-width="64"
+		:collapsed-icon-size="22"
+		:options="menuOptions"
+	/>
 </template>
 
 <style scoped>
 :deep(.n-menu-item-content-header) {
-	align-self: stretch;
-	display: flex;
-	align-items: center;
+	@apply self-stretch flex items-center;
 }
 </style>

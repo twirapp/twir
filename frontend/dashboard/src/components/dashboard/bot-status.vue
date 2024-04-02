@@ -68,7 +68,3 @@ const alertContent = computed(() => {
 		</n-alert>
 	</div>
 </template>
-
-<style scoped>
-
-</style>

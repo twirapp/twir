@@ -20,10 +20,10 @@ defineProps<{
 	<Base :icon="IconRepeat" :created-at="createdAt">
 		<template #leftContent>
 			<span>
-				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">resubscribed with</b> {{ level }} tier
+				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">resubscribed with</b> {{ level }} tier
 			</span>
 			<span>
-				<span style="font-size: 11px">
+				<span class="text-xs">
 					{{ streak }} months • overall {{ months }} months
 				</span>
 			</span>

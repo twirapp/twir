@@ -13,6 +13,10 @@ import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 import { useFeedbackForm } from '@/layout/feedback/feedback';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
+withDefaults(defineProps<{ isDrawer: boolean }>(), {
+	isDrawer: false,
+});
+
 const discrete = useNaiveDiscrete();
 const feedbackFormStore = useFeedbackForm();
 const { t } = useI18n();
@@ -47,18 +51,14 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 </script>
 
 <template>
-	<div style="display: flex; padding-left: 8px; padding-right: 8px; margin-bottom: 8px">
+	<div class="flex px-2 mb-2">
 		<n-button block secondary type="success" size="large" @click="openFeedbackModal">
 			<template #icon>
 				<IconMessageShare />
 			</template>
-			<template v-if="!isCollapsed">
+			<template v-if="isDrawer || !isCollapsed">
 				{{ t('feedback.button') }}
 			</template>
 		</n-button>
 	</div>
 </template>
-
-<style scoped>
-
-</style>

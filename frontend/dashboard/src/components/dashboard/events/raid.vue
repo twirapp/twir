@@ -19,7 +19,7 @@ defineProps<{
 		<template #leftContent>
 			<span>
 
-				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">raided with</b> {{ viewers }} viewers
+				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">raided with</b> {{ viewers }} viewers
 			</span>
 		</template>
 	</Base>

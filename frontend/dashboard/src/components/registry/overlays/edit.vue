@@ -143,8 +143,8 @@ const innerWidth = computed(() => window.innerWidth);
 </script>
 
 <template>
-	<div style="display: flex; max-width: 100%;">
-		<div style="width: 85%;">
+	<div class="flex max-w-full">
+		<div class="w-[85%]">
 			<div
 				class="container"
 				:style="{
@@ -191,7 +191,7 @@ const innerWidth = computed(() => window.innerWidth);
 				</div>
 			</div>
 		</div>
-		<div style="display: flex; gap: 4px; flex-direction: column;">
+		<div class="flex flex-col gap-1">
 			<n-button
 				:disabled="!formValue.name || !formValue.layers.length" block secondary
 				type="success" @click="save"
@@ -238,7 +238,7 @@ const innerWidth = computed(() => window.innerWidth);
 				{{ t('overlaysRegistry.createNewLayer') }}
 			</n-button>
 
-			<div style="display: flex; flex-direction: column; gap: 12px; width: 100%">
+			<div class="flex flex-col gap-3 w-full">
 				<template v-for="(layer, index) of formValue.layers">
 					<html-layer-form
 						v-if="layer.type === OverlayLayerType.HTML"
@@ -260,7 +260,7 @@ const innerWidth = computed(() => window.innerWidth);
 	</div>
 
 	<n-modal
-		v-model:show="isOverlayNewModalOpened" style="width: 50vw" preset="card"
+		v-model:show="isOverlayNewModalOpened" class="w-[50vw]" preset="card"
 		:title="t('sharedButtons.create')"
 	>
 		<new-selector

@@ -29,10 +29,12 @@ import VariableInput from '@/components/variable-input.vue';
 const props = defineProps<{
 	keyword?: EditableKeyword | null
 }>();
+
 const emits = defineEmits<{
 	close: []
 }>();
 
+const { t } = useI18n();
 const formRef = ref<FormInst | null>(null);
 const formValue = ref<EditableKeyword>({
 	text: '',
@@ -43,6 +45,7 @@ const formValue = ref<EditableKeyword>({
 	usages: 0,
 	isRegular: false,
 });
+
 onMounted(() => {
 	if (!props.keyword) return;
 	formValue.value = structuredClone(toRaw(props.keyword));
@@ -57,7 +60,6 @@ async function save() {
 	await formRef.value.validate();
 
 	const data = formValue.value;
-
 	if (data.id) {
 		await keywordsUpdater.mutateAsync({
 			id: data.id,
@@ -69,8 +71,6 @@ async function save() {
 
 	emits('close');
 }
-
-const { t } = useI18n();
 
 const rules: FormRules = {
 	text: {
@@ -97,13 +97,9 @@ const rules: FormRules = {
 </script>
 
 <template>
-	<n-form
-		ref="formRef"
-		:model="formValue"
-		:rules="rules"
-	>
-		<n-space vertical style="width: 100%">
-			<n-space vertical style="gap:0">
+	<n-form ref="formRef" :model="formValue" :rules="rules">
+		<n-space vertical class="w-full">
+			<n-space vertical class="gap-0">
 				<n-form-item :label="t('keywords.triggerText')" path="text" show-require-mark>
 					<n-input v-model:value="formValue.text" />
 				</n-form-item>
@@ -153,7 +149,7 @@ const rules: FormRules = {
 
 				<n-grid-item :span="1">
 					<n-card>
-						<div class="settings-switch">
+						<div class="flex flex-row justify-between">
 							<n-space vertical>
 								<n-text>{{ t('sharedTexts.reply.label') }}</n-text>
 								<n-text>{{ t('sharedTexts.reply.text') }}</n-text>
@@ -170,11 +166,3 @@ const rules: FormRules = {
 		</n-space>
 	</n-form>
 </template>
-
-<style scoped>
-.settings-switch {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
-}
-</style>

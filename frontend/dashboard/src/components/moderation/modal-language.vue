@@ -37,6 +37,6 @@ const { t } = useI18n();
 			target-filter-placeholder="Search"
 		/>
 
-		<n-divider style="margin: 0; padding: 0" />
+		<n-divider class="m-0 p-0" />
 	</div>
 </template>

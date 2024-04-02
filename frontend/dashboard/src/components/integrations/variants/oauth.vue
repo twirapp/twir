@@ -62,7 +62,7 @@ const { t } = useI18n();
 		</template>
 
 		<template #footer>
-			<div class="footer">
+			<div class="flex justify-between flex-wrap items-center gap-1 w-full">
 				<div class="flex gap-2 flex-wrap">
 					<n-button
 						v-if="withSettings"
@@ -71,7 +71,7 @@ const { t } = useI18n();
 						size="large"
 						@click="showSettings = true"
 					>
-						<div style="display: flex; gap: 4px;">
+						<div class="flex gap-1">
 							<span>{{ t('sharedButtons.settings') }}</span>
 							<IconSettings />
 						</div>
@@ -83,7 +83,7 @@ const { t } = useI18n();
 						:type="data?.userName ? 'error' : 'success'"
 						@click="data?.userName ? logout() : login()"
 					>
-						<div class="button-content">
+						<div class="flex gap-1">
 							<span>
 								{{ t(`sharedButtons.${data?.userName ? 'logout' : 'login'}`) }}
 							</span>
@@ -92,9 +92,13 @@ const { t } = useI18n();
 						</div>
 					</n-button>
 				</div>
-				<div v-if="data?.userName" class="profile">
+				<div
+					v-if="data?.userName"
+					class="flex gap-2 rounded-[var(--n-border-radius)]"
+					:style="{ backgroundColor: themeVars.buttonColor2 }"
+				>
 					<div class="flex items-center gap-2 h-full px-4 py-2">
-						<n-avatar v-if="data?.avatar" round :src="data?.avatar" style="height: 25px; width: 25px" />
+						<n-avatar v-if="data?.avatar" round :src="data?.avatar" class="h-6 w-6" />
 						<span>{{ data.userName }}</span>
 					</div>
 				</div>
@@ -133,31 +137,3 @@ const { t } = useI18n();
 		</template>
 	</n-modal>
 </template>
-
-<style scoped>
-.footer {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	gap: 5px;
-	width: 100%;
-	flex-wrap: wrap;
-}
-
-.button-content {
-	display: flex;
-	gap: 4px;
-}
-
-.profile {
-	display: flex;
-	background-color: v-bind('themeVars.buttonColor2');
-	border-radius: 4px;
-	gap: 8px;
-}
-
-.description :deep(a) {
-	color: v-bind('themeVars.successColor');
-	text-decoration: none;
-}
-</style>

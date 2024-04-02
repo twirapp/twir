@@ -1,11 +1,7 @@
 <script lang="ts" setup>
-import { type SVGProps } from '@tabler/icons-vue';
+import type { SVGProps } from '@tabler/icons-vue';
 import { UseTimeAgo } from '@vueuse/components';
-import { useThemeVars } from 'naive-ui';
-import { computed, type FunctionalComponent } from 'vue';
-
-const theme = useThemeVars();
-const borderColor = computed(() => theme.value.borderColor);
+import type { FunctionalComponent } from 'vue';
 
 defineProps<{
 	icon: FunctionalComponent<SVGProps, Record<string, any>, any>
@@ -20,16 +16,16 @@ defineSlots<{
 </script>
 
 <template>
-	<div class="event">
-		<div class="content">
-			<div style="display: flex; gap: 10px; align-items: center;">
-				<component :is="icon" class="icon" :style="{ color: iconColor }" />
-				<div style="display: flex; flex-direction: column;">
+	<div class="flex min-h-[50px] gap-2.5 px-1 select-text border-b-[color:var(--n-border-color)] border-b border-solid">
+		<div class="flex justify-between items-center w-full">
+			<div class="flex gap-2.5 items-center">
+				<component :is="icon" class="flex items-center h-9 w-9" :style="{ color: iconColor }" />
+				<div class="flex flex-col">
 					<slot name="leftContent" />
 				</div>
 			</div>
 
-			<div style="display: flex; align-items: flex-end; font-size: 11px; height: 100%; padding-right: 10px; flex-shrink: 0;">
+			<div class="flex items-end text-xs h-full px-2.5 flex-shrink-0">
 				<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(Number(createdAt))" :update-interval="1000" show-second>
 					{{ timeAgo }}
 				</UseTimeAgo>
@@ -37,35 +33,3 @@ defineSlots<{
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.event {
-	display: flex;
-	min-height: 50px;
-	gap: 10px;
-	padding-left: 5px;
-	padding-right: 5px;
-	border-bottom: 1px solid v-bind(borderColor);
-	-webkit-user-select: text;
-	-ms-user-select: text;
-	user-select: text;
-}
-
-/* .event:last-of-type {
-	border-bottom: 0px;
-} */
-
-.event .content {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	width: 100%;
-}
-
-.icon {
-	height: 35px;
-	width: 35px;
-	display: flex;
-	align-items: center;
-}
-</style>

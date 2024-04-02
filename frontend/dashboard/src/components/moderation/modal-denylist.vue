@@ -15,7 +15,7 @@ const removeItem = (i: number) => editableItem.value!.data!.denyList = editableI
 
 <template>
 	<div>
-		<n-divider style="margin: 0; padding: 0" />
+		<n-divider class="m-0 p-0" />
 
 		<n-alert v-if="!editableItem?.data?.denyList.length" type="warning">
 			{{ t('moderation.types.deny_list.empty') }}
@@ -37,7 +37,7 @@ const removeItem = (i: number) => editableItem.value!.data!.denyList = editableI
 		<div
 			v-for="(_, i) of editableItem!.data!.denyList"
 			:key="i"
-			style="display: flex; gap: 4px;"
+			class="flex gap-1"
 		>
 			<n-input
 				v-model:value="editableItem!.data!.denyList[i]"

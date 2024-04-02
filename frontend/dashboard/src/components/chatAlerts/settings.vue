@@ -55,43 +55,43 @@ defineSlots<{
 </script>
 
 <template>
-	<section style="display: flex; gap: 8px; flex-direction: column;">
-		<div style="display: flex; gap: 4px;">
+	<section class="flex gap-2 flex-col">
+		<div class="flex gap-1">
 			<span>{{ t('sharedTexts.enabled') }}</span>
 			<n-switch v-model:value="enabled" />
 		</div>
 
-		<div style="display: flex; gap: 4px; flex-direction: column;">
+		<div class="flex gap-1 flex-col">
 			<span>{{ t('chatAlerts.cooldown') }}</span>
 			<n-input-number
 				v-model:value="cooldown"
 				:min="minCooldown"
 				:max="9999"
-				style="width: 10%; min-width: 100px;"
+				class="w-[10%] min-w-[100px]"
 			/>
 		</div>
 
 		<slot name="header" />
 	</section>
 
-	<n-alert v-if="alertMessage" type="info" title="Info" style="margin-top: 14px;">
+	<n-alert v-if="alertMessage" type="info" title="Info" class="mt-3">
 		<span v-html="alertMessage" />
 	</n-alert>
 
-	<ul class="messages">
+	<ul class="flex flex-col gap-3.5 p-0 mx-0 my-3.5">
 		<li
 			v-for="(m, index) of messages"
 			:key="index"
-			class="messageItem"
+			class="flex justify-between gap-3.5"
 		>
-			<div class="messageItemContent">
-				<n-input-group v-if="withCount && countLabel" style="width: auto; min-width: 200px">
+			<div class="message-item-content">
+				<n-input-group v-if="withCount && countLabel" class="w-auto min-w-[200px]">
 					<n-input-group-label>{{ countLabel }} >=</n-input-group-label>
 					<n-input-number
 						v-model:value="m.count"
 						:min="minCount ?? 1"
 						:max="9999999"
-						style="flex: 1"
+						class="flex-1"
 					/>
 				</n-input-group>
 
@@ -117,31 +117,13 @@ defineSlots<{
 </template>
 
 <style scoped>
-.messages {
-	display: flex;
-	gap: 14px;
-	flex-direction: column;
-	padding: 0;
-	margin: 14px 0;
+.message-item-content {
+  @apply flex w-full gap-x-3.5;
 }
 
-.messageItem {
-	display: flex;
-	gap: 14px;
-	justify-content: space-between;
-}
-
-.messageItemContent {
-	width: 100%;
-	display: flex;
-	column-gap: 14px;
-}
-
-@media screen and (max-width: 768px){
-	.messageItemContent {
-		flex-direction: column;
-		column-gap: 0;
-		row-gap: 6px;
-	}
+@media screen and (max-width: 768px) {
+  .message-item-content {
+    @apply flex-col gap-x-0 gap-y-1.5;
+  }
 }
 </style>

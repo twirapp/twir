@@ -63,9 +63,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 
 			return h(
 				'div',
-				{
-					style: 'display: flex; align-items: center; gap: 4px;',
-				},
+				{ class: 'flex items-center gap-1' },
 				[
 					banButton,
 					h(NButton, {
@@ -106,9 +104,7 @@ const columns = computed<TableColumn<Video>[]>(() => [
 
 			return h(
 				'div',
-				{
-					style: 'display: flex; align-items: center; gap: 4px;',
-				},
+				{ class: 'flex items-center gap-1' },
 				[
 					banButton,
 					row.orderedByDisplayName || row.orderedByName,
@@ -198,7 +194,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 		position: {
 			value: h(
 				'span',
-				{ style: 'font-weight: bold;' },
+				{ class: 'font-bold' },
 				pageData.length,
 			),
 			colSpan: 4,
@@ -206,7 +202,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 		duration: {
 			value: h(
 				'span',
-				{ style: 'font-weight: bold;' },
+				{ class: 'font-bold' },
 				convertMillisToTime(pageData.reduce((acc, cur) => acc + cur.duration * 1000, 0)),
 			),
 			colSpan: 2,
@@ -235,7 +231,7 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 			:summary="createSummary"
 		>
 			<template #loading>
-				<n-space vertical align="center" style="margin-top: 50px;">
+				<n-space vertical align="center" class="mt-[50px]">
 					<n-spin :rotate="false" stroke="#959596">
 						<template #description>
 							<n-text>{{ t('songRequests.waiting') }}</n-text>

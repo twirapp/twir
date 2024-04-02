@@ -34,8 +34,8 @@ async function callRegenerateKey() {
 </script>
 
 <template>
-	<div class="profile-body">
-		<div style="display: flex; gap: 12px;">
+	<div class="flex flex-col p-2 gap-3">
+		<div class="flex gap-3">
 			<n-switch
 				:value="!profile?.hideOnLandingPage"
 				:disabled="updateUser.isLoading.value"
@@ -44,9 +44,9 @@ async function callRegenerateKey() {
 			<n-text>{{ t('navbar.profile.showMeOnLanding') }}</n-text>
 		</div>
 
-		<n-divider style="margin: 0" />
+		<n-divider class="m-0" />
 
-		<div style="display: flex; flex-direction: column; gap: 4px">
+		<div class="flex flex-col gap-1">
 			<n-button
 				:disabled="regenerateUserApiKey.isLoading.value"
 				secondary
@@ -55,18 +55,9 @@ async function callRegenerateKey() {
 			>
 				{{ t('navbar.profile.regenerateApiKey.button') }}
 			</n-button>
-			<n-text style="font-size: 11px;" depth="3">
+			<n-text class="text-xs" depth="3">
 				{{ t('navbar.profile.regenerateApiKey.info') }}
 			</n-text>
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.profile-body {
-	display: flex;
-	flex-direction: column;
-	padding: 8px;
-	gap: 12px;
-}
-</style>

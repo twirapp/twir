@@ -28,10 +28,15 @@ const profileOptions: DropdownOption[] = [
 </script>
 
 <template>
-	<n-dropdown trigger="click" :options="profileOptions" size="large" style="width: 400px;">
+	<n-dropdown
+		trigger="click"
+		:options="profileOptions"
+		size="large"
+		style="top: 12px; left: 14px; width: 400px;"
+	>
 		<n-button text>
 			<n-spin v-if="isProfileLoading" size="small" />
-			<div v-else class="profile">
+			<div v-else class="flex gap-1 items-center">
 				<n-avatar
 					size="small"
 					:src="profileData?.avatar"
@@ -41,11 +46,3 @@ const profileOptions: DropdownOption[] = [
 		</n-button>
 	</n-dropdown>
 </template>
-
-<style scoped>
-.profile {
-	display: flex;
-	gap: 5px;
-	align-items: center;
-}
-</style>

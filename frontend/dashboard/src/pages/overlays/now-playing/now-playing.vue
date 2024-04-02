@@ -88,7 +88,7 @@ watch(entities, () => {
 </script>
 
 <template>
-	<div style="display: flex; gap: 12px; flex-direction: column">
+	<div class="flex flex-col gap-3">
 		<div>
 			<NowPlaying
 				:settings="settings ?? { preset: 'TRANSPARENT' }"
@@ -140,7 +140,7 @@ watch(entities, () => {
 						</n-tab-pane>
 					</template>
 				</n-tabs>
-				<n-alert v-if="!entities?.settings.length" type="info" style="margin-top: 8px;">
+				<n-alert v-if="!entities?.settings.length" type="info" class="mt-2">
 					Create new overlay for edit settings
 				</n-alert>
 			</template>

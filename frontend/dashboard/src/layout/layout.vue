@@ -48,14 +48,14 @@ watch(smallerOrEqualLg, (v) => {
 <template>
 	<n-config-provider
 		:theme="themeStyles"
-		style="height: 100%"
+		class="h-full"
 		:breakpoints="{ xs: 0, s: 640, m: 1024, l: 1280, xl: 1536, xxl: 1920, '2xl': 2560 }"
 	>
 		<n-notification-provider :max="5">
 			<n-message-provider :duration="2500" :closable="true">
 				<n-dialog-provider>
-					<n-layout style="height: 100%">
-						<n-layout-header bordered style="height: var(--layout-header-height); width: 100%;">
+					<n-layout class="h-full">
+						<n-layout-header bordered class="w-full" style="height: var(--layout-header-height)">
 							<Header />
 						</n-layout-header>
 

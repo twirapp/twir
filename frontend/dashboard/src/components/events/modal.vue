@@ -372,7 +372,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 
 
 		<n-space :wrap="false">
-			<n-space vertical style="height:100%" :x-gap="5">
+			<n-space vertical class="h-full" :x-gap="5">
 				<VueDraggableNext v-model="formValue.operations">
 					<div
 						v-for="(operation, operationIndex) of formValue.operations"
@@ -383,7 +383,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 						}"
 					>
 						<n-button text>
-							<IconGripVertical style="width: 18px" />
+							<IconGripVertical class="w-4" />
 						</n-button>
 
 						<n-button
@@ -398,7 +398,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 
 						<n-button text>
 							<IconTrash
-								style="width: 18px; display: flex"
+								class="w-[18px] flex"
 								@click="removeOperation(operationIndex)"
 							/>
 						</n-button>
@@ -415,10 +415,10 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 				</n-button>
 			</n-space>
 
-			<n-divider vertical style="height:100%" />
+			<n-divider vertical class="h-full" />
 
 			<div v-if="currentOperation">
-				<n-space vertical style="gap: 0">
+				<n-space vertical class="gap-0">
 					<n-grid cols="3 s:1 m:3" :x-gap="5" :y-gap="5" responsive="screen">
 						<n-grid-item :span="2">
 							<n-form-item :label="t('events.operations.name')" required>
@@ -445,7 +445,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 						</n-grid-item>
 					</n-grid>
 
-					<n-divider title-placement="left" style="margin-top: 0px">
+					<n-divider title-placement="left" class="mt-0">
 						{{ t('events.operations.values') }}
 					</n-divider>
 
@@ -540,7 +540,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 							:span="2"
 						>
 							<n-form-item :label="t('events.operations.triggerAlert')">
-								<div style="display: flex; gap: 10px; width: 90%">
+								<div class="flex gap-2.5 w-[90%]">
 									<n-button block type="info" @click="showAlertModal = true">
 										{{
 											alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
@@ -573,7 +573,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 						</n-grid-item>
 					</n-grid>
 
-					<n-divider title-placement="left" style="margin-top: 0px">
+					<n-divider title-placement="left" class="mt-0">
 						{{ t('events.operations.filters.label') }}
 					</n-divider>
 
@@ -638,7 +638,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 			</div>
 		</n-space>
 
-		<n-button block secondary type="success" style="margin-top:15px" @click="save">
+		<n-button block secondary type="success" class="mt-4" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>

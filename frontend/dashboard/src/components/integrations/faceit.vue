@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { NFormItem, NSelect, useThemeVars } from 'naive-ui';
+import { NFormItem, NSelect } from 'naive-ui';
 import { ref } from 'vue';
 
 import { useFaceitIntegration } from '@/api/index.js';
 import IconFaceit from '@/assets/integrations/faceit.svg?use';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
-
-const themeVars = useThemeVars();
 
 const manager = useFaceitIntegration();
 const { data } = manager.useData();
@@ -55,9 +53,8 @@ async function save() {
 	</oauth-component>
 </template>
 
-
 <style scoped>
 .variable {
-	color: v-bind('themeVars.successColor');
+	@apply text-[color:var(--n-color-target)];
 }
 </style>

@@ -16,7 +16,7 @@ const { t } = useI18n();
 	<n-grid responsive="screen" cols="1 s:2 m:3 l:4">
 		<n-grid-item :span="1">
 			<card
-				style="cursor: pointer"
+				class="cursor-pointer"
 				title="HTML"
 				@click="() => {
 					$emit('select', {
@@ -51,7 +51,3 @@ function onDataUpdate() {
 		</n-grid-item>
 	</n-grid>
 </template>
-
-<style scoped>
-
-</style>

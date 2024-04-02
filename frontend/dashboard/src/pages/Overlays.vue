@@ -57,15 +57,7 @@ const editCustomOverlay = (id?: string) => router.push({
 </script>
 
 <template>
-	<div
-		style="
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			max-width: 60vw;
-			margin: 0 auto;
-		"
-	>
+	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
 		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<now-playing />
@@ -95,7 +87,7 @@ const editCustomOverlay = (id?: string) => router.push({
 					style="height: 100%;"
 				>
 					<template #content>
-						<div v-if="overlay.layers.length" style="display: flex; gap: 4px; flex-wrap: wrap;">
+						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
 							<n-tag v-for="layer of overlay.layers" :key="layer.id" type="success">
 								{{ convertOverlayLayerTypeToText(layer.type) }}
 							</n-tag>
@@ -106,7 +98,7 @@ const editCustomOverlay = (id?: string) => router.push({
 					</template>
 
 					<template #footer>
-						<div style="display: flex; gap: 8px; flex-wrap: wrap">
+						<div class="flex gap-2 flex-wrap">
 							<n-button
 								secondary
 								size="large"
@@ -148,19 +140,12 @@ const editCustomOverlay = (id?: string) => router.push({
 
 			<n-grid-item :span="1">
 				<n-card
-					content-style="
-						display: flex;
-						align-items: center;
-						justify-content: center;
-					"
-					:style="{
-						cursor: userCanManageOverlays ? 'pointer' : 'not-allowed',
-						height: '100%',
-					}"
+					class="flex items-center justify-center h-full"
+					:style="{ cursor: userCanManageOverlays ? 'pointer' : 'not-allowed' }"
 					embedded
 					@click="() => editCustomOverlay()"
 				>
-					<IconPlus style="height: 80px; width: 80px;" />
+					<IconPlus class="h-20 w-20" />
 				</n-card>
 			</n-grid-item>
 		</n-grid>

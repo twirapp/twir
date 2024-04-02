@@ -187,8 +187,8 @@ const createButtonProps = { class: 'create-button' } as any;
 		<n-form ref="formRef" :model="formValue" :rules="rules" class="flex flex-col h-[95%] flex-grow">
 			<n-tabs class="h-full" type="line" animated placement="left" default-value="general">
 				<n-tab-pane name="general" tab="General">
-					<div style="display: flex; gap: 8px">
-						<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark style="width: 90%">
+					<div class="flex gap-2">
+						<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark class="w-[90%]">
 							<n-input-group>
 								<n-input-group-label>!</n-input-group-label>
 								<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" :on-input="() => formValue.name.startsWith('!') && (formValue.name = formValue.name.slice(1))" />
@@ -230,7 +230,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						>
 							<template #default="{ value, index }">
 								<n-form-item
-									style="width: 100%"
+									class="w-full"
 									:path="`responses[${index}].text`"
 									:rule="rules.responses"
 								>
@@ -244,7 +244,7 @@ const createButtonProps = { class: 'create-button' } as any;
 							</template>
 
 							<template #action="{ index, remove, move }">
-								<div class="group-actions">
+								<div class="flex items-center ml-1 gap-x-1">
 									<n-button size="small" type="error" quaternary @click="() => remove(index)">
 										<IconTrash />
 									</n-button>
@@ -287,7 +287,7 @@ const createButtonProps = { class: 'create-button' } as any;
 				</n-tab-pane>
 				<n-tab-pane name="permissions" :tab="t('commands.modal.permissions.divider')">
 					<n-form-item :label="t('commands.modal.permissions.name')" path="rolesIds">
-						<div style="display: flex; flex-direction: column; gap: 5px;">
+						<div class="flex gap-1 flex-col">
 							<n-button-group
 								v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 								:key="index"
@@ -412,7 +412,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						</n-grid-item>
 					</n-grid>
 
-					<div style="display: flex; flex-direction: column; gap: 5px;">
+					<div class="flex flex-col gap-1">
 						<n-button-group
 							v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 							:key="index"
@@ -442,7 +442,7 @@ const createButtonProps = { class: 'create-button' } as any;
 				<n-tab-pane name="settings" :tab="t('commands.modal.settings.divider')">
 					<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
 						<n-grid-item :span="1">
-							<n-card style="height: 100%">
+							<n-card class="h-full">
 								<div class="settings-card-body">
 									<n-space vertical>
 										<n-text>{{ t("sharedTexts.reply.label") }}</n-text>
@@ -454,7 +454,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						</n-grid-item>
 
 						<n-grid-item :span="1">
-							<n-card style="height: 100%">
+							<n-card class="h-full">
 								<div class="settings-card-body">
 									<n-space vertical>
 										<n-text>{{ t('commands.modal.settings.visible.label') }}</n-text>
@@ -466,7 +466,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						</n-grid-item>
 
 						<n-grid-item :span="1">
-							<n-card style="height: 100%">
+							<n-card class="h-full">
 								<div class="settings-card-body">
 									<n-space vertical>
 										<n-text>{{ t('commands.modal.settings.keepOrder.label') }}</n-text>
@@ -478,7 +478,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						</n-grid-item>
 
 						<n-grid-item :span="1">
-							<n-card style="height: 100%">
+							<n-card class="h-full">
 								<div class="settings-card-body">
 									<n-space vertical>
 										<n-text>{{ t('commands.modal.settings.onlineOnly.label') }}</n-text>
@@ -511,7 +511,7 @@ const createButtonProps = { class: 'create-button' } as any;
 						</n-button>
 						<div
 							v-else
-							style="display: flex; flex-direction: column; gap: 5px;"
+							class="flex flex-col gap-1"
 						>
 							<n-button-group
 								v-for="(group, index) of chunk(commandsGroupsOptions.sort(), 4)"
@@ -544,7 +544,7 @@ const createButtonProps = { class: 'create-button' } as any;
 		</n-form>
 
 
-		<n-button style="margin-top: 8px" secondary type="success" block @click="save">
+		<n-button class="mt-2" secondary type="success" block @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</div>
@@ -552,23 +552,14 @@ const createButtonProps = { class: 'create-button' } as any;
 
 <style scoped>
 .groups :deep(.create-button) {
-	display: none;
-}
-
-.group-actions {
-	display: flex;
-	margin-left: 5px;
-	column-gap: 5px;
-	align-items: center
+	@apply hidden;
 }
 
 .grid-stats-item {
-	width: 100%;
+	@apply w-full;
 }
 
 .settings-card-body {
-	display: flex;
-	flex-direction: row;
-	justify-content: space-between;
+	@apply flex flex-row justify-between;
 }
 </style>

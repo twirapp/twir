@@ -51,7 +51,7 @@ function renderVariableSelectLabel(option: {
 		:render-label="renderVariableSelectLabel"
 		placeholder="Response"
 		prefix="$"
-		style="width: 100%"
+		class="w-full"
 		:type="inputType"
 		:options="selectVariables"
 		:autosize="inputType === 'text' ? {} : { minRows, maxRows }"

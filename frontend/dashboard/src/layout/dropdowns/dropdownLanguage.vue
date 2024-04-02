@@ -4,7 +4,9 @@ import { useLocalStorage } from '@vueuse/core';
 import { NButton, NDropdown } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
-const { t, locale, availableLocales } = useI18n();
+import { AVAILABLE_LOCALES } from '@/plugins/i18n';
+
+const { locale } = useI18n();
 
 const currentLocale = useLocalStorage<string>('twirLocale', 'en');
 </script>
@@ -12,17 +14,17 @@ const currentLocale = useLocalStorage<string>('twirLocale', 'en');
 <template>
 	<n-dropdown
 		trigger="click"
-		:options="availableLocales.map(l => ({
-			title: t('languageName', {}, { locale: l }),
-			key: l as string,
+		:options="AVAILABLE_LOCALES.map((locale) => ({
+			title: locale.name,
+			key: locale.code,
 		}))"
 		size="medium"
-		@select="(l) => {
-			locale = l
-			currentLocale = l
+		@select="(newLocale) => {
+			locale = newLocale
+			currentLocale = newLocale
 		}"
 	>
-		<n-button quaternary style="padding: 5px; font-size: 16px">
+		<n-button quaternary class="!text-[16px] !p-[5px]">
 			<div class="flex gap-2 items-center">
 				<IconWorld />
 				{{ currentLocale.toUpperCase() }}

@@ -93,7 +93,7 @@ const { t } = useI18n();
 </script>
 
 <template>
-	<div style="padding: 15px">
+	<div class="p-4">
 		<n-grid v-if="isLoading || !ttsUsersData" cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
 			<n-grid-item v-for="i in 16" :key="i" :span="1">
 				<n-skeleton v-if="!isLoading" size="large" height="60px" :sharp="false" />
@@ -101,7 +101,7 @@ const { t } = useI18n();
 		</n-grid>
 
 		<div v-else>
-			<n-space justify="space-between" style="margin-bottom: 10px">
+			<n-space justify="space-between" class="mb-2.5">
 				<n-input v-model:value="testText" placeholder="Text for test user settings" />
 				<n-space>
 					<n-button
@@ -137,12 +137,11 @@ const { t } = useI18n();
 			<n-grid v-else cols="1 s:1 m:2 l:2" responsive="screen" :x-gap="10" :y-gap="10">
 				<n-grid-item v-for="(user, index) of users" :key="index" :span="1">
 					<n-card
-						class="user-card"
-						content-style="padding: 5px"
+						class="user-card p-1"
 						@click="user.markedForDelete = !user.markedForDelete"
 					>
 						<n-space align="center" justify="space-between">
-							<n-row align-items="center" style="gap: 10px">
+							<n-row align-items="center" class="gap-2.5">
 								<n-avatar :src="user.avatar" size="large" />
 								<n-space vertical size="small" class="info">
 									<n-text>{{ user.name }}</n-text>
@@ -155,7 +154,7 @@ const { t } = useI18n();
 							<n-row align-items="center">
 								<n-space align="center">
 									<IconSpeakerphone
-										style="display: flex; cursor: pointer"
+										class="flex cursor-pointer"
 										@click.stop="testUserVoice(user)"
 									/>
 									<n-checkbox

@@ -54,7 +54,7 @@ onBeforeUnmount(() => {
 
 <template>
 	<bot-status />
-	<div style="width: 100%; height: 100%; padding-left: 5px;">
+	<div class="w-full h-full pl-1">
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
@@ -72,15 +72,15 @@ onBeforeUnmount(() => {
 				drag-allow-from=".widgets-draggable-handle"
 			>
 				<div v-if="showEmptyItem" class="w-full h-full absolute z-50"></div>
-				<Chat v-if="item.i === 'chat'" :item="item" class="item" />
-				<Stream v-if="item.i === 'stream'" :item="item" class="item" />
-				<Events v-if="item.i === 'events'" :item="item" class="item" />
+				<Chat v-if="item.i === 'chat'" :item="item" class="h-full" />
+				<Stream v-if="item.i === 'stream'" :item="item" class="h-full" />
+				<Events v-if="item.i === 'events'" :item="item" class="h-full" />
 			</GridItem>
 		</GridLayout>
-		<div v-if="dropdownOptions.length" style="position: fixed; bottom: 10px; right: 25px">
+		<div v-if="dropdownOptions.length" class="fixed bottom-2.5 right-6">
 			<n-dropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
-				<n-button block circle type="info" style="width: 100%; height: 100%; padding: 5px;">
-					<IconPencilPlus style="width: 45px; height: 45px;" />
+				<n-button block circle type="info" class="w-full h-full p-1">
+					<IconPencilPlus class="w-11 h-11" />
 				</n-button>
 			</n-dropdown>
 		</div>
@@ -89,11 +89,7 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .vgl-layout {
-	width: 100%
-}
-
-.item {
-	height: 100%;
+	@apply w-full;
 }
 
 :deep(.vgl-item__resizer) {

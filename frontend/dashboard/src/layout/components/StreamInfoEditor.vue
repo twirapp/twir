@@ -36,8 +36,6 @@ watch(props, (v) => {
 	};
 }, { immediate: true });
 
-
-
 const informationUpdater = twitchSetChannelInformationMutation();
 
 const discrete = useNaiveDiscrete();

@@ -15,22 +15,20 @@ function goToRoute(name: string) {
 </script>
 
 <template>
-	<ul :class="$style.menu">
+	<ul class="flex flex-col flex-nowrap gap-2 justify-center items-center [list-style:none] px-4 py-[0]">
 		<li
 			v-for="route of Object.values(channelRoutes)"
 			:key="route.name"
 			:class="[
-				$style.item,
-				{
-					[$style.itemActive]: router.currentRoute.value.name === route.name
-				}
+				'flex items-center gap-2 w-full text-left px-4 py-2 rounded-[var(--radius)] text-[0.9rem] cursor-pointer',
+				{ 'item-active': router.currentRoute.value.name === route.name }
 			]"
 			@click="goToRoute(route.name as string)"
 		>
 			<component
 				:is="route.meta?.icon"
 				v-if="route.meta?.icon"
-				:class="$style.itemIcon"
+				class="w-[1.3rem] h-[1.3rem] stroke-[2] item-icon"
 			/>
 			<span>
 				{{ route.name }}
@@ -39,44 +37,17 @@ function goToRoute(name: string) {
 	</ul>
 </template>
 
-<style module>
-.menu {
-	display: flex;
-	flex-direction: column;
-	flex-wrap: nowrap;
-	gap: 0.5rem;
-	justify-content: center;
-	align-items: center;
-	list-style: none;
-	padding: 0 1rem;
-}
-
-.item {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	width: 100%;
-	text-align: left;
-	padding: 0.5rem 1rem;
-	border-radius: var(--radius);
-	font-size: 0.9rem;
-	cursor: pointer;
-}
-
+<style scoped>
 .item:hover {
 	background-color: hsl(var(--accent));
 }
 
-.itemActive {
-	background-color: hsl(var(--accent)/50);
+.item-active {
+	background-color: hsl(var(--accent) / 50);
 }
 
-.itemIcon {
-	width: 1.3rem;
-	height: 1.3rem;
+.item-icon {
 	stroke: hsl(var(--accent-foreground));
 	color: hsl(var(--accent-foreground));
-	stroke-width: 2;
 }
-
 </style>

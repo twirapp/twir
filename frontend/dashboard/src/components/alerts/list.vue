@@ -71,15 +71,14 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 			const mappedRewards = selectedRewards.map(r => h(NSpace, {
 				type: 'success',
 				bordered: false,
-				style: `background-color: ${r.backgroundColor}; border-radius: 8px; padding: 4px;`,
+				style: `background-color: ${r.backgroundColor}`,
+				class: 'rounded-lg p-1',
 				align: 'center',
 			}, {
 				default: () => [
 					h(NImage, {
 						src: r.image?.url1X || r.defaultImage?.url4X,
-						width: 20,
-						height: 20,
-						style: 'display: flex; align-items: center',
+						class: 'flex items-center h-5 w-5',
 					}),
 					r.title,
 				],
@@ -190,6 +189,7 @@ function openModal(t: EditableAlert | null) {
 			{{ t('sharedButtons.create') }}
 		</n-button>
 	</n-space>
+
 	<n-data-table
 		:isLoading="isLoading"
 		:columns="columns"

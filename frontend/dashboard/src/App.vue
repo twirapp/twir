@@ -10,17 +10,8 @@ router.isReady().finally(() => isRouterReady.value = true);
 </script>
 
 <template>
-	<div v-if="!isRouterReady" class="app-loader">
+	<div v-if="!isRouterReady" class="flex justify-center items-center h-full">
 		<n-spin size="large" />
 	</div>
 	<router-view v-else />
 </template>
-
-<style scoped>
-.app-loader {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	height: 100%;
-}
-</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NTimeline, NTimelineItem, NText } from 'naive-ui';
+import { NA, NTimeline, NTimelineItem, NText } from 'naive-ui';
 
 import { useDonatelloIntegration } from '@/api/index.js';
 import DonatelloSVG from '@/assets/integrations/donatello.svg?use';
@@ -26,32 +26,24 @@ const webhookUrl = `${window.location.origin}/api/webhooks/integrations/donatell
 				<n-timeline-item type="info" title="Step 1">
 					<n-text>
 						Go to
-						<a
+						<n-a
 							href="https://donatello.to/panel/settings"
 							target="_blank"
-							class="link"
 						>
 							https://donatello.to/panel/settings
-						</a>
+						</n-a>
 						and scroll to "Вихідний API" section
 					</n-text>
 				</n-timeline-item>
 				<n-timeline-item type="info" title="Step 2">
 					<n-text>Copy api key and paste into "Api Key" input</n-text>
-					<copy-input :text="donatelloData?.integrationId ?? ''" style="margin-top: 5px" />
+					<copy-input :text="donatelloData?.integrationId ?? ''" class="mt-1" />
 				</n-timeline-item>
 				<n-timeline-item type="info" title="Step 3">
 					<n-text>Copy link and paste into "Link" field</n-text>
-					<copy-input :text="webhookUrl" style="margin-top: 5px" />
+					<copy-input :text="webhookUrl" class="mt-1" />
 				</n-timeline-item>
 			</n-timeline>
 		</template>
 	</with-settings>
 </template>
-
-<style scoped>
-.link {
-	color: #41c489;
-	text-decoration: none
-}
-</style>

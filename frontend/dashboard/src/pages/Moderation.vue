@@ -41,41 +41,33 @@ async function createNewItem(itemType: string) {
 </script>
 
 <template>
-	<div
-		style="
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			max-width: 1000px;
-			margin: 0 auto;
-		"
-	>
+	<div class="flex items-center justify-center max-w-[1000px] mx-auto my-0">
 		<n-grid cols="1 m:2" :x-gap="16" :y-gap="16" responsive="screen">
 			<n-grid-item :span="1">
 				<n-card
-					style="min-height: 300px; height: 100%"
-					class="new-item-card"
+					class="select-none min-h-[300px] h-full hover:bg-[color:var(--hover-color)]"
 					:style="{
+						'--hover-color': theme.hoverColor,
 						cursor: !canEditModeration ? 'not-allowed' : !isAddingNewItem ? 'pointer' : 'default'
 					}"
 				>
 					<Transition mode="out-in">
 						<div
 							v-if="!isAddingNewItem"
-							class="new-item-block"
+							class="flex flex-col justify-center items-center h-full"
 							@click="isAddingNewItem = true"
 						>
 							<IconSwords :size="45" />
 							<span>{{ t('moderation.createNewRule') }}</span>
 						</div>
-						<div v-else style="display: flex; flex-direction: column; gap: 12px;">
-							<div style="display: flex; justify-content: space-between;">
+						<div v-else class="flex flex-col gap-3">
+							<div class="flex justify-between">
 								<span>{{ t('moderation.createNewRule') }}</span>
 								<n-button text size="tiny" @click="isAddingNewItem = false">
 									<IconX />
 								</n-button>
 							</div>
-							<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+							<div class="flex gap-2 flex-wrap">
 								<n-tooltip
 									v-for="itemType of availableSettingsTypes"
 									:key="itemType"
@@ -86,7 +78,7 @@ async function createNewItem(itemType: string) {
 											:disabled="!canEditModeration"
 											@click="createNewItem(itemType)"
 										>
-											<div style="display: flex; align-items: center; gap: 4px">
+											<div class="flex items-center gap-1">
 												<component
 													:is="Icons[itemType]"
 													:size="20"
@@ -123,11 +115,11 @@ async function createNewItem(itemType: string) {
 		:on-close="() => settingsOpened = false"
 	>
 		<template #header>
-			<div style="display: flex; flex-direction: column; gap: 2px">
+			<div class="flex flex-col gap-[2px]">
 				<span>
 					{{ editableItem?.data ? t(`moderation.types.${editableItem.data.type}.name`) : 'Edit' }}
 				</span>
-				<span style="font-size: 12px;">
+				<span class="text-xs">
 					{{ editableItem?.data ? t(`moderation.types.${editableItem.data.type}.description`) : '' }}
 				</span>
 			</div>
@@ -137,24 +129,6 @@ async function createNewItem(itemType: string) {
 </template>
 
 <style scoped>
-.new-item-block {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	height: 100%;
-}
-
-.new-item-card {
-	-webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.new-item-card:hover {
-	background-color: v-bind('theme.hoverColor');
-}
-
 .v-enter-active,
 .v-leave-active {
   transition: opacity 0.1s ease;

@@ -131,7 +131,7 @@ const liveChannelSelectorRenderOption = ({ node, option }: { node: VNode; option
 
 	return h(
 		'div',
-		{ style: 'display: flex; justify-content: space-between; align-items: center' },
+		{ class: 'flex justify-between items-center' },
 		{
 			default: () => [
 				node,
@@ -188,11 +188,11 @@ const { data: currentUser } = useProfile();
 					:name="guild.name"
 				>
 					<template #tab>
-						<div style="display: flex; gap: 5px; align-items: center; justify-content: center">
+						<div class="flex gap-1 items-center justify-center">
 							<n-avatar
 								round
 								:src="`https://cdn.discordapp.com/${guild.id}/${guild.icon}.png`"
-								class="guild-avatar"
+								class="flex items-center justify-center w-5 h-5"
 								:render-fallback="() => guild.name.charAt(0)"
 							/>
 							<span>
@@ -201,13 +201,13 @@ const { data: currentUser } = useProfile();
 						</div>
 					</template>
 
-					<div style="display: flex; flex-direction: column; gap: 12px">
+					<div class="flex flex-col gap-3">
 						<div class="block">
-							<div style="display: flex; flex-direction: column; gap: 8px; width: 50%">
-								<span style="font-size: 16px">
+							<div class="flex flex-col gap-2 w-1/2">
+								<span class="text-base">
 									{{ t('integrations.discord.alerts.label') }}
 								</span>
-								<n-divider style="margin: 0; margin-bottom: 5px" />
+								<n-divider class="m-0 mb-1" />
 
 								<div class="switch">
 									<n-switch v-model:value="guild.liveNotificationEnabled" />
@@ -253,7 +253,7 @@ const { data: currentUser } = useProfile();
 									/>
 								</div>
 
-								<n-divider style="margin: 4px;" />
+								<n-divider class="m-1" />
 
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.additionalUsersIdsForLiveCheck') }}</span>
@@ -278,7 +278,7 @@ const { data: currentUser } = useProfile();
 									<span class="description">{userName}, {displayName}, {title}, {categoryName} – supported variables</span>
 								</div>
 
-								<div style="display: flex; flex-direction: column; gap: 8px;">
+								<div class="flex flex-col gap-2">
 									<div class="form-item">
 										<span>{{ t('integrations.discord.alerts.streamOfflineLabel') }}</span>
 										<n-mention
@@ -305,7 +305,7 @@ const { data: currentUser } = useProfile();
 								</n-alert>
 							</div>
 
-							<div style="width: 50%">
+							<div class="w-1/2">
 								<DiscordMessages>
 									<DiscordMessage :bot="true" author="TwirApp" avatar="/twir.svg">
 										<template v-for="m, _ of guild.liveNotificationMessage.split(' ')" :key="_">
@@ -367,11 +367,11 @@ const { data: currentUser } = useProfile();
 							</div>
 						</div>
 
-						<div class="block" style="display: flex; flex-direction: column; gap: 8px;">
-							<span style="font-size: 16px">
+						<div class="block">
+							<span class="text-base">
 								{{ t('sharedTexts.dangerZone') }}
 							</span>
-							<n-divider style="margin: 0; margin-bottom: 5px" />
+							<n-divider class="m-0 mb-1" />
 
 							<n-popconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
@@ -408,8 +408,11 @@ const { data: currentUser } = useProfile();
 		</template>
 
 		<template #additionalFooter>
-			<div class="profile">
-				<n-spin v-if="isDataLoading" style="height: 18px;" />
+			<div
+				class="flex items-center p-2.5 gap-2 rounded-[var(--n-border-radius)]"
+				:style="{ backgroundColor: themeVars.buttonColor2 }"
+			>
+				<n-spin v-if="isDataLoading" class="h-4" />
 
 				<template v-else>
 					{{
@@ -431,46 +434,18 @@ const { data: currentUser } = useProfile();
 
 <style scoped>
 .form-item {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
+	@apply flex flex-col gap-1;
 }
 
 .form-item .description {
-	font-size: 11px;
+	@apply text-xs;
 }
 
 .switch {
-	display: flex;
-	gap: 8px;
-	align-items: start;
+	@apply flex items-start gap-2;
 }
+
 .block {
-	background-color: rgba(255, 255, 255, 0.06);
-	border-radius: 11px;
-	padding: 12px;
-	display: flex;
-	gap: 16px;
-}
-
-.discord-embed-image {
-	max-height: 300px;
-}
-
-.guild-avatar {
-	width: 20px;
-	height: 20px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-}
-
-.profile {
-	display: flex;
-	align-items: center;
-	padding: 10px;
-	background-color: v-bind('themeVars.buttonColor2');
-	border-radius: 4px;
-	gap: 8px;
+	@apply flex flex-col gap-2 p-3 rounded-lg bg-[rgba(255,255,255,0.06)];
 }
 </style>

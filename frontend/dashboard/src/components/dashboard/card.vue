@@ -43,14 +43,14 @@ const { t } = useI18n();
 		v-bind="$attrs"
 	>
 		<template #header>
-			<div class="widgets-draggable-handle" style="display: flex; align-items: center">
-				<IconGripVertical style="width: 20px; height: 20px;" />
+			<div class="widgets-draggable-handle flex items-center">
+				<IconGripVertical class="w-5 h-5" />
 				{{ t(`dashboard.widgets.${attrs.item.i}.title`) }}
 			</div>
 		</template>
 
 		<template #header-extra>
-			<div style="display: flex; gap: 5px">
+			<div class="flex gap-1">
 				<slot name="header-extra" />
 				<n-button text size="small" @click="hideItem">
 					<IconEyeOff />

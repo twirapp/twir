@@ -53,7 +53,7 @@ async function save() {
 		notification.create({
 			title: 'Error',
 			type: 'error',
-			description: `"${link.title}" contains not a valid link ${link.href}`,
+			description: t('userSettings.public.errorLink', { title: link.title, href: link.href }),
 			duration: 5000,
 		});
 		return;
@@ -70,17 +70,17 @@ async function save() {
 
 const rules: FormRules = {
 	href: {
-		trigger: ['input', 'blur', 'focus'],
+		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
-				return new Error('Cannot be empty');
+				return new Error(t('userSettings.public.errorEmpty'));
 			}
 			if (value.length > 500) {
-				return new Error('Invalid length');
+				return new Error(t('userSettings.public.errorInvalidLink'));
 			}
 			const isLink = linkRegex.test(value);
 			if (!isLink) {
-				return new Error('Invalid link');
+				return new Error(t('userSettings.public.errorLink'));
 			}
 
 			return true;
@@ -115,8 +115,8 @@ function changeSort(from: number, to: number) {
 
 <template>
 	<div class="w-full flex flex-wrap gap-4">
-		<n-card title="Description" size="small" bordered>
-			<n-form-item :label="t('userSettings.public.description')">
+		<n-card :title="t('userSettings.public.description')" size="small" bordered>
+			<n-form-item :show-label="false" :show-feedback="false">
 				<n-input
 					v-model:value="formData.description"
 					type="textarea"
@@ -126,7 +126,7 @@ function changeSort(from: number, to: number) {
 			</n-form-item>
 		</n-card>
 
-		<n-card title="Social links" size="small" bordered>
+		<n-card :title="t('userSettings.public.socialLinks')" size="small" bordered>
 			<div class="flex flex-col gap-1">
 				<n-card
 					v-for="(link, idx) of formData.socialLinks"
@@ -135,7 +135,7 @@ function changeSort(from: number, to: number) {
 					embedded
 				>
 					<template #header>
-						<n-input v-if="link.isEditing" v-model:value="link.title" size="small" style="width: 30%" :maxlength="30" />
+						<n-input v-if="link.isEditing" v-model:value="link.title" size="small" class="w-[30%]" :maxlength="30" />
 						<template v-else>
 							{{ link.title }}
 						</template>
@@ -147,23 +147,23 @@ function changeSort(from: number, to: number) {
 								:disabled="!formData.socialLinks[idx+1]"
 								@click="changeSort(idx, idx+1)"
 							>
-								<IconArrowDown class="header-button" />
+								<IconArrowDown />
 							</n-button>
 							<n-button
 								text
 								:disabled="idx === 0"
 								@click="changeSort(idx, idx-1)"
 							>
-								<IconArrowUp class="header-button" />
+								<IconArrowUp />
 							</n-button>
 							<n-button text @click="link.isEditing = !link.isEditing">
-								<IconEdit class="header-button" />
+								<IconEdit />
 							</n-button>
 							<n-button
 								text
 								@click="removeLink(idx)"
 							>
-								<IconTrash class="header-button" />
+								<IconTrash />
 							</n-button>
 						</div>
 					</template>
@@ -182,7 +182,7 @@ function changeSort(from: number, to: number) {
 				</n-card>
 			</div>
 			<n-form ref="formRef" :rules="rules" :model="newLinkForm" class="flex flex-wrap gap-2 items-center w-full mt-5">
-				<n-form-item style="--n-label-height: 0px;" label="Title" class="flex-auto" path="title">
+				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkTitle')" class="flex-auto" path="title">
 					<n-input
 						v-model:value="newLinkForm.title"
 						:maxlength="30"
@@ -190,7 +190,7 @@ function changeSort(from: number, to: number) {
 						:disabled=" linksLimitReached"
 					/>
 				</n-form-item>
-				<n-form-item style="--n-label-height: 0px;" label="Href" class="flex-auto" path="href">
+				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
 					<n-input
 						v-model:value="newLinkForm.href"
 						:maxlength="500"
@@ -216,10 +216,3 @@ function changeSort(from: number, to: number) {
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.header-button {
-	height: 18px;
-	width: 18px;
-}
-</style>

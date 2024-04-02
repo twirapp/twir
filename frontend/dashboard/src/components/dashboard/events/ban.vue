@@ -20,12 +20,12 @@ defineProps<{
 <template>
 	<Base :icon="IconUserCancel" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction: column">
+			<div class="flex flex-col">
 				<span>
 					{{ createUserName(moderatorUserLogin, moderatorUserName) }}
-					<b style="font-size: 11px">banned</b> {{ createUserName(userLogin, userName) }}
+					<b class="text-xs">banned</b> {{ createUserName(userLogin, userName) }}
 					for {{ endsIn }} {{ endsIn != 'permanent' ? 'minutes' : '' }}</span>
-				<span style="font-size: 11px">{{ reason }}</span>
+				<span class="text-xs">{{ reason }}</span>
 			</div>
 		</template>
 	</Base>

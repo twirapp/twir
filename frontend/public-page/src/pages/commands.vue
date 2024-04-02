@@ -203,9 +203,4 @@ const isSmall = breakpoints.smaller('xl');
 .table-rows-leave-to {
 	opacity: 0;
 }
-
-.cooldownIcon {
-	height: 18px;
-	width: 18px;
-}
 </style>

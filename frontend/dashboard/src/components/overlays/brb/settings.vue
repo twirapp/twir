@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import {
-	useThemeVars,
 	NButton,
 	NColorPicker,
 	NDivider,
@@ -23,11 +22,11 @@ import commandButton from '@/components/commandButton.vue';
 defineProps<{
 	showSettings: boolean
 }>();
+
 defineEmits<{
 	close: []
 }>();
 
-const themeVars = useThemeVars();
 const { t } = useI18n();
 
 const { data: profile } = useProfile();
@@ -130,15 +129,15 @@ async function save() {
 		footer-style="padding: 8px;"
 		@close="$emit('close')"
 	>
-		<div class="settings">
-			<div class="form">
-				<div style="display: flex; flex-direction: column; gap: 12px;">
-					<n-divider style="margin: 0">
+		<div class="flex gap-4 w-full">
+			<div class="flex gap-2 p-2 bg-[color:var(--n-card-color)] rounded-lg">
+				<div class="flex flex-col gap-3 w-1/2">
+					<n-divider class="m-0">
 						{{ t('overlays.brb.settings.main.label') }}
 					</n-divider>
 
-					<div class="item">
-						<div style="display: flex; gap: 4px; flex-direction: column;">
+					<div class="form-item">
+						<div class="flex flex-col gap-1">
 							<command-button
 								name="brb"
 								:title="t('overlays.brb.settings.main.startCommand.description')"
@@ -154,12 +153,12 @@ async function save() {
 						/>
 					</div>
 
-					<div class="item">
+					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.text') }}</span>
 						<n-input v-model:value="formValue.text" :maxlength="500" />
 					</div>
 
-					<div class="item">
+					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.background') }}</span>
 						<n-color-picker
 							v-model:value="formValue.backgroundColor" :modes="['rgb']"
@@ -167,7 +166,7 @@ async function save() {
 						/>
 					</div>
 
-					<div class="item">
+					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
 						<n-color-picker
 							v-model:value="formValue.fontColor" :modes="['hex', 'rgb']"
@@ -175,36 +174,36 @@ async function save() {
 						/>
 					</div>
 
-					<div class="item">
+					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.font.size') }}</span>
 						<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
 					</div>
 				</div>
 
-				<div style="display: flex; flex-direction: column; gap: 12px;">
-					<n-divider style="margin: 0">
+				<div class="flex flex-col gap-3 w-1/2">
+					<n-divider class="m-0">
 						{{ t('overlays.brb.settings.late.label') }}
 					</n-divider>
 
-					<div class="item">
+					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.late.text') }}</span>
 						<n-input v-model:value="formValue.late!.text" :maxlength="500" />
 					</div>
 
-					<div style="display: flex; gap: 8px">
+					<div class="flex gap-2">
 						<n-switch v-model:value="formValue.late!.enabled" />
 						<span>{{ t('sharedTexts.enabled') }}</span>
 					</div>
 
-					<div style="display: flex; gap: 8px">
+					<div class="flex gap-2">
 						<n-switch v-model:value="formValue.late!.displayBrbTime" />
 						<span>{{ t('overlays.brb.settings.late.displayBrb') }}</span>
 					</div>
 				</div>
 			</div>
 			<div>
-				<div style="position: absolute; top: 85px; right: 20px; font-weight: 500;">
-					<div style="display: flex; gap: 8px">
+				<div class="absolute top-[85px] right-[20px] font-medium">
+					<div class="flex gap-2">
 						<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
 							{{ t('overlays.brb.preview.stop') }}
 						</n-button>
@@ -225,12 +224,12 @@ async function save() {
 					v-if="brbIframeUrl"
 					ref="brbIframeRef"
 					:src="brbIframeUrl"
-					class="iframe"
+					class="w-full h-full aspect-video border border-[color:var(--n-border-color)] rounded-lg border-solid"
 				/>
 			</div>
 		</div>
 		<template #footer>
-			<div class="footer">
+			<div class="flex justify-between gap-2">
 				<n-button
 					secondary
 					type="error"
@@ -239,7 +238,7 @@ async function save() {
 					{{ t('sharedButtons.setDefaultSettings') }}
 				</n-button>
 
-				<div style="display: flex; gap: 8px;">
+				<div class="flex gap-2">
 					<n-button
 						secondary
 						type="info"
@@ -262,47 +261,7 @@ async function save() {
 </template>
 
 <style scoped>
-.settings {
-	display: flex;
-	gap: 16px;
-	width: 100%;
-}
-
-.form {
-	padding: 8px;
-	border-radius: 8px;
-	background-color: v-bind('themeVars.cardColor');
-	display: flex;
-	gap: 8px;
-}
-
-.form > div {
-	width: 50%;
-}
-
-.form .item {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
-
-.settings > div {
-	width: 50%;
-	min-height: 50dvh;
-}
-
-.footer {
-	display: flex;
-	justify-content: space-between;
-	gap: 8px;
-}
-
-.iframe {
-	height: 100%;
-	width: 100%;
-	aspect-ratio: 16/9;
-	border: 0;
-	border: 1px solid v-bind('themeVars.borderColor');
-	border-radius: 8px;
+.form-item {
+	@apply flex flex-col gap-1;
 }
 </style>

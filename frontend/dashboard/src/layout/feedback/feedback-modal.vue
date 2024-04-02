@@ -43,7 +43,3 @@ const rules: FormRules = {
 		{{ error }}
 	</n-alert>
 </template>
-
-<style scoped>
-
-</style>

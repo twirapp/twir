@@ -168,7 +168,7 @@ const { t } = useI18n();
 		header-style="padding: 10px;"
 		segmented
 	>
-		<div v-if="profile?.id != profile?.selectedDashboardId" style="padding: 10px">
+		<div v-if="profile?.id != profile?.selectedDashboardId" class="p-2.5">
 			<n-result
 				status="404"
 				:title="t('songRequests.player.noAccess')"
@@ -186,29 +186,29 @@ const { t } = useI18n();
 				class="plyr"
 			></video>
 
-			<n-space vertical class="card-content">
+			<n-space vertical class="px-3.5">
 				<n-grid
 					cols="1 s:1 m:1 l:1 xl:5"
 					responsive="screen"
 					:x-gap="10"
 					:y-gap="10"
-					style="align-items: center; margin-top: 10px; margin-bottom: 10px"
+					class="items-center my-2.5"
 				>
-					<n-grid-item :span="1" style="width: 100%">
+					<n-grid-item :span="1" class="w-full">
 						<n-space align="center" justify="center">
 							<n-button
 								size="tiny"
 								text
 								round
 								:disabled="currentVideo == null"
-								style="display: flex"
+								class="flex"
 								@click="isPlaying ? plyr?.pause() : plyr?.play()"
 							>
 								<IconPlayerPlayFilled v-if="!isPlaying" />
 								<IconPlayerPauseFilled v-else />
 							</n-button>
 							<n-button
-								style="display: flex"
+								class="flex"
 								size="tiny"
 								text
 								round
@@ -266,7 +266,7 @@ const { t } = useI18n();
 				<n-list :show-divider="false">
 					<n-list-item>
 						<template #prefix>
-							<IconPlaylist class="card-icon" />
+							<IconPlaylist class="flex" />
 						</template>
 
 						{{ currentVideo?.title }}
@@ -307,7 +307,7 @@ const { t } = useI18n();
 								secondary
 								type="warning"
 							>
-								<div style="display: flex; gap: 4px; align-items: center">
+								<div class="flex gap-1 items-center">
 									<IconBan />
 									{{ t('songRequests.ban.song') }}
 								</div>
@@ -327,7 +327,7 @@ const { t } = useI18n();
 								secondary
 								type="error"
 							>
-								<div style="display: flex; gap: 4px; align-items: center">
+								<div class="flex gap-1 items-center">
 									<IconBan />
 									{{ t('songRequests.ban.user') }}
 								</div>
@@ -346,17 +346,6 @@ const { t } = useI18n();
 		</template>
 	</n-card>
 </template>
-
-<style scoped>
-.card-content {
-	padding-left: 15px;
-	padding-right: 15px
-}
-
-.card-icon {
-	display: flex
-}
-</style>
 
 <style>
 .plyr {

@@ -18,7 +18,7 @@ defineProps<{
 	<Base :icon="IconStarFilled" :created-at="createdAt">
 		<template #leftContent>
 			<span>
-				{{ createUserName(userName, userDisplayName) }} <b style="font-size: 11px">subscribed with</b> {{ level }} tier
+				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">subscribed with</b> {{ level }} tier
 			</span>
 		</template>
 	</Base>

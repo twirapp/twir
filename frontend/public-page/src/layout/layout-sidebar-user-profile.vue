@@ -25,7 +25,7 @@ const { data: loginLink, isError: isLoginLinkError } = useLoginLink();
 			</div>
 			<!--	use !data for test login button -->
 			<div v-else-if="!isError && data" class="flex items-center gap-4 justify-between">
-				<div class="flex items-center gap-2 profile">
+				<div class="flex items-center gap-2 max-w-[fit-content] overflow-hidden overflow-ellipsis whitespace-nowrap">
 					<Avatar>
 						<AvatarImage :src="data.avatar" alt="streamer-profile-image" />
 						<AvatarFallback>{{ data.login.slice(0, 2) }}</AvatarFallback>
@@ -65,12 +65,5 @@ const { data: loginLink, isError: isLoginLinkError } = useLoginLink();
 .v-enter-from,
 .v-leave-to {
 	opacity: 0;
-}
-
-.profile {
-	max-width: fit-content;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 </style>

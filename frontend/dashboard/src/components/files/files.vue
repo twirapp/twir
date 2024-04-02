@@ -95,20 +95,20 @@ async function upload(f: File) {
 </script>
 
 <template>
-	<div style="display: flex; gap: 20px;">
-		<div class="sidebar">
-			<div v-if="mode === 'list'" style="display: flex; flex-direction: column; gap: 4px;">
+	<div class="flex gap-5">
+		<div class="flex flex-col pr-1 border-r-[color:var(--n-border-color)] border-r border-solid">
+			<div v-if="mode === 'list'" class="flex flex-col gap-1">
 				<n-button
-					v-for="t of tabs"
-					:key="t.name"
+					v-for="tab of tabs"
+					:key="tab.name"
 					dashed
 					size="large"
-					:disabled="t.disabled"
-					:type="t.name === activeTab.name ? 'success' : 'default'"
+					:disabled="tab.disabled"
+					:type="tab.name === activeTab.name ? 'success' : 'default'"
 					block
-					@click="activeTab = t"
+					@click="activeTab = tab"
 				>
-					{{ t.name }}
+					{{ tab.name }}
 				</n-button>
 				<n-divider />
 			</div>
@@ -128,12 +128,12 @@ async function upload(f: File) {
 				>
 					<n-upload-dragger>
 						<div v-if="!uploader.isLoading.value">
-							<div style="margin-bottom: 12px">
+							<div class="mb-3">
 								<n-icon size="30" :depth="3">
 									<IconArchive />
 								</n-icon>
 							</div>
-							<n-text style="font-size: 13px">
+							<n-text class="text-xs">
 								{{ t('filePicker.innerText', { type: activeTab.name.toLowerCase() }) }}
 							</n-text>
 						</div>
@@ -182,7 +182,7 @@ async function upload(f: File) {
 							</n-button>
 						</template>
 
-						<audio controls :src="computeFileUrl(f)" style="width: 100%;" />
+						<audio controls :src="computeFileUrl(f)" class="w-full" />
 
 						<template v-if="mode === 'picker'" #footer>
 							<n-button block @click="$emit('select', f.id)">
@@ -195,12 +195,3 @@ async function upload(f: File) {
 		</div>
 	</div>
 </template>
-
-<style scoped>
-.sidebar {
-	display: flex;
-	flex-direction: column;
-	border-right: 1px solid #373636;
-	padding-right: 5px;
-}
-</style>

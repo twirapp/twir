@@ -15,9 +15,9 @@ defineProps<{
 <template>
 	<Base :icon="IconCurrencyDollar" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction: column">
-				<span>{{ userName }} <b style="font-size: 11px">donated</b> {{ amount }}{{ currency }}</span>
-				<span style="font-size: 11px">{{ message }}</span>
+			<div class="flex flex-col">
+				<span>{{ userName }} <b class="text-xs">donated</b> {{ amount }}{{ currency }}</span>
+				<span class="text-xs">{{ message }}</span>
 			</div>
 		</template>
 	</Base>

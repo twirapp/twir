@@ -134,7 +134,7 @@ const { data: profile } = useProfile();
 			}}
 		</n-alert>
 
-		<n-space vertical style="margin-top: 10px">
+		<n-space vertical class="mt-2.5">
 			<n-button :disabled="profile?.id !== profile?.selectedDashboardId" block secondary type="info" @click="copyOverlayLink()">
 				{{ t('overlays.copyOverlayLink') }}
 			</n-button>

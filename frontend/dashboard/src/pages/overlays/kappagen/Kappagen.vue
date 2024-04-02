@@ -123,8 +123,8 @@ async function save() {
 </script>
 
 <template>
-	<div style="display: flex; gap: 42px; height: 100%; padding: 24px;">
-		<div style="width: 50%">
+	<div class="flex h-full p-6 gap-10">
+		<div class="w-1/2">
 			<div class="header-buttons">
 				<n-button-group>
 					<n-button secondary @click="sendIframeMessage('kappa', 'EZ')">
@@ -183,7 +183,7 @@ async function save() {
 			</n-tabs>
 		</div>
 
-		<div style="width: 50%; height: 100%;">
+		<div class="w-1/2 h-full">
 			<iframe
 				v-if="kappagenIframeUrl"
 				ref="kappagenIframeRef"

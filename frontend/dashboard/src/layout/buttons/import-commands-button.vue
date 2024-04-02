@@ -6,20 +6,24 @@ import { useI18n } from 'vue-i18n';
 
 import { useSidebarCollapseStore } from '../use-sidebar-collapse';
 
+withDefaults(defineProps<{ isDrawer: boolean }>(), {
+	isDrawer: false,
+});
+
 const { t } = useI18n();
 const collapsedStore = useSidebarCollapseStore();
 const { isCollapsed } = storeToRefs(collapsedStore);
 </script>
 
 <template>
-	<div style="display: flex; padding-left: 8px; padding-right: 8px; margin-bottom: 8px">
+	<div class="flex px-2 mb-2">
 		<router-link :to="{ name: 'Import'}" #="{ navigate, href }" custom>
 			<n-a :href="href" type="info" secondary block class="w-full" @click="navigate">
 				<n-button type="info" secondary block>
 					<template #icon>
 						<IconDownload />
 					</template>
-					<template v-if="!isCollapsed">
+					<template v-if="isDrawer || !isCollapsed">
 						{{ t('sidebar.import') }}
 					</template>
 				</n-button>

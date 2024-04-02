@@ -34,7 +34,7 @@ defineSlots<{
 
 <template>
 	<n-card embedded>
-		<div style="display:flex; flex-direction:column; flex:1; height: 100%">
+		<div class="flex flex-col flex-1 h-full">
 			<component
 				:is="icon"
 				v-if="icon"
@@ -49,7 +49,7 @@ defineSlots<{
 				}"
 			/>
 			<n-space justify="space-between">
-				<h2 class="card-title">
+				<h2 class="text-xl mb-3" :style="{ color: titleColor }">
 					{{ title }}
 				</h2>
 				<slot name="headerExtra" />
@@ -57,7 +57,7 @@ defineSlots<{
 			<div :style="{ color: themeVars.textColor3, 'margin-bottom': '10px' }">
 				<slot name="content" />
 			</div>
-			<div class="footer" style="margin-top: auto;">
+			<div class="footer flex gap-2 mt-auto flex-wrap">
 				<slot name="footer" />
 			</div>
 		</div>
@@ -65,33 +65,17 @@ defineSlots<{
 </template>
 
 <style scoped>
-.card-title {
-	color: v-bind(titleColor);
-	margin: 0 0 12px 0;
-	font-size: 20px;
-	line-height: 24px;
-}
-
-.footer {
-	display: flex;
-	gap: 8px;
-	margin-top: 20px;
-	flex-wrap: wrap;
-}
-
 .footer :deep(button span) {
-	font-size: 14px;
-	line-height: 20px
+	@apply text-sm;
 }
 
 .footer :deep(button svg) {
-	height: 20px;
-	width: 20px;
+	@apply h-5 w-5;
 }
 
 @media (max-width: 568px) {
 	.footer :deep(button) {
-		width: 100%;
+		@apply w-full;
 	}
 }
 </style>

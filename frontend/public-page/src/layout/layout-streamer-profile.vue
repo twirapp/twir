@@ -23,16 +23,16 @@ watch(profile, (v) => {
 <template>
 	<div class="flex gap-4 rounded-md border p-10">
 		<div v-if="isLoading || !profile" class="flex gap-y-4 flex-wrap space-x-4">
-			<Skeleton class="h-12 w-12 rounded-full" :class="$style.avatar" />
+			<Skeleton class="h-32 w-32 rounded-full" />
 			<div class="space-y-2">
-				<Skeleton class="h-4 w-[250px] h-[2.5rem]" />
-				<Skeleton class="h-4 w-[200px] h-[1.25rem]" />
+				<Skeleton class="w-[250px] h-[2.5rem]" />
+				<Skeleton class="w-[200px] h-[1.25rem]" />
 			</div>
 		</div>
 
 		<div v-else class="flex gap-2 justify-between flex-wrap w-full">
 			<div class="flex flex-wrap gap-4">
-				<Avatar :class="$style.avatar">
+				<Avatar class="w-32 h-32">
 					<AvatarImage :src="profile.profileImageUrl" alt="streamer-profile-image" />
 					<AvatarFallback>{{ profile.login.slice(0, 2) }}</AvatarFallback>
 				</Avatar>
@@ -61,10 +61,3 @@ watch(profile, (v) => {
 		</div>
 	</div>
 </template>
-
-<style module>
-.avatar {
-	width: 8rem;
-	height: 8rem;
-}
-</style>

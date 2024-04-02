@@ -102,18 +102,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="body">
+	<div class="flex items-center justify-center w-full h-full bg-[#0f0f14]">
 		<n-spin size="large" />
 	</div>
 </template>
-
-<style scoped>
-.body {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #0f0f14;
-	width: 100%;
-	height: 100%;
-}
-</style>

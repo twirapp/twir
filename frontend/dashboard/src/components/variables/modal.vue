@@ -109,7 +109,7 @@ const selectOptions: Array<SelectOption> = [
 			width: formValue.type === VariableType.SCRIPT ? '900px' : '400px',
 		}"
 	>
-		<n-space vertical style="width: 100%">
+		<n-space vertical class="w-full">
 			<n-form-item :label="t('sharedTexts.name')" path="name" show-require-mark>
 				<n-input v-model:value="formValue.name" :placeholder="t('sharedTexts.name')" />
 			</n-form-item>
@@ -135,7 +135,7 @@ const selectOptions: Array<SelectOption> = [
 				/>
 			</n-form-item>
 		</n-space>
-		<n-button secondary type="success" block style="margin-top: 10px" @click="save">
+		<n-button secondary type="success" block class="mt-2.5" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>

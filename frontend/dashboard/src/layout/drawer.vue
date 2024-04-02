@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { NDrawer, NDrawerContent } from 'naive-ui';
+import { NDivider, NDrawer, NDrawerContent } from 'naive-ui';
 
+import ImportCommandsButton from './buttons/import-commands-button.vue';
+import DashboardsMenu from './dashboardsMenu.vue';
 import Navigation from './navigation.vue';
 
 import FeedbackButton from '@/layout/feedback/feedback-button.vue';
@@ -24,8 +26,15 @@ defineProps<{
 			<template #header>
 				<slot />
 			</template>
-			<navigation :is-collapsed="false" />
-			<feedback-button :is-collapsed="false" />
+
+			<dashboards-menu is-drawer />
+
+			<n-divider class="!m-0 !mt-2.5" />
+
+			<navigation />
+
+			<import-commands-button is-drawer />
+			<feedback-button is-drawer />
 		</n-drawer-content>
 	</n-drawer>
 </template>

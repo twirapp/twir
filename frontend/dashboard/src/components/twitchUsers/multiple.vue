@@ -61,9 +61,7 @@ const renderMultipleSelectTag = ({ option, handleClose }: {
 	return h(
 		NTag,
 		{
-			style: {
-				padding: '0 6px 0 4px',
-			},
+			class: 'pr-1.5 pl-1',
 			round: true,
 			closable: true,
 			onClose: (e) => {
@@ -75,20 +73,13 @@ const renderMultipleSelectTag = ({ option, handleClose }: {
 			default: () =>
 				h(
 					'div',
-					{
-						style: {
-							display: 'flex',
-							alignItems: 'center',
-						},
-					},
+					{ class: 'flex items-center' },
 					[
 						h(NAvatar, {
 							src: option.profileImageUrl,
 							round: true,
 							size: 22,
-							style: {
-								marginRight: '4px',
-							},
+							class: 'mr-1',
 						}),
 						option.label as string,
 					],
@@ -100,12 +91,7 @@ const renderMultipleSelectTag = ({ option, handleClose }: {
 const renderLabel = (option: Option) => {
 	return h(
 		'div',
-		{
-			style: {
-				display: 'flex',
-				alignItems: 'center',
-			},
-		},
+		{ class: 'flex items-center' },
 		[
 			h(NAvatar, {
 				src: option.profileImageUrl,
@@ -114,15 +100,8 @@ const renderLabel = (option: Option) => {
 			}),
 			h(
 				'div',
-				{
-					style: {
-						marginLeft: '12px',
-						padding: '4px 0',
-					},
-				},
-				[
-					h('div', null, option.label),
-				],
+				{ class: 'ml-3 py-1' },
+				[h('div', null, option.label)],
 			),
 		],
 	);

@@ -18,11 +18,11 @@ defineProps<{
 <template>
 	<Base :icon="IconAward" :created-at="createdAt">
 		<template #leftContent>
-			<div style="display: flex; flex-direction:column">
-				<span style="word-break:break-all;">{{ createUserName(userName, userDisplayName) }}
-					<b style="font-size: 11px">activated</b> {{ title }}({{ cost }})
+			<div class="flex flex-col">
+				<span class="break-all">{{ createUserName(userName, userDisplayName) }}
+					<b class="text-xs">activated</b> {{ title }}({{ cost }})
 				</span>
-				<span v-if="input.length" style="font-size: 11px">{{ input }}</span>
+				<span v-if="input.length" class="text-xs">{{ input }}</span>
 			</div>
 		</template>
 	</Base>

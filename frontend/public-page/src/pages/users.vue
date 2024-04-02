@@ -89,7 +89,7 @@ const vueTable = useVueTable({
 			id: 'avatar',
 			cell: (ctx) => {
 				const user = twitchUsers.value?.users.find(u => u.id === ctx.row.original.id);
-				return h('img', { src: user?.profileImageUrl, class: 'rounded-full w-8 h-8' });
+				return h('img', { src: user?.profileImageUrl, class: 'rounded-full w-8 h-8', loading: 'lazy' });
 			},
 			size: 5,
 			enableSorting: false,
