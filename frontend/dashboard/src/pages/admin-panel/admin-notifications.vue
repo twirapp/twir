@@ -58,14 +58,14 @@ const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
 	);
 };
 
+const isUserMessage = ref(false);
+const formRef = ref<FormInst | null>(null);
+
 type FormParams = {
 	userId?: string;
 	message: string;
 	url?: string
 };
-
-const isUserMessage = ref(false);
-const formRef = ref<FormInst | null>(null);
 
 const formData = ref<FormParams>({
 	userId: undefined,
@@ -81,30 +81,32 @@ async function sendNotification() {
 
 <template>
 	<div class="w-full flex flex-wrap gap-4">
-		<n-card :title="t('userSettings.notifications.createNotification')" size="small" bordered>
+		<n-card :title="t('adminPanel.notifications.createNotification')" size="small" bordered>
 			<n-form-item>
-				<n-space align="center" item-style="display: flex;">
+				<n-space align="center" class="flex">
 					<n-select
 						v-model:value="formData.userId" :render-label="renderLabel"
 						:render-tag="renderSingleSelectTag"
-						:disabled="!isUserMessage" filterable placeholder="Please select a streamer"
+						:disabled="!isUserMessage" filterable placeholder="Select a streamer"
 						:options="streamersOptions"
 					/>
 					<n-switch v-model:value="isUserMessage" />
 				</n-space>
 			</n-form-item>
 
-			<n-form-item :label="t('userSettings.notifications.messageLabel')">
+			<n-form-item :label="t('adminPanel.notifications.messageLabel')">
 				<n-input v-model:value="formData.message" type="textarea" placeholder="" :autosize="{ minRows: 3 }" />
 			</n-form-item>
 
-			<n-form-item :label="t('userSettings.notifications.urlLabel')">
+			<n-form-item :label="t('adminPanel.notifications.urlLabel')">
 				<n-input v-model:value="formData.url" type="text" placeholder="" />
 			</n-form-item>
 
-			<n-button @click="sendNotification">
-				{{ t('sharedButtons.send') }}
-			</n-button>
+			<div class="flex justify-end">
+				<n-button secondary type="success" @click="sendNotification">
+					{{ t('sharedButtons.send') }}
+				</n-button>
+			</div>
 		</n-card>
 	</div>
 </template>

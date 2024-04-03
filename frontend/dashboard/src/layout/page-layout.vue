@@ -1,38 +1,50 @@
 <script setup lang="ts">
+import { useRouteQuery } from '@vueuse/router';
 import { useThemeVars } from 'naive-ui';
 import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
-import { ref } from 'vue';
-import { onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { onBeforeMount, ref, type Component } from 'vue';
+import { watch } from 'vue';
 import { useRouter } from 'vue-router';
-
-import AccountSettings from './user-settings/account.vue';
-import Notifications from './user-settings/notifications.vue';
-import PublicSettings from './user-settings/public.vue';
 
 import { useTheme } from '@/composables/use-theme';
 
-const { t } = useI18n();
+const router = useRouter();
 const themeVars = useThemeVars();
 const { theme } = useTheme();
 
-const router = useRouter();
-
-const AVAILABLE_TABS = ['account', 'public', 'notifications'];
-const activeTab = ref('account');
-
-function onChangeTab(tab: string, replace = false): void {
-	router.push({ query: { ...router.currentRoute.value.query, tab }, replace });
+export interface PageLayoutProps {
+	activeTab: string
+	tabs: PageLayoutTab[]
 }
 
-onMounted(() => {
-	const tab = router.currentRoute.value.query.tab as string;
-	if (AVAILABLE_TABS.includes(tab)) {
-		activeTab.value = tab;
-	} else {
-		onChangeTab(activeTab.value, true);
-	}
+export interface PageLayoutTab {
+	name: string
+	title: string
+	component: Component
+}
+
+const props = defineProps<PageLayoutProps>();
+
+const activeTab = ref(props.activeTab);
+
+const queryActiveTab = useRouteQuery<string>('tab');
+watch(queryActiveTab, setTab);
+
+onBeforeMount(() => {
+	setTab();
+	onChangeTab(activeTab.value, true);
 });
+
+function setTab(): void {
+	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase();
+	if (props.tabs.some((tab) => tab.name === tabValue)) {
+		activeTab.value = tabValue;
+	}
+}
+
+function onChangeTab(tab: string, replace = false): void {
+	router.push({ query: { tab }, replace });
+}
 </script>
 
 <template>
@@ -44,32 +56,20 @@ onMounted(() => {
 		>
 			<div class="container flex flex-col pt-9 gap-2">
 				<h1 class="text-4xl">
-					{{ t('userSettings.title') }}
+					<slot name="title" />
 				</h1>
 				<div class="flex gap-2">
 					<TabsList class="flex overflow-x-auto -mb-px">
-						<TabsTrigger class="tabs-trigger" value="account">
-							{{ t('userSettings.account.title') }}
-						</TabsTrigger>
-						<TabsTrigger class="tabs-trigger" value="public">
-							{{ t('userSettings.public.title') }}
-						</TabsTrigger>
-						<TabsTrigger class="tabs-trigger" value="notifications">
-							{{ t('userSettings.notifications.title') }}
+						<TabsTrigger v-for="tab of props.tabs" :key="tab.name" class="tabs-trigger" :value="tab.name">
+							{{ tab.title }}
 						</TabsTrigger>
 					</TabsList>
 				</div>
 			</div>
 		</div>
 		<div class="container py-8">
-			<TabsContent value="account">
-				<AccountSettings />
-			</TabsContent>
-			<TabsContent value="public">
-				<PublicSettings />
-			</TabsContent>
-			<TabsContent value="notifications">
-				<Notifications />
+			<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name">
+				<component :is="tab.component" />
 			</TabsContent>
 		</div>
 	</TabsRoot>

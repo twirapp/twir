@@ -890,7 +890,10 @@
 			"errorTooLong": "Too long",
 			"linkTitle": "Title",
 			"linkLabel": "Link"
-		},
+		}
+	},
+	"adminPanel": {
+		"title": "Admin panel",
 		"notifications": {
 			"title": "Notifications",
 			"createNotification": "Create a new notification",
