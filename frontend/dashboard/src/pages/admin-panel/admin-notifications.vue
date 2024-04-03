@@ -74,7 +74,7 @@ const formData = ref<FormParams>({
 });
 
 async function sendNotification() {
-	// formRef
+	await formRef.value?.validate();
 	// TODO: api
 }
 </script>

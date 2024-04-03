@@ -899,6 +899,9 @@
 			"createNotification": "Create a new notification",
 			"messageLabel": "Message",
 			"urlLabel": "Click URL (optional)"
+		},
+		"users": {
+			"title": "Users"
 		}
 	}
 }
