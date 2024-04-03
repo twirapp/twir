@@ -8,7 +8,6 @@ defineProps<{
 	isBanned: boolean
 	isAdmin: boolean
 }>();
-
 </script>
 
 <template>

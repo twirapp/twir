@@ -74,8 +74,8 @@ const columns: ColumnDef<Streamer>[] = [
 		accessorKey: 'actions',
 		size: 10,
 		header: () => '',
-		cell: () => {
-			return h(ActionsButton);
+		cell: ({ row }) => {
+			return h(ActionsButton, { userId: row.original.userId, isBanned: Math.random() > 0.5, isAdmin: Math.random() > 0.5 });
 		},
 	},
 ];
@@ -124,6 +124,7 @@ const table = useVueTable({
 				</TableHeader>
 				<TableBody>
 					<template v-if="table.getRowModel().rows?.length">
+						<!-- TODO: highlight banned users -->
 						<TableRow
 							v-for="row in table.getRowModel().rows" :key="row.id"
 							:data-state="row.getIsSelected() ? 'selected' : undefined" class="border-b"

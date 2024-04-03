@@ -2,7 +2,7 @@
 import { useI18n } from 'vue-i18n';
 
 import AdminManageUsers from './admin-manage-users/admin-manage-users.vue';
-import AdminNotifications from './admin-notifications.vue';
+import AdminNotifications from './admin-notifications/admin-notifications.vue';
 
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue';
 

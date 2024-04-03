@@ -80,33 +80,31 @@ async function sendNotification() {
 </script>
 
 <template>
-	<div class="w-full flex flex-wrap gap-4">
-		<n-card :title="t('adminPanel.notifications.createNotification')" size="small" bordered>
-			<n-form-item>
-				<n-space align="center" class="flex">
-					<n-select
-						v-model:value="formData.userId" :render-label="renderLabel"
-						:render-tag="renderSingleSelectTag"
-						:disabled="!isUserMessage" filterable placeholder="Select a streamer"
-						:options="streamersOptions"
-					/>
-					<n-switch v-model:value="isUserMessage" />
-				</n-space>
-			</n-form-item>
+	<n-card :title="t('adminPanel.notifications.createNotification')" size="small" bordered>
+		<n-form-item>
+			<n-space align="center" class="flex">
+				<n-select
+					v-model:value="formData.userId" :render-label="renderLabel"
+					:render-tag="renderSingleSelectTag"
+					:disabled="!isUserMessage" filterable placeholder="Select a streamer"
+					:options="streamersOptions"
+				/>
+				<n-switch v-model:value="isUserMessage" />
+			</n-space>
+		</n-form-item>
 
-			<n-form-item :label="t('adminPanel.notifications.messageLabel')">
-				<n-input v-model:value="formData.message" type="textarea" placeholder="" :autosize="{ minRows: 3 }" />
-			</n-form-item>
+		<n-form-item :label="t('adminPanel.notifications.messageLabel')">
+			<n-input v-model:value="formData.message" type="textarea" placeholder="" :autosize="{ minRows: 3 }" />
+		</n-form-item>
 
-			<n-form-item :label="t('adminPanel.notifications.urlLabel')">
-				<n-input v-model:value="formData.url" type="text" placeholder="" />
-			</n-form-item>
+		<n-form-item :label="t('adminPanel.notifications.urlLabel')">
+			<n-input v-model:value="formData.url" type="text" placeholder="" />
+		</n-form-item>
 
-			<div class="flex justify-end">
-				<n-button secondary type="success" @click="sendNotification">
-					{{ t('sharedButtons.send') }}
-				</n-button>
-			</div>
-		</n-card>
-	</div>
+		<div class="flex justify-end">
+			<n-button secondary type="success" @click="sendNotification">
+				{{ t('sharedButtons.send') }}
+			</n-button>
+		</div>
+	</n-card>
 </template>
