@@ -217,8 +217,14 @@ const addOperation = () => {
 };
 
 const removeOperation = (index: number) => {
-	if (index === selectedOperationsTab.value) selectedOperationsTab.value = 0;
+	if (index === selectedOperationsTab.value) {
+		selectedOperationsTab.value = 0;
+	}
 	formValue.value.operations = formValue.value.operations.filter((_, i) => i != index);
+
+	if (!formValue.value.operations.length) {
+		currentOperation.value = null;
+	}
 };
 
 const eventsManager = useEventsManager();
@@ -638,7 +644,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 			</div>
 		</n-space>
 
-		<n-button block secondary type="success" class="mt-4" @click="save">
+		<n-button block secondary type="success" style="margin-top: 12px;" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>
