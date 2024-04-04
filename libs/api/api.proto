@@ -59,6 +59,7 @@ import "messages/integrations_seventv/integrations_seventv.proto";
 import "messages/overlays_now_playing/overlays_now_playing.proto";
 
 import "messages/channels_public_settings/channels_public_settings.proto";
+import "messages/notifications/notifications.proto";
 
 service Protected {
 	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
@@ -276,6 +277,8 @@ service Protected {
 	rpc OverlaysNowPlayingCreate(messages.overlays_now_playing.CreateRequest) returns (messages.overlays_now_playing.Settings) {}
 
 	rpc ChannelsPublicSettingsUpdate(messages.channels_public_settings.UpdateRequest) returns (messages.channels_public_settings.Settings) {}
+
+	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.notifications.NotificationsGetAllResponse) {}
 }
 
 // UnProtected
@@ -307,4 +310,18 @@ service UnProtected {
 
 	rpc GetPublicUserInfo(messages.auth.GetPublicUserInfoRequest) returns (messages.auth.GetPublicUserInfoResponse) {}
 	rpc GetPublicSettings(messages.channels_public_settings.GetRequest) returns (messages.channels_public_settings.Settings) {}
+}
+
+import "messages/admin_users/admin_users.proto";
+import "messages/admin_notifications/admin_notifications.proto";
+
+service Admin {
+	rpc UserSwitchBan(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
+	rpc UserSwitchAdmin(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
+	rpc GetUsers(messages.admin_users.UsersGetRequest) returns (messages.admin_users.UsersGetResponse) {}
+
+	rpc NotificationsCreate(messages.admin_notifications.CreateNotificationRequest) returns (messages.admin_notifications.Notification) {}
+	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.admin_notifications.GetNotificationsResponse) {}
+	rpc NotificationsUpdate(messages.admin_notifications.UpdateNotificationRequest) returns (messages.admin_notifications.Notification) {}
+	rpc NotificationsDelete(messages.admin_notifications.DeleteNotificationRequest) returns (google.protobuf.Empty) {}
 }
