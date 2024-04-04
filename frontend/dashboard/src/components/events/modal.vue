@@ -301,11 +301,7 @@ watch(operations, (v) => console.log(v));
 
 const dragParentRef = ref<HTMLElement>();
 dragAndDrop({
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 	parent: dragParentRef,
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 	values: operations,
 	dragHandle: '.drag-handle',
 });

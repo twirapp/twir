@@ -37,11 +37,7 @@ const totalSongsLength = computed(() => {
 
 const parentRef = ref<HTMLElement>();
 dragAndDrop({
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 	parent: parentRef,
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
 	values: videos,
 	dragHandle: '.drag-handle',
 	draggable(child) {
