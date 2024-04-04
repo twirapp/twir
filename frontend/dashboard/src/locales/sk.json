@@ -432,26 +432,26 @@
       "description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)"
     },
     "dudes": {
-      "description": "Animated characters for chatters in your stream",
-      "enable": "Enable",
-      "dudeDivider": "Dude",
+      "description": "Animované znaky pre chatujúcich vo vašom streame",
+      "enable": "Povoliť",
+      "dudeDivider": "Kámo",
       "dudeDefaultSprite": "Default sprite",
       "dudeMaxOnScreen": "Max on screen",
-      "dudeMaxOnScreenUnlimited": "Unlimited",
-      "dudeColor": "Default user color",
-      "dudeGravity": "Gravity",
-      "dudeMaxLifeTime": "Max life time",
-      "dudeScale": "Scale",
-      "dudeSoundsDivider": "Sounds",
-      "dudeSoundsVolume": "Volume",
+      "dudeMaxOnScreenUnlimited": "Neobmedzené",
+      "dudeColor": "Predvolená farba užívateľa",
+      "dudeGravity": "Gravitácia",
+      "dudeMaxLifeTime": "Maximálna životnosť",
+      "dudeScale": "Mierka",
+      "dudeSoundsDivider": "Zvuky",
+      "dudeSoundsVolume": "Hlasitosť",
       "ignoreDivider": "Ignoring",
-      "ignoreCommands": "Ignore commands",
-      "ignoreUsers": "Ignore users",
-      "ignoreUsersList": "List of ignored users",
+      "ignoreCommands": "Ignorovať príkazy",
+      "ignoreUsers": "Ignorovať užívateľov",
+      "ignoreUsersList": "Zoznam ignorovaných užívateľov",
       "nameBoxDivider": "Name box",
-      "nameBoxFill": "Text colors",
+      "nameBoxFill": "Farby textu",
       "nameBoxFillError": "Color is required",
-      "nameBoxFillGradientStops": "Text colors of gradient stops",
+      "nameBoxFillGradientStops": "Farby textu gradientných zarážok",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Typ prechodu",
       "nameBoxFontFamily": "Font family",
@@ -504,9 +504,9 @@
         "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
           "bttvEnabled": "Enable BetterTTV Emotes?",
-          "ffzEnabled": "Enable FrankerFaceZ Emotes?",
-          "seventvEnabled": "Enable 7TV Emotes?",
-          "emojiStyle": "Emoji Style"
+          "ffzEnabled": "Povoliť FrankerFaceZ Emotes?",
+          "seventvEnabled": "Povoliť 7TV Emotes?",
+          "emojiStyle": "Štýl emoji"
         }
       }
     },
@@ -516,11 +516,11 @@
         "main": {
           "label": "Nastavenia",
           "startCommand": {
-            "description": "Overlay Start Command",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "description": "Príkaz Overlay Start",
+            "example": "<b>!brb 1 Coffee</b> - spustí 1-minútový časovač s nápisom \"Coffee\".<br><b>!brb 1</b> - spustí 1-minútový časovač s predvoleným textom zadaným v sekciách Nastavenia a Nastavenia post-časovača."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Príkaz Overlay Stop",
             "example": "!brbstop"
           },
           "text": "Overlay Text",
