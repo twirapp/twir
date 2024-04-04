@@ -898,8 +898,11 @@
 			"title": "Notifications",
 			"createNotification": "Create a new notification",
 			"emptyNotifications": "No notifications",
+			"userLabel": "User",
+			"userPlaceholder": "Select a user",
 			"messageLabel": "Message",
-			"urlLabel": "Click URL (optional)"
+			"resetButton": "Reset",
+			"sendButton": "Send"
 		},
 		"users": {
 			"title": "Users"

@@ -15,16 +15,16 @@ const showDelete = ref(false);
 
 <template>
 	<div class="flex items-center gap-2">
-		<Button variant="destructive" size="icon" @click="emits('delete')">
-			<TrashIcon class="h-4 w-4" />
-		</Button>
-		<Button variant="secondary" size="icon" @click="showDelete = true">
+		<Button variant="secondary" size="icon" @click="emits('edit')">
 			<PencilIcon class="h-4 w-4" />
+		</Button>
+		<Button variant="destructive" size="icon" @click="showDelete = true">
+			<TrashIcon class="h-4 w-4" />
 		</Button>
 	</div>
 
 	<DeleteConfirm
 		v-model:open="showDelete"
-		@confirm="emits('edit')"
+		@confirm="emits('delete')"
 	/>
 </template>

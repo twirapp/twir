@@ -5,13 +5,14 @@ import {
 	getCoreRowModel,
 	useVueTable,
 } from '@tanstack/vue-table';
-import { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
+import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { useThemeVars } from 'naive-ui';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ActionsButton from './actions-button.vue';
 import CreatedAtCell from './created-at-cell.vue';
+import { useNotificationsForm } from './use-notifications-form';
 
 import { useAdminNotifications } from '@/api/notifications';
 import { Button } from '@/components/ui/button';
@@ -23,10 +24,13 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { useLayout } from '@/composables/use-layout';
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
+const layout = useLayout();
 
+const notificationsForm = useNotificationsForm();
 const notificationsCrud = useAdminNotifications();
 const notifications = notificationsCrud.getAll({});
 
@@ -54,7 +58,7 @@ const columns: ColumnDef<Notification>[] = [
 		cell: ({ row }) => {
 			return h(ActionsButton, {
 				onDelete: () => onDeleteNotification(row.original.id),
-				onEdit: () => onEditNotification(row.original.id),
+				onEdit: () => onEditNotification(row.original),
 			});
 		},
 	},
@@ -74,12 +78,14 @@ const table = useVueTable({
 	getCoreRowModel: getCoreRowModel(),
 });
 
-async function onDeleteNotification(notificationId: string) {
-	console.log(notificationId);
+function onDeleteNotification(notificationId: string) {
+	notificationsCrud.deleteOne.mutate({ id: notificationId });
 }
 
-async function onEditNotification(notificationId: string) {
-
+async function onEditNotification(notification: Notification) {
+	notificationsForm.editableMessageId = notification.id;
+	notificationsForm.form.setValues(notification);
+	layout.scrollToTop();
 }
 </script>
 
