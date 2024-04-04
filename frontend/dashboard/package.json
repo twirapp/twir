@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@discord-message-components/vue": "0.2.1",
+    "@formkit/drag-and-drop": "0.0.38",
     "@guolao/vue-monaco-editor": "1.4.1",
     "@protobuf-ts/twirp-transport": "2.9.3",
     "@tabler/icons-vue": "2.46.0",

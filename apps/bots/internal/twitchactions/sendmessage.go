@@ -104,7 +104,10 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
-			errorMessage = resp.ErrorMessage
+
+			if resp != nil {
+				errorMessage = resp.ErrorMessage
+			}
 		} else {
 			resp, err := twitchClient.SendChatAnnouncement(
 				&helix.SendChatAnnouncementParams{
@@ -114,7 +117,9 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
-			errorMessage = resp.ErrorMessage
+			if resp != nil {
+				errorMessage = resp.ErrorMessage
+			}
 		}
 
 		if msgErr != nil {
