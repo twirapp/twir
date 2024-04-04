@@ -61,7 +61,7 @@
     "games": "Hry",
     "users": "Užívatelia",
     "moderation": "Moderovanie",
-    "import": "Import"
+    "import": "Importovať"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
@@ -108,7 +108,7 @@
         "label": "Aliasy"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Povoliť príkaz len v určitých kategóriách (pre zakázanie nechajte prázdne)"
       },
       "description": {
         "label": "Popis príkazu"
@@ -252,7 +252,7 @@
     },
     "sevenTv": {
       "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "alert": "Môžete tiež urobiť advanced flow cez {0} systém na správu 7tv emotes.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
       "notRegistered": "Nie ste registrovaný na {0}",
@@ -301,11 +301,11 @@
       "values": "Hodnoty",
       "triggerAlert": "Trigger Alert",
       "filters": {
-        "label": "Filters",
-        "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
-        "placeholderLeft": "Left side of the condition",
-        "placeholderRight": "Right side of the condition",
-        "empty": "No filters added yet"
+        "label": "Filtre",
+        "description": "Udalosti môžete filtrovať podľa konkrétnych podmienok. Ak napríklad pri udalosti nájazdu použijete \"{'{raidViewers}'} equals 10\", spustí sa operácia len vtedy, keď je počet nájazdníkov 10.",
+        "placeholderLeft": "Ľavá strana podmienky",
+        "placeholderRight": "Pravá strana podmienky",
+        "empty": "Zatiaľ neboli pridané žiadne filtre"
       }
     },
     "variables": {
@@ -313,8 +313,8 @@
       "userDisplayName": "Event Triggerer Display Name",
       "targetUserName": "Event Target Username",
       "targetDisplayUserName": "Event Target Display Name",
-      "subLevel": "Subscription Levels (such as “1”/“2”/“3”/“prime”)",
-      "resubMonths": "Subscriber Length Streak",
+      "subLevel": "Úrovne predplatného (napríklad \"1\"/\"2\"/\"3\"/\"prime\")",
+      "resubMonths": "Dĺžka reťaze predplatitného",
       "resubStreak": "Total Subscriber Months Count",
       "resubMessage": "User Resubscription Message",
       "rewardName": "Channel Points Reward Name",
@@ -332,13 +332,13 @@
       "donateAmount": "Výška donate",
       "donateCurrency": "Donate mena",
       "donateMessage": "Donate správa",
-      "keywordName": "Keyword Name",
-      "keywordResponse": "Keyword Responses (separated by space)",
+      "keywordName": "Názov kľúčového slova",
+      "keywordResponse": "Odpovede na kľúčové slovo (oddelené medzerou)",
       "greetingText": "Greeting Message",
-      "pollTitle": "Poll Title",
-      "pollOptionsNames": "Poll Settings (separated by comma)",
-      "pollTotalVotes": "Total Poll Votes",
-      "pollWinnerTitle": "Poll Winner Name",
+      "pollTitle": "Názov ankety",
+      "pollOptionsNames": "Nastavenia ankety (oddelené čiarkou)",
+      "pollTotalVotes": "Celkový počet hlasov v ankete",
+      "pollWinnerTitle": "Meno víťaza ankety",
       "pollWinnerBitsVotes": "Number of Winner's Bits Votes",
       "pollWinnerChannelsPointsVotes": "Number of Winner's Channel Points Votes",
       "pollWinnerTotalVotes": "Total Winner's Poll Votes",
@@ -370,7 +370,7 @@
       "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
       "eventsHint": "Tip: Na spustenie TTS pri konkrétnej udalosti môžete použiť systém udalostí.",
       "allowUsersChooseVoice": "Allow chatters to use different voices?",
-      "doNotReadEmoji": "Do Not Read Emojis",
+      "doNotReadEmoji": "Nečítať emotikony",
       "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes (including 7TV, FFZ, BTTV",
       "doNotReadLinks": "Do Not Read Links",
       "readChatMessages": "Read All Chat Messages",
@@ -394,42 +394,42 @@
     "obs": {
       "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
       "address": "Address of OBS WebSocket server",
-      "port": "Port of OBS WebSocket server",
-      "connected": "Connected!",
-      "notConnected": "Not Connected!",
-      "checkConnection": "Check Connection"
+      "port": "Port servera OBS WebSocket",
+      "connected": "Pripojené!",
+      "notConnected": "Nepripojené!",
+      "checkConnection": "Skontrolovať pripojenie"
     },
     "alerts": {
-      "description": "This overlay allows you to play configured alerts from the “Alerts” section."
+      "description": "Toto prekrytie umožňuje prehrávať nakonfigurované upozornenia zo sekcie \"Upozornenia\"."
     },
     "chat": {
-      "presets": "Presets",
-      "selectSubsetPlaceholder": "Select preferable subsets",
-      "hideTimeout": "Message Hide Timeout",
-      "showDelay": "Message Show Delay",
-      "showBadges": "Show Badges",
+      "presets": "Presety",
+      "selectSubsetPlaceholder": "Výber preferovaných podskupín",
+      "hideTimeout": "Časový limit na skrytie správy",
+      "showDelay": "Oneskorenie zobrazenia správy",
+      "showBadges": "Zobraziť odznaky",
       "showAnnounceBadge": "Show Announcement Border",
       "paddingContainer": "Inside Container Padding",
-      "resetToDefault": "Reset to Default",
-      "textShadow": "Text Shadow",
-      "backgroundColor": "Background Color",
-      "direction": "Message Direction",
+      "resetToDefault": "Obnoviť predvolené",
+      "textShadow": "Tieň textu",
+      "backgroundColor": "Farba pozadia",
+      "direction": "Smer správy",
       "directions": {
-        "left": "Left",
-        "right": "Right",
-        "top": "Top",
-        "bottom": "Bottom"
+        "left": "Vľavo",
+        "right": "Vpravo",
+        "top": "Hore",
+        "bottom": "Dole"
       },
-      "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
+      "directionWarning": "Ak chcete používať \"Vľavo\" a \"Vpravo\", mali by ste nastaviť výšku prekrytia na 50x, aby sa chat zobrazil správne!",
       "fontFamily": "Font Family",
-      "fontSize": "Font Size",
-      "fontStyle": "Font Style",
-      "fontWeight": "Font Weight",
-      "availabeFonts": "Available Fonts",
-      "hideCommands": "Hide Commands",
-      "hideBots": "Hide Other Bots Messages",
-      "style": "Message Style",
-      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
+      "fontSize": "Veľkosť písma",
+      "fontStyle": "Štýl písma",
+      "fontWeight": "Hrúbka písma",
+      "availabeFonts": "Dostupné písma",
+      "hideCommands": "Skryť príkazy",
+      "hideBots": "Skryť správy ostatných botov",
+      "style": "Štýl správy",
+      "description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)"
     },
     "dudes": {
       "description": "Animated characters for chatters in your stream",
