@@ -21,14 +21,12 @@ export const profileQueryOptions = {
 
 export const useProfile = () => useQuery<Profile | null>(profileQueryOptions);
 
-
 export const useLogout = () => useMutation({
 	mutationKey: ['authLogout'],
 	mutationFn: async () => {
 		await protectedApiClient.authLogout({});
 	},
 });
-
 
 export const dashboardsQueryOptions = {
 	queryKey: ['authDashboards'],
@@ -50,10 +48,10 @@ export const useSetDashboard = () => {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries();
+			await queryClient.resetQueries();
 		},
 	});
 };
-
 
 export const PERMISSIONS_FLAGS = {
 	CAN_ACCESS_DASHBOARD: 'All permissions',
