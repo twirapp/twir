@@ -11,8 +11,7 @@ import { useProtectedNotifications } from '@/api/notifications';
 const { data } = useProtectedNotifications();
 
 const notifications = computed(() => {
-	if (!data.value) return [];
-	return data.value.notifications;
+	return data.value?.notifications ?? [];
 });
 
 const profileOptions: DropdownOption[] = [

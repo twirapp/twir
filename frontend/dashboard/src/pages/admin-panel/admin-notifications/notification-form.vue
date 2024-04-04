@@ -93,13 +93,13 @@ function resetFieldUserId(event: Event): void {
 				<FormItem>
 					<FormLabel>{{ t('adminPanel.notifications.messageLabel') }}</FormLabel>
 					<div class="flex flex-col gap-2">
-						<div class="flex gap-2">
+						<div class="flex gap-2 flex-wrap">
 							<TooltipProvider>
 								<Tooltip v-for="button in textareaButtons" :key="button.name">
 									<TooltipTrigger as-child>
 										<Button
 											type="button"
-											variant="outline"
+											variant="secondary"
 											size="icon"
 											@click="textarea.applyModifier(button.name)"
 										>
@@ -116,7 +116,7 @@ function resetFieldUserId(event: Event): void {
 						<FormControl>
 							<Textarea
 								ref="textareaRef"
-								rows="5"
+								rows="8"
 								v-bind="componentField"
 							/>
 						</FormControl>

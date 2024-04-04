@@ -4,10 +4,12 @@ import {
 	FlexRender,
 	getCoreRowModel,
 	useVueTable,
+getPaginationRowModel,
 } from '@tanstack/vue-table';
 import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
+import { SearchIcon } from 'lucide-vue-next';
 import { useThemeVars } from 'naive-ui';
-import { computed, h } from 'vue';
+import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import ActionsButton from './actions-button.vue';
@@ -16,6 +18,15 @@ import { useNotificationsForm } from './use-notifications-form';
 
 import { useAdminNotifications } from '@/api/notifications';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -69,13 +80,14 @@ const notificationsList = computed<Notification[]>(() => {
 });
 
 const table = useVueTable({
+	getCoreRowModel: getCoreRowModel(),
+	getPaginationRowModel: getPaginationRowModel(),
 	get data() {
 		return notificationsList.value;
 	},
 	get columns() {
 		return columns;
 	},
-	getCoreRowModel: getCoreRowModel(),
 });
 
 function onDeleteNotification(notificationId: string) {
@@ -87,9 +99,62 @@ async function onEditNotification(notification: Notification) {
 	notificationsForm.form.setValues(notification);
 	layout.scrollToTop();
 }
+
+const notificationsFilter = ref('globals');
 </script>
 
 <template>
+	<div class="flex flex-wrap w-full items-center justify-between gap-2">
+		<div class="flex gap-2 max-sm:w-full">
+			<div class="relative w-full items-center">
+				<Input id="search" type="text" placeholder="Search..." class="h-9 pl-10 max-sm:w-full" />
+				<span class="absolute start-2 inset-y-0 flex items-center justify-center px-2">
+					<SearchIcon class="size-4 text-muted-foreground" />
+				</span>
+			</div>
+			<Select v-model="notificationsFilter">
+				<SelectTrigger class="h-9 w-[100px]">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectGroup>
+						<SelectItem value="globals">
+							{{ t('adminPanel.notifications.globals') }}
+						</SelectItem>
+						<SelectItem value="users">
+							{{ t('adminPanel.notifications.users') }}
+						</SelectItem>
+					</SelectGroup>
+				</SelectContent>
+			</Select>
+		</div>
+
+		<div class="flex items-center gap-2 max-sm:w-full">
+			<div class="flex-1 text-sm text-muted-foreground">
+				{{ t('adminPanel.notifications.pageCount', {
+					page: table.getState().pagination.pageIndex + 1,
+					total: table.getPageCount().toLocaleString(),
+				}) }}
+			</div>
+			<Button
+				variant="outline"
+				size="sm"
+				:disabled="!table.getCanPreviousPage()"
+				@click="table.previousPage()"
+			>
+				{{ t('adminPanel.notifications.previous') }}
+			</Button>
+			<Button
+				variant="outline"
+				size="sm"
+				:disabled="!table.getCanNextPage()"
+				@click="table.nextPage()"
+			>
+				{{ t('adminPanel.notifications.next') }}
+			</Button>
+		</div>
+	</div>
+
 	<div
 		class="flex-wrap w-full border rounded-md" :style="{
 			backgroundColor: themeVars.cardColor,
@@ -133,30 +198,5 @@ async function onEditNotification(notification: Notification) {
 				</template>
 			</TableBody>
 		</Table>
-	</div>
-
-	<div class="flex w-full items-center justify-end space-x-2 py-4">
-		<div class="flex-1 text-sm text-muted-foreground">
-			{{ table.getFilteredSelectedRowModel().rows.length }} of
-			{{ table.getFilteredRowModel().rows.length }} row(s) selected.
-		</div>
-		<div class="space-x-2">
-			<Button
-				variant="outline"
-				size="sm"
-				:disabled="!table.getCanPreviousPage()"
-				@click="table.previousPage()"
-			>
-				Previous
-			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				:disabled="!table.getCanNextPage()"
-				@click="table.nextPage()"
-			>
-				Next
-			</Button>
-		</div>
 	</div>
 </template>

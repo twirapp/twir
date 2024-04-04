@@ -903,7 +903,12 @@
 			"userPlaceholder": "Select a user",
 			"messageLabel": "Message",
 			"resetButton": "Reset",
-			"sendButton": "Send"
+			"sendButton": "Send",
+			"next": "Next",
+			"previous": "Previous",
+			"pageCount": "{page} of {total} page(s)",
+			"globals": "Globals",
+			"users": "Users"
 		},
 		"users": {
 			"title": "Users"
