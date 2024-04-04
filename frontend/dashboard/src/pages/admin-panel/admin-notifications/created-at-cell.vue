@@ -7,7 +7,7 @@ defineProps<{ time: Date }>();
 <template>
 	<n-tooltip placement="left" trigger="hover">
 		<template #trigger>
-			<n-time class="cursor-pointer" :time="time" type="relative" />
+			<n-time class="cursor-pointer text-nowrap" :time="time" type="relative" />
 		</template>
 		<span>{{ time.toLocaleString() }}</span>
 	</n-tooltip>

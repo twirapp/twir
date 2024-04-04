@@ -9,7 +9,7 @@ defineProps<{ notifications: Notification[] }>();
 </script>
 
 <template>
-	<div class="flex flex-col px-3 py-2">
+	<div class="flex flex-col pl-3 py-2">
 		<n-scrollbar style="max-height: 400px" trigger="none">
 			<div class="flex flex-col gap-6 mr-4">
 				<div v-for="notification of notifications" :key="notification.id" class="flex flex-col gap-2">

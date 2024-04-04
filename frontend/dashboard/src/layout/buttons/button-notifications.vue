@@ -7,12 +7,23 @@ import { computed } from 'vue';
 import NotificationsDropdown from './notifications-dropdown.vue';
 
 import { useProtectedNotifications } from '@/api/notifications';
+import { useNotificationsCounter } from '@/composables/use-notifications-counter';
 
 const { data } = useProtectedNotifications();
+const { computeNotificationsCounter } = useNotificationsCounter();
 
 const notifications = computed(() => {
 	return data.value?.notifications ?? [];
 });
+
+const notificationsCounter = computed(() => {
+	return computeNotificationsCounter(notifications.value);
+});
+
+function onUpdateShow(state: boolean) {
+	if (state) return;
+	notificationsCounter.value.readed();
+}
 
 const profileOptions: DropdownOption[] = [
 	{
@@ -27,10 +38,11 @@ const profileOptions: DropdownOption[] = [
 	<n-dropdown
 		trigger="click"
 		:options="profileOptions"
+		:on-update-show="onUpdateShow"
 		size="large"
-		style="top: 10px; left: 14px; width: 500px;"
+		style="top: 10px; left: 14px; width: 400px;"
 	>
-		<n-badge :value="notifications.length">
+		<n-badge :value="notificationsCounter.counter">
 			<n-button circle quaternary>
 				<IconBell />
 			</n-button>
