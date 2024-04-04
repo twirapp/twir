@@ -29,7 +29,7 @@ const profileOptions: DropdownOption[] = [
 		trigger="click"
 		:options="profileOptions"
 		size="large"
-		style="top: 10px; left: 14px; width: 400px;"
+		style="top: 10px; left: 14px; width: 500px;"
 	>
 		<n-badge :value="notifications.length">
 			<n-button circle quaternary>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ChevronDownIcon, XIcon, BoldIcon } from 'lucide-vue-next';
+import { ChevronDownIcon, XIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { SelectIcon } from 'radix-vue';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNotificationsForm } from './use-notifications-form';
+import { useTextarea, textareaButtons } from './use-textarea';
 
 import { useStreamers } from '@/api/streamers';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -26,11 +28,20 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const { t } = useI18n();
 
 const notificationsForm = useNotificationsForm();
 const { data: streamers } = useStreamers();
+
+const textarea = useTextarea();
+const { textareaRef } = storeToRefs(textarea);
 
 const streamersOptions = computed(() => {
 	if (!streamers.value?.streamers) return [];
@@ -40,14 +51,6 @@ const streamersOptions = computed(() => {
 function resetFieldUserId(event: Event): void {
 	event.stopPropagation();
 	notificationsForm.form.resetField('userId');
-}
-
-const textareaRef = ref<HTMLTextAreaElement | null>(null);
-
-function addBold() {
-	if (!textareaRef.value) return;
-	console.log(textareaRef.value);
-	console.log(textareaRef.value.selectionStart, textareaRef.value.selectionEnd);
 }
 </script>
 
@@ -91,9 +94,23 @@ function addBold() {
 					<FormLabel>{{ t('adminPanel.notifications.messageLabel') }}</FormLabel>
 					<div class="flex flex-col gap-2">
 						<div class="flex gap-2">
-							<Button variant="outline" size="icon" @click="addBold">
-								<BoldIcon class="w-4 h-4" />
-							</Button>
+							<TooltipProvider>
+								<Tooltip v-for="button in textareaButtons" :key="button.name">
+									<TooltipTrigger as-child>
+										<Button
+											type="button"
+											variant="outline"
+											size="icon"
+											@click="textarea.applyModifier(button.name)"
+										>
+											<component :is="button.icon" class="h-4 w-4" />
+										</Button>
+									</TooltipTrigger>
+									<TooltipContent>
+										<p>{{ button.title }}</p>
+									</TooltipContent>
+								</Tooltip>
+							</TooltipProvider>
 						</div>
 
 						<FormControl>

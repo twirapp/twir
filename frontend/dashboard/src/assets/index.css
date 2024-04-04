@@ -32,6 +32,8 @@
 		--input:240 5.9% 90%;
 		--ring:240 5.9% 10%;
 		--radius: 0.5rem;
+
+		--notification-color: #63e2b7;
 	}
 
 	.dark {
@@ -62,6 +64,38 @@
 		--border:240 3.7% 15.9%;
 		--input:240 3.7% 15.9%;
 		--ring:240 4.9% 83.9%;
+	}
+
+	/* notifications list */
+	#a {
+		cursor: pointer;
+		color: var(--notification-color);
+	}
+
+	#ul {
+		list-style: unset !important;
+		margin-left: 1.5em;
+	}
+
+	#ul li::marker {
+		color: var(--notification-color);
+		font-size: 1rem;
+	}
+
+	#h1 {
+		font-size: 1.5rem;
+	}
+
+	#h2 {
+		font-size: 1rem;
+	}
+
+	#bq {
+		border-left: 4px solid var(--notification-color);
+		margin: 0;
+		padding: 10px 15px;
+		background-color: hsl(var(--muted));
+		border-radius: 4px;
 	}
 }
 
