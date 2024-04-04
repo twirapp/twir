@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ChevronDownIcon, XIcon } from 'lucide-vue-next';
+import { ChevronDownIcon, XIcon, BoldIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
 import { SelectIcon } from 'radix-vue';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNotificationsForm } from './use-notifications-form';
@@ -40,6 +40,14 @@ const streamersOptions = computed(() => {
 function resetFieldUserId(event: Event): void {
 	event.stopPropagation();
 	notificationsForm.form.resetField('userId');
+}
+
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
+
+function addBold() {
+	if (!textareaRef.value) return;
+	console.log(textareaRef.value);
+	console.log(textareaRef.value.selectionStart, textareaRef.value.selectionEnd);
 }
 </script>
 
@@ -81,13 +89,21 @@ function resetFieldUserId(event: Event): void {
 			<FormField v-slot="{ componentField }" name="message">
 				<FormItem>
 					<FormLabel>{{ t('adminPanel.notifications.messageLabel') }}</FormLabel>
-					<FormControl>
-						<Textarea
-							placeholder=""
-							class="resize-none"
-							v-bind="componentField"
-						/>
-					</FormControl>
+					<div class="flex flex-col gap-2">
+						<div class="flex gap-2">
+							<Button variant="outline" size="icon" @click="addBold">
+								<BoldIcon class="w-4 h-4" />
+							</Button>
+						</div>
+
+						<FormControl>
+							<Textarea
+								ref="textareaRef"
+								rows="5"
+								v-bind="componentField"
+							/>
+						</FormControl>
+					</div>
 					<FormMessage />
 				</FormItem>
 			</FormField>

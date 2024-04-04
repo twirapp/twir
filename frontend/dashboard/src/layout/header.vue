@@ -4,6 +4,7 @@ import { NScrollbar, useThemeVars } from 'naive-ui';
 import { computed, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
+import ButtonNotifications from './buttons/button-notifications.vue';
 import ButtonPublicPage from './buttons/buttonPublicPage.vue';
 import ButtonToggleTheme from './buttons/buttonToggleTheme.vue';
 import SocialButtons from './buttons/socialButtons.vue';
@@ -70,6 +71,7 @@ useEventListener('keydown', (ev) => {
 				</div>
 
 				<div class="block">
+					<button-notifications />
 					<dropdown-language />
 					<button-toggle-theme />
 					<button-public-page />

@@ -40,7 +40,7 @@ const columns: ColumnDef<Notification>[] = [
 		size: 80,
 		header: () => h('div', {}, 'Message'),
 		cell: ({ row }) => {
-			return h('span', row.original.message);
+			return h('span', { innerHTML: row.original.message });
 		},
 	},
 	{
