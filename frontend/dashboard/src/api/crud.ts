@@ -1,7 +1,7 @@
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 
-import { protectedApiClient } from './twirp.js';
+import { adminApiClient, protectedApiClient, unprotectedApiClient } from './twirp.js';
 
 type CallFunc<
 	Req extends Record<any, any>,
@@ -16,6 +16,7 @@ export const createCrudManager = <
 	Create extends CallFunc<any, any>,
 	Update extends CallFunc<any, any>,
 >(opts: {
+	client: typeof protectedApiClient | typeof adminApiClient | typeof unprotectedApiClient,
 	getAll: GetAll,
 	getOne?: GetOne | null,
 	deleteOne: Delete,
@@ -32,7 +33,7 @@ export const createCrudManager = <
 		if (typeof value === 'function') {
 			// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 			// @ts-ignore
-			opts[key] = value.bind(protectedApiClient);
+			opts[key] = value.bind(opts.client);
 		}
 	}
 
@@ -111,6 +112,7 @@ export const createCrudManager = <
 };
 
 export const useCommandsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'commands',
 	getAll: protectedApiClient?.commandsGetAll,
 	update: protectedApiClient?.commandsUpdate,
@@ -122,6 +124,7 @@ export const useCommandsManager = () => createCrudManager({
 });
 
 export const useCommandsGroupsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'commands/groups',
 	getAll: protectedApiClient?.commandsGroupGetAll,
 	update: protectedApiClient?.commandsGroupUpdate,
@@ -133,6 +136,7 @@ export const useCommandsGroupsManager = () => createCrudManager({
 });
 
 export const useGreetingsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'greetings',
 	getAll: protectedApiClient?.greetingsGetAll,
 	update: protectedApiClient?.greetingsUpdate,
@@ -143,6 +147,7 @@ export const useGreetingsManager = () => createCrudManager({
 });
 
 export const useKeywordsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'keywords',
 	getAll: protectedApiClient?.keywordsGetAll,
 	update: protectedApiClient?.keywordsUpdate,
@@ -153,6 +158,7 @@ export const useKeywordsManager = () => createCrudManager({
 });
 
 export const useTimersManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'timers',
 	getAll: protectedApiClient?.timersGetAll,
 	update: protectedApiClient?.timersUpdate,
@@ -163,6 +169,7 @@ export const useTimersManager = () => createCrudManager({
 });
 
 export const useVariablesManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'variables',
 	getAll: protectedApiClient?.variablesGetAll,
 	update: protectedApiClient?.variablesUpdate,
@@ -173,6 +180,7 @@ export const useVariablesManager = () => createCrudManager({
 });
 
 export const useEventsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'events',
 	getAll: protectedApiClient?.eventsGetAll,
 	update: protectedApiClient?.eventsUpdate,
@@ -183,6 +191,7 @@ export const useEventsManager = () => createCrudManager({
 });
 
 export const useRolesManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'roles',
 	getAll: protectedApiClient?.rolesGetAll,
 	update: protectedApiClient?.rolesUpdate,
@@ -194,6 +203,7 @@ export const useRolesManager = () => createCrudManager({
 });
 
 export const useAlertsManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'alerts',
 	getAll: protectedApiClient?.alertsGetAll,
 	update: protectedApiClient?.alertsUpdate,
@@ -204,6 +214,7 @@ export const useAlertsManager = () => createCrudManager({
 });
 
 export const useOverlaysRegistry = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'registry/overlays',
 	getAll: protectedApiClient?.overlaysGetAll,
 	update: protectedApiClient?.overlaysUpdate,
@@ -214,6 +225,7 @@ export const useOverlaysRegistry = () => createCrudManager({
 });
 
 export const useModerationManager = () => createCrudManager({
+	client: protectedApiClient,
 	queryKey: 'moderation',
 	getAll: protectedApiClient?.moderationGetAll,
 	update: protectedApiClient?.moderationUpdate,

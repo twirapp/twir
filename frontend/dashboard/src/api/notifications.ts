@@ -4,6 +4,7 @@ import { createCrudManager } from './crud';
 import { adminApiClient, protectedApiClient } from './twirp';
 
 export const useAdminNotifications = () => createCrudManager({
+	client: adminApiClient,
 	queryKey: 'admin/notifications',
 	create: adminApiClient.notificationsCreate,
 	deleteOne: adminApiClient.notificationsDelete,
@@ -14,7 +15,7 @@ export const useAdminNotifications = () => createCrudManager({
 });
 
 export const useProtectedNotifications = () => useQuery({
-	queryKey: ['protected/notification'],
+	queryKey: ['protected/notifications'],
 	queryFn: async () => {
 		const req = await protectedApiClient.notificationsGetAll({});
 		return req.response;

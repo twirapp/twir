@@ -29,6 +29,7 @@ const themeVars = useThemeVars();
 
 const notificationsCrud = useAdminNotifications();
 const notifications = notificationsCrud.getAll({});
+console.log(notificationsCrud.getAll);
 
 const columns: ColumnDef<Notification>[] = [
 	{
