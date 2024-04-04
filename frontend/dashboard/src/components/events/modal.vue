@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
 import { EventOperationFilterType } from '@twir/types/events';
+import { toRef } from '@vueuse/core';
 import {
 	type FormInst,
 	type FormItemRule,
@@ -22,7 +24,6 @@ import {
 	NModal,
 } from 'naive-ui';
 import { computed, onMounted, ref, watch, nextTick } from 'vue';
-import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
 import {
@@ -294,6 +295,20 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 	label: item.toLowerCase().split('_').join(' '),
 	value: item,
 }));
+
+const operations = toRef(formValue.value, 'operations');
+watch(operations, (v) => console.log(v));
+
+const dragParentRef = ref<HTMLElement>();
+dragAndDrop({
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
+	parent: dragParentRef,
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
+	values: operations,
+	dragHandle: '.drag-handle',
+});
 </script>
 
 <template>
@@ -379,16 +394,16 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 
 		<n-space :wrap="false">
 			<n-space vertical class="h-full" :x-gap="5">
-				<VueDraggableNext v-model="formValue.operations">
+				<div ref="dragParentRef">
 					<div
 						v-for="(operation, operationIndex) of formValue.operations"
-						:key="operationIndex"
+						:key="operation.type+operationIndex"
 						style="display:flex; gap: 5px; margin-top: 5px; width: 100%; padding: 5px; border-radius: 11px;"
 						:style="{
 							'background-color': selectedOperationsTab === operationIndex ? selectedTabBackground : undefined,
 						}"
 					>
-						<n-button text>
+						<n-button text class="drag-handle">
 							<IconGripVertical class="w-4" />
 						</n-button>
 
@@ -409,7 +424,8 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 							/>
 						</n-button>
 					</div>
-				</VueDraggableNext>
+				</div>
+
 				<n-button
 					block
 					size="small"
