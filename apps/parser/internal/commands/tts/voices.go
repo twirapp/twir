@@ -26,10 +26,12 @@ var VoicesCommand = &types.DefaultCommand{
 		result := &types.CommandsHandlerResult{}
 
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
+		if channelSettings == nil {
+			return result, nil
+		}
 
 		voices := getVoices(ctx, parseCtx.Services.Config)
 		if len(voices) == 0 {
-			result.Result = append(result.Result, "No voices found")
 			return result, nil
 		}
 
