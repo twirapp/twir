@@ -37,7 +37,7 @@
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
-    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+    "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\""
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -50,7 +50,7 @@
     "events": "Udalosti",
     "chatAlerts": "Upozornenia chatu",
     "overlays": "Prekrytia",
-    "overlaysRegistry": "Overlays Registry",
+    "overlaysRegistry": "Register prekrytí",
     "songRequests": "Žiadosti o pieseň",
     "timers": "Časovače",
     "roles": "Oprávnenia",
@@ -215,7 +215,7 @@
   "integrations": {
     "notLoggedIn": "Nie ste prihlásení!",
     "songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú skladbu v chate, keď sa použije príkaz {0}.",
-    "donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce donaty a nastaví pre vás interakcie v kategóriách {0}, {1}.",
+    "donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce dary a nastaví pre vás interakcie v kategóriách {0}, {1}.",
     "discord": {
       "description": "Poskytnutie prístupu k službe Discord umožňuje Twiru nastaviť automatické pingy a upozornenia o stave streamu na vašich serveroch Discord.",
       "guildPluralization": "Žiadne servery | 1 server | {count} servery",
@@ -252,7 +252,7 @@
     },
     "sevenTv": {
       "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
-      "alert": "Môžete tiež urobiť advanced flow cez {0} systém na správu 7tv emotes.",
+      "alert": "Prostredníctvom systému {0} môžete tiež vytvoriť advanced flow na ovládanie emotikonov 7TV.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
       "notRegistered": "Nie ste registrovaný na {0}",
@@ -271,12 +271,12 @@
   "events": {
     "delay": "Oneskorenie (v sekundách)",
     "repeat": "Počet opakovaní",
-    "onlineOnly": "Online-Only Execution",
+    "onlineOnly": "Vykonávať len pri vysielaní online",
     "type": "Typ",
     "description": "Popis",
     "targetCommand": "Cieľový príkaz",
     "targetVariable": "Cieľová premenná",
-    "targetTwitchReward": "Target Twitch Reward",
+    "targetTwitchReward": "Vyberte odmenu za kanál",
     "targetKeyword": "Cielené kľúčové slovo",
     "operations": {
       "divider": "Akcie",
@@ -286,10 +286,10 @@
         "default": "Text činnosti (podporuje premenné)",
         "vipSlots": "Množstvo VIP slotov",
         "username": "Používateľské meno (podporuje premenné)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "variableValue": "Nová hodnota premennej (podporuje premenné)",
+        "variableIncrementDecrement": "Zvyšuje/znižuje hodnotu (podporuje premenné)"
       },
-      "banMessage": "Ban Message",
+      "banMessage": "Správa o zablokovaní",
       "banTime": "Čas banu",
       "obs": {
         "warningTitle": "Pred ďalším postupom musíte najskôr nakonfigurovať OBS!",
@@ -299,7 +299,7 @@
         "audioSource": "OBS Audio Source"
       },
       "values": "Hodnoty",
-      "triggerAlert": "Trigger Alert",
+      "triggerAlert": "Spúšťač upozornenia",
       "filters": {
         "label": "Filtre",
         "description": "Udalosti môžete filtrovať podľa konkrétnych podmienok. Ak napríklad pri udalosti nájazdu použijete \"{'{raidViewers}'} equals 10\", spustí sa operácia len vtedy, keď je počet nájazdníkov 10.",
@@ -309,17 +309,17 @@
       }
     },
     "variables": {
-      "userName": "Event Triggerer Username",
-      "userDisplayName": "Event Triggerer Display Name",
-      "targetUserName": "Event Target Username",
-      "targetDisplayUserName": "Event Target Display Name",
+      "userName": "Meno užívateľa, ktorý inicioval udalosť",
+      "userDisplayName": "Meno užívateľa, ktorý inicioval udalosť",
+      "targetUserName": "Vybraný používateľ",
+      "targetDisplayUserName": "Zobrazované meno vybraného používateľa",
       "subLevel": "Úrovne predplatného (napríklad \"1\"/\"2\"/\"3\"/\"prime\")",
       "resubMonths": "Dĺžka reťaze predplatitného",
-      "resubStreak": "Total Subscriber Months Count",
-      "resubMessage": "User Resubscription Message",
-      "rewardName": "Channel Points Reward Name",
+      "resubStreak": "Celkový počet mesiacov predplatného používateľa",
+      "resubMessage": "Správa používateľovi pri opätovnom zakúpení predplatného",
+      "rewardName": "Názov použitej odmeny",
       "rewardCost": "Channel Points Reward Price",
-      "rewardInput": "Channel Points Reward Custom Message",
+      "rewardInput": "Text uvedený v ocenení",
       "commandName": "Názov Príkazu",
       "commandInput": "Argumenty príkazu",
       "raidViewers": "Počet nájazdcov",
@@ -329,12 +329,12 @@
       "newStreamCategory": "Nová kategória streamu",
       "streamTitle": "Názov streamu",
       "streamCategory": "Kategória streamu",
-      "donateAmount": "Výška donate",
-      "donateCurrency": "Donate mena",
-      "donateMessage": "Donate správa",
+      "donateAmount": "Výška daru",
+      "donateCurrency": "Mena daru",
+      "donateMessage": "Darcovská správa",
       "keywordName": "Názov kľúčového slova",
       "keywordResponse": "Odpovede na kľúčové slovo (oddelené medzerou)",
-      "greetingText": "Greeting Message",
+      "greetingText": "Uvítacia správa",
       "pollTitle": "Názov ankety",
       "pollOptionsNames": "Nastavenia ankety (oddelené čiarkou)",
       "pollTotalVotes": "Celkový počet hlasov v ankete",
@@ -570,7 +570,7 @@
       "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
       "deniedUsers": "Banned Users",
       "deniedSongs": "Banned Songs List",
-      "takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
+      "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
         "minimalWatchTime": "Minimal Watch Time (in minutes)",
@@ -797,7 +797,7 @@
     "labels": {
       "followers": "Sledovatelia",
       "raids": "Nájazdy",
-      "donations": "Donaty",
+      "donations": "Dary",
       "subscriptions": "Predplatné",
       "rewards": "Odmeny",
       "firstUserMessage": "Prvá správa používateľa",
