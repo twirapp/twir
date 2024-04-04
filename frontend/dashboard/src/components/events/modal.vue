@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import { IconTrash, IconGripVertical, IconPlus } from '@tabler/icons-vue';
 import { EventOperationFilterType } from '@twir/types/events';
+import { toRef } from '@vueuse/core';
 import {
 	type FormInst,
 	type FormItemRule,
@@ -22,7 +24,6 @@ import {
 	NModal,
 } from 'naive-ui';
 import { computed, onMounted, ref, watch, nextTick } from 'vue';
-import { VueDraggableNext } from 'vue-draggable-next';
 import { useI18n } from 'vue-i18n';
 
 import {
@@ -217,8 +218,14 @@ const addOperation = () => {
 };
 
 const removeOperation = (index: number) => {
-	if (index === selectedOperationsTab.value) selectedOperationsTab.value = 0;
+	if (index === selectedOperationsTab.value) {
+		selectedOperationsTab.value = 0;
+	}
 	formValue.value.operations = formValue.value.operations.filter((_, i) => i != index);
+
+	if (!formValue.value.operations.length) {
+		currentOperation.value = null;
+	}
 };
 
 const eventsManager = useEventsManager();
@@ -288,6 +295,16 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 	label: item.toLowerCase().split('_').join(' '),
 	value: item,
 }));
+
+const operations = toRef(formValue.value, 'operations');
+watch(operations, (v) => console.log(v));
+
+const dragParentRef = ref<HTMLElement>();
+dragAndDrop({
+	parent: dragParentRef,
+	values: operations,
+	dragHandle: '.drag-handle',
+});
 </script>
 
 <template>
@@ -373,16 +390,16 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 
 		<n-space :wrap="false">
 			<n-space vertical class="h-full" :x-gap="5">
-				<VueDraggableNext v-model="formValue.operations">
+				<div ref="dragParentRef">
 					<div
 						v-for="(operation, operationIndex) of formValue.operations"
-						:key="operationIndex"
+						:key="operation.type+operationIndex"
 						style="display:flex; gap: 5px; margin-top: 5px; width: 100%; padding: 5px; border-radius: 11px;"
 						:style="{
 							'background-color': selectedOperationsTab === operationIndex ? selectedTabBackground : undefined,
 						}"
 					>
-						<n-button text>
+						<n-button text class="drag-handle">
 							<IconGripVertical class="w-4" />
 						</n-button>
 
@@ -403,7 +420,8 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 							/>
 						</n-button>
 					</div>
-				</VueDraggableNext>
+				</div>
+
 				<n-button
 					block
 					size="small"
@@ -638,7 +656,7 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 			</div>
 		</n-space>
 
-		<n-button block secondary type="success" class="mt-4" @click="save">
+		<n-button block secondary type="success" style="margin-top: 12px;" @click="save">
 			{{ t('sharedButtons.save') }}
 		</n-button>
 	</n-form>

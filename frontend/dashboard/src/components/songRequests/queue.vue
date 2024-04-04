@@ -1,27 +1,29 @@
 <script setup lang="ts">
+import { dragAndDrop } from '@formkit/drag-and-drop/vue';
 import {
 	IconTrash,
-	IconChevronUp,
-	IconChevronDown,
 	IconBan,
+	IconGripVertical,
 } from '@tabler/icons-vue';
 import {
-	type DataTableCreateSummary,
-	NDataTable,
-	NSpin,
-	NSpace,
-	NText,
 	NCard,
 	NButton,
 	NTime,
 	NPopconfirm,
 } from 'naive-ui';
-import type { TableColumn } from 'naive-ui/es/data-table/src/interface';
 import { storeToRefs } from 'pinia';
-import { h, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useYoutubeSocket, Video } from '@/components/songRequests/hook.js';
+import {
+	Table,
+	TableBody,
+	TableCell,
+	TableHead,
+	TableHeader,
+	TableRow,
+} from '@/components/ui/table';
 import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
 
 const socket = useYoutubeSocket();
@@ -29,186 +31,23 @@ const { videos } = storeToRefs(socket);
 
 const { t } = useI18n();
 
-const columns = computed<TableColumn<Video>[]>(() => [
-	{
-		title: '#',
-		key: 'position',
-		width: 50,
-		render(_, index) {
-			return index + 1;
-		},
-	},
-	{
-		title: t('sharedTexts.name'),
-		key: 'title',
-		ellipsis: true,
-		render(row) {
-			const banButton = h(
-				NPopconfirm,
-				{
-					onPositiveClick: () => socket.banSong(row.videoId),
-					positiveText: t('deleteConfirmation.confirm'),
-					negativeText: t('deleteConfirmation.cancel'),
-				},
-				{
-					trigger: () => h(NButton, {
-						text: true,
-						size: 'small',
-					}, {
-						default: () => h(IconBan),
-					}),
-					default: () => t('songRequests.ban.songConfirm'),
-				},
-			);
+const totalSongsLength = computed(() => {
+	return convertMillisToTime(videos.value.reduce((acc, cur) => acc + cur.duration * 1000, 0));
+});
 
-			return h(
-				'div',
-				{ class: 'flex items-center gap-1' },
-				[
-					banButton,
-					h(NButton, {
-						tag: 'a',
-						type: 'primary',
-						text: true,
-						target: '_blank',
-						href: row.songLink,
-					}, {
-						default: () => row.title,
-					}),
-				],
-			);
-		},
+const parentRef = ref<HTMLElement>();
+dragAndDrop({
+	parent: parentRef,
+	values: videos,
+	dragHandle: '.drag-handle',
+	draggable(child) {
+		return !child.classList.contains('no-drag');
 	},
-	{
-		title: t('songRequests.table.columns.author'),
-		key: 'author',
-		width: 300,
-		render(row) {
-			const banButton = h(
-				NPopconfirm,
-				{
-					onPositiveClick: () => socket.banUser(row.orderedById),
-					positiveText: t('deleteConfirmation.confirm'),
-					negativeText: t('deleteConfirmation.cancel'),
-				},
-				{
-					trigger: () => h(NButton, {
-						text: true,
-						size: 'small',
-					}, {
-						default: () => h(IconBan),
-					}),
-					default: () => t('songRequests.ban.userConfirm'),
-				},
-			);
-
-			return h(
-				'div',
-				{ class: 'flex items-center gap-1' },
-				[
-					banButton,
-					row.orderedByDisplayName || row.orderedByName,
-				],
-			);
-		},
+	handleEnd(data) {
+		const item = data.targetData.node.data.value as Video;
+		socket.moveVideo(item.id, data.targetData.node.data.index);
 	},
-	{
-		title: t('songRequests.table.columns.added'),
-		key: 'createdAt',
-		width: 150,
-		render(row) {
-			return h(NTime, {
-				time: 0,
-				to: Date.now() - new Date(row.createdAt).getTime(),
-				type: 'relative',
-			});
-		},
-	},
-	{
-		title: t('songRequests.table.columns.duration'),
-		key: 'duration',
-		width: 100,
-		render(row) {
-			return convertMillisToTime(row.duration * 1000);
-		},
-	},
-	{
-		title: '',
-		key: 'actions',
-		width: 150,
-		render(row, index) {
-			const deleteButton = h(
-				NButton,
-				{
-					size: 'tiny',
-					type: 'error',
-					text: true,
-					onClick: () => {
-						socket.deleteVideo(row.id);
-					},
-				}, {
-					default: () => h(IconTrash),
-				},
-			);
-
-			const moveUpButton = h(NButton, {
-				size: 'tiny',
-				type: 'primary',
-				text: true,
-				disabled: index === 0,
-				onClick: () => {
-					socket.moveVideo(row.id, index - 1);
-				},
-			}, {
-				default: () => h(IconChevronUp),
-			});
-
-			const moveDownButton = h(NButton, {
-				size: 'tiny',
-				type: 'primary',
-				text: true,
-				disabled: index + 1 === videos.value.length,
-				onClick: () => {
-					socket.moveVideo(row.id, index + 1);
-				},
-			}, {
-				default: () => h(IconChevronDown),
-			});
-
-			return h(NSpace, {
-				justify: 'center',
-				align: 'center',
-			}, {
-				default: () => [
-					deleteButton,
-					moveUpButton,
-					moveDownButton,
-				],
-			});
-		},
-	},
-]);
-
-const createSummary: DataTableCreateSummary<Video> = (pageData) => {
-	return {
-		position: {
-			value: h(
-				'span',
-				{ class: 'font-bold' },
-				pageData.length,
-			),
-			colSpan: 4,
-		},
-		duration: {
-			value: h(
-				'span',
-				{ class: 'font-bold' },
-				convertMillisToTime(pageData.reduce((acc, cur) => acc + cur.duration * 1000, 0)),
-			),
-			colSpan: 2,
-		},
-	};
-};
+});
 </script>
 
 <template>
@@ -223,22 +62,93 @@ const createSummary: DataTableCreateSummary<Video> = (pageData) => {
 				<IconTrash />
 			</n-button>
 		</template>
-		<n-data-table
-			:columns="columns"
-			:data="videos"
-			:loading="!videos.length"
-			:bordered="false"
-			:summary="createSummary"
-		>
-			<template #loading>
-				<n-space vertical align="center" class="mt-[50px]">
-					<n-spin :rotate="false" stroke="#959596">
-						<template #description>
-							<n-text>{{ t('songRequests.waiting') }}</n-text>
-						</template>
-					</n-spin>
-				</n-space>
-			</template>
-		</n-data-table>
+		<Table class="w-full">
+			<TableHeader>
+				<TableRow>
+					<TableHead class="w-[1%]"></TableHead>
+					<TableHead class="w-[5%]">
+						#
+					</TableHead>
+					<TableHead>Name</TableHead>
+					<TableHead>Author</TableHead>
+					<TableHead></TableHead>
+					<TableHead>
+						Duration
+					</TableHead>
+					<TableHead>
+						Actions
+					</TableHead>
+				</TableRow>
+			</TableHeader>
+			<TableBody ref="parentRef">
+				<TableRow v-for="(video, index) of videos" :key="video.id">
+					<TableCell>
+						<IconGripVertical class="w-4 drag-handle cursor-move" />
+					</TableCell>
+					<TableCell>
+						{{ index + 1 }}
+					</TableCell>
+					<TableCell>
+						<div class="flex items-center gap-2">
+							<span>{{ video.title }}</span>
+
+							<n-popconfirm
+								:positive-text="t('deleteConfirmation.confirm')"
+								:negative-text="t('deleteConfirmation.cancel')"
+								@positive-click="socket.banSong(video.videoId)"
+							>
+								<template #trigger>
+									<n-button size="tiny" text>
+										<IconBan />
+									</n-button>
+								</template>
+								{{ t('songRequests.ban.songConfirm') }}
+							</n-popconfirm>
+						</div>
+					</TableCell>
+					<TableCell>
+						<div class="flex items-center gap-2">
+							<span>{{ video.orderedByDisplayName || video.orderedByName }}</span>
+							<n-popconfirm
+								:positive-text="t('deleteConfirmation.confirm')"
+								:negative-text="t('deleteConfirmation.cancel')"
+								@positive-click="socket.banUser(video.orderedById)"
+							>
+								<template #trigger>
+									<n-button size="tiny" text>
+										<IconBan />
+									</n-button>
+								</template>
+								{{ t('songRequests.ban.userConfirm') }}
+							</n-popconfirm>
+						</div>
+					</TableCell>
+					<TableCell>
+						<n-time type="relative" :time="0" :to="Date.now() - new Date(video.createdAt).getTime()" />
+					</TableCell>
+					<TableCell>
+						{{ convertMillisToTime(video.duration * 1000) }}
+					</TableCell>
+					<TableCell>
+						<n-button size="tiny" type="error" text @click="socket.deleteVideo(video.id)">
+							<IconTrash />
+						</n-button>
+					</TableCell>
+				</TableRow>
+				<TableRow class="no-drag">
+					<TableCell></TableCell>
+					<TableCell>
+						{{ videos.length }}
+					</TableCell>
+					<TableCell></TableCell>
+					<TableCell></TableCell>
+					<TableCell></TableCell>
+					<TableCell>
+						{{ totalSongsLength }}
+					</TableCell>
+					<TableCell></TableCell>
+				</TableRow>
+			</TableBody>
+		</Table>
 	</n-card>
 </template>
