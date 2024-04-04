@@ -12,6 +12,7 @@ export const useAdminNotifications = () => createCrudManager({
 	getAll: adminApiClient.notificationsGetAll,
 	getOne: null,
 	patch: null,
+	invalidateAdditionalQueries: ['protected/notifications'],
 });
 
 export const useProtectedNotifications = () => useQuery({
