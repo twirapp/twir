@@ -1,110 +1,118 @@
 <script setup lang="ts">
-import { type FormInst, type SelectOption, NCard, NFormItem, NButton, NInput, NSpace, NSwitch, NSelect, NAvatar, NText, SelectRenderTag } from 'naive-ui';
-import { ref } from 'vue';
-import { computed, h } from 'vue';
+import { toTypedSchema } from '@vee-validate/zod';
+import { ChevronDownIcon, XIcon } from 'lucide-vue-next';
+import { NCard } from 'naive-ui';
+import { SelectIcon } from 'radix-vue';
+import { useForm } from 'vee-validate';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import * as z from 'zod';
 
+import { useAdminNotifications } from '@/api/notifications';
 import { useStreamers } from '@/api/streamers';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+	SelectTriggerWithoutChevron,
+  SelectValue,
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 const { t } = useI18n();
 
-interface StreamerOption {
-	label: string
-	value: string
-	followers: number
-	avatar: string
-}
+const notifications = useAdminNotifications();
 
 const { data: streamers } = useStreamers();
-const streamersOptions = computed<SelectOption[]>(() => {
+const streamersOptions = computed(() => {
 	if (!streamers.value?.streamers) return [];
-	return streamers.value.streamers.map((streamer) => ({
-		label: streamer.userDisplayName,
-		value: streamer.userId,
-		followers: streamer.followersCount,
-		avatar: streamer.avatar,
-	}));
+	return streamers.value.streamers;
 });
 
-const renderLabel = (option: StreamerOption) => {
-	return h('div', { class: 'flex items-center' },
-		[
-			h(NAvatar, {
-				src: option.avatar,
-				round: true,
-				size: 'small',
-			}),
-			h('div', { class: 'ml-3 py-1' }, [
-				h('div', null, [option.label]),
-				h(NText, { depth: 3, tag: 'div' }, { default: () => `${option.followers} followers` }),
-			]),
-		],
-	);
-};
+const formSchema = toTypedSchema(z.object({
+  userId: z.string().optional(),
+	message: z.string(),
+}));
 
-const renderSingleSelectTag: SelectRenderTag = ({ option }) => {
-	return h(
-		'div',
-		{ class: 'flex items-center' },
-		[
-			h(NAvatar, {
-				src: option.avatar as string,
-				round: true,
-				size: 24,
-				class: 'mr-3',
-			}),
-			option.label as string,
-		],
-	);
-};
-
-const isUserMessage = ref(false);
-const formRef = ref<FormInst | null>(null);
-
-type FormParams = {
-	userId?: string;
-	message: string;
-	url?: string
-};
-
-const formData = ref<FormParams>({
-	userId: undefined,
-	message: '',
-	url: undefined,
+const form = useForm({
+  validationSchema: formSchema,
 });
 
-async function sendNotification() {
-	await formRef.value?.validate();
-	// TODO: api
+const onSubmit = form.handleSubmit(async (values) => {
+  await notifications.create.mutateAsync(values);
+	form.resetForm();
+});
+
+function onResetUserId(event: Event): void {
+	event.stopPropagation();
+	form.resetField('userId');
 }
 </script>
 
 <template>
 	<n-card :title="t('adminPanel.notifications.createNotification')" size="small" bordered>
-		<n-form-item>
-			<n-space align="center" class="flex">
-				<n-select
-					v-model:value="formData.userId" :render-label="renderLabel"
-					:render-tag="renderSingleSelectTag"
-					:disabled="!isUserMessage" filterable placeholder="Select a streamer"
-					:options="streamersOptions"
-				/>
-				<n-switch v-model:value="isUserMessage" />
-			</n-space>
-		</n-form-item>
+		<form class="flex flex-col gap-4" @submit="onSubmit">
+			<FormField v-slot="{ componentField }" name="userId">
+				<FormItem>
+					<FormLabel>User</FormLabel>
 
-		<n-form-item :label="t('adminPanel.notifications.messageLabel')">
-			<n-input v-model:value="formData.message" type="textarea" placeholder="" :autosize="{ minRows: 3 }" />
-		</n-form-item>
+					<Select v-bind="componentField">
+						<FormControl>
+							<SelectTriggerWithoutChevron>
+								<SelectValue placeholder="Select a user" />
 
-		<n-form-item :label="t('adminPanel.notifications.urlLabel')">
-			<n-input v-model:value="formData.url" type="text" placeholder="" />
-		</n-form-item>
+								<SelectIcon>
+									<ChevronDownIcon v-if="!componentField.modelValue" class="w-5 h-5 opacity-50" />
+									<XIcon v-else class="w-5 h-5 opacity-50" @pointerdown="onResetUserId" />
+								</SelectIcon>
+							</SelectTriggerWithoutChevron>
+						</FormControl>
+						<SelectContent :hide-when-detached="true">
+							<SelectGroup>
+								<SelectItem v-for="streamer of streamersOptions" :key="streamer.userId" :value="streamer.userId">
+									<div class="flex items-center gap-2">
+										<Avatar class="h-6 w-6">
+											<AvatarImage :src="streamer.avatar" :alt="streamer.userDisplayName" loading="lazy" />
+											<AvatarFallback>{{ streamer.userLogin.charAt(0).toUpperCase() }}</AvatarFallback>
+										</Avatar>
+										<span>{{ streamer.userDisplayName }}</span>
+									</div>
+								</SelectItem>
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</FormItem>
+			</FormField>
 
-		<div class="flex justify-end">
-			<n-button secondary type="success" @click="sendNotification">
-				{{ t('sharedButtons.send') }}
-			</n-button>
-		</div>
+			<FormField v-slot="{ componentField }" name="message">
+				<FormItem>
+					<FormLabel>Message</FormLabel>
+					<FormControl>
+						<Textarea
+							placeholder=""
+							class="resize-none"
+							v-bind="componentField"
+						/>
+					</FormControl>
+					<FormMessage />
+				</FormItem>
+			</FormField>
+
+			<div class="flex justify-end">
+				<Button class="" type="submit">
+					Submit
+				</Button>
+			</div>
+		</form>
 	</n-card>
 </template>

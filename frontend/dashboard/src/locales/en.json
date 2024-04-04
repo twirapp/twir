@@ -897,6 +897,7 @@
 		"notifications": {
 			"title": "Notifications",
 			"createNotification": "Create a new notification",
+			"emptyNotifications": "No notifications",
 			"messageLabel": "Message",
 			"urlLabel": "Click URL (optional)"
 		},

@@ -24,6 +24,7 @@
     "@twir/frontend-now-playing": "workspace:*",
     "@twir/types": "workspace:*",
     "@types/lodash.chunk": "4.2.9",
+    "@vee-validate/zod": "4.12.6",
     "@vueuse/components": "10.7.2",
     "@vueuse/core": "10.7.2",
     "@vueuse/router": "10.9.0",
@@ -42,11 +43,13 @@
     "radix-vue": "1.4.6",
     "tailwind-merge": "2.2.1",
     "tailwindcss-animate": "1.0.7",
+    "vee-validate": "4.12.6",
     "vue": "3.4.18",
     "vue-draggable-next": "2.2.1",
     "vue-i18n": "9.9.0",
     "vue-router": "4.2.5",
-    "vue3-moveable": "0.28.0"
+    "vue3-moveable": "0.28.0",
+    "zod": "3.22.4"
   },
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "2.0.0",

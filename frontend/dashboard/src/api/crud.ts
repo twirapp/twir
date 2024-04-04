@@ -8,7 +8,7 @@ type CallFunc<
 	Res extends Record<any, any>
 > = (input: Req, options?: RpcOptions) => UnaryCall<Req, Res>;
 
-const createCrudManager = <
+export const createCrudManager = <
 	GetAll extends CallFunc<any, any>,
 	GetOne extends CallFunc<any, any>,
 	Delete extends CallFunc<any, any>,

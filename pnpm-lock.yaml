@@ -194,6 +194,9 @@ importers:
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
+      '@vee-validate/zod':
+        specifier: 4.12.6
+        version: 4.12.6(vue@3.4.18)
       '@vueuse/components':
         specifier: 10.7.2
         version: 10.7.2(vue@3.4.18)
@@ -248,6 +251,9 @@ importers:
       tailwindcss-animate:
         specifier: 1.0.7
         version: 1.0.7(tailwindcss@3.4.1)
+      vee-validate:
+        specifier: 4.12.6
+        version: 4.12.6(vue@3.4.18)
       vue:
         specifier: 3.4.18
         version: 3.4.18(typescript@5.3.3)
@@ -263,6 +269,9 @@ importers:
       vue3-moveable:
         specifier: 0.28.0
         version: 0.28.0
+      zod:
+        specifier: 3.22.4
+        version: 3.22.4
     devDependencies:
       '@intlify/unplugin-vue-i18n':
         specifier: 2.0.0
@@ -1009,7 +1018,6 @@ packages:
   /@babel/helper-plugin-utils@7.24.0:
     resolution: {integrity: sha512-9cUznXMG0+FxRuJfvL82QlTqIzhVW9sL0KjMPHhAOOvpQGL8QtdxnBKILjBqxlHyliz0yCa1G903ZXI/FuHy2w==}
     engines: {node: '>=6.9.0'}
-    dev: true
 
   /@babel/helper-replace-supers@7.22.20(@babel/core@7.23.9):
     resolution: {integrity: sha512-qsW0In3dbwQUbK8kejJ4R7IHVGwHJlV6lpG6UA7a9hSa2YEiAib+N1T2kr6PEeUT+Fl7najmSOS6SmAwCHK6Tw==}
@@ -1136,16 +1144,6 @@ packages:
     dependencies:
       '@babel/types': 7.24.0
 
-  /@babel/plugin-syntax-jsx@7.23.3(@babel/core@7.23.7):
-    resolution: {integrity: sha512-EB2MELswq55OHUoRZLGg/zC7QWUKfNLpE57m/S2yr1uEneIgsTgrSzXP3NXEsMkVn76OlaVVnzN+ugObuYGwhg==}
-    engines: {node: '>=6.9.0'}
-    peerDependencies:
-      '@babel/core': ^7.0.0-0
-    dependencies:
-      '@babel/core': 7.23.7
-      '@babel/helper-plugin-utils': 7.22.5
-    dev: false
-
   /@babel/plugin-syntax-jsx@7.23.3(@babel/core@7.23.9):
     resolution: {integrity: sha512-EB2MELswq55OHUoRZLGg/zC7QWUKfNLpE57m/S2yr1uEneIgsTgrSzXP3NXEsMkVn76OlaVVnzN+ugObuYGwhg==}
     engines: {node: '>=6.9.0'}
@@ -1164,6 +1162,16 @@ packages:
     dependencies:
       '@babel/core': 7.24.3
       '@babel/helper-plugin-utils': 7.22.5
+    dev: false
+
+  /@babel/plugin-syntax-jsx@7.24.1(@babel/core@7.23.7):
+    resolution: {integrity: sha512-2eCtxZXf+kbkMIsXS4poTvT4Yu5rXiRa+9xGVT56raghjmBTKMpFNc9R4IDiB4emao9eO22Ox7CxuJG7BgExqA==}
+    engines: {node: '>=6.9.0'}
+    peerDependencies:
+      '@babel/core': ^7.0.0-0
+    dependencies:
+      '@babel/core': 7.23.7
+      '@babel/helper-plugin-utils': 7.24.0
     dev: false
 
   /@babel/plugin-syntax-jsx@7.24.1(@babel/core@7.24.3):
@@ -1216,8 +1224,8 @@ packages:
       '@babel/core': 7.23.7
       '@babel/helper-annotate-as-pure': 7.22.5
       '@babel/helper-module-imports': 7.22.15
-      '@babel/helper-plugin-utils': 7.22.5
-      '@babel/plugin-syntax-jsx': 7.23.3(@babel/core@7.23.7)
+      '@babel/helper-plugin-utils': 7.24.0
+      '@babel/plugin-syntax-jsx': 7.24.1(@babel/core@7.23.7)
       '@babel/types': 7.23.6
     dev: false
 
@@ -3698,6 +3706,16 @@ packages:
 
   /@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==}
+
+  /@vee-validate/zod@4.12.6(vue@3.4.18):
+    resolution: {integrity: sha512-LCP/hBWRyOgciwxVYvh4UrowVOJT/v5rJvUKCqEn+4ccx3bNtjVlOI4OvA6T1esg7LvmgseQiNQRxUvE2Pn9ng==}
+    dependencies:
+      type-fest: 4.15.0
+      vee-validate: 4.12.6(vue@3.4.18)
+      zod: 3.22.4
+    transitivePeerDependencies:
+      - vue
+    dev: false
 
   /@vexip-ui/hooks@1.11.4(vue@3.4.18):
     resolution: {integrity: sha512-ozxhrCGAHRE0hNwjQzvS8OZdmm2SAWELiGx6qDDaGz7KCDWxph99Sccl2eYoBHTRxfTyhIH1Xu84NbtcnJx0dQ==}
@@ -10272,6 +10290,11 @@ packages:
     engines: {node: '>=14.16'}
     dev: false
 
+  /type-fest@4.15.0:
+    resolution: {integrity: sha512-tB9lu0pQpX5KJq54g+oHOLumOx+pMep4RaM6liXh2PKmVRFF+/vAtUP0ZaJ0kOySfVNjF6doBWPHhBhISKdlIA==}
+    engines: {node: '>=16'}
+    dev: false
+
   /typed-array-buffer@1.0.0:
     resolution: {integrity: sha512-Y8KTSIglk9OZEr8zywiIHG/kmQ7KWyjseXs1CbSo8vC42w7hg2HgYTxSWwP0+is7bWDc1H+Fo026CpHFwm8tkw==}
     engines: {node: '>= 0.4'}
@@ -10514,6 +10537,16 @@ packages:
       vue: ^3.0.11
     dependencies:
       evtd: 0.2.4
+      vue: 3.4.18(typescript@5.3.3)
+    dev: false
+
+  /vee-validate@4.12.6(vue@3.4.18):
+    resolution: {integrity: sha512-EKM3YHy8t1miPh30d5X6xOrfG/Ctq0nbN4eMpCK7ezvI6T98/S66vswP+ihL4QqAK/k5KqreWOxof09+JG7N/A==}
+    peerDependencies:
+      vue: ^3.3.11
+    dependencies:
+      '@vue/devtools-api': 6.6.1
+      type-fest: 4.15.0
       vue: 3.4.18(typescript@5.3.3)
     dev: false
 

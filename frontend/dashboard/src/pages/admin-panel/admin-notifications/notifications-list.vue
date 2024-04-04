@@ -5,13 +5,15 @@ import {
 	getCoreRowModel,
 	useVueTable,
 } from '@tanstack/vue-table';
-import { addZero } from '@zero-dependency/utils';
+import { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { useThemeVars } from 'naive-ui';
 import { computed, h } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import ActionsButton from './actions-button.vue';
 import CreatedAtCell from './created-at-cell.vue';
 
+import { useAdminNotifications } from '@/api/notifications';
 import { Button } from '@/components/ui/button';
 import {
 	Table,
@@ -22,19 +24,16 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 
-interface Notification {
-	id: number
-	message: string
-	url?: string
-	createdAt: Date
-}
-
+const { t } = useI18n();
 const themeVars = useThemeVars();
+
+const notificationsCrud = useAdminNotifications();
+const notifications = notificationsCrud.getAll({});
 
 const columns: ColumnDef<Notification>[] = [
 	{
 		accessorKey: 'message',
-		size: 90,
+		size: 80,
 		header: () => h('div', {}, 'Message'),
 		cell: ({ row }) => {
 			return h('span', row.original.message);
@@ -45,42 +44,48 @@ const columns: ColumnDef<Notification>[] = [
 		size: 5,
 		header: () => h('div', {}, 'Created At'),
 		cell: ({ row }) => {
-			return h(CreatedAtCell, { time: row.original.createdAt });
+			return h(CreatedAtCell, { time: new Date(row.original.createdAt) });
 		},
 	},
 	{
 		accessorKey: 'actions',
-		size: 5,
+		size: 10,
 		header: () => '',
 		cell: ({ row }) => {
-			return h(ActionsButton, { notificationId: row.original.id });
+			return h(ActionsButton, {
+				onDelete: () => onDeleteNotification(row.original.id),
+				onEdit: () => onEditNotification(row.original.id),
+			});
 		},
 	},
 ];
 
-const tableNotifications = computed<Notification[]>(() => {
-	return Array.from({ length: 20 }, (_, id) => ({
-		id: id++,
-		message: 'orem Ipsum - это текст-"рыба", часто используемый в печати и вэб-дизайне. Lorem Ipsum является стандартной "рыбой" для текстов на латинице с начала XVI века.',
-		url: 'https://twir.app',
-		createdAt: new Date(`2024-04-02T${id < 10 ? addZero(id) : id}:48:40.096Z`),
-	}));
+const notificationsList = computed<Notification[]>(() => {
+	return notifications.data.value?.notifications ?? [];
 });
 
 const table = useVueTable({
 	get data() {
-		return tableNotifications.value;
+		return notificationsList.value;
 	},
 	get columns() {
 		return columns;
 	},
 	getCoreRowModel: getCoreRowModel(),
 });
+
+async function onDeleteNotification(notificationId: string) {
+	console.log(notificationId);
+}
+
+async function onEditNotification(notificationId: string) {
+
+}
 </script>
 
 <template>
 	<div
-		class="flex-wrap border rounded-md" :style="{
+		class="flex-wrap w-full border rounded-md" :style="{
 			backgroundColor: themeVars.cardColor,
 			color: themeVars.textColor2
 		}"
@@ -116,7 +121,7 @@ const table = useVueTable({
 				<template v-else>
 					<TableRow>
 						<TableCell :colSpan="columns.length" class="h-24 text-center">
-							No streamers
+							{{ t('adminPanel.notifications.emptyNotifications') }}
 						</TableCell>
 					</TableRow>
 				</template>
