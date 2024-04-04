@@ -5,6 +5,7 @@ import (
 
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/notifications"
 	google_protobuf "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -22,10 +23,11 @@ func (c *Notifications) NotificationsGetAll(
 		return nil, err
 	}
 
-	entities := []*notifications.Notification{}
+	entities := []model.Notifications{}
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`"userId" = ? OR "userId" IS NULL`, user.ID).
+		Order(`"createdAt" DESC`).
 		Find(&entities).
 		Error; err != nil {
 		return nil, err
@@ -36,8 +38,9 @@ func (c *Notifications) NotificationsGetAll(
 		convertedNotifications = append(
 			convertedNotifications,
 			&notifications.Notification{
-				Id:      entity.Id,
-				Message: entity.Message,
+				Id:        entity.ID,
+				Message:   entity.Message,
+				CreatedAt: entity.CreatedAt.UTC().String(),
 			},
 		)
 	}

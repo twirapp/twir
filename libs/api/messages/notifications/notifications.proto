@@ -5,6 +5,7 @@ package messages.notifications;
 message Notification  {
 	string id = 1;
 	string message = 2;
+	string created_at = 3;
 }
 
 message NotificationsGetAllResponse {
