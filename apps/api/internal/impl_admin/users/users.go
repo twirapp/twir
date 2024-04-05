@@ -94,6 +94,10 @@ func (c *Users) GetUsers(
 		query = query.Where(`"users"."isBotAdmin" = ?`, *req.IsAdmin)
 	}
 
+	if req.IsBanned != nil {
+		query = query.Where(`"Channel"."isBanned" = ?`, *req.IsBanned)
+	}
+
 	if err := query.Find(&users).Error; err != nil {
 		return nil, err
 	}

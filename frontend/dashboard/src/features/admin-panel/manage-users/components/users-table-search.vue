@@ -1,82 +1,122 @@
 <script setup lang="ts">
-import { SearchIcon } from 'lucide-vue-next';
-import { Check, ChevronsUpDown } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { CheckIcon } from 'lucide-vue-next';
+import { storeToRefs } from 'pinia';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useUsersTable } from '../composables/use-users-table';
 
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-  Command,
-  CommandGroup,
-  CommandItem,
-  CommandList,
+	Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
 } from '@/components/ui/command';
-import { Input } from '@/components/ui/input';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 const { t } = useI18n();
 const usersTable = useUsersTable();
-const open = ref(false);
+
+const { selectFilters } = storeToRefs(usersTable);
+const selectedValuesCount = computed(() => Object.values(selectFilters.value).flat().filter(Boolean).length);
+
+function clearFilters() {
+	Object.keys(selectFilters.value).forEach((key) => {
+		selectFilters.value[key] = undefined;
+	});
+}
+
+function setFilterValue(key: string) {
+	if (selectFilters.value[key]) {
+		selectFilters.value[key] = undefined;
+		return;
+	}
+	selectFilters.value[key] = true;
+}
 </script>
 
 <template>
-	<div class="flex gap-2 max-sm:w-full">
-		<div class="relative w-full items-center">
-			<Input v-model="usersTable.searchInput" type="text" :placeholder="t('sharedTexts.searchPlaceholder')" class="pl-10" />
-			<span class="absolute start-2 inset-y-0 flex items-center justify-center px-2">
-				<SearchIcon class="size-4 text-muted-foreground" />
-			</span>
-		</div>
-		<Popover v-model:open="open">
-			<PopoverTrigger as-child>
-				<Button
-					variant="outline"
-					role="combobox"
-					:aria-expanded="open"
-					class="w-[200px] justify-between"
-				>
-					Select filters...
-					<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
-				</Button>
-			</PopoverTrigger>
-			<PopoverContent class="w-[200px] p-0">
-				<Command multiple>
-					<CommandList>
+	<Popover>
+		<PopoverTrigger as-child>
+			<Button variant="outline" size="sm" class="h-8 border-dashed">
+				<PlusCircledIcon class="mr-2 h-4 w-4" />
+				filters
+
+				<template v-if="selectedValuesCount">
+					<Separator orientation="vertical" class="mx-2 h-4" />
+					<Badge
+						variant="secondary"
+						class="rounded-sm px-1 font-normal lg:hidden"
+					>
+						{{ selectedValuesCount }}
+					</Badge>
+					<div class="hidden space-x-1 lg:flex">
+						<Badge
+							v-if="selectedValuesCount"
+							variant="secondary"
+							class="rounded-sm px-1 font-normal"
+						>
+							{{ selectedValuesCount }} selected
+						</Badge>
+
+						<template v-else>
+							<Badge
+								v-for="filterKey in Object.keys(selectFilters)"
+								:key="filterKey"
+								variant="secondary"
+								class="rounded-sm px-1 font-normal"
+							>
+								{{ filterKey }}
+							</Badge>
+						</template>
+					</div>
+				</template>
+			</Button>
+		</PopoverTrigger>
+		<PopoverContent class="w-[200px] p-0" align="start">
+			<Command>
+				<CommandInput placeholder="qweqweqweqwe" />
+				<CommandList>
+					<CommandEmpty>No results found.</CommandEmpty>
+					<CommandGroup>
+						<CommandItem
+							v-for="filterKey in Object.keys(selectFilters)"
+							:key="filterKey"
+							:value="filterKey"
+							@select="setFilterValue(filterKey)"
+						>
+							<div
+								:class="cn(
+									'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+									selectFilters[filterKey]
+										? 'bg-primary text-primary-foreground'
+										: 'opacity-50 [&_svg]:invisible',
+								)"
+							>
+								<CheckIcon :class="cn('h-4 w-4')" />
+							</div>
+							<span>{{ filterKey }}</span>
+						</CommandItem>
+					</CommandGroup>
+
+					<template v-if="selectedValuesCount">
+						<CommandSeparator />
 						<CommandGroup>
 							<CommandItem
-								v-for="filter in usersTable.searchFilters"
-								:key="filter.value"
-								:value="filter.value"
-								@select="(ev) => {
-									const value = ev.detail.value;
-									if (typeof value === 'string') {
-										if (usersTable.selectedFilters[value]) {
-											usersTable.selectedFilters[value] = undefined;
-										} else {
-											usersTable.selectedFilters[value] = true;
-										}
-									}
-								}"
+								:value="{ label: 'Clear filters' }"
+								class="justify-center text-center"
+								@select="clearFilters"
 							>
-								{{ filter.label }}
-								<Check
-									:class="cn(
-										'ml-auto h-4 w-4',
-										usersTable.selectedFilters[filter.value] ? 'opacity-100' : 'opacity-0',
-									)"
-								/>
+								Clear filters
 							</CommandItem>
 						</CommandGroup>
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
-	</div>
+					</template>
+				</CommandList>
+			</Command>
+		</PopoverContent>
+	</Popover>
 </template>

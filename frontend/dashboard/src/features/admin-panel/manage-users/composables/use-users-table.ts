@@ -1,10 +1,8 @@
-import {
-	type ColumnDef,
-	getCoreRowModel,
-	useVueTable,
-	getPaginationRowModel,
-} from '@tanstack/vue-table';
-import type { UsersGetRequest, UsersGetResponse_UsersGetResponseUser as User } from '@twir/api/messages/admin_users/admin_users';
+import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import type {
+	UsersGetRequest,
+	UsersGetResponse_UsersGetResponseUser as User,
+} from '@twir/api/messages/admin_users/admin_users';
 import { defineStore } from 'pinia';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -17,20 +15,19 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
 
 	const searchInput = ref('');
-	const searchFilters = [
-		{ value: 'isAdmin', label: 'Admin' },
-		{ value: 'isBotEnabled', label: 'Bot enabled' },
-	];
-	const selectedFilters = ref<Record<string, true | undefined>>({
+	const selectFilters = ref<Record<string, boolean | undefined>>({
 		isAdmin: undefined,
 		isBotEnabled: undefined,
+		isBanned: undefined,
 	});
+
 	const pagination = ref({
 		pageIndex: 0,
 		pageSize: 10,
 	});
+
 	const tableParams = computed<UsersGetRequest>(() => ({
-		...selectedFilters.value,
+		...selectFilters.value,
 		search: searchInput.value,
 		page: pagination.value.pageIndex,
 		perPage: pagination.value.pageSize,
@@ -44,8 +41,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	});
 
 	const pageCount = computed(() => {
-		if (!data.value) return 0;
-		return data.value.total;
+		return Math.ceil((data.value?.total ?? 0 )/ pagination.value.pageSize);
 	});
 
 	const tableColumns = computed<ColumnDef<User>[]>(() => [
@@ -90,9 +86,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	]);
 
 	const table = useVueTable({
-		pageCount: pageCount.value,
+		get pageCount() {
+			return pageCount.value;
+		},
 		state: {
-			pagination: pagination.value,
+			get pagination() {
+				return pagination.value;
+			},
 		},
 		get data() {
 			return users.value;
@@ -101,14 +101,17 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			return tableColumns.value;
 		},
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
+		onPaginationChange: (updater) => {
+			pagination.value = updater instanceof Function
+				? updater(pagination.value)
+				: updater;
+		},
 	});
 
 	return {
 		table,
 		tableColumns,
 		searchInput,
-		searchFilters,
-		selectedFilters,
+		selectFilters,
 	};
 });

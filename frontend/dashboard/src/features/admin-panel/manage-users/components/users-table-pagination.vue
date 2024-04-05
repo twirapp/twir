@@ -12,10 +12,12 @@ const { t } = useI18n();
 <template>
 	<div class="flex items-center justify-end space-x-2 py-4">
 		<div class="flex-1 text-sm text-muted-foreground">
-			{{ t('sharedTexts.pagination', {
-				page: usersTable.table.getState().pagination.pageIndex + 1,
-				total: usersTable.table.getPageCount()
-			}) }}
+			{{
+				t('sharedTexts.pagination', {
+					page: usersTable.table.getState().pagination.pageIndex + 1,
+					total: usersTable.table.getPageCount()
+				})
+			}}
 		</div>
 		<div class="space-x-2">
 			<Button
