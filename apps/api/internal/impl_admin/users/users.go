@@ -83,14 +83,15 @@ func (c *Users) GetUsers(
 		WithContext(ctx).
 		Limit(int(perPage)).
 		Offset(int(page * perPage)).
+		Order("id DESC").
 		Joins("Channel")
 
 	if req.IsBotEnabled != nil {
-		query = query.Where(`"Channel"."isEnabled" = ?`, req.IsBotEnabled)
+		query = query.Where(`"Channel"."isEnabled" = ?`, *req.IsBotEnabled)
 	}
 
 	if req.IsAdmin != nil {
-		query = query.Where(`"users"."isBotAdmin" = ?`, req.IsAdmin)
+		query = query.Where(`"users"."isBotAdmin" = ?`, *req.IsAdmin)
 	}
 
 	if err := query.Find(&users).Error; err != nil {
