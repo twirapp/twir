@@ -11,7 +11,7 @@ const formSchema = toTypedSchema(z.object({
 	message: z.string(),
 }));
 
-export const useNotificationsForm = defineStore('notifications-form', () => {
+export const useNotificationsForm = defineStore('admin-panel/notifications-form', () => {
 	const editableMessageId = ref<string | null>(null);
 	const isEditableForm = computed(() => Boolean(editableMessageId.value));
 	const notifications = useAdminNotifications();
@@ -33,9 +33,14 @@ export const useNotificationsForm = defineStore('notifications-form', () => {
 		onReset();
 	});
 
-	function onReset() {
+	function onReset(): void {
 		form.resetForm();
 		editableMessageId.value = null;
+	}
+
+	function resetFieldUserId(event: Event): void {
+		event.stopPropagation();
+		form.resetField('userId');
 	}
 
 	return {
@@ -44,5 +49,6 @@ export const useNotificationsForm = defineStore('notifications-form', () => {
 		editableMessageId,
 		onSubmit,
 		onReset,
+		resetFieldUserId,
 	};
 });

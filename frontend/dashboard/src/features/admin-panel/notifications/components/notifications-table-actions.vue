@@ -23,7 +23,7 @@ const showDelete = ref(false);
 		</Button>
 	</div>
 
-	<DeleteConfirm
+	<delete-confirm
 		v-model:open="showDelete"
 		@confirm="emits('delete')"
 	/>

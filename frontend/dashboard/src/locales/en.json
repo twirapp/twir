@@ -17,7 +17,10 @@
     "setDefaultSettings": "Set Default Settings",
 		"goToDashboard": "Go to Dashboard",
 		"add": "Add",
-		"send": "Send"
+		"send": "Send",
+		"next": "Next",
+		"previous": "Previous",
+		"reset": "Reset"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -38,7 +41,9 @@
     "updated": "Updated",
     "disabled": "Disabled",
 		"setDefaultSettings": "Are you sure you want to set default settings?",
-		"placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
+		"pagination": "{page} of {total} page(s)",
+		"searchPlaceholder": "Search..."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -752,7 +757,6 @@
       },
       "total": "Total users: {total}",
       "reset": {
-        "button": "Reset",
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
     }
@@ -901,17 +905,17 @@
 			"emptyNotifications": "No notifications",
 			"userLabel": "User",
 			"userPlaceholder": "Select a user",
-			"messageLabel": "Message",
-			"resetButton": "Reset",
-			"sendButton": "Send",
-			"next": "Next",
-			"previous": "Previous",
-			"pageCount": "{page} of {total} page(s)",
+			"message": "Message",
+			"createdAt": "Created At",
 			"globals": "Globals",
 			"users": "Users"
 		},
-		"users": {
-			"title": "Users"
+		"manageUsers": {
+			"title": "Users",
+			"user": "User",
+			"userId": "User ID",
+			"followers": "Followers",
+			"noUsers": "No users"
 		}
 	}
 }

@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import AdminManageUsers from './admin-manage-users/admin-manage-users.vue';
-import AdminNotifications from './admin-notifications/admin-notifications.vue';
-
+import AdminManageUsers from '@/features/admin-panel/manage-users/manage-users.vue';
+import AdminNotifications from '@/features/admin-panel/notifications/notifications.vue';
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue';
 
 const { t } = useI18n();
@@ -16,7 +15,7 @@ const pageTabs: PageLayoutTab[] = [
 	},
 	{
 		name: 'user-roles',
-		title: t('adminPanel.users.title'),
+		title: t('adminPanel.manageUsers.title'),
 		component: AdminManageUsers,
 	},
 ];

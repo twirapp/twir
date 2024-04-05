@@ -6,8 +6,8 @@ import { SelectIcon } from 'radix-vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useNotificationsForm } from './use-notifications-form';
-import { useTextarea, textareaButtons } from './use-textarea';
+import { useNotificationsForm } from '../composables/use-notifications-form.js';
+import { useTextarea, textareaButtons } from '../composables/use-textarea.js';
 
 import { useStreamers } from '@/api/streamers';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -47,11 +47,6 @@ const streamersOptions = computed(() => {
 	if (!streamers.value?.streamers) return [];
 	return streamers.value.streamers;
 });
-
-function resetFieldUserId(event: Event): void {
-	event.stopPropagation();
-	notificationsForm.form.resetField('userId');
-}
 </script>
 
 <template>
@@ -68,7 +63,7 @@ function resetFieldUserId(event: Event): void {
 
 								<SelectIcon>
 									<ChevronDownIcon v-if="!componentField.modelValue" class="w-5 h-5 opacity-50" />
-									<XIcon v-else class="w-5 h-5 opacity-50" @pointerdown="resetFieldUserId" />
+									<XIcon v-else class="w-5 h-5 opacity-50" @pointerdown="notificationsForm.resetFieldUserId" />
 								</SelectIcon>
 							</SelectTriggerWithoutChevron>
 						</FormControl>
@@ -127,10 +122,10 @@ function resetFieldUserId(event: Event): void {
 
 			<div class="flex justify-end gap-4">
 				<Button type="button" variant="secondary" @click="notificationsForm.onReset">
-					{{ t('adminPanel.notifications.resetButton') }}
+					{{ t('sharedButtons.reset') }}
 				</Button>
 				<Button type="submit">
-					{{ t('adminPanel.notifications.sendButton') }}
+					{{ t('sharedButtons.send') }}
 				</Button>
 			</div>
 		</form>

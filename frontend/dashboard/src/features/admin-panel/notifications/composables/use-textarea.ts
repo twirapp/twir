@@ -82,7 +82,7 @@ export const textareaButtons: TextareaButton[] = [
 	},
 ];
 
-export const useTextarea = defineStore('wysiwyg-textarea', () => {
+export const useTextarea = defineStore('admin-panel/textarea', () => {
 	const notificationForm = useNotificationsForm();
 	const textareaRef = ref<{ $el: HTMLTextAreaElement }>();
 
@@ -99,7 +99,6 @@ export const useTextarea = defineStore('wysiwyg-textarea', () => {
 		const mod = TEXTAREA_MODIFIERS[modifier];
 		if (!mod) {
 			throw new Error('Modifier not implemented');
-			return;
 		}
 
 		const { start, end } = getCursorPosition();
