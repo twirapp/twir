@@ -51,10 +51,14 @@ var MigrateCmd = &cli.Command{
 
 		log.SetOutput(&emptyLogWriter{})
 
-		if err := goose.Up(
-			db, migrationsDir,
-			goose.WithAllowMissing(),
-		); err != nil {
+		provider, err := goose.NewProvider(
+			goose.DialectPostgres,
+			db,
+			os.DirFS(migrationsDir),
+			goose.WithAllowOutofOrder(true),
+		)
+
+		if _, err := provider.Up(c.Context); err != nil {
 			pterm.Error.Println(err)
 			return err
 		}
