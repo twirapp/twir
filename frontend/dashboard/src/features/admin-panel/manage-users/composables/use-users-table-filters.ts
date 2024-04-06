@@ -1,3 +1,4 @@
+import { refDebounced } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -6,6 +7,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 	const { t } = useI18n();
 
 	const searchInput = ref('');
+	const debounceSearchInput = refDebounced<string>(searchInput, 500);
 
 	const filtersList = computed(() => [
 		{
@@ -42,6 +44,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 
 	return {
 		searchInput,
+		debounceSearchInput,
 		filtersList,
 		selectedFilters,
 		selectedFiltersCount,

@@ -34,7 +34,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableParams = computed<UsersGetRequest>(() => ({
 		...tableFilters.selectedFilters,
-		search: tableFilters.searchInput,
+		search: tableFilters.debounceSearchInput,
 		page: pagination.value.pageIndex,
 		perPage: pagination.value.pageSize,
 	}));
