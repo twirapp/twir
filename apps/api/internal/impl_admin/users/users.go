@@ -76,8 +76,6 @@ func (c *Users) GetUsers(
 
 	query := c.Db.
 		WithContext(ctx).
-		Limit(int(perPage)).
-		Offset(int(page * perPage)).
 		Order("id DESC").
 		Joins("Channel")
 
@@ -98,7 +96,10 @@ func (c *Users) GetUsers(
 		return nil, err
 	}
 
-	if err := query.Find(&users).Error; err != nil {
+	if err := query.
+		Limit(int(perPage)).
+		Offset(int(page * perPage)).
+		Find(&users).Error; err != nil {
 		return nil, err
 	}
 
