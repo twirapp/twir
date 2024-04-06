@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
+import AdminManageBadges from '@/features/admin-panel/manage-badges/manage-badges.vue';
 import AdminManageUsers from '@/features/admin-panel/manage-users/manage-users.vue';
 import AdminNotifications from '@/features/admin-panel/notifications/notifications.vue';
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue';
@@ -17,6 +18,11 @@ const pageTabs: PageLayoutTab[] = [
 		name: 'user-roles',
 		title: t('adminPanel.manageUsers.title'),
 		component: AdminManageUsers,
+	},
+	{
+		name: 'badges',
+		title: t('adminPanel.manageBadges.title'),
+		component: AdminManageBadges,
 	},
 ];
 </script>

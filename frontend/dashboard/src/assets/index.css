@@ -101,6 +101,10 @@
 		border-radius: 4px;
 		width: 100%;
 	}
+
+	input[type="file"]::file-selector-button {
+		color: var(--accent);
+	}
 }
 
 @layer base {

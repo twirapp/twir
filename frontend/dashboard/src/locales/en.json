@@ -923,6 +923,12 @@
 			"isAdmin": "Admin",
 			"isBanned": "Banned",
 			"isBotEnabled": "Bot enabled"
+		},
+		"manageBadges": {
+			"title": "Badges",
+			"name": "Name",
+			"image": "Image",
+			"preview": "Preview"
 		}
 	}
 }
