@@ -94,7 +94,7 @@ func (c *Users) GetUsers(
 	}
 
 	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Model(&model.Users{}).Count(&total).Error; err != nil {
 		return nil, err
 	}
 
