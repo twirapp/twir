@@ -5,6 +5,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/auth"
+	"github.com/satont/twir/apps/api/internal/impl_unprotected/badges"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/community"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
@@ -34,6 +35,7 @@ type UnProtected struct {
 	*tts.Tts
 	*community.Community
 	*public_settings.PublicSettings
+	*badges.Badges
 }
 
 type Opts struct {
@@ -111,5 +113,6 @@ func New(opts Opts) *UnProtected {
 		Tts:            &tts.Tts{Deps: d},
 		Community:      &community.Community{Deps: d},
 		PublicSettings: &public_settings.PublicSettings{Deps: d},
+		Badges:         &badges.Badges{Deps: d},
 	}
 }

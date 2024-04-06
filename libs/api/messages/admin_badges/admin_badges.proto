@@ -1,0 +1,33 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/admin_badges";
+package messages.admin_badges;
+
+
+message CreateBadgeRequest {
+	string name = 1;
+	bytes file_bytes = 2;
+	string file_mime_type = 3;
+	bool enabled = 4;
+}
+
+message UpdateBadgeRequest {
+	string id = 1;
+	string name = 2;
+	bytes file_bytes = 3;
+	string file_mime_type = 4;
+	bool enabled = 5;
+}
+
+message DeleteBadgeRequest {
+	string id = 1;
+}
+
+message AddUserRequest {
+	string badge_id = 1;
+	string user_id = 2;
+}
+
+message DeleteUserRequest {
+	string badge_id = 1;
+	string user_id = 2;
+}

@@ -9,21 +9,22 @@ import { useBadges } from '../composables/use-badges';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 
-const { badges } = storeToRefs(useBadges());
+const badgesStore = useBadges();
+const { badges } = storeToRefs(badgesStore);
 </script>
 
 <template>
-	<n-card v-for="badge of badges" :key="badge.name" size="small" bordered>
+	<n-card v-for="badge of badges" :key="badge.id" size="small" bordered>
 		<Label>
 			{{ badge.name }}
 		</Label>
 		<div class="flex justify-between gap-2 max-sm:flex-col">
-			<badges-preview :image="badge.image" />
+			<badges-preview :image="badge.fileUrl" />
 			<div class="flex items-end gap-2">
 				<Button class="max-sm:w-full" size="icon">
 					<PencilIcon class="h-4 w-4" />
 				</Button>
-				<Button class="max-sm:w-full" size="icon" variant="destructive">
+				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="badgesStore.deleteBadge(badge.id)">
 					<TrashIcon class="h-4 w-4" />
 				</Button>
 			</div>

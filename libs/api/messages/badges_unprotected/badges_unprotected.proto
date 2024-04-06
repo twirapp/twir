@@ -1,0 +1,22 @@
+syntax = "proto3";
+option go_package = "github.com/twirapp/twir/libs/api/messages/badges_unprotected";
+package messages.badges_unprotected;
+
+message BadgeUser {
+	string badge_id = 1;
+	string user_id = 2;
+	string created_at = 3;
+}
+
+message Badge {
+	string id = 1;
+	string name = 2;
+	string created_at = 3;
+	string file_url = 4;
+	bool enabled = 5;
+	repeated BadgeUser users = 6;
+}
+
+message GetBadgesResponse {
+	repeated Badge badges = 1;
+}

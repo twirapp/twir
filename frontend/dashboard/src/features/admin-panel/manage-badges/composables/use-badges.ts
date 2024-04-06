@@ -1,25 +1,43 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import type { GetBadgesResponse } from '@twir/api/messages/badges_unprotected/badges_unprotected';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed } from 'vue';
 
-const badgeUrl = (name: string) => `http://localhost:3005/twir-${name}.png`;
+import { adminApiClient, unprotectedApiClient } from '@/api/twirp';
 
 export const useBadges = defineStore('admin-panel/badges', () => {
-	const badges = ref([
-		{
-			name: 'Twir Owner',
-			image: badgeUrl('owner'),
+	const { data } = useQuery({
+		queryKey: ['admin/badges'],
+		queryFn: async () => {
+			const request = await unprotectedApiClient.getBadgesWithUsers({});
+			return request.response;
 		},
-		{
-			name: 'Twir Contributor',
-			image: badgeUrl('contributor'),
+	});
+
+	const queryClient = useQueryClient();
+	const deleter = useMutation({
+		mutationFn: async (id: string) => {
+			return await adminApiClient.badgesDelete({ id });
 		},
-		{
-			name: 'Twir Translator',
-			image: badgeUrl('translator'),
+		onSuccess(_, id) {
+			queryClient.setQueriesData<GetBadgesResponse>(['admin/badges'], (data) => {
+				if (!data) return data;
+
+				return {
+					badges: badges.value.filter(badge => badge.id != id),
+				};
+			});
 		},
-	]);
+	});
+
+	async function deleteBadge(id: string) {
+		await deleter.mutateAsync(id);
+	}
+
+	const badges = computed(() => data.value?.badges ?? []);
 
 	return {
 		badges,
+		deleteBadge,
 	};
 });

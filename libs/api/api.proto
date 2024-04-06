@@ -287,6 +287,7 @@ import "messages/twitch/twitch.proto";
 import "messages/commands_unprotected/commands_unprotected.proto";
 import "messages/songs_unprotected/songs_unprotected.proto";
 import "messages/tts_unprotected/tts_unprotected.proto";
+import "messages/badges_unprotected/badges_unprotected.proto";
 
 service UnProtected {
 	rpc TwitchGetUsers(messages.twitch.TwitchGetUsersRequest) returns (messages.twitch.TwitchGetUsersResponse) {}
@@ -310,10 +311,13 @@ service UnProtected {
 
 	rpc GetPublicUserInfo(messages.auth.GetPublicUserInfoRequest) returns (messages.auth.GetPublicUserInfoResponse) {}
 	rpc GetPublicSettings(messages.channels_public_settings.GetRequest) returns (messages.channels_public_settings.Settings) {}
+
+	rpc GetBadgesWithUsers(google.protobuf.Empty) returns (messages.badges_unprotected.GetBadgesResponse) {}
 }
 
 import "messages/admin_users/admin_users.proto";
 import "messages/admin_notifications/admin_notifications.proto";
+import "messages/admin_badges/admin_badges.proto";
 
 service Admin {
 	rpc UserSwitchBan(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
@@ -324,4 +328,11 @@ service Admin {
 	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.admin_notifications.GetNotificationsResponse) {}
 	rpc NotificationsUpdate(messages.admin_notifications.UpdateNotificationRequest) returns (messages.admin_notifications.Notification) {}
 	rpc NotificationsDelete(messages.admin_notifications.DeleteNotificationRequest) returns (google.protobuf.Empty) {}
+
+	rpc BadgesCreate(messages.admin_badges.CreateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
+	rpc BadgesUpdate(messages.admin_badges.UpdateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
+	rpc BadgesDelete(messages.admin_badges.DeleteBadgeRequest) returns (google.protobuf.Empty) {}
+	rpc BadgeAddUser(messages.admin_badges.AddUserRequest) returns (messages.badges_unprotected.BadgeUser) {}
+	rpc BadgeDeleteUser(messages.admin_badges.DeleteUserRequest) returns (google.protobuf.Empty) {}
 }
+
