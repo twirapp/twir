@@ -66,11 +66,6 @@ func (c *Users) GetUsers(
 		return nil, err
 	}
 
-	var total int64
-	if err := c.Db.WithContext(ctx).Model(&model.Users{}).Count(&total).Error; err != nil {
-		return nil, err
-	}
-
 	page := req.GetPage()
 	perPage := req.GetPerPage()
 	if perPage == 0 {
@@ -96,6 +91,11 @@ func (c *Users) GetUsers(
 
 	if req.IsBanned != nil {
 		query = query.Where(`"Channel"."isBanned" = ?`, *req.IsBanned)
+	}
+
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, err
 	}
 
 	if err := query.Find(&users).Error; err != nil {
