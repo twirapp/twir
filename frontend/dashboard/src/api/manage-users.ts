@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { UsersGetRequest, UsersGetResponse } from '@twir/api/messages/admin_users/admin_users';
+import { UsersGetResponse_UsersGetResponseUser as User, type UsersGetRequest, type UsersGetResponse } from '@twir/api/messages/admin_users/admin_users';
 import type { Ref } from 'vue';
 
 import { adminApiClient } from './twirp';
@@ -16,6 +16,26 @@ export const useAdminUsers = (payload: Ref<UsersGetRequest>) => useQuery({
 export const useAdminUserSwitcher = () => {
 	const queryClient = useQueryClient();
 
+	function mutateUser(userId: string, updater: (user: User) => Partial<User>) {
+		queryClient.setQueriesData<UsersGetResponse>(
+			['admin/users'],
+			(oldData) => {
+				if (!oldData) return oldData;
+
+				return {
+					total: oldData.total,
+					users: oldData.users.map((user) => {
+						if (user.id !== userId) return user;
+						return {
+							...user,
+							...updater(user),
+						};
+					}),
+				};
+			},
+		);
+	}
+
 	return {
 		useUserSwitchBan: () => useMutation({
 			mutationKey: ['admin/user/ban'],
@@ -24,23 +44,7 @@ export const useAdminUserSwitcher = () => {
 				return req.response;
 			},
 			onSuccess: async (_, userId) => {
-				queryClient.setQueriesData<UsersGetResponse>(
-					['admin/users'],
-					(oldData) => {
-						if (!oldData) return oldData;
-
-						return {
-							...oldData,
-							users: oldData.users.map((user) => {
-								if (user.id !== userId) return user;
-								return {
-									...user,
-									isBanned: !user.isBanned,
-								};
-							}),
-						};
-					},
-				);
+				mutateUser(userId, (user) => ({ isBanned: !user.isBanned }));
 			},
 		}),
 		useUserSwitchAdmin: () => useMutation({
@@ -50,23 +54,7 @@ export const useAdminUserSwitcher = () => {
 				return req.response;
 			},
 			onSuccess: async (_, userId) => {
-				queryClient.setQueriesData<UsersGetResponse>(
-					['admin/users'],
-					(oldData) => {
-						if (!oldData) return oldData;
-
-						return {
-							...oldData,
-							users: oldData.users.map((user) => {
-								if (user.id !== userId) return user;
-								return {
-									...user,
-									isAdmin: !user.isAdmin,
-								};
-							}),
-						};
-					},
-				);
+				mutateUser(userId, (user) => ({ isAdmin: !user.isAdmin }));
 			},
 		}),
 	};
