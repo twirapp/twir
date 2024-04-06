@@ -3,13 +3,12 @@ import { ChevronDownIcon, XIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { SelectIcon } from 'radix-vue';
-import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js';
+import { useStreamers } from '../composables/use-streamers.js';
 import { useTextarea, textareaButtons } from '../composables/use-textarea.js';
 
-import { useStreamers } from '@/api/streamers';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,16 +36,11 @@ import {
 
 const { t } = useI18n();
 
+const { streamers } = storeToRefs(useStreamers());
 const notificationsForm = useNotificationsForm();
-const { data: streamers } = useStreamers();
 
 const textarea = useTextarea();
 const { textareaRef } = storeToRefs(textarea);
-
-const streamersOptions = computed(() => {
-	if (!streamers.value?.streamers) return [];
-	return streamers.value.streamers;
-});
 </script>
 
 <template>
@@ -69,7 +63,7 @@ const streamersOptions = computed(() => {
 						</FormControl>
 						<SelectContent :hide-when-detached="true">
 							<SelectGroup>
-								<SelectItem v-for="streamer of streamersOptions" :key="streamer.userId" :value="streamer.userId">
+								<SelectItem v-for="streamer of streamers" :key="streamer.userId" :value="streamer.userId">
 									<div class="flex items-center gap-2">
 										<Avatar class="h-6 w-6">
 											<AvatarImage :src="streamer.avatar" :alt="streamer.userDisplayName" loading="lazy" />

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { BanIcon, ShieldIcon } from 'lucide-vue-next';
+import { computed } from 'vue';
 
+import { useUsersActions } from '../composables/use-users-actions';
+
+import { useProfile } from '@/api';
 import { Button } from '@/components/ui/button';
 
 defineProps<{
@@ -8,14 +12,19 @@ defineProps<{
 	isBanned: boolean
 	isAdmin: boolean
 }>();
+
+const user = useProfile();
+const currentUserId = computed(() => user.data.value?.id);
+const { switchBan, switchAdmin } = useUsersActions();
 </script>
 
 <template>
-	<div class="flex items-center gap-2">
+	<div v-if="currentUserId !== userId" class="flex items-center gap-2">
 		<Button
 			:class="{ 'bg-red-600 hover:bg-red-600/90': isBanned }"
 			variant="secondary"
 			size="icon"
+			@click="switchBan(userId)"
 		>
 			<BanIcon class="h-4 w-4" />
 		</Button>
@@ -23,6 +32,7 @@ defineProps<{
 			:class="{ 'bg-green-600 hover:bg-green-600/90': isAdmin }"
 			variant="secondary"
 			size="icon"
+			@click="switchAdmin(userId)"
 		>
 			<ShieldIcon class="h-4 w-4" />
 		</Button>

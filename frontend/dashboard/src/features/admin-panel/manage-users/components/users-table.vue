@@ -13,8 +13,8 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 
-const usersTable = useUsersTable();
 const { t } = useI18n();
+const usersTable = useUsersTable();
 </script>
 
 <template>
@@ -29,7 +29,7 @@ const { t } = useI18n();
 				</TableHead>
 			</TableRow>
 		</TableHeader>
-		<TableBody>
+		<TableBody :class="[usersTable.isLoading ? 'animate-pulse' : '']">
 			<template v-if="usersTable.table.getRowModel().rows?.length">
 				<!-- TODO: highlight banned users -->
 				<TableRow

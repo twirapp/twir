@@ -1,122 +1,98 @@
 <script setup lang="ts">
-import { CheckIcon } from 'lucide-vue-next';
-import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { CheckIcon, SearchIcon, ListFilterIcon } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 import { useUsersTable } from '../composables/use-users-table';
+import { useUsersTableFilters } from '../composables/use-users-table-filters';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-	Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator,
+	Command, CommandGroup, CommandItem, CommandList, CommandSeparator,
 } from '@/components/ui/command';
+import { Input } from '@/components/ui/input';
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
+import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
 const { t } = useI18n();
 const usersTable = useUsersTable();
+const usersTableFilters = useUsersTableFilters();
 
-const { selectFilters } = storeToRefs(usersTable);
-const selectedValuesCount = computed(() => Object.values(selectFilters.value).flat().filter(Boolean).length);
-
-function clearFilters() {
-	Object.keys(selectFilters.value).forEach((key) => {
-		selectFilters.value[key] = undefined;
-	});
-}
-
-function setFilterValue(key: string) {
-	if (selectFilters.value[key]) {
-		selectFilters.value[key] = undefined;
-		return;
-	}
-	selectFilters.value[key] = true;
+function applyFilter(filterKey: string): void {
+	usersTableFilters.setFilterValue(filterKey);
+	usersTable.table.setPageIndex(0);
 }
 </script>
 
 <template>
-	<Popover>
-		<PopoverTrigger as-child>
-			<Button variant="outline" size="sm" class="h-8 border-dashed">
-				<PlusCircledIcon class="mr-2 h-4 w-4" />
-				filters
+	<div class="flex gap-2 max-sm:flex-col">
+		<div class="relative w-full items-center">
+			<Input v-model="usersTableFilters.searchInput" type="text" :placeholder="t('sharedTexts.searchPlaceholder')" class="pl-10" />
+			<span class="absolute start-2 inset-y-0 flex items-center justify-center px-2">
+				<SearchIcon class="size-4 text-muted-foreground" />
+			</span>
+		</div>
+		<Popover>
+			<PopoverTrigger as-child>
+				<Button variant="outline" size="sm" class="h-10">
+					<ListFilterIcon class="mr-2 h-4 w-4" />
+					{{ t('adminPanel.manageUsers.filters') }}
 
-				<template v-if="selectedValuesCount">
-					<Separator orientation="vertical" class="mx-2 h-4" />
-					<Badge
-						variant="secondary"
-						class="rounded-sm px-1 font-normal lg:hidden"
-					>
-						{{ selectedValuesCount }}
-					</Badge>
-					<div class="hidden space-x-1 lg:flex">
+					<template v-if="usersTableFilters.selectedFiltersCount">
+						<Separator orientation="vertical" class="mx-2 h-4" />
 						<Badge
-							v-if="selectedValuesCount"
 							variant="secondary"
 							class="rounded-sm px-1 font-normal"
 						>
-							{{ selectedValuesCount }} selected
+							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount }) }}
 						</Badge>
-
-						<template v-else>
-							<Badge
-								v-for="filterKey in Object.keys(selectFilters)"
-								:key="filterKey"
-								variant="secondary"
-								class="rounded-sm px-1 font-normal"
-							>
-								{{ filterKey }}
-							</Badge>
-						</template>
-					</div>
-				</template>
-			</Button>
-		</PopoverTrigger>
-		<PopoverContent class="w-[200px] p-0" align="start">
-			<Command>
-				<CommandInput placeholder="qweqweqweqwe" />
-				<CommandList>
-					<CommandEmpty>No results found.</CommandEmpty>
-					<CommandGroup>
-						<CommandItem
-							v-for="filterKey in Object.keys(selectFilters)"
-							:key="filterKey"
-							:value="filterKey"
-							@select="setFilterValue(filterKey)"
-						>
-							<div
-								:class="cn(
-									'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-									selectFilters[filterKey]
-										? 'bg-primary text-primary-foreground'
-										: 'opacity-50 [&_svg]:invisible',
-								)"
-							>
-								<CheckIcon :class="cn('h-4 w-4')" />
-							</div>
-							<span>{{ filterKey }}</span>
-						</CommandItem>
-					</CommandGroup>
-
-					<template v-if="selectedValuesCount">
-						<CommandSeparator />
+					</template>
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent class="w-[200px] p-0" align="end">
+				<Command>
+					<CommandList>
 						<CommandGroup>
 							<CommandItem
-								:value="{ label: 'Clear filters' }"
-								class="justify-center text-center"
-								@select="clearFilters"
+								v-for="filter of usersTableFilters.filtersList"
+								:key="filter.key"
+								:value="filter.key"
+								@select="applyFilter(filter.key)"
 							>
-								Clear filters
+								<div
+									:class="cn(
+										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+										filter.key in usersTableFilters.selectedFilters
+											? 'bg-primary text-primary-foreground'
+											: 'opacity-50 [&_svg]:invisible',
+									)"
+								>
+									<CheckIcon :class="cn('h-4 w-4')" />
+								</div>
+								<span>{{ filter.label }}</span>
 							</CommandItem>
 						</CommandGroup>
-					</template>
-				</CommandList>
-			</Command>
-		</PopoverContent>
-	</Popover>
+
+						<template v-if="usersTableFilters.selectedFiltersCount">
+							<CommandSeparator />
+							<CommandGroup>
+								<CommandItem
+									:value="{ label: 'Clear filters' }"
+									class="justify-center text-center"
+									@select="usersTableFilters.clearFilters"
+								>
+									{{ t('adminPanel.manageUsers.clearFilters') }}
+								</CommandItem>
+							</CommandGroup>
+						</template>
+					</CommandList>
+				</Command>
+			</PopoverContent>
+		</Popover>
+	</div>
 </template>

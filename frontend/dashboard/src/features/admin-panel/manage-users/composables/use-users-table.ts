@@ -1,4 +1,4 @@
-import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
+import { type ColumnDef, getCoreRowModel, useVueTable, type PaginationState } from '@tanstack/vue-table';
 import type {
 	UsersGetRequest,
 	UsersGetResponse_UsersGetResponseUser as User,
@@ -7,41 +7,49 @@ import { defineStore } from 'pinia';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useUsersTableFilters } from './use-users-table-filters';
 import UsersTableActions from '../components/users-table-actions.vue';
+import UsersTableAvatar from '../components/users-table-avatar.vue';
 
 import { useAdminUsers } from '@/api/manage-users';
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
 
-	const searchInput = ref('');
-	const selectFilters = ref<Record<string, boolean | undefined>>({
-		isAdmin: undefined,
-		isBotEnabled: undefined,
-		isBanned: undefined,
-	});
-
 	const pagination = ref({
 		pageIndex: 0,
 		pageSize: 10,
 	});
 
+	function setPagination({
+		pageIndex,
+		pageSize,
+	}: PaginationState): PaginationState {
+		pagination.value.pageIndex = pageIndex;
+		pagination.value.pageSize = pageSize;
+		return { pageIndex, pageSize };
+	}
+
+	const tableFilters = useUsersTableFilters();
+
 	const tableParams = computed<UsersGetRequest>(() => ({
-		...selectFilters.value,
-		search: searchInput.value,
+		...tableFilters.selectedFilters,
+		search: tableFilters.searchInput,
 		page: pagination.value.pageIndex,
 		perPage: pagination.value.pageSize,
 	}));
 
-	const { data } = useAdminUsers(tableParams);
+	const { data, isFetching } = useAdminUsers(tableParams);
 
-	const users = computed(() => {
+	const users = computed<User[]>(() => {
 		if (!data.value) return [];
 		return data.value.users;
 	});
 
+	const totalUsers = computed(() => data.value?.total ?? 0);
+
 	const pageCount = computed(() => {
-		return Math.ceil((data.value?.total ?? 0 )/ pagination.value.pageSize);
+		return Math.ceil((data.value?.total ?? 0) / pagination.value.pageSize);
 	});
 
 	const tableColumns = computed<ColumnDef<User>[]>(() => [
@@ -57,7 +65,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 						target: '_blank',
 					},
 					[
-						h('img', { class: 'h-9 w-9 rounded-full', src: row.original.avatar, loading: 'lazy' }),
+						h(UsersTableAvatar, { avatar: row.original.avatar, name: row.original.userName }),
 						row.original.userDisplayName,
 					],
 				);
@@ -90,9 +98,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			return pageCount.value;
 		},
 		state: {
-			get pagination() {
-				return pagination.value;
-			},
+			pagination: pagination.value,
 		},
 		get data() {
 			return users.value;
@@ -100,18 +106,26 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		get columns() {
 			return tableColumns.value;
 		},
+		manualPagination: true,
 		getCoreRowModel: getCoreRowModel(),
 		onPaginationChange: (updater) => {
-			pagination.value = updater instanceof Function
-				? updater(pagination.value)
-				: updater;
+			if (typeof updater === 'function') {
+				setPagination(
+					updater({
+						pageIndex: pagination.value.pageIndex,
+						pageSize: pagination.value.pageSize,
+					}),
+				);
+			} else {
+				setPagination(updater);
+			}
 		},
 	});
 
 	return {
+		isLoading: isFetching,
+		totalUsers,
 		table,
 		tableColumns,
-		searchInput,
-		selectFilters,
 	};
 });

@@ -42,7 +42,7 @@
     "disabled": "Disabled",
 		"setDefaultSettings": "Are you sure you want to set default settings?",
 		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
-		"pagination": "{page} of {total} page(s)",
+		"pagination": "{page} of {total} page(s) / {items} item(s)",
 		"searchPlaceholder": "Search..."
   },
   "sidebar": {
@@ -905,7 +905,7 @@
 			"emptyNotifications": "No notifications",
 			"userLabel": "User",
 			"userPlaceholder": "Select a user",
-			"message": "Message",
+			"messageLabel": "Message",
 			"createdAt": "Created At",
 			"globals": "Globals",
 			"users": "Users"
@@ -915,7 +915,13 @@
 			"user": "User",
 			"userId": "User ID",
 			"followers": "Followers",
-			"noUsers": "No users"
+			"noUsers": "No users",
+			"filters": "Filters",
+			"clearFilters": "Clear filters",
+			"countSelected": "{count} selected",
+			"isAdmin": "Admin",
+			"isBanned": "Banned",
+			"isBotEnabled": "Bot enabled"
 		}
 	}
 }

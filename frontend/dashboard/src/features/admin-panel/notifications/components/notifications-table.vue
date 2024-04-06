@@ -25,6 +25,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import ShadcnLayout from '@/layout/shadcn-layout.vue';
 
 const { t } = useI18n();
@@ -62,6 +63,7 @@ const notificationsTable = useNotificationsTable();
 				{{ t('sharedTexts.pagination', {
 					page: notificationsTable.table.getState().pagination.pageIndex + 1,
 					total: notificationsTable.table.getPageCount().toLocaleString(),
+					items: notificationsTable.notifications.length
 				}) }}
 			</div>
 			<Button
@@ -95,31 +97,33 @@ const notificationsTable = useNotificationsTable();
 					</TableHead>
 				</TableRow>
 			</TableHeader>
-			<TableBody>
-				<template v-if="notificationsTable.table.getRowModel().rows?.length">
-					<TableRow
-						v-for="row in notificationsTable.table.getRowModel().rows" :key="row.id"
-						:data-state="row.getIsSelected() ? 'selected' : undefined" class="border-b"
-					>
-						<TableCell
-							v-for="cell in row.getVisibleCells()" :key="cell.id" @click="() => {
-								if (row.getCanExpand()) {
-									row.getToggleExpandedHandler()()
-								}
-							}"
+			<TooltipProvider :delay-duration="100">
+				<TableBody>
+					<template v-if="notificationsTable.table.getRowModel().rows?.length">
+						<TableRow
+							v-for="row in notificationsTable.table.getRowModel().rows" :key="row.id"
+							:data-state="row.getIsSelected() ? 'selected' : undefined" class="border-b"
 						>
-							<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-						</TableCell>
-					</TableRow>
-				</template>
-				<template v-else>
-					<TableRow>
-						<TableCell :colSpan="notificationsTable.tableColumns.length" class="h-24 text-center">
-							{{ t('adminPanel.notifications.emptyNotifications') }}
-						</TableCell>
-					</TableRow>
-				</template>
-			</TableBody>
+							<TableCell
+								v-for="cell in row.getVisibleCells()" :key="cell.id" @click="() => {
+									if (row.getCanExpand()) {
+										row.getToggleExpandedHandler()()
+									}
+								}"
+							>
+								<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+							</TableCell>
+						</TableRow>
+					</template>
+					<template v-else>
+						<TableRow>
+							<TableCell :colSpan="notificationsTable.tableColumns.length" class="h-24 text-center">
+								{{ t('adminPanel.notifications.emptyNotifications') }}
+							</TableCell>
+						</TableRow>
+					</template>
+				</TableBody>
+			</TooltipProvider>
 		</Table>
 	</shadcn-layout>
 </template>

@@ -15,7 +15,8 @@ const { t } = useI18n();
 			{{
 				t('sharedTexts.pagination', {
 					page: usersTable.table.getState().pagination.pageIndex + 1,
-					total: usersTable.table.getPageCount()
+					total: usersTable.table.getPageCount(),
+					items: usersTable.totalUsers,
 				})
 			}}
 		</div>
