@@ -29,7 +29,6 @@ export async function getIntegrations(integrationId) {
 		})
 		.andWhere('integration.service', 'in', Object.values(Services))
 		.andWhere('channel.isEnabled', true)
-		.andWhere('channel.isBanned', false)
 		.leftJoin('integrations as integration', 'integration.id', '=', 'channels_integrations.integrationId')
 		.leftJoin('channels as channel', 'channel.id', '=', 'channels_integrations.channelId')
 		.groupBy(['channels_integrations.id', 'integration.id', 'channel.id']);

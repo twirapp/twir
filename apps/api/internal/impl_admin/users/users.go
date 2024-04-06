@@ -22,14 +22,14 @@ func (c *Users) UserSwitchBan(
 	ctx context.Context,
 	req *messages_admin_users.UserSwitchSomeStateRequest,
 ) (*emptypb.Empty, error) {
-	dbChannel := &model.Channels{}
-	if err := c.Db.WithContext(ctx).Where("id = ?", req.UserId).First(dbChannel).Error; err != nil {
+	dbUser := &model.Users{}
+	if err := c.Db.WithContext(ctx).Where("id = ?", req.UserId).First(dbUser).Error; err != nil {
 		return nil, err
 	}
 
-	dbChannel.IsBanned = !dbChannel.IsBanned
+	dbUser.IsBanned = !dbUser.IsBanned
 
-	if err := c.Db.WithContext(ctx).Save(dbChannel).Error; err != nil {
+	if err := c.Db.WithContext(ctx).Save(dbUser).Error; err != nil {
 		return nil, err
 	}
 
@@ -88,7 +88,7 @@ func (c *Users) GetUsers(
 	}
 
 	if req.IsBanned != nil {
-		query = query.Where(`"Channel"."isBanned" = ?`, *req.IsBanned)
+		query = query.Where(`"users"."isBanned" = ?`, *req.IsBanned)
 	}
 
 	var total int64
@@ -158,7 +158,7 @@ func (c *Users) GetUsers(
 
 		if user.Channel != nil {
 			resultedUser.IsBotEnabled = user.Channel.IsEnabled
-			resultedUser.IsBanned = user.Channel.IsBanned
+			resultedUser.IsBanned = user.IsBanned
 		}
 
 		mappedUsers = append(mappedUsers, resultedUser)

@@ -229,7 +229,7 @@ func (c *Auth) GetPublicUserInfo(ctx context.Context, req *auth.GetPublicUserInf
 
 	var isBanned bool
 	if user.Channel != nil {
-		isBanned = user.Channel.IsBanned || user.Channel.IsTwitchBanned
+		isBanned = user.IsBanned || user.Channel.IsTwitchBanned
 	}
 
 	return &auth.GetPublicUserInfoResponse{

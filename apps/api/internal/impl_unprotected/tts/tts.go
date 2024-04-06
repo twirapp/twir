@@ -23,11 +23,12 @@ func (c *Tts) GetTTSChannelSettings(
 	if err := c.Db.
 		WithContext(ctx).
 		Where(`id = ?`, req.ChannelId).
+		Joins("User").
 		First(channel).Error; err != nil {
 		return nil, err
 	}
 
-	if channel.IsBanned {
+	if channel.User.IsBanned {
 		return &tts_unprotected.Settings{}, nil
 	}
 

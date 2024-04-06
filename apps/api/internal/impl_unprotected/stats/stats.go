@@ -64,11 +64,11 @@ func (c *Stats) cacheCounts() {
 		func() {
 			var count int64
 			c.Db.Model(&model.Channels{}).Where(
-				`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
+				`"isEnabled" = ? AND "isTwitchBanned" = ? AND "User"."is_banned" = ?`,
 				true,
 				false,
 				false,
-			).Count(&count)
+			).Joins("User").Count(&count)
 			c.statsCache.Channels = count
 		},
 	)
@@ -117,13 +117,12 @@ func (c *Stats) cacheStreamers() {
 	c.Logger.Info("Updating streamers cache in stats")
 	var streamers []model.Channels
 	if err := c.Db.Model(&model.Channels{}).
-		Preload("User").
 		Where(
-			`"isEnabled" = ? AND "isTwitchBanned" = ? AND "isBanned" = ?`,
+			`"isEnabled" = ? AND "isTwitchBanned" = ? AND "User"."is_banned" = ?`,
 			true,
 			false,
 			false,
-		).Find(&streamers).Error; err != nil {
+		).Joins("User").Find(&streamers).Error; err != nil {
 		c.Logger.Error("cannot cache streamers", slog.Any("err", err))
 		return
 	}
