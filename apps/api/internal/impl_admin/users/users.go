@@ -66,6 +66,19 @@ func (c *Users) GetUsers(
 		return nil, err
 	}
 
+	var twitchSearchUsers []helix.User
+	if req.Search != nil && *req.Search != "" {
+		twitchSearchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{Logins: []string{*req.Search}})
+		if err != nil {
+			return nil, err
+		}
+		if twitchSearchUsersReq.ErrorMessage != "" {
+			return nil, err
+		}
+
+		twitchSearchUsers = twitchSearchUsersReq.Data.Users
+	}
+
 	page := req.GetPage()
 	perPage := req.GetPerPage()
 	if perPage == 0 {
@@ -78,6 +91,15 @@ func (c *Users) GetUsers(
 		WithContext(ctx).
 		Order("id DESC").
 		Joins("Channel")
+
+	if len(twitchSearchUsers) > 0 {
+		var ids []string
+		for _, user := range twitchSearchUsers {
+			ids = append(ids, user.ID)
+		}
+
+		query = query.Where(`"users"."id" IN ?`, ids)
+	}
 
 	if req.IsBotEnabled != nil {
 		query = query.Where(`"Channel"."isEnabled" = ?`, *req.IsBotEnabled)
