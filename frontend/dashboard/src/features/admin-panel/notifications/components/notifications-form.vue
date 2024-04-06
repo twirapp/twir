@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -44,7 +45,7 @@ const { textareaRef } = storeToRefs(textarea);
 </script>
 
 <template>
-	<n-card :title="t('adminPanel.notifications.createNotification')" size="small" bordered>
+	<n-card size="small" bordered>
 		<form class="flex flex-col gap-4" @submit="notificationsForm.onSubmit">
 			<FormField v-slot="{ componentField }" name="userId">
 				<FormItem>
@@ -114,12 +115,32 @@ const { textareaRef } = storeToRefs(textarea);
 				</FormItem>
 			</FormField>
 
+			<template v-if="notificationsForm.message">
+				<Label>{{ t('adminPanel.notifications.messagePreview') }}</Label>
+				<div class="border rounded-md p-2" v-html="notificationsForm.message"></div>
+			</template>
+
 			<div class="flex justify-end gap-4">
-				<Button type="button" variant="secondary" @click="notificationsForm.onReset">
-					{{ t('sharedButtons.reset') }}
+				<Button
+					:disabled="!notificationsForm.message && !notificationsForm.editableMessageId"
+					type="button"
+					variant="secondary"
+					@click="notificationsForm.onReset"
+				>
+					<template v-if="notificationsForm.editableMessageId">
+						{{ t('sharedButtons.cancel') }}
+					</template>
+					<template v-else>
+						{{ t('sharedButtons.reset') }}
+					</template>
 				</Button>
 				<Button type="submit">
-					{{ t('sharedButtons.send') }}
+					<template v-if="notificationsForm.editableMessageId">
+						{{ t('sharedButtons.edit') }}
+					</template>
+					<template v-else>
+						{{ t('sharedButtons.send') }}
+					</template>
 				</Button>
 			</div>
 		</form>

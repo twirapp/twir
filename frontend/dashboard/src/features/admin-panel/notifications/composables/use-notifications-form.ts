@@ -20,6 +20,8 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 		validationSchema: formSchema,
 	});
 
+	const message = computed(() => form.values.message?.trim());
+
 	const onSubmit = form.handleSubmit(async (values) => {
 		if (editableMessageId.value) {
 			await notifications.update.mutateAsync({
@@ -45,6 +47,7 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 
 	return {
 		form,
+		message,
 		isEditableForm,
 		editableMessageId,
 		onSubmit,

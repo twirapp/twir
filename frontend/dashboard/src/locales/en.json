@@ -901,14 +901,15 @@
 		"title": "Admin panel",
 		"notifications": {
 			"title": "Notifications",
-			"createNotification": "Create a new notification",
 			"emptyNotifications": "No notifications",
 			"userLabel": "User",
 			"userPlaceholder": "Select a user",
 			"messageLabel": "Message",
+			"messagePreview": "Preview",
 			"createdAt": "Created At",
 			"globals": "Globals",
-			"users": "Users"
+			"users": "Users",
+			"confirmResetForm": "Are you sure you want to reset the form?"
 		},
 		"manageUsers": {
 			"title": "Users",

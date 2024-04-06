@@ -7,12 +7,12 @@ export const useUsersActions = defineStore('manage-users/users-actions', () => {
 	const adminUserSwitch = userSwitcher.useUserSwitchAdmin();
 	const banUserSwitch = userSwitcher.useUserSwitchBan();
 
-	function switchAdmin(userId: string) {
-		adminUserSwitch.mutate(userId);
+	async function switchAdmin(userId: string) {
+		await adminUserSwitch.mutateAsync(userId);
 	}
 
-	function switchBan(userId: string) {
-		banUserSwitch.mutate(userId);
+	async function switchBan(userId: string) {
+		await banUserSwitch.mutateAsync(userId);
 	}
 
 	return {

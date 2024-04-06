@@ -31,7 +31,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			size: 80,
 			header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 			cell: ({ row }) => {
-				return h(NText, { class: 'flex flex-wrap break-words w-[450px]', innerHTML: row.original.message });
+				return h(NText, { class: 'break-words w-[450px]', innerHTML: row.original.message });
 			},
 		},
 		{
@@ -70,11 +70,18 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 	});
 
-	function onDeleteNotification(notificationId: string) {
-		notificationsCrud.deleteOne.mutate({ id: notificationId });
+	async function onDeleteNotification(notificationId: string) {
+		if (notificationsForm.editableMessageId === notificationId) {
+			notificationsForm.onReset();
+		}
+
+		await notificationsCrud.deleteOne.mutateAsync({ id: notificationId });
 	}
 
 	async function onEditNotification(notification: Notification) {
+		const confirmed = notificationsForm.message && confirm(t('adminPanel.notifications.confirmResetForm'));
+		if (!confirmed) return;
+
 		notificationsForm.editableMessageId = notification.id;
 		notificationsForm.form.setValues(notification);
 		layout.scrollToTop();

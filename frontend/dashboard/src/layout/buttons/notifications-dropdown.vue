@@ -13,7 +13,7 @@ defineProps<{ notifications: Notification[] }>();
 		<n-scrollbar style="max-height: 400px" trigger="none">
 			<div class="flex flex-col gap-6 mr-4">
 				<div v-for="notification of notifications" :key="notification.id" class="flex flex-col gap-2">
-					<n-text class="flex flex-wrap w-full break-words" v-html="notification.message" />
+					<n-text class="w-full break-words" v-html="notification.message" />
 					<n-text :title="new Date(notification.createdAt).toLocaleString()" class="flex text-xs justify-end" :depth="3">
 						<n-time type="relative" :time="new Date(notification.createdAt)" />
 					</n-text>

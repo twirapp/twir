@@ -1,4 +1,4 @@
-import { ListCollapseIcon, BoldIcon, ItalicIcon, LinkIcon, StrikethroughIcon, UnderlineIcon, ListIcon, Heading1Icon, Heading2Icon, ImageIcon, QuoteIcon } from 'lucide-vue-next';
+import { WrapTextIcon, ListCollapseIcon, BoldIcon, ItalicIcon, LinkIcon, StrikethroughIcon, UnderlineIcon, ListIcon, Heading1Icon, Heading2Icon, ImageIcon, QuoteIcon } from 'lucide-vue-next';
 import { defineStore } from 'pinia';
 import { ref, type Component } from 'vue';
 
@@ -7,6 +7,7 @@ import { useNotificationsForm } from './use-notifications-form';
 const TEXTAREA_MODIFIERS = {
 	h1: '<h1 id="h1">|</h1>',
 	h2: '<h2 id="h2">|</h2>',
+	br: '<br>',
 	bold: '<b>|</b>',
 	italic: '<i>|</i>',
 	strikethrough: '<s>|</s>',
@@ -34,6 +35,11 @@ export const textareaButtons: TextareaButton[] = [
 		name: 'h2',
 		title: 'Heading 2',
 		icon: Heading2Icon,
+	},
+	{
+		name: 'br',
+		title: 'Break',
+		icon: WrapTextIcon,
 	},
 	{
 		name: 'bold',

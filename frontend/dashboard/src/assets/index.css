@@ -75,6 +75,7 @@
 	#ul {
 		list-style: unset !important;
 		margin-left: 1.5em;
+		width: 100%;
 	}
 
 	#ul li::marker {
@@ -84,10 +85,12 @@
 
 	#h1 {
 		font-size: 1.5rem;
+		width: 100%;
 	}
 
 	#h2 {
 		font-size: 1rem;
+		width: 100%;
 	}
 
 	#bq {
@@ -96,6 +99,7 @@
 		padding: 10px 15px;
 		background-color: hsl(var(--muted));
 		border-radius: 4px;
+		width: 100%;
 	}
 }
 
