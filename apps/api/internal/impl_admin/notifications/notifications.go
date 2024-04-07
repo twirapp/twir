@@ -62,6 +62,10 @@ func (c *Notifications) NotificationsGetAll(
 		query = query.Where(`"userId" IS NOT NULL`)
 	}
 
+	if req.GetSearch() != "" {
+		query = query.Where(`message ILIKE ?`, "%"+req.GetSearch()+"%")
+	}
+
 	if err := query.
 		Limit(int(perPage)).
 		Offset(int(page * perPage)).
