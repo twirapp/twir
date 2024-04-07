@@ -11,8 +11,8 @@ CREATE TABLE "badges" (
 
 CREATE TABLE "badges_users" (
 	"id" uuid default uuid_generate_v4() primary key,
-	"badge_id" uuid not null references badges("id"),
-	"user_id" text not null references users("id"),
+	"badge_id" uuid not null references badges("id") on delete cascade,
+	"user_id" text not null references users("id") on delete cascade,
 	"created_at" timestamp not null default now(),
 	constraint "badges_users_unique_badge_user" unique (badge_id, user_id)
 );
