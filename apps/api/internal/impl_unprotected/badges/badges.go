@@ -9,6 +9,7 @@ import (
 	"github.com/twirapp/twir/libs/api/messages/badges_unprotected"
 	"github.com/twitchtv/twirp"
 	google_protobuf "google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/structpb"
 )
 
 type Badges struct {
@@ -41,6 +42,7 @@ func (c *Badges) GetBadgesWithUsers(
 
 	resp := &badges_unprotected.GetBadgesResponse{
 		Badges: make([]*badges_unprotected.Badge, 0, len(entities)),
+		Users:  make(map[string]*structpb.ListValue),
 	}
 
 	if len(entities) == 0 {
@@ -48,18 +50,6 @@ func (c *Badges) GetBadgesWithUsers(
 	}
 
 	for _, entity := range entities {
-		users := make([]*badges_unprotected.BadgeUser, 0, len(entity.Users))
-		for _, user := range entity.Users {
-			users = append(
-				users,
-				&badges_unprotected.BadgeUser{
-					BadgeId:   entity.ID.String(),
-					UserId:    user.UserID,
-					CreatedAt: user.CreatedAt.UTC().String(),
-				},
-			)
-		}
-
 		resp.Badges = append(
 			resp.Badges, &badges_unprotected.Badge{
 				Id:        entity.ID.String(),
@@ -67,9 +57,17 @@ func (c *Badges) GetBadgesWithUsers(
 				CreatedAt: entity.CreatedAt.String(),
 				FileUrl:   c.computeBadgeUrl(entity.ID.String()),
 				Enabled:   entity.Enabled,
-				Users:     users,
 			},
 		)
+
+		badgeUsers := make([]*structpb.Value, 0, len(entity.Users))
+		for _, user := range entity.Users {
+			badgeUsers = append(badgeUsers, structpb.NewStringValue(user.UserID))
+		}
+
+		resp.Users[entity.ID.String()] = &structpb.ListValue{
+			Values: badgeUsers,
+		}
 	}
 
 	return resp, nil

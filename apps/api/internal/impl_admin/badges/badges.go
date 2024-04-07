@@ -183,7 +183,7 @@ func (c *Badges) BadgeAddUser(
 	ctx context.Context,
 	req *admin_badges.AddUserRequest,
 ) (
-	*badges_unprotected.BadgeUser,
+	*google_protobuf.Empty,
 	error,
 ) {
 	entity := model.BadgeUser{
@@ -196,11 +196,7 @@ func (c *Badges) BadgeAddUser(
 		return nil, err
 	}
 
-	return &badges_unprotected.BadgeUser{
-		BadgeId:   entity.BadgeID.String(),
-		UserId:    entity.UserID,
-		CreatedAt: entity.CreatedAt.UTC().String(),
-	}, nil
+	return &google_protobuf.Empty{}, nil
 }
 
 func (c *Badges) BadgeDeleteUser(

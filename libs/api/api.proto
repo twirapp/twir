@@ -332,7 +332,7 @@ service Admin {
 	rpc BadgesCreate(messages.admin_badges.CreateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
 	rpc BadgesUpdate(messages.admin_badges.UpdateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
 	rpc BadgesDelete(messages.admin_badges.DeleteBadgeRequest) returns (google.protobuf.Empty) {}
-	rpc BadgeAddUser(messages.admin_badges.AddUserRequest) returns (messages.badges_unprotected.BadgeUser) {}
+	rpc BadgeAddUser(messages.admin_badges.AddUserRequest) returns (google.protobuf.Empty) {}
 	rpc BadgeDeleteUser(messages.admin_badges.DeleteUserRequest) returns (google.protobuf.Empty) {}
 }
 

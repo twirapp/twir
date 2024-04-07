@@ -2,11 +2,7 @@ syntax = "proto3";
 option go_package = "github.com/twirapp/twir/libs/api/messages/badges_unprotected";
 package messages.badges_unprotected;
 
-message BadgeUser {
-	string badge_id = 1;
-	string user_id = 2;
-	string created_at = 3;
-}
+import "google/protobuf/struct.proto";
 
 message Badge {
 	string id = 1;
@@ -14,9 +10,13 @@ message Badge {
 	string created_at = 3;
 	string file_url = 4;
 	bool enabled = 5;
-	repeated BadgeUser users = 6;
+}
+
+message ListOfString {
+	repeated string users = 1;
 }
 
 message GetBadgesResponse {
 	repeated Badge badges = 1;
+	map<string, google.protobuf.ListValue> users = 2;
 }

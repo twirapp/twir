@@ -110,7 +110,7 @@ func (c *Users) GetUsers(
 	}
 
 	if req.IsBanned != nil {
-		query = query.Where(`"users"."isBanned" = ?`, *req.IsBanned)
+		query = query.Where(`"users"."is_banned" = ?`, *req.IsBanned)
 	}
 
 	var total int64
