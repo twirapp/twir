@@ -1,8 +1,8 @@
 import {
 	type ColumnDef,
 	getCoreRowModel,
-	useVueTable,
 	getPaginationRowModel,
+	useVueTable,
 } from '@tanstack/vue-table';
 import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { NText } from 'naive-ui';
@@ -23,7 +23,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 
 	const notificationsForm = useNotificationsForm();
 	const notificationsCrud = useAdminNotifications();
-	const notificationsData = notificationsCrud.getAll({});
+	const notificationsData = notificationsCrud.getAll({
+		perPage: 50,
+		page: 0,
+	});
 
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
 		{

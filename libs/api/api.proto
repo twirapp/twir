@@ -325,7 +325,7 @@ service Admin {
 	rpc GetUsers(messages.admin_users.UsersGetRequest) returns (messages.admin_users.UsersGetResponse) {}
 
 	rpc NotificationsCreate(messages.admin_notifications.CreateNotificationRequest) returns (messages.admin_notifications.Notification) {}
-	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.admin_notifications.GetNotificationsResponse) {}
+	rpc NotificationsGetAll(messages.admin_notifications.GetNotificationsRequest) returns (messages.admin_notifications.GetNotificationsResponse) {}
 	rpc NotificationsUpdate(messages.admin_notifications.UpdateNotificationRequest) returns (messages.admin_notifications.Notification) {}
 	rpc NotificationsDelete(messages.admin_notifications.DeleteNotificationRequest) returns (google.protobuf.Empty) {}
 

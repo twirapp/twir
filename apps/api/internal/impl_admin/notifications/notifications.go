@@ -45,13 +45,21 @@ func (c *Notifications) NotificationsCreate(
 
 func (c *Notifications) NotificationsGetAll(
 	ctx context.Context,
-	_ *google_protobuf.Empty,
+	req *messages_admin_notifications.GetNotificationsRequest,
 ) (*messages_admin_notifications.GetNotificationsResponse, error) {
 	var notifications []model.Notifications
+
+	page := req.GetPage()
+	perPage := req.GetPerPage()
+	if perPage == 0 {
+		perPage = 50
+	}
 
 	if err := c.Db.
 		WithContext(ctx).
 		Order(`"createdAt" DESC`).
+		Limit(int(perPage)).
+		Offset(int(page * perPage)).
 		Find(&notifications).
 		Error; err != nil {
 		return nil, err

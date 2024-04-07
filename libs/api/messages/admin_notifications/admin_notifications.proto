@@ -14,8 +14,14 @@ message Notification {
 	optional string user_id = 4;
 }
 
+message GetNotificationsRequest {
+	int32 page = 1;
+	int32 per_page = 2;
+}
+
 message GetNotificationsResponse {
 	repeated Notification notifications = 1;
+	int32 total = 2;
 }
 
 message DeleteNotificationRequest {
