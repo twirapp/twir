@@ -15,7 +15,7 @@ const pageTabs: PageLayoutTab[] = [
 		component: AdminNotifications,
 	},
 	{
-		name: 'user-roles',
+		name: 'users',
 		title: t('adminPanel.manageUsers.title'),
 		component: AdminManageUsers,
 	},

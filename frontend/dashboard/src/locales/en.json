@@ -932,7 +932,8 @@
 			"formTitle": "Create or edit badge",
 			"name": "Name",
 			"image": "Image",
-			"preview": "Preview"
+			"preview": "Preview",
+			"usageCount": "Usage {count}"
 		}
 	}
 }

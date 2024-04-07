@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { Badge } from '@twir/api/messages/badges_unprotected/badges_unprotected';
-import { PencilIcon, TrashIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { ref, unref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 
 import BadgesPreview from './badges-preview.vue';
+import { useUsersTableFilters } from '../../manage-users/composables/use-users-table-filters';
 import { useBadges } from '../composables/use-badges';
 import { useBadgesForm } from '../composables/use-badges-form';
 
 import { Button } from '@/components/ui/button';
 import DeleteConfirm from '@/components/ui/delete-confirm.vue';
-import { Label } from '@/components/ui/label';
 import { useLayout } from '@/composables/use-layout';
 
 const { t } = useI18n();
@@ -27,19 +27,24 @@ async function removeBadge(badgeId: string) {
 }
 
 function editBadge(badge: Badge) {
-	const { id, name, fileUrl } = unref(badge);
-	badgesForm.editableBadgeId = id;
-	badgesForm.form.setFieldValue('name', name);
-	badgesForm.form.setFieldValue('image', fileUrl);
+	badgesForm.editableBadgeId = badge.id;
+	badgesForm.form.setFieldValue('name', badge.name);
+	badgesForm.form.setFieldValue('image', badge.fileUrl);
 	layout.scrollToTop();
 }
 
 const showDelete = ref(false);
 const deleteBadgeId = ref<string | null>(null);
-
-function deleteBadge(badgeId: string) {
+function deleteBadge(badgeId: string): void {
 	showDelete.value = true;
 	deleteBadgeId.value = badgeId;
+}
+
+const router = useRouter();
+const userFilters = useUsersTableFilters();
+function applyUserSearchBadgeFilter(badge: Badge): void {
+	userFilters.selectedFilters[badge.id] = true;
+	router.push({ query: { tab: 'users' } });
 }
 </script>
 
@@ -48,17 +53,23 @@ function deleteBadge(badgeId: string) {
 		{{ t('adminPanel.manageBadges.title') }}
 	</h4>
 	<n-card v-for="badge of badges" :key="badge.id" size="small" bordered>
-		<Label>
+		<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">
 			{{ badge.name }}
-		</Label>
+		</h3>
 		<div class="flex justify-between gap-2 max-sm:flex-col">
 			<badges-preview :image="badge.fileUrl" />
 			<div class="flex items-end gap-2">
-				<Button class="max-sm:w-full" size="icon" @click="editBadge(badge)">
-					<PencilIcon class="h-4 w-4" />
+				<Button
+					class="max-sm:w-full flex items-center space-x-4"
+					variant="secondary" @click="applyUserSearchBadgeFilter(unref(badge))"
+				>
+					{{ t('adminPanel.manageBadges.usageCount', { count: badge.users.length }) }}
 				</Button>
-				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="deleteBadge(badge.id)">
-					<TrashIcon class="h-4 w-4" />
+				<Button class="max-sm:w-full" variant="secondary" @click="editBadge(unref(badge))">
+					{{ t('sharedButtons.edit') }}
+				</Button>
+				<Button class="max-sm:w-full" variant="destructive" @click="deleteBadge(badge.id)">
+					{{ t('sharedButtons.delete') }}
 				</Button>
 			</div>
 		</div>

@@ -15,7 +15,7 @@ const BADGE_SIZES = [144, 72, 36, 18];
 
 <template>
 	<div class="flex items-end gap-2 mt-2">
-		<div v-for="size of BADGE_SIZES" :key="size" class="bg-muted p-2 rounded">
+		<div v-for="size of BADGE_SIZES" :key="size" class="bg-muted p-2 rounded-md">
 			<img :src="imageSrc" :width="size" :height="size" />
 		</div>
 	</div>
