@@ -147,8 +147,13 @@ func (c *Badges) BadgesUpdate(
 		}
 	}
 
-	entity.Name = req.Name
-	entity.Enabled = req.Enabled
+	if req.Name != nil {
+		entity.Name = *req.Name
+	}
+
+	if req.Enabled != nil {
+		entity.Enabled = *req.Enabled
+	}
 
 	return nil, nil
 }
