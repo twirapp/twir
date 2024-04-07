@@ -3,7 +3,7 @@ import { CheckIcon, SearchIcon, ListFilterIcon } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 import { useUsersTable } from '../composables/use-users-table';
-import { useUsersTableFilters } from '../composables/use-users-table-filters';
+import { FilterType, useUsersTableFilters } from '../composables/use-users-table-filters';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,9 +23,21 @@ const { t } = useI18n();
 const usersTable = useUsersTable();
 const usersTableFilters = useUsersTableFilters();
 
-function applyFilter(filterKey: string): void {
-	usersTableFilters.setFilterValue(filterKey);
+function applyFilter(filterKey: string, type: FilterType): void {
+	usersTableFilters.setFilterValue(filterKey, type);
 	usersTable.table.setPageIndex(0);
+}
+
+function isFilterApplied(filterKey: string, type: FilterType): boolean {
+	if (type === 'status') {
+		return filterKey in usersTableFilters.selectedStatuses;
+	}
+
+	if (type === 'badge') {
+		return usersTableFilters.selectedBadges.includes(filterKey);
+	}
+
+	return false;
 }
 </script>
 
@@ -66,15 +78,16 @@ function applyFilter(filterKey: string): void {
 								v-for="filter of filters.list"
 								:key="filter.key"
 								:value="filter.key"
-								@select="applyFilter(filter.key)"
+								@select="applyFilter(filter.key, filters.type)"
 							>
 								<div
-									:class="cn(
+									:class="[
 										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-										filter.key in usersTableFilters.selectedFilters
-											? 'bg-primary text-primary-foreground'
-											: 'opacity-50 [&_svg]:invisible',
-									)"
+										{
+											'bg-primary text-primary-foreground': isFilterApplied(filter.key, filters.type),
+											'opacity-50 [&_svg]:invisible': !isFilterApplied(filter.key, filters.type),
+										}
+									]"
 								>
 									<CheckIcon :class="cn('h-4 w-4')" />
 								</div>

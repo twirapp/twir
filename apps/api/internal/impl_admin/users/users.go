@@ -113,6 +113,14 @@ func (c *Users) GetUsers(
 		query = query.Where(`"users"."is_banned" = ?`, *req.IsBanned)
 	}
 
+	badgesIDs := req.GetBadgesIds()
+
+	if len(badgesIDs) > 0 {
+		query = query.
+			Joins("LEFT JOIN badges_users ON badges_users.user_id = users.id").
+			Where(`badges_users.badge_id IN (?)`, badgesIDs)
+	}
+
 	var total int64
 	if err := query.Model(&model.Users{}).Count(&total).Error; err != nil {
 		return nil, err

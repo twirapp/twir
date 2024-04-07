@@ -16,6 +16,7 @@ message UsersGetRequest {
 	optional bool is_admin = 4;
 	optional bool is_bot_enabled = 5;
 	optional bool is_banned = 6;
+	repeated string badges_ids = 7;
 }
 
 message UsersGetResponse {

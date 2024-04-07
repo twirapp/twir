@@ -1,12 +1,15 @@
 import { refDebounced } from '@vueuse/core';
 import { defineStore, storeToRefs } from 'pinia';
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useBadges } from '../../manage-badges/composables/use-badges';
 
+export type FilterType = 'status' | 'badge';
+
 interface Filter {
 	group: string;
+	type: FilterType;
 	list: {
 		label: string;
 		key: string;
@@ -22,9 +25,17 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 
 	const { badges } = storeToRefs(useBadges());
 
+	const selectedStatuses = ref<Record<string, true | undefined>>({});
+	const selectedBadges = ref<string[]>([]);
+
+	const selectedFiltersCount = computed(() => {
+		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length;
+	});
+
 	const filtersList = computed<Filter[]>(() => [
 		{
 			group: t('adminPanel.manageUsers.statusGroup'),
+			type: 'status',
 			list: [
 				{
 					label: t('adminPanel.manageUsers.isAdmin'),
@@ -42,6 +53,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		},
 		{
 			group: t('adminPanel.manageUsers.badgesGroup'),
+			type: 'badge',
 			list: badges.value.map((badge) => ({
 				label: badge.name,
 				key: badge.id,
@@ -50,31 +62,39 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		},
 	]);
 
-	const selectedFilters = ref<Record<string, true | undefined>>({});
-	const selectedFiltersCount = computed(() => {
-		return Object.keys(selectedFilters.value).length;
-	});
-
 	function clearFilters() {
-		selectedFilters.value = {};
+		selectedStatuses.value = {};
+		selectedBadges.value = [];
 	}
 
-	function setFilterValue(filterKey: string) {
-		if (selectedFilters.value[filterKey]) {
-			delete selectedFilters.value[filterKey];
-			return;
+	function setFilterValue(filterKey: string, type: 'status' | 'badge') {
+		if (type === 'status') {
+			if (selectedStatuses.value[filterKey]) {
+				delete selectedStatuses.value[filterKey];
+				return;
+			}
+
+			selectedStatuses.value[filterKey] = true;
 		}
 
-		selectedFilters.value[filterKey] = true;
+		if (type === 'badge') {
+			if (selectedBadges.value.includes(filterKey)) {
+				selectedBadges.value = selectedBadges.value.filter((badge) => badge !== filterKey);
+				return;
+			}
+
+			selectedBadges.value.push(filterKey);
+		}
 	}
 
 	return {
 		searchInput,
 		debounceSearchInput,
 		filtersList,
-		selectedFilters,
+		selectedStatuses,
 		selectedFiltersCount,
 		setFilterValue,
 		clearFilters,
+		selectedBadges,
 	};
 });

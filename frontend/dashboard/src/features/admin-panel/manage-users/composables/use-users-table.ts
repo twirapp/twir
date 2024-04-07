@@ -1,4 +1,9 @@
-import { type ColumnDef, getCoreRowModel, useVueTable, type PaginationState } from '@tanstack/vue-table';
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	type PaginationState,
+	useVueTable,
+} from '@tanstack/vue-table';
 import type {
 	UsersGetRequest,
 	UsersGetResponse_UsersGetResponseUser as User,
@@ -33,10 +38,11 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const tableFilters = useUsersTableFilters();
 
 	const tableParams = computed<UsersGetRequest>(() => ({
-		...tableFilters.selectedFilters,
+		...tableFilters.selectedStatuses,
 		search: tableFilters.debounceSearchInput,
 		page: pagination.value.pageIndex,
 		perPage: pagination.value.pageSize,
+		badgesIds: tableFilters.selectedBadges,
 	}));
 
 	const { data, isFetching } = useAdminUsers(tableParams);
