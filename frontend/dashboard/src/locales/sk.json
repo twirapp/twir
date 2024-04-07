@@ -361,23 +361,23 @@
   "overlays": {
     "copyOverlayLink": "Kopírovať link prekrytia",
     "uncongirured": "Najprv by ste mali nakonfigurovať prekrytie!",
-    "noAccess": "You do not have access to this overlay!",
-    "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+    "noAccess": "K tomuto prekrytiu nemáte prístup!",
+    "copied": "Úspešne skopírovaná adresa URL prekryvného odkazu! Musíte ho nastaviť ako zdroj prehliadača v OBS.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Prekrytie s aktuálnymi informáciami o prehrávanej skladbe. Toto prekrytie bude fungovať len vtedy, ak máte pripojenú integráciu, ako je spotify, lastfm."
     },
     "tts": {
-      "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
+      "description": "Toto prekrytie umožňuje prehrávať správy chatu ako zvuk prostredníctvom služby OBS so sadou prednastavených hlasov. Toto prekrytie môžete ovládať pomocou príkazov alebo udalostí.",
       "eventsHint": "Tip: Na spustenie TTS pri konkrétnej udalosti môžete použiť systém udalostí.",
-      "allowUsersChooseVoice": "Allow chatters to use different voices?",
+      "allowUsersChooseVoice": "Povoliť chatujúcim používať rôzne hlasy?",
       "doNotReadEmoji": "Nečítať emotikony",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes (including 7TV, FFZ, BTTV",
-      "doNotReadLinks": "Do Not Read Links",
-      "readChatMessages": "Read All Chat Messages",
-      "readChatMessagesNicknames": "Read Usernames",
-      "voice": "Default Voice",
-      "disallowedVoices": "Disallowed Voices List",
-      "volume": "Volume",
+      "doNotReadTwitchEmotes": "Nečítať Twitch emoty (vrátane 7TV, FFZ, BTTV)",
+      "doNotReadLinks": "Nečítať odkazy",
+      "readChatMessages": "Čítať všetky správy v chate",
+      "readChatMessagesNicknames": "Čítať používateľské mená",
+      "voice": "Predvolený hlas",
+      "disallowedVoices": "Zoznam nepovolených hlasov",
+      "volume": "Hlasitosť",
       "pitch": "Pitch",
       "rate": "Rate",
       "users": {
