@@ -37,7 +37,7 @@ async function toggleBadge(badgeId: string) {
 </script>
 
 <template>
-	<Popover>
+	<Popover v-if="badges.length">
 		<PopoverTrigger as-child>
 			<Button variant="secondary" size="sm" class="h-10">
 				<AwardIcon class="h-4 w-4" />
