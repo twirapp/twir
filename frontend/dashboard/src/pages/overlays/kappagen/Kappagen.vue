@@ -5,6 +5,7 @@ import type {
 	Settings_AnimationSettings,
 } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
 import { useDebounceFn } from '@vueuse/core';
+import { CopyIcon } from 'lucide-vue-next';
 import { NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -150,6 +151,7 @@ const playKappaPreview = (animation: Settings_AnimationSettings) => {
 
 				<n-button-group>
 					<n-button secondary type="info" @click="copyOverlayLink()">
+						<CopyIcon class="mr-2 h-6 w-6" />
 						{{ t('overlays.copyOverlayLink') }}
 					</n-button>
 				</n-button-group>
@@ -157,7 +159,7 @@ const playKappaPreview = (animation: Settings_AnimationSettings) => {
 
 			<n-tabs
 				default-value="main"
-				type="segment"
+				type="line"
 				size="large"
 				justify-content="space-evenly"
 				animated
