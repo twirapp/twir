@@ -60,7 +60,17 @@ function onChangeTab(tab: string, replace = false): void {
 				</h1>
 				<div class="flex gap-2">
 					<TabsList class="flex overflow-x-auto -mb-px">
-						<TabsTrigger v-for="tab of props.tabs" :key="tab.name" class="tabs-trigger" :value="tab.name">
+						<TabsTrigger
+							v-for="tab of props.tabs"
+							:key="tab.name"
+							class="tabs-trigger"
+							:value="tab.name"
+							:class="[
+								theme === 'dark'
+									? 'data-[state=active]:after:border-white'
+									: 'data-[state=active]:after:border-zinc-800'
+							]"
+						>
 							{{ tab.title }}
 						</TabsTrigger>
 					</TabsList>
@@ -68,7 +78,7 @@ function onChangeTab(tab: string, replace = false): void {
 			</div>
 		</div>
 		<div class="container py-8">
-			<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name">
+			<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
 				<component :is="tab.component" />
 			</TabsContent>
 		</div>
@@ -77,6 +87,6 @@ function onChangeTab(tab: string, replace = false): void {
 
 <style scoped>
 .tabs-trigger {
-	@apply relative z-[1] flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-[1] before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:border-white data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium
+	@apply relative z-[1] flex whitespace-nowrap px-3 py-4 text-sm  transition-colors before:absolute before:left-0 before:top-2 before:-z-[1] before:block before:h-9 before:w-full before:rounded-md before:transition-colors before:content-[''] hover:text-white hover:before:bg-zinc-800 data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:block data-[state=active]:after:h-0 data-[state=active]:after:border-b-2 data-[state=active]:after:content-[''] data-[state=active]:after:rounded-t-sm font-medium
 }
 </style>
