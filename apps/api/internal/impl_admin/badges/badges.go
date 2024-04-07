@@ -155,7 +155,13 @@ func (c *Badges) BadgesUpdate(
 		entity.Enabled = *req.Enabled
 	}
 
-	return nil, nil
+	return &badges_unprotected.Badge{
+		Id:        entity.ID.String(),
+		Name:      entity.Name,
+		CreatedAt: entity.CreatedAt.UTC().String(),
+		FileUrl:   c.computeBadgeUrl(entity.ID.String()),
+		Enabled:   entity.Enabled,
+	}, nil
 }
 
 func (c *Badges) BadgesDelete(
