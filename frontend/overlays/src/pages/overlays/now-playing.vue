@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { NowPlaying, type Track } from '@twir/frontend-now-playing';
-import { useDebounceFn } from '@vueuse/core';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 
@@ -25,17 +24,19 @@ onUnmounted(() => {
 
 const showedTrack = ref<Track | null | undefined>(null);
 
-const debouncedShowTrack = useDebounceFn((track: Track | null | undefined) => {
-	showedTrack.value = track;
-	if (settings.value?.hideTimeout) {
-		setTimeout(() => {
-			showedTrack.value = null;
-		}, settings.value.hideTimeout * 1000);
-	}
-}, 5000);
-
+const timerId = ref<number | null>(null);
 watch(currentTrack, (track) => {
-	debouncedShowTrack(track);
+	if (timerId.value != null) {
+		clearTimeout(timerId.value);
+	}
+
+	showedTrack.value = track;
+
+	if (settings.value?.hideTimeout) {
+		timerId.value = setTimeout(() => {
+			showedTrack.value = null;
+		}, settings.value.hideTimeout * 1000) as unknown as number;
+	}
 });
 </script>
 
