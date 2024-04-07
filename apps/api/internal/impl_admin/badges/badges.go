@@ -155,6 +155,10 @@ func (c *Badges) BadgesUpdate(
 		entity.Enabled = *req.Enabled
 	}
 
+	if err := c.Db.WithContext(ctx).Save(&entity).Error; err != nil {
+		return nil, err
+	}
+
 	return &badges_unprotected.Badge{
 		Id:        entity.ID.String(),
 		Name:      entity.Name,
