@@ -122,7 +122,7 @@ const { textareaRef } = storeToRefs(textarea);
 
 			<div class="flex justify-end gap-4">
 				<Button
-					:disabled="!notificationsForm.message && !notificationsForm.editableMessageId"
+					:disabled="!notificationsForm.isFormDirty && !notificationsForm.editableMessageId"
 					type="button"
 					variant="secondary"
 					@click="notificationsForm.onReset"

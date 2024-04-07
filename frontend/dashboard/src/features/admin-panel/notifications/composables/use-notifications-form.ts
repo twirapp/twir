@@ -17,6 +17,7 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 	const notifications = useAdminNotifications();
 
 	const form = useForm({ validationSchema: formSchema });
+	const isFormDirty = computed(() => form.isFieldDirty('userId') || form.isFieldDirty('message'));
 	const message = computed(() => form.values.message?.trim());
 
 	const onSubmit = form.handleSubmit(async (values) => {
@@ -46,6 +47,7 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 		form,
 		message,
 		isEditableForm,
+		isFormDirty,
 		editableMessageId,
 		onSubmit,
 		onReset,

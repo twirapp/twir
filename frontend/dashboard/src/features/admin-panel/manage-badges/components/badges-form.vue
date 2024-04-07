@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NCard } from 'naive-ui';
+import { onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import BadgesPreview from './badges-preview.vue';
@@ -18,6 +19,10 @@ import { Label } from '@/components/ui/label';
 
 const { t } = useI18n();
 const badgesForm = useBadgesForm();
+
+onUnmounted(() => {
+	badgesForm.onReset();
+});
 </script>
 
 <template>

@@ -3,12 +3,14 @@ import type { Badge } from '@twir/api/messages/badges_unprotected/badges_unprote
 import { PencilIcon, TrashIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
 import { storeToRefs } from 'pinia';
+import { ref, unref } from 'vue';
 
 import BadgesPreview from './badges-preview.vue';
 import { useBadges } from '../composables/use-badges';
 import { useBadgesForm } from '../composables/use-badges-form';
 
 import { Button } from '@/components/ui/button';
+import DeleteConfirm from '@/components/ui/delete-confirm.vue';
 import { Label } from '@/components/ui/label';
 
 const badgesForm = useBadgesForm();
@@ -17,12 +19,22 @@ const { badges } = storeToRefs(badgesStore);
 
 async function removeBadge(badgeId: string) {
 	await badgesStore.badgesDeleter.mutateAsync(badgeId);
+	deleteBadgeId.value = null;
 }
 
 function editBadge(badge: Badge) {
-	badgesForm.editableBadgeId = badge.id;
-	badgesForm.form.setFieldValue('name', badge.name);
-	badgesForm.form.setFieldValue('image', badge.fileUrl);
+	const { id, name, fileUrl } = unref(badge);
+	badgesForm.editableBadgeId = id;
+	badgesForm.form.setFieldValue('name', name);
+	badgesForm.form.setFieldValue('image', fileUrl);
+}
+
+const showDelete = ref(false);
+const deleteBadgeId = ref<string | null>(null);
+
+function deleteBadge(badgeId: string) {
+	showDelete.value = true;
+	deleteBadgeId.value = badgeId;
 }
 </script>
 
@@ -37,10 +49,15 @@ function editBadge(badge: Badge) {
 				<Button class="max-sm:w-full" size="icon" @click="editBadge(badge)">
 					<PencilIcon class="h-4 w-4" />
 				</Button>
-				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="removeBadge(badge.id)">
+				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="deleteBadge(badge.id)">
 					<TrashIcon class="h-4 w-4" />
 				</Button>
 			</div>
 		</div>
 	</n-card>
+
+	<delete-confirm
+		v-model:open="showDelete"
+		@confirm="removeBadge(deleteBadgeId!)"
+	/>
 </template>
