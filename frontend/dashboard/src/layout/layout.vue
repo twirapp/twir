@@ -17,7 +17,8 @@ import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 
-import Toaster from '@/components/ui/toast/Toaster.vue';
+import { Toaster as Sonner } from '@/components/ui/sonner';
+import { Toaster } from '@/components/ui/toast';
 import { useTheme } from '@/composables/use-theme.js';
 import Header from '@/layout/header.vue';
 import Sidebar from '@/layout/sidebar.vue';
@@ -93,6 +94,7 @@ watch(smallerOrEqualLg, (v) => {
 								</router-view>
 
 								<Toaster />
+								<Sonner />
 							</n-layout-content>
 						</n-layout>
 					</n-layout>
