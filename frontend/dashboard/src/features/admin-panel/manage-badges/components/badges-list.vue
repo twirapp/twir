@@ -42,8 +42,9 @@ function deleteBadge(badgeId: string): void {
 
 const router = useRouter();
 const userFilters = useUsersTableFilters();
+
 function applyUserSearchBadgeFilter(badge: Badge): void {
-	userFilters.selectedFilters[badge.id] = true;
+	userFilters.selectedBadges.push(badge.id);
 	router.push({ query: { tab: 'users' } });
 }
 </script>
