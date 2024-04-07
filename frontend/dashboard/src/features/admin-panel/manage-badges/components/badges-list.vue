@@ -64,7 +64,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 					class="max-sm:w-full flex items-center space-x-4"
 					variant="secondary" @click="applyUserSearchBadgeFilter(unref(badge))"
 				>
-					{{ t('adminPanel.manageBadges.usageCount', { count: badge.users.length }) }}
+					{{ t('adminPanel.manageBadges.usersCount', { count: badge.users.length }) }}
 				</Button>
 				<Button class="max-sm:w-full" variant="secondary" @click="editBadge(unref(badge))">
 					{{ t('sharedButtons.edit') }}

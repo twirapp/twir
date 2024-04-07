@@ -55,9 +55,14 @@ func (c *Notifications) NotificationsGetAll(
 		perPage = 50
 	}
 
-	if err := c.Db.
-		WithContext(ctx).
-		Order(`"createdAt" DESC`).
+	query := c.Db.WithContext(ctx).
+		Order(`"createdAt" DESC`)
+
+	if req.GetIsUser() {
+		query = query.Where(`"userId" IS NOT NULL`)
+	}
+
+	if err := query.
 		Limit(int(perPage)).
 		Offset(int(page * perPage)).
 		Find(&notifications).

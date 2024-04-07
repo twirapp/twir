@@ -933,7 +933,7 @@
 			"name": "Name",
 			"image": "Image",
 			"preview": "Preview",
-			"usageCount": "Usage {count}"
+			"usersCount": "Users {count}"
 		}
 	}
 }

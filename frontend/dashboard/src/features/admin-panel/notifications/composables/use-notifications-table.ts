@@ -26,6 +26,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const notificationsData = notificationsCrud.getAll({
 		perPage: 50,
 		page: 0,
+		isUser: false,
 	});
 
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [

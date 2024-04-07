@@ -17,6 +17,7 @@ message Notification {
 message GetNotificationsRequest {
 	int32 page = 1;
 	int32 per_page = 2;
+	bool is_user = 3;
 }
 
 message GetNotificationsResponse {
