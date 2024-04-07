@@ -45,6 +45,9 @@ const { textareaRef } = storeToRefs(textarea);
 </script>
 
 <template>
+	<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+		{{ t('adminPanel.notifications.formTitle') }}
+	</h4>
 	<n-card size="small" bordered>
 		<form class="flex flex-col gap-4" @submit="notificationsForm.onSubmit">
 			<FormField v-slot="{ componentField }" name="userId">
