@@ -12,7 +12,9 @@ import { useBadgesForm } from '../composables/use-badges-form';
 import { Button } from '@/components/ui/button';
 import DeleteConfirm from '@/components/ui/delete-confirm.vue';
 import { Label } from '@/components/ui/label';
+import { useLayout } from '@/composables/use-layout';
 
+const layout = useLayout();
 const badgesForm = useBadgesForm();
 const badgesStore = useBadges();
 const { badges } = storeToRefs(badgesStore);
@@ -27,6 +29,7 @@ function editBadge(badge: Badge) {
 	badgesForm.editableBadgeId = id;
 	badgesForm.form.setFieldValue('name', name);
 	badgesForm.form.setFieldValue('image', fileUrl);
+	layout.scrollToTop();
 }
 
 const showDelete = ref(false);

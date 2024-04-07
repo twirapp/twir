@@ -926,6 +926,7 @@
 		},
 		"manageBadges": {
 			"title": "Badges",
+			"formTitle": "Create and edit",
 			"name": "Name",
 			"image": "Image",
 			"preview": "Preview"

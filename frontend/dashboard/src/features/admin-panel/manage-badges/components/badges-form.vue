@@ -38,7 +38,7 @@ onUnmounted(() => {
 				</FormItem>
 			</FormField>
 
-			<FormField name="file">
+			<FormField name="image">
 				<FormItem>
 					<FormLabel>
 						{{ t('adminPanel.manageBadges.image') }}

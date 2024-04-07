@@ -14,11 +14,10 @@ const formSchema = toTypedSchema(z.object({
 export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 	const { badgesUpload, badgesUpdate } = useBadges();
 
-	const editableBadgeId = ref<string | null>(null);
-
 	const form = useForm({ validationSchema: formSchema });
 	const image = computed(() => form.values.image);
 	const isFormDirty = computed(() => form.isFieldDirty('name') || form.isFieldDirty('image'));
+	const editableBadgeId = ref<string | null>(null);
 
 	const onSubmit = form.handleSubmit(async (values) => {
 		const parsedImage = await parseImage(values.image);
