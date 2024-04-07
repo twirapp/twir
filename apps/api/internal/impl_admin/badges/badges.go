@@ -127,19 +127,24 @@ func (c *Badges) BadgesUpdate(
 		return nil, err
 	}
 
-	_, err := c.s3Client.PutObject(
-		ctx,
-		c.Config.S3Bucket,
-		fmt.Sprintf("badges/%s", entity.ID),
-		bytes.NewReader(req.FileBytes),
-		int64(len(req.FileBytes)),
-		minio.PutObjectOptions{
-			ContentType: req.FileMimeType,
-		},
-	)
-	if err != nil {
-		c.Logger.Error("cannot upload badge file", slog.Any("err", err))
-		return nil, fmt.Errorf("cannot delete badge: %w", err)
+	if len(req.FileBytes) > 0 {
+		if req.FileMimeType == nil || len(*req.FileMimeType) == 0 {
+			return nil, twirp.NewError(twirp.InvalidArgument, "file mime type is required")
+		}
+		_, err := c.s3Client.PutObject(
+			ctx,
+			c.Config.S3Bucket,
+			fmt.Sprintf("badges/%s", entity.ID),
+			bytes.NewReader(req.FileBytes),
+			int64(len(req.FileBytes)),
+			minio.PutObjectOptions{
+				ContentType: *req.FileMimeType,
+			},
+		)
+		if err != nil {
+			c.Logger.Error("cannot upload badge file", slog.Any("err", err))
+			return nil, fmt.Errorf("cannot delete badge: %w", err)
+		}
 	}
 
 	entity.Name = req.Name
