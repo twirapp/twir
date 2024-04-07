@@ -1,5 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { CreateBadgeRequest, UpdateBadgeRequest } from '@twir/api/messages/admin_badges/admin_badges';
+import type {
+	CreateBadgeRequest,
+	UpdateBadgeRequest,
+} from '@twir/api/messages/admin_badges/admin_badges';
 import type { GetBadgesResponse } from '@twir/api/messages/badges_unprotected/badges_unprotected';
 
 import { adminApiClient, unprotectedApiClient } from './twirp';

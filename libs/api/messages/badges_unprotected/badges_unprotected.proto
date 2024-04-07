@@ -10,6 +10,7 @@ message Badge {
 	string created_at = 3;
 	string file_url = 4;
 	bool enabled = 5;
+	repeated string users = 6;
 }
 
 message ListOfString {
@@ -18,5 +19,4 @@ message ListOfString {
 
 message GetBadgesResponse {
 	repeated Badge badges = 1;
-	map<string, google.protobuf.ListValue> users = 2;
 }
