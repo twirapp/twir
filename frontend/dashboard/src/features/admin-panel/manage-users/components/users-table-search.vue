@@ -100,7 +100,7 @@ function isFilterApplied(filterKey: string, type: FilterType): boolean {
 							<CommandGroup>
 								<CommandItem
 									:value="{ label: 'Clear filters' }"
-									class="justify-center text-center"
+									class="justify-center text-center cursor-pointer"
 									@select="usersTableFilters.clearFilters"
 								>
 									{{ t('adminPanel.manageUsers.clearFilters') }}
