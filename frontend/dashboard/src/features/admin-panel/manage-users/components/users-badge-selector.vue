@@ -23,7 +23,7 @@ const { badges } = storeToRefs(badgesStore);
 
 const userBadgesIds = computed(() => {
 	return badges.value
-		.filter((badge) => badge.users.some((user) => user.userId === props.userId))
+		.filter((badge) => badge.users.some((userId) => userId === props.userId))
 		.map((badge) => badge.id);
 });
 

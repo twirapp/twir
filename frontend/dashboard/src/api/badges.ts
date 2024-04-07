@@ -53,7 +53,7 @@ export const useAdminBadges = () => {
 			});
 			return req.response;
 		},
-		onSuccess(response, opts) {
+		onSuccess(_, opts) {
 			queryClient.setQueriesData<GetBadgesResponse>([BADGES_QUERY_KEY], (data) => {
 				if (!data) return data;
 				return {
@@ -61,7 +61,7 @@ export const useAdminBadges = () => {
 						if (badge.id === opts.badgeId) {
 							return {
 								...badge,
-								users: [...badge.users, response],
+								users: [...badge.users, opts.userId],
 							};
 						}
 						return badge;
@@ -85,7 +85,7 @@ export const useAdminBadges = () => {
 					badges: data.badges.map((badge) => ({
 						...badge,
 						users: badge.id === opts.badgeId
-							? badge.users.filter((user) => user.userId !== opts.userId)
+							? badge.users.filter((userId) => userId !== opts.userId)
 							: badge.users,
 					})),
 				};

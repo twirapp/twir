@@ -41,7 +41,7 @@ const badgesForm = useBadgesForm();
 					<FormControl>
 						<div className="grid w-full items-center gap-1.5">
 							<Input
-								required
+								:required="!badgesForm.editableBadgeId"
 								accept="image/*"
 								type="file"
 								@change="badgesForm.setImageField"
@@ -59,8 +59,25 @@ const badgesForm = useBadgesForm();
 			</div>
 
 			<div class="flex justify-end gap-4">
+				<Button
+					type="button"
+					variant="secondary"
+					:disabled="!badgesForm.isFormDirty" @click="badgesForm.onReset"
+				>
+					<template v-if="badgesForm.editableBadgeId">
+						{{ t('sharedButtons.cancel') }}
+					</template>
+					<template v-else>
+						{{ t('sharedButtons.reset') }}
+					</template>
+				</Button>
 				<Button type="submit">
-					{{ t('sharedButtons.create') }}
+					<template v-if="badgesForm.editableBadgeId">
+						{{ t('sharedButtons.edit') }}
+					</template>
+					<template v-else>
+						{{ t('sharedButtons.create') }}
+					</template>
 				</Button>
 			</div>
 		</form>
