@@ -48,12 +48,19 @@ var Color = &types.DefaultCommand{
 			}
 		}
 
-		color, err := csscolorparser.Parse(*parseCtx.Text)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "invalid color",
-				Err:     err,
+		var color *string
+		if parseCtx.Text == nil || *parseCtx.Text == "reset" {
+			color = nil
+		} else {
+			parsedColor, err := csscolorparser.Parse(*parseCtx.Text)
+			if err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "invalid color",
+					Err:     err,
+				}
 			}
+
+			color = lo.ToPtr(parsedColor.HexString())
 		}
 
 		if entity.UserID == "" {
@@ -62,14 +69,14 @@ var Color = &types.DefaultCommand{
 			entity.UserID = parseCtx.Sender.ID
 		}
 
-		entity.DudeColor = lo.ToPtr(color.HexString())
+		entity.DudeColor = color
 		if err := parseCtx.Services.Gorm.
 			WithContext(ctx).
 			Save(&entity).Error; err != nil {
 			return nil, err
 		}
 
-		err = parseCtx.Services.Bus.Websocket.DudesUserSettings.Publish(
+		err := parseCtx.Services.Bus.Websocket.DudesUserSettings.Publish(
 			websockets.DudesChangeUserSettingsRequest{
 				ChannelID: parseCtx.Channel.ID,
 				UserID:    parseCtx.Sender.ID,
@@ -82,7 +89,12 @@ var Color = &types.DefaultCommand{
 			}
 		}
 
-		result.Result = []string{fmt.Sprintf("Color changed to %s", color.HexString())}
+		if color == nil {
+			result.Result = []string{"Color reset to default"}
+			return &result, nil
+		}
+
+		result.Result = []string{fmt.Sprintf("Color changed to %s", *color)}
 		return &result, nil
 	},
 }

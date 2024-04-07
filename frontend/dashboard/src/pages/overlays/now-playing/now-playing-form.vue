@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Font, FontSelector } from '@twir/fontsource';
-import { NButton, NSelect, NFormItem, useThemeVars, NColorPicker, NSwitch } from 'naive-ui';
+import { NButton, NSelect, NFormItem, useThemeVars, NColorPicker, NSwitch, NInputNumber } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -42,6 +42,7 @@ async function save() {
 		fontWeight: formValue.value.fontWeight,
 		backgroundColor: formValue.value.backgroundColor,
 		showImage: formValue.value.showImage,
+		hideTimeout: formValue.value.hideTimeout,
 	});
 
 	discrete.notification.success({
@@ -114,6 +115,14 @@ const fontWeightOptions = computed(() => {
 				<n-select
 					v-model:value="formValue.fontWeight"
 					:options="fontWeightOptions"
+				/>
+			</n-form-item>
+
+			<n-form-item :label="t('overlays.chat.hideTimeout')">
+				<n-input-number
+					v-model:value="formValue.hideTimeout"
+					:min="0"
+					:max="600"
 				/>
 			</n-form-item>
 		</div>

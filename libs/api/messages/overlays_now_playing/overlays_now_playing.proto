@@ -10,6 +10,7 @@ message Settings {
 	uint32 font_weight = 5;
 	string background_color = 6;
 	bool show_image = 7;
+	optional int32 hide_timeout = 8;
 }
 
 message GetAllResponse {
@@ -23,6 +24,7 @@ message UpdateRequest {
 	uint32 font_weight = 4;
 	string background_color = 5;
 	bool show_image = 6;
+	optional int32 hide_timeout = 7;
 }
 
 message CreateRequest {
@@ -31,6 +33,7 @@ message CreateRequest {
 	uint32 font_weight = 3;
 	string background_color = 4;
 	bool show_image = 5;
+	optional int32 hide_timeout = 6;
 }
 
 message DeleteRequest {

@@ -4,6 +4,8 @@ import { TwirEventType } from '@twir/api/messages/events/events';
 import type {
 	Settings_AnimationSettings,
 } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
+import { useDebounceFn } from '@vueuse/core';
+import { CopyIcon } from 'lucide-vue-next';
 import { NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -17,7 +19,7 @@ import { useKappagenFormSettings } from './store.js';
 import { useKappaGenOverlayManager, useProfile } from '@/api';
 import { flatEvents } from '@/components/events/helpers.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { useToast } from '@/components/ui/toast';
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -29,7 +31,6 @@ const availableEvents = Object.values(flatEvents)
 	}) as Array<{ name: string, value: TwirEventType }>;
 
 const themeVars = useThemeVars();
-const discrete = useNaiveDiscrete();
 const { t } = useI18n();
 const { copyOverlayLink } = useCopyOverlayLink('kappagen');
 
@@ -46,6 +47,31 @@ watch(error, async (v) => {
 		}
 	}
 });
+
+const { toast } = useToast();
+async function save() {
+	if (!formValue.value) return;
+
+	await updater.mutateAsync(formValue.value);
+	toast({
+		title: t('sharedTexts.saved'),
+		variant: 'success',
+	});
+}
+
+const sendSettings = () => sendIframeMessage('settings', {
+	...toRaw(formValue.value),
+	channelName: profile.value?.login,
+	channelId: profile.value?.id,
+});
+
+const debouncedSave = useDebounceFn(async () => {
+	await save();
+	sendSettings();
+}, 1000);
+watch(formValue, () => {
+	debouncedSave();
+}, { deep: true });
 
 watch(settings, (s) => {
 	if (!s) return;
@@ -92,12 +118,6 @@ const sendIframeMessage = (key: string, data?: any) => {
 	}));
 };
 
-const sendSettings = () => sendIframeMessage('settings', {
-	...toRaw(formValue.value),
-	channelName: profile.value?.login,
-	channelId: profile.value?.id,
-});
-
 watch(kappagenIframeRef, (v) => {
 	if (!v) return;
 	v.contentWindow?.addEventListener('message', (event) => {
@@ -110,16 +130,6 @@ watch(kappagenIframeRef, (v) => {
 const playKappaPreview = (animation: Settings_AnimationSettings) => {
 	sendIframeMessage('kappaWithAnimation', { animation });
 };
-
-async function save() {
-	if (!formValue.value) return;
-
-	await updater.mutateAsync(formValue.value);
-	discrete.notification.success({
-		title: t('sharedTexts.saved'),
-		duration: 1500,
-	});
-}
 </script>
 
 <template>
@@ -141,17 +151,15 @@ async function save() {
 
 				<n-button-group>
 					<n-button secondary type="info" @click="copyOverlayLink()">
+						<CopyIcon class="mr-2 h-6 w-6" />
 						{{ t('overlays.copyOverlayLink') }}
-					</n-button>
-					<n-button secondary type="success" @click="save">
-						{{ t('sharedButtons.saveSettings') }}
 					</n-button>
 				</n-button-group>
 			</div>
 
 			<n-tabs
 				default-value="main"
-				type="segment"
+				type="line"
 				size="large"
 				justify-content="space-evenly"
 				animated

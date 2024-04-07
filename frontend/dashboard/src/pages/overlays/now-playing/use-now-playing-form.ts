@@ -10,6 +10,7 @@ export const defaultSettings: Settings = {
 	fontFamily: 'inter',
 	fontWeight: 400,
 	showImage: true,
+	hideTimeout: undefined,
 };
 
 export const useNowPlayingForm = defineStore('now-playing-form', () => {

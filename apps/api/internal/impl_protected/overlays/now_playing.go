@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	model "github.com/satont/twir/libs/gomodels"
@@ -22,6 +23,7 @@ func convertEntityToProto(entity model.ChannelOverlayNowPlaying) *overlays_now_p
 		FontWeight:      entity.FontWeight,
 		BackgroundColor: entity.BackgroundColor,
 		ShowImage:       entity.ShowImage,
+		HideTimeout:     lo.ToPtr(int32(entity.HideTimeout.Int64)),
 	}
 }
 
@@ -81,6 +83,7 @@ func (c *Overlays) OverlaysNowPlayingUpdate(
 	overlay.FontWeight = req.GetFontWeight()
 	overlay.BackgroundColor = req.GetBackgroundColor()
 	overlay.ShowImage = req.GetShowImage()
+	overlay.HideTimeout = null.IntFrom(int64(req.GetHideTimeout()))
 
 	if err := c.Db.
 		WithContext(ctx).
@@ -140,6 +143,7 @@ func (c *Overlays) OverlaysNowPlayingCreate(
 		BackgroundColor: req.GetBackgroundColor(),
 		ChannelID:       dashboardId,
 		ShowImage:       req.GetShowImage(),
+		HideTimeout:     null.IntFrom(int64(req.GetHideTimeout())),
 	}
 
 	if err := c.Db.

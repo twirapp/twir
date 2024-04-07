@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/satont/twir/libs/types/types/api/overlays"
 )
 
@@ -12,6 +13,7 @@ type ChannelOverlayNowPlaying struct {
 	FontWeight      uint32                                  `gorm:"column:font_weight;type:int" json:"fontWeight"`
 	BackgroundColor string                                  `gorm:"column:background_color;type:text" json:"backgroundColor"`
 	ShowImage       bool                                    `gorm:"column:show_image;type:boolean" json:"showImage"`
+	HideTimeout     null.Int                                `gorm:"column:hide_timeout;type:int" json:"hideTimeout"`
 
 	ChannelID string    `gorm:"column:channel_id;type:text" json:"channelId"`
 	Channel   *Channels `gorm:"foreignkey:ChannelID;" json:"channel"`

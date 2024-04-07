@@ -2,6 +2,7 @@ package games
 
 import (
 	"context"
+	"errors"
 	"math/rand"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/lib/pq"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 type duelUserForTimeout struct {
@@ -35,6 +37,10 @@ var DuelAccept = &types.DefaultCommand{
 
 		settings, err := handler.getChannelSettings(ctx)
 		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, nil
+			}
+
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get duel channel settings",
 				Err:     err,

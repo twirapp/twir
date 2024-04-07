@@ -2,6 +2,7 @@ package games
 
 import (
 	"context"
+	"errors"
 	"slices"
 	"strings"
 	"time"
@@ -18,6 +19,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"golang.org/x/exp/rand"
+	"gorm.io/gorm"
 )
 
 var RussianRoulette = &types.DefaultCommand{
@@ -42,6 +44,10 @@ var RussianRoulette = &types.DefaultCommand{
 			`"channelId" = ? and "userId" is null and "type" = 'russian_roulette'`,
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return result, nil
+			}
+
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get roulette settings from db",
 				Err:     err,

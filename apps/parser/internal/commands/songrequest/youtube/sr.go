@@ -57,7 +57,6 @@ var SrCommand = &types.DefaultCommand{
 
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				result.Result = append(result.Result, "Song requests not enabled")
 				return result, nil
 			} else {
 				return nil, &types.CommandHandlerError{

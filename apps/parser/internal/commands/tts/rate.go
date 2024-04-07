@@ -32,7 +32,6 @@ var RateCommand = &types.DefaultCommand{
 		)
 
 		if channelSettings == nil {
-			result.Result = append(result.Result, "TTS is not configured.")
 			return result, nil
 		}
 

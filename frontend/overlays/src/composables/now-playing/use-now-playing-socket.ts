@@ -39,6 +39,9 @@ export const useNowPlayingSocket = (options: Options) => {
 		}
 
 		if (parsedData.eventName === 'nowplaying') {
+			const track = parsedData.data as Track | null;
+			if (!track) return;
+			if (track.artist == currentTrack.value?.artist && track.title == currentTrack.value?.title) return;
 			currentTrack.value = parsedData.data as Track | null;
 		}
 	});
