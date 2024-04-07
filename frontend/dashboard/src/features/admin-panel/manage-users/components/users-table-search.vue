@@ -83,10 +83,9 @@ function isFilterApplied(filterKey: string, type: FilterType): boolean {
 								<div
 									:class="[
 										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-										{
-											'bg-primary text-primary-foreground': isFilterApplied(filter.key, filters.type),
-											'opacity-50 [&_svg]:invisible': !isFilterApplied(filter.key, filters.type),
-										}
+										isFilterApplied(filter.key, filters.type)
+											? 'bg-primary text-primary-foreground'
+											: 'opacity-50 [&_svg]:invisible'
 									]"
 								>
 									<CheckIcon :class="cn('h-4 w-4')" />
