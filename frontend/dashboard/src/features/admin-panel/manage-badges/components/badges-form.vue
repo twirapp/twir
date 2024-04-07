@@ -42,7 +42,7 @@ const badgesForm = useBadgesForm();
 						<div className="grid w-full items-center gap-1.5">
 							<Input
 								required
-								accept="image/png"
+								accept="image/*"
 								type="file"
 								@change="badgesForm.setImageField"
 							/>

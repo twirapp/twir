@@ -1,43 +1,27 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import type { GetBadgesResponse } from '@twir/api/messages/badges_unprotected/badges_unprotected';
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
-import { adminApiClient, unprotectedApiClient } from '@/api/twirp';
+import { useBadges as useBadgesApi, useAdminBadges } from '@/api/badges';
 
 export const useBadges = defineStore('admin-panel/badges', () => {
-	const { data } = useQuery({
-		queryKey: ['admin/badges'],
-		queryFn: async () => {
-			const request = await unprotectedApiClient.getBadgesWithUsers({});
-			return request.response;
-		},
-	});
+	const { data } = useBadgesApi();
+	const badgesCrud = useAdminBadges();
 
-	const queryClient = useQueryClient();
-	const deleter = useMutation({
-		mutationFn: async (id: string) => {
-			return await adminApiClient.badgesDelete({ id });
-		},
-		onSuccess(_, id) {
-			queryClient.setQueriesData<GetBadgesResponse>(['admin/badges'], (data) => {
-				if (!data) return data;
+	const badgesUpload = badgesCrud.useBadgesUpload();
+	const badgesDeleter = badgesCrud.useBadgesDelete();
+	const badgesUpdate = badgesCrud.useBadgesUpdate();
 
-				return {
-					badges: badges.value.filter(badge => badge.id != id),
-				};
-			});
-		},
-	});
-
-	async function deleteBadge(id: string) {
-		await deleter.mutateAsync(id);
-	}
+	const badgesAdder = badgesCrud.useBadgesUserAdd();
+	const badgesRemover = badgesCrud.useBadgesUserRemove();
 
 	const badges = computed(() => data.value?.badges ?? []);
 
 	return {
 		badges,
-		deleteBadge,
+		badgesUpload,
+		badgesDeleter,
+		badgesUpdate,
+		badgesAdder,
+		badgesRemover,
 	};
 });

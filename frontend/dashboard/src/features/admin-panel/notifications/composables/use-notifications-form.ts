@@ -16,10 +16,7 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 	const isEditableForm = computed(() => Boolean(editableMessageId.value));
 	const notifications = useAdminNotifications();
 
-	const form = useForm({
-		validationSchema: formSchema,
-	});
-
+	const form = useForm({ validationSchema: formSchema });
 	const message = computed(() => form.values.message?.trim());
 
 	const onSubmit = form.handleSubmit(async (values) => {

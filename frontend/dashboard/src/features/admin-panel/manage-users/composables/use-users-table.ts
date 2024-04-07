@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useUsersTableFilters } from './use-users-table-filters';
 import UsersTableActions from '../components/users-table-actions.vue';
-import UsersTableAvatar from '../components/users-table-avatar.vue';
+import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
 import { useAdminUsers } from '@/api/manage-users';
 
@@ -60,14 +60,15 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			cell: ({ row }) => {
 				return h('a',
 					{
-						class: 'flex items-center gap-4 flex-wrap max-sm:justify-center',
+						class: 'flex flex-col',
 						href: `https://twitch.tv/${row.original.userName}`,
 						target: '_blank',
 					},
-					[
-						h(UsersTableAvatar, { avatar: row.original.avatar, name: row.original.userName }),
-						row.original.userDisplayName,
-					],
+					h(UsersTableCellUser, {
+						avatar: row.original.avatar,
+						userId: row.original.id,
+						name: row.original.userDisplayName,
+					}),
 				);
 			},
 		},

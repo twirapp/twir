@@ -11,6 +11,10 @@ import { Label } from '@/components/ui/label';
 
 const badgesStore = useBadges();
 const { badges } = storeToRefs(badgesStore);
+
+async function removeBadge(badgeId: string) {
+	await badgesStore.badgesDeleter.mutateAsync(badgeId);
+}
 </script>
 
 <template>
@@ -24,7 +28,7 @@ const { badges } = storeToRefs(badgesStore);
 				<Button class="max-sm:w-full" size="icon">
 					<PencilIcon class="h-4 w-4" />
 				</Button>
-				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="badgesStore.deleteBadge(badge.id)">
+				<Button class="max-sm:w-full" size="icon" variant="destructive" @click="removeBadge(badge.id)">
 					<TrashIcon class="h-4 w-4" />
 				</Button>
 			</div>
