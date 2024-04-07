@@ -57,9 +57,13 @@ function applyFilter(filterKey: string): void {
 			<PopoverContent class="w-[200px] p-0" align="end">
 				<Command>
 					<CommandList>
-						<CommandGroup>
+						<CommandGroup
+							v-for="filters of usersTableFilters.filtersList"
+							:key="filters.group"
+							:heading="filters.group"
+						>
 							<CommandItem
-								v-for="filter of usersTableFilters.filtersList"
+								v-for="filter of filters.list"
 								:key="filter.key"
 								:value="filter.key"
 								@select="applyFilter(filter.key)"
@@ -74,6 +78,7 @@ function applyFilter(filterKey: string): void {
 								>
 									<CheckIcon :class="cn('h-4 w-4')" />
 								</div>
+								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
 								<span>{{ filter.label }}</span>
 							</CommandItem>
 						</CommandGroup>

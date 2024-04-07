@@ -4,6 +4,7 @@ import { PencilIcon, TrashIcon } from 'lucide-vue-next';
 import { NCard } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { ref, unref } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 import BadgesPreview from './badges-preview.vue';
 import { useBadges } from '../composables/use-badges';
@@ -14,6 +15,7 @@ import DeleteConfirm from '@/components/ui/delete-confirm.vue';
 import { Label } from '@/components/ui/label';
 import { useLayout } from '@/composables/use-layout';
 
+const { t } = useI18n();
 const layout = useLayout();
 const badgesForm = useBadgesForm();
 const badgesStore = useBadges();
@@ -42,6 +44,9 @@ function deleteBadge(badgeId: string) {
 </script>
 
 <template>
+	<h4 v-if="badges.length" class="scroll-m-20 text-xl font-semibold tracking-tight">
+		{{ t('adminPanel.manageBadges.title') }}
+	</h4>
 	<n-card v-for="badge of badges" :key="badge.id" size="small" bordered>
 		<Label>
 			{{ badge.name }}

@@ -1,7 +1,18 @@
 import { refDebounced } from '@vueuse/core';
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+
+import { useBadges } from '../../manage-badges/composables/use-badges';
+
+interface Filter {
+	group: string;
+	list: {
+		label: string;
+		key: string;
+		image?: string;
+	}[];
+}
 
 export const useUsersTableFilters = defineStore('manage-users/users-table-filters', () => {
 	const { t } = useI18n();
@@ -9,18 +20,33 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 	const searchInput = ref('');
 	const debounceSearchInput = refDebounced<string>(searchInput, 500);
 
-	const filtersList = computed(() => [
+	const { badges } = storeToRefs(useBadges());
+
+	const filtersList = computed<Filter[]>(() => [
 		{
-			label: t('adminPanel.manageUsers.isAdmin'),
-			key: 'isAdmin',
+			group: t('adminPanel.manageUsers.statusGroup'),
+			list: [
+				{
+					label: t('adminPanel.manageUsers.isAdmin'),
+					key: 'isAdmin',
+				},
+				{
+					label: t('adminPanel.manageUsers.isBanned'),
+					key: 'isBanned',
+				},
+				{
+					label: t('adminPanel.manageUsers.isBotEnabled'),
+					key: 'isBotEnabled',
+				},
+			],
 		},
 		{
-			label: t('adminPanel.manageUsers.isBanned'),
-			key: 'isBanned',
-		},
-		{
-			label: t('adminPanel.manageUsers.isBotEnabled'),
-			key: 'isBotEnabled',
+			group: t('adminPanel.manageUsers.badgesGroup'),
+			list: badges.value.map((badge) => ({
+				label: badge.name,
+				key: badge.id,
+				image: badge.fileUrl,
+			})),
 		},
 	]);
 

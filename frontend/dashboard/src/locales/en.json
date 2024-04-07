@@ -922,7 +922,9 @@
 			"countSelected": "{count} selected",
 			"isAdmin": "Admin",
 			"isBanned": "Banned",
-			"isBotEnabled": "Bot enabled"
+			"isBotEnabled": "Bot enabled",
+			"statusGroup": "Status",
+			"badgesGroup": "Badges"
 		},
 		"manageBadges": {
 			"title": "Badges",
