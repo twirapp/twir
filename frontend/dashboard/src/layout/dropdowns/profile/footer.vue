@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { IconLogout, IconSettings } from '@tabler/icons-vue';
+import { IconLogout, IconSettings, IconUser } from '@tabler/icons-vue';
 import { NButton } from 'naive-ui';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
-import { useLogout } from '@/api';
+import { useLogout, useProfile } from '@/api';
+
+const { t } = useI18n();
 
 const logout = useLogout();
+
+const profile = useProfile();
+const isAdmin = computed(() => profile.data.value?.isBotAdmin);
 
 async function callLogout() {
 	await logout.mutateAsync();
 	window.location.replace('/');
 }
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -32,6 +36,23 @@ const { t } = useI18n();
 				</template>
 
 				Settings
+			</n-button>
+		</router-link>
+
+		<router-link v-if="isAdmin" :to="{ name: 'AdminPanel' }" #="{ navigate, href }" custom>
+			<n-button
+				:href="href"
+				secondary
+				block
+				type="info"
+				tag="a"
+				@click="navigate"
+			>
+				<template #icon>
+					<IconUser />
+				</template>
+
+				Admin Panel
 			</n-button>
 		</router-link>
 

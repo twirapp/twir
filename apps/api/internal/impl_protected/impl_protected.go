@@ -21,6 +21,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/keywords"
 	"github.com/satont/twir/apps/api/internal/impl_protected/moderation"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
+	"github.com/satont/twir/apps/api/internal/impl_protected/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	public_settings "github.com/satont/twir/apps/api/internal/impl_protected/public-settings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
@@ -67,6 +68,7 @@ type Protected struct {
 	*users.Users
 	*feedback.Feedback
 	*public_settings.PublicSettings
+	*notifications.Notifications
 }
 
 type Opts struct {
@@ -129,5 +131,6 @@ func New(opts Opts) *Protected {
 		Users:            &users.Users{Deps: d},
 		Feedback:         &feedback.Feedback{Deps: d},
 		PublicSettings:   &public_settings.PublicSettings{Deps: d},
+		Notifications:    &notifications.Notifications{Deps: d},
 	}
 }

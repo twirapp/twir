@@ -26,23 +26,6 @@ func (c *Auth) AuthUserProfile(ctx context.Context, _ *emptypb.Empty) (*auth.Pro
 	twitchUser := c.SessionManager.Get(ctx, "twitchUser").(helix.User)
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
-	// if !dbUser.IsBotAdmin {
-	// 	var roles []*model.ChannelRoleUser
-	// 	if err := c.Db.Where(`"userId" = ?`, dbUser.ID).Preload("Role").Find(&roles).Error; err != nil {
-	// 		return nil, err
-	// 	}
-	//
-	// 	stillHasPermission := lo.SomeBy(
-	// 		roles, func(role *model.ChannelRoleUser) bool {
-	// 			return role.UserID == dbUser.ID && role.Role.ChannelID == selectedDashboardId
-	// 		},
-	// 	)
-	// 	if !stillHasPermission {
-	// 		selectedDashboardId = dbUser.ID
-	// 		c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
-	// 	}
-	// }
-
 	return &auth.Profile{
 		Id:                  dbUser.ID,
 		Avatar:              twitchUser.ProfileImageURL,

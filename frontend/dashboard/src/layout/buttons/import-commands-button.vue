@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useSidebarCollapseStore } from '../use-sidebar-collapse';
 
-withDefaults(defineProps<{ isDrawer: boolean }>(), {
+withDefaults(defineProps<{ isDrawer?: boolean }>(), {
 	isDrawer: false,
 });
 

@@ -42,6 +42,7 @@ func (c *EventWorkflow) Flow(
 	err := c.db.
 		Where(`"channelId" = ? AND "type" = ? AND "enabled" = ?`, data.ChannelID, eventType, true).
 		Preload("Channel").
+		Preload("Channel.User").
 		Preload("Operations").
 		Preload("Operations.Filters").
 		Find(&channelEvents).
@@ -69,7 +70,7 @@ func (c *EventWorkflow) Flow(
 			continue
 		}
 
-		if entity.Channel != nil && (!entity.Channel.IsEnabled || entity.Channel.IsBanned) {
+		if entity.Channel != nil && (!entity.Channel.IsEnabled || entity.Channel.User.IsBanned) {
 			continue
 		}
 

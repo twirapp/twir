@@ -73,7 +73,7 @@ func New(deps *impl_deps.Deps) *Files {
 				},
 				"Action": ["s3:GetObject"],
 				"Resource": [
-					"arn:aws:s3:::`+bucketName+`/channels/*"
+					"arn:aws:s3:::`+bucketName+`/**"
 				]
 			}
 		]

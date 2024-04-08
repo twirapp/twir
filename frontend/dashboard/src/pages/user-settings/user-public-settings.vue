@@ -18,7 +18,6 @@ import { useI18n } from 'vue-i18n';
 
 import { usePublicSettings } from '@/api/public-settings';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import { linkRegex } from '@/pages/user-settings/link-regex';
 
 const { t } = useI18n();
 const { notification } = useNaiveDiscrete();
@@ -27,10 +26,10 @@ const { data } = manager.useGet();
 const updater = manager.useUpdate();
 
 type SocialLinkWithEdit = SocialLink & { isEditing?: boolean };
-type FormData = Omit<Settings, 'socialLinks'> & { socialLinks: SocialLinkWithEdit[] }
+type FormParams = Omit<Settings, 'socialLinks'> & { socialLinks: SocialLinkWithEdit[] }
 
 const formRef = ref<FormInst | null>(null);
-const formData = ref<FormData>({
+const formData = ref<FormParams>({
 	socialLinks: [],
 	description: undefined,
 });
@@ -47,20 +46,7 @@ watch(data, (v) => {
 }, { immediate: true });
 
 async function save() {
-	for (const link of formData.value.socialLinks) {
-		if (linkRegex.test(link.href)) continue;
-
-		notification.create({
-			title: 'Error',
-			type: 'error',
-			description: t('userSettings.public.errorCreateLink', { title: link.title, href: link.href }),
-			duration: 5000,
-		});
-		return;
-	}
-
 	await updater.mutateAsync(formData.value);
-
 	notification.create({
 		title: t('sharedTexts.saved'),
 		type: 'success',
@@ -92,11 +78,6 @@ const rules: FormRules = {
 
 			if (value.length > 256) {
 				return new Error(t('userSettings.public.errorTooLong'));
-			}
-
-			const isLink = linkRegex.test(value);
-			if (!isLink) {
-				return new Error(t('userSettings.public.errorInvalidLink'));
 			}
 
 			return true;
@@ -202,14 +183,17 @@ function changeSort(from: number, to: number) {
 				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkTitle')" class="flex-auto" path="title">
 					<n-input
 						v-model:value="newLinkForm.title"
+						name="title"
 						:maxlength="30"
 						placeholder="Twir"
 						:disabled=" linksLimitReached"
+						:input-props="{ name: 'title' }"
 					/>
 				</n-form-item>
 				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
 					<n-input
 						v-model:value="newLinkForm.href"
+						:input-props="{ name: 'href', type: 'url', pattern: 'https?://.+' }"
 						:maxlength="256"
 						placeholder="https://twir.app"
 						:disabled="linksLimitReached"
@@ -217,6 +201,7 @@ function changeSort(from: number, to: number) {
 				</n-form-item>
 				<n-button
 					secondary
+					attr-type="submit"
 					type="success"
 					:disabled="linksLimitReached"
 					@click="addLink"

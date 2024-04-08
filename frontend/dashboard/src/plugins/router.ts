@@ -145,7 +145,13 @@ export const newRouter = (queryClient: QueryClient) => {
 				{
 					name: 'Settings',
 					path: '/dashboard/settings',
-					component: () => import('../pages/UserSettings.vue'),
+					component: () => import('../pages/user-settings/user-settings.vue'),
+					meta: { noPadding: true },
+				},
+				{
+					name: 'AdminPanel',
+					path: '/dashboard/admin',
+					component: () => import('../pages/admin-panel.vue'),
 					meta: { noPadding: true },
 				},
 				{

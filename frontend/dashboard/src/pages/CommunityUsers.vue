@@ -178,7 +178,7 @@ async function handleReset(field: CommunityResetStatsField) {
 			>
 				<template #trigger>
 					<n-button secondary type="warning">
-						{{ t('community.users.reset.button') }} {{ (item.title! as string).toLowerCase() }}
+						{{ t('sharedButtons.reset') }} {{ (item.title! as string).toLowerCase() }}
 					</n-button>
 				</template>
 				{{ t('community.users.reset.resetQuestion', { title: (item.title! as string).toLowerCase() }) }}

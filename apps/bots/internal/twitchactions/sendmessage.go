@@ -53,10 +53,11 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	if err = c.gorm.
 		WithContext(ctx).
 		Where("id = ?", opts.BroadcasterID).
+		Joins("User").
 		First(channel).Error; err != nil {
 		return err
 	}
-	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.IsBanned {
+	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.User.IsBanned {
 		return nil
 	}
 

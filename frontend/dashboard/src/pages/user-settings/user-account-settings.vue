@@ -35,14 +35,14 @@ async function callRegenerateKey() {
 </script>
 
 <template>
-	<div class="flex flex-col p-2 gap-3">
+	<div class="flex flex-col gap-3">
 		<n-card title="Private" size="small" bordered>
 			<div class="flex gap-3">
 				<n-text>{{ t('userSettings.account.showMeOnLanding') }}</n-text>
 				<n-switch
 					:value="!profile?.hideOnLandingPage"
 					:disabled="updateUser.isLoading.value"
-					@change="changeLandingVisibility"
+					@update-value="changeLandingVisibility"
 				/>
 			</div>
 		</n-card>

@@ -25,6 +25,7 @@ type Config struct {
 	TTSServiceUrl      string `required:"false" default:"localhost:7001" envconfig:"TTS_SERVICE_URL"`
 	OdesliApiKey       string `required:"false" envconfig:"ODESLI_API_KEY"`
 
+	S3PublicUrl   string `required:"false" envconfig:"CDN_PUBLIC_URL"`
 	S3Host        string `required:"false" envconfig:"CDN_HOST"`
 	S3Bucket      string `required:"false" envconfig:"CDN_BUCKET"`
 	S3Region      string `required:"false" envconfig:"CDN_REGION"`
