@@ -16,7 +16,11 @@
     "saveSettings": "Save Settings",
     "setDefaultSettings": "Set Default Settings",
 		"goToDashboard": "Go to Dashboard",
-		"add": "Add"
+		"add": "Add",
+		"send": "Send",
+		"next": "Next",
+		"previous": "Previous",
+		"reset": "Reset"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -37,7 +41,9 @@
     "updated": "Updated",
     "disabled": "Disabled",
 		"setDefaultSettings": "Are you sure you want to set default settings?",
-		"placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
+		"pagination": "{page} of {total} page(s) / {items} item(s)",
+		"searchPlaceholder": "Search..."
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -65,7 +71,8 @@
   },
   "navbar": {
     "logout": "Logout",
-    "publicPage": "Public page"
+    "publicPage": "Public page",
+		"seeAll": "See all"
   },
   "deleteConfirmation": {
     "text": "Are you sure about deleting this thing?",
@@ -750,7 +757,6 @@
       },
       "total": "Total users: {total}",
       "reset": {
-        "button": "Reset",
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
     }
@@ -889,6 +895,45 @@
 			"errorTooLong": "Too long",
 			"linkTitle": "Title",
 			"linkLabel": "Link"
+		}
+	},
+	"adminPanel": {
+		"title": "Admin panel",
+		"notifications": {
+			"title": "Notifications",
+			"formTitle": "Send or edit notification",
+			"emptyNotifications": "No notifications",
+			"userLabel": "User",
+			"userPlaceholder": "Select a user",
+			"messageLabel": "Message",
+			"messagePreview": "Preview",
+			"createdAt": "Created At",
+			"globals": "Globals",
+			"users": "Users",
+			"confirmResetForm": "Are you sure you want to reset the form?"
+		},
+		"manageUsers": {
+			"title": "Users",
+			"user": "User",
+			"userId": "User ID",
+			"followers": "Followers",
+			"noUsers": "No users",
+			"filters": "Filters",
+			"clearFilters": "Clear filters",
+			"countSelected": "{count} selected",
+			"isAdmin": "Admin",
+			"isBanned": "Banned",
+			"isBotEnabled": "Bot enabled",
+			"statusGroup": "Status",
+			"badgesGroup": "Badges"
+		},
+		"manageBadges": {
+			"title": "Badges",
+			"formTitle": "Create or edit badge",
+			"name": "Name",
+			"image": "Image",
+			"preview": "Preview",
+			"usesCount": "Uses ({count})"
 		}
 	}
 }
