@@ -14,15 +14,15 @@ exec:
 
 # Where should any generated models go?
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: gqlmodel/gqlmodel.go
+  package: gqlmodel
 
 # Where should the resolver implementations go?
 resolver:
   layout: follow-schema
-  dir: graph
-  package: graph
-  filename_template: "{name}.resolvers.go"
+  dir: resolvers
+  package: resolvers
+  filename_template: "{name}.resolver.go"
   # Optional: turn on to not generate template comments above resolvers
   # omit_template_comment: false
 
@@ -30,7 +30,7 @@ resolver:
 # struct_tag: json
 
 # Optional: turn on to use []Thing instead of []*Thing
-omit_slice_element_pointers: false
+omit_slice_element_pointers: true
 
 # Optional: turn on to omit Is<Name>() methods to interface and unions
 # omit_interface_checks : true
@@ -55,13 +55,13 @@ omit_slice_element_pointers: false
 # return_pointers_in_unmarshalinput: false
 
 # Optional: wrap nullable input fields with Omittable
-# nullable_input_omittable: true
+nullable_input_omittable: true
 
 # Optional: set to speed up generation time by not performing a final validation pass.
 # skip_validation: true
 
 # Optional: set to skip running `go mod tidy` when generating server code
-# skip_mod_tidy: true
+skip_mod_tidy: true
 
 # gqlgen will search for any type names in the schema in these go packages
 # if they match it will use them, otherwise it will generate them.
@@ -85,3 +85,6 @@ models:
       - github.com/99designs/gqlgen/graphql.Int
       - github.com/99designs/gqlgen/graphql.Int64
       - github.com/99designs/gqlgen/graphql.Int32
+  DateTime:
+    model:
+      - github.com/99designs/gqlgen/graphql.Time

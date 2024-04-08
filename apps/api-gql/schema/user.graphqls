@@ -1,0 +1,18 @@
+type UserChannel {
+	isEnabled: Boolean!
+	isBotModerator: Boolean!
+	botId: ID!
+}
+
+type User {
+	id: ID!
+	isBotAdmin: Boolean!
+	apiKey: String!
+	isBanned: Boolean!
+	hideOnLandingPage: Boolean!
+	channel: UserChannel!
+}
+
+extend type Query {
+	authedUser: User! @isAuthenticated
+}

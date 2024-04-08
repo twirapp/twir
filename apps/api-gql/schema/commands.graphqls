@@ -4,6 +4,8 @@ type Command {
 	description: String
 	aliases: [String!]
 	responses: [CommandResponse!]
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type CommandResponse {
@@ -14,9 +16,28 @@ type CommandResponse {
 }
 
 extend type Query {
-	commands: [Command!]!
+	commands: [Command!]! @isAuthenticated
+}
+
+input UpdateCommandOpts {
+	name: String
+	description: String
+	aliases: [String!]
+}
+
+input CreateCommandResponseInput {
+	text: String!
+	order: Int!
+}
+
+input CreateCommandInput {
+	name: String!
+	description: String
+	aliases: [String!]
+	responses: [CreateCommandResponseInput!]
 }
 
 extend type Mutation {
-	createCommand(name: String!, description: String): Command!
+	createCommand(opts: CreateCommandInput!): Command!
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command!
 }

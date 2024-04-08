@@ -1,11 +1,18 @@
-type Test {
-	id: String!
+type Empty {
+	empty: Boolean
 }
 
 type Query {
-	tests: [Test!]!
+	empty: Empty
 }
 
 type Mutation {
-	createTest(id: String!): Test!
+	empty: Empty
 }
+
+directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION
+	| FIELD_DEFINITION
+
+directive @isAuthenticated on FIELD_DEFINITION
+
+scalar DateTime

@@ -1,59 +1,70 @@
 <script setup lang="ts">
 import { useQuery, useMutation } from '@urql/vue';
-import { ref } from 'vue';
 
 import { graphql } from './gql';
 
-const query = ref({ userId: '2' });
-
 const createCommandMutation = graphql(`
-	mutation newCommand($name: String!, $description: String) {
-		createCommand(name: $name, description: $description) {
-			id
-			name
-		}
-	}
-`);
-
-const createNotificationMutation = graphql(`
-	mutation newNotification($text: String!, $userId: String) {
-		createNotification(text: $text, userId: $userId) {
-			id
-			userId
-			text
-		}
+	mutation newCommand($name: String!, $aliases: [String!], $description: String, $responses: [CreateCommandResponseInput!]) {
+		createCommand(
+    opts: {name: $name, description: $description, aliases: $aliases, responses: $responses}
+  ) {
+    id
+  }
 	}
 `);
 
 const { executeMutation: createCommand } = useMutation(createCommandMutation);
-const { executeMutation: createNotification } = useMutation(createNotificationMutation);
 
-const { data } = useQuery({
-		query: graphql(`
-			query getCommandsAndNotifications($userId: String!) {
+const { data: commands } = useQuery({
+	query: graphql(`
+			query getCommands {
 				commands {
-					id
 					name
-					aliases
-				}
-				notifications(userId: $userId) {
 					id
-					userId
-					text
+					aliases
+					responses {
+						text
+					}
+					description
+					createdAt
+					updatedAt
 				}
 			}
   `),
-	variables: query,
 });
 
+const { data: user } = useQuery({
+	query: graphql(`
+		query getUser {
+			authedUser {
+			id
+			apiKey
+			channel {
+				botId
+				isBotModerator
+				isEnabled
+			}
+			hideOnLandingPage
+			isBanned
+			isBotAdmin
+			}
+		}
+	`),
+});
 </script>
 
 <template>
 	<div style="display: flex; flex-direction: column; gap: 12px;">
-		<button @click="createCommand({ name: 'test'})">Create command</button>
-		<button @click="createNotification({  text: 'im new', userId: '2'})">Create notification</button>
+		<h1>Authed as</h1>
 		<pre style="text-align: left;">
-			{{ JSON.stringify(data, null, 2) }}
+			{{ JSON.stringify(user, null, 2) }}
+		</pre>
+
+		<button @click="createCommand({ name: 'test' })">
+			Create command (then you need to refresh page)
+		</button>
+		<pre style="text-align: left;">
+			{{ JSON.stringify(commands, null, 2) }}
 		</pre>
 	</div>
 </template>

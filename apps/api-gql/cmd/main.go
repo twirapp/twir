@@ -1,26 +1,27 @@
 package main
 
 import (
-	"log"
+	"context"
+	"fmt"
 	"net/http"
-	"os"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/rs/cors"
+	"github.com/alexedwards/scs/v2"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/resolvers"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-const defaultPort = "3002"
-
 func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = defaultPort
-	}
 	db, err := gorm.Open(
 		postgres.Open("postgres://tsuwari:tsuwari@localhost:54321/tsuwari?sslmode=disable"),
 	)
@@ -32,21 +33,72 @@ func main() {
 	d.SetMaxOpenConns(10)
 	d.SetConnMaxLifetime(time.Hour)
 
-	srv := handler.NewDefaultServer(
-		graph.NewExecutableSchema(
-			graph.Config{
-				Resolvers: &graph.Resolver{
-					Db: db,
-				},
+	redisOpts, _ := redis.ParseURL("redis://localhost:6385/0")
+	redisClient := redis.NewClient(redisOpts)
+
+	sessionManager := sessions.New(redisClient)
+
+	r := gin.Default()
+	r.Use(
+		cors.New(
+			cors.Config{
+				AllowAllOrigins:  true,
+				AllowHeaders:     []string{"*"},
+				AllowWebSockets:  true,
+				AllowCredentials: true,
 			},
 		),
 	)
+	r.Use(ginContextToContextMiddleware())
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	http.Handle("/query", srv)
+	r.POST("/query", graphqlHandler(sessionManager))
+	r.GET("/", playgroundHandler())
 
-	handler := cors.Default().Handler(srv)
+	// r.Run(":3009")
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, handler))
+	handler := sessionManager.LoadAndSave(r)
+
+	panic(http.ListenAndServe(":3011", handler))
+}
+
+func graphqlHandler(s *scs.SessionManager) gin.HandlerFunc {
+	config := graph.Config{Resolvers: &resolvers.Resolver{}}
+	config.Directives.IsAuthenticated = func(
+		ctx context.Context,
+		obj interface{},
+		next graphql.Resolver,
+	) (res interface{}, err error) {
+		fmt.Println("1")
+		user, ok := s.Get(ctx, "dbUser").(model.Users)
+		if !ok {
+			return nil, fmt.Errorf("not authenticated")
+		}
+
+		ctx = context.WithValue(ctx, "dbUser", user)
+
+		return next(ctx)
+	}
+
+	h := handler.NewDefaultServer(graph.NewExecutableSchema(config))
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+// Defining the Playground handler
+func playgroundHandler() gin.HandlerFunc {
+	h := playground.Handler("GraphQL", "/query")
+
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func ginContextToContextMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
+		c.Request = c.Request.WithContext(ctx)
+		c.Next()
+	}
 }
