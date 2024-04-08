@@ -25,7 +25,7 @@ const filters = useNotificationsFilters();
 			<SelectTrigger class="h-9 w-[120px]">
 				<SelectValue />
 			</SelectTrigger>
-			<SelectContent>
+			<SelectContent align="end">
 				<SelectGroup>
 					<SelectItem value="globals">
 						{{ t('adminPanel.notifications.globals') }}
