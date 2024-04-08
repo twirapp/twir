@@ -17,7 +17,7 @@ import { useI18n } from 'vue-i18n';
 import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
-const props = withDefaults(defineProps<{ isDrawer: boolean }>(), {
+const props = withDefaults(defineProps<{ isDrawer?: boolean }>(), {
 	isDrawer: false,
 });
 

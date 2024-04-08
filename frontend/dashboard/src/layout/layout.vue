@@ -19,6 +19,7 @@ import { RouterView, useRouter } from 'vue-router';
 
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { Toaster } from '@/components/ui/toast';
+import { useLayout } from '@/composables/use-layout';
 import { useTheme } from '@/composables/use-theme.js';
 import Header from '@/layout/header.vue';
 import Sidebar from '@/layout/sidebar.vue';
@@ -27,6 +28,7 @@ import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 const { theme } = useTheme();
 const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
 
+const { layoutRef } = storeToRefs(useLayout());
 const isRouterReady = ref(false);
 const router = useRouter();
 
@@ -75,7 +77,7 @@ watch(smallerOrEqualLg, (v) => {
 							>
 								<Sidebar />
 							</n-layout-sider>
-							<n-layout-content>
+							<n-layout-content ref="layoutRef">
 								<div v-if="!isRouterReady" class="app-loader">
 									<n-spin size="large" />
 								</div>

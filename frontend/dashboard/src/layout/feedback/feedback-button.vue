@@ -13,7 +13,7 @@ import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
 import { useFeedbackForm } from '@/layout/feedback/feedback';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
-withDefaults(defineProps<{ isDrawer: boolean }>(), {
+withDefaults(defineProps<{ isDrawer?: boolean }>(), {
 	isDrawer: false,
 });
 

@@ -87,8 +87,8 @@ func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
 	err := c.gorm.
 		WithContext(ctx).
-		Where(`"isEnabled" = ? and "isBanned" = ?`, true, false).
-		Select("id", `"isEnabled"`, `"isBanned"`).
+		Where(`"isEnabled" = ? and "User"."is_banned" = ?`, true, false).
+		Joins("User").
 		Find(&channels).Error
 	if err != nil {
 		return fmt.Errorf("cannot get channels: %w", err)
@@ -96,7 +96,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	usersIds := make([]string, len(channels))
 	for i, channel := range channels {
-		if !channel.IsEnabled && !channel.IsBanned {
+		if !channel.IsEnabled && !channel.User.IsBanned {
 			continue
 		}
 

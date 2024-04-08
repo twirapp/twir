@@ -107,12 +107,12 @@ func (c *onlineUsers) getStreams(
 	ctx context.Context,
 ) ([]*model.ChannelsStreams, error) {
 	var streams []*model.ChannelsStreams
-	err := c.db.WithContext(ctx).Preload("Channel").Find(&streams).Error
+	err := c.db.WithContext(ctx).Preload("Channel").Preload("Channel.User").Find(&streams).Error
 	return streams, err
 }
 
 func (c *onlineUsers) shouldSkipStream(stream *model.ChannelsStreams) bool {
-	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.IsBanned)
+	return stream.Channel == nil || (!stream.Channel.IsEnabled || stream.Channel.User.IsBanned)
 }
 
 func (c *onlineUsers) updateStreamUsers(

@@ -61,11 +61,11 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 					requestContext := context.Background()
 					var channels []model.Channels
 					err := manager.gorm.Where(
-						`"isEnabled" = ? AND "isBanned" = ? AND "isTwitchBanned" = ?`,
+						`"isEnabled" = ? AND "User"."is_banned" = ? AND "isTwitchBanned" = ?`,
 						true,
 						false,
 						false,
-					).Find(&channels).Error
+					).Joins("User").Find(&channels).Error
 					if err != nil {
 						panic(err)
 					}
