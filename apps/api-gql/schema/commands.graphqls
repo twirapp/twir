@@ -1,0 +1,22 @@
+type Command {
+	id: ID!
+	name: String!
+	description: String
+	aliases: [String!]
+	responses: [CommandResponse!]
+}
+
+type CommandResponse {
+	id: ID!
+	commandId: ID!
+	text: String!
+	order: Int!
+}
+
+extend type Query {
+	commands: [Command!]!
+}
+
+extend type Mutation {
+	createCommand(name: String!, description: String): Command!
+}

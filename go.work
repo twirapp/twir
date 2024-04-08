@@ -1,7 +1,8 @@
-go 1.21.5
+go 1.22.2
 
 use (
 	./apps/api
+	./apps/api-gql
 	./apps/bots
 	./apps/discord
 	./apps/emotes-cacher
