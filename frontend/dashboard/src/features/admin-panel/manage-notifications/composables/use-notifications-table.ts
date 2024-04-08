@@ -29,10 +29,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const filters = useNotificationsFilters();
 
 	const reqParams = computed(() => ({
-		perPage: 10,
-		page: 0,
+		perPage: pagination.value.pageSize,
+		page: pagination.value.pageIndex,
 		isUser: filters.isUsersFilter,
-		search: filters.searchInput,
+		search: filters.debounceSearchInput,
 	}));
 
 	const { data } = crud.getAll(reqParams.value);
