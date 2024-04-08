@@ -62,7 +62,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 				<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 					{{ badge.name }}
 				</h4>
-				<div class="flex items-end gap-2">
+				<div class="flex items-end gap-2 w-full justify-end">
 					<Button
 						class="max-sm:grow flex items-center space-x-4"
 						variant="secondary"
