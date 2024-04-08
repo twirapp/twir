@@ -62,14 +62,14 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 				<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 					{{ badge.name }}
 				</h4>
-				<div class="flex items-end gap-2 w-full justify-end">
+				<div class="flex items-end gap-2 max-sm:w-full">
 					<Button
-						class="max-sm:grow flex items-center space-x-4"
+						class="max-sm:grow flex items-center"
 						variant="secondary"
 						size="sm"
 						@click="applyUserSearchBadgeFilter(unref(badge))"
 					>
-						{{ t('adminPanel.manageBadges.usersCount', { count: badge.users.length }) }}
+						{{ t('adminPanel.manageBadges.usesCount', { count: badge.users.length }) }}
 					</Button>
 					<Button
 						class="max-sm:grow"
