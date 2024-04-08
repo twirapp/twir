@@ -21,13 +21,15 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const layout = useLayout();
 	const { t } = useI18n();
 
+	const notificationsSearchInput = ref('');
+
 	const notificationsForm = useNotificationsForm();
 	const notificationsCrud = useAdminNotifications();
 	const notificationsData = notificationsCrud.getAll({
 		perPage: 50,
 		page: 0,
 		isUser: false,
-		search: '',
+		search: notificationsSearchInput.value,
 	});
 
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
@@ -102,6 +104,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		tableColumns,
 		notifications,
 		notificationsFilter,
+		notificationsSearchInput,
 		onDeleteNotification,
 		onEditNotification,
 	};

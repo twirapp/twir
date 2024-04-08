@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { CheckIcon, SearchIcon, ListFilterIcon } from 'lucide-vue-next';
+import { CheckIcon, ListFilterIcon } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
 import { useUsersTable } from '../composables/use-users-table';
 import { FilterType, useUsersTableFilters } from '../composables/use-users-table-filters';
 
+import SearchBar from '@/components/search-bar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Command, CommandGroup, CommandItem, CommandList, CommandSeparator,
 } from '@/components/ui/command';
-import { Input } from '@/components/ui/input';
 import {
 	Popover,
 	PopoverContent,
@@ -27,31 +27,14 @@ function applyFilter(filterKey: string, type: FilterType): void {
 	usersTableFilters.setFilterValue(filterKey, type);
 	usersTable.table.setPageIndex(0);
 }
-
-function isFilterApplied(filterKey: string, type: FilterType): boolean {
-	if (type === 'status') {
-		return filterKey in usersTableFilters.selectedStatuses;
-	}
-
-	if (type === 'badge') {
-		return usersTableFilters.selectedBadges.includes(filterKey);
-	}
-
-	return false;
-}
 </script>
 
 <template>
 	<div class="flex gap-2 max-sm:flex-col">
-		<div class="relative w-full items-center">
-			<Input v-model="usersTableFilters.searchInput" type="text" :placeholder="t('sharedTexts.searchPlaceholder')" class="pl-10" />
-			<span class="absolute start-2 inset-y-0 flex items-center justify-center px-2">
-				<SearchIcon class="size-4 text-muted-foreground" />
-			</span>
-		</div>
+		<search-bar v-model="usersTableFilters.searchInput" />
 		<Popover>
 			<PopoverTrigger as-child>
-				<Button variant="outline" size="sm" class="h-10">
+				<Button variant="outline" size="sm" class="h-9">
 					<ListFilterIcon class="mr-2 h-4 w-4" />
 					{{ t('adminPanel.manageUsers.filters') }}
 
@@ -83,7 +66,7 @@ function isFilterApplied(filterKey: string, type: FilterType): boolean {
 								<div
 									:class="[
 										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-										isFilterApplied(filter.key, filters.type)
+										usersTableFilters.isFilterApplied(filter.key, filters.type)
 											? 'bg-primary text-primary-foreground'
 											: 'opacity-50 [&_svg]:invisible'
 									]"

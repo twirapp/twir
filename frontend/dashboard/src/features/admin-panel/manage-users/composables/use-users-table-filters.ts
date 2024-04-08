@@ -87,6 +87,18 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		}
 	}
 
+	function isFilterApplied(filterKey: string, type: FilterType): boolean {
+		if (type === 'status') {
+			return filterKey in selectedStatuses.value;
+		}
+
+		if (type === 'badge') {
+			return selectedBadges.value.includes(filterKey);
+		}
+
+		return false;
+	}
+
 	return {
 		searchInput,
 		debounceSearchInput,
@@ -94,6 +106,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		selectedStatuses,
 		selectedFiltersCount,
 		setFilterValue,
+		isFilterApplied,
 		clearFilters,
 		selectedBadges,
 	};

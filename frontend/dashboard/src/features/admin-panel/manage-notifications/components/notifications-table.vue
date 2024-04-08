@@ -2,21 +2,12 @@
 import {
 	FlexRender,
 } from '@tanstack/vue-table';
-import { SearchIcon } from 'lucide-vue-next';
 import { useI18n } from 'vue-i18n';
 
+import notificationsTablePagination from './notifications-table-pagination.vue';
+import NotificationsTableSearch from './notifications-table-search.vue';
 import { useNotificationsTable } from '../composables/use-notifications-table';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
 	Table,
 	TableBody,
@@ -34,55 +25,8 @@ const notificationsTable = useNotificationsTable();
 
 <template>
 	<div class="flex flex-wrap w-full items-center justify-between gap-2">
-		<div class="flex gap-2 max-sm:w-full">
-			<div class="relative w-full items-center">
-				<Input id="search" type="text" placeholder="Search..." class="h-9 pl-10 max-sm:w-full" />
-				<span class="absolute start-2 inset-y-0 flex items-center justify-center px-2">
-					<SearchIcon class="size-4 text-muted-foreground" />
-				</span>
-			</div>
-			<Select v-model="notificationsTable.notificationsFilter">
-				<SelectTrigger class="h-9 w-[120px]">
-					<SelectValue />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectGroup>
-						<SelectItem value="globals">
-							{{ t('adminPanel.notifications.globals') }}
-						</SelectItem>
-						<SelectItem value="users">
-							{{ t('adminPanel.notifications.users') }}
-						</SelectItem>
-					</SelectGroup>
-				</SelectContent>
-			</Select>
-		</div>
-
-		<div class="flex items-center gap-2 max-sm:w-full">
-			<div class="flex-1 text-sm text-muted-foreground">
-				{{ t('sharedTexts.pagination', {
-					page: notificationsTable.table.getState().pagination.pageIndex + 1,
-					total: notificationsTable.table.getPageCount().toLocaleString(),
-					items: notificationsTable.notifications.length
-				}) }}
-			</div>
-			<Button
-				variant="outline"
-				size="sm"
-				:disabled="!notificationsTable.table.getCanPreviousPage()"
-				@click="notificationsTable.table.previousPage()"
-			>
-				{{ t('sharedButtons.previous') }}
-			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				:disabled="!notificationsTable.table.getCanNextPage()"
-				@click="notificationsTable.table.nextPage()"
-			>
-				{{ t('sharedButtons.next') }}
-			</Button>
-		</div>
+		<notifications-table-search />
+		<notifications-table-pagination />
 	</div>
 
 	<shadcn-layout>

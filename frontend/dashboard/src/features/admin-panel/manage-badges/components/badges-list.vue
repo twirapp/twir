@@ -47,34 +47,50 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 	userFilters.selectedBadges.push(badge.id);
 	router.push({ query: { tab: 'users' } });
 }
+
 </script>
 
 <template>
-	<h4 v-if="badges.length" class="scroll-m-20 text-xl font-semibold tracking-tight">
+	<h4 v-if="badges.length" class="scroll-m-20 text-xl font-semibold tracking-tight w-full">
 		{{ t('adminPanel.manageBadges.title') }}
 	</h4>
-	<n-card v-for="badge of badges" :key="badge.id" size="small" bordered>
-		<h3 class="scroll-m-20 text-2xl font-semibold tracking-tight">
-			{{ badge.name }}
-		</h3>
-		<div class="flex justify-between gap-2 max-sm:flex-col">
-			<badges-preview :image="badge.fileUrl" />
-			<div class="flex items-end gap-2">
-				<Button
-					class="max-sm:w-full flex items-center space-x-4"
-					variant="secondary" @click="applyUserSearchBadgeFilter(unref(badge))"
-				>
-					{{ t('adminPanel.manageBadges.usersCount', { count: badge.users.length }) }}
-				</Button>
-				<Button class="max-sm:w-full" variant="secondary" @click="editBadge(unref(badge))">
-					{{ t('sharedButtons.edit') }}
-				</Button>
-				<Button class="max-sm:w-full" variant="destructive" @click="deleteBadge(badge.id)">
-					{{ t('sharedButtons.delete') }}
-				</Button>
+
+	<div class="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full">
+		<n-card v-for="badge of Array.from({ length: 10 }, () => badges).flat(1)" :key="badge.id" size="small" bordered>
+			<badges-preview class="mt-2" :image="badge.fileUrl" />
+			<div class="flex justify-between items-center gap-4 mt-4 max-sm:flex-col max-sm:items-start">
+				<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+					{{ badge.name }}
+				</h4>
+				<div class="flex items-end gap-2">
+					<Button
+						class="max-sm:grow flex items-center space-x-4"
+						variant="secondary"
+						size="sm"
+						@click="applyUserSearchBadgeFilter(unref(badge))"
+					>
+						{{ t('adminPanel.manageBadges.usersCount', { count: badge.users.length }) }}
+					</Button>
+					<Button
+						class="max-sm:grow"
+						variant="secondary"
+						size="sm"
+						@click="editBadge(unref(badge))"
+					>
+						{{ t('sharedButtons.edit') }}
+					</Button>
+					<Button
+						class="max-sm:grow"
+						variant="destructive"
+						size="sm"
+						@click="deleteBadge(badge.id)"
+					>
+						{{ t('sharedButtons.delete') }}
+					</Button>
+				</div>
 			</div>
-		</div>
-	</n-card>
+		</n-card>
+	</div>
 
 	<delete-confirm
 		v-model:open="showDelete"
