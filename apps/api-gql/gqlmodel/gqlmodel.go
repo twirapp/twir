@@ -53,6 +53,9 @@ type Notification struct {
 type Query struct {
 }
 
+type Subscription struct {
+}
+
 type UpdateCommandOpts struct {
 	Name        graphql.Omittable[*string]  `json:"name,omitempty"`
 	Description graphql.Omittable[*string]  `json:"description,omitempty"`

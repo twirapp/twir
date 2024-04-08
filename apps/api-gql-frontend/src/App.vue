@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useQuery, useMutation } from '@urql/vue';
+import { useQuery, useMutation, useSubscription } from '@urql/vue';
 
 import { graphql } from './gql';
 
@@ -51,6 +51,28 @@ const { data: user } = useQuery({
 		}
 	`),
 });
+
+const { data: commandSubscription, executeSubscription } = useSubscription({
+	query: graphql(`
+		subscription newC {
+			newCommand {
+				id
+				name
+				description
+				aliases
+				responses {
+					id
+					commandId
+					text
+					order
+				}
+				createdAt
+				updatedAt
+			}
+		}
+	`),
+});
+executeSubscription();
 </script>
 
 <template>
@@ -65,6 +87,12 @@ const { data: user } = useQuery({
 		</button>
 		<pre style="text-align: left;">
 			{{ JSON.stringify(commands, null, 2) }}
+		</pre>
+
+
+		<h1>Example graphql subscription of new command created</h1>
+		<pre>
+			{{ JSON.stringify(commandSubscription, null, 2) }}
 		</pre>
 	</div>
 </template>

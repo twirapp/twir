@@ -41,3 +41,10 @@ extend type Mutation {
 	createCommand(opts: CreateCommandInput!): Command!
 	updateCommand(id: String!, opts: UpdateCommandOpts!): Command!
 }
+
+type Subscription {
+	"""
+	`newCommand` will return a stream of `Command` objects.
+	"""
+	newCommand: Command!
+}

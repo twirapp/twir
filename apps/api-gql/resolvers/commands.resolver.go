@@ -11,10 +11,14 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/graph"
 )
 
 // CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
+func (r *mutationResolver) CreateCommand(
+	ctx context.Context,
+	opts gqlmodel.CreateCommandInput,
+) (*gqlmodel.Command, error) {
 	responses := make([]gqlmodel.CommandResponse, 0, len(opts.Responses.Value()))
 	for _, response := range opts.Responses.Value() {
 		responses = append(
@@ -36,12 +40,18 @@ func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.Crea
 		UpdatedAt:   time.Now(),
 	}
 
+	r.NewCommandChann <- &newCommand
+
 	commands = append(commands, newCommand)
 	return &newCommand, nil
 }
 
 // UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
+func (r *mutationResolver) UpdateCommand(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.UpdateCommandOpts,
+) (*gqlmodel.Command, error) {
 	var cmd *gqlmodel.Command
 	cmdIndex := 0
 
@@ -80,6 +90,37 @@ func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gq
 func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
 	return commands, nil
 }
+
+// NewCommand is the resolver for the newCommand field.
+func (r *subscriptionResolver) NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error) {
+	ch := make(chan *gqlmodel.Command)
+
+	fmt.Println("Subscription Started")
+
+	go func() {
+		defer close(ch)
+
+		for {
+			select {
+			case <-ctx.Done():
+				fmt.Println("Subscription Closed")
+				return
+
+			case cmd := <-r.NewCommandChann:
+				fmt.Println("New Command")
+				ch <- cmd
+			}
+		}
+	}()
+
+	// We return the channel and no error.
+	return ch, nil
+}
+
+// Subscription returns graph.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
+
+type subscriptionResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have

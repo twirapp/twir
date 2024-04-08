@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strconv"
 	"sync"
 	"sync/atomic"
@@ -41,6 +42,7 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
+	Subscription() SubscriptionResolver
 }
 
 type DirectiveRoot struct {
@@ -89,6 +91,10 @@ type ComplexityRoot struct {
 		Notifications func(childComplexity int, userID string) int
 	}
 
+	Subscription struct {
+		NewCommand func(childComplexity int) int
+	}
+
 	User struct {
 		APIKey            func(childComplexity int) int
 		Channel           func(childComplexity int) int
@@ -116,6 +122,9 @@ type QueryResolver interface {
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	Notifications(ctx context.Context, userID string) ([]gqlmodel.Notification, error)
 	AuthedUser(ctx context.Context) (*gqlmodel.User, error)
+}
+type SubscriptionResolver interface {
+	NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error)
 }
 
 type executableSchema struct {
@@ -318,6 +327,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Notifications(childComplexity, args["userId"].(string)), true
 
+	case "Subscription.newCommand":
+		if e.complexity.Subscription.NewCommand == nil {
+			break
+		}
+
+		return e.complexity.Subscription.NewCommand(childComplexity), true
+
 	case "User.apiKey":
 		if e.complexity.User.APIKey == nil {
 			break
@@ -441,6 +457,23 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 				Data: buf.Bytes(),
 			}
 		}
+	case ast.Subscription:
+		next := ec._Subscription(ctx, rc.Operation.SelectionSet)
+
+		var buf bytes.Buffer
+		return func(ctx context.Context) *graphql.Response {
+			buf.Reset()
+			data := next(ctx)
+
+			if data == nil {
+				return nil
+			}
+			data.MarshalGQL(&buf)
+
+			return &graphql.Response{
+				Data: buf.Bytes(),
+			}
+		}
 
 	default:
 		return graphql.OneShot(graphql.ErrorResponse(ctx, "unsupported GraphQL operation"))
@@ -531,6 +564,13 @@ input CreateCommandInput {
 extend type Mutation {
 	createCommand(opts: CreateCommandInput!): Command!
 	updateCommand(id: String!, opts: UpdateCommandOpts!): Command!
+}
+
+type Subscription {
+	"""
+	` + "`" + `newCommand` + "`" + ` will return a stream of ` + "`" + `Command` + "`" + ` objects.
+	"""
+	newCommand: Command!
 }
 `, BuiltIn: false},
 	{Name: "../schema/notifications.graphqls", Input: `type Notification {
@@ -2021,6 +2061,80 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_newCommand(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_newCommand(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().NewCommand(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *gqlmodel.Command):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_newCommand(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Command_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Command_name(ctx, field)
+			case "description":
+				return ec.fieldContext_Command_description(ctx, field)
+			case "aliases":
+				return ec.fieldContext_Command_aliases(ctx, field)
+			case "responses":
+				return ec.fieldContext_Command_responses(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Command_createdAt(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_Command_updatedAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Command", field.Name)
 		},
 	}
 	return fc, nil
@@ -4733,6 +4847,26 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 	}
 
 	return out
+}
+
+var subscriptionImplementors = []string{"Subscription"}
+
+func (ec *executionContext) _Subscription(ctx context.Context, sel ast.SelectionSet) func(ctx context.Context) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, subscriptionImplementors)
+	ctx = graphql.WithFieldContext(ctx, &graphql.FieldContext{
+		Object: "Subscription",
+	})
+	if len(fields) != 1 {
+		ec.Errorf(ctx, "must subscribe to exactly one stream")
+		return nil
+	}
+
+	switch fields[0].Name {
+	case "newCommand":
+		return ec._Subscription_newCommand(ctx, fields[0])
+	default:
+		panic("unknown field " + strconv.Quote(fields[0].Name))
+	}
 }
 
 var userImplementors = []string{"User"}
