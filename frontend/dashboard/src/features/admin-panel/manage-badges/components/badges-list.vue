@@ -56,7 +56,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 	</h4>
 
 	<div class="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full">
-		<n-card v-for="badge of Array.from({ length: 10 }, () => badges).flat(1)" :key="badge.id" size="small" bordered>
+		<n-card v-for="badge of badges" :key="badge.id" size="small" bordered>
 			<badges-preview class="mt-2" :image="badge.fileUrl" />
 			<div class="flex justify-between items-center gap-4 mt-4 max-sm:flex-col max-sm:items-start">
 				<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
