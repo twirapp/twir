@@ -4,7 +4,6 @@ import {
 	useVueTable,
 } from '@tanstack/vue-table';
 import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
-import { NText } from 'naive-ui';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -46,7 +45,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			size: 80,
 			header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 			cell: ({ row }) => {
-				return h(NText, { class: 'break-words w-[450px]', innerHTML: row.original.message });
+				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
 			},
 		},
 		{
