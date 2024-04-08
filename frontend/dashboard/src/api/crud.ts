@@ -1,5 +1,7 @@
 import type { RpcOptions, UnaryCall } from '@protobuf-ts/runtime-rpc';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
+import type { MaybeRefOrGetter } from 'vue';
+import { unref } from 'vue';
 
 import { adminApiClient, protectedApiClient, unprotectedApiClient } from './twirp.js';
 
@@ -38,13 +40,16 @@ export const createCrudManager = <
 	}
 
 	return {
-		getAll: (req: Parameters<typeof opts.getAll>[0]) => useQuery<Awaited<ReturnType<typeof opts.getAll>['response']>>({
-			queryKey: [opts.queryKey],
-			queryFn: async () => {
-				const call = await opts.getAll(req);
-				return call.response;
-			},
-		}),
+		getAll: (req: MaybeRefOrGetter<Parameters<typeof opts.getAll>[0]>) => {
+			return useQuery<Awaited<ReturnType<typeof opts.getAll>['response']>>({
+				queryKey: [opts.queryKey, req],
+				queryFn: async () => {
+					const unrefedReq = unref(req);
+					const call = await opts.getAll(unrefedReq);
+					return call.response;
+				},
+			});
+		},
 		getOne: opts.getOne
 			? (req: Parameters<typeof opts.getOne>[0] & {
 				isQueryDisabled?: boolean

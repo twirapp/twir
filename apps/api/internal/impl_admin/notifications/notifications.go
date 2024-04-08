@@ -79,8 +79,14 @@ func (c *Notifications) NotificationsGetAll(
 		mappedNotifications = append(mappedNotifications, convertModelToMessage(notification))
 	}
 
+	var total int64
+	if err := c.Db.WithContext(ctx).Model(&model.Notifications{}).Count(&total).Error; err != nil {
+		return nil, err
+	}
+
 	return &messages_admin_notifications.GetNotificationsResponse{
 		Notifications: mappedNotifications,
+		Total:         int32(total),
 	}, nil
 }
 func (c *Notifications) NotificationsUpdate(

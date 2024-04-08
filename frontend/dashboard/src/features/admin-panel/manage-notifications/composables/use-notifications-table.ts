@@ -1,8 +1,4 @@
-import {
-	type ColumnDef,
-	getCoreRowModel,
-	useVueTable,
-} from '@tanstack/vue-table';
+import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
@@ -34,7 +30,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		search: filters.debounceSearchInput,
 	}));
 
-	const { data } = crud.getAll(reqParams.value);
+	const { data } = crud.getAll(reqParams);
 	const notifications = computed<Notification[]>(() => {
 		return data.value?.notifications ?? [];
 	});
