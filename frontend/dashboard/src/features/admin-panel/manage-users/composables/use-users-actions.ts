@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 
-import { useAdminUserSwitcher } from '@/api/manage-users';
+import { useAdminUserSwitcher } from '@/api/admin/users';
 
 export const useUsersActions = defineStore('manage-users/users-actions', () => {
 	const userSwitcher = useAdminUserSwitcher();

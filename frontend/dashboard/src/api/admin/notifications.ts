@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query';
 
-import { createCrudManager } from './crud';
-import { adminApiClient, protectedApiClient } from './twirp';
+import { createCrudManager } from '../crud';
+import { adminApiClient, protectedApiClient } from '../twirp';
 
 export const useAdminNotifications = () => createCrudManager({
 	client: adminApiClient,

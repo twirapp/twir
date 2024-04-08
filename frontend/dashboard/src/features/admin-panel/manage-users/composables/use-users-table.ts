@@ -1,7 +1,6 @@
 import {
 	type ColumnDef,
 	getCoreRowModel,
-	type PaginationState,
 	useVueTable,
 } from '@tanstack/vue-table';
 import type {
@@ -9,31 +8,20 @@ import type {
 	UsersGetResponse_UsersGetResponseUser as User,
 } from '@twir/api/messages/admin_users/admin_users';
 import { defineStore } from 'pinia';
-import { computed, h, ref } from 'vue';
+import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useUsersTableFilters } from './use-users-table-filters';
 import UsersTableActions from '../components/users-table-actions.vue';
 import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
-import { useAdminUsers } from '@/api/manage-users';
+import { useAdminUsers } from '@/api/admin/users.js';
+import { usePagination } from '@/composables/use-pagination.js';
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
 
-	const pagination = ref({
-		pageIndex: 0,
-		pageSize: 10,
-	});
-
-	function setPagination({
-		pageIndex,
-		pageSize,
-	}: PaginationState): PaginationState {
-		pagination.value.pageIndex = pageIndex;
-		pagination.value.pageSize = pageSize;
-		return { pageIndex, pageSize };
-	}
+	const { pagination, setPagination } = usePagination();
 
 	const tableFilters = useUsersTableFilters();
 

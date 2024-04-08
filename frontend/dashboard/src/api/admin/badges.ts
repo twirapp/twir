@@ -5,7 +5,7 @@ import type {
 } from '@twir/api/messages/admin_badges/admin_badges';
 import type { GetBadgesResponse } from '@twir/api/messages/badges_unprotected/badges_unprotected';
 
-import { adminApiClient, unprotectedApiClient } from './twirp';
+import { adminApiClient, unprotectedApiClient } from '../twirp';
 
 const BADGES_QUERY_KEY = 'public/badges';
 

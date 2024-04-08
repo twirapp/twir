@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
 import { UsersGetResponse_UsersGetResponseUser as User, type UsersGetRequest, type UsersGetResponse } from '@twir/api/messages/admin_users/admin_users';
 import type { Ref } from 'vue';
 
-import { adminApiClient } from './twirp';
+import { adminApiClient } from '../twirp';
 
 export const useAdminUsers = (payload: Ref<UsersGetRequest>) => useQuery({
 	queryKey: ['admin/users', payload],

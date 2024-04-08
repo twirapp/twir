@@ -1,35 +1,43 @@
 import {
 	type ColumnDef,
 	getCoreRowModel,
-	getPaginationRowModel,
 	useVueTable,
 } from '@tanstack/vue-table';
 import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { NText } from 'naive-ui';
 import { defineStore } from 'pinia';
-import { computed, h, ref } from 'vue';
+import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useNotificationsFilters } from './use-notifications-filters.js';
 import CreatedAtTooltip from '../components/created-at-tooltip.vue';
 import NotificationsTableActions from '../components/notifications-table-actions.vue';
 import { useNotificationsForm } from '../composables/use-notifications-form.js';
 
-import { useAdminNotifications } from '@/api/notifications.js';
+import { useAdminNotifications } from '@/api/admin/notifications.js';
 import { useLayout } from '@/composables/use-layout.js';
+import { usePagination } from '@/composables/use-pagination.js';
 
 export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
 	const layout = useLayout();
 	const { t } = useI18n();
 
-	const notificationsSearchInput = ref('');
+	const form = useNotificationsForm();
+	const crud = useAdminNotifications();
 
-	const notificationsForm = useNotificationsForm();
-	const notificationsCrud = useAdminNotifications();
-	const notificationsData = notificationsCrud.getAll({
-		perPage: 50,
+	const { pagination, setPagination } = usePagination();
+	const filters = useNotificationsFilters();
+
+	const reqParams = computed(() => ({
+		perPage: 10,
 		page: 0,
-		isUser: false,
-		search: notificationsSearchInput.value,
+		isUser: filters.isUsersFilter,
+		search: filters.searchInput,
+	}));
+
+	const { data } = crud.getAll(reqParams.value);
+	const notifications = computed<Notification[]>(() => {
+		return data.value?.notifications ?? [];
 	});
 
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
@@ -62,49 +70,65 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 	]);
 
-	const notifications = computed<Notification[]>(() => {
-		return notificationsData.data.value?.notifications ?? [];
+	const totalNotifications = computed(() => data.value?.total ?? 0);
+
+	const pageCount = computed(() => {
+		return Math.ceil((data.value?.total ?? 0) / pagination.value.pageSize);
 	});
 
 	const table = useVueTable({
-		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
+		get pageCount() {
+			return pageCount.value;
+		},
+		state: {
+			pagination: pagination.value,
+		},
 		get data() {
 			return notifications.value;
 		},
 		get columns() {
 			return tableColumns.value;
 		},
+		manualPagination: true,
+		getCoreRowModel: getCoreRowModel(),
+		onPaginationChange: (updater) => {
+			if (typeof updater === 'function') {
+				setPagination(
+					updater({
+						pageIndex: pagination.value.pageIndex,
+						pageSize: pagination.value.pageSize,
+					}),
+				);
+			} else {
+				setPagination(updater);
+			}
+		},
 	});
 
 	async function onDeleteNotification(notificationId: string) {
-		if (notificationsForm.editableMessageId === notificationId) {
-			notificationsForm.onReset();
+		if (form.editableMessageId === notificationId) {
+			form.onReset();
 		}
 
-		await notificationsCrud.deleteOne.mutateAsync({ id: notificationId });
+		await crud.deleteOne.mutateAsync({ id: notificationId });
 	}
 
 	async function onEditNotification(notification: Notification) {
-		const confirmed = !notificationsForm.isFormDirty
-			|| notificationsForm.editableMessageId
+		const confirmed = !form.isFormDirty
+			|| form.editableMessageId
 			&& confirm(t('adminPanel.notifications.confirmResetForm'));
 		if (!confirmed) return;
 
-		notificationsForm.editableMessageId = notification.id;
-		notificationsForm.form.setValues(notification);
+		form.editableMessageId = notification.id;
+		form.form.setValues(notification);
 		layout.scrollToTop();
 	}
-
-	// globals or users
-	const notificationsFilter = ref('globals');
 
 	return {
 		table,
 		tableColumns,
 		notifications,
-		notificationsFilter,
-		notificationsSearchInput,
+		totalNotifications,
 		onDeleteNotification,
 		onEditNotification,
 	};

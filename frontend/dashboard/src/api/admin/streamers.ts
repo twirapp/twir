@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/vue-query';
 
-import { unprotectedApiClient } from './twirp';
+import { unprotectedApiClient } from '../twirp';
 
 export const useStreamers = () => useQuery({
 	queryKey: ['streamers'],

@@ -6,7 +6,7 @@ import { computed } from 'vue';
 
 import NotificationsDropdown from './notifications-dropdown.vue';
 
-import { useProtectedNotifications } from '@/api/notifications';
+import { useProtectedNotifications } from '@/api/admin/notifications';
 import { useNotificationsCounter } from '@/composables/use-notifications-counter';
 
 const { data } = useProtectedNotifications();

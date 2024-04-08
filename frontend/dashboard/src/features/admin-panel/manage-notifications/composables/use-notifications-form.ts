@@ -4,7 +4,7 @@ import { useForm } from 'vee-validate';
 import { computed, ref } from 'vue';
 import * as z from 'zod';
 
-import { useAdminNotifications } from '@/api/notifications';
+import { useAdminNotifications } from '@/api/admin/notifications';
 
 const formSchema = toTypedSchema(z.object({
 	userId: z.string().optional(),

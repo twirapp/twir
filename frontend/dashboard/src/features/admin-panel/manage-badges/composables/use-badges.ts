@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
-import { useBadges as useBadgesApi, useAdminBadges } from '@/api/badges';
+import { useBadges as useBadgesApi, useAdminBadges } from '@/api/admin/badges';
 
 export const useBadges = defineStore('admin-panel/badges', () => {
 	const { data } = useBadgesApi();

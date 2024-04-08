@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
-import { useStreamers as useStreamersApi } from '@/api/streamers';
+import { useStreamers as useStreamersApi } from '@/api/admin/streamers';
 
 export const useStreamers = defineStore('admin-panel/streamers', () => {
 	const { data } = useStreamersApi();

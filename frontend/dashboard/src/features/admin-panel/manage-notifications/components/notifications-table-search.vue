@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { useNotificationsTable } from '../composables/use-notifications-table.js';
+import { useNotificationsFilters } from '../composables/use-notifications-filters.js';
 
 import SearchBar from '@/components/search-bar.vue';
 import {
@@ -14,13 +14,14 @@ import {
 } from '@/components/ui/select';
 
 const { t } = useI18n();
-const notificationsTable = useNotificationsTable();
+
+const filters = useNotificationsFilters();
 </script>
 
 <template>
 	<div class="flex gap-2 max-lg:w-full">
-		<search-bar v-model="notificationsTable.notificationsSearchInput" />
-		<Select v-model="notificationsTable.notificationsFilter">
+		<search-bar v-model="filters.searchInput" />
+		<Select v-model="filters.filterInput">
 			<SelectTrigger class="h-9 w-[120px]">
 				<SelectValue />
 			</SelectTrigger>

@@ -15,7 +15,7 @@ const notificationsTable = useNotificationsTable();
 			{{ t('sharedTexts.pagination', {
 				page: notificationsTable.table.getState().pagination.pageIndex + 1,
 				total: notificationsTable.table.getPageCount().toLocaleString(),
-				items: notificationsTable.notifications.length
+				items: notificationsTable.totalNotifications,
 			}) }}
 		</div>
 		<Button
