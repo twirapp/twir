@@ -1,74 +1,26 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"log"
 	"net/http"
-	"time"
 
-	"github.com/99designs/gqlgen/graphql"
-	"github.com/99designs/gqlgen/graphql/handler"
-	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/alexedwards/scs/v2"
-	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
-	"github.com/rs/cors"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/graph"
-	"github.com/twirapp/twir/apps/api-gql/resolvers"
+	"github.com/twirapp/twir/apps/api-gql/internal/gqlhandler"
+	"github.com/twirapp/twir/apps/api-gql/internal/router"
 )
 
 func main() {
-	c := cors.New(
-		cors.Options{
-			AllowedOrigins:   []string{"*"},
-			AllowCredentials: true,
-		},
-	)
-	config := graph.Config{
-		Resolvers: &resolvers.Resolver{
-			NewCommandChann: make(chan *gqlmodel.Command),
-		},
-	}
-	config.Directives.IsAuthenticated = func(
-		ctx context.Context,
-		obj interface{},
-		next graphql.Resolver,
-	) (res interface{}, err error) {
-		// user, ok := s.Get(ctx, "dbUser").(model.Users)
-		// if !ok {
-		// 	return nil, fmt.Errorf("not authenticated")
-		// }
-		//
-		// ctx = context.WithValue(ctx, "dbUser", user)
-
-		return next(ctx)
+	mux := router.New()
+	if err := gqlhandler.New(mux); err != nil {
+		panic(err)
 	}
 
-	srv := handler.New(graph.NewExecutableSchema(config))
-	srv.AddTransport(transport.Options{})
-	srv.AddTransport(transport.GET{})
-	srv.AddTransport(transport.POST{})
-	srv.AddTransport(
-		transport.Websocket{
-			KeepAlivePingInterval: 10 * time.Second,
-			Upgrader: websocket.Upgrader{
-				CheckOrigin: func(r *http.Request) bool {
-					return true
-				},
-			},
-		},
-	)
-	srv.Use(extension.Introspection{})
+	s := &http.Server{
+		Addr:    ":3009",
+		Handler: mux,
+	}
 
-	http.Handle("/", playground.Handler("Todo", "/query"))
-	http.Handle("/query", c.Handler(srv))
-
-	log.Fatal(http.ListenAndServe(":3013", nil))
+	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		panic(err)
+	}
 }
 
 // func main() {
@@ -110,56 +62,3 @@ func main() {
 //
 // 	panic(http.ListenAndServe(":3013", handler))
 // }
-
-func graphqlHandler(s *scs.SessionManager) *handler.Server {
-	config := graph.Config{
-		Resolvers: &resolvers.Resolver{
-			NewCommandChann: make(chan *gqlmodel.Command),
-		},
-	}
-	config.Directives.IsAuthenticated = func(
-		ctx context.Context,
-		obj interface{},
-		next graphql.Resolver,
-	) (res interface{}, err error) {
-		user, ok := s.Get(ctx, "dbUser").(model.Users)
-		if !ok {
-			return nil, fmt.Errorf("not authenticated")
-		}
-
-		ctx = context.WithValue(ctx, "dbUser", user)
-
-		return next(ctx)
-	}
-
-	h := handler.NewDefaultServer(graph.NewExecutableSchema(config))
-	h.AddTransport(
-		transport.Websocket{
-			KeepAlivePingInterval: 10 * time.Second,
-			Upgrader: websocket.Upgrader{
-				CheckOrigin: func(r *http.Request) bool {
-					return true
-				},
-			},
-		},
-	)
-
-	return h
-}
-
-// Defining the Playground handler
-func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
-
-	return func(c *gin.Context) {
-		h.ServeHTTP(c.Writer, c.Request)
-	}
-}
-
-func ginContextToContextMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		ctx := context.WithValue(c.Request.Context(), "GinContextKey", c)
-		c.Request = c.Request.WithContext(ctx)
-		c.Next()
-	}
-}

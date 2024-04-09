@@ -7,7 +7,7 @@ export default defineConfig({
 	server: {
 		proxy: {
 			'/query': {
-				target: 'http://localhost:3013',
+				target: 'http://localhost:3009',
 				changeOrigin: true,
 				ws: true,
 			},

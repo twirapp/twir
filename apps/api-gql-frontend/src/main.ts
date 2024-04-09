@@ -6,7 +6,7 @@ import './style.css';
 import App from './App.vue';
 
 const gqlWs = createWS({
-  url: 'ws://localhost:3013/query',
+  url: `ws://${window.location.host}/query`,
   lazy: true,
 });
 
