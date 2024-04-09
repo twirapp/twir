@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gqlhandler"
@@ -17,6 +18,8 @@ func main() {
 		Addr:    ":3009",
 		Handler: mux,
 	}
+
+	slog.Info("Server is running", slog.String("addr", s.Addr))
 
 	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		panic(err)
