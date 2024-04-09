@@ -1,9 +1,11 @@
 package gqlhandler
 
 import (
+	"context"
 	"net/http"
 	"time"
 
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
@@ -21,6 +23,14 @@ func New(mux *chi.Mux) error {
 			NewCommandChann: make(chan *gqlmodel.Command),
 		},
 	}
+	config.Directives.IsAuthenticated = func(
+		ctx context.Context,
+		obj interface{},
+		next graphql.Resolver,
+	) (interface{}, error) {
+		return next(ctx)
+	}
+
 	schema := graph.NewExecutableSchema(config)
 
 	srv := handler.New(schema)
