@@ -2,12 +2,15 @@ package notifications
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/twitch"
 	messages_admin_notifications "github.com/twirapp/twir/libs/api/messages/admin_notifications"
 	google_protobuf "google.golang.org/protobuf/types/known/emptypb"
 )
@@ -74,9 +77,43 @@ func (c *Notifications) NotificationsGetAll(
 		return nil, err
 	}
 
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
+	if err != nil {
+		return nil, err
+	}
+
+	twitchUsers := make([]helix.User, 0, len(notifications))
+	usersIdsForRequest := make([]string, 0, len(notifications))
+	for _, notification := range notifications {
+		if notification.UserID.Valid {
+			usersIdsForRequest = append(usersIdsForRequest, notification.UserID.String)
+		}
+	}
+
+	if len(usersIdsForRequest) > 0 {
+		usersReq, err := twitchClient.GetUsers(&helix.UsersParams{IDs: usersIdsForRequest})
+		if err != nil {
+			return nil, err
+		}
+		if usersReq.ErrorMessage != "" {
+			return nil, fmt.Errorf(usersReq.ErrorMessage)
+		}
+
+		twitchUsers = usersReq.Data.Users
+	}
+
 	mappedNotifications := make([]*messages_admin_notifications.Notification, 0, len(notifications))
 	for _, notification := range notifications {
-		mappedNotifications = append(mappedNotifications, convertModelToMessage(notification))
+		convertedModel := convertModelToMessage(notification)
+		for _, user := range twitchUsers {
+			if notification.UserID.String == user.ID {
+				convertedModel.UserName = &user.Login
+				convertedModel.UserDisplayName = &user.DisplayName
+				convertedModel.UserAvatar = &user.ProfileImageURL
+			}
+		}
+
+		mappedNotifications = append(mappedNotifications, convertedModel)
 	}
 
 	var total int64
