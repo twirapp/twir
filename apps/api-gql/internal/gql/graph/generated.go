@@ -67,14 +67,9 @@ type ComplexityRoot struct {
 		Text      func(childComplexity int) int
 	}
 
-	Empty struct {
-		Empty func(childComplexity int) int
-	}
-
 	Mutation struct {
 		CreateCommand      func(childComplexity int, opts gqlmodel.CreateCommandInput) int
 		CreateNotification func(childComplexity int, text string, userID *string) int
-		Empty              func(childComplexity int) int
 		UpdateCommand      func(childComplexity int, id string, opts gqlmodel.UpdateCommandOpts) int
 	}
 
@@ -87,7 +82,6 @@ type ComplexityRoot struct {
 	Query struct {
 		AuthedUser    func(childComplexity int) int
 		Commands      func(childComplexity int) int
-		Empty         func(childComplexity int) int
 		Notifications func(childComplexity int, userID string) int
 	}
 
@@ -113,13 +107,11 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	Empty(ctx context.Context) (*gqlmodel.Empty, error)
 	CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error)
 	UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error)
 	CreateNotification(ctx context.Context, text string, userID *string) (*gqlmodel.Notification, error)
 }
 type QueryResolver interface {
-	Empty(ctx context.Context) (*gqlmodel.Empty, error)
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	Notifications(ctx context.Context, userID string) ([]gqlmodel.Notification, error)
 	AuthedUser(ctx context.Context) (*gqlmodel.User, error)
@@ -225,13 +217,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CommandResponse.Text(childComplexity), true
 
-	case "Empty.empty":
-		if e.complexity.Empty.Empty == nil {
-			break
-		}
-
-		return e.complexity.Empty.Empty(childComplexity), true
-
 	case "Mutation.createCommand":
 		if e.complexity.Mutation.CreateCommand == nil {
 			break
@@ -255,13 +240,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateNotification(childComplexity, args["text"].(string), args["userId"].(*string)), true
-
-	case "Mutation.empty":
-		if e.complexity.Mutation.Empty == nil {
-			break
-		}
-
-		return e.complexity.Mutation.Empty(childComplexity), true
 
 	case "Mutation.updateCommand":
 		if e.complexity.Mutation.UpdateCommand == nil {
@@ -309,13 +287,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Commands(childComplexity), true
-
-	case "Query.empty":
-		if e.complexity.Query.Empty == nil {
-			break
-		}
-
-		return e.complexity.Query.Empty(childComplexity), true
 
 	case "Query.notifications":
 		if e.complexity.Query.Notifications == nil {
@@ -603,17 +574,8 @@ extend type Subscription {
 	newNotification: Notification!
 }
 `, BuiltIn: false},
-	{Name: "../../../schema/schema.graphqls", Input: `type Empty {
-	empty: Boolean
-}
-
-type Query {
-	empty: Empty
-}
-
-type Mutation {
-	empty: Empty
-}
+	{Name: "../../../schema/schema.graphqls", Input: `type Query
+type Mutation
 
 directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION
 	| FIELD_DEFINITION
@@ -1264,92 +1226,6 @@ func (ec *executionContext) fieldContext_CommandResponse_order(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Empty_empty(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Empty) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Empty_empty(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Empty, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*bool)
-	fc.Result = res
-	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Empty_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Empty",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_empty(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Empty(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Empty)
-	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "empty":
-				return ec.fieldContext_Empty_empty(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Empty", field.Name)
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createCommand(ctx, field)
 	if err != nil {
@@ -1722,51 +1598,6 @@ func (ec *executionContext) fieldContext_Notification_text(ctx context.Context, 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Query_empty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_empty(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Empty(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*gqlmodel.Empty)
-	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Query_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Query",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "empty":
-				return ec.fieldContext_Empty_empty(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Empty", field.Name)
 		},
 	}
 	return fc, nil
@@ -4704,42 +4535,6 @@ func (ec *executionContext) _CommandResponse(ctx context.Context, sel ast.Select
 	return out
 }
 
-var emptyImplementors = []string{"Empty"}
-
-func (ec *executionContext) _Empty(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Empty) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, emptyImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("Empty")
-		case "empty":
-			out.Values[i] = ec._Empty_empty(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -4759,10 +4554,6 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "empty":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_empty(ctx, field)
-			})
 		case "createCommand":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_createCommand(ctx, field)
@@ -4875,25 +4666,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "empty":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Query_empty(ctx, field)
-				return res
-			}
-
-			rrm := func(ctx context.Context) graphql.Marshaler {
-				return ec.OperationContext.RootResolverMiddleware(ctx,
-					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "commands":
 			field := field
 
@@ -6030,13 +5802,6 @@ func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcom
 		}
 	}
 	return res, nil
-}
-
-func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Empty) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	return ec._Empty(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

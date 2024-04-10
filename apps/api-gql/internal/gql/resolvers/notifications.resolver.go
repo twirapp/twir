@@ -12,27 +12,17 @@ import (
 )
 
 // CreateNotification is the resolver for the createNotification field.
-func (r *mutationResolver) CreateNotification(
-	ctx context.Context,
-	text string,
-	userID *string,
-) (*gqlmodel.Notification, error) {
+func (r *mutationResolver) CreateNotification(ctx context.Context, text string, userID *string) (*gqlmodel.Notification, error) {
 	panic(fmt.Errorf("not implemented: CreateNotification - createNotification"))
 }
 
 // Notifications is the resolver for the notifications field.
-func (r *queryResolver) Notifications(ctx context.Context, userID string) (
-	[]gqlmodel.Notification,
-	error,
-) {
+func (r *queryResolver) Notifications(ctx context.Context, userID string) ([]gqlmodel.Notification, error) {
 	panic(fmt.Errorf("not implemented: Notifications - notifications"))
 }
 
 // NewNotification is the resolver for the newNotification field.
-func (r *subscriptionResolver) NewNotification(ctx context.Context) (
-	<-chan *gqlmodel.Notification,
-	error,
-) {
+func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.Notification, error) {
 	channel := make(chan *gqlmodel.Notification)
 
 	go func() {

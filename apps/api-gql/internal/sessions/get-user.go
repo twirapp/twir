@@ -15,3 +15,12 @@ func (s *Sessions) GetAuthenticatedUser(ctx context.Context) (*model.Users, erro
 
 	return &user, nil
 }
+
+func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
+	selectedDashboardId, ok := s.sessionManager.Get(ctx, "dashboardId").(string)
+	if !ok {
+		return "", fmt.Errorf("cannot get dashboardId from context")
+	}
+
+	return selectedDashboardId, nil
+}

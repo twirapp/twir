@@ -15,10 +15,7 @@ import (
 )
 
 // CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(
-	ctx context.Context,
-	opts gqlmodel.CreateCommandInput,
-) (*gqlmodel.Command, error) {
+func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
 	responses := make([]gqlmodel.CommandResponse, 0, len(opts.Responses.Value()))
 	for _, response := range opts.Responses.Value() {
 		responses = append(
@@ -47,11 +44,7 @@ func (r *mutationResolver) CreateCommand(
 }
 
 // UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.UpdateCommandOpts,
-) (*gqlmodel.Command, error) {
+func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
 	var cmd *gqlmodel.Command
 	cmdIndex := 0
 

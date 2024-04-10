@@ -37,10 +37,6 @@ type CreateCommandResponseInput struct {
 	Order int    `json:"order"`
 }
 
-type Empty struct {
-	Empty *bool `json:"empty,omitempty"`
-}
-
 type Mutation struct {
 }
 

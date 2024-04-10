@@ -1,14 +1,5 @@
-type Empty {
-	empty: Boolean
-}
-
-type Query {
-	empty: Empty
-}
-
-type Mutation {
-	empty: Empty
-}
+type Query
+type Mutation
 
 directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION
 	| FIELD_DEFINITION
