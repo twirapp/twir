@@ -75,6 +75,9 @@ jobs:
       - name: Build libraries
         run: pnpm cli build libs
 
+      - name: Build libraries
+        run: pnpm cli build gql
+
       - name: Build application
         run: pnpm cli build app ${{ env.app }}
 
