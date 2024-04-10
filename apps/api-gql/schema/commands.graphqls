@@ -34,12 +34,12 @@ input CreateCommandInput {
 }
 
 extend type Query {
-	commands: [Command!]! @isAuthenticated
+	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 type Subscription {

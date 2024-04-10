@@ -46,7 +46,8 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	IsAuthenticated func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	HasAccessToSelectedDashboard func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAuthenticated              func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -538,12 +539,12 @@ input CreateCommandInput {
 }
 
 extend type Query {
-	commands: [Command!]! @isAuthenticated
+	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
 type Subscription {
@@ -581,6 +582,8 @@ directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on 
 	| FIELD_DEFINITION
 
 directive @isAuthenticated on FIELD_DEFINITION
+
+directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
 scalar DateTime
 `, BuiltIn: false},
@@ -1249,8 +1252,14 @@ func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field g
 			}
 			return ec.directives.IsAuthenticated(ctx, nil, directive0)
 		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -1340,8 +1349,14 @@ func (ec *executionContext) _Mutation_updateCommand(ctx context.Context, field g
 			}
 			return ec.directives.IsAuthenticated(ctx, nil, directive0)
 		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -1626,8 +1641,14 @@ func (ec *executionContext) _Query_commands(ctx context.Context, field graphql.C
 			}
 			return ec.directives.IsAuthenticated(ctx, nil, directive0)
 		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
