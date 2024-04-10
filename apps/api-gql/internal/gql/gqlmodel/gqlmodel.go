@@ -3,19 +3,33 @@
 package gqlmodel
 
 import (
-	"time"
-
 	"github.com/99designs/gqlgen/graphql"
 )
 
 type Command struct {
-	ID          string            `json:"id"`
-	Name        string            `json:"name"`
-	Description *string           `json:"description,omitempty"`
-	Aliases     []string          `json:"aliases,omitempty"`
-	Responses   []CommandResponse `json:"responses,omitempty"`
-	CreatedAt   time.Time         `json:"createdAt"`
-	UpdatedAt   time.Time         `json:"updatedAt"`
+	ID                        string            `json:"id"`
+	Name                      string            `json:"name"`
+	Description               *string           `json:"description,omitempty"`
+	Aliases                   []string          `json:"aliases,omitempty"`
+	Responses                 []CommandResponse `json:"responses,omitempty"`
+	Cooldown                  *int              `json:"cooldown,omitempty"`
+	CooldownType              string            `json:"cooldownType"`
+	Enabled                   bool              `json:"enabled"`
+	Visible                   bool              `json:"visible"`
+	Default                   bool              `json:"default"`
+	DefaultName               *string           `json:"defaultName,omitempty"`
+	Module                    string            `json:"module"`
+	IsReply                   bool              `json:"isReply"`
+	KeepResponsesOrder        bool              `json:"keepResponsesOrder"`
+	DeniedUsersIds            []string          `json:"deniedUsersIds,omitempty"`
+	AllowedUsersIds           []string          `json:"allowedUsersIds,omitempty"`
+	RolesIds                  []string          `json:"rolesIds,omitempty"`
+	OnlineOnly                bool              `json:"onlineOnly"`
+	CooldownRolesIds          []string          `json:"cooldownRolesIds,omitempty"`
+	EnabledCategories         []string          `json:"enabledCategories,omitempty"`
+	RequiredWatchTime         int               `json:"requiredWatchTime"`
+	RequiredMessages          int               `json:"requiredMessages"`
+	RequiredUsedChannelPoints int               `json:"requiredUsedChannelPoints"`
 }
 
 type CommandResponse struct {

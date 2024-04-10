@@ -4,8 +4,24 @@ type Command {
 	description: String
 	aliases: [String!]
 	responses: [CommandResponse!]
-	createdAt: DateTime!
-	updatedAt: DateTime!
+	cooldown: Int
+	cooldownType: String!
+	enabled: Boolean!
+	visible: Boolean!
+	default: Boolean!
+	defaultName: String
+	module: String!
+	isReply: Boolean!
+	keepResponsesOrder: Boolean!
+	deniedUsersIds: [String!]
+	allowedUsersIds: [String!]
+	rolesIds: [String!]
+	onlineOnly: Boolean!
+	cooldownRolesIds: [String!]
+	enabledCategories: [String!]
+	requiredWatchTime: Int!
+	requiredMessages: Int!
+	requiredUsedChannelPoints: Int!
 }
 
 type CommandResponse {
@@ -41,10 +57,10 @@ extend type Mutation {
 	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 }
-
-type Subscription {
-	"""
-	`newCommand` will return a stream of `Command` objects.
-	"""
-	newCommand: Command! @isAuthenticated
-}
+#
+#type Subscription {
+#	"""
+#	`newCommand` will return a stream of `Command` objects.
+#	"""
+#	newCommand: Command! @isAuthenticated
+#}

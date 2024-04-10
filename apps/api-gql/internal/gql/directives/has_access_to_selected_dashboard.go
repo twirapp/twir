@@ -23,7 +23,7 @@ func (c *Directives) HasAccessToSelectedDashboard(
 	}
 
 	// TODO: perform access check here
-	if dashboardID == user.ID {
+	if dashboardID != user.ID {
 		return nil, fmt.Errorf("user does not have access to dashboard")
 	}
 

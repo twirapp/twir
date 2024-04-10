@@ -7,113 +7,125 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
-// CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
-	responses := make([]gqlmodel.CommandResponse, 0, len(opts.Responses.Value()))
-	for _, response := range opts.Responses.Value() {
-		responses = append(
-			responses, gqlmodel.CommandResponse{
-				ID:    uuid.NewString(),
-				Text:  response.Text,
-				Order: response.Order,
-			},
-		)
+// Responses is the resolver for the responses field.
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
+	if obj.Default {
+		return []gqlmodel.CommandResponse{}, nil
 	}
 
-	newCommand := gqlmodel.Command{
-		ID:          uuid.NewString(),
-		Name:        opts.Name,
-		Description: opts.Description.Value(),
-		Aliases:     opts.Aliases.Value(),
-		Responses:   responses,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+	var responses []model.ChannelsCommandsResponses
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"commandId" = ?`, obj.ID).
+		Find(&responses).Error; err != nil {
+		return nil, err
 	}
 
-	r.NewCommandChann <- &newCommand
-
-	commands = append(commands, newCommand)
-	return &newCommand, nil
-}
-
-// UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
-	var cmd *gqlmodel.Command
-	cmdIndex := 0
-
-	for i, command := range commands {
-		if command.ID == id {
-			cmd = &command
-			cmdIndex = i
-			break
+	convertedResponses := make([]gqlmodel.CommandResponse, len(responses))
+	for i, response := range responses {
+		convertedResponses[i] = gqlmodel.CommandResponse{
+			ID:        response.ID,
+			CommandID: response.CommandID,
+			Text:      response.Text.String,
+			Order:     response.Order,
 		}
 	}
 
-	if cmd == nil {
-		return nil, fmt.Errorf("command with id %s not found", id)
+	return convertedResponses, nil
+}
+
+// CreateCommand is the resolver for the createCommand field.
+func (r *mutationResolver) CreateCommand(
+	ctx context.Context,
+	opts gqlmodel.CreateCommandInput,
+) (*gqlmodel.Command, error) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	if opts.Name.IsSet() {
-		cmd.Name = *opts.Name.Value()
+	if r.clientsCommandsChannels[user.ID] != nil {
+		r.clientsCommandsChannels[user.ID] <- &gqlmodel.Command{
+			ID: uuid.NewString(),
+		}
 	}
 
-	if opts.Description.IsSet() {
-		cmd.Description = opts.Description.Value()
-	}
+	return &gqlmodel.Command{
+		ID: uuid.NewString(),
+	}, nil
+}
 
-	if opts.Aliases.IsSet() {
-		cmd.Aliases = opts.Aliases.Value()
-	}
-
-	cmd.UpdatedAt = time.Now()
-
-	commands[cmdIndex] = *cmd
-
-	return cmd, nil
+// UpdateCommand is the resolver for the updateCommand field.
+func (r *mutationResolver) UpdateCommand(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.UpdateCommandOpts,
+) (*gqlmodel.Command, error) {
+	return nil, fmt.Errorf("not implemented")
 }
 
 // Commands is the resolver for the commands field.
 func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
-	return commands, nil
-}
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
 
-// NewCommand is the resolver for the newCommand field.
-func (r *subscriptionResolver) NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error) {
-	ch := make(chan *gqlmodel.Command)
+	var entities []model.ChannelsCommands
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?`, dashboardId).
+		Find(&entities).Error; err != nil {
+		return nil, err
+	}
 
-	fmt.Println("Subscription Started")
+	convertedCommands := make([]gqlmodel.Command, len(entities))
+	for i, entity := range entities {
+		cooldown := entity.Cooldown.Int64
+		cooldownInt := int(cooldown)
 
-	go func() {
-		defer close(ch)
-
-		for {
-			select {
-			case <-ctx.Done():
-				fmt.Println("Subscription Closed")
-				return
-
-			case cmd := <-r.NewCommandChann:
-				fmt.Println("New Command")
-				ch <- cmd
-			}
+		convertedCommands[i] = gqlmodel.Command{
+			ID:                        entity.ID,
+			Name:                      entity.Name,
+			Description:               entity.Description.Ptr(),
+			Aliases:                   entity.Aliases,
+			Cooldown:                  &cooldownInt,
+			CooldownType:              entity.CooldownType,
+			Enabled:                   entity.Enabled,
+			Visible:                   entity.Visible,
+			Default:                   entity.Default,
+			DefaultName:               entity.DefaultName.Ptr(),
+			Module:                    entity.Module,
+			IsReply:                   entity.IsReply,
+			KeepResponsesOrder:        entity.KeepResponsesOrder,
+			DeniedUsersIds:            entity.DeniedUsersIDS,
+			AllowedUsersIds:           entity.AllowedUsersIDS,
+			RolesIds:                  entity.RolesIDS,
+			OnlineOnly:                entity.OnlineOnly,
+			CooldownRolesIds:          entity.CooldownRolesIDs,
+			EnabledCategories:         entity.EnabledCategories,
+			RequiredWatchTime:         entity.RequiredWatchTime,
+			RequiredMessages:          entity.RequiredMessages,
+			RequiredUsedChannelPoints: entity.RequiredUsedChannelPoints,
 		}
-	}()
-
-	// We return the channel and no error.
-	return ch, nil
+	}
+	return convertedCommands, nil
 }
 
-// Subscription returns graph.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
+// Command returns graph.CommandResolver implementation.
+func (r *Resolver) Command() graph.CommandResolver { return &commandResolver{r} }
 
-type subscriptionResolver struct{ *Resolver }
+type commandResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
@@ -121,4 +133,28 @@ type subscriptionResolver struct{ *Resolver }
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-var commands []gqlmodel.Command
+func (r *subscriptionResolver) NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error) {
+	subChan := make(chan *gqlmodel.Command, 1)
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if r.clientsCommandsChannels[user.ID] == nil {
+		r.clientsCommandsChannels[user.ID] = make(chan *gqlmodel.Command)
+	}
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case cmd := <-r.clientsCommandsChannels[user.ID]:
+				subChan <- cmd
+			}
+		}
+	}()
+
+	return subChan, nil
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/gorm"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
@@ -16,6 +17,7 @@ func main() {
 		fx.Provide(
 			cfg.NewFx,
 			redis.New,
+			gorm.New,
 			sessions.New,
 			resolvers.New,
 			directives.New,

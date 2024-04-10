@@ -3,8 +3,11 @@ package build
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 
+	"github.com/99designs/gqlgen/api"
+	gqlconfig "github.com/99designs/gqlgen/codegen/config"
 	"github.com/pterm/pterm"
 	"github.com/twirapp/twir/cli/internal/goapp"
 	"github.com/twirapp/twir/cli/internal/shell"
@@ -21,6 +24,7 @@ var Cmd = &cli.Command{
 	Subcommands: []*cli.Command{
 		LibsCmd,
 		AppBuildCmd,
+		GqlCmd,
 	},
 }
 
@@ -61,6 +65,25 @@ var AppBuildCmd = &cli.Command{
 		}
 
 		return build(fmt.Sprintf(`turbo run build --filter=@twir/%s`, argument), false)
+	},
+}
+
+var GqlCmd = &cli.Command{
+	Name: "gql",
+	Action: func(context *cli.Context) error {
+		cwd, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		configDir := filepath.Join(cwd, "apps/api-gql", "gqlgen.yml")
+
+		cfg, err := gqlconfig.LoadConfig(configDir)
+		if err != nil {
+			return err
+		}
+
+		return api.Generate(cfg)
 	},
 }
 

@@ -14,7 +14,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
  */
 const documents = {
     "\n\tmutation newCommand($name: String!, $aliases: [String!], $description: String, $responses: [CreateCommandResponseInput!]) {\n\t\tcreateCommand(\n    opts: {name: $name, description: $description, aliases: $aliases, responses: $responses}\n  ) {\n    id\n  }\n\t}\n": types.NewCommandDocument,
-    "\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t\tcreatedAt\n\t\t\t\t\tupdatedAt\n\t\t\t\t}\n\t\t\t}\n  ": types.GetCommandsDocument,
+    "\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t}\n\t\t\t}\n  ": types.GetCommandsDocument,
     "\n\t\tquery getUser {\n\t\t\tauthedUser {\n\t\t\tid\n\t\t\tapiKey\n\t\t\tchannel {\n\t\t\t\tbotId\n\t\t\t\tisBotModerator\n\t\t\t\tisEnabled\n\t\t\t}\n\t\t\thideOnLandingPage\n\t\t\tisBanned\n\t\t\tisBotAdmin\n\t\t\t}\n\t\t}\n\t": types.GetUserDocument,
     "\n\t\tsubscription newC {\n\t\t\tnewCommand {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t": types.NewCDocument,
     "\n\t\tsubscription newN {\n\t\t\tnewNotification {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t": types.NewNDocument,
@@ -41,7 +41,7 @@ export function graphql(source: "\n\tmutation newCommand($name: String!, $aliase
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t\tcreatedAt\n\t\t\t\t\tupdatedAt\n\t\t\t\t}\n\t\t\t}\n  "): (typeof documents)["\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t\tcreatedAt\n\t\t\t\t\tupdatedAt\n\t\t\t\t}\n\t\t\t}\n  "];
+export function graphql(source: "\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t}\n\t\t\t}\n  "): (typeof documents)["\n\t\t\tquery getCommands {\n\t\t\t\tcommands {\n\t\t\t\t\tname\n\t\t\t\t\tid\n\t\t\t\t\taliases\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t}\n\t\t\t\t\tdescription\n\t\t\t\t}\n\t\t\t}\n  "];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

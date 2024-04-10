@@ -9,6 +9,7 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
 // CreateNotification is the resolver for the createNotification field.
@@ -31,3 +32,8 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gql
 
 	return channel, nil
 }
+
+// Subscription returns graph.SubscriptionResolver implementation.
+func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
+
+type subscriptionResolver struct{ *Resolver }

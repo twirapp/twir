@@ -23,6 +23,8 @@ require (
 	atomicgo.dev/cursor v0.2.0 // indirect
 	atomicgo.dev/keyboard v0.2.9 // indirect
 	atomicgo.dev/schedule v0.1.0 // indirect
+	github.com/99designs/gqlgen v0.17.45 // indirect
+	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -38,6 +40,8 @@ require (
 	github.com/satont/twir/libs/crypto v0.0.0-20240201110132-12475b437e7a // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/sethvargo/go-retry v0.2.4 // indirect
+	github.com/sosodev/duration v1.2.0 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
 	go.opentelemetry.io/otel v1.24.0 // indirect
@@ -48,4 +52,6 @@ require (
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.19.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

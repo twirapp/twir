@@ -20,12 +20,28 @@ export type Scalars = {
 export type Command = {
   __typename?: 'Command';
   aliases?: Maybe<Array<Scalars['String']['output']>>;
-  createdAt: Scalars['DateTime']['output'];
+  allowedUsersIds?: Maybe<Array<Scalars['String']['output']>>;
+  cooldown?: Maybe<Scalars['Int']['output']>;
+  cooldownRolesIds?: Maybe<Array<Scalars['String']['output']>>;
+  cooldownType: Scalars['String']['output'];
+  default: Scalars['Boolean']['output'];
+  defaultName?: Maybe<Scalars['String']['output']>;
+  deniedUsersIds?: Maybe<Array<Scalars['String']['output']>>;
   description?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  enabledCategories?: Maybe<Array<Scalars['String']['output']>>;
   id: Scalars['ID']['output'];
+  isReply: Scalars['Boolean']['output'];
+  keepResponsesOrder: Scalars['Boolean']['output'];
+  module: Scalars['String']['output'];
   name: Scalars['String']['output'];
+  onlineOnly: Scalars['Boolean']['output'];
+  requiredMessages: Scalars['Int']['output'];
+  requiredUsedChannelPoints: Scalars['Int']['output'];
+  requiredWatchTime: Scalars['Int']['output'];
   responses?: Maybe<Array<CommandResponse>>;
-  updatedAt: Scalars['DateTime']['output'];
+  rolesIds?: Maybe<Array<Scalars['String']['output']>>;
+  visible: Scalars['Boolean']['output'];
 };
 
 export type CommandResponse = {
@@ -48,16 +64,10 @@ export type CreateCommandResponseInput = {
   text: Scalars['String']['input'];
 };
 
-export type Empty = {
-  __typename?: 'Empty';
-  empty?: Maybe<Scalars['Boolean']['output']>;
-};
-
 export type Mutation = {
   __typename?: 'Mutation';
   createCommand: Command;
   createNotification: Notification;
-  empty?: Maybe<Empty>;
   updateCommand: Command;
 };
 
@@ -89,7 +99,6 @@ export type Query = {
   __typename?: 'Query';
   authedUser: User;
   commands: Array<Command>;
-  empty?: Maybe<Empty>;
   notifications: Array<Notification>;
 };
 
@@ -142,7 +151,7 @@ export type NewCommandMutation = { __typename?: 'Mutation', createCommand: { __t
 export type GetCommandsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetCommandsQuery = { __typename?: 'Query', commands: Array<{ __typename?: 'Command', name: string, id: string, aliases?: Array<string> | null, description?: string | null, createdAt: any, updatedAt: any, responses?: Array<{ __typename?: 'CommandResponse', text: string }> | null }> };
+export type GetCommandsQuery = { __typename?: 'Query', commands: Array<{ __typename?: 'Command', name: string, id: string, aliases?: Array<string> | null, description?: string | null, responses?: Array<{ __typename?: 'CommandResponse', text: string }> | null }> };
 
 export type GetUserQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -161,7 +170,7 @@ export type NewNSubscription = { __typename?: 'Subscription', newNotification: {
 
 
 export const NewCommandDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"newCommand"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"name"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"aliases"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"description"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"responses"}},"type":{"kind":"ListType","type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateCommandResponseInput"}}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createCommand"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"ObjectValue","fields":[{"kind":"ObjectField","name":{"kind":"Name","value":"name"},"value":{"kind":"Variable","name":{"kind":"Name","value":"name"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"description"},"value":{"kind":"Variable","name":{"kind":"Name","value":"description"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"aliases"},"value":{"kind":"Variable","name":{"kind":"Name","value":"aliases"}}},{"kind":"ObjectField","name":{"kind":"Name","value":"responses"},"value":{"kind":"Variable","name":{"kind":"Name","value":"responses"}}}]}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<NewCommandMutation, NewCommandMutationVariables>;
-export const GetCommandsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getCommands"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commands"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"aliases"}},{"kind":"Field","name":{"kind":"Name","value":"responses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}}]}}]}}]} as unknown as DocumentNode<GetCommandsQuery, GetCommandsQueryVariables>;
+export const GetCommandsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getCommands"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"commands"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"aliases"}},{"kind":"Field","name":{"kind":"Name","value":"responses"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}}]}},{"kind":"Field","name":{"kind":"Name","value":"description"}}]}}]}}]} as unknown as DocumentNode<GetCommandsQuery, GetCommandsQueryVariables>;
 export const GetUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"authedUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"apiKey"}},{"kind":"Field","name":{"kind":"Name","value":"channel"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"botId"}},{"kind":"Field","name":{"kind":"Name","value":"isBotModerator"}},{"kind":"Field","name":{"kind":"Name","value":"isEnabled"}}]}},{"kind":"Field","name":{"kind":"Name","value":"hideOnLandingPage"}},{"kind":"Field","name":{"kind":"Name","value":"isBanned"}},{"kind":"Field","name":{"kind":"Name","value":"isBotAdmin"}}]}}]}}]} as unknown as DocumentNode<GetUserQuery, GetUserQueryVariables>;
 export const NewCDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"newC"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"newCommand"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<NewCSubscription, NewCSubscriptionVariables>;
 export const NewNDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"newN"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"newNotification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<NewNSubscription, NewNSubscriptionVariables>;

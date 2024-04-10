@@ -26,8 +26,6 @@ const { data: commands } = useQuery({
 						text
 					}
 					description
-					createdAt
-					updatedAt
 				}
 			}
   `),
@@ -80,15 +78,15 @@ const { data: notificationsSubscripction } = useSubscription({
 			{{ JSON.stringify(user, null, 2) }}
 		</pre>
 
-		<button @click="createCommand({ name: 'test' })">
-			Create command (then you need to refresh page)
-		</button>
 		<pre style="text-align: left;">
 			{{ JSON.stringify(commands, null, 2) }}
 		</pre>
 
 
 		<h1>Example graphql subscription of new command created</h1>
+		<button @click="createCommand({ name: 'test' })">
+			Create command (then you need to refresh page)
+		</button>
 		<pre>
 			{{ JSON.stringify(commandSubscription, null, 2) }}
 		</pre>

@@ -88,7 +88,7 @@ models:
   DateTime:
     model:
       - github.com/99designs/gqlgen/graphql.Time
-  User:
+  Command:
     fields:
       responses:
         resolver: true
