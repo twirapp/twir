@@ -15,10 +15,7 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(
-	ctx context.Context,
-	obj *gqlmodel.Command,
-) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -45,10 +42,7 @@ func (r *commandResolver) Responses(
 }
 
 // CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(
-	ctx context.Context,
-	opts gqlmodel.CreateCommandInput,
-) (*gqlmodel.Command, error) {
+func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
@@ -66,11 +60,7 @@ func (r *mutationResolver) CreateCommand(
 }
 
 // UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.UpdateCommandOpts,
-) (*gqlmodel.Command, error) {
+func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
 	return nil, fmt.Errorf("not implemented")
 }
 

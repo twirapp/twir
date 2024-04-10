@@ -67,6 +67,11 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 
+			if err := build.GqlCmd.Run(c); err != nil {
+				pterm.Fatal.Println(err)
+				return err
+			}
+
 			if err := migrations.MigrateCmd.Run(c); err != nil {
 				pterm.Fatal.Println(err)
 				return err
