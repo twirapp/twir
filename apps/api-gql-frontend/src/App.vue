@@ -52,27 +52,25 @@ const { data: user } = useQuery({
 	`),
 });
 
-const { data: commandSubscription, executeSubscription } = useSubscription({
+const { data: commandSubscription } = useSubscription({
 	query: graphql(`
 		subscription newC {
 			newCommand {
 				id
-				name
-				description
-				aliases
-				responses {
-					id
-					commandId
-					text
-					order
-				}
-				createdAt
-				updatedAt
 			}
 		}
 	`),
 });
-executeSubscription();
+
+const { data: notificationsSubscripction } = useSubscription({
+	query: graphql(`
+		subscription newN {
+			newNotification {
+				id
+			}
+		}
+	`),
+});
 </script>
 
 <template>
@@ -93,6 +91,11 @@ executeSubscription();
 		<h1>Example graphql subscription of new command created</h1>
 		<pre>
 			{{ JSON.stringify(commandSubscription, null, 2) }}
+		</pre>
+
+		<h1>Example graphql subscription of new notifications created</h1>
+		<pre>
+			{{ JSON.stringify(notificationsSubscripction, null, 2) }}
 		</pre>
 	</div>
 </template>

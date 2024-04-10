@@ -92,7 +92,8 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		NewCommand func(childComplexity int) int
+		NewCommand      func(childComplexity int) int
+		NewNotification func(childComplexity int) int
 	}
 
 	User struct {
@@ -125,6 +126,7 @@ type QueryResolver interface {
 }
 type SubscriptionResolver interface {
 	NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error)
+	NewNotification(ctx context.Context) (<-chan *gqlmodel.Notification, error)
 }
 
 type executableSchema struct {
@@ -333,6 +335,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.NewCommand(childComplexity), true
+
+	case "Subscription.newNotification":
+		if e.complexity.Subscription.NewNotification == nil {
+			break
+		}
+
+		return e.complexity.Subscription.NewNotification(childComplexity), true
 
 	case "User.apiKey":
 		if e.complexity.User.APIKey == nil {
@@ -585,6 +594,13 @@ extend type Query {
 
 extend type Mutation {
 	createNotification(text: String!, userId: String): Notification!
+}
+
+extend type Subscription {
+	"""
+	` + "`" + `newNotification` + "`" + ` will return a stream of ` + "`" + `Notification` + "`" + ` objects.
+	"""
+	newNotification: Notification!
 }
 `, BuiltIn: false},
 	{Name: "../schema/schema.graphqls", Input: `type Empty {
@@ -2135,6 +2151,72 @@ func (ec *executionContext) fieldContext_Subscription_newCommand(ctx context.Con
 				return ec.fieldContext_Command_updatedAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Command", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_newNotification(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_newNotification(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Subscription().NewNotification(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *gqlmodel.Notification):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_newNotification(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Notification_id(ctx, field)
+			case "userId":
+				return ec.fieldContext_Notification_userId(ctx, field)
+			case "text":
+				return ec.fieldContext_Notification_text(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Notification", field.Name)
 		},
 	}
 	return fc, nil
@@ -4864,6 +4946,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	switch fields[0].Name {
 	case "newCommand":
 		return ec._Subscription_newCommand(ctx, fields[0])
+	case "newNotification":
+		return ec._Subscription_newNotification(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}

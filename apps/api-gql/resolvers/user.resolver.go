@@ -9,15 +9,15 @@ import (
 	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 )
 
 // AuthedUser is the resolver for the authedUser field.
 func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.User, error) {
-	user, err := sessions.GetAuthenticatedUser(ctx)
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("not authenticated")
+		return nil, fmt.Errorf("not authenticated: %w", err)
 	}
+
 	return &gqlmodel.User{
 		ID:                user.ID,
 		IsBotAdmin:        user.IsBotAdmin,

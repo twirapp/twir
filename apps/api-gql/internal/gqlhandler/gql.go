@@ -9,19 +9,25 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
-	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/go-chi/chi/v5"
 	"github.com/gorilla/websocket"
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/resolvers"
+	"go.uber.org/fx"
 )
 
-func New(mux *chi.Mux) error {
+type GqlHandler struct {
+	*handler.Server
+}
+
+type Opts struct {
+	fx.In
+
+	Resolver *resolvers.Resolver
+}
+
+func New(opts Opts) *GqlHandler {
 	config := graph.Config{
-		Resolvers: &resolvers.Resolver{
-			NewCommandChann: make(chan *gqlmodel.Command),
-		},
+		Resolvers: opts.Resolver,
 	}
 	config.Directives.IsAuthenticated = func(
 		ctx context.Context,
@@ -49,8 +55,5 @@ func New(mux *chi.Mux) error {
 	)
 	srv.Use(extension.Introspection{})
 
-	mux.Handle("/", playground.Handler("Todo", "/query"))
-	mux.Handle("/query", srv)
-
-	return nil
+	return &GqlHandler{srv}
 }

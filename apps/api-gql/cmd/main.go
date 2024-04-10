@@ -1,67 +1,27 @@
 package main
 
 import (
-	"log/slog"
-	"net/http"
-
+	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/gqlhandler"
-	"github.com/twirapp/twir/apps/api-gql/internal/router"
+	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
+	"github.com/twirapp/twir/apps/api-gql/internal/redis"
+	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/resolvers"
+	"go.uber.org/fx"
 )
 
 func main() {
-	mux := router.New()
-	if err := gqlhandler.New(mux); err != nil {
-		panic(err)
-	}
-
-	s := &http.Server{
-		Addr:    ":3009",
-		Handler: mux,
-	}
-
-	slog.Info("Server is running", slog.String("addr", s.Addr))
-
-	if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		panic(err)
-	}
+	fx.New(
+		fx.Provide(
+			cfg.NewFx,
+			redis.New,
+			sessions.New,
+			resolvers.New,
+			gqlhandler.New,
+			httpserver.New,
+		),
+		fx.Invoke(
+			httpserver.New,
+		),
+	).Run()
 }
-
-// func main() {
-// 	db, err := gorm.Open(
-// 		postgres.Open("postgres://tsuwari:tsuwari@localhost:54321/tsuwari?sslmode=disable"),
-// 	)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	d, _ := db.DB()
-// 	d.SetMaxIdleConns(1)
-// 	d.SetMaxOpenConns(10)
-// 	d.SetConnMaxLifetime(time.Hour)
-//
-// 	redisOpts, _ := redis.ParseURL("redis://localhost:6385/0")
-// 	redisClient := redis.NewClient(redisOpts)
-//
-// 	sessionManager := sessions.New(redisClient)
-//
-// 	r := gin.Default()
-// 	r.Use(
-// 		cors.New(
-// 			cors.Config{
-// 				AllowAllOrigins:  true,
-// 				AllowHeaders:     []string{"*"},
-// 				AllowWebSockets:  true,
-// 				AllowCredentials: true,
-// 			},
-// 		),
-// 	)
-// 	r.Use(ginContextToContextMiddleware())
-//
-// 	r.Any("/query", gin.WrapH(graphqlHandler(sessionManager)))
-// 	r.GET("/", playgroundHandler())
-//
-// 	// r.Run(":3009")
-//
-// 	handler := sessionManager.LoadAndSave(r)
-//
-// 	panic(http.ListenAndServe(":3013", handler))
-// }
