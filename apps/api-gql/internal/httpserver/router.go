@@ -6,7 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/twirapp/twir/apps/api-gql/internal/gqlhandler"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	"go.uber.org/fx"
 )
@@ -14,7 +14,7 @@ import (
 type Opts struct {
 	fx.In
 	LC         fx.Lifecycle
-	GqlHandler *gqlhandler.GqlHandler
+	GqlHandler *gql.Gql
 	Sessions   *sessions.Sessions
 }
 

@@ -15,7 +15,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -531,7 +531,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/commands.graphqls", Input: `type Command {
+	{Name: "../../../schema/commands.graphqls", Input: `type Command {
 	id: ID!
 	name: String!
 	description: String
@@ -546,10 +546,6 @@ type CommandResponse {
 	commandId: ID!
 	text: String!
 	order: Int!
-}
-
-extend type Query {
-	commands: [Command!]! @isAuthenticated
 }
 
 input UpdateCommandOpts {
@@ -570,19 +566,23 @@ input CreateCommandInput {
 	responses: [CreateCommandResponseInput!]
 }
 
+extend type Query {
+	commands: [Command!]! @isAuthenticated
+}
+
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command!
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command!
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated
 }
 
 type Subscription {
 	"""
 	` + "`" + `newCommand` + "`" + ` will return a stream of ` + "`" + `Command` + "`" + ` objects.
 	"""
-	newCommand: Command!
+	newCommand: Command! @isAuthenticated
 }
 `, BuiltIn: false},
-	{Name: "../schema/notifications.graphqls", Input: `type Notification {
+	{Name: "../../../schema/notifications.graphqls", Input: `type Notification {
 	id: ID!
 	userId: ID!
 	text: String!
@@ -603,7 +603,7 @@ extend type Subscription {
 	newNotification: Notification!
 }
 `, BuiltIn: false},
-	{Name: "../schema/schema.graphqls", Input: `type Empty {
+	{Name: "../../../schema/schema.graphqls", Input: `type Empty {
 	empty: Boolean
 }
 
@@ -622,7 +622,7 @@ directive @isAuthenticated on FIELD_DEFINITION
 
 scalar DateTime
 `, BuiltIn: false},
-	{Name: "../schema/user.graphqls", Input: `type UserChannel {
+	{Name: "../../../schema/user.graphqls", Input: `type UserChannel {
 	isEnabled: Boolean!
 	isBotModerator: Boolean!
 	botId: ID!
@@ -654,7 +654,7 @@ func (ec *executionContext) field_Mutation_createCommand_args(ctx context.Contex
 	var arg0 gqlmodel.CreateCommandInput
 	if tmp, ok := rawArgs["opts"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
-		arg0, err = ec.unmarshalNCreateCommandInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandInput(ctx, tmp)
+		arg0, err = ec.unmarshalNCreateCommandInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -702,7 +702,7 @@ func (ec *executionContext) field_Mutation_updateCommand_args(ctx context.Contex
 	var arg1 gqlmodel.UpdateCommandOpts
 	if tmp, ok := rawArgs["opts"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
-		arg1, err = ec.unmarshalNUpdateCommandOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUpdateCommandOpts(ctx, tmp)
+		arg1, err = ec.unmarshalNUpdateCommandOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUpdateCommandOpts(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -974,7 +974,7 @@ func (ec *executionContext) _Command_responses(ctx context.Context, field graphq
 	}
 	res := resTmp.([]gqlmodel.CommandResponse)
 	fc.Result = res
-	return ec.marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandResponseᚄ(ctx, field.Selections, res)
+	return ec.marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandResponseᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Command_responses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1330,7 +1330,7 @@ func (ec *executionContext) _Mutation_empty(ctx context.Context, field graphql.C
 	}
 	res := resTmp.(*gqlmodel.Empty)
 	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
+	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1363,8 +1363,28 @@ func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateCommand(rctx, fc.Args["opts"].(gqlmodel.CreateCommandInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateCommand(rctx, fc.Args["opts"].(gqlmodel.CreateCommandInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Command); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Command`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1378,7 +1398,7 @@ func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field g
 	}
 	res := resTmp.(*gqlmodel.Command)
 	fc.Result = res
-	return ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res)
+	return ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createCommand(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1434,8 +1454,28 @@ func (ec *executionContext) _Mutation_updateCommand(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateCommand(rctx, fc.Args["id"].(string), fc.Args["opts"].(gqlmodel.UpdateCommandOpts))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateCommand(rctx, fc.Args["id"].(string), fc.Args["opts"].(gqlmodel.UpdateCommandOpts))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Command); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Command`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1449,7 +1489,7 @@ func (ec *executionContext) _Mutation_updateCommand(ctx context.Context, field g
 	}
 	res := resTmp.(*gqlmodel.Command)
 	fc.Result = res
-	return ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res)
+	return ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_updateCommand(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1520,7 +1560,7 @@ func (ec *executionContext) _Mutation_createNotification(ctx context.Context, fi
 	}
 	res := resTmp.(*gqlmodel.Notification)
 	fc.Result = res
-	return ec.marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx, field.Selections, res)
+	return ec.marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotification(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createNotification(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1712,7 +1752,7 @@ func (ec *executionContext) _Query_empty(ctx context.Context, field graphql.Coll
 	}
 	res := resTmp.(*gqlmodel.Empty)
 	fc.Result = res
-	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
+	return ec.marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_empty(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1766,7 +1806,7 @@ func (ec *executionContext) _Query_commands(ctx context.Context, field graphql.C
 		if data, ok := tmp.([]gqlmodel.Command); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/gqlmodel.Command`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Command`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1780,7 +1820,7 @@ func (ec *executionContext) _Query_commands(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]gqlmodel.Command)
 	fc.Result = res
-	return ec.marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandᚄ(ctx, field.Selections, res)
+	return ec.marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_commands(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1840,7 +1880,7 @@ func (ec *executionContext) _Query_notifications(ctx context.Context, field grap
 	}
 	res := resTmp.([]gqlmodel.Notification)
 	fc.Result = res
-	return ec.marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotificationᚄ(ctx, field.Selections, res)
+	return ec.marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_notifications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1909,7 +1949,7 @@ func (ec *executionContext) _Query_authedUser(ctx context.Context, field graphql
 		if data, ok := tmp.(*gqlmodel.User); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/gqlmodel.User`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1923,7 +1963,7 @@ func (ec *executionContext) _Query_authedUser(ctx context.Context, field graphql
 	}
 	res := resTmp.(*gqlmodel.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_authedUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2095,8 +2135,28 @@ func (ec *executionContext) _Subscription_newCommand(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().NewCommand(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Subscription().NewCommand(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(<-chan *gqlmodel.Command); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be <-chan *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Command`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2118,7 +2178,7 @@ func (ec *executionContext) _Subscription_newCommand(ctx context.Context, field 
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -2192,7 +2252,7 @@ func (ec *executionContext) _Subscription_newNotification(ctx context.Context, f
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotification(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -2470,7 +2530,7 @@ func (ec *executionContext) _User_channel(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*gqlmodel.UserChannel)
 	fc.Result = res
-	return ec.marshalNUserChannel2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUserChannel(ctx, field.Selections, res)
+	return ec.marshalNUserChannel2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUserChannel(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_channel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4436,7 +4496,7 @@ func (ec *executionContext) unmarshalInputCreateCommandInput(ctx context.Context
 			it.Aliases = graphql.OmittableOf(data)
 		case "responses":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("responses"))
-			data, err := ec.unmarshalOCreateCommandResponseInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandResponseInputᚄ(ctx, v)
+			data, err := ec.unmarshalOCreateCommandResponseInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandResponseInputᚄ(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -5407,11 +5467,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNCommand2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Command) graphql.Marshaler {
+func (ec *executionContext) marshalNCommand2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Command) graphql.Marshaler {
 	return ec._Command(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Command) graphql.Marshaler {
+func (ec *executionContext) marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Command) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5435,7 +5495,7 @@ func (ec *executionContext) marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋa
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCommand2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx, sel, v[i])
+			ret[i] = ec.marshalNCommand2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5455,7 +5515,7 @@ func (ec *executionContext) marshalNCommand2ᚕgithubᚗcomᚋtwirappᚋtwirᚋa
 	return ret
 }
 
-func (ec *executionContext) marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommand(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Command) graphql.Marshaler {
+func (ec *executionContext) marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommand(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Command) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5465,16 +5525,16 @@ func (ec *executionContext) marshalNCommand2ᚖgithubᚗcomᚋtwirappᚋtwirᚋa
 	return ec._Command(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNCommandResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandResponse(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CommandResponse) graphql.Marshaler {
+func (ec *executionContext) marshalNCommandResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandResponse(ctx context.Context, sel ast.SelectionSet, v gqlmodel.CommandResponse) graphql.Marshaler {
 	return ec._CommandResponse(ctx, sel, &v)
 }
 
-func (ec *executionContext) unmarshalNCreateCommandInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandInput(ctx context.Context, v interface{}) (gqlmodel.CreateCommandInput, error) {
+func (ec *executionContext) unmarshalNCreateCommandInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandInput(ctx context.Context, v interface{}) (gqlmodel.CreateCommandInput, error) {
 	res, err := ec.unmarshalInputCreateCommandInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNCreateCommandResponseInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandResponseInput(ctx context.Context, v interface{}) (gqlmodel.CreateCommandResponseInput, error) {
+func (ec *executionContext) unmarshalNCreateCommandResponseInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandResponseInput(ctx context.Context, v interface{}) (gqlmodel.CreateCommandResponseInput, error) {
 	res, err := ec.unmarshalInputCreateCommandResponseInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
@@ -5524,11 +5584,11 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNNotification2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Notification) graphql.Marshaler {
+func (ec *executionContext) marshalNNotification2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Notification) graphql.Marshaler {
 	return ec._Notification(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotificationᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Notification) graphql.Marshaler {
+func (ec *executionContext) marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Notification) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -5552,7 +5612,7 @@ func (ec *executionContext) marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNotification2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx, sel, v[i])
+			ret[i] = ec.marshalNNotification2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotification(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5572,7 +5632,7 @@ func (ec *executionContext) marshalNNotification2ᚕgithubᚗcomᚋtwirappᚋtwi
 	return ret
 }
 
-func (ec *executionContext) marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Notification) graphql.Marshaler {
+func (ec *executionContext) marshalNNotification2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Notification) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5597,16 +5657,16 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
-func (ec *executionContext) unmarshalNUpdateCommandOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUpdateCommandOpts(ctx context.Context, v interface{}) (gqlmodel.UpdateCommandOpts, error) {
+func (ec *executionContext) unmarshalNUpdateCommandOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUpdateCommandOpts(ctx context.Context, v interface{}) (gqlmodel.UpdateCommandOpts, error) {
 	res, err := ec.unmarshalInputUpdateCommandOpts(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.User) graphql.Marshaler {
 	return ec._User(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5616,7 +5676,7 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋapps
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserChannel2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐUserChannel(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UserChannel) graphql.Marshaler {
+func (ec *executionContext) marshalNUserChannel2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUserChannel(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.UserChannel) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -5905,7 +5965,7 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandResponseᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.CommandResponse) graphql.Marshaler {
+func (ec *executionContext) marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandResponseᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.CommandResponse) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -5932,7 +5992,7 @@ func (ec *executionContext) marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNCommandResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCommandResponse(ctx, sel, v[i])
+			ret[i] = ec.marshalNCommandResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandResponse(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -5952,7 +6012,7 @@ func (ec *executionContext) marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋ
 	return ret
 }
 
-func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandResponseInputᚄ(ctx context.Context, v interface{}) ([]gqlmodel.CreateCommandResponseInput, error) {
+func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandResponseInputᚄ(ctx context.Context, v interface{}) ([]gqlmodel.CreateCommandResponseInput, error) {
 	if v == nil {
 		return nil, nil
 	}
@@ -5964,7 +6024,7 @@ func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcom
 	res := make([]gqlmodel.CreateCommandResponseInput, len(vSlice))
 	for i := range vSlice {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
-		res[i], err = ec.unmarshalNCreateCommandResponseInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐCreateCommandResponseInput(ctx, vSlice[i])
+		res[i], err = ec.unmarshalNCreateCommandResponseInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandResponseInput(ctx, vSlice[i])
 		if err != nil {
 			return nil, err
 		}
@@ -5972,7 +6032,7 @@ func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcom
 	return res, nil
 }
 
-func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋgqlmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Empty) graphql.Marshaler {
+func (ec *executionContext) marshalOEmpty2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐEmpty(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Empty) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

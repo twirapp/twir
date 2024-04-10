@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
 // Empty is the resolver for the empty field.

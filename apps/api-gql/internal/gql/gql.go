@@ -1,4 +1,4 @@
-package gqlhandler
+package gql
 
 import (
 	"context"
@@ -10,12 +10,12 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
-	"github.com/twirapp/twir/apps/api-gql/graph"
-	"github.com/twirapp/twir/apps/api-gql/resolvers"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
 	"go.uber.org/fx"
 )
 
-type GqlHandler struct {
+type Gql struct {
 	*handler.Server
 }
 
@@ -25,7 +25,7 @@ type Opts struct {
 	Resolver *resolvers.Resolver
 }
 
-func New(opts Opts) *GqlHandler {
+func New(opts Opts) *Gql {
 	config := graph.Config{
 		Resolvers: opts.Resolver,
 	}
@@ -55,5 +55,5 @@ func New(opts Opts) *GqlHandler {
 	)
 	srv.Use(extension.Introspection{})
 
-	return &GqlHandler{srv}
+	return &Gql{srv}
 }

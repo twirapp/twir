@@ -1,7 +1,7 @@
 package resolvers
 
 import (
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	"go.uber.org/fx"
 )

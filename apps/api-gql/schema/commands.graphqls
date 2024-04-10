@@ -15,10 +15,6 @@ type CommandResponse {
 	order: Int!
 }
 
-extend type Query {
-	commands: [Command!]! @isAuthenticated
-}
-
 input UpdateCommandOpts {
 	name: String
 	description: String
@@ -37,14 +33,18 @@ input CreateCommandInput {
 	responses: [CreateCommandResponseInput!]
 }
 
+extend type Query {
+	commands: [Command!]! @isAuthenticated
+}
+
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command!
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command!
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated
 }
 
 type Subscription {
 	"""
 	`newCommand` will return a stream of `Command` objects.
 	"""
-	newCommand: Command!
+	newCommand: Command! @isAuthenticated
 }

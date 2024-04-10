@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/twirapp/twir/apps/api-gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // CreateNotification is the resolver for the createNotification field.
