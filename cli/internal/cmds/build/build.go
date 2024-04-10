@@ -76,7 +76,7 @@ var GqlCmd = &cli.Command{
 			return err
 		}
 
-		configDir := filepath.Join(cwd, "gqlgen.yml")
+		configDir := filepath.Join(cwd, "apps", "api-gql", "gqlgen.yml")
 		cfg, err := gqlconfig.LoadConfig(configDir)
 		if err != nil {
 			return err

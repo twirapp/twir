@@ -35,6 +35,22 @@ input UpdateCommandOpts {
 	name: String
 	description: String
 	aliases: [String!]
+	responses: [CreateCommandResponseInput!]
+	cooldown: Int
+	cooldownType: String
+	enabled: Boolean
+	visible: Boolean
+	isReply: Boolean
+	keepResponsesOrder: Boolean
+	deniedUsersIds: [String!]
+	allowedUsersIds: [String!]
+	rolesIds: [String!]
+	onlineOnly: Boolean
+	cooldownRolesIds: [String!]
+	enabledCategories: [String!]
+	requiredWatchTime: Int
+	requiredMessages: Int
+	requiredUsedChannelPoints: Int
 }
 
 input CreateCommandResponseInput {
@@ -56,7 +72,9 @@ extend type Query {
 extend type Mutation {
 	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
 }
+
 #
 #type Subscription {
 #	"""

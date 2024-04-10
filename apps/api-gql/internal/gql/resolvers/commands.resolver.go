@@ -9,13 +9,18 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/guregu/null"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -42,7 +47,10 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 }
 
 // CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
+func (r *mutationResolver) CreateCommand(
+	ctx context.Context,
+	opts gqlmodel.CreateCommandInput,
+) (*gqlmodel.Command, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
@@ -60,8 +68,122 @@ func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.Crea
 }
 
 // UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
-	return nil, fmt.Errorf("not implemented")
+func (r *mutationResolver) UpdateCommand(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.UpdateCommandOpts,
+) (*gqlmodel.Command, error) {
+	cmd := &model.ChannelsCommands{}
+	if err := r.gorm.WithContext(ctx).Where(`"id" = ?`, id).First(cmd).Error; err != nil {
+		return nil, err
+	}
+
+	if opts.Name.IsSet() {
+		cmd.Name = lo.FromPtr(opts.Name.Value())
+	}
+
+	if opts.Description.IsSet() {
+		cmd.Description = null.StringFromPtr(opts.Description.Value())
+	}
+
+	if opts.Aliases.IsSet() {
+		cmd.Aliases = opts.Aliases.Value()
+	}
+
+	if opts.Cooldown.IsSet() {
+		value := lo.FromPtr(opts.Cooldown.Value())
+		cmd.Cooldown = null.IntFrom(int64(value))
+	}
+
+	if opts.CooldownType.IsSet() {
+		cmd.CooldownType = lo.FromPtr(opts.CooldownType.Value())
+	}
+
+	if opts.Enabled.IsSet() {
+		cmd.Enabled = lo.FromPtr(opts.Enabled.Value())
+	}
+
+	if opts.Visible.IsSet() {
+		cmd.Visible = lo.FromPtr(opts.Visible.Value())
+	}
+
+	if opts.Visible.IsSet() {
+		cmd.Visible = lo.FromPtr(opts.Visible.Value())
+	}
+
+	if opts.IsReply.IsSet() {
+		cmd.IsReply = lo.FromPtr(opts.IsReply.Value())
+	}
+
+	if opts.KeepResponsesOrder.IsSet() {
+		cmd.KeepResponsesOrder = lo.FromPtr(opts.KeepResponsesOrder.Value())
+	}
+
+	if opts.DeniedUsersIds.IsSet() {
+		cmd.DeniedUsersIDS = opts.DeniedUsersIds.Value()
+	}
+
+	if opts.AllowedUsersIds.IsSet() {
+		cmd.AllowedUsersIDS = opts.AllowedUsersIds.Value()
+	}
+
+	if opts.RolesIds.IsSet() {
+		cmd.RolesIDS = opts.RolesIds.Value()
+	}
+
+	if opts.OnlineOnly.IsSet() {
+		cmd.OnlineOnly = lo.FromPtr(opts.OnlineOnly.Value())
+
+	}
+
+	if opts.CooldownRolesIds.IsSet() {
+		cmd.CooldownRolesIDs = opts.CooldownRolesIds.Value()
+	}
+
+	if opts.EnabledCategories.IsSet() {
+		cmd.EnabledCategories = opts.EnabledCategories.Value()
+	}
+
+	if opts.RequiredWatchTime.IsSet() {
+		cmd.RequiredWatchTime = lo.FromPtr(opts.RequiredWatchTime.Value())
+	}
+
+	if opts.RequiredMessages.IsSet() {
+		cmd.RequiredMessages = lo.FromPtr(opts.RequiredMessages.Value())
+	}
+
+	if opts.RequiredUsedChannelPoints.IsSet() {
+		cmd.RequiredUsedChannelPoints = lo.FromPtr(opts.RequiredUsedChannelPoints.Value())
+	}
+
+	if opts.Responses.IsSet() {
+		// TODO
+	}
+
+	if err := r.gorm.WithContext(ctx).Save(cmd).Error; err != nil {
+		return nil, err
+	}
+
+	// TODO
+	return nil, nil
+}
+
+// RemoveCommand is the resolver for the removeCommand field.
+func (r *mutationResolver) RemoveCommand(ctx context.Context, id string) (bool, error) {
+	cmd := &model.ChannelsCommands{}
+	if err := r.gorm.WithContext(ctx).Where(`"id" = ?`, id).First(cmd).Error; err != nil {
+		return false, err
+	}
+
+	if cmd.Default {
+		return false, fmt.Errorf("cannot remove default command")
+	}
+
+	if err := r.gorm.WithContext(ctx).Delete(&cmd).Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 // Commands is the resolver for the commands field.

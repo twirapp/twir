@@ -87,6 +87,7 @@ type ComplexityRoot struct {
 	Mutation struct {
 		CreateCommand      func(childComplexity int, opts gqlmodel.CreateCommandInput) int
 		CreateNotification func(childComplexity int, text string, userID *string) int
+		RemoveCommand      func(childComplexity int, id string) int
 		UpdateCommand      func(childComplexity int, id string, opts gqlmodel.UpdateCommandOpts) int
 	}
 
@@ -128,6 +129,7 @@ type CommandResolver interface {
 type MutationResolver interface {
 	CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error)
 	UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error)
+	RemoveCommand(ctx context.Context, id string) (bool, error)
 	CreateNotification(ctx context.Context, text string, userID *string) (*gqlmodel.Notification, error)
 }
 type QueryResolver interface {
@@ -370,6 +372,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateNotification(childComplexity, args["text"].(string), args["userId"].(*string)), true
+
+	case "Mutation.removeCommand":
+		if e.complexity.Mutation.RemoveCommand == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_removeCommand_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.RemoveCommand(childComplexity, args["id"].(string)), true
 
 	case "Mutation.updateCommand":
 		if e.complexity.Mutation.UpdateCommand == nil {
@@ -662,6 +676,22 @@ input UpdateCommandOpts {
 	name: String
 	description: String
 	aliases: [String!]
+	responses: [CreateCommandResponseInput!]
+	cooldown: Int
+	cooldownType: String
+	enabled: Boolean
+	visible: Boolean
+	isReply: Boolean
+	keepResponsesOrder: Boolean
+	deniedUsersIds: [String!]
+	allowedUsersIds: [String!]
+	rolesIds: [String!]
+	onlineOnly: Boolean
+	cooldownRolesIds: [String!]
+	enabledCategories: [String!]
+	requiredWatchTime: Int
+	requiredMessages: Int
+	requiredUsedChannelPoints: Int
 }
 
 input CreateCommandResponseInput {
@@ -683,7 +713,9 @@ extend type Query {
 extend type Mutation {
 	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
 	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
 }
+
 #
 #type Subscription {
 #	"""
@@ -787,6 +819,21 @@ func (ec *executionContext) field_Mutation_createNotification_args(ctx context.C
 		}
 	}
 	args["userId"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_removeCommand_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -2302,6 +2349,87 @@ func (ec *executionContext) fieldContext_Mutation_updateCommand(ctx context.Cont
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Mutation_updateCommand_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_removeCommand(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_removeCommand(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RemoveCommand(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_removeCommand(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_removeCommand_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5223,7 +5351,7 @@ func (ec *executionContext) unmarshalInputUpdateCommandOpts(ctx context.Context,
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "description", "aliases"}
+	fieldsInOrder := [...]string{"name", "description", "aliases", "responses", "cooldown", "cooldownType", "enabled", "visible", "isReply", "keepResponsesOrder", "deniedUsersIds", "allowedUsersIds", "rolesIds", "onlineOnly", "cooldownRolesIds", "enabledCategories", "requiredWatchTime", "requiredMessages", "requiredUsedChannelPoints"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5251,6 +5379,118 @@ func (ec *executionContext) unmarshalInputUpdateCommandOpts(ctx context.Context,
 				return it, err
 			}
 			it.Aliases = graphql.OmittableOf(data)
+		case "responses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("responses"))
+			data, err := ec.unmarshalOCreateCommandResponseInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCreateCommandResponseInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Responses = graphql.OmittableOf(data)
+		case "cooldown":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cooldown"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cooldown = graphql.OmittableOf(data)
+		case "cooldownType":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cooldownType"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CooldownType = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "visible":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("visible"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Visible = graphql.OmittableOf(data)
+		case "isReply":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isReply"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsReply = graphql.OmittableOf(data)
+		case "keepResponsesOrder":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("keepResponsesOrder"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.KeepResponsesOrder = graphql.OmittableOf(data)
+		case "deniedUsersIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("deniedUsersIds"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.DeniedUsersIds = graphql.OmittableOf(data)
+		case "allowedUsersIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("allowedUsersIds"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.AllowedUsersIds = graphql.OmittableOf(data)
+		case "rolesIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("rolesIds"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RolesIds = graphql.OmittableOf(data)
+		case "onlineOnly":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("onlineOnly"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.OnlineOnly = graphql.OmittableOf(data)
+		case "cooldownRolesIds":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cooldownRolesIds"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.CooldownRolesIds = graphql.OmittableOf(data)
+		case "enabledCategories":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabledCategories"))
+			data, err := ec.unmarshalOString2ᚕstringᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.EnabledCategories = graphql.OmittableOf(data)
+		case "requiredWatchTime":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredWatchTime"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequiredWatchTime = graphql.OmittableOf(data)
+		case "requiredMessages":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredMessages"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequiredMessages = graphql.OmittableOf(data)
+		case "requiredUsedChannelPoints":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("requiredUsedChannelPoints"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.RequiredUsedChannelPoints = graphql.OmittableOf(data)
 		}
 	}
 
@@ -5498,6 +5738,13 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "updateCommand":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_updateCommand(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "removeCommand":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_removeCommand(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

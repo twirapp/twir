@@ -67,9 +67,25 @@ type Subscription struct {
 }
 
 type UpdateCommandOpts struct {
-	Name        graphql.Omittable[*string]  `json:"name,omitempty"`
-	Description graphql.Omittable[*string]  `json:"description,omitempty"`
-	Aliases     graphql.Omittable[[]string] `json:"aliases,omitempty"`
+	Name                      graphql.Omittable[*string]                      `json:"name,omitempty"`
+	Description               graphql.Omittable[*string]                      `json:"description,omitempty"`
+	Aliases                   graphql.Omittable[[]string]                     `json:"aliases,omitempty"`
+	Responses                 graphql.Omittable[[]CreateCommandResponseInput] `json:"responses,omitempty"`
+	Cooldown                  graphql.Omittable[*int]                         `json:"cooldown,omitempty"`
+	CooldownType              graphql.Omittable[*string]                      `json:"cooldownType,omitempty"`
+	Enabled                   graphql.Omittable[*bool]                        `json:"enabled,omitempty"`
+	Visible                   graphql.Omittable[*bool]                        `json:"visible,omitempty"`
+	IsReply                   graphql.Omittable[*bool]                        `json:"isReply,omitempty"`
+	KeepResponsesOrder        graphql.Omittable[*bool]                        `json:"keepResponsesOrder,omitempty"`
+	DeniedUsersIds            graphql.Omittable[[]string]                     `json:"deniedUsersIds,omitempty"`
+	AllowedUsersIds           graphql.Omittable[[]string]                     `json:"allowedUsersIds,omitempty"`
+	RolesIds                  graphql.Omittable[[]string]                     `json:"rolesIds,omitempty"`
+	OnlineOnly                graphql.Omittable[*bool]                        `json:"onlineOnly,omitempty"`
+	CooldownRolesIds          graphql.Omittable[[]string]                     `json:"cooldownRolesIds,omitempty"`
+	EnabledCategories         graphql.Omittable[[]string]                     `json:"enabledCategories,omitempty"`
+	RequiredWatchTime         graphql.Omittable[*int]                         `json:"requiredWatchTime,omitempty"`
+	RequiredMessages          graphql.Omittable[*int]                         `json:"requiredMessages,omitempty"`
+	RequiredUsedChannelPoints graphql.Omittable[*int]                         `json:"requiredUsedChannelPoints,omitempty"`
 }
 
 type User struct {
