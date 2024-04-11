@@ -32,7 +32,7 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 	lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				buckets, err := client.ListBuckets(context.TODO())
+				buckets, err := client.ListBuckets(ctx)
 				if err != nil {
 					return err
 				}
@@ -46,14 +46,14 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 				}
 
 				if !bucketExists {
-					err = client.MakeBucket(context.TODO(), config.S3Bucket, minio.MakeBucketOptions{})
+					err = client.MakeBucket(ctx, config.S3Bucket, minio.MakeBucketOptions{})
 					if err != nil {
 						return err
 					}
 				}
 
 				return client.SetBucketPolicy(
-					context.TODO(),
+					ctx,
 					config.S3Bucket,
 					`{
 		"Version": "2012-10-17",
