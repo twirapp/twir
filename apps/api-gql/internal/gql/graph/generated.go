@@ -922,6 +922,9 @@ type TwirUsersResponse {
 }
 
 extend type Query {
+	"""
+	finding users on twitch with filter does they exists in database
+	"""
 	twirUsers(opts: TwirUsersSearchParams!): TwirUsersResponse! @isAuthenticated
 }
 `, BuiltIn: false},

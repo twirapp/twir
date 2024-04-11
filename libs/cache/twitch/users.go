@@ -142,7 +142,8 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 				return item.ID == id
 			},
 		)
-		if user.ID == "" {
+		if user.Login == "" {
+			user.ID = id
 			user.IsTwitchBanned = true
 		}
 
