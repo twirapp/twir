@@ -1,5 +1,6 @@
 type Query
 type Mutation
+type Subscription
 
 directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION
 	| FIELD_DEFINITION

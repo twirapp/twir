@@ -57,7 +57,7 @@ func (r *mutationResolver) BadgesUpdate(
 		WithContext(ctx).
 		Joins("Users").
 		Where(
-			"id = ?",
+			"badges.id = ?",
 			id,
 		).
 		First(&entity).Error; err != nil {
