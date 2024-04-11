@@ -109,14 +109,18 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	}
 
 	async function onEditNotification(notification: Notification) {
-		const confirmed = !form.isFormDirty
-			|| form.editableMessageId
-			&& confirm(t('adminPanel.notifications.confirmResetForm'));
-		if (!confirmed) return;
+		let isConfirmed = true;
 
-		form.editableMessageId = notification.id;
-		form.form.setValues(notification);
-		layout.scrollToTop();
+		if (form.formValues.message || form.isEditableForm) {
+			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'));
+		}
+
+		if (isConfirmed) {
+			form.editableMessageId = notification.id;
+			form.userIdField.fieldModel = notification.userId ?? null;
+			form.messageField.fieldModel = notification.message;
+			layout.scrollToTop();
+		}
 	}
 
 	return {

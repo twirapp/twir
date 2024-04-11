@@ -8,22 +8,26 @@ import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
 import { resolveUserName } from '@/helpers';
 
 // eslint-disable-next-line no-undef
-const userId = defineModel<string>({ default: '' });
+const userId = defineModel<string | null>({ default: null });
 
-const props = defineProps<{
-	initialUserId?: string;
-}>();
+const props = withDefaults(defineProps<{
+	initialUserId?: string | null;
+	twirOnly?: boolean
+}>(), {
+	twirOnly: false,
+	initialUserId: null,
+});
 
 const getUsers = useTwitchGetUsers({
 	ids: [props.initialUserId ?? ''],
 });
 
-const userName = ref<string>('');
-const userNameDebounced = refDebounced(userName, 1000);
+const userName = ref('');
+const userNameDebounced = refDebounced(userName, 500);
 
 const searchParams = computed<TwitchSearchChannelsRequest>(() => ({
 	query: userNameDebounced.value,
-	twirOnly: false,
+	twirOnly: props.twirOnly,
 }));
 const twitchSearch = useTwitchSearchChannels(searchParams);
 
