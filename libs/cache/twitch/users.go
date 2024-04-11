@@ -21,7 +21,8 @@ func buildUserCacheKeyForId(userId string) string {
 
 type TwitchUser struct {
 	helix.User
-	IsTwitchBanned bool `json:"isTwitchBanned"`
+	// internal field, do not use outside
+	NotFound bool `json:"isTwitchBanned"`
 }
 
 func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*TwitchUser, error) {
@@ -67,8 +68,8 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 	}
 
 	return &TwitchUser{
-		User:           user,
-		IsTwitchBanned: false,
+		User:     user,
+		NotFound: false,
 	}, nil
 }
 
@@ -119,8 +120,8 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 				for _, user := range twitchReq.Data.Users {
 					resultedUsers = append(
 						resultedUsers, TwitchUser{
-							User:           user,
-							IsTwitchBanned: false,
+							User:     user,
+							NotFound: false,
 						},
 					)
 				}
@@ -144,7 +145,7 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 		)
 		if user.Login == "" {
 			user.ID = id
-			user.IsTwitchBanned = true
+			user.NotFound = true
 		}
 
 		userBytes, err := json.Marshal(&user)
@@ -165,7 +166,7 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 	resultedUsers = lo.Filter(
 		resultedUsers,
 		func(item TwitchUser, _ int) bool {
-			return !item.IsTwitchBanned
+			return !item.NotFound
 		},
 	)
 
