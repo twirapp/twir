@@ -2,7 +2,7 @@
 import { NAvatar, NText } from 'naive-ui';
 
 import { useProfile } from '@/api';
-import { createUserName } from '@/helpers';
+import { resolveUserName } from '@/helpers';
 
 const { data: profileData } = useProfile();
 </script>
@@ -16,7 +16,7 @@ const { data: profileData } = useProfile();
 					Logged as
 				</n-text>
 				<n-text>
-					{{ createUserName(profileData.login, profileData.displayName) }}
+					{{ resolveUserName(profileData.login, profileData.displayName) }}
 				</n-text>
 			</div>
 		</div>

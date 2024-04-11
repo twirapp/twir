@@ -7,13 +7,13 @@ import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 
 import BadgesPreview from './badges-preview.vue';
-import { useUsersTableFilters } from '../../manage-users/composables/use-users-table-filters';
-import { useBadges } from '../composables/use-badges';
-import { useBadgesForm } from '../composables/use-badges-form';
+import { useUsersTableFilters } from '../../manage-users/composables/use-users-table-filters.js';
+import { useBadgesForm } from '../composables/use-badges-form.js';
+import { useBadges } from '../composables/use-badges.js';
 
 import { Button } from '@/components/ui/button';
 import DeleteConfirm from '@/components/ui/delete-confirm.vue';
-import { useLayout } from '@/composables/use-layout';
+import { useLayout } from '@/composables/use-layout.js';
 
 const { t } = useI18n();
 const layout = useLayout();
@@ -28,8 +28,8 @@ async function removeBadge(badgeId: string) {
 
 function editBadge(badge: Badge) {
 	badgesForm.editableBadgeId = badge.id;
-	badgesForm.form.setFieldValue('name', badge.name);
-	badgesForm.form.setFieldValue('image', badge.fileUrl);
+	badgesForm.nameField.fieldModel = badge.name;
+	badgesForm.fileField.fieldModel = badge.fileUrl;
 	layout.scrollToTop();
 }
 
@@ -47,7 +47,6 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 	userFilters.selectedBadges.push(badge.id);
 	router.push({ query: { tab: 'users' } });
 }
-
 </script>
 
 <template>

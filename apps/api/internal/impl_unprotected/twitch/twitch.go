@@ -12,6 +12,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	generatedTwitch "github.com/twirapp/twir/libs/api/messages/twitch"
 )
@@ -215,9 +216,9 @@ func (c *Twitch) TwitchGetUsers(
 
 func (c *Twitch) TwitchSearchChannels(
 	ctx context.Context,
-	request *generatedTwitch.TwitchSearchChannelsRequest,
+	req *generatedTwitch.TwitchSearchChannelsRequest,
 ) (*generatedTwitch.TwitchSearchChannelsResponse, error) {
-	if request.Query == "" {
+	if req.Query == "" {
 		return nil, fmt.Errorf("query is empty")
 	}
 
@@ -228,7 +229,7 @@ func (c *Twitch) TwitchSearchChannels(
 
 	twitchReq, twitchErr := twitchClient.SearchChannels(
 		&helix.SearchChannelsParams{
-			Channel: request.Query,
+			Channel: req.Query,
 		},
 	)
 	if twitchErr != nil {
@@ -238,9 +239,10 @@ func (c *Twitch) TwitchSearchChannels(
 		return nil, fmt.Errorf(twitchReq.ErrorMessage)
 	}
 
-	channels := lo.Map(
-		twitchReq.Data.Channels, func(channel helix.Channel, _ int) *generatedTwitch.Channel {
-			return &generatedTwitch.Channel{
+	channels := make([]*generatedTwitch.Channel, 0, len(twitchReq.Data.Channels))
+	for _, channel := range twitchReq.Data.Channels {
+		channels = append(
+			channels, &generatedTwitch.Channel{
 				Id:              channel.ID,
 				Login:           channel.BroadcasterLogin,
 				DisplayName:     channel.DisplayName,
@@ -249,17 +251,17 @@ func (c *Twitch) TwitchSearchChannels(
 				GameName:        channel.GameName,
 				GameId:          channel.GameID,
 				IsLive:          channel.IsLive,
-			}
-		},
-	)
+			},
+		)
+	}
 
 	sort.Slice(
 		channels, func(i, j int) bool {
 			name1 := channels[i].Login
 			name2 := channels[j].Login
 
-			containsName1 := strings.Contains(name1, request.Query)
-			containsName2 := strings.Contains(name2, request.Query)
+			containsName1 := strings.Contains(name1, req.Query)
+			containsName2 := strings.Contains(name2, req.Query)
 
 			if containsName1 && !containsName2 {
 				return true
@@ -270,6 +272,33 @@ func (c *Twitch) TwitchSearchChannels(
 			}
 		},
 	)
+
+	if req.TwirOnly {
+		var dbUsers []model.Users
+		channelsIds := make([]string, 0, len(channels))
+		for _, channel := range channels {
+			channelsIds = append(channelsIds, channel.Id)
+		}
+
+		if err := c.Db.
+			WithContext(ctx).
+			Select("id").
+			Where("id IN ?", channelsIds).
+			Find(&dbUsers).Error; err != nil {
+			return nil, err
+		}
+
+		channels = lo.Filter(
+			channels,
+			func(channel *generatedTwitch.Channel, _ int) bool {
+				return lo.ContainsBy(
+					dbUsers, func(user model.Users) bool {
+						return user.ID == channel.Id
+					},
+				)
+			},
+		)
+	}
 
 	return &generatedTwitch.TwitchSearchChannelsResponse{
 		Channels: channels,

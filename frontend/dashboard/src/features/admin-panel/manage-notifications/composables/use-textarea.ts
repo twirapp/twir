@@ -1,6 +1,5 @@
 import { WrapTextIcon, ListCollapseIcon, BoldIcon, ItalicIcon, LinkIcon, StrikethroughIcon, UnderlineIcon, ListIcon, Heading1Icon, Heading2Icon, ImageIcon, QuoteIcon } from 'lucide-vue-next';
-import { defineStore } from 'pinia';
-import { ref, type Component } from 'vue';
+import { computed, type Component } from 'vue';
 
 import { useNotificationsForm } from './use-notifications-form';
 
@@ -88,17 +87,24 @@ export const textareaButtons: TextareaButton[] = [
 	},
 ];
 
-export const useTextarea = defineStore('admin-panel/textarea', () => {
+export const useTextarea = () => {
 	const notificationForm = useNotificationsForm();
-	const textareaRef = ref<{ $el: HTMLTextAreaElement }>();
+	const textareaRef = computed({
+		get() {
+			return notificationForm.messageField.fieldRef;
+		},
+		set(el: any) {
+			notificationForm.messageField.fieldRef = el?.$el;
+		},
+	});
 
 	function getCursorPosition() {
-		const el = textareaRef.value!.$el;
-		return { start: el.selectionStart, end: el.selectionEnd };
+		const el = notificationForm.messageField.fieldRef!;
+		return { start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 };
 	}
 
 	function updateTextarea(newValue: string) {
-		notificationForm.form.setFieldValue('message', newValue);
+		notificationForm.messageField.fieldModel = newValue;
 	}
 
 	function applyModifier(modifier: keyof typeof TEXTAREA_MODIFIERS) {
@@ -108,7 +114,7 @@ export const useTextarea = defineStore('admin-panel/textarea', () => {
 		}
 
 		const { start, end } = getCursorPosition();
-		const msg = notificationForm.form.values.message ?? '';
+		const msg = notificationForm.formValues.message ?? '';
 		const selection = msg.slice(start, end);
 		updateTextarea(`${msg.slice(0, start)}${mod.replace('|', selection ?? '')}${msg.slice(end)}`);
 	}
@@ -117,4 +123,4 @@ export const useTextarea = defineStore('admin-panel/textarea', () => {
 		textareaRef,
 		applyModifier,
 	};
-});
+};

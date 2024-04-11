@@ -25,6 +25,7 @@ message TwitchGetUsersResponse {
 
 message TwitchSearchChannelsRequest {
 	string query = 1;
+	bool twir_only = 2;
 }
 
 message Channel {

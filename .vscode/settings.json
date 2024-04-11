@@ -2,5 +2,7 @@
 	"go.lintTool": "golangci-lint",
 	"go.lintFlags": [
 		"--fast"
-	]
+	],
+	"vue.updateImportsOnFileMove.enabled": true,
+	"vue.codeActions.enabled": true
 }

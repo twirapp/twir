@@ -66,9 +66,9 @@ func (c *Users) GetUsers(
 		return nil, err
 	}
 
-	var twitchSearchUsers []helix.User
+	var twitchSearchUsers []helix.Channel
 	if req.Search != nil && *req.Search != "" {
-		twitchSearchUsersReq, err := twitchClient.GetUsers(&helix.UsersParams{Logins: []string{*req.Search}})
+		twitchSearchUsersReq, err := twitchClient.SearchChannels(&helix.SearchChannelsParams{Channel: *req.Search})
 		if err != nil {
 			return nil, err
 		}
@@ -76,7 +76,7 @@ func (c *Users) GetUsers(
 			return nil, err
 		}
 
-		twitchSearchUsers = twitchSearchUsersReq.Data.Users
+		twitchSearchUsers = twitchSearchUsersReq.Data.Channels
 	}
 
 	page := req.GetPage()

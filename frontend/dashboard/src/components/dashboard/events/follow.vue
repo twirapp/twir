@@ -3,7 +3,7 @@ import { IconHeartFilled } from '@tabler/icons-vue';
 
 import Base from './base.vue';
 
-import { createUserName } from '@/helpers/index.js';
+import { resolveUserName } from '@/helpers/index.js';
 
 defineProps<{
 	userName: string,
@@ -16,7 +16,7 @@ defineProps<{
 <template>
 	<Base :icon="IconHeartFilled" :created-at="createdAt">
 		<template #leftContent>
-			{{ createUserName(userName, userDisplayName) }}
+			{{ resolveUserName(userName, userDisplayName) }}
 		</template>
 	</Base>
 </template>

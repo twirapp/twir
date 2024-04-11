@@ -4,7 +4,7 @@ import { IconUserCancel } from '@tabler/icons-vue';
 
 import Base from './base.vue';
 
-import { createUserName } from '@/helpers';
+import { resolveUserName } from '@/helpers';
 
 defineProps<{
 	userName: string,
@@ -19,7 +19,7 @@ defineProps<{
 		<template #leftContent>
 			<div class="flex flex-col">
 				<span>
-					{{ createUserName(userLogin, userName) }}
+					{{ resolveUserName(userLogin, userName) }}
 					<b class="text-xs">requested unban</b>
 				</span>
 				<span class="text-xs">{{ message }}</span>
