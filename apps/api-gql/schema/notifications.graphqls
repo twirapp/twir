@@ -1,9 +1,13 @@
 extend type Query {
-	notifications(userId: String!): [Notification!]!
+	notificationsByUser: [Notification!]! @isAuthenticated
+
+	notificationsByAdmin(type: NotificationType!): [Notification!]! @isAuthenticated @isAdmin
 }
 
 extend type Mutation {
-	createNotification(text: String!, userId: String): Notification!
+	createNotification(text: String!, userId: String): Notification! @isAuthenticated @isAdmin
+	notificationsUpdate(id: ID!, opts: NotificationUpdateOpts!): Notification! @isAuthenticated @isAdmin
+	notificationsDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
 }
 
 extend type Subscription {
@@ -15,6 +19,15 @@ extend type Subscription {
 
 type Notification {
 	id: ID!
-	userId: ID!
+	userId: ID
 	text: String!
+}
+
+enum NotificationType {
+	GLOBAL
+	USER
+}
+
+input NotificationUpdateOpts {
+	text: String
 }

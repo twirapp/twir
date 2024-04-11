@@ -3,6 +3,10 @@
 package gqlmodel
 
 import (
+	"fmt"
+	"io"
+	"strconv"
+
 	"github.com/99designs/gqlgen/graphql"
 )
 
@@ -87,9 +91,13 @@ type Mutation struct {
 }
 
 type Notification struct {
-	ID     string `json:"id"`
-	UserID string `json:"userId"`
-	Text   string `json:"text"`
+	ID     string  `json:"id"`
+	UserID *string `json:"userId,omitempty"`
+	Text   string  `json:"text"`
+}
+
+type NotificationUpdateOpts struct {
+	Text graphql.Omittable[*string] `json:"text,omitempty"`
 }
 
 type Query struct {
@@ -160,4 +168,45 @@ type UpdateCommandOpts struct {
 	RequiredWatchTime         graphql.Omittable[*int]                         `json:"requiredWatchTime,omitempty"`
 	RequiredMessages          graphql.Omittable[*int]                         `json:"requiredMessages,omitempty"`
 	RequiredUsedChannelPoints graphql.Omittable[*int]                         `json:"requiredUsedChannelPoints,omitempty"`
+}
+
+type NotificationType string
+
+const (
+	NotificationTypeGlobal NotificationType = "GLOBAL"
+	NotificationTypeUser   NotificationType = "USER"
+)
+
+var AllNotificationType = []NotificationType{
+	NotificationTypeGlobal,
+	NotificationTypeUser,
+}
+
+func (e NotificationType) IsValid() bool {
+	switch e {
+	case NotificationTypeGlobal, NotificationTypeUser:
+		return true
+	}
+	return false
+}
+
+func (e NotificationType) String() string {
+	return string(e)
+}
+
+func (e *NotificationType) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = NotificationType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid NotificationType", str)
+	}
+	return nil
+}
+
+func (e NotificationType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

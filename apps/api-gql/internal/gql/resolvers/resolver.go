@@ -5,6 +5,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/twitch"
+	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -23,6 +24,7 @@ type Resolver struct {
 	twitchClient       *helix.Client
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
 	minioClient        *minio.Client
+	subscriptionsStore *subscriptions_store.SubscriptionsStore
 }
 
 type Opts struct {
@@ -34,6 +36,7 @@ type Opts struct {
 	TokensGrpc         tokens.TokensClient
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
 	Minio              *minio.Client
+	SubscriptionsStore *subscriptions_store.SubscriptionsStore
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -49,5 +52,6 @@ func New(opts Opts) (*Resolver, error) {
 		twitchClient:       twitchClient,
 		cachedTwitchClient: opts.CachedTwitchClient,
 		minioClient:        opts.Minio,
+		subscriptionsStore: opts.SubscriptionsStore,
 	}, nil
 }

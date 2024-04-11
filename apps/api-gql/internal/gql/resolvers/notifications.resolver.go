@@ -6,34 +6,176 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/guregu/null"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
 // CreateNotification is the resolver for the createNotification field.
-func (r *mutationResolver) CreateNotification(ctx context.Context, text string, userID *string) (*gqlmodel.Notification, error) {
-	panic(fmt.Errorf("not implemented: CreateNotification - createNotification"))
+func (r *mutationResolver) CreateNotification(
+	ctx context.Context,
+	text string,
+	userID *string,
+) (*gqlmodel.Notification, error) {
+	entity := model.Notifications{
+		ID:        uuid.NewString(),
+		CreatedAt: time.Now().UTC(),
+		UserID:    null.StringFromPtr(userID),
+		Message:   text,
+	}
+
+	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	notification := gqlmodel.Notification{
+		ID:     entity.ID,
+		UserID: entity.UserID.Ptr(),
+		Text:   entity.Message,
+	}
+
+	if userID == nil {
+		for _, channel := range r.subscriptionsStore.NewNotificationsChannels {
+			channel <- &notification
+		}
+	} else {
+		if r.subscriptionsStore.NewNotificationsChannels[*userID] != nil {
+			r.subscriptionsStore.NewNotificationsChannels[*userID] <- &notification
+		}
+	}
+
+	return &notification, nil
 }
 
-// Notifications is the resolver for the notifications field.
-func (r *queryResolver) Notifications(ctx context.Context, userID string) ([]gqlmodel.Notification, error) {
-	panic(fmt.Errorf("not implemented: Notifications - notifications"))
+// NotificationsUpdate is the resolver for the notificationsUpdate field.
+func (r *mutationResolver) NotificationsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.NotificationUpdateOpts,
+) (*gqlmodel.Notification, error) {
+	entity := model.Notifications{}
+	if err := r.gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	if opts.Text.IsSet() {
+		entity.Message = *opts.Text.Value()
+	}
+
+	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	notification := gqlmodel.Notification{
+		ID:     entity.ID,
+		UserID: entity.UserID.Ptr(),
+		Text:   entity.Message,
+	}
+
+	return &notification, nil
+}
+
+// NotificationsDelete is the resolver for the notificationsDelete field.
+func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (bool, error) {
+	if err := r.gorm.WithContext(ctx).Where(
+		"id = ?",
+		id,
+	).Delete(&model.Notifications{}).Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// NotificationsByUser is the resolver for the notificationsByUser field.
+func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Notification, error) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var entities []model.Notifications
+	if err := r.gorm.WithContext(ctx).Where(
+		`"userId" = ? OR "userId" IS NULL`,
+		user.ID,
+	).Find(&entities).Error; err != nil {
+		return nil, err
+	}
+
+	notifications := make([]gqlmodel.Notification, len(entities))
+	for i, entity := range entities {
+		notifications[i] = gqlmodel.Notification{
+			ID:     entity.ID,
+			UserID: entity.UserID.Ptr(),
+			Text:   entity.Message,
+		}
+	}
+
+	return notifications, nil
+}
+
+// NotificationsByAdmin is the resolver for the notificationsByAdmin field.
+func (r *queryResolver) NotificationsByAdmin(
+	ctx context.Context,
+	typeArg gqlmodel.NotificationType,
+) ([]gqlmodel.Notification, error) {
+	query := r.gorm.WithContext(ctx)
+
+	switch typeArg {
+	case gqlmodel.NotificationTypeGlobal:
+		query = query.Where(`"userId" IS NULL`)
+	case gqlmodel.NotificationTypeUser:
+		query = query.Where(`"userId" IS NOT NULL`)
+	}
+
+	var entities []model.Notifications
+	if err :=
+		query.Find(&entities).Error; err != nil {
+		return nil, err
+	}
+
+	notifications := make([]gqlmodel.Notification, len(entities))
+	for i, entity := range entities {
+		notifications[i] = gqlmodel.Notification{
+			ID:     entity.ID,
+			UserID: entity.UserID.Ptr(),
+			Text:   entity.Message,
+		}
+	}
+
+	return notifications, nil
 }
 
 // NewNotification is the resolver for the newNotification field.
-func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.Notification, error) {
-	channel := make(chan *gqlmodel.Notification)
+func (r *subscriptionResolver) NewNotification(ctx context.Context) (
+	<-chan *gqlmodel.Notification,
+	error,
+) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	channel := make(chan *gqlmodel.Notification, 1)
+	if r.subscriptionsStore.NewNotificationsChannels[user.ID] == nil {
+		r.subscriptionsStore.NewNotificationsChannels[user.ID] = channel
+	}
 
 	go func() {
-
+		for {
+			select {
+			case <-ctx.Done():
+				close(r.subscriptionsStore.NewNotificationsChannels[user.ID])
+				delete(r.subscriptionsStore.NewNotificationsChannels, user.ID)
+				return
+			case notification := <-r.subscriptionsStore.NewNotificationsChannels[user.ID]:
+				channel <- notification
+			}
+		}
 	}()
 
 	return channel, nil
 }
-
-// Subscription returns graph.SubscriptionResolver implementation.
-func (r *Resolver) Subscription() graph.SubscriptionResolver { return &subscriptionResolver{r} }
-
-type subscriptionResolver struct{ *Resolver }

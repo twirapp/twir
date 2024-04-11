@@ -11,7 +11,7 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
-	"github.com/minio/minio-go/v7"
+	minio "github.com/minio/minio-go/v7"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
@@ -47,11 +47,7 @@ func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, e
 }
 
 // BadgesUpdate is the resolver for the badgesUpdate field.
-func (r *mutationResolver) BadgesUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.TwirBadgeUpdateOpts,
-) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gqlmodel.TwirBadgeUpdateOpts) (*gqlmodel.Badge, error) {
 	entity := model.Badge{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -109,11 +105,7 @@ func (r *mutationResolver) BadgesUpdate(
 }
 
 // BadgesCreate is the resolver for the badgesCreate field.
-func (r *mutationResolver) BadgesCreate(
-	ctx context.Context,
-	name string,
-	file graphql.Upload,
-) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesCreate(ctx context.Context, name string, file graphql.Upload) (*gqlmodel.Badge, error) {
 	entity := model.Badge{
 		ID:        uuid.New(),
 		Name:      name,
@@ -150,10 +142,7 @@ func (r *mutationResolver) BadgesCreate(
 }
 
 // BadgesAddUser is the resolver for the badgesAddUser field.
-func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID string) (bool, error) {
 	entity := model.BadgeUser{
 		ID:        uuid.New(),
 		BadgeID:   uuid.MustParse(id),
@@ -168,10 +157,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID 
 }
 
 // BadgesRemoveUser is the resolver for the badgesRemoveUser field.
-func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, userID string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, userID string) (bool, error) {
 	entity := model.BadgeUser{}
 	if err := r.gorm.WithContext(ctx).
 		Where("badge_id = ? AND user_id = ?", id, userID).
