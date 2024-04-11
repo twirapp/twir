@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 )
@@ -15,6 +16,7 @@ type Notification interface {
 	GetID() string
 	GetUserID() *string
 	GetText() string
+	GetCreatedAt() time.Time
 }
 
 type TwirUser interface {
@@ -28,12 +30,14 @@ type AdminNotification struct {
 	Text          string              `json:"text"`
 	UserID        *string             `json:"userId,omitempty"`
 	TwitchProfile *TwirUserTwitchInfo `json:"twitchProfile,omitempty"`
+	CreatedAt     time.Time           `json:"createdAt"`
 }
 
-func (AdminNotification) IsNotification()         {}
-func (this AdminNotification) GetID() string      { return this.ID }
-func (this AdminNotification) GetUserID() *string { return this.UserID }
-func (this AdminNotification) GetText() string    { return this.Text }
+func (AdminNotification) IsNotification()              {}
+func (this AdminNotification) GetID() string           { return this.ID }
+func (this AdminNotification) GetUserID() *string      { return this.UserID }
+func (this AdminNotification) GetText() string         { return this.Text }
+func (this AdminNotification) GetCreatedAt() time.Time { return this.CreatedAt }
 
 type AuthenticatedUser struct {
 	ID                string              `json:"id"`
@@ -184,15 +188,17 @@ type UpdateCommandOpts struct {
 }
 
 type UserNotification struct {
-	ID     string  `json:"id"`
-	UserID *string `json:"userId,omitempty"`
-	Text   string  `json:"text"`
+	ID        string    `json:"id"`
+	UserID    *string   `json:"userId,omitempty"`
+	Text      string    `json:"text"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
-func (UserNotification) IsNotification()         {}
-func (this UserNotification) GetID() string      { return this.ID }
-func (this UserNotification) GetUserID() *string { return this.UserID }
-func (this UserNotification) GetText() string    { return this.Text }
+func (UserNotification) IsNotification()              {}
+func (this UserNotification) GetID() string           { return this.ID }
+func (this UserNotification) GetUserID() *string      { return this.UserID }
+func (this UserNotification) GetText() string         { return this.Text }
+func (this UserNotification) GetCreatedAt() time.Time { return this.CreatedAt }
 
 type NotificationType string
 

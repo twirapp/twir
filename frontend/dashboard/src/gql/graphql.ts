@@ -17,6 +17,14 @@ export type Scalars = {
   Upload: { input: any; output: any; }
 };
 
+export type AdminNotification = Notification & {
+  __typename?: 'AdminNotification';
+  id: Scalars['ID']['output'];
+  text: Scalars['String']['output'];
+  twitchProfile?: Maybe<TwirUserTwitchInfo>;
+  userId?: Maybe<Scalars['ID']['output']>;
+};
+
 export type AuthenticatedUser = TwirUser & {
   __typename?: 'AuthenticatedUser';
   apiKey: Scalars['String']['output'];
@@ -96,9 +104,9 @@ export type Mutation = {
   badgesRemoveUser: Scalars['Boolean']['output'];
   badgesUpdate: Badge;
   createCommand: Command;
-  createNotification: Notification;
+  notificationsCreate: AdminNotification;
   notificationsDelete: Scalars['Boolean']['output'];
-  notificationsUpdate: Notification;
+  notificationsUpdate: AdminNotification;
   removeCommand: Scalars['Boolean']['output'];
   switchUserAdmin: Scalars['Boolean']['output'];
   switchUserBan: Scalars['Boolean']['output'];
@@ -140,7 +148,7 @@ export type MutationCreateCommandArgs = {
 };
 
 
-export type MutationCreateNotificationArgs = {
+export type MutationNotificationsCreateArgs = {
   text: Scalars['String']['input'];
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -178,7 +186,6 @@ export type MutationUpdateCommandArgs = {
 };
 
 export type Notification = {
-  __typename?: 'Notification';
   id: Scalars['ID']['output'];
   text: Scalars['String']['output'];
   userId?: Maybe<Scalars['ID']['output']>;
@@ -197,8 +204,8 @@ export type Query = {
   __typename?: 'Query';
   authedUser: AuthenticatedUser;
   commands: Array<Command>;
-  notificationsByAdmin: Array<Notification>;
-  notificationsByUser: Array<Notification>;
+  notificationsByAdmin: Array<AdminNotification>;
+  notificationsByUser: Array<UserNotification>;
   /** Twir badges */
   twirBadges: Array<Badge>;
   /** finding users on twitch with filter does they exists in database */
@@ -218,7 +225,7 @@ export type QueryTwirUsersArgs = {
 export type Subscription = {
   __typename?: 'Subscription';
   /** `newNotification` will return a stream of `Notification` objects. */
-  newNotification: Notification;
+  newNotification: UserNotification;
 };
 
 export type TwirAdminUser = TwirUser & {
@@ -287,4 +294,11 @@ export type UpdateCommandOpts = {
   responses?: InputMaybe<Array<CreateCommandResponseInput>>;
   rolesIds?: InputMaybe<Array<Scalars['String']['input']>>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export type UserNotification = Notification & {
+  __typename?: 'UserNotification';
+  id: Scalars['ID']['output'];
+  text: Scalars['String']['output'];
+  userId?: Maybe<Scalars['ID']['output']>;
 };

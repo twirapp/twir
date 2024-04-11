@@ -34,9 +34,10 @@ func (r *mutationResolver) NotificationsCreate(
 	}
 
 	userNotification := gqlmodel.UserNotification{
-		ID:     entity.ID,
-		Text:   entity.Message,
-		UserID: entity.UserID.Ptr(),
+		ID:        entity.ID,
+		Text:      entity.Message,
+		UserID:    entity.UserID.Ptr(),
+		CreatedAt: entity.CreatedAt,
 	}
 
 	if userID == nil {
@@ -50,9 +51,10 @@ func (r *mutationResolver) NotificationsCreate(
 	}
 
 	adminNotification := gqlmodel.AdminNotification{
-		ID:     entity.ID,
-		UserID: entity.UserID.Ptr(),
-		Text:   entity.Message,
+		ID:        entity.ID,
+		UserID:    entity.UserID.Ptr(),
+		Text:      entity.Message,
+		CreatedAt: entity.CreatedAt,
 	}
 
 	if adminNotification.UserID != nil {
@@ -92,9 +94,10 @@ func (r *mutationResolver) NotificationsUpdate(
 	}
 
 	notification := gqlmodel.AdminNotification{
-		ID:     entity.ID,
-		UserID: entity.UserID.Ptr(),
-		Text:   entity.Message,
+		ID:        entity.ID,
+		UserID:    entity.UserID.Ptr(),
+		Text:      entity.Message,
+		CreatedAt: entity.CreatedAt,
 	}
 
 	if notification.UserID != nil {
@@ -109,7 +112,6 @@ func (r *mutationResolver) NotificationsUpdate(
 			ProfileImageURL: twitchUser.ProfileImageURL,
 			Description:     twitchUser.Description,
 		}
-
 	}
 
 	return &notification, nil
@@ -148,9 +150,10 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) (
 	notifications := make([]gqlmodel.UserNotification, len(entities))
 	for i, entity := range entities {
 		notifications[i] = gqlmodel.UserNotification{
-			ID:     entity.ID,
-			UserID: entity.UserID.Ptr(),
-			Text:   entity.Message,
+			ID:        entity.ID,
+			UserID:    entity.UserID.Ptr(),
+			Text:      entity.Message,
+			CreatedAt: entity.CreatedAt,
 		}
 	}
 
@@ -180,9 +183,10 @@ func (r *queryResolver) NotificationsByAdmin(
 	notifications := make([]gqlmodel.AdminNotification, len(entities))
 	for i, entity := range entities {
 		notifications[i] = gqlmodel.AdminNotification{
-			ID:     entity.ID,
-			UserID: entity.UserID.Ptr(),
-			Text:   entity.Message,
+			ID:        entity.ID,
+			UserID:    entity.UserID.Ptr(),
+			Text:      entity.Message,
+			CreatedAt: entity.CreatedAt,
 		}
 	}
 

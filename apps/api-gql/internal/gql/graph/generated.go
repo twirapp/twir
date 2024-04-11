@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -53,6 +54,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AdminNotification struct {
+		CreatedAt     func(childComplexity int) int
 		ID            func(childComplexity int) int
 		Text          func(childComplexity int) int
 		TwitchProfile func(childComplexity int) int
@@ -165,9 +167,10 @@ type ComplexityRoot struct {
 	}
 
 	UserNotification struct {
-		ID     func(childComplexity int) int
-		Text   func(childComplexity int) int
-		UserID func(childComplexity int) int
+		CreatedAt func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Text      func(childComplexity int) int
+		UserID    func(childComplexity int) int
 	}
 }
 
@@ -219,6 +222,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AdminNotification.createdAt":
+		if e.complexity.AdminNotification.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.AdminNotification.CreatedAt(childComplexity), true
 
 	case "AdminNotification.id":
 		if e.complexity.AdminNotification.ID == nil {
@@ -848,6 +858,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TwirUsersResponse.Users(childComplexity), true
 
+	case "UserNotification.createdAt":
+		if e.complexity.UserNotification.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.UserNotification.CreatedAt(childComplexity), true
+
 	case "UserNotification.id":
 		if e.complexity.UserNotification.ID == nil {
 			break
@@ -1175,12 +1192,14 @@ interface Notification {
 	id: ID!
 	userId: ID
 	text: String!
+	createdAt: Time!
 }
 
 type UserNotification implements Notification {
 	id: ID!
 	userId: ID
 	text: String!
+	createdAt: Time!
 }
 
 type AdminNotification implements Notification {
@@ -1188,6 +1207,7 @@ type AdminNotification implements Notification {
 	text: String!
 	userId: ID
 	twitchProfile: TwirUserTwitchInfo
+	createdAt: Time!
 }
 
 enum NotificationType {
@@ -1212,9 +1232,8 @@ directive @isAdmin on FIELD_DEFINITION
 
 directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
-scalar DateTime
-
 scalar Upload
+scalar Time
 `, BuiltIn: false},
 	{Name: "../../../schema/shared-users.graphqls", Input: `interface TwirUser {
 	id: ID!
@@ -1767,6 +1786,50 @@ func (ec *executionContext) fieldContext_AdminNotification_twitchProfile(ctx con
 				return ec.fieldContext_TwirUserTwitchInfo_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TwirUserTwitchInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNotification_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminNotification) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AdminNotification_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AdminNotification_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNotification",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4605,6 +4668,8 @@ func (ec *executionContext) fieldContext_Mutation_notificationsCreate(ctx contex
 				return ec.fieldContext_AdminNotification_userId(ctx, field)
 			case "twitchProfile":
 				return ec.fieldContext_AdminNotification_twitchProfile(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminNotification", field.Name)
 		},
@@ -4696,6 +4761,8 @@ func (ec *executionContext) fieldContext_Mutation_notificationsUpdate(ctx contex
 				return ec.fieldContext_AdminNotification_userId(ctx, field)
 			case "twitchProfile":
 				return ec.fieldContext_AdminNotification_twitchProfile(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminNotification", field.Name)
 		},
@@ -5123,6 +5190,8 @@ func (ec *executionContext) fieldContext_Query_notificationsByUser(ctx context.C
 				return ec.fieldContext_UserNotification_userId(ctx, field)
 			case "text":
 				return ec.fieldContext_UserNotification_text(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_UserNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserNotification", field.Name)
 		},
@@ -5203,6 +5272,8 @@ func (ec *executionContext) fieldContext_Query_notificationsByAdmin(ctx context.
 				return ec.fieldContext_AdminNotification_userId(ctx, field)
 			case "twitchProfile":
 				return ec.fieldContext_AdminNotification_twitchProfile(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AdminNotification", field.Name)
 		},
@@ -5513,6 +5584,8 @@ func (ec *executionContext) fieldContext_Subscription_newNotification(ctx contex
 				return ec.fieldContext_UserNotification_userId(ctx, field)
 			case "text":
 				return ec.fieldContext_UserNotification_text(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_UserNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserNotification", field.Name)
 		},
@@ -6242,6 +6315,50 @@ func (ec *executionContext) fieldContext_UserNotification_text(ctx context.Conte
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserNotification_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.UserNotification) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserNotification_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(time.Time)
+	fc.Result = res
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserNotification_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserNotification",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -8471,6 +8588,11 @@ func (ec *executionContext) _AdminNotification(ctx context.Context, sel ast.Sele
 			out.Values[i] = ec._AdminNotification_userId(ctx, field, obj)
 		case "twitchProfile":
 			out.Values[i] = ec._AdminNotification_twitchProfile(ctx, field, obj)
+		case "createdAt":
+			out.Values[i] = ec._AdminNotification_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9354,6 +9476,11 @@ func (ec *executionContext) _UserNotification(ctx context.Context, sel ast.Selec
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "createdAt":
+			out.Values[i] = ec._UserNotification_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -9972,6 +10099,21 @@ func (ec *executionContext) unmarshalNString2string(ctx context.Context, v inter
 
 func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
