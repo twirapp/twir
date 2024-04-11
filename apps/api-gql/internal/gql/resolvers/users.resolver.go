@@ -85,7 +85,7 @@ func (r *queryResolver) TwirUsers(
 		return nil, err
 	}
 
-	mappedUsers := make([]gqlmodel.TwirUser, 0, len(dbUsers))
+	mappedUsers := make([]gqlmodel.TwirAdminUser, 0, len(dbUsers))
 
 	dbUsersIds := make([]string, 0, len(dbUsers))
 	for _, user := range dbUsers {
@@ -98,16 +98,16 @@ func (r *queryResolver) TwirUsers(
 	}
 
 	for _, user := range dbUsers {
-		u := gqlmodel.TwirUser{
-			ID:         user.ID,
-			IsBotAdmin: user.IsBotAdmin,
-			IsBanned:   user.IsBanned,
-			TwitchInfo: &gqlmodel.TwirUserTwitchInfo{},
+		u := gqlmodel.TwirAdminUser{
+			ID:            user.ID,
+			IsBotAdmin:    user.IsBotAdmin,
+			IsBanned:      user.IsBanned,
+			TwitchProfile: &gqlmodel.TwirUserTwitchInfo{},
 		}
 
-		if user.Channel != nil {
-			u.IsBotEnabled = user.Channel.IsEnabled
-		}
+		// if user.Channel != nil {
+		// 	u.IsBotEnabled = user.Channel.IsEnabled
+		// }
 
 		twitchUser, found := lo.Find(
 			twitchUsers, func(item twitchcahe.TwitchUser) bool {
@@ -116,9 +116,9 @@ func (r *queryResolver) TwirUsers(
 		)
 
 		if found {
-			u.TwitchInfo.Login = twitchUser.Login
-			u.TwitchInfo.DisplayName = twitchUser.DisplayName
-			u.TwitchInfo.ProfileImageURL = twitchUser.ProfileImageURL
+			u.TwitchProfile.Login = twitchUser.Login
+			u.TwitchProfile.DisplayName = twitchUser.DisplayName
+			u.TwitchProfile.ProfileImageURL = twitchUser.ProfileImageURL
 		}
 
 		mappedUsers = append(mappedUsers, u)

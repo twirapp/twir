@@ -12,22 +12,31 @@ import (
 )
 
 // AuthedUser is the resolver for the authedUser field.
-func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.User, error) {
+func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
 	}
 
-	return &gqlmodel.User{
+	twitchProfile, err := r.cachedTwitchClient.GetUserById(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &gqlmodel.AuthenticatedUser{
 		ID:                user.ID,
 		IsBotAdmin:        user.IsBotAdmin,
-		APIKey:            user.ApiKey,
 		IsBanned:          user.IsBanned,
+		IsEnabled:         user.Channel.IsEnabled,
+		IsBotModerator:    user.Channel.IsBotMod,
+		APIKey:            user.ApiKey,
 		HideOnLandingPage: user.HideOnLandingPage,
-		Channel: &gqlmodel.UserChannel{
-			IsEnabled:      user.Channel.IsEnabled,
-			IsBotModerator: user.Channel.IsBotMod,
-			BotID:          user.Channel.BotID,
+		BotID:             user.Channel.BotID,
+		TwitchProfile: &gqlmodel.TwirUserTwitchInfo{
+			Login:           twitchProfile.Login,
+			DisplayName:     twitchProfile.DisplayName,
+			ProfileImageURL: twitchProfile.ProfileImageURL,
+			Description:     twitchProfile.Description,
 		},
 	}, nil
 }

@@ -1,18 +1,27 @@
-type UserChannel {
-	isEnabled: Boolean!
-	isBotModerator: Boolean!
-	botId: ID!
+interface TwirUser {
+	id: ID!
+	twitchProfile: TwirUserTwitchInfo!
 }
 
-type User {
+type TwirUserTwitchInfo {
+	login: String!
+	displayName: String!
+	profileImageUrl: String!
+	description: String!
+}
+
+type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
-	apiKey: String!
 	isBanned: Boolean!
+	isEnabled: Boolean!
+	isBotModerator: Boolean!
+	apiKey: String!
 	hideOnLandingPage: Boolean!
-	channel: UserChannel!
+	botId: ID!
+	twitchProfile: TwirUserTwitchInfo!
 }
 
 extend type Query {
-	authedUser: User! @isAuthenticated
+	authedUser: AuthenticatedUser! @isAuthenticated
 }

@@ -1,16 +1,10 @@
-type TwirUserTwitchInfo {
-	login: String!
-	displayName: String!
-	profileImageUrl: String!
-	description: String!
-}
-
-type TwirUser {
+type TwirAdminUser implements TwirUser {
 	id: ID!
+	twitchProfile: TwirUserTwitchInfo!
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
-	isBotEnabled: Boolean!
-	twitchInfo: TwirUserTwitchInfo!
+	isBotModerator: Boolean!
+	apiKey: String!
 }
 
 input TwirUsersSearchParams {
@@ -24,7 +18,7 @@ input TwirUsersSearchParams {
 }
 
 type TwirUsersResponse {
-	users: [TwirUser!]!
+	users: [TwirAdminUser!]!
 	total: Int!
 }
 

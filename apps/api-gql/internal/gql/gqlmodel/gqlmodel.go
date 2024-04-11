@@ -6,6 +6,28 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
+type TwirUser interface {
+	IsTwirUser()
+	GetID() string
+	GetTwitchProfile() *TwirUserTwitchInfo
+}
+
+type AuthenticatedUser struct {
+	ID                string              `json:"id"`
+	IsBotAdmin        bool                `json:"isBotAdmin"`
+	IsBanned          bool                `json:"isBanned"`
+	IsEnabled         bool                `json:"isEnabled"`
+	IsBotModerator    bool                `json:"isBotModerator"`
+	APIKey            string              `json:"apiKey"`
+	HideOnLandingPage bool                `json:"hideOnLandingPage"`
+	BotID             string              `json:"botId"`
+	TwitchProfile     *TwirUserTwitchInfo `json:"twitchProfile"`
+}
+
+func (AuthenticatedUser) IsTwirUser()                                {}
+func (this AuthenticatedUser) GetID() string                         { return this.ID }
+func (this AuthenticatedUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
+
 type Command struct {
 	ID                        string            `json:"id"`
 	Name                      string            `json:"name"`
@@ -66,13 +88,18 @@ type Query struct {
 type Subscription struct {
 }
 
-type TwirUser struct {
-	ID           string              `json:"id"`
-	IsBotAdmin   bool                `json:"isBotAdmin"`
-	IsBanned     bool                `json:"isBanned"`
-	IsBotEnabled bool                `json:"isBotEnabled"`
-	TwitchInfo   *TwirUserTwitchInfo `json:"twitchInfo"`
+type TwirAdminUser struct {
+	ID             string              `json:"id"`
+	TwitchProfile  *TwirUserTwitchInfo `json:"twitchProfile"`
+	IsBotAdmin     bool                `json:"isBotAdmin"`
+	IsBanned       bool                `json:"isBanned"`
+	IsBotModerator bool                `json:"isBotModerator"`
+	APIKey         string              `json:"apiKey"`
 }
+
+func (TwirAdminUser) IsTwirUser()                                {}
+func (this TwirAdminUser) GetID() string                         { return this.ID }
+func (this TwirAdminUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
 
 type TwirUserTwitchInfo struct {
 	Login           string `json:"login"`
@@ -82,8 +109,8 @@ type TwirUserTwitchInfo struct {
 }
 
 type TwirUsersResponse struct {
-	Users []TwirUser `json:"users"`
-	Total int        `json:"total"`
+	Users []TwirAdminUser `json:"users"`
+	Total int             `json:"total"`
 }
 
 type TwirUsersSearchParams struct {
@@ -116,19 +143,4 @@ type UpdateCommandOpts struct {
 	RequiredWatchTime         graphql.Omittable[*int]                         `json:"requiredWatchTime,omitempty"`
 	RequiredMessages          graphql.Omittable[*int]                         `json:"requiredMessages,omitempty"`
 	RequiredUsedChannelPoints graphql.Omittable[*int]                         `json:"requiredUsedChannelPoints,omitempty"`
-}
-
-type User struct {
-	ID                string       `json:"id"`
-	IsBotAdmin        bool         `json:"isBotAdmin"`
-	APIKey            string       `json:"apiKey"`
-	IsBanned          bool         `json:"isBanned"`
-	HideOnLandingPage bool         `json:"hideOnLandingPage"`
-	Channel           *UserChannel `json:"channel"`
-}
-
-type UserChannel struct {
-	IsEnabled      bool   `json:"isEnabled"`
-	IsBotModerator bool   `json:"isBotModerator"`
-	BotID          string `json:"botId"`
 }
