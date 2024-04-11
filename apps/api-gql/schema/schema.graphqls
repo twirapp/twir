@@ -11,3 +11,5 @@ directive @isAdmin on FIELD_DEFINITION
 directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
 scalar DateTime
+
+scalar Upload

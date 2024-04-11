@@ -16,6 +16,19 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type AuthenticatedUser = TwirUser & {
+  __typename?: 'AuthenticatedUser';
+  apiKey: Scalars['String']['output'];
+  botId?: Maybe<Scalars['ID']['output']>;
+  hideOnLandingPage: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isBanned: Scalars['Boolean']['output'];
+  isBotAdmin: Scalars['Boolean']['output'];
+  isBotModerator?: Maybe<Scalars['Boolean']['output']>;
+  isEnabled?: Maybe<Scalars['Boolean']['output']>;
+  twitchProfile: TwirUserTwitchInfo;
+};
+
 export type Command = {
   __typename?: 'Command';
   aliases?: Maybe<Array<Scalars['String']['output']>>;
@@ -102,9 +115,11 @@ export type Notification = {
 
 export type Query = {
   __typename?: 'Query';
-  authedUser: User;
+  authedUser: AuthenticatedUser;
   commands: Array<Command>;
   notifications: Array<Notification>;
+  /** finding users on twitch with filter does they exists in database */
+  twirUsers: TwirUsersResponse;
 };
 
 
@@ -112,10 +127,54 @@ export type QueryNotificationsArgs = {
   userId: Scalars['String']['input'];
 };
 
+
+export type QueryTwirUsersArgs = {
+  opts: TwirUsersSearchParams;
+};
+
 export type Subscription = {
   __typename?: 'Subscription';
   /** `newNotification` will return a stream of `Notification` objects. */
   newNotification: Notification;
+};
+
+export type TwirAdminUser = TwirUser & {
+  __typename?: 'TwirAdminUser';
+  apiKey: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isBanned: Scalars['Boolean']['output'];
+  isBotAdmin: Scalars['Boolean']['output'];
+  isBotModerator: Scalars['Boolean']['output'];
+  twitchProfile: TwirUserTwitchInfo;
+};
+
+export type TwirUser = {
+  id: Scalars['ID']['output'];
+  twitchProfile: TwirUserTwitchInfo;
+};
+
+export type TwirUserTwitchInfo = {
+  __typename?: 'TwirUserTwitchInfo';
+  description: Scalars['String']['output'];
+  displayName: Scalars['String']['output'];
+  login: Scalars['String']['output'];
+  profileImageUrl: Scalars['String']['output'];
+};
+
+export type TwirUsersResponse = {
+  __typename?: 'TwirUsersResponse';
+  total: Scalars['Int']['output'];
+  users: Array<TwirAdminUser>;
+};
+
+export type TwirUsersSearchParams = {
+  badges?: InputMaybe<Array<Scalars['String']['input']>>;
+  isBanned?: InputMaybe<Scalars['Boolean']['input']>;
+  isBotAdmin?: InputMaybe<Scalars['Boolean']['input']>;
+  isBotEnabled?: InputMaybe<Scalars['Boolean']['input']>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type UpdateCommandOpts = {
@@ -138,21 +197,4 @@ export type UpdateCommandOpts = {
   responses?: InputMaybe<Array<CreateCommandResponseInput>>;
   rolesIds?: InputMaybe<Array<Scalars['String']['input']>>;
   visible?: InputMaybe<Scalars['Boolean']['input']>;
-};
-
-export type User = {
-  __typename?: 'User';
-  apiKey: Scalars['String']['output'];
-  channel: UserChannel;
-  hideOnLandingPage: Scalars['Boolean']['output'];
-  id: Scalars['ID']['output'];
-  isBanned: Scalars['Boolean']['output'];
-  isBotAdmin: Scalars['Boolean']['output'];
-};
-
-export type UserChannel = {
-  __typename?: 'UserChannel';
-  botId: Scalars['ID']['output'];
-  isBotModerator: Scalars['Boolean']['output'];
-  isEnabled: Scalars['Boolean']['output'];
 };

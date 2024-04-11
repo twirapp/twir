@@ -14,6 +14,36 @@ import (
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 )
 
+// SwitchUserBan is the resolver for the switchUserBan field.
+func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bool, error) {
+	user := model.Users{}
+	if err := r.gorm.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		return false, err
+	}
+
+	user.IsBanned = !user.IsBanned
+	if err := r.gorm.WithContext(ctx).Save(&user).Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// SwitchUserAdmin is the resolver for the switchUserAdmin field.
+func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (bool, error) {
+	user := model.Users{}
+	if err := r.gorm.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+		return false, err
+	}
+
+	user.IsBotAdmin = !user.IsBotAdmin
+	if err := r.gorm.WithContext(ctx).Save(&user).Error; err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // TwirUsers is the resolver for the twirUsers field.
 func (r *queryResolver) TwirUsers(
 	ctx context.Context,
@@ -106,9 +136,9 @@ func (r *queryResolver) TwirUsers(
 			APIKey:        user.ApiKey,
 		}
 
-		// if user.Channel != nil {
-		// 	u.IsBotEnabled = user.Channel.IsEnabled
-		// }
+		if user.Channel != nil {
+			u.IsBotEnabled = user.Channel.IsEnabled
+		}
 
 		twitchUser, found := lo.Find(
 			twitchUsers, func(item twitchcahe.TwitchUser) bool {

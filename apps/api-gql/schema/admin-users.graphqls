@@ -1,9 +1,22 @@
+extend type Query {
+	"""
+	finding users on twitch with filter does they exists in database
+	"""
+	twirUsers(opts: TwirUsersSearchParams!): TwirUsersResponse! @isAuthenticated @isAdmin
+}
+
+extend type Mutation {
+	switchUserBan(userId: ID!): Boolean! @isAuthenticated @isAdmin
+	switchUserAdmin(userId: ID!): Boolean! @isAuthenticated @isAdmin
+}
+
 type TwirAdminUser implements TwirUser {
 	id: ID!
 	twitchProfile: TwirUserTwitchInfo!
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
 	isBotModerator: Boolean!
+	isBotEnabled: Boolean!
 	apiKey: String!
 }
 
@@ -20,11 +33,4 @@ input TwirUsersSearchParams {
 type TwirUsersResponse {
 	users: [TwirAdminUser!]!
 	total: Int!
-}
-
-extend type Query {
-	"""
-	finding users on twitch with filter does they exists in database
-	"""
-	twirUsers(opts: TwirUsersSearchParams!): TwirUsersResponse! @isAuthenticated
 }
