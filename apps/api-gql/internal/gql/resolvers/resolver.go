@@ -1,6 +1,7 @@
 package resolvers
 
 import (
+	"github.com/minio/minio-go/v7"
 	"github.com/nicklaw5/helix/v2"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/twitch"
@@ -16,10 +17,12 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
+	config             config.Config
 	sessions           *sessions.Sessions
 	gorm               *gorm.DB
 	twitchClient       *helix.Client
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
+	minioClient        *minio.Client
 }
 
 type Opts struct {
@@ -30,6 +33,7 @@ type Opts struct {
 	Config             config.Config
 	TokensGrpc         tokens.TokensClient
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
+	Minio              *minio.Client
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -39,9 +43,11 @@ func New(opts Opts) (*Resolver, error) {
 	}
 
 	return &Resolver{
+		config:             opts.Config,
 		sessions:           opts.Sessions,
 		gorm:               opts.Gorm,
 		twitchClient:       twitchClient,
 		cachedTwitchClient: opts.CachedTwitchClient,
+		minioClient:        opts.Minio,
 	}, nil
 }

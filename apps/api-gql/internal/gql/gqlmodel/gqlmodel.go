@@ -12,16 +12,6 @@ type TwirUser interface {
 	GetTwitchProfile() *TwirUserTwitchInfo
 }
 
-type AdminBadge struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"createdAt"`
-	FileURL   string `json:"fileUrl"`
-	Enabled   bool   `json:"enabled"`
-	// IDS of users which has this badge
-	Users []string `json:"users,omitempty"`
-}
-
 type AuthenticatedUser struct {
 	ID                string              `json:"id"`
 	IsBotAdmin        bool                `json:"isBotAdmin"`
@@ -37,6 +27,16 @@ type AuthenticatedUser struct {
 func (AuthenticatedUser) IsTwirUser()                                {}
 func (this AuthenticatedUser) GetID() string                         { return this.ID }
 func (this AuthenticatedUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
+
+type Badge struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	CreatedAt string `json:"createdAt"`
+	FileURL   string `json:"fileUrl"`
+	Enabled   bool   `json:"enabled"`
+	// IDS of users which has this badge
+	Users []string `json:"users,omitempty"`
+}
 
 type Command struct {
 	ID                        string            `json:"id"`
@@ -113,10 +113,9 @@ func (this TwirAdminUser) GetID() string                         { return this.I
 func (this TwirAdminUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
 
 type TwirBadgeUpdateOpts struct {
-	ID      string                     `json:"id"`
-	Name    graphql.Omittable[*string] `json:"name,omitempty"`
-	FileURL graphql.Omittable[*string] `json:"fileUrl,omitempty"`
-	Enabled graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	Name    graphql.Omittable[*string]         `json:"name,omitempty"`
+	File    graphql.Omittable[*graphql.Upload] `json:"file,omitempty"`
+	Enabled graphql.Omittable[*bool]           `json:"enabled,omitempty"`
 }
 
 type TwirUserTwitchInfo struct {

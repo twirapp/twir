@@ -7,6 +7,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
+	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/redis"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -25,6 +26,7 @@ func main() {
 			func(config cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(config.AppEnv)
 			},
+			minio.New,
 			twitchcache.New,
 			resolvers.New,
 			directives.New,

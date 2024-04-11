@@ -52,15 +52,6 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
-	AdminBadge struct {
-		CreatedAt func(childComplexity int) int
-		Enabled   func(childComplexity int) int
-		FileURL   func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Name      func(childComplexity int) int
-		Users     func(childComplexity int) int
-	}
-
 	AuthenticatedUser struct {
 		APIKey            func(childComplexity int) int
 		BotID             func(childComplexity int) int
@@ -71,6 +62,15 @@ type ComplexityRoot struct {
 		IsBotModerator    func(childComplexity int) int
 		IsEnabled         func(childComplexity int) int
 		TwitchProfile     func(childComplexity int) int
+	}
+
+	Badge struct {
+		CreatedAt func(childComplexity int) int
+		Enabled   func(childComplexity int) int
+		FileURL   func(childComplexity int) int
+		ID        func(childComplexity int) int
+		Name      func(childComplexity int) int
+		Users     func(childComplexity int) int
 	}
 
 	Command struct {
@@ -108,7 +108,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		BadgesAddUser      func(childComplexity int, id string, userID string) int
-		BadgesCreate       func(childComplexity int, name string, file *graphql.Upload) int
+		BadgesCreate       func(childComplexity int, name string, file graphql.Upload) int
 		BadgesDelete       func(childComplexity int, id string) int
 		BadgesRemoveUser   func(childComplexity int, id string, userID string) int
 		BadgesUpdate       func(childComplexity int, id string, opts gqlmodel.TwirBadgeUpdateOpts) int
@@ -166,8 +166,8 @@ type CommandResolver interface {
 }
 type MutationResolver interface {
 	BadgesDelete(ctx context.Context, id string) (bool, error)
-	BadgesUpdate(ctx context.Context, id string, opts gqlmodel.TwirBadgeUpdateOpts) (bool, error)
-	BadgesCreate(ctx context.Context, name string, file *graphql.Upload) (bool, error)
+	BadgesUpdate(ctx context.Context, id string, opts gqlmodel.TwirBadgeUpdateOpts) (*gqlmodel.Badge, error)
+	BadgesCreate(ctx context.Context, name string, file graphql.Upload) (*gqlmodel.Badge, error)
 	BadgesAddUser(ctx context.Context, id string, userID string) (bool, error)
 	BadgesRemoveUser(ctx context.Context, id string, userID string) (bool, error)
 	SwitchUserBan(ctx context.Context, userID string) (bool, error)
@@ -178,7 +178,7 @@ type MutationResolver interface {
 	CreateNotification(ctx context.Context, text string, userID *string) (*gqlmodel.Notification, error)
 }
 type QueryResolver interface {
-	TwirBadges(ctx context.Context) ([]gqlmodel.AdminBadge, error)
+	TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error)
 	TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error)
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	Notifications(ctx context.Context, userID string) ([]gqlmodel.Notification, error)
@@ -206,48 +206,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
-
-	case "AdminBadge.createdAt":
-		if e.complexity.AdminBadge.CreatedAt == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.CreatedAt(childComplexity), true
-
-	case "AdminBadge.enabled":
-		if e.complexity.AdminBadge.Enabled == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.Enabled(childComplexity), true
-
-	case "AdminBadge.fileUrl":
-		if e.complexity.AdminBadge.FileURL == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.FileURL(childComplexity), true
-
-	case "AdminBadge.id":
-		if e.complexity.AdminBadge.ID == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.ID(childComplexity), true
-
-	case "AdminBadge.name":
-		if e.complexity.AdminBadge.Name == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.Name(childComplexity), true
-
-	case "AdminBadge.users":
-		if e.complexity.AdminBadge.Users == nil {
-			break
-		}
-
-		return e.complexity.AdminBadge.Users(childComplexity), true
 
 	case "AuthenticatedUser.apiKey":
 		if e.complexity.AuthenticatedUser.APIKey == nil {
@@ -311,6 +269,48 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthenticatedUser.TwitchProfile(childComplexity), true
+
+	case "Badge.createdAt":
+		if e.complexity.Badge.CreatedAt == nil {
+			break
+		}
+
+		return e.complexity.Badge.CreatedAt(childComplexity), true
+
+	case "Badge.enabled":
+		if e.complexity.Badge.Enabled == nil {
+			break
+		}
+
+		return e.complexity.Badge.Enabled(childComplexity), true
+
+	case "Badge.fileUrl":
+		if e.complexity.Badge.FileURL == nil {
+			break
+		}
+
+		return e.complexity.Badge.FileURL(childComplexity), true
+
+	case "Badge.id":
+		if e.complexity.Badge.ID == nil {
+			break
+		}
+
+		return e.complexity.Badge.ID(childComplexity), true
+
+	case "Badge.name":
+		if e.complexity.Badge.Name == nil {
+			break
+		}
+
+		return e.complexity.Badge.Name(childComplexity), true
+
+	case "Badge.users":
+		if e.complexity.Badge.Users == nil {
+			break
+		}
+
+		return e.complexity.Badge.Users(childComplexity), true
 
 	case "Command.aliases":
 		if e.complexity.Command.Aliases == nil {
@@ -523,7 +523,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.BadgesCreate(childComplexity, args["name"].(string), args["file"].(*graphql.Upload)), true
+		return e.complexity.Mutation.BadgesCreate(childComplexity, args["name"].(string), args["file"].(graphql.Upload)), true
 
 	case "Mutation.badgesDelete":
 		if e.complexity.Mutation.BadgesDelete == nil {
@@ -928,18 +928,18 @@ var sources = []*ast.Source{
 	"""
 	Twir badges
 	"""
-	twirBadges: [AdminBadge!]! @isAuthenticated @isAdmin
+	twirBadges: [Badge!]!
 }
 
 extend type Mutation {
 	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
-	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Boolean! @isAuthenticated @isAdmin
-	badgesCreate(name: String!, file: Upload): Boolean! @isAuthenticated @isAdmin
+	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
+	badgesCreate(name: String!, file: Upload!): Badge! @isAuthenticated @isAdmin
 	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 }
 
-type AdminBadge {
+type Badge {
 	id: ID!
 	name: String!
 	createdAt: String!
@@ -952,9 +952,8 @@ type AdminBadge {
 }
 
 input TwirBadgeUpdateOpts {
-	id: ID!
 	name: String
-	fileUrl: String
+	file: Upload
 	enabled: Boolean
 }
 `, BuiltIn: false},
@@ -1188,10 +1187,10 @@ func (ec *executionContext) field_Mutation_badgesCreate_args(ctx context.Context
 		}
 	}
 	args["name"] = arg0
-	var arg1 *graphql.Upload
+	var arg1 graphql.Upload
 	if tmp, ok := rawArgs["file"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
-		arg1, err = ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
+		arg1, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1453,267 +1452,6 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
-
-func (ec *executionContext) _AdminBadge_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_id(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.ID, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type ID does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminBadge_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_name(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Name, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminBadge_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_createdAt(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.CreatedAt, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminBadge_fileUrl(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_fileUrl(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.FileURL, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(string)
-	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_fileUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminBadge_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_enabled(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Enabled, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(bool)
-	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _AdminBadge_users(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminBadge) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_AdminBadge_users(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Users, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.([]string)
-	fc.Result = res
-	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_AdminBadge_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "AdminBadge",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
 
 func (ec *executionContext) _AuthenticatedUser_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AuthenticatedUser) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuthenticatedUser_id(ctx, field)
@@ -2107,6 +1845,267 @@ func (ec *executionContext) fieldContext_AuthenticatedUser_twitchProfile(ctx con
 				return ec.fieldContext_TwirUserTwitchInfo_description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type TwirUserTwitchInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_createdAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_createdAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CreatedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_createdAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_fileUrl(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_fileUrl(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FileURL, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_fileUrl(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_users(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_users(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Users, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalOString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_users(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3398,10 +3397,10 @@ func (ec *executionContext) _Mutation_badgesUpdate(ctx context.Context, field gr
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(bool); ok {
+		if data, ok := tmp.(*gqlmodel.Badge); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Badge`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3413,9 +3412,9 @@ func (ec *executionContext) _Mutation_badgesUpdate(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*gqlmodel.Badge)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBadge2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadge(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_badgesUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3425,7 +3424,21 @@ func (ec *executionContext) fieldContext_Mutation_badgesUpdate(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Badge_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Badge_name(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Badge_createdAt(ctx, field)
+			case "fileUrl":
+				return ec.fieldContext_Badge_fileUrl(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Badge_enabled(ctx, field)
+			case "users":
+				return ec.fieldContext_Badge_users(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
 	}
 	defer func() {
@@ -3457,7 +3470,7 @@ func (ec *executionContext) _Mutation_badgesCreate(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().BadgesCreate(rctx, fc.Args["name"].(string), fc.Args["file"].(*graphql.Upload))
+			return ec.resolvers.Mutation().BadgesCreate(rctx, fc.Args["name"].(string), fc.Args["file"].(graphql.Upload))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -3479,10 +3492,10 @@ func (ec *executionContext) _Mutation_badgesCreate(ctx context.Context, field gr
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.(bool); ok {
+		if data, ok := tmp.(*gqlmodel.Badge); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Badge`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3494,9 +3507,9 @@ func (ec *executionContext) _Mutation_badgesCreate(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*gqlmodel.Badge)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNBadge2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadge(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_badgesCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3506,7 +3519,21 @@ func (ec *executionContext) fieldContext_Mutation_badgesCreate(ctx context.Conte
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Badge_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Badge_name(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_Badge_createdAt(ctx, field)
+			case "fileUrl":
+				return ec.fieldContext_Badge_fileUrl(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Badge_enabled(ctx, field)
+			case "users":
+				return ec.fieldContext_Badge_users(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
 	}
 	defer func() {
@@ -4394,34 +4421,8 @@ func (ec *executionContext) _Query_twirBadges(ctx context.Context, field graphql
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().TwirBadges(rctx)
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAuthenticated == nil {
-				return nil, errors.New("directive isAuthenticated is not implemented")
-			}
-			return ec.directives.IsAuthenticated(ctx, nil, directive0)
-		}
-		directive2 := func(ctx context.Context) (interface{}, error) {
-			if ec.directives.IsAdmin == nil {
-				return nil, errors.New("directive isAdmin is not implemented")
-			}
-			return ec.directives.IsAdmin(ctx, nil, directive1)
-		}
-
-		tmp, err := directive2(rctx)
-		if err != nil {
-			return nil, graphql.ErrorOnPath(ctx, err)
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.([]gqlmodel.AdminBadge); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.AdminBadge`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TwirBadges(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4433,9 +4434,9 @@ func (ec *executionContext) _Query_twirBadges(ctx context.Context, field graphql
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.AdminBadge)
+	res := resTmp.([]gqlmodel.Badge)
 	fc.Result = res
-	return ec.marshalNAdminBadge2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminBadgeᚄ(ctx, field.Selections, res)
+	return ec.marshalNBadge2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadgeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_twirBadges(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4447,19 +4448,19 @@ func (ec *executionContext) fieldContext_Query_twirBadges(ctx context.Context, f
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
-				return ec.fieldContext_AdminBadge_id(ctx, field)
+				return ec.fieldContext_Badge_id(ctx, field)
 			case "name":
-				return ec.fieldContext_AdminBadge_name(ctx, field)
+				return ec.fieldContext_Badge_name(ctx, field)
 			case "createdAt":
-				return ec.fieldContext_AdminBadge_createdAt(ctx, field)
+				return ec.fieldContext_Badge_createdAt(ctx, field)
 			case "fileUrl":
-				return ec.fieldContext_AdminBadge_fileUrl(ctx, field)
+				return ec.fieldContext_Badge_fileUrl(ctx, field)
 			case "enabled":
-				return ec.fieldContext_AdminBadge_enabled(ctx, field)
+				return ec.fieldContext_Badge_enabled(ctx, field)
 			case "users":
-				return ec.fieldContext_AdminBadge_users(ctx, field)
+				return ec.fieldContext_Badge_users(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AdminBadge", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
 	}
 	return fc, nil
@@ -7472,20 +7473,13 @@ func (ec *executionContext) unmarshalInputTwirBadgeUpdateOpts(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "name", "fileUrl", "enabled"}
+	fieldsInOrder := [...]string{"name", "file", "enabled"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
 			continue
 		}
 		switch k {
-		case "id":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-			data, err := ec.unmarshalNID2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.ID = data
 		case "name":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
@@ -7493,13 +7487,13 @@ func (ec *executionContext) unmarshalInputTwirBadgeUpdateOpts(ctx context.Contex
 				return it, err
 			}
 			it.Name = graphql.OmittableOf(data)
-		case "fileUrl":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("fileUrl"))
-			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+		case "file":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+			data, err := ec.unmarshalOUpload2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
 			if err != nil {
 				return it, err
 			}
-			it.FileURL = graphql.OmittableOf(data)
+			it.File = graphql.OmittableOf(data)
 		case "enabled":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
 			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
@@ -7766,67 +7760,6 @@ func (ec *executionContext) _TwirUser(ctx context.Context, sel ast.SelectionSet,
 
 // region    **************************** object.gotpl ****************************
 
-var adminBadgeImplementors = []string{"AdminBadge"}
-
-func (ec *executionContext) _AdminBadge(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AdminBadge) graphql.Marshaler {
-	fields := graphql.CollectFields(ec.OperationContext, sel, adminBadgeImplementors)
-
-	out := graphql.NewFieldSet(fields)
-	deferred := make(map[string]*graphql.FieldSet)
-	for i, field := range fields {
-		switch field.Name {
-		case "__typename":
-			out.Values[i] = graphql.MarshalString("AdminBadge")
-		case "id":
-			out.Values[i] = ec._AdminBadge_id(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "name":
-			out.Values[i] = ec._AdminBadge_name(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "createdAt":
-			out.Values[i] = ec._AdminBadge_createdAt(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "fileUrl":
-			out.Values[i] = ec._AdminBadge_fileUrl(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "enabled":
-			out.Values[i] = ec._AdminBadge_enabled(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "users":
-			out.Values[i] = ec._AdminBadge_users(ctx, field, obj)
-		default:
-			panic("unknown field " + strconv.Quote(field.Name))
-		}
-	}
-	out.Dispatch(ctx)
-	if out.Invalids > 0 {
-		return graphql.Null
-	}
-
-	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
-
-	for label, dfs := range deferred {
-		ec.processDeferredGroup(graphql.DeferredGroup{
-			Label:    label,
-			Path:     graphql.GetPath(ctx),
-			FieldSet: dfs,
-			Context:  ctx,
-		})
-	}
-
-	return out
-}
-
 var authenticatedUserImplementors = []string{"AuthenticatedUser", "TwirUser"}
 
 func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AuthenticatedUser) graphql.Marshaler {
@@ -7874,6 +7807,67 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var badgeImplementors = []string{"Badge"}
+
+func (ec *executionContext) _Badge(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Badge) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, badgeImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Badge")
+		case "id":
+			out.Values[i] = ec._Badge_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Badge_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "createdAt":
+			out.Values[i] = ec._Badge_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "fileUrl":
+			out.Values[i] = ec._Badge_fileUrl(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._Badge_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "users":
+			out.Values[i] = ec._Badge_users(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -8942,11 +8936,25 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
-func (ec *executionContext) marshalNAdminBadge2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminBadge(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AdminBadge) graphql.Marshaler {
-	return ec._AdminBadge(ctx, sel, &v)
+func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AuthenticatedUser) graphql.Marshaler {
+	return ec._AuthenticatedUser(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNAdminBadge2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminBadgeᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.AdminBadge) graphql.Marshaler {
+func (ec *executionContext) marshalNAuthenticatedUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AuthenticatedUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthenticatedUser(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNBadge2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadge(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Badge) graphql.Marshaler {
+	return ec._Badge(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNBadge2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadgeᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Badge) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -8970,7 +8978,7 @@ func (ec *executionContext) marshalNAdminBadge2ᚕgithubᚗcomᚋtwirappᚋtwir�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNAdminBadge2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminBadge(ctx, sel, v[i])
+			ret[i] = ec.marshalNBadge2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadge(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -8990,18 +8998,14 @@ func (ec *executionContext) marshalNAdminBadge2ᚕgithubᚗcomᚋtwirappᚋtwir�
 	return ret
 }
 
-func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AuthenticatedUser) graphql.Marshaler {
-	return ec._AuthenticatedUser(ctx, sel, &v)
-}
-
-func (ec *executionContext) marshalNAuthenticatedUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AuthenticatedUser) graphql.Marshaler {
+func (ec *executionContext) marshalNBadge2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐBadge(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Badge) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._AuthenticatedUser(ctx, sel, v)
+	return ec._Badge(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
@@ -9279,6 +9283,21 @@ func (ec *executionContext) unmarshalNTwirUsersSearchParams2githubᚗcomᚋtwira
 func (ec *executionContext) unmarshalNUpdateCommandOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐUpdateCommandOpts(ctx context.Context, v interface{}) (gqlmodel.UpdateCommandOpts, error) {
 	res, err := ec.unmarshalInputUpdateCommandOpts(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, v interface{}) (graphql.Upload, error) {
+	res, err := graphql.UnmarshalUpload(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx context.Context, sel ast.SelectionSet, v graphql.Upload) graphql.Marshaler {
+	res := graphql.MarshalUpload(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

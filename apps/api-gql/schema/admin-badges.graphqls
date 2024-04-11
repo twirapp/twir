@@ -2,18 +2,18 @@ extend type Query {
 	"""
 	Twir badges
 	"""
-	twirBadges: [AdminBadge!]! @isAuthenticated @isAdmin
+	twirBadges: [Badge!]!
 }
 
 extend type Mutation {
 	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
-	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Boolean! @isAuthenticated @isAdmin
-	badgesCreate(name: String!, file: Upload): Boolean! @isAuthenticated @isAdmin
+	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
+	badgesCreate(name: String!, file: Upload!): Badge! @isAuthenticated @isAdmin
 	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 }
 
-type AdminBadge {
+type Badge {
 	id: ID!
 	name: String!
 	createdAt: String!
@@ -26,8 +26,7 @@ type AdminBadge {
 }
 
 input TwirBadgeUpdateOpts {
-	id: ID!
 	name: String
-	fileUrl: String
+	file: Upload
 	enabled: Boolean
 }
