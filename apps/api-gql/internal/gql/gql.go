@@ -57,7 +57,7 @@ func New(opts Opts) *Gql {
 		srv.Use(extension.Introspection{})
 	}
 
-	srv.Use(extension.FixedComplexityLimit(5))
+	// srv.Use(extension.FixedComplexityLimit(5))
 
 	return &Gql{srv}
 }

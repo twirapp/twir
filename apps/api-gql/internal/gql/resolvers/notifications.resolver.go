@@ -235,6 +235,8 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (
 	}
 
 	go func() {
+		defer close(channel)
+
 		for {
 			select {
 			case <-ctx.Done():
