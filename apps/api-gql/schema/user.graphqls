@@ -14,11 +14,11 @@ type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
-	isEnabled: Boolean!
-	isBotModerator: Boolean!
+	isEnabled: Boolean
+	isBotModerator: Boolean
 	apiKey: String!
 	hideOnLandingPage: Boolean!
-	botId: ID!
+	botId: ID
 	twitchProfile: TwirUserTwitchInfo!
 }
 

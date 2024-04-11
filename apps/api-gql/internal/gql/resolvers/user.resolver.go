@@ -23,20 +23,25 @@ func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.Authenticated
 		return nil, err
 	}
 
-	return &gqlmodel.AuthenticatedUser{
+	authedUser := &gqlmodel.AuthenticatedUser{
 		ID:                user.ID,
 		IsBotAdmin:        user.IsBotAdmin,
 		IsBanned:          user.IsBanned,
-		IsEnabled:         user.Channel.IsEnabled,
-		IsBotModerator:    user.Channel.IsBotMod,
-		APIKey:            user.ApiKey,
 		HideOnLandingPage: user.HideOnLandingPage,
-		BotID:             user.Channel.BotID,
 		TwitchProfile: &gqlmodel.TwirUserTwitchInfo{
 			Login:           twitchProfile.Login,
 			DisplayName:     twitchProfile.DisplayName,
 			ProfileImageURL: twitchProfile.ProfileImageURL,
 			Description:     twitchProfile.Description,
 		},
-	}, nil
+		APIKey: user.ApiKey,
+	}
+
+	if user.Channel != nil {
+		authedUser.IsEnabled = &user.Channel.IsEnabled
+		authedUser.IsBotModerator = &user.Channel.IsBotMod
+		authedUser.BotID = &user.Channel.BotID
+	}
+
+	return authedUser, nil
 }

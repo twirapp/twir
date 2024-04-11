@@ -893,11 +893,11 @@ type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
-	isEnabled: Boolean!
-	isBotModerator: Boolean!
+	isEnabled: Boolean
+	isBotModerator: Boolean
 	apiKey: String!
 	hideOnLandingPage: Boolean!
-	botId: ID!
+	botId: ID
 	twitchProfile: TwirUserTwitchInfo!
 }
 
@@ -1257,14 +1257,11 @@ func (ec *executionContext) _AuthenticatedUser_isEnabled(ctx context.Context, fi
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthenticatedUser_isEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1301,14 +1298,11 @@ func (ec *executionContext) _AuthenticatedUser_isBotModerator(ctx context.Contex
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(*bool)
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthenticatedUser_isBotModerator(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1433,14 +1427,11 @@ func (ec *executionContext) _AuthenticatedUser_botId(ctx context.Context, field 
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(*string)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_AuthenticatedUser_botId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6441,14 +6432,8 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 			}
 		case "isEnabled":
 			out.Values[i] = ec._AuthenticatedUser_isEnabled(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "isBotModerator":
 			out.Values[i] = ec._AuthenticatedUser_isBotModerator(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "apiKey":
 			out.Values[i] = ec._AuthenticatedUser_apiKey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -6461,9 +6446,6 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 			}
 		case "botId":
 			out.Values[i] = ec._AuthenticatedUser_botId(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
 		case "twitchProfile":
 			out.Values[i] = ec._AuthenticatedUser_twitchProfile(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -8091,6 +8073,22 @@ func (ec *executionContext) unmarshalOCreateCommandResponseInput2ᚕgithubᚗcom
 		}
 	}
 	return res, nil
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

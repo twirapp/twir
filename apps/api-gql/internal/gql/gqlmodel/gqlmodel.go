@@ -16,11 +16,11 @@ type AuthenticatedUser struct {
 	ID                string              `json:"id"`
 	IsBotAdmin        bool                `json:"isBotAdmin"`
 	IsBanned          bool                `json:"isBanned"`
-	IsEnabled         bool                `json:"isEnabled"`
-	IsBotModerator    bool                `json:"isBotModerator"`
+	IsEnabled         *bool               `json:"isEnabled,omitempty"`
+	IsBotModerator    *bool               `json:"isBotModerator,omitempty"`
 	APIKey            string              `json:"apiKey"`
 	HideOnLandingPage bool                `json:"hideOnLandingPage"`
-	BotID             string              `json:"botId"`
+	BotID             *string             `json:"botId,omitempty"`
 	TwitchProfile     *TwirUserTwitchInfo `json:"twitchProfile"`
 }
 

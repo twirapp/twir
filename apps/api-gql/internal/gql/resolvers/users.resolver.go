@@ -103,6 +103,7 @@ func (r *queryResolver) TwirUsers(
 			IsBotAdmin:    user.IsBotAdmin,
 			IsBanned:      user.IsBanned,
 			TwitchProfile: &gqlmodel.TwirUserTwitchInfo{},
+			APIKey:        user.ApiKey,
 		}
 
 		// if user.Channel != nil {
