@@ -1,10 +1,11 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
+import type { GetNotificationsRequest, Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNotificationsFilters } from './use-notifications-filters.js';
+import UsersTableCellUser from '../../manage-users/components/users-table-cell-user.vue';
 import CreatedAtTooltip from '../components/created-at-tooltip.vue';
 import NotificationsTableActions from '../components/notifications-table-actions.vue';
 import { useNotificationsForm } from '../composables/use-notifications-form.js';
@@ -23,7 +24,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
 
-	const reqParams = computed(() => ({
+	const reqParams = computed<GetNotificationsRequest>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
 		isUser: filters.isUsersFilter,
@@ -36,6 +37,27 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	});
 
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
+		{
+			accessorKey: 'id',
+			size: 5,
+			header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
+			cell: ({ row }) => {
+				if (row.original.userAvatar && row.original.userDisplayName) {
+					return h('a',
+						{
+							class: 'flex flex-col',
+							href: `https://twitch.tv/${row.original.userName}`,
+							target: '_blank',
+						},
+						h(UsersTableCellUser, {
+							userId: row.original.id,
+							avatar: row.original.userAvatar,
+							name: row.original.userDisplayName,
+						}),
+					);
+				}
+			},
+		},
 		{
 			accessorKey: 'message',
 			size: 80,
