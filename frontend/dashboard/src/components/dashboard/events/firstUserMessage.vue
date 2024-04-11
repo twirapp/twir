@@ -3,7 +3,7 @@ import { IconMoodPlus } from '@tabler/icons-vue';
 
 import Base from './base.vue';
 
-import { createUserName } from '@/helpers/index.js';
+import { resolveUserName } from '@/helpers/index.js';
 
 defineProps<{
 	createdAt: string,
@@ -19,7 +19,7 @@ defineProps<{
 		<template #leftContent>
 			<div class="flex flex-col">
 				<span>
-					{{ createUserName(userName, userDisplayName) }}
+					{{ resolveUserName(userName, userDisplayName) }}
 					<b class="text-sx">first time joined chat</b>
 				</span>
 				<span class="text-sx">{{ message }}</span>

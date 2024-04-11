@@ -28,7 +28,7 @@ const pageTabs: PageLayoutTab[] = [
 </script>
 
 <template>
-	<page-layout active-tab="notifications" :tabs="pageTabs">
+	<page-layout active-tab="users" :tabs="pageTabs">
 		<template #title>
 			{{ t('adminPanel.title') }}
 		</template>

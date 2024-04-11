@@ -20,7 +20,7 @@ func (c *Badges) computeBadgeUrl(id string) string {
 		return c.Config.S3PublicUrl + "/" + c.Config.S3Bucket + "/badges/" + id
 	}
 
-	return c.Config.S3Host + "/badges/" + id
+	return c.Config.S3PublicUrl + "/badges/" + id
 }
 
 func (c *Badges) GetBadgesWithUsers(

@@ -12,6 +12,9 @@ message Notification {
 	string created_at = 2;
 	string message = 3;
 	optional string user_id = 4;
+	optional string user_avatar = 5;
+	optional string user_name = 6;
+	optional string user_display_name = 7;
 }
 
 message GetNotificationsRequest {

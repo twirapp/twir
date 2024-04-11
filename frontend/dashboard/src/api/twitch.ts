@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/vue-query';
 import type { GetResponse as RewardsResponse } from '@twir/api/messages/rewards/rewards';
 import type {
 	TwitchGetUsersResponse,
+	TwitchSearchChannelsRequest,
 	TwitchSearchChannelsResponse,
 } from '@twir/api/messages/twitch/twitch';
 import { ComputedRef, isRef, MaybeRef, Ref } from 'vue';
@@ -41,19 +42,16 @@ export const useTwitchGetUsers = (opts: {
 	},
 });
 
-export const useTwitchSearchChannels = (query: string | Ref<string>) => useQuery({
-	queryKey: ['twitch', 'search', 'channels', query],
+export const useTwitchSearchChannels = (params: Ref<TwitchSearchChannelsRequest>) => useQuery({
+	queryKey: ['twitch', 'search', 'channels', params],
 	queryFn: async (): Promise<TwitchSearchChannelsResponse> => {
-		const rawQuery = isRef(query) ? query.value : query;
+		const rawParams = isRef(params) ? params.value : params;
 
-		if (!rawQuery) return {
-			channels: [],
-		};
+		if (!rawParams.query) {
+			return { channels: [] };
+		}
 
-		const call = await unprotectedApiClient.twitchSearchChannels({
-			query: rawQuery,
-		});
-
+		const call = await unprotectedApiClient.twitchSearchChannels(rawParams);
 		return call.response;
 	},
 });

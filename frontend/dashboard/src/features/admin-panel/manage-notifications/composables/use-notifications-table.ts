@@ -1,10 +1,11 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import type { Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
+import type { GetNotificationsRequest, Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useNotificationsFilters } from './use-notifications-filters.js';
+import UsersTableCellUser from '../../manage-users/components/users-table-cell-user.vue';
 import CreatedAtTooltip from '../components/created-at-tooltip.vue';
 import NotificationsTableActions from '../components/notifications-table-actions.vue';
 import { useNotificationsForm } from '../composables/use-notifications-form.js';
@@ -23,7 +24,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
 
-	const reqParams = computed(() => ({
+	const reqParams = computed<GetNotificationsRequest>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
 		isUser: filters.isUsersFilter,
@@ -35,35 +36,63 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		return data.value?.notifications ?? [];
 	});
 
-	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
-		{
-			accessorKey: 'message',
-			size: 80,
-			header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
-			cell: ({ row }) => {
-				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
+	const tableColumns = computed<ColumnDef<Notification>[]>(() => {
+		const columns: ColumnDef<Notification>[] = [
+			{
+				accessorKey: 'message',
+				size: 65,
+				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
+				cell: ({ row }) => {
+					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
+				},
 			},
-		},
-		{
-			accessorKey: 'createdAt',
-			size: 5,
-			header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
-			cell: ({ row }) => {
-				return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
+			{
+				accessorKey: 'createdAt',
+				size: 10,
+				header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
+				cell: ({ row }) => {
+					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
+				},
 			},
-		},
-		{
-			accessorKey: 'actions',
-			size: 10,
-			header: () => '',
-			cell: ({ row }) => {
-				return h(NotificationsTableActions, {
-					onDelete: () => onDeleteNotification(row.original.id),
-					onEdit: () => onEditNotification(row.original),
-				});
+			{
+				accessorKey: 'actions',
+				size: 15,
+				header: () => '',
+				cell: ({ row }) => {
+					return h(NotificationsTableActions, {
+						onDelete: () => onDeleteNotification(row.original.id),
+						onEdit: () => onEditNotification(row.original),
+					});
+				},
 			},
-		},
-	]);
+		];
+
+		if (filters.isUsersFilter) {
+			columns.unshift({
+				accessorKey: 'id',
+				size: 10,
+				header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
+				cell: ({ row }) => {
+					if (row.original.userAvatar && row.original.userDisplayName) {
+						return h('a',
+							{
+								class: 'flex flex-col',
+								href: `https://twitch.tv/${row.original.userName}`,
+								target: '_blank',
+							},
+							h(UsersTableCellUser, {
+								userId: row.original.id,
+								avatar: row.original.userAvatar,
+								name: row.original.userDisplayName,
+							}),
+						);
+					}
+				},
+			});
+		}
+
+		return columns;
+	});
 
 	const totalNotifications = computed(() => data.value?.total ?? 0);
 
@@ -109,14 +138,18 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	}
 
 	async function onEditNotification(notification: Notification) {
-		const confirmed = !form.isFormDirty
-			|| form.editableMessageId
-			&& confirm(t('adminPanel.notifications.confirmResetForm'));
-		if (!confirmed) return;
+		let isConfirmed = true;
 
-		form.editableMessageId = notification.id;
-		form.form.setValues(notification);
-		layout.scrollToTop();
+		if (form.formValues.message || form.isEditableForm) {
+			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'));
+		}
+
+		if (isConfirmed) {
+			form.editableMessageId = notification.id;
+			form.userIdField.fieldModel = notification.userId ?? null;
+			form.messageField.fieldModel = notification.message;
+			layout.scrollToTop();
+		}
 	}
 
 	return {

@@ -3,7 +3,7 @@ import { IconGift } from '@tabler/icons-vue';
 
 import Base from './base.vue';
 
-import { createUserName } from '@/helpers/index.js';
+import { resolveUserName } from '@/helpers/index.js';
 
 defineProps<{
 	userName: string,
@@ -20,7 +20,7 @@ defineProps<{
 	<Base :icon="IconGift" :created-at="createdAt">
 		<template #leftContent>
 			<span>
-				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">gifted sub to</b> {{ createUserName(targetUserName, targetUserDisplayName) }}
+				{{ resolveUserName(userName, userDisplayName) }} <b class="text-xs">gifted sub to</b> {{ resolveUserName(targetUserName, targetUserDisplayName) }}
 			</span>
 			<span>
 				<span class="text-xs">

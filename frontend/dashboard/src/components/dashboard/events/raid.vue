@@ -3,7 +3,7 @@ import { IconPick } from '@tabler/icons-vue';
 
 import Base from './base.vue';
 
-import { createUserName } from '@/helpers/index.js';
+import { resolveUserName } from '@/helpers/index.js';
 
 defineProps<{
 	userName: string,
@@ -19,7 +19,7 @@ defineProps<{
 		<template #leftContent>
 			<span>
 
-				{{ createUserName(userName, userDisplayName) }} <b class="text-xs">raided with</b> {{ viewers }} viewers
+				{{ resolveUserName(userName, userDisplayName) }} <b class="text-xs">raided with</b> {{ viewers }} viewers
 			</span>
 		</template>
 	</Base>
