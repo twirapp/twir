@@ -36,56 +36,63 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		return data.value?.notifications ?? [];
 	});
 
-	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
-		{
-			accessorKey: 'id',
-			size: 10,
-			header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
-			cell: ({ row }) => {
-				if (row.original.userAvatar && row.original.userDisplayName) {
-					return h('a',
-						{
-							class: 'flex flex-col',
-							href: `https://twitch.tv/${row.original.userName}`,
-							target: '_blank',
-						},
-						h(UsersTableCellUser, {
-							userId: row.original.id,
-							avatar: row.original.userAvatar,
-							name: row.original.userDisplayName,
-						}),
-					);
-				}
+	const tableColumns = computed<ColumnDef<Notification>[]>(() => {
+		const columns: ColumnDef<Notification>[] = [
+			{
+				accessorKey: 'message',
+				size: 65,
+				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
+				cell: ({ row }) => {
+					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
+				},
 			},
-		},
-		{
-			accessorKey: 'message',
-			size: 65,
-			header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
-			cell: ({ row }) => {
-				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
+			{
+				accessorKey: 'createdAt',
+				size: 10,
+				header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
+				cell: ({ row }) => {
+					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
+				},
 			},
-		},
-		{
-			accessorKey: 'createdAt',
-			size: 10,
-			header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
-			cell: ({ row }) => {
-				return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
+			{
+				accessorKey: 'actions',
+				size: 15,
+				header: () => '',
+				cell: ({ row }) => {
+					return h(NotificationsTableActions, {
+						onDelete: () => onDeleteNotification(row.original.id),
+						onEdit: () => onEditNotification(row.original),
+					});
+				},
 			},
-		},
-		{
-			accessorKey: 'actions',
-			size: 15,
-			header: () => '',
-			cell: ({ row }) => {
-				return h(NotificationsTableActions, {
-					onDelete: () => onDeleteNotification(row.original.id),
-					onEdit: () => onEditNotification(row.original),
-				});
-			},
-		},
-	]);
+		];
+
+		if (filters.isUsersFilter) {
+			columns.unshift({
+				accessorKey: 'id',
+				size: 10,
+				header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
+				cell: ({ row }) => {
+					if (row.original.userAvatar && row.original.userDisplayName) {
+						return h('a',
+							{
+								class: 'flex flex-col',
+								href: `https://twitch.tv/${row.original.userName}`,
+								target: '_blank',
+							},
+							h(UsersTableCellUser, {
+								userId: row.original.id,
+								avatar: row.original.userAvatar,
+								name: row.original.userDisplayName,
+							}),
+						);
+					}
+				},
+			});
+		}
+
+		return columns;
+	});
 
 	const totalNotifications = computed(() => data.value?.total ?? 0);
 
