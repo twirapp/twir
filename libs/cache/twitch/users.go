@@ -31,12 +31,12 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 	}
 
 	if bytes, _ := c.redis.Get(ctx, buildUserCacheKeyForId(id)).Bytes(); len(bytes) > 0 {
-		var helixUser *TwitchUser
-		if err := json.Unmarshal(bytes, helixUser); err != nil {
+		var helixUser TwitchUser
+		if err := json.Unmarshal(bytes, &helixUser); err != nil {
 			return nil, err
 		}
 
-		return helixUser, nil
+		return &helixUser, nil
 	}
 
 	twitchReq, err := c.client.GetUsers(&helix.UsersParams{IDs: []string{id}})
@@ -51,7 +51,10 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 		return nil, fmt.Errorf("user not found")
 	}
 
-	user := twitchReq.Data.Users[0]
+	user := TwitchUser{
+		User:     twitchReq.Data.Users[0],
+		NotFound: false,
+	}
 
 	userBytes, err := json.Marshal(&user)
 	if err != nil {
@@ -67,10 +70,7 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 		return nil, err
 	}
 
-	return &TwitchUser{
-		User:     user,
-		NotFound: false,
-	}, nil
+	return &user, nil
 }
 
 func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
