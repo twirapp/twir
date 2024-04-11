@@ -21,7 +21,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 	const { t } = useI18n();
 
 	const searchInput = ref('');
-	const debounceSearchInput = refDebounced<string>(searchInput, 500);
+	const debounceSearchInput = refDebounced(searchInput, 500);
 
 	const { badges } = storeToRefs(useBadges());
 

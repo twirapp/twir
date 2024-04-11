@@ -5,7 +5,7 @@ import {
   NInput,
   NButton,
 } from 'naive-ui';
-import { type Size } from 'naive-ui/es/input/src/interface.js';
+import type { Size } from 'naive-ui/es/input/src/interface.js';
 
 import { copyToClipBoard } from '@/helpers/index.js';
 

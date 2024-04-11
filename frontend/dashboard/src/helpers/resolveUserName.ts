@@ -1,4 +1,4 @@
-export const createUserName = (userName: string, userDisplayName?: string) => {
+export function resolveUserName(userName: string, userDisplayName?: string): string {
 	if (!userDisplayName) return userName;
 
 	if (userName === userDisplayName.toLocaleLowerCase()) {
@@ -6,4 +6,4 @@ export const createUserName = (userName: string, userDisplayName?: string) => {
 	}
 
 	return `${userDisplayName} (${userName})`;
-};
+}
