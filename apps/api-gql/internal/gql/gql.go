@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
+	config "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
@@ -23,17 +24,18 @@ type Opts struct {
 
 	Resolver   *resolvers.Resolver
 	Directives *directives.Directives
+	Config     config.Config
 }
 
 func New(opts Opts) *Gql {
-	config := graph.Config{
+	graphConfig := graph.Config{
 		Resolvers: opts.Resolver,
 	}
-	config.Directives.IsAuthenticated = opts.Directives.IsAuthenticated
-	config.Directives.HasAccessToSelectedDashboard = opts.Directives.HasAccessToSelectedDashboard
-	config.Directives.IsAdmin = opts.Directives.IsAdmin
+	graphConfig.Directives.IsAuthenticated = opts.Directives.IsAuthenticated
+	graphConfig.Directives.HasAccessToSelectedDashboard = opts.Directives.HasAccessToSelectedDashboard
+	graphConfig.Directives.IsAdmin = opts.Directives.IsAdmin
 
-	schema := graph.NewExecutableSchema(config)
+	schema := graph.NewExecutableSchema(graphConfig)
 
 	srv := handler.New(schema)
 	srv.AddTransport(transport.Options{})
@@ -50,7 +52,11 @@ func New(opts Opts) *Gql {
 			},
 		},
 	)
-	srv.Use(extension.Introspection{})
+
+	if opts.Config.AppEnv != "production" {
+		srv.Use(extension.Introspection{})
+	}
+
 	srv.Use(extension.FixedComplexityLimit(5))
 
 	return &Gql{srv}
