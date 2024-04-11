@@ -31,6 +31,7 @@ func New(opts Opts) *Gql {
 	}
 	config.Directives.IsAuthenticated = opts.Directives.IsAuthenticated
 	config.Directives.HasAccessToSelectedDashboard = opts.Directives.HasAccessToSelectedDashboard
+	config.Directives.IsAdmin = opts.Directives.IsAdmin
 
 	schema := graph.NewExecutableSchema(config)
 

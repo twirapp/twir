@@ -240,6 +240,9 @@ importers:
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
+      '@urql/vue':
+        specifier: 1.1.3
+        version: 1.1.3(graphql@16.8.1)(vue@3.4.18)
       '@vee-validate/zod':
         specifier: 4.12.6
         version: 4.12.6(vue@3.4.18)
@@ -264,6 +267,12 @@ importers:
       date-fns:
         specifier: 3.3.1
         version: 3.3.1
+      graphql:
+        specifier: 16.8.1
+        version: 16.8.1
+      graphql-ws:
+        specifier: 5.16.0
+        version: 5.16.0(graphql@16.8.1)
       grid-layout-plus:
         specifier: 1.0.3
         version: 1.0.3(vue@3.4.18)
@@ -319,9 +328,21 @@ importers:
         specifier: 3.22.4
         version: 3.22.4
     devDependencies:
+      '@graphql-codegen/cli':
+        specifier: 5.0.2
+        version: 5.0.2(@parcel/watcher@2.4.1)(@types/node@20.11.5)(graphql@16.8.1)(typescript@5.3.3)
+      '@graphql-codegen/client-preset':
+        specifier: 4.2.5
+        version: 4.2.5(graphql@16.8.1)
+      '@graphql-typed-document-node/core':
+        specifier: 3.2.0
+        version: 3.2.0(graphql@16.8.1)
       '@intlify/unplugin-vue-i18n':
         specifier: 2.0.0
         version: 2.0.0(vue-i18n@9.9.0)
+      '@parcel/watcher':
+        specifier: 2.4.1
+        version: 2.4.1
       '@plugin-web-update-notification/vite':
         specifier: 1.7.0
         version: 1.7.0(vite@5.0.12)
@@ -337,6 +358,9 @@ importers:
       autoprefixer:
         specifier: 10.4.17
         version: 10.4.17(postcss@8.4.35)
+      concurrently:
+        specifier: 8.2.2
+        version: 8.2.2
       rollup-plugin-visualizer:
         specifier: 5.12.0
         version: 5.12.0
@@ -5169,6 +5193,18 @@ packages:
       - graphql
     dev: false
 
+  /@urql/vue@1.1.3(graphql@16.8.1)(vue@3.4.18):
+    resolution: {integrity: sha512-LpFHHM1a3jBB4eVUF/yIwXurmE1q1kSbJ2Ldw0o8++4TQ+usFKmsehrveAfH3YyKGlWB6QR4gW61YadKJHbzpg==}
+    peerDependencies:
+      vue: ^2.7.0 || ^3.0.0
+    dependencies:
+      '@urql/core': 5.0.0(graphql@16.8.1)
+      vue: 3.4.18(typescript@5.3.3)
+      wonka: 6.3.4
+    transitivePeerDependencies:
+      - graphql
+    dev: false
+
   /@urql/vue@1.1.3(graphql@16.8.1)(vue@3.4.21):
     resolution: {integrity: sha512-LpFHHM1a3jBB4eVUF/yIwXurmE1q1kSbJ2Ldw0o8++4TQ+usFKmsehrveAfH3YyKGlWB6QR4gW61YadKJHbzpg==}
     peerDependencies:
@@ -6859,6 +6895,22 @@ packages:
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
+  /concurrently@8.2.2:
+    resolution: {integrity: sha512-1dP4gpXFhei8IOtlXRE/T/4H88ElHgTiUzh71YUmtjTEHMSRS2Z/fgOxHSxxusGHogsRfxNq1vyAwxSC+EVyDg==}
+    engines: {node: ^14.13.0 || >=16.0.0}
+    hasBin: true
+    dependencies:
+      chalk: 4.1.2
+      date-fns: 2.30.0
+      lodash: 4.17.21
+      rxjs: 7.8.1
+      shell-quote: 1.8.1
+      spawn-command: 0.0.2
+      supports-color: 8.1.1
+      tree-kill: 1.2.2
+      yargs: 17.7.2
+    dev: true
+
   /constant-case@3.0.4:
     resolution: {integrity: sha512-I2hSBi7Vvs7BEuJDr5dDHfzb/Ruj3FyvFyh7KLilAjNQw3Be+xgqUBA2W6scVEcL0hL1dwPRtIqEPVUCKkSsyQ==}
     dependencies:
@@ -7070,7 +7122,6 @@ packages:
     engines: {node: '>=0.11'}
     dependencies:
       '@babel/runtime': 7.23.8
-    dev: false
 
   /date-fns@3.3.1:
     resolution: {integrity: sha512-y8e109LYGgoQDveiEBD3DYXKba1jWf5BA8YU1FL5Tvm0BTdEfy54WLCwnuYWZNnzzvALy/QQ4Hov+Q9RVRv+Zw==}
@@ -7252,7 +7303,7 @@ packages:
       '@babel/core': 7.24.3
       '@babel/preset-typescript': 7.24.1(@babel/core@7.24.3)
       '@vue/compiler-dom': 3.4.21
-      '@vue/compiler-sfc': 3.4.19
+      '@vue/compiler-sfc': 3.4.21
       '@vuedx/template-ast-types': 0.7.1
       fast-glob: 3.3.2
       prettier: 2.8.8
@@ -12122,6 +12173,10 @@ packages:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
     dev: false
 
+  /spawn-command@0.0.2:
+    resolution: {integrity: sha512-zC8zGoGkmc8J9ndvml8Xksr1Amk9qBujgbF0JAIWO7kXr43w0h/0GJNM/Vustixu+YE8N/MTrQ7N31FvHUACxQ==}
+    dev: true
+
   /split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
@@ -12383,6 +12438,13 @@ packages:
       has-flag: 4.0.0
     dev: true
 
+  /supports-color@8.1.1:
+    resolution: {integrity: sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q==}
+    engines: {node: '>=10'}
+    dependencies:
+      has-flag: 4.0.0
+    dev: true
+
   /supports-preserve-symlinks-flag@1.0.0:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
@@ -12593,6 +12655,11 @@ packages:
 
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
+
+  /tree-kill@1.2.2:
+    resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
+    hasBin: true
+    dev: true
 
   /treemate@0.3.11:
     resolution: {integrity: sha512-M8RGFoKtZ8dF+iwJfAJTOH/SM4KluKOKRJpjCMhI8bG3qB74zrFoArKZ62ll0Fr3mqkMJiQOmWYkdYgDeITYQg==}

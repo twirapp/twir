@@ -1,0 +1,33 @@
+type TwirUserTwitchInfo {
+	login: String!
+	displayName: String!
+	profileImageUrl: String!
+	description: String!
+}
+
+type TwirUser {
+	id: ID!
+	isBotAdmin: Boolean!
+	isBanned: Boolean!
+	isBotEnabled: Boolean!
+	twitchInfo: TwirUserTwitchInfo!
+}
+
+input TwirUsersSearchParams {
+	search: String
+	page: Int
+	perPage: Int
+	isBotAdmin: Boolean
+	isBanned: Boolean
+	isBotEnabled: Boolean
+	badges: [String!]
+}
+
+type TwirUsersResponse {
+	users: [TwirUser!]!
+	total: Int!
+}
+
+extend type Query {
+	twirUsers(opts: TwirUsersSearchParams!): TwirUsersResponse! @isAuthenticated
+}

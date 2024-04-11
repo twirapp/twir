@@ -9,6 +9,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/redis"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
+	"github.com/twirapp/twir/libs/grpc/clients"
+	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 )
 
@@ -19,6 +22,10 @@ func main() {
 			redis.New,
 			gorm.New,
 			sessions.New,
+			func(config cfg.Config) tokens.TokensClient {
+				return clients.NewTokens(config.AppEnv)
+			},
+			twitchcache.New,
 			resolvers.New,
 			directives.New,
 			gql.New,

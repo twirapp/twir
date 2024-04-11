@@ -66,6 +66,36 @@ type Query struct {
 type Subscription struct {
 }
 
+type TwirUser struct {
+	ID           string              `json:"id"`
+	IsBotAdmin   bool                `json:"isBotAdmin"`
+	IsBanned     bool                `json:"isBanned"`
+	IsBotEnabled bool                `json:"isBotEnabled"`
+	TwitchInfo   *TwirUserTwitchInfo `json:"twitchInfo"`
+}
+
+type TwirUserTwitchInfo struct {
+	Login           string `json:"login"`
+	DisplayName     string `json:"displayName"`
+	ProfileImageURL string `json:"profileImageUrl"`
+	Description     string `json:"description"`
+}
+
+type TwirUsersResponse struct {
+	Users []TwirUser `json:"users"`
+	Total int        `json:"total"`
+}
+
+type TwirUsersSearchParams struct {
+	Search       graphql.Omittable[*string]  `json:"search,omitempty"`
+	Page         graphql.Omittable[*int]     `json:"page,omitempty"`
+	PerPage      graphql.Omittable[*int]     `json:"perPage,omitempty"`
+	IsBotAdmin   graphql.Omittable[*bool]    `json:"isBotAdmin,omitempty"`
+	IsBanned     graphql.Omittable[*bool]    `json:"isBanned,omitempty"`
+	IsBotEnabled graphql.Omittable[*bool]    `json:"isBotEnabled,omitempty"`
+	Badges       graphql.Omittable[[]string] `json:"badges,omitempty"`
+}
+
 type UpdateCommandOpts struct {
 	Name                      graphql.Omittable[*string]                      `json:"name,omitempty"`
 	Description               graphql.Omittable[*string]                      `json:"description,omitempty"`

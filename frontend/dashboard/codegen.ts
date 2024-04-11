@@ -2,7 +2,8 @@ import { join, resolve } from 'path';
 
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
-const schemaDir = resolve(join(process.cwd(), '..', 'api-gql', 'schema', '*.graphqls'));
+const schemaDir = resolve(join(process.cwd(), '..', '..', 'apps', 'api-gql', 'schema', '*.graphqls'));
+console.log('schemadir', schemaDir);
 
 const config: CodegenConfig = {
 	schema: schemaDir,

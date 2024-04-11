@@ -4,6 +4,7 @@ import { GridLayout, GridItem } from 'grid-layout-plus';
 import { NButton, NDropdown } from 'naive-ui';
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 
+
 import BotStatus from '@/components/dashboard/bot-status.vue';
 import Chat from '@/components/dashboard/chat.vue';
 import Events from '@/components/dashboard/events.vue';

@@ -31,4 +31,5 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
+	./libs/cache
 )

@@ -17,10 +17,7 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(
-	ctx context.Context,
-	obj *gqlmodel.Command,
-) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -47,19 +44,10 @@ func (r *commandResolver) Responses(
 }
 
 // CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(
-	ctx context.Context,
-	opts gqlmodel.CreateCommandInput,
-) (*gqlmodel.Command, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
+	_, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
-	}
-
-	if r.clientsCommandsChannels[user.ID] != nil {
-		r.clientsCommandsChannels[user.ID] <- &gqlmodel.Command{
-			ID: uuid.NewString(),
-		}
 	}
 
 	return &gqlmodel.Command{
@@ -68,11 +56,7 @@ func (r *mutationResolver) CreateCommand(
 }
 
 // UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.UpdateCommandOpts,
-) (*gqlmodel.Command, error) {
+func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
 	cmd := &model.ChannelsCommands{}
 	if err := r.gorm.WithContext(ctx).Where(`"id" = ?`, id).First(cmd).Error; err != nil {
 		return nil, err
@@ -238,35 +222,3 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 func (r *Resolver) Command() graph.CommandResolver { return &commandResolver{r} }
 
 type commandResolver struct{ *Resolver }
-
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *subscriptionResolver) NewCommand(ctx context.Context) (<-chan *gqlmodel.Command, error) {
-	subChan := make(chan *gqlmodel.Command, 1)
-
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	if r.clientsCommandsChannels[user.ID] == nil {
-		r.clientsCommandsChannels[user.ID] = make(chan *gqlmodel.Command)
-	}
-
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				return
-			case cmd := <-r.clientsCommandsChannels[user.ID]:
-				subChan <- cmd
-			}
-		}
-	}()
-
-	return subChan, nil
-}

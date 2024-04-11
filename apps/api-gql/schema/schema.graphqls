@@ -6,6 +6,8 @@ directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on 
 
 directive @isAuthenticated on FIELD_DEFINITION
 
+directive @isAdmin on FIELD_DEFINITION
+
 directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
 scalar DateTime

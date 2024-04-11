@@ -72,39 +72,5 @@ func (s *Sessions) Middleware() gin.HandlerFunc {
 		s.sessionManager.WriteSessionCookie(session, c.Writer, sessionToken, expiryTime)
 
 		c.Next()
-
-		/*
-			headerKey := "X-Session"
-			headerKeyExpiry := "X-Session-Expiry"
-
-			ctx, err := mgr.Load(r.Context(), r.Header.Get(headerKey))
-			if err != nil {
-				log.Output(2, err.Error())
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-				return
-			}
-
-			// // replace "inner" ctx with session (wrap around)
-			bw := &bufferedResponseWriter{ResponseWriter: w}
-			sr := r.WithContext(ctx)
-			next.ServeHTTP(bw, sr)
-
-			if s.Status(ctx) == scs.Modified {
-				token, expiry, err := s.Commit(ctx)
-				if err != nil {
-					log.Output(2, err.Error())
-					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-					return
-				}
-
-				w.Header().Set(headerKey, token)
-				w.Header().Set(headerKeyExpiry, expiry.Format(http.TimeFormat))
-			}
-
-			if bw.code != 0 {
-				w.WriteHeader(bw.code)
-			}
-			w.Write(bw.buf.Bytes())
-		*/
 	}
 }
