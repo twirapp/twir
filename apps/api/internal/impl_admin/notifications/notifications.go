@@ -63,6 +63,8 @@ func (c *Notifications) NotificationsGetAll(
 
 	if req.GetIsUser() {
 		query = query.Where(`"userId" IS NOT NULL`)
+	} else {
+		query = query.Where(`"userId" IS NULL`)
 	}
 
 	if req.GetSearch() != "" {
