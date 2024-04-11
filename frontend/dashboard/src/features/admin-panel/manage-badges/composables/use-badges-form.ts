@@ -19,7 +19,7 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 	const isEditableForm = computed(() => Boolean(editableBadgeId.value));
 
 	const nameField = useFormField<string>('name', '');
-	const fileField = useFormField<string | File>('image', '');
+	const fileField = useFormField<string | File | null>('image', '');
 	const fileInputRef = computed({
 		get() {
 			return fileField.fieldRef.value;

@@ -5,29 +5,17 @@ export function useFormField<T>(name: string, initialValue: T) {
 	const fieldModel = ref(initialValue) as Ref<T>;
 
 	watch(fieldRef, () => {
-		if (fieldRef.value) {
-			fieldRef.value.name = name;
-		}
-
-		setValue(fieldModel.value);
+		if (!fieldRef.value) return;
+		fieldRef.value.name = name;
 	});
 
-	function setValue(value: T) {
-		if (fieldRef.value && typeof value === 'string') {
-			fieldRef.value.value = value;
-		}
-
-		fieldModel.value = value;
-	}
-
 	function reset() {
-		setValue(initialValue);
+		fieldModel.value = initialValue;
 	}
 
 	return {
 		fieldRef,
 		fieldModel,
-		setValue,
 		reset,
 	};
 }

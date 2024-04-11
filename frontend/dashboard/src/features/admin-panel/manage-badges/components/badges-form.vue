@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { NCard } from 'naive-ui';
-import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 
 import BadgesPreview from './badges-preview.vue';
@@ -12,7 +11,6 @@ import { Label } from '@/components/ui/label';
 
 const { t } = useI18n();
 const badgesForm = useBadgesForm();
-const { fileInputRef } = storeToRefs(badgesForm);
 </script>
 
 <template>
@@ -34,7 +32,6 @@ const { fileInputRef } = storeToRefs(badgesForm);
 				</Label>
 				<div className="grid w-full items-center gap-1.5">
 					<Input
-						ref="fileInputRef"
 						:required="!badgesForm.editableBadgeId"
 						accept="image/*"
 						type="file"
