@@ -14,6 +14,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   DateTime: { input: any; output: any; }
+  Upload: { input: any; output: any; }
 };
 
 export type AuthenticatedUser = TwirUser & {
@@ -27,6 +28,17 @@ export type AuthenticatedUser = TwirUser & {
   isBotModerator?: Maybe<Scalars['Boolean']['output']>;
   isEnabled?: Maybe<Scalars['Boolean']['output']>;
   twitchProfile: TwirUserTwitchInfo;
+};
+
+export type Badge = {
+  __typename?: 'Badge';
+  createdAt: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  fileUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  /** IDS of users which has this badge */
+  users?: Maybe<Array<Scalars['String']['output']>>;
 };
 
 export type Command = {
@@ -78,10 +90,48 @@ export type CreateCommandResponseInput = {
 
 export type Mutation = {
   __typename?: 'Mutation';
+  badgesAddUser: Scalars['Boolean']['output'];
+  badgesCreate: Badge;
+  badgesDelete: Scalars['Boolean']['output'];
+  badgesRemoveUser: Scalars['Boolean']['output'];
+  badgesUpdate: Badge;
   createCommand: Command;
   createNotification: Notification;
+  notificationsDelete: Scalars['Boolean']['output'];
+  notificationsUpdate: Notification;
   removeCommand: Scalars['Boolean']['output'];
+  switchUserAdmin: Scalars['Boolean']['output'];
+  switchUserBan: Scalars['Boolean']['output'];
   updateCommand: Command;
+};
+
+
+export type MutationBadgesAddUserArgs = {
+  id: Scalars['ID']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+export type MutationBadgesCreateArgs = {
+  file: Scalars['Upload']['input'];
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationBadgesDeleteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationBadgesRemoveUserArgs = {
+  id: Scalars['ID']['input'];
+  userId: Scalars['String']['input'];
+};
+
+
+export type MutationBadgesUpdateArgs = {
+  id: Scalars['ID']['input'];
+  opts: TwirBadgeUpdateOpts;
 };
 
 
@@ -96,8 +146,29 @@ export type MutationCreateNotificationArgs = {
 };
 
 
+export type MutationNotificationsDeleteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationNotificationsUpdateArgs = {
+  id: Scalars['ID']['input'];
+  opts: NotificationUpdateOpts;
+};
+
+
 export type MutationRemoveCommandArgs = {
   id: Scalars['String']['input'];
+};
+
+
+export type MutationSwitchUserAdminArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationSwitchUserBanArgs = {
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -110,21 +181,33 @@ export type Notification = {
   __typename?: 'Notification';
   id: Scalars['ID']['output'];
   text: Scalars['String']['output'];
-  userId: Scalars['ID']['output'];
+  userId?: Maybe<Scalars['ID']['output']>;
+};
+
+export enum NotificationType {
+  Global = 'GLOBAL',
+  User = 'USER'
+}
+
+export type NotificationUpdateOpts = {
+  text?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Query = {
   __typename?: 'Query';
   authedUser: AuthenticatedUser;
   commands: Array<Command>;
-  notifications: Array<Notification>;
+  notificationsByAdmin: Array<Notification>;
+  notificationsByUser: Array<Notification>;
+  /** Twir badges */
+  twirBadges: Array<Badge>;
   /** finding users on twitch with filter does they exists in database */
   twirUsers: TwirUsersResponse;
 };
 
 
-export type QueryNotificationsArgs = {
-  userId: Scalars['String']['input'];
+export type QueryNotificationsByAdminArgs = {
+  type: NotificationType;
 };
 
 
@@ -144,8 +227,15 @@ export type TwirAdminUser = TwirUser & {
   id: Scalars['ID']['output'];
   isBanned: Scalars['Boolean']['output'];
   isBotAdmin: Scalars['Boolean']['output'];
+  isBotEnabled: Scalars['Boolean']['output'];
   isBotModerator: Scalars['Boolean']['output'];
   twitchProfile: TwirUserTwitchInfo;
+};
+
+export type TwirBadgeUpdateOpts = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  file?: InputMaybe<Scalars['Upload']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type TwirUser = {

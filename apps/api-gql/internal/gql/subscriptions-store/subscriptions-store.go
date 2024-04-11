@@ -6,11 +6,11 @@ import (
 
 func New() *SubscriptionsStore {
 	return &SubscriptionsStore{
-		NewNotificationsChannels: make(map[string]chan *gqlmodel.Notification),
+		NewNotificationsChannels: make(map[string]chan *gqlmodel.UserNotification),
 	}
 }
 
 type SubscriptionsStore struct {
 	// key is authenticated user id
-	NewNotificationsChannels map[string]chan *gqlmodel.Notification
+	NewNotificationsChannels map[string]chan *gqlmodel.UserNotification
 }

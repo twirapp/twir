@@ -10,16 +10,18 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 )
 
-// CreateNotification is the resolver for the createNotification field.
-func (r *mutationResolver) CreateNotification(
+// NotificationsCreate is the resolver for the notificationsCreate field.
+func (r *mutationResolver) NotificationsCreate(
 	ctx context.Context,
 	text string,
 	userID *string,
-) (*gqlmodel.Notification, error) {
+) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now().UTC(),
@@ -31,23 +33,43 @@ func (r *mutationResolver) CreateNotification(
 		return nil, err
 	}
 
-	notification := gqlmodel.Notification{
+	userNotification := gqlmodel.UserNotification{
+		ID:     entity.ID,
+		Text:   entity.Message,
+		UserID: entity.UserID.Ptr(),
+	}
+
+	if userID == nil {
+		for _, channel := range r.subscriptionsStore.NewNotificationsChannels {
+			channel <- &userNotification
+		}
+	} else {
+		if r.subscriptionsStore.NewNotificationsChannels[*userID] != nil {
+			r.subscriptionsStore.NewNotificationsChannels[*userID] <- &userNotification
+		}
+	}
+
+	adminNotification := gqlmodel.AdminNotification{
 		ID:     entity.ID,
 		UserID: entity.UserID.Ptr(),
 		Text:   entity.Message,
 	}
 
-	if userID == nil {
-		for _, channel := range r.subscriptionsStore.NewNotificationsChannels {
-			channel <- &notification
+	if adminNotification.UserID != nil {
+		twitchUser, err := r.cachedTwitchClient.GetUserById(ctx, *adminNotification.UserID)
+		if err != nil {
+			return nil, err
 		}
-	} else {
-		if r.subscriptionsStore.NewNotificationsChannels[*userID] != nil {
-			r.subscriptionsStore.NewNotificationsChannels[*userID] <- &notification
+
+		adminNotification.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
+			Login:           twitchUser.Login,
+			DisplayName:     twitchUser.DisplayName,
+			ProfileImageURL: twitchUser.ProfileImageURL,
+			Description:     twitchUser.Description,
 		}
 	}
 
-	return &notification, nil
+	return &adminNotification, nil
 }
 
 // NotificationsUpdate is the resolver for the notificationsUpdate field.
@@ -55,7 +77,7 @@ func (r *mutationResolver) NotificationsUpdate(
 	ctx context.Context,
 	id string,
 	opts gqlmodel.NotificationUpdateOpts,
-) (*gqlmodel.Notification, error) {
+) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{}
 	if err := r.gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
 		return nil, err
@@ -69,10 +91,25 @@ func (r *mutationResolver) NotificationsUpdate(
 		return nil, err
 	}
 
-	notification := gqlmodel.Notification{
+	notification := gqlmodel.AdminNotification{
 		ID:     entity.ID,
 		UserID: entity.UserID.Ptr(),
 		Text:   entity.Message,
+	}
+
+	if notification.UserID != nil {
+		twitchUser, err := r.cachedTwitchClient.GetUserById(ctx, *notification.UserID)
+		if err != nil {
+			return nil, err
+		}
+
+		notification.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
+			Login:           twitchUser.Login,
+			DisplayName:     twitchUser.DisplayName,
+			ProfileImageURL: twitchUser.ProfileImageURL,
+			Description:     twitchUser.Description,
+		}
+
 	}
 
 	return &notification, nil
@@ -91,7 +128,10 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 }
 
 // NotificationsByUser is the resolver for the notificationsByUser field.
-func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Notification, error) {
+func (r *queryResolver) NotificationsByUser(ctx context.Context) (
+	[]gqlmodel.UserNotification,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
@@ -105,9 +145,9 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Not
 		return nil, err
 	}
 
-	notifications := make([]gqlmodel.Notification, len(entities))
+	notifications := make([]gqlmodel.UserNotification, len(entities))
 	for i, entity := range entities {
-		notifications[i] = gqlmodel.Notification{
+		notifications[i] = gqlmodel.UserNotification{
 			ID:     entity.ID,
 			UserID: entity.UserID.Ptr(),
 			Text:   entity.Message,
@@ -121,7 +161,7 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Not
 func (r *queryResolver) NotificationsByAdmin(
 	ctx context.Context,
 	typeArg gqlmodel.NotificationType,
-) ([]gqlmodel.Notification, error) {
+) ([]gqlmodel.AdminNotification, error) {
 	query := r.gorm.WithContext(ctx)
 
 	switch typeArg {
@@ -137,12 +177,42 @@ func (r *queryResolver) NotificationsByAdmin(
 		return nil, err
 	}
 
-	notifications := make([]gqlmodel.Notification, len(entities))
+	notifications := make([]gqlmodel.AdminNotification, len(entities))
 	for i, entity := range entities {
-		notifications[i] = gqlmodel.Notification{
+		notifications[i] = gqlmodel.AdminNotification{
 			ID:     entity.ID,
 			UserID: entity.UserID.Ptr(),
 			Text:   entity.Message,
+		}
+	}
+
+	if typeArg == gqlmodel.NotificationTypeUser {
+		usersIdsForRequest := make([]string, len(notifications))
+		for i, notification := range notifications {
+			usersIdsForRequest[i] = *notification.UserID
+		}
+
+		twitchUsers, err := r.cachedTwitchClient.GetUsersByIds(ctx, usersIdsForRequest)
+		if err != nil {
+			return nil, err
+		}
+
+		for i, notification := range notifications {
+			notificationTwitchUser, ok := lo.Find(
+				twitchUsers, func(item twitchcahe.TwitchUser) bool {
+					return item.ID == *notification.UserID
+				},
+			)
+			if !ok {
+				continue
+			}
+
+			notifications[i].TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
+				Login:           notificationTwitchUser.Login,
+				DisplayName:     notificationTwitchUser.DisplayName,
+				ProfileImageURL: notificationTwitchUser.ProfileImageURL,
+				Description:     notificationTwitchUser.Description,
+			}
 		}
 	}
 
@@ -151,7 +221,7 @@ func (r *queryResolver) NotificationsByAdmin(
 
 // NewNotification is the resolver for the newNotification field.
 func (r *subscriptionResolver) NewNotification(ctx context.Context) (
-	<-chan *gqlmodel.Notification,
+	<-chan *gqlmodel.UserNotification,
 	error,
 ) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
@@ -159,7 +229,7 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (
 		return nil, err
 	}
 
-	channel := make(chan *gqlmodel.Notification, 1)
+	channel := make(chan *gqlmodel.UserNotification, 1)
 	if r.subscriptionsStore.NewNotificationsChannels[user.ID] == nil {
 		r.subscriptionsStore.NewNotificationsChannels[user.ID] = channel
 	}

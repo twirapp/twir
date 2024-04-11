@@ -10,11 +10,30 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
+type Notification interface {
+	IsNotification()
+	GetID() string
+	GetUserID() *string
+	GetText() string
+}
+
 type TwirUser interface {
 	IsTwirUser()
 	GetID() string
 	GetTwitchProfile() *TwirUserTwitchInfo
 }
+
+type AdminNotification struct {
+	ID            string              `json:"id"`
+	Text          string              `json:"text"`
+	UserID        *string             `json:"userId,omitempty"`
+	TwitchProfile *TwirUserTwitchInfo `json:"twitchProfile,omitempty"`
+}
+
+func (AdminNotification) IsNotification()         {}
+func (this AdminNotification) GetID() string      { return this.ID }
+func (this AdminNotification) GetUserID() *string { return this.UserID }
+func (this AdminNotification) GetText() string    { return this.Text }
 
 type AuthenticatedUser struct {
 	ID                string              `json:"id"`
@@ -90,12 +109,6 @@ type CreateCommandResponseInput struct {
 type Mutation struct {
 }
 
-type Notification struct {
-	ID     string  `json:"id"`
-	UserID *string `json:"userId,omitempty"`
-	Text   string  `json:"text"`
-}
-
 type NotificationUpdateOpts struct {
 	Text graphql.Omittable[*string] `json:"text,omitempty"`
 }
@@ -169,6 +182,17 @@ type UpdateCommandOpts struct {
 	RequiredMessages          graphql.Omittable[*int]                         `json:"requiredMessages,omitempty"`
 	RequiredUsedChannelPoints graphql.Omittable[*int]                         `json:"requiredUsedChannelPoints,omitempty"`
 }
+
+type UserNotification struct {
+	ID     string  `json:"id"`
+	UserID *string `json:"userId,omitempty"`
+	Text   string  `json:"text"`
+}
+
+func (UserNotification) IsNotification()         {}
+func (this UserNotification) GetID() string      { return this.ID }
+func (this UserNotification) GetUserID() *string { return this.UserID }
+func (this UserNotification) GetText() string    { return this.Text }
 
 type NotificationType string
 
