@@ -13,7 +13,7 @@ import (
 )
 
 const userIdCacheKey = "cache:twir:twitch:users:"
-const userCacheDuration = 10 * time.Minute
+const userCacheDuration = 1 * time.Hour
 
 func buildUserCacheKeyForId(userId string) string {
 	return userIdCacheKey + userId
