@@ -39,7 +39,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const tableColumns = computed<ColumnDef<Notification>[]>(() => [
 		{
 			accessorKey: 'id',
-			size: 5,
+			size: 10,
 			header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
 			cell: ({ row }) => {
 				if (row.original.userAvatar && row.original.userDisplayName) {
@@ -60,7 +60,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 		{
 			accessorKey: 'message',
-			size: 80,
+			size: 65,
 			header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 			cell: ({ row }) => {
 				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
@@ -68,7 +68,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 		{
 			accessorKey: 'createdAt',
-			size: 5,
+			size: 10,
 			header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
 			cell: ({ row }) => {
 				return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
@@ -76,7 +76,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 		{
 			accessorKey: 'actions',
-			size: 10,
+			size: 15,
 			header: () => '',
 			cell: ({ row }) => {
 				return h(NotificationsTableActions, {
