@@ -1,23 +1,18 @@
 <script setup lang="ts">
 import { NCard } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 
 import BadgesPreview from './badges-preview.vue';
 import { useBadgesForm } from '../composables/use-badges-form';
 
 import { Button } from '@/components/ui/button';
-import {
-	FormMessage,
-	FormControl,
-	FormField,
-	FormItem,
-	FormLabel,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const { t } = useI18n();
 const badgesForm = useBadgesForm();
+const { fileInputRef } = storeToRefs(badgesForm);
 </script>
 
 <template>
@@ -26,46 +21,41 @@ const badgesForm = useBadgesForm();
 	</h4>
 	<n-card size="small" bordered>
 		<form class="flex flex-col gap-4" @submit="badgesForm.onSubmit">
-			<FormField v-slot="{ componentField }" name="name">
-				<FormItem>
-					<FormLabel>{{ t('adminPanel.manageBadges.name') }}</FormLabel>
-					<FormControl>
-						<Input type="text" placeholder="" v-bind="componentField" />
-					</FormControl>
-					<FormMessage />
-				</FormItem>
-			</FormField>
+			<div class="space-y-2">
+				<Label for="name">
+					{{ t('adminPanel.manageBadges.name') }}
+				</Label>
+				<Input v-model="badgesForm.nameField.fieldModel" name="name" type="text" placeholder="" />
+			</div>
 
-			<FormField name="image">
-				<FormItem>
-					<FormLabel>
-						{{ t('adminPanel.manageBadges.image') }}
-					</FormLabel>
-					<FormControl>
-						<div className="grid w-full items-center gap-1.5">
-							<Input
-								:required="!badgesForm.editableBadgeId"
-								accept="image/*"
-								type="file"
-								@change="badgesForm.setImageField"
-							/>
-						</div>
-					</FormControl>
-				</FormItem>
-			</FormField>
+			<div class="space-y-2">
+				<Label for="file">
+					{{ t('adminPanel.manageBadges.image') }}
+				</Label>
+				<div className="grid w-full items-center gap-1.5">
+					<Input
+						ref="fileInputRef"
+						:required="!badgesForm.editableBadgeId"
+						accept="image/*"
+						type="file"
+						@change="badgesForm.setImageField"
+					/>
+				</div>
+			</div>
 
-			<div v-if="badgesForm.image">
+			<div v-if="badgesForm.formValues.file">
 				<Label>
 					{{ t('adminPanel.manageBadges.preview') }}
 				</Label>
-				<badges-preview :image="badgesForm.image" />
+				<badges-preview :image="badgesForm.formValues.file" />
 			</div>
 
 			<div class="flex justify-end gap-4">
 				<Button
 					type="button"
 					variant="secondary"
-					:disabled="!badgesForm.isFormDirty" @click="badgesForm.onReset"
+					:disabled="!badgesForm.isFormDirty"
+					@click="badgesForm.onReset"
 				>
 					<template v-if="badgesForm.editableBadgeId">
 						{{ t('sharedButtons.cancel') }}

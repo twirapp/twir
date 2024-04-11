@@ -1,10 +1,11 @@
 import { toTypedSchema } from '@vee-validate/zod';
 import { defineStore } from 'pinia';
-import { useForm } from 'vee-validate';
 import { computed, ref } from 'vue';
 import * as z from 'zod';
 
 import { useBadges } from './use-badges.js';
+
+import { useFormField } from '@/composables/use-form-field.js';
 
 const formSchema = toTypedSchema(z.object({
 	name: z.string(),
@@ -14,45 +15,74 @@ const formSchema = toTypedSchema(z.object({
 export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 	const { badgesUpload, badgesUpdate } = useBadges();
 
-	const form = useForm({ validationSchema: formSchema });
-	const image = computed(() => form.values.image);
-	const isFormDirty = computed(() => form.isFieldDirty('name') || form.isFieldDirty('image'));
 	const editableBadgeId = ref<string | null>(null);
+	const isEditableForm = computed(() => Boolean(editableBadgeId.value));
 
-	const onSubmit = form.handleSubmit(async (values) => {
-		const parsedImage = await parseImage(values.image);
+	const nameField = useFormField<string>('name', '');
+	const fileField = useFormField<string | File>('image', '');
+	const fileInputRef = computed({
+		get() {
+			return fileField.fieldRef.value;
+		},
+		set(el: any) {
+			fileField.fieldRef.value = el?.$el;
+		},
+	});
 
-		if (editableBadgeId.value) {
-			await badgesUpdate.mutateAsync({
-				id: editableBadgeId.value,
-				name: values.name,
-				enabled: true,
-				...parsedImage,
-			});
-		} else {
-			if (!parsedImage) return;
-			await badgesUpload.mutateAsync({
-				name: values.name,
-				enabled: true,
-				...parsedImage,
-			});
+	const formValues = computed(() => {
+		return {
+			name: nameField.fieldModel.value,
+			file: fileField.fieldModel.value,
+		};
+	});
+	const isFormDirty = computed(() => Boolean(formValues.value.name || formValues.value.file));
+
+	async function onSubmit(event: Event) {
+		event.preventDefault();
+
+		const parsedImage = await parseImage(formValues.value.file);
+
+		try {
+			const { value } = await formSchema.parse(formValues.value);
+			if (!value) return;
+
+			if (editableBadgeId.value) {
+				await badgesUpdate.mutateAsync({
+					id: editableBadgeId.value,
+					name: value.name,
+					enabled: true,
+					...parsedImage,
+				});
+			} else {
+				if (!parsedImage) return;
+				await badgesUpload.mutateAsync({
+					name: value.name,
+					enabled: true,
+					...parsedImage,
+				});
+			}
+
+			onReset();
+		} catch (err) {
+			console.error(err);
 		}
 
 		onReset();
-	});
+	}
 
 	function onReset(): void {
-		form.resetForm();
+		nameField.reset();
+		fileField.reset();
 		editableBadgeId.value = null;
 	}
 
 	function setImageField(event: Event): void {
 		const files = (event.target as HTMLInputElement).files;
 		if (!files) return;
-		form.setFieldValue('image', files[0]);
+		fileField.fieldModel.value = files[0];
 	}
 
-	async function parseImage(image: string | File) {
+	async function parseImage(image: string | File | null) {
 		if (!(image instanceof File)) return;
 		const fileBuffer = await image.arrayBuffer();
 		return {
@@ -62,10 +92,13 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 	}
 
 	return {
-		form,
-		editableBadgeId,
 		isFormDirty,
-		image,
+		formValues,
+		nameField,
+		fileField,
+		fileInputRef,
+		isEditableForm,
+		editableBadgeId,
 		onSubmit,
 		onReset,
 		setImageField,
