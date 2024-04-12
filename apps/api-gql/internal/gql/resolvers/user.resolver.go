@@ -31,7 +31,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 		APIKey:            user.ApiKey,
 	}
 
-	if slices.Contains(GetPreloads(ctx), "authedUser.twitchProfile") {
+	if slices.Contains(GetPreloads(ctx), "twitchProfile") {
 		twitchProfile, err := r.cachedTwitchClient.GetUserById(ctx, user.ID)
 		if err != nil {
 			return nil, err
