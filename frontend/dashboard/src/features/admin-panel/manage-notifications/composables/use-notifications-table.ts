@@ -24,19 +24,18 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
 
-	const reqParams = computed<{ opts: AdminNotificationsParams }>(() => ({
-		opts: {
-			perPage: pagination.value.pageSize,
-			page: pagination.value.pageIndex,
-			type: filters.isUsersFilter ? NotificationType.User : NotificationType.Global,
-			search: filters.debounceSearchInput,
-		},
+	const reqParams = computed<AdminNotificationsParams>(() => ({
+		perPage: pagination.value.pageSize,
+		page: pagination.value.pageIndex,
+		type: filters.filterInput,
+		search: filters.debounceSearchInput,
 	}));
 
 	const { data } = _useAdminNotifications(reqParams);
 
 	const notifications = computed(() => {
-		return data.value?.notificationsByAdmin.notifications ?? [];
+		if (!data.value) return [];
+		return data.value.notificationsByAdmin.notifications as AdminNotification[];
 	});
 
 	const tableColumns = computed<ColumnDef<AdminNotification>[]>(() => {
@@ -70,7 +69,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			},
 		];
 
-		if (filters.isUsersFilter) {
+		if (filters.filterInput === NotificationType.User) {
 			columns.unshift({
 				accessorKey: 'id',
 				size: 10,
@@ -111,7 +110,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			pagination: pagination.value,
 		},
 		get data() {
-			return notifications.value as AdminNotification[];
+			return notifications.value;
 		},
 		get columns() {
 			return tableColumns.value;

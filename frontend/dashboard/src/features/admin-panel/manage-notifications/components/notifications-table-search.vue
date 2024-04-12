@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { NotificationType } from '@/gql/graphql.js';
 
 const { t } = useI18n();
 
@@ -27,10 +28,10 @@ const filters = useNotificationsFilters();
 			</SelectTrigger>
 			<SelectContent align="end">
 				<SelectGroup>
-					<SelectItem value="globals">
+					<SelectItem :value="NotificationType.Global">
 						{{ t('adminPanel.notifications.globals') }}
 					</SelectItem>
-					<SelectItem value="users">
+					<SelectItem :value="NotificationType.User">
 						{{ t('adminPanel.notifications.users') }}
 					</SelectItem>
 				</SelectGroup>

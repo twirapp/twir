@@ -56,8 +56,12 @@ export const useQueryNotifications = () => {
 	return notifications;
 };
 
-export const _useAdminNotifications = (variables: Ref<{ opts: AdminNotificationsParams }>) => useQuery({
-	variables,
+export const _useAdminNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
+	get variables() {
+		return {
+			opts: variables.value,
+		};
+	},
 	query: graphql(`
 		query notificationsByAdmin($opts: AdminNotificationsParams!) {
 			notificationsByAdmin(opts: $opts) {
