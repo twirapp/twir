@@ -1,4 +1,4 @@
-import { useQuery, useSubscription } from '@urql/vue';
+import { useQuery, useMutation, useSubscription } from '@urql/vue';
 import { computed, watch, type Ref } from 'vue';
 
 import { createCrudManager } from '../crud';
@@ -56,27 +56,43 @@ export const useQueryNotifications = () => {
 	return notifications;
 };
 
-export const _useAdminNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
-	get variables() {
-		return {
-			opts: variables.value,
-		};
-	},
-	query: graphql(`
-		query notificationsByAdmin($opts: AdminNotificationsParams!) {
-			notificationsByAdmin(opts: $opts) {
-				total
-				notifications {
-					id
-					text
-					userId
-					twitchProfile {
-						displayName
-						profileImageUrl
+export const _useAdminNotifications = () => {
+	const useQueryNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
+		get variables() {
+			return {
+				opts: variables.value,
+			};
+		},
+		query: graphql(`
+			query notificationsByAdmin($opts: AdminNotificationsParams!) {
+				notificationsByAdmin(opts: $opts) {
+					total
+					notifications {
+						id
+						text
+						userId
+						twitchProfile {
+							displayName
+							profileImageUrl
+						}
+						createdAt
 					}
-					createdAt
 				}
 			}
-		}
-	`),
-});
+		`),
+	});
+
+	const useMutationCreateNotification = () => useMutation(graphql(`
+		mutation CreateNotification($text: String!, $userId: String) {
+      notificationsCreate(text: $text, userId: $userId) {
+				text
+				userId
+			}
+    }
+	`));
+
+	return {
+		useQueryNotifications,
+		useMutationCreateNotification,
+	};
+};

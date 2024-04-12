@@ -31,7 +31,8 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		search: filters.debounceSearchInput,
 	}));
 
-	const { data } = _useAdminNotifications(reqParams);
+	const { useQueryNotifications } = _useAdminNotifications();
+	const { data } = useQueryNotifications(reqParams);
 
 	const notifications = computed(() => {
 		if (!data.value) return [];

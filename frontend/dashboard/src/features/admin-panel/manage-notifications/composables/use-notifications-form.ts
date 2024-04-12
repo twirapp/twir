@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import * as z from 'zod';
 
-import { useAdminNotifications } from '@/api/admin/notifications';
+import { _useAdminNotifications, useAdminNotifications } from '@/api/admin/notifications';
 import { useFormField } from '@/composables/use-form-field';
 
 const formSchema = toTypedSchema(z.object({
@@ -25,6 +25,8 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 	const editableMessageId = ref<string | null>(null);
 	const isEditableForm = computed(() => Boolean(editableMessageId.value));
 
+	const { useMutationCreateNotification } = _useAdminNotifications();
+	const { executeMutation: createNotification } = useMutationCreateNotification();
 	const notifications = useAdminNotifications();
 
 	async function onSubmit(event: Event) {
@@ -40,10 +42,15 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 					message: value.message,
 				});
 			} else {
-				await notifications.create.mutateAsync({
-					message: value.message,
-					userId: value.userId ?? undefined,
+				await createNotification({
+					text: value.message,
+					userId: value.userId,
 				});
+
+				// await notifications.create.mutateAsync({
+				// 	message: value.message,
+				// 	userId: value.userId ?? undefined,
+				// });
 			}
 
 			onReset();
