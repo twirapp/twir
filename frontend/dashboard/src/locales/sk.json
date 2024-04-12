@@ -20,7 +20,7 @@
     "send": "Odoslať",
     "next": "Next",
     "previous": "Previous",
-    "reset": "Obnoviť"
+    "reset": "Resetovať"
   },
   "sharedTexts": {
     "saved": "Uložené",
@@ -42,8 +42,8 @@
     "disabled": "Vypnuté",
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
-    "searchPlaceholder": "Search..."
+    "pagination": "{page} z {total} strán(y) / {items} položka(y)",
+    "searchPlaceholder": "Hľadať..."
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -72,7 +72,7 @@
   "navbar": {
     "logout": "Odhlásiť sa",
     "publicPage": "Verejná stránka",
-    "seeAll": "See all"
+    "seeAll": "Zobraziť všetko"
   },
   "deleteConfirmation": {
     "text": "Ste si istí, že to chcete odstrániť?",
@@ -393,14 +393,14 @@
         "empty": "No one have created their own customizations yet..."
       },
       "tabs": {
-        "general": "General",
-        "usersSettings": "Individual Settings"
+        "general": "Všeobecné",
+        "usersSettings": "Individuálne nastavenia"
       },
-      "previewText": "Preview voice with text, pitch and rate:"
+      "previewText": "Náhľad hlasu s textom, výškou a rýchlosťou:"
     },
     "obs": {
-      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
-      "address": "Address of OBS WebSocket server",
+      "description": "Toto prekrytie vám umožňuje prepojiť Twir s OBS. Poskytuje možnosť spravovať vaše zdroje, scény, zdroje zvuku a udalosti.",
+      "address": "Adresa servera OBS WebSocket",
       "port": "Port servera OBS WebSocket",
       "connected": "Pripojené!",
       "notConnected": "Nepripojené!",
@@ -457,17 +457,17 @@
       "ignoreUsersList": "Zoznam ignorovaných užívateľov",
       "nameBoxDivider": "Name box",
       "nameBoxFill": "Farby textu",
-      "nameBoxFillError": "Color is required",
+      "nameBoxFillError": "Farba je povinná",
       "nameBoxFillGradientStops": "Farby textu gradientných zarážok",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Typ prechodu",
       "nameBoxFontFamily": "Font family",
-      "nameBoxFontSize": "Font size",
-      "nameBoxFontWeight": "Font weight",
-      "nameBoxFontStyle": "Font style",
+      "nameBoxFontSize": "Veľkosť písma",
+      "nameBoxFontWeight": "Hrúbka písma",
+      "nameBoxFontStyle": "Štýl písma",
       "nameBoxFontVariant": "Font variant",
-      "nameBoxStroke": "Stroke color",
-      "nameStrokeThickness": "Stroke thickness",
+      "nameBoxStroke": "Farba obrysu",
+      "nameStrokeThickness": "Hrúbka ohraničenia",
       "nameBoxLineJoin": "Stroke line join",
       "nameBoxDropShadow": "Drop shadow",
       "nameBoxDropShadowColor": "Shadow color",
@@ -478,9 +478,9 @@
       "messageBoxIgnoreCommands": "Ignore commands",
       "messageBoxDivider": "Message box",
       "messageBoxShowTime": "Show time",
-      "messageBoxFill": "Text color",
-      "messageBoxBackground": "Background color",
-      "messageBoxPadding": "Padding",
+      "messageBoxFill": "Farba textu",
+      "messageBoxBackground": "Farba pozadia",
+      "messageBoxPadding": "Vnútorný okraj",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Font size",
       "emoteDivider": "Emot",
