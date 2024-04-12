@@ -23,7 +23,7 @@ const uptime = computed(() => {
 	if (!stats.value?.startedAt) return '00:00:00';
 
 	const duration = intervalToDuration({
-		start: new Date(Number(stats.value.startedAt)),
+		start: new Date(stats.value.startedAt),
 		end: currentTime.value,
 	});
 

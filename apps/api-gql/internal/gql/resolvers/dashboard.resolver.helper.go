@@ -26,7 +26,10 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	}
 
 	result := &gqlmodel.DashboardStats{
-		Viewers: &stream.ViewerCount,
+		Viewers:      &stream.ViewerCount,
+		CategoryID:   stream.GameId,
+		CategoryName: stream.GameName,
+		Title:        stream.Title,
 	}
 
 	if slices.Contains(preloads, "followers") {
@@ -41,7 +44,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 
 	if slices.Contains(preloads, "title") ||
 		slices.Contains(preloads, "categoryName") ||
-		slices.Contains(preloads, "categoryId") {
+		slices.Contains(preloads, "categoryId") && stream.ID == "" {
 		channelInformation, err := r.cachedTwitchClient.GetChannelInformationById(ctx, dashboardId)
 		if err != nil {
 			return nil, err
