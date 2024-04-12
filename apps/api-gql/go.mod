@@ -27,6 +27,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/minio/minio-go/v7 v7.0.69
 	github.com/nicklaw5/helix/v2 v2.28.1
+	github.com/ravilushqa/otelgqlgen v0.15.0
 	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
@@ -36,6 +37,7 @@ require (
 	github.com/twirapp/twir/libs/cache v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/vektah/gqlparser/v2 v2.5.11
+	github.com/vikstrous/dataloadgen v0.0.6
 	go.uber.org/fx v1.21.0
 	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.9
@@ -97,7 +99,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/quic-go v0.41.0 // indirect
-	github.com/ravilushqa/otelgqlgen v0.15.0 // indirect
 	github.com/refraction-networking/utls v1.6.1 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
@@ -116,7 +117,6 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
 	github.com/urfave/cli/v2 v2.27.1 // indirect
-	github.com/vikstrous/dataloadgen v0.0.6 // indirect
 	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
 	go.opentelemetry.io/contrib v1.21.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
