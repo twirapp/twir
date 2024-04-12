@@ -1,0 +1,32 @@
+extend type Query {
+	"""
+	Twir badges
+	"""
+	twirBadges: [Badge!]!
+}
+
+extend type Mutation {
+	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
+	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
+	badgesCreate(name: String!, file: Upload!): Badge! @isAuthenticated @isAdmin
+	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
+	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
+}
+
+type Badge {
+	id: ID!
+	name: String!
+	createdAt: String!
+	fileUrl: String!
+	enabled: Boolean!
+	"""
+	IDS of users which has this badge
+	"""
+	users: [String!]
+}
+
+input TwirBadgeUpdateOpts {
+	name: String
+	file: Upload
+	enabled: Boolean
+}

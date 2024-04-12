@@ -2,8 +2,6 @@ module github.com/satont/twir/apps/scheduler
 
 go 1.21.5
 
-toolchain go1.22.0
-
 replace (
 	github.com/satont/twir/libs/bus-core => ../../libs/bus-core
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -31,10 +29,10 @@ require (
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240227201031-fc47186022f4
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
-	go.uber.org/fx v1.20.1
+	go.uber.org/fx v1.21.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -100,7 +98,7 @@ require (
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect

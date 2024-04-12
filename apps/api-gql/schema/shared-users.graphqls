@@ -1,0 +1,11 @@
+interface TwirUser {
+	id: ID!
+	twitchProfile: TwirUserTwitchInfo!
+}
+
+type TwirUserTwitchInfo {
+	login: String!
+	displayName: String!
+	profileImageUrl: String!
+	description: String!
+}

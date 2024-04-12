@@ -2,8 +2,6 @@ module github.com/satont/twir/apps/bots
 
 go 1.21.5
 
-toolchain go1.22.0
-
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
 	github.com/goccy/go-json v0.10.2
@@ -12,7 +10,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/prometheus/client_golang v1.18.0
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
@@ -25,10 +23,10 @@ require (
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0
-	go.uber.org/fx v1.20.1
-	golang.org/x/sync v0.6.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	go.uber.org/fx v1.21.0
+	golang.org/x/sync v0.7.0
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require golang.org/x/net v0.22.0 // indirect

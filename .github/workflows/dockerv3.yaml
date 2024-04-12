@@ -13,6 +13,7 @@ jobs:
       matrix:
         folders:
           - apps/api
+          - apps/api-gql
           - apps/bots
           - apps/discord
           - apps/emotes-cacher
@@ -74,6 +75,9 @@ jobs:
         uses: dtinth/setup-github-actions-caching-for-turbo@v1
       - name: Build libraries
         run: pnpm cli build libs
+
+      - name: Build libraries
+        run: pnpm cli build gql
 
       - name: Build application
         run: pnpm cli build app ${{ env.app }}

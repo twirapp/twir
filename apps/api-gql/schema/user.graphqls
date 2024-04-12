@@ -1,0 +1,15 @@
+type AuthenticatedUser implements TwirUser {
+	id: ID!
+	isBotAdmin: Boolean!
+	isBanned: Boolean!
+	isEnabled: Boolean
+	isBotModerator: Boolean
+	apiKey: String!
+	hideOnLandingPage: Boolean!
+	botId: ID
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+}
+
+extend type Query {
+	authenticatedUser: AuthenticatedUser! @isAuthenticated
+}

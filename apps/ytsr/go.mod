@@ -19,7 +19,7 @@ require (
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
-	go.uber.org/fx v1.20.1
+	go.uber.org/fx v1.21.0
 	google.golang.org/grpc v1.62.0
 )
 

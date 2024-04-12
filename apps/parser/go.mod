@@ -5,11 +5,11 @@ go 1.21.5
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
-	github.com/satont/twir/libs/types => ../../libs/types
-	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
-	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
+	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
+	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 )
 
 require (
@@ -26,7 +26,7 @@ require (
 	github.com/nats-io/nats.go v1.33.1
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/prometheus/client_golang v1.18.0
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
@@ -45,8 +45,8 @@ require (
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -105,13 +105,13 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.0.0 // indirect
 	go.uber.org/dig v1.17.1 // indirect
-	go.uber.org/fx v1.20.1 // indirect
+	go.uber.org/fx v1.21.0 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
@@ -119,4 +119,3 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240304212257-790db918fca8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304212257-790db918fca8 // indirect
 )
-

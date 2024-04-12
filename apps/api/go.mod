@@ -20,10 +20,10 @@ replace (
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
-	github.com/alexedwards/scs/goredisstore v0.0.0-20231113091146-cef4b05350c8
-	github.com/alexedwards/scs/v2 v2.7.0
+	github.com/alexedwards/scs/goredisstore v0.0.0-20240316134038-7e11d57e8885
+	github.com/alexedwards/scs/v2 v2.8.0
 	github.com/bakins/twirpotel v0.0.0-20220429133747-bfa7bdb36bf0
-	github.com/bytedance/sonic v1.10.2
+	github.com/bytedance/sonic v1.11.3
 	github.com/goccy/go-json v0.10.2
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
@@ -31,10 +31,10 @@ require (
 	github.com/imroc/req/v3 v3.42.3
 	github.com/lib/pq v1.10.9
 	github.com/microcosm-cc/bluemonday v1.0.26
-	github.com/minio/minio-go/v7 v7.0.65
+	github.com/minio/minio-go/v7 v7.0.69
 	github.com/nicklaw5/helix/v2 v2.25.3
 	github.com/raitonoberu/ytsearch v0.2.0
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/rs/cors v1.10.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
@@ -52,10 +52,10 @@ require (
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	go.uber.org/fx v1.20.1
-	golang.org/x/sync v0.6.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	go.uber.org/fx v1.21.0
+	golang.org/x/sync v0.7.0
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -76,13 +76,10 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.18.1 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgio v1.0.0 // indirect
-	github.com/jackc/pgproto3/v2 v2.3.3 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
-	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
+	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -106,7 +103,6 @@ require (
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
@@ -124,7 +120,7 @@ require (
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/mock v0.4.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/arch v0.6.0 // indirect
+	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
@@ -139,10 +135,9 @@ require (
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/jackc/pgconn v1.14.3
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
-	github.com/jackc/pgx/v5 v5.5.2 // indirect
+	github.com/jackc/pgx/v5 v5.5.2
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect

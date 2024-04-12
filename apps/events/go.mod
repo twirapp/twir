@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/nicklaw5/helix/v2 v2.25.3
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
@@ -29,12 +29,12 @@ require (
 	github.com/valyala/fasttemplate v1.2.2
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.temporal.io/sdk v1.25.1
-	go.uber.org/fx v1.20.1
-	golang.org/x/sync v0.6.0
+	go.uber.org/fx v1.21.0
+	golang.org/x/sync v0.7.0
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (

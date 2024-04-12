@@ -1,0 +1,15 @@
+type Query
+type Mutation
+type Subscription
+
+directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION
+	| FIELD_DEFINITION
+
+directive @isAuthenticated on FIELD_DEFINITION
+
+directive @isAdmin on FIELD_DEFINITION
+
+directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
+
+scalar Upload
+scalar Time

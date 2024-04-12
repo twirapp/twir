@@ -1,0 +1,16 @@
+extend type Subscription {
+	dashboardStats: DashboardStats! @isAuthenticated
+}
+
+type DashboardStats {
+	categoryId: ID!
+	categoryName: String!
+	viewers: Int
+	startedAt: Time
+	title: String!
+	chatMessages: Int!
+	followers: Int!
+	usedEmotes: Int!
+	requestedSongs: Int!
+	subs: Int!
+}

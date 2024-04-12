@@ -1,14 +1,15 @@
 import './main.css';
 import './assets/index.css';
-
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
+import * as urql from '@urql/vue';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
 import { i18n } from './plugins/i18n.js';
 import { newRouter } from './plugins/router.js';
+import { urqlClient } from './plugins/urql';
 
 import App from '@/App.vue';
 
@@ -42,10 +43,10 @@ document.head.appendChild(meta);
 app
 	.use(pinia)
 	.use(i18n)
+	.use(urql, urqlClient)
 	.use(newRouter(queryClient))
-	.use(VueMonacoEditorPlugin);
-
-app.mount('#app');
+	.use(VueMonacoEditorPlugin)
+	.mount('#app');
 
 if (import.meta.env.DEV) {
 	document.title = 'Twir (dev)';

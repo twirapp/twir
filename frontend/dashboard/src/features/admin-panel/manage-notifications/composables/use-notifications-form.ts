@@ -25,7 +25,9 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 	const editableMessageId = ref<string | null>(null);
 	const isEditableForm = computed(() => Boolean(editableMessageId.value));
 
-	const notifications = useAdminNotifications();
+	const notificationsApi = useAdminNotifications();
+	const { executeMutation: createNotification } = notificationsApi.useMutationCreateNotification();
+	const { executeMutation: updateNotification } = notificationsApi.useMutationUpdateNotifications();
 
 	async function onSubmit(event: Event) {
 		event.preventDefault();
@@ -35,14 +37,14 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 			if (!value) return;
 
 			if (editableMessageId.value) {
-				await notifications.update.mutateAsync({
+				await updateNotification({
 					id: editableMessageId.value,
-					message: value.message,
+					opts: { text: value.message },
 				});
 			} else {
-				await notifications.create.mutateAsync({
-					message: value.message,
-					userId: value.userId ?? undefined,
+				await createNotification({
+					text: value.message,
+					userId: value.userId,
 				});
 			}
 

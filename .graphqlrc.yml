@@ -1,0 +1,1 @@
+schema: './apps/api-gql/schema/*.graphqls'

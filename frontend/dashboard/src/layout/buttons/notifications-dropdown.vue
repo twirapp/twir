@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { Notification } from '@twir/api/messages/notifications/notifications';
 import { NTime, NText, NScrollbar } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
+
+import { useNotifications } from '@/composables/use-notifications';
 
 const { t } = useI18n();
 
-defineProps<{ notifications: Notification[] }>();
+const { notifications } = storeToRefs(useNotifications());
 </script>
 
 <template>
@@ -16,7 +18,7 @@ defineProps<{ notifications: Notification[] }>();
 					<n-text>{{ t('adminPanel.notifications.emptyNotifications') }}</n-text>
 				</div>
 				<div v-for="notification of notifications" :key="notification.id" class="flex flex-col gap-2">
-					<n-text class="w-full break-words" v-html="notification.message" />
+					<n-text class="w-full break-words" v-html="notification.text" />
 					<n-text :title="new Date(notification.createdAt).toLocaleString()" class="flex text-xs justify-end" :depth="3">
 						<n-time type="relative" :time="new Date(notification.createdAt)" />
 					</n-text>

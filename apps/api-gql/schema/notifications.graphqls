@@ -1,0 +1,61 @@
+extend type Query {
+	notificationsByUser: [UserNotification!]! @isAuthenticated
+
+	notificationsByAdmin(opts: AdminNotificationsParams!): AdminNotificationsResponse! @isAuthenticated @isAdmin
+}
+
+extend type Mutation {
+	notificationsCreate(text: String!, userId: String): AdminNotification! @isAuthenticated @isAdmin
+	notificationsUpdate(id: ID!, opts: NotificationUpdateOpts!): AdminNotification! @isAuthenticated @isAdmin
+	notificationsDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
+}
+
+extend type Subscription {
+	"""
+	`newNotification` will return a stream of `Notification` objects.
+	"""
+	newNotification: UserNotification! @isAuthenticated
+}
+
+interface Notification {
+	id: ID!
+	userId: ID
+	text: String!
+	createdAt: Time!
+}
+
+type UserNotification implements Notification {
+	id: ID!
+	userId: ID
+	text: String!
+	createdAt: Time!
+}
+
+type AdminNotification implements Notification {
+	id: ID!
+	text: String!
+	userId: ID
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
+	createdAt: Time!
+}
+
+enum NotificationType {
+	GLOBAL
+	USER
+}
+
+input AdminNotificationsParams {
+	search: String
+	page: Int
+	perPage: Int
+	type: NotificationType
+}
+
+input NotificationUpdateOpts {
+	text: String
+}
+
+type AdminNotificationsResponse {
+	notifications: [AdminNotification!]!
+	total: Int!
+}

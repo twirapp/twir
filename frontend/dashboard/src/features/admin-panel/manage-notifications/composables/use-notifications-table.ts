@@ -1,5 +1,4 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import type { GetNotificationsRequest, Notification } from '@twir/api/messages/admin_notifications/admin_notifications';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -13,37 +12,41 @@ import { useNotificationsForm } from '../composables/use-notifications-form.js';
 import { useAdminNotifications } from '@/api/admin/notifications.js';
 import { useLayout } from '@/composables/use-layout.js';
 import { usePagination } from '@/composables/use-pagination.js';
+import { NotificationType, type AdminNotification, type AdminNotificationsParams } from '@/gql/graphql.js';
 
 export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
 	const layout = useLayout();
 	const { t } = useI18n();
 
 	const form = useNotificationsForm();
-	const crud = useAdminNotifications();
 
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
 
-	const reqParams = computed<GetNotificationsRequest>(() => ({
+	const reqParams = computed<AdminNotificationsParams>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
-		isUser: filters.isUsersFilter,
+		type: filters.filterInput,
 		search: filters.debounceSearchInput,
 	}));
 
-	const { data } = crud.getAll(reqParams);
-	const notifications = computed<Notification[]>(() => {
-		return data.value?.notifications ?? [];
+	const notificationsApi = useAdminNotifications();
+	const { data } = notificationsApi.useQueryNotifications(reqParams);
+	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification();
+
+	const notifications = computed(() => {
+		if (!data.value) return [];
+		return data.value.notificationsByAdmin.notifications as AdminNotification[];
 	});
 
-	const tableColumns = computed<ColumnDef<Notification>[]>(() => {
-		const columns: ColumnDef<Notification>[] = [
+	const tableColumns = computed<ColumnDef<AdminNotification>[]>(() => {
+		const columns: ColumnDef<AdminNotification>[] = [
 			{
 				accessorKey: 'message',
 				size: 65,
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
-					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.message });
+					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text });
 				},
 			},
 			{
@@ -67,23 +70,23 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			},
 		];
 
-		if (filters.isUsersFilter) {
+		if (filters.filterInput === NotificationType.User) {
 			columns.unshift({
 				accessorKey: 'id',
 				size: 10,
 				header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
 				cell: ({ row }) => {
-					if (row.original.userAvatar && row.original.userDisplayName) {
+					if (row.original.twitchProfile?.profileImageUrl && row.original.twitchProfile?.displayName) {
 						return h('a',
 							{
 								class: 'flex flex-col',
-								href: `https://twitch.tv/${row.original.userName}`,
+								href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
 								target: '_blank',
 							},
 							h(UsersTableCellUser, {
 								userId: row.original.id,
-								avatar: row.original.userAvatar,
-								name: row.original.userDisplayName,
+								avatar: row.original.twitchProfile.profileImageUrl,
+								name: row.original.twitchProfile.displayName,
 							}),
 						);
 					}
@@ -94,10 +97,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		return columns;
 	});
 
-	const totalNotifications = computed(() => data.value?.total ?? 0);
+	const totalNotifications = computed(() => data.value?.notificationsByAdmin.total ?? 0);
 
 	const pageCount = computed(() => {
-		return Math.ceil((data.value?.total ?? 0) / pagination.value.pageSize);
+		return Math.ceil((data.value?.notificationsByAdmin.total ?? 0) / pagination.value.pageSize);
 	});
 
 	const table = useVueTable({
@@ -134,10 +137,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			form.onReset();
 		}
 
-		await crud.deleteOne.mutateAsync({ id: notificationId });
+		await deleteNotification({ id: notificationId });
 	}
 
-	async function onEditNotification(notification: Notification) {
+	async function onEditNotification(notification: AdminNotification) {
 		let isConfirmed = true;
 
 		if (form.formValues.message || form.isEditableForm) {
@@ -147,7 +150,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		if (isConfirmed) {
 			form.editableMessageId = notification.id;
 			form.userIdField.fieldModel = notification.userId ?? null;
-			form.messageField.fieldModel = notification.message;
+			form.messageField.fieldModel = notification.text;
 			layout.scrollToTop();
 		}
 	}

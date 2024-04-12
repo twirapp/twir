@@ -33,6 +33,12 @@ export default defineConfig({
 		},
 		server: {
 			proxy: {
+				'/api-new': {
+					target: 'http://127.0.0.1:3009',
+					changeOrigin: true,
+					rewrite: (path) => path.replace(/^\/api-new/, ''),
+					ws: true,
+				},
 				'/api': {
 					target: 'http://127.0.0.1:3002',
 					changeOrigin: true,
@@ -49,7 +55,7 @@ export default defineConfig({
 					target: 'http://127.0.0.1:3007',
 					changeOrigin: true,
 					ws: true,
-					// rewrite: (path) => path.replace(/^\/p/, ''),
+					rewrite: (path) => path.replace(/^\/p/, ''),
 				},
 				'/overlays': {
 					target: 'http://127.0.0.1:3008',

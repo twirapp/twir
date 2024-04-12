@@ -11,7 +11,7 @@ replace (
 )
 
 require (
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/gomodels v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-20231203205548-e635accc6b72
@@ -20,9 +20,9 @@ require (
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231203205548-e635accc6b72
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	go.temporal.io/sdk v1.25.1
-	go.uber.org/fx v1.20.1
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	go.uber.org/fx v1.21.0
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -95,7 +95,7 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect

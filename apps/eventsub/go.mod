@@ -18,7 +18,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.25.3
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
@@ -34,12 +34,12 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0
-	go.uber.org/fx v1.20.1
+	go.uber.org/fx v1.21.0
 	go.uber.org/zap v1.27.0
 	golang.ngrok.com/ngrok v1.8.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -111,7 +111,7 @@ require (
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
