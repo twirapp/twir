@@ -38,7 +38,7 @@ const mutationQueryKeys: MutationQueryKeys = {
 
 const graphCacheConfig: GraphCacheConfig = {
 	updates: {
-		Mutations: {},
+		Mutation: {},
 	},
 };
 
@@ -49,7 +49,7 @@ for (const [mutationKey, queryKeys] of Object.entries(mutationQueryKeys)) {
 
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
-	graphCacheConfig.updates.Mutations[mutationKey] = updateResolver;
+	graphCacheConfig.updates.Mutation[mutationKey] = updateResolver;
 }
 
 export const urqlClient = new Client({
