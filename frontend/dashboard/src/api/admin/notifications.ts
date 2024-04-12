@@ -31,7 +31,7 @@ export const useQueryNotifications = () => {
 
 	watch(newNotifications, (newNotification) => {
 		if (!allNotifications.value || !newNotification) return;
-		allNotifications.value.notificationsByUser.push(newNotification.newNotification);
+		allNotifications.value.notificationsByUser.unshift(newNotification.newNotification);
 	});
 
 	const notifications = computed(() => {
