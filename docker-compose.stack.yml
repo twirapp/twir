@@ -189,8 +189,8 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api-gql`)
-        - traefik.http.routers.twir-api-gql.middlewares=api-stripprefix
-        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-gql
+        - traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix
+        - traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api-gql
         - traefik.http.services.twir-api-gql.loadbalancer.server.port=3009
         - traefik.docker.network=traefik-public
       update_config:
