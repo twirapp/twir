@@ -220,11 +220,11 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 			Condition: channelConditionWithBotId,
 		},
 		"channel.unban_request.create": {
-			Version:   "beta",
+			Version:   "1",
 			Condition: channelConditionWithModeratorId,
 		},
 		"channel.unban_request.resolve": {
-			Version:   "beta",
+			Version:   "1",
 			Condition: channelConditionWithModeratorId,
 		},
 	}
