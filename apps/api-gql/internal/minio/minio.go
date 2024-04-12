@@ -2,20 +2,30 @@ package minio
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 )
 
-func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
+func New(l logger.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 	var creds *credentials.Credentials
 	if config.AppEnv != "production" {
 		creds = credentials.NewStaticV4("minio", "minio-password", "")
 	} else {
 		creds = credentials.NewStaticV4(config.S3AccessToken, config.S3SecretToken, "")
 	}
+
+	l.Info(
+		"Creating minio client",
+		slog.String("host", config.S3Host),
+		slog.String("region", config.S3Region),
+		slog.String("bucket", config.S3Bucket),
+	)
 
 	client, err := minio.New(
 		config.S3Host,
@@ -26,7 +36,7 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot create minio host: %w", err)
 	}
 
 	lc.Append(
@@ -34,7 +44,7 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 			OnStart: func(ctx context.Context) error {
 				buckets, err := client.ListBuckets(ctx)
 				if err != nil {
-					return err
+					return fmt.Errorf("cannot list buckets: %w", err)
 				}
 
 				bucketExists := false
@@ -48,11 +58,11 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 				if !bucketExists {
 					err = client.MakeBucket(ctx, config.S3Bucket, minio.MakeBucketOptions{})
 					if err != nil {
-						return err
+						return fmt.Errorf("cannot create bucket: %w", err)
 					}
 				}
 
-				return client.SetBucketPolicy(
+				err = client.SetBucketPolicy(
 					ctx,
 					config.S3Bucket,
 					`{
@@ -71,6 +81,12 @@ func New(config cfg.Config, lc fx.Lifecycle) (*minio.Client, error) {
 		]
 	}`,
 				)
+
+				if err != nil {
+					return fmt.Errorf("cannot set bucket policy: %w", err)
+				}
+
+				return nil
 			},
 			OnStop: nil,
 		},

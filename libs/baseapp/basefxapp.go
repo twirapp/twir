@@ -19,7 +19,11 @@ func CreateBaseApp(appName string) fx.Option {
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: appName}),
-			logger.NewFx,
+			logger.NewFx(
+				logger.Opts{
+					Service: appName,
+				},
+			),
 			newRedis,
 			newGorm,
 			uptrace.NewFx,
