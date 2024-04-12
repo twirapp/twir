@@ -7,9 +7,9 @@ import * as urql from '@urql/vue';
 import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 
-import { urqlClient } from './plugins/client.js';
 import { i18n } from './plugins/i18n.js';
 import { newRouter } from './plugins/router.js';
+import { urqlClient } from './plugins/urql';
 
 import App from '@/App.vue';
 

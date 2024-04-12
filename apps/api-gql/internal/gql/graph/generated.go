@@ -120,6 +120,19 @@ type ComplexityRoot struct {
 		Text      func(childComplexity int) int
 	}
 
+	DashboardStats struct {
+		CategoryID     func(childComplexity int) int
+		CategoryName   func(childComplexity int) int
+		ChatMessages   func(childComplexity int) int
+		Followers      func(childComplexity int) int
+		RequestedSongs func(childComplexity int) int
+		StartedAt      func(childComplexity int) int
+		Subs           func(childComplexity int) int
+		Title          func(childComplexity int) int
+		UsedEmotes     func(childComplexity int) int
+		Viewers        func(childComplexity int) int
+	}
+
 	Mutation struct {
 		BadgesAddUser       func(childComplexity int, id string, userID string) int
 		BadgesCreate        func(childComplexity int, name string, file graphql.Upload) int
@@ -146,6 +159,7 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
+		DashboardStats  func(childComplexity int) int
 		NewNotification func(childComplexity int) int
 	}
 
@@ -206,6 +220,7 @@ type QueryResolver interface {
 	AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
 }
 type SubscriptionResolver interface {
+	DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error)
 	NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error)
 }
 
@@ -571,6 +586,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.CommandResponse.Text(childComplexity), true
 
+	case "DashboardStats.categoryId":
+		if e.complexity.DashboardStats.CategoryID == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.CategoryID(childComplexity), true
+
+	case "DashboardStats.categoryName":
+		if e.complexity.DashboardStats.CategoryName == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.CategoryName(childComplexity), true
+
+	case "DashboardStats.chatMessages":
+		if e.complexity.DashboardStats.ChatMessages == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.ChatMessages(childComplexity), true
+
+	case "DashboardStats.followers":
+		if e.complexity.DashboardStats.Followers == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.Followers(childComplexity), true
+
+	case "DashboardStats.requestedSongs":
+		if e.complexity.DashboardStats.RequestedSongs == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.RequestedSongs(childComplexity), true
+
+	case "DashboardStats.startedAt":
+		if e.complexity.DashboardStats.StartedAt == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.StartedAt(childComplexity), true
+
+	case "DashboardStats.subs":
+		if e.complexity.DashboardStats.Subs == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.Subs(childComplexity), true
+
+	case "DashboardStats.title":
+		if e.complexity.DashboardStats.Title == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.Title(childComplexity), true
+
+	case "DashboardStats.usedEmotes":
+		if e.complexity.DashboardStats.UsedEmotes == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.UsedEmotes(childComplexity), true
+
+	case "DashboardStats.viewers":
+		if e.complexity.DashboardStats.Viewers == nil {
+			break
+		}
+
+		return e.complexity.DashboardStats.Viewers(childComplexity), true
+
 	case "Mutation.badgesAddUser":
 		if e.complexity.Mutation.BadgesAddUser == nil {
 			break
@@ -778,6 +863,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.TwirUsers(childComplexity, args["opts"].(gqlmodel.TwirUsersSearchParams)), true
+
+	case "Subscription.dashboardStats":
+		if e.complexity.Subscription.DashboardStats == nil {
+			break
+		}
+
+		return e.complexity.Subscription.DashboardStats(childComplexity), true
 
 	case "Subscription.newNotification":
 		if e.complexity.Subscription.NewNotification == nil {
@@ -1188,6 +1280,23 @@ extend type Mutation {
 #	"""
 #	newCommand: Command! @isAuthenticated
 #}
+`, BuiltIn: false},
+	{Name: "../../../schema/dashboard.graphqls", Input: `extend type Subscription {
+	dashboardStats: DashboardStats! @isAuthenticated
+}
+
+type DashboardStats {
+	categoryId: ID!
+	categoryName: String!
+	viewers: Int
+	startedAt: Time
+	title: String!
+	chatMessages: Int!
+	followers: Int!
+	usedEmotes: Int!
+	requestedSongs: Int!
+	subs: Int!
+}
 `, BuiltIn: false},
 	{Name: "../../../schema/notifications.graphqls", Input: `extend type Query {
 	notificationsByUser: [UserNotification!]! @isAuthenticated
@@ -3793,6 +3902,440 @@ func (ec *executionContext) fieldContext_CommandResponse_order(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _DashboardStats_categoryId(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_categoryId(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_categoryId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_categoryName(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_categoryName(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.CategoryName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_categoryName(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_viewers(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_viewers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Viewers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_viewers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_startedAt(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_startedAt(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.StartedAt, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_startedAt(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Title, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_chatMessages(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_chatMessages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ChatMessages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_chatMessages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_followers(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_followers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Followers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_followers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_usedEmotes(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_usedEmotes(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UsedEmotes, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_usedEmotes(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_requestedSongs(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_requestedSongs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.RequestedSongs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_requestedSongs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _DashboardStats_subs(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.DashboardStats) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_DashboardStats_subs(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Subs, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_DashboardStats_subs(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "DashboardStats",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_badgesDelete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_badgesDelete(ctx, field)
 	if err != nil {
@@ -5626,6 +6169,106 @@ func (ec *executionContext) fieldContext_Query___schema(ctx context.Context, fie
 				return ec.fieldContext___Schema_directives(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type __Schema", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Subscription_dashboardStats(ctx context.Context, field graphql.CollectedField) (ret func(ctx context.Context) graphql.Marshaler) {
+	fc, err := ec.fieldContext_Subscription_dashboardStats(ctx, field)
+	if err != nil {
+		return nil
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = nil
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Subscription().DashboardStats(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(<-chan *gqlmodel.DashboardStats); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be <-chan *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.DashboardStats`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return nil
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return nil
+	}
+	return func(ctx context.Context) graphql.Marshaler {
+		select {
+		case res, ok := <-resTmp.(<-chan *gqlmodel.DashboardStats):
+			if !ok {
+				return nil
+			}
+			return graphql.WriterFunc(func(w io.Writer) {
+				w.Write([]byte{'{'})
+				graphql.MarshalString(field.Alias).MarshalGQL(w)
+				w.Write([]byte{':'})
+				ec.marshalNDashboardStats2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐDashboardStats(ctx, field.Selections, res).MarshalGQL(w)
+				w.Write([]byte{'}'})
+			})
+		case <-ctx.Done():
+			return nil
+		}
+	}
+}
+
+func (ec *executionContext) fieldContext_Subscription_dashboardStats(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Subscription",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "categoryId":
+				return ec.fieldContext_DashboardStats_categoryId(ctx, field)
+			case "categoryName":
+				return ec.fieldContext_DashboardStats_categoryName(ctx, field)
+			case "viewers":
+				return ec.fieldContext_DashboardStats_viewers(ctx, field)
+			case "startedAt":
+				return ec.fieldContext_DashboardStats_startedAt(ctx, field)
+			case "title":
+				return ec.fieldContext_DashboardStats_title(ctx, field)
+			case "chatMessages":
+				return ec.fieldContext_DashboardStats_chatMessages(ctx, field)
+			case "followers":
+				return ec.fieldContext_DashboardStats_followers(ctx, field)
+			case "usedEmotes":
+				return ec.fieldContext_DashboardStats_usedEmotes(ctx, field)
+			case "requestedSongs":
+				return ec.fieldContext_DashboardStats_requestedSongs(ctx, field)
+			case "subs":
+				return ec.fieldContext_DashboardStats_subs(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type DashboardStats", field.Name)
 		},
 	}
 	return fc, nil
@@ -9169,6 +9812,84 @@ func (ec *executionContext) _CommandResponse(ctx context.Context, sel ast.Select
 	return out
 }
 
+var dashboardStatsImplementors = []string{"DashboardStats"}
+
+func (ec *executionContext) _DashboardStats(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.DashboardStats) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, dashboardStatsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("DashboardStats")
+		case "categoryId":
+			out.Values[i] = ec._DashboardStats_categoryId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "categoryName":
+			out.Values[i] = ec._DashboardStats_categoryName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "viewers":
+			out.Values[i] = ec._DashboardStats_viewers(ctx, field, obj)
+		case "startedAt":
+			out.Values[i] = ec._DashboardStats_startedAt(ctx, field, obj)
+		case "title":
+			out.Values[i] = ec._DashboardStats_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "chatMessages":
+			out.Values[i] = ec._DashboardStats_chatMessages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "followers":
+			out.Values[i] = ec._DashboardStats_followers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "usedEmotes":
+			out.Values[i] = ec._DashboardStats_usedEmotes(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "requestedSongs":
+			out.Values[i] = ec._DashboardStats_requestedSongs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "subs":
+			out.Values[i] = ec._DashboardStats_subs(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -9497,6 +10218,8 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
+	case "dashboardStats":
+		return ec._Subscription_dashboardStats(ctx, fields[0])
 	case "newNotification":
 		return ec._Subscription_newNotification(ctx, fields[0])
 	default:
@@ -10284,6 +11007,20 @@ func (ec *executionContext) unmarshalNCreateCommandResponseInput2githubᚗcomᚋ
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) marshalNDashboardStats2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐDashboardStats(ctx context.Context, sel ast.SelectionSet, v gqlmodel.DashboardStats) graphql.Marshaler {
+	return ec._DashboardStats(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNDashboardStats2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐDashboardStats(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.DashboardStats) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._DashboardStats(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalID(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -10954,6 +11691,22 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalTime(*v)
 	return res
 }
 

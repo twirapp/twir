@@ -122,6 +122,19 @@ type CreateCommandResponseInput struct {
 	Order int    `json:"order"`
 }
 
+type DashboardStats struct {
+	CategoryID     string     `json:"categoryId"`
+	CategoryName   string     `json:"categoryName"`
+	Viewers        *int       `json:"viewers,omitempty"`
+	StartedAt      *time.Time `json:"startedAt,omitempty"`
+	Title          string     `json:"title"`
+	ChatMessages   int        `json:"chatMessages"`
+	Followers      int        `json:"followers"`
+	UsedEmotes     int        `json:"usedEmotes"`
+	RequestedSongs int        `json:"requestedSongs"`
+	Subs           int        `json:"subs"`
+}
+
 type Mutation struct {
 }
 

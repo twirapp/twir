@@ -8,13 +8,11 @@ import { useI18n } from 'vue-i18n';
 
 import StreamInfoEditor from './components/StreamInfoEditor.vue';
 
-import { useDashboardStats } from '@/api';
+import { useRealtimeDashboardStats } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime';
 
-const { data: stats, refetch, isLoading } = useDashboardStats();
-
-const { pause: pauseStatsFetch } = useIntervalFn(refetch, 5000);
+const { stats, fetching } = useRealtimeDashboardStats();
 
 const currentTime = ref(new Date());
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
@@ -25,7 +23,7 @@ const uptime = computed(() => {
 	if (!stats.value?.startedAt) return '00:00:00';
 
 	const duration = intervalToDuration({
-		start: new Date(Number(stats.value?.startedAt)),
+		start: new Date(Number(stats.value.startedAt)),
 		end: currentTime.value,
 	});
 
@@ -39,7 +37,6 @@ const uptime = computed(() => {
 });
 
 onBeforeUnmount(() => {
-	pauseStatsFetch();
 	pauseUptimeInterval();
 });
 
@@ -61,7 +58,7 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="isLoading" class="py-1 w-full">
+		<div v-if="!stats" class="py-1 w-full">
 			<n-skeleton width="100%" height="43px" :sharp="false" />
 		</div>
 		<div v-else class="flex gap-3 w-full px-4">

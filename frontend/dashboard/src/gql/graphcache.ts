@@ -112,6 +112,20 @@ export type CreateCommandResponseInput = {
   text: Scalars['String']['input'];
 };
 
+export type DashboardStats = {
+  __typename?: 'DashboardStats';
+  categoryId: Scalars['ID']['output'];
+  categoryName: Scalars['String']['output'];
+  chatMessages: Scalars['Int']['output'];
+  followers: Scalars['Int']['output'];
+  requestedSongs: Scalars['Int']['output'];
+  startedAt?: Maybe<Scalars['Time']['output']>;
+  subs: Scalars['Int']['output'];
+  title: Scalars['String']['output'];
+  usedEmotes: Scalars['Int']['output'];
+  viewers?: Maybe<Scalars['Int']['output']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   badgesAddUser: Scalars['Boolean']['output'];
@@ -241,6 +255,7 @@ export type QueryTwirUsersArgs = {
 
 export type Subscription = {
   __typename?: 'Subscription';
+  dashboardStats: DashboardStats;
   /** `newNotification` will return a stream of `Notification` objects. */
   newNotification: UserNotification;
 };
@@ -330,6 +345,7 @@ export type GraphCacheKeysConfig = {
   Badge?: (data: WithTypename<Badge>) => null | string,
   Command?: (data: WithTypename<Command>) => null | string,
   CommandResponse?: (data: WithTypename<CommandResponse>) => null | string,
+  DashboardStats?: (data: WithTypename<DashboardStats>) => null | string,
   TwirAdminUser?: (data: WithTypename<TwirAdminUser>) => null | string,
   TwirUserTwitchInfo?: (data: WithTypename<TwirUserTwitchInfo>) => null | string,
   TwirUsersResponse?: (data: WithTypename<TwirUsersResponse>) => null | string,
@@ -406,6 +422,18 @@ export type GraphCacheResolvers = {
     order?: GraphCacheResolver<WithTypename<CommandResponse>, Record<string, never>, Scalars['Int'] | string>,
     text?: GraphCacheResolver<WithTypename<CommandResponse>, Record<string, never>, Scalars['String'] | string>
   },
+  DashboardStats?: {
+    categoryId?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['ID'] | string>,
+    categoryName?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['String'] | string>,
+    chatMessages?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
+    followers?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
+    requestedSongs?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
+    startedAt?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Time'] | string>,
+    subs?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
+    title?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['String'] | string>,
+    usedEmotes?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
+    viewers?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>
+  },
   TwirAdminUser?: {
     apiKey?: GraphCacheResolver<WithTypename<TwirAdminUser>, Record<string, never>, Scalars['String'] | string>,
     id?: GraphCacheResolver<WithTypename<TwirAdminUser>, Record<string, never>, Scalars['ID'] | string>,
@@ -474,6 +502,7 @@ export type GraphCacheUpdaters = {
     updateCommand?: GraphCacheUpdateResolver<{ updateCommand: WithTypename<Command> }, MutationUpdateCommandArgs>
   },
   Subscription?: {
+    dashboardStats?: GraphCacheUpdateResolver<{ dashboardStats: WithTypename<DashboardStats> }, Record<string, never>>,
     newNotification?: GraphCacheUpdateResolver<{ newNotification: WithTypename<UserNotification> }, Record<string, never>>
   },
   AdminNotification?: {
@@ -536,6 +565,18 @@ export type GraphCacheUpdaters = {
     id?: GraphCacheUpdateResolver<Maybe<WithTypename<CommandResponse>>, Record<string, never>>,
     order?: GraphCacheUpdateResolver<Maybe<WithTypename<CommandResponse>>, Record<string, never>>,
     text?: GraphCacheUpdateResolver<Maybe<WithTypename<CommandResponse>>, Record<string, never>>
+  },
+  DashboardStats?: {
+    categoryId?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    categoryName?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    chatMessages?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    followers?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    requestedSongs?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    startedAt?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    subs?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    title?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    usedEmotes?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
+    viewers?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>
   },
   TwirAdminUser?: {
     apiKey?: GraphCacheUpdateResolver<Maybe<WithTypename<TwirAdminUser>>, Record<string, never>>,

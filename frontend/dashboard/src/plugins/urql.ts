@@ -11,6 +11,7 @@ const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api-new/
 const gqlWs = createWS({
 	url: wsUrl,
 	lazy: true,
+	shouldRetry: () => true,
 });
 
 const invalidateCache = (
