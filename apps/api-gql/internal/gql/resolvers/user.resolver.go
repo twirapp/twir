@@ -7,13 +7,38 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"slices"
 
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *authenticatedUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
+	user, err := data_loader.GetHelixUser(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	return &gqlmodel.TwirUserTwitchInfo{
+		Login:           user.Login,
+		DisplayName:     user.DisplayName,
+		ProfileImageURL: user.ProfileImageURL,
+		Description:     user.Description,
+	}, nil
+}
+
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
+	*gqlmodel.AuthenticatedUser,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
@@ -28,20 +53,6 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		APIKey:            user.ApiKey,
 	}
 
-	if slices.Contains(GetPreloads(ctx), "twitchProfile") {
-		twitchProfile, err := r.cachedTwitchClient.GetUserById(ctx, user.ID)
-		if err != nil {
-			return nil, err
-		}
-
-		authedUser.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-			Login:           twitchProfile.Login,
-			DisplayName:     twitchProfile.DisplayName,
-			ProfileImageURL: twitchProfile.ProfileImageURL,
-			Description:     twitchProfile.Description,
-		}
-	}
-
 	if user.Channel != nil {
 		authedUser.IsEnabled = &user.Channel.IsEnabled
 		authedUser.IsBotModerator = &user.Channel.IsBotMod
@@ -50,3 +61,10 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 
 	return authedUser, nil
 }
+
+// AuthenticatedUser returns graph.AuthenticatedUserResolver implementation.
+func (r *Resolver) AuthenticatedUser() graph.AuthenticatedUserResolver {
+	return &authenticatedUserResolver{r}
+}
+
+type authenticatedUserResolver struct{ *Resolver }

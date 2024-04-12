@@ -40,10 +40,13 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AdminNotification() AdminNotificationResolver
+	AuthenticatedUser() AuthenticatedUserResolver
 	Command() CommandResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 	Subscription() SubscriptionResolver
+	TwirAdminUser() TwirAdminUserResolver
 }
 
 type DirectiveRoot struct {
@@ -193,6 +196,12 @@ type ComplexityRoot struct {
 	}
 }
 
+type AdminNotificationResolver interface {
+	TwitchProfile(ctx context.Context, obj *gqlmodel.AdminNotification) (*gqlmodel.TwirUserTwitchInfo, error)
+}
+type AuthenticatedUserResolver interface {
+	TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error)
+}
 type CommandResolver interface {
 	Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error)
 }
@@ -222,6 +231,9 @@ type QueryResolver interface {
 type SubscriptionResolver interface {
 	DashboardStats(ctx context.Context) (<-chan *gqlmodel.DashboardStats, error)
 	NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error)
+}
+type TwirAdminUserResolver interface {
+	TwitchProfile(ctx context.Context, obj *gqlmodel.TwirAdminUser) (*gqlmodel.TwirUserTwitchInfo, error)
 }
 
 type executableSchema struct {
@@ -1173,7 +1185,7 @@ extend type Mutation {
 
 type TwirAdminUser implements TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
 	isBotModerator: Boolean!
@@ -1335,7 +1347,7 @@ type AdminNotification implements Notification {
 	id: ID!
 	text: String!
 	userId: ID
-	twitchProfile: TwirUserTwitchInfo
+	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	createdAt: Time!
 }
 
@@ -1397,7 +1409,7 @@ type TwirUserTwitchInfo {
 	apiKey: String!
 	hideOnLandingPage: Boolean!
 	botId: ID
-	twitchProfile: TwirUserTwitchInfo!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
 extend type Query {
@@ -1895,7 +1907,7 @@ func (ec *executionContext) _AdminNotification_twitchProfile(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TwitchProfile, nil
+		return ec.resolvers.AdminNotification().TwitchProfile(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1913,8 +1925,8 @@ func (ec *executionContext) fieldContext_AdminNotification_twitchProfile(ctx con
 	fc = &graphql.FieldContext{
 		Object:     "AdminNotification",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "login":
@@ -2433,7 +2445,7 @@ func (ec *executionContext) _AuthenticatedUser_twitchProfile(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TwitchProfile, nil
+		return ec.resolvers.AuthenticatedUser().TwitchProfile(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2454,8 +2466,8 @@ func (ec *executionContext) fieldContext_AuthenticatedUser_twitchProfile(ctx con
 	fc = &graphql.FieldContext{
 		Object:     "AuthenticatedUser",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "login":
@@ -6420,7 +6432,7 @@ func (ec *executionContext) _TwirAdminUser_twitchProfile(ctx context.Context, fi
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TwitchProfile, nil
+		return ec.resolvers.TwirAdminUser().TwitchProfile(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6441,8 +6453,8 @@ func (ec *executionContext) fieldContext_TwirAdminUser_twitchProfile(ctx context
 	fc = &graphql.FieldContext{
 		Object:     "TwirAdminUser",
 		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
+		IsMethod:   true,
+		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "login":
@@ -9394,21 +9406,52 @@ func (ec *executionContext) _AdminNotification(ctx context.Context, sel ast.Sele
 		case "id":
 			out.Values[i] = ec._AdminNotification_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "text":
 			out.Values[i] = ec._AdminNotification_text(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "userId":
 			out.Values[i] = ec._AdminNotification_userId(ctx, field, obj)
 		case "twitchProfile":
-			out.Values[i] = ec._AdminNotification_twitchProfile(ctx, field, obj)
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AdminNotification_twitchProfile(ctx, field, obj)
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "createdAt":
 			out.Values[i] = ec._AdminNotification_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -9491,17 +9534,17 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 		case "id":
 			out.Values[i] = ec._AuthenticatedUser_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isBotAdmin":
 			out.Values[i] = ec._AuthenticatedUser_isBotAdmin(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isBanned":
 			out.Values[i] = ec._AuthenticatedUser_isBanned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isEnabled":
 			out.Values[i] = ec._AuthenticatedUser_isEnabled(ctx, field, obj)
@@ -9510,20 +9553,51 @@ func (ec *executionContext) _AuthenticatedUser(ctx context.Context, sel ast.Sele
 		case "apiKey":
 			out.Values[i] = ec._AuthenticatedUser_apiKey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "hideOnLandingPage":
 			out.Values[i] = ec._AuthenticatedUser_hideOnLandingPage(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "botId":
 			out.Values[i] = ec._AuthenticatedUser_botId(ctx, field, obj)
 		case "twitchProfile":
-			out.Values[i] = ec._AuthenticatedUser_twitchProfile(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthenticatedUser_twitchProfile(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10241,37 +10315,68 @@ func (ec *executionContext) _TwirAdminUser(ctx context.Context, sel ast.Selectio
 		case "id":
 			out.Values[i] = ec._TwirAdminUser_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "twitchProfile":
-			out.Values[i] = ec._TwirAdminUser_twitchProfile(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._TwirAdminUser_twitchProfile(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
 			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		case "isBotAdmin":
 			out.Values[i] = ec._TwirAdminUser_isBotAdmin(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isBanned":
 			out.Values[i] = ec._TwirAdminUser_isBanned(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isBotModerator":
 			out.Values[i] = ec._TwirAdminUser_isBotModerator(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "isBotEnabled":
 			out.Values[i] = ec._TwirAdminUser_isBotEnabled(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		case "apiKey":
 			out.Values[i] = ec._TwirAdminUser_apiKey(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				out.Invalids++
+				atomic.AddUint32(&out.Invalids, 1)
 			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
@@ -11137,6 +11242,10 @@ func (ec *executionContext) marshalNTwirAdminUser2ᚕgithubᚗcomᚋtwirappᚋtw
 func (ec *executionContext) unmarshalNTwirBadgeUpdateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirBadgeUpdateOpts(ctx context.Context, v interface{}) (gqlmodel.TwirBadgeUpdateOpts, error) {
 	res, err := ec.unmarshalInputTwirBadgeUpdateOpts(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTwirUserTwitchInfo2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {
+	return ec._TwirUserTwitchInfo(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNTwirUserTwitchInfo2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {

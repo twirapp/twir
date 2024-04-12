@@ -115,6 +115,7 @@ require (
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
 	github.com/urfave/cli/v2 v2.27.1 // indirect
+	github.com/vikstrous/dataloadgen v0.0.6 // indirect
 	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.46.1 // indirect

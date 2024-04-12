@@ -7,15 +7,18 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/libs/cache/twitch"
 	"go.uber.org/fx"
 )
 
 type Opts struct {
 	fx.In
-	LC         fx.Lifecycle
-	GqlHandler *gql.Gql
-	Sessions   *sessions.Sessions
+	LC                 fx.Lifecycle
+	GqlHandler         *gql.Gql
+	Sessions           *sessions.Sessions
+	CachedTwitchClient *twitch.CachedTwitchClient
 }
 
 type Server struct {
@@ -53,7 +56,21 @@ func New(opts Opts) *Server {
 		},
 	)
 	r.Any(
-		"/query", func(c *gin.Context) {
+		"/query",
+		func(c *gin.Context) {
+			loader := data_loader.New(
+				data_loader.Opts{
+					CachedTwitchClient: opts.CachedTwitchClient,
+				},
+			)
+
+			c.Request = c.Request.WithContext(
+				context.WithValue(c.Request.Context(), data_loader.LoadersKey, loader),
+			)
+
+			c.Next()
+		},
+		func(c *gin.Context) {
 			opts.GqlHandler.ServeHTTP(c.Writer, c.Request)
 		},
 	)

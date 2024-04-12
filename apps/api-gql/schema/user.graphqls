@@ -7,7 +7,7 @@ type AuthenticatedUser implements TwirUser {
 	apiKey: String!
 	hideOnLandingPage: Boolean!
 	botId: ID
-	twitchProfile: TwirUserTwitchInfo!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
 extend type Query {

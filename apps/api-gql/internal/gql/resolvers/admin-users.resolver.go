@@ -6,13 +6,12 @@ package resolvers
 
 import (
 	"context"
-	"slices"
 
-	helix "github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
-	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
 // SwitchUserBan is the resolver for the switchUserBan field.
@@ -46,7 +45,10 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 }
 
 // TwirUsers is the resolver for the twirUsers field.
-func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error) {
+func (r *queryResolver) TwirUsers(
+	ctx context.Context,
+	opts gqlmodel.TwirUsersSearchParams,
+) (*gqlmodel.TwirUsersResponse, error) {
 	var page int
 	perPage := 20
 
@@ -120,18 +122,6 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 		dbUsersIds = append(dbUsersIds, user.ID)
 	}
 
-	var twitchUsers []twitchcahe.TwitchUser
-	preloads := GetPreloads(ctx)
-
-	if slices.Contains(preloads, "users.twitchProfile") {
-		users, err := r.cachedTwitchClient.GetUsersByIds(ctx, dbUsersIds)
-		if err != nil {
-			return nil, err
-		}
-
-		twitchUsers = users
-	}
-
 	for _, user := range dbUsers {
 		u := gqlmodel.TwirAdminUser{
 			ID:            user.ID,
@@ -145,18 +135,6 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 			u.IsBotEnabled = user.Channel.IsEnabled
 		}
 
-		twitchUser, found := lo.Find(
-			twitchUsers, func(item twitchcahe.TwitchUser) bool {
-				return item.ID == u.ID
-			},
-		)
-
-		if found {
-			u.TwitchProfile.Login = twitchUser.Login
-			u.TwitchProfile.DisplayName = twitchUser.DisplayName
-			u.TwitchProfile.ProfileImageURL = twitchUser.ProfileImageURL
-		}
-
 		mappedUsers = append(mappedUsers, u)
 	}
 
@@ -165,3 +143,29 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 		Total: int(total),
 	}, nil
 }
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *twirAdminUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.TwirAdminUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
+	user, err := data_loader.GetHelixUser(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	return &gqlmodel.TwirUserTwitchInfo{
+		Login:           user.Login,
+		DisplayName:     user.DisplayName,
+		ProfileImageURL: user.ProfileImageURL,
+		Description:     user.Description,
+	}, nil
+}
+
+// TwirAdminUser returns graph.TwirAdminUserResolver implementation.
+func (r *Resolver) TwirAdminUser() graph.TwirAdminUserResolver { return &twirAdminUserResolver{r} }
+
+type twirAdminUserResolver struct{ *Resolver }

@@ -12,7 +12,7 @@ extend type Mutation {
 
 type TwirAdminUser implements TwirUser {
 	id: ID!
-	twitchProfile: TwirUserTwitchInfo!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	isBotAdmin: Boolean!
 	isBanned: Boolean!
 	isBotModerator: Boolean!
