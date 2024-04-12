@@ -137,7 +137,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AuthedUser           func(childComplexity int) int
+		AuthenticatedUser    func(childComplexity int) int
 		Commands             func(childComplexity int) int
 		NotificationsByAdmin func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
 		NotificationsByUser  func(childComplexity int) int
@@ -203,7 +203,7 @@ type QueryResolver interface {
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error)
 	NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error)
-	AuthedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
+	AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
 }
 type SubscriptionResolver interface {
 	NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error)
@@ -727,12 +727,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateCommand(childComplexity, args["id"].(string), args["opts"].(gqlmodel.UpdateCommandOpts)), true
 
-	case "Query.authedUser":
-		if e.complexity.Query.AuthedUser == nil {
+	case "Query.authenticatedUser":
+		if e.complexity.Query.AuthenticatedUser == nil {
 			break
 		}
 
-		return e.complexity.Query.AuthedUser(childComplexity), true
+		return e.complexity.Query.AuthenticatedUser(childComplexity), true
 
 	case "Query.commands":
 		if e.complexity.Query.Commands == nil {
@@ -1292,7 +1292,7 @@ type TwirUserTwitchInfo {
 }
 
 extend type Query {
-	authedUser: AuthenticatedUser! @isAuthenticated
+	authenticatedUser: AuthenticatedUser! @isAuthenticated
 }
 `, BuiltIn: false},
 }
@@ -5418,8 +5418,8 @@ func (ec *executionContext) fieldContext_Query_notificationsByAdmin(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_authedUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_authedUser(ctx, field)
+func (ec *executionContext) _Query_authenticatedUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_authenticatedUser(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -5433,7 +5433,7 @@ func (ec *executionContext) _Query_authedUser(ctx context.Context, field graphql
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().AuthedUser(rctx)
+			return ec.resolvers.Query().AuthenticatedUser(rctx)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -5469,7 +5469,7 @@ func (ec *executionContext) _Query_authedUser(ctx context.Context, field graphql
 	return ec.marshalNAuthenticatedUser2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_authedUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_authenticatedUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -9431,7 +9431,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "authedUser":
+		case "authenticatedUser":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -9440,7 +9440,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_authedUser(ctx, field)
+				res = ec._Query_authenticatedUser(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

@@ -8,7 +8,7 @@ import (
 	"context"
 	"slices"
 
-	"github.com/nicklaw5/helix/v2"
+	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -46,10 +46,7 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 }
 
 // TwirUsers is the resolver for the twirUsers field.
-func (r *queryResolver) TwirUsers(
-	ctx context.Context,
-	opts gqlmodel.TwirUsersSearchParams,
-) (*gqlmodel.TwirUsersResponse, error) {
+func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error) {
 	var page int
 	perPage := 20
 

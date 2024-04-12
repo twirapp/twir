@@ -11,5 +11,5 @@ type AuthenticatedUser implements TwirUser {
 }
 
 extend type Query {
-	authedUser: AuthenticatedUser! @isAuthenticated
+	authenticatedUser: AuthenticatedUser! @isAuthenticated
 }

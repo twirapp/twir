@@ -7,20 +7,19 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
-// AuthedUser is the resolver for the authedUser field.
-func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
+// AuthenticatedUser is the resolver for the authenticatedUser field.
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
+	*gqlmodel.AuthenticatedUser,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
-	}
-
-	twitchProfile, err := r.cachedTwitchClient.GetUserById(ctx, user.ID)
-	if err != nil {
-		return nil, err
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{
@@ -28,13 +27,22 @@ func (r *queryResolver) AuthedUser(ctx context.Context) (*gqlmodel.Authenticated
 		IsBotAdmin:        user.IsBotAdmin,
 		IsBanned:          user.IsBanned,
 		HideOnLandingPage: user.HideOnLandingPage,
-		TwitchProfile: &gqlmodel.TwirUserTwitchInfo{
+		TwitchProfile:     &gqlmodel.TwirUserTwitchInfo{},
+		APIKey:            user.ApiKey,
+	}
+
+	if slices.Contains(GetPreloads(ctx), "authedUser.twitchProfile") {
+		twitchProfile, err := r.cachedTwitchClient.GetUserById(ctx, user.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		authedUser.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
 			Login:           twitchProfile.Login,
 			DisplayName:     twitchProfile.DisplayName,
 			ProfileImageURL: twitchProfile.ProfileImageURL,
 			Description:     twitchProfile.Description,
-		},
-		APIKey: user.ApiKey,
+		}
 	}
 
 	if user.Channel != nil {
