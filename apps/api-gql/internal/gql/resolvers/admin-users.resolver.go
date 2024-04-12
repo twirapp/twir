@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"slices"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
@@ -122,9 +123,16 @@ func (r *queryResolver) TwirUsers(
 		dbUsersIds = append(dbUsersIds, user.ID)
 	}
 
-	twitchUsers, err := r.cachedTwitchClient.GetUsersByIds(ctx, dbUsersIds)
-	if err != nil {
-		return nil, err
+	var twitchUsers []twitchcahe.TwitchUser
+	preloads := GetPreloads(ctx)
+
+	if slices.Contains(preloads, "users.twitchProfile") {
+		users, err := r.cachedTwitchClient.GetUsersByIds(ctx, dbUsersIds)
+		if err != nil {
+			return nil, err
+		}
+
+		twitchUsers = users
 	}
 
 	for _, user := range dbUsers {

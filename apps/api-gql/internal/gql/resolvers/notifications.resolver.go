@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -165,6 +166,8 @@ func (r *queryResolver) NotificationsByAdmin(
 	ctx context.Context,
 	opts gqlmodel.AdminNotificationsParams,
 ) (*gqlmodel.AdminNotificationsResponse, error) {
+	preloads := GetPreloads(ctx)
+
 	query := r.gorm.WithContext(ctx)
 
 	if opts.Type.IsSet() {
@@ -212,7 +215,9 @@ func (r *queryResolver) NotificationsByAdmin(
 		}
 	}
 
-	if opts.Type.IsSet() && *opts.Type.Value() == gqlmodel.NotificationTypeUser {
+	needTwitch := slices.Contains(preloads, "notifications.twitchProfile")
+
+	if needTwitch && opts.Type.IsSet() && *opts.Type.Value() == gqlmodel.NotificationTypeUser {
 		usersIdsForRequest := make([]string, len(notifications))
 		for i, notification := range notifications {
 			usersIdsForRequest[i] = *notification.UserID

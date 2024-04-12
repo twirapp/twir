@@ -1,6 +1,9 @@
 package resolvers
 
 import (
+	"context"
+
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
 	"github.com/nicklaw5/helix/v2"
 	config "github.com/satont/twir/libs/config"
@@ -54,4 +57,35 @@ func New(opts Opts) (*Resolver, error) {
 		minioClient:        opts.Minio,
 		subscriptionsStore: opts.SubscriptionsStore,
 	}, nil
+}
+
+func GetPreloads(ctx context.Context) []string {
+	return GetNestedPreloads(
+		graphql.GetOperationContext(ctx),
+		graphql.CollectFieldsCtx(ctx, nil),
+		"",
+	)
+}
+
+func GetNestedPreloads(
+	ctx *graphql.OperationContext,
+	fields []graphql.CollectedField,
+	prefix string,
+) (preloads []string) {
+	for _, column := range fields {
+		prefixColumn := GetPreloadString(prefix, column.Name)
+		preloads = append(preloads, prefixColumn)
+		preloads = append(
+			preloads,
+			GetNestedPreloads(ctx, graphql.CollectFields(ctx, column.Selections, nil), prefixColumn)...,
+		)
+	}
+	return
+}
+
+func GetPreloadString(prefix, name string) string {
+	if len(prefix) > 0 {
+		return prefix + "." + name
+	}
+	return name
 }
