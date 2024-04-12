@@ -15,6 +15,7 @@ import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-
 const documents = {
     "\n\t\t\tquery NotificationsGetAll {\n\t\t\t\tnotificationsByUser {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t": types.NotificationsGetAllDocument,
     "\n\t\t\tsubscription NotificationsSubscription {\n\t\t\t\tnewNotification {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t": types.NotificationsSubscriptionDocument,
+    "\n\t\tquery notificationsByAdmin($opts: AdminNotificationsParams!) {\n\t\t\tnotificationsByAdmin(opts: $opts) {\n\t\t\t\ttotal\n\t\t\t\tnotifications {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tuserId\n\t\t\t\t\ttwitchProfile {\n\t\t\t\t\t\tdisplayName\n\t\t\t\t\t\tprofileImageUrl\n\t\t\t\t\t}\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t": types.NotificationsByAdminDocument,
 };
 
 /**
@@ -39,6 +40,10 @@ export function graphql(source: "\n\t\t\tquery NotificationsGetAll {\n\t\t\t\tno
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\t\t\tsubscription NotificationsSubscription {\n\t\t\t\tnewNotification {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t"): (typeof documents)["\n\t\t\tsubscription NotificationsSubscription {\n\t\t\t\tnewNotification {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\t\tquery notificationsByAdmin($opts: AdminNotificationsParams!) {\n\t\t\tnotificationsByAdmin(opts: $opts) {\n\t\t\t\ttotal\n\t\t\t\tnotifications {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tuserId\n\t\t\t\t\ttwitchProfile {\n\t\t\t\t\t\tdisplayName\n\t\t\t\t\t\tprofileImageUrl\n\t\t\t\t\t}\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t"): (typeof documents)["\n\t\tquery notificationsByAdmin($opts: AdminNotificationsParams!) {\n\t\t\tnotificationsByAdmin(opts: $opts) {\n\t\t\t\ttotal\n\t\t\t\tnotifications {\n\t\t\t\t\tid\n\t\t\t\t\ttext\n\t\t\t\t\tuserId\n\t\t\t\t\ttwitchProfile {\n\t\t\t\t\t\tdisplayName\n\t\t\t\t\t\tprofileImageUrl\n\t\t\t\t\t}\n\t\t\t\t\tcreatedAt\n\t\t\t\t}\n\t\t\t}\n\t\t}\n\t"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

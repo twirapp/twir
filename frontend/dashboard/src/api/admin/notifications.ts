@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/vue-query';
-import { useQuery as _useQuery, useSubscription } from '@urql/vue';
-import { computed, watch } from 'vue';
+import { useQuery, useSubscription } from '@urql/vue';
+import { computed, watch, type Ref } from 'vue';
 
 import { createCrudManager } from '../crud';
-import { adminApiClient, protectedApiClient } from '../twirp';
+import { adminApiClient } from '../twirp';
 
 import { graphql } from '@/gql';
+import type { AdminNotificationsParams } from '@/gql/graphql';
 
 export const useAdminNotifications = () => createCrudManager({
 	client: adminApiClient,
@@ -19,16 +19,8 @@ export const useAdminNotifications = () => createCrudManager({
 	invalidateAdditionalQueries: ['protected/notifications'],
 });
 
-export const useProtectedNotifications = () => useQuery({
-	queryKey: ['protected/notifications'],
-	queryFn: async () => {
-		const req = await protectedApiClient.notificationsGetAll({});
-		return req.response;
-	},
-});
-
 export const useQueryNotifications = () => {
-	const { data: allNotifications } = _useQuery({
+	const { data: allNotifications } = useQuery({
 		query: graphql(`
 			query NotificationsGetAll {
 				notificationsByUser {
@@ -63,3 +55,24 @@ export const useQueryNotifications = () => {
 
 	return notifications;
 };
+
+export const _useAdminNotifications = (variables: Ref<{ opts: AdminNotificationsParams }>) => useQuery({
+	variables,
+	query: graphql(`
+		query notificationsByAdmin($opts: AdminNotificationsParams!) {
+			notificationsByAdmin(opts: $opts) {
+				total
+				notifications {
+					id
+					text
+					userId
+					twitchProfile {
+						displayName
+						profileImageUrl
+					}
+					createdAt
+				}
+			}
+		}
+	`),
+});
