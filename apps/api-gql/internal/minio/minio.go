@@ -62,10 +62,12 @@ func New(l logger.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, er
 					}
 				}
 
-				err = client.SetBucketPolicy(
-					ctx,
-					config.S3Bucket,
-					`{
+				// we use cloudflare r2, which doesnt support this operation
+				if config.AppEnv != "production" {
+					err = client.SetBucketPolicy(
+						ctx,
+						config.S3Bucket,
+						`{
 		"Version": "2012-10-17",
 		"Statement": [
 			{
@@ -80,10 +82,12 @@ func New(l logger.Logger, config cfg.Config, lc fx.Lifecycle) (*minio.Client, er
 			}
 		]
 	}`,
-				)
+					)
 
-				if err != nil {
-					return fmt.Errorf("cannot set bucket policy: %w", err)
+					if err != nil {
+						return fmt.Errorf("cannot set bucket policy: %w", err)
+					}
+
 				}
 
 				return nil
