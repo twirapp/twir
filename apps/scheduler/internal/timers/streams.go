@@ -87,7 +87,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 	var channels []model.Channels
 	err := c.gorm.
 		WithContext(ctx).
-		Where(`"isEnabled" = ? and "User"."is_banned" = ?`, true, false).
+		Where(`"channels"."isEnabled" = ? and "User"."is_banned" = ?`, true, false).
 		Joins("User").
 		Find(&channels).Error
 	if err != nil {

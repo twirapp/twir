@@ -52,7 +52,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	channel := &model.Channels{}
 	if err = c.gorm.
 		WithContext(ctx).
-		Where("id = ?", opts.BroadcasterID).
+		Where("channels.id = ?", opts.BroadcasterID).
 		Joins("User").
 		First(channel).Error; err != nil {
 		return err

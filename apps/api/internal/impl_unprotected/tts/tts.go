@@ -22,7 +22,7 @@ func (c *Tts) GetTTSChannelSettings(
 	channel := &model.Channels{}
 	if err := c.Db.
 		WithContext(ctx).
-		Where(`id = ?`, req.ChannelId).
+		Where(`channels.id = ?`, req.ChannelId).
 		Joins("User").
 		First(channel).Error; err != nil {
 		return nil, err

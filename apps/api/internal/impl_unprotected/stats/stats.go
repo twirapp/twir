@@ -64,7 +64,7 @@ func (c *Stats) cacheCounts() {
 		func() {
 			var count int64
 			c.Db.Model(&model.Channels{}).Where(
-				`"isEnabled" = ? AND "isTwitchBanned" = ? AND "User"."is_banned" = ?`,
+				`"channels"."isEnabled" = ? AND "channels"."isTwitchBanned" = ? AND "User"."is_banned" = ?`,
 				true,
 				false,
 				false,

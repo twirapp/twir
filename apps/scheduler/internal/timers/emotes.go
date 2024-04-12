@@ -47,7 +47,7 @@ func NewEmotes(opts EmotesOpts) {
 							var channels []model.Channels
 							err := opts.Gorm.
 								WithContext(ctx).
-								Where(`"isEnabled" = ? and "User"."is_banned" = ?`, true, false).
+								Where(`"channels"."isEnabled" = ? and "User"."is_banned" = ?`, true, false).
 								Joins("User").
 								Find(&channels).
 								Error
