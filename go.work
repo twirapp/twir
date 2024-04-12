@@ -32,4 +32,5 @@ use (
 	./libs/uptrace
 	./libs/utils
 	./libs/cache
+	./libs/baseapp
 )
