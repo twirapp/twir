@@ -32,8 +32,11 @@ type MutationQueryKeys = {
 	[K in keyof Mutation]?: string[]
 }
 
+const notificationByAdmin = 'notificationsByAdmin';
 const mutationQueryKeys: MutationQueryKeys = {
-	notificationsCreate: ['notificationsByAdmin'],
+	notificationsCreate: [notificationByAdmin],
+	notificationsDelete: [notificationByAdmin],
+	notificationsUpdate: [notificationByAdmin],
 };
 
 const graphCacheConfig: GraphCacheConfig = {

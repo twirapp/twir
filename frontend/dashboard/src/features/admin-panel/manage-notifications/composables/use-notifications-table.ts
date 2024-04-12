@@ -9,7 +9,7 @@ import CreatedAtTooltip from '../components/created-at-tooltip.vue';
 import NotificationsTableActions from '../components/notifications-table-actions.vue';
 import { useNotificationsForm } from '../composables/use-notifications-form.js';
 
-import { _useAdminNotifications, useAdminNotifications } from '@/api/admin/notifications.js';
+import { useAdminNotifications } from '@/api/admin/notifications.js';
 import { useLayout } from '@/composables/use-layout.js';
 import { usePagination } from '@/composables/use-pagination.js';
 import { NotificationType, type AdminNotification, type AdminNotificationsParams } from '@/gql/graphql.js';
@@ -19,7 +19,6 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { t } = useI18n();
 
 	const form = useNotificationsForm();
-	const crud = useAdminNotifications();
 
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
@@ -31,8 +30,9 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		search: filters.debounceSearchInput,
 	}));
 
-	const { useQueryNotifications } = _useAdminNotifications();
-	const { data } = useQueryNotifications(reqParams);
+	const notificationsApi = useAdminNotifications();
+	const { data } = notificationsApi.useQueryNotifications(reqParams);
+	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification();
 
 	const notifications = computed(() => {
 		if (!data.value) return [];
@@ -137,7 +137,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			form.onReset();
 		}
 
-		await crud.deleteOne.mutateAsync({ id: notificationId });
+		await deleteNotification({ id: notificationId });
 	}
 
 	async function onEditNotification(notification: AdminNotification) {

@@ -1,23 +1,8 @@
 import { useQuery, useMutation, useSubscription } from '@urql/vue';
 import { computed, watch, type Ref } from 'vue';
 
-import { createCrudManager } from '../crud';
-import { adminApiClient } from '../twirp';
-
 import { graphql } from '@/gql';
 import type { AdminNotificationsParams } from '@/gql/graphql';
-
-export const useAdminNotifications = () => createCrudManager({
-	client: adminApiClient,
-	queryKey: 'admin/notifications',
-	create: adminApiClient.notificationsCreate,
-	deleteOne: adminApiClient.notificationsDelete,
-	update: adminApiClient.notificationsUpdate,
-	getAll: adminApiClient.notificationsGetAll,
-	getOne: null,
-	patch: null,
-	invalidateAdditionalQueries: ['protected/notifications'],
-});
 
 export const useQueryNotifications = () => {
 	const { data: allNotifications } = useQuery({
@@ -56,7 +41,7 @@ export const useQueryNotifications = () => {
 	return notifications;
 };
 
-export const _useAdminNotifications = () => {
+export const useAdminNotifications = () => {
 	const useQueryNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
 		get variables() {
 			return {
@@ -91,8 +76,25 @@ export const _useAdminNotifications = () => {
     }
 	`));
 
+	const useMutationDeleteNotification = () => useMutation(graphql(`
+		mutation DeleteNotification($id: ID!) {
+			notificationsDelete(id: $id)
+		}
+	`));
+
+	const useMutationUpdateNotifications = () => useMutation(graphql(`
+		mutation UpdateNotifications($id: ID!, $opts: NotificationUpdateOpts!) {
+			notificationsUpdate(id: $id, opts: $opts) {
+				id
+				text
+			}
+		}
+	`));
+
 	return {
 		useQueryNotifications,
 		useMutationCreateNotification,
+		useMutationDeleteNotification,
+		useMutationUpdateNotifications,
 	};
 };
