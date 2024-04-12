@@ -15,7 +15,7 @@ replace (
 require (
 	github.com/go-redsync/redsync/v4 v4.11.0
 	github.com/nicklaw5/helix/v2 v2.25.2
-	github.com/redis/go-redis/v9 v9.4.0
+	github.com/redis/go-redis/v9 v9.5.1
 	github.com/satont/twir/libs/config v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/crypto v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/gomodels v0.0.0-20231218035440-fe1a71c14ff7
@@ -23,11 +23,11 @@ require (
 	github.com/satont/twir/libs/sentry v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
-	go.uber.org/fx v1.20.1
+	go.uber.org/fx v1.21.0
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.4
-	gorm.io/gorm v1.25.7
+	gorm.io/driver/postgres v1.5.7
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -72,7 +72,7 @@ require (
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304212257-790db918fca8 // indirect

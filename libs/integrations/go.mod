@@ -8,7 +8,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/gomodels v0.0.0-20240208154120-fc098a9e20a2
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
-	gorm.io/gorm v1.25.7
+	gorm.io/gorm v1.25.9
 )
 
 require (

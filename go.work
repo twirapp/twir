@@ -16,7 +16,9 @@ use (
 	./apps/ytsr
 	./cli
 	./libs/api
+	./libs/baseapp
 	./libs/bus-core
+	./libs/cache
 	./libs/config
 	./libs/crypto
 	./libs/gomodels
@@ -31,6 +33,4 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
-	./libs/cache
-	./libs/baseapp
 )
