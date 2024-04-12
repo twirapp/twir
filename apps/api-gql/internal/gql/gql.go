@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
+	"github.com/ravilushqa/otelgqlgen"
 	config "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
@@ -52,6 +53,7 @@ func New(opts Opts) *Gql {
 			},
 		},
 	)
+	srv.Use(otelgqlgen.Middleware())
 
 	if opts.Config.AppEnv != "production" {
 		srv.Use(extension.Introspection{})
