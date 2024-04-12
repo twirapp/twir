@@ -13,6 +13,7 @@ jobs:
       matrix:
         folders:
           - apps/api
+          - apps/api-gql
           - apps/bots
           - apps/discord
           - apps/emotes-cacher

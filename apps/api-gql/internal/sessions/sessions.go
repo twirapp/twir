@@ -12,16 +12,19 @@ import (
 	"github.com/redis/go-redis/v9"
 	model "github.com/satont/twir/libs/gomodels"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
 	Redis *redis.Client
+	Gorm  *gorm.DB
 }
 
 type Sessions struct {
 	sessionManager *scs.SessionManager
+	gorm           *gorm.DB
 }
 
 func New(opts Opts) *Sessions {
@@ -34,6 +37,7 @@ func New(opts Opts) *Sessions {
 
 	return &Sessions{
 		sessionManager: sessionManager,
+		gorm:           opts.Gorm,
 	}
 }
 

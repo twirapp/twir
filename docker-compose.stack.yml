@@ -178,6 +178,31 @@ services:
       mode: replicated
       replicas: 1
 
+  api-gql:
+    image: twirapp/api-gql:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+      - traefik-public
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api-gql`)
+        - traefik.http.routers.twir-api-gql.middlewares=api-stripprefix
+        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-gql
+        - traefik.http.services.twir-api-gql.loadbalancer.server.port=3009
+        - traefik.docker.network=traefik-public
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      mode: replicated
+      replicas: 1
+
   bots:
     image: twirapp/bots:latest
     secrets:

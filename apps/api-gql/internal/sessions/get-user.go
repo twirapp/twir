@@ -13,7 +13,12 @@ func (s *Sessions) GetAuthenticatedUser(ctx context.Context) (*model.Users, erro
 		return nil, fmt.Errorf("not authenticated")
 	}
 
-	return &user, nil
+	freshUser := model.Users{}
+	if err := s.gorm.First(&freshUser, user.ID).Error; err != nil {
+		return nil, fmt.Errorf("cannot get user from db: %w", err)
+	}
+
+	return &freshUser, nil
 }
 
 func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
