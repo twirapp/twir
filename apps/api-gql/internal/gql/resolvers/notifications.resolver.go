@@ -258,7 +258,7 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gql
 		for {
 			select {
 			case <-ctx.Done():
-				close(r.subscriptionsStore.NewNotificationsChannels[user.ID])
+				// close(r.subscriptionsStore.NewNotificationsChannels[user.ID])
 				delete(r.subscriptionsStore.NewNotificationsChannels, user.ID)
 				return
 			case notification := <-r.subscriptionsStore.NewNotificationsChannels[user.ID]:

@@ -72,6 +72,7 @@
     "rollup-plugin-visualizer": "5.12.0",
     "sass": "1.70.0",
     "tailwindcss": "3.4.1",
+    "ts-node": "10.9.2",
     "typescript": "5.3.3",
     "vite": "5.0.12",
     "vite-bundle-visualizer": "1.0.0",

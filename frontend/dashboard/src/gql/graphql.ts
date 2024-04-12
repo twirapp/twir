@@ -1,4 +1,5 @@
 /* eslint-disable */
+import type { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/core';
 export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -24,6 +25,19 @@ export type AdminNotification = Notification & {
   text: Scalars['String']['output'];
   twitchProfile?: Maybe<TwirUserTwitchInfo>;
   userId?: Maybe<Scalars['ID']['output']>;
+};
+
+export type AdminNotificationsParams = {
+  page?: InputMaybe<Scalars['Int']['input']>;
+  perPage?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+  type?: InputMaybe<NotificationType>;
+};
+
+export type AdminNotificationsResponse = {
+  __typename?: 'AdminNotificationsResponse';
+  notifications: Array<AdminNotification>;
+  total: Scalars['Int']['output'];
 };
 
 export type AuthenticatedUser = TwirUser & {
@@ -204,9 +218,9 @@ export type NotificationUpdateOpts = {
 
 export type Query = {
   __typename?: 'Query';
-  authedUser: AuthenticatedUser;
+  authenticatedUser: AuthenticatedUser;
   commands: Array<Command>;
-  notificationsByAdmin: Array<AdminNotification>;
+  notificationsByAdmin: AdminNotificationsResponse;
   notificationsByUser: Array<UserNotification>;
   /** Twir badges */
   twirBadges: Array<Badge>;
@@ -216,7 +230,7 @@ export type Query = {
 
 
 export type QueryNotificationsByAdminArgs = {
-  type: NotificationType;
+  opts: AdminNotificationsParams;
 };
 
 
@@ -305,3 +319,17 @@ export type UserNotification = Notification & {
   text: Scalars['String']['output'];
   userId?: Maybe<Scalars['ID']['output']>;
 };
+
+export type NotificationsGetAllQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NotificationsGetAllQuery = { __typename?: 'Query', notificationsByUser: Array<{ __typename?: 'UserNotification', id: string, text: string, createdAt: any }> };
+
+export type NotificationsSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
+
+
+export type NotificationsSubscriptionSubscription = { __typename?: 'Subscription', newNotification: { __typename?: 'UserNotification', id: string, text: string, createdAt: any } };
+
+
+export const NotificationsGetAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NotificationsGetAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsByUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<NotificationsGetAllQuery, NotificationsGetAllQueryVariables>;
+export const NotificationsSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"NotificationsSubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"newNotification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<NotificationsSubscriptionSubscription, NotificationsSubscriptionSubscriptionVariables>;

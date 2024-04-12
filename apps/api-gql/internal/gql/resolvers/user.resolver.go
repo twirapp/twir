@@ -13,10 +13,7 @@ import (
 )
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
-	*gqlmodel.AuthenticatedUser,
-	error,
-) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)

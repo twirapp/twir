@@ -7,7 +7,7 @@ const schemaDir = resolve(join(process.cwd(), '..', '..', 'apps', 'api-gql', 'sc
 const config: CodegenConfig = {
 	schema: schemaDir,
 	watch: true,
-	documents: ['src/**/*.vue', 'src/**/*.ts'],
+	documents: ['src/api/**/*.ts'],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {
 		'./src/gql/': {

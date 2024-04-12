@@ -1,35 +1,20 @@
 <script setup lang="ts">
 import { IconBell } from '@tabler/icons-vue';
 import { NButton, NBadge, NDropdown, type DropdownOption } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { h } from 'vue';
-import { computed } from 'vue';
 
 import NotificationsDropdown from './notifications-dropdown.vue';
 
-import { useProtectedNotifications } from '@/api/admin/notifications';
-import { useNotificationsCounter } from '@/composables/use-notifications-counter';
+import { useNotifications } from '@/composables/use-notifications';
 
-const { data } = useProtectedNotifications();
-const { computeNotificationsCounter } = useNotificationsCounter();
-
-const notifications = computed(() => {
-	return data.value?.notifications ?? [];
-});
-
-const notificationsCounter = computed(() => {
-	return computeNotificationsCounter(notifications.value);
-});
-
-function onUpdateShow(state: boolean) {
-	if (state) return;
-	notificationsCounter.value.readed();
-}
+const { notificationsCounter } = storeToRefs(useNotifications());
 
 const profileOptions: DropdownOption[] = [
 	{
 		key: 'notifications',
 		type: 'render',
-		render: () => h(NotificationsDropdown, { notifications: notifications.value }),
+		render: () => h(NotificationsDropdown),
 	},
 ];
 </script>
@@ -38,7 +23,7 @@ const profileOptions: DropdownOption[] = [
 	<n-dropdown
 		trigger="click"
 		:options="profileOptions"
-		:on-update-show="onUpdateShow"
+		:on-update-show="notificationsCounter.onRead"
 		size="large"
 		style="top: 10px; left: 14px; width: 400px;"
 	>
