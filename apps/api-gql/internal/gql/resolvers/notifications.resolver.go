@@ -133,7 +133,7 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Use
 	if err := r.gorm.WithContext(ctx).Where(
 		`"userId" = ? OR "userId" IS NULL`,
 		user.ID,
-	).Find(&entities).Error; err != nil {
+	).Order(`"createdAt" DESC`).Find(&entities).Error; err != nil {
 		return nil, err
 	}
 
