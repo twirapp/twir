@@ -12,7 +12,7 @@ import { useRealtimeDashboardStats } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import { padTo2Digits } from '@/helpers/convertMillisToTime';
 
-const { stats, fetching } = useRealtimeDashboardStats();
+const { stats } = useRealtimeDashboardStats();
 
 const currentTime = ref(new Date());
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {

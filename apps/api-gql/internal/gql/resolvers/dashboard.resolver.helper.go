@@ -30,11 +30,13 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	}
 
 	if slices.Contains(preloads, "followers") {
-		followersCount, err := r.cachedTwitchClient.GetChannelFollowersCount(ctx, dashboardId)
+		result.Followers, err = r.cachedTwitchClient.GetChannelFollowersCountByChannelId(
+			ctx,
+			dashboardId,
+		)
 		if err != nil {
 			return nil, err
 		}
-		result.Followers = followersCount
 	}
 
 	if slices.Contains(preloads, "title") ||
@@ -76,8 +78,12 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	result.UsedEmotes = int(usedEmotes)
 	result.RequestedSongs = int(requestedSongs)
 
-	// TODO
-	result.Subs = 0
+	if slices.Contains(preloads, "subs") {
+		result.Subs, err = r.cachedTwitchClient.GetChannelSubscribersCountByChannelId(ctx, dashboardId)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	return result, nil
 }

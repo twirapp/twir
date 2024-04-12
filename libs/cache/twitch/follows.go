@@ -10,13 +10,16 @@ import (
 )
 
 const channelFollowersCountCacheKey = "cache:twir:twitch:followersCount:"
-const channelFollowersCountCacheDuration = 10 * time.Hour
+const channelFollowersCountCacheDuration = 10 * time.Minute
 
 func buildChannelFollowersCountCacheKeyForId(userId string) string {
 	return channelFollowersCountCacheKey + userId
 }
 
-func (c *CachedTwitchClient) GetChannelFollowersCount(ctx context.Context, channelId string) (
+func (c *CachedTwitchClient) GetChannelFollowersCountByChannelId(
+	ctx context.Context,
+	channelId string,
+) (
 	int,
 	error,
 ) {
