@@ -13,12 +13,13 @@ export type Scalars = {
   Boolean: { input: boolean; output: boolean; }
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
-  DateTime: { input: any; output: any; }
+  Time: { input: any; output: any; }
   Upload: { input: any; output: any; }
 };
 
 export type AdminNotification = Notification & {
   __typename?: 'AdminNotification';
+  createdAt: Scalars['Time']['output'];
   id: Scalars['ID']['output'];
   text: Scalars['String']['output'];
   twitchProfile?: Maybe<TwirUserTwitchInfo>;
@@ -186,6 +187,7 @@ export type MutationUpdateCommandArgs = {
 };
 
 export type Notification = {
+  createdAt: Scalars['Time']['output'];
   id: Scalars['ID']['output'];
   text: Scalars['String']['output'];
   userId?: Maybe<Scalars['ID']['output']>;
@@ -298,6 +300,7 @@ export type UpdateCommandOpts = {
 
 export type UserNotification = Notification & {
   __typename?: 'UserNotification';
+  createdAt: Scalars['Time']['output'];
   id: Scalars['ID']['output'];
   text: Scalars['String']['output'];
   userId?: Maybe<Scalars['ID']['output']>;

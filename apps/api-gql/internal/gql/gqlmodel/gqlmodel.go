@@ -39,6 +39,18 @@ func (this AdminNotification) GetUserID() *string      { return this.UserID }
 func (this AdminNotification) GetText() string         { return this.Text }
 func (this AdminNotification) GetCreatedAt() time.Time { return this.CreatedAt }
 
+type AdminNotificationsParams struct {
+	Search  graphql.Omittable[*string]           `json:"search,omitempty"`
+	Page    graphql.Omittable[*int]              `json:"page,omitempty"`
+	PerPage graphql.Omittable[*int]              `json:"perPage,omitempty"`
+	Type    graphql.Omittable[*NotificationType] `json:"type,omitempty"`
+}
+
+type AdminNotificationsResponse struct {
+	Notifications []AdminNotification `json:"notifications"`
+	Total         int                 `json:"total"`
+}
+
 type AuthenticatedUser struct {
 	ID                string              `json:"id"`
 	IsBotAdmin        bool                `json:"isBotAdmin"`

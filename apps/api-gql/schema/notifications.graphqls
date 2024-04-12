@@ -1,7 +1,7 @@
 extend type Query {
 	notificationsByUser: [UserNotification!]! @isAuthenticated
 
-	notificationsByAdmin(type: NotificationType!): [AdminNotification!]! @isAuthenticated @isAdmin
+	notificationsByAdmin(opts: AdminNotificationsParams!): AdminNotificationsResponse! @isAuthenticated @isAdmin
 }
 
 extend type Mutation {
@@ -44,6 +44,18 @@ enum NotificationType {
 	USER
 }
 
+input AdminNotificationsParams {
+	search: String
+	page: Int
+	perPage: Int
+	type: NotificationType
+}
+
 input NotificationUpdateOpts {
 	text: String
+}
+
+type AdminNotificationsResponse {
+	notifications: [AdminNotification!]!
+	total: Int!
 }

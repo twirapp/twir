@@ -61,6 +61,11 @@ type ComplexityRoot struct {
 		UserID        func(childComplexity int) int
 	}
 
+	AdminNotificationsResponse struct {
+		Notifications func(childComplexity int) int
+		Total         func(childComplexity int) int
+	}
+
 	AuthenticatedUser struct {
 		APIKey            func(childComplexity int) int
 		BotID             func(childComplexity int) int
@@ -134,7 +139,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AuthedUser           func(childComplexity int) int
 		Commands             func(childComplexity int) int
-		NotificationsByAdmin func(childComplexity int, typeArg gqlmodel.NotificationType) int
+		NotificationsByAdmin func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
 		NotificationsByUser  func(childComplexity int) int
 		TwirBadges           func(childComplexity int) int
 		TwirUsers            func(childComplexity int, opts gqlmodel.TwirUsersSearchParams) int
@@ -197,7 +202,7 @@ type QueryResolver interface {
 	TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error)
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error)
-	NotificationsByAdmin(ctx context.Context, typeArg gqlmodel.NotificationType) ([]gqlmodel.AdminNotification, error)
+	NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error)
 	AuthedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
 }
 type SubscriptionResolver interface {
@@ -257,6 +262,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AdminNotification.UserID(childComplexity), true
+
+	case "AdminNotificationsResponse.notifications":
+		if e.complexity.AdminNotificationsResponse.Notifications == nil {
+			break
+		}
+
+		return e.complexity.AdminNotificationsResponse.Notifications(childComplexity), true
+
+	case "AdminNotificationsResponse.total":
+		if e.complexity.AdminNotificationsResponse.Total == nil {
+			break
+		}
+
+		return e.complexity.AdminNotificationsResponse.Total(childComplexity), true
 
 	case "AuthenticatedUser.apiKey":
 		if e.complexity.AuthenticatedUser.APIKey == nil {
@@ -732,7 +751,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.NotificationsByAdmin(childComplexity, args["type"].(gqlmodel.NotificationType)), true
+		return e.complexity.Query.NotificationsByAdmin(childComplexity, args["opts"].(gqlmodel.AdminNotificationsParams)), true
 
 	case "Query.notificationsByUser":
 		if e.complexity.Query.NotificationsByUser == nil {
@@ -894,6 +913,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputAdminNotificationsParams,
 		ec.unmarshalInputCreateCommandInput,
 		ec.unmarshalInputCreateCommandResponseInput,
 		ec.unmarshalInputNotificationUpdateOpts,
@@ -1172,7 +1192,7 @@ extend type Mutation {
 	{Name: "../../../schema/notifications.graphqls", Input: `extend type Query {
 	notificationsByUser: [UserNotification!]! @isAuthenticated
 
-	notificationsByAdmin(type: NotificationType!): [AdminNotification!]! @isAuthenticated @isAdmin
+	notificationsByAdmin(opts: AdminNotificationsParams!): AdminNotificationsResponse! @isAuthenticated @isAdmin
 }
 
 extend type Mutation {
@@ -1215,8 +1235,20 @@ enum NotificationType {
 	USER
 }
 
+input AdminNotificationsParams {
+	search: String
+	page: Int
+	perPage: Int
+	type: NotificationType
+}
+
 input NotificationUpdateOpts {
 	text: String
+}
+
+type AdminNotificationsResponse {
+	notifications: [AdminNotification!]!
+	total: Int!
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/schema.graphqls", Input: `type Query
@@ -1546,15 +1578,15 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_notificationsByAdmin_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 gqlmodel.NotificationType
-	if tmp, ok := rawArgs["type"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
-		arg0, err = ec.unmarshalNNotificationType2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx, tmp)
+	var arg0 gqlmodel.AdminNotificationsParams
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg0, err = ec.unmarshalNAdminNotificationsParams2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationsParams(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["type"] = arg0
+	args["opts"] = arg0
 	return args, nil
 }
 
@@ -1830,6 +1862,106 @@ func (ec *executionContext) fieldContext_AdminNotification_createdAt(ctx context
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Time does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNotificationsResponse_notifications(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminNotificationsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AdminNotificationsResponse_notifications(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Notifications, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.AdminNotification)
+	fc.Result = res
+	return ec.marshalNAdminNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AdminNotificationsResponse_notifications(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNotificationsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_AdminNotification_id(ctx, field)
+			case "text":
+				return ec.fieldContext_AdminNotification_text(ctx, field)
+			case "userId":
+				return ec.fieldContext_AdminNotification_userId(ctx, field)
+			case "twitchProfile":
+				return ec.fieldContext_AdminNotification_twitchProfile(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_AdminNotification_createdAt(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AdminNotification", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _AdminNotificationsResponse_total(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.AdminNotificationsResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AdminNotificationsResponse_total(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Total, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AdminNotificationsResponse_total(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AdminNotificationsResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5214,7 +5346,7 @@ func (ec *executionContext) _Query_notificationsByAdmin(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Query().NotificationsByAdmin(rctx, fc.Args["type"].(gqlmodel.NotificationType))
+			return ec.resolvers.Query().NotificationsByAdmin(rctx, fc.Args["opts"].(gqlmodel.AdminNotificationsParams))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -5236,10 +5368,10 @@ func (ec *executionContext) _Query_notificationsByAdmin(ctx context.Context, fie
 		if tmp == nil {
 			return nil, nil
 		}
-		if data, ok := tmp.([]gqlmodel.AdminNotification); ok {
+		if data, ok := tmp.(*gqlmodel.AdminNotificationsResponse); ok {
 			return data, nil
 		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.AdminNotification`, tmp)
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.AdminNotificationsResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5251,9 +5383,9 @@ func (ec *executionContext) _Query_notificationsByAdmin(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]gqlmodel.AdminNotification)
+	res := resTmp.(*gqlmodel.AdminNotificationsResponse)
 	fc.Result = res
-	return ec.marshalNAdminNotification2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationᚄ(ctx, field.Selections, res)
+	return ec.marshalNAdminNotificationsResponse2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationsResponse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_notificationsByAdmin(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5264,18 +5396,12 @@ func (ec *executionContext) fieldContext_Query_notificationsByAdmin(ctx context.
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_AdminNotification_id(ctx, field)
-			case "text":
-				return ec.fieldContext_AdminNotification_text(ctx, field)
-			case "userId":
-				return ec.fieldContext_AdminNotification_userId(ctx, field)
-			case "twitchProfile":
-				return ec.fieldContext_AdminNotification_twitchProfile(ctx, field)
-			case "createdAt":
-				return ec.fieldContext_AdminNotification_createdAt(ctx, field)
+			case "notifications":
+				return ec.fieldContext_AdminNotificationsResponse_notifications(ctx, field)
+			case "total":
+				return ec.fieldContext_AdminNotificationsResponse_total(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AdminNotification", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AdminNotificationsResponse", field.Name)
 		},
 	}
 	defer func() {
@@ -8137,6 +8263,54 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputAdminNotificationsParams(ctx context.Context, obj interface{}) (gqlmodel.AdminNotificationsParams, error) {
+	var it gqlmodel.AdminNotificationsParams
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"search", "page", "perPage", "type"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "search":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("search"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Search = graphql.OmittableOf(data)
+		case "page":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Page = graphql.OmittableOf(data)
+		case "perPage":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("perPage"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.PerPage = graphql.OmittableOf(data)
+		case "type":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("type"))
+			data, err := ec.unmarshalONotificationType2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Type = graphql.OmittableOf(data)
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputCreateCommandInput(ctx context.Context, obj interface{}) (gqlmodel.CreateCommandInput, error) {
 	var it gqlmodel.CreateCommandInput
 	asMap := map[string]interface{}{}
@@ -8590,6 +8764,50 @@ func (ec *executionContext) _AdminNotification(ctx context.Context, sel ast.Sele
 			out.Values[i] = ec._AdminNotification_twitchProfile(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._AdminNotification_createdAt(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var adminNotificationsResponseImplementors = []string{"AdminNotificationsResponse"}
+
+func (ec *executionContext) _AdminNotificationsResponse(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.AdminNotificationsResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, adminNotificationsResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AdminNotificationsResponse")
+		case "notifications":
+			out.Values[i] = ec._AdminNotificationsResponse_notifications(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "total":
+			out.Values[i] = ec._AdminNotificationsResponse_total(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -9888,6 +10106,25 @@ func (ec *executionContext) marshalNAdminNotification2ᚖgithubᚗcomᚋtwirapp�
 	return ec._AdminNotification(ctx, sel, v)
 }
 
+func (ec *executionContext) unmarshalNAdminNotificationsParams2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationsParams(ctx context.Context, v interface{}) (gqlmodel.AdminNotificationsParams, error) {
+	res, err := ec.unmarshalInputAdminNotificationsParams(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAdminNotificationsResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationsResponse(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AdminNotificationsResponse) graphql.Marshaler {
+	return ec._AdminNotificationsResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAdminNotificationsResponse2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAdminNotificationsResponse(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.AdminNotificationsResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AdminNotificationsResponse(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNAuthenticatedUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐAuthenticatedUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.AuthenticatedUser) graphql.Marshaler {
 	return ec._AuthenticatedUser(ctx, sel, &v)
 }
@@ -10075,16 +10312,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
-}
-
-func (ec *executionContext) unmarshalNNotificationType2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx context.Context, v interface{}) (gqlmodel.NotificationType, error) {
-	var res gqlmodel.NotificationType
-	err := res.UnmarshalGQL(v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalNNotificationType2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx context.Context, sel ast.SelectionSet, v gqlmodel.NotificationType) graphql.Marshaler {
-	return v
 }
 
 func (ec *executionContext) unmarshalNNotificationUpdateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationUpdateOpts(ctx context.Context, v interface{}) (gqlmodel.NotificationUpdateOpts, error) {
@@ -10658,6 +10885,22 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalONotificationType2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx context.Context, v interface{}) (*gqlmodel.NotificationType, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.NotificationType)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalONotificationType2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.NotificationType) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) unmarshalOString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {

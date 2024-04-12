@@ -163,20 +163,42 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) (
 // NotificationsByAdmin is the resolver for the notificationsByAdmin field.
 func (r *queryResolver) NotificationsByAdmin(
 	ctx context.Context,
-	typeArg gqlmodel.NotificationType,
-) ([]gqlmodel.AdminNotification, error) {
+	opts gqlmodel.AdminNotificationsParams,
+) (*gqlmodel.AdminNotificationsResponse, error) {
 	query := r.gorm.WithContext(ctx)
 
-	switch typeArg {
-	case gqlmodel.NotificationTypeGlobal:
+	if opts.Type.IsSet() {
+		switch *opts.Type.Value() {
+		case gqlmodel.NotificationTypeGlobal:
+			query = query.Where(`"userId" IS NULL`)
+		case gqlmodel.NotificationTypeUser:
+			query = query.Where(`"userId" IS NOT NULL`)
+		}
+	} else {
 		query = query.Where(`"userId" IS NULL`)
-	case gqlmodel.NotificationTypeUser:
-		query = query.Where(`"userId" IS NOT NULL`)
+	}
+
+	var page int
+	perPage := 20
+
+	if opts.Page.IsSet() {
+		page = *opts.Page.Value()
+	}
+
+	if opts.PerPage.IsSet() {
+		perPage = *opts.PerPage.Value()
+	}
+
+	var total int64
+	if err := query.Model(&model.Notifications{}).Count(&total).Error; err != nil {
+		return nil, err
 	}
 
 	var entities []model.Notifications
-	if err :=
-		query.Find(&entities).Error; err != nil {
+	if err := query.
+		Limit(perPage).
+		Offset(page * perPage).
+		Find(&entities).Error; err != nil {
 		return nil, err
 	}
 
@@ -190,7 +212,7 @@ func (r *queryResolver) NotificationsByAdmin(
 		}
 	}
 
-	if typeArg == gqlmodel.NotificationTypeUser {
+	if opts.Type.IsSet() && *opts.Type.Value() == gqlmodel.NotificationTypeUser {
 		usersIdsForRequest := make([]string, len(notifications))
 		for i, notification := range notifications {
 			usersIdsForRequest[i] = *notification.UserID
@@ -220,7 +242,10 @@ func (r *queryResolver) NotificationsByAdmin(
 		}
 	}
 
-	return notifications, nil
+	return &gqlmodel.AdminNotificationsResponse{
+		Notifications: notifications,
+		Total:         int(total),
+	}, nil
 }
 
 // NewNotification is the resolver for the newNotification field.
