@@ -32,7 +32,9 @@ func (c *Community) CommunityGetUsers(
 	}
 
 	channel := &model.Channels{}
-	err = c.Db.WithContext(ctx).Where("id = ?", request.ChannelId).Joins("User").First(channel).Error
+	err = c.Db.WithContext(ctx).Where("channels.id = ?", request.ChannelId).Joins("User").First(
+		channel,
+	).Error
 	if err != nil {
 		return nil, err
 	}
