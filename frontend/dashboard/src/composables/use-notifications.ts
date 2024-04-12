@@ -1,6 +1,6 @@
 import { useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 
 import { useQueryNotifications } from '@/api/admin/notifications';
 
@@ -8,7 +8,6 @@ const NOTIFICATIONS_STORAGE_KEY = 'twirNotificationsCounter';
 
 export const useNotifications = defineStore('notifications', () => {
 	const notifications = useQueryNotifications();
-	watch(notifications, (a) => console.log(a));
 
 	const notificationsStorage = useLocalStorage<string[]>(NOTIFICATIONS_STORAGE_KEY, []);
 

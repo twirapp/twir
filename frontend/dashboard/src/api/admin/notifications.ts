@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/vue-query';
 import { useQuery as _useQuery, useSubscription } from '@urql/vue';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
 import { createCrudManager } from '../crud';
 import { adminApiClient, protectedApiClient } from '../twirp';
 
 import { graphql } from '@/gql';
-import type { NotificationsGetAllQuery } from '@/gql/graphql';
 
 export const useAdminNotifications = () => createCrudManager({
 	client: adminApiClient,
@@ -53,14 +52,13 @@ export const useQueryNotifications = () => {
 		`),
 	});
 
-	const notifications = computed<NotificationsGetAllQuery['notificationsByUser']>(() => {
-		const notification = [...(allNotifications.value?.notificationsByUser ?? [])];
+	watch(newNotifications, (newNotification) => {
+		if (!allNotifications.value || !newNotification) return;
+		allNotifications.value.notificationsByUser.push(newNotification.newNotification);
+	});
 
-		if (newNotifications.value) {
-			notification.push(newNotifications.value.newNotification);
-		}
-
-		return notification;
+	const notifications = computed(() => {
+		return allNotifications.value?.notificationsByUser ?? [];
 	});
 
 	return notifications;
