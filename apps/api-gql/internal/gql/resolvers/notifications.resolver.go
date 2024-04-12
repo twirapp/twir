@@ -185,6 +185,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 	if err := query.
 		Limit(perPage).
 		Offset(page * perPage).
+		Order(`"createdAt" DESC`).
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
