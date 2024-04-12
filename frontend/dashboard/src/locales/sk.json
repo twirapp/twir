@@ -17,10 +17,10 @@
     "setDefaultSettings": "Nastaviť predvolené nastavenia",
     "goToDashboard": "Prejsť na ovládací panel",
     "add": "Pridať",
-    "send": "Send",
+    "send": "Odoslať",
     "next": "Next",
     "previous": "Previous",
-    "reset": "Reset"
+    "reset": "Obnoviť"
   },
   "sharedTexts": {
     "saved": "Uložené",
