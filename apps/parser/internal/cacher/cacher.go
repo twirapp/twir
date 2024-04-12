@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 
+	"github.com/NovikovRoman/pubg"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
@@ -27,6 +28,9 @@ type locks struct {
 	valorantProfile sync.Mutex
 	valorantMatches sync.Mutex
 
+	pubgLifetimeData  sync.Mutex
+	pubgCurrentSeason sync.Mutex
+
 	currentSong sync.Mutex
 }
 
@@ -45,6 +49,9 @@ type cache struct {
 
 	valorantProfile *types.ValorantProfile
 	valorantMatches []types.ValorantMatch
+
+	pubgLifetimeData  *pubg.LifetimeStatsPlayer
+	pubgCurrentSeason *string
 
 	currentSong *types.CurrentSong
 }

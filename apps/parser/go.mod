@@ -10,10 +10,12 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
+	github.com/twirapp/twir/libs/pubg => ../../libs/pubg
 )
 
 require (
 	github.com/Masterminds/squirrel v1.5.4
+	github.com/NovikovRoman/pubg v1.6.0
 	github.com/getsentry/sentry-go v0.26.0
 	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.6.0
@@ -119,4 +121,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240304212257-790db918fca8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240304212257-790db918fca8 // indirect
 )
+
+
 

@@ -48,6 +48,14 @@ func CreateIntegrations(db *sql.DB, config *cfg.Config) error {
 		return err
 	}
 
+	_, err = db.Query(
+		`INSERT INTO integrations (service) VALUES ($1) ON CONFLICT DO NOTHING`,
+		"PUBG",
+	)
+	if err != nil {
+		return err
+	}
+
 	slog.Info("Integrations created")
 
 	return nil
