@@ -203,6 +203,47 @@ type Query struct {
 type Subscription struct {
 }
 
+type Timer struct {
+	ID              string          `json:"id"`
+	Name            string          `json:"name"`
+	Enabled         bool            `json:"enabled"`
+	TimeInterval    int             `json:"timeInterval"`
+	MessageInterval int             `json:"messageInterval"`
+	Responses       []TimerResponse `json:"responses"`
+}
+
+type TimerCreateInput struct {
+	Name            string                     `json:"name"`
+	Enabled         bool                       `json:"enabled"`
+	TimeInterval    int                        `json:"timeInterval"`
+	MessageInterval int                        `json:"messageInterval"`
+	Responses       []TimerResponseCreateInput `json:"responses"`
+}
+
+type TimerResponse struct {
+	ID         string `json:"id"`
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerResponseCreateInput struct {
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerResponseUpdateInput struct {
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerUpdateInput struct {
+	Name            graphql.Omittable[*string]                    `json:"name,omitempty"`
+	Enabled         graphql.Omittable[*bool]                      `json:"enabled,omitempty"`
+	TimeInterval    graphql.Omittable[*int]                       `json:"timeInterval,omitempty"`
+	MessageInterval graphql.Omittable[*int]                       `json:"messageInterval,omitempty"`
+	Responses       graphql.Omittable[[]TimerResponseUpdateInput] `json:"responses,omitempty"`
+}
+
 type TwirAdminUser struct {
 	ID             string              `json:"id"`
 	TwitchProfile  *TwirUserTwitchInfo `json:"twitchProfile"`

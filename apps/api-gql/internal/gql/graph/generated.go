@@ -177,6 +177,9 @@ type ComplexityRoot struct {
 		RemoveCommand       func(childComplexity int, id string) int
 		SwitchUserAdmin     func(childComplexity int, userID string) int
 		SwitchUserBan       func(childComplexity int, userID string) int
+		TimersCreate        func(childComplexity int, opts gqlmodel.TimerCreateInput) int
+		TimersRemove        func(childComplexity int, id string) int
+		TimersUpdate        func(childComplexity int, id string, opts gqlmodel.TimerUpdateInput) int
 		UpdateCommand       func(childComplexity int, id string, opts gqlmodel.UpdateCommandOpts) int
 	}
 
@@ -187,6 +190,7 @@ type ComplexityRoot struct {
 		Keywords             func(childComplexity int) int
 		NotificationsByAdmin func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
 		NotificationsByUser  func(childComplexity int) int
+		Timers               func(childComplexity int) int
 		TwirBadges           func(childComplexity int) int
 		TwirUsers            func(childComplexity int, opts gqlmodel.TwirUsersSearchParams) int
 	}
@@ -194,6 +198,21 @@ type ComplexityRoot struct {
 	Subscription struct {
 		DashboardStats  func(childComplexity int) int
 		NewNotification func(childComplexity int) int
+	}
+
+	Timer struct {
+		Enabled         func(childComplexity int) int
+		ID              func(childComplexity int) int
+		MessageInterval func(childComplexity int) int
+		Name            func(childComplexity int) int
+		Responses       func(childComplexity int) int
+		TimeInterval    func(childComplexity int) int
+	}
+
+	TimerResponse struct {
+		ID         func(childComplexity int) int
+		IsAnnounce func(childComplexity int) int
+		Text       func(childComplexity int) int
 	}
 
 	TwirAdminUser struct {
@@ -258,6 +277,9 @@ type MutationResolver interface {
 	NotificationsCreate(ctx context.Context, text string, userID *string) (*gqlmodel.AdminNotification, error)
 	NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error)
 	NotificationsDelete(ctx context.Context, id string) (bool, error)
+	TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error)
+	TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error)
+	TimersRemove(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error)
@@ -267,6 +289,7 @@ type QueryResolver interface {
 	Keywords(ctx context.Context) ([]gqlmodel.Keyword, error)
 	NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error)
 	NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error)
+	Timers(ctx context.Context) ([]gqlmodel.Timer, error)
 	AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
 }
 type SubscriptionResolver interface {
@@ -1030,6 +1053,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SwitchUserBan(childComplexity, args["userId"].(string)), true
 
+	case "Mutation.timersCreate":
+		if e.complexity.Mutation.TimersCreate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_timersCreate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TimersCreate(childComplexity, args["opts"].(gqlmodel.TimerCreateInput)), true
+
+	case "Mutation.timersRemove":
+		if e.complexity.Mutation.TimersRemove == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_timersRemove_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TimersRemove(childComplexity, args["id"].(string)), true
+
+	case "Mutation.timersUpdate":
+		if e.complexity.Mutation.TimersUpdate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_timersUpdate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.TimersUpdate(childComplexity, args["id"].(string), args["opts"].(gqlmodel.TimerUpdateInput)), true
+
 	case "Mutation.updateCommand":
 		if e.complexity.Mutation.UpdateCommand == nil {
 			break
@@ -1089,6 +1148,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.NotificationsByUser(childComplexity), true
 
+	case "Query.timers":
+		if e.complexity.Query.Timers == nil {
+			break
+		}
+
+		return e.complexity.Query.Timers(childComplexity), true
+
 	case "Query.twirBadges":
 		if e.complexity.Query.TwirBadges == nil {
 			break
@@ -1121,6 +1187,69 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Subscription.NewNotification(childComplexity), true
+
+	case "Timer.enabled":
+		if e.complexity.Timer.Enabled == nil {
+			break
+		}
+
+		return e.complexity.Timer.Enabled(childComplexity), true
+
+	case "Timer.id":
+		if e.complexity.Timer.ID == nil {
+			break
+		}
+
+		return e.complexity.Timer.ID(childComplexity), true
+
+	case "Timer.messageInterval":
+		if e.complexity.Timer.MessageInterval == nil {
+			break
+		}
+
+		return e.complexity.Timer.MessageInterval(childComplexity), true
+
+	case "Timer.name":
+		if e.complexity.Timer.Name == nil {
+			break
+		}
+
+		return e.complexity.Timer.Name(childComplexity), true
+
+	case "Timer.responses":
+		if e.complexity.Timer.Responses == nil {
+			break
+		}
+
+		return e.complexity.Timer.Responses(childComplexity), true
+
+	case "Timer.timeInterval":
+		if e.complexity.Timer.TimeInterval == nil {
+			break
+		}
+
+		return e.complexity.Timer.TimeInterval(childComplexity), true
+
+	case "TimerResponse.id":
+		if e.complexity.TimerResponse.ID == nil {
+			break
+		}
+
+		return e.complexity.TimerResponse.ID(childComplexity), true
+
+	case "TimerResponse.isAnnounce":
+		if e.complexity.TimerResponse.IsAnnounce == nil {
+			break
+		}
+
+		return e.complexity.TimerResponse.IsAnnounce(childComplexity), true
+
+	case "TimerResponse.text":
+		if e.complexity.TimerResponse.Text == nil {
+			break
+		}
+
+		return e.complexity.TimerResponse.Text(childComplexity), true
 
 	case "TwirAdminUser.apiKey":
 		if e.complexity.TwirAdminUser.APIKey == nil {
@@ -1257,6 +1386,10 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputKeywordCreateInput,
 		ec.unmarshalInputKeywordUpdateInput,
 		ec.unmarshalInputNotificationUpdateOpts,
+		ec.unmarshalInputTimerCreateInput,
+		ec.unmarshalInputTimerResponseCreateInput,
+		ec.unmarshalInputTimerResponseUpdateInput,
+		ec.unmarshalInputTimerUpdateInput,
 		ec.unmarshalInputTwirBadgeCreateOpts,
 		ec.unmarshalInputTwirBadgeUpdateOpts,
 		ec.unmarshalInputTwirUsersSearchParams,
@@ -1712,6 +1845,57 @@ type TwirUserTwitchInfo {
 	description: String!
 }
 `, BuiltIn: false},
+	{Name: "../../../schema/timers.graphqls", Input: `extend type Query {
+	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
+	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
+	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Timer {
+	id: ID!
+	name: String!
+	enabled: Boolean!
+	timeInterval: Int!
+	messageInterval: Int!
+	responses: [TimerResponse!]!
+}
+
+type TimerResponse {
+	id: ID!
+	text: String!
+	isAnnounce: Boolean!
+}
+
+input TimerCreateInput {
+	name: String!
+	enabled: Boolean!
+	timeInterval: Int!
+	messageInterval: Int!
+	responses: [TimerResponseCreateInput!]!
+}
+
+input TimerResponseCreateInput {
+	text: String!
+	isAnnounce: Boolean!
+}
+
+input TimerUpdateInput {
+	name: String
+	enabled: Boolean
+	timeInterval: Int
+	messageInterval: Int
+	responses: [TimerResponseUpdateInput!]
+}
+
+input TimerResponseUpdateInput {
+	text: String!
+	isAnnounce: Boolean!
+}
+`, BuiltIn: false},
 	{Name: "../../../schema/user.graphqls", Input: `type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
@@ -2065,6 +2249,60 @@ func (ec *executionContext) field_Mutation_switchUserBan_args(ctx context.Contex
 		}
 	}
 	args["userId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_timersCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.TimerCreateInput
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg0, err = ec.unmarshalNTimerCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerCreateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["opts"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_timersRemove_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_timersUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 gqlmodel.TimerUpdateInput
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg1, err = ec.unmarshalNTimerUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerUpdateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["opts"] = arg1
 	return args, nil
 }
 
@@ -7181,6 +7419,277 @@ func (ec *executionContext) fieldContext_Mutation_notificationsDelete(ctx contex
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_timersCreate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_timersCreate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TimersCreate(rctx, fc.Args["opts"].(gqlmodel.TimerCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Timer); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Timer`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Timer)
+	fc.Result = res
+	return ec.marshalNTimer2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_timersCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Timer_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Timer_name(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Timer_enabled(ctx, field)
+			case "timeInterval":
+				return ec.fieldContext_Timer_timeInterval(ctx, field)
+			case "messageInterval":
+				return ec.fieldContext_Timer_messageInterval(ctx, field)
+			case "responses":
+				return ec.fieldContext_Timer_responses(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Timer", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_timersCreate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_timersUpdate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_timersUpdate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TimersUpdate(rctx, fc.Args["id"].(string), fc.Args["opts"].(gqlmodel.TimerUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Timer); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Timer`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Timer)
+	fc.Result = res
+	return ec.marshalNTimer2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimer(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_timersUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Timer_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Timer_name(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Timer_enabled(ctx, field)
+			case "timeInterval":
+				return ec.fieldContext_Timer_timeInterval(ctx, field)
+			case "messageInterval":
+				return ec.fieldContext_Timer_messageInterval(ctx, field)
+			case "responses":
+				return ec.fieldContext_Timer_responses(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Timer", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_timersUpdate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_timersRemove(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_timersRemove(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TimersRemove(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_timersRemove(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_timersRemove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_twirBadges(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_twirBadges(ctx, field)
 	if err != nil {
@@ -7779,6 +8288,90 @@ func (ec *executionContext) fieldContext_Query_notificationsByAdmin(ctx context.
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_timers(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_timers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Timers(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]gqlmodel.Timer); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Timer`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Timer)
+	fc.Result = res
+	return ec.marshalNTimer2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_timers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Timer_id(ctx, field)
+			case "name":
+				return ec.fieldContext_Timer_name(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Timer_enabled(ctx, field)
+			case "timeInterval":
+				return ec.fieldContext_Timer_timeInterval(ctx, field)
+			case "messageInterval":
+				return ec.fieldContext_Timer_messageInterval(ctx, field)
+			case "responses":
+				return ec.fieldContext_Timer_responses(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Timer", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_authenticatedUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_authenticatedUser(ctx, field)
 	if err != nil {
@@ -8175,6 +8768,410 @@ func (ec *executionContext) fieldContext_Subscription_newNotification(ctx contex
 				return ec.fieldContext_UserNotification_createdAt(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserNotification", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_timeInterval(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_timeInterval(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeInterval, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_timeInterval(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_messageInterval(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_messageInterval(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.MessageInterval, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_messageInterval(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Timer_responses(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Timer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Timer_responses(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Responses, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.TimerResponse)
+	fc.Result = res
+	return ec.marshalNTimerResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Timer_responses(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Timer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TimerResponse_id(ctx, field)
+			case "text":
+				return ec.fieldContext_TimerResponse_text(ctx, field)
+			case "isAnnounce":
+				return ec.fieldContext_TimerResponse_isAnnounce(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimerResponse", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimerResponse_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TimerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimerResponse_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimerResponse_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimerResponse_text(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TimerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimerResponse_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimerResponse_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimerResponse_isAnnounce(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TimerResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimerResponse_isAnnounce(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsAnnounce, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimerResponse_isAnnounce(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimerResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	return fc, nil
@@ -11115,6 +12112,184 @@ func (ec *executionContext) unmarshalInputNotificationUpdateOpts(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTimerCreateInput(ctx context.Context, obj interface{}) (gqlmodel.TimerCreateInput, error) {
+	var it gqlmodel.TimerCreateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "enabled", "timeInterval", "messageInterval", "responses"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = data
+		case "timeInterval":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeInterval"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeInterval = data
+		case "messageInterval":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("messageInterval"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MessageInterval = data
+		case "responses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("responses"))
+			data, err := ec.unmarshalNTimerResponseCreateInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseCreateInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Responses = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimerResponseCreateInput(ctx context.Context, obj interface{}) (gqlmodel.TimerResponseCreateInput, error) {
+	var it gqlmodel.TimerResponseCreateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "isAnnounce"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Text = data
+		case "isAnnounce":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAnnounce"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsAnnounce = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimerResponseUpdateInput(ctx context.Context, obj interface{}) (gqlmodel.TimerResponseUpdateInput, error) {
+	var it gqlmodel.TimerResponseUpdateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "isAnnounce"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Text = data
+		case "isAnnounce":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isAnnounce"))
+			data, err := ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsAnnounce = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTimerUpdateInput(ctx context.Context, obj interface{}) (gqlmodel.TimerUpdateInput, error) {
+	var it gqlmodel.TimerUpdateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "enabled", "timeInterval", "messageInterval", "responses"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "timeInterval":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timeInterval"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.TimeInterval = graphql.OmittableOf(data)
+		case "messageInterval":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("messageInterval"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.MessageInterval = graphql.OmittableOf(data)
+		case "responses":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("responses"))
+			data, err := ec.unmarshalOTimerResponseUpdateInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseUpdateInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Responses = graphql.OmittableOf(data)
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTwirBadgeCreateOpts(ctx context.Context, obj interface{}) (gqlmodel.TwirBadgeCreateOpts, error) {
 	var it gqlmodel.TwirBadgeCreateOpts
 	asMap := map[string]interface{}{}
@@ -12382,6 +13557,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
+		case "timersCreate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_timersCreate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timersUpdate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_timersUpdate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timersRemove":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_timersRemove(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12578,6 +13774,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "timers":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_timers(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
 		case "authenticatedUser":
 			field := field
 
@@ -12651,6 +13869,119 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
+}
+
+var timerImplementors = []string{"Timer"}
+
+func (ec *executionContext) _Timer(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Timer) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timerImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Timer")
+		case "id":
+			out.Values[i] = ec._Timer_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._Timer_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "enabled":
+			out.Values[i] = ec._Timer_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "timeInterval":
+			out.Values[i] = ec._Timer_timeInterval(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "messageInterval":
+			out.Values[i] = ec._Timer_messageInterval(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "responses":
+			out.Values[i] = ec._Timer_responses(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var timerResponseImplementors = []string{"TimerResponse"}
+
+func (ec *executionContext) _TimerResponse(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.TimerResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timerResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimerResponse")
+		case "id":
+			out.Values[i] = ec._TimerResponse_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "text":
+			out.Values[i] = ec._TimerResponse_text(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isAnnounce":
+			out.Values[i] = ec._TimerResponse_isAnnounce(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
 }
 
 var twirAdminUserImplementors = []string{"TwirAdminUser", "TwirUser"}
@@ -13679,6 +15010,149 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
+func (ec *executionContext) marshalNTimer2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimer(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Timer) graphql.Marshaler {
+	return ec._Timer(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTimer2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Timer) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTimer2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimer(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNTimer2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimer(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Timer) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Timer(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNTimerCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerCreateInput(ctx context.Context, v interface{}) (gqlmodel.TimerCreateInput, error) {
+	res, err := ec.unmarshalInputTimerCreateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTimerResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponse(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TimerResponse) graphql.Marshaler {
+	return ec._TimerResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTimerResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.TimerResponse) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTimerResponse2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponse(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) unmarshalNTimerResponseCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseCreateInput(ctx context.Context, v interface{}) (gqlmodel.TimerResponseCreateInput, error) {
+	res, err := ec.unmarshalInputTimerResponseCreateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTimerResponseCreateInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseCreateInputᚄ(ctx context.Context, v interface{}) ([]gqlmodel.TimerResponseCreateInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]gqlmodel.TimerResponseCreateInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTimerResponseCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseCreateInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNTimerResponseUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseUpdateInput(ctx context.Context, v interface{}) (gqlmodel.TimerResponseUpdateInput, error) {
+	res, err := ec.unmarshalInputTimerResponseUpdateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTimerUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerUpdateInput(ctx context.Context, v interface{}) (gqlmodel.TimerUpdateInput, error) {
+	res, err := ec.unmarshalInputTimerUpdateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalNTwirAdminUser2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirAdminUser(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TwirAdminUser) graphql.Marshaler {
 	return ec._TwirAdminUser(ctx, sel, &v)
 }
@@ -14310,6 +15784,26 @@ func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel
 	}
 	res := graphql.MarshalTime(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOTimerResponseUpdateInput2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseUpdateInputᚄ(ctx context.Context, v interface{}) ([]gqlmodel.TimerResponseUpdateInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]gqlmodel.TimerResponseUpdateInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNTimerResponseUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTimerResponseUpdateInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
 }
 
 func (ec *executionContext) marshalOTwirUserTwitchInfo2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {

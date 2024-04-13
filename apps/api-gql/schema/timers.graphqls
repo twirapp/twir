@@ -1,0 +1,50 @@
+extend type Query {
+	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
+	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
+	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Timer {
+	id: ID!
+	name: String!
+	enabled: Boolean!
+	timeInterval: Int!
+	messageInterval: Int!
+	responses: [TimerResponse!]!
+}
+
+type TimerResponse {
+	id: ID!
+	text: String!
+	isAnnounce: Boolean!
+}
+
+input TimerCreateInput {
+	name: String!
+	enabled: Boolean!
+	timeInterval: Int!
+	messageInterval: Int!
+	responses: [TimerResponseCreateInput!]!
+}
+
+input TimerResponseCreateInput {
+	text: String!
+	isAnnounce: Boolean!
+}
+
+input TimerUpdateInput {
+	name: String
+	enabled: Boolean
+	timeInterval: Int
+	messageInterval: Int
+	responses: [TimerResponseUpdateInput!]
+}
+
+input TimerResponseUpdateInput {
+	text: String!
+	isAnnounce: Boolean!
+}
