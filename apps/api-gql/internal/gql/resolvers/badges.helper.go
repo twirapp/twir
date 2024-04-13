@@ -5,5 +5,5 @@ func (r *Resolver) computeBadgeUrl(fileName string) string {
 		return r.config.S3PublicUrl + "/" + r.config.S3Bucket + "/badges/" + fileName
 	}
 
-	return r.config.S3Host + "/badges/" + fileName
+	return r.config.S3PublicUrl + "/badges/" + fileName
 }

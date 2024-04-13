@@ -10,7 +10,7 @@ func (p *Public) computeBadgeUrl(fileName string) string {
 		return p.config.S3PublicUrl + "/" + p.config.S3Bucket + "/badges/" + fileName
 	}
 
-	return p.config.S3Host + "/badges/" + fileName
+	return p.config.S3PublicUrl + "/badges/" + fileName
 }
 
 func (p *Public) HandleBadgesGet(c *gin.Context) {
