@@ -98,10 +98,12 @@ func (c *Integrations) IntegrationsDonationAlertsPostCode(
 		SetContentType("application/x-www-form-urlencoded").
 		Post("https://www.donationalerts.com/oauth/token")
 	if err != nil {
+		c.Logger.Error("IntegrationsDonationAlertsPostCode", err.Error())
 		return nil, err
 	}
 	if !resp.IsSuccessState() {
-		return nil, twirp.InternalErrorWith(resp.Err)
+		c.Logger.Error("IntegrationsDonationAlertsPostCode", resp.String())
+		return nil, twirp.InternalError(resp.String())
 	}
 
 	profile := donationAlertsProfileResponse{}
