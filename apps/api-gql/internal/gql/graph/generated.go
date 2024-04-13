@@ -147,6 +147,17 @@ type ComplexityRoot struct {
 		UserID        func(childComplexity int) int
 	}
 
+	Keyword struct {
+		Cooldown            func(childComplexity int) int
+		Enabled             func(childComplexity int) int
+		ID                  func(childComplexity int) int
+		IsRegularExpression func(childComplexity int) int
+		IsReply             func(childComplexity int) int
+		Response            func(childComplexity int) int
+		Text                func(childComplexity int) int
+		Usages              func(childComplexity int) int
+	}
+
 	Mutation struct {
 		BadgesAddUser       func(childComplexity int, id string, userID string) int
 		BadgesCreate        func(childComplexity int, opts gqlmodel.TwirBadgeCreateOpts) int
@@ -157,6 +168,9 @@ type ComplexityRoot struct {
 		GreetingsCreate     func(childComplexity int, opts gqlmodel.GreetingsCreateInput) int
 		GreetingsRemove     func(childComplexity int, id string) int
 		GreetingsUpdate     func(childComplexity int, id string, opts gqlmodel.GreetingsUpdateInput) int
+		KeywordCreate       func(childComplexity int, opts gqlmodel.KeywordCreateInput) int
+		KeywordRemove       func(childComplexity int, id string) int
+		KeywordUpdate       func(childComplexity int, id string, opts gqlmodel.KeywordUpdateInput) int
 		NotificationsCreate func(childComplexity int, text string, userID *string) int
 		NotificationsDelete func(childComplexity int, id string) int
 		NotificationsUpdate func(childComplexity int, id string, opts gqlmodel.NotificationUpdateOpts) int
@@ -170,6 +184,7 @@ type ComplexityRoot struct {
 		AuthenticatedUser    func(childComplexity int) int
 		Commands             func(childComplexity int) int
 		Greetings            func(childComplexity int) int
+		Keywords             func(childComplexity int) int
 		NotificationsByAdmin func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
 		NotificationsByUser  func(childComplexity int) int
 		TwirBadges           func(childComplexity int) int
@@ -237,6 +252,9 @@ type MutationResolver interface {
 	GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error)
 	GreetingsUpdate(ctx context.Context, id string, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error)
 	GreetingsRemove(ctx context.Context, id string) (bool, error)
+	KeywordCreate(ctx context.Context, opts gqlmodel.KeywordCreateInput) (*gqlmodel.Keyword, error)
+	KeywordUpdate(ctx context.Context, id string, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error)
+	KeywordRemove(ctx context.Context, id string) (bool, error)
 	NotificationsCreate(ctx context.Context, text string, userID *string) (*gqlmodel.AdminNotification, error)
 	NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error)
 	NotificationsDelete(ctx context.Context, id string) (bool, error)
@@ -246,6 +264,7 @@ type QueryResolver interface {
 	TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error)
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	Greetings(ctx context.Context) ([]gqlmodel.Greeting, error)
+	Keywords(ctx context.Context) ([]gqlmodel.Keyword, error)
 	NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error)
 	NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error)
 	AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error)
@@ -739,6 +758,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Greeting.UserID(childComplexity), true
 
+	case "Keyword.cooldown":
+		if e.complexity.Keyword.Cooldown == nil {
+			break
+		}
+
+		return e.complexity.Keyword.Cooldown(childComplexity), true
+
+	case "Keyword.enabled":
+		if e.complexity.Keyword.Enabled == nil {
+			break
+		}
+
+		return e.complexity.Keyword.Enabled(childComplexity), true
+
+	case "Keyword.id":
+		if e.complexity.Keyword.ID == nil {
+			break
+		}
+
+		return e.complexity.Keyword.ID(childComplexity), true
+
+	case "Keyword.isRegularExpression":
+		if e.complexity.Keyword.IsRegularExpression == nil {
+			break
+		}
+
+		return e.complexity.Keyword.IsRegularExpression(childComplexity), true
+
+	case "Keyword.isReply":
+		if e.complexity.Keyword.IsReply == nil {
+			break
+		}
+
+		return e.complexity.Keyword.IsReply(childComplexity), true
+
+	case "Keyword.response":
+		if e.complexity.Keyword.Response == nil {
+			break
+		}
+
+		return e.complexity.Keyword.Response(childComplexity), true
+
+	case "Keyword.text":
+		if e.complexity.Keyword.Text == nil {
+			break
+		}
+
+		return e.complexity.Keyword.Text(childComplexity), true
+
+	case "Keyword.usages":
+		if e.complexity.Keyword.Usages == nil {
+			break
+		}
+
+		return e.complexity.Keyword.Usages(childComplexity), true
+
 	case "Mutation.badgesAddUser":
 		if e.complexity.Mutation.BadgesAddUser == nil {
 			break
@@ -847,6 +922,42 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.GreetingsUpdate(childComplexity, args["id"].(string), args["opts"].(gqlmodel.GreetingsUpdateInput)), true
 
+	case "Mutation.keywordCreate":
+		if e.complexity.Mutation.KeywordCreate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_keywordCreate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.KeywordCreate(childComplexity, args["opts"].(gqlmodel.KeywordCreateInput)), true
+
+	case "Mutation.keywordRemove":
+		if e.complexity.Mutation.KeywordRemove == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_keywordRemove_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.KeywordRemove(childComplexity, args["id"].(string)), true
+
+	case "Mutation.keywordUpdate":
+		if e.complexity.Mutation.KeywordUpdate == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_keywordUpdate_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.KeywordUpdate(childComplexity, args["id"].(string), args["opts"].(gqlmodel.KeywordUpdateInput)), true
+
 	case "Mutation.notificationsCreate":
 		if e.complexity.Mutation.NotificationsCreate == nil {
 			break
@@ -951,6 +1062,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Greetings(childComplexity), true
+
+	case "Query.keywords":
+		if e.complexity.Query.Keywords == nil {
+			break
+		}
+
+		return e.complexity.Query.Keywords(childComplexity), true
 
 	case "Query.notificationsByAdmin":
 		if e.complexity.Query.NotificationsByAdmin == nil {
@@ -1136,6 +1254,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateCommandResponseInput,
 		ec.unmarshalInputGreetingsCreateInput,
 		ec.unmarshalInputGreetingsUpdateInput,
+		ec.unmarshalInputKeywordCreateInput,
+		ec.unmarshalInputKeywordUpdateInput,
 		ec.unmarshalInputNotificationUpdateOpts,
 		ec.unmarshalInputTwirBadgeCreateOpts,
 		ec.unmarshalInputTwirBadgeUpdateOpts,
@@ -1428,16 +1548,7 @@ type DashboardStats {
 	subs: Int!
 }
 `, BuiltIn: false},
-	{Name: "../../../schema/greetings.graphqls", Input: `type Greeting {
-	id: ID!
-	userId: String!
-	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
-	enabled: Boolean!
-	isReply: Boolean!
-	text: String!
-}
-
-extend type Query {
+	{Name: "../../../schema/greetings.graphqls", Input: `extend type Query {
 	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
@@ -1445,6 +1556,15 @@ extend type Mutation {
 	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
 	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
 	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Greeting {
+	id: ID!
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	enabled: Boolean!
+	isReply: Boolean!
+	text: String!
 }
 
 input GreetingsCreateInput {
@@ -1459,6 +1579,47 @@ input GreetingsUpdateInput {
 	isReply: Boolean
 	userId: String
 	text: String
+}
+`, BuiltIn: false},
+	{Name: "../../../schema/keywords.graphqls", Input: `extend type Query {
+	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Keyword {
+	id: ID!
+	text: String!
+	response: String
+	enabled: Boolean!
+	cooldown: Int!
+	isReply: Boolean!
+	isRegularExpression: Boolean!
+	usages: Int!
+}
+
+input KeywordCreateInput {
+	text: String!
+	response: String
+	cooldown: Int
+	enabled: Boolean
+	usageCount: Int
+	isRegularExpression: Boolean
+	isReply: Boolean
+}
+
+input KeywordUpdateInput {
+	text: String
+	response: String
+	cooldown: Int
+	enabled: Boolean
+	usageCount: Int
+	isRegularExpression: Boolean
+	isReply: Boolean
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/notifications.graphqls", Input: `extend type Query {
@@ -1737,6 +1898,60 @@ func (ec *executionContext) field_Mutation_greetingsUpdate_args(ctx context.Cont
 	if tmp, ok := rawArgs["opts"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
 		arg1, err = ec.unmarshalNGreetingsUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐGreetingsUpdateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["opts"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_keywordCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.KeywordCreateInput
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg0, err = ec.unmarshalNKeywordCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordCreateInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["opts"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_keywordRemove_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_keywordUpdate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	var arg1 gqlmodel.KeywordUpdateInput
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg1, err = ec.unmarshalNKeywordUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordUpdateInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4862,6 +5077,355 @@ func (ec *executionContext) fieldContext_Greeting_text(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _Keyword_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNID2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_text(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_text(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Text, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_response(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_response(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Response, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_response(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_enabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_enabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Enabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_enabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_cooldown(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_cooldown(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Cooldown, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_cooldown(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_isReply(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_isReply(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsReply, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_isReply(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_isRegularExpression(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_isRegularExpression(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsRegularExpression, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_isRegularExpression(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Keyword_usages(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Keyword_usages(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Usages, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Keyword_usages(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Keyword",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_badgesDelete(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_badgesDelete(ctx, field)
 	if err != nil {
@@ -6071,6 +6635,285 @@ func (ec *executionContext) fieldContext_Mutation_greetingsRemove(ctx context.Co
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_keywordCreate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_keywordCreate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().KeywordCreate(rctx, fc.Args["opts"].(gqlmodel.KeywordCreateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Keyword); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Keyword`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Keyword)
+	fc.Result = res
+	return ec.marshalNKeyword2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_keywordCreate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Keyword_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Keyword_text(ctx, field)
+			case "response":
+				return ec.fieldContext_Keyword_response(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Keyword_enabled(ctx, field)
+			case "cooldown":
+				return ec.fieldContext_Keyword_cooldown(ctx, field)
+			case "isReply":
+				return ec.fieldContext_Keyword_isReply(ctx, field)
+			case "isRegularExpression":
+				return ec.fieldContext_Keyword_isRegularExpression(ctx, field)
+			case "usages":
+				return ec.fieldContext_Keyword_usages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Keyword", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_keywordCreate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_keywordUpdate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_keywordUpdate(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().KeywordUpdate(rctx, fc.Args["id"].(string), fc.Args["opts"].(gqlmodel.KeywordUpdateInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*gqlmodel.Keyword); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Keyword`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.Keyword)
+	fc.Result = res
+	return ec.marshalNKeyword2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_keywordUpdate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Keyword_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Keyword_text(ctx, field)
+			case "response":
+				return ec.fieldContext_Keyword_response(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Keyword_enabled(ctx, field)
+			case "cooldown":
+				return ec.fieldContext_Keyword_cooldown(ctx, field)
+			case "isReply":
+				return ec.fieldContext_Keyword_isReply(ctx, field)
+			case "isRegularExpression":
+				return ec.fieldContext_Keyword_isRegularExpression(ctx, field)
+			case "usages":
+				return ec.fieldContext_Keyword_usages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Keyword", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_keywordUpdate_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Mutation_keywordRemove(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_keywordRemove(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().KeywordRemove(rctx, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_keywordRemove(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_keywordRemove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_notificationsCreate(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_notificationsCreate(ctx, field)
 	if err != nil {
@@ -6682,6 +7525,94 @@ func (ec *executionContext) fieldContext_Query_greetings(ctx context.Context, fi
 				return ec.fieldContext_Greeting_text(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Greeting", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_keywords(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_keywords(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().Keywords(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]gqlmodel.Keyword); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.Keyword`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.Keyword)
+	fc.Result = res
+	return ec.marshalNKeyword2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_keywords(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Keyword_id(ctx, field)
+			case "text":
+				return ec.fieldContext_Keyword_text(ctx, field)
+			case "response":
+				return ec.fieldContext_Keyword_response(ctx, field)
+			case "enabled":
+				return ec.fieldContext_Keyword_enabled(ctx, field)
+			case "cooldown":
+				return ec.fieldContext_Keyword_cooldown(ctx, field)
+			case "isReply":
+				return ec.fieldContext_Keyword_isReply(ctx, field)
+			case "isRegularExpression":
+				return ec.fieldContext_Keyword_isRegularExpression(ctx, field)
+			case "usages":
+				return ec.fieldContext_Keyword_usages(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Keyword", field.Name)
 		},
 	}
 	return fc, nil
@@ -10019,6 +10950,144 @@ func (ec *executionContext) unmarshalInputGreetingsUpdateInput(ctx context.Conte
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputKeywordCreateInput(ctx context.Context, obj interface{}) (gqlmodel.KeywordCreateInput, error) {
+	var it gqlmodel.KeywordCreateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "response", "cooldown", "enabled", "usageCount", "isRegularExpression", "isReply"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Text = data
+		case "response":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("response"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Response = graphql.OmittableOf(data)
+		case "cooldown":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cooldown"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cooldown = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "usageCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usageCount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsageCount = graphql.OmittableOf(data)
+		case "isRegularExpression":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isRegularExpression"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsRegularExpression = graphql.OmittableOf(data)
+		case "isReply":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isReply"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsReply = graphql.OmittableOf(data)
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputKeywordUpdateInput(ctx context.Context, obj interface{}) (gqlmodel.KeywordUpdateInput, error) {
+	var it gqlmodel.KeywordUpdateInput
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"text", "response", "cooldown", "enabled", "usageCount", "isRegularExpression", "isReply"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "text":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Text = graphql.OmittableOf(data)
+		case "response":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("response"))
+			data, err := ec.unmarshalOString2ᚖstring(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Response = graphql.OmittableOf(data)
+		case "cooldown":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("cooldown"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Cooldown = graphql.OmittableOf(data)
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "usageCount":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("usageCount"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.UsageCount = graphql.OmittableOf(data)
+		case "isRegularExpression":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isRegularExpression"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsRegularExpression = graphql.OmittableOf(data)
+		case "isReply":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("isReply"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IsReply = graphql.OmittableOf(data)
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputNotificationUpdateOpts(ctx context.Context, obj interface{}) (gqlmodel.NotificationUpdateOpts, error) {
 	var it gqlmodel.NotificationUpdateOpts
 	asMap := map[string]interface{}{}
@@ -11090,6 +12159,77 @@ func (ec *executionContext) _Greeting(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var keywordImplementors = []string{"Keyword"}
+
+func (ec *executionContext) _Keyword(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Keyword) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, keywordImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Keyword")
+		case "id":
+			out.Values[i] = ec._Keyword_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "text":
+			out.Values[i] = ec._Keyword_text(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "response":
+			out.Values[i] = ec._Keyword_response(ctx, field, obj)
+		case "enabled":
+			out.Values[i] = ec._Keyword_enabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "cooldown":
+			out.Values[i] = ec._Keyword_cooldown(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isReply":
+			out.Values[i] = ec._Keyword_isReply(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "isRegularExpression":
+			out.Values[i] = ec._Keyword_isRegularExpression(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "usages":
+			out.Values[i] = ec._Keyword_usages(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -11196,6 +12336,27 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		case "greetingsRemove":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
 				return ec._Mutation_greetingsRemove(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "keywordCreate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_keywordCreate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "keywordUpdate":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_keywordUpdate(ctx, field)
+			})
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "keywordRemove":
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_keywordRemove(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -11339,6 +12500,28 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_greetings(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "keywords":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_keywords(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -12391,6 +13574,74 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNKeyword2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Keyword) graphql.Marshaler {
+	return ec._Keyword(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNKeyword2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.Keyword) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNKeyword2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNKeyword2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.Keyword) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Keyword(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNKeywordCreateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordCreateInput(ctx context.Context, v interface{}) (gqlmodel.KeywordCreateInput, error) {
+	res, err := ec.unmarshalInputKeywordCreateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNKeywordUpdateInput2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeywordUpdateInput(ctx context.Context, v interface{}) (gqlmodel.KeywordUpdateInput, error) {
+	res, err := ec.unmarshalInputKeywordUpdateInput(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNNotificationUpdateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationUpdateOpts(ctx context.Context, v interface{}) (gqlmodel.NotificationUpdateOpts, error) {

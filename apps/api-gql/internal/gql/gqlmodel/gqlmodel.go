@@ -159,6 +159,37 @@ type GreetingsUpdateInput struct {
 	Text    graphql.Omittable[*string] `json:"text,omitempty"`
 }
 
+type Keyword struct {
+	ID                  string  `json:"id"`
+	Text                string  `json:"text"`
+	Response            *string `json:"response,omitempty"`
+	Enabled             bool    `json:"enabled"`
+	Cooldown            int     `json:"cooldown"`
+	IsReply             bool    `json:"isReply"`
+	IsRegularExpression bool    `json:"isRegularExpression"`
+	Usages              int     `json:"usages"`
+}
+
+type KeywordCreateInput struct {
+	Text                string                     `json:"text"`
+	Response            graphql.Omittable[*string] `json:"response,omitempty"`
+	Cooldown            graphql.Omittable[*int]    `json:"cooldown,omitempty"`
+	Enabled             graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	UsageCount          graphql.Omittable[*int]    `json:"usageCount,omitempty"`
+	IsRegularExpression graphql.Omittable[*bool]   `json:"isRegularExpression,omitempty"`
+	IsReply             graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+}
+
+type KeywordUpdateInput struct {
+	Text                graphql.Omittable[*string] `json:"text,omitempty"`
+	Response            graphql.Omittable[*string] `json:"response,omitempty"`
+	Cooldown            graphql.Omittable[*int]    `json:"cooldown,omitempty"`
+	Enabled             graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	UsageCount          graphql.Omittable[*int]    `json:"usageCount,omitempty"`
+	IsRegularExpression graphql.Omittable[*bool]   `json:"isRegularExpression,omitempty"`
+	IsReply             graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+}
+
 type Mutation struct {
 }
 

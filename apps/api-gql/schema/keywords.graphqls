@@ -1,0 +1,40 @@
+extend type Query {
+	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Keyword {
+	id: ID!
+	text: String!
+	response: String
+	enabled: Boolean!
+	cooldown: Int!
+	isReply: Boolean!
+	isRegularExpression: Boolean!
+	usages: Int!
+}
+
+input KeywordCreateInput {
+	text: String!
+	response: String
+	cooldown: Int
+	enabled: Boolean
+	usageCount: Int
+	isRegularExpression: Boolean
+	isReply: Boolean
+}
+
+input KeywordUpdateInput {
+	text: String
+	response: String
+	cooldown: Int
+	enabled: Boolean
+	usageCount: Int
+	isRegularExpression: Boolean
+	isReply: Boolean
+}
