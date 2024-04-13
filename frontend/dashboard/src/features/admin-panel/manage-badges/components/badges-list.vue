@@ -31,7 +31,7 @@ const badgesStore = useBadges();
 const { badges } = storeToRefs(badgesStore);
 
 async function removeBadge(badgeId: string) {
-	await badgesStore.badgesDelete.executeMutation({ id: badgeId });
+	await badgesStore.badgesDelete.executeMutation({ id: badgeId }, { additionalTypenames: ['AdminBadgesInvalidateKey'] });
 	deleteBadgeId.value = null;
 }
 

@@ -1,6 +1,5 @@
 import type { Cache, UpdateResolver } from '@urql/exchange-graphcache';
-import { cacheExchange } from '@urql/exchange-graphcache';
-import { Client, fetchExchange, subscriptionExchange } from '@urql/vue';
+import { cacheExchange, Client, fetchExchange, subscriptionExchange } from '@urql/vue';
 import { createClient as createWS, type SubscribePayload } from 'graphql-ws';
 
 import type { GraphCacheConfig, Mutation } from '@/gql/graphcache';
@@ -67,7 +66,7 @@ for (const [mutationKey, queryKeys] of Object.entries(mutationQueryKeys)) {
 export const urqlClient = new Client({
 	url: gqlApiUrl,
 	exchanges: [
-		cacheExchange(graphCacheConfig),
+		cacheExchange,
 		fetchExchange,
 		subscriptionExchange({
 			enableAllOperations: true,

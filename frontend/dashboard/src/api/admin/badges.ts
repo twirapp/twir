@@ -1,8 +1,10 @@
-import { useQuery, useMutation } from '@urql/vue';
+import { useMutation, useQuery } from '@urql/vue';
 
 import { graphql } from '@/gql';
 
+const invalidationKey = 'AdminBadgesInvalidateKey';
 export const useAdminBadges = () => {
+
 	const useMutationCreateBadge = () => useMutation(graphql(`
 		mutation CreateBadge($opts: TwirBadgeCreateOpts!) {
 			badgesCreate(opts: $opts) {
@@ -47,6 +49,9 @@ export const useAdminBadges = () => {
 };
 
 export const useQueryBadges = () => useQuery({
+	context: {
+		additionalTypenames: [invalidationKey],
+	},
 	query: graphql(`
 		query BadgesGetAll {
 			twirBadges {
