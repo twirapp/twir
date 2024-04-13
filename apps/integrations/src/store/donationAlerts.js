@@ -60,6 +60,10 @@ export async function addIntegration(integration) {
 		break;
 	}
 
+	if (!accessToken || !refreshToken) {
+		return;
+	}
+
 	await db('channels_integrations').where('id', integration.id).update({
 		accessToken: accessToken,
 		refreshToken: refreshToken,
