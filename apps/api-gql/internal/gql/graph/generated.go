@@ -51,9 +51,10 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
-	HasAccessToSelectedDashboard func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	IsAdmin                      func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
-	IsAuthenticated              func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	HasAccessToSelectedDashboard       func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	HasChannelRolesDashboardPermission func(ctx context.Context, obj interface{}, next graphql.Resolver, permission *gqlmodel.ChannelRolePermissionEnum) (res interface{}, err error)
+	IsAdmin                            func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	IsAuthenticated                    func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -1588,7 +1589,7 @@ type TwirUsersResponse {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/commands.graphqls", Input: `extend type Query {
-	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard
+	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_COMMANDS)
 }
 
 extend type Mutation {
@@ -1817,6 +1818,32 @@ type AdminNotificationsResponse {
 	total: Int!
 }
 `, BuiltIn: false},
+	{Name: "../../../schema/permissions.directives.graphqls", Input: `enum ChannelRolePermissionEnum {
+	CAN_ACCESS_DASHBOARD
+	UPDATE_CHANNEL_TITLE
+	UPDATE_CHANNEL_CATEGORY
+	VIEW_COMMANDS
+	MANAGE_COMMANDS
+	VIEW_KEYWORDS
+	MANAGE_KEYWORDS
+	VIEW_TIMERS
+	MANAGE_TIMERS
+	VIEW_INTEGRATIONS
+	MANAGE_INTEGRATIONS
+	VIEW_SONG_REQUESTS
+	MANAGE_SONG_REQUESTS
+	VIEW_MODERATION
+	MANAGE_MODERATION
+	VIEW_VARIABLES
+	MANAGE_VARIABLES
+	VIEW_GREETINGS
+	MANAGE_GREETINGS
+	VIEW_OVERLAYS
+	MANAGE_OVERLAYS
+}
+
+directive @hasChannelRolesDashboardPermission(permission: ChannelRolePermissionEnum) on FIELD_DEFINITION
+`, BuiltIn: false},
 	{Name: "../../../schema/schema.graphqls", Input: `type Query
 type Mutation
 type Subscription
@@ -1918,6 +1945,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) dir_hasChannelRolesDashboardPermission_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *gqlmodel.ChannelRolePermissionEnum
+	if tmp, ok := rawArgs["permission"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("permission"))
+		arg0, err = ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["permission"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_badgesAddUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -7866,8 +7908,18 @@ func (ec *executionContext) _Query_commands(ctx context.Context, field graphql.C
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -15599,6 +15651,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	}
 	res := graphql.MarshalBoolean(*v)
 	return res
+}
+
+func (ec *executionContext) unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx context.Context, v interface{}) (*gqlmodel.ChannelRolePermissionEnum, error) {
+	if v == nil {
+		return nil, nil
+	}
+	var res = new(gqlmodel.ChannelRolePermissionEnum)
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.ChannelRolePermissionEnum) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return v
 }
 
 func (ec *executionContext) marshalOCommandResponse2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐCommandResponseᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.CommandResponse) graphql.Marshaler {

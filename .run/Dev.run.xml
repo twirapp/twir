@@ -1,6 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Dev" type="CompoundRunConfigurationType">
     <toRun name="Dev Api" type="GoApplicationRunConfiguration" />
+    <toRun name="Dev Api-gql" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Bots" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Discord" type="GoApplicationRunConfiguration" />
     <toRun name="Dev Emotes Cacher" type="GoApplicationRunConfiguration" />

@@ -1,11 +1,11 @@
 extend type Query {
-	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard
+	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_KEYWORDS)
 }
 
 extend type Mutation {
-	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
 }
 
 type Keyword {

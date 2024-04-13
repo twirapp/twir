@@ -1,11 +1,11 @@
 extend type Query {
-	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard
+	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_TIMERS)
 }
 
 extend type Mutation {
-	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 }
 
 type Timer {

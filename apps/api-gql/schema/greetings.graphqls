@@ -1,11 +1,11 @@
 extend type Query {
-	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard
+	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GREETINGS)
 }
 
 extend type Mutation {
-	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
 }
 
 type Greeting {

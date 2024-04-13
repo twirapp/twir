@@ -66,6 +66,30 @@ export type Badge = {
   users?: Maybe<Array<Scalars['String']['output']>>;
 };
 
+export enum ChannelRolePermissionEnum {
+  CanAccessDashboard = 'CAN_ACCESS_DASHBOARD',
+  ManageCommands = 'MANAGE_COMMANDS',
+  ManageGreetings = 'MANAGE_GREETINGS',
+  ManageIntegrations = 'MANAGE_INTEGRATIONS',
+  ManageKeywords = 'MANAGE_KEYWORDS',
+  ManageModeration = 'MANAGE_MODERATION',
+  ManageOverlays = 'MANAGE_OVERLAYS',
+  ManageSongRequests = 'MANAGE_SONG_REQUESTS',
+  ManageTimers = 'MANAGE_TIMERS',
+  ManageVariables = 'MANAGE_VARIABLES',
+  UpdateChannelCategory = 'UPDATE_CHANNEL_CATEGORY',
+  UpdateChannelTitle = 'UPDATE_CHANNEL_TITLE',
+  ViewCommands = 'VIEW_COMMANDS',
+  ViewGreetings = 'VIEW_GREETINGS',
+  ViewIntegrations = 'VIEW_INTEGRATIONS',
+  ViewKeywords = 'VIEW_KEYWORDS',
+  ViewModeration = 'VIEW_MODERATION',
+  ViewOverlays = 'VIEW_OVERLAYS',
+  ViewSongRequests = 'VIEW_SONG_REQUESTS',
+  ViewTimers = 'VIEW_TIMERS',
+  ViewVariables = 'VIEW_VARIABLES'
+}
+
 export type Command = {
   __typename?: 'Command';
   aliases?: Maybe<Array<Scalars['String']['output']>>;

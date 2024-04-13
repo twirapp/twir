@@ -329,6 +329,85 @@ func (this UserNotification) GetUserID() *string      { return this.UserID }
 func (this UserNotification) GetText() string         { return this.Text }
 func (this UserNotification) GetCreatedAt() time.Time { return this.CreatedAt }
 
+type ChannelRolePermissionEnum string
+
+const (
+	ChannelRolePermissionEnumCanAccessDashboard    ChannelRolePermissionEnum = "CAN_ACCESS_DASHBOARD"
+	ChannelRolePermissionEnumUpdateChannelTitle    ChannelRolePermissionEnum = "UPDATE_CHANNEL_TITLE"
+	ChannelRolePermissionEnumUpdateChannelCategory ChannelRolePermissionEnum = "UPDATE_CHANNEL_CATEGORY"
+	ChannelRolePermissionEnumViewCommands          ChannelRolePermissionEnum = "VIEW_COMMANDS"
+	ChannelRolePermissionEnumManageCommands        ChannelRolePermissionEnum = "MANAGE_COMMANDS"
+	ChannelRolePermissionEnumViewKeywords          ChannelRolePermissionEnum = "VIEW_KEYWORDS"
+	ChannelRolePermissionEnumManageKeywords        ChannelRolePermissionEnum = "MANAGE_KEYWORDS"
+	ChannelRolePermissionEnumViewTimers            ChannelRolePermissionEnum = "VIEW_TIMERS"
+	ChannelRolePermissionEnumManageTimers          ChannelRolePermissionEnum = "MANAGE_TIMERS"
+	ChannelRolePermissionEnumViewIntegrations      ChannelRolePermissionEnum = "VIEW_INTEGRATIONS"
+	ChannelRolePermissionEnumManageIntegrations    ChannelRolePermissionEnum = "MANAGE_INTEGRATIONS"
+	ChannelRolePermissionEnumViewSongRequests      ChannelRolePermissionEnum = "VIEW_SONG_REQUESTS"
+	ChannelRolePermissionEnumManageSongRequests    ChannelRolePermissionEnum = "MANAGE_SONG_REQUESTS"
+	ChannelRolePermissionEnumViewModeration        ChannelRolePermissionEnum = "VIEW_MODERATION"
+	ChannelRolePermissionEnumManageModeration      ChannelRolePermissionEnum = "MANAGE_MODERATION"
+	ChannelRolePermissionEnumViewVariables         ChannelRolePermissionEnum = "VIEW_VARIABLES"
+	ChannelRolePermissionEnumManageVariables       ChannelRolePermissionEnum = "MANAGE_VARIABLES"
+	ChannelRolePermissionEnumViewGreetings         ChannelRolePermissionEnum = "VIEW_GREETINGS"
+	ChannelRolePermissionEnumManageGreetings       ChannelRolePermissionEnum = "MANAGE_GREETINGS"
+	ChannelRolePermissionEnumViewOverlays          ChannelRolePermissionEnum = "VIEW_OVERLAYS"
+	ChannelRolePermissionEnumManageOverlays        ChannelRolePermissionEnum = "MANAGE_OVERLAYS"
+)
+
+var AllChannelRolePermissionEnum = []ChannelRolePermissionEnum{
+	ChannelRolePermissionEnumCanAccessDashboard,
+	ChannelRolePermissionEnumUpdateChannelTitle,
+	ChannelRolePermissionEnumUpdateChannelCategory,
+	ChannelRolePermissionEnumViewCommands,
+	ChannelRolePermissionEnumManageCommands,
+	ChannelRolePermissionEnumViewKeywords,
+	ChannelRolePermissionEnumManageKeywords,
+	ChannelRolePermissionEnumViewTimers,
+	ChannelRolePermissionEnumManageTimers,
+	ChannelRolePermissionEnumViewIntegrations,
+	ChannelRolePermissionEnumManageIntegrations,
+	ChannelRolePermissionEnumViewSongRequests,
+	ChannelRolePermissionEnumManageSongRequests,
+	ChannelRolePermissionEnumViewModeration,
+	ChannelRolePermissionEnumManageModeration,
+	ChannelRolePermissionEnumViewVariables,
+	ChannelRolePermissionEnumManageVariables,
+	ChannelRolePermissionEnumViewGreetings,
+	ChannelRolePermissionEnumManageGreetings,
+	ChannelRolePermissionEnumViewOverlays,
+	ChannelRolePermissionEnumManageOverlays,
+}
+
+func (e ChannelRolePermissionEnum) IsValid() bool {
+	switch e {
+	case ChannelRolePermissionEnumCanAccessDashboard, ChannelRolePermissionEnumUpdateChannelTitle, ChannelRolePermissionEnumUpdateChannelCategory, ChannelRolePermissionEnumViewCommands, ChannelRolePermissionEnumManageCommands, ChannelRolePermissionEnumViewKeywords, ChannelRolePermissionEnumManageKeywords, ChannelRolePermissionEnumViewTimers, ChannelRolePermissionEnumManageTimers, ChannelRolePermissionEnumViewIntegrations, ChannelRolePermissionEnumManageIntegrations, ChannelRolePermissionEnumViewSongRequests, ChannelRolePermissionEnumManageSongRequests, ChannelRolePermissionEnumViewModeration, ChannelRolePermissionEnumManageModeration, ChannelRolePermissionEnumViewVariables, ChannelRolePermissionEnumManageVariables, ChannelRolePermissionEnumViewGreetings, ChannelRolePermissionEnumManageGreetings, ChannelRolePermissionEnumViewOverlays, ChannelRolePermissionEnumManageOverlays:
+		return true
+	}
+	return false
+}
+
+func (e ChannelRolePermissionEnum) String() string {
+	return string(e)
+}
+
+func (e *ChannelRolePermissionEnum) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ChannelRolePermissionEnum(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ChannelRolePermissionEnum", str)
+	}
+	return nil
+}
+
+func (e ChannelRolePermissionEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
 type NotificationType string
 
 const (
