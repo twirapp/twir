@@ -50,7 +50,7 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 	entity := model.Badge{}
 	if err := r.gorm.
 		WithContext(ctx).
-		Joins("Users").
+		Preload("Users").
 		Where(
 			"badges.id = ?",
 			id,

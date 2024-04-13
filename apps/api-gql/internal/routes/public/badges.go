@@ -17,6 +17,7 @@ func (p *Public) HandleBadgesGet(c *gin.Context) {
 	var badges []model.Badge
 	if err := p.gorm.
 		WithContext(c.Request.Context()).
+		Preload("Users").
 		Find(&badges).
 		Error; err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -26,13 +27,18 @@ func (p *Public) HandleBadgesGet(c *gin.Context) {
 	mappedBadges := make([]map[string]any, 0, len(badges))
 
 	for _, badge := range badges {
+		users := make([]string, 0, len(badge.Users))
+		for _, user := range badge.Users {
+			users = append(users, user.UserID)
+		}
+
 		mappedBadges = append(
 			mappedBadges,
 			map[string]any{
 				"name":    badge.Name,
 				"url":     p.computeBadgeUrl(badge.FileName),
 				"ffzSlot": badge.FFZSlot,
-				"users":   badge.Users,
+				"users":   users,
 			},
 		)
 	}
