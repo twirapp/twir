@@ -35,6 +35,7 @@ func (p *Public) HandleBadgesGet(c *gin.Context) {
 		mappedBadges = append(
 			mappedBadges,
 			map[string]any{
+				"id":      badge.ID,
 				"name":    badge.Name,
 				"url":     p.computeBadgeUrl(badge.FileName),
 				"ffzSlot": badge.FFZSlot,
