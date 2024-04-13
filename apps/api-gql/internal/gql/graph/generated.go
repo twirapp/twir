@@ -148,6 +148,46 @@ type ComplexityRoot struct {
 		UserID        func(childComplexity int) int
 	}
 
+	IntegrationDataDiscord struct {
+		Guilds func(childComplexity int) int
+	}
+
+	IntegrationDataDiscordGuild struct {
+		AdditionalUsersIdsForLiveCheck            func(childComplexity int) int
+		AdditionalUsersTwitchProfilesForLiveCheck func(childComplexity int) int
+		Channels                                  func(childComplexity int) int
+		ID                                        func(childComplexity int) int
+		Icon                                      func(childComplexity int) int
+		LiveNotificationAdditionalTwitchUsersIds  func(childComplexity int) int
+		LiveNotificationChannelsIds               func(childComplexity int) int
+		LiveNotificationEnabled                   func(childComplexity int) int
+		LiveNotificationMessage                   func(childComplexity int) int
+		LiveNotificationShowCategory              func(childComplexity int) int
+		LiveNotificationShowPreview               func(childComplexity int) int
+		LiveNotificationShowProfileImage          func(childComplexity int) int
+		LiveNotificationShowTitle                 func(childComplexity int) int
+		LiveNotificationShowViewers               func(childComplexity int) int
+		Name                                      func(childComplexity int) int
+		OfflineNotificationMessage                func(childComplexity int) int
+		Roles                                     func(childComplexity int) int
+		ShouldDeleteMessageOnOffline              func(childComplexity int) int
+	}
+
+	IntegrationDataDiscordGuildChannel struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
+	IntegrationDataDiscordGuildRole struct {
+		ID   func(childComplexity int) int
+		Name func(childComplexity int) int
+	}
+
+	IntegrationDataDonationAlerts struct {
+		Avatar   func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
 	IntegrationDataLastfm struct {
 		Avatar   func(childComplexity int) int
 		Username func(childComplexity int) int
@@ -164,6 +204,26 @@ type ComplexityRoot struct {
 	IntegrationDataSevenTvProfile struct {
 		Avatar   func(childComplexity int) int
 		ID       func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	IntegrationDataSpotify struct {
+		Avatar   func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	IntegrationDataStreamLabs struct {
+		Avatar   func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	IntegrationDataValorant struct {
+		Avatar   func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	IntegrationDataVk struct {
+		Avatar   func(childComplexity int) int
 		Username func(childComplexity int) int
 	}
 
@@ -250,6 +310,7 @@ type ComplexityRoot struct {
 	TwirUserTwitchInfo struct {
 		Description     func(childComplexity int) int
 		DisplayName     func(childComplexity int) int
+		ID              func(childComplexity int) int
 		Login           func(childComplexity int) int
 		ProfileImageURL func(childComplexity int) int
 	}
@@ -805,6 +866,181 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Greeting.UserID(childComplexity), true
 
+	case "IntegrationDataDiscord.guilds":
+		if e.complexity.IntegrationDataDiscord.Guilds == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscord.Guilds(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.additionalUsersIdsForLiveCheck":
+		if e.complexity.IntegrationDataDiscordGuild.AdditionalUsersIdsForLiveCheck == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.AdditionalUsersIdsForLiveCheck(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.additionalUsersTwitchProfilesForLiveCheck":
+		if e.complexity.IntegrationDataDiscordGuild.AdditionalUsersTwitchProfilesForLiveCheck == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.AdditionalUsersTwitchProfilesForLiveCheck(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.channels":
+		if e.complexity.IntegrationDataDiscordGuild.Channels == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.Channels(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.id":
+		if e.complexity.IntegrationDataDiscordGuild.ID == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.ID(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.icon":
+		if e.complexity.IntegrationDataDiscordGuild.Icon == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.Icon(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationAdditional_twitch_users_ids":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationAdditionalTwitchUsersIds == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationAdditionalTwitchUsersIds(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationChannels_ids":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationChannelsIds == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationChannelsIds(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationEnabled":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationEnabled == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationEnabled(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationMessage":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationMessage == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationMessage(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationShow_category":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowCategory == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowCategory(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationShowPreview":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowPreview == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowPreview(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationShowProfileImage":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowProfileImage == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowProfileImage(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationShow_title":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowTitle == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowTitle(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.liveNotificationShowViewers":
+		if e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowViewers == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.LiveNotificationShowViewers(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.name":
+		if e.complexity.IntegrationDataDiscordGuild.Name == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.Name(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.offlineNotificationMessage":
+		if e.complexity.IntegrationDataDiscordGuild.OfflineNotificationMessage == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.OfflineNotificationMessage(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.roles":
+		if e.complexity.IntegrationDataDiscordGuild.Roles == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.Roles(childComplexity), true
+
+	case "IntegrationDataDiscordGuild.shouldDeleteMessageOnOffline":
+		if e.complexity.IntegrationDataDiscordGuild.ShouldDeleteMessageOnOffline == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuild.ShouldDeleteMessageOnOffline(childComplexity), true
+
+	case "IntegrationDataDiscordGuildChannel.id":
+		if e.complexity.IntegrationDataDiscordGuildChannel.ID == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuildChannel.ID(childComplexity), true
+
+	case "IntegrationDataDiscordGuildChannel.name":
+		if e.complexity.IntegrationDataDiscordGuildChannel.Name == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuildChannel.Name(childComplexity), true
+
+	case "IntegrationDataDiscordGuildRole.id":
+		if e.complexity.IntegrationDataDiscordGuildRole.ID == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuildRole.ID(childComplexity), true
+
+	case "IntegrationDataDiscordGuildRole.name":
+		if e.complexity.IntegrationDataDiscordGuildRole.Name == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDiscordGuildRole.Name(childComplexity), true
+
+	case "IntegrationDataDonationAlerts.avatar":
+		if e.complexity.IntegrationDataDonationAlerts.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDonationAlerts.Avatar(childComplexity), true
+
+	case "IntegrationDataDonationAlerts.username":
+		if e.complexity.IntegrationDataDonationAlerts.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataDonationAlerts.Username(childComplexity), true
+
 	case "IntegrationDataLastfm.avatar":
 		if e.complexity.IntegrationDataLastfm.Avatar == nil {
 			break
@@ -874,6 +1110,62 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.IntegrationDataSevenTvProfile.Username(childComplexity), true
+
+	case "IntegrationDataSpotify.avatar":
+		if e.complexity.IntegrationDataSpotify.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSpotify.Avatar(childComplexity), true
+
+	case "IntegrationDataSpotify.username":
+		if e.complexity.IntegrationDataSpotify.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSpotify.Username(childComplexity), true
+
+	case "IntegrationDataStreamLabs.avatar":
+		if e.complexity.IntegrationDataStreamLabs.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataStreamLabs.Avatar(childComplexity), true
+
+	case "IntegrationDataStreamLabs.username":
+		if e.complexity.IntegrationDataStreamLabs.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataStreamLabs.Username(childComplexity), true
+
+	case "IntegrationDataValorant.avatar":
+		if e.complexity.IntegrationDataValorant.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataValorant.Avatar(childComplexity), true
+
+	case "IntegrationDataValorant.username":
+		if e.complexity.IntegrationDataValorant.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataValorant.Username(childComplexity), true
+
+	case "IntegrationDataVk.avatar":
+		if e.complexity.IntegrationDataVk.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataVk.Avatar(childComplexity), true
+
+	case "IntegrationDataVk.username":
+		if e.complexity.IntegrationDataVk.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataVk.Username(childComplexity), true
 
 	case "Keyword.cooldown":
 		if e.complexity.Keyword.Cooldown == nil {
@@ -1432,6 +1724,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.TwirUserTwitchInfo.DisplayName(childComplexity), true
 
+	case "TwirUserTwitchInfo.id":
+		if e.complexity.TwirUserTwitchInfo.ID == nil {
+			break
+		}
+
+		return e.complexity.TwirUserTwitchInfo.ID(childComplexity), true
+
 	case "TwirUserTwitchInfo.login":
 		if e.complexity.TwirUserTwitchInfo.Login == nil {
 			break
@@ -1833,8 +2132,8 @@ input GreetingsUpdateInput {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/integrations.graphqls", Input: `extend type Query {
-	integrationsGetServiceAuthLink(service: IntegrationService!): String!
-	integrationsGetData(service: IntegrationService!): IntegrationData!
+	integrationsGetServiceAuthLink(service: IntegrationService!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	integrationsGetData(service: IntegrationService!): IntegrationData! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 enum IntegrationService {
@@ -1852,9 +2151,34 @@ enum IntegrationService {
 	NIGHTBOT
 }
 
-union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv
+union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv | IntegrationDataVk | IntegrationDataValorant | IntegrationDataStreamLabs | IntegrationDataSpotify | IntegrationDataDonationAlerts | IntegrationDataDiscord
 
 type IntegrationDataLastfm {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataVk {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataValorant {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataStreamLabs {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataSpotify {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataDonationAlerts {
 	username: String!
 	avatar: String!
 }
@@ -1871,6 +2195,41 @@ type IntegrationDataSevenTvProfile {
 	id: String!
 	avatar: String!
 	username: String!
+}
+
+type IntegrationDataDiscord {
+	guilds: [IntegrationDataDiscordGuild!]!
+}
+
+type IntegrationDataDiscordGuild {
+	id: String!
+	name: String!
+	icon: String!
+	liveNotificationEnabled: Boolean!
+	liveNotificationChannels_ids: [String!]!
+	liveNotificationShow_title: Boolean!
+	liveNotificationShow_category: Boolean!
+	liveNotificationMessage: String!
+	liveNotificationAdditional_twitch_users_ids: [String!]!
+	liveNotificationShowViewers: Boolean!
+	liveNotificationShowPreview: Boolean!
+	liveNotificationShowProfileImage: Boolean!
+	channels: [IntegrationDataDiscordGuildChannel!]!
+	roles: [IntegrationDataDiscordGuildRole!]!
+	offlineNotificationMessage: String!
+	shouldDeleteMessageOnOffline: Boolean!
+	additionalUsersIdsForLiveCheck: [String!]!
+	additionalUsersTwitchProfilesForLiveCheck: [TwirUserTwitchInfo!]!
+}
+
+type IntegrationDataDiscordGuildChannel {
+	id: String!
+	name: String!
+}
+
+type IntegrationDataDiscordGuildRole {
+	id: String!
+	name: String!
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/keywords.graphqls", Input: `extend type Query {
@@ -2024,6 +2383,7 @@ scalar Time
 }
 
 type TwirUserTwitchInfo {
+	id: String!
 	login: String!
 	displayName: String!
 	profileImageUrl: String!
@@ -2808,6 +3168,8 @@ func (ec *executionContext) fieldContext_AdminNotification_twitchProfile(ctx con
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
 			case "login":
 				return ec.fieldContext_TwirUserTwitchInfo_login(ctx, field)
 			case "displayName":
@@ -3349,6 +3711,8 @@ func (ec *executionContext) fieldContext_AuthenticatedUser_twitchProfile(ctx con
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
 			case "login":
 				return ec.fieldContext_TwirUserTwitchInfo_login(ctx, field)
 			case "displayName":
@@ -5398,6 +5762,8 @@ func (ec *executionContext) fieldContext_Greeting_twitchProfile(ctx context.Cont
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
 			case "login":
 				return ec.fieldContext_TwirUserTwitchInfo_login(ctx, field)
 			case "displayName":
@@ -5535,6 +5901,1168 @@ func (ec *executionContext) _Greeting_text(ctx context.Context, field graphql.Co
 func (ec *executionContext) fieldContext_Greeting_text(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Greeting",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscord_guilds(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscord) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscord_guilds(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Guilds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.IntegrationDataDiscordGuild)
+	fc.Result = res
+	return ec.marshalNIntegrationDataDiscordGuild2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscord_guilds(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscord",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_IntegrationDataDiscordGuild_id(ctx, field)
+			case "name":
+				return ec.fieldContext_IntegrationDataDiscordGuild_name(ctx, field)
+			case "icon":
+				return ec.fieldContext_IntegrationDataDiscordGuild_icon(ctx, field)
+			case "liveNotificationEnabled":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationEnabled(ctx, field)
+			case "liveNotificationChannels_ids":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationChannels_ids(ctx, field)
+			case "liveNotificationShow_title":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_title(ctx, field)
+			case "liveNotificationShow_category":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_category(ctx, field)
+			case "liveNotificationMessage":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationMessage(ctx, field)
+			case "liveNotificationAdditional_twitch_users_ids":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationAdditional_twitch_users_ids(ctx, field)
+			case "liveNotificationShowViewers":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowViewers(ctx, field)
+			case "liveNotificationShowPreview":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowPreview(ctx, field)
+			case "liveNotificationShowProfileImage":
+				return ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowProfileImage(ctx, field)
+			case "channels":
+				return ec.fieldContext_IntegrationDataDiscordGuild_channels(ctx, field)
+			case "roles":
+				return ec.fieldContext_IntegrationDataDiscordGuild_roles(ctx, field)
+			case "offlineNotificationMessage":
+				return ec.fieldContext_IntegrationDataDiscordGuild_offlineNotificationMessage(ctx, field)
+			case "shouldDeleteMessageOnOffline":
+				return ec.fieldContext_IntegrationDataDiscordGuild_shouldDeleteMessageOnOffline(ctx, field)
+			case "additionalUsersIdsForLiveCheck":
+				return ec.fieldContext_IntegrationDataDiscordGuild_additionalUsersIdsForLiveCheck(ctx, field)
+			case "additionalUsersTwitchProfilesForLiveCheck":
+				return ec.fieldContext_IntegrationDataDiscordGuild_additionalUsersTwitchProfilesForLiveCheck(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationDataDiscordGuild", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_icon(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_icon(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Icon, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_icon(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationEnabled(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationEnabled(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationEnabled, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationEnabled(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationChannels_ids(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationChannels_ids(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationChannelsIds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationChannels_ids(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationShow_title(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_title(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationShowTitle, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_title(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationShow_category(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_category(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationShowCategory, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationShow_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationMessage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationMessage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationAdditional_twitch_users_ids(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationAdditional_twitch_users_ids(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationAdditionalTwitchUsersIds, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationAdditional_twitch_users_ids(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationShowViewers(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowViewers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationShowViewers, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationShowViewers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationShowPreview(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowPreview(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationShowPreview, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationShowPreview(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_liveNotificationShowProfileImage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_liveNotificationShowProfileImage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LiveNotificationShowProfileImage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_liveNotificationShowProfileImage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_channels(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_channels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Channels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.IntegrationDataDiscordGuildChannel)
+	fc.Result = res
+	return ec.marshalNIntegrationDataDiscordGuildChannel2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildChannelᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_channels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_IntegrationDataDiscordGuildChannel_id(ctx, field)
+			case "name":
+				return ec.fieldContext_IntegrationDataDiscordGuildChannel_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationDataDiscordGuildChannel", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_roles(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_roles(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Roles, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.IntegrationDataDiscordGuildRole)
+	fc.Result = res
+	return ec.marshalNIntegrationDataDiscordGuildRole2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildRoleᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_roles(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_IntegrationDataDiscordGuildRole_id(ctx, field)
+			case "name":
+				return ec.fieldContext_IntegrationDataDiscordGuildRole_name(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationDataDiscordGuildRole", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_offlineNotificationMessage(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_offlineNotificationMessage(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.OfflineNotificationMessage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_offlineNotificationMessage(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_shouldDeleteMessageOnOffline(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_shouldDeleteMessageOnOffline(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ShouldDeleteMessageOnOffline, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_shouldDeleteMessageOnOffline(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_additionalUsersIdsForLiveCheck(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_additionalUsersIdsForLiveCheck(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionalUsersIdsForLiveCheck, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]string)
+	fc.Result = res
+	return ec.marshalNString2ᚕstringᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_additionalUsersIdsForLiveCheck(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild_additionalUsersTwitchProfilesForLiveCheck(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuild) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuild_additionalUsersTwitchProfilesForLiveCheck(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AdditionalUsersTwitchProfilesForLiveCheck, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]gqlmodel.TwirUserTwitchInfo)
+	fc.Result = res
+	return ec.marshalNTwirUserTwitchInfo2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuild_additionalUsersTwitchProfilesForLiveCheck(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuild",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
+			case "login":
+				return ec.fieldContext_TwirUserTwitchInfo_login(ctx, field)
+			case "displayName":
+				return ec.fieldContext_TwirUserTwitchInfo_displayName(ctx, field)
+			case "profileImageUrl":
+				return ec.fieldContext_TwirUserTwitchInfo_profileImageUrl(ctx, field)
+			case "description":
+				return ec.fieldContext_TwirUserTwitchInfo_description(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TwirUserTwitchInfo", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildChannel_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuildChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuildChannel_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuildChannel_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuildChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildChannel_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuildChannel) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuildChannel_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuildChannel_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuildChannel",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildRole_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuildRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuildRole_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuildRole_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuildRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildRole_name(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDiscordGuildRole) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDiscordGuildRole_name(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDiscordGuildRole_name(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDiscordGuildRole",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDonationAlerts_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDonationAlerts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDonationAlerts_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDonationAlerts_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDonationAlerts",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataDonationAlerts_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataDonationAlerts) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataDonationAlerts_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataDonationAlerts_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataDonationAlerts",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -5991,6 +7519,358 @@ func (ec *executionContext) _IntegrationDataSevenTvProfile_username(ctx context.
 func (ec *executionContext) fieldContext_IntegrationDataSevenTvProfile_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "IntegrationDataSevenTvProfile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSpotify_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSpotify) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSpotify_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSpotify_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSpotify",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSpotify_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSpotify) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSpotify_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSpotify_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSpotify",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataStreamLabs_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataStreamLabs) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataStreamLabs_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataStreamLabs_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataStreamLabs",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataStreamLabs_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataStreamLabs) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataStreamLabs_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataStreamLabs_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataStreamLabs",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataValorant_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataValorant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataValorant_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataValorant_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataValorant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataValorant_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataValorant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataValorant_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataValorant_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataValorant",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataVk_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataVk) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataVk_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataVk_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataVk",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataVk_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataVk) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataVk_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataVk_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataVk",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8878,8 +10758,44 @@ func (ec *executionContext) _Query_integrationsGetServiceAuthLink(ctx context.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().IntegrationsGetServiceAuthLink(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().IntegrationsGetServiceAuthLink(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_INTEGRATIONS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8933,8 +10849,44 @@ func (ec *executionContext) _Query_integrationsGetData(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().IntegrationsGetData(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().IntegrationsGetData(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.IsAuthenticated == nil {
+				return nil, errors.New("directive isAuthenticated is not implemented")
+			}
+			return ec.directives.IsAuthenticated(ctx, nil, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.HasAccessToSelectedDashboard == nil {
+				return nil, errors.New("directive hasAccessToSelectedDashboard is not implemented")
+			}
+			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
+		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_INTEGRATIONS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
+
+		tmp, err := directive3(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(gqlmodel.IntegrationData); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel.IntegrationData`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10216,6 +12168,8 @@ func (ec *executionContext) fieldContext_TwirAdminUser_twitchProfile(ctx context
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
+			case "id":
+				return ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
 			case "login":
 				return ec.fieldContext_TwirUserTwitchInfo_login(ctx, field)
 			case "displayName":
@@ -10441,6 +12395,50 @@ func (ec *executionContext) _TwirAdminUser_apiKey(ctx context.Context, field gra
 func (ec *executionContext) fieldContext_TwirAdminUser_apiKey(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "TwirAdminUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TwirUserTwitchInfo_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.TwirUserTwitchInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TwirUserTwitchInfo_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TwirUserTwitchInfo_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TwirUserTwitchInfo",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -13586,6 +15584,48 @@ func (ec *executionContext) _IntegrationData(ctx context.Context, sel ast.Select
 			return graphql.Null
 		}
 		return ec._IntegrationDataSevenTv(ctx, sel, obj)
+	case gqlmodel.IntegrationDataVk:
+		return ec._IntegrationDataVk(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataVk:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataVk(ctx, sel, obj)
+	case gqlmodel.IntegrationDataValorant:
+		return ec._IntegrationDataValorant(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataValorant:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataValorant(ctx, sel, obj)
+	case gqlmodel.IntegrationDataStreamLabs:
+		return ec._IntegrationDataStreamLabs(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataStreamLabs:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataStreamLabs(ctx, sel, obj)
+	case gqlmodel.IntegrationDataSpotify:
+		return ec._IntegrationDataSpotify(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataSpotify:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataSpotify(ctx, sel, obj)
+	case gqlmodel.IntegrationDataDonationAlerts:
+		return ec._IntegrationDataDonationAlerts(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataDonationAlerts:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataDonationAlerts(ctx, sel, obj)
+	case gqlmodel.IntegrationDataDiscord:
+		return ec._IntegrationDataDiscord(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataDiscord:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataDiscord(ctx, sel, obj)
 	default:
 		panic(fmt.Errorf("unexpected type %T", obj))
 	}
@@ -14313,6 +16353,301 @@ func (ec *executionContext) _Greeting(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var integrationDataDiscordImplementors = []string{"IntegrationDataDiscord", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataDiscord(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataDiscord) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataDiscordImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataDiscord")
+		case "guilds":
+			out.Values[i] = ec._IntegrationDataDiscord_guilds(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataDiscordGuildImplementors = []string{"IntegrationDataDiscordGuild"}
+
+func (ec *executionContext) _IntegrationDataDiscordGuild(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataDiscordGuild) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataDiscordGuildImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataDiscordGuild")
+		case "id":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "icon":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_icon(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationEnabled":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationEnabled(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationChannels_ids":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationChannels_ids(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationShow_title":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationShow_title(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationShow_category":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationShow_category(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationMessage":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationMessage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationAdditional_twitch_users_ids":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationAdditional_twitch_users_ids(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationShowViewers":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationShowViewers(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationShowPreview":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationShowPreview(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "liveNotificationShowProfileImage":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_liveNotificationShowProfileImage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "channels":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_channels(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "roles":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_roles(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "offlineNotificationMessage":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_offlineNotificationMessage(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "shouldDeleteMessageOnOffline":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_shouldDeleteMessageOnOffline(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "additionalUsersIdsForLiveCheck":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_additionalUsersIdsForLiveCheck(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "additionalUsersTwitchProfilesForLiveCheck":
+			out.Values[i] = ec._IntegrationDataDiscordGuild_additionalUsersTwitchProfilesForLiveCheck(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataDiscordGuildChannelImplementors = []string{"IntegrationDataDiscordGuildChannel"}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildChannel(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataDiscordGuildChannel) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataDiscordGuildChannelImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataDiscordGuildChannel")
+		case "id":
+			out.Values[i] = ec._IntegrationDataDiscordGuildChannel_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._IntegrationDataDiscordGuildChannel_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataDiscordGuildRoleImplementors = []string{"IntegrationDataDiscordGuildRole"}
+
+func (ec *executionContext) _IntegrationDataDiscordGuildRole(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataDiscordGuildRole) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataDiscordGuildRoleImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataDiscordGuildRole")
+		case "id":
+			out.Values[i] = ec._IntegrationDataDiscordGuildRole_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "name":
+			out.Values[i] = ec._IntegrationDataDiscordGuildRole_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataDonationAlertsImplementors = []string{"IntegrationDataDonationAlerts", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataDonationAlerts(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataDonationAlerts) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataDonationAlertsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataDonationAlerts")
+		case "username":
+			out.Values[i] = ec._IntegrationDataDonationAlerts_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataDonationAlerts_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var integrationDataLastfmImplementors = []string{"IntegrationDataLastfm", "IntegrationData"}
 
 func (ec *executionContext) _IntegrationDataLastfm(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataLastfm) graphql.Marshaler {
@@ -14439,6 +16774,182 @@ func (ec *executionContext) _IntegrationDataSevenTvProfile(ctx context.Context, 
 			}
 		case "username":
 			out.Values[i] = ec._IntegrationDataSevenTvProfile_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataSpotifyImplementors = []string{"IntegrationDataSpotify", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataSpotify(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataSpotify) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataSpotifyImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataSpotify")
+		case "username":
+			out.Values[i] = ec._IntegrationDataSpotify_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataSpotify_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataStreamLabsImplementors = []string{"IntegrationDataStreamLabs", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataStreamLabs(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataStreamLabs) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataStreamLabsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataStreamLabs")
+		case "username":
+			out.Values[i] = ec._IntegrationDataStreamLabs_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataStreamLabs_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataValorantImplementors = []string{"IntegrationDataValorant", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataValorant(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataValorant) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataValorantImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataValorant")
+		case "username":
+			out.Values[i] = ec._IntegrationDataValorant_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataValorant_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataVkImplementors = []string{"IntegrationDataVk", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataVk(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataVk) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataVkImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataVk")
+		case "username":
+			out.Values[i] = ec._IntegrationDataVk_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataVk_avatar(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -15270,6 +17781,11 @@ func (ec *executionContext) _TwirUserTwitchInfo(ctx context.Context, sel ast.Sel
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("TwirUserTwitchInfo")
+		case "id":
+			out.Values[i] = ec._TwirUserTwitchInfo_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		case "login":
 			out.Values[i] = ec._TwirUserTwitchInfo_login(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -16092,6 +18608,150 @@ func (ec *executionContext) marshalNIntegrationData2githubᚗcomᚋtwirappᚋtwi
 	return ec._IntegrationData(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNIntegrationDataDiscordGuild2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuild(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationDataDiscordGuild) graphql.Marshaler {
+	return ec._IntegrationDataDiscordGuild(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIntegrationDataDiscordGuild2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.IntegrationDataDiscordGuild) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNIntegrationDataDiscordGuild2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuild(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNIntegrationDataDiscordGuildChannel2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildChannel(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationDataDiscordGuildChannel) graphql.Marshaler {
+	return ec._IntegrationDataDiscordGuildChannel(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIntegrationDataDiscordGuildChannel2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildChannelᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.IntegrationDataDiscordGuildChannel) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNIntegrationDataDiscordGuildChannel2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildChannel(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNIntegrationDataDiscordGuildRole2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildRole(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationDataDiscordGuildRole) graphql.Marshaler {
+	return ec._IntegrationDataDiscordGuildRole(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNIntegrationDataDiscordGuildRole2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildRoleᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.IntegrationDataDiscordGuildRole) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNIntegrationDataDiscordGuildRole2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuildRole(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
 func (ec *executionContext) marshalNIntegrationDataSevenTvProfile2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataSevenTvProfile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.IntegrationDataSevenTvProfile) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -16198,6 +18858,38 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNString2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNString2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNString2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
@@ -16418,6 +19110,50 @@ func (ec *executionContext) unmarshalNTwirBadgeUpdateOpts2githubᚗcomᚋtwirapp
 
 func (ec *executionContext) marshalNTwirUserTwitchInfo2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx context.Context, sel ast.SelectionSet, v gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {
 	return ec._TwirUserTwitchInfo(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTwirUserTwitchInfo2ᚕgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNTwirUserTwitchInfo2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNTwirUserTwitchInfo2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirUserTwitchInfo(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.TwirUserTwitchInfo) graphql.Marshaler {

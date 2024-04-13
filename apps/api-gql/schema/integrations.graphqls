@@ -1,6 +1,6 @@
 extend type Query {
-	integrationsGetServiceAuthLink(service: IntegrationService!): String!
-	integrationsGetData(service: IntegrationService!): IntegrationData!
+	integrationsGetServiceAuthLink(service: IntegrationService!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	integrationsGetData(service: IntegrationService!): IntegrationData! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 enum IntegrationService {
@@ -18,9 +18,34 @@ enum IntegrationService {
 	NIGHTBOT
 }
 
-union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv
+union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv | IntegrationDataVk | IntegrationDataValorant | IntegrationDataStreamLabs | IntegrationDataSpotify | IntegrationDataDonationAlerts | IntegrationDataDiscord
 
 type IntegrationDataLastfm {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataVk {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataValorant {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataStreamLabs {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataSpotify {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataDonationAlerts {
 	username: String!
 	avatar: String!
 }
@@ -37,4 +62,39 @@ type IntegrationDataSevenTvProfile {
 	id: String!
 	avatar: String!
 	username: String!
+}
+
+type IntegrationDataDiscord {
+	guilds: [IntegrationDataDiscordGuild!]!
+}
+
+type IntegrationDataDiscordGuild {
+	id: String!
+	name: String!
+	icon: String!
+	liveNotificationEnabled: Boolean!
+	liveNotificationChannels_ids: [String!]!
+	liveNotificationShow_title: Boolean!
+	liveNotificationShow_category: Boolean!
+	liveNotificationMessage: String!
+	liveNotificationAdditional_twitch_users_ids: [String!]!
+	liveNotificationShowViewers: Boolean!
+	liveNotificationShowPreview: Boolean!
+	liveNotificationShowProfileImage: Boolean!
+	channels: [IntegrationDataDiscordGuildChannel!]!
+	roles: [IntegrationDataDiscordGuildRole!]!
+	offlineNotificationMessage: String!
+	shouldDeleteMessageOnOffline: Boolean!
+	additionalUsersIdsForLiveCheck: [String!]!
+	additionalUsersTwitchProfilesForLiveCheck: [TwirUserTwitchInfo!]!
+}
+
+type IntegrationDataDiscordGuildChannel {
+	id: String!
+	name: String!
+}
+
+type IntegrationDataDiscordGuildRole {
+	id: String!
+	name: String!
 }

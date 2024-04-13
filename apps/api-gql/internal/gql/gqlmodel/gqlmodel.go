@@ -163,6 +163,50 @@ type GreetingsUpdateInput struct {
 	Text    graphql.Omittable[*string] `json:"text,omitempty"`
 }
 
+type IntegrationDataDiscord struct {
+	Guilds []IntegrationDataDiscordGuild `json:"guilds"`
+}
+
+func (IntegrationDataDiscord) IsIntegrationData() {}
+
+type IntegrationDataDiscordGuild struct {
+	ID                                        string                               `json:"id"`
+	Name                                      string                               `json:"name"`
+	Icon                                      string                               `json:"icon"`
+	LiveNotificationEnabled                   bool                                 `json:"liveNotificationEnabled"`
+	LiveNotificationChannelsIds               []string                             `json:"liveNotificationChannels_ids"`
+	LiveNotificationShowTitle                 bool                                 `json:"liveNotificationShow_title"`
+	LiveNotificationShowCategory              bool                                 `json:"liveNotificationShow_category"`
+	LiveNotificationMessage                   string                               `json:"liveNotificationMessage"`
+	LiveNotificationAdditionalTwitchUsersIds  []string                             `json:"liveNotificationAdditional_twitch_users_ids"`
+	LiveNotificationShowViewers               bool                                 `json:"liveNotificationShowViewers"`
+	LiveNotificationShowPreview               bool                                 `json:"liveNotificationShowPreview"`
+	LiveNotificationShowProfileImage          bool                                 `json:"liveNotificationShowProfileImage"`
+	Channels                                  []IntegrationDataDiscordGuildChannel `json:"channels"`
+	Roles                                     []IntegrationDataDiscordGuildRole    `json:"roles"`
+	OfflineNotificationMessage                string                               `json:"offlineNotificationMessage"`
+	ShouldDeleteMessageOnOffline              bool                                 `json:"shouldDeleteMessageOnOffline"`
+	AdditionalUsersIdsForLiveCheck            []string                             `json:"additionalUsersIdsForLiveCheck"`
+	AdditionalUsersTwitchProfilesForLiveCheck []TwirUserTwitchInfo                 `json:"additionalUsersTwitchProfilesForLiveCheck"`
+}
+
+type IntegrationDataDiscordGuildChannel struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type IntegrationDataDiscordGuildRole struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
+type IntegrationDataDonationAlerts struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataDonationAlerts) IsIntegrationData() {}
+
 type IntegrationDataLastfm struct {
 	Username string `json:"username"`
 	Avatar   string `json:"avatar"`
@@ -185,6 +229,34 @@ type IntegrationDataSevenTvProfile struct {
 	Avatar   string `json:"avatar"`
 	Username string `json:"username"`
 }
+
+type IntegrationDataSpotify struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataSpotify) IsIntegrationData() {}
+
+type IntegrationDataStreamLabs struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataStreamLabs) IsIntegrationData() {}
+
+type IntegrationDataValorant struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataValorant) IsIntegrationData() {}
+
+type IntegrationDataVk struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataVk) IsIntegrationData() {}
 
 type Keyword struct {
 	ID                  string  `json:"id"`
@@ -300,6 +372,7 @@ type TwirBadgeUpdateOpts struct {
 }
 
 type TwirUserTwitchInfo struct {
+	ID              string `json:"id"`
 	Login           string `json:"login"`
 	DisplayName     string `json:"displayName"`
 	ProfileImageURL string `json:"profileImageUrl"`

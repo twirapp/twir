@@ -14,7 +14,10 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *authenticatedUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -24,6 +27,7 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 	}
 
 	return &gqlmodel.TwirUserTwitchInfo{
+		ID:              user.ID,
 		Login:           user.Login,
 		DisplayName:     user.DisplayName,
 		ProfileImageURL: user.ProfileImageURL,
@@ -32,7 +36,10 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
+	*gqlmodel.AuthenticatedUser,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
@@ -43,7 +50,6 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		IsBotAdmin:        user.IsBotAdmin,
 		IsBanned:          user.IsBanned,
 		HideOnLandingPage: user.HideOnLandingPage,
-		TwitchProfile:     &gqlmodel.TwirUserTwitchInfo{},
 		APIKey:            user.ApiKey,
 	}
 

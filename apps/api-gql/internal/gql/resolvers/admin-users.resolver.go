@@ -7,7 +7,7 @@ package resolvers
 import (
 	"context"
 
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -45,7 +45,10 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 }
 
 // TwirUsers is the resolver for the twirUsers field.
-func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error) {
+func (r *queryResolver) TwirUsers(
+	ctx context.Context,
+	opts gqlmodel.TwirUsersSearchParams,
+) (*gqlmodel.TwirUsersResponse, error) {
 	var page int
 	perPage := 20
 
@@ -121,11 +124,10 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 
 	for _, user := range dbUsers {
 		u := gqlmodel.TwirAdminUser{
-			ID:            user.ID,
-			IsBotAdmin:    user.IsBotAdmin,
-			IsBanned:      user.IsBanned,
-			TwitchProfile: &gqlmodel.TwirUserTwitchInfo{},
-			APIKey:        user.ApiKey,
+			ID:         user.ID,
+			IsBotAdmin: user.IsBotAdmin,
+			IsBanned:   user.IsBanned,
+			APIKey:     user.ApiKey,
 		}
 
 		if user.Channel != nil {
@@ -142,7 +144,10 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *twirAdminUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TwirAdminUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *twirAdminUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.TwirAdminUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -152,6 +157,7 @@ func (r *twirAdminUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel
 	}
 
 	return &gqlmodel.TwirUserTwitchInfo{
+		ID:              user.ID,
 		Login:           user.Login,
 		DisplayName:     user.DisplayName,
 		ProfileImageURL: user.ProfileImageURL,

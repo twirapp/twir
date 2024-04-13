@@ -17,7 +17,10 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *adminNotificationResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AdminNotification) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminNotificationResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.AdminNotification,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -31,6 +34,7 @@ func (r *adminNotificationResolver) TwitchProfile(ctx context.Context, obj *gqlm
 	}
 
 	return &gqlmodel.TwirUserTwitchInfo{
+		ID:              user.ID,
 		Login:           user.Login,
 		DisplayName:     user.DisplayName,
 		ProfileImageURL: user.ProfileImageURL,
@@ -39,7 +43,11 @@ func (r *adminNotificationResolver) TwitchProfile(ctx context.Context, obj *gqlm
 }
 
 // NotificationsCreate is the resolver for the notificationsCreate field.
-func (r *mutationResolver) NotificationsCreate(ctx context.Context, text string, userID *string) (*gqlmodel.AdminNotification, error) {
+func (r *mutationResolver) NotificationsCreate(
+	ctx context.Context,
+	text string,
+	userID *string,
+) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now().UTC(),
@@ -75,25 +83,15 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text string,
 		CreatedAt: entity.CreatedAt,
 	}
 
-	if adminNotification.UserID != nil {
-		twitchUser, err := r.cachedTwitchClient.GetUserById(ctx, *adminNotification.UserID)
-		if err != nil {
-			return nil, err
-		}
-
-		adminNotification.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-			Login:           twitchUser.Login,
-			DisplayName:     twitchUser.DisplayName,
-			ProfileImageURL: twitchUser.ProfileImageURL,
-			Description:     twitchUser.Description,
-		}
-	}
-
 	return &adminNotification, nil
 }
 
 // NotificationsUpdate is the resolver for the notificationsUpdate field.
-func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error) {
+func (r *mutationResolver) NotificationsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.NotificationUpdateOpts,
+) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{}
 	if err := r.gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
 		return nil, err
@@ -121,6 +119,7 @@ func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, o
 		}
 
 		notification.TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
+			ID:              twitchUser.ID,
 			Login:           twitchUser.Login,
 			DisplayName:     twitchUser.DisplayName,
 			ProfileImageURL: twitchUser.ProfileImageURL,
@@ -144,7 +143,10 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 }
 
 // NotificationsByUser is the resolver for the notificationsByUser field.
-func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error) {
+func (r *queryResolver) NotificationsByUser(ctx context.Context) (
+	[]gqlmodel.UserNotification,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
@@ -172,7 +174,10 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Use
 }
 
 // NotificationsByAdmin is the resolver for the notificationsByAdmin field.
-func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error) {
+func (r *queryResolver) NotificationsByAdmin(
+	ctx context.Context,
+	opts gqlmodel.AdminNotificationsParams,
+) (*gqlmodel.AdminNotificationsResponse, error) {
 	query := r.gorm.WithContext(ctx)
 
 	if opts.Type.IsSet() {
@@ -221,40 +226,6 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 		}
 	}
 
-	// needTwitch := slices.Contains(
-	// 	GetPreloads(ctx),
-	// 	"notifications.twitchProfile",
-	// )
-	// if needTwitch && opts.Type.IsSet() && *opts.Type.Value() == gqlmodel.NotificationTypeUser {
-	// 	usersIdsForRequest := make([]string, len(notifications))
-	// 	for i, notification := range notifications {
-	// 		usersIdsForRequest[i] = *notification.UserID
-	// 	}
-	//
-	// 	twitchUsers, err := r.cachedTwitchClient.GetUsersByIds(ctx, usersIdsForRequest)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	//
-	// 	for i, notification := range notifications {
-	// 		notificationTwitchUser, ok := lo.Find(
-	// 			twitchUsers, func(item twitchcahe.TwitchUser) bool {
-	// 				return item.ID == *notification.UserID
-	// 			},
-	// 		)
-	// 		if !ok {
-	// 			continue
-	// 		}
-	//
-	// 		notifications[i].TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-	// 			Login:           notificationTwitchUser.Login,
-	// 			DisplayName:     notificationTwitchUser.DisplayName,
-	// 			ProfileImageURL: notificationTwitchUser.ProfileImageURL,
-	// 			Description:     notificationTwitchUser.Description,
-	// 		}
-	// 	}
-	// }
-
 	return &gqlmodel.AdminNotificationsResponse{
 		Notifications: notifications,
 		Total:         int(total),
@@ -262,7 +233,10 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 }
 
 // NewNotification is the resolver for the newNotification field.
-func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error) {
+func (r *subscriptionResolver) NewNotification(ctx context.Context) (
+	<-chan *gqlmodel.UserNotification,
+	error,
+) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
