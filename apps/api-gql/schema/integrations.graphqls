@@ -1,0 +1,40 @@
+extend type Query {
+	integrationsGetServiceAuthLink(service: IntegrationService!): String!
+	integrationsGetData(service: IntegrationService!): IntegrationData!
+}
+
+enum IntegrationService {
+	LASTFM
+	VK
+	FACEIT
+	SPOTIFY
+	DONATIONALERTS
+	DISCORD
+	STREAMLABS
+	DONATEPAY
+	DONATELLO
+	VALORANT
+	DONATE_STREAM
+	NIGHTBOT
+}
+
+union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv
+
+type IntegrationDataLastfm {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataSevenTv {
+	isEditor: Boolean!
+	botSevenTvProfile: IntegrationDataSevenTvProfile!
+	userSevenTvProfile: IntegrationDataSevenTvProfile!
+	emoteSet_id: String!
+	deleteEmotesOnlyAddedByApp: Boolean!
+}
+
+type IntegrationDataSevenTvProfile {
+	id: String!
+	avatar: String!
+	username: String!
+}

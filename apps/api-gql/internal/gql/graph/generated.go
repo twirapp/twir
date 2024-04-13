@@ -148,6 +148,25 @@ type ComplexityRoot struct {
 		UserID        func(childComplexity int) int
 	}
 
+	IntegrationDataLastfm struct {
+		Avatar   func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
+	IntegrationDataSevenTv struct {
+		BotSevenTvProfile          func(childComplexity int) int
+		DeleteEmotesOnlyAddedByApp func(childComplexity int) int
+		EmoteSetID                 func(childComplexity int) int
+		IsEditor                   func(childComplexity int) int
+		UserSevenTvProfile         func(childComplexity int) int
+	}
+
+	IntegrationDataSevenTvProfile struct {
+		Avatar   func(childComplexity int) int
+		ID       func(childComplexity int) int
+		Username func(childComplexity int) int
+	}
+
 	Keyword struct {
 		Cooldown            func(childComplexity int) int
 		Enabled             func(childComplexity int) int
@@ -185,15 +204,17 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		AuthenticatedUser    func(childComplexity int) int
-		Commands             func(childComplexity int) int
-		Greetings            func(childComplexity int) int
-		Keywords             func(childComplexity int) int
-		NotificationsByAdmin func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
-		NotificationsByUser  func(childComplexity int) int
-		Timers               func(childComplexity int) int
-		TwirBadges           func(childComplexity int) int
-		TwirUsers            func(childComplexity int, opts gqlmodel.TwirUsersSearchParams) int
+		AuthenticatedUser              func(childComplexity int) int
+		Commands                       func(childComplexity int) int
+		Greetings                      func(childComplexity int) int
+		IntegrationsGetData            func(childComplexity int, service gqlmodel.IntegrationService) int
+		IntegrationsGetServiceAuthLink func(childComplexity int, service gqlmodel.IntegrationService) int
+		Keywords                       func(childComplexity int) int
+		NotificationsByAdmin           func(childComplexity int, opts gqlmodel.AdminNotificationsParams) int
+		NotificationsByUser            func(childComplexity int) int
+		Timers                         func(childComplexity int) int
+		TwirBadges                     func(childComplexity int) int
+		TwirUsers                      func(childComplexity int, opts gqlmodel.TwirUsersSearchParams) int
 	}
 
 	Subscription struct {
@@ -287,6 +308,8 @@ type QueryResolver interface {
 	TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error)
 	Commands(ctx context.Context) ([]gqlmodel.Command, error)
 	Greetings(ctx context.Context) ([]gqlmodel.Greeting, error)
+	IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (string, error)
+	IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error)
 	Keywords(ctx context.Context) ([]gqlmodel.Keyword, error)
 	NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error)
 	NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error)
@@ -782,6 +805,76 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Greeting.UserID(childComplexity), true
 
+	case "IntegrationDataLastfm.avatar":
+		if e.complexity.IntegrationDataLastfm.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataLastfm.Avatar(childComplexity), true
+
+	case "IntegrationDataLastfm.username":
+		if e.complexity.IntegrationDataLastfm.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataLastfm.Username(childComplexity), true
+
+	case "IntegrationDataSevenTv.botSevenTvProfile":
+		if e.complexity.IntegrationDataSevenTv.BotSevenTvProfile == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTv.BotSevenTvProfile(childComplexity), true
+
+	case "IntegrationDataSevenTv.deleteEmotesOnlyAddedByApp":
+		if e.complexity.IntegrationDataSevenTv.DeleteEmotesOnlyAddedByApp == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTv.DeleteEmotesOnlyAddedByApp(childComplexity), true
+
+	case "IntegrationDataSevenTv.emoteSet_id":
+		if e.complexity.IntegrationDataSevenTv.EmoteSetID == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTv.EmoteSetID(childComplexity), true
+
+	case "IntegrationDataSevenTv.isEditor":
+		if e.complexity.IntegrationDataSevenTv.IsEditor == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTv.IsEditor(childComplexity), true
+
+	case "IntegrationDataSevenTv.userSevenTvProfile":
+		if e.complexity.IntegrationDataSevenTv.UserSevenTvProfile == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTv.UserSevenTvProfile(childComplexity), true
+
+	case "IntegrationDataSevenTvProfile.avatar":
+		if e.complexity.IntegrationDataSevenTvProfile.Avatar == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTvProfile.Avatar(childComplexity), true
+
+	case "IntegrationDataSevenTvProfile.id":
+		if e.complexity.IntegrationDataSevenTvProfile.ID == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTvProfile.ID(childComplexity), true
+
+	case "IntegrationDataSevenTvProfile.username":
+		if e.complexity.IntegrationDataSevenTvProfile.Username == nil {
+			break
+		}
+
+		return e.complexity.IntegrationDataSevenTvProfile.Username(childComplexity), true
+
 	case "Keyword.cooldown":
 		if e.complexity.Keyword.Cooldown == nil {
 			break
@@ -1122,6 +1215,30 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Greetings(childComplexity), true
+
+	case "Query.integrationsGetData":
+		if e.complexity.Query.IntegrationsGetData == nil {
+			break
+		}
+
+		args, err := ec.field_Query_integrationsGetData_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.IntegrationsGetData(childComplexity, args["service"].(gqlmodel.IntegrationService)), true
+
+	case "Query.integrationsGetServiceAuthLink":
+		if e.complexity.Query.IntegrationsGetServiceAuthLink == nil {
+			break
+		}
+
+		args, err := ec.field_Query_integrationsGetServiceAuthLink_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.IntegrationsGetServiceAuthLink(childComplexity, args["service"].(gqlmodel.IntegrationService)), true
 
 	case "Query.keywords":
 		if e.complexity.Query.Keywords == nil {
@@ -1593,9 +1710,9 @@ type TwirUsersResponse {
 }
 
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
 
 type Command {
@@ -1683,13 +1800,13 @@ type DashboardStats {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/greetings.graphqls", Input: `extend type Query {
-	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard
+	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GREETINGS)
 }
 
 extend type Mutation {
-	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
 }
 
 type Greeting {
@@ -1715,14 +1832,55 @@ input GreetingsUpdateInput {
 	text: String
 }
 `, BuiltIn: false},
+	{Name: "../../../schema/integrations.graphqls", Input: `extend type Query {
+	integrationsGetServiceAuthLink(service: IntegrationService!): String!
+	integrationsGetData(service: IntegrationService!): IntegrationData!
+}
+
+enum IntegrationService {
+	LASTFM
+	VK
+	FACEIT
+	SPOTIFY
+	DONATIONALERTS
+	DISCORD
+	STREAMLABS
+	DONATEPAY
+	DONATELLO
+	VALORANT
+	DONATE_STREAM
+	NIGHTBOT
+}
+
+union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv
+
+type IntegrationDataLastfm {
+	username: String!
+	avatar: String!
+}
+
+type IntegrationDataSevenTv {
+	isEditor: Boolean!
+	botSevenTvProfile: IntegrationDataSevenTvProfile!
+	userSevenTvProfile: IntegrationDataSevenTvProfile!
+	emoteSet_id: String!
+	deleteEmotesOnlyAddedByApp: Boolean!
+}
+
+type IntegrationDataSevenTvProfile {
+	id: String!
+	avatar: String!
+	username: String!
+}
+`, BuiltIn: false},
 	{Name: "../../../schema/keywords.graphqls", Input: `extend type Query {
-	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard
+	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_KEYWORDS)
 }
 
 extend type Mutation {
-	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
 }
 
 type Keyword {
@@ -1873,13 +2031,13 @@ type TwirUserTwitchInfo {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/timers.graphqls", Input: `extend type Query {
-	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard
+	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_TIMERS)
 }
 
 extend type Mutation {
-	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 }
 
 type Timer {
@@ -2384,6 +2542,36 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_integrationsGetData_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.IntegrationService
+	if tmp, ok := rawArgs["service"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("service"))
+		arg0, err = ec.unmarshalNIntegrationService2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationService(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["service"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_integrationsGetServiceAuthLink_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 gqlmodel.IntegrationService
+	if tmp, ok := rawArgs["service"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("service"))
+		arg0, err = ec.unmarshalNIntegrationService2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationService(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["service"] = arg0
 	return args, nil
 }
 
@@ -5357,6 +5545,462 @@ func (ec *executionContext) fieldContext_Greeting_text(ctx context.Context, fiel
 	return fc, nil
 }
 
+func (ec *executionContext) _IntegrationDataLastfm_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataLastfm) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataLastfm_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataLastfm_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataLastfm",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataLastfm_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataLastfm) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataLastfm_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataLastfm_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataLastfm",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTv_isEditor(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTv) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTv_isEditor(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsEditor, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTv_isEditor(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTv",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTv_botSevenTvProfile(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTv) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTv_botSevenTvProfile(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.BotSevenTvProfile, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.IntegrationDataSevenTvProfile)
+	fc.Result = res
+	return ec.marshalNIntegrationDataSevenTvProfile2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataSevenTvProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTv_botSevenTvProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTv",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_id(ctx, field)
+			case "avatar":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_avatar(ctx, field)
+			case "username":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_username(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationDataSevenTvProfile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTv_userSevenTvProfile(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTv) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTv_userSevenTvProfile(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.UserSevenTvProfile, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*gqlmodel.IntegrationDataSevenTvProfile)
+	fc.Result = res
+	return ec.marshalNIntegrationDataSevenTvProfile2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataSevenTvProfile(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTv_userSevenTvProfile(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTv",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_id(ctx, field)
+			case "avatar":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_avatar(ctx, field)
+			case "username":
+				return ec.fieldContext_IntegrationDataSevenTvProfile_username(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type IntegrationDataSevenTvProfile", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTv_emoteSet_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTv) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTv_emoteSet_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.EmoteSetID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTv_emoteSet_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTv",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTv_deleteEmotesOnlyAddedByApp(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTv) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTv_deleteEmotesOnlyAddedByApp(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.DeleteEmotesOnlyAddedByApp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTv_deleteEmotesOnlyAddedByApp(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTv",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTvProfile_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTvProfile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTvProfile_id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTvProfile_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTvProfile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTvProfile_avatar(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTvProfile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTvProfile_avatar(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Avatar, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTvProfile_avatar(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTvProfile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _IntegrationDataSevenTvProfile_username(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.IntegrationDataSevenTvProfile) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_IntegrationDataSevenTvProfile_username(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Username, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_IntegrationDataSevenTvProfile_username(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "IntegrationDataSevenTvProfile",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Keyword_id(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Keyword) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Keyword_id(ctx, field)
 	if err != nil {
@@ -6334,8 +6978,18 @@ func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6463,8 +7117,18 @@ func (ec *executionContext) _Mutation_updateCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6592,8 +7256,18 @@ func (ec *executionContext) _Mutation_removeCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6673,8 +7347,18 @@ func (ec *executionContext) _Mutation_greetingsCreate(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6768,8 +7452,18 @@ func (ec *executionContext) _Mutation_greetingsUpdate(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6863,8 +7557,18 @@ func (ec *executionContext) _Mutation_greetingsRemove(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6944,8 +7648,18 @@ func (ec *executionContext) _Mutation_keywordCreate(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7043,8 +7757,18 @@ func (ec *executionContext) _Mutation_keywordUpdate(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7142,8 +7866,18 @@ func (ec *executionContext) _Mutation_keywordRemove(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7490,8 +8224,18 @@ func (ec *executionContext) _Mutation_timersCreate(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7585,8 +8329,18 @@ func (ec *executionContext) _Mutation_timersUpdate(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7680,8 +8434,18 @@ func (ec *executionContext) _Mutation_timersRemove(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8036,8 +8800,18 @@ func (ec *executionContext) _Query_greetings(ctx context.Context, field graphql.
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8091,6 +8865,116 @@ func (ec *executionContext) fieldContext_Query_greetings(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _Query_integrationsGetServiceAuthLink(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_integrationsGetServiceAuthLink(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().IntegrationsGetServiceAuthLink(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_integrationsGetServiceAuthLink(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_integrationsGetServiceAuthLink_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_integrationsGetData(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_integrationsGetData(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().IntegrationsGetData(rctx, fc.Args["service"].(gqlmodel.IntegrationService))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(gqlmodel.IntegrationData)
+	fc.Result = res
+	return ec.marshalNIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_integrationsGetData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type IntegrationData does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_integrationsGetData_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_keywords(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_keywords(ctx, field)
 	if err != nil {
@@ -8120,8 +9004,18 @@ func (ec *executionContext) _Query_keywords(ctx context.Context, field graphql.C
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8369,8 +9263,18 @@ func (ec *executionContext) _Query_timers(ctx context.Context, field graphql.Col
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -12664,6 +13568,29 @@ func (ec *executionContext) unmarshalInputUpdateCommandOpts(ctx context.Context,
 
 // region    ************************** interface.gotpl ***************************
 
+func (ec *executionContext) _IntegrationData(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.IntegrationData) graphql.Marshaler {
+	switch obj := (obj).(type) {
+	case nil:
+		return graphql.Null
+	case gqlmodel.IntegrationDataLastfm:
+		return ec._IntegrationDataLastfm(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataLastfm:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataLastfm(ctx, sel, obj)
+	case gqlmodel.IntegrationDataSevenTv:
+		return ec._IntegrationDataSevenTv(ctx, sel, &obj)
+	case *gqlmodel.IntegrationDataSevenTv:
+		if obj == nil {
+			return graphql.Null
+		}
+		return ec._IntegrationDataSevenTv(ctx, sel, obj)
+	default:
+		panic(fmt.Errorf("unexpected type %T", obj))
+	}
+}
+
 func (ec *executionContext) _Notification(ctx context.Context, sel ast.SelectionSet, obj gqlmodel.Notification) graphql.Marshaler {
 	switch obj := (obj).(type) {
 	case nil:
@@ -13386,6 +14313,158 @@ func (ec *executionContext) _Greeting(ctx context.Context, sel ast.SelectionSet,
 	return out
 }
 
+var integrationDataLastfmImplementors = []string{"IntegrationDataLastfm", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataLastfm(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataLastfm) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataLastfmImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataLastfm")
+		case "username":
+			out.Values[i] = ec._IntegrationDataLastfm_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataLastfm_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataSevenTvImplementors = []string{"IntegrationDataSevenTv", "IntegrationData"}
+
+func (ec *executionContext) _IntegrationDataSevenTv(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataSevenTv) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataSevenTvImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataSevenTv")
+		case "isEditor":
+			out.Values[i] = ec._IntegrationDataSevenTv_isEditor(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "botSevenTvProfile":
+			out.Values[i] = ec._IntegrationDataSevenTv_botSevenTvProfile(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "userSevenTvProfile":
+			out.Values[i] = ec._IntegrationDataSevenTv_userSevenTvProfile(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "emoteSet_id":
+			out.Values[i] = ec._IntegrationDataSevenTv_emoteSet_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "deleteEmotesOnlyAddedByApp":
+			out.Values[i] = ec._IntegrationDataSevenTv_deleteEmotesOnlyAddedByApp(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var integrationDataSevenTvProfileImplementors = []string{"IntegrationDataSevenTvProfile"}
+
+func (ec *executionContext) _IntegrationDataSevenTvProfile(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.IntegrationDataSevenTvProfile) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, integrationDataSevenTvProfileImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("IntegrationDataSevenTvProfile")
+		case "id":
+			out.Values[i] = ec._IntegrationDataSevenTvProfile_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "avatar":
+			out.Values[i] = ec._IntegrationDataSevenTvProfile_avatar(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "username":
+			out.Values[i] = ec._IntegrationDataSevenTvProfile_username(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var keywordImplementors = []string{"Keyword"}
 
 func (ec *executionContext) _Keyword(ctx context.Context, sel ast.SelectionSet, obj *gqlmodel.Keyword) graphql.Marshaler {
@@ -13748,6 +14827,50 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_greetings(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "integrationsGetServiceAuthLink":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_integrationsGetServiceAuthLink(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx,
+					func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
+		case "integrationsGetData":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_integrationsGetData(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
@@ -14957,6 +16080,36 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationData) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._IntegrationData(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNIntegrationDataSevenTvProfile2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataSevenTvProfile(ctx context.Context, sel ast.SelectionSet, v *gqlmodel.IntegrationDataSevenTvProfile) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._IntegrationDataSevenTvProfile(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNIntegrationService2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationService(ctx context.Context, v interface{}) (gqlmodel.IntegrationService, error) {
+	var res gqlmodel.IntegrationService
+	err := res.UnmarshalGQL(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNIntegrationService2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationService(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationService) graphql.Marshaler {
+	return v
 }
 
 func (ec *executionContext) marshalNKeyword2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐKeyword(ctx context.Context, sel ast.SelectionSet, v gqlmodel.Keyword) graphql.Marshaler {

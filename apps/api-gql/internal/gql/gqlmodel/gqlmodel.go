@@ -11,6 +11,10 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 )
 
+type IntegrationData interface {
+	IsIntegrationData()
+}
+
 type Notification interface {
 	IsNotification()
 	GetID() string
@@ -157,6 +161,29 @@ type GreetingsUpdateInput struct {
 	IsReply graphql.Omittable[*bool]   `json:"isReply,omitempty"`
 	UserID  graphql.Omittable[*string] `json:"userId,omitempty"`
 	Text    graphql.Omittable[*string] `json:"text,omitempty"`
+}
+
+type IntegrationDataLastfm struct {
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
+}
+
+func (IntegrationDataLastfm) IsIntegrationData() {}
+
+type IntegrationDataSevenTv struct {
+	IsEditor                   bool                           `json:"isEditor"`
+	BotSevenTvProfile          *IntegrationDataSevenTvProfile `json:"botSevenTvProfile"`
+	UserSevenTvProfile         *IntegrationDataSevenTvProfile `json:"userSevenTvProfile"`
+	EmoteSetID                 string                         `json:"emoteSet_id"`
+	DeleteEmotesOnlyAddedByApp bool                           `json:"deleteEmotesOnlyAddedByApp"`
+}
+
+func (IntegrationDataSevenTv) IsIntegrationData() {}
+
+type IntegrationDataSevenTvProfile struct {
+	ID       string `json:"id"`
+	Avatar   string `json:"avatar"`
+	Username string `json:"username"`
 }
 
 type Keyword struct {
@@ -405,6 +432,67 @@ func (e *ChannelRolePermissionEnum) UnmarshalGQL(v interface{}) error {
 }
 
 func (e ChannelRolePermissionEnum) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+type IntegrationService string
+
+const (
+	IntegrationServiceLastfm         IntegrationService = "LASTFM"
+	IntegrationServiceVk             IntegrationService = "VK"
+	IntegrationServiceFaceit         IntegrationService = "FACEIT"
+	IntegrationServiceSpotify        IntegrationService = "SPOTIFY"
+	IntegrationServiceDonationalerts IntegrationService = "DONATIONALERTS"
+	IntegrationServiceDiscord        IntegrationService = "DISCORD"
+	IntegrationServiceStreamlabs     IntegrationService = "STREAMLABS"
+	IntegrationServiceDonatepay      IntegrationService = "DONATEPAY"
+	IntegrationServiceDonatello      IntegrationService = "DONATELLO"
+	IntegrationServiceValorant       IntegrationService = "VALORANT"
+	IntegrationServiceDonateStream   IntegrationService = "DONATE_STREAM"
+	IntegrationServiceNightbot       IntegrationService = "NIGHTBOT"
+)
+
+var AllIntegrationService = []IntegrationService{
+	IntegrationServiceLastfm,
+	IntegrationServiceVk,
+	IntegrationServiceFaceit,
+	IntegrationServiceSpotify,
+	IntegrationServiceDonationalerts,
+	IntegrationServiceDiscord,
+	IntegrationServiceStreamlabs,
+	IntegrationServiceDonatepay,
+	IntegrationServiceDonatello,
+	IntegrationServiceValorant,
+	IntegrationServiceDonateStream,
+	IntegrationServiceNightbot,
+}
+
+func (e IntegrationService) IsValid() bool {
+	switch e {
+	case IntegrationServiceLastfm, IntegrationServiceVk, IntegrationServiceFaceit, IntegrationServiceSpotify, IntegrationServiceDonationalerts, IntegrationServiceDiscord, IntegrationServiceStreamlabs, IntegrationServiceDonatepay, IntegrationServiceDonatello, IntegrationServiceValorant, IntegrationServiceDonateStream, IntegrationServiceNightbot:
+		return true
+	}
+	return false
+}
+
+func (e IntegrationService) String() string {
+	return string(e)
+}
+
+func (e *IntegrationService) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IntegrationService(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IntegrationService", str)
+	}
+	return nil
+}
+
+func (e IntegrationService) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
