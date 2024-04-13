@@ -51,9 +51,8 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 			cmd["group"] = command.Group.Name
 		}
 
+		responses := make([]map[string]any, 0, len(command.Responses))
 		if len(command.Responses) > 0 {
-			responses := make([]map[string]any, 0, len(command.Responses))
-
 			for _, response := range command.Responses {
 				responses = append(
 					responses, map[string]any{
