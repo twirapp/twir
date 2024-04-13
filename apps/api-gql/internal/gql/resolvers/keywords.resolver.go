@@ -65,7 +65,16 @@ func (r *mutationResolver) KeywordCreate(
 		return nil, err
 	}
 
-	return &gqlmodel.Keyword{}, nil
+	return &gqlmodel.Keyword{
+		ID:                  entity.ID,
+		Text:                entity.Text,
+		Response:            &entity.Response,
+		Enabled:             entity.Enabled,
+		Cooldown:            entity.Cooldown,
+		IsReply:             entity.IsReply,
+		IsRegularExpression: entity.IsRegular,
+		Usages:              entity.Usages,
+	}, nil
 }
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
