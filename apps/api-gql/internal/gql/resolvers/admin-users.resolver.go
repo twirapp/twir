@@ -148,21 +148,7 @@ func (r *twirAdminUserResolver) TwitchProfile(
 	ctx context.Context,
 	obj *gqlmodel.TwirAdminUser,
 ) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		ID:              user.ID,
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+	return data_loader.GetHelixUser(ctx, obj.ID)
 }
 
 // TwirAdminUser returns graph.TwirAdminUserResolver implementation.

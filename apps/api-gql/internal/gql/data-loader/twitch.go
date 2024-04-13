@@ -3,11 +3,11 @@ package data_loader
 import (
 	"context"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
-	[]*helix.User,
+	[]*gqlmodel.TwirUserTwitchInfo,
 	[]error,
 ) {
 	users, err := c.cachedTwitchClient.GetUsersByIds(ctx, ids)
@@ -15,20 +15,26 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 		return nil, []error{err}
 	}
 
-	mappedUsers := make([]*helix.User, len(users))
+	mappedUsers := make([]*gqlmodel.TwirUserTwitchInfo, len(users))
 	for i, user := range users {
-		mappedUsers[i] = &user.User
+		mappedUsers[i] = &gqlmodel.TwirUserTwitchInfo{
+			ID:              user.ID,
+			Login:           user.Login,
+			DisplayName:     user.DisplayName,
+			ProfileImageURL: user.ProfileImageURL,
+			Description:     user.Description,
+		}
 	}
 
 	return mappedUsers, nil
 }
 
-func GetHelixUser(ctx context.Context, userID string) (*helix.User, error) {
+func GetHelixUser(ctx context.Context, userID string) (*gqlmodel.TwirUserTwitchInfo, error) {
 	loaders := GetLoaderForRequest(ctx)
 	return loaders.helixUserLoader.Load(ctx, userID)
 }
 
-func GetHelixUsers(ctx context.Context, userIDs []string) ([]*helix.User, error) {
+func GetHelixUsers(ctx context.Context, userIDs []string) ([]*gqlmodel.TwirUserTwitchInfo, error) {
 	loaders := GetLoaderForRequest(ctx)
 	return loaders.helixUserLoader.LoadAll(ctx, userIDs)
 }
