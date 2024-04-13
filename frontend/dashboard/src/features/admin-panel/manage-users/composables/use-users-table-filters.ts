@@ -67,7 +67,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		selectedBadges.value = [];
 	}
 
-	function setFilterValue(filterKey: string, type: 'status' | 'badge') {
+	function setFilterValue(filterKey: string, type: FilterType) {
 		if (type === 'status') {
 			if (selectedStatuses.value[filterKey]) {
 				delete selectedStatuses.value[filterKey];
