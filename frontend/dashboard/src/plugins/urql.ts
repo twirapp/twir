@@ -34,10 +34,18 @@ type MutationQueryKeys = {
 }
 
 const notificationByAdmin = 'notificationsByAdmin';
+const twirBadges = 'twirBadges';
+
 const mutationQueryKeys: MutationQueryKeys = {
 	notificationsCreate: [notificationByAdmin],
 	notificationsDelete: [notificationByAdmin],
 	notificationsUpdate: [notificationByAdmin],
+
+	badgesAddUser: [twirBadges],
+	badgesRemoveUser: [twirBadges],
+	badgesDelete: [twirBadges],
+	badgesCreate: [twirBadges],
+	badgesUpdate: [twirBadges],
 };
 
 const graphCacheConfig: GraphCacheConfig = {

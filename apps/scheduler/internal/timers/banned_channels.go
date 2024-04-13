@@ -36,7 +36,7 @@ type bannedChannels struct {
 }
 
 func NewBannedChannels(opts BannedChannelsOpts) {
-	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(5 * time.Minute)
+	timeTick := lo.If(opts.Config.AppEnv != "production", 15*time.Second).Else(30 * time.Minute)
 	ticker := time.NewTicker(timeTick)
 
 	ctx, cancel := context.WithCancel(context.Background())

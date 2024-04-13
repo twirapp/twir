@@ -23,15 +23,15 @@ const { badges } = storeToRefs(badgesStore);
 
 const userBadgesIds = computed(() => {
 	return badges.value
-		.filter((badge) => badge.users.some((userId) => userId === props.userId))
+		.filter((badge) => badge.users?.some((userId) => userId === props.userId))
 		.map((badge) => badge.id);
 });
 
 async function toggleBadge(badgeId: string) {
 	if (userBadgesIds.value.includes(badgeId)) {
-		await badgesStore.badgesRemover.mutateAsync({ badgeId, userId: props.userId });
+		await badgesStore.badgesRemoveUser.executeMutation({ id: badgeId, userId: props.userId });
 	} else {
-		await badgesStore.badgesAdder.mutateAsync({ badgeId, userId: props.userId });
+		await badgesStore.badgesAddUser.executeMutation({ id: badgeId, userId: props.userId });
 	}
 }
 </script>

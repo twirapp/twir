@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/99designs/gqlgen/graphql"
 	"github.com/google/uuid"
 	minio "github.com/minio/minio-go/v7"
 	model "github.com/satont/twir/libs/gomodels"
@@ -37,7 +36,7 @@ func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, e
 	if err := r.minioClient.RemoveObject(
 		ctx,
 		r.config.S3Bucket,
-		fmt.Sprintf("badges/%s", id),
+		fmt.Sprintf("badges/%s", badge.FileName),
 		minio.RemoveObjectOptions{},
 	); err != nil {
 		fmt.Println("cannot delete file")
@@ -51,7 +50,7 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 	entity := model.Badge{}
 	if err := r.gorm.
 		WithContext(ctx).
-		Joins("Users").
+		Preload("Users").
 		Where(
 			"badges.id = ?",
 			id,
@@ -61,11 +60,27 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 	}
 
 	if opts.File.IsSet() {
-		file := opts.File.Value()
-		_, err := r.minioClient.PutObject(
+		file := *opts.File.Value()
+		fileName, err := r.computeBadgeFileName(file, entity.ID)
+		if err != nil {
+			return nil, fmt.Errorf("cannot compute badge file name: %w", err)
+		}
+
+		if entity.FileName != fileName {
+			if err := r.minioClient.RemoveObject(
+				ctx,
+				r.config.S3Bucket,
+				fmt.Sprintf("badges/%s", entity.FileName),
+				minio.RemoveObjectOptions{},
+			); err != nil {
+				return nil, fmt.Errorf("cannot delete old badge file: %w", err)
+			}
+		}
+
+		_, err = r.minioClient.PutObject(
 			ctx,
 			r.config.S3Bucket,
-			fmt.Sprintf("badges/%s", entity.ID),
+			fmt.Sprintf("badges/%s", fileName),
 			file.File,
 			file.Size,
 			minio.PutObjectOptions{
@@ -75,6 +90,8 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 		if err != nil {
 			return nil, fmt.Errorf("cannot upload badge file: %w", err)
 		}
+
+		entity.FileName = fileName
 	}
 
 	if opts.Name.IsSet() {
@@ -83,6 +100,10 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 
 	if opts.Enabled.IsSet() {
 		entity.Enabled = *opts.Enabled.Value()
+	}
+
+	if opts.FfzSlot.IsSet() {
+		entity.FFZSlot = *opts.FfzSlot.Value()
 	}
 
 	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
@@ -98,33 +119,46 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 		ID:        entity.ID.String(),
 		Name:      entity.Name,
 		CreatedAt: entity.CreatedAt.String(),
-		FileURL:   r.computeBadgeUrl(entity.ID.String()),
+		FileURL:   r.computeBadgeUrl(entity.FileName),
 		Enabled:   entity.Enabled,
 		Users:     usersIds,
+		FfzSlot:   entity.FFZSlot,
 	}, nil
 }
 
 // BadgesCreate is the resolver for the badgesCreate field.
-func (r *mutationResolver) BadgesCreate(ctx context.Context, name string, file graphql.Upload) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirBadgeCreateOpts) (*gqlmodel.Badge, error) {
+	fileId := uuid.New()
+	fileName, err := r.computeBadgeFileName(opts.File, fileId)
+	if err != nil {
+		return nil, fmt.Errorf("cannot compute badge file name: %w", err)
+	}
+
 	entity := model.Badge{
-		ID:        uuid.New(),
-		Name:      name,
+		ID:        fileId,
+		Name:      opts.Name,
 		Enabled:   true,
 		CreatedAt: time.Now().UTC(),
+		FileName:  fileName,
+		FFZSlot:   opts.FfzSlot,
+	}
+
+	if opts.Enabled.IsSet() {
+		entity.Enabled = *opts.Enabled.Value()
 	}
 
 	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
 		return nil, err
 	}
 
-	_, err := r.minioClient.PutObject(
+	_, err = r.minioClient.PutObject(
 		ctx,
 		r.config.S3Bucket,
-		fmt.Sprintf("badges/%s", entity.ID),
-		file.File,
-		file.Size,
+		fmt.Sprintf("badges/%s", fileName),
+		opts.File.File,
+		opts.File.Size,
 		minio.PutObjectOptions{
-			ContentType: file.ContentType,
+			ContentType: opts.File.ContentType,
 		},
 	)
 	if err != nil {
@@ -135,9 +169,10 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, name string, file g
 		ID:        entity.ID.String(),
 		Name:      entity.Name,
 		CreatedAt: entity.CreatedAt.String(),
-		FileURL:   r.computeBadgeUrl(entity.ID.String()),
+		FileURL:   r.computeBadgeUrl(entity.FileName),
 		Enabled:   entity.Enabled,
 		Users:     []string{},
+		FfzSlot:   entity.FFZSlot,
 	}, nil
 }
 
@@ -179,7 +214,7 @@ func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error
 	if err := r.gorm.
 		WithContext(ctx).
 		Preload("Users").
-		Order("name ASC").
+		Order("ffz_slot ASC").
 		Find(&entities).
 		Error; err != nil {
 		return nil, fmt.Errorf("cannot get badges: %w", err)
@@ -203,9 +238,10 @@ func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error
 				ID:        entity.ID.String(),
 				Name:      entity.Name,
 				CreatedAt: entity.CreatedAt.String(),
-				FileURL:   r.computeBadgeUrl(entity.ID.String()),
+				FileURL:   r.computeBadgeUrl(entity.FileName),
 				Enabled:   entity.Enabled,
 				Users:     badgeUsers,
+				FfzSlot:   entity.FFZSlot,
 			},
 		)
 	}

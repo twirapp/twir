@@ -3,9 +3,18 @@ import * as Integrations from '@twir/grpc/integrations/integrations';
 import { createServer } from 'nice-grpc';
 
 import { getIntegrations, Services } from './libs/db.js';
-import { addIntegration as addDonatePayIntegration, removeIntegration as removeDonatePayIntegration } from './store/donatePay.js';
-import { addIntegration as addDonationAlertsIntegration, removeIntegration as removeDonationAlertsIntegration } from './store/donationAlerts.js';
-import { addIntegration as addStreamlabsIntegration, removeIntegration as removeStreamlabsIntegration } from './store/streamlabs.js';
+import {
+	addIntegration as addDonatePayIntegration,
+	removeIntegration as removeDonatePayIntegration,
+} from './store/donatePay.js';
+import {
+	addIntegration as addDonationAlertsIntegration,
+	removeIntegration as removeDonationAlertsIntegration,
+} from './store/donationAlerts.js';
+import {
+	addIntegration as addStreamlabsIntegration,
+	removeIntegration as removeStreamlabsIntegration,
+} from './store/streamlabs.js';
 
 import './pubsub.js';
 
@@ -40,13 +49,13 @@ const integrationsServer = {
 		console.info(`Adding ${integration.id} connection`);
 
 		if (integration.integration.service === Services.DONATIONALERTS) {
-			await addDonationAlertsIntegration(integration);
+			addDonationAlertsIntegration(integration);
 		}
 		if (integration.integration.service === Services.STREAMLABS) {
-			await addStreamlabsIntegration(integration);
+			addStreamlabsIntegration(integration);
 		}
 		if (integration.integration.service === Services.DONATEPAY) {
-			await addDonatePayIntegration(integration);
+			addDonatePayIntegration(integration);
 		}
 
 		return {};

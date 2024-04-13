@@ -931,9 +931,12 @@
 			"title": "Badges",
 			"formTitle": "Create or edit badge",
 			"name": "Name",
+			"users": "Users",
+			"slot": "Slot",
 			"image": "Image",
 			"preview": "Preview",
-			"usesCount": "Uses ({count})"
+			"usesCount": "Uses {count}",
+			"badgeSlot": "Slot {slot}"
 		}
 	}
 }

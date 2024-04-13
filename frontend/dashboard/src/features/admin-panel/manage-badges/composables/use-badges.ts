@@ -1,27 +1,25 @@
 import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
-import { useBadges as useBadgesApi, useAdminBadges } from '@/api/admin/badges';
+import { useQueryBadges, useAdminBadges } from '@/api/admin/badges';
 
 export const useBadges = defineStore('admin-panel/badges', () => {
-	const { data } = useBadgesApi();
-	const badgesCrud = useAdminBadges();
+	const badgesApi = useAdminBadges();
+	const badgesCreate = badgesApi.useMutationCreateBadge();
+	const badgesDelete = badgesApi.useMutationDeleteBadge();
+	const badgesUpdate = badgesApi.useMutationUpdateBadge();
+	const badgesAddUser = badgesApi.useMutationsAddUserBadge();
+	const badgesRemoveUser = badgesApi.useMutationsRemoveUserBadge();
 
-	const badgesUpload = badgesCrud.useBadgesUpload();
-	const badgesDeleter = badgesCrud.useBadgesDelete();
-	const badgesUpdate = badgesCrud.useBadgesUpdate();
-
-	const badgesAdder = badgesCrud.useBadgesUserAdd();
-	const badgesRemover = badgesCrud.useBadgesUserRemove();
-
-	const badges = computed(() => data.value?.badges ?? []);
+	const { data } = useQueryBadges();
+	const badges = computed(() => data.value?.twirBadges ?? []);
 
 	return {
 		badges,
-		badgesUpload,
-		badgesDeleter,
+		badgesCreate,
+		badgesDelete,
 		badgesUpdate,
-		badgesAdder,
-		badgesRemover,
+		badgesAddUser,
+		badgesRemoveUser,
 	};
 });

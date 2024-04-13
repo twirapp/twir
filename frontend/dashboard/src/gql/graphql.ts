@@ -15,7 +15,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Time: { input: any; output: any; }
-  Upload: { input: any; output: any; }
+  Upload: { input: File; output: File; }
 };
 
 export type AdminNotification = Notification & {
@@ -57,6 +57,7 @@ export type Badge = {
   __typename?: 'Badge';
   createdAt: Scalars['String']['output'];
   enabled: Scalars['Boolean']['output'];
+  ffzSlot: Scalars['Int']['output'];
   fileUrl: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -125,6 +126,62 @@ export type DashboardStats = {
   viewers?: Maybe<Scalars['Int']['output']>;
 };
 
+export type Greeting = {
+  __typename?: 'Greeting';
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isReply: Scalars['Boolean']['output'];
+  text: Scalars['String']['output'];
+  twitchProfile: TwirUserTwitchInfo;
+  userId: Scalars['String']['output'];
+};
+
+export type GreetingsCreateInput = {
+  enabled: Scalars['Boolean']['input'];
+  isReply: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+export type GreetingsUpdateInput = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Keyword = {
+  __typename?: 'Keyword';
+  cooldown: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isRegularExpression: Scalars['Boolean']['output'];
+  isReply: Scalars['Boolean']['output'];
+  response?: Maybe<Scalars['String']['output']>;
+  text: Scalars['String']['output'];
+  usages: Scalars['Int']['output'];
+};
+
+export type KeywordCreateInput = {
+  cooldown?: InputMaybe<Scalars['Int']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isRegularExpression?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  response?: InputMaybe<Scalars['String']['input']>;
+  text: Scalars['String']['input'];
+  usageCount?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type KeywordUpdateInput = {
+  cooldown?: InputMaybe<Scalars['Int']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isRegularExpression?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  response?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  usageCount?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   badgesAddUser: Scalars['Boolean']['output'];
@@ -133,12 +190,21 @@ export type Mutation = {
   badgesRemoveUser: Scalars['Boolean']['output'];
   badgesUpdate: Badge;
   createCommand: Command;
+  greetingsCreate: Greeting;
+  greetingsRemove: Scalars['Boolean']['output'];
+  greetingsUpdate: Greeting;
+  keywordCreate: Keyword;
+  keywordRemove: Scalars['Boolean']['output'];
+  keywordUpdate: Keyword;
   notificationsCreate: AdminNotification;
   notificationsDelete: Scalars['Boolean']['output'];
   notificationsUpdate: AdminNotification;
   removeCommand: Scalars['Boolean']['output'];
   switchUserAdmin: Scalars['Boolean']['output'];
   switchUserBan: Scalars['Boolean']['output'];
+  timersCreate: Timer;
+  timersRemove: Scalars['Boolean']['output'];
+  timersUpdate: Timer;
   updateCommand: Command;
 };
 
@@ -150,8 +216,7 @@ export type MutationBadgesAddUserArgs = {
 
 
 export type MutationBadgesCreateArgs = {
-  file: Scalars['Upload']['input'];
-  name: Scalars['String']['input'];
+  opts: TwirBadgeCreateOpts;
 };
 
 
@@ -174,6 +239,38 @@ export type MutationBadgesUpdateArgs = {
 
 export type MutationCreateCommandArgs = {
   opts: CreateCommandInput;
+};
+
+
+export type MutationGreetingsCreateArgs = {
+  opts: GreetingsCreateInput;
+};
+
+
+export type MutationGreetingsRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationGreetingsUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: GreetingsUpdateInput;
+};
+
+
+export type MutationKeywordCreateArgs = {
+  opts: KeywordCreateInput;
+};
+
+
+export type MutationKeywordRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationKeywordUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: KeywordUpdateInput;
 };
 
 
@@ -209,6 +306,22 @@ export type MutationSwitchUserBanArgs = {
 };
 
 
+export type MutationTimersCreateArgs = {
+  opts: TimerCreateInput;
+};
+
+
+export type MutationTimersRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationTimersUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: TimerUpdateInput;
+};
+
+
 export type MutationUpdateCommandArgs = {
   id: Scalars['String']['input'];
   opts: UpdateCommandOpts;
@@ -234,8 +347,11 @@ export type Query = {
   __typename?: 'Query';
   authenticatedUser: AuthenticatedUser;
   commands: Array<Command>;
+  greetings: Array<Greeting>;
+  keywords: Array<Keyword>;
   notificationsByAdmin: AdminNotificationsResponse;
   notificationsByUser: Array<UserNotification>;
+  timers: Array<Timer>;
   /** Twir badges */
   twirBadges: Array<Badge>;
   /** finding users on twitch with filter does they exists in database */
@@ -259,6 +375,49 @@ export type Subscription = {
   newNotification: UserNotification;
 };
 
+export type Timer = {
+  __typename?: 'Timer';
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  messageInterval: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  responses: Array<TimerResponse>;
+  timeInterval: Scalars['Int']['output'];
+};
+
+export type TimerCreateInput = {
+  enabled: Scalars['Boolean']['input'];
+  messageInterval: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  responses: Array<TimerResponseCreateInput>;
+  timeInterval: Scalars['Int']['input'];
+};
+
+export type TimerResponse = {
+  __typename?: 'TimerResponse';
+  id: Scalars['ID']['output'];
+  isAnnounce: Scalars['Boolean']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type TimerResponseCreateInput = {
+  isAnnounce: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+};
+
+export type TimerResponseUpdateInput = {
+  isAnnounce: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+};
+
+export type TimerUpdateInput = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  messageInterval?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  responses?: InputMaybe<Array<TimerResponseUpdateInput>>;
+  timeInterval?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type TwirAdminUser = TwirUser & {
   __typename?: 'TwirAdminUser';
   apiKey: Scalars['String']['output'];
@@ -270,8 +429,16 @@ export type TwirAdminUser = TwirUser & {
   twitchProfile: TwirUserTwitchInfo;
 };
 
+export type TwirBadgeCreateOpts = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  ffzSlot: Scalars['Int']['input'];
+  file: Scalars['Upload']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type TwirBadgeUpdateOpts = {
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  ffzSlot?: InputMaybe<Scalars['Int']['input']>;
   file?: InputMaybe<Scalars['Upload']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
@@ -335,10 +502,53 @@ export type UserNotification = Notification & {
   userId?: Maybe<Scalars['ID']['output']>;
 };
 
-export type NotificationsGetAllQueryVariables = Exact<{ [key: string]: never; }>;
+export type CreateBadgeMutationVariables = Exact<{
+  opts: TwirBadgeCreateOpts;
+}>;
 
 
-export type NotificationsGetAllQuery = { __typename?: 'Query', notificationsByUser: Array<{ __typename?: 'UserNotification', id: string, text: string, createdAt: any }> };
+export type CreateBadgeMutation = { __typename?: 'Mutation', badgesCreate: { __typename?: 'Badge', id: string } };
+
+export type DeleteBadgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteBadgeMutation = { __typename?: 'Mutation', badgesDelete: boolean };
+
+export type UpdateBadgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  opts: TwirBadgeUpdateOpts;
+}>;
+
+
+export type UpdateBadgeMutation = { __typename?: 'Mutation', badgesUpdate: { __typename?: 'Badge', id: string } };
+
+export type AddUserBadgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type AddUserBadgeMutation = { __typename?: 'Mutation', badgesAddUser: boolean };
+
+export type RemoveUserBadgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  userId: Scalars['String']['input'];
+}>;
+
+
+export type RemoveUserBadgeMutation = { __typename?: 'Mutation', badgesRemoveUser: boolean };
+
+export type BadgesGetAllQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BadgesGetAllQuery = { __typename?: 'Query', twirBadges: Array<{ __typename?: 'Badge', id: string, name: string, createdAt: string, fileUrl: string, enabled: boolean, ffzSlot: number, users?: Array<string> | null }> };
+
+export type GetAllNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllNotificationsQuery = { __typename?: 'Query', notificationsByUser: Array<{ __typename?: 'UserNotification', id: string, text: string, createdAt: any }> };
 
 export type NotificationsSubscriptionSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -358,7 +568,7 @@ export type CreateNotificationMutationVariables = Exact<{
 }>;
 
 
-export type CreateNotificationMutation = { __typename?: 'Mutation', notificationsCreate: { __typename?: 'AdminNotification', text: string, userId?: string | null } };
+export type CreateNotificationMutation = { __typename?: 'Mutation', notificationsCreate: { __typename?: 'AdminNotification', id: string } };
 
 export type DeleteNotificationMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -373,7 +583,7 @@ export type UpdateNotificationsMutationVariables = Exact<{
 }>;
 
 
-export type UpdateNotificationsMutation = { __typename?: 'Mutation', notificationsUpdate: { __typename?: 'AdminNotification', id: string, text: string } };
+export type UpdateNotificationsMutation = { __typename?: 'Mutation', notificationsUpdate: { __typename?: 'AdminNotification', id: string } };
 
 export type DashboardStatsSubscriptionVariables = Exact<{ [key: string]: never; }>;
 
@@ -381,10 +591,16 @@ export type DashboardStatsSubscriptionVariables = Exact<{ [key: string]: never; 
 export type DashboardStatsSubscription = { __typename?: 'Subscription', dashboardStats: { __typename?: 'DashboardStats', categoryId: string, categoryName: string, viewers?: number | null, startedAt?: any | null, title: string, chatMessages: number, followers: number, usedEmotes: number, requestedSongs: number, subs: number } };
 
 
-export const NotificationsGetAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NotificationsGetAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsByUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<NotificationsGetAllQuery, NotificationsGetAllQueryVariables>;
+export const CreateBadgeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateBadge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TwirBadgeCreateOpts"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"badgesCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateBadgeMutation, CreateBadgeMutationVariables>;
+export const DeleteBadgeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteBadge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"badgesDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteBadgeMutation, DeleteBadgeMutationVariables>;
+export const UpdateBadgeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateBadge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"TwirBadgeUpdateOpts"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"badgesUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateBadgeMutation, UpdateBadgeMutationVariables>;
+export const AddUserBadgeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"AddUserBadge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"badgesAddUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}]}}]} as unknown as DocumentNode<AddUserBadgeMutation, AddUserBadgeMutationVariables>;
+export const RemoveUserBadgeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"RemoveUserBadge"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"badgesRemoveUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}]}]}}]} as unknown as DocumentNode<RemoveUserBadgeMutation, RemoveUserBadgeMutationVariables>;
+export const BadgesGetAllDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"BadgesGetAll"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"twirBadges"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"fileUrl"}},{"kind":"Field","name":{"kind":"Name","value":"enabled"}},{"kind":"Field","name":{"kind":"Name","value":"ffzSlot"}},{"kind":"Field","name":{"kind":"Name","value":"users"}}]}}]}}]} as unknown as DocumentNode<BadgesGetAllQuery, BadgesGetAllQueryVariables>;
+export const GetAllNotificationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"GetAllNotifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsByUser"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<GetAllNotificationsQuery, GetAllNotificationsQueryVariables>;
 export const NotificationsSubscriptionDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"NotificationsSubscription"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"newNotification"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]} as unknown as DocumentNode<NotificationsSubscriptionSubscription, NotificationsSubscriptionSubscriptionVariables>;
-export const NotificationsByAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"notificationsByAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AdminNotificationsParams"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsByAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"notifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"twitchProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"profileImageUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<NotificationsByAdminQuery, NotificationsByAdminQueryVariables>;
-export const CreateNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"text"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"text"},"value":{"kind":"Variable","name":{"kind":"Name","value":"text"}}},{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}}]}}]}}]} as unknown as DocumentNode<CreateNotificationMutation, CreateNotificationMutationVariables>;
+export const NotificationsByAdminDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"NotificationsByAdmin"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"AdminNotificationsParams"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsByAdmin"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"total"}},{"kind":"Field","name":{"kind":"Name","value":"notifications"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}},{"kind":"Field","name":{"kind":"Name","value":"userId"}},{"kind":"Field","name":{"kind":"Name","value":"twitchProfile"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"displayName"}},{"kind":"Field","name":{"kind":"Name","value":"profileImageUrl"}}]}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}}]}}]}}]}}]} as unknown as DocumentNode<NotificationsByAdminQuery, NotificationsByAdminQueryVariables>;
+export const CreateNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"CreateNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"text"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"userId"}},"type":{"kind":"NamedType","name":{"kind":"Name","value":"String"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsCreate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"text"},"value":{"kind":"Variable","name":{"kind":"Name","value":"text"}}},{"kind":"Argument","name":{"kind":"Name","value":"userId"},"value":{"kind":"Variable","name":{"kind":"Name","value":"userId"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<CreateNotificationMutation, CreateNotificationMutationVariables>;
 export const DeleteNotificationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"DeleteNotification"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsDelete"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}}]}]}}]} as unknown as DocumentNode<DeleteNotificationMutation, DeleteNotificationMutationVariables>;
-export const UpdateNotificationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateNotifications"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NotificationUpdateOpts"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"text"}}]}}]}}]} as unknown as DocumentNode<UpdateNotificationsMutation, UpdateNotificationsMutationVariables>;
+export const UpdateNotificationsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"UpdateNotifications"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"id"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"ID"}}}},{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"opts"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"NotificationUpdateOpts"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"notificationsUpdate"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"id"},"value":{"kind":"Variable","name":{"kind":"Name","value":"id"}}},{"kind":"Argument","name":{"kind":"Name","value":"opts"},"value":{"kind":"Variable","name":{"kind":"Name","value":"opts"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}}]}}]}}]} as unknown as DocumentNode<UpdateNotificationsMutation, UpdateNotificationsMutationVariables>;
 export const DashboardStatsDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"subscription","name":{"kind":"Name","value":"dashboardStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"dashboardStats"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"categoryId"}},{"kind":"Field","name":{"kind":"Name","value":"categoryName"}},{"kind":"Field","name":{"kind":"Name","value":"viewers"}},{"kind":"Field","name":{"kind":"Name","value":"startedAt"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"chatMessages"}},{"kind":"Field","name":{"kind":"Name","value":"followers"}},{"kind":"Field","name":{"kind":"Name","value":"usedEmotes"}},{"kind":"Field","name":{"kind":"Name","value":"requestedSongs"}},{"kind":"Field","name":{"kind":"Name","value":"subs"}}]}}]}}]} as unknown as DocumentNode<DashboardStatsSubscription, DashboardStatsSubscriptionVariables>;

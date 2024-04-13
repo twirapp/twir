@@ -5,6 +5,11 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 const schemaDir = resolve(join(process.cwd(), '..', '..', 'apps', 'api-gql', 'schema', '*.graphqls'));
 
 const config: CodegenConfig = {
+	config: {
+		scalars: {
+			Upload: 'File',
+		},
+	},
 	schema: schemaDir,
 	watch: true,
 	documents: ['src/api/**/*.ts'],

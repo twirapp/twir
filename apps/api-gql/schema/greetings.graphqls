@@ -1,0 +1,32 @@
+extend type Query {
+	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
+	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
+	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type Greeting {
+	id: ID!
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	enabled: Boolean!
+	isReply: Boolean!
+	text: String!
+}
+
+input GreetingsCreateInput {
+	enabled: Boolean!
+	isReply: Boolean!
+	userId: String!
+	text: String!
+}
+
+input GreetingsUpdateInput {
+	enabled: Boolean
+	isReply: Boolean
+	userId: String
+	text: String
+}

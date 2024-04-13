@@ -74,7 +74,8 @@ type Badge struct {
 	FileURL   string `json:"fileUrl"`
 	Enabled   bool   `json:"enabled"`
 	// IDS of users which has this badge
-	Users []string `json:"users,omitempty"`
+	Users   []string `json:"users,omitempty"`
+	FfzSlot int      `json:"ffzSlot"`
 }
 
 type Command struct {
@@ -135,6 +136,60 @@ type DashboardStats struct {
 	Subs           int        `json:"subs"`
 }
 
+type Greeting struct {
+	ID            string              `json:"id"`
+	UserID        string              `json:"userId"`
+	TwitchProfile *TwirUserTwitchInfo `json:"twitchProfile"`
+	Enabled       bool                `json:"enabled"`
+	IsReply       bool                `json:"isReply"`
+	Text          string              `json:"text"`
+}
+
+type GreetingsCreateInput struct {
+	Enabled bool   `json:"enabled"`
+	IsReply bool   `json:"isReply"`
+	UserID  string `json:"userId"`
+	Text    string `json:"text"`
+}
+
+type GreetingsUpdateInput struct {
+	Enabled graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	IsReply graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+	UserID  graphql.Omittable[*string] `json:"userId,omitempty"`
+	Text    graphql.Omittable[*string] `json:"text,omitempty"`
+}
+
+type Keyword struct {
+	ID                  string  `json:"id"`
+	Text                string  `json:"text"`
+	Response            *string `json:"response,omitempty"`
+	Enabled             bool    `json:"enabled"`
+	Cooldown            int     `json:"cooldown"`
+	IsReply             bool    `json:"isReply"`
+	IsRegularExpression bool    `json:"isRegularExpression"`
+	Usages              int     `json:"usages"`
+}
+
+type KeywordCreateInput struct {
+	Text                string                     `json:"text"`
+	Response            graphql.Omittable[*string] `json:"response,omitempty"`
+	Cooldown            graphql.Omittable[*int]    `json:"cooldown,omitempty"`
+	Enabled             graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	UsageCount          graphql.Omittable[*int]    `json:"usageCount,omitempty"`
+	IsRegularExpression graphql.Omittable[*bool]   `json:"isRegularExpression,omitempty"`
+	IsReply             graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+}
+
+type KeywordUpdateInput struct {
+	Text                graphql.Omittable[*string] `json:"text,omitempty"`
+	Response            graphql.Omittable[*string] `json:"response,omitempty"`
+	Cooldown            graphql.Omittable[*int]    `json:"cooldown,omitempty"`
+	Enabled             graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	UsageCount          graphql.Omittable[*int]    `json:"usageCount,omitempty"`
+	IsRegularExpression graphql.Omittable[*bool]   `json:"isRegularExpression,omitempty"`
+	IsReply             graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+}
+
 type Mutation struct {
 }
 
@@ -146,6 +201,47 @@ type Query struct {
 }
 
 type Subscription struct {
+}
+
+type Timer struct {
+	ID              string          `json:"id"`
+	Name            string          `json:"name"`
+	Enabled         bool            `json:"enabled"`
+	TimeInterval    int             `json:"timeInterval"`
+	MessageInterval int             `json:"messageInterval"`
+	Responses       []TimerResponse `json:"responses"`
+}
+
+type TimerCreateInput struct {
+	Name            string                     `json:"name"`
+	Enabled         bool                       `json:"enabled"`
+	TimeInterval    int                        `json:"timeInterval"`
+	MessageInterval int                        `json:"messageInterval"`
+	Responses       []TimerResponseCreateInput `json:"responses"`
+}
+
+type TimerResponse struct {
+	ID         string `json:"id"`
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerResponseCreateInput struct {
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerResponseUpdateInput struct {
+	Text       string `json:"text"`
+	IsAnnounce bool   `json:"isAnnounce"`
+}
+
+type TimerUpdateInput struct {
+	Name            graphql.Omittable[*string]                    `json:"name,omitempty"`
+	Enabled         graphql.Omittable[*bool]                      `json:"enabled,omitempty"`
+	TimeInterval    graphql.Omittable[*int]                       `json:"timeInterval,omitempty"`
+	MessageInterval graphql.Omittable[*int]                       `json:"messageInterval,omitempty"`
+	Responses       graphql.Omittable[[]TimerResponseUpdateInput] `json:"responses,omitempty"`
 }
 
 type TwirAdminUser struct {
@@ -162,10 +258,18 @@ func (TwirAdminUser) IsTwirUser()                                {}
 func (this TwirAdminUser) GetID() string                         { return this.ID }
 func (this TwirAdminUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
 
+type TwirBadgeCreateOpts struct {
+	Name    string                   `json:"name"`
+	File    graphql.Upload           `json:"file"`
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	FfzSlot int                      `json:"ffzSlot"`
+}
+
 type TwirBadgeUpdateOpts struct {
 	Name    graphql.Omittable[*string]         `json:"name,omitempty"`
 	File    graphql.Omittable[*graphql.Upload] `json:"file,omitempty"`
 	Enabled graphql.Omittable[*bool]           `json:"enabled,omitempty"`
+	FfzSlot graphql.Omittable[*int]            `json:"ffzSlot,omitempty"`
 }
 
 type TwirUserTwitchInfo struct {

@@ -277,6 +277,10 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 				return
 			}
 
+			if existedSub.Status == "authorization_revoked" {
+				return
+			}
+
 			if ok {
 				err = c.Unsubscribe(ctx, existedSub.ID)
 				if err != nil {
@@ -299,9 +303,9 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 			}
 			if _, subscribeErr := c.Subscribe(ctx, &request); subscribeErr != nil {
 				var e *eventsub_framework.TwitchError
-				if errors.As(subscribeErr, &e) {
+				if errors.As(subscribeErr, &e) && e.Status != 409 {
 					c.logger.Error(
-						"Failed to unsubcribe",
+						"Failed to subcribe",
 						slog.String("user_id", userId),
 						slog.String("key", key),
 						slog.Any("err", e),

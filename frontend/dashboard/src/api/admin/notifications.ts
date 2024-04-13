@@ -7,7 +7,7 @@ import type { AdminNotificationsParams } from '@/gql/graphql';
 export const useQueryNotifications = () => {
 	const { data: allNotifications } = useQuery({
 		query: graphql(`
-			query NotificationsGetAll {
+			query GetAllNotifications {
 				notificationsByUser {
 					id
 					text
@@ -49,7 +49,7 @@ export const useAdminNotifications = () => {
 			};
 		},
 		query: graphql(`
-			query notificationsByAdmin($opts: AdminNotificationsParams!) {
+			query NotificationsByAdmin($opts: AdminNotificationsParams!) {
 				notificationsByAdmin(opts: $opts) {
 					total
 					notifications {
@@ -70,8 +70,7 @@ export const useAdminNotifications = () => {
 	const useMutationCreateNotification = () => useMutation(graphql(`
 		mutation CreateNotification($text: String!, $userId: String) {
       notificationsCreate(text: $text, userId: $userId) {
-				text
-				userId
+				id
 			}
     }
 	`));
@@ -86,7 +85,6 @@ export const useAdminNotifications = () => {
 		mutation UpdateNotifications($id: ID!, $opts: NotificationUpdateOpts!) {
 			notificationsUpdate(id: $id, opts: $opts) {
 				id
-				text
 			}
 		}
 	`));

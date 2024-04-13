@@ -2,10 +2,13 @@ package httpserver
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	sloggin "github.com/samber/slog-gin"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
@@ -19,6 +22,7 @@ type Opts struct {
 	GqlHandler         *gql.Gql
 	Sessions           *sessions.Sessions
 	CachedTwitchClient *twitch.CachedTwitchClient
+	Logger             logger.Logger
 }
 
 type Server struct {
@@ -42,6 +46,27 @@ func New(opts Opts) *Server {
 
 	r.Use(opts.Sessions.Middleware())
 
+	r.Use(
+		sloggin.NewWithConfig(
+			opts.Logger.GetSlog(),
+			sloggin.Config{
+				WithSpanID:  true,
+				WithTraceID: true,
+			},
+		),
+	)
+
+	r.Use(
+		func(c *gin.Context) {
+			user, err := opts.Sessions.GetAuthenticatedUser(c.Request.Context())
+			if err == nil {
+				sloggin.AddCustomAttributes(c, slog.String("userId", user.ID))
+			}
+		},
+	)
+
+	r.Use(gin.Recovery())
+
 	// r.Use(
 	// 	func(c *gin.Context) {
 	// 		fmt.Println(opts.Sessions.GetAuthenticatedUser(c.Request.Context()))
@@ -55,6 +80,7 @@ func New(opts Opts) *Server {
 			playgroundHandler.ServeHTTP(c.Writer, c.Request)
 		},
 	)
+
 	r.Any(
 		"/query",
 		func(c *gin.Context) {
