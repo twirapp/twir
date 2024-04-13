@@ -39,6 +39,7 @@ function editBadge(badge: Badge) {
 	badgesForm.editableBadgeId = badge.id;
 	badgesForm.nameField.fieldModel = badge.name;
 	badgesForm.fileField.fieldModel = badge.fileUrl;
+	badgesForm.slotField.fieldModel = badge.ffzSlot;
 	layout.scrollToTop();
 }
 
@@ -117,7 +118,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 			</template>
 			<div class="flex flex-col gap-3">
 				<badges-preview :image="badge.fileUrl" />
-				<div class="flex gap-2">
+				<div class="flex flex-wrap gap-2">
 					<ui-badge :variant="badge.enabled ? 'secondary' : 'destructive'">
 						<template v-if="badge.enabled">
 							{{ t('sharedTexts.enabled') }}

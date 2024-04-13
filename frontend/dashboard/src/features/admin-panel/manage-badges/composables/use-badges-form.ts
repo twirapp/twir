@@ -47,6 +47,7 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 		};
 	});
 	const isFormDirty = computed(() => Boolean(formValues.value.name || formValues.value.image));
+	const isImageFile = computed(() => formValues.value.image instanceof File);
 
 	async function onSubmit(event: Event) {
 		event.preventDefault();
@@ -93,14 +94,19 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 	}
 
 	return {
-		isFormDirty,
 		formValues,
+
 		nameField,
 		fileField,
-		slotField,
 		fileInputRef,
+		slotField,
+
+		isFormDirty,
+		isImageFile,
+
 		isEditableForm,
 		editableBadgeId,
+
 		onSubmit,
 		onReset,
 		setImageField,

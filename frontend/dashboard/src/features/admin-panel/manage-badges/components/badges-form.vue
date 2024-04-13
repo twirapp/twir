@@ -61,11 +61,11 @@ const badgesForm = useBadgesForm();
 				</div>
 			</div>
 
-			<div v-if="badgesForm.formValues.image">
+			<div v-if="badgesForm.isImageFile">
 				<Label>
 					{{ t('adminPanel.manageBadges.preview') }}
 				</Label>
-				<badges-preview :image="badgesForm.formValues.image" />
+				<badges-preview class="mt-2" :image="badgesForm.formValues.image!" />
 			</div>
 
 			<div class="flex justify-end gap-4">
