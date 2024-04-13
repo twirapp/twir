@@ -60,6 +60,10 @@ export class DonationAlerts {
 
 		this.#socket.setToken(this.#socketConnectionToken);
 		this.#socket.connect();
+		
+		this.#socket.on('connected', () => {
+			console.info(`Connected to donationAlerts #${this.#donationAlertsUserId}`);
+		});
 
 		this.#channel = this.#socket.subscribe(`$alerts:donation_${this.#donationAlertsUserId}`);
 
