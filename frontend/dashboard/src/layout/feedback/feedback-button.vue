@@ -52,7 +52,7 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 
 <template>
 	<div class="flex px-2 mb-2">
-		<n-button block secondary type="success" size="large" @click="openFeedbackModal">
+		<n-button block secondary type="success" size="medium" @click="openFeedbackModal">
 			<template #icon>
 				<IconMessageShare />
 			</template>
