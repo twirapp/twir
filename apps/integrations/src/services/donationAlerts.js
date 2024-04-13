@@ -61,7 +61,7 @@ export class DonationAlerts {
 		this.#socket.setToken(this.#socketConnectionToken);
 		this.#socket.connect();
 		
-		this.#socket.on('connected', () => {
+		this.#socket.on('connect', () => {
 			console.info(`Connected to donationAlerts #${this.#donationAlertsUserId}`);
 		});
 
