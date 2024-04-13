@@ -16,7 +16,7 @@ func (r *queryResolver) IntegrationsGetServiceAuthLink(
 	ctx context.Context,
 	service gqlmodel.IntegrationService,
 ) (string, error) {
-	panic(fmt.Errorf("not implemented: IntegrationsGetServiceAuthLink - integrationsGetServiceAuthLink"))
+	return "", nil
 }
 
 // IntegrationsGetData is the resolver for the integrationsGetData field.
