@@ -17,6 +17,7 @@ import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
 import { useAdminUsers } from '@/api/admin/users.js';
 import { usePagination } from '@/composables/use-pagination.js';
+import { resolveUserName } from '@/helpers';
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
@@ -25,13 +26,20 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableFilters = useUsersTableFilters();
 
-	const tableParams = computed<UsersGetRequest>(() => ({
-		...tableFilters.selectedStatuses,
-		search: tableFilters.debounceSearchInput,
-		page: pagination.value.pageIndex,
-		perPage: pagination.value.pageSize,
-		badgesIds: tableFilters.selectedBadges,
-	}));
+	const tableParams = computed<UsersGetRequest>((prevParams) => {
+		// reset pagination on search change
+		if (prevParams?.search !== tableFilters.debounceSearchInput) {
+			pagination.value.pageIndex = 0;
+		}
+
+		return {
+			...tableFilters.selectedStatuses,
+			search: tableFilters.debounceSearchInput,
+			page: pagination.value.pageIndex,
+			perPage: pagination.value.pageSize,
+			badgesIds: tableFilters.selectedBadges,
+		};
+	});
 
 	const { data, isFetching } = useAdminUsers(tableParams);
 
@@ -48,7 +56,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableColumns = computed<ColumnDef<User>[]>(() => [
 		{
-			accessorKey: 'userLogin',
+			accessorKey: 'user',
 			size: 60,
 			header: () => h('div', {}, t('adminPanel.manageUsers.user')),
 			cell: ({ row }) => {
@@ -61,7 +69,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 					h(UsersTableCellUser, {
 						avatar: row.original.avatar,
 						userId: row.original.id,
-						name: row.original.userDisplayName,
+						name: resolveUserName(row.original.userName, row.original.userDisplayName),
 					}),
 				);
 			},
