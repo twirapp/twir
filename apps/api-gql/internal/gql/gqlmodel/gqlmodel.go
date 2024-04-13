@@ -136,6 +136,29 @@ type DashboardStats struct {
 	Subs           int        `json:"subs"`
 }
 
+type Greeting struct {
+	ID            string              `json:"id"`
+	UserID        string              `json:"userId"`
+	TwitchProfile *TwirUserTwitchInfo `json:"twitchProfile"`
+	Enabled       bool                `json:"enabled"`
+	IsReply       bool                `json:"isReply"`
+	Text          string              `json:"text"`
+}
+
+type GreetingsCreateInput struct {
+	Enabled bool   `json:"enabled"`
+	IsReply bool   `json:"isReply"`
+	UserID  string `json:"userId"`
+	Text    string `json:"text"`
+}
+
+type GreetingsUpdateInput struct {
+	Enabled graphql.Omittable[*bool]   `json:"enabled,omitempty"`
+	IsReply graphql.Omittable[*bool]   `json:"isReply,omitempty"`
+	UserID  graphql.Omittable[*string] `json:"userId,omitempty"`
+	Text    graphql.Omittable[*string] `json:"text,omitempty"`
+}
+
 type Mutation struct {
 }
 

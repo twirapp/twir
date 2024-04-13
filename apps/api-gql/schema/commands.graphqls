@@ -1,3 +1,13 @@
+extend type Query {
+	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+extend type Mutation {
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
+	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
 type Command {
 	id: ID!
 	name: String!
@@ -64,21 +74,3 @@ input CreateCommandInput {
 	aliases: [String!]
 	responses: [CreateCommandResponseInput!]
 }
-
-extend type Query {
-	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard
-}
-
-extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
-}
-
-#
-#type Subscription {
-#	"""
-#	`newCommand` will return a stream of `Command` objects.
-#	"""
-#	newCommand: Command! @isAuthenticated
-#}
