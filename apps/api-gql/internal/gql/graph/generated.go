@@ -84,6 +84,7 @@ type ComplexityRoot struct {
 	Badge struct {
 		CreatedAt func(childComplexity int) int
 		Enabled   func(childComplexity int) int
+		FfzSlot   func(childComplexity int) int
 		FileURL   func(childComplexity int) int
 		ID        func(childComplexity int) int
 		Name      func(childComplexity int) int
@@ -138,7 +139,7 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		BadgesAddUser       func(childComplexity int, id string, userID string) int
-		BadgesCreate        func(childComplexity int, name string, file graphql.Upload) int
+		BadgesCreate        func(childComplexity int, opts gqlmodel.TwirBadgeCreateOpts) int
 		BadgesDelete        func(childComplexity int, id string) int
 		BadgesRemoveUser    func(childComplexity int, id string, userID string) int
 		BadgesUpdate        func(childComplexity int, id string, opts gqlmodel.TwirBadgeUpdateOpts) int
@@ -208,7 +209,7 @@ type CommandResolver interface {
 type MutationResolver interface {
 	BadgesDelete(ctx context.Context, id string) (bool, error)
 	BadgesUpdate(ctx context.Context, id string, opts gqlmodel.TwirBadgeUpdateOpts) (*gqlmodel.Badge, error)
-	BadgesCreate(ctx context.Context, name string, file graphql.Upload) (*gqlmodel.Badge, error)
+	BadgesCreate(ctx context.Context, opts gqlmodel.TwirBadgeCreateOpts) (*gqlmodel.Badge, error)
 	BadgesAddUser(ctx context.Context, id string, userID string) (bool, error)
 	BadgesRemoveUser(ctx context.Context, id string, userID string) (bool, error)
 	SwitchUserBan(ctx context.Context, userID string) (bool, error)
@@ -380,6 +381,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Badge.Enabled(childComplexity), true
+
+	case "Badge.ffzSlot":
+		if e.complexity.Badge.FfzSlot == nil {
+			break
+		}
+
+		return e.complexity.Badge.FfzSlot(childComplexity), true
 
 	case "Badge.fileUrl":
 		if e.complexity.Badge.FileURL == nil {
@@ -690,7 +698,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.BadgesCreate(childComplexity, args["name"].(string), args["file"].(graphql.Upload)), true
+		return e.complexity.Mutation.BadgesCreate(childComplexity, args["opts"].(gqlmodel.TwirBadgeCreateOpts)), true
 
 	case "Mutation.badgesDelete":
 		if e.complexity.Mutation.BadgesDelete == nil {
@@ -1021,6 +1029,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputCreateCommandInput,
 		ec.unmarshalInputCreateCommandResponseInput,
 		ec.unmarshalInputNotificationUpdateOpts,
+		ec.unmarshalInputTwirBadgeCreateOpts,
 		ec.unmarshalInputTwirBadgeUpdateOpts,
 		ec.unmarshalInputTwirUsersSearchParams,
 		ec.unmarshalInputUpdateCommandOpts,
@@ -1148,7 +1157,7 @@ var sources = []*ast.Source{
 extend type Mutation {
 	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
 	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
-	badgesCreate(name: String!, file: Upload!): Badge! @isAuthenticated @isAdmin
+	badgesCreate(opts: TwirBadgeCreateOpts!): Badge! @isAuthenticated @isAdmin
 	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 }
@@ -1163,12 +1172,21 @@ type Badge {
 	IDS of users which has this badge
 	"""
 	users: [String!]
+	ffzSlot: Int!
 }
 
 input TwirBadgeUpdateOpts {
 	name: String
 	file: Upload
 	enabled: Boolean
+	ffzSlot: Int
+}
+
+input TwirBadgeCreateOpts {
+	name: String!
+	file: Upload!
+	enabled: Boolean
+	ffzSlot: Int!
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/admin-users.graphqls", Input: `extend type Query {
@@ -1450,24 +1468,15 @@ func (ec *executionContext) field_Mutation_badgesAddUser_args(ctx context.Contex
 func (ec *executionContext) field_Mutation_badgesCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	var arg0 gqlmodel.TwirBadgeCreateOpts
+	if tmp, ok := rawArgs["opts"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("opts"))
+		arg0, err = ec.unmarshalNTwirBadgeCreateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirBadgeCreateOpts(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["name"] = arg0
-	var arg1 graphql.Upload
-	if tmp, ok := rawArgs["file"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
-		arg1, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["file"] = arg1
+	args["opts"] = arg0
 	return args, nil
 }
 
@@ -2741,6 +2750,50 @@ func (ec *executionContext) fieldContext_Badge_users(ctx context.Context, field 
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Badge_ffzSlot(ctx context.Context, field graphql.CollectedField, obj *gqlmodel.Badge) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Badge_ffzSlot(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FfzSlot, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Badge_ffzSlot(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Badge",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4506,6 +4559,8 @@ func (ec *executionContext) fieldContext_Mutation_badgesUpdate(ctx context.Conte
 				return ec.fieldContext_Badge_enabled(ctx, field)
 			case "users":
 				return ec.fieldContext_Badge_users(ctx, field)
+			case "ffzSlot":
+				return ec.fieldContext_Badge_ffzSlot(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
@@ -4539,7 +4594,7 @@ func (ec *executionContext) _Mutation_badgesCreate(ctx context.Context, field gr
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.Mutation().BadgesCreate(rctx, fc.Args["name"].(string), fc.Args["file"].(graphql.Upload))
+			return ec.resolvers.Mutation().BadgesCreate(rctx, fc.Args["opts"].(gqlmodel.TwirBadgeCreateOpts))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.IsAuthenticated == nil {
@@ -4601,6 +4656,8 @@ func (ec *executionContext) fieldContext_Mutation_badgesCreate(ctx context.Conte
 				return ec.fieldContext_Badge_enabled(ctx, field)
 			case "users":
 				return ec.fieldContext_Badge_users(ctx, field)
+			case "ffzSlot":
+				return ec.fieldContext_Badge_ffzSlot(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
@@ -5600,6 +5657,8 @@ func (ec *executionContext) fieldContext_Query_twirBadges(ctx context.Context, f
 				return ec.fieldContext_Badge_enabled(ctx, field)
 			case "users":
 				return ec.fieldContext_Badge_users(ctx, field)
+			case "ffzSlot":
+				return ec.fieldContext_Badge_ffzSlot(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Badge", field.Name)
 		},
@@ -9075,6 +9134,54 @@ func (ec *executionContext) unmarshalInputNotificationUpdateOpts(ctx context.Con
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputTwirBadgeCreateOpts(ctx context.Context, obj interface{}) (gqlmodel.TwirBadgeCreateOpts, error) {
+	var it gqlmodel.TwirBadgeCreateOpts
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"name", "file", "enabled", "ffzSlot"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "name":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Name = data
+		case "file":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+			data, err := ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.File = data
+		case "enabled":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("enabled"))
+			data, err := ec.unmarshalOBoolean2ᚖbool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Enabled = graphql.OmittableOf(data)
+		case "ffzSlot":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ffzSlot"))
+			data, err := ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FfzSlot = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputTwirBadgeUpdateOpts(ctx context.Context, obj interface{}) (gqlmodel.TwirBadgeUpdateOpts, error) {
 	var it gqlmodel.TwirBadgeUpdateOpts
 	asMap := map[string]interface{}{}
@@ -9082,7 +9189,7 @@ func (ec *executionContext) unmarshalInputTwirBadgeUpdateOpts(ctx context.Contex
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"name", "file", "enabled"}
+	fieldsInOrder := [...]string{"name", "file", "enabled", "ffzSlot"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -9110,6 +9217,13 @@ func (ec *executionContext) unmarshalInputTwirBadgeUpdateOpts(ctx context.Contex
 				return it, err
 			}
 			it.Enabled = graphql.OmittableOf(data)
+		case "ffzSlot":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("ffzSlot"))
+			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.FfzSlot = graphql.OmittableOf(data)
 		}
 	}
 
@@ -9659,6 +9773,11 @@ func (ec *executionContext) _Badge(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "users":
 			out.Values[i] = ec._Badge_users(ctx, field, obj)
+		case "ffzSlot":
+			out.Values[i] = ec._Badge_ffzSlot(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -11237,6 +11356,11 @@ func (ec *executionContext) marshalNTwirAdminUser2ᚕgithubᚗcomᚋtwirappᚋtw
 	}
 
 	return ret
+}
+
+func (ec *executionContext) unmarshalNTwirBadgeCreateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirBadgeCreateOpts(ctx context.Context, v interface{}) (gqlmodel.TwirBadgeCreateOpts, error) {
+	res, err := ec.unmarshalInputTwirBadgeCreateOpts(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNTwirBadgeUpdateOpts2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐTwirBadgeUpdateOpts(ctx context.Context, v interface{}) (gqlmodel.TwirBadgeUpdateOpts, error) {

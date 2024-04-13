@@ -8,7 +8,7 @@ extend type Query {
 extend type Mutation {
 	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
 	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
-	badgesCreate(name: String!, file: Upload!): Badge! @isAuthenticated @isAdmin
+	badgesCreate(opts: TwirBadgeCreateOpts!): Badge! @isAuthenticated @isAdmin
 	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 }
@@ -23,10 +23,19 @@ type Badge {
 	IDS of users which has this badge
 	"""
 	users: [String!]
+	ffzSlot: Int!
 }
 
 input TwirBadgeUpdateOpts {
 	name: String
 	file: Upload
 	enabled: Boolean
+	ffzSlot: Int
+}
+
+input TwirBadgeCreateOpts {
+	name: String!
+	file: Upload!
+	enabled: Boolean
+	ffzSlot: Int!
 }

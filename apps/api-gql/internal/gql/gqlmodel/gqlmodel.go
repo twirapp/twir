@@ -74,7 +74,8 @@ type Badge struct {
 	FileURL   string `json:"fileUrl"`
 	Enabled   bool   `json:"enabled"`
 	// IDS of users which has this badge
-	Users []string `json:"users,omitempty"`
+	Users   []string `json:"users,omitempty"`
+	FfzSlot int      `json:"ffzSlot"`
 }
 
 type Command struct {
@@ -162,10 +163,18 @@ func (TwirAdminUser) IsTwirUser()                                {}
 func (this TwirAdminUser) GetID() string                         { return this.ID }
 func (this TwirAdminUser) GetTwitchProfile() *TwirUserTwitchInfo { return this.TwitchProfile }
 
+type TwirBadgeCreateOpts struct {
+	Name    string                   `json:"name"`
+	File    graphql.Upload           `json:"file"`
+	Enabled graphql.Omittable[*bool] `json:"enabled,omitempty"`
+	FfzSlot int                      `json:"ffzSlot"`
+}
+
 type TwirBadgeUpdateOpts struct {
 	Name    graphql.Omittable[*string]         `json:"name,omitempty"`
 	File    graphql.Omittable[*graphql.Upload] `json:"file,omitempty"`
 	Enabled graphql.Omittable[*bool]           `json:"enabled,omitempty"`
+	FfzSlot graphql.Omittable[*int]            `json:"ffzSlot,omitempty"`
 }
 
 type TwirUserTwitchInfo struct {

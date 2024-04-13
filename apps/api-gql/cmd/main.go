@@ -8,6 +8,7 @@ import (
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
+	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	"github.com/twirapp/twir/libs/baseapp"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -29,11 +30,11 @@ func main() {
 			subscriptions_store.New,
 			resolvers.New,
 			directives.New,
-			gql.New,
 			httpserver.New,
+			gql.New,
 		),
 		fx.Invoke(
-			httpserver.New,
+			pubclicroutes.New,
 		),
 	).Run()
 }

@@ -29,6 +29,26 @@ func (c *Handler) handleBan(
 		slog.String("moderatorId", event.ModeratorUserID),
 	)
 
+	go func() {
+		channel := model.Channels{}
+		if err := c.gorm.
+			Where(`"id" = ?`, event.BroadcasterUserID).
+			First(&channel).
+			Error; err != nil {
+			c.logger.Error("channel not found", slog.Any("err", err))
+			return
+		}
+
+		if channel.BotID == event.UserID {
+			channel.IsEnabled = false
+			if err := c.gorm.Save(&channel).Error; err != nil {
+				c.logger.Error("failed to disable channel", slog.Any("err", err))
+			}
+
+			return
+		}
+	}()
+
 	t, _ := time.Parse(time.RFC3339, event.EndsAt)
 	banEndsIn := t.Sub(time.Now().UTC())
 	endsAt := lo.If(event.IsPermanent, "permanent").Else(
