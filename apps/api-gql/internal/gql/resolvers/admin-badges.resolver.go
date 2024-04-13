@@ -214,7 +214,7 @@ func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error
 	if err := r.gorm.
 		WithContext(ctx).
 		Preload("Users").
-		Order("name ASC").
+		Order("ffz_slot ASC").
 		Find(&entities).
 		Error; err != nil {
 		return nil, fmt.Errorf("cannot get badges: %w", err)
