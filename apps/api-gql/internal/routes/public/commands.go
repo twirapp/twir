@@ -26,7 +26,10 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 	var commands []model.ChannelsCommands
 	if err := p.gorm.
 		WithContext(c.Request.Context()).
-		Where(`channels_commands."channelId" = ?`, c.Param("channelId")).
+		Where(
+			`channels_commands."channelId" = ? AND channels_commands.enabled IS TRUE AND channels_commands.visible IS TRUE`,
+			c.Param("channelId"),
+		).
 		Joins("Group").
 		Preload("Responses").
 		Find(&commands).
