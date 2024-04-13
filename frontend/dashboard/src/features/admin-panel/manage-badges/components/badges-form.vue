@@ -23,7 +23,28 @@ const badgesForm = useBadgesForm();
 				<Label for="name">
 					{{ t('adminPanel.manageBadges.name') }}
 				</Label>
-				<Input v-model="badgesForm.nameField.fieldModel" name="name" type="text" placeholder="" />
+				<Input
+					v-model="badgesForm.nameField.fieldModel"
+					name="name"
+					type="text"
+					placeholder=""
+					required
+				/>
+			</div>
+
+			<div class="space-y-2">
+				<Label for="slot">
+					{{ t('adminPanel.manageBadges.slot') }}
+				</Label>
+				<Input
+					v-model="badgesForm.slotField.fieldModel"
+					name="slot"
+					type="text"
+					inputmode="numeric"
+					pattern="[0-9]*"
+					placeholder=""
+					required
+				/>
 			</div>
 
 			<div class="space-y-2">
@@ -40,11 +61,11 @@ const badgesForm = useBadgesForm();
 				</div>
 			</div>
 
-			<div v-if="badgesForm.formValues.file">
+			<div v-if="badgesForm.formValues.image">
 				<Label>
 					{{ t('adminPanel.manageBadges.preview') }}
 				</Label>
-				<badges-preview :image="badgesForm.formValues.file" />
+				<badges-preview :image="badgesForm.formValues.image" />
 			</div>
 
 			<div class="flex justify-end gap-4">

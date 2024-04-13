@@ -16,7 +16,7 @@ export type Scalars = {
   Int: { input: number; output: number; }
   Float: { input: number; output: number; }
   Time: { input: any; output: any; }
-  Upload: { input: any; output: any; }
+  Upload: { input: File; output: File; }
 };
 
 export type AdminNotification = Notification & {
@@ -58,6 +58,7 @@ export type Badge = {
   __typename?: 'Badge';
   createdAt: Scalars['String']['output'];
   enabled: Scalars['Boolean']['output'];
+  ffzSlot: Scalars['Int']['output'];
   fileUrl: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
@@ -126,6 +127,62 @@ export type DashboardStats = {
   viewers?: Maybe<Scalars['Int']['output']>;
 };
 
+export type Greeting = {
+  __typename?: 'Greeting';
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isReply: Scalars['Boolean']['output'];
+  text: Scalars['String']['output'];
+  twitchProfile: TwirUserTwitchInfo;
+  userId: Scalars['String']['output'];
+};
+
+export type GreetingsCreateInput = {
+  enabled: Scalars['Boolean']['input'];
+  isReply: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+  userId: Scalars['String']['input'];
+};
+
+export type GreetingsUpdateInput = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type Keyword = {
+  __typename?: 'Keyword';
+  cooldown: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isRegularExpression: Scalars['Boolean']['output'];
+  isReply: Scalars['Boolean']['output'];
+  response?: Maybe<Scalars['String']['output']>;
+  text: Scalars['String']['output'];
+  usages: Scalars['Int']['output'];
+};
+
+export type KeywordCreateInput = {
+  cooldown?: InputMaybe<Scalars['Int']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isRegularExpression?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  response?: InputMaybe<Scalars['String']['input']>;
+  text: Scalars['String']['input'];
+  usageCount?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type KeywordUpdateInput = {
+  cooldown?: InputMaybe<Scalars['Int']['input']>;
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  isRegularExpression?: InputMaybe<Scalars['Boolean']['input']>;
+  isReply?: InputMaybe<Scalars['Boolean']['input']>;
+  response?: InputMaybe<Scalars['String']['input']>;
+  text?: InputMaybe<Scalars['String']['input']>;
+  usageCount?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   badgesAddUser: Scalars['Boolean']['output'];
@@ -134,12 +191,21 @@ export type Mutation = {
   badgesRemoveUser: Scalars['Boolean']['output'];
   badgesUpdate: Badge;
   createCommand: Command;
+  greetingsCreate: Greeting;
+  greetingsRemove: Scalars['Boolean']['output'];
+  greetingsUpdate: Greeting;
+  keywordCreate: Keyword;
+  keywordRemove: Scalars['Boolean']['output'];
+  keywordUpdate: Keyword;
   notificationsCreate: AdminNotification;
   notificationsDelete: Scalars['Boolean']['output'];
   notificationsUpdate: AdminNotification;
   removeCommand: Scalars['Boolean']['output'];
   switchUserAdmin: Scalars['Boolean']['output'];
   switchUserBan: Scalars['Boolean']['output'];
+  timersCreate: Timer;
+  timersRemove: Scalars['Boolean']['output'];
+  timersUpdate: Timer;
   updateCommand: Command;
 };
 
@@ -151,8 +217,7 @@ export type MutationBadgesAddUserArgs = {
 
 
 export type MutationBadgesCreateArgs = {
-  file: Scalars['Upload']['input'];
-  name: Scalars['String']['input'];
+  opts: TwirBadgeCreateOpts;
 };
 
 
@@ -175,6 +240,38 @@ export type MutationBadgesUpdateArgs = {
 
 export type MutationCreateCommandArgs = {
   opts: CreateCommandInput;
+};
+
+
+export type MutationGreetingsCreateArgs = {
+  opts: GreetingsCreateInput;
+};
+
+
+export type MutationGreetingsRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationGreetingsUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: GreetingsUpdateInput;
+};
+
+
+export type MutationKeywordCreateArgs = {
+  opts: KeywordCreateInput;
+};
+
+
+export type MutationKeywordRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationKeywordUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: KeywordUpdateInput;
 };
 
 
@@ -210,6 +307,22 @@ export type MutationSwitchUserBanArgs = {
 };
 
 
+export type MutationTimersCreateArgs = {
+  opts: TimerCreateInput;
+};
+
+
+export type MutationTimersRemoveArgs = {
+  id: Scalars['String']['input'];
+};
+
+
+export type MutationTimersUpdateArgs = {
+  id: Scalars['String']['input'];
+  opts: TimerUpdateInput;
+};
+
+
 export type MutationUpdateCommandArgs = {
   id: Scalars['String']['input'];
   opts: UpdateCommandOpts;
@@ -235,8 +348,11 @@ export type Query = {
   __typename?: 'Query';
   authenticatedUser: AuthenticatedUser;
   commands: Array<Command>;
+  greetings: Array<Greeting>;
+  keywords: Array<Keyword>;
   notificationsByAdmin: AdminNotificationsResponse;
   notificationsByUser: Array<UserNotification>;
+  timers: Array<Timer>;
   /** Twir badges */
   twirBadges: Array<Badge>;
   /** finding users on twitch with filter does they exists in database */
@@ -260,6 +376,49 @@ export type Subscription = {
   newNotification: UserNotification;
 };
 
+export type Timer = {
+  __typename?: 'Timer';
+  enabled: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  messageInterval: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  responses: Array<TimerResponse>;
+  timeInterval: Scalars['Int']['output'];
+};
+
+export type TimerCreateInput = {
+  enabled: Scalars['Boolean']['input'];
+  messageInterval: Scalars['Int']['input'];
+  name: Scalars['String']['input'];
+  responses: Array<TimerResponseCreateInput>;
+  timeInterval: Scalars['Int']['input'];
+};
+
+export type TimerResponse = {
+  __typename?: 'TimerResponse';
+  id: Scalars['ID']['output'];
+  isAnnounce: Scalars['Boolean']['output'];
+  text: Scalars['String']['output'];
+};
+
+export type TimerResponseCreateInput = {
+  isAnnounce: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+};
+
+export type TimerResponseUpdateInput = {
+  isAnnounce: Scalars['Boolean']['input'];
+  text: Scalars['String']['input'];
+};
+
+export type TimerUpdateInput = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  messageInterval?: InputMaybe<Scalars['Int']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  responses?: InputMaybe<Array<TimerResponseUpdateInput>>;
+  timeInterval?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export type TwirAdminUser = TwirUser & {
   __typename?: 'TwirAdminUser';
   apiKey: Scalars['String']['output'];
@@ -271,8 +430,16 @@ export type TwirAdminUser = TwirUser & {
   twitchProfile: TwirUserTwitchInfo;
 };
 
+export type TwirBadgeCreateOpts = {
+  enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  ffzSlot: Scalars['Int']['input'];
+  file: Scalars['Upload']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type TwirBadgeUpdateOpts = {
   enabled?: InputMaybe<Scalars['Boolean']['input']>;
+  ffzSlot?: InputMaybe<Scalars['Int']['input']>;
   file?: InputMaybe<Scalars['Upload']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
 };
@@ -346,6 +513,10 @@ export type GraphCacheKeysConfig = {
   Command?: (data: WithTypename<Command>) => null | string,
   CommandResponse?: (data: WithTypename<CommandResponse>) => null | string,
   DashboardStats?: (data: WithTypename<DashboardStats>) => null | string,
+  Greeting?: (data: WithTypename<Greeting>) => null | string,
+  Keyword?: (data: WithTypename<Keyword>) => null | string,
+  Timer?: (data: WithTypename<Timer>) => null | string,
+  TimerResponse?: (data: WithTypename<TimerResponse>) => null | string,
   TwirAdminUser?: (data: WithTypename<TwirAdminUser>) => null | string,
   TwirUserTwitchInfo?: (data: WithTypename<TwirUserTwitchInfo>) => null | string,
   TwirUsersResponse?: (data: WithTypename<TwirUsersResponse>) => null | string,
@@ -356,8 +527,11 @@ export type GraphCacheResolvers = {
   Query?: {
     authenticatedUser?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, WithTypename<AuthenticatedUser> | string>,
     commands?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<Command> | string>>,
+    greetings?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<Greeting> | string>>,
+    keywords?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<Keyword> | string>>,
     notificationsByAdmin?: GraphCacheResolver<WithTypename<Query>, QueryNotificationsByAdminArgs, WithTypename<AdminNotificationsResponse> | string>,
     notificationsByUser?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<UserNotification> | string>>,
+    timers?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<Timer> | string>>,
     twirBadges?: GraphCacheResolver<WithTypename<Query>, Record<string, never>, Array<WithTypename<Badge> | string>>,
     twirUsers?: GraphCacheResolver<WithTypename<Query>, QueryTwirUsersArgs, WithTypename<TwirUsersResponse> | string>
   },
@@ -386,6 +560,7 @@ export type GraphCacheResolvers = {
   Badge?: {
     createdAt?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['String'] | string>,
     enabled?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['Boolean'] | string>,
+    ffzSlot?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['Int'] | string>,
     fileUrl?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['String'] | string>,
     id?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['ID'] | string>,
     name?: GraphCacheResolver<WithTypename<Badge>, Record<string, never>, Scalars['String'] | string>,
@@ -434,6 +609,37 @@ export type GraphCacheResolvers = {
     usedEmotes?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>,
     viewers?: GraphCacheResolver<WithTypename<DashboardStats>, Record<string, never>, Scalars['Int'] | string>
   },
+  Greeting?: {
+    enabled?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, Scalars['Boolean'] | string>,
+    id?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, Scalars['ID'] | string>,
+    isReply?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, Scalars['Boolean'] | string>,
+    text?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, Scalars['String'] | string>,
+    twitchProfile?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, WithTypename<TwirUserTwitchInfo> | string>,
+    userId?: GraphCacheResolver<WithTypename<Greeting>, Record<string, never>, Scalars['String'] | string>
+  },
+  Keyword?: {
+    cooldown?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['Int'] | string>,
+    enabled?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['Boolean'] | string>,
+    id?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['ID'] | string>,
+    isRegularExpression?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['Boolean'] | string>,
+    isReply?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['Boolean'] | string>,
+    response?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['String'] | string>,
+    text?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['String'] | string>,
+    usages?: GraphCacheResolver<WithTypename<Keyword>, Record<string, never>, Scalars['Int'] | string>
+  },
+  Timer?: {
+    enabled?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Scalars['Boolean'] | string>,
+    id?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Scalars['ID'] | string>,
+    messageInterval?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Scalars['Int'] | string>,
+    name?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Scalars['String'] | string>,
+    responses?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Array<WithTypename<TimerResponse> | string>>,
+    timeInterval?: GraphCacheResolver<WithTypename<Timer>, Record<string, never>, Scalars['Int'] | string>
+  },
+  TimerResponse?: {
+    id?: GraphCacheResolver<WithTypename<TimerResponse>, Record<string, never>, Scalars['ID'] | string>,
+    isAnnounce?: GraphCacheResolver<WithTypename<TimerResponse>, Record<string, never>, Scalars['Boolean'] | string>,
+    text?: GraphCacheResolver<WithTypename<TimerResponse>, Record<string, never>, Scalars['String'] | string>
+  },
   TwirAdminUser?: {
     apiKey?: GraphCacheResolver<WithTypename<TwirAdminUser>, Record<string, never>, Scalars['String'] | string>,
     id?: GraphCacheResolver<WithTypename<TwirAdminUser>, Record<string, never>, Scalars['ID'] | string>,
@@ -468,12 +674,21 @@ export type GraphCacheOptimisticUpdaters = {
   badgesRemoveUser?: GraphCacheOptimisticMutationResolver<MutationBadgesRemoveUserArgs, Scalars['Boolean']>,
   badgesUpdate?: GraphCacheOptimisticMutationResolver<MutationBadgesUpdateArgs, WithTypename<Badge>>,
   createCommand?: GraphCacheOptimisticMutationResolver<MutationCreateCommandArgs, WithTypename<Command>>,
+  greetingsCreate?: GraphCacheOptimisticMutationResolver<MutationGreetingsCreateArgs, WithTypename<Greeting>>,
+  greetingsRemove?: GraphCacheOptimisticMutationResolver<MutationGreetingsRemoveArgs, Scalars['Boolean']>,
+  greetingsUpdate?: GraphCacheOptimisticMutationResolver<MutationGreetingsUpdateArgs, WithTypename<Greeting>>,
+  keywordCreate?: GraphCacheOptimisticMutationResolver<MutationKeywordCreateArgs, WithTypename<Keyword>>,
+  keywordRemove?: GraphCacheOptimisticMutationResolver<MutationKeywordRemoveArgs, Scalars['Boolean']>,
+  keywordUpdate?: GraphCacheOptimisticMutationResolver<MutationKeywordUpdateArgs, WithTypename<Keyword>>,
   notificationsCreate?: GraphCacheOptimisticMutationResolver<MutationNotificationsCreateArgs, WithTypename<AdminNotification>>,
   notificationsDelete?: GraphCacheOptimisticMutationResolver<MutationNotificationsDeleteArgs, Scalars['Boolean']>,
   notificationsUpdate?: GraphCacheOptimisticMutationResolver<MutationNotificationsUpdateArgs, WithTypename<AdminNotification>>,
   removeCommand?: GraphCacheOptimisticMutationResolver<MutationRemoveCommandArgs, Scalars['Boolean']>,
   switchUserAdmin?: GraphCacheOptimisticMutationResolver<MutationSwitchUserAdminArgs, Scalars['Boolean']>,
   switchUserBan?: GraphCacheOptimisticMutationResolver<MutationSwitchUserBanArgs, Scalars['Boolean']>,
+  timersCreate?: GraphCacheOptimisticMutationResolver<MutationTimersCreateArgs, WithTypename<Timer>>,
+  timersRemove?: GraphCacheOptimisticMutationResolver<MutationTimersRemoveArgs, Scalars['Boolean']>,
+  timersUpdate?: GraphCacheOptimisticMutationResolver<MutationTimersUpdateArgs, WithTypename<Timer>>,
   updateCommand?: GraphCacheOptimisticMutationResolver<MutationUpdateCommandArgs, WithTypename<Command>>
 };
 
@@ -481,8 +696,11 @@ export type GraphCacheUpdaters = {
   Query?: {
     authenticatedUser?: GraphCacheUpdateResolver<{ authenticatedUser: WithTypename<AuthenticatedUser> }, Record<string, never>>,
     commands?: GraphCacheUpdateResolver<{ commands: Array<WithTypename<Command>> }, Record<string, never>>,
+    greetings?: GraphCacheUpdateResolver<{ greetings: Array<WithTypename<Greeting>> }, Record<string, never>>,
+    keywords?: GraphCacheUpdateResolver<{ keywords: Array<WithTypename<Keyword>> }, Record<string, never>>,
     notificationsByAdmin?: GraphCacheUpdateResolver<{ notificationsByAdmin: WithTypename<AdminNotificationsResponse> }, QueryNotificationsByAdminArgs>,
     notificationsByUser?: GraphCacheUpdateResolver<{ notificationsByUser: Array<WithTypename<UserNotification>> }, Record<string, never>>,
+    timers?: GraphCacheUpdateResolver<{ timers: Array<WithTypename<Timer>> }, Record<string, never>>,
     twirBadges?: GraphCacheUpdateResolver<{ twirBadges: Array<WithTypename<Badge>> }, Record<string, never>>,
     twirUsers?: GraphCacheUpdateResolver<{ twirUsers: WithTypename<TwirUsersResponse> }, QueryTwirUsersArgs>
   },
@@ -493,12 +711,21 @@ export type GraphCacheUpdaters = {
     badgesRemoveUser?: GraphCacheUpdateResolver<{ badgesRemoveUser: Scalars['Boolean'] }, MutationBadgesRemoveUserArgs>,
     badgesUpdate?: GraphCacheUpdateResolver<{ badgesUpdate: WithTypename<Badge> }, MutationBadgesUpdateArgs>,
     createCommand?: GraphCacheUpdateResolver<{ createCommand: WithTypename<Command> }, MutationCreateCommandArgs>,
+    greetingsCreate?: GraphCacheUpdateResolver<{ greetingsCreate: WithTypename<Greeting> }, MutationGreetingsCreateArgs>,
+    greetingsRemove?: GraphCacheUpdateResolver<{ greetingsRemove: Scalars['Boolean'] }, MutationGreetingsRemoveArgs>,
+    greetingsUpdate?: GraphCacheUpdateResolver<{ greetingsUpdate: WithTypename<Greeting> }, MutationGreetingsUpdateArgs>,
+    keywordCreate?: GraphCacheUpdateResolver<{ keywordCreate: WithTypename<Keyword> }, MutationKeywordCreateArgs>,
+    keywordRemove?: GraphCacheUpdateResolver<{ keywordRemove: Scalars['Boolean'] }, MutationKeywordRemoveArgs>,
+    keywordUpdate?: GraphCacheUpdateResolver<{ keywordUpdate: WithTypename<Keyword> }, MutationKeywordUpdateArgs>,
     notificationsCreate?: GraphCacheUpdateResolver<{ notificationsCreate: WithTypename<AdminNotification> }, MutationNotificationsCreateArgs>,
     notificationsDelete?: GraphCacheUpdateResolver<{ notificationsDelete: Scalars['Boolean'] }, MutationNotificationsDeleteArgs>,
     notificationsUpdate?: GraphCacheUpdateResolver<{ notificationsUpdate: WithTypename<AdminNotification> }, MutationNotificationsUpdateArgs>,
     removeCommand?: GraphCacheUpdateResolver<{ removeCommand: Scalars['Boolean'] }, MutationRemoveCommandArgs>,
     switchUserAdmin?: GraphCacheUpdateResolver<{ switchUserAdmin: Scalars['Boolean'] }, MutationSwitchUserAdminArgs>,
     switchUserBan?: GraphCacheUpdateResolver<{ switchUserBan: Scalars['Boolean'] }, MutationSwitchUserBanArgs>,
+    timersCreate?: GraphCacheUpdateResolver<{ timersCreate: WithTypename<Timer> }, MutationTimersCreateArgs>,
+    timersRemove?: GraphCacheUpdateResolver<{ timersRemove: Scalars['Boolean'] }, MutationTimersRemoveArgs>,
+    timersUpdate?: GraphCacheUpdateResolver<{ timersUpdate: WithTypename<Timer> }, MutationTimersUpdateArgs>,
     updateCommand?: GraphCacheUpdateResolver<{ updateCommand: WithTypename<Command> }, MutationUpdateCommandArgs>
   },
   Subscription?: {
@@ -530,6 +757,7 @@ export type GraphCacheUpdaters = {
   Badge?: {
     createdAt?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
     enabled?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
+    ffzSlot?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
     fileUrl?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
     id?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
     name?: GraphCacheUpdateResolver<Maybe<WithTypename<Badge>>, Record<string, never>>,
@@ -577,6 +805,37 @@ export type GraphCacheUpdaters = {
     title?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
     usedEmotes?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>,
     viewers?: GraphCacheUpdateResolver<Maybe<WithTypename<DashboardStats>>, Record<string, never>>
+  },
+  Greeting?: {
+    enabled?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>,
+    id?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>,
+    isReply?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>,
+    text?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>,
+    twitchProfile?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>,
+    userId?: GraphCacheUpdateResolver<Maybe<WithTypename<Greeting>>, Record<string, never>>
+  },
+  Keyword?: {
+    cooldown?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    enabled?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    id?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    isRegularExpression?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    isReply?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    response?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    text?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>,
+    usages?: GraphCacheUpdateResolver<Maybe<WithTypename<Keyword>>, Record<string, never>>
+  },
+  Timer?: {
+    enabled?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>,
+    id?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>,
+    messageInterval?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>,
+    name?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>,
+    responses?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>,
+    timeInterval?: GraphCacheUpdateResolver<Maybe<WithTypename<Timer>>, Record<string, never>>
+  },
+  TimerResponse?: {
+    id?: GraphCacheUpdateResolver<Maybe<WithTypename<TimerResponse>>, Record<string, never>>,
+    isAnnounce?: GraphCacheUpdateResolver<Maybe<WithTypename<TimerResponse>>, Record<string, never>>,
+    text?: GraphCacheUpdateResolver<Maybe<WithTypename<TimerResponse>>, Record<string, never>>
   },
   TwirAdminUser?: {
     apiKey?: GraphCacheUpdateResolver<Maybe<WithTypename<TwirAdminUser>>, Record<string, never>>,
