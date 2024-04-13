@@ -2133,7 +2133,7 @@ input GreetingsUpdateInput {
 `, BuiltIn: false},
 	{Name: "../../../schema/integrations.graphqls", Input: `extend type Query {
 	integrationsGetServiceAuthLink(service: IntegrationService!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
-	integrationsGetData(service: IntegrationService!): IntegrationData! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	integrationsGetData(service: IntegrationService!): IntegrationData @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
 enum IntegrationService {
@@ -10893,14 +10893,11 @@ func (ec *executionContext) _Query_integrationsGetData(ctx context.Context, fiel
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(gqlmodel.IntegrationData)
 	fc.Result = res
-	return ec.marshalNIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx, field.Selections, res)
+	return ec.marshalOIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_integrationsGetData(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -17382,9 +17379,6 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_integrationsGetData(ctx, field)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
 				return res
 			}
 
@@ -18598,16 +18592,6 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) marshalNIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationData) graphql.Marshaler {
-	if v == nil {
-		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
-			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
-		}
-		return graphql.Null
-	}
-	return ec._IntegrationData(ctx, sel, v)
-}
-
 func (ec *executionContext) marshalNIntegrationDataDiscordGuild2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationDataDiscordGuild(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationDataDiscordGuild) graphql.Marshaler {
 	return ec._IntegrationDataDiscordGuild(ctx, sel, &v)
 }
@@ -19655,6 +19639,13 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	}
 	res := graphql.MarshalInt(*v)
 	return res
+}
+
+func (ec *executionContext) marshalOIntegrationData2githubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐIntegrationData(ctx context.Context, sel ast.SelectionSet, v gqlmodel.IntegrationData) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._IntegrationData(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalONotificationType2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐNotificationType(ctx context.Context, v interface{}) (*gqlmodel.NotificationType, error) {

@@ -17,19 +17,12 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *adminNotificationResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.AdminNotification,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminNotificationResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AdminNotification) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUser(ctx, *obj.UserID)
 }
 
 // NotificationsCreate is the resolver for the notificationsCreate field.
-func (r *mutationResolver) NotificationsCreate(
-	ctx context.Context,
-	text string,
-	userID *string,
-) (*gqlmodel.AdminNotification, error) {
+func (r *mutationResolver) NotificationsCreate(ctx context.Context, text string, userID *string) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{
 		ID:        uuid.NewString(),
 		CreatedAt: time.Now().UTC(),
@@ -69,11 +62,7 @@ func (r *mutationResolver) NotificationsCreate(
 }
 
 // NotificationsUpdate is the resolver for the notificationsUpdate field.
-func (r *mutationResolver) NotificationsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.NotificationUpdateOpts,
-) (*gqlmodel.AdminNotification, error) {
+func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{}
 	if err := r.gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
 		return nil, err
@@ -125,10 +114,7 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 }
 
 // NotificationsByUser is the resolver for the notificationsByUser field.
-func (r *queryResolver) NotificationsByUser(ctx context.Context) (
-	[]gqlmodel.UserNotification,
-	error,
-) {
+func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
@@ -156,10 +142,7 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) (
 }
 
 // NotificationsByAdmin is the resolver for the notificationsByAdmin field.
-func (r *queryResolver) NotificationsByAdmin(
-	ctx context.Context,
-	opts gqlmodel.AdminNotificationsParams,
-) (*gqlmodel.AdminNotificationsResponse, error) {
+func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error) {
 	query := r.gorm.WithContext(ctx)
 
 	if opts.Type.IsSet() {
@@ -215,10 +198,7 @@ func (r *queryResolver) NotificationsByAdmin(
 }
 
 // NewNotification is the resolver for the newNotification field.
-func (r *subscriptionResolver) NewNotification(ctx context.Context) (
-	<-chan *gqlmodel.UserNotification,
-	error,
-) {
+func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
