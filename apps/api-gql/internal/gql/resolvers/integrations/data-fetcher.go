@@ -82,9 +82,9 @@ func (c *DataFetcher) GetIntegrationData(
 			AuthLink: authLink,
 		}
 
-		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
+		if integration.Data != nil && integration.Data.Name != nil && integration.Data.
 			Avatar != nil {
-			result.Username = integration.Data.UserName
+			result.Username = integration.Data.Name
 			result.Avatar = integration.Data.Avatar
 		}
 
