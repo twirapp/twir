@@ -4,6 +4,8 @@ import (
 	"context"
 
 	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
+	"github.com/twirapp/twir/libs/cache/twitch"
 )
 
 func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
@@ -15,9 +17,26 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 		return nil, []error{err}
 	}
 
-	mappedUsers := make([]*helix.User, len(users))
-	for i, user := range users {
-		mappedUsers[i] = &user.User
+	mappedUsers := make([]*helix.User, 0, len(users))
+
+	for _, id := range ids {
+		user, ok := lo.Find(
+			users, func(item twitch.TwitchUser) bool {
+				return item.ID == id
+			},
+		)
+		if !ok {
+			mappedUsers = append(
+				mappedUsers, &helix.User{
+					ID:          id,
+					Login:       "[twir] twitch banned",
+					DisplayName: "[Twir] Twitch Banned",
+				},
+			)
+			continue
+		}
+
+		mappedUsers = append(mappedUsers, &user.User)
 	}
 
 	return mappedUsers, nil

@@ -3,21 +3,20 @@ import {
 	getCoreRowModel,
 	useVueTable,
 } from '@tanstack/vue-table';
-import type {
-	UsersGetRequest,
-	UsersGetResponse_UsersGetResponseUser as User,
-} from '@twir/api/messages/admin_users/admin_users';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useUsersTableFilters } from './use-users-table-filters';
+import { useUsersTableFilters } from './use-users-table-filters.js';
+import { useUsers } from './use-users.js';
 import UsersTableActions from '../components/users-table-actions.vue';
 import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
-import { useAdminUsers } from '@/api/admin/users.js';
 import { usePagination } from '@/composables/use-pagination.js';
+import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers';
+
+type Users = UsersGetAllQuery['twirUsers']['users']
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
@@ -26,7 +25,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableFilters = useUsersTableFilters();
 
-	const tableParams = computed<UsersGetRequest>((prevParams) => {
+	const tableParams = computed<TwirUsersSearchParams>((prevParams) => {
 		// reset pagination on search change
 		if (prevParams?.search !== tableFilters.debounceSearchInput) {
 			pagination.value.pageIndex = 0;
@@ -37,24 +36,25 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			search: tableFilters.debounceSearchInput,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			badgesIds: tableFilters.selectedBadges,
+			badges: tableFilters.selectedBadges,
 		};
 	});
 
-	const { data, isFetching } = useAdminUsers(tableParams);
+	const { usersApi } = useUsers();
+	const { data, fetching } = usersApi.useQueryUsers(tableParams);
 
-	const users = computed<User[]>(() => {
+	const users = computed<Users>(() => {
 		if (!data.value) return [];
-		return data.value.users;
+		return data.value.twirUsers.users;
 	});
 
-	const totalUsers = computed(() => data.value?.total ?? 0);
+	const totalUsers = computed(() => data.value?.twirUsers.total ?? 0);
 
 	const pageCount = computed(() => {
-		return Math.ceil((data.value?.total ?? 0) / pagination.value.pageSize);
+		return Math.ceil(totalUsers.value / pagination.value.pageSize);
 	});
 
-	const tableColumns = computed<ColumnDef<User>[]>(() => [
+	const tableColumns = computed<ColumnDef<Users[0]>[]>(() => [
 		{
 			accessorKey: 'user',
 			size: 60,
@@ -63,13 +63,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 				return h('a',
 					{
 						class: 'flex flex-col',
-						href: `https://twitch.tv/${row.original.userName}`,
+						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
 						target: '_blank',
 					},
 					h(UsersTableCellUser, {
-						avatar: row.original.avatar,
+						avatar: row.original.twitchProfile.profileImageUrl,
 						userId: row.original.id,
-						name: resolveUserName(row.original.userName, row.original.userDisplayName),
+						name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName),
 					}),
 				);
 			},
@@ -90,7 +90,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 				return h(UsersTableActions, {
 					userId: row.original.id,
 					isBanned: row.original.isBanned,
-					isAdmin: row.original.isAdmin,
+					isBotAdmin: row.original.isBotAdmin,
 				});
 			},
 		},
@@ -126,7 +126,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	});
 
 	return {
-		isLoading: isFetching,
+		isLoading: fetching,
 		totalUsers,
 		table,
 		tableColumns,

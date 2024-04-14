@@ -39,7 +39,7 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 			list: [
 				{
 					label: t('adminPanel.manageUsers.isAdmin'),
-					key: 'isAdmin',
+					key: 'isBotAdmin',
 				},
 				{
 					label: t('adminPanel.manageUsers.isBanned'),

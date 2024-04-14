@@ -6,7 +6,6 @@ import { graphql } from '@/gql';
 const invalidationKey = 'AdminBadgesInvalidateKey';
 
 export const useAdminBadges = () => {
-
 	const useMutationCreateBadge = () => useMutation(graphql(`
 		mutation CreateBadge($opts: TwirBadgeCreateOpts!) {
 			badgesCreate(opts: $opts) {
@@ -54,6 +53,7 @@ export const useQueryBadges = () => useQuery({
 	context: {
 		additionalTypenames: [invalidationKey],
 	},
+	variables: {},
 	query: graphql(`
 		query BadgesGetAll {
 			twirBadges {

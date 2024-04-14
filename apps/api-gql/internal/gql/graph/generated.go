@@ -1593,9 +1593,9 @@ type TwirUsersResponse {
 }
 
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard
-	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
 
 type Command {
@@ -1683,13 +1683,13 @@ type DashboardStats {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/greetings.graphqls", Input: `extend type Query {
-	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard
+	greetings: [Greeting!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_GREETINGS)
 }
 
 extend type Mutation {
-	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard
-	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
 }
 
 type Greeting {
@@ -1716,13 +1716,13 @@ input GreetingsUpdateInput {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/keywords.graphqls", Input: `extend type Query {
-	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard
+	keywords: [Keyword!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_KEYWORDS)
 }
 
 extend type Mutation {
-	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard
-	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
 }
 
 type Keyword {
@@ -1873,13 +1873,13 @@ type TwirUserTwitchInfo {
 }
 `, BuiltIn: false},
 	{Name: "../../../schema/timers.graphqls", Input: `extend type Query {
-	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard
+	timers: [Timer!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_TIMERS)
 }
 
 extend type Mutation {
-	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard
-	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard
+	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 }
 
 type Timer {
@@ -6334,8 +6334,18 @@ func (ec *executionContext) _Mutation_createCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6463,8 +6473,18 @@ func (ec *executionContext) _Mutation_updateCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6592,8 +6612,18 @@ func (ec *executionContext) _Mutation_removeCommand(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_COMMANDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6673,8 +6703,18 @@ func (ec *executionContext) _Mutation_greetingsCreate(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6768,8 +6808,18 @@ func (ec *executionContext) _Mutation_greetingsUpdate(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6863,8 +6913,18 @@ func (ec *executionContext) _Mutation_greetingsRemove(ctx context.Context, field
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -6944,8 +7004,18 @@ func (ec *executionContext) _Mutation_keywordCreate(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7043,8 +7113,18 @@ func (ec *executionContext) _Mutation_keywordUpdate(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7142,8 +7222,18 @@ func (ec *executionContext) _Mutation_keywordRemove(ctx context.Context, field g
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7490,8 +7580,18 @@ func (ec *executionContext) _Mutation_timersCreate(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7585,8 +7685,18 @@ func (ec *executionContext) _Mutation_timersUpdate(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -7680,8 +7790,18 @@ func (ec *executionContext) _Mutation_timersRemove(ctx context.Context, field gr
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "MANAGE_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8036,8 +8156,18 @@ func (ec *executionContext) _Query_greetings(ctx context.Context, field graphql.
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_GREETINGS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8120,8 +8250,18 @@ func (ec *executionContext) _Query_keywords(ctx context.Context, field graphql.C
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_KEYWORDS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
@@ -8369,8 +8509,18 @@ func (ec *executionContext) _Query_timers(ctx context.Context, field graphql.Col
 			}
 			return ec.directives.HasAccessToSelectedDashboard(ctx, nil, directive1)
 		}
+		directive3 := func(ctx context.Context) (interface{}, error) {
+			permission, err := ec.unmarshalOChannelRolePermissionEnum2ᚖgithubᚗcomᚋtwirappᚋtwirᚋappsᚋapiᚑgqlᚋinternalᚋgqlᚋgqlmodelᚐChannelRolePermissionEnum(ctx, "VIEW_TIMERS")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasChannelRolesDashboardPermission == nil {
+				return nil, errors.New("directive hasChannelRolesDashboardPermission is not implemented")
+			}
+			return ec.directives.HasChannelRolesDashboardPermission(ctx, nil, directive2, permission)
+		}
 
-		tmp, err := directive2(rctx)
+		tmp, err := directive3(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
