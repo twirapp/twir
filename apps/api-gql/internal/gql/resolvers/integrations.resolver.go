@@ -12,12 +12,18 @@ import (
 )
 
 // IntegrationsGetServiceAuthLink is the resolver for the integrationsGetServiceAuthLink field.
-func (r *queryResolver) IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (string, error) {
-	return "", nil
+func (r *queryResolver) IntegrationsGetServiceAuthLink(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+) (*string, error) {
+	return r.integrationsLinksResolver.GetIntegrationAuthLink(ctx, service)
 }
 
 // IntegrationsGetData is the resolver for the integrationsGetData field.
-func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error) {
+func (r *queryResolver) IntegrationsGetData(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+) (gqlmodel.IntegrationData, error) {
 	switch service {
 	case gqlmodel.IntegrationServiceLastfm:
 		return gqlmodel.IntegrationDataLastfm{

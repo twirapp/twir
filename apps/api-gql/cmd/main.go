@@ -5,6 +5,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
+	gqlintegrationshelpers "github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers/integrations"
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
@@ -28,6 +29,7 @@ func main() {
 			minio.New,
 			twitchcache.New,
 			subscriptions_store.New,
+			gqlintegrationshelpers.NewIntegrationsLinksResolver,
 			resolvers.New,
 			directives.New,
 			httpserver.New,

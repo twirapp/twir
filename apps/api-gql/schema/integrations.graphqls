@@ -1,5 +1,5 @@
 extend type Query {
-	integrationsGetServiceAuthLink(service: IntegrationService!): String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	integrationsGetServiceAuthLink(service: IntegrationService!): String @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 	integrationsGetData(service: IntegrationService!): IntegrationData @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
