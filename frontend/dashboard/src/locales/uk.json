@@ -43,7 +43,7 @@
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
     "pagination": "{page} з {total} сторінок / {items} елементів",
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Найти"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -72,7 +72,7 @@
   "navbar": {
     "logout": "Вийти",
     "publicPage": "Публічна сторінка",
-    "seeAll": "See all"
+    "seeAll": "Показати всі"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -115,7 +115,7 @@
         "label": "Псевдоніми"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Увімкнути команду лише в певних категоріях (залиште порожнім для вимкнення)"
       },
       "description": {
         "label": "Опис команди"
