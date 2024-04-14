@@ -18,8 +18,8 @@
     "goToDashboard": "Prejsť na ovládací panel",
     "add": "Pridať",
     "send": "Odoslať",
-    "next": "Next",
-    "previous": "Previous",
+    "next": "Ďalšie",
+    "previous": "Predchádzajúce",
     "reset": "Resetovať"
   },
   "sharedTexts": {
@@ -143,7 +143,7 @@
         "channelsPoints": "Požadované vernostné body kanálov na použitie tohto príkazu."
       },
       "cooldown": {
-        "label": "Cooldown",
+        "label": "Vychladnutie",
         "value": "Cooldown v sekundách",
         "type": {
           "name": "Vychladnutie za",
@@ -196,7 +196,7 @@
         "title": "Názov streamu",
         "category": "Kategória"
       },
-      "uptime": "Uptime",
+      "uptime": "Vysielanie",
       "followers": "Sledovatelia",
       "messages": "Správy",
       "subs": "Predplatitelia",
@@ -302,8 +302,8 @@
         "warningTitle": "Pred ďalším postupom musíte najskôr nakonfigurovať OBS!",
         "warningText": "Zdá sa, že ste neprepojili Twir s OBS. Môžete to urobiť na stránke \"Overlays\".",
         "scene": "Scéna OBS",
-        "source": "OBS Source",
-        "audioSource": "OBS Audio Source"
+        "source": "Zdroj OBS",
+        "audioSource": "Zdroj zvuku OBS"
       },
       "values": "Hodnoty",
       "triggerAlert": "Spúšťač upozornenia",
@@ -346,7 +346,7 @@
       "pollOptionsNames": "Nastavenia ankety (oddelené čiarkou)",
       "pollTotalVotes": "Celkový počet hlasov v ankete",
       "pollWinnerTitle": "Meno víťaza ankety",
-      "pollWinnerBitsVotes": "Number of Winner's Bits Votes",
+      "pollWinnerBitsVotes": "Celkovo víťazných vernostných bodov",
       "pollWinnerChannelsPointsVotes": "Number of Winner's Channel Points Votes",
       "pollWinnerTotalVotes": "Celkový počet hlasov víťaznej ankety",
       "predictionTitle": "Názov predpovede",
@@ -659,14 +659,14 @@
     }
   },
   "greetings": {
-    "title": "Greetings",
+    "title": "Uvítacia správa",
     "info": {
       "title": "Greetings Information",
       "text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
     },
     "validations": {
-      "userName": "Username is required!",
-      "textRequired": "Response Text is required!"
+      "userName": "Užívateľské meno je povinné!",
+      "textRequired": "Pole odpovede je povinné!"
     }
   },
   "alerts": {
