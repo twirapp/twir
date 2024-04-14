@@ -12,7 +12,9 @@ import { useNotificationsForm } from '../composables/use-notifications-form.js';
 import { useAdminNotifications } from '@/api/admin/notifications.js';
 import { useLayout } from '@/composables/use-layout.js';
 import { usePagination } from '@/composables/use-pagination.js';
-import { NotificationType, type AdminNotification, type AdminNotificationsParams } from '@/gql/graphql.js';
+import { NotificationType, type AdminNotificationsParams, type NotificationsByAdminQuery } from '@/gql/graphql.js';
+
+type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 
 export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
 	const layout = useLayout();
@@ -34,13 +36,13 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { data } = notificationsApi.useQueryNotifications(reqParams);
 	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification();
 
-	const notifications = computed(() => {
+	const notifications = computed<Notifications>(() => {
 		if (!data.value) return [];
-		return data.value.notificationsByAdmin.notifications as AdminNotification[];
+		return data.value.notificationsByAdmin.notifications;
 	});
 
-	const tableColumns = computed<ColumnDef<AdminNotification>[]>(() => {
-		const columns: ColumnDef<AdminNotification>[] = [
+	const tableColumns = computed(() => {
+		const columns: ColumnDef<Notifications[0]>[] = [
 			{
 				accessorKey: 'message',
 				size: 65,
@@ -140,7 +142,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		await deleteNotification({ id: notificationId });
 	}
 
-	async function onEditNotification(notification: AdminNotification) {
+	async function onEditNotification(notification: Notifications[0]) {
 		let isConfirmed = true;
 
 		if (form.formValues.message || form.isEditableForm) {
