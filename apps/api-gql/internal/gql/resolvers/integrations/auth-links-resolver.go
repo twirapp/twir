@@ -23,7 +23,7 @@ type LinksResolverOpts struct {
 	Config config.Config
 }
 
-func NewIntegrationsLinksResolver(opts LinksResolverOpts) *LinksResolver {
+func NewLinksResolver(opts LinksResolverOpts) *LinksResolver {
 	return &LinksResolver{
 		gorm:   opts.Gorm,
 		config: opts.Config,

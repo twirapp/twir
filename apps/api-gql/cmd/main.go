@@ -6,7 +6,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
 	gqlintegrationshelpers "github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers/integrations"
-	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
+	subscriptionsstore "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
@@ -28,9 +28,10 @@ func main() {
 			},
 			minio.New,
 			twitchcache.New,
-			subscriptions_store.New,
-			gqlintegrationshelpers.NewIntegrationsLinksResolver,
-			gqlintegrationshelpers.NewIntegrationsDataFetcher,
+			subscriptionsstore.New,
+			gqlintegrationshelpers.NewPostCodeHandler,
+			gqlintegrationshelpers.NewLinksResolver,
+			gqlintegrationshelpers.NewDataFetcher,
 			resolvers.New,
 			directives.New,
 			httpserver.New,

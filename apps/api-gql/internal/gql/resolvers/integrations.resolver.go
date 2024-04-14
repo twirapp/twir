@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
@@ -18,6 +19,11 @@ func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmode
 	}
 
 	return r.integrationsDataFetcher.GetIntegrationData(ctx, dashboardId, service)
+}
+
+// IntegrationsPostCode is the resolver for the integrationsPostCode field.
+func (r *queryResolver) IntegrationsPostCode(ctx context.Context, service gqlmodel.IntegrationService, code string) (gqlmodel.IntegrationData, error) {
+	panic(fmt.Errorf("not implemented: IntegrationsPostCode - integrationsPostCode"))
 }
 
 // !!! WARNING !!!

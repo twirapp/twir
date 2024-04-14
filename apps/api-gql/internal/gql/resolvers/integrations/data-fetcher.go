@@ -19,7 +19,7 @@ type DataFetcherOpts struct {
 	AuthLinksResolver *LinksResolver
 }
 
-func NewIntegrationsDataFetcher(opts DataFetcherOpts) *DataFetcher {
+func NewDataFetcher(opts DataFetcherOpts) *DataFetcher {
 	return &DataFetcher{
 		gorm:          opts.Gorm,
 		config:        opts.Config,

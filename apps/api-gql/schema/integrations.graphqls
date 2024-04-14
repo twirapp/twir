@@ -1,5 +1,6 @@
 extend type Query {
 	integrationsGetData(service: IntegrationService!): IntegrationData @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
+	integrationsPostCode(service: IntegrationService!, code: String!): IntegrationData @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_INTEGRATIONS)
 }
 
 enum IntegrationService {
