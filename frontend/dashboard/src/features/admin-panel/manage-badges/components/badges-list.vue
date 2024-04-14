@@ -2,13 +2,10 @@
 import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next';
 import { NCard, NTime } from 'naive-ui';
 import { storeToRefs } from 'pinia';
-import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
 
 import BadgesPreview from './badges-preview.vue';
-import { useUsersTableFilters } from '../../manage-users/composables/use-users-table-filters.js';
-import { useBadgesForm } from '../composables/use-badges-form.js';
+import { useBadgesActions } from '../composables/use-badges-actions.js';
 import { useBadges } from '../composables/use-badges.js';
 
 import { Badge as UiBadge } from '@/components/ui/badge';
@@ -21,50 +18,11 @@ import {
   DropdownMenuTrigger,
 	DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useLayout } from '@/composables/use-layout.js';
-import type { Badge } from '@/gql/graphql';
 
 const { t } = useI18n();
-const layout = useLayout();
-const badgesForm = useBadgesForm();
-const badgesStore = useBadges();
-const { badges } = storeToRefs(badgesStore);
 
-async function removeBadge(badgeId: string) {
-	await badgesStore.badgesDelete.executeMutation({ id: badgeId }, { additionalTypenames: ['AdminBadgesInvalidateKey'] });
-	deleteBadgeId.value = null;
-}
-
-function editBadge(badge: Badge) {
-	badgesForm.editableBadgeId = badge.id;
-	badgesForm.nameField.fieldModel = badge.name;
-	badgesForm.fileField.fieldModel = badge.fileUrl;
-	badgesForm.slotField.fieldModel = badge.ffzSlot;
-	layout.scrollToTop();
-}
-
-function toggleEnableBadge(badge: Badge) {
-	badgesStore.badgesUpdate.executeMutation({
-		id: badge.id,
-		opts: { enabled: !badge.enabled },
-	});
-}
-
-const showDelete = ref(false);
-const deleteBadgeId = ref<string | null>(null);
-function deleteBadge(badge: Badge): void {
-	showDelete.value = true;
-	deleteBadgeId.value = badge.id;
-}
-
-const router = useRouter();
-const userFilters = useUsersTableFilters();
-
-function applyUserSearchBadgeFilter(badge: Badge): void {
-	userFilters.clearFilters();
-	userFilters.selectedBadges.push(badge.id);
-	router.push({ query: { tab: 'users' } });
-}
+const { badges } = storeToRefs(useBadges());
+const badgesActions = useBadgesActions();
 </script>
 
 <template>
@@ -90,16 +48,16 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 						</Button>
 					</DropdownMenuTrigger>
 					<DropdownMenuContent align="end">
-						<DropdownMenuItem @click="applyUserSearchBadgeFilter(badge)">
+						<DropdownMenuItem @click="badgesActions.applyUserSearchBadgeFilter(badge)">
 							<UserIcon class="mr-2 h-4 w-4" />
 							<span>{{ t('adminPanel.manageBadges.users') }}</span>
 						</DropdownMenuItem>
-						<DropdownMenuItem @click="editBadge(badge)">
+						<DropdownMenuItem @click="badgesActions.editBadge(badge)">
 							<EditIcon class="mr-2 h-4 w-4" />
 							<span>{{ t('sharedButtons.edit') }}</span>
 						</DropdownMenuItem>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem @click="toggleEnableBadge(badge)">
+						<DropdownMenuItem @click="badgesActions.toggleBadgeEnabled(badge)">
 							<template v-if="badge.enabled">
 								<ToggleRightIcon class="mr-2 h-4 w-4" />
 								<span>{{ t('sharedTexts.enabled') }}</span>
@@ -109,7 +67,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 								<span>{{ t('sharedTexts.disabled') }}</span>
 							</template>
 						</DropdownMenuItem>
-						<DropdownMenuItem @click="deleteBadge(badge)">
+						<DropdownMenuItem @click="badgesActions.showModalDeleteBadge(badge)">
 							<TrashIcon class="mr-2 h-4 w-4" />
 							<span>{{ t('sharedButtons.delete') }}</span>
 						</DropdownMenuItem>
@@ -144,7 +102,7 @@ function applyUserSearchBadgeFilter(badge: Badge): void {
 	</div>
 
 	<delete-confirm
-		v-model:open="showDelete"
-		@confirm="removeBadge(deleteBadgeId!)"
+		v-model:open="badgesActions.isShowModalDelete"
+		@confirm="badgesActions.deleteBadge()"
 	/>
 </template>
