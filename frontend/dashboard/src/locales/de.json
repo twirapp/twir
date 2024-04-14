@@ -16,7 +16,11 @@
     "saveSettings": "Einstellungen speichern",
     "setDefaultSettings": "Standardeinstellungen festlegen",
     "goToDashboard": "Zur Übersicht gehen",
-    "add": "Hinzufügen"
+    "add": "Hinzufügen",
+    "send": "Send",
+    "next": "Next",
+    "previous": "Previous",
+    "reset": "Reset"
   },
   "sharedTexts": {
     "saved": "Erfolgreich gespeichert",
@@ -37,7 +41,9 @@
     "updated": "Aktualisiert",
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
-    "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern"
+    "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
+    "pagination": "{page} of {total} page(s) / {items} item(s)",
+    "searchPlaceholder": "Search..."
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -60,11 +66,13 @@
     "alerts": "Warnungen",
     "games": "Spiele",
     "users": "Benutzer",
-    "moderation": "Moderation"
+    "moderation": "Moderation",
+    "import": "Import"
   },
   "navbar": {
     "logout": "Abmelden",
-    "publicPage": "Öffentliche Seite"
+    "publicPage": "Öffentliche Seite",
+    "seeAll": "See all"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -107,7 +115,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Aktiviere den Befehl nur in bestimmten Kategorien (leer lassen für deaktiviert)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
@@ -154,7 +162,7 @@
           "text": "Der Bot behält diese Reihenfolge der Antworten bei, wenn er sie in den Chat sendet."
         },
         "onlineOnly": {
-          "label": "Nur wenn online",
+          "label": "Nur wenn Online",
           "text": "Dieser Befehl funktioniert nur, wenn der Stream online ist."
         },
         "other": {
@@ -235,8 +243,8 @@
         "shouldDeleteMessageOnOffline": "Warnmeldung löschen statt bearbeiten, wenn der Stream offline geht?",
         "additionalUsersIdsForLiveCheck": "Zusätzliche Liste von Twitch-Nutzern, denen Sie folgen können, um Stream-Benachrichtigungen zu senden."
       },
-      "connectGuild": "+ Verbinde Server",
-      "disconnectGuild": "Server Trennen",
+      "connectGuild": "+ Server verbinden",
+      "disconnectGuild": "Server trennen",
       "noGuilds": "Keine Server verbunden",
       "cannotSendMessage": "Der Bot hat keine Möglichkeit, Nachrichten in diesem Kanal zu senden. Prüfen Sie die Kanalberechtigungen, um dieses Problem zu lösen."
     },
@@ -250,8 +258,8 @@
       "info": "Durch den Zugriff auf diesen Dienst kann Twir Ihre Valorant-Spiele verfolgen und Befehlsvariablen wie {0}, {1} und vieles mehr einrichten. "
     },
     "sevenTv": {
-      "description": "Wir können 7tv Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
-      "alert": "Sie können auch fortgeschrittenen Fluss über {0} System tun, um 7tv emotes zu verwalten.",
+      "description": "Wir können 7TV Channel Emotes verwalten, wenn diese Integration aktiviert ist.",
+      "alert": "Sie können auch den erweiterten Fluss über das {0} System ausführen, um 7TV Emotes zu verwalten.",
       "connected": "Verbunden",
       "notConnected": "Nicht verbunden",
       "notRegistered": "Sie sind nicht bei {0} registriert",
@@ -264,7 +272,7 @@
       },
       "rewardForAddEmote": "Belohnung für das Hinzufügen von Emotes",
       "rewardForRemoveEmote": "Belohnung für das Entfernen von Emotes",
-      "rewardSelectorDescription": "Du solltest Rewards mit Input erstellen. Benutzer müssen den 7tv-Link verwenden, wenn sie die Belohnung aktivieren."
+      "rewardSelectorDescription": "Du solltest eine Belohnung mit Eingabe erstellen. Benutzer müssen einen 7TV Link verwenden, um die Belohnung zu aktivieren."
     }
   },
   "events": {
@@ -275,15 +283,15 @@
     "description": "Beschreibung",
     "targetCommand": "Ziel-Befehl",
     "targetVariable": "Ziel-Variable",
-    "targetTwitchReward": "Target Twitch Belohnung",
-    "targetKeyword": "Ziel-Keyword",
+    "targetTwitchReward": "Ziel Twitch Belohnung",
+    "targetKeyword": "Ziel-Suchwort",
     "operations": {
       "divider": "Aktionen",
       "name": "Aktion",
       "inputs": {
         "message": "Zu sendende Nachricht (unterstützt Variablen)",
         "default": "Aktionstext (unterstützt Variablen)",
-        "vipSlots": "VIP Slots Betrag",
+        "vipSlots": "VIP Slots Anzahl",
         "username": "Benutzername (unterstützt Variablen)",
         "variableValue": "Neuer Variablenwert (unterstützt Variablen)",
         "variableIncrementDecrement": "Wert inkrementieren/dekrementieren (unterstützt Variablen)"
@@ -298,7 +306,14 @@
         "audioSource": "OBS-Audioquelle"
       },
       "values": "Werte",
-      "triggerAlert": "Auslöser-Alarm"
+      "triggerAlert": "Auslöser-Alarm",
+      "filters": {
+        "label": "Filter",
+        "description": "Sie können Ereignisse nach bestimmten Bedingungen filtern. Wenn du zum Beispiel \"{'{raidViewers}'} für Schlachtzugsereignisse gleich 10\" verwendest, wird die Operation nur dann ausgelöst, wenn die Anzahl der Schlachtzugmitglieder 10 beträgt.",
+        "placeholderLeft": "Left side of the condition",
+        "placeholderRight": "Right side of the condition",
+        "empty": "Keine Filter ausgewählt"
+      }
     },
     "variables": {
       "userName": "Ereignisauslöser Benutzername",
@@ -306,7 +321,7 @@
       "targetUserName": "Ereignis Ziel Benutzername",
       "targetDisplayUserName": "Ereignisziel Anzeigename",
       "subLevel": "Abo-Stufen (wie \"1\"/\"2\"/\"3\"/\"prime\")",
-      "resubMonths": "Abonnent Länge Streak",
+      "resubMonths": "Abonnentenlängenserie",
       "resubStreak": "Gesamtzahl der Abonnentenmonate",
       "resubMessage": "Benutzer-Abo Nachricht",
       "rewardName": "Kanalpunkte Belohnung Name",
@@ -420,7 +435,7 @@
       "availabeFonts": "Verfügbare Schriftarten",
       "hideCommands": "Befehle ausblenden",
       "hideBots": "Andere Nachrichten von Bots verstecken",
-      "style": "Nachrichten Style",
+      "style": "Nachrichten Stil",
       "description": "Dieses Overlay erlaubt es dir, deinen Twitch-Chat in deiner Streaming-Software anzuzeigen (z.B. OBS, XSplit, etc).)"
     },
     "dudes": {
@@ -625,11 +640,11 @@
     "usages": "Anzahl der Verwendungen",
     "isRegular": "Ist ein regulärer Ausdruck?",
     "regularDescription": "Regulärer Ausdruck sollte im golang-Format geschrieben werden! Siehe {0} hier.",
-    "regularDescriptionCheatSheet": "spickzettel",
+    "regularDescriptionCheatSheet": "Spickzettel",
     "settings": "Einstellungen",
     "cooldown": "Abklingzeit (in Sekunden)",
     "validations": {
-      "triggerRequired": "Triggerfeld ist erforderlich!",
+      "triggerRequired": "Auslösefeld ist erforderlich!",
       "triggerLong": "Auslösetext ist zu lang!",
       "responseLong": "Antwort-Text ist zu lang!"
     }
@@ -742,7 +757,6 @@
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "button": "Zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     }
@@ -872,7 +886,57 @@
     },
     "public": {
       "title": "Öffentliche Seite",
-      "description": "Beschreibung des Kanals"
+      "description": "Beschreibung des Kanals",
+      "socialLinks": "Soziale Netzwerke",
+      "errorCreateLink": "\"{title}\" enthält keinen gültigen Link {href}",
+      "errorInvalidLength": "Ungültige Länge",
+      "errorInvalidLink": "Ungültiger Link",
+      "errorEmpty": "Kann nicht leer sein",
+      "errorTooLong": "Zu lang",
+      "linkTitle": "Titel",
+      "linkLabel": "Verknüpfung"
+    }
+  },
+  "adminPanel": {
+    "title": "Admin panel",
+    "notifications": {
+      "title": "Notifications",
+      "formTitle": "Send or edit notification",
+      "emptyNotifications": "No notifications",
+      "userLabel": "User",
+      "userPlaceholder": "Select a user",
+      "messageLabel": "Message",
+      "messagePreview": "Preview",
+      "createdAt": "Created At",
+      "globals": "Globals",
+      "users": "Users",
+      "confirmResetForm": "Are you sure you want to reset the form?"
+    },
+    "manageUsers": {
+      "title": "Users",
+      "user": "User",
+      "userId": "User ID",
+      "followers": "Followers",
+      "noUsers": "No users",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "countSelected": "{count} selected",
+      "isAdmin": "Admin",
+      "isBanned": "Banned",
+      "isBotEnabled": "Bot enabled",
+      "statusGroup": "Status",
+      "badgesGroup": "Badges"
+    },
+    "manageBadges": {
+      "title": "Badges",
+      "formTitle": "Create or edit badge",
+      "name": "Name",
+      "users": "Users",
+      "slot": "Slot",
+      "image": "Image",
+      "preview": "Preview",
+      "usesCount": "Uses {count}",
+      "badgeSlot": "Slot {slot}"
     }
   }
 }

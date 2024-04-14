@@ -16,7 +16,11 @@
     "saveSettings": "Сохранить настройки",
     "setDefaultSettings": "Установить настройки по умолчанию",
     "goToDashboard": "Перейти в панель управления",
-    "add": "Добавить"
+    "add": "Добавить",
+    "send": "Send",
+    "next": "Next",
+    "previous": "Previous",
+    "reset": "Reset"
   },
   "sharedTexts": {
     "saved": "Сохранено",
@@ -37,7 +41,9 @@
     "updated": "Обновлено",
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
-    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+    "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
+    "pagination": "{page} of {total} page(s) / {items} item(s)",
+    "searchPlaceholder": "Search..."
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -59,16 +65,18 @@
     "greetings": "Приветствия",
     "alerts": "Оповещения",
     "games": "Игры",
-    "users": "Пользователи",
-    "moderation": "Модерация"
+    "users": "Зрители",
+    "moderation": "Модерация",
+    "import": "Импортировать"
   },
   "navbar": {
-    "logout": "Выход",
-    "publicPage": "Публичная страница"
+    "logout": "Выйти",
+    "publicPage": "Публичная страница",
+    "seeAll": "See all"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
-    "cancel": "Отмена",
+    "cancel": "Отменить",
     "confirm": "Подтвердить"
   },
   "haveNoAccess": {
@@ -77,13 +85,13 @@
   },
   "pageNotFound": {
     "title": "404 Страница не найдена",
-    "description": "Такой страницы не существует."
+    "description": "Знаете, жизнь всегда смешна."
   },
   "commands": {
     "name": "Команда | Команды",
-    "searchPlaceholder": "Найти команду",
+    "searchPlaceholder": "Поиск",
     "newCommandTitle": "Новая команда",
-    "importCommands": "Import commands",
+    "importCommands": "Импортировать команды",
     "groups": {
       "manageButton": "Управление группами",
       "name": "Имя",
@@ -104,17 +112,17 @@
         }
       },
       "aliases": {
-        "label": "Алиасы"
+        "label": "Псевдонимы"
       },
       "gameCategories": {
-        "label": "Категории(Оставьте пустым, чтобы получить доступ в любой категории)"
+        "label": "Включить команду только в определенных категориях (оставьте пустым для отключения)"
       },
       "description": {
         "label": "Описание команды"
       },
       "responses": {
-        "add": "Add Response",
-        "description": "This is your command response. You can use command variables like {0}.",
+        "add": "Добавить ответ",
+        "description": "Это ответы на команду. Вы можете использовать переменные, например: {0}",
         "validations": {
           "empty": "Ответ не должен быть пустым. Команду можно создать без ответа, поэтому вы можете пропустить это поле.",
           "len": "Ответ должен содержать менее 500 символов"
@@ -138,24 +146,24 @@
         "label": "Перезарядка",
         "value": "Перезарядка в секундах",
         "type": {
-          "name": "Перезарядка на",
-          "global": "Глобальная",
-          "user": "Индивидуальная"
+          "name": "Перезарядка для",
+          "global": "Всех",
+          "user": "Каждого пользователя"
         }
       },
       "settings": {
         "divider": "Настройки",
         "visible": {
           "label": "Видимость",
-          "text": "Видимость команд на странице публичного списка команд."
+          "text": "Видимость команды в списке на публичной странице."
         },
         "keepOrder": {
           "label": "Сохранить порядок ответов",
-          "text": "Бот сохранит ваш порядок ответов при отправке их в чат."
+          "text": "Отправлять ответы в порядке, как они записаны здесь."
         },
         "onlineOnly": {
           "label": "Только во время трансляции",
-          "text": "Эта команда будет работать только во время трансляции."
+          "text": "Команда будет работать только во время трансляции."
         },
         "other": {
           "divider": "Другое",
@@ -241,10 +249,10 @@
       "cannotSendMessage": "Бот не имеет прав для отправки сообщений в данном канале. Проверьте права канала для решения данной проблемы."
     },
     "faceit": {
-      "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи с Faceit и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
+      "info": "Подключение этого сервиса позволит отслеживать ваши матчи с Faceit и автоматически обновлять переменные, такие как {0}, {1}."
     },
     "nightbot": {
-      "info": "Providing access to this service allows Twir to import commands and timers from Nightbot."
+      "info": "Предоставьте доступ к Nightbot, чтобы импортировать команды и таймеры."
     },
     "valorant": {
       "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
@@ -298,7 +306,14 @@
         "audioSource": "Источник аудио OBS"
       },
       "values": "Значения",
-      "triggerAlert": "Триггер оповещения"
+      "triggerAlert": "Триггер оповещения",
+      "filters": {
+        "label": "Filters",
+        "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
+        "placeholderLeft": "Left side of the condition",
+        "placeholderRight": "Right side of the condition",
+        "empty": "No filters added yet"
+      }
     },
     "variables": {
       "userName": "Имя пользователя",
@@ -742,7 +757,6 @@
       },
       "total": "Всего пользователей: {total} ",
       "reset": {
-        "button": "Сбросить",
         "resetQuestion": "Вы уверены, что хотите сбросить {title}?"
       }
     }
@@ -872,7 +886,57 @@
     },
     "public": {
       "title": "Public page",
-      "description": "Description of channel"
+      "description": "Description of channel",
+      "socialLinks": "Social links",
+      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
+      "errorInvalidLength": "Invalid length",
+      "errorInvalidLink": "Invalid link",
+      "errorEmpty": "Cannot be empty",
+      "errorTooLong": "Too long",
+      "linkTitle": "Title",
+      "linkLabel": "Link"
+    }
+  },
+  "adminPanel": {
+    "title": "Admin panel",
+    "notifications": {
+      "title": "Notifications",
+      "formTitle": "Send or edit notification",
+      "emptyNotifications": "No notifications",
+      "userLabel": "User",
+      "userPlaceholder": "Select a user",
+      "messageLabel": "Message",
+      "messagePreview": "Preview",
+      "createdAt": "Created At",
+      "globals": "Globals",
+      "users": "Users",
+      "confirmResetForm": "Are you sure you want to reset the form?"
+    },
+    "manageUsers": {
+      "title": "Users",
+      "user": "User",
+      "userId": "User ID",
+      "followers": "Followers",
+      "noUsers": "No users",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "countSelected": "{count} selected",
+      "isAdmin": "Admin",
+      "isBanned": "Banned",
+      "isBotEnabled": "Bot enabled",
+      "statusGroup": "Status",
+      "badgesGroup": "Badges"
+    },
+    "manageBadges": {
+      "title": "Badges",
+      "formTitle": "Create or edit badge",
+      "name": "Name",
+      "users": "Users",
+      "slot": "Slot",
+      "image": "Image",
+      "preview": "Preview",
+      "usesCount": "Uses {count}",
+      "badgeSlot": "Slot {slot}"
     }
   }
 }

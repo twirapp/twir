@@ -16,7 +16,11 @@
     "saveSettings": "Uložiť nastavenia",
     "setDefaultSettings": "Nastaviť predvolené nastavenia",
     "goToDashboard": "Prejsť na ovládací panel",
-    "add": "Pridať"
+    "add": "Pridať",
+    "send": "Odoslať",
+    "next": "Next",
+    "previous": "Previous",
+    "reset": "Resetovať"
   },
   "sharedTexts": {
     "saved": "Uložené",
@@ -37,7 +41,9 @@
     "updated": "Aktualizované",
     "disabled": "Vypnuté",
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
-    "placeCursorMessage": "Place the cursor after \"$\" to change the variable"
+    "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
+    "pagination": "{page} z {total} strán(y) / {items} položka(y)",
+    "searchPlaceholder": "Hľadať..."
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -50,7 +56,7 @@
     "events": "Udalosti",
     "chatAlerts": "Upozornenia chatu",
     "overlays": "Prekrytia",
-    "overlaysRegistry": "Overlays Registry",
+    "overlaysRegistry": "Register prekrytí",
     "songRequests": "Žiadosti o pieseň",
     "timers": "Časovače",
     "roles": "Oprávnenia",
@@ -60,11 +66,13 @@
     "alerts": "Upozornenia",
     "games": "Hry",
     "users": "Užívatelia",
-    "moderation": "Moderovanie"
+    "moderation": "Moderovanie",
+    "import": "Importovať"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
-    "publicPage": "Verejná stránka"
+    "publicPage": "Verejná stránka",
+    "seeAll": "Zobraziť všetko"
   },
   "deleteConfirmation": {
     "text": "Ste si istí, že to chcete odstrániť?",
@@ -107,13 +115,13 @@
         "label": "Aliasy"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Povoliť príkaz len v určitých kategóriách (pre zakázanie nechajte prázdne)"
       },
       "description": {
         "label": "Popis príkazu"
       },
       "responses": {
-        "add": "Add Response",
+        "add": "Pridať odpoveď",
         "description": "Toto je vaša odpoveď na príkaz. Môžete použiť príkazové premenné ako {0}.",
         "validations": {
           "empty": "Odpoveď by nemala byť prázdna. Príkaz môže byť vytvorený bez odpovede, takže toto pole môžete vynechať.",
@@ -214,7 +222,7 @@
   "integrations": {
     "notLoggedIn": "Nie ste prihlásení!",
     "songServicesInfo": "Poskytnutie prístupu k tejto službe umožňuje Twiru automaticky získať a zobraziť aktuálne prehrávanú skladbu v chate, keď sa použije príkaz {0}.",
-    "donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce donaty a nastaví pre vás interakcie v kategóriách {0}, {1}.",
+    "donateServicesInfo": "Poskytnutie prístupu k tejto službe umožní Twiru počúvať prichádzajúce dary a nastaví pre vás interakcie v kategóriách {0}, {1}.",
     "discord": {
       "description": "Poskytnutie prístupu k službe Discord umožňuje Twiru nastaviť automatické pingy a upozornenia o stave streamu na vašich serveroch Discord.",
       "guildPluralization": "Žiadne servery | 1 server | {count} servery",
@@ -251,7 +259,7 @@
     },
     "sevenTv": {
       "description": "Môžeme spravovať emotikony 7TV, keď je táto integrácia povolená.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "alert": "Prostredníctvom systému {0} môžete tiež vytvoriť advanced flow na ovládanie emotikonov 7TV.",
       "connected": "Pripojené",
       "notConnected": "Nepripojené",
       "notRegistered": "Nie ste registrovaný na {0}",
@@ -270,12 +278,12 @@
   "events": {
     "delay": "Oneskorenie (v sekundách)",
     "repeat": "Počet opakovaní",
-    "onlineOnly": "Online-Only Execution",
+    "onlineOnly": "Vykonávať len pri vysielaní online",
     "type": "Typ",
     "description": "Popis",
     "targetCommand": "Cieľový príkaz",
     "targetVariable": "Cieľová premenná",
-    "targetTwitchReward": "Target Twitch Reward",
+    "targetTwitchReward": "Vyberte odmenu za kanál",
     "targetKeyword": "Cielené kľúčové slovo",
     "operations": {
       "divider": "Akcie",
@@ -285,10 +293,10 @@
         "default": "Text činnosti (podporuje premenné)",
         "vipSlots": "Množstvo VIP slotov",
         "username": "Používateľské meno (podporuje premenné)",
-        "variableValue": "New Variable Value (supports variables)",
-        "variableIncrementDecrement": "Increment/Decrement Value (supports variables)"
+        "variableValue": "Nová hodnota premennej (podporuje premenné)",
+        "variableIncrementDecrement": "Zvyšuje/znižuje hodnotu (podporuje premenné)"
       },
-      "banMessage": "Ban Message",
+      "banMessage": "Správa o zablokovaní",
       "banTime": "Čas banu",
       "obs": {
         "warningTitle": "Pred ďalším postupom musíte najskôr nakonfigurovať OBS!",
@@ -298,78 +306,85 @@
         "audioSource": "OBS Audio Source"
       },
       "values": "Hodnoty",
-      "triggerAlert": "Trigger Alert"
+      "triggerAlert": "Spúšťač upozornenia",
+      "filters": {
+        "label": "Filtre",
+        "description": "Udalosti môžete filtrovať podľa konkrétnych podmienok. Ak napríklad pri udalosti nájazdu použijete \"{'{raidViewers}'} equals 10\", spustí sa operácia len vtedy, keď je počet nájazdníkov 10.",
+        "placeholderLeft": "Ľavá strana podmienky",
+        "placeholderRight": "Pravá strana podmienky",
+        "empty": "Zatiaľ neboli pridané žiadne filtre"
+      }
     },
     "variables": {
-      "userName": "Event Triggerer Username",
-      "userDisplayName": "Event Triggerer Display Name",
-      "targetUserName": "Event Target Username",
-      "targetDisplayUserName": "Event Target Display Name",
-      "subLevel": "Subscription Levels (such as “1”/“2”/“3”/“prime”)",
-      "resubMonths": "Subscriber Length Streak",
-      "resubStreak": "Total Subscriber Months Count",
-      "resubMessage": "User Resubscription Message",
-      "rewardName": "Channel Points Reward Name",
+      "userName": "Meno užívateľa, ktorý inicioval udalosť",
+      "userDisplayName": "Zobrazované meno užívateľa, ktorý inicioval udalosť",
+      "targetUserName": "Vybraný používateľ",
+      "targetDisplayUserName": "Zobrazované meno vybraného používateľa",
+      "subLevel": "Úrovne predplatného (napríklad \"1\"/\"2\"/\"3\"/\"prime\")",
+      "resubMonths": "Dĺžka reťaze predplatitného",
+      "resubStreak": "Celkový počet mesiacov predplatného používateľa",
+      "resubMessage": "Správa používateľovi pri opätovnom zakúpení predplatného",
+      "rewardName": "Názov použitej odmeny",
       "rewardCost": "Channel Points Reward Price",
-      "rewardInput": "Channel Points Reward Custom Message",
+      "rewardInput": "Text uvedený v ocenení",
       "commandName": "Názov Príkazu",
       "commandInput": "Argumenty príkazu",
-      "raidViewers": "Počet raiderov",
+      "raidViewers": "Počet nájazdcov",
       "oldStreamTitle": "Starý názov streamu",
       "newStreamTitle": "Nový názov streamu",
       "oldStreamCategory": "Stará kategória streamu",
       "newStreamCategory": "Nová kategória streamu",
       "streamTitle": "Názov streamu",
       "streamCategory": "Kategória streamu",
-      "donateAmount": "Výška donate",
-      "donateCurrency": "Donate mena",
-      "donateMessage": "Donate správa",
-      "keywordName": "Keyword Name",
-      "keywordResponse": "Keyword Responses (separated by space)",
-      "greetingText": "Greeting Message",
-      "pollTitle": "Poll Title",
-      "pollOptionsNames": "Poll Settings (separated by comma)",
-      "pollTotalVotes": "Total Poll Votes",
-      "pollWinnerTitle": "Poll Winner Name",
+      "donateAmount": "Výška daru",
+      "donateCurrency": "Mena daru",
+      "donateMessage": "Darcovská správa",
+      "keywordName": "Názov kľúčového slova",
+      "keywordResponse": "Odpovede na kľúčové slovo (oddelené medzerou)",
+      "greetingText": "Uvítacia správa",
+      "pollTitle": "Názov ankety",
+      "pollOptionsNames": "Nastavenia ankety (oddelené čiarkou)",
+      "pollTotalVotes": "Celkový počet hlasov v ankete",
+      "pollWinnerTitle": "Meno víťaza ankety",
       "pollWinnerBitsVotes": "Number of Winner's Bits Votes",
       "pollWinnerChannelsPointsVotes": "Number of Winner's Channel Points Votes",
-      "pollWinnerTotalVotes": "Total Winner's Poll Votes",
-      "predictionTitle": "Prediction Title",
-      "predictionOptionsNames": "Prediction Outcomes (separated by · symbol)",
-      "predictionTotalChannelPoints": "Total Channel Points Placed",
+      "pollWinnerTotalVotes": "Celkový počet hlasov víťaznej ankety",
+      "predictionTitle": "Názov predpovede",
+      "predictionOptionsNames": "Výsledky predpovede (oddelené symbolom ·)",
+      "predictionTotalChannelPoints": "Celkový počet vernostných bodov použitých na predikciu",
       "predictionWinner": {
-        "title": "Prediction Winner Outcome",
-        "totalUsers": "Total Winner Outcome Users",
+        "title": "Názov víťaznej možnosti",
+        "totalUsers": "Celkový počet používateľov, ktorí hlasovali za víťaznú možnosť",
         "totalPoints": "Celkový počet vernostných bodov stavených na víťazný výsledok",
-        "topUsers": "Top 10 Users of Winner Outcome"
+        "topUsers": "Top 10 používateľov výsledku víťaza"
       },
-      "moderatorName": "Event Triggerer Moderator Username",
-      "moderatorDisplayName": "Event Triggerer Moderator Display Name",
-      "banReason": "Ban Reason",
-      "banEndsInMinutes": "Timeout (in minutes, or set to \"permanent\" to ban permamently)",
-      "message": "Message"
+      "moderatorName": "Meno moderátora, ktorý inicioval akciu",
+      "moderatorDisplayName": "Zobrazované meno moderátora, ktorý inicioval akciu",
+      "banReason": "Dôvod banu",
+      "banEndsInMinutes": "Timeout (v minútach alebo nastavte na \"permanent\" pre trvalý ban)",
+      "message": "Správa"
     }
   },
   "overlays": {
-    "copyOverlayLink": "Copy Overlay Link",
-    "uncongirured": "You should configure overlay first!",
-    "noAccess": "You do not have access to this overlay!",
-    "copied": "Successfully copied overlay link URL! You need to set this as browser source in OBS.",
+    "copyOverlayLink": "Kopírovať link prekrytia",
+    "uncongirured": "Najprv by ste mali nakonfigurovať prekrytie!",
+    "noAccess": "K tomuto prekrytiu nemáte prístup!",
+    "copied": "Úspešne skopírovaná adresa URL prekryvného odkazu! Musíte ho nastaviť ako zdroj prehliadača v OBS.",
     "nowPlaying": {
-      "description": "Overlay with current playable song information. This overlay will work only if you have connected your song service integration like spotify, lastfm."
+      "description": "Prekrytie s aktuálnymi informáciami o prehrávanej skladbe. Toto prekrytie bude fungovať len vtedy, ak máte pripojenú integráciu, ako je spotify, lastfm."
     },
     "tts": {
-      "description": "This overlay allows you to play chat messages as audio through OBS with the set of preconfigured voices. You can control this overlay using commands or events.",
+      "description": "Toto prekrytie umožňuje prehrávať správy chatu ako zvuk prostredníctvom služby OBS so sadou prednastavených hlasov. Toto prekrytie môžete ovládať pomocou príkazov alebo udalostí.",
       "eventsHint": "Tip: Na spustenie TTS pri konkrétnej udalosti môžete použiť systém udalostí.",
-      "allowUsersChooseVoice": "Allow chatters to use different voices?",
-      "doNotReadEmoji": "Do Not Read Emojis",
-      "doNotReadTwitchEmotes": "Do Not Read Twitch Emotes (including 7TV, FFZ, BTTV",
-      "doNotReadLinks": "Do Not Read Links",
-      "readChatMessages": "Read All Chat Messages",
-      "readChatMessagesNicknames": "Read Usernames",
-      "voice": "Default Voice",
-      "disallowedVoices": "Disallowed Voices List",
-      "volume": "Volume",
+      "allowUsersChooseVoice": "Povoliť chatujúcim používať rôzne hlasy?",
+      "doNotReadEmoji": "Nečítať emotikony",
+      "doNotReadTwitchEmotes": "Nečítať Twitch emoty (vrátane 7TV, FFZ, BTTV)",
+      "doNotReadLinks": "Nečítať odkazy",
+      "readChatMessages": "Čítať všetky správy v chate",
+      "readChatMessagesNicknames": "Čítať používateľské mená",
+      "voice": "Predvolený hlas",
+      "disallowedVoices": "Zoznam nepovolených hlasov",
+      "volume": "Hlasitosť",
       "pitch": "Pitch",
       "rate": "Rate",
       "users": {
@@ -378,81 +393,81 @@
         "empty": "No one have created their own customizations yet..."
       },
       "tabs": {
-        "general": "General",
-        "usersSettings": "Individual Settings"
+        "general": "Všeobecné",
+        "usersSettings": "Individuálne nastavenia"
       },
-      "previewText": "Preview voice with text, pitch and rate:"
+      "previewText": "Náhľad hlasu s textom, výškou a rýchlosťou:"
     },
     "obs": {
-      "description": "This overlay allows you to connect Twir with your OBS. It gives an ability to manage your sources, scenes, audio sources and events.",
-      "address": "Address of OBS WebSocket server",
-      "port": "Port of OBS WebSocket server",
-      "connected": "Connected!",
-      "notConnected": "Not Connected!",
-      "checkConnection": "Check Connection"
+      "description": "Toto prekrytie vám umožňuje prepojiť Twir s OBS. Poskytuje možnosť spravovať vaše zdroje, scény, zdroje zvuku a udalosti.",
+      "address": "Adresa servera OBS WebSocket",
+      "port": "Port servera OBS WebSocket",
+      "connected": "Pripojené!",
+      "notConnected": "Nepripojené!",
+      "checkConnection": "Skontrolovať pripojenie"
     },
     "alerts": {
-      "description": "This overlay allows you to play configured alerts from the “Alerts” section."
+      "description": "Toto prekrytie umožňuje prehrávať nakonfigurované upozornenia zo sekcie \"Upozornenia\"."
     },
     "chat": {
-      "presets": "Presets",
-      "selectSubsetPlaceholder": "Select preferable subsets",
-      "hideTimeout": "Message Hide Timeout",
-      "showDelay": "Message Show Delay",
-      "showBadges": "Show Badges",
+      "presets": "Presety",
+      "selectSubsetPlaceholder": "Výber preferovaných podskupín",
+      "hideTimeout": "Časový limit na skrytie správy",
+      "showDelay": "Oneskorenie zobrazenia správy",
+      "showBadges": "Zobraziť odznaky",
       "showAnnounceBadge": "Show Announcement Border",
       "paddingContainer": "Inside Container Padding",
-      "resetToDefault": "Reset to Default",
-      "textShadow": "Text Shadow",
-      "backgroundColor": "Background Color",
-      "direction": "Message Direction",
+      "resetToDefault": "Obnoviť predvolené",
+      "textShadow": "Tieň textu",
+      "backgroundColor": "Farba pozadia",
+      "direction": "Smer správy",
       "directions": {
-        "left": "Left",
-        "right": "Right",
-        "top": "Top",
-        "bottom": "Bottom"
+        "left": "Vľavo",
+        "right": "Vpravo",
+        "top": "Hore",
+        "bottom": "Dole"
       },
-      "directionWarning": "To use 'Left' and 'Right' you should set overlay height up to 50x for the chat to display properly!",
+      "directionWarning": "Ak chcete používať \"Vľavo\" a \"Vpravo\", mali by ste nastaviť výšku prekrytia na 50x, aby sa chat zobrazil správne!",
       "fontFamily": "Font Family",
-      "fontSize": "Font Size",
-      "fontStyle": "Font Style",
-      "fontWeight": "Font Weight",
-      "availabeFonts": "Available Fonts",
-      "hideCommands": "Hide Commands",
-      "hideBots": "Hide Other Bots Messages",
-      "style": "Message Style",
-      "description": "This overlay allows you to display your Twitch chat in your streaming software (such as OBS, XSplit, etc).)"
+      "fontSize": "Veľkosť písma",
+      "fontStyle": "Štýl písma",
+      "fontWeight": "Hrúbka písma",
+      "availabeFonts": "Dostupné písma",
+      "hideCommands": "Skryť príkazy",
+      "hideBots": "Skryť správy ostatných botov",
+      "style": "Štýl správy",
+      "description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)"
     },
     "dudes": {
-      "description": "Animated characters for chatters in your stream",
-      "enable": "Enable",
-      "dudeDivider": "Dude",
+      "description": "Animované znaky pre chatujúcich vo vašom streame",
+      "enable": "Povoliť",
+      "dudeDivider": "Kámo",
       "dudeDefaultSprite": "Default sprite",
       "dudeMaxOnScreen": "Max on screen",
-      "dudeMaxOnScreenUnlimited": "Unlimited",
-      "dudeColor": "Default user color",
-      "dudeGravity": "Gravity",
-      "dudeMaxLifeTime": "Max life time",
-      "dudeScale": "Scale",
-      "dudeSoundsDivider": "Sounds",
-      "dudeSoundsVolume": "Volume",
+      "dudeMaxOnScreenUnlimited": "Neobmedzené",
+      "dudeColor": "Predvolená farba užívateľa",
+      "dudeGravity": "Gravitácia",
+      "dudeMaxLifeTime": "Maximálna životnosť",
+      "dudeScale": "Mierka",
+      "dudeSoundsDivider": "Zvuky",
+      "dudeSoundsVolume": "Hlasitosť",
       "ignoreDivider": "Ignoring",
-      "ignoreCommands": "Ignore commands",
-      "ignoreUsers": "Ignore users",
-      "ignoreUsersList": "List of ignored users",
+      "ignoreCommands": "Ignorovať príkazy",
+      "ignoreUsers": "Ignorovať užívateľov",
+      "ignoreUsersList": "Zoznam ignorovaných užívateľov",
       "nameBoxDivider": "Name box",
-      "nameBoxFill": "Text colors",
-      "nameBoxFillError": "Color is required",
-      "nameBoxFillGradientStops": "Text colors of gradient stops",
+      "nameBoxFill": "Farby textu",
+      "nameBoxFillError": "Farba je povinná",
+      "nameBoxFillGradientStops": "Farby textu gradientných zarážok",
       "nameBoxFillGradientStopsError": "Text colors of gradient range should be from 0 to 1",
       "nameBoxGradientType": "Typ prechodu",
       "nameBoxFontFamily": "Font family",
-      "nameBoxFontSize": "Font size",
-      "nameBoxFontWeight": "Font weight",
-      "nameBoxFontStyle": "Font style",
+      "nameBoxFontSize": "Veľkosť písma",
+      "nameBoxFontWeight": "Hrúbka písma",
+      "nameBoxFontStyle": "Štýl písma",
       "nameBoxFontVariant": "Font variant",
-      "nameBoxStroke": "Stroke color",
-      "nameStrokeThickness": "Stroke thickness",
+      "nameBoxStroke": "Farba obrysu",
+      "nameStrokeThickness": "Hrúbka ohraničenia",
       "nameBoxLineJoin": "Stroke line join",
       "nameBoxDropShadow": "Drop shadow",
       "nameBoxDropShadowColor": "Shadow color",
@@ -463,9 +478,9 @@
       "messageBoxIgnoreCommands": "Ignore commands",
       "messageBoxDivider": "Message box",
       "messageBoxShowTime": "Show time",
-      "messageBoxFill": "Text color",
-      "messageBoxBackground": "Background color",
-      "messageBoxPadding": "Padding",
+      "messageBoxFill": "Farba textu",
+      "messageBoxBackground": "Farba pozadia",
+      "messageBoxPadding": "Vnútorný okraj",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Font size",
       "emoteDivider": "Emot",
@@ -496,9 +511,9 @@
         "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
           "bttvEnabled": "Enable BetterTTV Emotes?",
-          "ffzEnabled": "Enable FrankerFaceZ Emotes?",
-          "seventvEnabled": "Enable 7TV Emotes?",
-          "emojiStyle": "Emoji Style"
+          "ffzEnabled": "Povoliť FrankerFaceZ Emotes?",
+          "seventvEnabled": "Povoliť 7TV Emotes?",
+          "emojiStyle": "Štýl emoji"
         }
       }
     },
@@ -508,11 +523,11 @@
         "main": {
           "label": "Nastavenia",
           "startCommand": {
-            "description": "Overlay Start Command",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "description": "Príkaz Overlay Start",
+            "example": "<b>!brb 1 Coffee</b> - spustí 1-minútový časovač s nápisom \"Coffee\".<br><b>!brb 1</b> - spustí 1-minútový časovač s predvoleným textom zadaným v sekciách Nastavenia a Nastavenia post-časovača."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Príkaz Overlay Stop",
             "example": "!brbstop"
           },
           "text": "Overlay Text",
@@ -562,7 +577,7 @@
       "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
       "deniedUsers": "Banned Users",
       "deniedSongs": "Banned Songs List",
-      "takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
+      "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
         "minimalWatchTime": "Minimal Watch Time (in minutes)",
@@ -622,7 +637,7 @@
   "keywords": {
     "title": "Keywords",
     "triggerText": "Spúšťací text",
-    "usages": "Usage Count",
+    "usages": "Počet použití",
     "isRegular": "Is a Regular Expression?",
     "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
     "regularDescriptionCheatSheet": "cheat sheet",
@@ -684,7 +699,7 @@
     "russianRoulette": {
       "description": "Jednoduchá chatovacia hra, ktorá umožňuje chatujúcim vyskúšať šťastie v klasickej ruskej zábavnej* rulete.",
       "canBeUsedByModerator": "Dočasne zablokovať moderátora? *Právomoci moderátora budú po uplynutí timeoutu opäť udelené.",
-      "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete vypnúť timeout, nastavte ho na 0)",
+      "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete zrušiť timeout, nastavte ho na 0)",
       "decisionSeconds": "Oneskorenie (v sek.)",
       "initMessage": "Trigger Pull Announcement (Game Start Message)",
       "surviveMessage": "User Survived Message",
@@ -694,10 +709,10 @@
     },
     "duel": {
       "title": "Duely",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "description": "Jednoduchá chatovacia hra medzi dvoma používateľmi, ktorá umožňuje otestovať ich uhýbacie schopnosti!",
       "commands": {
         "title": "Príkazy duelu",
-        "duel": "Ask for a Duel",
+        "duel": "Požiadať o duel",
         "accept": "Akceptovať duel",
         "stats": "Štatistiky"
       },
@@ -709,12 +724,12 @@
       "messages": {
         "title": "Správy",
         "start": {
-          "title": "Initial Message",
+          "title": "Úvodná správa",
           "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Výsledná správa",
+          "description": "Odošle túto správu, keď dôjde k súboju. Dostupné premenné: {'{loser}, {winner}'}"
         },
         "bothDie": {
           "title": "«No One Survived» Message",
@@ -723,11 +738,11 @@
       },
       "settings": {
         "title": "Nastavenia",
-        "secondsToAccept": "Seconds to accept duel",
-        "timeoutTime": "Timeout time for loser",
-        "pointsPerWin": "Reputation for win",
-        "pointsPerLose": "Reputation for lose",
-        "bothDiePercent": "Percent of chance both users die"
+        "secondsToAccept": "Sekundy na prijatie duelu",
+        "timeoutTime": "Čas timeoutu pre porazeného",
+        "pointsPerWin": "Povesť za víťazstvo",
+        "pointsPerLose": "Povesť za prehru",
+        "bothDiePercent": "Percentuálna šanca, že obaja používatelia zomrú"
       }
     }
   },
@@ -742,7 +757,6 @@
       },
       "total": "Total users: {total}",
       "reset": {
-        "button": "Resetovať",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     }
@@ -789,7 +803,7 @@
     "labels": {
       "followers": "Sledovatelia",
       "raids": "Nájazdy",
-      "donations": "Donaty",
+      "donations": "Dary",
       "subscriptions": "Predplatné",
       "rewards": "Odmeny",
       "firstUserMessage": "Prvá správa používateľa",
@@ -852,12 +866,12 @@
     }
   },
   "feedback": {
-    "button": "Send feedback",
-    "notification": "Your feedback sended",
-    "rateLimited": "You are sending messages to quickly, try again in {time}",
-    "messageLabel": "Message",
+    "button": "Odoslať spätnú väzbu",
+    "notification": "Vaša spätná väzba bola odoslaná",
+    "rateLimited": "Správy odosielate rýchlo, skúste to znova za {time}",
+    "messageLabel": "Správa",
     "validation": {
-      "emptyMessage": "Message cannot be empty"
+      "emptyMessage": "Správa nemôže byť prázdna"
     }
   },
   "userSettings": {
@@ -872,7 +886,57 @@
     },
     "public": {
       "title": "Public page",
-      "description": "Description of channel"
+      "description": "Description of channel",
+      "socialLinks": "Social links",
+      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
+      "errorInvalidLength": "Invalid length",
+      "errorInvalidLink": "Invalid link",
+      "errorEmpty": "Cannot be empty",
+      "errorTooLong": "Too long",
+      "linkTitle": "Title",
+      "linkLabel": "Link"
+    }
+  },
+  "adminPanel": {
+    "title": "Admin panel",
+    "notifications": {
+      "title": "Notifications",
+      "formTitle": "Send or edit notification",
+      "emptyNotifications": "No notifications",
+      "userLabel": "User",
+      "userPlaceholder": "Select a user",
+      "messageLabel": "Message",
+      "messagePreview": "Preview",
+      "createdAt": "Created At",
+      "globals": "Globals",
+      "users": "Users",
+      "confirmResetForm": "Are you sure you want to reset the form?"
+    },
+    "manageUsers": {
+      "title": "Users",
+      "user": "User",
+      "userId": "User ID",
+      "followers": "Followers",
+      "noUsers": "No users",
+      "filters": "Filters",
+      "clearFilters": "Clear filters",
+      "countSelected": "{count} selected",
+      "isAdmin": "Admin",
+      "isBanned": "Banned",
+      "isBotEnabled": "Bot enabled",
+      "statusGroup": "Status",
+      "badgesGroup": "Badges"
+    },
+    "manageBadges": {
+      "title": "Badges",
+      "formTitle": "Create or edit badge",
+      "name": "Name",
+      "users": "Users",
+      "slot": "Slot",
+      "image": "Image",
+      "preview": "Preview",
+      "usesCount": "Uses {count}",
+      "badgeSlot": "Slot {slot}"
     }
   }
 }
