@@ -1,61 +1,57 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query';
-import { UsersGetResponse_UsersGetResponseUser as User, type UsersGetRequest, type UsersGetResponse } from '@twir/api/messages/admin_users/admin_users';
+import { useQuery } from '@urql/vue';
 import type { Ref } from 'vue';
 
-import { adminApiClient } from '../twirp';
+import { useMutation } from '@/composables/use-mutation.js';
+import { graphql } from '@/gql';
+import type { TwirUsersSearchParams } from '@/gql/graphql';
 
-export const useAdminUsers = (payload: Ref<UsersGetRequest>) => useQuery({
-	queryKey: ['admin/users', payload],
-	keepPreviousData: true,
-	queryFn: async () => {
-		const req = await adminApiClient.getUsers(payload.value);
-		return req.response;
-	},
-});
+const invalidationKey = 'AdminUsersInvalidateKey';
 
-export const useAdminUserSwitcher = () => {
-	const queryClient = useQueryClient();
+export const useAdminUsers = () => {
+	const useQueryUsers = (variables: Ref<TwirUsersSearchParams>) => useQuery({
+		context: {
+			additionalTypenames: [invalidationKey],
+		},
+		get variables() {
+			return {
+				opts: variables.value,
+			};
+		},
+		query: graphql(`
+			query UsersGetAll($opts: TwirUsersSearchParams!) {
+				twirUsers(opts: $opts) {
+					total
+					users {
+						id
+						isBanned
+						isBotAdmin
+						isBotEnabled
+						twitchProfile {
+							login
+							displayName
+							profileImageUrl
+						}
+					}
+				}
+			}
+		`),
+	});
 
-	function mutateUser(userId: string, updater: (user: User) => Partial<User>) {
-		queryClient.setQueriesData<UsersGetResponse>(
-			['admin/users'],
-			(oldData) => {
-				if (!oldData) return oldData;
+	const useMutationUserSwitchBan = () => useMutation(graphql(`
+		mutation UserSwitchBan($userId: ID!) {
+			switchUserBan(userId: $userId)
+		}
+	`), [invalidationKey]);
 
-				return {
-					total: oldData.total,
-					users: oldData.users.map((user) => {
-						if (user.id !== userId) return user;
-						return {
-							...user,
-							...updater(user),
-						};
-					}),
-				};
-			},
-		);
-	}
+	const useMutationUserSwitchAdmin = () => useMutation(graphql(`
+		mutation UserSwitchAdmin($userId: ID!) {
+			switchUserAdmin(userId: $userId)
+		}
+	`), [invalidationKey]);
 
 	return {
-		useUserSwitchBan: () => useMutation({
-			mutationKey: ['admin/user/ban'],
-			mutationFn: async (userId: string) => {
-				const req = await adminApiClient.userSwitchBan({ userId });
-				return req.response;
-			},
-			onSuccess: async (_, userId) => {
-				mutateUser(userId, (user) => ({ isBanned: !user.isBanned }));
-			},
-		}),
-		useUserSwitchAdmin: () => useMutation({
-			mutationKey: ['admin/user/admin'],
-			mutationFn: async (userId: string) => {
-				const req = await adminApiClient.userSwitchAdmin({ userId });
-				return req.response;
-			},
-			onSuccess: async (_, userId) => {
-				mutateUser(userId, (user) => ({ isAdmin: !user.isAdmin }));
-			},
-		}),
+		useQueryUsers,
+		useMutationUserSwitchBan,
+		useMutationUserSwitchAdmin,
 	};
 };

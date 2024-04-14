@@ -240,9 +240,6 @@ importers:
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
-      '@urql/exchange-graphcache':
-        specifier: 7.0.1
-        version: 7.0.1(graphql@16.8.1)
       '@urql/vue':
         specifier: 1.1.3
         version: 1.1.3(graphql@16.8.1)(vue@3.4.18)
@@ -339,7 +336,7 @@ importers:
         version: 4.2.5(graphql@16.8.1)
       '@graphql-codegen/typescript-urql-graphcache':
         specifier: 3.1.0
-        version: 3.1.0(@urql/exchange-graphcache@7.0.1)(graphql-tag@2.12.6)(graphql@16.8.1)
+        version: 3.1.0(@urql/exchange-graphcache@6.5.1)(graphql-tag@2.12.6)(graphql@16.8.1)
       '@graphql-typed-document-node/core':
         specifier: 3.2.0
         version: 3.2.0(graphql@16.8.1)
@@ -363,7 +360,7 @@ importers:
         version: 5.0.3(vite@5.0.12)(vue@3.4.18)
       autoprefixer:
         specifier: 10.4.17
-        version: 10.4.17(postcss@8.4.35)
+        version: 10.4.17(postcss@8.4.38)
       concurrently:
         specifier: 8.2.2
         version: 8.2.2
@@ -2861,7 +2858,7 @@ packages:
       - supports-color
     dev: true
 
-  /@graphql-codegen/typescript-urql-graphcache@3.1.0(@urql/exchange-graphcache@7.0.1)(graphql-tag@2.12.6)(graphql@16.8.1):
+  /@graphql-codegen/typescript-urql-graphcache@3.1.0(@urql/exchange-graphcache@6.5.1)(graphql-tag@2.12.6)(graphql@16.8.1):
     resolution: {integrity: sha512-WM4MfSzOVWRS+SxcFFB16RRG8z/NFbNlyxCoVoPQ8UC6Gb13ZMSSUJS4t1g05dIoKMtAU+takEFdE3N4SO8vBw==}
     engines: {node: '>= 16.0.0'}
     peerDependencies:
@@ -2871,7 +2868,7 @@ packages:
     dependencies:
       '@graphql-codegen/plugin-helpers': 3.1.2(graphql@16.8.1)
       '@graphql-codegen/visitor-plugin-common': 2.13.1(graphql@16.8.1)
-      '@urql/exchange-graphcache': 7.0.1(graphql@16.8.1)
+      '@urql/exchange-graphcache': 6.5.1(graphql@16.8.1)
       auto-bind: 4.0.0
       change-case-all: 1.0.15
       graphql: 16.8.1
@@ -5305,14 +5302,15 @@ packages:
     transitivePeerDependencies:
       - graphql
 
-  /@urql/exchange-graphcache@7.0.1(graphql@16.8.1):
-    resolution: {integrity: sha512-P4Vs2cNdDibukktdBCIjtFH5pxoX33YuAEAqSbv21fjUGJDNqmytLE4a8fMgaF4Iw8ljSG13zqw9arKRzDqO/Q==}
+  /@urql/exchange-graphcache@6.5.1(graphql@16.8.1):
+    resolution: {integrity: sha512-Ky77kuaTuo1H+VKZatXyNDqTMw+z03KV3Ep/6TQjktlc+0RDhEZq3rI4F/ViwqLaDUtGqPCYjmnHdoupXqdK0g==}
     dependencies:
       '@0no-co/graphql.web': 1.0.6(graphql@16.8.1)
       '@urql/core': 5.0.0(graphql@16.8.1)
       wonka: 6.3.4
     transitivePeerDependencies:
       - graphql
+    dev: true
 
   /@urql/vue@1.1.3(graphql@16.8.1)(vue@3.4.18):
     resolution: {integrity: sha512-LpFHHM1a3jBB4eVUF/yIwXurmE1q1kSbJ2Ldw0o8++4TQ+usFKmsehrveAfH3YyKGlWB6QR4gW61YadKJHbzpg==}
@@ -6413,6 +6411,22 @@ packages:
       picocolors: 1.0.0
       postcss: 8.4.35
       postcss-value-parser: 4.2.0
+
+  /autoprefixer@10.4.17(postcss@8.4.38):
+    resolution: {integrity: sha512-/cpVNRLSfhOtcGflT13P2794gVSgmPgTR+erw5ifnMLZb0UnSlkK4tquLmkd3BhA+nLo5tX8Cu0upUsGKvKbmg==}
+    engines: {node: ^10 || ^12 || >=14}
+    hasBin: true
+    peerDependencies:
+      postcss: ^8.1.0
+    dependencies:
+      browserslist: 4.22.2
+      caniuse-lite: 1.0.30001579
+      fraction.js: 4.3.7
+      normalize-range: 0.1.2
+      picocolors: 1.0.0
+      postcss: 8.4.38
+      postcss-value-parser: 4.2.0
+    dev: true
 
   /available-typed-arrays@1.0.5:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}

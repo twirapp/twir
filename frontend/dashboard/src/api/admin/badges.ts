@@ -1,6 +1,9 @@
-import { useQuery, useMutation } from '@urql/vue';
+import { useQuery } from '@urql/vue';
 
+import { useMutation } from '@/composables/use-mutation.js';
 import { graphql } from '@/gql';
+
+const invalidationKey = 'AdminBadgesInvalidateKey';
 
 export const useAdminBadges = () => {
 	const useMutationCreateBadge = () => useMutation(graphql(`
@@ -9,13 +12,13 @@ export const useAdminBadges = () => {
 				id
 			}
 		}
-	`));
+	`), [invalidationKey]);
 
 	const useMutationDeleteBadge = () => useMutation(graphql(`
 		mutation DeleteBadge($id: ID!) {
 			badgesDelete(id: $id)
 		}
-	`));
+	`), [invalidationKey]);
 
 	const useMutationUpdateBadge = () => useMutation(graphql(`
 		mutation UpdateBadge($id: ID!, $opts: TwirBadgeUpdateOpts!) {
@@ -23,19 +26,19 @@ export const useAdminBadges = () => {
 				id
 			}
 		}
-	`));
+	`), [invalidationKey]);
 
 	const useMutationsAddUserBadge = () => useMutation(graphql(`
 		mutation AddUserBadge($id: ID!, $userId: String!) {
 			badgesAddUser(id: $id, userId: $userId)
 		}
-	`));
+	`), [invalidationKey]);
 
 	const useMutationsRemoveUserBadge = () => useMutation(graphql(`
 		mutation RemoveUserBadge($id: ID!, $userId: String!) {
 			badgesRemoveUser(id: $id, userId: $userId)
 		}
-	`));
+	`), [invalidationKey]);
 
 	return {
 		useMutationCreateBadge,
@@ -47,6 +50,10 @@ export const useAdminBadges = () => {
 };
 
 export const useQueryBadges = () => useQuery({
+	context: {
+		additionalTypenames: [invalidationKey],
+	},
+	variables: {},
 	query: graphql(`
 		query BadgesGetAll {
 			twirBadges {

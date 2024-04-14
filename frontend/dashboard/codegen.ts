@@ -21,12 +21,6 @@ const config: CodegenConfig = {
 				useTypeImports: true,
 			},
 		},
-		'./src/gql/graphcache.ts': {
-      plugins: [
-        'typescript',
-        'typescript-urql-graphcache',
-      ],
-    },
 	},
 };
 
