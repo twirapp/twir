@@ -86,6 +86,15 @@ func (c *DataFetcher) GetIntegrationData(
 			Username: *integration.Data.UserName,
 			Avatar:   *integration.Data.Avatar,
 		}, nil
+	case gqlmodel.IntegrationServiceVk:
+		if integration.Data == nil || integration.Data.UserName == nil || integration.Data.Avatar == nil {
+			return nil, nil
+		}
+
+		return &gqlmodel.IntegrationDataVk{
+			Username: *integration.Data.UserName,
+			Avatar:   *integration.Data.Avatar,
+		}, nil
 	}
 
 	return nil, nil
