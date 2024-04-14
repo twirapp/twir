@@ -29,7 +29,7 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 			mappedUsers = append(
 				mappedUsers, &helix.User{
 					ID:          id,
-					Login:       "[Twir] Twitch Banned",
+					Login:       "[twir] twitch banned",
 					DisplayName: "[Twir] Twitch Banned",
 				},
 			)
