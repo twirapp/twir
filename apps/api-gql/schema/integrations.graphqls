@@ -32,7 +32,6 @@ type IntegrationDataVk {
 
 type IntegrationDataValorant {
 	username: String!
-	avatar: String!
 }
 
 type IntegrationDataStreamLabs {

@@ -481,7 +481,7 @@ export type Query = {
   commands: Array<Command>;
   greetings: Array<Greeting>;
   integrationsGetData?: Maybe<IntegrationData>;
-  integrationsGetServiceAuthLink: Scalars['String']['output'];
+  integrationsGetServiceAuthLink?: Maybe<Scalars['String']['output']>;
   keywords: Array<Keyword>;
   notificationsByAdmin: AdminNotificationsResponse;
   notificationsByUser: Array<UserNotification>;

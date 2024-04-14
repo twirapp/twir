@@ -6,60 +6,21 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // IntegrationsGetServiceAuthLink is the resolver for the integrationsGetServiceAuthLink field.
-func (r *queryResolver) IntegrationsGetServiceAuthLink(
-	ctx context.Context,
-	service gqlmodel.IntegrationService,
-) (*string, error) {
+func (r *queryResolver) IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (*string, error) {
 	return r.integrationsLinksResolver.GetIntegrationAuthLink(ctx, service)
 }
 
 // IntegrationsGetData is the resolver for the integrationsGetData field.
-func (r *queryResolver) IntegrationsGetData(
-	ctx context.Context,
-	service gqlmodel.IntegrationService,
-) (gqlmodel.IntegrationData, error) {
-	switch service {
-	case gqlmodel.IntegrationServiceLastfm:
-		return gqlmodel.IntegrationDataLastfm{
-			Username: "lastfm",
-			Avatar:   "123",
-		}, nil
-	case gqlmodel.IntegrationServiceVk:
-		return gqlmodel.IntegrationDataVk{
-			Username: "vk",
-			Avatar:   "321",
-		}, nil
-	case gqlmodel.IntegrationServiceSpotify:
-		return gqlmodel.IntegrationDataSpotify{
-			Username: "spotify",
-			Avatar:   "1",
-		}, nil
-	case gqlmodel.IntegrationServiceDonationalerts:
-		return gqlmodel.IntegrationDataDonationAlerts{
-			Username: "donationalerts",
-			Avatar:   "1",
-		}, nil
-	case gqlmodel.IntegrationServiceDiscord:
-		return gqlmodel.IntegrationDataDiscord{
-			Guilds: []gqlmodel.IntegrationDataDiscordGuild{},
-		}, nil
-	case gqlmodel.IntegrationServiceStreamlabs:
-		return gqlmodel.IntegrationDataStreamLabs{
-			Username: "streamlabs",
-			Avatar:   "",
-		}, nil
-	case gqlmodel.IntegrationServiceValorant:
-		return gqlmodel.IntegrationDataValorant{
-			Username: "valorant",
-			Avatar:   "1",
-		}, nil
+func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("unknown service: %s", service)
+	return r.integrationsDataFetcher.GetIntegrationData(ctx, dashboardId, service)
 }

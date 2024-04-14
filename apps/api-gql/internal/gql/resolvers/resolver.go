@@ -30,6 +30,7 @@ type Resolver struct {
 	minioClient               *minio.Client
 	subscriptionsStore        *subscriptions_store.SubscriptionsStore
 	integrationsLinksResolver *integrations.LinksResolver
+	integrationsDataFetcher   *integrations.DataFetcher
 }
 
 type Opts struct {
@@ -43,6 +44,7 @@ type Opts struct {
 	Minio                     *minio.Client
 	SubscriptionsStore        *subscriptions_store.SubscriptionsStore
 	IntegrationsLinksResolver *integrations.LinksResolver
+	IntegrationsDataFetcher   *integrations.DataFetcher
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -60,6 +62,7 @@ func New(opts Opts) (*Resolver, error) {
 		minioClient:               opts.Minio,
 		subscriptionsStore:        opts.SubscriptionsStore,
 		integrationsLinksResolver: opts.IntegrationsLinksResolver,
+		integrationsDataFetcher:   opts.IntegrationsDataFetcher,
 	}, nil
 }
 
