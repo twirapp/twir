@@ -6,13 +6,15 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // IntegrationsGetData is the resolver for the integrationsGetData field.
-func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error) {
+func (r *queryResolver) IntegrationsGetData(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+) (gqlmodel.IntegrationData, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -22,8 +24,21 @@ func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmode
 }
 
 // IntegrationsPostCode is the resolver for the integrationsPostCode field.
-func (r *queryResolver) IntegrationsPostCode(ctx context.Context, service gqlmodel.IntegrationService, code string) (gqlmodel.IntegrationData, error) {
-	panic(fmt.Errorf("not implemented: IntegrationsPostCode - integrationsPostCode"))
+func (r *queryResolver) IntegrationsPostCode(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+	code string,
+) (gqlmodel.IntegrationData, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := r.integrationsPostCodeHandler.PostCode(ctx, service, dashboardId, code); err != nil {
+		return nil, err
+	}
+
+	return r.integrationsDataFetcher.GetIntegrationData(ctx, dashboardId, service)
 }
 
 // !!! WARNING !!!
@@ -32,6 +47,9 @@ func (r *queryResolver) IntegrationsPostCode(ctx context.Context, service gqlmod
 //   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
 //     it when you're done.
 //   - You have helper methods in this file. Move them out to keep these resolver files clean.
-func (r *queryResolver) IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (*string, error) {
+func (r *queryResolver) IntegrationsGetServiceAuthLink(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+) (*string, error) {
 	return r.integrationsLinksResolver.GetIntegrationAuthLink(ctx, service)
 }

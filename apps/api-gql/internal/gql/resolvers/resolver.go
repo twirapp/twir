@@ -22,29 +22,31 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	config                    config.Config
-	sessions                  *sessions.Sessions
-	gorm                      *gorm.DB
-	twitchClient              *helix.Client
-	cachedTwitchClient        *twitchcahe.CachedTwitchClient
-	minioClient               *minio.Client
-	subscriptionsStore        *subscriptions_store.SubscriptionsStore
-	integrationsLinksResolver *integrations.LinksResolver
-	integrationsDataFetcher   *integrations.DataFetcher
+	config                      config.Config
+	sessions                    *sessions.Sessions
+	gorm                        *gorm.DB
+	twitchClient                *helix.Client
+	cachedTwitchClient          *twitchcahe.CachedTwitchClient
+	minioClient                 *minio.Client
+	subscriptionsStore          *subscriptions_store.SubscriptionsStore
+	integrationsLinksResolver   *integrations.LinksResolver
+	integrationsDataFetcher     *integrations.DataFetcher
+	integrationsPostCodeHandler *integrations.PostCodeHandler
 }
 
 type Opts struct {
 	fx.In
 
-	Sessions                  *sessions.Sessions
-	Gorm                      *gorm.DB
-	Config                    config.Config
-	TokensGrpc                tokens.TokensClient
-	CachedTwitchClient        *twitchcahe.CachedTwitchClient
-	Minio                     *minio.Client
-	SubscriptionsStore        *subscriptions_store.SubscriptionsStore
-	IntegrationsLinksResolver *integrations.LinksResolver
-	IntegrationsDataFetcher   *integrations.DataFetcher
+	Sessions                    *sessions.Sessions
+	Gorm                        *gorm.DB
+	Config                      config.Config
+	TokensGrpc                  tokens.TokensClient
+	CachedTwitchClient          *twitchcahe.CachedTwitchClient
+	Minio                       *minio.Client
+	SubscriptionsStore          *subscriptions_store.SubscriptionsStore
+	IntegrationsLinksResolver   *integrations.LinksResolver
+	IntegrationsDataFetcher     *integrations.DataFetcher
+	IntegrationsPostCodeHandler *integrations.PostCodeHandler
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -54,15 +56,16 @@ func New(opts Opts) (*Resolver, error) {
 	}
 
 	return &Resolver{
-		config:                    opts.Config,
-		sessions:                  opts.Sessions,
-		gorm:                      opts.Gorm,
-		twitchClient:              twitchClient,
-		cachedTwitchClient:        opts.CachedTwitchClient,
-		minioClient:               opts.Minio,
-		subscriptionsStore:        opts.SubscriptionsStore,
-		integrationsLinksResolver: opts.IntegrationsLinksResolver,
-		integrationsDataFetcher:   opts.IntegrationsDataFetcher,
+		config:                      opts.Config,
+		sessions:                    opts.Sessions,
+		gorm:                        opts.Gorm,
+		twitchClient:                twitchClient,
+		cachedTwitchClient:          opts.CachedTwitchClient,
+		minioClient:                 opts.Minio,
+		subscriptionsStore:          opts.SubscriptionsStore,
+		integrationsLinksResolver:   opts.IntegrationsLinksResolver,
+		integrationsDataFetcher:     opts.IntegrationsDataFetcher,
+		integrationsPostCodeHandler: opts.IntegrationsPostCodeHandler,
 	}, nil
 }
 

@@ -1,7 +1,10 @@
 package integrations
 
 import (
+	"context"
+
 	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -23,4 +26,13 @@ func NewPostCodeHandler(opts PostCodeHandlerOpts) *PostCodeHandler {
 type PostCodeHandler struct {
 	gorm   *gorm.DB
 	config config.Config
+}
+
+func (h *PostCodeHandler) PostCode(
+	ctx context.Context,
+	service gqlmodel.IntegrationService,
+	channelId string,
+	code string,
+) error {
+	return nil
 }
