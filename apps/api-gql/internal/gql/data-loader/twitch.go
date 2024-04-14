@@ -17,17 +17,26 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 		return nil, []error{err}
 	}
 
-	mappedUsers := make([]*helix.User, len(users))
-	for i, id := range ids {
+	mappedUsers := make([]*helix.User, 0, len(users))
+
+	for _, id := range ids {
 		user, ok := lo.Find(
 			users, func(item twitch.TwitchUser) bool {
 				return item.ID == id
 			},
 		)
 		if !ok {
+			mappedUsers = append(
+				mappedUsers, &helix.User{
+					ID:          id,
+					Login:       "[Twir] Twitch Banned",
+					DisplayName: "[Twir] Twitch Banned",
+				},
+			)
 			continue
 		}
-		mappedUsers[i] = &user.User
+
+		mappedUsers = append(mappedUsers, &user.User)
 	}
 
 	return mappedUsers, nil
