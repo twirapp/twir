@@ -14,20 +14,23 @@ import (
 type DataFetcherOpts struct {
 	fx.In
 
-	Gorm   *gorm.DB
-	Config config.Config
+	Gorm              *gorm.DB
+	Config            config.Config
+	AuthLinksResolver *LinksResolver
 }
 
 func NewIntegrationsDataFetcher(opts DataFetcherOpts) *DataFetcher {
 	return &DataFetcher{
-		gorm:   opts.Gorm,
-		config: opts.Config,
+		gorm:          opts.Gorm,
+		config:        opts.Config,
+		linksResolver: opts.AuthLinksResolver,
 	}
 }
 
 type DataFetcher struct {
-	gorm   *gorm.DB
-	config config.Config
+	gorm          *gorm.DB
+	config        config.Config
+	linksResolver *LinksResolver
 }
 
 func (c *DataFetcher) GetIntegrationData(
@@ -40,61 +43,95 @@ func (c *DataFetcher) GetIntegrationData(
 		return nil, err
 	}
 
+	authLink, _ := c.linksResolver.GetIntegrationAuthLink(ctx, service)
+	if err != nil {
+		return nil, err
+	}
+
+	if integration == nil {
+		return nil, nil
+	}
+
 	switch service {
 	case gqlmodel.IntegrationServiceLastfm:
-		if integration.Data == nil || integration.Data.UserName == nil || integration.Data.
+		result := &gqlmodel.IntegrationDataLastfm{
+			AuthLink: authLink,
+		}
+
+		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
 			Avatar == nil {
-			return nil, nil
+			result.Username = integration.Data.UserName
+			result.Avatar = integration.Data.Avatar
 		}
 
-		return &gqlmodel.IntegrationDataLastfm{
-			Username: *integration.Data.UserName,
-			Avatar:   *integration.Data.Avatar,
-		}, nil
+		return result, nil
 	case gqlmodel.IntegrationServiceSpotify:
-		if integration.Data == nil {
-			return nil, nil
+		result := &gqlmodel.IntegrationDataSpotify{
+			AuthLink: authLink,
 		}
 
-		return &gqlmodel.IntegrationDataSpotify{
-			Username: *integration.Data.UserName,
-			Avatar:   *integration.Data.Avatar,
-		}, nil
+		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
+			Avatar != nil {
+			result.Username = integration.Data.UserName
+			result.Avatar = integration.Data.Avatar
+		}
+
+		return result, nil
 	case gqlmodel.IntegrationServiceDonationalerts:
-		if integration.Data == nil || integration.Data.Name == nil || integration.Data.Avatar == nil {
-			return nil, nil
+		result := &gqlmodel.IntegrationDataDonationAlerts{
+			AuthLink: authLink,
 		}
 
-		return &gqlmodel.IntegrationDataDonationAlerts{
-			Username: *integration.Data.Name,
-			Avatar:   *integration.Data.Avatar,
-		}, nil
+		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
+			Avatar != nil {
+			result.Username = integration.Data.UserName
+			result.Avatar = integration.Data.Avatar
+		}
+
+		return result, nil
 	case gqlmodel.IntegrationServiceValorant:
-		if integration.Data == nil || integration.Data.UserName == nil {
-			return nil, nil
+		result := &gqlmodel.IntegrationDataValorant{
+			AuthLink: authLink,
 		}
 
-		return &gqlmodel.IntegrationDataValorant{
-			Username: *integration.Data.UserName,
-		}, nil
+		if integration.Data != nil && integration.Data.UserName != nil {
+			result.Username = integration.Data.UserName
+		}
+
+		return result, nil
 	case gqlmodel.IntegrationServiceStreamlabs:
-		if integration.Data == nil || integration.Data.UserName == nil || integration.Data.Avatar == nil {
-			return nil, nil
+		result := &gqlmodel.IntegrationDataStreamLabs{
+			AuthLink: authLink,
 		}
 
-		return &gqlmodel.IntegrationDataStreamLabs{
-			Username: *integration.Data.UserName,
-			Avatar:   *integration.Data.Avatar,
-		}, nil
+		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
+			Avatar != nil {
+			result.Username = integration.Data.UserName
+			result.Avatar = integration.Data.Avatar
+		}
+
+		return result, nil
 	case gqlmodel.IntegrationServiceVk:
-		if integration.Data == nil || integration.Data.UserName == nil || integration.Data.Avatar == nil {
-			return nil, nil
+		result := &gqlmodel.IntegrationDataVk{
+			AuthLink: authLink,
 		}
 
-		return &gqlmodel.IntegrationDataVk{
-			Username: *integration.Data.UserName,
-			Avatar:   *integration.Data.Avatar,
-		}, nil
+		if integration.Data != nil && integration.Data.UserName != nil && integration.Data.
+			Avatar != nil {
+			result.Username = integration.Data.UserName
+			result.Avatar = integration.Data.Avatar
+		}
+
+		return result, nil
+	case gqlmodel.IntegrationServiceDiscord:
+		result := &gqlmodel.IntegrationDataDiscord{
+			AuthLink: authLink,
+		}
+
+		if integration.Data != nil {
+		}
+
+		return result, nil
 	}
 
 	return nil, nil

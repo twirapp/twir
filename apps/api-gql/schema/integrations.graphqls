@@ -1,5 +1,4 @@
 extend type Query {
-	integrationsGetServiceAuthLink(service: IntegrationService!): String @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 	integrationsGetData(service: IntegrationService!): IntegrationData @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_INTEGRATIONS)
 }
 
@@ -21,32 +20,38 @@ enum IntegrationService {
 union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv | IntegrationDataVk | IntegrationDataValorant | IntegrationDataStreamLabs | IntegrationDataSpotify | IntegrationDataDonationAlerts | IntegrationDataDiscord
 
 type IntegrationDataLastfm {
-	username: String!
-	avatar: String!
+	username: String
+	avatar: String
+	authLink: String
 }
 
 type IntegrationDataVk {
-	username: String!
-	avatar: String!
+	username: String
+	avatar: String
+	authLink: String
 }
 
 type IntegrationDataValorant {
-	username: String!
+	username: String
+	authLink: String
 }
 
 type IntegrationDataStreamLabs {
-	username: String!
-	avatar: String!
+	username: String
+	avatar: String
+	authLink: String
 }
 
 type IntegrationDataSpotify {
-	username: String!
-	avatar: String!
+	username: String
+	avatar: String
+	authLink: String
 }
 
 type IntegrationDataDonationAlerts {
-	username: String!
-	avatar: String!
+	username: String
+	avatar: String
+	authLink: String
 }
 
 type IntegrationDataSevenTv {
@@ -65,6 +70,7 @@ type IntegrationDataSevenTvProfile {
 
 type IntegrationDataDiscord {
 	guilds: [IntegrationDataDiscordGuild!]!
+	authLink: String
 }
 
 type IntegrationDataDiscordGuild {

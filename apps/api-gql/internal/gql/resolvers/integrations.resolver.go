@@ -10,11 +10,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
-// IntegrationsGetServiceAuthLink is the resolver for the integrationsGetServiceAuthLink field.
-func (r *queryResolver) IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (*string, error) {
-	return r.integrationsLinksResolver.GetIntegrationAuthLink(ctx, service)
-}
-
 // IntegrationsGetData is the resolver for the integrationsGetData field.
 func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
@@ -23,4 +18,14 @@ func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmode
 	}
 
 	return r.integrationsDataFetcher.GetIntegrationData(ctx, dashboardId, service)
+}
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func (r *queryResolver) IntegrationsGetServiceAuthLink(ctx context.Context, service gqlmodel.IntegrationService) (*string, error) {
+	return r.integrationsLinksResolver.GetIntegrationAuthLink(ctx, service)
 }
