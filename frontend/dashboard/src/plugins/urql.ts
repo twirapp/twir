@@ -1,8 +1,5 @@
-import type { Cache, UpdateResolver } from '@urql/exchange-graphcache';
 import { cacheExchange, Client, fetchExchange, subscriptionExchange } from '@urql/vue';
 import { createClient as createWS, type SubscribePayload } from 'graphql-ws';
-
-import type { GraphCacheConfig, Mutation } from '@/gql/graphcache';
 
 const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api-new/query`;
 const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api-new/query`;
@@ -12,56 +9,6 @@ const gqlWs = createWS({
 	lazy: true,
 	shouldRetry: () => true,
 });
-
-const invalidateCache = (
-	cache: Cache,
-	name: string,
-	args?: { input: { id: any } },
-) => {
-	args
-		? cache.invalidate({ __typename: name, id: args.input.id })
-		: cache
-			.inspectFields('Query')
-			.filter((field) => field.fieldName === name)
-			.forEach((field) => {
-				cache.invalidate('Query', field.fieldKey);
-			});
-};
-
-type MutationQueryKeys = {
-	[K in keyof Mutation]?: string[]
-}
-
-const notificationByAdmin = 'notificationsByAdmin';
-const twirBadges = 'twirBadges';
-
-const mutationQueryKeys: MutationQueryKeys = {
-	notificationsCreate: [notificationByAdmin],
-	notificationsDelete: [notificationByAdmin],
-	notificationsUpdate: [notificationByAdmin],
-
-	badgesAddUser: [twirBadges],
-	badgesRemoveUser: [twirBadges],
-	badgesDelete: [twirBadges],
-	badgesCreate: [twirBadges],
-	badgesUpdate: [twirBadges],
-};
-
-const graphCacheConfig: GraphCacheConfig = {
-	updates: {
-		Mutation: {},
-	},
-};
-
-for (const [mutationKey, queryKeys] of Object.entries(mutationQueryKeys)) {
-	const updateResolver: UpdateResolver = (_parent, _args, cache, _info) => {
-		queryKeys.forEach((queryKey) => invalidateCache(cache, queryKey));
-	};
-
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-	graphCacheConfig.updates.Mutation[mutationKey] = updateResolver;
-}
 
 export const urqlClient = new Client({
 	url: gqlApiUrl,

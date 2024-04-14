@@ -1,8 +1,11 @@
-import { useQuery, useMutation, useSubscription } from '@urql/vue';
+import { useQuery, useSubscription } from '@urql/vue';
 import { computed, watch, type Ref } from 'vue';
 
+import { useMutation } from '@/composables/use-mutation.js';
 import { graphql } from '@/gql';
 import type { AdminNotificationsParams } from '@/gql/graphql';
+
+const invalidationKey = 'AdminNofiticationsInvalidateKey';
 
 export const useQueryNotifications = () => {
 	const { data: allNotifications } = useQuery({
@@ -43,6 +46,9 @@ export const useQueryNotifications = () => {
 
 export const useAdminNotifications = () => {
 	const useQueryNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
+		context: {
+			additionalTypenames: [invalidationKey],
+		},
 		get variables() {
 			return {
 				opts: variables.value,
@@ -73,13 +79,13 @@ export const useAdminNotifications = () => {
 				id
 			}
     }
-	`));
+	`), [invalidationKey]);
 
 	const useMutationDeleteNotification = () => useMutation(graphql(`
 		mutation DeleteNotification($id: ID!) {
 			notificationsDelete(id: $id)
 		}
-	`));
+	`), [invalidationKey]);
 
 	const useMutationUpdateNotifications = () => useMutation(graphql(`
 		mutation UpdateNotifications($id: ID!, $opts: NotificationUpdateOpts!) {
@@ -87,7 +93,7 @@ export const useAdminNotifications = () => {
 				id
 			}
 		}
-	`));
+	`), [invalidationKey]);
 
 	return {
 		useQueryNotifications,
