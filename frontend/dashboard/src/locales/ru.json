@@ -17,10 +17,10 @@
     "setDefaultSettings": "Установить настройки по умолчанию",
     "goToDashboard": "Перейти в панель управления",
     "add": "Добавить",
-    "send": "Send",
-    "next": "Next",
-    "previous": "Previous",
-    "reset": "Reset"
+    "send": "Отправить",
+    "next": "Далее",
+    "previous": "Назад",
+    "reset": "Сбросить"
   },
   "sharedTexts": {
     "saved": "Сохранено",
@@ -42,7 +42,7 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
+    "pagination": "{page} из {total} страниц / {items} элементов",
     "searchPlaceholder": "Search..."
   },
   "sidebar": {
