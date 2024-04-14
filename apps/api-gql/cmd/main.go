@@ -30,6 +30,7 @@ func main() {
 			twitchcache.New,
 			subscriptions_store.New,
 			gqlintegrationshelpers.NewIntegrationsLinksResolver,
+			gqlintegrationshelpers.NewIntegrationsDataFetcher,
 			resolvers.New,
 			directives.New,
 			httpserver.New,

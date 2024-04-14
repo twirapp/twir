@@ -16,14 +16,14 @@ import (
 
 var ErrIntegrationNotConfigured = errors.New("integration not configured")
 
-type Opts struct {
+type LinksResolverOpts struct {
 	fx.In
 
 	Gorm   *gorm.DB
 	Config config.Config
 }
 
-func NewIntegrationsLinksResolver(opts Opts) *LinksResolver {
+func NewIntegrationsLinksResolver(opts LinksResolverOpts) *LinksResolver {
 	return &LinksResolver{
 		gorm:   opts.Gorm,
 		config: opts.Config,
