@@ -115,7 +115,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Aktiviere den Befehl nur in bestimmten Kategorien (leer lassen für deaktiviert)"
+        "label": "Enable command only in certain categories (leave empty for disable)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
