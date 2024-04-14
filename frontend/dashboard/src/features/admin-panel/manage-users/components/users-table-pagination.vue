@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useUsersTable } from '../composables/use-users-table.js';
 
 import { Button } from '@/components/ui/button';
+import { formatNumber } from '@/helpers/format-number.js';
 
 const usersTable = useUsersTable();
 const { t } = useI18n();
@@ -16,7 +17,7 @@ const { t } = useI18n();
 				t('sharedTexts.pagination', {
 					page: usersTable.table.getState().pagination.pageIndex + 1,
 					total: usersTable.table.getPageCount(),
-					items: usersTable.totalUsers,
+					items: formatNumber(usersTable.totalUsers),
 				})
 			}}
 		</div>

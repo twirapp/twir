@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useNotificationsTable } from '../composables/use-notifications-table.js';
 
 import { Button } from '@/components/ui/button';
+import { formatNumber } from '@/helpers/format-number.js';
 
 const { t } = useI18n();
 const notificationsTable = useNotificationsTable();
@@ -15,7 +16,7 @@ const notificationsTable = useNotificationsTable();
 			{{ t('sharedTexts.pagination', {
 				page: notificationsTable.table.getState().pagination.pageIndex + 1,
 				total: notificationsTable.table.getPageCount().toLocaleString(),
-				items: notificationsTable.totalNotifications,
+				items: formatNumber(notificationsTable.totalNotifications),
 			}) }}
 		</div>
 		<Button
