@@ -11,10 +11,7 @@ import (
 )
 
 // IntegrationsGetData is the resolver for the integrationsGetData field.
-func (r *queryResolver) IntegrationsGetData(
-	ctx context.Context,
-	service gqlmodel.IntegrationService,
-) (gqlmodel.IntegrationData, error) {
+func (r *queryResolver) IntegrationsGetData(ctx context.Context, service gqlmodel.IntegrationService) (gqlmodel.IntegrationData, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -24,11 +21,7 @@ func (r *queryResolver) IntegrationsGetData(
 }
 
 // IntegrationsPostCode is the resolver for the integrationsPostCode field.
-func (r *queryResolver) IntegrationsPostCode(
-	ctx context.Context,
-	service gqlmodel.IntegrationService,
-	code string,
-) (gqlmodel.IntegrationData, error) {
+func (r *queryResolver) IntegrationsPostCode(ctx context.Context, service gqlmodel.IntegrationService, code string) (gqlmodel.IntegrationData, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

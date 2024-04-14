@@ -18,7 +18,7 @@ enum IntegrationService {
 	NIGHTBOT
 }
 
-union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv | IntegrationDataVk | IntegrationDataValorant | IntegrationDataStreamLabs | IntegrationDataSpotify | IntegrationDataDonationAlerts | IntegrationDataDiscord
+union IntegrationData = IntegrationDataLastfm | IntegrationDataSevenTv | IntegrationDataVk | IntegrationDataValorant | IntegrationDataStreamLabs | IntegrationDataSpotify | IntegrationDataDonationAlerts | IntegrationDataDiscord | IntegrationDataDonatePay | IntegrationDataFaceit
 
 type IntegrationDataLastfm {
 	username: String
@@ -103,4 +103,14 @@ type IntegrationDataDiscordGuildChannel {
 type IntegrationDataDiscordGuildRole {
 	id: String!
 	name: String!
+}
+
+type IntegrationDataDonatePay {
+	apiKey: String
+}
+
+type IntegrationDataFaceit {
+	username: String
+	game: String
+	authLink: String
 }
