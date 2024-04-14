@@ -43,7 +43,7 @@
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
     "pagination": "{page} из {total} страниц / {items} элементов",
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Поиск"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -72,7 +72,7 @@
   "navbar": {
     "logout": "Выйти",
     "publicPage": "Публичная страница",
-    "seeAll": "See all"
+    "seeAll": "Показать все"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
@@ -259,7 +259,7 @@
     },
     "sevenTv": {
       "description": "Мы можем управлять смайликами 7tv, когда эта интеграция включена.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "alert": "Вы также можете использовать расширенный функционал через систему {0} для управления 7tv смайлами.",
       "connected": "Подключено",
       "notConnected": "Не подключено",
       "notRegistered": "Вы не зарегистрированы на {0}",
@@ -268,7 +268,7 @@
       "connectSteps": {
         "step1": "Перейти к своему {0} профилю",
         "step2": "Нажмите на кнопку \"Add editors\"",
-        "step3": "Add {0} as an editor"
+        "step3": "Добавить {0} в качестве редактора"
       },
       "rewardForAddEmote": "Награда для добавления смайлика",
       "rewardForRemoveEmote": "Награда для удаления смайлика",
@@ -308,11 +308,11 @@
       "values": "Значения",
       "triggerAlert": "Триггер оповещения",
       "filters": {
-        "label": "Filters",
-        "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
-        "placeholderLeft": "Left side of the condition",
-        "placeholderRight": "Right side of the condition",
-        "empty": "No filters added yet"
+        "label": "Фильтры",
+        "description": "Вы можете фильтровать события по определенным условиям. Например, если вы используете \"{'{raidViewers}'} equals 10\" при событии рейда, то он будет срабатывать только когда количество рейдеров равно 10.",
+        "placeholderLeft": "Левая сторона условия",
+        "placeholderRight": "Правая сторона условия",
+        "empty": "Нет добавленных фильтров"
       }
     },
     "variables": {
@@ -477,16 +477,16 @@
       "nameBoxDropShadowAngle": "Угол тени",
       "messageBoxIgnoreCommands": "Игнорировать команды",
       "messageBoxDivider": "Сообщения",
-      "messageBoxShowTime": "Show time",
+      "messageBoxShowTime": "Показывать время",
       "messageBoxFill": "Цвет текста",
-      "messageBoxBackground": "Background color",
-      "messageBoxPadding": "Padding",
+      "messageBoxBackground": "Цвет фона",
+      "messageBoxPadding": "Отступ",
       "messageBoxBorderRadius": "Радиус закругления",
       "messageBoxFontSize": "Размер шрифта",
       "emoteDivider": "Смайлики",
       "growDivider": "Увеличение",
       "growTime": "Длительность увеличения",
-      "growMaxScale": "Max scale"
+      "growMaxScale": "Максимальный размер"
     },
     "kappagen": {
       "description": "Этот оверлей позволяет вам наполнить экран взрывами, движениями, фейерверками и стенами эмоций при помощи чата.",
@@ -886,12 +886,12 @@
     },
     "public": {
       "title": "Public page",
-      "description": "Description of channel",
-      "socialLinks": "Social links",
-      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
-      "errorInvalidLength": "Invalid length",
-      "errorInvalidLink": "Invalid link",
-      "errorEmpty": "Cannot be empty",
+      "description": "Описание канала",
+      "socialLinks": "Ссылки",
+      "errorCreateLink": "\"{title}\" содержит некорректную ссылку {href}",
+      "errorInvalidLength": "Недопустимое количество символов",
+      "errorInvalidLink": "Некорректная ссылка",
+      "errorEmpty": "Не может быть пустым",
       "errorTooLong": "Too long",
       "linkTitle": "Title",
       "linkLabel": "Link"
