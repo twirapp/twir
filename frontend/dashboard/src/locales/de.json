@@ -619,7 +619,8 @@
         "responseLong": "Response is too long!"
       }
     },
-    "limitExceeded": "Timer Limit exceeded!"
+    "limitExceeded": "Timer Limit exceeded!",
+    "newTimer": "New timer"
   },
   "roles": {
     "modal": {
