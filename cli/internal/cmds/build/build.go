@@ -23,8 +23,8 @@ var Cmd = &cli.Command{
 	},
 	Subcommands: []*cli.Command{
 		LibsCmd,
-		AppBuildCmd,
 		GqlCmd,
+		AppBuildCmd,
 	},
 }
 
