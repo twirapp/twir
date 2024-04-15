@@ -36,7 +36,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 	});
 
 	watch(data, async (recieviedData) => {
-		if (!dudes.value) return;
+		if (!dudes.value?.dudes) return;
 
 		const parsedData = JSON.parse(recieviedData) as TwirWebSocketEvent;
 		if (parsedData.eventName === 'settings') {
@@ -53,7 +53,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		}
 
 		const data = parsedData.data as DudesUserSettings;
-		const dude = dudes.value.getDude(data?.userId);
+		const dude = dudes.value.dudes.getDude(data?.userId);
 
 		if (parsedData.eventName === 'userSettings') {
 			const dudeSettings = dudesSettingsStore.dudesUserSettings.get(data.userId);
@@ -85,7 +85,7 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 		} else if (parsedData.eventName === 'leave') {
 			dude?.leave();
 		} else if (parsedData.eventName === 'punished') {
-			dudes.value.removeDude(data.userId);
+			dudes.value.dudes.removeDude(data.userId);
 			dudesSettingsStore.dudesUserSettings.delete(data.userId);
 		}
 	});
@@ -108,10 +108,10 @@ export const useDudesSocket = defineStore('dudes-socket', () => {
 					...data.dudeSettings,
 					// TODO: rename and deprecate `eyes_color`, `cosmetics_color`
 					bodyColor: data.dudeSettings.color,
-					sounds: {
-						enabled: data.dudeSettings.soundsEnabled,
-						volume: data.dudeSettings.soundsVolume,
-					},
+				},
+				sounds: {
+					enabled: data.dudeSettings.soundsEnabled,
+					volume: data.dudeSettings.soundsVolume,
 				},
 				name: {
 					...data.nameBoxSettings,

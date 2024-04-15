@@ -8,6 +8,7 @@ import vue from '@vitejs/plugin-vue';
 import autoprefixer from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import { defineConfig, loadEnv } from 'vite';
+import { watch } from 'vite-plugin-watch';
 
 
 // https://vitejs.dev/config/
@@ -21,6 +22,11 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 		plugins: [
+			watch({
+				onInit: true,
+				pattern: 'src/api/**/*.ts',
+				command: 'graphql-codegen',
+			}),
 			vue({
 				script: {
 					defineModel: true,

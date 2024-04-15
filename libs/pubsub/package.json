@@ -2,9 +2,9 @@
   "name": "@twir/pubsub",
   "type": "module",
   "main": "./src/index.js",
-	"types": "./src/index.d.ts",
+  "types": "./src/index.d.ts",
   "dependencies": {
     "@twir/config": "workspace:*",
-    "redis": "4.6.12"
+    "redis": "4.6.13"
   }
 }

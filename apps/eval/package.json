@@ -9,11 +9,11 @@
   "dependencies": {
     "@twir/bus-core": "workspace:*",
     "lodash": "4.17.21",
-    "nats": "2.19.0",
-    "nice-grpc": "2.1.7",
+    "nats": "2.22.0",
+    "nice-grpc": "2.1.8",
     "vm2": "3.9.19"
   },
   "devDependencies": {
-    "@types/lodash": "4.14.202"
+    "@types/lodash": "4.17.0"
   }
 }

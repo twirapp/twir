@@ -12,15 +12,15 @@
 		"@twir/pubsub": "workspace:*",
 		"centrifuge": "2.8.5",
 		"knex": "3.1.0",
-		"nice-grpc": "2.1.7",
-		"pg": "8.11.3",
+		"nice-grpc": "2.1.8",
+		"pg": "8.11.5",
 		"protobufjs": "7.2.6",
 		"socket.io-client": "2.3.1",
 		"ws": "8.16.0",
 		"xmlhttprequest": "1.8.0"
 	},
 	"devDependencies": {
-		"@types/node": "20.11.5",
+		"@types/node": "20.12.7",
 		"@types/socket.io-client": "1.4.36",
 		"@types/ws": "8.5.10"
 	}

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import DudesOverlay from '@twirapp/dudes';
+import DudesOverlay from '@twirapp/dudes-vue';
 import { storeToRefs } from 'pinia';
 import { onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
@@ -28,8 +28,8 @@ const dudesSocketStore = useDudesSocket();
 const iframe = useDudesIframe();
 
 watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
-	if (!isReady || !settings || !dudes.value) return;
-	dudes.value.updateSettings(settings.dudes);
+	if (!isReady || !settings || !dudes.value?.dudes) return;
+	dudes.value.dudes.updateSettings(settings.dudes);
 
 	if (iframe.isIframe) {
 		iframe.spawnIframeDude();

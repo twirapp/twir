@@ -1,7 +1,7 @@
 import type { MessageChunk } from '@twir/frontend-chat';
 import { DudesSprite } from '@twir/types/overlays';
-import { DudesLayers } from '@twirapp/dudes';
-import type { Dude, DudesMethods } from '@twirapp/dudes/types';
+import DudesOverlay, { DudesLayers } from '@twirapp/dudes-vue';
+import type { Dude } from '@twirapp/dudes-vue/types';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 
@@ -14,7 +14,7 @@ export const useDudes = defineStore('dudes', () => {
 	const dudesSettingsStore = useDudesSettings();
 	const { dudesSettings } = storeToRefs(dudesSettingsStore);
 
-	const dudes = ref<DudesMethods | null>(null);
+	const dudes = ref<InstanceType<typeof DudesOverlay> | null>(null);
 	const isDudeReady = ref(false);
 	const isDudeOverlayReady = computed(() => {
 		return dudes.value && dudesSettings.value && isDudeReady.value;
@@ -37,16 +37,16 @@ export const useDudes = defineStore('dudes', () => {
 	async function createDude(
 		{ userId, userName, color }: { userId: string, userName?: string, color?: string },
 	) {
-		if (!dudes.value || !dudesSettings.value) return;
+		if (!dudes.value?.dudes || !dudesSettings.value) return;
 
-		const actualDude = dudes.value.dudes.get(userId) as Dude;
+		const actualDude = dudes.value.dudes.getDude(userId);
 		if (actualDude) {
 			return createDudeInstance(actualDude);
 		}
 
 		if (
 			dudesSettings.value.overlay.maxOnScreen !== 0 &&
-			dudes.value.dudes.size === dudesSettings.value.overlay.maxOnScreen
+			dudes.value.dudes.dudes.size === dudesSettings.value.overlay.maxOnScreen
 		) return;
 
 		const userSettings = requestDudeUserSettings(userId);
@@ -64,7 +64,7 @@ export const useDudes = defineStore('dudes', () => {
 			?? dudesSettings.value.dudes.dude.bodyColor;
 
 		const dudeSprite = getSprite(userSettings?.dudeSprite ?? dudesSettings.value.overlay.defaultSprite);
-		const dude = await dudes.value.createDude({
+		const dude = await dudes.value.dudes.createDude({
 			id: userSettings.userId,
 			name: userSettings.userDisplayName!,
 			sprite: dudeSprite,
@@ -80,23 +80,23 @@ export const useDudes = defineStore('dudes', () => {
 
 	function updateDudeColors(dude: Dude, color?: string): void {
 		if (color) {
-			dude.updateColor(DudesLayers.Body, color);
+			dude.updateColor(DudesLayers.body, color);
 		}
 
 		if (dude.config.sprite.name.startsWith(DudesSprite.girl)) {
-			dude.updateColor(DudesLayers.Hat, '#FF0000');
+			dude.updateColor(DudesLayers.hat, '#FF0000');
 		}
 
 		if (dude.config.sprite.name.startsWith(DudesSprite.santa)) {
-			dude.updateColor(DudesLayers.Hat, '#FFF');
+			dude.updateColor(DudesLayers.hat, '#FFF');
 		}
 
 		if (dude.config.sprite.name.startsWith(DudesSprite.agent)) {
-			dude.updateColor(DudesLayers.Cosmetics, '#8a2be2');
+			dude.updateColor(DudesLayers.cosmetics, '#8a2be2');
 		}
 
 		if (dude.config.sprite.name.startsWith(DudesSprite.sith)) {
-			dude.updateColor(DudesLayers.Cosmetics, randomRgbColor());
+			dude.updateColor(DudesLayers.cosmetics, randomRgbColor());
 		}
 	}
 
