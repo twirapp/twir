@@ -661,6 +661,8 @@
   },
   "greetings": {
     "title": "Uvítacia správa",
+    "create": "Create greeting",
+    "edit": "Edit greeting",
     "info": {
       "title": "Greetings Information",
       "text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
