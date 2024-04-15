@@ -619,7 +619,8 @@
         "responseLong": "Слишком длинный ответ!"
       }
     },
-    "limitExceeded": "Достигнут предел таймеров!"
+    "limitExceeded": "Достигнут предел таймеров!",
+    "newTimer": "New timer"
   },
   "roles": {
     "modal": {
