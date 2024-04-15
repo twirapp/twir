@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import type { Keyword } from '@twir/api/messages/keywords/keywords';
 import {
 	type DataTableColumns,
 	NDataTable,
@@ -14,21 +13,23 @@ import {
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useKeywordsManager, useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
+import { useKeywordsApi, type Keyword } from '@/api/keywords';
 import Modal from '@/components/keywords/modal.vue';
-import { type EditableKeyword } from '@/components/keywords/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
-const keywordsManager = useKeywordsManager();
-const keywords = keywordsManager.getAll({});
-const keywordsDeleter = keywordsManager.deleteOne;
-const keywordsPatcher = keywordsManager.patch!;
-
+const { t } = useI18n();
+const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
 const showModal = ref(false);
 
-const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
+const keywordsApi = useKeywordsApi();
+const keywordsUpdate = keywordsApi.useMutationUpdateKeyword();
+const keywordsRemove = keywordsApi.useMutationRemoveKeyword();
 
-const { t } = useI18n();
+const { data, fetching } = keywordsApi.useQueryKeywords();
+const keywords = computed(() => {
+	return data.value?.keywords ?? [];
+});
 
 const columns = computed<DataTableColumns<Keyword>>(() => [
 	{
@@ -68,8 +69,8 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		render(row) {
 			return h(NSwitch, {
 				value: row.enabled,
-				onUpdateValue: (v) => {
-					keywordsPatcher.mutate({ id: row.id!, enabled: v });
+				onUpdateValue: (enabled) => {
+					keywordsUpdate.executeMutation({ id: row.id, opts: { enabled } });
 				},
 				disabled: !userCanManageKeywords.value,
 			});
@@ -95,7 +96,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => keywordsDeleter.mutate({ id: row.id }),
+					onPositiveClick: () => keywordsRemove.executeMutation({ id: row.id }),
 					positiveText: t('deleteConfirmation.confirm'),
 					negativeText: t('deleteConfirmation.cancel'),
 				},
@@ -117,10 +118,10 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 	},
 ]);
 
-const editableKeyword = ref<EditableKeyword | null>(null);
+const editableKeyword = ref<Keyword | null>(null);
 
-function openModal(t: EditableKeyword | null) {
-	editableKeyword.value = t;
+function openModal(keyword: Keyword | null) {
+	editableKeyword.value = keyword;
 	showModal.value = true;
 }
 
@@ -136,10 +137,11 @@ function closeModal() {
 			{{ t('sharedButtons.create') }}
 		</n-button>
 	</n-space>
+
 	<n-data-table
-		:isLoading="keywords.isLoading.value"
+		:isLoading="fetching"
 		:columns="columns"
-		:data="keywords.data.value?.keywords ?? []"
+		:data="keywords"
 	/>
 
 	<n-modal
