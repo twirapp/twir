@@ -661,6 +661,8 @@
   },
   "greetings": {
     "title": "Greetings",
+		"create": "Create greeting",
+		"edit": "Edit greeting",
     "info": {
       "title": "Greetings Information",
       "text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
