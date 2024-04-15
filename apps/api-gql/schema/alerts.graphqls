@@ -1,0 +1,42 @@
+extend type Query {
+	channelAlerts: [ChannelAlert!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_ALERTS)
+}
+
+extend type Mutation {
+	channelAlertsCreate(input: ChannelAlertCreateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsUpdate(id: ID!, input: ChannelAlertUpdateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsDelete(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+}
+
+type ChannelAlert {
+	id: ID!
+	channel_id: ID!
+	name: String!
+	audio_id: ID
+	audio_volume: Int
+	command_ids: [ID!]
+	reward_ids: [ID!]
+	greetings_ids: [ID!]
+	keywords_ids: [ID!]
+}
+
+input ChannelAlertUpdateInput {
+	name: String
+	audio_id: ID
+	audio_volume: Int
+	command_ids: [ID!]
+	reward_ids: [ID!]
+	greetings_ids: [ID!]
+	keywords_ids: [ID!]
+}
+
+input ChannelAlertCreateInput {
+	channel_id: ID!
+	name: String!
+	audio_id: ID
+	audio_volume: Int
+	command_ids: [ID!]
+	reward_ids: [ID!]
+	greetings_ids: [ID!]
+	keywords_ids: [ID!]
+}
