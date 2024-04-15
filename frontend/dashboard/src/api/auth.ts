@@ -12,6 +12,7 @@ import { computed } from 'vue';
 import { protectedApiClient } from './twirp.js';
 
 import { graphql } from '@/gql';
+import { urqlClient } from '@/plugins/urql';
 
 export const useProfileQuery = graphql(`
 	query AuthenticatedUser {
@@ -164,17 +165,16 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
-	const { data: profile, executeQuery: fetchProfile } = useProfile();
-	await fetchProfile();
+	const { data: profile } = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
 
 	const { dashboards } = await queryClient.getQueryData(dashboardsQueryOptions.queryKey) as {
 		dashboards: Dashboard[]
 	};
 
-	if (!dashboards || !profile.value || !profile?.value?.selectedDashboardId) return false;
-	if (profile.value.selectedDashboardId == profile.value.id) return true;
+	if (!dashboards || !profile || !profile?.authenticatedUser.selectedDashboardId) return false;
+	if (profile.authenticatedUser.selectedDashboardId == profile.authenticatedUser.id) return true;
 
-	const dashboard = dashboards.find(d => d.id === profile.value!.selectedDashboardId);
+	const dashboard = dashboards.find(d => d.id === profile.authenticatedUser.selectedDashboardId);
 	if (!dashboard) return false;
 
 	if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
