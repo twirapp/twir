@@ -12,6 +12,7 @@ import {
 	NNotificationProvider,
 	NSpin,
 	NDialogProvider,
+	NScrollbar,
 } from 'naive-ui';
 import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
@@ -82,17 +83,19 @@ watch(smallerOrEqualLg, (v) => {
 									<n-spin size="large" />
 								</div>
 								<router-view v-else v-slot="{ Component, route }">
-									<transition :name="route.meta.transition as string || 'router'" mode="out-in">
-										<div
-											:key="route.path"
-											:style="{
-												padding: route.meta?.noPadding ? undefined: '24px',
-												height: route.meta?.fullScreen ? 'calc(100% - var(--layout-header-height))' : 'auto'
-											}"
-										>
-											<component :is="Component" />
-										</div>
-									</transition>
+									<n-scrollbar trigger="none">
+										<transition :name="route.meta.transition as string || 'router'" mode="out-in">
+											<div
+												:key="route.path"
+												:style="{
+													padding: route.meta?.noPadding ? undefined: '24px',
+													height: route.meta?.fullScreen ? 'calc(100% - var(--layout-header-height))' : 'auto'
+												}"
+											>
+												<component :is="Component" />
+											</div>
+										</transition>
+									</n-scrollbar>
 								</router-view>
 
 								<Toaster />
