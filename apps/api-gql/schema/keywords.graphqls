@@ -16,7 +16,7 @@ type Keyword {
 	cooldown: Int!
 	isReply: Boolean!
 	isRegularExpression: Boolean!
-	usages: Int!
+	usageCount: Int!
 }
 
 input KeywordCreateInput {

@@ -70,7 +70,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		Cooldown:            entity.Cooldown,
 		IsReply:             entity.IsReply,
 		IsRegularExpression: entity.IsRegular,
-		Usages:              entity.Usages,
+		UsageCount:          entity.Usages,
 	}, nil
 }
 
@@ -128,7 +128,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		Cooldown:            entity.Cooldown,
 		IsReply:             entity.IsReply,
 		IsRegularExpression: entity.IsRegular,
-		Usages:              entity.Usages,
+		UsageCount:          entity.Usages,
 	}, nil
 }
 
@@ -180,7 +180,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 				Cooldown:            entity.Cooldown,
 				IsReply:             entity.IsReply,
 				IsRegularExpression: entity.IsRegular,
-				Usages:              0,
+				UsageCount:          0,
 			},
 		)
 	}
