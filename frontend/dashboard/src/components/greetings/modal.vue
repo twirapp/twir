@@ -12,25 +12,25 @@ import {
 import { ref, onMounted, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useGreetingsManager } from '@/api/index.js';
-import type { EditableGreeting } from '@/components/greetings/types.js';
 import TwitchUserSearch from '@/components/twitchUsers/single.vue';
 import VariableInput from '@/components/variable-input.vue';
+import { useGreetingsApi, type Greetings } from '@/api/greetings';
+import type { GreetingsCreateInput } from '@/gql/graphql';
 
 const props = defineProps<{
-	greeting?: EditableGreeting | null
+	greeting?: Greetings | null
 }>();
 const emits = defineEmits<{
 	close: []
 }>();
 
 const formRef = ref<FormInst | null>(null);
-const formValue = ref<EditableGreeting>({
-	enabled: true,
-	isReply: true,
+const formValue = ref<Omit<Greetings, 'twitchProfile'>>({
+	id: '',
 	text: '',
 	userId: '',
-	id: '',
+	enabled: true,
+	isReply: true,
 });
 
 onMounted(() => {
@@ -38,23 +38,29 @@ onMounted(() => {
 	formValue.value = structuredClone(toRaw(props.greeting));
 });
 
-const greetingsManager = useGreetingsManager();
-const greetingsUpdater = greetingsManager.update;
-const greetingsCreator = greetingsManager.create;
+const greetingsApi = useGreetingsApi();
+const greetingsUpdate = greetingsApi.useMutationUpdateGreetings();
+const greetingsCreate = greetingsApi.useMutationCreateGreetings();
 
 async function save() {
 	if (!formRef.value || !formValue.value) return;
 	await formRef.value.validate();
 
 	const data = formValue.value;
+	const opts: GreetingsCreateInput = {
+		enabled: data.enabled,
+		isReply: data.isReply,
+		text: data.text,
+		userId: data.userId,
+	}
 
 	if (data.id) {
-		await greetingsUpdater.mutateAsync({
+		await greetingsUpdate.executeMutation({
 			id: data.id,
-			greeting: data,
+			opts,
 		});
 	} else {
-		await greetingsCreator.mutateAsync(data);
+		await greetingsCreate.executeMutation({ opts });
 	}
 
 	emits('close');
