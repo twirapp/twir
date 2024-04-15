@@ -7,6 +7,7 @@ import { watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useTheme } from '@/composables/use-theme';
+import type { StringOrNumber } from 'radix-vue/dist/shared/types';
 
 const router = useRouter();
 const themeVars = useThemeVars();
@@ -42,7 +43,7 @@ function setTab(): void {
 	}
 }
 
-function onChangeTab(tab: string, replace = false): void {
+function onChangeTab(tab: StringOrNumber, replace = false): void {
 	router.push({ query: { tab }, replace });
 }
 </script>
