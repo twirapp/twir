@@ -19,6 +19,14 @@ var Cmd = &cli.Command{
 	Usage:   "build application",
 	Aliases: []string{"b"},
 	Action: func(c *cli.Context) error {
+		if err := LibsCmd.Run(c); err != nil {
+			return err
+		}
+
+		if err := GqlCmd.Run(c); err != nil {
+			return err
+		}
+
 		return build(`turbo run build --filter=!./apps/dota`, true)
 	},
 	Subcommands: []*cli.Command{
@@ -88,7 +96,13 @@ var GqlCmd = &cli.Command{
 			return err
 		}
 
-		return api.Generate(cfg)
+		if err := api.Generate(cfg); err != nil {
+			return err
+		}
+
+		pterm.Success.Println("Generated gqlgen")
+
+		return nil
 	},
 }
 
