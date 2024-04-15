@@ -5,21 +5,63 @@ import {
 	useQuery,
 	useQueryClient,
 } from '@tanstack/vue-query';
-import type { Dashboard, Profile } from '@twir/api/messages/auth/auth';
+import type { Dashboard } from '@twir/api/messages/auth/auth';
+import { useQuery as useGraphqlQuery } from '@urql/vue';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
-export const profileQueryOptions = {
-	queryKey: ['authProfile'],
-	queryFn: async () => {
-		const call = await protectedApiClient.authUserProfile({});
-		return call.response;
-	},
-	retry: false,
-} satisfies QueryOptions;
+import { graphql } from '@/gql';
 
-export const useProfile = () => useQuery<Profile | null>(profileQueryOptions);
+export const useProfileQuery = graphql(`
+	query AuthenticatedUser {
+		authenticatedUser {
+			id
+			isBotAdmin
+			isBanned
+			isEnabled
+			isBotModerator
+			hideOnLandingPage
+			botId
+			apiKey
+			twitchProfile {
+				description
+				displayName
+				login
+				profileImageUrl
+			}
+			selectedDashboardId
+		}
+	}
+`);
+
+export const useProfile = () => {
+	const { data: response, executeQuery, fetching } = useGraphqlQuery({
+		query: useProfileQuery,
+	});
+
+	const computedUser = computed(() => {
+		const user = response.value?.authenticatedUser;
+		if (!user) return null;
+
+		return {
+			id: user.id,
+			avatar: user.twitchProfile.profileImageUrl,
+			login: user.twitchProfile.login,
+			displayName: user.twitchProfile.displayName,
+			apiKey: user.apiKey,
+			isBotAdmin: user.isBotAdmin,
+			isEnabled: user.isEnabled,
+			isBanned: user.isBanned,
+			isBotModerator: user.isBotModerator,
+			botId: user.botId,
+			selectedDashboardId: user.selectedDashboardId,
+			hideOnLandingPage: user.hideOnLandingPage,
+		};
+	});
+
+	return { data: computedUser, executeQuery, isLoading: fetching };
+};
 
 export const useLogout = () => useMutation({
 	mutationKey: ['authLogout'],
@@ -122,15 +164,17 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
-	const profile = await queryClient.getQueryData(profileQueryOptions.queryKey) as Profile | null;
+	const { data: profile, executeQuery: fetchProfile } = useProfile();
+	await fetchProfile();
+
 	const { dashboards } = await queryClient.getQueryData(dashboardsQueryOptions.queryKey) as {
 		dashboards: Dashboard[]
 	};
 
-	if (!dashboards || !profile || !profile.selectedDashboardId) return false;
-	if (profile.selectedDashboardId == profile.id) return true;
+	if (!dashboards || !profile.value || !profile?.value?.selectedDashboardId) return false;
+	if (profile.value.selectedDashboardId == profile.value.id) return true;
 
-	const dashboard = dashboards.find(d => d.id === profile.selectedDashboardId);
+	const dashboard = dashboards.find(d => d.id === profile.value!.selectedDashboardId);
 	if (!dashboard) return false;
 
 	if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;

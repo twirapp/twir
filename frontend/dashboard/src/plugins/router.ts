@@ -1,7 +1,9 @@
 import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
-import { dashboardsQueryOptions, profileQueryOptions, userAccessFlagChecker } from '@/api';
+import { urqlClient } from './urql';
+
+import { dashboardsQueryOptions, useProfileQuery, userAccessFlagChecker } from '@/api';
 
 export const newRouter = (queryClient: QueryClient) => {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
@@ -184,10 +186,10 @@ export const newRouter = (queryClient: QueryClient) => {
 
 	router.beforeEach(async (to, _, next) => {
 		try {
-			const profile = await queryClient.ensureQueryData(profileQueryOptions);
+			const profileRequest = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
 			await queryClient.ensureQueryData(dashboardsQueryOptions);
 
-			if (!profile) {
+			if (!profileRequest.data) {
 				return window.location.replace('/');
 			}
 
@@ -201,7 +203,7 @@ export const newRouter = (queryClient: QueryClient) => {
 			return next({ name: 'Forbidden' });
 		} catch (error) {
 			console.log(error);
-			window.location.replace('/');
+			// window.location.replace('/');
 		}
 	});
 

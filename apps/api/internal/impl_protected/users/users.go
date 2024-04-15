@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/satont/twir/apps/api/internal/helpers"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/users"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -37,13 +38,17 @@ func (c *Users) UsersUpdate(ctx context.Context, req *users.UpdateUserRequest) (
 	*emptypb.Empty,
 	error,
 ) {
-	user, err := helpers.GetUserModelFromCtx(ctx)
+	requestUser, err := helpers.GetUserModelFromCtx(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get user from context: %w", err)
 	}
 
-	query := c.Db.WithContext(ctx).Model(&user)
+	user := model.Users{}
+	if err := c.Db.WithContext(ctx).Where("id = ?", requestUser.ID).First(&user).Error; err != nil {
+		return nil, fmt.Errorf("failed to get user from db: %w", err)
+	}
 
+	query := c.Db.WithContext(ctx).Model(&user)
 	// everything bellow working like a PATCH http request
 	if req.HideOnLandingPage != nil {
 		user.HideOnLandingPage = *req.HideOnLandingPage

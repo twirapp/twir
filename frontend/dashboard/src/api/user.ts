@@ -1,12 +1,9 @@
-import { useMutation, useQueryClient } from '@tanstack/vue-query';
+import { useMutation } from '@tanstack/vue-query';
 import type { UpdateUserRequest } from '@twir/api/messages/users/users';
 
-import { profileQueryOptions } from '@/api/auth';
 import { protectedApiClient } from '@/api/twirp';
 
 export const useUser = () => {
-	const queryClient = useQueryClient();
-
 	return {
 		useRegenerateApiKey: () => useMutation({
 			mutationKey: ['userRegenerateApiKey'],
@@ -15,7 +12,7 @@ export const useUser = () => {
 				return call.response;
 			},
 			async onSuccess() {
-				await queryClient.invalidateQueries(profileQueryOptions.queryKey);
+
 			},
 		}),
 		useUpdate: () => useMutation({
@@ -25,7 +22,7 @@ export const useUser = () => {
 				return call.response;
 			},
 			async onSuccess() {
-				await queryClient.invalidateQueries(profileQueryOptions.queryKey);
+
 			},
 		}),
 	};
