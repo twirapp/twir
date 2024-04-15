@@ -16,7 +16,10 @@ import (
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(
+	ctx context.Context,
+	opts gqlmodel.TimerCreateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -70,7 +73,11 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.TimerUpdateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -101,9 +108,6 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 
 	txErr := r.gorm.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
-			if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
-				return err
-			}
 			if opts.Responses.IsSet() {
 				if err := tx.
 					Where(`"timerId" = ?`, entity.ID).
@@ -123,6 +127,10 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 						}
 					},
 				)
+			}
+
+			if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+				return err
 			}
 
 			return nil

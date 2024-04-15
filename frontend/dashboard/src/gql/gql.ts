@@ -29,6 +29,10 @@ const documents = {
     "\n\t\tmutation UserSwitchBan($userId: ID!) {\n\t\t\tswitchUserBan(userId: $userId)\n\t\t}\n\t": types.UserSwitchBanDocument,
     "\n\t\tmutation UserSwitchAdmin($userId: ID!) {\n\t\t\tswitchUserAdmin(userId: $userId)\n\t\t}\n\t": types.UserSwitchAdminDocument,
     "\n\t\t\tsubscription dashboardStats {\n\t\t\t\tdashboardStats {\n\t\t\t\t\tcategoryId\n\t\t\t\t\tcategoryName\n\t\t\t\t\tviewers\n\t\t\t\t\tstartedAt\n\t\t\t\t\ttitle\n\t\t\t\t\tchatMessages\n\t\t\t\t\tfollowers\n\t\t\t\t\tusedEmotes\n\t\t\t\t\trequestedSongs\n\t\t\t\t\tsubs\n\t\t\t\t}\n\t\t\t}\n\t\t": types.DashboardStatsDocument,
+    "\n\t\t\tquery GetAllTimers {\n\t\t\t\ttimers {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tenabled\n\t\t\t\t\ttimeInterval\n\t\t\t\t\tmessageInterval\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t\tisAnnounce\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t": types.GetAllTimersDocument,
+    "\n\t\tmutation CreateTimer($opts: TimerCreateInput!) {\n\t\t\ttimersCreate(opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t": types.CreateTimerDocument,
+    "\n\t\tmutation UpdateTimer($id: String!, $opts: TimerUpdateInput!) {\n\t\t\ttimersUpdate(id: $id, opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t": types.UpdateTimerDocument,
+    "\n\t\tmutation RemoveTimer($id: String!) {\n\t\t\ttimersRemove(id: $id)\n\t\t}\n\t": types.RemoveTimerDocument,
 };
 
 /**
@@ -109,6 +113,22 @@ export function graphql(source: "\n\t\tmutation UserSwitchAdmin($userId: ID!) {\
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n\t\t\tsubscription dashboardStats {\n\t\t\t\tdashboardStats {\n\t\t\t\t\tcategoryId\n\t\t\t\t\tcategoryName\n\t\t\t\t\tviewers\n\t\t\t\t\tstartedAt\n\t\t\t\t\ttitle\n\t\t\t\t\tchatMessages\n\t\t\t\t\tfollowers\n\t\t\t\t\tusedEmotes\n\t\t\t\t\trequestedSongs\n\t\t\t\t\tsubs\n\t\t\t\t}\n\t\t\t}\n\t\t"): (typeof documents)["\n\t\t\tsubscription dashboardStats {\n\t\t\t\tdashboardStats {\n\t\t\t\t\tcategoryId\n\t\t\t\t\tcategoryName\n\t\t\t\t\tviewers\n\t\t\t\t\tstartedAt\n\t\t\t\t\ttitle\n\t\t\t\t\tchatMessages\n\t\t\t\t\tfollowers\n\t\t\t\t\tusedEmotes\n\t\t\t\t\trequestedSongs\n\t\t\t\t\tsubs\n\t\t\t\t}\n\t\t\t}\n\t\t"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\t\t\tquery GetAllTimers {\n\t\t\t\ttimers {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tenabled\n\t\t\t\t\ttimeInterval\n\t\t\t\t\tmessageInterval\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t\tisAnnounce\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t"): (typeof documents)["\n\t\t\tquery GetAllTimers {\n\t\t\t\ttimers {\n\t\t\t\t\tid\n\t\t\t\t\tname\n\t\t\t\t\tenabled\n\t\t\t\t\ttimeInterval\n\t\t\t\t\tmessageInterval\n\t\t\t\t\tresponses {\n\t\t\t\t\t\ttext\n\t\t\t\t\t\tisAnnounce\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\t\tmutation CreateTimer($opts: TimerCreateInput!) {\n\t\t\ttimersCreate(opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t"): (typeof documents)["\n\t\tmutation CreateTimer($opts: TimerCreateInput!) {\n\t\t\ttimersCreate(opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\t\tmutation UpdateTimer($id: String!, $opts: TimerUpdateInput!) {\n\t\t\ttimersUpdate(id: $id, opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t"): (typeof documents)["\n\t\tmutation UpdateTimer($id: String!, $opts: TimerUpdateInput!) {\n\t\t\ttimersUpdate(id: $id, opts: $opts) {\n\t\t\t\tid\n\t\t\t}\n\t\t}\n\t"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\t\tmutation RemoveTimer($id: String!) {\n\t\t\ttimersRemove(id: $id)\n\t\t}\n\t"): (typeof documents)["\n\t\tmutation RemoveTimer($id: String!) {\n\t\t\ttimersRemove(id: $id)\n\t\t}\n\t"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

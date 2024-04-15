@@ -28,7 +28,7 @@ import {
 import { ref, onMounted, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useTimersManager } from '@/api/index.js';
+import { useTimersApi } from '@/api/timers.js';
 import type { EditableTimer, EditableTimerResponse } from '@/components/timers/types.js';
 
 const props = defineProps<{
@@ -97,9 +97,9 @@ onMounted(() => {
 	formValue.value = structuredClone(toRaw(props.timer));
 });
 
-const timersManager = useTimersManager();
-const timersUpdater = timersManager.update;
-const timersCreator = timersManager.create;
+const timersApi = useTimersApi();
+const timersUpdate = timersApi.useMutationUpdateTimer();
+const timersCreate = timersApi.useMutationCreateTimer();
 
 async function save() {
 	if (!formRef.value || !formValue.value) return;
@@ -108,12 +108,18 @@ async function save() {
 	const data = formValue.value;
 
 	if (data.id) {
-		await timersUpdater.mutateAsync({
+		await timersUpdate.executeMutation({
 			id: data.id,
-			timer: data,
+			opts: {
+				name: data.name,
+				enabled: data.enabled,
+				messageInterval: data.messageInterval,
+				timeInterval: data.timeInterval,
+				responses: data.responses,
+			},
 		});
 	} else {
-		await timersCreator.mutateAsync({ data });
+		await timersCreate.executeMutation({ opts: data });
 	}
 
 	emits('close');
@@ -192,7 +198,7 @@ const sliderMarks = {
 			<n-dynamic-input
 				v-model:value="formValue.responses"
 				class="groups"
-				:create-button-props="{ class: 'create-button' } as any"
+				:create-button-props="({ class: 'create-button' } as any)"
 			>
 				<template #default="{ value, index }: { value: EditableTimerResponse, index: number }">
 					<n-space vertical class="w-full">

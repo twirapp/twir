@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Timer } from '@twir/api/messages/timers/timers';
 import {
 	type DataTableColumns,
 	NButton,
@@ -14,23 +13,27 @@ import {
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useTimersManager, useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
+import { useTimersApi, type TimerResponse } from '@/api/timers.js';
 import Modal from '@/components/timers/modal.vue';
 import { type EditableTimer } from '@/components/timers/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
-const timersManager = useTimersManager();
-const timers = timersManager.getAll({});
-const timersDeleter = timersManager.deleteOne;
-const timersPatcher = timersManager.patch!;
-
+const { t } = useI18n();
 const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
 
-const { t } = useI18n();
+const timersApi = useTimersApi();
+const timersRemove = timersApi.useMutationRemoveTimer();
+const timersUpdate = timersApi.useMutationUpdateTimer();
 
-const columns = computed<DataTableColumns<Timer>>(() => [
+const { data, fetching } = timersApi.useQueryTimers();
+const timers = computed(() => {
+	return data.value?.timers ?? [];
+});
+
+const columns = computed<DataTableColumns<TimerResponse>>(() => [
 	{
-		title: 'Name',
+		title: t('sharedTexts.name'),
 		key: 'name',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
@@ -54,13 +57,13 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 			return h(NTag, { type: 'info' }, { default: () => `${row.timeInterval} m.` });
 		},
 	},
-	// {
-	// 	title: 'Interval in messages',
-	// 	key: 'messageInterval',
-	// 	render(row) {
-	// 		return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
-	// 	},
-	// },
+	{
+		title: t('timers.table.columns.intervalInMessages'),
+		key: 'messageInterval',
+		render(row) {
+			return h(NTag, { type: 'info' }, { default: () => `${row.messageInterval}` });
+		},
+	},
 	{
 		title: t('sharedTexts.status'),
 		key: 'enabled',
@@ -68,8 +71,8 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 			return h(NSwitch, {
 				value: row.enabled,
 				disabled: !userCanManageTimers.value,
-				onUpdateValue: (v) => {
-					timersPatcher.mutate({ id: row.id!, enabled: v });
+				onUpdateValue: (enabled) => {
+					timersUpdate.executeMutation({ id: row.id, opts: { enabled } });
 				},
 			});
 		},
@@ -94,7 +97,7 @@ const columns = computed<DataTableColumns<Timer>>(() => [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => timersDeleter.mutate({ id: row.id }),
+					onPositiveClick: () => timersRemove.executeMutation({ id: row.id }),
 					positiveText: t('deleteConfirmation.confirm'),
 					negativeText: t('deleteConfirmation.cancel'),
 				},
@@ -129,7 +132,7 @@ function closeModal() {
 	showModal.value = false;
 }
 
-const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
+const timersLength = computed(() => timers.value.length);
 </script>
 
 <template>
@@ -150,9 +153,9 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 	</n-space>
 
 	<n-data-table
-		:isLoading="timers.isLoading.value"
+		:isLoading="fetching"
 		:columns="columns"
-		:data="timers.data.value?.timers ?? []"
+		:data="timers"
 	/>
 
 	<n-modal
@@ -160,7 +163,7 @@ const timersLength = computed(() => timers.data?.value?.timers?.length ?? 0);
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		:title="editableTimer?.name ?? 'New timer'"
+		:title="editableTimer?.name ?? t('timers.newTimer')"
 		class="modal"
 		:style="{
 			width: '600px',
