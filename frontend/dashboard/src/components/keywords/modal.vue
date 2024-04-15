@@ -36,13 +36,12 @@ const emits = defineEmits<{
 const { t } = useI18n();
 const formRef = ref<FormInst | null>(null);
 const formValue = ref<Keyword>({
-	id: '',
 	text: '',
 	response: '',
 	cooldown: 0,
 	enabled: true,
 	isReply: true,
-	usages: 0,
+	usageCount: 0,
 	isRegularExpression: false,
 });
 
@@ -53,7 +52,7 @@ onMounted(() => {
 
 const keywordsApi = useKeywordsApi();
 const keywordsUpdate = keywordsApi.useMutationUpdateKeyword();
-const keywordsCreate= keywordsApi.useMutationCreateKeyword();
+const keywordsCreate = keywordsApi.useMutationCreateKeyword();
 
 async function save() {
 	if (!formRef.value || !formValue.value) return;
@@ -63,7 +62,15 @@ async function save() {
 	if (data.id) {
 		await keywordsUpdate.executeMutation({
 			id: data.id,
-			opts: data,
+			opts: {
+				text: data.text,
+				response: data.response,
+				cooldown: data.cooldown,
+				isReply: data.isReply,
+				enabled: data.enabled,
+				isRegularExpression: data.isRegularExpression,
+				usageCount: data.usageCount,
+			},
 		});
 	} else {
 		await keywordsCreate.executeMutation({ opts: data });
@@ -123,7 +130,7 @@ const rules: FormRules = {
 				</n-alert>
 			</n-space>
 
-			<n-form-item v-if="formValue.response" :label="t('sharedTexts.response')" path="response">
+			<n-form-item :label="t('sharedTexts.response')" path="response">
 				<variable-input
 					v-model="formValue.response"
 					:min-rows="1"
@@ -143,7 +150,7 @@ const rules: FormRules = {
 
 				<n-grid-item :span="1">
 					<n-form-item :label="t('keywords.usages')" path="usages">
-						<n-input-number v-model:value="formValue.usages" />
+						<n-input-number v-model:value="formValue.usageCount" />
 					</n-form-item>
 				</n-grid-item>
 

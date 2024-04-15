@@ -31,7 +31,7 @@ const keywords = computed(() => {
 	return data.value?.keywords ?? [];
 });
 
-const columns = computed<DataTableColumns<Keyword>>(() => [
+const columns = computed<DataTableColumns<Required<Keyword>>>(() => [
 	{
 		title: t('keywords.triggerText'),
 		key: 'text',
@@ -60,7 +60,7 @@ const columns = computed<DataTableColumns<Keyword>>(() => [
 		title: t('keywords.usages'),
 		key: 'usages',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: true }, { default: () => row.usages });
+			return h(NTag, { type: 'info', bordered: true }, { default: () => row.usageCount });
 		},
 	},
 	{
@@ -131,18 +131,23 @@ function closeModal() {
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>{{ t('keywords.title') }}</h2>
-		<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
-			{{ t('sharedButtons.create') }}
-		</n-button>
-	</n-space>
+	<div class="flex flex-col gap-4">
+		<div class="flex justify-between">
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+				{{ t('keywords.title') }}
+			</h4>
 
-	<n-data-table
-		:isLoading="fetching"
-		:columns="columns"
-		:data="keywords"
-	/>
+			<n-button :disabled="!userCanManageKeywords" secondary type="success" @click="openModal(null)">
+				{{ t('sharedButtons.create') }}
+			</n-button>
+		</div>
+
+		<n-data-table
+			:isLoading="fetching"
+			:columns="columns"
+			:data="keywords"
+		/>
+	</div>
 
 	<n-modal
 		v-model:show="showModal"

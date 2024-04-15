@@ -6,7 +6,10 @@ import { graphql } from '@/gql';
 import type { GetAllKeywordsQuery } from '@/gql/graphql';
 
 export type KeywordResponse = GetAllKeywordsQuery['keywords'][0]
-export type Keyword = Required<Omit<KeywordResponse, '__typename'>>
+export type Keyword = Omit<KeywordResponse, 'id' | 'response'> & {
+	id?: string
+	response: string
+}
 
 const invalidateKey = 'KeywordsInvalidateKey';
 
@@ -24,7 +27,7 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 					cooldown
 					isReply
 					isRegularExpression
-					usages
+					usageCount
 				}
 			}
 		`),
