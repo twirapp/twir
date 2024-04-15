@@ -4,6 +4,6 @@
   "module": "./dist/src/index.js",
   "main": "./dist/src/index.js",
   "devDependencies": {
-    "@types/node": "20.11.5"
+    "@types/node": "20.12.7"
   }
 }

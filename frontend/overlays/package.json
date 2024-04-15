@@ -8,31 +8,31 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@plugin-web-update-notification/vite": "1.7.0",
-    "@protobuf-ts/twirp-transport": "2.9.3",
+    "@plugin-web-update-notification/vite": "1.7.1",
+    "@protobuf-ts/twirp-transport": "2.9.4",
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/frontend-now-playing": "workspace:*",
     "@twir/grpc": "workspace:*",
-    "@twirapp/dudes": "1.1.1",
+    "@twirapp/dudes-vue": "0.1.0",
     "@twirapp/kappagen": "1.0.1",
-    "@vueuse/core": "10.7.2",
+    "@vueuse/core": "10.9.0",
     "@zero-dependency/utils": "1.7.7",
     "emoji-regex": "10.3.0",
     "nested-css-to-flat": "1.0.5",
-    "obs-websocket-js": "5.0.4",
+    "obs-websocket-js": "5.0.5",
     "pinia": "2.1.7",
     "tmi.js": "1.8.5",
-    "vue": "3.4.18",
-    "vue-router": "4.2.5"
+    "vue": "3.4.21",
+    "vue-router": "4.3.0"
   },
   "devDependencies": {
     "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
-    "@vitejs/plugin-vue": "5.0.3",
-    "typescript": "5.3.3",
-    "vite": "5.0.12",
-    "vue-tsc": "1.8.27"
+    "@vitejs/plugin-vue": "5.0.4",
+    "typescript": "5.4.5",
+    "vite": "5.2.8",
+    "vue-tsc": "2.0.13"
   }
 }

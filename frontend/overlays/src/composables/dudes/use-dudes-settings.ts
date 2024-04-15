@@ -1,7 +1,7 @@
 import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
 import { useFontSource } from '@twir/fontsource';
 import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays';
-import type { DudesTypes } from '@twirapp/dudes/types';
+import type { DudesTypes } from '@twirapp/dudes-vue/types';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 
@@ -16,6 +16,7 @@ export type DudesConfig = {
 	ignore: IgnoreSettings
 	dudes: {
 		dude: DudesTypes.DudeStyles
+		sounds: DudesTypes.DudeSounds
 		name: DudesTypes.NameBoxStyles
 		message: DudesTypes.MessageBoxStyles
 		emote: DudesTypes.EmotesStyles

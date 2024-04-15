@@ -1,6 +1,6 @@
 import { DudesSprite } from '@twir/types/overlays';
-import { DudesLayers } from '@twirapp/dudes';
-import type { SoundAsset, AssetsLoaderOptions, DudesTypes } from '@twirapp/dudes/types';
+import { DudesLayers } from '@twirapp/dudes-vue';
+import type { SoundAsset, AssetsLoaderOptions, DudesTypes } from '@twirapp/dudes-vue/types';
 
 export const dudeMock = {
 	id: 'Twir',
@@ -36,11 +36,11 @@ export const dudesSprites: Record<
 		name: 'dude',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/dude.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/dude.png',
 			},
 		],
@@ -49,15 +49,15 @@ export const dudesSprites: Record<
 		name: 'agent',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/dude.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/toned-glasses.png',
 			},
 			{
-				layer: DudesLayers.Cosmetics,
+				layer: DudesLayers.cosmetics,
 				src: 'cosmetics/gun.png',
 			},
 		],
@@ -66,15 +66,15 @@ export const dudesSprites: Record<
 		name: 'cat',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/cat.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/dude.png',
 			},
 			{
-				layer: DudesLayers.Mouth,
+				layer: DudesLayers.mouth,
 				src: 'mouth/cat.png',
 			},
 		],
@@ -83,15 +83,15 @@ export const dudesSprites: Record<
 		name: 'girl',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/dude.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/dude.png',
 			},
 			{
-				layer: DudesLayers.Hat,
+				layer: DudesLayers.hat,
 				src: 'hat/girl-ribbon.png',
 			},
 		],
@@ -100,15 +100,15 @@ export const dudesSprites: Record<
 		name: 'santa',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/dude.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/dude.png',
 			},
 			{
-				layer: DudesLayers.Hat,
+				layer: DudesLayers.hat,
 				src: 'hat/santa.png',
 			},
 		],
@@ -117,15 +117,15 @@ export const dudesSprites: Record<
 		name: 'sith',
 		layers: [
 			{
-				layer: DudesLayers.Body,
+				layer: DudesLayers.body,
 				src: 'body/devil.png',
 			},
 			{
-				layer: DudesLayers.Eyes,
+				layer: DudesLayers.eyes,
 				src: 'eyes/dude.png',
 			},
 			{
-				layer: DudesLayers.Cosmetics,
+				layer: DudesLayers.cosmetics,
 				src: 'cosmetics/lightsaber.png',
 			},
 		],
