@@ -619,7 +619,8 @@
         "responseLong": "Відповідь занадто довга!"
       }
     },
-    "limitExceeded": "Ліміт перевищено!"
+    "limitExceeded": "Ліміт перевищено!",
+    "newTimer": "New timer"
   },
   "roles": {
     "modal": {
