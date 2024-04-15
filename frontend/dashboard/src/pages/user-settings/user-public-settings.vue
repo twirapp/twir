@@ -116,6 +116,8 @@ function changeSort(from: number, to: number) {
 		<n-card :title="t('userSettings.public.description')" size="small" bordered>
 			<n-form-item :show-label="false" :show-feedback="false">
 				<n-input
+					show-count
+					maxlength="1000"
 					v-model:value="formData.description"
 					type="textarea"
 					placeholder=""
