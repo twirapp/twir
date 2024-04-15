@@ -6,7 +6,7 @@
     "dev": "concurrently \"pnpm dev:vite\" \"pnpm dev:codegen\"",
     "dev:vite": "vite",
     "dev:codegen": "graphql-codegen --watch",
-    "build": "vue-tsc && vite build",
+    "build": "graphql-codegen && vue-tsc && vite build",
     "preview": "vite preview",
     "analyze": "vite-bundle-visualizer",
     "generate-pwa-assets": "pwa-assets-generator"

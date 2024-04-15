@@ -11,7 +11,6 @@ const config: CodegenConfig = {
 		},
 	},
 	schema: schemaDir,
-	watch: true,
 	documents: ['src/api/**/*.ts'],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {
