@@ -15,7 +15,7 @@ import {
 import { h, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
 import GreetingsModal from '@/components/greetings/modal.vue';
 import { renderIcon } from '@/helpers/index.js';
 import { useGreetingsApi, type Greetings } from '@/api/greetings.js';
@@ -27,29 +27,11 @@ const showModal = ref(false);
 const greetingsApi = useGreetingsApi();
 const greetingsUpdate = greetingsApi.useMutationUpdateGreetings();
 const greetingsRemove = greetingsApi.useMutationRemoveGreetings();
-const greetingsData = greetingsApi.useQueryGreetings();
+const { data: greetingsData, fetching } = greetingsApi.useQueryGreetings();
 
 const greetings = computed(() => {
-	return greetingsData.data.value?.greetings ?? [];
+	return greetingsData.value?.greetings ?? [];
 })
-
-const twitchUsersIds = computed(() => {
-	return greetings.value.map((greeting) => greeting.userId);
-});
-
-const twitchUsers = useTwitchGetUsers({ ids: twitchUsersIds });
-const users = computed(() => {
-	return twitchUsers.data.value?.users ?? [];
-});
-
-const isLoading = computed(() => {
-	return greetingsData.fetching.value || twitchUsers.isLoading.value;
-})
-
-function findUser(userId?: string) {
-	if (!userId) return null;
-	return users.value.find((user) => user.id === userId);
-}
 
 const columns = computed<DataTableColumns<Greetings>>(() => [
 	{
@@ -57,10 +39,9 @@ const columns = computed<DataTableColumns<Greetings>>(() => [
 		key: 'avatar',
 		width: 50,
 		render(row) {
-			const user = findUser(row.userId);
-			if (!user) return;
+			if (!row.twitchProfile) return;
 
-			return h(NAvatar, { size: 'medium', src: user.profileImageUrl, round: true });
+			return h(NAvatar, { size: 'medium', src: row.twitchProfile.profileImageUrl, round: true });
 		},
 	},
 	{
@@ -70,8 +51,7 @@ const columns = computed<DataTableColumns<Greetings>>(() => [
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, {
 				default: () => {
-					const user = findUser(row.userId);
-					return user ? user.displayName : 'Unknown';
+					return row.twitchProfile ? row.twitchProfile.displayName : 'Unknown';
 				},
 			});
 		},
@@ -172,7 +152,7 @@ function closeModal() {
 		</n-alert>
 
 		<n-data-table
-			:isLoading="isLoading"
+			:isLoading="fetching"
 			:columns="columns"
 			:data="greetings"
 		/>
