@@ -31,7 +31,13 @@ var Cmd = &cli.Command{
 var LibsCmd = &cli.Command{
 	Name: "libs",
 	Action: func(context *cli.Context) error {
-		return build(`turbo run build --filter=./libs/*`, false)
+		if err := build(`turbo run build --filter=./libs/*`, false); err != nil {
+			return err
+		}
+
+		pterm.Success.Println("Builded libs")
+
+		return nil
 	},
 }
 
