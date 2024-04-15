@@ -37,9 +37,6 @@ jobs:
       run: |
         pnpm cli deps --skip-node --skip-go
         pnpm install
-        pwd
-        ls -la .
-        ls -la .bin
 
     - name: Build
       run: pnpm cli build
