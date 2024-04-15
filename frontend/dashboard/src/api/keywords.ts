@@ -50,7 +50,7 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 		mutation RemoveKeyword($id: String!) {
 			keywordRemove(id: $id)
 		}
-	`));
+	`), [invalidateKey]);
 
 	return {
 		useQueryKeywords,
