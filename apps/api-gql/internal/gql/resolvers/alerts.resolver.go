@@ -141,7 +141,7 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 		return false, err
 	}
 
-	if err := r.gorm.Delete(&entity).Error; err != nil {
+	if err := r.gorm.WithContext(ctx).Delete(&entity).Error; err != nil {
 		return false, err
 	}
 
