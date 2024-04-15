@@ -203,7 +203,7 @@ export const newRouter = (queryClient: QueryClient) => {
 			return next({ name: 'Forbidden' });
 		} catch (error) {
 			console.log(error);
-			// window.location.replace('/');
+			window.location.replace('/');
 		}
 	});
 
