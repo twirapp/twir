@@ -661,6 +661,8 @@
   },
   "greetings": {
     "title": "Begrüßung",
+    "create": "Create greeting",
+    "edit": "Edit greeting",
     "info": {
       "title": "Grüßinformationen",
       "text": "Grüße sind eine Art von Nachrichten, die Bot verwendet, um bekannte Stream-Zuschauer willkommen zu heißen, wenn sie ihre erste Nachricht im Chat auf jedem Stream senden. Wenn Sie jeden Benutzer im Chat begrüßen möchten, dann können Sie sich die Veranstaltungskategorie ansehen, anstatt Grüße."
