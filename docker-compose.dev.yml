@@ -5,7 +5,7 @@ services:
     image: adminer
     restart: unless-stopped
     ports:
-      - "8085:8080"
+      - '8085:8080'
     environment:
       - ADMINER_DEFAULT_SERVER=postgres:5432
       - ADMINER_PLUGINS=enum-types enum-option json-column
@@ -18,7 +18,7 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "54321:5432"
+      - '54321:5432'
     environment:
       POSTGRES_USER: tsuwari
       POSTGRES_PASSWORD: tsuwari
@@ -30,7 +30,7 @@ services:
     image: redis/redis-stack:latest
     restart: always
     ports:
-      - "6385:6379"
+      - '6385:6379'
     volumes:
       - redis-data:/data
     networks:
@@ -40,7 +40,7 @@ services:
     image: ghcr.io/twirapp/language-detector:latest
     restart: always
     ports:
-      - "3012:3012"
+      - '3012:3012'
     environment:
       - APP_ENV=development
 
@@ -48,17 +48,17 @@ services:
     image: aculeasis/rhvoice-rest
     restart: always
     ports:
-      - "7001:8080"
+      - '7001:8080'
     networks:
       - tsuwari-dev
 
   minio:
     image: quay.io/minio/minio
     command: server /data --console-address ":9090"
-    restart: "always"
+    restart: always
     ports:
-      - "8000:9000"
-      - "8090:9090"
+      - '8000:9000'
+      - '8090:9090'
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio-password
@@ -85,7 +85,7 @@ services:
     networks:
       - tsuwari-dev
     ports:
-      - "7233:7233"
+      - '7233:7233'
     labels:
       kompose.volume.type: configMap
 
@@ -113,15 +113,15 @@ services:
     networks:
       - tsuwari-dev
     ports:
-      - "7234:8080"
+      - '7234:8080'
 
   nats:
     image: nats:2.10.11-scratch
     command: -js -m 8222
     restart: always
     ports:
-      - "4222:4222"
-      - "8222:8222"
+      - '4222:4222'
+      - '8222:8222'
     networks:
       - tsuwari-dev
 

@@ -1,4 +1,4 @@
-version: "3.9"
+version: '3.9'
 
 services:
   adminer:
@@ -132,7 +132,7 @@ services:
         delay: 30s
         max_attempts: 30
     healthcheck:
-      test: "exit 0"
+      test: exit 0
 
   redis:
     image: bitnami/redis:latest
@@ -547,7 +547,6 @@ volumes:
   postgres-data:
   redis-data:
   minio-data:
-
 
 networks:
   twir:
