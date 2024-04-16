@@ -35,6 +35,13 @@ export const useProfileQuery = graphql(`
 					profileImageUrl
 				}
 			}
+			publicSettings {
+				description
+				socialLinks {
+					href
+					title
+				}
+			}
 		}
 	}
 `);

@@ -69,12 +69,33 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(
 	return true, nil
 }
 
+// AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
+func (r *mutationResolver) AuthenticatedUserUpdateSettings(
+	ctx context.Context,
+	opts gqlmodel.UpdateSettingsInput,
+) (bool, error) {
+	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdateSettings - authenticatedUserUpdateSettings"))
+}
+
+// AuthenticatedUserRegenerateAPIKey is the resolver for the authenticatedUserRegenerateApiKey field.
+func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context) (string, error) {
+	panic(fmt.Errorf("not implemented: AuthenticatedUserRegenerateAPIKey - authenticatedUserRegenerateApiKey"))
+}
+
+// AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
+func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(
+	ctx context.Context,
+	opts gqlmodel.UpdatePublicSettingsInput,
+) (bool, error) {
+	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdatePublicPage - authenticatedUserUpdatePublicPage"))
+}
+
 // AuthenticatedUser is the resolver for the authenticatedUser field.
 func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 	*gqlmodel.AuthenticatedUser,
 	error,
 ) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
 	}
@@ -82,6 +103,14 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	user := model.Users{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("id = ?", sessionUser.ID).
+		Preload("Channel").
+		First(&user).Error; err != nil {
 	}
 
 	authedUser := &gqlmodel.AuthenticatedUser{
@@ -210,6 +239,31 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 	}
 
 	authedUser.AvailableDashboards = dashboardsEntities
+
+	entity := &model.ChannelPublicSettings{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(
+			"channel_id = ?",
+			user.ID,
+		).
+		Preload("SocialLinks").
+		Find(entity).Error; err != nil {
+		return nil, err
+	}
+
+	authedUser.PublicSettings = &gqlmodel.PublicSettings{
+		Description: entity.Description.Ptr(),
+		SocialLinks: lo.Map(
+			entity.SocialLinks,
+			func(item model.ChannelPublicSettingsSocialLink, _ int) gqlmodel.SocialLink {
+				return gqlmodel.SocialLink{
+					Title: item.Title,
+					Href:  item.Href,
+				}
+			},
+		),
+	}
 
 	return authedUser, nil
 }
