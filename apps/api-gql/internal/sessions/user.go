@@ -29,3 +29,8 @@ func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
 
 	return selectedDashboardId, nil
 }
+
+func (s *Sessions) SetSelectedDashboard(ctx context.Context, dashboardId string) error {
+	s.sessionManager.Put(ctx, "dashboardId", dashboardId)
+	return nil
+}

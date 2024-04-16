@@ -1,3 +1,11 @@
+extend type Query {
+	authenticatedUser: AuthenticatedUser! @isAuthenticated
+}
+
+extend type Mutation {
+	authenticatedUserSelectDashboard(dashboardId: String!): Boolean! @isAuthenticated
+}
+
 type AuthenticatedUser implements TwirUser {
 	id: ID!
 	isBotAdmin: Boolean!
@@ -9,8 +17,11 @@ type AuthenticatedUser implements TwirUser {
 	botId: ID
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	selectedDashboardId: String!
+	availableDashboards: [Dashboard!]!
 }
 
-extend type Query {
-	authenticatedUser: AuthenticatedUser! @isAuthenticated
+type Dashboard {
+	id: String!
+	flags: [ChannelRolePermissionEnum!]!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 }

@@ -1,11 +1,10 @@
-import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { urqlClient } from './urql';
 
-import { dashboardsQueryOptions, useProfileQuery, userAccessFlagChecker } from '@/api';
+import { useProfileQuery, userAccessFlagChecker } from '@/api';
 
-export const newRouter = (queryClient: QueryClient) => {
+export const newRouter = () => {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
 		{
 			path: '/dashboard/integrations/:integrationName',
@@ -187,15 +186,13 @@ export const newRouter = (queryClient: QueryClient) => {
 	router.beforeEach(async (to, _, next) => {
 		try {
 			const profileRequest = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
-			await queryClient.ensureQueryData(dashboardsQueryOptions);
-
 			if (!profileRequest.data) {
 				return window.location.replace('/');
 			}
 
 			if (!to.meta.neededPermission) return next();
 
-			const hasAccess = await userAccessFlagChecker(queryClient, to.meta.neededPermission);
+			const hasAccess = await userAccessFlagChecker(to.meta.neededPermission);
 			if (hasAccess) {
 				return next();
 			}

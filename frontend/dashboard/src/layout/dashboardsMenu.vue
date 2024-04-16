@@ -14,7 +14,8 @@ import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useDashboards, useProfile, useSetDashboard, useTwitchGetUsers } from '@/api/index.js';
+import { useProfile, useSetDashboard } from '@/api/index.js';
+import { resolveUserName } from '@/helpers/resolveUserName.js';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
 const props = withDefaults(defineProps<{ isDrawer?: boolean }>(), {
@@ -31,22 +32,10 @@ const blockColor = computed(() => themeVars.value.buttonColor2);
 const blockColor2 = computed(() => themeVars.value.buttonColor2Hover);
 
 const { data: profile, isLoading: isProfileLoading } = useProfile();
-const { data: dashboards, isLoading: isDashboardsLoading } = useDashboards();
 const setDashboard = useSetDashboard();
 
-const twitchUsersIds = computed<string[]>(() => {
-	return [
-		profile.value?.id,
-		...(dashboards.value?.dashboards.map(d => d.id) ?? []),
-	].filter(Boolean) as string[] ?? [];
-});
-
-const usersForSelect = useTwitchGetUsers({
-	ids: twitchUsersIds,
-});
-
 const currentDashboard = computed(() => {
-	const dashboard = usersForSelect.data.value?.users.find(u => u.id === profile.value?.selectedDashboardId);
+	const dashboard = profile.value?.availableDashboards.find(dashboard => dashboard.id === profile.value?.selectedDashboardId);
 	if (!dashboard) return null;
 
 	return dashboard;
@@ -68,17 +57,16 @@ watch(activeDashboard, async (v) => {
 const filterValue = ref('');
 
 const menuOptions = computed(() => {
-	return usersForSelect.data.value?.users
-		.filter(u => {
-			return u.displayName.includes(filterValue.value) || u.login.includes(filterValue.value);
+	return profile.value?.availableDashboards
+		.filter(dashboard => {
+			return dashboard.twitchProfile.displayName.includes(filterValue.value)
+				|| dashboard.twitchProfile.login.includes(filterValue.value);
 		})
 		.map((u) => {
 			return {
 				key: u.id,
-				label: u.login === u.displayName.toLocaleLowerCase()
-					? u.displayName
-					: `${u.displayName} (${u.login})`,
-				icon: u.profileImageUrl,
+				label: resolveUserName(u.twitchProfile.login, u.twitchProfile.displayName),
+				icon: u.twitchProfile.profileImageUrl,
 			};
 		}) ?? [];
 });
@@ -115,7 +103,7 @@ const { isCollapsed } = storeToRefs(collapsedStore);
 
 const displayNameLength = computed(() => {
 	if (!currentDashboard.value) return 0;
-	return currentDashboard.value.displayName.length;
+	return currentDashboard.value.twitchProfile.displayName.length;
 });
 
 const isDrawerCollapsed = computed(() => {
@@ -147,7 +135,7 @@ const popoverPlacement = computed(() => {
 						<n-avatar
 							round
 							class="flex self-center"
-							:src="currentDashboard?.profileImageUrl"
+							:src="currentDashboard?.twitchProfile.profileImageUrl"
 						/>
 						<div
 							v-if="isDrawerCollapsed"
@@ -157,7 +145,7 @@ const popoverPlacement = computed(() => {
 								{{ t(`dashboard.header.managingUser`) }}
 							</n-text>
 							<n-text :class="[displayNameLength > 16 ? 'text-xs' : 'text-sm']">
-								{{ currentDashboard?.displayName }}
+								{{ currentDashboard?.twitchProfile.displayName }}
 							</n-text>
 						</div>
 					</div>
@@ -172,7 +160,7 @@ const popoverPlacement = computed(() => {
 				</div>
 			</div>
 		</template>
-		<n-spin v-if="isProfileLoading || isDashboardsLoading"></n-spin>
+		<n-spin v-if="isProfileLoading"></n-spin>
 		<div v-else ref="refPopoverList" class="dashboards-container">
 			<n-text :depth="3" class="text-xs">
 				{{ t(`dashboard.header.channelsAccess`) }}
@@ -195,7 +183,7 @@ const popoverPlacement = computed(() => {
 					</div>
 				</template>
 			</n-virtual-list>
-			<template v-if="(usersForSelect.data.value?.users?.length ?? 0) > 10">
+			<template v-if="(profile?.availableDashboards.length ?? 0) > 10">
 				<n-input v-model:value="filterValue" placeholder="Search" />
 			</template>
 		</div>

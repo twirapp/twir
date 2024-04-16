@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/samber/lo"
+	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
@@ -34,6 +36,39 @@ func (r *authenticatedUserResolver) TwitchProfile(
 	}, nil
 }
 
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *dashboardResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.Dashboard,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
+	user, err := data_loader.GetHelixUser(ctx, obj.ID)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, nil
+	}
+
+	return &gqlmodel.TwirUserTwitchInfo{
+		Login:           user.Login,
+		DisplayName:     user.DisplayName,
+		ProfileImageURL: user.ProfileImageURL,
+		Description:     user.Description,
+	}, nil
+}
+
+// AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
+func (r *mutationResolver) AuthenticatedUserSelectDashboard(
+	ctx context.Context,
+	dashboardID string,
+) (bool, error) {
+	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // AuthenticatedUser is the resolver for the authenticatedUser field.
 func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 	*gqlmodel.AuthenticatedUser,
@@ -57,6 +92,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 		TwitchProfile:       &gqlmodel.TwirUserTwitchInfo{},
 		APIKey:              user.ApiKey,
 		SelectedDashboardID: dashboardId,
+		AvailableDashboards: []gqlmodel.Dashboard{},
 	}
 
 	if user.Channel != nil {
@@ -64,6 +100,116 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 		authedUser.IsBotModerator = &user.Channel.IsBotMod
 		authedUser.BotID = &user.Channel.BotID
 	}
+
+	var dashboardsEntities []gqlmodel.Dashboard
+	if authedUser.IsBotAdmin {
+		var channels []model.Channels
+		if err := r.gorm.WithContext(ctx).Find(&channels).Error; err != nil {
+			return nil, err
+		}
+
+		for _, channel := range channels {
+			dashboardsEntities = append(
+				dashboardsEntities,
+				gqlmodel.Dashboard{
+					ID: channel.ID,
+					Flags: []gqlmodel.ChannelRolePermissionEnum{
+						gqlmodel.ChannelRolePermissionEnumCanAccessDashboard,
+					},
+				},
+			)
+		}
+	} else {
+		var roles []model.ChannelRoleUser
+		if err := r.gorm.
+			WithContext(ctx).
+			Where(
+				`"userId" = ?`,
+				user.ID,
+			).
+			Preload("Role").
+			Preload("Role.Channel").
+			Find(&roles).
+			Error; err != nil {
+			return nil, err
+		}
+		for _, role := range roles {
+			if role.Role == nil || role.Role.Channel == nil || len(role.Role.Permissions) == 0 {
+				continue
+			}
+
+			var flags []gqlmodel.ChannelRolePermissionEnum
+			for _, flag := range role.Role.Permissions {
+				flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
+			}
+
+			dashboardsEntities = append(
+				dashboardsEntities,
+				gqlmodel.Dashboard{
+					ID:    role.Role.Channel.ID,
+					Flags: flags,
+				},
+			)
+		}
+	}
+
+	var usersStats []model.UsersStats
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"userId" = ?`, user.ID).
+		Find(&usersStats).Error; err != nil {
+		return nil, err
+	}
+
+	for _, stat := range usersStats {
+		var channelRoles []model.ChannelRole
+		if err := r.gorm.WithContext(ctx).Where(`"channelId" = ?`, stat.ChannelID).Find(&channelRoles).
+			Error; err != nil {
+			return nil, err
+		}
+
+		var role model.ChannelRole
+
+		if stat.IsMod {
+			role, _ = lo.Find(
+				channelRoles,
+				func(role model.ChannelRole) bool {
+					return role.Type == model.ChannelRoleTypeModerator
+				},
+			)
+		} else if stat.IsVip {
+			role, _ = lo.Find(
+				channelRoles,
+				func(role model.ChannelRole) bool {
+					return role.Type == model.ChannelRoleTypeVip
+				},
+			)
+		} else if stat.IsSubscriber {
+			role, _ = lo.Find(
+				channelRoles,
+				func(role model.ChannelRole) bool {
+					return role.Type == model.ChannelRoleTypeSubscriber
+				},
+			)
+		}
+
+		var flags []gqlmodel.ChannelRolePermissionEnum
+		for _, flag := range role.Permissions {
+			flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
+		}
+
+		if role.ID != "" {
+			dashboardsEntities = append(
+				dashboardsEntities,
+				gqlmodel.Dashboard{
+					ID:    role.ChannelID,
+					Flags: flags,
+				},
+			)
+		}
+	}
+
+	authedUser.AvailableDashboards = dashboardsEntities
 
 	return authedUser, nil
 }
@@ -73,4 +219,8 @@ func (r *Resolver) AuthenticatedUser() graph.AuthenticatedUserResolver {
 	return &authenticatedUserResolver{r}
 }
 
+// Dashboard returns graph.DashboardResolver implementation.
+func (r *Resolver) Dashboard() graph.DashboardResolver { return &dashboardResolver{r} }
+
 type authenticatedUserResolver struct{ *Resolver }
+type dashboardResolver struct{ *Resolver }

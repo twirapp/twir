@@ -1,17 +1,11 @@
-import {
-	QueryClient,
-	QueryOptions,
-	useMutation,
-	useQuery,
-	useQueryClient,
-} from '@tanstack/vue-query';
-import type { Dashboard } from '@twir/api/messages/auth/auth';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import { useQuery as useGraphqlQuery } from '@urql/vue';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
 import { graphql } from '@/gql';
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
 import { urqlClient } from '@/plugins/urql';
 
 export const useProfileQuery = graphql(`
@@ -32,6 +26,15 @@ export const useProfileQuery = graphql(`
 				profileImageUrl
 			}
 			selectedDashboardId
+			availableDashboards {
+				id
+				flags
+				twitchProfile {
+					login
+					displayName
+					profileImageUrl
+				}
+			}
 		}
 	}
 `);
@@ -58,6 +61,7 @@ export const useProfile = () => {
 			botId: user.botId,
 			selectedDashboardId: user.selectedDashboardId,
 			hideOnLandingPage: user.hideOnLandingPage,
+			availableDashboards: user.availableDashboards,
 		};
 	});
 
@@ -70,16 +74,6 @@ export const useLogout = () => useMutation({
 		await protectedApiClient.authLogout({});
 	},
 });
-
-export const dashboardsQueryOptions = {
-	queryKey: ['authDashboards'],
-	queryFn: async () => {
-		const call = await protectedApiClient.authGetDashboards({});
-		return call.response;
-	},
-} satisfies QueryOptions;
-
-export const useDashboards = () => useQuery(dashboardsQueryOptions);
 
 export const useSetDashboard = () => {
 	const queryClient = useQueryClient();
@@ -96,8 +90,10 @@ export const useSetDashboard = () => {
 	});
 };
 
-export const PERMISSIONS_FLAGS = {
+export const PERMISSIONS_FLAGS: { [key in ChannelRolePermissionEnum]: string } = {
 	CAN_ACCESS_DASHBOARD: 'All permissions',
+	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// @ts-expect-error
 	empty1: '',
 
 	UPDATE_CHANNEL_TITLE: 'Can update channel title',
@@ -147,36 +143,38 @@ export type PermissionsType = keyof typeof PERMISSIONS_FLAGS
 
 export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 	const profile = useProfile();
-	const dashboards = useDashboards();
 
 	return computed(() => {
-		if (!dashboards.data.value?.dashboards || !profile.data.value?.selectedDashboardId) return false;
+		if (!profile.data.value?.availableDashboards || !profile.data.value?.selectedDashboardId) return false;
 
 		if (profile.data.value.id == profile.data.value.selectedDashboardId) {
 			return true;
 		}
 
-		const dashboard = dashboards.data.value.dashboards.find(d => d.id === profile.data.value!.selectedDashboardId);
+		if (profile.data.value.isBotAdmin) return true;
+
+		const dashboard = profile.data.value?.availableDashboards.find(dashboard => {
+			return dashboard.id === profile.data.value!.selectedDashboardId;
+		});
 		if (!dashboard) return false;
 
-		if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
-		return dashboard.flags.includes(flag);
+		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
+		return dashboard.flags.includes(flag as ChannelRolePermissionEnum);
 	});
 };
 
-export const userAccessFlagChecker = async (queryClient: QueryClient, flag: PermissionsType) => {
+export const userAccessFlagChecker = async (flag: PermissionsType) => {
 	const { data: profile } = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
 
-	const { dashboards } = await queryClient.getQueryData(dashboardsQueryOptions.queryKey) as {
-		dashboards: Dashboard[]
-	};
-
-	if (!dashboards || !profile || !profile?.authenticatedUser.selectedDashboardId) return false;
+	if (profile?.authenticatedUser.isBotAdmin) return true;
+	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false;
 	if (profile.authenticatedUser.selectedDashboardId == profile.authenticatedUser.id) return true;
 
-	const dashboard = dashboards.find(d => d.id === profile.authenticatedUser.selectedDashboardId);
+	const dashboard = profile.authenticatedUser.availableDashboards.find(dashboard => {
+		return dashboard.id === profile.authenticatedUser.selectedDashboardId;
+	});
 	if (!dashboard) return false;
 
-	if (dashboard.flags.includes('CAN_ACCESS_DASHBOARD')) return true;
-	return dashboard.flags.includes(flag);
+	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
+	return dashboard.flags.includes(flag as ChannelRolePermissionEnum);
 };

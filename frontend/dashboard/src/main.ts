@@ -44,7 +44,7 @@ app
 	.use(pinia)
 	.use(i18n)
 	.use(urql, urqlClient)
-	.use(newRouter(queryClient))
+	.use(newRouter())
 	.use(VueMonacoEditorPlugin)
 	.mount('#app');
 
