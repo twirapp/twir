@@ -96,8 +96,8 @@ export const useDashboard = defineStore('auth/dashboard', () => {
 	const queryClient = useQueryClient();
 
 	async function setDashboard(dashboardId: string) {
-		urqlClient.urqlClient.value = urqlClient.createClient();
 		await mutationSetDashboard.executeMutation({ dashboardId })
+		urqlClient.createClient();
 		await queryClient.invalidateQueries();
 		await queryClient.resetQueries();
 	}

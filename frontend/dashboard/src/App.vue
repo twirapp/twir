@@ -1,9 +1,8 @@
 <script setup lang='ts'>
 import { NSpin } from 'naive-ui';
-import { ref, watch } from 'vue';
+import { provide, ref } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
 import { useUrqlClient } from './plugins/urql';
-import { provideClient } from '@urql/vue';
 
 const isRouterReady = ref(false);
 const router = useRouter();
@@ -11,20 +10,11 @@ router.isReady().finally(() => isRouterReady.value = true);
 
 const { urqlClient, createClient } = useUrqlClient();
 
-watch(() => urqlClient.value, () => {
-	console.log("Providing new urql client")
+if (!urqlClient.value) {
+  createClient();
+}
 
-	// create and provide a new client is client.value is not set
-	if (!urqlClient.value) {
-		const newClient = createClient();
-		urqlClient.value = newClient;
-		provideClient(newClient);
-		return;
-	}
-
-	// otherwise, provide the newly set client
-	provideClient(urqlClient.value);
-}, { immediate: true })
+provide('$urql', urqlClient);
 </script>
 
 <template>

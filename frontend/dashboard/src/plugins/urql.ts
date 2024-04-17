@@ -15,7 +15,7 @@ export const urqlClient = ref<Client | null>(null);
 
 export const useUrqlClient = () => {
 	function createClient() {
-		return new Client({
+		urqlClient.value = new Client({
 			url: gqlApiUrl,
 			exchanges: [
 				cacheExchange,
