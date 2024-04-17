@@ -13,7 +13,8 @@ export default antfu({
 		'no-var': 'error',
 		'unused-imports/no-unused-imports': 'error',
 		'style/no-tabs': 'off',
-		'style/indent': ['error', 'tab']
+		'style/indent': ['error', 'tab'],
+		'eslint-comments/no-unlimited-disable': 'off'
 	},
 	vue: {
 		overrides: {
@@ -75,7 +76,6 @@ export default antfu({
 							'parent',
 							'sibling'
 						],
-						'type',
 						'index'
 					],
 					'newlines-between': 'always',
