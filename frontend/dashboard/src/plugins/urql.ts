@@ -11,33 +11,37 @@ const gqlWs = createWS({
 	shouldRetry: () => true,
 });
 
-export const urqlClient = ref<Client | null>(null);
-
-export const useUrqlClient = () => {
-	function createClient() {
-		urqlClient.value = new Client({
-			url: gqlApiUrl,
-			exchanges: [
-				cacheExchange,
-				fetchExchange,
-				subscriptionExchange({
-					enableAllOperations: true,
-					forwardSubscription: (operation) => ({
-						subscribe: (sink) => ({
-							unsubscribe: gqlWs.subscribe(operation as SubscribePayload, sink),
-						}),
+function createClient() {
+	return new Client({
+		url: gqlApiUrl,
+		exchanges: [
+			cacheExchange,
+			fetchExchange,
+			subscriptionExchange({
+				enableAllOperations: true,
+				forwardSubscription: (operation) => ({
+					subscribe: (sink) => ({
+						unsubscribe: gqlWs.subscribe(operation as SubscribePayload, sink),
 					}),
 				}),
-			],
-			// requestPolicy: 'cache-first',
-			fetchOptions: {
-				credentials: 'include',
-			},
-		});
+			}),
+		],
+		// requestPolicy: 'cache-first',
+		fetchOptions: {
+			credentials: 'include',
+		},
+	});
+}
+
+export const urqlClient = ref<Client>(createClient());
+
+export const useUrqlClient = () => {
+	function reInitClient() {
+		urqlClient.value = createClient();
 	}
 
 	return {
 		urqlClient,
-		createClient
+		reInitClient,
 	}
 }

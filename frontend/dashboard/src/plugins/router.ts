@@ -184,8 +184,6 @@ export const newRouter = () => {
 	});
 
 	router.beforeEach(async (to, _, next) => {
-		if (!urqlClient.value) return next();
-
 		try {
 			const profileRequest = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
 			if (!profileRequest.data) {

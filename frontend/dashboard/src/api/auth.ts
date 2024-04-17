@@ -97,7 +97,7 @@ export const useDashboard = defineStore('auth/dashboard', () => {
 
 	async function setDashboard(dashboardId: string) {
 		await mutationSetDashboard.executeMutation({ dashboardId })
-		urqlClient.createClient();
+		urqlClient.reInitClient();
 		await queryClient.invalidateQueries();
 		await queryClient.resetQueries();
 	}
@@ -178,8 +178,6 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (flag: PermissionsType) => {
-	if (!urqlClient.value) return;
-
 	const { data: profile } = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
 
 	if (profile?.authenticatedUser.isBotAdmin) return true;
