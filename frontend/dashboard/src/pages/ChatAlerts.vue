@@ -11,13 +11,11 @@ import {
 import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useChatAlertsApi } from '@/api/chat-alerts.js';
 import { useUserAccessFlagChecker } from '@/api/index.js';
-import { type ChatAlertsSettings } from '@/api/modules/index.js';
-import { useChatAlertsSettings, useChatAlertsSettingsUpdate } from '@/api/modules/index.js';
 import Settings from '@/components/chatAlerts/settings.vue';
 
-
-const formValue = ref<Required<ChatAlertsSettings>>({
+const formValue = ref({
 	chatCleared: {
 		enabled: false,
 		messages: [],
@@ -74,22 +72,22 @@ const formValue = ref<Required<ChatAlertsSettings>>({
 		cooldown: 2,
 		ignoreTimeoutFrom: [],
 	},
-	channelUnbanRequestCreate: {
+	unbanRequestCreate: {
 		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
-	channelUnbanRequestResolve: {
+	unbanRequestResolve: {
 		enabled: false,
 		messages: [],
 		cooldown: 0,
 	},
 });
 
-const { data: settings } = useChatAlertsSettings();
-const updater = useChatAlertsSettingsUpdate();
+const chatAlertsApi = useChatAlertsApi();
+const updateChatAlerts = chatAlertsApi.useMutationUpdateChatAlerts();
 
-watch(settings, (v) => {
+watch(chatAlertsApi.chatAlerts, (v) => {
 	if (!v) return;
 
 	const raw = toRaw(v);
@@ -106,9 +104,10 @@ const { t } = useI18n();
 
 async function save() {
 	const raw = toRaw(formValue.value);
+	if (!raw) return;
 
 	try {
-		await updater.mutateAsync(raw);
+		await updateChatAlerts.executeMutation({ input: raw });
 		message.success({
 			title: t('sharedTexts.saved'),
 			duration: 2500,
@@ -322,9 +321,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 
 			<n-tab-pane name="channelUnbanRequestCreate" :tab="t('chatAlerts.labels.channelUnbanRequestCreate')">
 				<Settings
-					v-model:enabled="formValue.channelUnbanRequestCreate.enabled"
-					v-model:messages="formValue.channelUnbanRequestCreate.messages"
-					v-model:cooldown="formValue.channelUnbanRequestCreate.cooldown"
+					v-model:enabled="formValue.unbanRequestCreate.enabled"
+					v-model:messages="formValue.unbanRequestCreate.messages"
+					v-model:cooldown="formValue.unbanRequestCreate.cooldown"
 					:max-messages="20"
 					:min-cooldown="0"
 					default-message-text="User {userName} requesting unban with message {message}"
@@ -337,9 +336,9 @@ const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
 
 			<n-tab-pane name="channelUnbanRequestResolve" :tab="t('chatAlerts.labels.channelUnbanRequestResolve')">
 				<Settings
-					v-model:enabled="formValue.channelUnbanRequestResolve.enabled"
-					v-model:messages="formValue.channelUnbanRequestResolve.messages"
-					v-model:cooldown="formValue.channelUnbanRequestResolve.cooldown"
+					v-model:enabled="formValue.unbanRequestResolve.enabled"
+					v-model:messages="formValue.unbanRequestResolve.messages"
+					v-model:cooldown="formValue.unbanRequestResolve.cooldown"
 					:max-messages="20"
 					:min-cooldown="0"
 					default-message-text="User {userName} unban request resolved with message {message} by moderator {moderatorName}"

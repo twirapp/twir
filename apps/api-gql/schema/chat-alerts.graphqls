@@ -94,7 +94,7 @@ type ChatAlertsChatCleared {
 type ChatAlertsBan {
 	enabled: Boolean!
 	messages: [ChatAlertsCountedMessage!]!
-	ignore_timeout_from: [String!]
+	ignoreTimeoutFrom: [String!]
 	cooldown: Int!
 }
 
