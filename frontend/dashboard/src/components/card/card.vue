@@ -1,15 +1,14 @@
 <script setup lang="ts">
-import { NCard, useThemeVars, NSpace } from 'naive-ui';
-import { FunctionalComponent, computed } from 'vue';
+import { NCard, NSpace, useThemeVars } from 'naive-ui'
+import { computed } from 'vue'
 
-const themeVars = useThemeVars();
-const titleColor = computed(() => themeVars.value.textColor1);
+import type { FunctionalComponent } from 'vue'
 
 withDefaults(defineProps<{
-	title: string,
-	icon?: FunctionalComponent,
-	iconStroke?: number,
-	withStroke?: boolean,
+	title: string
+	icon?: FunctionalComponent
+	iconStroke?: number
+	withStroke?: boolean
 	iconFill?: string
 	iconWidth?: string
 	iconHeight?: string
@@ -17,19 +16,21 @@ withDefaults(defineProps<{
 }>(), {
 	withStroke: true,
 	iconWidth: '48px',
-	iconHeight: '48px',
-});
+	iconHeight: '48px'
+})
 
 defineEmits<{
-	openSettings: [];
-}>();
+	openSettings: []
+}>()
 
 defineSlots<{
 	content?: FunctionalComponent
 	footer?: FunctionalComponent
 	headerExtra?: FunctionalComponent
-}>();
+}>()
 
+const themeVars = useThemeVars()
+const titleColor = computed(() => themeVars.value.textColor1)
 </script>
 
 <template>
@@ -45,7 +46,7 @@ defineSlots<{
 					strokeWidth: iconStroke,
 					width: iconWidth,
 					height: iconHeight,
-					marginBottom: '16px'
+					marginBottom: '16px',
 				}"
 			/>
 			<n-space justify="space-between">
@@ -54,7 +55,7 @@ defineSlots<{
 				</h2>
 				<slot name="headerExtra" />
 			</n-space>
-			<div :style="{ color: themeVars.textColor3, 'margin-bottom': '10px' }">
+			<div :style="{ color: themeVars.textColor3, marginBottom: '10px' }">
 				<slot name="content" />
 			</div>
 			<div class="footer flex gap-2 mt-auto flex-wrap">

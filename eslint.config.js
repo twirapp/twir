@@ -76,7 +76,8 @@ export default antfu({
 							'parent',
 							'sibling'
 						],
-						'index'
+						'index',
+						'type'
 					],
 					'newlines-between': 'always',
 					'alphabetize': {
