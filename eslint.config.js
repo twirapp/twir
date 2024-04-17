@@ -75,6 +75,7 @@ export default antfu({
 							'parent',
 							'sibling'
 						],
+						'type',
 						'index'
 					],
 					'newlines-between': 'always',
