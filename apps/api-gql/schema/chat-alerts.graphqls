@@ -189,7 +189,7 @@ input ChatAlertsChatClearedInput {
 input ChatAlertsBanInput {
 	enabled: Boolean
 	messages: [ChatAlertsCountedMessageInput]
-	ignore_timeout_from: [String]
+	ignoreTimeoutFrom: [String]
 	cooldown: Int
 }
 
