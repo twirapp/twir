@@ -8,8 +8,9 @@ import Card from './card.vue';
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
 import { useTheme } from '@/composables/use-theme.js';
+import { storeToRefs } from 'pinia';
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { theme: chatTheme, toggleTheme } = useTheme('twirTwitchChatTheme');
 

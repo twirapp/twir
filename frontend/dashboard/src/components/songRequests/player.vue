@@ -156,7 +156,7 @@ const formatLabelTime = (v: number) => {
 	return `${convertMillisToTime(v * 1000)}/${convertMillisToTime((plyr.value?.duration ?? 0) * 1000)}`;
 };
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { t } = useI18n();
 </script>

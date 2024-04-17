@@ -14,7 +14,7 @@ import { storeToRefs } from 'pinia';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useProfile, useSetDashboard } from '@/api/index.js';
+import { useProfile, useDashboard } from '@/api/index.js';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
 
@@ -31,8 +31,8 @@ const themeVars = useThemeVars();
 const blockColor = computed(() => themeVars.value.buttonColor2);
 const blockColor2 = computed(() => themeVars.value.buttonColor2Hover);
 
-const { data: profile, isLoading: isProfileLoading } = useProfile();
-const setDashboard = useSetDashboard();
+const { data: profile, isLoading: isProfileLoading } = storeToRefs(useProfile());
+const { setDashboard } = useDashboard();
 
 const currentDashboard = computed(() => {
 	const dashboard = profile.value?.availableDashboards.find(dashboard => dashboard.id === profile.value?.selectedDashboardId);
@@ -47,10 +47,10 @@ watch(currentDashboard, (v) => {
 	activeDashboard.value = v.id;
 }, { immediate: true });
 
-watch(activeDashboard, async (v) => {
-	if (v === profile.value?.selectedDashboardId) return;
+watch(activeDashboard, async (dashboardId) => {
+	if (dashboardId === profile.value?.selectedDashboardId) return;
 
-	await setDashboard.mutateAsync(v);
+	await setDashboard(dashboardId);
 	emits('dashboardSelected');
 });
 

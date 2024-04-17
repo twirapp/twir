@@ -3,8 +3,9 @@ import { NSwitch, NButton, useMessage, NText, NDivider } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile, useUser } from '@/api';
+import { storeToRefs } from 'pinia';
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const userManager = useUser();
 const updateUser = userManager.useUpdate();

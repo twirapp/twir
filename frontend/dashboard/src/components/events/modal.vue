@@ -45,6 +45,7 @@ import {
 } from '@/api/index.js';
 import AlertModal from '@/components/alerts/list.vue';
 import rewardsSelector from '@/components/rewardsSelector.vue';
+import { storeToRefs } from 'pinia';
 
 const themeVars = useThemeVars();
 const selectedTabBackground = computed(() => themeVars.value.cardColor);
@@ -232,7 +233,7 @@ const eventsManager = useEventsManager();
 const eventsUpdater = eventsManager.update;
 const eventsCreator = eventsManager.create;
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 async function save() {
 	if (!formRef.value || !profile.value) return;

@@ -21,7 +21,7 @@ const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
 const { copyOverlayLink } = useCopyOverlayLink('now-playing');
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { data: formValue } = storeToRefs(useNowPlayingForm());
 

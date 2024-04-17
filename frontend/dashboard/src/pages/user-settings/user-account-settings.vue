@@ -4,8 +4,9 @@ import { NButton, NCard, NFormItem, NInput, NSwitch, NText, useMessage } from 'n
 import { useI18n } from 'vue-i18n';
 
 import { useProfile, useUser } from '@/api';
+import { storeToRefs } from 'pinia';
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const userManager = useUser();
 const updateUser = userManager.useUpdate();

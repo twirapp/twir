@@ -6,12 +6,13 @@ import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
 import { useLogout, useProfile } from '@/api';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
 const logout = useLogout();
 
-const profile = useProfile();
+const profile = storeToRefs(useProfile());
 const isAdmin = computed(() => profile.data.value?.isBotAdmin);
 
 async function callLogout() {

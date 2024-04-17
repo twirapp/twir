@@ -7,6 +7,7 @@ import { useUsers } from '../composables/use-users.js';
 
 import { useProfile } from '@/api';
 import { Button } from '@/components/ui/button';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
 	userId: string
@@ -16,7 +17,7 @@ const props = defineProps<{
 
 const { switchBan, switchAdmin } = useUsers();
 
-const user = useProfile();
+const user = storeToRefs(useProfile());
 const isVisibleButton = computed(() => user.data.value?.id !== props.userId);
 </script>
 

@@ -29,6 +29,7 @@ import {
 } from '@/api';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps<{
   alert?: EditableAlert | null
@@ -95,7 +96,7 @@ const { data: files } = useFiles();
 const selectedAudio = computed(() => files.value?.files.find(f => f.id === formValue.value.audioId));
 const showAudioModal = ref(false);
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 async function testAudio() {
   if (!selectedAudio.value?.id || !profile.value) return;

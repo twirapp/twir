@@ -3,10 +3,11 @@ import type { Settings, UpdateRequest } from '@twir/api/messages/channels_public
 
 import { useProfile } from '@/api/auth';
 import { protectedApiClient, unprotectedApiClient } from '@/api/twirp';
+import { storeToRefs } from 'pinia';
 
 export const usePublicSettings = () => {
 	const queryClient = useQueryClient();
-	const { data: profile } = useProfile();
+	const { data: profile } = storeToRefs(useProfile());
 
 	return {
 		useGet: () => useQuery({

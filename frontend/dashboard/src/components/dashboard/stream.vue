@@ -4,8 +4,9 @@ import { computed } from 'vue';
 import Card from './card.vue';
 
 import { useProfile, useTwitchGetUsers } from '@/api/index.js';
+import { storeToRefs } from 'pinia';
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '');
 const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId });

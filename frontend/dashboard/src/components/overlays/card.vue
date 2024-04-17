@@ -8,6 +8,7 @@ import { useCopyOverlayLink } from './copyOverlayLink.js';
 
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
+import { storeToRefs } from 'pinia';
 
 const props = withDefaults(defineProps<{
 	description: string;
@@ -31,7 +32,7 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath);
 

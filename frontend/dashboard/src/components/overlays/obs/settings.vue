@@ -20,6 +20,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useObsOverlayManager, useProfile } from '@/api/index.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
+import { storeToRefs } from 'pinia';
 
 const obsSettingsManager = useObsOverlayManager();
 const { refetch, data: settings } = obsSettingsManager.getSettings();
@@ -88,7 +89,7 @@ async function save() {
 }
 
 const { copyOverlayLink } = useCopyOverlayLink('obs');
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 </script>
 
 <template>

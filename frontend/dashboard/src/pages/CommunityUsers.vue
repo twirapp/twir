@@ -23,11 +23,12 @@ import {
 	CommunityResetStatsField,
 	useProfile,
 } from '@/api/index.js';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const communityManager = useCommunityUsers();
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const usersOpts = ref<GetCommunityUsersOpts>({
 	page: 1,

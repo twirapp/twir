@@ -19,11 +19,12 @@ import { useI18n } from 'vue-i18n';
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import commandButton from '@/components/commandButton.vue';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
+import { storeToRefs } from 'pinia';
 
 const themeVars = useThemeVars();
 const { t } = useI18n();
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const defaultSettings = {
 	backgroundColor: 'rgba(9, 8, 8, 0.50)',

@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { urqlClient } from './urql';
-
-import { useProfileQuery, userAccessFlagChecker } from '@/api';
+import { profileQuery, userAccessFlagChecker } from '@/api';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 export const newRouter = () => {
 	const routes: ReadonlyArray<RouteRecordRaw> = [
@@ -25,32 +25,32 @@ export const newRouter = () => {
 					name: 'Integrations',
 					path: '/dashboard/integrations',
 					component: () => import('../pages/Integrations.vue'),
-					meta: { neededPermission: 'VIEW_INTEGRATIONS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewIntegrations },
 				},
 				{
 					path: '/dashboard/commands/:system',
 					component: () => import('../pages/Commands.vue'),
-					meta: { neededPermission: 'VIEW_COMMANDS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands },
 				},
 				{
 					path: '/dashboard/timers',
 					component: () => import('../pages/Timers.vue'),
-					meta: { neededPermission: 'VIEW_TIMERS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewTimers },
 				},
 				{
 					path: '/dashboard/keywords',
 					component: () => import('../pages/Keywords.vue'),
-					meta: { neededPermission: 'VIEW_KEYWORDS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewKeywords },
 				},
 				{
 					path: '/dashboard/variables',
 					component: () => import('../pages/Variables.vue'),
-					meta: { neededPermission: 'VIEW_VARIABLES' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewVariables },
 				},
 				{
 					path: '/dashboard/greetings',
 					component: () => import('../pages/Greetings.vue'),
-					meta: { neededPermission: 'VIEW_GREETINGS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewGreetings },
 				},
 				{
 					path: '/dashboard/community/users',
@@ -59,24 +59,24 @@ export const newRouter = () => {
 				{
 					path: '/dashboard/community/roles',
 					component: () => import('../pages/CommunityRoles.vue'),
-					meta: { neededPermission: 'VIEW_ROLES' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewRoles },
 				},
 				{
 					path: '/dashboard/song-requests',
 					component: () => import('../pages/SongRequests.vue'),
-					meta: { neededPermission: 'VIEW_SONG_REQUESTS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewSongRequests },
 				},
 				{
 					path: '/dashboard/overlays',
 					component: () => import('../pages/Overlays.vue'),
-					meta: { neededPermission: 'VIEW_OVERLAYS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewOverlays },
 				},
 				{
 					name: 'ChatOverlay',
 					path: '/dashboard/overlays/chat',
 					component: () => import('../pages/overlays/chat/Chat.vue'),
 					meta: {
-						neededPermission: 'MANAGE_OVERLAYS',
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
 					},
 				},
@@ -85,7 +85,7 @@ export const newRouter = () => {
 					path: '/dashboard/overlays/kappagen',
 					component: () => import('../pages/overlays/kappagen/Kappagen.vue'),
 					meta: {
-						neededPermission: 'MANAGE_OVERLAYS',
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
 					},
 				},
@@ -94,7 +94,7 @@ export const newRouter = () => {
 					path: '/dashboard/overlays/brb',
 					component: () => import('../pages/overlays/brb/Brb.vue'),
 					meta: {
-						neededPermission: 'MANAGE_OVERLAYS',
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
 					},
 				},
@@ -103,29 +103,29 @@ export const newRouter = () => {
 					path: '/dashboard/overlays/dudes',
 					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
 					meta: {
-						neededPermission: 'MANAGE_OVERLAYS',
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						fullScreen: true,
 					},
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
 					component: () => import('../pages/ChatAlerts.vue'),
-					meta: { neededPermission: 'VIEW_EVENTS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents },
 				},
 				{
 					path: '/dashboard/events/custom',
 					component: () => import('../pages/Events.vue'),
-					meta: { neededPermission: 'VIEW_EVENTS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents },
 				},
 				{
 					path: '/dashboard/alerts',
 					component: () => import('../pages/Alerts.vue'),
-					meta: { neededPermission: 'VIEW_ALERTS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewAlerts },
 				},
 				{
 					path: '/dashboard/games',
 					component: () => import('../pages/Games.vue'),
-					meta: { neededPermission: 'VIEW_GAMES' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewGames },
 				},
 				{
 					path: '/dashboard/files',
@@ -135,13 +135,13 @@ export const newRouter = () => {
 					name: 'RegistryOverlayEdit',
 					path: '/dashboard/registry/overlays/:id',
 					component: () => import('../components/registry/overlays/edit.vue'),
-					meta: { neededPermission: 'MANAGE_OVERLAYS' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewOverlays },
 				},
 				{
 					name: 'Moderation',
 					path: '/dashboard/moderation',
 					component: () => import('../pages/Moderation.vue'),
-					meta: { neededPermission: 'MANAGE_MODERATION' },
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageModeration },
 				},
 				{
 					name: 'Settings',
@@ -184,8 +184,10 @@ export const newRouter = () => {
 	});
 
 	router.beforeEach(async (to, _, next) => {
+		if (!urqlClient.value) return next();
+
 		try {
-			const profileRequest = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
+			const profileRequest = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
 			if (!profileRequest.data) {
 				return window.location.replace('/');
 			}

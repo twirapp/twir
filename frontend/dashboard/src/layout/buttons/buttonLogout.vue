@@ -4,9 +4,10 @@ import { NButton, NSpin } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
 import { useLogout, useProfile } from '@/api';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
-const { isLoading: isProfileLoading } = useProfile();
+const { isLoading: isProfileLoading } = storeToRefs(useProfile());
 const logout = useLogout();
 </script>
 

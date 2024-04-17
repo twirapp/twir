@@ -4,11 +4,13 @@ import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
-import { graphql } from '@/gql';
+import { useMutation as _useMutation } from '@/composables/use-mutation.js'
+import { graphql} from '@/gql';
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
-import { urqlClient } from '@/plugins/urql';
+import { urqlClient, useUrqlClient } from '@/plugins/urql.js';
+import { defineStore } from 'pinia';
 
-export const useProfileQuery = graphql(`
+export const profileQuery = graphql(`
 	query AuthenticatedUser {
 		authenticatedUser {
 			id
@@ -46,9 +48,9 @@ export const useProfileQuery = graphql(`
 	}
 `);
 
-export const useProfile = () => {
+export const useProfile = defineStore('auth/profile', () => {
 	const { data: response, executeQuery, fetching } = useGraphqlQuery({
-		query: useProfileQuery,
+		query: profileQuery,
 	});
 
 	const computedUser = computed(() => {
@@ -73,7 +75,7 @@ export const useProfile = () => {
 	});
 
 	return { data: computedUser, executeQuery, isLoading: fetching };
-};
+});
 
 export const useLogout = () => useMutation({
 	mutationKey: ['authLogout'],
@@ -82,26 +84,31 @@ export const useLogout = () => useMutation({
 	},
 });
 
-export const useSetDashboard = () => {
+export const useDashboard = defineStore('auth/dashboard', () => {
+	const urqlClient = useUrqlClient();
+
+	const mutationSetDashboard = _useMutation(graphql(`
+		mutation SetDashboard($dashboardId: String!) {
+			authenticatedUserSelectDashboard(dashboardId: $dashboardId)
+		}
+	`));
+
 	const queryClient = useQueryClient();
 
-	return useMutation({
-		mutationKey: ['authSetDashboard'],
-		mutationFn: async (dashboardId: string) => {
-			await protectedApiClient.authSetDashboard({ dashboardId });
-		},
-		onSuccess: async () => {
-			await queryClient.invalidateQueries();
-			await queryClient.resetQueries();
-		},
-	});
-};
+	async function setDashboard(dashboardId: string) {
+		urqlClient.urqlClient.value = urqlClient.createClient();
+		await mutationSetDashboard.executeMutation({ dashboardId })
+		await queryClient.invalidateQueries();
+		await queryClient.resetQueries();
+	}
+
+	return {
+		setDashboard
+	}
+});
 
 export const PERMISSIONS_FLAGS: { [key in ChannelRolePermissionEnum]: string } = {
 	CAN_ACCESS_DASHBOARD: 'All permissions',
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-expect-error
-	empty1: '',
 
 	UPDATE_CHANNEL_TITLE: 'Can update channel title',
 	UPDATE_CHANNEL_CATEGORY: 'Can update channel category',
@@ -152,16 +159,16 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 	const profile = useProfile();
 
 	return computed(() => {
-		if (!profile.data.value?.availableDashboards || !profile.data.value?.selectedDashboardId) return false;
+		if (!profile.data?.availableDashboards || !profile.data?.selectedDashboardId) return false;
 
-		if (profile.data.value.id == profile.data.value.selectedDashboardId) {
+		if (profile.data.id == profile.data.selectedDashboardId) {
 			return true;
 		}
 
-		if (profile.data.value.isBotAdmin) return true;
+		if (profile.data.isBotAdmin) return true;
 
-		const dashboard = profile.data.value?.availableDashboards.find(dashboard => {
-			return dashboard.id === profile.data.value!.selectedDashboardId;
+		const dashboard = profile.data?.availableDashboards.find(dashboard => {
+			return dashboard.id === profile.data?.selectedDashboardId;
 		});
 		if (!dashboard) return false;
 
@@ -171,7 +178,9 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (flag: PermissionsType) => {
-	const { data: profile } = await urqlClient.executeQuery({ query: useProfileQuery, key: 0, variables: {} });
+	if (!urqlClient.value) return;
+
+	const { data: profile } = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
 
 	if (profile?.authenticatedUser.isBotAdmin) return true;
 	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false;

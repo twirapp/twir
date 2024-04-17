@@ -5,8 +5,9 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile, useTwitchGetUsers } from '@/api';
+import { storeToRefs } from 'pinia';
 
-const { data: profileData } = useProfile();
+const { data: profileData } = storeToRefs(useProfile());
 const { t } = useI18n();
 
 const selectedUserId = computed(() => {

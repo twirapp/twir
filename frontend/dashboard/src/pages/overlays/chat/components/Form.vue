@@ -20,13 +20,14 @@ import { useChatOverlayForm } from './form.js';
 import { useChatOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
 const { copyOverlayLink } = useCopyOverlayLink('chat');
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { data: formValue, $reset } = useChatOverlayForm();
 

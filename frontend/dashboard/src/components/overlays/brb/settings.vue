@@ -18,6 +18,7 @@ import { useCopyOverlayLink } from '../copyOverlayLink';
 
 import { useBeRightBackOverlayManager, useProfile } from '@/api';
 import commandButton from '@/components/commandButton.vue';
+import { storeToRefs } from 'pinia';
 
 defineProps<{
 	showSettings: boolean
@@ -29,7 +30,7 @@ defineEmits<{
 
 const { t } = useI18n();
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const defaultSettings = {
 	backgroundColor: 'rgba(9, 8, 8, 0.50)',

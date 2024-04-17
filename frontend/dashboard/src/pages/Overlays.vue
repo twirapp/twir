@@ -26,11 +26,12 @@ import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js';
 import { copyToClipBoard } from '@/helpers/index.js';
+import { storeToRefs } from 'pinia';
 
 
 const { t } = useI18n();
 const userCanManageOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const userProfile = useProfile();
+const userProfile = storeToRefs(useProfile());
 
 const message = useNotification();
 const copyUrl = async (id: string) => {
