@@ -16,10 +16,7 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.AuthenticatedUser,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -37,10 +34,7 @@ func (r *authenticatedUserResolver) TwitchProfile(
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *dashboardResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.Dashboard,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -58,10 +52,7 @@ func (r *dashboardResolver) TwitchProfile(
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
-func (r *mutationResolver) AuthenticatedUserSelectDashboard(
-	ctx context.Context,
-	dashboardID string,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
 	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
@@ -70,10 +61,7 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(
 }
 
 // AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
-func (r *mutationResolver) AuthenticatedUserUpdateSettings(
-	ctx context.Context,
-	opts gqlmodel.UpdateSettingsInput,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UpdateSettingsInput) (bool, error) {
 	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdateSettings - authenticatedUserUpdateSettings"))
 }
 
@@ -83,18 +71,12 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
-func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(
-	ctx context.Context,
-	opts gqlmodel.UpdatePublicSettingsInput,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UpdatePublicSettingsInput) (bool, error) {
 	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdatePublicPage - authenticatedUserUpdatePublicPage"))
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
-	*gqlmodel.AuthenticatedUser,
-	error,
-) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
 	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
