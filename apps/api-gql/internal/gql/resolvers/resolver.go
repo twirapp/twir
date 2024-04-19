@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -28,6 +29,7 @@ type Resolver struct {
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
 	minioClient        *minio.Client
 	subscriptionsStore *subscriptions_store.SubscriptionsStore
+	twirBus            *bus_core.Bus
 }
 
 type Opts struct {
@@ -40,6 +42,7 @@ type Opts struct {
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
 	Minio              *minio.Client
 	SubscriptionsStore *subscriptions_store.SubscriptionsStore
+	TwirBus            *bus_core.Bus
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -56,6 +59,7 @@ func New(opts Opts) (*Resolver, error) {
 		cachedTwitchClient: opts.CachedTwitchClient,
 		minioClient:        opts.Minio,
 		subscriptionsStore: opts.SubscriptionsStore,
+		twirBus:            opts.TwirBus,
 	}, nil
 }
 
