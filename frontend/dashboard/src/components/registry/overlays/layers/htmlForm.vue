@@ -11,12 +11,14 @@ import {
 	NTabs,
 	NTabPane,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import BaseLayer, { type LayerProps } from './layer.vue';
 
-import { useAllVariables, useKeywordsManager, useCommandsManager } from '@/api/index.js';
+import { useKeywordsManager, useCommandsManager } from '@/api/index.js';
+import { useVariablesApi } from '@/api/variables';
 import { copyToClipBoard } from '@/helpers/index.js';
 
 defineProps<LayerProps>();
@@ -34,7 +36,7 @@ const periodicallyRefetchData = defineModel<boolean>('periodicallyRefetchData');
 
 const showModal = ref(false);
 
-const allVariables = useAllVariables();
+const { allVariables } = storeToRefs(useVariablesApi());
 const keywordsManager = useKeywordsManager();
 const { data: keywords } = keywordsManager.getAll({});
 const commandsManager = useCommandsManager();
@@ -47,12 +49,11 @@ const copyVariable = async (v: string) => {
 };
 
 const variables = computed(() => {
-	const vars = allVariables.data.value ?? [];
 	const k = keywords.value?.keywords ?? [];
 	const cmds = commands.value?.commands ?? [];
 
 	return [
-		...vars
+		...allVariables.value
 			.filter(v => v.canBeUsedInRegistry)
 			.map(v => {
 				const name = `$(${v.isBuiltIn ? v.name : `customvar|${v.name}`})`;

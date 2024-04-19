@@ -17,10 +17,7 @@ import (
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(
-	ctx context.Context,
-	opts gqlmodel.TimerCreateInput,
-) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -81,11 +78,7 @@ func (r *mutationResolver) TimersCreate(
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.TimerUpdateInput,
-) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
