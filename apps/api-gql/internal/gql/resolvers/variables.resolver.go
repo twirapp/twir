@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -153,6 +154,30 @@ func (r *queryResolver) Variables(ctx context.Context) ([]gqlmodel.Variable, err
 				Type:        gqlmodel.VariableType(e.Type),
 				EvalValue:   e.EvalValue,
 				Response:    e.Response,
+			},
+		)
+	}
+
+	return result, nil
+}
+
+// VariablesBuiltIn is the resolver for the variablesBuiltIn field.
+func (r *queryResolver) VariablesBuiltIn(ctx context.Context) ([]gqlmodel.BuiltInVariable, error) {
+	vars, err := r.twirBus.Parser.GetBuiltInVariables.Request(ctx, struct{}{})
+	if err != nil {
+		return nil, fmt.Errorf("cannot get built-in variables: %w", err)
+	}
+
+	result := make([]gqlmodel.BuiltInVariable, 0, len(vars.Data))
+	for _, v := range vars.Data {
+		result = append(
+			result,
+			gqlmodel.BuiltInVariable{
+				Name:                v.Name,
+				Description:         v.Description,
+				Example:             v.Example,
+				Visible:             v.Visible,
+				CanBeUsedInRegistry: v.CanBeUsedInRegistry,
 			},
 		)
 	}

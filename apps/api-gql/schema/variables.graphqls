@@ -1,5 +1,6 @@
 extend type Query {
 	variables: [Variable!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_VARIABLES)
+	variablesBuiltIn: [BuiltInVariable!]! @isAuthenticated
 }
 
 extend type Mutation {
@@ -37,4 +38,12 @@ input VariableUpdateInput {
 	type: VariableType
 	evalValue: String
 	response: String
+}
+
+type BuiltInVariable {
+	name: String!
+	example: String!
+	description: String!
+	visible: Boolean!
+	canBeUsedInRegistry: Boolean!
 }
