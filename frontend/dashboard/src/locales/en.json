@@ -43,7 +43,8 @@
 		"setDefaultSettings": "Are you sure you want to set default settings?",
 		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
 		"pagination": "{page} of {total} page(s) / {items} item(s)",
-		"searchPlaceholder": "Search..."
+		"searchPlaceholder": "Search...",
+		"messages": "Messages"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -80,8 +81,8 @@
     "confirm": "Confirm"
   },
   "haveNoAccess": {
-		"title": "403 Forbidden",
-    "description": "You are not authorized to view this page, ask the broadcaster to provide it."
+		"title": "No access",
+    "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
 	"pageNotFound": {
 		"title": "404 Not Found",
@@ -801,7 +802,7 @@
     "ban": {
       "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
       "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Ignore Moderators List"
+      "ignoreTimeoutFrom": "Ignore timeouts from"
     },
     "labels": {
       "followers": "Followers",

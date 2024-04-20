@@ -119,7 +119,7 @@ export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 		`),
 	});
 
-	const chatAlerts = computed(() => data.value?.chatAlerts ?? []);
+	const chatAlerts = computed<ChatAlerts>(() => data.value?.chatAlerts);
 
 	const useMutationUpdateChatAlerts = () => useMutation(graphql(`
 		mutation UpdateChatAlerts($input: ChatAlertsInput!) {

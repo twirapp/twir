@@ -22,6 +22,8 @@ type ChatAlerts {
 	unbanRequestResolve: ChatAlertsUnbanRequestResolve
 }
 
+union ChatAlertsSettings = ChatAlertsFollowersSettings | ChatAlertsRaids | ChatAlertsDonations | ChatAlertsSubscribers | ChatAlertsCheers | ChatAlertsRedemptions | ChatAlertsFirstUserMessage | ChatAlertsStreamOnline | ChatAlertsStreamOffline | ChatAlertsChatCleared | ChatAlertsBan | ChatAlertsUnbanRequestCreate | ChatAlertsUnbanRequestResolve
+
 type ChatAlertsCountedMessage {
 	count: Int!
 	text: String!
@@ -94,7 +96,7 @@ type ChatAlertsChatCleared {
 type ChatAlertsBan {
 	enabled: Boolean!
 	messages: [ChatAlertsCountedMessage!]!
-	ignoreTimeoutFrom: [String!]
+	ignoreTimeoutFrom: [String!]!
 	cooldown: Int!
 }
 

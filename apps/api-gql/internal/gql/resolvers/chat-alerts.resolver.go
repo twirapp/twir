@@ -17,7 +17,10 @@ import (
 )
 
 // UpdateChatAlerts is the resolver for the updateChatAlerts field.
-func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.ChatAlertsInput) (*gqlmodel.ChatAlerts, error) {
+func (r *mutationResolver) UpdateChatAlerts(
+	ctx context.Context,
+	input gqlmodel.ChatAlertsInput,
+) (*gqlmodel.ChatAlerts, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -80,6 +83,9 @@ func (r *queryResolver) ChatAlerts(ctx context.Context) (*gqlmodel.ChatAlerts, e
 			`"channelId" = ? AND "userId" IS NULL AND type = 'chat_alerts'`,
 			dashboardId,
 		).First(&entity).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return &gqlmodel.ChatAlerts{}, nil
+		}
 		return nil, err
 	}
 
