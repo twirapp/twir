@@ -43,7 +43,8 @@
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
     "pagination": "{page} z {total} strán(y) / {items} položka(y)",
-    "searchPlaceholder": "Hľadať..."
+    "searchPlaceholder": "Hľadať...",
+    "messages": "Messages"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -80,8 +81,8 @@
     "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
-    "title": "403 Prístup zamietnutý",
-    "description": "Nie ste oprávnení zobraziť túto stránku, požiadajte streamera, aby vám ju poskytol."
+    "title": "No access",
+    "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
     "title": "404 Nenájdená",
@@ -801,7 +802,7 @@
     "ban": {
       "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
       "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Ignore Moderators List"
+      "ignoreTimeoutFrom": "Ignore timeouts from"
     },
     "labels": {
       "followers": "Sledovatelia",
