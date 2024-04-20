@@ -1,16 +1,16 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { useQuery as useGraphqlQuery } from '@urql/vue';
+import { createRequest, useQuery as useGraphqlQuery } from '@urql/vue';
+import { defineStore } from 'pinia';
 import { computed } from 'vue';
 
 import { protectedApiClient } from './twirp.js';
 
-import { useMutation as _useMutation } from '@/composables/use-mutation.js'
-import { graphql} from '@/gql';
+import { useMutation as _useMutation } from '@/composables/use-mutation.js';
+import { graphql } from '@/gql';
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
 import { urqlClient, useUrqlClient } from '@/plugins/urql.js';
-import { defineStore } from 'pinia';
 
-export const profileQuery = graphql(`
+export const profileQuery = createRequest(graphql(`
 	query AuthenticatedUser {
 		authenticatedUser {
 			id
@@ -46,12 +46,10 @@ export const profileQuery = graphql(`
 			}
 		}
 	}
-`);
+`), {});
 
 export const useProfile = defineStore('auth/profile', () => {
-	const { data: response, executeQuery, fetching } = useGraphqlQuery({
-		query: profileQuery,
-	});
+	const { data: response, executeQuery, fetching } = useGraphqlQuery(profileQuery);
 
 	const computedUser = computed(() => {
 		const user = response.value?.authenticatedUser;
@@ -96,15 +94,15 @@ export const useDashboard = defineStore('auth/dashboard', () => {
 	const queryClient = useQueryClient();
 
 	async function setDashboard(dashboardId: string) {
-		await mutationSetDashboard.executeMutation({ dashboardId })
+		await mutationSetDashboard.executeMutation({ dashboardId });
 		urqlClient.reInitClient();
 		await queryClient.invalidateQueries();
 		await queryClient.resetQueries();
 	}
 
 	return {
-		setDashboard
-	}
+		setDashboard,
+	};
 });
 
 export const PERMISSIONS_FLAGS: { [key in ChannelRolePermissionEnum]: string } = {
@@ -178,7 +176,7 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 };
 
 export const userAccessFlagChecker = async (flag: PermissionsType) => {
-	const { data: profile } = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
+	const { data: profile } = await urqlClient.value.executeQuery(profileQuery);
 
 	if (profile?.authenticatedUser.isBotAdmin) return true;
 	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false;

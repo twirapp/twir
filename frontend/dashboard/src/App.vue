@@ -1,8 +1,9 @@
 <script setup lang='ts'>
+import { provideClient } from '@urql/vue';
 import { NSpin } from 'naive-ui';
 import { ref } from 'vue';
 import { RouterView, useRouter } from 'vue-router';
-import { provideClient } from '@urql/vue';
+
 import { urqlClient } from './plugins/urql.js';
 
 const isRouterReady = ref(false);

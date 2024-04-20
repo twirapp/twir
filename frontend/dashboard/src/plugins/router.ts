@@ -1,7 +1,7 @@
-import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { urqlClient } from './urql';
+
 import { profileQuery, userAccessFlagChecker } from '@/api';
 import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
@@ -110,8 +110,8 @@ export const newRouter = () => {
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
-					component: () => import('../pages/ChatAlerts.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents },
+					component: () => import('../features/chat-alerts/ChatAlerts.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents, noPadding: true },
 				},
 				{
 					path: '/dashboard/events/custom',
@@ -186,7 +186,7 @@ export const newRouter = () => {
 
 	router.beforeEach(async (to, _, next) => {
 		try {
-			const profileRequest = await urqlClient.value.executeQuery({ query: profileQuery, key: 0, variables: {} });
+			const profileRequest = await urqlClient.value.executeQuery(profileQuery);
 			if (!profileRequest.data) {
 				return window.location.replace('/');
 			}
