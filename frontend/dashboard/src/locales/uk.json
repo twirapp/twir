@@ -43,7 +43,8 @@
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
     "pagination": "{page} з {total} сторінок / {items} елементів",
-    "searchPlaceholder": "Найти"
+    "searchPlaceholder": "Найти",
+    "messages": "Messages"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -80,7 +81,7 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "403 Доступ заборонено",
+    "title": "Доступ заборонено",
     "description": "У вас немає прав для перегляду цієї сторінки, зверніться до стримера за доступом."
   },
   "pageNotFound": {
