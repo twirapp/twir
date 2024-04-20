@@ -8,15 +8,21 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
+	"github.com/guregu/null"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"gorm.io/gorm"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *authenticatedUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -34,7 +40,10 @@ func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlm
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *dashboardResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.Dashboard,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
@@ -52,7 +61,10 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
-func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserSelectDashboard(
+	ctx context.Context,
+	dashboardID string,
+) (bool, error) {
 	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
@@ -61,22 +73,137 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context,
 }
 
 // AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
-func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UpdateSettingsInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdateSettings - authenticatedUserUpdateSettings"))
+func (r *mutationResolver) AuthenticatedUserUpdateSettings(
+	ctx context.Context,
+	opts gqlmodel.UpdateSettingsInput,
+) (bool, error) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	entity := &model.Users{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("id = ?", user.ID).
+		First(entity).Error; err != nil {
+		return false, fmt.Errorf("failed to get user: %w", err)
+	}
+
+	if opts.HideOnLandingPage.IsSet() {
+		entity.HideOnLandingPage = *opts.HideOnLandingPage.Value()
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(entity).Error; err != nil {
+		return false, fmt.Errorf("failed to save user: %w", err)
+	}
+
+	return true, nil
 }
 
 // AuthenticatedUserRegenerateAPIKey is the resolver for the authenticatedUserRegenerateApiKey field.
 func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: AuthenticatedUserRegenerateAPIKey - authenticatedUserRegenerateApiKey"))
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	entity := &model.Users{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("id = ?", user.ID).
+		First(entity).Error; err != nil {
+		return "", fmt.Errorf("failed to get user: %w", err)
+	}
+
+	entity.ApiKey = uuid.NewString()
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(entity).Error; err != nil {
+		return "", fmt.Errorf("failed to save user: %w", err)
+	}
+
+	return entity.ApiKey, nil
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
-func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UpdatePublicSettingsInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: AuthenticatedUserUpdatePublicPage - authenticatedUserUpdatePublicPage"))
+func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(
+	ctx context.Context,
+	opts gqlmodel.UpdatePublicSettingsInput,
+) (bool, error) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	currentSettings := &model.ChannelPublicSettings{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(
+			"channel_id = ?",
+			user.ID,
+		).
+		Preload("SocialLinks").
+		// init default settings
+		FirstOrInit(
+			currentSettings,
+			&model.ChannelPublicSettings{
+				ChannelID: user.ID,
+			},
+		).
+		Error; err != nil {
+		return false, fmt.Errorf("failed to get public settings: %w", err)
+	}
+
+	txErr := r.gorm.WithContext(ctx).Transaction(
+		func(tx *gorm.DB) error {
+			if opts.Description.IsSet() {
+				currentSettings.Description = null.StringFromPtr(opts.Description.Value())
+			}
+
+			if opts.SocialLinks.IsSet() {
+				if err := tx.
+					Where("settings_id = ?", currentSettings.ID).
+					Delete(&model.ChannelPublicSettingsSocialLink{}).
+					Error; err != nil {
+					return err
+				}
+
+				links := make([]model.ChannelPublicSettingsSocialLink, 0, len(opts.SocialLinks.Value()))
+				for _, link := range opts.SocialLinks.Value() {
+					links = append(
+						links,
+						model.ChannelPublicSettingsSocialLink{
+							ID:         uuid.New(),
+							SettingsID: currentSettings.ID,
+							Title:      link.Title,
+							Href:       link.Href,
+						},
+					)
+				}
+
+				currentSettings.SocialLinks = links
+			}
+
+			return tx.Save(currentSettings).Error
+		},
+	)
+
+	if txErr != nil {
+		return false, fmt.Errorf("failed to update public settings: %w", txErr)
+	}
+
+	return true, nil
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
+	*gqlmodel.AuthenticatedUser,
+	error,
+) {
 	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)

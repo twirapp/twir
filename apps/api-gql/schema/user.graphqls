@@ -31,7 +31,7 @@ type Dashboard {
 }
 
 input UpdateSettingsInput {
-	hideOnLandingPage: Boolean!
+	hideOnLandingPage: Boolean
 }
 
 type PublicSettings {
