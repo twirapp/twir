@@ -2,12 +2,12 @@
 import { useRouteQuery } from '@vueuse/router';
 import { useThemeVars } from 'naive-ui';
 import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
+import type { StringOrNumber } from 'radix-vue/dist/shared/types';
 import { onBeforeMount, ref, type Component } from 'vue';
 import { watch } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useTheme } from '@/composables/use-theme';
-import type { StringOrNumber } from 'radix-vue/dist/shared/types';
 
 const router = useRouter();
 const themeVars = useThemeVars();
@@ -59,8 +59,9 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 				<h1 class="text-4xl">
 					<slot name="title" />
 				</h1>
+
 				<div class="flex gap-2">
-					<TabsList class="flex overflow-x-auto -mb-px">
+					<TabsList class="flex flex-wrap overflow-x-auto -mb-px">
 						<TabsTrigger
 							v-for="tab of props.tabs"
 							:key="tab.name"

@@ -80,7 +80,7 @@
     "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "403 Nicht erlaubt",
+    "title": "Nicht erlaubt",
     "description": "Sie sind nicht berechtigt, diese Seite zu sehen, bitten Sie den Streamer, sie dafür bereitzustellen."
   },
   "pageNotFound": {

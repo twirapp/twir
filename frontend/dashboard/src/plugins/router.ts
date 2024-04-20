@@ -108,8 +108,8 @@ export const newRouter = (queryClient: QueryClient) => {
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
-					component: () => import('../pages/ChatAlerts.vue'),
-					meta: { neededPermission: 'VIEW_EVENTS' },
+					component: () => import('../features/chat-alerts/ChatAlerts.vue'),
+					meta: { neededPermission: 'VIEW_EVENTS', noPadding: true },
 				},
 				{
 					path: '/dashboard/events/custom',

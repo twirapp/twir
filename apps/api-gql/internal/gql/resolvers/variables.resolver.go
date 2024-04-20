@@ -15,10 +15,7 @@ import (
 )
 
 // VariablesCreate is the resolver for the variablesCreate field.
-func (r *mutationResolver) VariablesCreate(
-	ctx context.Context,
-	opts gqlmodel.VariableCreateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -51,11 +48,7 @@ func (r *mutationResolver) VariablesCreate(
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.VariableUpdateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
