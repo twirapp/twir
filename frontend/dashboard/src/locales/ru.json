@@ -43,7 +43,8 @@
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
     "pagination": "{page} из {total} страниц / {items} элементов",
-    "searchPlaceholder": "Поиск"
+    "searchPlaceholder": "Поиск",
+    "messages": "Messages"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -80,7 +81,7 @@
     "confirm": "Подтвердить"
   },
   "haveNoAccess": {
-    "title": "403 Доступ запрещен",
+    "title": "Доступ запрещен",
     "description": "У вас нет прав для просмотра этой страницы, обратитесь к стримеру за доступом."
   },
   "pageNotFound": {
