@@ -43,7 +43,8 @@
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
     "pagination": "{page} of {total} page(s) / {items} item(s)",
-    "searchPlaceholder": "Search..."
+    "searchPlaceholder": "Search...",
+    "messages": "Messages"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -80,7 +81,7 @@
     "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "403 Nicht erlaubt",
+    "title": "Nicht erlaubt",
     "description": "Sie sind nicht berechtigt, diese Seite zu sehen, bitten Sie den Streamer, sie dafür bereitzustellen."
   },
   "pageNotFound": {
@@ -115,7 +116,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Aktiviere den Befehl nur in bestimmten Kategorien (leer lassen für deaktiviert)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
