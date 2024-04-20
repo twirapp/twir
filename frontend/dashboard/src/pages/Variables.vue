@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Variable, VariableType } from '@twir/api/messages/variables/variables';
 import {
 	type DataTableColumns,
 	NDataTable,
@@ -11,17 +10,20 @@ import {
 	NPopconfirm,
 	NModal,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useUserAccessFlagChecker, useVariablesManager } from '@/api/index.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
+import { useVariablesApi } from '@/api/variables';
+import { type CustomVariable, type EditableCustomVariable } from '@/api/variables';
 import Modal from '@/components/variables/modal.vue';
-import { type EditableVariable } from '@/components/variables/types.js';
+import { VariableType } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
 
-const variablesManager = useVariablesManager();
-const variables = variablesManager.getAll({});
-const variablesDeleter = variablesManager.deleteOne;
+const variablesApi = useVariablesApi();
+const { customVariables, isLoading } = storeToRefs(variablesApi);
+const deleter = variablesApi.useMutationRemoveVariable();
 
 const showModal = ref(false);
 
@@ -29,12 +31,12 @@ const userCanManageVariables = useUserAccessFlagChecker('MANAGE_VARIABLES');
 
 const { t } = useI18n();
 
-const columns = computed<DataTableColumns<Variable>>(() => [
+const columns = computed<DataTableColumns<CustomVariable>>(() => [
 	{
 		title: t('sharedTexts.name'),
 		key: 'name',
 		render(row) {
-			return h(NTag, { type: 'info', bordered: false }, { default: () => row.name });
+			return row.name;
 		},
 	},
 	{
@@ -42,18 +44,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 		key: 'type',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
-				default: () => {
-					switch (row.type) {
-						case VariableType.SCRIPT:
-							return 'Script';
-						case VariableType.TEXT:
-							return 'Text';
-						case VariableType.NUMBER:
-							return 'Number';
-						default:
-							return 'Unknown';
-					}
-				},
+				default: () => row.type,
 			});
 		},
 	},
@@ -62,7 +53,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 		key: 'response',
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
-				default: () => row.type === VariableType.SCRIPT ? 'Script' : row.response,
+				default: () => row.type === VariableType.Script ? 'Script' : row.response,
 			});
 		},
 	},
@@ -86,7 +77,7 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => variablesDeleter.mutate({ id: row.id! }),
+					onPositiveClick: () => deleter.executeMutation({ id: row.id! }),
 					positiveText: t('deleteConfirmation.confirm'),
 					negativeText: t('deleteConfirmation.cancel'),
 				},
@@ -108,9 +99,9 @@ const columns = computed<DataTableColumns<Variable>>(() => [
 	},
 ]);
 
-const editableVariable = ref<EditableVariable | null>(null);
+const editableVariable = ref<EditableCustomVariable | null>(null);
 
-function openModal(t: EditableVariable | null) {
+function openModal(t: EditableCustomVariable | null) {
 	editableVariable.value = t;
 	showModal.value = true;
 }
@@ -131,9 +122,9 @@ function closeModal() {
 		{{ t('variables.info') }}
 	</n-alert>
 	<n-data-table
-		:isLoading="variables.isLoading.value"
+		:isLoading="isLoading"
 		:columns="columns"
-		:data="variables.data.value?.variables ?? []"
+		:data="customVariables"
 		style="margin-top: 20px;"
 	/>
 

@@ -17,6 +17,7 @@ import (
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
 	"github.com/satont/twir/apps/parser/internal/nats"
 	task_queue "github.com/satont/twir/apps/parser/internal/task-queue"
+	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
@@ -179,6 +180,10 @@ func main() {
 	cmdBus := commands_bus.New(bus, s, commandsService, variablesService)
 	cmdBus.Subscribe()
 	defer cmdBus.Unsubscribe()
+
+	variablesBus := variables_bus.New(bus, variablesService)
+	variablesBus.Subscribe()
+	defer variablesBus.Unsubscribe()
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.PARSER_SERVER_PORT))
 	if err != nil {

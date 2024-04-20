@@ -43,7 +43,6 @@ async function switchEnabled(newValue: boolean) {
 		<Switch
 			:disabled="!userCanManageCommands"
 			:checked="row.enabled"
-			class="data-[state=unchecked]:bg-zinc-400"
 			@update:checked="switchEnabled"
 		/>
 		<div class="flex gap-0.5">

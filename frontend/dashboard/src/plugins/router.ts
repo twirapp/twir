@@ -1,3 +1,4 @@
+import { QueryClient } from '@tanstack/vue-query';
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 
 import { urqlClient } from './urql';
