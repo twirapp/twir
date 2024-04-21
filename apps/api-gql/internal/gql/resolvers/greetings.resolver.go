@@ -16,7 +16,10 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Greeting) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *greetingResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.Greeting,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	user, err := data_loader.GetHelixUser(ctx, obj.UserID)
 	if err != nil {
 		return nil, err
@@ -34,7 +37,10 @@ func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Gree
 }
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
-func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsCreate(
+	ctx context.Context,
+	opts gqlmodel.GreetingsCreateInput,
+) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -64,7 +70,11 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 }
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
-func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.GreetingsUpdateInput,
+) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -143,7 +153,7 @@ func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, err
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
-		Order(`userId ASC`).
+		Order(`"userId" ASC`).
 		Find(&entities).
 		Error; err != nil {
 		return nil, fmt.Errorf("cannot find greetings: %w", err)
