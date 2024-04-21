@@ -10,7 +10,7 @@ import UsersSettings from './tts/users.vue';
 import { useCommandsApi } from '@/api/commands/commands';
 import { useTtsOverlayManager } from '@/api/index.js';
 import VoiceMessageIcon from '@/assets/overlays/voice-message.svg?use';
-import CommandsList from '@/components/commands/list.vue';
+import CommandsList from '@/features/commands/components/list.vue';
 
 const commandsManager = useCommandsApi();
 const { data: commands } = commandsManager.useQueryCommands();
@@ -60,7 +60,7 @@ const { t } = useI18n();
 				<UsersSettings />
 			</n-tab-pane>
 			<n-tab-pane name="commands" :tab="t('sidebar.commands.label')">
-				<commands-list :commands="ttsCommands" :show-header="false" />
+				<commands-list :commands="ttsCommands" />
 			</n-tab-pane>
 		</n-tabs>
 	</n-modal>

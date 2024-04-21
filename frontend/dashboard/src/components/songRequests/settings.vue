@@ -28,8 +28,8 @@ import {
 	YoutubeSearchType,
 } from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
-import CommandList from '@/components/commands/list.vue';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
+import CommandList from '@/features/commands/components/list.vue';
 
 const { t } = useI18n();
 

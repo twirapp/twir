@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { IconPencil } from '@tabler/icons-vue';
-import { NButton, NModal } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { NButton } from 'naive-ui';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import EditModal from './edit-modal.vue';
+
 import { useCommandsApi } from '@/api/commands/commands';
-import CommandModal from '@/components/commands/modal.vue';
+import { useCommandEdit } from '@/features/commands/composables/use-command-edit';
 
 const props = defineProps<{
 	name: string
@@ -13,10 +15,11 @@ const props = defineProps<{
 }>();
 
 const commandsManager = useCommandsApi();
+const commandEdit = useCommandEdit();
+
 const { data: commands } = commandsManager.useQueryCommands();
 
 const command = computed(() => commands.value?.commands.find((command) => command.defaultName === props.name));
-const showCommandEditModal = ref(false);
 
 const { t } = useI18n();
 </script>
@@ -25,7 +28,7 @@ const { t } = useI18n();
 	<div class="flex flex-col">
 		<span>{{ props.title ?? t('games.command') }}</span>
 		<div v-if="command" class="flex gap-1">
-			<n-button secondary type="success" @click="() => showCommandEditModal = true">
+			<n-button secondary type="success" @click="() => commandEdit.editCommand(command!.id)">
 				<div class="flex items-center min-w-20 justify-between">
 					<span>!{{ command.name }}</span>
 					<IconPencil />
@@ -34,25 +37,5 @@ const { t } = useI18n();
 		</div>
 	</div>
 
-	<n-modal
-		v-if="command"
-		v-model:show="showCommandEditModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="command?.name"
-		class="modal"
-		:style="{
-			width: '800px',
-			top: '50px',
-		}"
-		:on-close="() => showCommandEditModal = false"
-	>
-		<command-modal
-			:command="command"
-			@close="() => {
-				showCommandEditModal = false;
-			}"
-		/>
-	</n-modal>
+	<edit-modal />
 </template>
