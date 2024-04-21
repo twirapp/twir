@@ -15,11 +15,12 @@ import { ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Card from './card.vue';
-import CommandButton from '../commandButton.vue';
+
 
 import { useDuelGame } from '@/api/games/duel';
 import IconDuel from '@/assets/games/duel.svg?use';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import CommandButton from '@/features/commands/components/command-button.vue';
 
 const manager = useDuelGame();
 const { data: settings } = manager.useSettings();

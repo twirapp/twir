@@ -116,18 +116,6 @@ export const createCrudManager = <
 	};
 };
 
-export const useCommandsManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'commands',
-	getAll: protectedApiClient?.commandsGetAll,
-	update: protectedApiClient?.commandsUpdate,
-	create: protectedApiClient?.commandsCreate,
-	patch: protectedApiClient?.commandsEnableOrDisable,
-	deleteOne: protectedApiClient?.commandsDelete,
-	getOne: protectedApiClient?.commandsGetById,
-	invalidateAdditionalQueries: ['commands/groups', 'alerts'],
-});
-
 export const useCommandsGroupsManager = () => createCrudManager({
 	client: protectedApiClient,
 	queryKey: 'commands/groups',
@@ -138,50 +126,6 @@ export const useCommandsGroupsManager = () => createCrudManager({
 	deleteOne: protectedApiClient?.commandsGroupDelete,
 	getOne: null,
 	invalidateAdditionalQueries: ['commands'],
-});
-
-export const useGreetingsManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'greetings',
-	getAll: protectedApiClient?.greetingsGetAll,
-	update: protectedApiClient?.greetingsUpdate,
-	create: protectedApiClient?.greetingsCreate,
-	patch: protectedApiClient?.greetingsEnableOrDisable,
-	deleteOne: protectedApiClient?.greetingsDelete,
-	getOne: protectedApiClient?.greetingsGetById,
-});
-
-export const useKeywordsManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'keywords',
-	getAll: protectedApiClient?.keywordsGetAll,
-	update: protectedApiClient?.keywordsUpdate,
-	create: protectedApiClient?.keywordsCreate,
-	patch: protectedApiClient?.keywordsEnableOrDisable,
-	deleteOne: protectedApiClient?.keywordsDelete,
-	getOne: protectedApiClient?.keywordsGetById,
-});
-
-export const useTimersManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'timers',
-	getAll: protectedApiClient?.timersGetAll,
-	update: protectedApiClient?.timersUpdate,
-	create: protectedApiClient?.timersCreate,
-	patch: protectedApiClient?.timersEnableOrDisable,
-	deleteOne: protectedApiClient?.timersDelete,
-	getOne: null,
-});
-
-export const useVariablesManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'variables',
-	getAll: protectedApiClient?.variablesGetAll,
-	update: protectedApiClient?.variablesUpdate,
-	create: protectedApiClient?.variablesCreate,
-	patch: null,
-	deleteOne: protectedApiClient?.variablesDelete,
-	getOne: protectedApiClient?.variablesGetById,
 });
 
 export const useEventsManager = () => createCrudManager({

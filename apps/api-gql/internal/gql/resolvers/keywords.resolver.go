@@ -164,6 +164,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 	var entities []model.ChannelsKeywords
 	if err := r.gorm.WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("id ASC").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}

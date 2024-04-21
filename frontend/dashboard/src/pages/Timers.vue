@@ -14,9 +14,8 @@ import { computed, h, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api/index.js';
-import { useTimersApi, type TimerResponse } from '@/api/timers.js';
+import { EditableTimer, useTimersApi, type TimerResponse } from '@/api/timers.js';
 import Modal from '@/components/timers/modal.vue';
-import { type EditableTimer } from '@/components/timers/types.js';
 import { renderIcon } from '@/helpers/index.js';
 
 const { t } = useI18n();

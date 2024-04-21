@@ -22,11 +22,12 @@ import rewardsSelector from '../rewardsSelector.vue';
 
 import {
   useAlertsManager,
-  useCommandsManager,
   useFiles,
-  useGreetingsManager, useKeywordsManager,
   useProfile, useTwitchGetUsers,
 } from '@/api';
+import { useCommandsApi } from '@/api/commands/commands';
+import { useGreetingsApi } from '@/api/greetings';
+import { useKeywordsApi } from '@/api/keywords';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
 
@@ -114,14 +115,14 @@ async function testAudio() {
   await playAudio(await req.arrayBuffer(), formValue.value.audioVolume);
 }
 
-const commandsManager = useCommandsManager();
-const { data: commands } = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 const commandsSelectOptions = computed(() => commands.value?.commands
-    .map(c => ({ label: c.name, value: c.id })),
+    .map((command) => ({ label: command.name, value: command.id })),
 );
 
-const greetingsManager = useGreetingsManager();
-const { data: greetings } = greetingsManager.getAll({});
+const greetingsManager = useGreetingsApi();
+const { data: greetings } = greetingsManager.useQueryGreetings();
 const greetingsUsersIds = computed(() => greetings.value?.greetings.map(g => g.userId) ?? []);
 const { data: twitchUsers } = useTwitchGetUsers({ ids: greetingsUsersIds });
 const greetingsSelectOptions = computed(() => {
@@ -132,8 +133,8 @@ const greetingsSelectOptions = computed(() => {
   });
 });
 
-const keywordsManager = useKeywordsManager();
-const { data: keywords } = keywordsManager.getAll({});
+const keywordsManager = useKeywordsApi();
+const { data: keywords } = keywordsManager.useQueryKeywords();
 const keywordsSelectOptions = computed(() => keywords.value?.keywords
     .map(k => ({ label: k.text, value: k.id })),
 );

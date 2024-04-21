@@ -1,34 +1,38 @@
 <script setup lang="ts">
 import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { type Command } from '@twir/api/messages/commands/commands';
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsManager, useUserAccessFlagChecker } from '@/api';
+import { useCommandEdit } from '../composables/use-command-edit';
+
+import { useUserAccessFlagChecker } from '@/api';
+import { useCommandsApi } from '@/api/commands/commands.js';
 import { Button } from '@/components/ui/button';
 import DeleteConfirmation from '@/components/ui/delete-confirm.vue';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast/use-toast';
+import { Command } from '@/gql/graphql';
 
 const emits = defineEmits<{ edit: [] }>();
 const props = defineProps<{ row: Command }>();
 const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
 
-const manager = useCommandsManager();
-const deleter = manager.deleteOne;
-const patcher = manager.patch!;
+const manager = useCommandsApi();
+const deleter = manager.useMutationDeleteCommand();
+const patcher = manager.useMutationUpdateCommand()!;
 
 const { t } = useI18n();
 const { toast } = useToast();
 
-function edit() {
-	emits('edit');
-}
-
 const showDelete = ref(false);
 
 async function switchEnabled(newValue: boolean) {
-	await patcher?.mutateAsync({ commandId: props.row.id, enabled: newValue });
+	await patcher?.executeMutation({
+		id: props.row.id,
+		opts: {
+			enabled: newValue,
+		},
+	});
 
 	toast({
 		title: t('sharedTexts.saved'),
@@ -36,6 +40,18 @@ async function switchEnabled(newValue: boolean) {
 		duration: 1500,
 	});
 }
+
+async function deleteCommand() {
+	await deleter.executeMutation({ id: props.row.id });
+
+	toast({
+		title: t('sharedTexts.deleted'),
+		variant: 'success',
+		duration: 1500,
+	});
+}
+
+const commandEdit = useCommandEdit();
 </script>
 
 <template>
@@ -59,7 +75,7 @@ async function switchEnabled(newValue: boolean) {
 				:disabled="!userCanManageCommands"
 				size="sm"
 				variant="ghost"
-				@click="edit"
+				@click="commandEdit.editCommand(row.id)"
 			>
 				<IconPencil class="h-5 w-5" />
 			</Button>
@@ -68,6 +84,6 @@ async function switchEnabled(newValue: boolean) {
 
 	<DeleteConfirmation
 		v-model:open="showDelete"
-		@confirm="deleter.mutateAsync({ commandId: row.id })"
+		@confirm="deleteCommand"
 	/>
 </template>

@@ -1,4 +1,4 @@
-import { type Command } from '@twir/api/messages/commands/commands';
+import type { Command } from '@/gql/graphql';
 
 export type Group = {
 	name: string
@@ -20,19 +20,19 @@ export const createGroups = (commands: Command[]): Array<Command | Group> => {
 			continue;
 		}
 
-		if (!command.group || !command.groupId) {
+		if (!command.group) {
 			result.push(command);
 			continue;
 		}
-		if (!groups.get(command.groupId)) {
-			groups.set(command.groupId!, {
+		if (!groups.get(command.group.id)) {
+			groups.set(command.group.id, {
 				name: command.group.name,
 				color: command.group.color,
 				commands: [],
 			});
 		}
 
-		groups.get(command.groupId)!.commands.push(command);
+		groups.get(command.group.id)!.commands.push(command);
 	}
 
 	return [...result, ...groups.values()];

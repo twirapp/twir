@@ -28,7 +28,7 @@ export const newRouter = (queryClient: QueryClient) => {
 				},
 				{
 					path: '/dashboard/commands/:system',
-					component: () => import('../pages/Commands.vue'),
+					component: () => import('../features/commands/commands.vue'),
 					meta: { neededPermission: 'VIEW_COMMANDS' },
 				},
 				{
