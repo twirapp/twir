@@ -2,6 +2,17 @@ extend type Query {
 	communityUsers(opts: CommunityUsersOpts!): CommunityUsersResponse!
 }
 
+extend type Mutation {
+	communityResetStats(type: CommunityUsersResetType!): Boolean! @isAuthenticated
+}
+
+enum CommunityUsersResetType {
+	WATCHED
+	MESSAGES
+	USED_EMOTES
+	USED_CHANNELS_POINTS
+}
+
 enum CommunityUsersSortBy {
 	WATCHED
 	MESSAGES

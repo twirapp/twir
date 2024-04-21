@@ -38,6 +38,62 @@ func (r *communityUserResolver) TwitchProfile(
 	}, nil
 }
 
+// CommunityResetStats is the resolver for the communityResetStats field.
+func (r *mutationResolver) CommunityResetStats(
+	ctx context.Context,
+	typeArg gqlmodel.CommunityUsersResetType,
+) (bool, error) {
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	if user.ID != dashboardId {
+		return false, fmt.Errorf("you cannot reset stats for this user")
+	}
+
+	if typeArg == gqlmodel.CommunityUsersResetTypeUsedEmotes {
+		err := r.gorm.WithContext(ctx).
+			Where(`"channelId" = ?`, user.ID).
+			Delete(&model.ChannelEmoteUsage{}).Error
+		if err != nil {
+			return false, err
+		}
+
+		return true, nil
+	}
+
+	var field string
+
+	switch typeArg {
+	case gqlmodel.CommunityUsersResetTypeMessages:
+		field = "messages"
+	case gqlmodel.CommunityUsersResetTypeWatched:
+		field = "watched"
+	case gqlmodel.CommunityUsersResetTypeUsedChannelsPoints:
+		field = "usedChannelPoints"
+	}
+
+	if field == "" {
+		return false, fmt.Errorf("unknown reset typeArg: %s", typeArg)
+	}
+
+	err = r.gorm.WithContext(ctx).
+		Model(&model.UsersStats{}).
+		Where(`"channelId" = ?`, dashboardId).
+		Update(field, 0).Error
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
 // CommunityUsers is the resolver for the communityUsers field.
 func (r *queryResolver) CommunityUsers(
 	ctx context.Context,
