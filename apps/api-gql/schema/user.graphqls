@@ -4,9 +4,9 @@ extend type Query {
 
 extend type Mutation {
 	authenticatedUserSelectDashboard(dashboardId: String!): Boolean! @isAuthenticated
-	authenticatedUserUpdateSettings(opts: UpdateSettingsInput!): Boolean! @isAuthenticated
+	authenticatedUserUpdateSettings(opts: UserUpdateSettingsInput!): Boolean! @isAuthenticated
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
-	authenticatedUserUpdatePublicPage(opts: UpdatePublicSettingsInput!): Boolean! @isAuthenticated
+	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
 }
 
 type AuthenticatedUser implements TwirUser {
@@ -30,7 +30,7 @@ type Dashboard {
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 }
 
-input UpdateSettingsInput {
+input UserUpdateSettingsInput {
 	hideOnLandingPage: Boolean
 }
 
@@ -44,7 +44,7 @@ type SocialLink {
 	href: String!
 }
 
-input UpdatePublicSettingsInput {
+input UserUpdatePublicSettingsInput {
 	description: String
 	socialLinks: [SocialLinkInput!]
 }
