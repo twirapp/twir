@@ -19,10 +19,7 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(
-	ctx context.Context,
-	obj *gqlmodel.Command,
-) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -52,10 +49,7 @@ func (r *commandResolver) Responses(
 }
 
 // CommandsCreate is the resolver for the commandsCreate field.
-func (r *mutationResolver) CommandsCreate(
-	ctx context.Context,
-	opts gqlmodel.CommandsCreateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -125,11 +119,7 @@ func (r *mutationResolver) CommandsCreate(
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.CommandsUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err

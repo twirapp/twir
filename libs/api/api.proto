@@ -8,14 +8,9 @@ import "messages/meta/meta.proto";
 
 import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
-import "messages/commands/commands.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
-import "messages/greetings/greetings.proto";
-import "messages/keywords/keywords.proto";
-import "messages/timers/timers.proto";
 import "messages/roles/roles.proto";
-import "messages/variables/variables.proto";
 import "messages/commands_group/commands_group.proto";
 import "messages/moderation/moderation.proto";
 import "messages/users/users.proto";
@@ -69,13 +64,6 @@ service Protected {
 	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
 	rpc BotJoinPart(messages.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
-	rpc CommandsGetAll(google.protobuf.Empty) returns (messages.commands.CommandsGetAllResponse) {}
-	rpc CommandsGetById(messages.commands.GetByIdRequest) returns (messages.commands.Command) {}
-	rpc CommandsCreate(messages.commands.CreateRequest) returns (messages.commands.Command) {}
-	rpc CommandsDelete(messages.commands.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsUpdate(messages.commands.PutRequest) returns (messages.commands.Command) {}
-	rpc CommandsEnableOrDisable(messages.commands.PatchRequest) returns (messages.commands.Command) {}
-
 	rpc CommunityResetStats(messages.community.ResetStatsRequest) returns (google.protobuf.Empty) {}
 
 	rpc EventsGetAll(google.protobuf.Empty) returns (messages.events.GetAllResponse) {}
@@ -84,13 +72,6 @@ service Protected {
 	rpc EventsDelete(messages.events.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc EventsUpdate(messages.events.PutRequest) returns (messages.events.Event) {}
 	rpc EventsEnableOrDisable(messages.events.PatchRequest) returns (messages.events.Event) {}
-
-	rpc GreetingsGetAll(google.protobuf.Empty) returns (messages.greetings.GetAllResponse) {}
-	rpc GreetingsGetById(messages.greetings.GetByIdRequest) returns (messages.greetings.Greeting) {}
-	rpc GreetingsCreate(messages.greetings.CreateRequest) returns (messages.greetings.Greeting) {}
-	rpc GreetingsDelete(messages.greetings.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc GreetingsUpdate(messages.greetings.PutRequest) returns (messages.greetings.Greeting) {}
-	rpc GreetingsEnableOrDisable(messages.greetings.PatchRequest) returns (messages.greetings.Greeting) {}
 
 	rpc IntegrationsDonateStreamGet(google.protobuf.Empty) returns (messages.integrations_donate_stream.DonateStreamResponse) {}
 	rpc IntegrationsDonateStreamPostSecret(messages.integrations_donate_stream.DonateStreamPostSecretRequest) returns (google.protobuf.Empty) {}
@@ -147,13 +128,6 @@ service Protected {
 	rpc IntegrationsDiscordGetGuildChannels(messages.integrations_discord.GetGuildChannelsRequest) returns (messages.integrations_discord.GetGuildChannelsResponse) {}
 	rpc IntegrationsDiscordGetGuildInfo(messages.integrations_discord.GetGuildInfoRequest) returns (messages.integrations_discord.GetGuildInfoResponse) {}
 
-	rpc KeywordsGetAll(google.protobuf.Empty) returns (messages.keywords.GetAllResponse) {}
-	rpc KeywordsGetById(messages.keywords.GetByIdRequest) returns (messages.keywords.Keyword) {}
-	rpc KeywordsCreate(messages.keywords.CreateRequest) returns (messages.keywords.Keyword) {}
-	rpc KeywordsDelete(messages.keywords.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc KeywordsUpdate(messages.keywords.PutRequest) returns (messages.keywords.Keyword) {}
-	rpc KeywordsEnableOrDisable(messages.keywords.PatchRequest) returns (messages.keywords.Keyword) {}
-
 	rpc ModulesOBSWebsocketGet(google.protobuf.Empty) returns (messages.modules_obs_websocket.GetResponse) {}
 	rpc ModulesOBSWebsocketUpdate(messages.modules_obs_websocket.PostRequest) returns (google.protobuf.Empty) {}
 
@@ -185,18 +159,6 @@ service Protected {
 	rpc RolesUpdate(messages.roles.UpdateRequest) returns (messages.roles.Role) {}
 	rpc RolesDelete(messages.roles.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc RolesCreate(messages.roles.CreateRequest) returns (messages.roles.Role) {}
-
-	rpc TimersGetAll(google.protobuf.Empty) returns (messages.timers.GetResponse) {}
-	rpc TimersUpdate(messages.timers.UpdateRequest) returns (messages.timers.Timer) {}
-	rpc TimersDelete(messages.timers.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc TimersCreate(messages.timers.CreateRequest) returns (messages.timers.Timer) {}
-	rpc TimersEnableOrDisable(messages.timers.PatchRequest) returns (messages.timers.Timer) {}
-
-	rpc VariablesGetAll(google.protobuf.Empty) returns (messages.variables.GetAllResponse) {}
-	rpc VariablesGetById(messages.variables.GetByIdRequest) returns (messages.variables.Variable) {}
-	rpc VariablesCreate(messages.variables.CreateRequest) returns (messages.variables.Variable) {}
-	rpc VariablesDelete(messages.variables.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc VariablesUpdate(messages.variables.PutRequest) returns (messages.variables.Variable) {}
 
 	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
 

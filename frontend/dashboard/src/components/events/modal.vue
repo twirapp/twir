@@ -23,6 +23,7 @@ import {
 	useThemeVars,
 	NModal,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch, nextTick } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -38,11 +39,11 @@ import { useCommandsApi } from '@/api/commands/commands';
 import {
 	useAlertsManager,
 	useEventsManager,
-	useKeywordsManager,
 	useObsOverlayManager,
 	useProfile,
-	useVariablesManager,
 } from '@/api/index.js';
+import { useKeywordsApi } from '@/api/keywords.js';
+import { useVariablesApi } from '@/api/variables.js';
 import AlertModal from '@/components/alerts/list.vue';
 import rewardsSelector from '@/components/rewardsSelector.vue';
 
@@ -171,10 +172,10 @@ const obsAudioSources = computed(() => {
 	})) ?? [];
 });
 
-const variablesManager = useVariablesManager();
-const { data: variablesData, isLoading: isVariablesLoading } = variablesManager.getAll({});
+const variablesManager = useVariablesApi();
+const { customVariables: variables } = storeToRefs(variablesManager);
 const variablesSelectOptions = computed(() => {
-	return variablesData.value?.variables.map((v) => ({
+	return variables.value.map((v) => ({
 		label: v.name,
 		value: v.id,
 	})) ?? [];
@@ -190,8 +191,8 @@ const commandsSelectOptions = computed(() => {
 });
 
 
-const keywordsManager = useKeywordsManager();
-const { data: keywordsData, isLoading: isKeywordsLoading } = keywordsManager.getAll({});
+const keywordsManager = useKeywordsApi();
+const { data: keywordsData, fetching: isKeywordsLoading } = keywordsManager.useQueryKeywords();
 const keywordsSelectOptions = computed(() => {
 	return keywordsData.value?.keywords.map(k => ({
 		label: k.text,
@@ -585,7 +586,6 @@ dragAndDrop({
 									v-model:value="currentOperation.target"
 									:options="variablesSelectOptions"
 									:placeholder="t('events.targetVariable')"
-									:loading="isVariablesLoading"
 								/>
 							</n-form-item>
 						</n-grid-item>

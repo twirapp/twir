@@ -14,10 +14,7 @@ import (
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
-func (r *mutationResolver) CommandsGroupsCreate(
-	ctx context.Context,
-	opts gqlmodel.CommandsGroupsCreateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -38,11 +35,7 @@ func (r *mutationResolver) CommandsGroupsCreate(
 }
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
-func (r *mutationResolver) CommandsGroupsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.CommandsGroupsUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
