@@ -116,18 +116,6 @@ export const createCrudManager = <
 	};
 };
 
-export const useCommandsGroupsManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'commands/groups',
-	getAll: protectedApiClient?.commandsGroupGetAll,
-	update: protectedApiClient?.commandsGroupUpdate,
-	create: protectedApiClient?.commandsGroupCreate,
-	patch: null,
-	deleteOne: protectedApiClient?.commandsGroupDelete,
-	getOne: null,
-	invalidateAdditionalQueries: ['commands'],
-});
-
 export const useEventsManager = () => createCrudManager({
 	client: protectedApiClient,
 	queryKey: 'events',

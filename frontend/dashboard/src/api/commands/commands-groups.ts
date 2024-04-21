@@ -6,7 +6,6 @@ import { invalidationKey as commandsInvalidationKey } from './commands.js';
 import { useMutation } from '@/composables/use-mutation';
 import { graphql } from '@/gql';
 
-
 const invalidationKey = 'CommandsGroupsInvalidateKey';
 
 export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
@@ -50,7 +49,7 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsUpdate(id: $id,opts: $opts)
 			}
 		`),
-		[invalidationKey],
+		[invalidationKey, commandsInvalidationKey],
 	);
 
 	return {

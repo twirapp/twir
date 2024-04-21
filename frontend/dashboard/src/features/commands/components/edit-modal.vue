@@ -41,7 +41,8 @@ import { useI18n } from 'vue-i18n';
 
 import { useCommandEdit } from '../composables/use-command-edit.js';
 
-import { useCommandsGroupsManager, useRolesManager } from '@/api/index.js';
+import { useCommandsGroupsApi } from '@/api/commands/commands-groups';
+import { useRolesManager } from '@/api/index.js';
 import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
@@ -68,11 +69,11 @@ const rolesSelectOptions = computed(() => {
 	}));
 });
 
-const commandsGroupsManager = useCommandsGroupsManager();
-const commandsGroups = commandsGroupsManager.getAll({});
+const commandsGroupsManager = useCommandsGroupsApi();
+const commandsGroups = commandsGroupsManager.useQueryGroups();
 const commandsGroupsOptions = computed(() => {
 	if (!commandsGroups.data?.value) return [];
-	return commandsGroups.data.value.groups.map((group) => ({
+	return commandsGroups.data.value.commandsGroups.map((group) => ({
 		label: group.name,
 		value: group.id,
 	}));

@@ -8,7 +8,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
-	"github.com/satont/twir/apps/api/internal/impl_protected/commands_group"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
 	"github.com/satont/twir/apps/api/internal/impl_protected/dashboard"
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
@@ -46,7 +45,6 @@ type Protected struct {
 	*rewards.Rewards
 	*roles.Roles
 	*auth.Auth
-	*commands_group.CommandsGroup
 	*build_in_variables.BuildInVariables
 	*dashboard.Dashboard
 	*twitch.Twitch
@@ -104,7 +102,6 @@ func New(opts Opts) *Protected {
 		Rewards:          &rewards.Rewards{Deps: d},
 		Roles:            &roles.Roles{Deps: d},
 		Auth:             &auth.Auth{Deps: d},
-		CommandsGroup:    &commands_group.CommandsGroup{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},

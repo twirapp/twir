@@ -11,7 +11,6 @@ import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
 import "messages/roles/roles.proto";
-import "messages/commands_group/commands_group.proto";
 import "messages/moderation/moderation.proto";
 import "messages/users/users.proto";
 
@@ -161,11 +160,6 @@ service Protected {
 	rpc RolesCreate(messages.roles.CreateRequest) returns (messages.roles.Role) {}
 
 	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
-
-	rpc CommandsGroupGetAll(google.protobuf.Empty) returns (messages.commands_group.GetAllResponse) {}
-	rpc CommandsGroupCreate(messages.commands_group.CreateRequest) returns (messages.commands_group.Group) {}
-	rpc CommandsGroupDelete(messages.commands_group.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc CommandsGroupUpdate(messages.commands_group.PutRequest) returns (messages.commands_group.Group) {}
 
 	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
 	rpc GetDashboardEventsList(google.protobuf.Empty) returns (messages.dashboard.DashboardEventsList) {}
