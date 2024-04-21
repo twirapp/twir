@@ -3,18 +3,18 @@ extend type Query {
 }
 
 extend type Mutation {
-	commandsCreate(opts: CommandsCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
-	commandsUpdate(id: String!, opts: CommandsCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
-	commandsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsCreate(opts: CommandsCreateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsUpdate(id: ID!, opts: CommandsUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsRemove(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
 
 type Command {
 	id: ID!
 	name: String!
-	description: String
-	aliases: [String!]
-	responses: [CommandResponse!] @goField(forceResolver: true)
-	cooldown: Int
+	description: String!
+	aliases: [String!]!
+	responses: [CommandResponse!]! @goField(forceResolver: true)
+	cooldown: Int!
 	cooldownType: String!
 	enabled: Boolean!
 	visible: Boolean!
@@ -23,15 +23,16 @@ type Command {
 	module: String!
 	isReply: Boolean!
 	keepResponsesOrder: Boolean!
-	deniedUsersIds: [String!]
-	allowedUsersIds: [String!]
-	rolesIds: [String!]
+	deniedUsersIds: [String!]!
+	allowedUsersIds: [String!]!
+	rolesIds: [String!]!
 	onlineOnly: Boolean!
-	cooldownRolesIds: [String!]
-	enabledCategories: [String!]
+	cooldownRolesIds: [String!]!
+	enabledCategories: [String!]!
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	group: CommandGroup
 }
 
 type CommandResponse {
@@ -41,7 +42,7 @@ type CommandResponse {
 	order: Int!
 }
 
-input CommandsCreateOrUpdateOpts {
+input CommandsCreateOpts {
 	name: String!
 	description: String!
 	aliases: [String!]!
@@ -61,6 +62,29 @@ input CommandsCreateOrUpdateOpts {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	groupId: String
+}
+
+input CommandsUpdateOpts {
+	name: String
+	description: String
+	aliases: [String!]
+	responses: [CreateOrUpdateCommandResponseInput!]
+	cooldown: Int
+	cooldownType: String
+	enabled: Boolean
+	visible: Boolean
+	isReply: Boolean
+	keepResponsesOrder: Boolean
+	deniedUsersIds: [String!]
+	allowedUsersIds: [String!]
+	rolesIds: [String!]
+	onlineOnly: Boolean
+	cooldownRolesIds: [String!]
+	enabledCategories: [String!]
+	requiredWatchTime: Int
+	requiredMessages: Int
+	requiredUsedChannelPoints: Int
 	groupId: String
 }
 

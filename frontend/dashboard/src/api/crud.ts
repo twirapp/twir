@@ -116,18 +116,6 @@ export const createCrudManager = <
 	};
 };
 
-export const useCommandsManager = () => createCrudManager({
-	client: protectedApiClient,
-	queryKey: 'commands',
-	getAll: protectedApiClient?.commandsGetAll,
-	update: protectedApiClient?.commandsUpdate,
-	create: protectedApiClient?.commandsCreate,
-	patch: protectedApiClient?.commandsEnableOrDisable,
-	deleteOne: protectedApiClient?.commandsDelete,
-	getOne: protectedApiClient?.commandsGetById,
-	invalidateAdditionalQueries: ['commands/groups', 'alerts'],
-});
-
 export const useCommandsGroupsManager = () => createCrudManager({
 	client: protectedApiClient,
 	queryKey: 'commands/groups',
