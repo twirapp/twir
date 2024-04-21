@@ -52,7 +52,7 @@ const showManageGroupsModal = ref(false);
 					:placeholder="t('commands.searchPlaceholder')"
 				>
 					<template #prefix>
-						<n-icon :component="IconSearch"></n-icon>
+						<n-icon><IconSearch /></n-icon>
 					</template>
 				</n-input>
 			</div>
