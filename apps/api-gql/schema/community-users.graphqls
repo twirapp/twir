@@ -1,0 +1,37 @@
+extend type Query {
+	communityUsers(opts: CommunityUsersOpts!): CommunityUsersResponse!
+}
+
+enum CommunityUsersSortBy {
+	WATCHED
+	MESSAGES
+	USED_EMOTES
+	USED_CHANNELS_POINTS
+}
+
+enum CommunityUsersOrder {
+	DESC
+	ASC
+}
+
+input CommunityUsersOpts {
+	channelId: ID!
+	page: Int
+	perPage: Int
+	sortBy: CommunityUsersSortBy
+	order: CommunityUsersOrder
+}
+
+type CommunityUsersResponse {
+	users: [CommunityUser!]!
+	total: Int!
+}
+
+type CommunityUser implements TwirUser {
+	id: ID!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	watchedMs: Int!
+	messages: Int!
+	usedEmotes: Int!
+	usedChannelPoints: Int!
+}
