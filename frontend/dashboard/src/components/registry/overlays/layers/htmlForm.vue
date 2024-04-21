@@ -17,7 +17,8 @@ import { useI18n } from 'vue-i18n';
 
 import BaseLayer, { type LayerProps } from './layer.vue';
 
-import { useKeywordsManager, useCommandsManager } from '@/api/index.js';
+import { useCommandsApi } from '@/api/commands/commands';
+import { useKeywordsManager } from '@/api/index.js';
 import { useVariablesApi } from '@/api/variables';
 import { copyToClipBoard } from '@/helpers/index.js';
 
@@ -39,8 +40,8 @@ const showModal = ref(false);
 const { allVariables } = storeToRefs(useVariablesApi());
 const keywordsManager = useKeywordsManager();
 const { data: keywords } = keywordsManager.getAll({});
-const commandsManager = useCommandsManager();
-const { data: commands } = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 
 const messages = useMessage();
 const copyVariable = async (v: string) => {

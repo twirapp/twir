@@ -34,9 +34,9 @@ import {
 } from './helpers.js';
 import type { EditableEvent, EventOperation } from './types.js';
 
+import { useCommandsApi } from '@/api/commands/commands';
 import {
 	useAlertsManager,
-	useCommandsManager,
 	useEventsManager,
 	useKeywordsManager,
 	useObsOverlayManager,
@@ -180,8 +180,8 @@ const variablesSelectOptions = computed(() => {
 	})) ?? [];
 });
 
-const commandsManager = useCommandsManager();
-const { data: commandsData, isLoading: isCommandsLoading } = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commandsData, fetching: isCommandsLoading } = commandsManager.useQueryCommands();
 const commandsSelectOptions = computed(() => {
 	return commandsData.value?.commands.map(c => ({
 		label: c.name,

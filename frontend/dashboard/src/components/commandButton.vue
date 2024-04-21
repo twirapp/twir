@@ -4,7 +4,7 @@ import { NButton, NModal } from 'naive-ui';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsManager } from '@/api';
+import { useCommandsApi } from '@/api/commands/commands';
 import CommandModal from '@/components/commands/modal.vue';
 
 const props = defineProps<{
@@ -12,8 +12,8 @@ const props = defineProps<{
 	title?: string
 }>();
 
-const commandsManager = useCommandsManager();
-const { data: commands } = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 
 const command = computed(() => commands.value?.commands.find((command) => command.defaultName === props.name));
 const showCommandEditModal = ref(false);

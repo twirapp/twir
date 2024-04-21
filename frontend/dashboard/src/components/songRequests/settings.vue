@@ -22,8 +22,8 @@ import { useI18n } from 'vue-i18n';
 
 import RewardsSelector from '../rewardsSelector.vue';
 
+import { useCommandsApi } from '@/api/commands/commands';
 import {
-	useCommandsManager,
 	useYoutubeVideoOrChannelSearch,
 	YoutubeSearchType,
 } from '@/api/index.js';
@@ -172,9 +172,10 @@ const songsSearchOptions = computed(() => {
 	}) ?? [];
 });
 
-const { data: allCommands } = useCommandsManager().getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 const srCommands = computed(() => {
-	return allCommands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
+	return commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
 });
 </script>
 

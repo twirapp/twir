@@ -7,14 +7,15 @@ import Card from './card.vue';
 import TTSSettings from './tts/settings.vue';
 import UsersSettings from './tts/users.vue';
 
-import { useCommandsManager, useTtsOverlayManager } from '@/api/index.js';
+import { useCommandsApi } from '@/api/commands/commands';
+import { useTtsOverlayManager } from '@/api/index.js';
 import VoiceMessageIcon from '@/assets/overlays/voice-message.svg?use';
 import CommandsList from '@/components/commands/list.vue';
 
-const commandsManager = useCommandsManager();
-const allCommands = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 const ttsCommands = computed(() => {
-	return allCommands.data.value?.commands.filter((c) => c.module === 'TTS') ?? [];
+	return commands.value?.commands.filter((c) => c.module === 'TTS') ?? [];
 });
 
 const ttsManager = useTtsOverlayManager();

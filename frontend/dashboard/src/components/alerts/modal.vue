@@ -22,11 +22,11 @@ import rewardsSelector from '../rewardsSelector.vue';
 
 import {
   useAlertsManager,
-  useCommandsManager,
   useFiles,
   useGreetingsManager, useKeywordsManager,
   useProfile, useTwitchGetUsers,
 } from '@/api';
+import { useCommandsApi } from '@/api/commands/commands';
 import FilesPicker from '@/components/files/files.vue';
 import { playAudio } from '@/helpers/index.js';
 
@@ -114,10 +114,10 @@ async function testAudio() {
   await playAudio(await req.arrayBuffer(), formValue.value.audioVolume);
 }
 
-const commandsManager = useCommandsManager();
-const { data: commands } = commandsManager.getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 const commandsSelectOptions = computed(() => commands.value?.commands
-    .map(c => ({ label: c.name, value: c.id })),
+    .map((command) => ({ label: command.name, value: command.id })),
 );
 
 const greetingsManager = useGreetingsManager();
