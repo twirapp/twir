@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -14,10 +15,14 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"gorm.io/gorm"
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -30,132 +35,212 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 		return nil, err
 	}
 
-	convertedResponses := make([]gqlmodel.CommandResponse, len(responses))
-	for i, response := range responses {
-		convertedResponses[i] = gqlmodel.CommandResponse{
-			ID:        response.ID,
-			CommandID: response.CommandID,
-			Text:      response.Text.String,
-			Order:     response.Order,
-		}
+	convertedResponses := make([]gqlmodel.CommandResponse, 0, len(responses))
+	for _, response := range responses {
+		convertedResponses = append(
+			convertedResponses,
+			gqlmodel.CommandResponse{
+				ID:        response.ID,
+				CommandID: response.CommandID,
+				Text:      response.Text.String,
+				Order:     response.Order,
+			},
+		)
 	}
 
 	return convertedResponses, nil
 }
 
-// CreateCommand is the resolver for the createCommand field.
-func (r *mutationResolver) CreateCommand(ctx context.Context, opts gqlmodel.CreateCommandInput) (*gqlmodel.Command, error) {
-	_, err := r.sessions.GetAuthenticatedUser(ctx)
+// CommandsCreate is the resolver for the commandsCreate field.
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOrUpdateOpts,
+) (bool, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	return &gqlmodel.Command{
-		ID: uuid.NewString(),
-	}, nil
+	command := &model.ChannelsCommands{
+		ID:           uuid.New().String(),
+		Name:         strings.ToLower(opts.Name),
+		Cooldown:     null.IntFrom(int64(opts.Cooldown)),
+		CooldownType: opts.CooldownType,
+		Enabled:      opts.Enabled,
+		Aliases: lo.Map(
+			lo.IfF(
+				opts.Aliases == nil, func() []string {
+					return []string{}
+				},
+			).Else(opts.Aliases),
+			func(alias string, _ int) string {
+				return strings.TrimSuffix(strings.ToLower(alias), "!")
+			},
+		),
+		Description:               null.StringFrom(opts.Description),
+		Visible:                   opts.Visible,
+		ChannelID:                 dashboardId,
+		Default:                   false,
+		DefaultName:               null.String{},
+		Module:                    "CUSTOM",
+		IsReply:                   opts.IsReply,
+		KeepResponsesOrder:        opts.KeepResponsesOrder,
+		DeniedUsersIDS:            opts.DeniedUsersIds,
+		AllowedUsersIDS:           opts.AllowedUsersIds,
+		RolesIDS:                  opts.RolesIds,
+		OnlineOnly:                opts.OnlineOnly,
+		RequiredWatchTime:         opts.RequiredWatchTime,
+		RequiredMessages:          opts.RequiredMessages,
+		RequiredUsedChannelPoints: opts.RequiredUsedChannelPoints,
+		Responses: make(
+			[]*model.ChannelsCommandsResponses,
+			0,
+			len(opts.Responses),
+		),
+		GroupID:           null.StringFromPtr(opts.GroupID.Value()),
+		CooldownRolesIDs:  opts.CooldownRolesIds,
+		EnabledCategories: opts.EnabledCategories,
+	}
+
+	for _, res := range opts.Responses {
+		if res.Text == "" {
+			continue
+		}
+
+		command.Responses = append(
+			command.Responses, &model.ChannelsCommandsResponses{
+				ID:    uuid.New().String(),
+				Text:  null.StringFrom(res.Text),
+				Order: res.Order,
+			},
+		)
+	}
+
+	err = r.gorm.WithContext(ctx).Create(command).Error
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-// UpdateCommand is the resolver for the updateCommand field.
-func (r *mutationResolver) UpdateCommand(ctx context.Context, id string, opts gqlmodel.UpdateCommandOpts) (*gqlmodel.Command, error) {
+// CommandsUpdate is the resolver for the commandsUpdate field.
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsCreateOrUpdateOpts,
+) (bool, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	cmd := &model.ChannelsCommands{}
-	if err := r.gorm.WithContext(ctx).Where(`"id" = ?`, id).First(cmd).Error; err != nil {
-		return nil, err
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(
+			`"id" = ? AND "channelId" = ?`, id, dashboardId,
+		).
+		First(cmd).
+		Error; err != nil {
+		return false, err
 	}
 
-	if opts.Name.IsSet() {
-		cmd.Name = lo.FromPtr(opts.Name.Value())
+	cmd.Name = strings.ToLower(opts.Name)
+	cmd.Cooldown = null.IntFrom(int64(opts.Cooldown))
+	cmd.CooldownType = opts.CooldownType
+	cmd.Enabled = opts.Enabled
+	cmd.Aliases = lo.Map(
+		lo.IfF(
+			opts.Aliases == nil, func() []string {
+				return []string{}
+			},
+		).Else(opts.Aliases),
+		func(alias string, _ int) string {
+			return strings.TrimSuffix(strings.ToLower(alias), "!")
+		},
+	)
+	cmd.Description = null.StringFrom(opts.Description)
+	cmd.Visible = opts.Visible
+	cmd.IsReply = opts.IsReply
+	cmd.KeepResponsesOrder = opts.KeepResponsesOrder
+	cmd.AllowedUsersIDS = lo.IfF(
+		opts.AllowedUsersIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(opts.AllowedUsersIds)
+	cmd.DeniedUsersIDS = lo.IfF(
+		opts.DeniedUsersIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(opts.DeniedUsersIds)
+	cmd.RolesIDS = lo.IfF(
+		opts.RolesIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(opts.RolesIds)
+	cmd.OnlineOnly = opts.OnlineOnly
+	cmd.RequiredWatchTime = opts.RequiredWatchTime
+	cmd.RequiredMessages = opts.RequiredMessages
+	cmd.RequiredUsedChannelPoints = opts.RequiredUsedChannelPoints
+	cmd.GroupID = null.StringFromPtr(opts.GroupID.Value())
+	cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(opts.Responses))
+	cmd.CooldownRolesIDs = lo.IfF(
+		opts.CooldownRolesIds == nil, func() []string {
+			return []string{}
+		},
+	).Else(opts.CooldownRolesIds)
+	cmd.EnabledCategories = lo.IfF(
+		opts.EnabledCategories == nil, func() []string {
+			return []string{}
+		},
+	).Else(opts.EnabledCategories)
+
+	for _, res := range opts.Responses {
+		if res.Text == "" {
+			continue
+		}
+
+		response := &model.ChannelsCommandsResponses{
+			Text:      null.StringFrom(res.Text),
+			Order:     res.Order,
+			CommandID: cmd.ID,
+		}
+
+		cmd.Responses = append(cmd.Responses, response)
 	}
 
-	if opts.Description.IsSet() {
-		cmd.Description = null.StringFromPtr(opts.Description.Value())
+	txErr := r.gorm.
+		WithContext(ctx).
+		Transaction(
+			func(tx *gorm.DB) error {
+				if err = tx.Delete(
+					&model.ChannelsCommandsResponses{},
+					`"commandId" = ?`,
+					cmd.ID,
+				).Error; err != nil {
+					return err
+				}
+
+				return tx.Save(cmd).Error
+			},
+		)
+	if txErr != nil {
+		return false, err
 	}
 
-	if opts.Aliases.IsSet() {
-		cmd.Aliases = opts.Aliases.Value()
-	}
-
-	if opts.Cooldown.IsSet() {
-		value := lo.FromPtr(opts.Cooldown.Value())
-		cmd.Cooldown = null.IntFrom(int64(value))
-	}
-
-	if opts.CooldownType.IsSet() {
-		cmd.CooldownType = lo.FromPtr(opts.CooldownType.Value())
-	}
-
-	if opts.Enabled.IsSet() {
-		cmd.Enabled = lo.FromPtr(opts.Enabled.Value())
-	}
-
-	if opts.Visible.IsSet() {
-		cmd.Visible = lo.FromPtr(opts.Visible.Value())
-	}
-
-	if opts.Visible.IsSet() {
-		cmd.Visible = lo.FromPtr(opts.Visible.Value())
-	}
-
-	if opts.IsReply.IsSet() {
-		cmd.IsReply = lo.FromPtr(opts.IsReply.Value())
-	}
-
-	if opts.KeepResponsesOrder.IsSet() {
-		cmd.KeepResponsesOrder = lo.FromPtr(opts.KeepResponsesOrder.Value())
-	}
-
-	if opts.DeniedUsersIds.IsSet() {
-		cmd.DeniedUsersIDS = opts.DeniedUsersIds.Value()
-	}
-
-	if opts.AllowedUsersIds.IsSet() {
-		cmd.AllowedUsersIDS = opts.AllowedUsersIds.Value()
-	}
-
-	if opts.RolesIds.IsSet() {
-		cmd.RolesIDS = opts.RolesIds.Value()
-	}
-
-	if opts.OnlineOnly.IsSet() {
-		cmd.OnlineOnly = lo.FromPtr(opts.OnlineOnly.Value())
-
-	}
-
-	if opts.CooldownRolesIds.IsSet() {
-		cmd.CooldownRolesIDs = opts.CooldownRolesIds.Value()
-	}
-
-	if opts.EnabledCategories.IsSet() {
-		cmd.EnabledCategories = opts.EnabledCategories.Value()
-	}
-
-	if opts.RequiredWatchTime.IsSet() {
-		cmd.RequiredWatchTime = lo.FromPtr(opts.RequiredWatchTime.Value())
-	}
-
-	if opts.RequiredMessages.IsSet() {
-		cmd.RequiredMessages = lo.FromPtr(opts.RequiredMessages.Value())
-	}
-
-	if opts.RequiredUsedChannelPoints.IsSet() {
-		cmd.RequiredUsedChannelPoints = lo.FromPtr(opts.RequiredUsedChannelPoints.Value())
-	}
-
-	if opts.Responses.IsSet() {
-		// TODO
-	}
-
-	if err := r.gorm.WithContext(ctx).Save(cmd).Error; err != nil {
-		return nil, err
-	}
-
-	// TODO
-	return nil, nil
+	return true, nil
 }
 
-// RemoveCommand is the resolver for the removeCommand field.
-func (r *mutationResolver) RemoveCommand(ctx context.Context, id string) (bool, error) {
+// CommandsRemove is the resolver for the commandsRemove field.
+func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool, error) {
 	cmd := &model.ChannelsCommands{}
-	if err := r.gorm.WithContext(ctx).Where(`"id" = ?`, id).First(cmd).Error; err != nil {
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"id" = ?`, id).
+		First(cmd).
+		Error; err != nil {
 		return false, err
 	}
 
@@ -181,39 +266,43 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("name ASC").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
 
-	convertedCommands := make([]gqlmodel.Command, len(entities))
-	for i, entity := range entities {
+	convertedCommands := make([]gqlmodel.Command, 0, len(entities))
+	for _, entity := range entities {
 		cooldown := entity.Cooldown.Int64
 		cooldownInt := int(cooldown)
 
-		convertedCommands[i] = gqlmodel.Command{
-			ID:                        entity.ID,
-			Name:                      entity.Name,
-			Description:               entity.Description.Ptr(),
-			Aliases:                   entity.Aliases,
-			Cooldown:                  &cooldownInt,
-			CooldownType:              entity.CooldownType,
-			Enabled:                   entity.Enabled,
-			Visible:                   entity.Visible,
-			Default:                   entity.Default,
-			DefaultName:               entity.DefaultName.Ptr(),
-			Module:                    entity.Module,
-			IsReply:                   entity.IsReply,
-			KeepResponsesOrder:        entity.KeepResponsesOrder,
-			DeniedUsersIds:            entity.DeniedUsersIDS,
-			AllowedUsersIds:           entity.AllowedUsersIDS,
-			RolesIds:                  entity.RolesIDS,
-			OnlineOnly:                entity.OnlineOnly,
-			CooldownRolesIds:          entity.CooldownRolesIDs,
-			EnabledCategories:         entity.EnabledCategories,
-			RequiredWatchTime:         entity.RequiredWatchTime,
-			RequiredMessages:          entity.RequiredMessages,
-			RequiredUsedChannelPoints: entity.RequiredUsedChannelPoints,
-		}
+		convertedCommands = append(
+			convertedCommands,
+			gqlmodel.Command{
+				ID:                        entity.ID,
+				Name:                      entity.Name,
+				Description:               entity.Description.Ptr(),
+				Aliases:                   entity.Aliases,
+				Cooldown:                  &cooldownInt,
+				CooldownType:              entity.CooldownType,
+				Enabled:                   entity.Enabled,
+				Visible:                   entity.Visible,
+				Default:                   entity.Default,
+				DefaultName:               entity.DefaultName.Ptr(),
+				Module:                    entity.Module,
+				IsReply:                   entity.IsReply,
+				KeepResponsesOrder:        entity.KeepResponsesOrder,
+				DeniedUsersIds:            entity.DeniedUsersIDS,
+				AllowedUsersIds:           entity.AllowedUsersIDS,
+				RolesIds:                  entity.RolesIDS,
+				OnlineOnly:                entity.OnlineOnly,
+				CooldownRolesIds:          entity.CooldownRolesIDs,
+				EnabledCategories:         entity.EnabledCategories,
+				RequiredWatchTime:         entity.RequiredWatchTime,
+				RequiredMessages:          entity.RequiredMessages,
+				RequiredUsedChannelPoints: entity.RequiredUsedChannelPoints,
+			},
+		)
 	}
 	return convertedCommands, nil
 }
