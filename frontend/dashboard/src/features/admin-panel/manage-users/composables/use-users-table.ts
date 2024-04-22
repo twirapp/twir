@@ -127,6 +127,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	return {
 		isLoading: fetching,
+		pagination,
 		totalUsers,
 		table,
 		tableColumns,

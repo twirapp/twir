@@ -160,6 +160,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	return {
 		table,
 		tableColumns,
+		pagination,
 		notifications,
 		totalNotifications,
 		onDeleteNotification,

@@ -4,7 +4,6 @@ import {
 } from '@tanstack/vue-table';
 import { useI18n } from 'vue-i18n';
 
-import notificationsTablePagination from './notifications-table-pagination.vue';
 import NotificationsTableSearch from './notifications-table-search.vue';
 import { useNotificationsTable } from '../composables/use-notifications-table';
 
@@ -26,7 +25,7 @@ const notificationsTable = useNotificationsTable();
 <template>
 	<div class="flex flex-wrap w-full items-center justify-between gap-2">
 		<notifications-table-search />
-		<notifications-table-pagination />
+		<slot name="pagination" />
 	</div>
 
 	<shadcn-layout>
@@ -70,4 +69,6 @@ const notificationsTable = useNotificationsTable();
 			</TooltipProvider>
 		</Table>
 	</shadcn-layout>
+
+	<slot name="pagination" />
 </template>
