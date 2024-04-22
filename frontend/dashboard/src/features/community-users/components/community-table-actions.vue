@@ -1,0 +1,75 @@
+<script setup lang="ts">
+import { useCommunityTableActions } from '../composables/use-community-table-actions.js';
+
+import SearchBar from '@/components/search-bar.vue';
+
+const communityUsersActions = useCommunityTableActions() ;
+</script>
+
+<template>
+	<div class="flex gap-2 max-sm:flex-col">
+		<search-bar v-model="communityUsersActions.searchInput" />
+		<!-- <Popover>
+			<PopoverTrigger as-child>
+				<Button variant="outline" size="sm" class="h-9">
+					<ListFilterIcon class="mr-2 h-4 w-4" />
+					{{ t('adminPanel.manageUsers.filters') }}
+
+					<template v-if="usersTableFilters.selectedFiltersCount">
+						<Separator orientation="vertical" class="mx-2 h-4" />
+						<Badge
+							variant="secondary"
+							class="rounded-sm px-1 font-normal"
+						>
+							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount }) }}
+						</Badge>
+					</template>
+				</Button>
+			</PopoverTrigger>
+			<PopoverContent class="w-[200px] p-0" align="end">
+				<Command>
+					<CommandList>
+						<CommandGroup
+							v-for="filters of usersTableFilters.filtersList"
+							:key="filters.group"
+							:heading="filters.group"
+						>
+							<CommandItem
+								v-for="filter of filters.list"
+								:key="filter.key"
+								:value="filter.key"
+								@select="applyFilter(filter.key, filters.type)"
+							>
+								<div
+									:class="[
+										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
+										usersTableFilters.isFilterApplied(filter.key, filters.type)
+											? 'bg-primary text-primary-foreground'
+											: 'opacity-50 [&_svg]:invisible'
+									]"
+								>
+									<CheckIcon :class="cn('h-4 w-4')" />
+								</div>
+								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
+								<span>{{ filter.label }}</span>
+							</CommandItem>
+						</CommandGroup>
+
+						<template v-if="usersTableFilters.selectedFiltersCount">
+							<CommandSeparator />
+							<CommandGroup>
+								<CommandItem
+									:value="{ label: 'Clear filters' }"
+									class="justify-center text-center cursor-pointer"
+									@select="usersTableFilters.clearFilters"
+								>
+									{{ t('adminPanel.manageUsers.clearFilters') }}
+								</CommandItem>
+							</CommandGroup>
+						</template>
+					</CommandList>
+				</Command>
+			</PopoverContent>
+		</Popover> -->
+	</div>
+</template>

@@ -27,6 +27,7 @@ enum CommunityUsersOrder {
 
 input CommunityUsersOpts {
 	channelId: ID!
+	query: String
 	page: Int
 	perPage: Int
 	sortBy: CommunityUsersSortBy

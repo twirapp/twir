@@ -52,8 +52,8 @@ function handlePageSizeChange(pageSize: string) {
 		/>
 		<div class="flex-1 text-sm text-muted-foreground">
 			{{ t('sharedTexts.pagination', {
-				total: table.getPageCount(),
-				items: formatNumber(total),
+				page: table.getPageCount(),
+				total: formatNumber(total),
 			}) }}
 		</div>
 		<div class="flex gap-2">
@@ -64,7 +64,7 @@ function handlePageSizeChange(pageSize: string) {
 				:disabled="!table.getCanPreviousPage()"
 				@click="table.previousPage()"
 			>
-				<ChevronLeft />
+				<ChevronLeft class="h-4 w-4" />
 			</Button>
 			<Select default-value="10" @update:model-value="handlePageSizeChange">
 				<SelectTrigger class="w-20 h-9">
@@ -83,7 +83,7 @@ function handlePageSizeChange(pageSize: string) {
 				:disabled="!table.getCanNextPage()"
 				@click="table.nextPage()"
 			>
-				<ChevronRight />
+				<ChevronRight class="h-4 w-4" />
 			</Button>
 		</div>
 	</div>
