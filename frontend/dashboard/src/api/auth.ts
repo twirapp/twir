@@ -1,14 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createRequest, useQuery as useGraphqlQuery } from '@urql/vue';
+import { useQueryClient } from '@tanstack/vue-query';
+import { createRequest, useQuery } from '@urql/vue';
 import { defineStore } from 'pinia';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 
-import { protectedApiClient } from './twirp.js';
-
+import { useMutation } from '@/composables/use-mutation';
 import { useMutation as _useMutation } from '@/composables/use-mutation.js';
 import { graphql } from '@/gql';
 import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
 import { urqlClient, useUrqlClient } from '@/plugins/urql.js';
+
 
 export const profileQuery = createRequest(graphql(`
 	query AuthenticatedUser {
@@ -28,6 +28,11 @@ export const profileQuery = createRequest(graphql(`
 				profileImageUrl
 			}
 			selectedDashboardId
+			selectedDashboardTwitchUser {
+				login
+				displayName
+				profileImageUrl
+			}
 			availableDashboards {
 				id
 				flags
@@ -37,19 +42,22 @@ export const profileQuery = createRequest(graphql(`
 					profileImageUrl
 				}
 			}
-			publicSettings {
-				description
-				socialLinks {
-					href
-					title
-				}
-			}
 		}
 	}
 `), {});
 
+export const userInvalidateQueryKey = 'UserInvalidateQueryKey';
+
 export const useProfile = defineStore('auth/profile', () => {
-	const { data: response, executeQuery, fetching } = useGraphqlQuery(profileQuery);
+	const { data: response, executeQuery, fetching, error } = useQuery({
+		query: profileQuery.query,
+		variables: {
+			key: profileQuery.key,
+		},
+		context: {
+			additionalTypenames: [userInvalidateQueryKey],
+		},
+	});
 
 	const computedUser = computed(() => {
 		const user = response.value?.authenticatedUser;
@@ -67,20 +75,84 @@ export const useProfile = defineStore('auth/profile', () => {
 			isBotModerator: user.isBotModerator,
 			botId: user.botId,
 			selectedDashboardId: user.selectedDashboardId,
+			selectedDashboardTwitchUser: user.selectedDashboardTwitchUser,
 			hideOnLandingPage: user.hideOnLandingPage,
 			availableDashboards: user.availableDashboards,
 		};
 	});
 
+	watch(error, (v) => {
+		console.log(v);
+	});
+
 	return { data: computedUser, executeQuery, isLoading: fetching };
 });
 
-export const useLogout = () => useMutation({
-	mutationKey: ['authLogout'],
-	mutationFn: async () => {
-		await protectedApiClient.authLogout({});
-	},
+export const useLogout = () => {
+	const { executeMutation } = useMutation(graphql(`
+		mutation userLogout {
+			logout
+		}
+	`));
+
+	async function execute() {
+		const result = await executeMutation({});
+		if (result.error) throw new Error(result.error.toString());
+		window.location.replace('/');
+	}
+
+	return {
+		execute,
+	};
+};
+
+export const useUserSettings = defineStore('userSettings', () => {
+	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey';
+
+	const usePublicQuery = () => useQuery({
+		query: graphql(`
+			query userPublicSettings {
+				userPublicSettings {
+					description
+					socialLinks {
+						href
+						title
+					}
+				}
+			}
+		`),
+		variables: {},
+		context: {
+			additionalTypenames: [userPublicSettingsInvalidateKey],
+		},
+	});
+
+	const usePublicMutation = () => useMutation(graphql(`
+		mutation userPublicSettingsUpdate($opts: UserUpdatePublicSettingsInput!) {
+			authenticatedUserUpdatePublicPage(opts: $opts)
+		}
+	`), [userPublicSettingsInvalidateKey]);
+
+	const useApiKeyGenerateMutation = () => useMutation(graphql(`
+		mutation userRegenerateApiKey {
+			authenticatedUserRegenerateApiKey
+		}
+	`), [userInvalidateQueryKey]);
+
+	const useUserUpdateMutation = () => useMutation(graphql(`
+		mutation userUpdateSettings($opts: UserUpdateSettingsInput!) {
+			authenticatedUserUpdateSettings(opts: $opts)
+		}
+	`), [userInvalidateQueryKey, userPublicSettingsInvalidateKey]);
+
+	return {
+		usePublicQuery,
+		usePublicMutation,
+		useApiKeyGenerateMutation,
+		useUserUpdateMutation,
+	};
 });
+
 
 export const useDashboard = defineStore('auth/dashboard', () => {
 	const urqlClient = useUrqlClient();

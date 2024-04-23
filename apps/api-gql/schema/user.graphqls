@@ -1,5 +1,6 @@
 extend type Query {
 	authenticatedUser: AuthenticatedUser! @isAuthenticated
+	userPublicSettings(userId: String): PublicSettings!
 }
 
 extend type Mutation {
@@ -7,6 +8,7 @@ extend type Mutation {
 	authenticatedUserUpdateSettings(opts: UserUpdateSettingsInput!): Boolean! @isAuthenticated
 	authenticatedUserRegenerateApiKey: String! @isAuthenticated
 	authenticatedUserUpdatePublicPage(opts: UserUpdatePublicSettingsInput!): Boolean! @isAuthenticated
+	logout: Boolean! @isAuthenticated
 }
 
 type AuthenticatedUser implements TwirUser {
@@ -20,8 +22,8 @@ type AuthenticatedUser implements TwirUser {
 	botId: ID
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	selectedDashboardId: String!
+	selectedDashboardTwitchUser: TwirUserTwitchInfo! @goField(forceResolver: true)
 	availableDashboards: [Dashboard!]!
-	publicSettings: PublicSettings!
 }
 
 type Dashboard {

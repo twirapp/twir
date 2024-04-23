@@ -36,3 +36,7 @@ func (s *Sessions) SetSelectedDashboard(ctx context.Context, dashboardId string)
 
 	return nil
 }
+
+func (s *Sessions) Logout(ctx context.Context) error {
+	return s.sessionManager.Destroy(ctx)
+}

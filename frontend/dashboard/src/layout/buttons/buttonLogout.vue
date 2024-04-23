@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { IconLogout } from '@tabler/icons-vue';
 import { NButton, NSpin } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { useI18n } from 'vue-i18n';
 
 import { useLogout, useProfile } from '@/api';
-import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 const { isLoading: isProfileLoading } = storeToRefs(useProfile());
@@ -12,7 +12,13 @@ const logout = useLogout();
 </script>
 
 <template>
-	<n-button size="large" :disabled="isProfileLoading" @click="logout.mutate">
+	<n-button
+		secondary
+		block
+		type="error"
+		:disabled="isProfileLoading"
+		@click="logout.execute"
+	>
 		<n-spin v-if="isProfileLoading" size="small" />
 		<template v-else>
 			<IconLogout class="w-5 h-5" />

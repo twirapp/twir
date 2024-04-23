@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import { IconEdit, IconTrash, IconArrowUp, IconArrowDown } from '@tabler/icons-vue';
-import type {
-	Settings,
-	SocialLink,
-} from '@twir/api/messages/channels_public_settings/channels_public_settings';
 import {
 	NCard,
 	NInput,
@@ -13,31 +9,36 @@ import {
 	type FormItemRule,
 } from 'naive-ui';
 import type { FormRules, FormInst } from 'naive-ui';
+import { OmitDeep } from 'type-fest';
 import { computed, ref, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { usePublicSettings } from '@/api/public-settings';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { useUserSettings } from '@/api';
+import { useToast } from '@/components/ui/toast';
+import { UserPublicSettingsQuery } from '@/gql/graphql';
+
+type FormParams = OmitDeep<UserPublicSettingsQuery['userPublicSettings'], '__typename' | 'socialLinks'> & {
+	socialLinks: Array<UserPublicSettingsQuery['userPublicSettings']['socialLinks'][number] & { isEditing?: boolean }>
+}
 
 const { t } = useI18n();
-const { notification } = useNaiveDiscrete();
-const manager = usePublicSettings();
-const { data } = manager.useGet();
-const updater = manager.useUpdate();
-
-type SocialLinkWithEdit = SocialLink & { isEditing?: boolean };
-type FormParams = Omit<Settings, 'socialLinks'> & { socialLinks: SocialLinkWithEdit[] }
+const toast = useToast();
+const manager = useUserSettings();
+const { data } = manager.usePublicQuery();
+const updater = manager.usePublicMutation();
 
 const formRef = ref<FormInst | null>(null);
 const formData = ref<FormParams>({
 	socialLinks: [],
-	description: undefined,
+	description: '',
 });
 
 watch(data, (v) => {
 	if (!v) return;
 
-	const rawData = toRaw(v);
+	console.log(v);
+
+	const rawData = toRaw(v).userPublicSettings;
 
 	formData.value = {
 		...rawData,
@@ -46,11 +47,13 @@ watch(data, (v) => {
 }, { immediate: true });
 
 async function save() {
-	await updater.mutateAsync(formData.value);
-	notification.create({
+	await updater.executeMutation({
+		opts: formData.value,
+	});
+
+	toast.toast({
 		title: t('sharedTexts.saved'),
-		type: 'success',
-		duration: 2500,
+		duration: 1500,
 	});
 }
 
@@ -112,106 +115,119 @@ function changeSort(from: number, to: number) {
 </script>
 
 <template>
-	<div class="w-full flex flex-wrap gap-4">
-		<n-card :title="t('userSettings.public.description')" size="small" bordered>
-			<n-form-item :show-label="false" :show-feedback="false">
-				<n-input
-					show-count
-					maxlength="1000"
-					v-model:value="formData.description"
-					type="textarea"
-					placeholder=""
-					:autosize="{ minRows: 3 }"
-				/>
-			</n-form-item>
-		</n-card>
+	<div class="w-full flex flex-wrap gap-6">
+		<div class="flex flex-col w-full gap-6">
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+				{{ t('userSettings.public.description') }}
+			</h4>
 
-		<n-card :title="t('userSettings.public.socialLinks')" size="small" bordered>
-			<div class="flex flex-col gap-1">
-				<n-card
-					v-for="(link, idx) of formData.socialLinks"
-					:key="idx"
-					size="small"
-					embedded
-				>
-					<template #header>
-						<n-input v-if="link.isEditing" v-model:value="link.title" size="small" class="w-[30%]" :maxlength="30" />
-						<template v-else>
-							{{ link.title }}
-						</template>
-					</template>
-					<template #header-extra>
-						<div class="flex gap-2">
-							<n-button
-								text
-								:disabled="!formData.socialLinks[idx+1]"
-								@click="changeSort(idx, idx+1)"
-							>
-								<IconArrowDown />
-							</n-button>
-							<n-button
-								text
-								:disabled="idx === 0"
-								@click="changeSort(idx, idx-1)"
-							>
-								<IconArrowUp />
-							</n-button>
-							<n-button text @click="link.isEditing = !link.isEditing">
-								<IconEdit />
-							</n-button>
-							<n-button
-								text
-								@click="removeLink(idx)"
-							>
-								<IconTrash />
-							</n-button>
-						</div>
-					</template>
-
+			<n-card size="small" bordered>
+				<n-form-item :label="t('userSettings.public.description')" :show-feedback="false">
 					<n-input
-						v-if="link.isEditing"
-						v-model:value="link.href"
-						size="small"
+						v-model:value="formData.description"
+						show-count
+						maxlength="1000"
 						type="textarea"
-						autosize
-						:maxlength="500"
-					/>
-					<template v-else>
-						{{ link.href }}
-					</template>
-				</n-card>
-			</div>
-			<n-form ref="formRef" :rules="rules" :model="newLinkForm" class="flex flex-wrap gap-2 items-center w-full mt-5">
-				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkTitle')" class="flex-auto" path="title">
-					<n-input
-						v-model:value="newLinkForm.title"
-						name="title"
-						:maxlength="30"
-						placeholder="Twir"
-						:disabled=" linksLimitReached"
-						:input-props="{ name: 'title' }"
+						placeholder=""
+						:autosize="{ minRows: 3 }"
 					/>
 				</n-form-item>
-				<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
-					<n-input
-						v-model:value="newLinkForm.href"
-						:input-props="{ name: 'href', type: 'url', pattern: 'https?://.+' }"
-						:maxlength="256"
-						placeholder="https://twir.app"
+			</n-card>
+		</div>
+
+
+		<div class="flex flex-col w-full gap-6">
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+				{{ t('userSettings.public.socialLinks') }}
+			</h4>
+
+			<n-card size="small" bordered>
+				<div class="flex flex-col gap-1">
+					<n-card
+						v-for="(link, idx) of formData.socialLinks"
+						:key="idx"
+						size="small"
+						embedded
+					>
+						<template #header>
+							<n-input v-if="link.isEditing" v-model:value="link.title" size="small" class="w-[30%]" :maxlength="30" />
+							<template v-else>
+								{{ link.title }}
+							</template>
+						</template>
+						<template #header-extra>
+							<div class="flex gap-2">
+								<n-button
+									text
+									:disabled="!formData.socialLinks[idx+1]"
+									@click="changeSort(idx, idx+1)"
+								>
+									<IconArrowDown />
+								</n-button>
+								<n-button
+									text
+									:disabled="idx === 0"
+									@click="changeSort(idx, idx-1)"
+								>
+									<IconArrowUp />
+								</n-button>
+								<n-button text @click="link.isEditing = !link.isEditing">
+									<IconEdit />
+								</n-button>
+								<n-button
+									text
+									@click="removeLink(idx)"
+								>
+									<IconTrash />
+								</n-button>
+							</div>
+						</template>
+
+						<n-input
+							v-if="link.isEditing"
+							v-model:value="link.href"
+							size="small"
+							type="textarea"
+							autosize
+							:maxlength="500"
+						/>
+						<template v-else>
+							{{ link.href }}
+						</template>
+					</n-card>
+				</div>
+				<n-form ref="formRef" :rules="rules" :model="newLinkForm" class="flex flex-wrap gap-2 items-center w-full mt-5">
+					<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkTitle')" class="flex-auto" path="title">
+						<n-input
+							v-model:value="newLinkForm.title"
+							name="title"
+							:maxlength="30"
+							placeholder="Twir"
+							:disabled=" linksLimitReached"
+							:input-props="{ name: 'title' }"
+						/>
+					</n-form-item>
+					<n-form-item style="--n-label-height: 0px;" :label="t('userSettings.public.linkLabel')" class="flex-auto" path="href">
+						<n-input
+							v-model:value="newLinkForm.href"
+							:input-props="{ name: 'href', type: 'url', pattern: 'https?://.+' }"
+							:maxlength="256"
+							placeholder="https://twir.app"
+							:disabled="linksLimitReached"
+						/>
+					</n-form-item>
+					<n-button
+						secondary
+						attr-type="submit"
+						type="success"
 						:disabled="linksLimitReached"
-					/>
-				</n-form-item>
-				<n-button
-					secondary
-					attr-type="submit"
-					type="success"
-					:disabled="linksLimitReached"
-					@click="addLink"
-				>
-					{{ t('sharedButtons.add') }}
-				</n-button>
-			</n-form>
-		</n-card>
+						@click="addLink"
+					>
+						{{ t('sharedButtons.add') }}
+					</n-button>
+				</n-form>
+			</n-card>
+		</div>
 
 		<div class="flex justify-start w-full">
 			<n-button secondary type="success" @click="save">

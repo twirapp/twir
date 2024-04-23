@@ -1,33 +1,25 @@
 <script setup lang="ts">
 import { IconExternalLink } from '@tabler/icons-vue';
 import { NButton, NTooltip } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useProfile, useTwitchGetUsers } from '@/api';
-import { storeToRefs } from 'pinia';
+import { useProfile } from '@/api';
 
 const { data: profileData } = storeToRefs(useProfile());
 const { t } = useI18n();
 
-const selectedUserId = computed(() => {
-	return (profileData.value?.selectedDashboardId ?? profileData?.value?.id) || '';
-});
-const selectedDashboardTwitchUser = useTwitchGetUsers({
-	ids: selectedUserId,
-});
+const publicPageHref = computed(() => {
+	const selectedDashboardLogin = profileData.value?.selectedDashboardTwitchUser?.login;
+	if (!selectedDashboardLogin) return null;
 
-const publicPageHref = computed<string>(() => {
-	if (!profileData.value || !selectedDashboardTwitchUser.data.value?.users.length) return '';
-
-	const login = selectedDashboardTwitchUser.data.value.users.at(0)!.login;
-
-	return `${window.location.origin}/p/${login}`;
+	return `${window.location.origin}/p/${selectedDashboardLogin}`;
 });
 </script>
 
 <template>
-	<n-tooltip>
+	<n-tooltip v-if="publicPageHref">
 		<template #trigger>
 			<n-button tag="a" circle quaternary target="_blank" :href="publicPageHref">
 				<IconExternalLink />

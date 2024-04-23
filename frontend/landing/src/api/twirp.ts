@@ -8,8 +8,6 @@ const apiAddr = isDev ? `${host}/api` : 'api:3002';
 
 const baseUrl = `http://${apiAddr}/v1`;
 
-console.info('BaseURL:', baseUrl);
-
 const transport = new TwirpFetchTransport({
 	baseUrl,
 	sendJson: isDev,

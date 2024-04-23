@@ -51,15 +51,9 @@ import "messages/feedback/feedback.proto";
 import "messages/integrations_seventv/integrations_seventv.proto";
 import "messages/overlays_now_playing/overlays_now_playing.proto";
 
-import "messages/channels_public_settings/channels_public_settings.proto";
 import "messages/notifications/notifications.proto";
 
 service Protected {
-	rpc AuthUserProfile(google.protobuf.Empty) returns (messages.auth.Profile) {}
-	rpc AuthSetDashboard(messages.auth.SetDashboard) returns (google.protobuf.Empty) {}
-	rpc AuthGetDashboards(google.protobuf.Empty) returns (messages.auth.GetDashboardsResponse) {}
-	rpc AuthLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
 	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
 	rpc BotJoinPart(messages.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
 
@@ -228,8 +222,6 @@ service Protected {
 	rpc OverlaysNowPlayingDelete(messages.overlays_now_playing.DeleteRequest) returns (google.protobuf.Empty) {}
 	rpc OverlaysNowPlayingCreate(messages.overlays_now_playing.CreateRequest) returns (messages.overlays_now_playing.Settings) {}
 
-	rpc ChannelsPublicSettingsUpdate(messages.channels_public_settings.UpdateRequest) returns (messages.channels_public_settings.Settings) {}
-
 	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.notifications.NotificationsGetAllResponse) {}
 }
 
@@ -260,9 +252,6 @@ service UnProtected {
 
 	rpc GetTTSChannelSettings(messages.tts_unprotected.GetChannelSettingsRequest) returns (messages.tts_unprotected.Settings) {}
 	rpc GetTTSUsersSettings(messages.tts_unprotected.GetUsersSettingsRequest) returns (messages.tts_unprotected.GetUsersSettingsResponse) {}
-
-	rpc GetPublicUserInfo(messages.auth.GetPublicUserInfoRequest) returns (messages.auth.GetPublicUserInfoResponse) {}
-	rpc GetPublicSettings(messages.channels_public_settings.GetRequest) returns (messages.channels_public_settings.Settings) {}
 
 	rpc GetBadgesWithUsers(google.protobuf.Empty) returns (messages.badges_unprotected.GetBadgesResponse) {}
 }

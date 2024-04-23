@@ -1,7 +1,8 @@
 import type { APIContext } from 'astro';
 import { defineMiddleware } from 'astro/middleware';
 
-import { protectedClient, unProtectedClient } from '@/api/twirp.js';
+import { unProtectedClient } from '@/api/twirp.js';
+import { getAuthenticatedUser } from '@/api/user.ts';
 
 export const onRequest = defineMiddleware(async (context, next) => {
 	await Promise.all([
@@ -17,10 +18,7 @@ const assignProfile = async (context: APIContext) => {
 
 	if (session && session.value) {
 		try {
-			const request = await protectedClient.authUserProfile({}, {
-				meta: { Cookie: `session=${session.value}` },
-			});
-			context.locals.profile = request.response;
+			context.locals.profile = await getAuthenticatedUser(session.value);
 		} catch (err) {
 			console.log('User profile error:', err);
 		}
