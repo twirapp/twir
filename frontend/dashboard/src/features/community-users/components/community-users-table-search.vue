@@ -34,7 +34,7 @@ const searchInput = ref('');
 </script>
 
 <template>
-	<div class="flex gap-2 max-sm:flex-col">
+	<div class="flex gap-2">
 		<search-bar v-model="searchInput" />
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
