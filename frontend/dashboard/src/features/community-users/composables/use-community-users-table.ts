@@ -12,6 +12,8 @@ import UsersTableCellUser from '@/features/admin-panel/manage-users/components/u
 import { type CommunityUsersOpts } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
 
+const ONE_HOUR = 60 * 60 * 1000;
+
 export const useCommunityUsersTable = defineStore('features/community-users-table', () => {
 	const communityUsersApi = useCommunityUsersApi();
 	const { data: profile } = useProfile();
@@ -96,7 +98,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			size: 20,
 			header: () => h('div', t('community.users.table.watchedTime')),
 			cell: ({ row }) => {
-				return h('div', row.original.watchedMs);
+				return h('div', `${(Number(row.original.watchedMs) / ONE_HOUR).toFixed(1)}h`);
 			},
 		},
 	]);

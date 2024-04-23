@@ -753,6 +753,7 @@
   "community": {
 		"users": {
 			"title": "Community Users",
+			"resetActions": "Reset",
       "table": {
         "user": "User",
         "watchedTime": "Watched Time",
