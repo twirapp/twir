@@ -10,7 +10,7 @@ export const useCommunityTableActions = defineStore('features/community-actions'
 	const sorting = ref<SortingState>([
 		{
 			desc: true,
-			id: 'watchedMs', // accessorKey
+			id: TABLE_ACCESSOR_KEYS.watchedMs, // accessorKey
 		},
 	]);
 	const columnFilters = ref<ColumnFiltersState>([]);
