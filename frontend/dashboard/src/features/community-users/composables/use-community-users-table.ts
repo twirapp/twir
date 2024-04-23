@@ -10,7 +10,7 @@ import { useProfile } from '@/api';
 import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js';
 import { usePagination } from '@/composables/use-pagination.js';
 import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
-import { type CommunityUsersOpts } from '@/gql/graphql';
+import { CommunityUsersResetType, type CommunityUsersOpts } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
 import { valueUpdater } from '@/helpers/value-updater.js';
 
@@ -42,7 +42,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 	const { pagination, setPagination } = usePagination();
 	const params = computed<CommunityUsersOpts>((prevParams) => {
 		// reset pagination on search change
-		if (prevParams?.query !== debouncedSearchInput.value) {
+		if (prevParams?.search !== debouncedSearchInput.value) {
 			pagination.value.pageIndex = 0;
 		}
 
@@ -101,8 +101,8 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			header: ({ column }) => {
 				return h(CommunityUsersTableColumn, {
 					column,
+					columnType: CommunityUsersResetType.Messages,
 					title: t('community.users.table.messages'),
-					isClearable: true,
 				});
 			},
 			cell: ({ row }) => {
@@ -116,8 +116,8 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			header: ({ column }) => {
 				return h(CommunityUsersTableColumn, {
 					column,
+					columnType: CommunityUsersResetType.UsedChannelsPoints,
 					title: t('community.users.table.usedChannelPoints'),
-					isClearable: true,
 				});
 			},
 			cell: ({ row }) => {
@@ -131,8 +131,8 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			header: ({ column }) => {
 				return h(CommunityUsersTableColumn, {
 					column,
+					columnType: CommunityUsersResetType.UsedEmotes,
 					title: t('community.users.table.usedEmotes'),
-					isClearable: true,
 				});
 			},
 			cell: ({ row }) => {
@@ -146,8 +146,8 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			header: ({ column }) => {
 				return h(CommunityUsersTableColumn, {
 					column,
+					columnType: CommunityUsersResetType.Watched,
 					title: t('community.users.table.watchedTime'),
-					isClearable: true,
 				});
 			},
 			cell: ({ row }) => {

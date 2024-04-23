@@ -758,6 +758,7 @@
   "community": {
 		"users": {
 			"title": "Community Users",
+			"searchPlaceholder": "Search users...",
       "table": {
 				"user": "User",
         "watchedTime": "Watched Time",

@@ -7,7 +7,7 @@ import { TABLE_ACCESSOR_KEYS } from './use-community-users-table';
 
 import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql';
 
-export const useCommunityTableActions = defineStore('features/community-actions', () => {
+export const useCommunityTableActions = defineStore('features/community-table-actions', () => {
 	const searchInput = ref('');
 	const debouncedSearchInput = refDebounced<string>(searchInput, 500);
 

@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import type { Column } from '@tanstack/vue-table';
 import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff, Trash } from 'lucide-vue-next';
+import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useCommunityUsersApi } from '@/api/community-users.js';
 import { Button } from '@/components/ui/button';
+import DeleteConfirm from '@/components/ui/delete-confirm.vue';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,21 +14,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { CommunityUsersResetType } from '@/gql/graphql.js';
 import { cn } from '@/lib/utils';
 
 defineOptions({
 	inheritAttrs: false,
 });
 
-withDefaults(defineProps<{
+const props = defineProps<{
+	columnType?: CommunityUsersResetType,
   column: Column<any, any>
   title: string
-	isClearable?: boolean
-}>(), {
-	isClearable: false,
-});
+}>();
 
 const { t } = useI18n();
+const communityUsersApi = useCommunityUsersApi();
+const communityResetMutation = communityUsersApi.useMutationCommunityReset();
+
+const showConfirm = ref(false);
+async function resetColumn() {
+	if (!props.columnType) return;
+
+	await communityResetMutation.executeMutation({
+		type: props.columnType,
+	});
+}
 </script>
 
 <template>
@@ -57,7 +70,7 @@ const { t } = useI18n();
 					<EyeOff class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					{{ t('sharedTexts.hide') }}
 				</DropdownMenuItem>
-				<DropdownMenuItem v-if="isClearable" @click="console.log('TODO: reset')">
+				<DropdownMenuItem v-if="columnType" @click="showConfirm = true">
 					<Trash class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					{{ t('community.users.reset.label') }}
 				</DropdownMenuItem>
@@ -68,4 +81,10 @@ const { t } = useI18n();
 	<div v-else :class="$attrs.class">
 		{{ title }}
 	</div>
+
+	<delete-confirm
+		v-model:open="showConfirm"
+		:confirm-text="t('community.users.reset.resetQuestion', { title })"
+		@confirm="resetColumn"
+	/>
 </template>

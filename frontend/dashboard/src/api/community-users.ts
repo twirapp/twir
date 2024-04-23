@@ -45,7 +45,7 @@ export const useCommunityUsersApi = defineStore('api/community-users', () => {
 		mutation CommunityReset($type: CommunityUsersResetType!) {
 			communityResetStats(type: $type)
 		}
-	`));
+	`), [invalidationKey]);
 
 	return {
 		useCommunityUsers,
