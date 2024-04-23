@@ -205,7 +205,7 @@ func (r *queryResolver) CommunityUsers(
 		return nil, fmt.Errorf("invalid query on backend: %w", err)
 	}
 
-	rows, err := r.gorm.WithContext(ctx).Debug().Raw(query, args...).Rows()
+	rows, err := r.gorm.WithContext(ctx).Raw(query, args...).Rows()
 	if err != nil {
 		r.logger.Error(
 			"cannot get community users",
