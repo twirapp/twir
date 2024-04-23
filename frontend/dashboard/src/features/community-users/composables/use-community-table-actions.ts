@@ -1,11 +1,13 @@
 import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table';
-import { refDebounced } from '@vueuse/core';
+import { refDebounced, useLocalStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
 import { TABLE_ACCESSOR_KEYS } from './use-community-users-table';
 
 import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql';
+
+const COLUMN_VISIBLE_STORAGE_KEY = 'twirCommunityUsersColumnVisibility';
 
 export const useCommunityTableActions = defineStore('features/community-table-actions', () => {
 	const searchInput = ref('');
@@ -18,7 +20,7 @@ export const useCommunityTableActions = defineStore('features/community-table-ac
 		},
 	]);
 	const columnFilters = ref<ColumnFiltersState>([]);
-	const columnVisibility = ref<VisibilityState>({});
+	const columnVisibility = useLocalStorage<VisibilityState>(COLUMN_VISIBLE_STORAGE_KEY, {});
 	const rowSelection = ref({});
 
 	const tableOrder = computed(() => {
