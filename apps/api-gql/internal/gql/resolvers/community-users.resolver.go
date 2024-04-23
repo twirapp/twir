@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/nicklaw5/helix/v2"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -110,14 +112,8 @@ func (r *queryResolver) CommunityUsers(
 		perPage = *opts.PerPage.Value()
 	}
 
-	// get sql.DB instance
-	db, err := r.gorm.DB()
-	if err != nil {
-		return nil, err
-	}
-
 	channel := &model.Channels{}
-	err = r.gorm.
+	err := r.gorm.
 		WithContext(ctx).
 		Where("channels.id = ?", opts.ChannelID).
 		Joins("User").
@@ -135,13 +131,39 @@ func (r *queryResolver) CommunityUsers(
 				squirrel.Eq{`"users_stats"."channelId"`: opts.ChannelID},
 				squirrel.NotEq{`"users_stats"."userId"`: opts.ChannelID},
 				squirrel.NotEq{`"users_stats"."userId"`: channel.BotID},
-				squirrel.Gt{`"users_stats"."messages"`: 0},
 			},
 		).
 		Where(`NOT EXISTS (select 1 from "users_ignored" where "id" = "users_stats"."userId")`).
 		Limit(uint64(perPage)).
 		Offset(uint64(page * perPage)).
 		GroupBy(`"users_stats"."id"`)
+
+	var foundTwitchChannels []helix.Channel
+	if opts.Search.IsSet() {
+		channels, err := r.cachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
+		if err != nil {
+			return nil, err
+		}
+
+		foundTwitchChannels = channels
+	}
+
+	if len(foundTwitchChannels) > 0 {
+		var ids []string
+		for _, user := range foundTwitchChannels {
+			ids = append(ids, user.ID)
+		}
+		queryBuilder = queryBuilder.Where(
+			squirrel.Eq{
+				`"users_stats"."userId"`: lo.Map(
+					foundTwitchChannels,
+					func(channel helix.Channel, _ int) string {
+						return channel.ID
+					},
+				),
+			},
+		)
+	}
 
 	var sortBy string
 	if opts.SortBy.IsSet() {
@@ -158,16 +180,20 @@ func (r *queryResolver) CommunityUsers(
 	}
 
 	if sortBy != "" && !opts.Order.IsSet() {
-		queryBuilder = queryBuilder.OrderBy("watched DESC")
+		queryBuilder = queryBuilder.
+			OrderBy(`"users_stats"."watched" DESC`)
+		// GroupBy(`"users_stats"."watched"`)
 	} else if sortBy != "" && opts.Order.IsSet() {
 		order := *opts.Order.Value()
-		queryBuilder = queryBuilder.OrderBy(
-			fmt.Sprintf(
-				`"%s" %s`,
-				sortBy,
-				strings.ToLower(order.String()),
-			),
-		)
+		queryBuilder = queryBuilder.
+			OrderBy(
+				fmt.Sprintf(
+					`"users_stats"."%s" %s`,
+					sortBy,
+					strings.ToLower(order.String()),
+				),
+			)
+		// GroupBy(fmt.Sprintf(`"users_stats"."%s"`, sortBy))
 	}
 
 	if err != nil {
@@ -179,7 +205,7 @@ func (r *queryResolver) CommunityUsers(
 		return nil, fmt.Errorf("invalid query on backend: %w", err)
 	}
 
-	rows, err := db.QueryContext(ctx, query, args...)
+	rows, err := r.gorm.WithContext(ctx).Debug().Raw(query, args...).Rows()
 	if err != nil {
 		r.logger.Error(
 			"cannot get community users",

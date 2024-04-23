@@ -1,4 +1,4 @@
-import { getCoreRowModel, useVueTable, type ColumnDef } from '@tanstack/vue-table';
+import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
 import { defineStore } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -6,9 +6,10 @@ import { useI18n } from 'vue-i18n';
 import { useCommunityTableActions } from './use-community-table-actions.js';
 
 import { useProfile } from '@/api';
-import { useCommunityUsersApi, type CommunityUser } from '@/api/community-users.js';
+import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js';
 import { usePagination } from '@/composables/use-pagination.js';
-import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
+import UsersTableCellUser
+	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
 import { type CommunityUsersOpts } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
 
@@ -18,7 +19,6 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 	const communityUsersApi = useCommunityUsersApi();
 	const { data: profile } = useProfile();
 	const { t } = useI18n();
-
 	const tableActions = useCommunityTableActions();
 
 	const { pagination, setPagination } = usePagination();
@@ -35,6 +35,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			perPage: pagination.value.pageSize,
 			order: tableActions.tableOrder,
 			sortBy: tableActions.tableSortBy,
+			search: tableActions.debouncedSearchInput,
 		};
 	});
 

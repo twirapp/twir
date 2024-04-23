@@ -2,6 +2,8 @@ extend type Query {
 	notificationsByUser: [UserNotification!]! @isAuthenticated
 
 	notificationsByAdmin(opts: AdminNotificationsParams!): AdminNotificationsResponse! @isAuthenticated @isAdmin
+
+	test(opt: Testtt): Boolean
 }
 
 extend type Mutation {

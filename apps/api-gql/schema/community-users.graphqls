@@ -32,6 +32,7 @@ input CommunityUsersOpts {
 	perPage: Int
 	sortBy: CommunityUsersSortBy
 	order: CommunityUsersOrder
+	search: String
 }
 
 type CommunityUsersResponse {
