@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Settings2 } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useCommunityTableActions } from '../composables/use-community-table-actions.js';
 import { TABLE_ACCESSOR_KEYS, useCommunityUsersTable } from '../composables/use-community-users-table.js';
 
 import SearchBar from '@/components/search-bar.vue';
@@ -17,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const { t } = useI18n();
+const communityTableActions = useCommunityTableActions();
 const communityUsersTable = useCommunityUsersTable();
 
 // TODO: column labels
@@ -29,13 +31,14 @@ const columns = computed(() => {
 			}
 		});
 });
-
-const searchInput = ref('');
 </script>
 
 <template>
 	<div class="flex gap-2">
-		<search-bar v-model="searchInput" />
+		<search-bar
+			v-model="communityTableActions.searchInput"
+			:placeholder="t('community.users.searchPlaceholder')"
+		/>
 		<DropdownMenu>
 			<DropdownMenuTrigger as-child>
 				<Button

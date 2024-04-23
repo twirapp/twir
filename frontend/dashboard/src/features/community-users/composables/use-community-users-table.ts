@@ -36,23 +36,23 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 		rowSelection,
 		tableOrder,
 		tableSortBy,
+		debouncedSearchInput,
 	} = storeToRefs(useCommunityTableActions());
 
 	const { pagination, setPagination } = usePagination();
 	const params = computed<CommunityUsersOpts>((prevParams) => {
 		// reset pagination on search change
-		// if (prevParams?.query !== communitySearch.debouncedSearchInput) {
-		// 	pagination.value.pageIndex = 0;
-		// }
+		if (prevParams?.query !== debouncedSearchInput.value) {
+			pagination.value.pageIndex = 0;
+		}
 
 		return {
+			search: debouncedSearchInput.value,
 			channelId: profile.value?.selectedDashboardId ?? '',
-			// query: communitySearch.debouncedSearchInput,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			order: tableOrder.value,
 			sortBy: tableSortBy.value,
-			// search: communitySearch.debouncedSearchInput,
 		};
 	});
 

@@ -1,4 +1,5 @@
 import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table';
+import { refDebounced } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
@@ -7,6 +8,9 @@ import { TABLE_ACCESSOR_KEYS } from './use-community-users-table';
 import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql';
 
 export const useCommunityTableActions = defineStore('features/community-actions', () => {
+	const searchInput = ref('');
+	const debouncedSearchInput = refDebounced<string>(searchInput, 500);
+
 	const sorting = ref<SortingState>([
 		{
 			desc: true,
@@ -39,6 +43,9 @@ export const useCommunityTableActions = defineStore('features/community-actions'
 	});
 
 	return {
+		searchInput,
+		debouncedSearchInput,
+
 		tableOrder,
 		tableSortBy,
 
