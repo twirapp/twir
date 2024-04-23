@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 
-import { useCommunityUsersTable } from '../composables/use-community-users-table';
+import { useCommunityUsersTable } from '../composables/use-community-users-table.js';
 
 import Table from '@/components/table.vue';
 

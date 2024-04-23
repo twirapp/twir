@@ -40,7 +40,7 @@ function handlePageSizeChange(pageSize: string) {
 </script>
 
 <template>
-	<div class="flex items-center justify-between gap-2 py-4 w-full">
+	<div class="flex items-center justify-between gap-2 w-full">
 		<Input
 			class="w-20 h-9"
 			:min="1"

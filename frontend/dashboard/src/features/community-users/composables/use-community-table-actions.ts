@@ -1,33 +1,50 @@
-import { refDebounced } from '@vueuse/core';
+import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+
+import { TABLE_ACCESSOR_KEYS } from './use-community-users-table';
 
 import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql';
 
 export const useCommunityTableActions = defineStore('features/community-actions', () => {
-	const searchInput = ref('');
-	const debouncedSearchInput = refDebounced(searchInput, 500);
+	const sorting = ref<SortingState>([
+		{
+			desc: true,
+			id: 'watchedMs', // accessorKey
+		},
+	]);
+	const columnFilters = ref<ColumnFiltersState>([]);
+	const columnVisibility = ref<VisibilityState>({});
+	const rowSelection = ref({});
 
-	const tableOrder = ref<CommunityUsersOrder>(CommunityUsersOrder.Desc);
-	function setOrder(order: CommunityUsersOrder) {
-		tableOrder.value = order;
-	}
+	const tableOrder = computed(() => {
+		return sorting.value[0].desc
+			? CommunityUsersOrder.Desc
+			: CommunityUsersOrder.Asc;
+	});
 
-	const tableSortBy = ref<CommunityUsersSortBy>(CommunityUsersSortBy.Watched);
-	function setTableSortBy(sortBy: CommunityUsersSortBy) {
-		tableSortBy.value = sortBy;
-	}
-
-	const selectedColumns = ref<string[]>([]);
+	const tableSortBy = computed(() => {
+		const sortingItem = sorting.value[0];
+		switch (sortingItem.id) {
+			case TABLE_ACCESSOR_KEYS.messages:
+				return CommunityUsersSortBy.Messages;
+			case TABLE_ACCESSOR_KEYS.usedEmotes:
+				return CommunityUsersSortBy.UsedEmotes;
+			case TABLE_ACCESSOR_KEYS.usedChannelPoints:
+				return CommunityUsersSortBy.UsedChannelsPoints;
+			case TABLE_ACCESSOR_KEYS.watchedMs:
+			default:
+				return CommunityUsersSortBy.Watched;
+		}
+	});
 
 	return {
-		searchInput,
-		debouncedSearchInput,
-
 		tableOrder,
-		setOrder,
-
 		tableSortBy,
-		setTableSortBy,
+
+		sorting,
+		columnFilters,
+		columnVisibility,
+		rowSelection,
 	};
 });

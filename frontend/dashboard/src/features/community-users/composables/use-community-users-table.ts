@@ -1,41 +1,58 @@
-import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import { defineStore } from 'pinia';
+import { type ColumnDef, getCoreRowModel, useVueTable, getSortedRowModel, getFacetedRowModel, getFilteredRowModel, getPaginationRowModel, getFacetedUniqueValues } from '@tanstack/vue-table';
+import { defineStore, storeToRefs } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useCommunityTableActions } from './use-community-table-actions.js';
+import CommunityUsersTableColumn from '../components/community-users-table-column.vue';
 
 import { useProfile } from '@/api';
 import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js';
 import { usePagination } from '@/composables/use-pagination.js';
-import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
+import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
 import { type CommunityUsersOpts } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
+import { valueUpdater } from '@/helpers/value-updater.js';
 
 const ONE_HOUR = 60 * 60 * 1000;
+export const TABLE_ACCESSOR_KEYS = {
+	user: 'user',
+	messages: 'messages',
+	watchedMs: 'watchedMs',
+	usedEmotes: 'usedEmotes',
+	usedChannelPoints: 'usedChannelPoints',
+};
 
 export const useCommunityUsersTable = defineStore('features/community-users-table', () => {
-	const communityUsersApi = useCommunityUsersApi();
-	const { data: profile } = useProfile();
 	const { t } = useI18n();
-	const tableActions = useCommunityTableActions();
+
+	const { data: profile } = useProfile();
+	const communityUsersApi = useCommunityUsersApi();
+
+	const {
+		sorting,
+		columnFilters,
+		columnVisibility,
+		rowSelection,
+		tableOrder,
+		tableSortBy,
+	} = storeToRefs(useCommunityTableActions());
 
 	const { pagination, setPagination } = usePagination();
 	const params = computed<CommunityUsersOpts>((prevParams) => {
 		// reset pagination on search change
-		if (prevParams?.query !== tableActions.debouncedSearchInput) {
-			pagination.value.pageIndex = 0;
-		}
+		// if (prevParams?.query !== communitySearch.debouncedSearchInput) {
+		// 	pagination.value.pageIndex = 0;
+		// }
 
 		return {
 			channelId: profile.value?.selectedDashboardId ?? '',
-			query: tableActions.debouncedSearchInput,
+			// query: communitySearch.debouncedSearchInput,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			order: tableActions.tableOrder,
-			sortBy: tableActions.tableSortBy,
-			search: tableActions.debouncedSearchInput,
+			order: tableOrder.value,
+			sortBy: tableSortBy.value,
+			// search: communitySearch.debouncedSearchInput,
 		};
 	});
 
@@ -52,9 +69,16 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 
 	const tableColumns = computed<ColumnDef<CommunityUser>[]>(() => [
 		{
-			accessorKey: 'id',
+			// accessorKey: t('community.users.table.user'),
+			accessorKey: TABLE_ACCESSOR_KEYS.user,
 			size: 20,
-			header: () => h('div', t('community.users.table.user')),
+			header: () => h('div', {}, t('community.users.table.user')),
+			// header: ({ column }) => {
+			// 	return h(CommunityUsersTableColumn, {
+			// 		column,
+			// 		title: t('community.users.table.user'),
+			// 	});
+			// },
 			cell: ({ row }) => {
 				return h('a',
 					{
@@ -71,33 +95,61 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			},
 		},
 		{
-			accessorKey: 'messages',
+			// accessorKey: t('community.users.table.messages'),
+			accessorKey: TABLE_ACCESSOR_KEYS.messages,
 			size: 20,
-			header: () => h('div', t('community.users.table.messages')),
+			header: ({ column }) => {
+				return h(CommunityUsersTableColumn, {
+					column,
+					title: t('community.users.table.messages'),
+					isClearable: true,
+				});
+			},
 			cell: ({ row }) => {
 				return h('div', row.original.messages);
 			},
 		},
 		{
-			accessorKey: 'usedChannelPoints',
+			// accessorKey: t('community.users.table.usedChannelPoints'),
+			accessorKey: TABLE_ACCESSOR_KEYS.usedChannelPoints,
 			size: 20,
-			header: () => h('div', t('community.users.table.usedChannelPoints')),
+			header: ({ column }) => {
+				return h(CommunityUsersTableColumn, {
+					column,
+					title: t('community.users.table.usedChannelPoints'),
+					isClearable: true,
+				});
+			},
 			cell: ({ row }) => {
 				return h('div', row.original.usedChannelPoints);
 			},
 		},
 		{
-			accessorKey: 'usedEmotes',
+			// accessorKey: t('community.users.table.usedEmotes'),
+			accessorKey: TABLE_ACCESSOR_KEYS.usedEmotes,
 			size: 20,
-			header: () => h('div', t('community.users.table.usedEmotes')),
+			header: ({ column }) => {
+				return h(CommunityUsersTableColumn, {
+					column,
+					title: t('community.users.table.usedEmotes'),
+					isClearable: true,
+				});
+			},
 			cell: ({ row }) => {
 				return h('div', row.original.usedEmotes);
 			},
 		},
 		{
-			accessorKey: 'watchedMs',
+			// accessorKey: t('community.users.table.watchedTime'),
+			accessorKey: TABLE_ACCESSOR_KEYS.watchedMs,
 			size: 20,
-			header: () => h('div', t('community.users.table.watchedTime')),
+			header: ({ column }) => {
+				return h(CommunityUsersTableColumn, {
+					column,
+					title: t('community.users.table.watchedTime'),
+					isClearable: true,
+				});
+			},
 			cell: ({ row }) => {
 				return h('div', `${(Number(row.original.watchedMs) / ONE_HOUR).toFixed(1)}h`);
 			},
@@ -108,24 +160,42 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 		get pageCount() {
 			return pageCount.value;
 		},
-		state: {
-			pagination: pagination.value,
-		},
 		get data() {
 			return communityUsers.value;
 		},
 		get columns() {
 			return tableColumns.value;
 		},
-		manualPagination: true,
-		getCoreRowModel: getCoreRowModel(),
-		onPaginationChange: (updater) => {
-			if (typeof updater === 'function') {
-				setPagination(updater(pagination.value));
-			} else {
-				setPagination(updater);
-			}
+		state: {
+			get sorting() {
+				return sorting.value;
+			},
+			get columnFilters() {
+				return columnFilters.value;
+			},
+			get columnVisibility() {
+				return columnVisibility.value;
+			},
+			get rowSelection() {
+				return rowSelection.value;
+			},
+			get pagination() {
+				return pagination.value;
+			},
 		},
+		manualPagination: true,
+		enableRowSelection: true,
+		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
+		onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sorting),
+		onColumnFiltersChange: updaterOrValue => valueUpdater(updaterOrValue, columnFilters),
+		onColumnVisibilityChange: updaterOrValue => valueUpdater(updaterOrValue, columnVisibility),
+		onRowSelectionChange: updaterOrValue => valueUpdater(updaterOrValue, rowSelection),
+		getCoreRowModel: getCoreRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFacetedRowModel: getFacetedRowModel(),
+		getFacetedUniqueValues: getFacetedUniqueValues(),
 	});
 
 	return {

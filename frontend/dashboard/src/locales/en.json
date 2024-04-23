@@ -44,7 +44,12 @@
 		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
 		"pagination": "of {page} page(s) / {total} item(s)",
 		"searchPlaceholder": "Search...",
-		"messages": "Messages"
+		"messages": "Messages",
+		"asc": "Asc",
+		"desc": "Desc",
+		"hide": "Hide",
+		"view": "View",
+		"toggleColumns": "Toggle columns"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -753,9 +758,8 @@
   "community": {
 		"users": {
 			"title": "Community Users",
-			"resetActions": "Reset",
       "table": {
-        "user": "User",
+				"user": "User",
         "watchedTime": "Watched Time",
         "messages": "Messages",
         "usedEmotes": "Used Emotes",
@@ -764,6 +768,7 @@
       },
       "total": "Total users: {total}",
       "reset": {
+				"label": "Reset",
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
     }
