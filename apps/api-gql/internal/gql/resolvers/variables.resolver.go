@@ -133,6 +133,7 @@ func (r *queryResolver) Variables(ctx context.Context) ([]gqlmodel.Variable, err
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("name ASC").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}

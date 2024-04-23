@@ -3,9 +3,10 @@ import { defineStore } from 'pinia';
 
 import { useMutation } from '@/composables/use-mutation.js';
 import { graphql } from '@/gql';
-import type { GetAllTimersQuery } from '@/gql/graphql';
+import type { GetAllTimersQuery, TimerCreateInput } from '@/gql/graphql';
 
 export type TimerResponse = GetAllTimersQuery['timers'][0];
+export type EditableTimer = TimerCreateInput & { id?: string }
 
 const invalidationKey = 'TimersInvalidateKey';
 

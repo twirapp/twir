@@ -19,8 +19,8 @@ import { useDudesIframe } from './use-dudes-frame.js';
 import {
 	useDudesOverlayManager, useProfile, useUserAccessFlagChecker,
 } from '@/api/index.js';
-import CommandButton from '@/components/commandButton.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+import CommandButton from '@/features/commands/components/command-button.vue';
 
 const themeVars = useThemeVars();
 const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');

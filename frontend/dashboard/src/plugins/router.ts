@@ -30,7 +30,7 @@ export const newRouter = () => {
 				},
 				{
 					path: '/dashboard/commands/:system',
-					component: () => import('../pages/Commands.vue'),
+					component: () => import('../features/commands/commands.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands },
 				},
 				{

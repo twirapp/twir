@@ -12,14 +12,14 @@ import {
 	useNotification,
 	NAlert,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
-import commandButton from '@/components/commandButton.vue';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
-import { storeToRefs } from 'pinia';
+import commandButton from '@/features/commands/components/command-button.vue';
 
 const themeVars = useThemeVars();
 const { t } = useI18n();

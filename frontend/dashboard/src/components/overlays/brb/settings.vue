@@ -11,14 +11,14 @@ import {
 	useNotification,
 	NAlert,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { ref, computed, toRaw, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useCopyOverlayLink } from '../copyOverlayLink';
 
 import { useBeRightBackOverlayManager, useProfile } from '@/api';
-import commandButton from '@/components/commandButton.vue';
-import { storeToRefs } from 'pinia';
+import commandButton from '@/features/commands/components/command-button.vue';
 
 defineProps<{
 	showSettings: boolean
