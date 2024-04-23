@@ -22,10 +22,6 @@ func (r *communityUserResolver) TwitchProfile(
 	ctx context.Context,
 	obj *gqlmodel.CommunityUser,
 ) (*gqlmodel.TwirUserTwitchInfo, error) {
-	if obj == nil || obj.ID == "" {
-		return nil, nil
-	}
-
 	user, err := data_loader.GetHelixUser(ctx, obj.ID)
 	if err != nil {
 		return nil, err
