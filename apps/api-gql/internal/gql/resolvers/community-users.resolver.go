@@ -243,7 +243,7 @@ func (r *queryResolver) CommunityUsers(
 	var totalStats int64
 	err = r.gorm.WithContext(ctx).
 		Model(&model.UsersStats{}).
-		Where(`"channelId" = ? AND "messages" > 0`, opts.ChannelID).
+		Where(`"channelId" = ?`, opts.ChannelID).
 		Count(&totalStats).Error
 	if err != nil {
 		return nil, err
