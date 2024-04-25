@@ -44,11 +44,11 @@
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
     "pagination": "of {page} page(s) / {total} item(s)",
     "searchPlaceholder": "Hľadať...",
-    "messages": "Messages",
-    "asc": "Asc",
-    "desc": "Desc",
-    "hide": "Hide",
-    "view": "View",
+    "messages": "Správy",
+    "asc": "Vzost.",
+    "desc": "Zost.",
+    "hide": "Skryť",
+    "view": "Zobraziť",
     "toggleColumns": "Toggle columns"
   },
   "sidebar": {
