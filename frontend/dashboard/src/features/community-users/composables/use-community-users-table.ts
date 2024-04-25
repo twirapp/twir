@@ -36,7 +36,7 @@ export const TABLE_ACCESSOR_KEYS = {
 export const useCommunityUsersTable = defineStore('features/community-users-table', () => {
 	const { t } = useI18n();
 
-	const { data: profile } = useProfile();
+	const { data: profile } = storeToRefs(useProfile());
 	const communityUsersApi = useCommunityUsersApi();
 
 	const {
@@ -58,7 +58,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 
 		return {
 			search: debouncedSearchInput.value,
-			channelId: profile?.selectedDashboardId ?? '',
+			channelId: profile.value?.selectedDashboardId ?? '',
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			order: tableOrder.value,
