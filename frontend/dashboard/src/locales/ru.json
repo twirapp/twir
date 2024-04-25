@@ -42,9 +42,14 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "{page} из {total} страниц / {items} элементов",
+    "pagination": "of {page} page(s) / {total} item(s)",
     "searchPlaceholder": "Поиск",
-    "messages": "Messages"
+    "messages": "Messages",
+    "asc": "Asc",
+    "desc": "Desc",
+    "hide": "Hide",
+    "view": "View",
+    "toggleColumns": "Toggle columns"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -752,15 +757,19 @@
   },
   "community": {
     "users": {
+      "title": "Community Users",
+      "searchPlaceholder": "Search users...",
       "table": {
         "user": "Пользователь",
         "watchedTime": "Время просмотра",
         "messages": "Сообщения",
         "usedEmotes": "Использовано эмоций",
-        "usedChannelPoints": "Использовано баллов канала"
+        "usedChannelPoints": "Использовано баллов канала",
+        "empty": "No users"
       },
       "total": "Всего пользователей: {total} ",
       "reset": {
+        "label": "Reset",
         "resetQuestion": "Вы уверены, что хотите сбросить {title}?"
       }
     }
@@ -902,7 +911,7 @@
     }
   },
   "adminPanel": {
-    "title": "Admin panel",
+    "title": "Admin Panel",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",
