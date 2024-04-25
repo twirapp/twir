@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/vue-query';
+import { storeToRefs } from 'pinia';
 
 import { unprotectedClient } from '@/api/twirp.js';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import { useStreamerProfile } from '@/api/use-streamer-profile';
 
 export const useTTSChannelSettings = () => {
-	const { data: profile } = useStreamerProfile();
+	const { data: profile } = storeToRefs(useStreamerProfile());
 
 	return useQuery({
-		queryKey: ['channelTTSSettings', profile.value?.id],
+		queryKey: ['channelTTSSettings', profile],
 		queryFn: async () => {
 			const call = await unprotectedClient.getTTSChannelSettings({
-				channelId: profile.value!.id,
+				channelId: profile.value!.twitchGetUserByName!.id,
 			});
 
 			return call.response;
@@ -20,13 +21,13 @@ export const useTTSChannelSettings = () => {
 };
 
 export const useTTSUsersSettings = () => {
-	const { data: profile } = useStreamerProfile();
+	const { data: profile } = storeToRefs(useStreamerProfile());
 
 	return useQuery({
-		queryKey: ['usersTTSSettings', profile.value?.id],
+		queryKey: ['usersTTSSettings', profile],
 		queryFn: async () => {
 			const call = await unprotectedClient.getTTSUsersSettings({
-				channelId: profile.value!.id,
+				channelId: profile.value!.twitchGetUserByName!.id,
 			});
 
 			return call.response;

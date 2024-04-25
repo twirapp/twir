@@ -26,38 +26,6 @@ type Auth struct {
 	TwitchScopes []string
 }
 
-func (c *Auth) AuthGetLink(
-	ctx context.Context,
-	request *auth.GetLinkRequest,
-) (*auth.GetLinkResponse, error) {
-	if request.RedirectTo == "" {
-		return nil, twirp.NewError("400", "no redirect provided")
-	}
-
-	twitchClient, err := helix.NewClientWithContext(
-		ctx, &helix.Options{
-			ClientID:    c.Config.TwitchClientId,
-			RedirectURI: c.Config.TwitchCallbackUrl,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	state := base64.StdEncoding.EncodeToString([]byte(request.RedirectTo))
-
-	url := twitchClient.GetAuthorizationURL(
-		&helix.AuthorizationURLParams{
-			ResponseType: "code",
-			Scopes:       c.TwitchScopes,
-			State:        state,
-			ForceVerify:  false,
-		},
-	)
-
-	return &auth.GetLinkResponse{Link: url}, nil
-}
-
 func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (
 	*auth.PostCodeResponse,
 	error,

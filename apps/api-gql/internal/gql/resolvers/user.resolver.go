@@ -6,10 +6,12 @@ package resolvers
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
@@ -19,73 +21,22 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.AuthenticatedUser,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // SelectedDashboardTwitchUser is the resolver for the selectedDashboardTwitchUser field.
-func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(
-	ctx context.Context,
-	obj *gqlmodel.AuthenticatedUser,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.SelectedDashboardID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.SelectedDashboardID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *dashboardResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.Dashboard,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
-func (r *mutationResolver) AuthenticatedUserSelectDashboard(
-	ctx context.Context,
-	dashboardID string,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
 	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
@@ -94,10 +45,7 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(
 }
 
 // AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
-func (r *mutationResolver) AuthenticatedUserUpdateSettings(
-	ctx context.Context,
-	opts gqlmodel.UserUpdateSettingsInput,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UserUpdateSettingsInput) (bool, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -151,10 +99,7 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
-func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(
-	ctx context.Context,
-	opts gqlmodel.UserUpdatePublicSettingsInput,
-) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -230,10 +175,7 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
-	*gqlmodel.AuthenticatedUser,
-	error,
-) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
 	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
@@ -383,10 +325,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
 }
 
 // UserPublicSettings is the resolver for the userPublicSettings field.
-func (r *queryResolver) UserPublicSettings(
-	ctx context.Context,
-	userID *string,
-) (*gqlmodel.PublicSettings, error) {
+func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) (*gqlmodel.PublicSettings, error) {
 	dashboardId, _ := r.sessions.GetSelectedDashboard(ctx)
 
 	var idForFetch string
@@ -428,6 +367,36 @@ func (r *queryResolver) UserPublicSettings(
 	return settings, nil
 }
 
+// AuthLink is the resolver for the authLink field.
+func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string, error) {
+	if redirectTo == "" {
+		return "", fmt.Errorf("incorrect auth link %s", redirectTo)
+	}
+
+	twitchClient, err := helix.NewClientWithContext(
+		ctx, &helix.Options{
+			ClientID:    r.config.TwitchClientId,
+			RedirectURI: r.config.TwitchCallbackUrl,
+		},
+	)
+	if err != nil {
+		return "", fmt.Errorf("failed to create twitch client: %w", err)
+	}
+
+	state := base64.StdEncoding.EncodeToString([]byte(redirectTo))
+
+	url := twitchClient.GetAuthorizationURL(
+		&helix.AuthorizationURLParams{
+			ResponseType: "code",
+			Scopes:       twitchScopes,
+			State:        state,
+			ForceVerify:  false,
+		},
+	)
+
+	return url, nil
+}
+
 // AuthenticatedUser returns graph.AuthenticatedUserResolver implementation.
 func (r *Resolver) AuthenticatedUser() graph.AuthenticatedUserResolver {
 	return &authenticatedUserResolver{r}
@@ -438,3 +407,32 @@ func (r *Resolver) Dashboard() graph.DashboardResolver { return &dashboardResolv
 
 type authenticatedUserResolver struct{ *Resolver }
 type dashboardResolver struct{ *Resolver }
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+var twitchScopes = []string{
+	"moderation:read",
+	"channel:manage:broadcast",
+	"channel:read:redemptions",
+	"moderator:read:chatters",
+	"moderator:manage:shoutouts",
+	"moderator:manage:banned_users",
+	"channel:read:vips",
+	"channel:manage:vips",
+	"channel:manage:moderators",
+	"moderator:read:followers",
+	"moderator:manage:chat_settings",
+	"channel:read:polls",
+	"channel:manage:polls",
+	"channel:read:predictions",
+	"channel:manage:predictions",
+	"channel:read:subscriptions",
+	"channel:moderate",
+	"user:read:follows",
+	"channel:bot",
+	"channel:manage:raids",
+}
