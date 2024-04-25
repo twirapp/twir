@@ -42,9 +42,14 @@
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
+    "pagination": "of {page} page(s) / {total} item(s)",
     "searchPlaceholder": "Search...",
-    "messages": "Messages"
+    "messages": "Messages",
+    "asc": "Asc",
+    "desc": "Desc",
+    "hide": "Hide",
+    "view": "View",
+    "toggleColumns": "Toggle columns"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -752,15 +757,19 @@
   },
   "community": {
     "users": {
+      "title": "Community Users",
+      "searchPlaceholder": "Search users...",
       "table": {
         "user": "Nutzer",
         "watchedTime": "Zugeschaute Zeit",
         "messages": "Nachrichten",
         "usedEmotes": "Verwendete Emotes",
-        "usedChannelPoints": "Ausgegebene Kanalpunkte"
+        "usedChannelPoints": "Ausgegebene Kanalpunkte",
+        "empty": "No users"
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
+        "label": "Reset",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     }
@@ -902,7 +911,7 @@
     }
   },
   "adminPanel": {
-    "title": "Admin panel",
+    "title": "Admin Panel",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",
