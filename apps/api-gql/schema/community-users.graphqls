@@ -1,0 +1,49 @@
+extend type Query {
+	communityUsers(opts: CommunityUsersOpts!): CommunityUsersResponse!
+}
+
+extend type Mutation {
+	communityResetStats(type: CommunityUsersResetType!): Boolean! @isAuthenticated
+}
+
+enum CommunityUsersResetType {
+	WATCHED
+	MESSAGES
+	USED_EMOTES
+	USED_CHANNELS_POINTS
+}
+
+enum CommunityUsersSortBy {
+	WATCHED
+	MESSAGES
+	USED_EMOTES
+	USED_CHANNELS_POINTS
+}
+
+enum CommunityUsersOrder {
+	DESC
+	ASC
+}
+
+input CommunityUsersOpts {
+	channelId: ID!
+	page: Int
+	perPage: Int
+	sortBy: CommunityUsersSortBy
+	order: CommunityUsersOrder
+	search: String
+}
+
+type CommunityUsersResponse {
+	users: [CommunityUser!]!
+	total: Int!
+}
+
+type CommunityUser implements TwirUser {
+	id: ID!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	watchedMs: Int!
+	messages: Int!
+	usedEmotes: Int!
+	usedChannelPoints: Int!
+}

@@ -3,7 +3,9 @@ import type { Ref } from 'vue';
 
 import { useMutation } from '@/composables/use-mutation.js';
 import { graphql } from '@/gql';
-import type { TwirUsersSearchParams } from '@/gql/graphql';
+import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql';
+
+export type User = UsersGetAllQuery['twirUsers']['users'][0]
 
 const invalidationKey = 'AdminUsersInvalidateKey';
 
