@@ -46,7 +46,6 @@ import { useKeywordsApi } from '@/api/keywords.js';
 import { useVariablesApi } from '@/api/variables.js';
 import AlertModal from '@/components/alerts/list.vue';
 import rewardsSelector from '@/components/rewardsSelector.vue';
-import { storeToRefs } from 'pinia';
 
 const themeVars = useThemeVars();
 const selectedTabBackground = computed(() => themeVars.value.cardColor);

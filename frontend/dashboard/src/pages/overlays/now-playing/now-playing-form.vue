@@ -14,13 +14,14 @@ import {
 } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const { t } = useI18n();
 
 const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
 const { copyOverlayLink } = useCopyOverlayLink('now-playing');
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 const { data: profile } = storeToRefs(useProfile());
 
 const { data: formValue } = storeToRefs(useNowPlayingForm());

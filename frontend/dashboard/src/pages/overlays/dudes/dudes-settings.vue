@@ -21,9 +21,10 @@ import {
 } from '@/api/index.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
 import CommandButton from '@/features/commands/components/command-button.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const themeVars = useThemeVars();
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 const dudesOverlayManager = useDudesOverlayManager();
 const creator = dudesOverlayManager.useCreate();
 const deleter = dudesOverlayManager.useDelete();

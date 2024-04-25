@@ -26,10 +26,11 @@ import {
 	useChatOverlayManager, useUserAccessFlagChecker,
 } from '@/api/index.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 
 const themeVars = useThemeVars();
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 const chatManager = useChatOverlayManager();
 const creator = chatManager.useCreate();
 const deleter = chatManager.useDelete();

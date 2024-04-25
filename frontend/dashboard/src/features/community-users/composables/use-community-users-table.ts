@@ -1,4 +1,13 @@
-import { type ColumnDef, getCoreRowModel, useVueTable, getSortedRowModel, getFacetedRowModel, getFilteredRowModel, getPaginationRowModel, getFacetedUniqueValues } from '@tanstack/vue-table';
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useVueTable,
+} from '@tanstack/vue-table';
 import { defineStore, storeToRefs } from 'pinia';
 import { computed, h } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -9,8 +18,9 @@ import CommunityUsersTableColumn from '../components/community-users-table-colum
 import { useProfile } from '@/api';
 import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js';
 import { usePagination } from '@/composables/use-pagination.js';
-import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
-import { CommunityUsersResetType, type CommunityUsersOpts } from '@/gql/graphql';
+import UsersTableCellUser
+	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
+import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers/resolveUserName.js';
 import { valueUpdater } from '@/helpers/value-updater.js';
 
@@ -48,7 +58,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 
 		return {
 			search: debouncedSearchInput.value,
-			channelId: profile.value?.selectedDashboardId ?? '',
+			channelId: profile?.selectedDashboardId ?? '',
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			order: tableOrder.value,

@@ -8,6 +8,7 @@ import Card from '@/components/events/card.vue';
 import { getEventName } from '@/components/events/helpers.js';
 import Modal from '@/components/events/modal.vue';
 import type { EditableEvent } from '@/components/events/types.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const themeVars = useThemeVars();
 const cardHoverColor = computed(() => themeVars.value.hoverColor);
@@ -18,7 +19,7 @@ const { data: eventsList, isLoading } = eventsManager.getAll({});
 const showModal = ref(false);
 const editableEvent = ref<EditableEvent | null>(null);
 
-const userCanManageEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
+const userCanManageEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageEvents);
 
 function openSettings(id?: string) {
 	if (!userCanManageEvents.value) return;
@@ -54,7 +55,7 @@ const events = computed(() => {
 			</n-grid-item>
 		</n-grid>
 
-		<n-input v-model:value="search" clearable placeholder="Search..." class="w-[30%]"/>
+		<n-input v-model:value="search" clearable placeholder="Search..." class="w-[30%]" />
 
 		<n-grid
 			v-if="!isLoading"

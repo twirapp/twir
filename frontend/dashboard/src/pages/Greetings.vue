@@ -15,13 +15,14 @@ import {
 import { h, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
+import { useGreetingsApi, type Greetings } from '@/api/greetings.js';
 import { useUserAccessFlagChecker } from '@/api/index.js';
 import GreetingsModal from '@/components/greetings/modal.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
-import { useGreetingsApi, type Greetings } from '@/api/greetings.js';
 
 const { t } = useI18n();
-const userCanManageGreetings = useUserAccessFlagChecker('MANAGE_GREETINGS');
+const userCanManageGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGreetings);
 const showModal = ref(false);
 
 const greetingsApi = useGreetingsApi();
@@ -31,7 +32,7 @@ const { data: greetingsData, fetching } = greetingsApi.useQueryGreetings();
 
 const greetings = computed(() => {
 	return greetingsData.value?.greetings ?? [];
-})
+});
 
 const columns = computed<DataTableColumns<Greetings>>(() => [
 	{
@@ -127,7 +128,7 @@ const columns = computed<DataTableColumns<Greetings>>(() => [
 const editableGreeting = ref<Greetings | null>(null);
 
 function openModal(greetings: Greetings | null) {
-	editableGreeting.value = greetings
+	editableGreeting.value = greetings;
 	showModal.value = true;
 }
 

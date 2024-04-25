@@ -22,6 +22,7 @@ import {
 import { useCommandsApi } from '@/api/commands/commands';
 import AlertModal from '@/components/alerts/modal.vue';
 import { type EditableAlert } from '@/components/alerts/types.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers';
 
 const props = withDefaults(defineProps<{
@@ -41,7 +42,7 @@ const { data, isLoading } = manager.getAll({});
 
 const { t } = useI18n();
 
-const userCanManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
+const userCanManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts);
 const { data: rewards } = useTwitchRewards();
 
 const commandsManager = useCommandsApi();

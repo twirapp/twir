@@ -9,6 +9,7 @@ import { Icons } from './helpers.js';
 
 import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = defineProps<{
 	item: ItemWithId
@@ -26,7 +27,7 @@ defineEmits<{
 
 const { t } = useI18n();
 
-const userCanManageModeration = useUserAccessFlagChecker('MANAGE_MODERATION');
+const userCanManageModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration);
 
 const message = useNotification();
 

@@ -10,6 +10,7 @@ import {
 	NTag,
 	useNotification,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
@@ -25,12 +26,12 @@ import NowPlaying from '@/components/overlays/now-playing.vue';
 import OBS from '@/components/overlays/obs.vue';
 import TTS from '@/components/overlays/tts.vue';
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { copyToClipBoard } from '@/helpers/index.js';
-import { storeToRefs } from 'pinia';
 
 
 const { t } = useI18n();
-const userCanManageOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 const userProfile = storeToRefs(useProfile());
 
 const message = useNotification();

@@ -9,6 +9,7 @@ import Card from '@/components/moderation/card.vue';
 import { availableSettingsTypes, availableSettings, useEditableItem } from '@/components/moderation/helpers.js';
 import { Icons } from '@/components/moderation/helpers.js';
 import Modal from '@/components/moderation/modal.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const manager = useModerationManager();
 const { data: settings } = manager.getAll({});
@@ -28,7 +29,7 @@ const theme = useThemeVars();
 const { t } = useI18n();
 
 const isAddingNewItem = ref(false);
-const canEditModeration = useUserAccessFlagChecker('MANAGE_MODERATION');
+const canEditModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration);
 
 async function createNewItem(itemType: string) {
 	const defaultSettings = availableSettings.find(s => s.type === itemType);

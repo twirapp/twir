@@ -20,6 +20,7 @@ import { useI18n } from 'vue-i18n';
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import commandButton from '@/features/commands/components/command-button.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const themeVars = useThemeVars();
 const { t } = useI18n();
@@ -110,7 +111,7 @@ async function save() {
 	});
 }
 
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 
 const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
