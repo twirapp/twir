@@ -53,7 +53,8 @@ export const newRouter = (queryClient: QueryClient) => {
 				},
 				{
 					path: '/dashboard/community/users',
-					component: () => import('../pages/CommunityUsers.vue'),
+					component: () => import('../pages/community-users.vue'),
+					meta: { noPadding: true },
 				},
 				{
 					path: '/dashboard/community/roles',

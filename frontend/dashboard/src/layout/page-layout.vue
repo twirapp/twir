@@ -14,8 +14,8 @@ const themeVars = useThemeVars();
 const { theme } = useTheme();
 
 export interface PageLayoutProps {
-	activeTab: string
-	tabs: PageLayoutTab[]
+	activeTab?: string
+	tabs?: PageLayoutTab[]
 }
 
 export interface PageLayoutTab {
@@ -24,14 +24,19 @@ export interface PageLayoutTab {
 	component: Component
 }
 
-const props = defineProps<PageLayoutProps>();
+const props = withDefaults(defineProps<PageLayoutProps>(), {
+	activeTab: '',
+	tabs: () => [],
+});
 
 const activeTab = ref(props.activeTab);
 
 const queryActiveTab = useRouteQuery<string>('tab');
-watch(queryActiveTab, setTab);
+const unsubscribe = watch(queryActiveTab, setTab);
+if (!props.activeTab) unsubscribe();
 
 onBeforeMount(() => {
+	if (!props.activeTab) return;
 	setTab();
 	onChangeTab(activeTab.value, true);
 });
@@ -55,12 +60,15 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 			:class="[theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]']"
 			:style="{ 'background-color': themeVars.cardColor }"
 		>
-			<div class="container flex flex-col pt-9 gap-2">
+			<div
+				class="container flex flex-col gap-2"
+				:class="[activeTab ? 'pt-9' : 'py-9']"
+			>
 				<h1 class="text-4xl">
 					<slot name="title" />
 				</h1>
 
-				<div class="flex gap-2">
+				<div v-if="activeTab" class="flex gap-2">
 					<TabsList class="flex flex-wrap overflow-x-auto -mb-px">
 						<TabsTrigger
 							v-for="tab of props.tabs"
@@ -80,9 +88,14 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 			</div>
 		</div>
 		<div class="container py-8">
-			<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
-				<component :is="tab.component" />
-			</TabsContent>
+			<template v-if="activeTab">
+				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
+					<component :is="tab.component" />
+				</TabsContent>
+			</template>
+			<template v-else>
+				<slot name="content" />
+			</template>
 		</div>
 	</TabsRoot>
 </template>

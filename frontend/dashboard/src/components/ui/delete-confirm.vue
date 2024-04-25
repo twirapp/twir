@@ -19,13 +19,17 @@ defineEmits<{
 }>();
 
 const open = defineModel<boolean>({ default: false });
+
+defineProps<{
+	confirmText?: string
+}>()
 </script>
 
 <template>
 	<AlertDialog v-model:open="open">
 		<AlertDialogContent>
 			<AlertDialogHeader>
-				<AlertDialogTitle>{{ t('deleteConfirmation.text') }}</AlertDialogTitle>
+				<AlertDialogTitle>{{ confirmText ?? t('deleteConfirmation.text') }}</AlertDialogTitle>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
 				<AlertDialogCancel @click="$emit('cancel')">

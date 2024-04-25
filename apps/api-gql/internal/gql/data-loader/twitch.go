@@ -12,7 +12,13 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 	[]*helix.User,
 	[]error,
 ) {
-	users, err := c.cachedTwitchClient.GetUsersByIds(ctx, ids)
+	nonEmptyIds := lo.Filter(
+		ids, func(id string, _ int) bool {
+			return id != ""
+		},
+	)
+
+	users, err := c.cachedTwitchClient.GetUsersByIds(ctx, nonEmptyIds)
 	if err != nil {
 		return nil, []error{err}
 	}
