@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"github.com/google/uuid"
@@ -338,6 +339,68 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 
 		convertedCommands = append(convertedCommands, converted)
 	}
+	return convertedCommands, nil
+}
+
+// CommandsPublic is the resolver for the commandsPublic field.
+func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+	if channelID == "" {
+		return nil, fmt.Errorf("channelID is required")
+	}
+
+	var entities []model.ChannelsCommands
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "visible" = true AND "enabled" = true`, channelID).
+		Preload("Group").
+		Preload("Responses").
+		Order("name ASC").
+		Find(&entities).Error; err != nil {
+		return nil, fmt.Errorf("failed to fetch commands: %w", err)
+	}
+
+	convertedCommands := make([]gqlmodel.PublicCommand, 0, len(entities))
+	for _, entity := range entities {
+		converted := gqlmodel.PublicCommand{
+			Name:         entity.Name,
+			Description:  entity.Description.String,
+			Aliases:      entity.Aliases,
+			Responses:    make([]string, 0, len(entity.Responses)),
+			Cooldown:     int(entity.Cooldown.Int64),
+			CooldownType: entity.CooldownType,
+			Module:       entity.Module,
+			Permissions:  make([]gqlmodel.PublicCommandPermission, 0),
+		}
+
+		for _, response := range entity.Responses {
+			converted.Responses = append(converted.Responses, response.Text.String)
+		}
+
+		var roles []*model.ChannelRole
+		if len(entity.RolesIDS) > 0 {
+			ids := lo.Map(entity.RolesIDS, func(id string, _ int) string { return id })
+			err := r.gorm.WithContext(ctx).
+				Where(`"channelId" = ? AND "id" IN ?`, channelID, ids).
+				Find(&roles).Error
+
+			if err != nil {
+				r.logger.Error("cannot get roles", slog.Any("err", err))
+			} else {
+				for _, role := range roles {
+					converted.Permissions = append(
+						converted.Permissions,
+						gqlmodel.PublicCommandPermission{
+							Name: role.Name,
+							Type: role.Type.String(),
+						},
+					)
+				}
+			}
+		}
+
+		convertedCommands = append(convertedCommands, converted)
+	}
+
 	return convertedCommands, nil
 }
 
