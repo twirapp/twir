@@ -48,7 +48,13 @@ watch(data, (v) => {
 
 async function save() {
 	await updater.executeMutation({
-		opts: formData.value,
+		opts: {
+			...formData.value,
+			socialLinks: formData.value.socialLinks.map((link) => ({
+				title: link.title,
+				href: link.href,
+			})),
+		},
 	});
 
 	toast.toast({
