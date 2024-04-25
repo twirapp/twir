@@ -49,7 +49,7 @@
     "desc": "Zost.",
     "hide": "Skryť",
     "view": "Zobraziť",
-    "toggleColumns": "Toggle columns"
+    "toggleColumns": "Prepínanie stĺpcov"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -86,8 +86,8 @@
     "confirm": "Potvrdiť"
   },
   "haveNoAccess": {
-    "title": "No access",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "title": "Žiadny prístup",
+    "description": "Nemáte na to oprávnenie, požiadajte vysielateľa, aby vám ho poskytol."
   },
   "pageNotFound": {
     "title": "404 Nenájdená",
@@ -574,9 +574,9 @@
     },
     "settings": {
       "onlineOnly": "Allow Song Requests when streaming?",
-      "announcePlay": "Announce Current Song into Chat?",
-      "playerNoCookieMode": "Incognito mode for player",
-      "playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
+      "announcePlay": "Oznámenie aktuálnej piesne do chatu?",
+      "playerNoCookieMode": "Režim inkognito pre hráča",
+      "playerNoCookieModeDescription": "Ak túto možnosť povolíte, budete môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
       "neededPercentageForskip": "User Skip Percentage",
       "channelReward": "Channel Points Reward Request Trigger",
       "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
@@ -593,36 +593,36 @@
       "songs": {
         "maxRequests": "Maximálny limit frontu skladieb",
         "minLength": "Minimal Song Length (in minutes)",
-        "maxLength": "Maximum Song Length (in minutes)",
-        "minViews": "Minimal Views Amount"
+        "maxLength": "Maximálna dĺžka skladby (v minútach)",
+        "minViews": "Minimálne množstvo zobrazení"
       }
     },
     "tabs": {
-      "general": "General",
-      "users": "Users",
-      "songs": "Songs"
+      "general": "Všeobecné",
+      "users": "Užívatelia",
+      "songs": "Skladby"
     },
     "ban": {
-      "user": "Ban user",
-      "song": "Ban song",
-      "userConfirm": "Are you sure you want to ban this user?",
-      "songConfirm": "Are you sure you want to ban this song?"
+      "user": "Zablokovať užívateľa",
+      "song": "Zablokovať skladbu",
+      "userConfirm": "Skutočne chcete zablokovať tohto užívateľa?",
+      "songConfirm": "Ste si istí, že chcete túto pieseň zakázať?"
     }
   },
   "timers": {
     "table": {
       "columns": {
         "intervalInMinutes": "Interval (v minútach)",
-        "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
+        "intervalInMessages": "Interval (v chatových správach, nastavte 0 pre vypnutie)"
       }
     },
     "modal": {
-      "timelineDescription": "Each response will be sent once both interval conditions is met.",
+      "timelineDescription": "Každá odpoveď sa odošle po splnení oboch podmienok intervalu.",
       "validations": {
-        "nameLong": "Timer Name is too long!",
-        "nameRequired": "Timer Name is required!",
-        "responseRequired": "Response Text is required!",
-        "responseLong": "Response is too long!"
+        "nameLong": "Názov časovača je príliš dlhy!",
+        "nameRequired": "Názov časovača je povinný!",
+        "responseRequired": "Pole reakcie je povinné!",
+        "responseLong": "Reakcia je príliš dlhá!"
       }
     },
     "limitExceeded": "Timer Limit exceeded!",
