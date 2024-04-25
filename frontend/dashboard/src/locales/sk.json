@@ -144,7 +144,7 @@
       },
       "restrictions": {
         "name": "Obmedzenia podľa štatistík",
-        "watchTime": "Požadovaný čas sledovania na použitie tohto príkazu.",
+        "watchTime": "Požadovaný odsledovaný čas na použitie tohto príkazu.",
         "messages": "Požadovaný počet správ na použitie tohto príkazu.",
         "channelsPoints": "Požadované vernostné body kanálov na použitie tohto príkazu."
       },
@@ -496,8 +496,8 @@
     },
     "kappagen": {
       "description": "Toto prekrytie umožňuje zaplniť obrazovku výbuchmi, pohybmi, ohňostrojmi a stenami emotov prostredníctvom chatu.",
-      "testKappagen": "Test Kappagen",
-      "testSpawn": "Test Emote Spawn",
+      "testKappagen": "Otestovať Kappagen",
+      "testSpawn": "Otestovať Emote Spawn",
       "clear": "Clear Overlay",
       "info": "Spawn bude zobrazovať emoty na obrazovke, zatiaľ čo používatelia chatujú a posielajú emoty. Kappagen bude zobrazovať nakonfigurované množstvo emotov na príkaz alebo nakonfigurované udalosti.",
       "tabs": {
@@ -508,15 +508,15 @@
       "settings": {
         "spawn": "Spawnovať emoty pri každej správe v chate?",
         "size": "Veľkosť",
-        "sizeSmall": "Size for Small Emote Variant",
+        "sizeSmall": "Veľkosť pre variant Small Emote",
         "time": "Životnosť emotov",
         "maxEmotes": "Množstvo emotov",
-        "animationsOnAppear": "Appearing Emote Animation",
-        "animationsOnDisappear": "Disappearing Emote Animation",
-        "excludedEmotes": "Excluded Emotes",
+        "animationsOnAppear": "Animácia objavujúcich sa emotov",
+        "animationsOnDisappear": "Animácia miznúceho emótu",
+        "excludedEmotes": "Vylúčené emoty",
         "rave": "Show Rave (Rainbow) Emotes",
         "emotes": {
-          "bttvEnabled": "Enable BetterTTV Emotes?",
+          "bttvEnabled": "Povoliť BetterTTV emoty?",
           "ffzEnabled": "Povoliť FrankerFaceZ Emotes?",
           "seventvEnabled": "Povoliť 7TV Emotes?",
           "emojiStyle": "Štýl emoji"
@@ -540,9 +540,9 @@
           "background": "Overlay Background",
           "backgroundOpacity": "Overlay Background Opacity",
           "font": {
-            "color": "Font Color",
-            "family": "Font Family",
-            "size": "Font Size"
+            "color": "Farba písma",
+            "family": "Rodina písiem",
+            "size": "Veľkosť písma"
           }
         },
         "late": {
@@ -558,41 +558,41 @@
     }
   },
   "songRequests": {
-    "waiting": "Awaiting a Song Request...",
+    "waiting": "Čakáme na žiadosť o pieseň...",
     "player": {
-      "title": "Current Song",
+      "title": "Aktuálna pieseň",
       "noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
     },
     "table": {
       "title": "Fronta",
       "columns": {
-        "title": "Title",
+        "title": "Názov",
         "author": "Autor",
         "added": "Pridal/a",
         "duration": "Dĺžka"
       }
     },
     "settings": {
-      "onlineOnly": "Allow Song Requests when streaming?",
+      "onlineOnly": "Povoliť žiadostí o pieseň pri streamovaní?",
       "announcePlay": "Oznámenie aktuálnej piesne do chatu?",
       "playerNoCookieMode": "Režim inkognito pre hráča",
       "playerNoCookieModeDescription": "Ak túto možnosť povolíte, budete môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
-      "neededPercentageForskip": "User Skip Percentage",
+      "neededPercentageForskip": "Percentuálny podiel užívateľov za preskočenie",
       "channelReward": "Channel Points Reward Request Trigger",
-      "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
+      "deniedChannels": "Zoznam zakázaných kanálov YouTube (zo žiadostí o skladby)",
       "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
-      "deniedUsers": "Banned Users",
-      "deniedSongs": "Banned Songs List",
+      "deniedUsers": "Zablokovaní používatelia",
+      "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
       "users": {
-        "maxRequests": "Maximum Request Per-User Amount",
-        "minimalWatchTime": "Minimal Watch Time (in minutes)",
-        "minimalMessages": "Minimal Message Amount",
-        "minimalFollowTime": "Minimal Follow Time (in minutes)"
+        "maxRequests": "Maximálne množstvo žiadosti na používateľa",
+        "minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
+        "minimalMessages": "Minimálne množstvo správ",
+        "minimalFollowTime": "Minimálna doba sledovania kanálu (v minútach)"
       },
       "songs": {
         "maxRequests": "Maximálny limit frontu skladieb",
-        "minLength": "Minimal Song Length (in minutes)",
+        "minLength": "Minimálna dĺžka skladby (v minútach)",
         "maxLength": "Maximálna dĺžka skladby (v minútach)",
         "minViews": "Minimálne množstvo zobrazení"
       }
@@ -667,8 +667,8 @@
   },
   "greetings": {
     "title": "Uvítacia správa",
-    "create": "Create greeting",
-    "edit": "Edit greeting",
+    "create": "Vytvoriť pozdrav",
+    "edit": "Upraviť pozdrav",
     "info": {
       "title": "Greetings Information",
       "text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
@@ -679,10 +679,10 @@
     }
   },
   "alerts": {
-    "title": "Alerts",
+    "title": "Upozornenia",
     "info": "Alerts Information",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
-    "name": "Name",
+    "name": "Názov",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
@@ -693,7 +693,7 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Confugure an Audio",
+      "audio": "Konfigurácia zvuku",
       "image": "Vybrať obrázok",
       "text": "Konfigurovať text"
     },
@@ -758,60 +758,60 @@
   "community": {
     "users": {
       "title": "Community Users",
-      "searchPlaceholder": "Search users...",
+      "searchPlaceholder": "Hľadať uživateľov...",
       "table": {
         "user": "Užívateľ",
-        "watchedTime": "Čas sledovania",
+        "watchedTime": "Odsledovaný čas",
         "messages": "Správy",
         "usedEmotes": "Použité emoty",
         "usedChannelPoints": "Uplatnené vernostné body",
-        "empty": "No users"
+        "empty": "Žiadni používatelia"
       },
-      "total": "Total users: {total}",
+      "total": "Celkový počet používateľov: {total}",
       "reset": {
-        "label": "Reset",
+        "label": "Resetovať",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
       }
     }
   },
   "filePicker": {
     "innerText": "Select or drop {type} here.",
-    "usedSpace": "Used {used} / {max} MB",
+    "usedSpace": "Použité {used} / {max} MB",
     "emptyText": "No {type} uploaded."
   },
   "overlaysRegistry": {
-    "description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
+    "description": "Táto kategória umožňuje vytvárať vlastné konfigurovateľné prekrytia pre OBS. V súčasnosti sú podporované len HTML prekrytia, ale neskôr budú pridané aj ďalšie varianty prekrytia. Ďakujeme vám za trpezlivosť. <3",
     "noLayersCreated": {
-      "title": "Not Configured",
-      "description": "Currently layers of overlays not created"
+      "title": "Nenakonfigurované",
+      "description": "V súčasnosti nie sú vytvorené vrstvy prekrytí"
     },
     "customWidth": "Šírka",
     "customHeight": "Výška",
-    "name": "Overlay Name",
+    "name": "Názov prekrytia",
     "createNewLayer": "Vytvoriť novú vrstvu",
     "validations": {
       "name": "Názov prekrytia nemôže byť prázdny a dlhší ako 30 znakov!",
-      "layers": "Layers cannot be empty! This overlay cannot contain more than 15 layers."
+      "layers": "Vrstvy nemôžu byť prázdne! Toto prekrytie nemôže obsahovať viac ako 15 vrstiev."
     },
     "html": {
-      "description": "Allows you to use custom HTML, CSS and bot variables.",
-      "updateInterval": "HTML Variables Update Interval",
+      "description": "Umožňuje používať vlastné HTML, CSS a premenné bota.",
+      "updateInterval": "Interval aktualizácie premenných HTML",
       "variablesAlert": {
-        "title": "You can use bot variables in HTML, click on the list below to show available options.",
-        "selectToCopy": "Select a required variable. It will be automatically copied to the clipboard."
+        "title": "V HTML môžete používať premenné bota, kliknutím na zoznam nižšie zobrazíte dostupné možnosti.",
+        "selectToCopy": "Vyberte požadovanú premennú. Automaticky sa skopíruje do schránky."
       },
-      "periodicallyRefetchData": "Periodically parse and update HTML data from server?"
+      "periodicallyRefetchData": "Pravidelne analyzovať a aktualizovať údaje HTML zo servera?"
     }
   },
   "chatAlerts": {
-    "randomedMessage": "If there are several variants of the chat alerts, then they will be picked randomly.<br>",
-    "randomMessageWithCount": "If there will be several variants with the same counter number, then they will be picked randomly.<br>",
-    "replacedInfo": "Available Variables: {vars}. They will be replaced with the actual information in the alert.<br>",
-    "cooldown": "Message Cooldown (in seconds)",
+    "randomedMessage": "Ak existuje niekoľko variantov upozornení na chat, vyberú sa náhodne.",
+    "randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
+    "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
+    "cooldown": "Vychladnutie správy (v sekundách)",
     "ban": {
-      "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
-      "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Ignore timeouts from"
+      "alertInfo": "Nastavte čas na 0, aby sa vytlačila správa, keď je používateľ trvalo zablokovaný.",
+      "countLabel": "Čas (minútach)",
+      "ignoreTimeoutFrom": "Ignorovať timeouty od"
     },
     "labels": {
       "followers": "Sledovatelia",
@@ -820,26 +820,26 @@
       "subscriptions": "Predplatné",
       "rewards": "Odmeny",
       "firstUserMessage": "Prvá správa používateľa",
-      "streamOnline": "Stream Online",
-      "streamOffline": "Stream Offline",
+      "streamOnline": "Vysielanie je online",
+      "streamOffline": "Vysielanie je offline",
       "chatCleared": "Chat Clear",
       "userBanned": "User Ban",
-      "channelUnbanRequestCreate": "Unban Request Create",
-      "channelUnbanRequestResolve": "Unban Request Resolve"
+      "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
+      "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban"
     }
   },
   "moderation": {
     "createNewRule": "Vytvorenie nového pravidla moderácie",
-    "banTime": "Timeout Time",
-    "banDescription": "Set to 0 for ban permamently.",
-    "banMessage": "Timeout Message",
+    "banTime": "Dĺžka timeoutu",
+    "banDescription": "Nastavte na 0 pre trvalý ban.",
+    "banMessage": "Správa timeoutu",
     "warningMessage": "Varovná správa",
     "warningMaxCount": "Warning Maximum Count",
-    "excludedRoles": "Select roles which won't be impacted by this filter:",
+    "excludedRoles": "Vyberte roly, na ktoré tento filter nebude mať vplyv:",
     "types": {
       "links": {
         "name": "Odkazy",
-        "description": "Scans Twitch chat for any web links or URLs and promptly removes them to prevent spam or unsafe content from being sent into chat."
+        "description": "Vyhľadáva v chate všetky webové odkazy alebo adresy URL a okamžite ich odstraňuje, aby sa zabránilo odosielaniu spamu alebo nebezpečného obsahu do chatu."
       },
       "deny_list": {
         "name": "Zoznam zakázaných slov",
@@ -863,7 +863,7 @@
         "name": "Veľké písmená",
         "description": "Identifikuje a obmedzuje nadmerné používanie veľkých písmen, čím podporuje vyváženejšiu a úctivejšiu konverzáciu v chate.",
         "maxPercentage": "Maximálny percentuálny podiel veľkých písmen",
-        "triggerLength": "Minimal Message Length"
+        "triggerLength": "Minimálna dĺžka správy"
       },
       "emotes": {
         "name": "Emoty",
@@ -888,9 +888,9 @@
     }
   },
   "userSettings": {
-    "title": "User settings",
+    "title": "Užívateľské nastavenia",
     "account": {
-      "title": "Account",
+      "title": "Účet",
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
         "button": "Regenerate Private API key",
@@ -898,10 +898,10 @@
       }
     },
     "public": {
-      "title": "Public page",
-      "description": "Description of channel",
-      "socialLinks": "Social links",
-      "errorCreateLink": "\"{title}\" contains not a valid link {href}",
+      "title": "Verejná stránka",
+      "description": "Popis kanálu",
+      "socialLinks": "Linky na sociálne siete",
+      "errorCreateLink": "\"{title}\" neobsahuje platné prepojenie {href}",
       "errorInvalidLength": "Invalid length",
       "errorInvalidLink": "Invalid link",
       "errorEmpty": "Cannot be empty",
@@ -948,7 +948,7 @@
       "slot": "Slot",
       "image": "Image",
       "preview": "Preview",
-      "usesCount": "Uses {count}",
+      "usesCount": "Použití {count}",
       "badgeSlot": "Slot {slot}"
     }
   }
