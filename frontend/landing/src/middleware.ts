@@ -1,7 +1,7 @@
 import type { APIContext } from 'astro';
 import { defineMiddleware } from 'astro/middleware';
 
-import { unProtectedClient } from '@/api/twirp.js';
+import { getAuthLink } from '@/api/auth-link.ts';
 import { getAuthenticatedUser } from '@/api/user.ts';
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -27,10 +27,9 @@ const assignProfile = async (context: APIContext) => {
 
 const assignLoginLink = async (context: APIContext) => {
 	const redirectTo = `${context.url.origin}/dashboard`;
-
+	
 	try {
-		const request = await unProtectedClient.authGetLink({ redirectTo });
-		context.locals.authLink = request.response.link;
+		context.locals.authLink = await getAuthLink(redirectTo);
 	} catch { /* empty */
 	}
 };

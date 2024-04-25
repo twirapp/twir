@@ -37,7 +37,7 @@ watch(profile, (v) => {
 						{{ profile.twitchGetUserByName.displayName }}
 					</span>
 					<span class="text-sm break-all">
-						{{ publicSettings?.userPublicSettings?.description || profile.description }}
+						{{ publicSettings?.userPublicSettings?.description || profile.twitchGetUserByName.description }}
 					</span>
 				</div>
 			</div>
