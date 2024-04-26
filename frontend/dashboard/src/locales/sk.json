@@ -537,8 +537,8 @@
             "example": "!brbstop"
           },
           "text": "Text prekrytia",
-          "background": "Overlay Background",
-          "backgroundOpacity": "Overlay Background Opacity",
+          "background": "Pozadie prekrytia",
+          "backgroundOpacity": "Priehľadnosť prekrytia",
           "font": {
             "color": "Farba písma",
             "family": "Rodina písiem",
@@ -546,14 +546,14 @@
           }
         },
         "late": {
-          "label": "Post-Timer Settings",
-          "text": "Overlay Post-Timer Text",
-          "displayBrb": "Display Countdown Information"
+          "label": "Nastavenia po skončení počítadla",
+          "text": "Text, ktorý sa zobrazí",
+          "displayBrb": "Zobraziť informácie o odpočítavaní"
         }
       },
       "preview": {
-        "start": "Start Overlay Preview",
-        "stop": "Stop Overlay Preview"
+        "start": "Spustiť náhľad",
+        "stop": "Zastaviť náhľad prekrytia"
       }
     }
   },
@@ -561,7 +561,7 @@
     "waiting": "Čakáme na žiadosť o pieseň...",
     "player": {
       "title": "Aktuálna pieseň",
-      "noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
+      "noAccess": "Prehrávač je k dispozícii len na vašom ovládacom paneli, skladby na ovlád. paneloch iných používateľov nemôžete počúvať."
     },
     "table": {
       "title": "Fronta",
@@ -578,9 +578,9 @@
       "playerNoCookieMode": "Režim inkognito pre hráča",
       "playerNoCookieModeDescription": "Ak túto možnosť povolíte, budete môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
       "neededPercentageForskip": "Percentuálny podiel užívateľov za preskočenie",
-      "channelReward": "Channel Points Reward Request Trigger",
+      "channelReward": "Odmena kanálovými bodmi kanálu za žiadosť o pieseň",
       "deniedChannels": "Zoznam zakázaných kanálov YouTube (zo žiadostí o skladby)",
-      "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
+      "deniedWords": "Zoznam zakázaných slov (týka sa názvov videí aj kanálov YouTube)",
       "deniedUsers": "Zablokovaní používatelia",
       "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
@@ -625,44 +625,44 @@
         "responseLong": "Reakcia je príliš dlhá!"
       }
     },
-    "limitExceeded": "Timer Limit exceeded!",
-    "newTimer": "New timer"
+    "limitExceeded": "Limit prekročený!",
+    "newTimer": "Nový časovač"
   },
   "roles": {
     "modal": {
-      "accessToUsers": "Permitted Users",
-      "accessByStats": "Permitted Users (by stats)",
-      "requiredWatchTime": "Required Watch Time",
-      "requiredMessages": "Required Messages Amount",
-      "requiredChannelPoints": "Required Channel Points Spent",
-      "permissions": "Permissions"
+      "accessToUsers": "Povolení používatelia",
+      "accessByStats": "Povolení používatelia (podľa štatistík)",
+      "requiredWatchTime": "Požadovaný odsledovaný čas",
+      "requiredMessages": "Požadované množstvo správ",
+      "requiredChannelPoints": "Požadované množstvo použitých vernostných bodov",
+      "permissions": "Oprávnenia"
     },
     "validations": {
-      "nameRequired": "Name is required!"
+      "nameRequired": "Názov je povinný"
     }
   },
   "keywords": {
-    "title": "Keywords",
+    "title": "Kľúčové slová",
     "triggerText": "Spúšťací text",
     "usages": "Počet použití",
     "isRegular": "Is a Regular Expression?",
-    "regularDescription": "Regular Expression should be written in golang format! See {0} here.",
-    "regularDescriptionCheatSheet": "cheat sheet",
-    "settings": "Settings",
-    "cooldown": "Cooldown (in seconds)",
+    "regularDescription": "Regulárny výraz by mal byť napísaný vo formáte golang! Pozri {0} tu.",
+    "regularDescriptionCheatSheet": "Ťahák",
+    "settings": "Nastavenia",
+    "cooldown": "Vychladnutie (v sekundách)",
     "validations": {
-      "triggerRequired": "Trigger Text is required!",
+      "triggerRequired": "Spúšťací text je povinný!",
       "triggerLong": "Spúšťací text je príliš dlhy!",
-      "responseLong": "Response Text is too long!"
+      "responseLong": "Odpoveď je príliš dlhá!"
     }
   },
   "variables": {
-    "title": "Variables",
+    "title": "Premenné",
     "type": "Typ",
-    "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
+    "info": "Premenné sú typom kontextu, ktorý možno použiť v odpovediach bota, príkazoch a iných častiach bota. Môžete zadať konštantnú hodnotu alebo umiestniť skript na získanie niektorých hodnôt, ku ktorým bot zvyčajne nemá jednoduchý prístup. Skriptové premenné sa odporúčajú pre pokročilých používateľov.",
     "validations": {
-      "nameRequired": "Variable Name is required!",
-      "nameLong": "Variable Name is too long"
+      "nameRequired": "Názov premennej je povinný!",
+      "nameLong": "Názov premennej je príliš dlhý"
     }
   },
   "greetings": {
@@ -670,7 +670,7 @@
     "create": "Vytvoriť pozdrav",
     "edit": "Upraviť pozdrav",
     "info": {
-      "title": "Greetings Information",
+      "title": "Informácie o pozdrave",
       "text": "Pozdravy sú typom správ, ktoré bot používa na privítanie známych divákov, keď pošlú svoju prvú správu v chate v každom streame. Ak chcete privítať každého používateľa v chate, môžete sa namiesto kategórie Pozdravy pozrieť na kategóriu Udalosti."
     },
     "validations": {
@@ -757,7 +757,7 @@
   },
   "community": {
     "users": {
-      "title": "Community Users",
+      "title": "Komunitní užívatelia",
       "searchPlaceholder": "Hľadať uživateľov...",
       "table": {
         "user": "Užívateľ",
