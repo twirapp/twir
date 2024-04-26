@@ -331,7 +331,7 @@
       "resubStreak": "Celkový počet mesiacov predplatného používateľa",
       "resubMessage": "Správa používateľovi pri opätovnom zakúpení predplatného",
       "rewardName": "Názov použitej odmeny",
-      "rewardCost": "Channel Points Reward Price",
+      "rewardCost": "Cena odmena za vernostné body",
       "rewardInput": "Text uvedený v ocenení",
       "commandName": "Názov Príkazu",
       "commandInput": "Argumenty príkazu",
@@ -449,7 +449,7 @@
       "enable": "Povoliť",
       "dudeDivider": "Kámo",
       "dudeDefaultSprite": "Štandardný sprite",
-      "dudeMaxOnScreen": "Max on screen",
+      "dudeMaxOnScreen": "Maximum na obrazovke",
       "dudeMaxOnScreenUnlimited": "Neobmedzené",
       "dudeColor": "Predvolená farba užívateľa",
       "dudeGravity": "Gravitácia",
@@ -461,7 +461,7 @@
       "ignoreCommands": "Ignorovať príkazy",
       "ignoreUsers": "Ignorovať užívateľov",
       "ignoreUsersList": "Zoznam ignorovaných užívateľov",
-      "nameBoxDivider": "Name box",
+      "nameBoxDivider": "Pole s názvom",
       "nameBoxFill": "Farby textu",
       "nameBoxFillError": "Farba je povinná",
       "nameBoxFillGradientStops": "Farby textu gradientných zarážok",
@@ -492,13 +492,13 @@
       "emoteDivider": "Emot",
       "growDivider": "Rast",
       "growTime": "Čas rastu",
-      "growMaxScale": "Max scale"
+      "growMaxScale": "Maximálne škálovanie"
     },
     "kappagen": {
       "description": "Toto prekrytie umožňuje zaplniť obrazovku výbuchmi, pohybmi, ohňostrojmi a stenami emotov prostredníctvom chatu.",
       "testKappagen": "Otestovať Kappagen",
       "testSpawn": "Otestovať Emote Spawn",
-      "clear": "Clear Overlay",
+      "clear": "Vymazať prekrytie",
       "info": "Spawn bude zobrazovať emoty na obrazovke, zatiaľ čo používatelia chatujú a posielajú emoty. Kappagen bude zobrazovať nakonfigurované množstvo emotov na príkaz alebo nakonfigurované udalosti.",
       "tabs": {
         "main": "Nastavenia",
@@ -514,7 +514,7 @@
         "animationsOnAppear": "Animácia objavujúcich sa emotov",
         "animationsOnDisappear": "Animácia miznúceho emótu",
         "excludedEmotes": "Vylúčené emoty",
-        "rave": "Show Rave (Rainbow) Emotes",
+        "rave": "Ukázať Rave (dúhové) emoty",
         "emotes": {
           "bttvEnabled": "Povoliť BetterTTV emoty?",
           "ffzEnabled": "Povoliť FrankerFaceZ Emotes?",
@@ -536,7 +536,7 @@
             "description": "Príkaz Overlay Stop",
             "example": "!brbstop"
           },
-          "text": "Overlay Text",
+          "text": "Text prekrytia",
           "background": "Overlay Background",
           "backgroundOpacity": "Overlay Background Opacity",
           "font": {
