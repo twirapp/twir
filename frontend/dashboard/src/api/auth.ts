@@ -177,55 +177,55 @@ export const useDashboard = defineStore('auth/dashboard', () => {
 	};
 });
 
-export const PERMISSIONS_FLAGS: { [key in ChannelRolePermissionEnum]: string } = {
-	CAN_ACCESS_DASHBOARD: 'All permissions',
+type Flag = { perm: ChannelRolePermissionEnum, description: string } | 'delimiter';
 
-	UPDATE_CHANNEL_TITLE: 'Can update channel title',
-	UPDATE_CHANNEL_CATEGORY: 'Can update channel category',
+export const PERMISSIONS_FLAGS: Flag[] = [
+	{ perm: ChannelRolePermissionEnum.CanAccessDashboard, description: 'All permissions' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.UpdateChannelTitle, description: 'Can update channel title' },
+	{ perm: ChannelRolePermissionEnum.UpdateChannelCategory, description: 'Can update channel category' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewCommands, description: 'Can view commands' },
+	{ perm: ChannelRolePermissionEnum.ManageCommands, description: 'Can manage commands' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewKeywords, description: 'Can view keywords' },
+	{ perm: ChannelRolePermissionEnum.ManageKeywords, description: 'Can manage keywords' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewTimers, description: 'Can view timers' },
+	{ perm: ChannelRolePermissionEnum.ManageTimers, description: 'Can manage timers' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewIntegrations, description: 'Can view integrations' },
+	{ perm: ChannelRolePermissionEnum.ManageIntegrations, description: 'Can manage integrations' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewSongRequests, description: 'Can view song requests' },
+	{ perm: ChannelRolePermissionEnum.ManageSongRequests, description: 'Can manage song requests' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewModeration, description: 'Can view moderation settings' },
+	{ perm: ChannelRolePermissionEnum.ManageModeration, description: 'Can manage moderation settings' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewVariables, description: 'Can view variables' },
+	{ perm: ChannelRolePermissionEnum.ManageVariables, description: 'Can manage variables' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewGreetings, description: 'Can view greetings' },
+	{ perm: ChannelRolePermissionEnum.ManageGreetings, description: 'Can manage greetings' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewOverlays, description: 'Can view overlays' },
+	{ perm: ChannelRolePermissionEnum.ManageOverlays, description: 'Can manage overlays' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewRoles, description: 'Can view roles' },
+	{ perm: ChannelRolePermissionEnum.ManageRoles, description: 'Can manage roles' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewEvents, description: 'Can view events' },
+	{ perm: ChannelRolePermissionEnum.ManageEvents, description: 'Can manage events' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewAlerts, description: 'Can view alerts' },
+	{ perm: ChannelRolePermissionEnum.ManageAlerts, description: 'Can manage alerts' },
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewGames, description: 'Can view games' },
+	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' },
+];
 
-	VIEW_COMMANDS: 'Can view commands',
-	MANAGE_COMMANDS: 'Can manage commands',
-
-	VIEW_KEYWORDS: 'Can view keywords',
-	MANAGE_KEYWORDS: 'Can manage keywords',
-
-	VIEW_TIMERS: 'Can view timers',
-	MANAGE_TIMERS: 'Can manage timers',
-
-	VIEW_INTEGRATIONS: 'Can view integrations',
-	MANAGE_INTEGRATIONS: 'Can manage integrations',
-
-	VIEW_SONG_REQUESTS: 'Can view song requests',
-	MANAGE_SONG_REQUESTS: 'Can manage song requests',
-
-	VIEW_MODERATION: 'Can view moderation settings',
-	MANAGE_MODERATION: 'Can manage moderation settings',
-
-	VIEW_VARIABLES: 'Can view variables',
-	MANAGE_VARIABLES: 'Can manage variables',
-
-	VIEW_GREETINGS: 'Can view greetings',
-	MANAGE_GREETINGS: 'Can manage greetings',
-
-	VIEW_OVERLAYS: 'Can view overlays',
-	MANAGE_OVERLAYS: 'Can manage overlays',
-
-	VIEW_ROLES: 'Can view roles',
-	MANAGE_ROLES: 'Can manage roles',
-
-	VIEW_EVENTS: 'Can view events',
-	MANAGE_EVENTS: 'Can manage events',
-
-	VIEW_ALERTS: 'Can view alerts',
-	MANAGE_ALERTS: 'Can manage alerts',
-
-	VIEW_GAMES: 'Can view games',
-	MANAGE_GAMES: 'Can manage games',
-};
-
-export type PermissionsType = keyof typeof PERMISSIONS_FLAGS
-
-export const useUserAccessFlagChecker = (flag: PermissionsType) => {
+export const useUserAccessFlagChecker = (flag: ChannelRolePermissionEnum) => {
 	const profile = useProfile();
 
 	return computed(() => {
@@ -247,7 +247,7 @@ export const useUserAccessFlagChecker = (flag: PermissionsType) => {
 	});
 };
 
-export const userAccessFlagChecker = async (flag: PermissionsType) => {
+export const userAccessFlagChecker = async (flag: ChannelRolePermissionEnum) => {
 	const { data: profile } = await urqlClient.value.executeQuery(profileQuery);
 
 	if (profile?.authenticatedUser.isBotAdmin) return true;

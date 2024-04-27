@@ -44,6 +44,7 @@ const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.View
 const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles);
 const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts);
 const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames);
+const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration);
 
 const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	return [
@@ -116,6 +117,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.moderation'),
 			icon: renderIcon(IconSword),
 			path: '/dashboard/moderation',
+			disabled: !canViewModeration.value,
 		},
 		{
 			label: t('sidebar.users'),
