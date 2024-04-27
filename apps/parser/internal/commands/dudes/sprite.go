@@ -9,10 +9,15 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/types/types/overlays"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+)
+
+const (
+	spriteArgName = "sprite"
 )
 
 var Sprite = &types.DefaultCommand{
@@ -23,6 +28,18 @@ var Sprite = &types.DefaultCommand{
 		Module:      "DUDES",
 		Visible:     true,
 		IsReply:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: spriteArgName,
+			OneOf: lo.Map(
+				overlays.AllDudesSpriteEnumValues,
+				func(item overlays.DudesSprite, _ int) string {
+					return item.String()
+				},
+			),
+			Optional: true,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -44,7 +61,9 @@ var Sprite = &types.DefaultCommand{
 			availableSpritesStr[i] = v.String()
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
+		spriteArg := parseCtx.ArgsParser.Get(spriteArgName)
+
+		if spriteArg == nil {
 			if entity.UserID != "" && entity.DudeSprite != nil {
 				result.Result = []string{fmt.Sprintf("Your sprite it %s", *entity.DudeSprite)}
 				return &result, nil
@@ -64,7 +83,7 @@ var Sprite = &types.DefaultCommand{
 			entity.UserID = parseCtx.Sender.ID
 		}
 
-		sprite := overlays.DudesSprite(*parseCtx.Text)
+		sprite := overlays.DudesSprite(spriteArg.String())
 		if !sprite.IsValid() {
 			return nil, &types.CommandHandlerError{
 				Message: fmt.Sprintf(

@@ -8,9 +8,14 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
+)
+
+const (
+	duelTargetArgName = "@target"
 )
 
 var Duel = &types.DefaultCommand{
@@ -22,6 +27,11 @@ var Duel = &types.DefaultCommand{
 		Visible:     true,
 		Enabled:     false,
 		RolesIDS:    pq.StringArray{},
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: duelTargetArgName,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -55,7 +65,9 @@ var Duel = &types.DefaultCommand{
 			}, nil
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
+		targetName := parseCtx.ArgsParser.Get(duelTargetArgName).String()
+
+		if targetName == "" {
 			return &types.CommandsHandlerResult{}, nil
 		}
 

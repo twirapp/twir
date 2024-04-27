@@ -6,11 +6,16 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 
 	"github.com/nicklaw5/helix/v2"
+)
+
+const (
+	gameArgName = "game"
 )
 
 var SetCommand = &types.DefaultCommand{
@@ -22,6 +27,11 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.VariadicString{
+			Name: gameArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -30,11 +40,7 @@ var SetCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			return result, nil
-		}
-
-		category, err := twitch.SearchCategory(ctx, *parseCtx.Text)
+		category, err := twitch.SearchCategory(ctx, parseCtx.ArgsParser.Get(gameArgName).String())
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "game not found on twitch",

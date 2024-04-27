@@ -3,6 +3,7 @@ package types
 import (
 	"context"
 
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -23,4 +24,5 @@ type DefaultCommand struct {
 	*model.ChannelsCommands
 
 	Handler func(ctx context.Context, parseCtx *ParseContext) (*CommandsHandlerResult, error)
+	Args    []command_arguments.Arg
 }

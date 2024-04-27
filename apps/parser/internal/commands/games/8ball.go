@@ -8,9 +8,14 @@ import (
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
+)
+
+const (
+	eightBallArgName = "question"
 )
 
 var EightBall = &types.DefaultCommand{
@@ -21,6 +26,11 @@ var EightBall = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: eightBallArgName,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,

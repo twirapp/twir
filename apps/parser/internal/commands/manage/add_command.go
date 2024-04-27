@@ -6,18 +6,13 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
-)
-
-const (
-	exampleUsage   = "!commands add name response"
-	incorrectUsage = "Incorrect usage of command. Example: " + exampleUsage
-	alreadyExists  = "Command with that name or aliase already exists."
 )
 
 var AddCommand = &types.DefaultCommand{
@@ -28,6 +23,14 @@ var AddCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: commandNameArgName,
+		},
+		command_arguments.VariadicString{
+			Name: commandTextArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -36,20 +39,14 @@ var AddCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		if parseCtx.Text == nil {
-			result.Result = append(result.Result, incorrectUsage)
-			return result, nil
-		}
-
-		args := strings.Split(*parseCtx.Text, " ")
-
-		if len(args) < 2 {
-			result.Result = append(result.Result, incorrectUsage)
-			return result, nil
-		}
-
-		name := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
-		text := strings.Join(args[1:], " ")
+		name := strings.ToLower(
+			strings.ReplaceAll(
+				parseCtx.ArgsParser.Get(commandNameArgName).String(),
+				"!",
+				"",
+			),
+		)
+		text := parseCtx.ArgsParser.Get(commandTextArgName).String()
 
 		if len(name) > 20 {
 			result.Result = append(result.Result, "Command name cannot be greatest then 20.")

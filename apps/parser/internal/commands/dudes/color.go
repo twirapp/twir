@@ -9,9 +9,14 @@ import (
 	"github.com/lib/pq"
 	"github.com/mazznoer/csscolorparser"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
+)
+
+const (
+	colorArgName = "color"
 )
 
 var Color = &types.DefaultCommand{
@@ -22,6 +27,11 @@ var Color = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: colorArgName,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -37,7 +47,9 @@ var Color = &types.DefaultCommand{
 			return nil, err
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
+		text := parseCtx.ArgsParser.Get(colorArgName).String()
+
+		if text == "" {
 			if entity.UserID != "" && entity.DudeColor != nil {
 				result.Result = []string{fmt.Sprintf("Your color is %s", *entity.DudeColor)}
 				return &result, nil
@@ -49,10 +61,10 @@ var Color = &types.DefaultCommand{
 		}
 
 		var color *string
-		if parseCtx.Text == nil || *parseCtx.Text == "reset" {
+		if text == "reset" {
 			color = nil
 		} else {
-			parsedColor, err := csscolorparser.Parse(*parseCtx.Text)
+			parsedColor, err := csscolorparser.Parse(text)
 			if err != nil {
 				return nil, &types.CommandHandlerError{
 					Message: "invalid color",
