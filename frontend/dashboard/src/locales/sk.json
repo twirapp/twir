@@ -445,7 +445,7 @@
       "description": "Toto prekrytie vám umožní zobraziť Twitch chat vo vašom streamovacom softvéri (napríklad OBS, XSplit atď.)"
     },
     "dudes": {
-      "description": "Animované znaky pre chatujúcich vo vašom streame",
+      "description": "Animované postavičky pre chatujúcich vo vašom streame",
       "enable": "Povoliť",
       "dudeDivider": "Kámo",
       "dudeDefaultSprite": "Štandardný sprite",
