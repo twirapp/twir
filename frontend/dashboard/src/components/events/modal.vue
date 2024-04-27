@@ -233,7 +233,7 @@ const eventsManager = useEventsManager();
 const eventsUpdater = eventsManager.update;
 const eventsCreator = eventsManager.create;
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 async function save() {
 	if (!formRef.value || !profile.value) return;

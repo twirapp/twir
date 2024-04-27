@@ -1,16 +1,17 @@
 import { useQuery } from '@tanstack/vue-query';
+import { storeToRefs } from 'pinia';
 
 import { unprotectedClient } from '@/api/twirp.js';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import { useStreamerProfile } from '@/api/use-streamer-profile';
 
 export const useSongsQueue = () => {
-	const { data: profile } = useStreamerProfile();
+	const { data: profile } = storeToRefs(useStreamerProfile());
 
 	return useQuery({
-		queryKey: ['songsQueue', profile.value?.id],
+		queryKey: ['songsQueue', profile],
 		queryFn: async () => {
 			const call = await unprotectedClient.getSongsQueue({
-				channelId: profile.value!.id,
+				channelId: profile.value!.twitchGetUserByName!.id,
 			});
 
 			return call.response;

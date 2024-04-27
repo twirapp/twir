@@ -16,10 +16,11 @@ import { useI18n } from 'vue-i18n';
 import { useUserAccessFlagChecker } from '@/api/index.js';
 import { EditableTimer, useTimersApi, type TimerResponse } from '@/api/timers.js';
 import Modal from '@/components/timers/modal.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
 
 const { t } = useI18n();
-const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
+const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageTimers);
 
 const timersApi = useTimersApi();
 const timersRemove = timersApi.useMutationRemoveTimer();

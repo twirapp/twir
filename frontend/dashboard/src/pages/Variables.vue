@@ -18,7 +18,7 @@ import { useUserAccessFlagChecker } from '@/api/index.js';
 import { useVariablesApi } from '@/api/variables';
 import { type CustomVariable, type EditableCustomVariable } from '@/api/variables';
 import Modal from '@/components/variables/modal.vue';
-import { VariableType } from '@/gql/graphql';
+import { ChannelRolePermissionEnum, VariableType } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
 
 const variablesApi = useVariablesApi();
@@ -27,7 +27,7 @@ const deleter = variablesApi.useMutationRemoveVariable();
 
 const showModal = ref(false);
 
-const userCanManageVariables = useUserAccessFlagChecker('MANAGE_VARIABLES');
+const userCanManageVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageVariables);
 
 const { t } = useI18n();
 

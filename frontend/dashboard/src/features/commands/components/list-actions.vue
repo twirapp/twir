@@ -11,11 +11,11 @@ import { Button } from '@/components/ui/button';
 import DeleteConfirmation from '@/components/ui/delete-confirm.vue';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/components/ui/toast/use-toast';
-import { Command } from '@/gql/graphql';
+import { ChannelRolePermissionEnum, Command } from '@/gql/graphql';
 
 const emits = defineEmits<{ edit: [] }>();
 const props = defineProps<{ row: Command }>();
-const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
+const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands);
 
 const manager = useCommandsApi();
 const deleter = manager.useMutationDeleteCommand();

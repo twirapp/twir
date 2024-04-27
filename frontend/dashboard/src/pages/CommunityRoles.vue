@@ -14,6 +14,7 @@ import { useI18n } from 'vue-i18n';
 import { useRolesManager, useUserAccessFlagChecker } from '@/api/index.js';
 import RoleModal from '@/components/roles/modal.vue';
 import type { EditableRole } from '@/components/roles/types.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const rolesManager = useRolesManager();
 const { data: roles } = rolesManager.getAll({});
@@ -27,7 +28,7 @@ function openModal(role: EditableRole | null) {
 }
 const closeModal = () => showModal.value = false;
 
-const userCanManageRoles = useUserAccessFlagChecker('MANAGE_ROLES');
+const userCanManageRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageRoles);
 
 const { t } = useI18n();
 </script>

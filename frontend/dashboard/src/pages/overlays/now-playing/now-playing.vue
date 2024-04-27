@@ -11,6 +11,7 @@ import {
 	useUserAccessFlagChecker,
 } from '@/api';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue';
 import {
 	useNowPlayingForm,
@@ -21,7 +22,7 @@ const themeVars = useThemeVars();
 const { t } = useI18n();
 const { dialog } = useNaiveDiscrete();
 
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 const nowPlayingOverlayManager = useNowPlayingOverlayManager();
 const creator = nowPlayingOverlayManager.useCreate();
 const deleter = nowPlayingOverlayManager.useDelete();

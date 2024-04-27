@@ -29,3 +29,14 @@ func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
 
 	return selectedDashboardId, nil
 }
+
+func (s *Sessions) SetSelectedDashboard(ctx context.Context, dashboardId string) error {
+	s.sessionManager.Put(ctx, "dashboardId", dashboardId)
+	s.sessionManager.Commit(ctx)
+
+	return nil
+}
+
+func (s *Sessions) Logout(ctx context.Context) error {
+	return s.sessionManager.Destroy(ctx)
+}

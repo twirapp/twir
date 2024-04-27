@@ -20,6 +20,7 @@ import { useKappaGenOverlayManager, useProfile } from '@/api';
 import { flatEvents } from '@/components/events/helpers.js';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import { useToast } from '@/components/ui/toast';
+import { storeToRefs } from 'pinia';
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -99,7 +100,7 @@ watch(() => [
 	formValue.value.size,
 ], () => sendSettings(), { deep: true });
 
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const kappagenIframeRef = ref<HTMLIFrameElement | null>(null);
 const kappagenIframeUrl = computed(() => {

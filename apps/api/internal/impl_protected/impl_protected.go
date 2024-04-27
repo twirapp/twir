@@ -5,7 +5,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	"github.com/satont/twir/apps/api/internal/impl_protected/alerts"
-	"github.com/satont/twir/apps/api/internal/impl_protected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
@@ -19,7 +18,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_protected/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
-	public_settings "github.com/satont/twir/apps/api/internal/impl_protected/public-settings"
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
@@ -44,7 +42,6 @@ type Protected struct {
 	*events.Events
 	*rewards.Rewards
 	*roles.Roles
-	*auth.Auth
 	*build_in_variables.BuildInVariables
 	*dashboard.Dashboard
 	*twitch.Twitch
@@ -55,7 +52,6 @@ type Protected struct {
 	*moderation.Moderation
 	*users.Users
 	*feedback.Feedback
-	*public_settings.PublicSettings
 	*notifications.Notifications
 }
 
@@ -101,7 +97,6 @@ func New(opts Opts) *Protected {
 		Events:           &events.Events{Deps: d},
 		Rewards:          &rewards.Rewards{Deps: d},
 		Roles:            &roles.Roles{Deps: d},
-		Auth:             &auth.Auth{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},
@@ -112,7 +107,6 @@ func New(opts Opts) *Protected {
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},
 		Feedback:         &feedback.Feedback{Deps: d},
-		PublicSettings:   &public_settings.PublicSettings{Deps: d},
 		Notifications:    &notifications.Notifications{Deps: d},
 	}
 }

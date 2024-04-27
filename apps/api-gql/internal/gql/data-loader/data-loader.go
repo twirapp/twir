@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/nicklaw5/helix/v2"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/vikstrous/dataloadgen"
 )
@@ -16,8 +16,9 @@ const (
 )
 
 type DataLoader struct {
-	cachedTwitchClient *twitch.CachedTwitchClient
-	helixUserLoader    *dataloadgen.Loader[string, *helix.User]
+	cachedTwitchClient    *twitch.CachedTwitchClient
+	helixUserByIdLoader   *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
+	helixUserByNameLoader *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
 }
 
 type Opts struct {
@@ -29,8 +30,13 @@ func New(opts Opts) *DataLoader {
 		cachedTwitchClient: opts.CachedTwitchClient,
 	}
 
-	loader.helixUserLoader = dataloadgen.NewLoader(
+	loader.helixUserByIdLoader = dataloadgen.NewLoader(
 		loader.getHelixUsersByIds,
+		dataloadgen.WithWait(time.Millisecond),
+	)
+
+	loader.helixUserByNameLoader = dataloadgen.NewLoader(
+		loader.getHelixUsersByNames,
 		dataloadgen.WithWait(time.Millisecond),
 	)
 

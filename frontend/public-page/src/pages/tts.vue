@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
 
+import { useStreamerProfile } from '@/api/use-streamer-profile';
+import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/use-tts-settings';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
@@ -9,13 +12,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
-import { useTTSChannelSettings, useTTSUsersSettings } from '@/composables/use-tts-settings';
 import { useTwitchGetUsers } from '@/composables/use-twitch-users';
 import UserRow from '@/pages/tts/user-row.vue';
 
 
-const { data: profile } = useStreamerProfile();
+const { data: profile } = storeToRefs(useStreamerProfile());
 const {
 	data: channelSettings,
 	isLoading: isChannelSettingsLoading,
@@ -83,9 +84,9 @@ const usersWithProfiles = computed(() => {
 				</TableBody>
 				<TableBody v-else>
 					<user-row
-						v-if="channelSettings && profile"
-						:name="profile?.displayName"
-						:avatar="profile?.profileImageUrl"
+						v-if="channelSettings && profile?.twitchGetUserByName"
+						:name="profile.twitchGetUserByName.displayName"
+						:avatar="profile.twitchGetUserByName.profileImageUrl"
 						:pitch="channelSettings.pitch"
 						:rate="channelSettings.rate"
 						:voice="channelSettings.voice"

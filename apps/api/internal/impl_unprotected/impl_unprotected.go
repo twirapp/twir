@@ -9,7 +9,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/community"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/modules"
-	public_settings "github.com/satont/twir/apps/api/internal/impl_unprotected/public-settings"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/songs"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/stats"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/tts"
@@ -34,7 +33,6 @@ type UnProtected struct {
 	*songs.Songs
 	*tts.Tts
 	*community.Community
-	*public_settings.PublicSettings
 	*badges.Badges
 }
 
@@ -81,28 +79,6 @@ func New(opts Opts) *UnProtected {
 		},
 		Auth: &auth.Auth{
 			Deps: d,
-			TwitchScopes: []string{
-				"moderation:read",
-				"channel:manage:broadcast",
-				"channel:read:redemptions",
-				"moderator:read:chatters",
-				"moderator:manage:shoutouts",
-				"moderator:manage:banned_users",
-				"channel:read:vips",
-				"channel:manage:vips",
-				"channel:manage:moderators",
-				"moderator:read:followers",
-				"moderator:manage:chat_settings",
-				"channel:read:polls",
-				"channel:manage:polls",
-				"channel:read:predictions",
-				"channel:manage:predictions",
-				"channel:read:subscriptions",
-				"channel:moderate",
-				"user:read:follows",
-				"channel:bot",
-				"channel:manage:raids",
-			},
 		},
 		Modules: &modules.Modules{
 			Deps: d,
@@ -110,9 +86,8 @@ func New(opts Opts) *UnProtected {
 		Songs: &songs.Songs{
 			Deps: d,
 		},
-		Tts:            &tts.Tts{Deps: d},
-		Community:      &community.Community{Deps: d},
-		PublicSettings: &public_settings.PublicSettings{Deps: d},
-		Badges:         &badges.Badges{Deps: d},
+		Tts:       &tts.Tts{Deps: d},
+		Community: &community.Community{Deps: d},
+		Badges:    &badges.Badges{Deps: d},
 	}
 }

@@ -3,6 +3,7 @@ import { UseTimeAgo } from '@vueuse/components';
 
 import { convertMillisToTime } from '../helpers';
 
+import { useSongsQueue } from '@/api/use-song-requests';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import {
 	Table,
@@ -12,7 +13,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { useSongsQueue } from '@/composables/use-song-requests';
 
 const { data: queue } = useSongsQueue();
 </script>

@@ -10,4 +10,3 @@ export * from './dashboard.js';
 export * from './files.js';
 export * from './games/index.js';
 export * from './moderation.js';
-export * from './user.js';

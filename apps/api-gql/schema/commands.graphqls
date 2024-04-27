@@ -1,5 +1,6 @@
 extend type Query {
 	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_COMMANDS)
+	commandsPublic(channelId: ID!): [PublicCommand!]!
 }
 
 extend type Mutation {
@@ -34,12 +35,27 @@ type Command {
 	requiredUsedChannelPoints: Int!
 	group: CommandGroup
 }
-
 type CommandResponse {
 	id: ID!
 	commandId: ID!
 	text: String!
 	order: Int!
+}
+
+type PublicCommand {
+	name: String!
+	description: String!
+	aliases: [String!]!
+	responses: [String!]!
+	cooldown: Int!
+	cooldownType: String!
+	module: String!
+	permissions: [PublicCommandPermission!]!
+}
+
+type PublicCommandPermission {
+	name: String!
+	type: String!
 }
 
 input CommandsCreateOpts {

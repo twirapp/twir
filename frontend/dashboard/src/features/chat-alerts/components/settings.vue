@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = defineProps<{
 	formKey: FormKey
@@ -32,7 +33,7 @@ const props = defineProps<{
 const form = useForm();
 const { formValue, formInited, formRef } = storeToRefs(form);
 
-const hasAccessToManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
+const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts);
 
 watch(formInited, (v) => {
 	if (!v) return;

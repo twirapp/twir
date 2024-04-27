@@ -5,13 +5,18 @@ import vue from '@vitejs/plugin-vue';
 import autoprefixer from 'autoprefixer';
 import tailwind from 'tailwindcss';
 import { defineConfig } from 'vite';
-
+import { watch } from 'vite-plugin-watch';
 
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
 		vue(),
 		svgSprite(['./src/assets/icons/*/*.svg']),
+		watch({
+			onInit: true,
+			pattern: 'src/api/**/*.ts',
+			command: 'graphql-codegen',
+		}),
 	],
 	clearScreen: false,
 	base: '/p',

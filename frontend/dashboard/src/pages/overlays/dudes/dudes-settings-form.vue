@@ -19,6 +19,7 @@ import {
 	NTabs,
 	NTabPane,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { h, computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -29,14 +30,15 @@ import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
 const { copyOverlayLink } = useCopyOverlayLink('dudes');
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const { data: profile } = useProfile();
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
+const { data: profile } = storeToRefs(useProfile());
 
 const { data: formValue, $reset } = useDudesForm();
 const { sendIframeMessage } = useDudesIframe();

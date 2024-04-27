@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 defineEmits<{
 	openSettings: [];
@@ -23,7 +24,7 @@ withDefaults(defineProps<{
 
 const { t } = useI18n();
 
-const userCanManageGames = useUserAccessFlagChecker('MANAGE_GAMES');
+const userCanManageGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGames);
 </script>
 
 <template>

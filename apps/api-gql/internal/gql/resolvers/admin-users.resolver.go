@@ -7,7 +7,7 @@ package resolvers
 import (
 	"context"
 
-	"github.com/nicklaw5/helix/v2"
+	helix "github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -45,10 +45,7 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 }
 
 // TwirUsers is the resolver for the twirUsers field.
-func (r *queryResolver) TwirUsers(
-	ctx context.Context,
-	opts gqlmodel.TwirUsersSearchParams,
-) (*gqlmodel.TwirUsersResponse, error) {
+func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error) {
 	var page int
 	perPage := 20
 
@@ -145,24 +142,8 @@ func (r *queryResolver) TwirUsers(
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *twirAdminUserResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.TwirAdminUser,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.ID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+func (r *twirAdminUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TwirAdminUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // TwirAdminUser returns graph.TwirAdminUserResolver implementation.

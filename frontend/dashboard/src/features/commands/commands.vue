@@ -11,10 +11,11 @@ import { useCommandEdit } from './composables/use-command-edit';
 import { useUserAccessFlagChecker } from '@/api';
 import { useCommandsApi } from '@/api/commands/commands.js';
 import ManageGroups from '@/components/commands/manageGroups.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const route = useRoute();
 const { t } = useI18n();
-const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
+const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands);
 const editCommand = useCommandEdit();
 
 const commandsManager = useCommandsApi();
