@@ -243,7 +243,7 @@ export const useUserAccessFlagChecker = (flag: ChannelRolePermissionEnum) => {
 		if (!dashboard) return false;
 
 		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
-		return dashboard.flags.includes(flag as ChannelRolePermissionEnum);
+		return dashboard.flags.includes(flag);
 	});
 };
 
@@ -260,5 +260,5 @@ export const userAccessFlagChecker = async (flag: ChannelRolePermissionEnum) => 
 	if (!dashboard) return false;
 
 	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
-	return dashboard.flags.includes(flag as ChannelRolePermissionEnum);
+	return dashboard.flags.includes(flag);
 };
