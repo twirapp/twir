@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/vue-query';
 import { createRequest, useQuery } from '@urql/vue';
 import { defineStore } from 'pinia';
-import { computed, watch } from 'vue';
+import { computed } from 'vue';
 
 import { useMutation } from '@/composables/use-mutation';
 import { useMutation as _useMutation } from '@/composables/use-mutation.js';
@@ -49,12 +49,12 @@ export const profileQuery = createRequest(graphql(`
 export const userInvalidateQueryKey = 'UserInvalidateQueryKey';
 
 export const useProfile = defineStore('auth/profile', () => {
-	const { data: response, executeQuery, fetching, error } = useQuery({
+	const { data: response, executeQuery, fetching } = useQuery({
 		query: profileQuery.query,
 		variables: {
-			key: profileQuery.key,
 		},
 		context: {
+			key: profileQuery.key,
 			additionalTypenames: [userInvalidateQueryKey],
 		},
 	});
@@ -79,10 +79,6 @@ export const useProfile = defineStore('auth/profile', () => {
 			hideOnLandingPage: user.hideOnLandingPage,
 			availableDashboards: user.availableDashboards,
 		};
-	});
-
-	watch(error, (v) => {
-		console.log(v);
 	});
 
 	return { data: computedUser, executeQuery, isLoading: fetching };
