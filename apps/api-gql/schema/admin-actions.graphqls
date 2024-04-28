@@ -1,3 +1,4 @@
 extend type Mutation {
-	dropAuthSessions: Boolean! @isAuthenticated @isAdmin
+	dropAllAuthSessions: Boolean! @isAuthenticated @isAdmin
+	dropUserAuthSession(userId: String!): Boolean! @isAuthenticated @isAdmin
 }

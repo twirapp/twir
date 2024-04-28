@@ -9,8 +9,8 @@ import (
 	"fmt"
 )
 
-// DropAuthSessions is the resolver for the dropAuthSessions field.
-func (r *mutationResolver) DropAuthSessions(ctx context.Context) (bool, error) {
+// DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
+func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error) {
 	keys, err := r.redis.Keys(ctx, "scs:*").Result()
 	if err != nil {
 		return false, fmt.Errorf("failed to get session keys: %w", err)
@@ -26,4 +26,9 @@ func (r *mutationResolver) DropAuthSessions(ctx context.Context) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// DropUserAuthSession is the resolver for the dropUserAuthSession field.
+func (r *mutationResolver) DropUserAuthSession(ctx context.Context, userID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DropUserAuthSession - dropUserAuthSession"))
 }

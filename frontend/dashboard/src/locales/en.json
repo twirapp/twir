@@ -938,7 +938,12 @@
 			"isBanned": "Banned",
 			"isBotEnabled": "Bot enabled",
 			"statusGroup": "Status",
-			"badgesGroup": "Badges"
+			"badgesGroup": "Badges",
+			"giveBan": "Ban user",
+			"unBan": "Unban user",
+			"giveMod": "Give admin",
+			"unMod": "Remove admin",
+			"dropSession": "Drop session",
 		},
 		"manageBadges": {
 			"title": "Badges",

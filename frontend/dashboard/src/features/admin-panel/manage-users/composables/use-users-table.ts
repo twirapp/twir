@@ -9,7 +9,8 @@ import { useI18n } from 'vue-i18n';
 
 import { useUsersTableFilters } from './use-users-table-filters.js';
 import { useUsers } from './use-users.js';
-import UsersTableActions from '../components/users-table-actions.vue';
+import UsersActionSelector from '../components/users-action-selector.vue';
+import UsersBadgeSelector from '../components/users-badge-selector.vue';
 import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
 import type { User } from '@/api/admin/users.js';
@@ -86,11 +87,20 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			size: 10,
 			header: () => '',
 			cell: ({ row }) => {
-				return h(UsersTableActions, {
-					userId: row.original.id,
-					isBanned: row.original.isBanned,
-					isBotAdmin: row.original.isBotAdmin,
-				});
+				return h(
+					'div',
+					{ class: 'flex items-center gap-2' },
+					[
+						h(UsersBadgeSelector, {
+							userId: row.original.id,
+						}),
+						h(UsersActionSelector, {
+							userId: row.original.id,
+							isBanned: row.original.isBanned,
+							isBotAdmin: row.original.isBotAdmin,
+						}),
+					],
+				);
 			},
 		},
 	]);
