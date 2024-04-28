@@ -1,13 +1,14 @@
-import { useQuery, useSubscription } from '@urql/vue';
-import { computed, watch, type Ref } from 'vue';
+import { useQuery, useSubscription } from '@urql/vue'
+import { computed, watch } from 'vue'
+import type { Ref } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
-import type { AdminNotificationsParams } from '@/gql/graphql';
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
+import type { AdminNotificationsParams } from '@/gql/graphql'
 
-const invalidationKey = 'AdminNofiticationsInvalidateKey';
+const invalidationKey = 'AdminNofiticationsInvalidateKey'
 
-export const useQueryNotifications = () => {
+export function useQueryNotifications() {
 	const { data: allNotifications } = useQuery({
 		query: graphql(`
 			query GetAllNotifications {
@@ -17,8 +18,8 @@ export const useQueryNotifications = () => {
 					createdAt
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const { data: newNotifications } = useSubscription({
 		query: graphql(`
@@ -29,30 +30,31 @@ export const useQueryNotifications = () => {
 					createdAt
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	watch(newNotifications, (newNotification) => {
-		if (!allNotifications.value || !newNotification) return;
-		allNotifications.value.notificationsByUser.unshift(newNotification.newNotification);
-	});
+		if (!allNotifications.value || !newNotification)
+			return
+		allNotifications.value.notificationsByUser.unshift(newNotification.newNotification)
+	})
 
 	const notifications = computed(() => {
-		return allNotifications.value?.notificationsByUser ?? [];
-	});
+		return allNotifications.value?.notificationsByUser ?? []
+	})
 
-	return notifications;
-};
+	return notifications
+}
 
-export const useAdminNotifications = () => {
+export function useAdminNotifications() {
 	const useQueryNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
 		context: {
-			additionalTypenames: [invalidationKey],
+			additionalTypenames: [invalidationKey]
 		},
 		get variables() {
 			return {
-				opts: variables.value,
-			};
+				opts: variables.value
+			}
 		},
 		query: graphql(`
 			query NotificationsByAdmin($opts: AdminNotificationsParams!) {
@@ -70,8 +72,8 @@ export const useAdminNotifications = () => {
 					}
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const useMutationCreateNotification = () => useMutation(graphql(`
 		mutation CreateNotification($text: String!, $userId: String) {
@@ -79,13 +81,13 @@ export const useAdminNotifications = () => {
 				id
 			}
     }
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationDeleteNotification = () => useMutation(graphql(`
 		mutation DeleteNotification($id: ID!) {
 			notificationsDelete(id: $id)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUpdateNotifications = () => useMutation(graphql(`
 		mutation UpdateNotifications($id: ID!, $opts: NotificationUpdateOpts!) {
@@ -93,12 +95,12 @@ export const useAdminNotifications = () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		useQueryNotifications,
 		useMutationCreateNotification,
 		useMutationDeleteNotification,
-		useMutationUpdateNotifications,
-	};
-};
+		useMutationUpdateNotifications
+	}
+}
