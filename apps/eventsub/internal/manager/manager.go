@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -257,26 +258,40 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 	}
 
 	if c.config.AppEnv != "production" {
+		var unsubWg sync.WaitGroup
+
 		for _, sub := range subscriptions {
-			c.Unsubscribe(ctx, sub.ID)
+			sub := sub
+			unsubWg.Add(1)
+			go func() {
+				defer unsubWg.Done()
+				c.Unsubscribe(ctx, sub.ID)
+			}()
 		}
 
-		for key, value := range neededSubs {
-			c.Subscribe(
-				ctx, &eventsub_framework.SubRequest{
-					Type:      key,
-					Condition: value.Condition,
-					Callback:  c.tunnel.GetAddr(),
-					Secret:    c.config.TwitchClientSecret,
-					Version:   value.Version,
-				},
-			)
+		unsubWg.Wait()
 
-			c.logger.Info(
-				"Subscribed",
-				slog.String("type", key),
-				slog.String("user_id", userId),
-			)
+		for key, value := range neededSubs {
+			key := key
+			value := value
+
+			go func() {
+				c.Subscribe(
+					ctx, &eventsub_framework.SubRequest{
+						Type:      key,
+						Condition: value.Condition,
+						Callback:  c.tunnel.GetAddr(),
+						Secret:    c.config.TwitchClientSecret,
+						Version:   value.Version,
+					},
+				)
+
+				c.logger.Info(
+					"Subscribed",
+					slog.String("type", key),
+					slog.String("user_id", userId),
+				)
+			}()
 		}
 	} else {
 		for key, value := range neededSubs {
