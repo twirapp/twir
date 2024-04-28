@@ -1,24 +1,24 @@
-import { useQuery } from '@urql/vue';
+import { useQuery } from '@urql/vue'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql'
 
-const invalidationKey = 'AdminBadgesInvalidateKey';
+const invalidationKey = 'AdminBadgesInvalidateKey'
 
-export const useAdminBadges = () => {
+export function useAdminBadges() {
 	const useMutationCreateBadge = () => useMutation(graphql(`
 		mutation CreateBadge($opts: TwirBadgeCreateOpts!) {
 			badgesCreate(opts: $opts) {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationDeleteBadge = () => useMutation(graphql(`
 		mutation DeleteBadge($id: ID!) {
 			badgesDelete(id: $id)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUpdateBadge = () => useMutation(graphql(`
 		mutation UpdateBadge($id: ID!, $opts: TwirBadgeUpdateOpts!) {
@@ -26,45 +26,47 @@ export const useAdminBadges = () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationsAddUserBadge = () => useMutation(graphql(`
 		mutation AddUserBadge($id: ID!, $userId: String!) {
 			badgesAddUser(id: $id, userId: $userId)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationsRemoveUserBadge = () => useMutation(graphql(`
 		mutation RemoveUserBadge($id: ID!, $userId: String!) {
 			badgesRemoveUser(id: $id, userId: $userId)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		useMutationCreateBadge,
 		useMutationDeleteBadge,
 		useMutationUpdateBadge,
 		useMutationsAddUserBadge,
-		useMutationsRemoveUserBadge,
-	};
-};
+		useMutationsRemoveUserBadge
+	}
+}
 
-export const useQueryBadges = () => useQuery({
-	context: {
-		additionalTypenames: [invalidationKey],
-	},
-	variables: {},
-	query: graphql(`
-		query BadgesGetAll {
-			twirBadges {
-				id
-				name
-				createdAt
-				fileUrl
-				enabled
-				ffzSlot
-				users
+export function useQueryBadges() {
+	return useQuery({
+		context: {
+			additionalTypenames: [invalidationKey]
+		},
+		variables: {},
+		query: graphql(`
+			query BadgesGetAll {
+				twirBadges {
+					id
+					name
+					createdAt
+					fileUrl
+					enabled
+					ffzSlot
+					users
+				}
 			}
-		}
-	`),
-});
+		`)
+	})
+}

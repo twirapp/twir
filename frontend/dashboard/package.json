@@ -4,10 +4,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "graphql-codegen && vue-tsc && vite build",
+    "build": "pnpm codegen && vue-tsc && vite build",
     "preview": "vite preview",
     "analyze": "vite-bundle-visualizer",
-    "generate-pwa-assets": "pwa-assets-generator"
+    "generate-pwa-assets": "pwa-assets-generator",
+		"codegen": "graphql-codegen"
   },
   "dependencies": {
     "@discord-message-components/vue": "0.2.1",
