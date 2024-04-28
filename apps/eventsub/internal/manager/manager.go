@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -258,98 +256,113 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 		cursor = subs.Data.Pagination.Cursor
 	}
 
-	wg := &sync.WaitGroup{}
-	wg.Add(len(neededSubs))
+	if c.config.AppEnv != "production" {
+		for _, sub := range subscriptions {
+			c.Unsubscribe(ctx, sub.ID)
+		}
 
-	var ops uint64
-
-	for key, value := range neededSubs {
-		go func(key string, value SubRequest) {
-			defer wg.Done()
-
-			existedSub, ok := lo.Find(
-				subscriptions, func(item helix.EventSubSubscription) bool {
-					return item.Type == key &&
-						(item.Condition.BroadcasterUserID == value.Condition["broadcaster_user_id"] ||
-							item.Condition.UserID == value.Condition["user_id"])
+		for key, value := range neededSubs {
+			c.Subscribe(
+				ctx, &eventsub_framework.SubRequest{
+					Type:      key,
+					Condition: value.Condition,
+					Callback:  c.tunnel.GetAddr(),
+					Secret:    c.config.TwitchClientSecret,
+					Version:   value.Version,
 				},
 			)
 
-			if ok && existedSub.Status == "enabled" && existedSub.Transport.Callback == c.tunnel.GetAddr() {
-				return
-			}
+			c.logger.Info(
+				"Subscribed",
+				slog.String("type", key),
+				slog.String("user_id", userId),
+			)
+		}
+	} else {
+		for key, value := range neededSubs {
+			for _, sub := range subscriptions {
+				if sub.Type != key {
+					continue
+				}
 
-			if existedSub.Status == "authorization_revoked" {
-				return
-			}
-
-			if ok {
-				err = c.Unsubscribe(ctx, existedSub.ID)
-				if err != nil {
-					c.logger.Error(
-						"Failed to unsubcribe",
+				if sub.Status == "notification_failures_exceeded" {
+					c.logger.Info(
+						"Notification failures exceeded, resubscribing",
+						slog.String("type", key),
 						slog.String("user_id", userId),
-						slog.String("key", key),
-						slog.Any("err", err),
 					)
-					return
+
+					if err := retry.Do(
+						func() error {
+							_, subscribeErr := c.Subscribe(
+								ctx, &eventsub_framework.SubRequest{
+									Type:      key,
+									Condition: value.Condition,
+									Callback:  c.tunnel.GetAddr(),
+									Secret:    c.config.TwitchClientSecret,
+									Version:   value.Version,
+								},
+							)
+
+							return subscribeErr
+						},
+						retry.Attempts(0),
+						retry.Delay(1*time.Second),
+						retry.RetryIf(
+							func(err error) bool {
+								var e *eventsub_framework.TwitchError
+								if errors.As(err, &e) && e.Status != 409 {
+									if e.Status == 429 {
+										return true
+									}
+								}
+
+								return false
+							},
+						),
+					); err != nil {
+						c.logger.Error(
+							"Failed to resubscribe",
+							slog.Any("err", err),
+							slog.String("type", key),
+							slog.String("user_id", userId),
+						)
+					}
 				}
 			}
 
-			request := eventsub_framework.SubRequest{
-				Type:      key,
-				Condition: value.Condition,
-				Callback:  c.tunnel.GetAddr(),
-				Secret:    c.config.TwitchClientSecret,
-				Version:   value.Version,
-			}
-
-			retry.Do(
-				func() error {
-					if _, subscribeErr := c.Subscribe(ctx, &request); subscribeErr != nil {
-						var e *eventsub_framework.TwitchError
-						if errors.As(subscribeErr, &e) && e.Status != 409 {
-							if e.Status == 429 {
-								return errors.New("rate limit")
-							}
-
-							c.logger.Error(
-								"Failed to subcribe",
-								slog.String("user_id", userId),
-								slog.String("key", key),
-								slog.Any("err", e),
-								slog.Int("status", e.Status),
-								slog.String("message", e.Message),
-								slog.String("callback", c.tunnel.GetAddr()),
-							)
-						} else {
-							c.logger.Error(
-								subscribeErr.Error(),
-								slog.String("user_id", userId),
-								slog.String("key", key),
-							)
-						}
-
-						return nil
-					}
-
-					return nil
+			_, isExists := lo.Find(
+				subscriptions, func(item helix.EventSubSubscription) bool {
+					return item.Type == key
 				},
-				retry.Attempts(0),
-				retry.Delay(1*time.Second),
 			)
 
-			atomic.AddUint64(&ops, 1)
-		}(key, value)
+			if !isExists {
+				c.logger.Info(
+					"Subscription not found, resubscribing",
+					slog.String("type", key),
+					slog.String("user_id", userId),
+				)
+
+				if _, err := c.Subscribe(
+					ctx, &eventsub_framework.SubRequest{
+						Type:      key,
+						Condition: value.Condition,
+						Callback:  c.tunnel.GetAddr(),
+						Secret:    c.config.TwitchClientSecret,
+						Version:   value.Version,
+					},
+				); err != nil {
+					c.logger.Error(
+						"Failed to resubscribe",
+						slog.Any("err", err),
+						slog.String("type", key),
+						slog.String("user_id", userId),
+					)
+				}
+			}
+		}
 	}
-
-	wg.Wait()
-
-	c.logger.Info(
-		"Subscribed to needed events",
-		slog.String("user_id", userId),
-		slog.Uint64("subscriptions", ops),
-	)
 
 	return nil
 }
