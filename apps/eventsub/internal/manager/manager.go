@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"sync"
 	"sync/atomic"
+	"time"
 
+	"github.com/avast/retry-go/v4"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
@@ -301,28 +303,41 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 				Secret:    c.config.TwitchClientSecret,
 				Version:   value.Version,
 			}
-			if _, subscribeErr := c.Subscribe(ctx, &request); subscribeErr != nil {
-				var e *eventsub_framework.TwitchError
-				if errors.As(subscribeErr, &e) && e.Status != 409 {
-					c.logger.Error(
-						"Failed to subcribe",
-						slog.String("user_id", userId),
-						slog.String("key", key),
-						slog.Any("err", e),
-						slog.Int("status", e.Status),
-						slog.String("message", e.Message),
-						slog.String("callback", c.tunnel.GetAddr()),
-					)
-				} else {
-					c.logger.Error(
-						subscribeErr.Error(),
-						slog.String("user_id", userId),
-						slog.String("key", key),
-					)
-				}
 
-				return
-			}
+			retry.Do(
+				func() error {
+					if _, subscribeErr := c.Subscribe(ctx, &request); subscribeErr != nil {
+						var e *eventsub_framework.TwitchError
+						if errors.As(subscribeErr, &e) && e.Status != 409 {
+							if e.Status == 429 {
+								return errors.New("rate limit")
+							}
+
+							c.logger.Error(
+								"Failed to subcribe",
+								slog.String("user_id", userId),
+								slog.String("key", key),
+								slog.Any("err", e),
+								slog.Int("status", e.Status),
+								slog.String("message", e.Message),
+								slog.String("callback", c.tunnel.GetAddr()),
+							)
+						} else {
+							c.logger.Error(
+								subscribeErr.Error(),
+								slog.String("user_id", userId),
+								slog.String("key", key),
+							)
+						}
+
+						return nil
+					}
+
+					return nil
+				},
+				retry.Attempts(0),
+				retry.Delay(1*time.Second),
+			)
 
 			atomic.AddUint64(&ops, 1)
 		}(key, value)
