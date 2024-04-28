@@ -6,9 +6,14 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
+)
+
+const (
+	checkAliasesArgName = "command"
 )
 
 var CheckAliasesCommand = &types.DefaultCommand{
@@ -19,6 +24,11 @@ var CheckAliasesCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: checkAliasesArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -27,12 +37,8 @@ var CheckAliasesCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		if parseCtx.Text == nil {
-			result.Result = append(result.Result, "you should specify aliase name")
-			return result, nil
-		}
-
-		commandName := strings.ReplaceAll(strings.ToLower(*parseCtx.Text), "!", "")
+		commandName := parseCtx.ArgsParser.Get(checkAliasesArgName).String()
+		commandName = strings.ReplaceAll(strings.ToLower(commandName), "!", "")
 
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.

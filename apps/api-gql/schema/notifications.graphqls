@@ -1,6 +1,5 @@
 extend type Query {
 	notificationsByUser: [UserNotification!]! @isAuthenticated
-
 	notificationsByAdmin(opts: AdminNotificationsParams!): AdminNotificationsResponse! @isAuthenticated @isAdmin
 }
 

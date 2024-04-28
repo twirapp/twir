@@ -14,6 +14,7 @@ import {
 } from '@/api';
 import TwitchCategorySearch from '@/components/twitch-category-search.vue';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const { t } = useI18n();
 
@@ -52,8 +53,8 @@ async function saveChannelInformation() {
 	discrete.dialog.destroyAll();
 }
 
-const userCanEditTitle = useUserAccessFlagChecker('UPDATE_CHANNEL_TITLE');
-const userCanEditCategory = useUserAccessFlagChecker('UPDATE_CHANNEL_CATEGORY');
+const userCanEditTitle = useUserAccessFlagChecker(ChannelRolePermissionEnum.UpdateChannelTitle);
+const userCanEditCategory = useUserAccessFlagChecker(ChannelRolePermissionEnum.UpdateChannelCategory);
 </script>
 
 <template>

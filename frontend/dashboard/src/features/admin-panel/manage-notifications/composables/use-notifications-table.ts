@@ -25,7 +25,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { pagination, setPagination } = usePagination();
 	const filters = useNotificationsFilters();
 
-	const reqParams = computed<AdminNotificationsParams>(() => ({
+	const params = computed<AdminNotificationsParams>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
 		type: filters.filterInput,
@@ -33,7 +33,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	}));
 
 	const notificationsApi = useAdminNotifications();
-	const { data } = notificationsApi.useQueryNotifications(reqParams);
+	const { data, fetching } = notificationsApi.useQueryNotifications(params);
 	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification();
 
 	const notifications = computed<Notifications>(() => {
@@ -122,12 +122,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		getCoreRowModel: getCoreRowModel(),
 		onPaginationChange: (updater) => {
 			if (typeof updater === 'function') {
-				setPagination(
-					updater({
-						pageIndex: pagination.value.pageIndex,
-						pageSize: pagination.value.pageSize,
-					}),
-				);
+				setPagination(updater(pagination.value));
 			} else {
 				setPagination(updater);
 			}
@@ -158,8 +153,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	}
 
 	return {
+		isLoading: fetching,
 		table,
 		tableColumns,
+		pagination,
 		notifications,
 		totalNotifications,
 		onDeleteNotification,

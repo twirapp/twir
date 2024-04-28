@@ -6,10 +6,15 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+)
+
+const (
+	ttsVoiceArgName = "voice"
 )
 
 var VoiceCommand = &types.DefaultCommand{
@@ -18,6 +23,12 @@ var VoiceCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Change tts voice"),
 		Module:      "TTS",
 		IsReply:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name:     ttsVoiceArgName,
+			Optional: true,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -42,7 +53,9 @@ var VoiceCommand = &types.DefaultCommand{
 			parseCtx.Sender.ID,
 		)
 
-		if parseCtx.Text == nil {
+		textArg := parseCtx.ArgsParser.Get(ttsVoiceArgName)
+
+		if textArg == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf(
@@ -64,14 +77,16 @@ var VoiceCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
+		text := textArg.String()
+
 		wantedVoice, ok := lo.Find(
 			voices, func(item Voice) bool {
-				return item.Name == strings.ToLower(*parseCtx.Text)
+				return item.Name == strings.ToLower(text)
 			},
 		)
 
 		if !ok {
-			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", *parseCtx.Text))
+			result.Result = append(result.Result, fmt.Sprintf("Voice %s not found", text))
 			return result, nil
 		}
 

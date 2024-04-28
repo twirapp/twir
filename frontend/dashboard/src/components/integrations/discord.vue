@@ -41,6 +41,7 @@ import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
 import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
 import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
 import IconDiscord from '@/assets/integrations/discord.svg?use';
+import { storeToRefs } from 'pinia';
 
 const themeVars = useThemeVars();
 
@@ -162,7 +163,7 @@ function getGuildRoleColorByName(guildId: string, roleName: string) {
 	return `#${hexColor.padStart(6, '0')}`;
 }
 
-const { data: currentUser } = useProfile();
+const { data: currentUser } = storeToRefs(useProfile());
 </script>
 
 <template>

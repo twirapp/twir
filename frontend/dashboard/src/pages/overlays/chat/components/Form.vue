@@ -11,6 +11,7 @@ import {
 	NDivider,
 	useThemeVars,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -20,13 +21,14 @@ import { useChatOverlayForm } from './form.js';
 import { useChatOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api';
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const { t } = useI18n();
 const themeVars = useThemeVars();
 const discrete = useNaiveDiscrete();
 const { copyOverlayLink } = useCopyOverlayLink('chat');
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
-const { data: profile } = useProfile();
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
+const { data: profile } = storeToRefs(useProfile());
 
 const { data: formValue, $reset } = useChatOverlayForm();
 

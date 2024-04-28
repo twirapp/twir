@@ -17,7 +17,6 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
 
 const { t } = useI18n();
 const usersTable = useUsersTable();
@@ -71,7 +70,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 											: 'opacity-50 [&_svg]:invisible'
 									]"
 								>
-									<CheckIcon :class="cn('h-4 w-4')" />
+									<CheckIcon class="h-4 w-4" />
 								</div>
 								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
 								<span>{{ filter.label }}</span>

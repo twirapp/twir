@@ -16,10 +16,11 @@ import { useI18n } from 'vue-i18n';
 import { useUserAccessFlagChecker } from '@/api/index.js';
 import { useKeywordsApi, type Keyword } from '@/api/keywords';
 import Modal from '@/components/keywords/modal.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
 
 const { t } = useI18n();
-const userCanManageKeywords = useUserAccessFlagChecker('MANAGE_KEYWORDS');
+const userCanManageKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageKeywords);
 const showModal = ref(false);
 
 const keywordsApi = useKeywordsApi();

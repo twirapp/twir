@@ -6,9 +6,10 @@ import { useI18n } from 'vue-i18n';
 import { useProfile } from '@/api/index.js';
 import List from '@/components/alerts/list.vue';
 import copyInput from '@/components/copyInput.vue';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
-const userProfile = useProfile();
+const userProfile = storeToRefs(useProfile());
 const overlayLink = computed(() => {
 	return `${window.location.origin}/overlays/${userProfile.data?.value?.apiKey}/alerts`;
 });

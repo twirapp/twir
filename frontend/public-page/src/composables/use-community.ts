@@ -3,10 +3,11 @@ import {
 	GetUsersRequest_Order,
 	GetUsersRequest_SortBy,
 } from '@twir/api/messages/community/community';
+import { storeToRefs } from 'pinia';
 import { type ComputedRef, type Ref, unref } from 'vue';
 
 import { unprotectedClient } from '@/api/twirp.js';
-import { useStreamerProfile } from '@/composables/use-streamer-profile';
+import { useStreamerProfile } from '@/api/use-streamer-profile';
 
 const sortBy = {
 	'watched': GetUsersRequest_SortBy.Watched,
@@ -25,10 +26,10 @@ export type GetCommunityUsersOpts = {
 }
 
 export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | ComputedRef<GetCommunityUsersOpts>) => {
-	const { data: profile } = useStreamerProfile();
+	const { data: profile } = storeToRefs(useStreamerProfile());
 
 	return useQuery({
-		queryKey: ['communityUsers', options],
+		queryKey: ['communityUsers', options, profile],
 		queryFn: async () => {
 			const rawOpts = unref(options);
 
@@ -38,7 +39,7 @@ export const useCommunityUsers = (options: Ref<GetCommunityUsersOpts> | Computed
 				page: rawOpts.page,
 				order,
 				sortBy: sortBy[rawOpts.sortBy],
-				channelId: profile.value!.id,
+				channelId: profile.value!.twitchGetUserByName!.id,
 			}, { timeout: 5000 });
 			return call.response;
 		},

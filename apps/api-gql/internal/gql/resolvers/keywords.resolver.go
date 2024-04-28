@@ -15,7 +15,10 @@ import (
 )
 
 // KeywordCreate is the resolver for the keywordCreate field.
-func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.KeywordCreateInput) (*gqlmodel.Keyword, error) {
+func (r *mutationResolver) KeywordCreate(
+	ctx context.Context,
+	opts gqlmodel.KeywordCreateInput,
+) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -75,7 +78,11 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 }
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
-func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error) {
+func (r *mutationResolver) KeywordUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.KeywordUpdateInput,
+) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -164,6 +171,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 	var entities []model.ChannelsKeywords
 	if err := r.gorm.WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("id ASC").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
@@ -180,7 +188,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 				Cooldown:            entity.Cooldown,
 				IsReply:             entity.IsReply,
 				IsRegularExpression: entity.IsRegular,
-				UsageCount:          0,
+				UsageCount:          entity.Usages,
 			},
 		)
 	}

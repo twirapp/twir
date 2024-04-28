@@ -6,8 +6,9 @@ import DropdownFooter from './profile/footer.vue';
 import DropdownHeader from './profile/header.vue';
 
 import { useProfile } from '@/api';
+import { storeToRefs } from 'pinia';
 
-const { data: profileData, isLoading: isProfileLoading } = useProfile();
+const { data: profileData, isLoading: isProfileLoading } = storeToRefs(useProfile());
 
 const profileOptions: DropdownOption[] = [
 	{

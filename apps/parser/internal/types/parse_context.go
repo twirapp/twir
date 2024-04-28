@@ -1,6 +1,7 @@
 package types
 
 import (
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -45,6 +46,8 @@ type ParseContext struct {
 	Command *model.ChannelsCommands
 
 	Services *services.Services
+
+	ArgsParser *command_arguments.Parser
 
 	Cacher DataCacher
 }

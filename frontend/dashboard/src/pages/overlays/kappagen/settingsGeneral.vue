@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useKappagenFormSettings } from './store.js';
 
-import CommandButton from '@/components/commandButton.vue';
+import CommandButton from '@/features/commands/components/command-button.vue';
 
 const { settings: formValue } = useKappagenFormSettings();
 const { t } = useI18n();

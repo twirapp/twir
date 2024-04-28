@@ -15,10 +15,11 @@ import { ref, watch, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import Card from './card.vue';
-import Command from '../commandButton.vue';
+
 
 import { useRussianRouletteSettings, useRussianRouletteUpdateSettings } from '@/api/index.js';
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import CommandButton from '@/features/commands/components/command-button.vue';
 
 const isModalOpened = ref(false);
 
@@ -107,7 +108,7 @@ function resetSettings() {
 				<n-switch v-model:value="formValue.enabled" />
 			</div>
 
-			<Command name="roulette" />
+			<command-button name="roulette" />
 		</div>
 
 		<n-divider />

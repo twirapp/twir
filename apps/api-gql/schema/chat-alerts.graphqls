@@ -1,0 +1,217 @@
+extend type Query {
+	chatAlerts: ChatAlerts @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_ALERTS)
+}
+
+extend type Mutation {
+	updateChatAlerts(input: ChatAlertsInput!): ChatAlerts! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+}
+
+type ChatAlerts {
+	followers: ChatAlertsFollowersSettings
+	raids: ChatAlertsRaids
+	donations: ChatAlertsDonations
+	subscribers: ChatAlertsSubscribers
+	cheers: ChatAlertsCheers
+	redemptions: ChatAlertsRedemptions
+	firstUserMessage: ChatAlertsFirstUserMessage
+	streamOnline: ChatAlertsStreamOnline
+	streamOffline: ChatAlertsStreamOffline
+	chatCleared: ChatAlertsChatCleared
+	ban: ChatAlertsBan
+	unbanRequestCreate: ChatAlertsUnbanRequestCreate
+	unbanRequestResolve: ChatAlertsUnbanRequestResolve
+}
+
+union ChatAlertsSettings = ChatAlertsFollowersSettings | ChatAlertsRaids | ChatAlertsDonations | ChatAlertsSubscribers | ChatAlertsCheers | ChatAlertsRedemptions | ChatAlertsFirstUserMessage | ChatAlertsStreamOnline | ChatAlertsStreamOffline | ChatAlertsChatCleared | ChatAlertsBan | ChatAlertsUnbanRequestCreate | ChatAlertsUnbanRequestResolve
+
+type ChatAlertsCountedMessage {
+	count: Int!
+	text: String!
+}
+
+type ChatAlertsMessage {
+	text: String!
+}
+
+type ChatAlertsFollowersSettings {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsRaids {
+	enabled: Boolean!
+	messages: [ChatAlertsCountedMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsDonations {
+	enabled: Boolean!
+	messages: [ChatAlertsCountedMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsSubscribers {
+	enabled: Boolean!
+	messages: [ChatAlertsCountedMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsCheers {
+	enabled: Boolean!
+	messages: [ChatAlertsCountedMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsRedemptions {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsFirstUserMessage {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsStreamOnline {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsStreamOffline {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsChatCleared {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsBan {
+	enabled: Boolean!
+	messages: [ChatAlertsCountedMessage!]!
+	ignoreTimeoutFrom: [String!]!
+	cooldown: Int!
+}
+
+type ChatAlertsUnbanRequestCreate {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+type ChatAlertsUnbanRequestResolve {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
+input ChatAlertsInput {
+	followers: ChatAlertsFollowersSettingsInput
+	raids: ChatAlertsRaidsInput
+	donations: ChatAlertsDonationsInput
+	subscribers: ChatAlertsSubscribersInput
+	cheers: ChatAlertsCheersInput
+	redemptions: ChatAlertsRedemptionsInput
+	firstUserMessage: ChatAlertsFirstUserMessageInput
+	streamOnline: ChatAlertsStreamOnlineInput
+	streamOffline: ChatAlertsStreamOfflineInput
+	chatCleared: ChatAlertsChatClearedInput
+	ban: ChatAlertsBanInput
+	unbanRequestCreate: ChatAlertsUnbanRequestCreateInput
+	unbanRequestResolve: ChatAlertsUnbanRequestResolveInput
+}
+
+input ChatAlertsFollowersSettingsInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsRaidsInput {
+	enabled: Boolean
+	messages: [ChatAlertsCountedMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsDonationsInput {
+	enabled: Boolean
+	messages: [ChatAlertsCountedMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsSubscribersInput {
+	enabled: Boolean
+	messages: [ChatAlertsCountedMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsCheersInput {
+	enabled: Boolean
+	messages: [ChatAlertsCountedMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsRedemptionsInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsFirstUserMessageInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsStreamOnlineInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsStreamOfflineInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsChatClearedInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsBanInput {
+	enabled: Boolean
+	messages: [ChatAlertsCountedMessageInput]
+	ignoreTimeoutFrom: [String]
+	cooldown: Int
+}
+
+input ChatAlertsUnbanRequestCreateInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsUnbanRequestResolveInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
+}
+
+input ChatAlertsMessageInput {
+	text: String
+}
+
+input ChatAlertsCountedMessageInput {
+	count: Int
+	text: String
+}

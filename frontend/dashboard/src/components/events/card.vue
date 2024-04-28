@@ -9,6 +9,7 @@ import { EditableEvent } from './types.js';
 
 import { useEventsManager, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = defineProps<{
 	event: EditableEvent
@@ -28,7 +29,7 @@ const throttledSwitchState = useThrottleFn((v: boolean) => {
 
 const { t } = useI18n();
 
-const userCanEditEvents = useUserAccessFlagChecker('MANAGE_EVENTS');
+const userCanEditEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageEvents);
 </script>
 
 <template>

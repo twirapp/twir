@@ -2,14 +2,19 @@ package brb
 
 import (
 	"context"
-	"strconv"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+)
+
+const (
+	startTimeArgName = "time"
+	startTextArgName = "text"
 )
 
 var Start = &types.DefaultCommand{
@@ -23,42 +28,35 @@ var Start = &types.DefaultCommand{
 			model.ChannelRoleTypeBroadcaster.String(),
 		},
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name: startTimeArgName,
+			Min:  lo.ToPtr(1),
+			Max:  lo.ToPtr(99999),
+		},
+		command_arguments.VariadicString{
+			Name:     startTextArgName,
+			Optional: true,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
 		result := types.CommandsHandlerResult{}
 
-		if parseCtx.Text == nil {
-			result.Result = []string{"you have to type minutes and optionally text"}
-			return &result, nil
+		textArg := parseCtx.ArgsParser.Get(startTextArgName)
+		var text *string
+		if textArg != nil {
+			text = lo.ToPtr(textArg.String())
 		}
 
-		params := strings.Split(*parseCtx.Text, " ")
-
-		if len(params) < 1 {
-			result.Result = []string{"you have to type minutes and optionally text"}
-			return &result, nil
-		}
-
-		minutes, err := strconv.Atoi(params[0])
-		if err != nil {
-			result.Result = []string{"first argument should be minutes"}
-			return &result, nil
-		}
-
-		if minutes > 99999 || minutes <= 0 {
-			result.Result = []string{"minutes cannot be more than 99999 and fewer then 1"}
-			return &result, nil
-		}
-
-		text := strings.Join(params[1:], " ")
 		if _, err := parseCtx.Services.GrpcClients.WebSockets.TriggerShowBrb(
 			ctx,
 			&websockets.TriggerShowBrbRequest{
 				ChannelId: parseCtx.Channel.ID,
-				Minutes:   int32(minutes),
-				Text:      &text,
+				Minutes:   int32(parseCtx.ArgsParser.Get(startTimeArgName).Int()),
+				Text:      text,
 			},
 		); err != nil {
 			return nil, &types.CommandHandlerError{

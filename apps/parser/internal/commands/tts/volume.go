@@ -3,12 +3,17 @@ package tts
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+)
+
+const (
+	ttsVolumeArgName = "volume"
 )
 
 var VolumeCommand = &types.DefaultCommand{
@@ -19,12 +24,20 @@ var VolumeCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name:     ttsVolumeArgName,
+			Min:      lo.ToPtr(1),
+			Max:      lo.ToPtr(100),
+			Optional: true,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-		channelSettings, channelModele := getSettings(
+		channelSettings, channelEntity := getSettings(
 			ctx,
 			parseCtx.Services.Gorm,
 			parseCtx.Channel.ID,
@@ -35,7 +48,9 @@ var VolumeCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		if parseCtx.Text == nil {
+		volumeArg := parseCtx.ArgsParser.Get(ttsVolumeArgName)
+
+		if volumeArg == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf("Global volume: %v", channelSettings.Volume),
@@ -43,19 +58,10 @@ var VolumeCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		volume, err := strconv.Atoi(*parseCtx.Text)
-		if err != nil {
-			result.Result = append(result.Result, "Volume must be a number")
-			return result, nil
-		}
-
-		if volume < 0 || volume > 100 {
-			result.Result = append(result.Result, "Volume must be between 0 and 100")
-			return result, nil
-		}
+		volume := volumeArg.Int()
 
 		channelSettings.Volume = volume
-		err = updateSettings(ctx, parseCtx.Services.Gorm, channelModele, channelSettings)
+		err := updateSettings(ctx, parseCtx.Services.Gorm, channelEntity, channelSettings)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "error while updating settings",
