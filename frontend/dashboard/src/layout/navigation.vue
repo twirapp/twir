@@ -26,23 +26,25 @@ import { RouterLink, useRouter } from 'vue-router';
 import { renderIcon } from '../helpers/index.js';
 
 import { useUserAccessFlagChecker } from '@/api';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const { t } = useI18n();
 
 const activeKey = ref<string | null>('/');
 
-const canViewIntegrations = useUserAccessFlagChecker('VIEW_INTEGRATIONS');
-const canViewEvents = useUserAccessFlagChecker('VIEW_EVENTS');
-const canViewOverlays = useUserAccessFlagChecker('VIEW_OVERLAYS');
-const canViewSongRequests = useUserAccessFlagChecker('VIEW_SONG_REQUESTS');
-const canViewCommands = useUserAccessFlagChecker('VIEW_COMMANDS');
-const canViewTimers = useUserAccessFlagChecker('VIEW_TIMERS');
-const canViewKeywords = useUserAccessFlagChecker('VIEW_KEYWORDS');
-const canViewVariables = useUserAccessFlagChecker('VIEW_VARIABLES');
-const canViewGreetings = useUserAccessFlagChecker('VIEW_GREETINGS');
-const canViewRoles = useUserAccessFlagChecker('VIEW_ROLES');
-const canViewAlerts = useUserAccessFlagChecker('VIEW_ALERTS');
-const canViewGames = useUserAccessFlagChecker('VIEW_GAMES');
+const canViewIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewIntegrations);
+const canViewEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewEvents);
+const canViewOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewOverlays);
+const canViewSongRequests = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewSongRequests);
+const canViewCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewCommands);
+const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTimers);
+const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords);
+const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables);
+const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings);
+const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles);
+const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts);
+const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames);
+const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration);
 
 const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	return [
@@ -115,6 +117,7 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.moderation'),
 			icon: renderIcon(IconSword),
 			path: '/dashboard/moderation',
+			disabled: !canViewModeration.value,
 		},
 		{
 			label: t('sidebar.users'),

@@ -1,21 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Dev" type="CompoundRunConfigurationType">
-    <toRun name="Dev Api" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Api-gql" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Bots" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Discord" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Emotes Cacher" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev EventSub" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Events" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Parser" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Scheduler" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Timers" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Tokens" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev WebSockets" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Ytsr" type="GoApplicationRunConfiguration" />
-    <toRun name="Dev Dota" type="NodeJSConfigurationType" />
-    <toRun name="Dev Eval" type="NodeJSConfigurationType" />
-    <toRun name="Dev Integrations" type="NodeJSConfigurationType" />
+    <toRun name="Backend" type="CompoundRunConfigurationType" />
+    <toRun name="Frontend" type="CompoundRunConfigurationType" />
     <method v="2" />
   </configuration>
 </component>

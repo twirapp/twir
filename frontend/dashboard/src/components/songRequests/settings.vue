@@ -22,14 +22,14 @@ import { useI18n } from 'vue-i18n';
 
 import RewardsSelector from '../rewardsSelector.vue';
 
+import { useCommandsApi } from '@/api/commands/commands';
 import {
-	useCommandsManager,
 	useYoutubeVideoOrChannelSearch,
 	YoutubeSearchType,
 } from '@/api/index.js';
 import { useYoutubeModuleSettings } from '@/api/index.js';
-import CommandList from '@/components/commands/list.vue';
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
+import CommandList from '@/features/commands/components/list.vue';
 
 const { t } = useI18n();
 
@@ -172,9 +172,10 @@ const songsSearchOptions = computed(() => {
 	}) ?? [];
 });
 
-const { data: allCommands } = useCommandsManager().getAll({});
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 const srCommands = computed(() => {
-	return allCommands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
+	return commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
 });
 </script>
 

@@ -13,6 +13,7 @@ import {
 } from '@/api/index.js';
 import IconNightbot from '@/assets/integrations/nightbot.svg?use';
 import OauthComponent from '@/components/integrations/variants/oauth.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const integrationManager = useNightbotIntegration();
 const { data: authLink } = integrationManager.useAuthLink();
@@ -37,8 +38,8 @@ const isNightbotIntegrationEnabled = computed(() => {
 	return !!data.value?.userName;
 });
 
-const userCanManageCommands = useUserAccessFlagChecker('MANAGE_COMMANDS');
-const userCanManageTimers = useUserAccessFlagChecker('MANAGE_TIMERS');
+const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands);
+const userCanManageTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageTimers);
 </script>
 
 <template>

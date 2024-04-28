@@ -2,15 +2,19 @@ package channel_game
 
 import (
 	"context"
-	"strconv"
 	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
+)
+
+const (
+	categoryHistoryLimitArgName = "limit"
 )
 
 var History = &types.DefaultCommand{
@@ -22,22 +26,26 @@ var History = &types.DefaultCommand{
 		IsReply:     true,
 		Visible:     true,
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name:     categoryHistoryLimitArgName,
+			Min:      lo.ToPtr(1),
+			Max:      lo.ToPtr(20),
+			Optional: true,
+		},
+	},
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
 
 		limit := 5
-
-		if parseCtx.Text != nil && *parseCtx.Text != "" {
-			l, err := strconv.Atoi(*parseCtx.Text)
-			if err == nil {
-				limit = l
-			}
-		}
-
-		if limit > 20 {
-			limit = 5
+		limitArg := parseCtx.ArgsParser.Get(categoryHistoryLimitArgName)
+		if limitArg != nil {
+			limit = limitArg.Int()
 		}
 
 		var histories []*model.ChannelInfoHistory

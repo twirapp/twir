@@ -11,12 +11,15 @@ import {
 	NTabs,
 	NTabPane,
 } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import BaseLayer, { type LayerProps } from './layer.vue';
 
-import { useAllVariables, useKeywordsManager, useCommandsManager } from '@/api/index.js';
+import { useCommandsApi } from '@/api/commands/commands';
+import { useKeywordsApi } from '@/api/keywords';
+import { useVariablesApi } from '@/api/variables';
 import { copyToClipBoard } from '@/helpers/index.js';
 
 defineProps<LayerProps>();
@@ -34,11 +37,12 @@ const periodicallyRefetchData = defineModel<boolean>('periodicallyRefetchData');
 
 const showModal = ref(false);
 
-const allVariables = useAllVariables();
-const keywordsManager = useKeywordsManager();
-const { data: keywords } = keywordsManager.getAll({});
-const commandsManager = useCommandsManager();
-const { data: commands } = commandsManager.getAll({});
+const { allVariables } = storeToRefs(useVariablesApi());
+const keywordsManager = useKeywordsApi();
+const { data: keywords } = keywordsManager.useQueryKeywords();
+
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 
 const messages = useMessage();
 const copyVariable = async (v: string) => {
@@ -47,12 +51,11 @@ const copyVariable = async (v: string) => {
 };
 
 const variables = computed(() => {
-	const vars = allVariables.data.value ?? [];
 	const k = keywords.value?.keywords ?? [];
 	const cmds = commands.value?.commands ?? [];
 
 	return [
-		...vars
+		...allVariables.value
 			.filter(v => v.canBeUsedInRegistry)
 			.map(v => {
 				const name = `$(${v.isBuiltIn ? v.name : `customvar|${v.name}`})`;

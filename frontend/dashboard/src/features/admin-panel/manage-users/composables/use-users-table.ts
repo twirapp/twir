@@ -12,11 +12,10 @@ import { useUsers } from './use-users.js';
 import UsersTableActions from '../components/users-table-actions.vue';
 import UsersTableCellUser from '../components/users-table-cell-user.vue';
 
+import type { User } from '@/api/admin/users.js';
 import { usePagination } from '@/composables/use-pagination.js';
-import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql';
+import type { TwirUsersSearchParams } from '@/gql/graphql';
 import { resolveUserName } from '@/helpers';
-
-type Users = UsersGetAllQuery['twirUsers']['users']
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { t } = useI18n();
@@ -43,7 +42,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 	const { usersApi } = useUsers();
 	const { data, fetching } = usersApi.useQueryUsers(tableParams);
 
-	const users = computed<Users>(() => {
+	const users = computed<User[]>(() => {
 		if (!data.value) return [];
 		return data.value.twirUsers.users;
 	});
@@ -54,7 +53,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		return Math.ceil(totalUsers.value / pagination.value.pageSize);
 	});
 
-	const tableColumns = computed<ColumnDef<Users[0]>[]>(() => [
+	const tableColumns = computed<ColumnDef<User>[]>(() => [
 		{
 			accessorKey: 'user',
 			size: 60,
@@ -113,12 +112,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		getCoreRowModel: getCoreRowModel(),
 		onPaginationChange: (updater) => {
 			if (typeof updater === 'function') {
-				setPagination(
-					updater({
-						pageIndex: pagination.value.pageIndex,
-						pageSize: pagination.value.pageSize,
-					}),
-				);
+				setPagination(updater(pagination.value));
 			} else {
 				setPagination(updater);
 			}
@@ -127,6 +121,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	return {
 		isLoading: fetching,
+		pagination,
 		totalUsers,
 		table,
 		tableColumns,

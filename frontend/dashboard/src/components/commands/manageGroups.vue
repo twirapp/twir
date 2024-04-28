@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
-import type { Group } from '@twir/api/messages/commands_group/commands_group';
 import {
 	NDynamicInput,
 	NInput,
@@ -10,45 +9,42 @@ import {
 	NGridItem,
 	NButton,
 } from 'naive-ui';
-import { toRaw, ref, watch, onMounted } from 'vue';
+import { toRaw, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useCommandsGroupsManager } from '@/api/index.js';
+import { useCommandsGroupsApi } from '@/api/commands/commands-groups';
+import type { CommandGroup } from '@/gql/graphql';
 
 const { t } = useI18n();
 
-const groupsManager = useCommandsGroupsManager();
-const groupsData = groupsManager.getAll({});
-const groupsCreator = groupsManager.create;
-const groupsDeleter = groupsManager.deleteOne;
-const groupsUpdater = groupsManager.update;
+const groupsManager = useCommandsGroupsApi();
+const { data } = groupsManager.useQueryGroups();
+const groupsCreator = groupsManager.useMutationCreateGroup();
+const groupsDeleter = groupsManager.useMutationDeleteGroup();
+const groupsUpdater = groupsManager.useMutationUpdateGroup();
 
-type FormGroup = Omit<Group, 'id' | 'channelId'> & { id?: string }
+type FormGroup = Omit<CommandGroup, 'id'> & { id?: string }
 
 const groups = ref<FormGroup[]>([]);
 
-onMounted(() => {
-	groupsData.refetch();
-});
-
-watch(groupsData.data, (data) => {
-	groups.value = data?.groups ? toRaw(data.groups) : [];
+watch(data, (data) => {
+	groups.value = data?.commandsGroups ? toRaw(data?.commandsGroups) : [];
 }, { immediate: true });
 
 async function create(name: string, color: string) {
-	await groupsCreator.mutateAsync({ color, name });
+	await groupsCreator.executeMutation({ opts: { color, name } });
 }
 
 async function deleteGroup(index: number) {
 	const group = groups.value[index];
 	if (!group?.id) return;
-	await groupsDeleter.mutateAsync({ id: group.id });
+	await groupsDeleter.executeMutation({ id: group.id });
 }
 
 async function update(index: number) {
 	const group = groups.value[index];
 	if (!group?.id) return;
-	await groupsUpdater.mutateAsync({ id: group.id, name: group.name, color: group.color });
+	await groupsUpdater.executeMutation({ id: group.id, opts: { name: group.name, color: group.color } });
 }
 
 const swatches = [

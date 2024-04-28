@@ -4,8 +4,10 @@ interface TwirUser {
 }
 
 type TwirUserTwitchInfo {
+	id: String!
 	login: String!
 	displayName: String!
 	profileImageUrl: String!
 	description: String!
+	notFound: Boolean!
 }

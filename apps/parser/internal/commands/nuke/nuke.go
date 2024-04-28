@@ -6,10 +6,15 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 
 	model "github.com/satont/twir/libs/gomodels"
+)
+
+const (
+	nukePhraseArgName = "phrase"
 )
 
 var Command = &types.DefaultCommand{
@@ -21,19 +26,22 @@ var Command = &types.DefaultCommand{
 		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:   "MODERATION",
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.VariadicString{
+			Name: nukePhraseArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		if parseCtx.Text == nil {
-			return nil, nil
-		}
+		phrase := parseCtx.ArgsParser.Get(nukePhraseArgName).String()
 
 		var messages []model.ChannelChatMessage
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
 				`"canBeDeleted" IS TRUE AND text LIKE ? AND "createdAt" > NOW() - INTERVAL '60 minutes' AND "channelId" = ?`,
-				"%"+strings.ToLower(*parseCtx.Text)+"%",
+				"%"+strings.ToLower(phrase)+"%",
 				parseCtx.Channel.ID,
 			).
 			Find(&messages).

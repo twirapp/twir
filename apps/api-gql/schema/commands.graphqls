@@ -1,20 +1,21 @@
 extend type Query {
 	commands: [Command!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_COMMANDS)
+	commandsPublic(channelId: ID!): [PublicCommand!]!
 }
 
 extend type Mutation {
-	createCommand(opts: CreateCommandInput!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
-	updateCommand(id: String!, opts: UpdateCommandOpts!): Command! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
-	removeCommand(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsCreate(opts: CommandsCreateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsUpdate(id: ID!, opts: CommandsUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsRemove(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
 
 type Command {
 	id: ID!
 	name: String!
-	description: String
-	aliases: [String!]
-	responses: [CommandResponse!] @goField(forceResolver: true)
-	cooldown: Int
+	description: String!
+	aliases: [String!]!
+	responses: [CommandResponse!]! @goField(forceResolver: true)
+	cooldown: Int!
 	cooldownType: String!
 	enabled: Boolean!
 	visible: Boolean!
@@ -23,17 +24,17 @@ type Command {
 	module: String!
 	isReply: Boolean!
 	keepResponsesOrder: Boolean!
-	deniedUsersIds: [String!]
-	allowedUsersIds: [String!]
-	rolesIds: [String!]
+	deniedUsersIds: [String!]!
+	allowedUsersIds: [String!]!
+	rolesIds: [String!]!
 	onlineOnly: Boolean!
-	cooldownRolesIds: [String!]
-	enabledCategories: [String!]
+	cooldownRolesIds: [String!]!
+	enabledCategories: [String!]!
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	group: CommandGroup
 }
-
 type CommandResponse {
 	id: ID!
 	commandId: ID!
@@ -41,11 +42,50 @@ type CommandResponse {
 	order: Int!
 }
 
-input UpdateCommandOpts {
+type PublicCommand {
+	name: String!
+	description: String!
+	aliases: [String!]!
+	responses: [String!]!
+	cooldown: Int!
+	cooldownType: String!
+	module: String!
+	permissions: [PublicCommandPermission!]!
+}
+
+type PublicCommandPermission {
+	name: String!
+	type: String!
+}
+
+input CommandsCreateOpts {
+	name: String!
+	description: String!
+	aliases: [String!]!
+	responses: [CreateOrUpdateCommandResponseInput!]!
+	cooldown: Int!
+	cooldownType: String!
+	enabled: Boolean!
+	visible: Boolean!
+	isReply: Boolean!
+	keepResponsesOrder: Boolean!
+	deniedUsersIds: [String!]!
+	allowedUsersIds: [String!]!
+	rolesIds: [String!]!
+	onlineOnly: Boolean!
+	cooldownRolesIds: [String!]!
+	enabledCategories: [String!]!
+	requiredWatchTime: Int!
+	requiredMessages: Int!
+	requiredUsedChannelPoints: Int!
+	groupId: String
+}
+
+input CommandsUpdateOpts {
 	name: String
 	description: String
 	aliases: [String!]
-	responses: [CreateCommandResponseInput!]
+	responses: [CreateOrUpdateCommandResponseInput!]
 	cooldown: Int
 	cooldownType: String
 	enabled: Boolean
@@ -61,16 +101,10 @@ input UpdateCommandOpts {
 	requiredWatchTime: Int
 	requiredMessages: Int
 	requiredUsedChannelPoints: Int
+	groupId: String
 }
 
-input CreateCommandResponseInput {
+input CreateOrUpdateCommandResponseInput {
 	text: String!
 	order: Int!
-}
-
-input CreateCommandInput {
-	name: String!
-	description: String
-	aliases: [String!]
-	responses: [CreateCommandResponseInput!]
 }

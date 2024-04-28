@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { IconSettings, IconCopy } from '@tabler/icons-vue';
 import { NButton, NTooltip } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { FunctionalComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -8,6 +9,7 @@ import { useCopyOverlayLink } from './copyOverlayLink.js';
 
 import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = withDefaults(defineProps<{
 	description: string;
@@ -31,11 +33,11 @@ defineEmits<{
 }>();
 
 const { t } = useI18n();
-const { data: profile } = useProfile();
+const { data: profile } = storeToRefs(useProfile());
 
 const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath);
 
-const userCanEditOverlays = useUserAccessFlagChecker('MANAGE_OVERLAYS');
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
 </script>
 
 <template>

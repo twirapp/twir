@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { VariableType } from '@twir/api/messages/variables/variables';
 import {
 	type FormInst,
 	type FormRules,
@@ -15,19 +14,19 @@ import {
 import { ref, onMounted, toRaw } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useVariablesManager } from '@/api/index.js';
-import { EditableVariable } from '@/components/variables/types.js';
+import { type EditableCustomVariable, useVariablesApi } from '@/api/variables';
+import { VariableType } from '@/gql/graphql';
 
 const props = defineProps<{
-	variable?: EditableVariable | null
+	variable?: EditableCustomVariable | null
 }>();
 const emits = defineEmits<{
 	close: []
 }>();
 
 const formRef = ref<FormInst | null>(null);
-const formValue = ref<EditableVariable>({
-	type: VariableType.TEXT,
+const formValue = ref<EditableCustomVariable>({
+	type: VariableType.Text,
 	name: '',
 	evalValue: `// semicolons (;) matters, do not forget put them on end of statements.
 const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
@@ -44,25 +43,29 @@ onMounted(() => {
 	formValue.value = structuredClone(toRaw(props.variable));
 });
 
-const variablesManager = useVariablesManager();
-const variablesUpdater = variablesManager.update;
-const variablesCreator = variablesManager.create;
+const variablesManager = useVariablesApi();
+const variablesUpdater = variablesManager.useMutationUpdateVariable();
+const variablesCreator = variablesManager.useMutationCreateVariable();
 
 async function save() {
 	if (!formRef.value || !formValue.value) return;
 	await formRef.value.validate();
 
-	const data = {
-		...formValue.value,
+	const opts = {
+		type: formValue.value.type,
+		name: formValue.value.name,
+		evalValue: formValue.value.evalValue,
+		description: formValue.value.description,
+		response: formValue.value.response,
 	};
 
-	if (data.id) {
-		await variablesUpdater.mutateAsync({
-			id: data.id,
-			variable: data,
+	if (props.variable?.id) {
+		await variablesUpdater.executeMutation({
+			id: props.variable.id,
+			opts,
 		});
 	} else {
-		await variablesCreator.mutateAsync(data);
+		await variablesCreator.executeMutation({ opts });
 	}
 
 	emits('close');
@@ -84,20 +87,10 @@ const rules: FormRules = {
 		},
 	},
 };
-const selectOptions: Array<SelectOption> = [
-	{
-		label: 'Text',
-		value: VariableType.TEXT,
-	},
-	{
-		label: 'Script',
-		value: VariableType.SCRIPT,
-	},
-	{
-		label: 'Number',
-		value: VariableType.NUMBER,
-	},
-];
+const selectOptions: Array<SelectOption> = Object.entries(VariableType).map(([name, value]) => ({
+	label: name,
+	value: value as string,
+}));
 </script>
 
 <template>
@@ -106,7 +99,7 @@ const selectOptions: Array<SelectOption> = [
 		:model="formValue"
 		:rules="rules"
 		:style="{
-			width: formValue.type === VariableType.SCRIPT ? '900px' : '400px',
+			width: formValue.type === VariableType.Script ? '900px' : '400px',
 		}"
 	>
 		<n-space vertical class="w-full">
@@ -123,7 +116,7 @@ const selectOptions: Array<SelectOption> = [
 
 			<n-form-item :label="t('sharedTexts.response')" path="response">
 				<vue-monaco-editor
-					v-if="formValue.type === VariableType.SCRIPT"
+					v-if="formValue.type === VariableType.Script"
 					v-model:value="formValue.evalValue"
 					theme="vs-dark"
 					height="500px"

@@ -28,8 +28,7 @@ import {
 import { ref, onMounted, toRaw, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useTimersApi } from '@/api/timers.js';
-import type { EditableTimer, EditableTimerResponse } from '@/components/timers/types.js';
+import { type EditableTimer, useTimersApi } from '@/api/timers.js';
 
 const props = defineProps<{
 	timer?: EditableTimer | null
@@ -53,6 +52,7 @@ const formValue = ref<EditableTimer>({
 	timeInterval: 5,
 	responses: [],
 });
+
 const rules: FormRules = {
 	name: {
 		trigger: ['input', 'blur'],
@@ -119,7 +119,9 @@ async function save() {
 			},
 		});
 	} else {
-		await timersCreate.executeMutation({ opts: data });
+		await timersCreate.executeMutation({
+			opts: data,
+		});
 	}
 
 	emits('close');
@@ -200,10 +202,11 @@ const sliderMarks = {
 				class="groups"
 				:create-button-props="({ class: 'create-button' } as any)"
 			>
-				<template #default="{ value, index }: { value: EditableTimerResponse, index: number }">
+				<template #default="{ value, index }: { value: EditableTimer['responses'][number], index: number }">
 					<n-space vertical class="w-full">
 						<n-form-item
-							:path="`responses[${index}].text`" :rule="rules.responses"
+							:path="`responses[${index}].text`"
+							:rule="rules.responses"
 							show-require-mark
 						>
 							<n-input

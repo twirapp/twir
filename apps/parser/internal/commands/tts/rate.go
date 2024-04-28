@@ -3,13 +3,17 @@ package tts
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/guregu/null"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
+)
+
+const (
+	ttsRateArgName = "rate"
 )
 
 var RateCommand = &types.DefaultCommand{
@@ -18,6 +22,14 @@ var RateCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Change tts rate"),
 		Module:      "TTS",
 		IsReply:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name:     ttsRateArgName,
+			Min:      lo.ToPtr(1),
+			Max:      lo.ToPtr(100),
+			Optional: true,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -42,7 +54,9 @@ var RateCommand = &types.DefaultCommand{
 			parseCtx.Sender.ID,
 		)
 
-		if parseCtx.Text == nil {
+		rateArg := parseCtx.ArgsParser.Get(ttsRateArgName)
+
+		if rateArg == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf(
@@ -58,16 +72,7 @@ var RateCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		rate, err := strconv.Atoi(*parseCtx.Text)
-		if err != nil {
-			result.Result = append(result.Result, "rate must be a number")
-			return result, nil
-		}
-
-		if rate < 0 || rate > 100 {
-			result.Result = append(result.Result, "rate must be between 0 and 100")
-			return result, nil
-		}
+		rate := rateArg.Int()
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Rate = rate

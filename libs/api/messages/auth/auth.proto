@@ -18,37 +18,3 @@ message PostCodeRequest {
 message PostCodeResponse {
 	string redirect_to = 1;
 }
-
-message Dashboard {
-	string id = 1;
-	repeated string flags = 2;
-}
-
-message Profile {
-	string id = 1;
-	string avatar = 2;
-	string login = 3;
-	string display_name = 4;
-	string api_key = 5;
-	bool is_bot_admin = 6;
-	string selected_dashboard_id = 7;
-	bool hide_on_landing_page = 8;
-}
-
-message SetDashboard {
-	string dashboard_id = 1;
-}
-
-message GetDashboardsResponse {
-	repeated Dashboard dashboards = 1;
-}
-
-message GetPublicUserInfoRequest {
-	string user_id = 1;
-}
-
-message GetPublicUserInfoResponse {
-	bool is_admin = 1;
-	bool is_banned = 2;
-	string user_id = 3;
-}

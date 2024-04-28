@@ -17,20 +17,7 @@ import (
 
 // TwitchProfile is the resolver for the twitchProfile field.
 func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Greeting) (*gqlmodel.TwirUserTwitchInfo, error) {
-	user, err := data_loader.GetHelixUser(ctx, obj.UserID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
@@ -140,17 +127,20 @@ func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, err
 	}
 
 	var entities []model.ChannelsGreetings
-	if err := r.gorm.WithContext(ctx).Where(
-		`"channelId" = ?`,
-		dashboardId,
-	).Find(&entities).Error; err != nil {
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?`, dashboardId).
+		Order(`"userId" ASC`).
+		Find(&entities).
+		Error; err != nil {
 		return nil, fmt.Errorf("cannot find greetings: %w", err)
 	}
 
 	var greetings []gqlmodel.Greeting
 	for _, entity := range entities {
 		greetings = append(
-			greetings, gqlmodel.Greeting{
+			greetings,
+			gqlmodel.Greeting{
 				ID:      entity.ID,
 				UserID:  entity.UserID,
 				Enabled: entity.Enabled,

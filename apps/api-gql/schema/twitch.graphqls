@@ -1,0 +1,4 @@
+extend type Query {
+	twitchGetUserById(id: ID!): TwirUserTwitchInfo
+	twitchGetUserByName(name: String!): TwirUserTwitchInfo
+}

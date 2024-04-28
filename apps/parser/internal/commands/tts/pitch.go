@@ -3,14 +3,18 @@ package tts
 import (
 	"context"
 	"fmt"
-	"strconv"
 
 	"github.com/guregu/null"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"go.uber.org/zap"
+)
+
+const (
+	ttsPitchArgName = "pitch"
 )
 
 var PitchCommand = &types.DefaultCommand{
@@ -19,6 +23,14 @@ var PitchCommand = &types.DefaultCommand{
 		Description: null.StringFrom("Change tts pitch"),
 		Module:      "TTS",
 		IsReply:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name:     ttsPitchArgName,
+			Min:      lo.ToPtr(1),
+			Max:      lo.ToPtr(100),
+			Optional: true,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -43,7 +55,9 @@ var PitchCommand = &types.DefaultCommand{
 			parseCtx.Sender.ID,
 		)
 
-		if parseCtx.Text == nil {
+		pitchArg := parseCtx.ArgsParser.Get(ttsPitchArgName)
+
+		if pitchArg == nil {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf(
@@ -59,16 +73,7 @@ var PitchCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		pitch, err := strconv.Atoi(*parseCtx.Text)
-		if err != nil {
-			result.Result = append(result.Result, "Pitch must be a number")
-			return result, nil
-		}
-
-		if pitch < 0 || pitch > 100 {
-			result.Result = append(result.Result, "Pitch must be between 0 and 100")
-			return result, nil
-		}
+		pitch := pitchArg.Int()
 
 		if parseCtx.Channel.ID == parseCtx.Sender.ID {
 			channelSettings.Pitch = pitch

@@ -2,13 +2,18 @@ package spam
 
 import (
 	"context"
-	"strconv"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
+)
+
+const (
+	spamCountArgName   = "count"
+	spamMessageArgName = "message"
 )
 
 var Command = &types.DefaultCommand{
@@ -18,35 +23,27 @@ var Command = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name: spamCountArgName,
+			Min:  lo.ToPtr(1),
+			Max:  lo.ToPtr(10),
+		},
+		command_arguments.VariadicString{
+			Name: spamMessageArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		count := 1
-		params := strings.Split(*parseCtx.Text, " ")
-
-		paramsLen := len(params)
-		if paramsLen < 2 {
-			result.Result = []string{"you have type count and message"}
-			return result, nil
-		}
-
-		newCount, err := strconv.Atoi(params[0])
-		if err == nil {
-			count = newCount
-		}
-
-		if count > 10 || count <= 0 {
-			result.Result = []string{"count cannot be more than 20 and fewer then 1"}
-			return result, nil
-		}
-
-		message := strings.Join(params[1:], " ")
+		count := parseCtx.ArgsParser.Get(spamCountArgName).Int()
+		text := parseCtx.ArgsParser.Get(spamMessageArgName).String()
 
 		for i := 0; i < count; i++ {
-			result.Result = append(result.Result, message)
+			result.Result = append(result.Result, text)
 		}
 
 		return result, nil

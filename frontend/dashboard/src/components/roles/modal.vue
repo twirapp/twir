@@ -20,6 +20,8 @@ import { useI18n } from 'vue-i18n';
 import { useRolesManager, PERMISSIONS_FLAGS } from '@/api/index.js';
 import { type EditableRole } from '@/components/roles/types.js';
 import UsersMultiSearch from '@/components/twitchUsers/multiple.vue';
+import { useToast } from '@/components/ui/toast';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = defineProps<{
 	role?: EditableRole | null
@@ -70,6 +72,8 @@ const rolesManager = useRolesManager();
 const rolesUpdater = rolesManager.update;
 const rolesCreator = rolesManager.create;
 
+const toast = useToast();
+
 async function save() {
 	if (!formRef.value || !formValue.value) return;
 	await formRef.value.validate();
@@ -85,7 +89,10 @@ async function save() {
 		await rolesCreator.mutateAsync(data);
 	}
 
-	emits('close');
+	toast.toast({
+		title: t('sharedTexts.saved'),
+		duration: 1500,
+	});
 }
 
 const { t } = useI18n();
@@ -139,17 +146,17 @@ const { t } = useI18n();
 		<n-checkbox-group v-model:value="formValue.permissions">
 			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
 				<n-grid-item
-					v-for="(permission) of Object.entries(PERMISSIONS_FLAGS)"
-					:key="permission[0]"
-					:span="1"
+					v-for="(permission, index) of PERMISSIONS_FLAGS"
+					:key="index"
+					:span="permission === 'delimiter' ? 2 : 1"
 				>
 					<n-checkbox
-						:disabled="formValue.permissions.some(p => p === 'CAN_ACCESS_DASHBOARD') &&
-							permission[0] !== 'CAN_ACCESS_DASHBOARD'
+						v-if="permission !== 'delimiter'"
+						:disabled="formValue.permissions.some(p => p === ChannelRolePermissionEnum.CanAccessDashboard) &&
+							permission.perm !== ChannelRolePermissionEnum.CanAccessDashboard
 						"
-						:value="permission[0]"
-						:label="permission[1]"
-						:style="{ display: permission[1] == '' ? 'none' : undefined }"
+						:value="permission.perm"
+						:label="permission.description"
 					/>
 				</n-grid-item>
 			</n-grid>

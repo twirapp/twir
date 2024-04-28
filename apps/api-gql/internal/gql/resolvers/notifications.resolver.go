@@ -22,20 +22,7 @@ func (r *adminNotificationResolver) TwitchProfile(ctx context.Context, obj *gqlm
 		return nil, nil
 	}
 
-	user, err := data_loader.GetHelixUser(ctx, *obj.UserID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, nil
-	}
-
-	return &gqlmodel.TwirUserTwitchInfo{
-		Login:           user.Login,
-		DisplayName:     user.DisplayName,
-		ProfileImageURL: user.ProfileImageURL,
-		Description:     user.Description,
-	}, nil
+	return data_loader.GetHelixUserById(ctx, *obj.UserID)
 }
 
 // NotificationsCreate is the resolver for the notificationsCreate field.

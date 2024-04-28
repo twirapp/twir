@@ -1,0 +1,25 @@
+extend type Query {
+	commandsGroups: [CommandGroup!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_COMMANDS)
+}
+
+extend type Mutation {
+	commandsGroupsCreate(opts: CommandsGroupsCreateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsGroupsUpdate(id: ID!, opts: CommandsGroupsUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsGroupsRemove(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+}
+
+type CommandGroup {
+	id: ID!
+	name: String!
+	color: String!
+}
+
+input CommandsGroupsCreateOpts {
+	name: String!
+	color: String!
+}
+
+input CommandsGroupsUpdateOpts {
+	name: String
+	color: String
+}

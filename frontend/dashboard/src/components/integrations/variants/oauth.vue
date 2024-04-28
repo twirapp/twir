@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const themeVars = useThemeVars();
 
@@ -43,7 +44,7 @@ async function saveSettings() {
 	showSettings.value = false;
 }
 
-const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
+const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations);
 
 const { t } = useI18n();
 </script>

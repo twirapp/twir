@@ -13,12 +13,12 @@ jobs:
           node-version-file: .nvmrc
       - uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9
           run_install: false
       - uses: actions/setup-go@v4
         with:
-          go-version-file: go.work
-          cache-dependency-path: '**/*.sum'
+          go-version-file: 'go.work'
+          cache-dependency-path: "**/*.sum"
 
       - name: Get pnpm store directory
         shell: bash
