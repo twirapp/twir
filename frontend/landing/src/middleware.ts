@@ -28,8 +28,6 @@ const assignProfile = async (context: APIContext) => {
 const assignLoginLink = async (context: APIContext) => {
 	const redirectTo = `${context.url.origin}/dashboard`;
 
-	console.log(context.url);
-
 	try {
 		context.locals.authLink = await getAuthLink(redirectTo);
 	} catch { /* empty */
