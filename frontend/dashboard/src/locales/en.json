@@ -955,6 +955,11 @@
 			"preview": "Preview",
 			"usesCount": "Uses {count}",
 			"badgeSlot": "Slot {slot}"
+		},
+		"adminActions": {
+			"title": "Actions",
+			"dropAllSession": "Drop all sessions",
+			"dropAllSessionConfirm": "Are you sure you want to drop all sessions?",
 		}
 	}
 }
