@@ -1,12 +1,12 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
 
-import { invalidationKey as commandsInvalidationKey } from './commands.js';
+import { invalidationKey as commandsInvalidationKey } from './commands.js'
 
-import { useMutation } from '@/composables/use-mutation';
-import { graphql } from '@/gql';
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
-const invalidationKey = 'CommandsGroupsInvalidateKey';
+const invalidationKey = 'CommandsGroupsInvalidateKey'
 
 export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 	const useQueryGroups = () => useQuery({
@@ -21,9 +21,9 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [invalidationKey],
-		},
-	});
+			additionalTypenames: [invalidationKey]
+		}
+	})
 
 	const useMutationDeleteGroup = () => useMutation(
 		graphql(`
@@ -31,8 +31,8 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsRemove(id: $id)
 			}
 		`),
-		[invalidationKey, commandsInvalidationKey],
-	);
+		[invalidationKey, commandsInvalidationKey]
+	)
 
 	const useMutationCreateGroup = () => useMutation(
 		graphql(`
@@ -40,8 +40,8 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsCreate(opts: $opts)
 			}
 		`),
-		[invalidationKey],
-	);
+		[invalidationKey]
+	)
 
 	const useMutationUpdateGroup = () => useMutation(
 		graphql(`
@@ -49,13 +49,13 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsUpdate(id: $id,opts: $opts)
 			}
 		`),
-		[invalidationKey, commandsInvalidationKey],
-	);
+		[invalidationKey, commandsInvalidationKey]
+	)
 
 	return {
 		useQueryGroups,
 		useMutationDeleteGroup,
 		useMutationCreateGroup,
-		useMutationUpdateGroup,
-	};
-});
+		useMutationUpdateGroup
+	}
+})

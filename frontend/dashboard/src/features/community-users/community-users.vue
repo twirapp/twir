@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import CommunityUsersPage from './components/community-users-page.vue';
-import { useCommunityUsersTable } from './composables/use-community-users-table.js';
+import CommunityUsersPage from './components/community-users-page.vue'
+import { useCommunityUsersTable } from './composables/use-community-users-table.js'
 
-import Pagination from '@/components/pagination.vue';
+import Pagination from '@/components/pagination.vue'
 
-const communityUsersTable = useCommunityUsersTable();
+const communityUsersTable = useCommunityUsersTable()
 </script>
 
 <template>
-	<community-users-page>
+	<CommunityUsersPage>
 		<template #pagination>
-			<pagination
+			<Pagination
 				:total="communityUsersTable.totalUsers"
 				:table="communityUsersTable.table"
 				:pagination="communityUsersTable.pagination"
@@ -18,5 +18,5 @@ const communityUsersTable = useCommunityUsersTable();
 				@update:page-size="(pageSize) => communityUsersTable.pagination.pageSize = pageSize"
 			/>
 		</template>
-	</community-users-page>
+	</CommunityUsersPage>
 </template>

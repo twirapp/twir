@@ -1,10 +1,11 @@
-import { defineStore } from 'pinia';
-import { ref, toRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { defineStore } from 'pinia'
+import { ref, toRaw } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommandsApi } from '@/api/commands/commands';
-import { useToast } from '@/components/ui/toast';
-import { CommandsCreateOpts } from '@/gql/graphql';
+import type { CommandsCreateOpts } from '@/gql/graphql'
+
+import { useCommandsApi } from '@/api/commands/commands.js'
+import { useToast } from '@/components/ui/toast'
 
 type EditableCommand = CommandsCreateOpts & { id?: string, module: string }
 
@@ -14,8 +15,8 @@ const defaultFormValue: EditableCommand = {
 	responses: [
 		{
 			text: '',
-			order: 0,
-		},
+			order: 0
+		}
 	],
 	description: '',
 	rolesIds: [],
@@ -34,45 +35,45 @@ const defaultFormValue: EditableCommand = {
 	groupId: null,
 	cooldownRolesIds: [],
 	enabledCategories: [],
-	module: 'CUSTOM',
-};
+	module: 'CUSTOM'
+}
 
 export const useCommandEdit = defineStore('commands-edit', () => {
-	const commandsManager = useCommandsApi();
-	const { toast } = useToast();
-	const { t } = useI18n();
+	const commandsManager = useCommandsApi()
+	const { toast } = useToast()
+	const { t } = useI18n()
 
-	const create = commandsManager.useMutationCreateCommand();
-	const update = commandsManager.useMutationUpdateCommand();
+	const create = commandsManager.useMutationCreateCommand()
+	const update = commandsManager.useMutationUpdateCommand()
 
-	const { data: commands } = commandsManager.useQueryCommands();
+	const { data: commands } = commandsManager.useQueryCommands()
 
-	const formValue = ref<EditableCommand | null>(null);
-	const isOpened = ref(false);
+	const formValue = ref<EditableCommand | null>(null)
+	const isOpened = ref(false)
 
 	function close() {
-		isOpened.value = false;
+		isOpened.value = false
 	}
 
 	function editCommand(id: string) {
-		const command = commands.value?.commands.find((command) => command.id === id);
+		const command = commands.value?.commands.find((command) => command.id === id)
 		if (!command) {
-			throw new Error(`Command with id ${id} not found`);
+			throw new Error(`Command with id ${id} not found`)
 		}
 
 		// for not modify original query object of command
-		formValue.value = structuredClone(toRaw(command));
-		isOpened.value = true;
+		formValue.value = structuredClone(toRaw(command))
+		isOpened.value = true
 	}
 
 	function createCommand() {
-		formValue.value = structuredClone(defaultFormValue);
-		isOpened.value = true;
+		formValue.value = structuredClone(defaultFormValue)
+		isOpened.value = true
 	}
 
 	async function save() {
 		if (!formValue.value) {
-			throw new Error('Form value is not set');
+			throw new Error('Form value is not set')
 		}
 
 		const transformedOpts = {
@@ -85,28 +86,28 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 			module: undefined,
 			responses: formValue.value.responses.map((response, i) => ({
 				text: response.text,
-				order: i,
-			})),
-		};
+				order: i
+			}))
+		}
 
 		if (formValue.value.id) {
 			await update.executeMutation({
 				id: formValue.value.id,
-				opts: transformedOpts,
-			});
+				opts: transformedOpts
+			})
 		} else {
 			await create.executeMutation({
-				opts: transformedOpts,
-			});
+				opts: transformedOpts
+			})
 		}
 
-		close();
+		close()
 
 		toast({
 			title: t('sharedTexts.saved'),
 			variant: 'success',
-			duration: 1500,
-		});
+			duration: 1500
+		})
 	}
 
 	return {
@@ -115,6 +116,6 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 		editCommand,
 		createCommand,
 		close,
-		save,
-	};
-});
+		save
+	}
+})

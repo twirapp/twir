@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { useI18n } from 'vue-i18n';
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
-import { Label } from '@/components/ui/label';
-import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
-import { useForm } from '@/features/chat-alerts/composables/use-form';
+import { Label } from '@/components/ui/label'
+import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
+import { useForm } from '@/features/chat-alerts/composables/use-form.js'
 
-const { formValue } = storeToRefs(useForm());
-const { t } = useI18n();
+const { formValue } = storeToRefs(useForm())
+const { t } = useI18n()
 </script>
 
 <template>
@@ -27,7 +27,3 @@ const { t } = useI18n();
 		</TagsInput>
 	</div>
 </template>
-
-<style scoped>
-
-</style>

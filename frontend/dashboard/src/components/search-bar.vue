@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { SearchIcon } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
+import { SearchIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
-import { Input } from './ui/input';
+import { Input } from './ui/input'
 
-defineProps<{ placeholder?: string }>();
+defineProps<{ placeholder?: string }>()
 
-const model = defineModel<string>({ default: '' });
+const model = defineModel<string>({ default: '' })
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
-defineProps<{ name: string, avatar: string }>();
+defineProps<{ name: string, avatar: string }>()
 </script>
 
 <template>

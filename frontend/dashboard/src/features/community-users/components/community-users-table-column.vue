@@ -1,43 +1,44 @@
 <script setup lang="ts">
-import type { Column } from '@tanstack/vue-table';
-import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff, Trash } from 'lucide-vue-next';
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ArrowDown, ArrowDownUp, ArrowUp, EyeOff, Trash } from 'lucide-vue-next'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommunityUsersApi } from '@/api/community-users.js';
-import { Button } from '@/components/ui/button';
-import DeleteConfirm from '@/components/ui/delete-confirm.vue';
+import type { CommunityUsersResetType } from '@/gql/graphql.js'
+import type { Column } from '@tanstack/vue-table'
+
+import { useCommunityUsersApi } from '@/api/community-users.js'
+import { Button } from '@/components/ui/button'
+import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { CommunityUsersResetType } from '@/gql/graphql.js';
-import { cn } from '@/lib/utils';
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils.js'
 
 defineOptions({
-	inheritAttrs: false,
-});
+	inheritAttrs: false
+})
 
 const props = defineProps<{
-	columnType?: CommunityUsersResetType,
-  column: Column<any, any>
-  title: string
-}>();
+	columnType?: CommunityUsersResetType
+	column: Column<any, any>
+	title: string
+}>()
 
-const { t } = useI18n();
-const communityUsersApi = useCommunityUsersApi();
-const communityResetMutation = communityUsersApi.useMutationCommunityReset();
+const { t } = useI18n()
+const communityUsersApi = useCommunityUsersApi()
+const communityResetMutation = communityUsersApi.useMutationCommunityReset()
 
-const showConfirm = ref(false);
+const showConfirm = ref(false)
 async function resetColumn() {
-	if (!props.columnType) return;
+	if (!props.columnType) return
 
 	await communityResetMutation.executeMutation({
-		type: props.columnType,
-	});
+		type: props.columnType
+	})
 }
 </script>
 
@@ -82,7 +83,7 @@ async function resetColumn() {
 		{{ title }}
 	</div>
 
-	<delete-confirm
+	<DeleteConfirm
 		v-model:open="showConfirm"
 		:confirm-text="t('community.users.reset.resetQuestion', { title })"
 		@confirm="resetColumn"

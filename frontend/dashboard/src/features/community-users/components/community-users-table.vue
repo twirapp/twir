@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-import { useCommunityUsersTable } from '../composables/use-community-users-table.js';
+import { useCommunityUsersTable } from '../composables/use-community-users-table.js'
 
-import Table from '@/components/table.vue';
+import Table from '@/components/table.vue'
 
-const { t } = useI18n();
-const communityUsersTable = useCommunityUsersTable();
+const { t } = useI18n()
+const communityUsersTable = useCommunityUsersTable()
 </script>
 
 <template>

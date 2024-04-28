@@ -1,14 +1,15 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
-import type { GetAllTimersQuery, TimerCreateInput } from '@/gql/graphql';
+import type { GetAllTimersQuery, TimerCreateInput } from '@/gql/graphql.js'
 
-export type TimerResponse = GetAllTimersQuery['timers'][0];
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
+
+export type TimerResponse = GetAllTimersQuery['timers'][0]
 export type EditableTimer = TimerCreateInput & { id?: string }
 
-const invalidationKey = 'TimersInvalidateKey';
+const invalidationKey = 'TimersInvalidateKey'
 
 export const useTimersApi = defineStore('api/timers', () => {
 	const useQueryTimers = () => useQuery({
@@ -28,8 +29,8 @@ export const useTimersApi = defineStore('api/timers', () => {
 					}
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const useMutationCreateTimer = () => useMutation(graphql(`
 		mutation CreateTimer($opts: TimerCreateInput!) {
@@ -37,7 +38,7 @@ export const useTimersApi = defineStore('api/timers', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUpdateTimer = () => useMutation(graphql(`
 		mutation UpdateTimer($id: String!, $opts: TimerUpdateInput!) {
@@ -45,18 +46,18 @@ export const useTimersApi = defineStore('api/timers', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationRemoveTimer = () => useMutation(graphql(`
 		mutation RemoveTimer($id: String!) {
 			timersRemove(id: $id)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		useQueryTimers,
 		useMutationCreateTimer,
 		useMutationUpdateTimer,
-		useMutationRemoveTimer,
-	};
-});
+		useMutationRemoveTimer
+	}
+})

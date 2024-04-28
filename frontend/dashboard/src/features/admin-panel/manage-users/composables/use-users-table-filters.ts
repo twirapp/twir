@@ -1,36 +1,36 @@
-import { refDebounced } from '@vueuse/core';
-import { defineStore, storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { refDebounced } from '@vueuse/core'
+import { defineStore, storeToRefs } from 'pinia'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useBadges } from '../../manage-badges/composables/use-badges';
+import { useBadges } from '../../manage-badges/composables/use-badges.js'
 
-export type FilterType = 'status' | 'badge';
+export type FilterType = 'status' | 'badge'
 
 interface Filter {
-	group: string;
-	type: FilterType;
+	group: string
+	type: FilterType
 	list: {
-		label: string;
-		key: string;
-		image?: string;
-	}[];
+		label: string
+		key: string
+		image?: string
+	}[]
 }
 
 export const useUsersTableFilters = defineStore('manage-users/users-table-filters', () => {
-	const { t } = useI18n();
+	const { t } = useI18n()
 
-	const searchInput = ref('');
-	const debounceSearchInput = refDebounced(searchInput, 500);
+	const searchInput = ref('')
+	const debounceSearchInput = refDebounced(searchInput, 500)
 
-	const { badges } = storeToRefs(useBadges());
+	const { badges } = storeToRefs(useBadges())
 
-	const selectedStatuses = ref<Record<string, true | undefined>>({});
-	const selectedBadges = ref<string[]>([]);
+	const selectedStatuses = ref<Record<string, true | undefined>>({})
+	const selectedBadges = ref<string[]>([])
 
 	const selectedFiltersCount = computed(() => {
-		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length;
-	});
+		return Object.keys(selectedStatuses.value).length + selectedBadges.value.length
+	})
 
 	const filtersList = computed<Filter[]>(() => [
 		{
@@ -39,17 +39,17 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 			list: [
 				{
 					label: t('adminPanel.manageUsers.isAdmin'),
-					key: 'isBotAdmin',
+					key: 'isBotAdmin'
 				},
 				{
 					label: t('adminPanel.manageUsers.isBanned'),
-					key: 'isBanned',
+					key: 'isBanned'
 				},
 				{
 					label: t('adminPanel.manageUsers.isBotEnabled'),
-					key: 'isBotEnabled',
-				},
-			],
+					key: 'isBotEnabled'
+				}
+			]
 		},
 		{
 			group: t('adminPanel.manageUsers.badgesGroup'),
@@ -57,46 +57,46 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 			list: badges.value.map((badge) => ({
 				label: badge.name,
 				key: badge.id,
-				image: badge.fileUrl,
-			})),
-		},
-	]);
+				image: badge.fileUrl
+			}))
+		}
+	])
 
 	function clearFilters() {
-		selectedStatuses.value = {};
-		selectedBadges.value = [];
+		selectedStatuses.value = {}
+		selectedBadges.value = []
 	}
 
 	function setFilterValue(filterKey: string, type: FilterType) {
 		if (type === 'status') {
 			if (selectedStatuses.value[filterKey]) {
-				delete selectedStatuses.value[filterKey];
-				return;
+				delete selectedStatuses.value[filterKey]
+				return
 			}
 
-			selectedStatuses.value[filterKey] = true;
+			selectedStatuses.value[filterKey] = true
 		}
 
 		if (type === 'badge') {
 			if (selectedBadges.value.includes(filterKey)) {
-				selectedBadges.value = selectedBadges.value.filter((badge) => badge !== filterKey);
-				return;
+				selectedBadges.value = selectedBadges.value.filter((badge) => badge !== filterKey)
+				return
 			}
 
-			selectedBadges.value.push(filterKey);
+			selectedBadges.value.push(filterKey)
 		}
 	}
 
 	function isFilterApplied(filterKey: string, type: FilterType): boolean {
 		if (type === 'status') {
-			return filterKey in selectedStatuses.value;
+			return filterKey in selectedStatuses.value
 		}
 
 		if (type === 'badge') {
-			return selectedBadges.value.includes(filterKey);
+			return selectedBadges.value.includes(filterKey)
 		}
 
-		return false;
+		return false
 	}
 
 	return {
@@ -108,6 +108,6 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		setFilterValue,
 		isFilterApplied,
 		clearFilters,
-		selectedBadges,
-	};
-});
+		selectedBadges
+	}
+})

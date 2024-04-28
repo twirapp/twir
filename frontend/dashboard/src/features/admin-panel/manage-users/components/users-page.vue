@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import UsersTableSearch from './users-table-search.vue';
-import UsersTable from './users-table.vue';
-
+import UsersTableSearch from './users-table-search.vue'
+import UsersTable from './users-table.vue'
 </script>
 
 <template>
 	<div class="flex flex-col w-full gap-4">
-		<users-table-search />
+		<UsersTableSearch />
 		<slot name="pagination" />
-		<users-table />
+		<UsersTable />
 		<slot name="pagination" />
 	</div>
 </template>

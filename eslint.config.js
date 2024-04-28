@@ -13,14 +13,12 @@ export default antfu({
 		'no-var': 'error',
 		'unused-imports/no-unused-imports': 'error',
 		'style/no-tabs': 'off',
+		'antfu/if-newline': 'off',
 		'style/indent': ['error', 'tab'],
 		'eslint-comments/no-unlimited-disable': 'off'
 	},
 	vue: {
 		overrides: {
-			'vue/component-name-in-template-casing': ['error', 'kebab-case', {
-				registeredComponentsOnly: false
-			}],
 			'vue/block-order': ['error', {
 				order: [['script', 'template'], 'style']
 			}],
@@ -37,6 +35,7 @@ export default antfu({
 	},
 	stylistic: {
 		overrides: {
+			'style/brace-style': ['warn', '1tbs'],
 			'node/prefer-global': 'off',
 			'node/prefer-global/buffer': 'off',
 			'antfu/no-import-dist': 'off',

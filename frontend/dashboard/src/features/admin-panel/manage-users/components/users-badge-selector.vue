@@ -1,37 +1,40 @@
 <script setup lang="ts">
-import { CheckIcon, AwardIcon } from 'lucide-vue-next';
-import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { AwardIcon, CheckIcon } from 'lucide-vue-next'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 
-import { useBadges } from '../../manage-badges/composables/use-badges';
+import { useBadges } from '../../manage-badges/composables/use-badges'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
-	Command, CommandGroup, CommandItem, CommandList,
-} from '@/components/ui/command';
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList
+} from '@/components/ui/command'
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
+	PopoverTrigger
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
-const props = defineProps<{ userId: string }>();
+const props = defineProps<{ userId: string }>()
 
-const badgesStore = useBadges();
-const { badges } = storeToRefs(badgesStore);
+const badgesStore = useBadges()
+const { badges } = storeToRefs(badgesStore)
 
 const userBadgesIds = computed(() => {
 	return badges.value
 		.filter((badge) => badge.users?.some((userId) => userId === props.userId))
-		.map((badge) => badge.id);
-});
+		.map((badge) => badge.id)
+})
 
 async function toggleBadge(badgeId: string) {
 	if (userBadgesIds.value.includes(badgeId)) {
-		await badgesStore.badgesRemoveUser.executeMutation({ id: badgeId, userId: props.userId });
+		await badgesStore.badgesRemoveUser.executeMutation({ id: badgeId, userId: props.userId })
 	} else {
-		await badgesStore.badgesAddUser.executeMutation({ id: badgeId, userId: props.userId });
+		await badgesStore.badgesAddUser.executeMutation({ id: badgeId, userId: props.userId })
 	}
 }
 </script>

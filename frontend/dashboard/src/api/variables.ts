@@ -1,13 +1,15 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
-import { SetOptional } from 'type-fest';
-import { computed } from 'vue';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
+import { computed } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation';
-import { graphql } from '@/gql';
-import { GetCustomAndBuiltInVariablesQuery, VariableType } from '@/gql/graphql';
+import type { GetCustomAndBuiltInVariablesQuery } from '@/gql/graphql.js'
+import type { SetOptional } from 'type-fest'
 
-const invalidationKey = 'VariablesInvalidateKey';
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
+import { VariableType } from '@/gql/graphql.js'
+
+const invalidationKey = 'VariablesInvalidateKey'
 
 export type CustomVariable = GetCustomAndBuiltInVariablesQuery['variables'][number]
 export type EditableCustomVariable = SetOptional<CustomVariable, 'id'>
@@ -34,8 +36,8 @@ export const useVariablesApi = defineStore('api/variables', () => {
 					canBeUsedInRegistry
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const customVariables = computed(() => {
 		const mapped = variablesQuery.data.value?.variables.map((variable) => ({
@@ -48,11 +50,11 @@ export const useVariablesApi = defineStore('api/variables', () => {
 			canBeUsedInRegistry: variable.type !== VariableType.Script,
 			type: variable.type,
 			response: variable.response,
-			evalValue: variable.evalValue,
-		})) ?? [];
+			evalValue: variable.evalValue
+		})) ?? []
 
-		return mapped;
-	});
+		return mapped
+	})
 
 	const builtInVariables = computed(() => {
 		const mapped = variablesQuery.data.value?.variablesBuiltIn.map((variable) => ({
@@ -61,22 +63,22 @@ export const useVariablesApi = defineStore('api/variables', () => {
 			visible: variable.visible,
 			example: variable.example || `${variable.name}`,
 			isBuiltIn: true,
-			canBeUsedInRegistry: variable.canBeUsedInRegistry,
-		})) ?? [];
+			canBeUsedInRegistry: variable.canBeUsedInRegistry
+		})) ?? []
 
-		return mapped;
-	});
+		return mapped
+	})
 
 	const allVariables = computed(() => {
 		return [
 			...customVariables.value,
-			...builtInVariables.value,
-		];
-	});
+			...builtInVariables.value
+		]
+	})
 
 	const isLoading = computed(() => {
-		return variablesQuery.fetching.value;
-	});
+		return variablesQuery.fetching.value
+	})
 
 	const useMutationCreateVariable = () => useMutation(graphql(`
 		mutation CreateVariable($opts: VariableCreateInput!) {
@@ -84,7 +86,7 @@ export const useVariablesApi = defineStore('api/variables', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUpdateVariable = () => useMutation(graphql(`
 		mutation UpdateVariable($id: ID!, $opts: VariableUpdateInput!) {
@@ -92,13 +94,13 @@ export const useVariablesApi = defineStore('api/variables', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationRemoveVariable = () => useMutation(graphql(`
 		mutation RemoveVariable($id: ID!) {
 			variablesDelete(id: $id)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		customVariables,
@@ -107,6 +109,6 @@ export const useVariablesApi = defineStore('api/variables', () => {
 		isLoading,
 		useMutationCreateVariable,
 		useMutationUpdateVariable,
-		useMutationRemoveVariable,
-	};
-});
+		useMutationRemoveVariable
+	}
+})

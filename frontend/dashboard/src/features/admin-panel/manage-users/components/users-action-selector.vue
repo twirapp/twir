@@ -1,29 +1,29 @@
 <script setup lang="ts">
+import { BanIcon, LogOutIcon, SwordIcon, WrenchIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
-import { BanIcon, LogOutIcon, SwordIcon, WrenchIcon } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
+import { useUsers } from '../composables/use-users.js'
 
-import { useUsers } from '../composables/use-users.js';
-
-import { useMutationDropUserAuthSession } from '@/api/admin/actions.js';
-import { Button } from '@/components/ui/button';
+import { useAdminActions } from '@/api/admin/actions.js'
+import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
 defineProps<{
 	userId: string
 	isBanned: boolean
 	isBotAdmin: boolean
-}>();
+}>()
 
-const { t } = useI18n();
-const { switchBan, switchAdmin } = useUsers();
+const { t } = useI18n()
+const { switchBan, switchAdmin } = useUsers()
 
-const dropAuthSession = useMutationDropUserAuthSession();
+const adminActions = useAdminActions()
+const dropAuthSession = adminActions.useMutationDropUserAuthSession()
 </script>
 
 <template>

@@ -1,41 +1,42 @@
 <script setup lang="ts" generic="T extends RowData">
-import type { PaginationState, RowData, Table } from '@tanstack/vue-table';
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next';
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from '@/components/ui/select';
-import { formatNumber } from '@/helpers/format-number.js';
+import type { PaginationState, RowData, Table } from '@tanstack/vue-table'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { formatNumber } from '@/helpers/format-number.js'
 
 const props = defineProps<{
 	total: number
 	table: Table<T>
 	pagination: PaginationState
-}>();
-
-const currentPage = computed(() => {
-	if (props.pagination.pageIndex < 0) return 1;
-	return props.pagination.pageIndex + 1;
-});
+}>()
 
 const emits = defineEmits<{
 	(event: 'update:page', page: number): void
 	(event: 'update:pageSize', pageSize: number): void
-}>();
+}>()
 
-const { t } = useI18n();
+const currentPage = computed(() => {
+	if (props.pagination.pageIndex < 0) return 1
+	return props.pagination.pageIndex + 1
+})
+
+const { t } = useI18n()
 
 function handleGoToPage(event: any) {
-  const page = event.target.value ? Number(event.target.value) - 1 : 0;
-	if (Number.isNaN(page)) return;
-	emits('update:page', page < 0 ? 0 : page);
+	const page = event.target.value ? Number(event.target.value) - 1 : 0
+	if (Number.isNaN(page)) return
+	emits('update:page', page < 0 ? 0 : page)
 }
 
 function handlePageSizeChange(pageSize: string) {
-	emits('update:page', 0);
-  emits('update:pageSize', Number(pageSize));
+	emits('update:page', 0)
+	emits('update:pageSize', Number(pageSize))
 }
 </script>
 
