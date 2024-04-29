@@ -1,6 +1,7 @@
 import {
 	type ColumnDef,
 	getCoreRowModel,
+	getPaginationRowModel,
 	useVueTable
 } from '@tanstack/vue-table'
 import { defineStore } from 'pinia'
@@ -108,18 +109,22 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		get pageCount() {
 			return pageCount.value
 		},
-		state: {
-			pagination: pagination.value
-		},
 		get data() {
 			return users.value
 		},
 		get columns() {
 			return tableColumns.value
 		},
+		state: {
+			get pagination() {
+				return pagination.value
+			}
+		},
 		manualPagination: true,
+		enableRowSelection: true,
+		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 		getCoreRowModel: getCoreRowModel(),
-		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination)
+		getPaginationRowModel: getPaginationRowModel()
 	})
 
 	return {

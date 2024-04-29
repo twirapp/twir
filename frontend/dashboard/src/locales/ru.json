@@ -42,7 +42,7 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
+    "pagination": "из {page} страниц / {total} записей",
     "searchPlaceholder": "Search..."
   },
   "sidebar": {
