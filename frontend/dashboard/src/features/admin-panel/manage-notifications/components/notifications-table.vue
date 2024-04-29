@@ -12,10 +12,8 @@ const notificationsTable = useNotificationsTable()
 </script>
 
 <template>
-	<div class="flex flex-wrap w-full items-center justify-between gap-2">
-		<NotificationsTableSearch />
-		<slot name="pagination" />
-	</div>
+	<NotificationsTableSearch />
+	<slot name="pagination" />
 
 	<TooltipProvider :delay-duration="100">
 		<Table :table="notificationsTable.table" :is-loading="notificationsTable.isLoading">

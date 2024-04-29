@@ -35,7 +35,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 </script>
 
 <template>
-	<div class="flex gap-2 max-sm:flex-col">
+	<div class="flex gap-2">
 		<SearchBar v-model="usersTableFilters.searchInput" />
 		<Popover>
 			<PopoverTrigger as-child>

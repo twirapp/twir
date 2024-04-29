@@ -4,7 +4,7 @@ import NotificationsList from './components/notifications-list.vue'
 </script>
 
 <template>
-	<div class="w-full flex flex-wrap gap-6">
+	<div class="flex flex-col w-full gap-4">
 		<NotificationsForm />
 		<NotificationsList />
 	</div>

@@ -41,32 +41,28 @@ function handlePageSizeChange(pageSize: string) {
 </script>
 
 <template>
-	<div class="flex items-center justify-between gap-2 w-full">
-		<Input
-			class="w-20 h-9"
-			:min="1"
-			:max="table.getPageCount()"
-			:model-value="currentPage"
-			inputmode="numeric"
-			type="number"
-			@input="handleGoToPage"
-		/>
-		<div class="flex-1 text-sm text-muted-foreground">
-			{{ t('sharedTexts.pagination', {
-				page: table.getPageCount(),
-				total: formatNumber(total),
-			}) }}
+	<div class="flex justify-between max-sm:flex-col gap-4">
+		<div class="flex gap-2 items-center">
+			<Input
+				class="w-20 h-9 max-sm:w-full"
+				:min="1"
+				:max="table.getPageCount()"
+				:model-value="currentPage"
+				inputmode="numeric"
+				type="number"
+				@input="handleGoToPage"
+			/>
+			<div class="text-sm text-muted-foreground text-nowrap">
+				{{ t('sharedTexts.pagination', {
+					page: table.getPageCount(),
+					total: formatNumber(total),
+				}) }}
+			</div>
 		</div>
-		<div class="flex gap-2">
-			<Button
-				class="h-9 w-9"
-				variant="outline"
-				size="icon"
-				:disabled="!table.getCanPreviousPage()"
-				@click="table.previousPage()"
-			>
-				<ChevronLeft class="h-4 w-4" />
-			</Button>
+		<div class="flex gap-2 items-center">
+			<div class="text-sm text-muted-foreground text-nowrap">
+				{{ t('sharedTexts.paginationPerPage') }}
+			</div>
 			<Select default-value="10" @update:model-value="handlePageSizeChange">
 				<SelectTrigger class="w-20 h-9">
 					<SelectValue />
@@ -77,15 +73,26 @@ function handlePageSizeChange(pageSize: string) {
 					</SelectItem>
 				</SelectContent>
 			</Select>
-			<Button
-				class="h-9 w-9"
-				variant="outline"
-				size="icon"
-				:disabled="!table.getCanNextPage()"
-				@click="table.nextPage()"
-			>
-				<ChevronRight class="h-4 w-4" />
-			</Button>
+			<div class="flex gap-2 max-sm:justify-end max-sm:w-full">
+				<Button
+					class="h-9 w-9"
+					variant="outline"
+					size="icon"
+					:disabled="!table.getCanPreviousPage()"
+					@click="table.previousPage()"
+				>
+					<ChevronLeft class="h-4 w-4" />
+				</Button>
+				<Button
+					class="h-9 w-9"
+					variant="outline"
+					size="icon"
+					:disabled="!table.getCanNextPage()"
+					@click="table.nextPage()"
+				>
+					<ChevronRight class="h-4 w-4" />
+				</Button>
+			</div>
 		</div>
 	</div>
 </template>

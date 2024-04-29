@@ -20,7 +20,7 @@ const filters = useNotificationsFilters()
 </script>
 
 <template>
-	<div class="flex gap-2 max-lg:w-full">
+	<div class="flex gap-2 max-sm:w-full">
 		<SearchBar v-model="filters.searchInput" />
 		<Select v-model="filters.filterInput">
 			<SelectTrigger class="h-9 w-[120px]">
