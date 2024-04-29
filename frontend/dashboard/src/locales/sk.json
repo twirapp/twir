@@ -43,6 +43,7 @@
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
     "pagination": "z {page} strana(y) / {total} položka(y)",
+    "paginationPerPage": "Per page",
     "searchPlaceholder": "Hľadať...",
     "messages": "Správy",
     "asc": "Vzost.",
@@ -938,7 +939,12 @@
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
       "statusGroup": "Status",
-      "badgesGroup": "Badges"
+      "badgesGroup": "Badges",
+      "giveBan": "Ban user",
+      "unBan": "Unban user",
+      "giveMod": "Give admin",
+      "unMod": "Remove admin",
+      "dropSession": "Drop session"
     },
     "manageBadges": {
       "title": "Badges",
@@ -950,6 +956,11 @@
       "preview": "Preview",
       "usesCount": "Použití {count}",
       "badgeSlot": "Slot {slot}"
+    },
+    "adminActions": {
+      "title": "Actions",
+      "dropAllSession": "Drop all sessions",
+      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
   }
 }
