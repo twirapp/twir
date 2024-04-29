@@ -1,20 +1,20 @@
 <script setup lang="ts" generic="T extends RowData">
-import { FlexRender, RowData, type Table } from '@tanstack/vue-table';
+import { FlexRender, type RowData, type Table } from '@tanstack/vue-table'
 
 import {
-	Table as TableRoot,
 	TableBody,
 	TableCell,
 	TableHead,
 	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import ShadcnLayout from '@/layout/shadcn-layout.vue';
+	Table as TableRoot,
+	TableRow
+} from '@/components/ui/table'
+import ShadcnLayout from '@/layout/shadcn-layout.vue'
 
 defineProps<{
-	table: Table<T>,
+	table: Table<T>
 	isLoading: boolean
-}>();
+}>()
 </script>
 
 <template>

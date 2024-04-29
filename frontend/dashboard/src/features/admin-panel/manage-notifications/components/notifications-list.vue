@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import NotificationsTable from './notifications-table.vue';
-import { useNotificationsTable } from '../composables/use-notifications-table';
+import NotificationsTable from './notifications-table.vue'
+import { useNotificationsTable } from '../composables/use-notifications-table'
 
-import Pagination from '@/components/pagination.vue';
+import Pagination from '@/components/pagination.vue'
 
-const notifications = useNotificationsTable();
+const notifications = useNotificationsTable()
 </script>
 
 <template>
-	<notifications-table>
+	<NotificationsTable>
 		<template #pagination>
-			<pagination
+			<Pagination
 				:total="notifications.totalNotifications"
 				:table="notifications.table"
 				:pagination="notifications.pagination"
@@ -18,5 +18,5 @@ const notifications = useNotificationsTable();
 				@update:page-size="(pageSize) => notifications.pagination.pageSize = pageSize"
 			/>
 		</template>
-	</notifications-table>
+	</NotificationsTable>
 </template>

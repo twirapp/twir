@@ -1,23 +1,23 @@
 <script setup lang="ts">
-import { NCard } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+import { NCard } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
-import BadgesPreview from './badges-preview.vue';
-import { useBadgesForm } from '../composables/use-badges-form';
+import BadgesPreview from './badges-preview.vue'
+import { useBadgesForm } from '../composables/use-badges-form'
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
-const { t } = useI18n();
-const badgesForm = useBadgesForm();
+const { t } = useI18n()
+const badgesForm = useBadgesForm()
 </script>
 
 <template>
 	<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 		{{ t('adminPanel.manageBadges.formTitle') }}
 	</h4>
-	<n-card size="small" bordered>
+	<NCard size="small" bordered>
 		<form class="flex flex-col gap-4" @submit="badgesForm.onSubmit">
 			<div class="space-y-2">
 				<Label for="name">
@@ -65,7 +65,7 @@ const badgesForm = useBadgesForm();
 				<Label>
 					{{ t('adminPanel.manageBadges.preview') }}
 				</Label>
-				<badges-preview class="mt-2" :image="badgesForm.formValues.image!" />
+				<BadgesPreview class="mt-2" :image="badgesForm.formValues.image!" />
 			</div>
 
 			<div class="flex justify-end gap-4">
@@ -92,5 +92,5 @@ const badgesForm = useBadgesForm();
 				</Button>
 			</div>
 		</form>
-	</n-card>
+	</NCard>
 </template>

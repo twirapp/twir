@@ -6,38 +6,38 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
-	useVueTable,
-} from '@tanstack/vue-table';
-import { defineStore, storeToRefs } from 'pinia';
-import { computed, h } from 'vue';
-import { useI18n } from 'vue-i18n';
+	useVueTable
+} from '@tanstack/vue-table'
+import { defineStore, storeToRefs } from 'pinia'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommunityTableActions } from './use-community-table-actions.js';
-import CommunityUsersTableColumn from '../components/community-users-table-column.vue';
+import { useCommunityTableActions } from './use-community-table-actions.js'
+import CommunityUsersTableColumn from '../components/community-users-table-column.vue'
 
-import { useProfile } from '@/api';
-import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js';
-import { usePagination } from '@/composables/use-pagination.js';
+import { useProfile } from '@/api/auth.js'
+import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js'
+import { usePagination } from '@/composables/use-pagination.js'
 import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue';
-import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql';
-import { resolveUserName } from '@/helpers/resolveUserName.js';
-import { valueUpdater } from '@/helpers/value-updater.js';
+	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
+import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql.js'
+import { resolveUserName } from '@/helpers/resolveUserName.js'
+import { valueUpdater } from '@/helpers/value-updater.js'
 
-const ONE_HOUR = 60 * 60 * 1000;
+const ONE_HOUR = 60 * 60 * 1000
 export const TABLE_ACCESSOR_KEYS = {
 	user: 'user',
 	messages: 'messages',
 	watchedMs: 'watchedMs',
 	usedEmotes: 'usedEmotes',
-	usedChannelPoints: 'usedChannelPoints',
-};
+	usedChannelPoints: 'usedChannelPoints'
+}
 
 export const useCommunityUsersTable = defineStore('features/community-users-table', () => {
-	const { t } = useI18n();
+	const { t } = useI18n()
 
-	const { data: profile } = storeToRefs(useProfile());
-	const communityUsersApi = useCommunityUsersApi();
+	const { data: profile } = storeToRefs(useProfile())
+	const communityUsersApi = useCommunityUsersApi()
 
 	const {
 		sorting,
@@ -46,14 +46,14 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 		rowSelection,
 		tableOrder,
 		tableSortBy,
-		debouncedSearchInput,
-	} = storeToRefs(useCommunityTableActions());
+		debouncedSearchInput
+	} = storeToRefs(useCommunityTableActions())
 
-	const { pagination, setPagination } = usePagination();
+	const { pagination, setPagination } = usePagination()
 	const params = computed<CommunityUsersOpts>((prevParams) => {
 		// reset pagination on search change
 		if (prevParams?.search !== debouncedSearchInput.value) {
-			pagination.value.pageIndex = 0;
+			pagination.value.pageIndex = 0
 		}
 
 		return {
@@ -62,20 +62,20 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			order: tableOrder.value,
-			sortBy: tableSortBy.value,
-		};
-	});
+			sortBy: tableSortBy.value
+		}
+	})
 
-	const { data, fetching } = communityUsersApi.useCommunityUsers(params);
+	const { data, fetching } = communityUsersApi.useCommunityUsers(params)
 	const communityUsers = computed<CommunityUser[]>(() => {
-		if (!data.value) return [];
-		return data.value.communityUsers.users;
-	});
+		if (!data.value) return []
+		return data.value.communityUsers.users
+	})
 
-	const totalUsers = computed(() => data.value?.communityUsers.total ?? 0);
+	const totalUsers = computed(() => data.value?.communityUsers.total ?? 0)
 	const pageCount = computed(() => {
-		return Math.ceil(totalUsers.value / pagination.value.pageSize);
-	});
+		return Math.ceil(totalUsers.value / pagination.value.pageSize)
+	})
 
 	const tableColumns = computed<ColumnDef<CommunityUser>[]>(() => [
 		{
@@ -90,19 +90,16 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 			// 	});
 			// },
 			cell: ({ row }) => {
-				return h('a',
-					{
-						class: 'flex flex-col',
-						href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-						target: '_blank',
-					},
-					h(UsersTableCellUser, {
-						avatar: row.original.twitchProfile.profileImageUrl,
-						userId: row.original.id,
-						name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName),
-					}),
-				);
-			},
+				return h('a', {
+					class: 'flex flex-col',
+					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
+					target: '_blank'
+				}, h(UsersTableCellUser, {
+					avatar: row.original.twitchProfile.profileImageUrl,
+					userId: row.original.id,
+					name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName)
+				}))
+			}
 		},
 		{
 			// accessorKey: t('community.users.table.messages'),
@@ -112,12 +109,12 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 				return h(CommunityUsersTableColumn, {
 					column,
 					columnType: CommunityUsersResetType.Messages,
-					title: t('community.users.table.messages'),
-				});
+					title: t('community.users.table.messages')
+				})
 			},
 			cell: ({ row }) => {
-				return h('div', row.original.messages);
-			},
+				return h('div', row.original.messages)
+			}
 		},
 		{
 			// accessorKey: t('community.users.table.usedChannelPoints'),
@@ -127,12 +124,12 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 				return h(CommunityUsersTableColumn, {
 					column,
 					columnType: CommunityUsersResetType.UsedChannelsPoints,
-					title: t('community.users.table.usedChannelPoints'),
-				});
+					title: t('community.users.table.usedChannelPoints')
+				})
 			},
 			cell: ({ row }) => {
-				return h('div', row.original.usedChannelPoints);
-			},
+				return h('div', row.original.usedChannelPoints)
+			}
 		},
 		{
 			// accessorKey: t('community.users.table.usedEmotes'),
@@ -142,12 +139,12 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 				return h(CommunityUsersTableColumn, {
 					column,
 					columnType: CommunityUsersResetType.UsedEmotes,
-					title: t('community.users.table.usedEmotes'),
-				});
+					title: t('community.users.table.usedEmotes')
+				})
 			},
 			cell: ({ row }) => {
-				return h('div', row.original.usedEmotes);
-			},
+				return h('div', row.original.usedEmotes)
+			}
 		},
 		{
 			// accessorKey: t('community.users.table.watchedTime'),
@@ -157,41 +154,41 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 				return h(CommunityUsersTableColumn, {
 					column,
 					columnType: CommunityUsersResetType.Watched,
-					title: t('community.users.table.watchedTime'),
-				});
+					title: t('community.users.table.watchedTime')
+				})
 			},
 			cell: ({ row }) => {
-				return h('div', `${(Number(row.original.watchedMs) / ONE_HOUR).toFixed(1)}h`);
-			},
-		},
-	]);
+				return h('div', `${(Number(row.original.watchedMs) / ONE_HOUR).toFixed(1)}h`)
+			}
+		}
+	])
 
 	const table = useVueTable({
 		get pageCount() {
-			return pageCount.value;
+			return pageCount.value
 		},
 		get data() {
-			return communityUsers.value;
+			return communityUsers.value
 		},
 		get columns() {
-			return tableColumns.value;
+			return tableColumns.value
 		},
 		state: {
 			get sorting() {
-				return sorting.value;
+				return sorting.value
 			},
 			get columnFilters() {
-				return columnFilters.value;
+				return columnFilters.value
 			},
 			get columnVisibility() {
-				return columnVisibility.value;
+				return columnVisibility.value
 			},
 			get rowSelection() {
-				return rowSelection.value;
+				return rowSelection.value
 			},
 			get pagination() {
-				return pagination.value;
-			},
+				return pagination.value
+			}
 		},
 		manualPagination: true,
 		enableRowSelection: true,
@@ -205,14 +202,14 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 		getPaginationRowModel: getPaginationRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues(),
-	});
+		getFacetedUniqueValues: getFacetedUniqueValues()
+	})
 
 	return {
 		isLoading: fetching,
 		table,
 		totalUsers,
 		pagination,
-		setPagination,
-	};
-});
+		setPagination
+	}
+})

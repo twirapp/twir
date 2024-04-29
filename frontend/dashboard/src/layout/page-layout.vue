@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { useRouteQuery } from '@vueuse/router';
-import { useThemeVars } from 'naive-ui';
-import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
-import type { StringOrNumber } from 'radix-vue/dist/shared/types';
-import { onBeforeMount, ref, type Component } from 'vue';
-import { watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouteQuery } from '@vueuse/router'
+import { useThemeVars } from 'naive-ui'
+import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
+import { type Component, onBeforeMount, ref } from 'vue'
+import { watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { useTheme } from '@/composables/use-theme';
+import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 
-const router = useRouter();
-const themeVars = useThemeVars();
-const { theme } = useTheme();
+import { useTheme } from '@/composables/use-theme.js'
+
+const props = withDefaults(defineProps<PageLayoutProps>(), {
+	activeTab: '',
+	tabs: () => []
+})
+const router = useRouter()
+const themeVars = useThemeVars()
+const { theme } = useTheme()
 
 export interface PageLayoutProps {
 	activeTab?: string
@@ -24,32 +29,27 @@ export interface PageLayoutTab {
 	component: Component
 }
 
-const props = withDefaults(defineProps<PageLayoutProps>(), {
-	activeTab: '',
-	tabs: () => [],
-});
+const activeTab = ref(props.activeTab)
 
-const activeTab = ref(props.activeTab);
-
-const queryActiveTab = useRouteQuery<string>('tab');
-const unsubscribe = watch(queryActiveTab, setTab);
-if (!props.activeTab) unsubscribe();
+const queryActiveTab = useRouteQuery<string>('tab')
+const unsubscribe = watch(queryActiveTab, setTab)
+if (!props.activeTab) unsubscribe()
 
 onBeforeMount(() => {
-	if (!props.activeTab) return;
-	setTab();
-	onChangeTab(activeTab.value, true);
-});
+	if (!props.activeTab) return
+	setTab()
+	onChangeTab(activeTab.value, true)
+})
 
 function setTab(): void {
-	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase();
+	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase()
 	if (props.tabs.some((tab) => tab.name === tabValue)) {
-		activeTab.value = tabValue;
+		activeTab.value = tabValue
 	}
 }
 
 function onChangeTab(tab: StringOrNumber, replace = false): void {
-	router.push({ query: { tab }, replace });
+	router.push({ query: { tab }, replace })
 }
 </script>
 
@@ -78,7 +78,7 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 							:class="[
 								theme === 'dark'
 									? 'data-[state=active]:after:border-white'
-									: 'data-[state=active]:after:border-zinc-800'
+									: 'data-[state=active]:after:border-zinc-800',
 							]"
 						>
 							{{ tab.title }}

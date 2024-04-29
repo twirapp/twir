@@ -1,14 +1,15 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
-import { computed } from 'vue';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
+import { computed } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql/gql.js';
-import type { GetAllChatAlertsQuery } from '@/gql/graphql';
+import type { GetAllChatAlertsQuery } from '@/gql/graphql.js'
+
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
 export type ChatAlerts = GetAllChatAlertsQuery['chatAlerts']
 
-const invalidationKey = 'ChatAlertsInvalidateKey';
+const invalidationKey = 'ChatAlertsInvalidateKey'
 
 export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 	const { data } = useQuery({
@@ -116,10 +117,10 @@ export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 					}
 				}
 			}
-		`),
-	});
+		`)
+	})
 
-	const chatAlerts = computed<ChatAlerts>(() => data.value?.chatAlerts);
+	const chatAlerts = computed<ChatAlerts>(() => data.value?.chatAlerts)
 
 	const useMutationUpdateChatAlerts = () => useMutation(graphql(`
 		mutation UpdateChatAlerts($input: ChatAlertsInput!) {
@@ -127,10 +128,10 @@ export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 				__typename
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		chatAlerts,
-		useMutationUpdateChatAlerts,
-	};
-});
+		useMutationUpdateChatAlerts
+	}
+})

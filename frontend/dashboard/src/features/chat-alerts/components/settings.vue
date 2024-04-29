@@ -1,78 +1,76 @@
-<!-- eslint-disable no-undef -->
 <script setup lang="ts">
-import { TrashIcon } from 'lucide-vue-next';
+import { TrashIcon } from 'lucide-vue-next'
 import {
-	NCard,
 	NAlert,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { type VNode, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NCard
+} from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { type VNode, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useForm, type FormKey } from '../composables/use-form';
+import { type FormKey, useForm } from '../composables/use-form.js'
 
-import { useUserAccessFlagChecker } from '@/api/index.js';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import { useUserAccessFlagChecker } from '@/api/index.js'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
 
 const props = defineProps<{
 	formKey: FormKey
 	alertMessage?: string
 	count?: {
-		label: string,
-	},
+		label: string
+	}
 	maxMessages: number
 	defaultMessageText: string
 	minCount?: number
 	minCooldown: number
-}>();
+}>()
 
-const form = useForm();
-const { formValue, formInited, formRef } = storeToRefs(form);
+defineSlots<{
+	additionalSettings: VNode
+}>()
+const form = useForm()
+const { formValue, formInited, formRef } = storeToRefs(form)
 
-const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts);
+const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
 
 watch(formInited, (v) => {
-	if (!v) return;
+	if (!v) return
 
 	if (!formValue?.value?.[props.formKey]?.messages.length) {
-		createMessage();
+		createMessage()
 	}
-}, { immediate: true });
+}, { immediate: true })
 
 function createMessage() {
-	if (!hasAccessToManageAlerts) return;
+	if (!hasAccessToManageAlerts) return
 
 	if (props.count) {
-		const latest = formValue?.value?.[props.formKey]?.messages.at(-1);
-		const countForSet = latest && 'count' in latest ? latest.count + 1 : 1;
+		const latest = formValue?.value?.[props.formKey]?.messages.at(-1)
+		const countForSet = latest && 'count' in latest ? latest.count + 1 : 1
 
 		formValue?.value?.[props.formKey]?.messages.push({
 			count: countForSet,
-			text: props.defaultMessageText,
-		});
+			text: props.defaultMessageText
+		})
 	} else {
-		formValue?.value?.[props.formKey]?.messages.push({ text: props.defaultMessageText } as any);
+		formValue?.value?.[props.formKey]?.messages.push({ text: props.defaultMessageText } as any)
 	}
 }
 
 function removeMessage(index: number) {
-	if (!hasAccessToManageAlerts) return;
-	if (!formValue?.value?.[props.formKey]?.messages) return;
+	if (!hasAccessToManageAlerts) return
+	if (!formValue?.value?.[props.formKey]?.messages) return
 
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+	// eslint-disable-next-line ts/ban-ts-comment
 	// @ts-expect-error
-	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter((_, i) => i !== index);
+	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter((_, i) => i !== index)
 }
 
-const { t } = useI18n();
-
-defineSlots<{
-	additionalSettings: VNode
-}>();
+const { t } = useI18n()
 </script>
 
 <template>
@@ -96,7 +94,7 @@ defineSlots<{
 				</div>
 			</div>
 
-			<n-card :class="{ 'absolute opacity-20': !hasAccessToManageAlerts }" :title="t('sharedButtons.settings')" size="small" bordered>
+			<NCard :class="{ 'absolute opacity-20': !hasAccessToManageAlerts }" :title="t('sharedButtons.settings')" size="small" bordered>
 				<div class="flex flex-col gap-4">
 					<div class="flex items-center gap-4">
 						<Label for="enabled">{{ t('sharedTexts.enabled') }}</Label>
@@ -122,7 +120,7 @@ defineSlots<{
 
 					<slot name="additionalSettings" />
 				</div>
-			</n-card>
+			</NCard>
 		</div>
 
 		<div class="relative">
@@ -139,7 +137,7 @@ defineSlots<{
 				</div>
 			</div>
 
-			<n-card
+			<NCard
 				:class="{ 'absolute opacity-20': !hasAccessToManageAlerts }"
 				:title="t('sharedTexts.messages')"
 				size="small"
@@ -158,9 +156,9 @@ defineSlots<{
 
 				<p class="leading-7 [&:not(:first-child)]:mt-6" v-html="alertMessage" />
 
-				<n-alert v-if="!formValue[formKey]!.messages?.length" type="warning">
+				<NAlert v-if="!formValue[formKey]!.messages?.length" type="warning">
 					No messages
-				</n-alert>
+				</NAlert>
 
 				<ul v-else class="flex flex-col gap-3.5 p-0 mx-0 my-3.5">
 					<li
@@ -196,7 +194,7 @@ defineSlots<{
 						</div>
 					</li>
 				</ul>
-			</n-card>
+			</NCard>
 		</div>
 	</form>
 </template>

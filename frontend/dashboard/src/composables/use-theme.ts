@@ -1,21 +1,21 @@
-import { useColorMode } from '@vueuse/core';
+import { useColorMode } from '@vueuse/core'
 
 export type Theme = 'light' | 'dark'
 
-export const useTheme = (key?: string) => {
+export function useTheme(key?: string) {
 	const mode = useColorMode({
 		storage: localStorage,
 		storageKey: key ?? 'twirTheme',
-		initialValue: 'dark',
-	});
+		initialValue: 'dark'
+	})
 
 	return {
 		theme: mode,
 		toggleTheme: () => {
-			mode.value = mode.value === 'light' ? 'dark' : 'light';
+			mode.value = mode.value === 'light' ? 'dark' : 'light'
 		},
 		changeTheme: (newTheme: Theme) => {
-			mode.value = newTheme;
-		},
-	};
-};
+			mode.value = newTheme
+		}
+	}
+}

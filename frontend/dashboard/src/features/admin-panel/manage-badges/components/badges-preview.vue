@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 
-const props = defineProps<{ image: File | string }>();
+const props = defineProps<{ image: File | string }>()
 const imageSrc = computed(() => {
 	if (props.image instanceof File) {
-		return URL.createObjectURL(props.image);
+		return URL.createObjectURL(props.image)
 	}
 
-	return props.image;
-});
+	return props.image
+})
 
-const BADGE_SIZES = [144, 72, 36, 18];
+const BADGE_SIZES = [144, 72, 36, 18]
 </script>
 
 <template>

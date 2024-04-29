@@ -3,17 +3,18 @@ import {
 	IconArrowNarrowDown,
 	IconArrowNarrowUp,
 	IconPlus,
-	IconSquareCheck,
 	IconSquare,
-	IconTrash,
-} from '@tabler/icons-vue';
-import chunk from 'lodash.chunk';
+	IconSquareCheck,
+	IconTrash
+} from '@tabler/icons-vue'
+import chunk from 'lodash.chunk'
 import {
 	type FormInst,
 	type FormItemRule,
 	type FormRules,
 	NAlert,
 	NButton,
+	NButtonGroup,
 	NCard,
 	NDivider,
 	NDynamicInput,
@@ -25,105 +26,99 @@ import {
 	NInputGroup,
 	NInputGroupLabel,
 	NInputNumber,
+	NModal,
 	NSelect,
 	NSpace,
 	NSwitch,
-	NText,
-	NButtonGroup,
-	NTabs,
 	NTabPane,
+	NTabs,
 	NTag,
-	NModal,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NText
+} from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommandEdit } from '../composables/use-command-edit.js';
+import { useCommandEdit } from '../composables/use-command-edit.js'
 
-import { useCommandsGroupsApi } from '@/api/commands/commands-groups';
-import { useRolesManager } from '@/api/index.js';
-import TwitchCategorySearch from '@/components/twitch-category-search.vue';
-import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue';
-import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input';
-import VariableInput from '@/components/variable-input.vue';
+import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
+import { useRolesManager } from '@/api/index.js'
+import TwitchCategorySearch from '@/components/twitch-category-search.vue'
+import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue'
+import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
+import VariableInput from '@/components/variable-input.vue'
 
+const { t } = useI18n()
+const commandEdit = useCommandEdit()
+const { formValue, isOpened: isEditOpened } = storeToRefs(commandEdit)
 
-const { t } = useI18n();
-const commandEdit = useCommandEdit();
-const { formValue, isOpened: isEditOpened } = storeToRefs(commandEdit);
+const formRef = ref<FormInst | null>(null)
 
-const emits = defineEmits<{
-	close: []
-}>();
-
-const formRef = ref<FormInst | null>(null);
-
-const rolesManager = useRolesManager();
-const roles = rolesManager.getAll({});
+const rolesManager = useRolesManager()
+const roles = rolesManager.getAll({})
 const rolesSelectOptions = computed(() => {
-	if (!roles.data?.value) return [];
+	if (!roles.data?.value) return []
 	return roles.data.value.roles.map((role) => ({
 		label: role.name,
-		value: role.id,
-	}));
-});
+		value: role.id
+	}))
+})
 
-const commandsGroupsManager = useCommandsGroupsApi();
-const commandsGroups = commandsGroupsManager.useQueryGroups();
+const commandsGroupsManager = useCommandsGroupsApi()
+const commandsGroups = commandsGroupsManager.useQueryGroups()
 const commandsGroupsOptions = computed(() => {
-	if (!commandsGroups.data?.value) return [];
+	if (!commandsGroups.data?.value) return []
 	return commandsGroups.data.value.commandsGroups.map((group) => ({
 		label: group.name,
-		value: group.id,
-	}));
-});
+		value: group.id
+	}))
+})
 
-const nameValidator = (_: FormItemRule, value: string) => {
+function nameValidator(_: FormItemRule, value: string) {
 	if (!value) {
-		return new Error(t('commands.modal.name.validations.empty'));
+		return new Error(t('commands.modal.name.validations.empty'))
 	}
 	if (value.startsWith('!')) {
-		return new Error(t('commands.modal.name.validations.startsWith'));
+		return new Error(t('commands.modal.name.validations.startsWith'))
 	}
 	if (value.length > 25) {
-		return new Error(t('commands.modal.name.validations.len'));
+		return new Error(t('commands.modal.name.validations.len'))
 	}
-	return true;
-};
+	return true
+}
 const rules: FormRules = {
 	name: [{
 		trigger: ['input', 'blur'],
-		validator: nameValidator,
+		validator: nameValidator
 	}],
 	description: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length > 500) {
-				return new Error('Description cannot be longer than 500 characters');
+				return new Error('Description cannot be longer than 500 characters')
 			}
-			return true;
-		},
+			return true
+		}
 	},
 	responses: {
 		trigger: ['input', 'blur'],
 		validator: (_: FormItemRule, value: string) => {
 			if (value.length === 0) {
-				return new Error(t('commands.modal.responses.validations.empty'));
+				return new Error(t('commands.modal.responses.validations.empty'))
 			}
 			if (value.length > 500) {
-				return new Error(t('commands.modal.responses.validations.len'));
+				return new Error(t('commands.modal.responses.validations.len'))
 			}
-			return true;
-		},
-	},
-};
+			return true
+		}
+	}
+}
 
-const createButtonProps = { class: 'create-button' } as any;
+const createButtonProps = { class: 'create-button' } as any
 </script>
 
 <template>
-	<n-modal
+	<NModal
 		:show="isEditOpened"
 		:mask-closable="false"
 		:segmented="true"
@@ -138,22 +133,22 @@ const createButtonProps = { class: 'create-button' } as any;
 		content-style="padding: 5px;"
 	>
 		<div v-if="formValue" class="flex flex-col justify-between h-full">
-			<n-form ref="formRef" :model="formValue" :rules="rules" class="flex flex-col h-[95%] flex-grow">
-				<n-tabs class="h-full" type="line" animated placement="left" default-value="general">
-					<n-tab-pane name="general" tab="General">
+			<NForm ref="formRef" :model="formValue" :rules="rules" class="flex flex-col h-[95%] flex-grow">
+				<NTabs class="h-full" type="line" animated placement="left" default-value="general">
+					<NTabPane name="general" tab="General">
 						<div class="flex gap-2">
-							<n-form-item :label="t('commands.modal.name.label')" path="name" show-require-mark class="w-[90%]">
-								<n-input-group>
-									<n-input-group-label>!</n-input-group-label>
-									<n-input v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" :on-input="() => formValue!.name.startsWith('!') && (formValue!.name = formValue!.name.slice(1))" />
-								</n-input-group>
-							</n-form-item>
-							<n-form-item :label="t('sharedTexts.enabled')" path="enabled">
-								<n-switch v-model:value="formValue.enabled" />
-							</n-form-item>
+							<NFormItem :label="t('commands.modal.name.label')" path="name" show-require-mark class="w-[90%]">
+								<NInputGroup>
+									<NInputGroupLabel>!</NInputGroupLabel>
+									<NInput v-model:value="formValue.name" placeholder="Name of command" :maxlength="25" :on-input="() => formValue!.name.startsWith('!') && (formValue!.name = formValue!.name.slice(1))" />
+								</NInputGroup>
+							</NFormItem>
+							<NFormItem :label="t('sharedTexts.enabled')" path="enabled">
+								<NSwitch v-model:value="formValue.enabled" />
+							</NFormItem>
 						</div>
 
-						<n-form-item :label="t('commands.modal.aliases.label')" path="aliases">
+						<NFormItem :label="t('commands.modal.aliases.label')" path="aliases">
 							<TagsInput v-model="formValue.aliases" :max="25" class="bg-zinc-700 w-full">
 								<TagsInputItem v-for="item in formValue.aliases" :key="item" :value="item">
 									<TagsInputItemText />
@@ -162,20 +157,20 @@ const createButtonProps = { class: 'create-button' } as any;
 
 								<TagsInputInput placeholder="Write new aliase here..." />
 							</TagsInput>
-						</n-form-item>
+						</NFormItem>
 
-						<n-divider>
+						<NDivider>
 							{{ t('sharedTexts.responses') }}
-						</n-divider>
+						</NDivider>
 
-						<n-text>
+						<NText>
 							<i18n-t keypath="commands.modal.responses.description">
-								<n-tag>$(sender)</n-tag>
+								<NTag>$(sender)</NTag>
 							</i18n-t>
-						</n-text>
+						</NText>
 
 						<div v-if="formValue.module === 'CUSTOM'">
-							<n-dynamic-input
+							<NDynamicInput
 								v-if="formValue.module === 'CUSTOM'"
 								v-model:value="formValue.responses"
 								class="groups"
@@ -183,47 +178,47 @@ const createButtonProps = { class: 'create-button' } as any;
 								:create-button-props="createButtonProps"
 							>
 								<template #default="{ value, index }">
-									<n-form-item
+									<NFormItem
 										class="w-full"
 										:path="`responses[${index}].text`"
 										:rule="rules.responses"
 									>
-										<variable-input
+										<VariableInput
 											v-model="value.text"
 											inputType="textarea"
 											:minRows="3"
 											:maxRows="6"
 										/>
-									</n-form-item>
+									</NFormItem>
 								</template>
 
 								<template #action="{ index, remove, move }">
 									<div class="flex items-center ml-1 gap-x-1">
-										<n-button size="small" type="error" quaternary @click="() => remove(index)">
+										<NButton size="small" type="error" quaternary @click="() => remove(index)">
 											<IconTrash />
-										</n-button>
-										<n-button
+										</NButton>
+										<NButton
 											size="small"
 											type="info"
 											quaternary
-											:disabled="index == 0"
+											:disabled="index === 0"
 											@click="() => move('up', index)"
 										>
 											<IconArrowNarrowUp />
-										</n-button>
-										<n-button
+										</NButton>
+										<NButton
 											size="small"
 											type="info"
 											quaternary
-											:disabled="!!formValue.responses.length && index === formValue.responses.length-1"
+											:disabled="!!formValue.responses.length && index === formValue.responses.length - 1"
 											@click="() => move('down', index)"
 										>
 											<IconArrowNarrowDown />
-										</n-button>
+										</NButton>
 									</div>
 								</template>
-							</n-dynamic-input>
-							<n-button
+							</NDynamicInput>
+							<NButton
 								dashed
 								block
 								style="margin-top:10px"
@@ -232,21 +227,21 @@ const createButtonProps = { class: 'create-button' } as any;
 							>
 								<IconPlus />
 								{{ t('commands.modal.responses.add') }}
-							</n-button>
+							</NButton>
 						</div>
 
-						<n-alert v-else type="info" :show-icon="false">
+						<NAlert v-else type="info" :show-icon="false">
 							{{ t('commands.modal.responses.defaultWarning') }}
-						</n-alert>
-					</n-tab-pane>
-					<n-tab-pane name="permissions" :tab="t('commands.modal.permissions.divider')">
-						<n-form-item :label="t('commands.modal.permissions.name')" path="rolesIds">
+						</NAlert>
+					</NTabPane>
+					<NTabPane name="permissions" :tab="t('commands.modal.permissions.divider')">
+						<NFormItem :label="t('commands.modal.permissions.name')" path="rolesIds">
 							<div class="flex gap-1 flex-col">
-								<n-button-group
+								<NButtonGroup
 									v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 									:key="index"
 								>
-									<n-button
+									<NButton
 										v-for="option of group"
 										:key="option.value"
 										:type="formValue.rolesIds.includes(option.value) ? 'success' : 'default'"
@@ -254,7 +249,8 @@ const createButtonProps = { class: 'create-button' } as any;
 										@click="() => {
 											if (formValue!.rolesIds.includes(option.value)) {
 												formValue!.rolesIds = formValue!.rolesIds.filter(r => r !== option.value)
-											} else {
+											}
+											else {
 												formValue!.rolesIds.push(option.value)
 											}
 										}"
@@ -264,92 +260,91 @@ const createButtonProps = { class: 'create-button' } as any;
 											<IconSquare v-else />
 										</template>
 										{{ option.label }}
-									</n-button>
-								</n-button-group>
+									</NButton>
+								</NButtonGroup>
 							</div>
-						</n-form-item>
+						</NFormItem>
 
-
-						<n-form-item :label="t('commands.modal.permissions.deniedUsers')" path="deniedUsersIds">
-							<twitch-users-multiple
+						<NFormItem :label="t('commands.modal.permissions.deniedUsers')" path="deniedUsersIds">
+							<TwitchUsersMultiple
 								v-model="formValue.deniedUsersIds"
 								:initial-users-ids="formValue.deniedUsersIds"
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-form-item :label="t('commands.modal.permissions.allowedUsers')" path="allowedUsersIds">
-							<twitch-users-multiple
+						<NFormItem :label="t('commands.modal.permissions.allowedUsers')" path="allowedUsersIds">
+							<TwitchUsersMultiple
 								v-model="formValue.allowedUsersIds"
 								:initial-users-ids="formValue.allowedUsersIds"
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-divider>
+						<NDivider>
 							{{ t('commands.modal.restrictions.name') }}
-						</n-divider>
+						</NDivider>
 
-						<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-							<n-grid-item :span="1">
-								<n-form-item
+						<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+							<NGridItem :span="1">
+								<NFormItem
 									:label="t('commands.modal.restrictions.watchTime')"
 									path="requiredWatchTime"
 								>
-									<n-input-number
+									<NInputNumber
 										v-model:value="formValue.requiredWatchTime"
 										:min="0"
 										class="grid-stats-item"
 									/>
-								</n-form-item>
-							</n-grid-item>
+								</NFormItem>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-form-item
+							<NGridItem :span="1">
+								<NFormItem
 									:label="t('commands.modal.restrictions.messages')"
 									path="requiredMessages"
 								>
-									<n-input-number
+									<NInputNumber
 										v-model:value="formValue.requiredMessages"
 										:min="0"
 										class="grid-stats-item"
 									/>
-								</n-form-item>
-							</n-grid-item>
+								</NFormItem>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-form-item
+							<NGridItem :span="1">
+								<NFormItem
 									:label="t('commands.modal.restrictions.channelsPoints')"
 									path="requiredUsedChannelPoints"
 								>
-									<n-input-number
+									<NInputNumber
 										v-model:value="formValue.requiredUsedChannelPoints"
 										:min="0"
 										class="grid-stats-item"
 									/>
-								</n-form-item>
-							</n-grid-item>
-						</n-grid>
-					</n-tab-pane>
-					<n-tab-pane name="cooldown" :tab="t('commands.modal.cooldown.label')">
-						<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-							<n-grid-item :span="1">
-								<n-form-item
+								</NFormItem>
+							</NGridItem>
+						</NGrid>
+					</NTabPane>
+					<NTabPane name="cooldown" :tab="t('commands.modal.cooldown.label')">
+						<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
+							<NGridItem :span="1">
+								<NFormItem
 									:label="t('commands.modal.cooldown.value')"
 									path="cooldown"
 								>
-									<n-input-number
+									<NInputNumber
 										v-model:value="formValue.cooldown"
 										:min="0"
 										class="grid-stats-item"
 									/>
-								</n-form-item>
-							</n-grid-item>
+								</NFormItem>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-form-item
+							<NGridItem :span="1">
+								<NFormItem
 									:label="t('commands.modal.cooldown.type.name')"
 									path="cooldownType"
 								>
-									<n-select
+									<NSelect
 										v-model:value="formValue.cooldownType"
 										:options="[
 											{
@@ -358,20 +353,20 @@ const createButtonProps = { class: 'create-button' } as any;
 											},
 											{
 												label: t('commands.modal.cooldown.type.user'),
-												value: 'PER_USER'
+												value: 'PER_USER',
 											},
 										]"
 									/>
-								</n-form-item>
-							</n-grid-item>
-						</n-grid>
+								</NFormItem>
+							</NGridItem>
+						</NGrid>
 
 						<div class="flex flex-col gap-1">
-							<n-button-group
+							<NButtonGroup
 								v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 								:key="index"
 							>
-								<n-button
+								<NButton
 									v-for="option of group"
 									:key="option.value"
 									:type="formValue.cooldownRolesIds.includes(option.value) ? 'success' : 'default'"
@@ -379,7 +374,8 @@ const createButtonProps = { class: 'create-button' } as any;
 									@click="() => {
 										if (formValue!.cooldownRolesIds.includes(option.value)) {
 											formValue!.cooldownRolesIds = formValue!.cooldownRolesIds.filter(r => r !== option.value)
-										} else {
+										}
+										else {
 											formValue!.cooldownRolesIds.push(option.value)
 										}
 									}"
@@ -389,89 +385,89 @@ const createButtonProps = { class: 'create-button' } as any;
 										<IconSquare v-else />
 									</template>
 									{{ option.label }}
-								</n-button>
-							</n-button-group>
+								</NButton>
+							</NButtonGroup>
 						</div>
-					</n-tab-pane>
-					<n-tab-pane name="settings" :tab="t('commands.modal.settings.divider')">
-						<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
-							<n-grid-item :span="1">
-								<n-card class="h-full">
+					</NTabPane>
+					<NTabPane name="settings" :tab="t('commands.modal.settings.divider')">
+						<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
+							<NGridItem :span="1">
+								<NCard class="h-full">
 									<div class="settings-card-body">
-										<n-space vertical>
-											<n-text>{{ t("sharedTexts.reply.label") }}</n-text>
-											<n-text>{{ t("sharedTexts.reply.text") }}</n-text>
-										</n-space>
-										<n-switch v-model:value="formValue.isReply" />
+										<NSpace vertical>
+											<NText>{{ t("sharedTexts.reply.label") }}</NText>
+											<NText>{{ t("sharedTexts.reply.text") }}</NText>
+										</NSpace>
+										<NSwitch v-model:value="formValue.isReply" />
 									</div>
-								</n-card>
-							</n-grid-item>
+								</NCard>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-card class="h-full">
+							<NGridItem :span="1">
+								<NCard class="h-full">
 									<div class="settings-card-body">
-										<n-space vertical>
-											<n-text>{{ t('commands.modal.settings.visible.label') }}</n-text>
-											<n-text>{{ t('commands.modal.settings.visible.text') }}</n-text>
-										</n-space>
-										<n-switch v-model:value="formValue.visible" />
+										<NSpace vertical>
+											<NText>{{ t('commands.modal.settings.visible.label') }}</NText>
+											<NText>{{ t('commands.modal.settings.visible.text') }}</NText>
+										</NSpace>
+										<NSwitch v-model:value="formValue.visible" />
 									</div>
-								</n-card>
-							</n-grid-item>
+								</NCard>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-card class="h-full">
+							<NGridItem :span="1">
+								<NCard class="h-full">
 									<div class="settings-card-body">
-										<n-space vertical>
-											<n-text>{{ t('commands.modal.settings.keepOrder.label') }}</n-text>
-											<n-text>{{ t('commands.modal.settings.keepOrder.text') }}</n-text>
-										</n-space>
-										<n-switch v-model:value="formValue.keepResponsesOrder" />
+										<NSpace vertical>
+											<NText>{{ t('commands.modal.settings.keepOrder.label') }}</NText>
+											<NText>{{ t('commands.modal.settings.keepOrder.text') }}</NText>
+										</NSpace>
+										<NSwitch v-model:value="formValue.keepResponsesOrder" />
 									</div>
-								</n-card>
-							</n-grid-item>
+								</NCard>
+							</NGridItem>
 
-							<n-grid-item :span="1">
-								<n-card class="h-full">
+							<NGridItem :span="1">
+								<NCard class="h-full">
 									<div class="settings-card-body">
-										<n-space vertical>
-											<n-text>{{ t('commands.modal.settings.onlineOnly.label') }}</n-text>
-											<n-text>{{ t('commands.modal.settings.onlineOnly.text') }}</n-text>
-										</n-space>
-										<n-switch v-model:value="formValue.onlineOnly" />
+										<NSpace vertical>
+											<NText>{{ t('commands.modal.settings.onlineOnly.label') }}</NText>
+											<NText>{{ t('commands.modal.settings.onlineOnly.text') }}</NText>
+										</NSpace>
+										<NSwitch v-model:value="formValue.onlineOnly" />
 									</div>
-								</n-card>
-							</n-grid-item>
-						</n-grid>
+								</NCard>
+							</NGridItem>
+						</NGrid>
 
-						<n-divider>
+						<NDivider>
 							{{ t('commands.modal.settings.other.divider') }}
-						</n-divider>
+						</NDivider>
 
-						<n-form-item :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
-							<twitch-category-search v-model="formValue.enabledCategories" multiple />
-						</n-form-item>
+						<NFormItem :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
+							<TwitchCategorySearch v-model="formValue.enabledCategories" multiple />
+						</NFormItem>
 
-						<n-form-item :label="t('commands.modal.description.label')" path="description">
-							<n-input
+						<NFormItem :label="t('commands.modal.description.label')" path="description">
+							<NInput
 								v-model:value="formValue.description" placeholder="Description" type="textarea"
 								autosize
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-form-item :label="t('commands.modal.settings.other.commandGroup')" path="groupId">
-							<n-button v-if="!commandsGroupsOptions.length" secondary disabled>
+						<NFormItem :label="t('commands.modal.settings.other.commandGroup')" path="groupId">
+							<NButton v-if="!commandsGroupsOptions.length" secondary disabled>
 								No groups created
-							</n-button>
+							</NButton>
 							<div
 								v-else
 								class="flex flex-col gap-1"
 							>
-								<n-button-group
+								<NButtonGroup
 									v-for="(group, index) of chunk(commandsGroupsOptions.sort(), 4)"
 									:key="index"
 								>
-									<n-button
+									<NButton
 										v-for="option of group"
 										:key="option.value"
 										:type="formValue.groupId === option.value ? 'success' : 'default'"
@@ -479,7 +475,8 @@ const createButtonProps = { class: 'create-button' } as any;
 										@click="() => {
 											if (formValue!.groupId === option.value) {
 												formValue!.groupId = undefined
-											} else {
+											}
+											else {
 												formValue!.groupId = option.value
 											}
 										}"
@@ -489,20 +486,19 @@ const createButtonProps = { class: 'create-button' } as any;
 											<IconSquare v-else />
 										</template>
 										{{ option.label }}
-									</n-button>
-								</n-button-group>
+									</NButton>
+								</NButtonGroup>
 							</div>
-						</n-form-item>
-					</n-tab-pane>
-				</n-tabs>
-			</n-form>
+						</NFormItem>
+					</NTabPane>
+				</NTabs>
+			</NForm>
 
-
-			<n-button class="mt-2" secondary type="success" block @click="commandEdit.save">
+			<NButton class="mt-2" secondary type="success" block @click="commandEdit.save">
 				{{ t('sharedButtons.save') }}
-			</n-button>
+			</NButton>
 		</div>
-	</n-modal>
+	</NModal>
 </template>
 
 <style scoped>

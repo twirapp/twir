@@ -1,27 +1,27 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
-import { useNotificationsFilters } from '../composables/use-notifications-filters.js';
+import { useNotificationsFilters } from '../composables/use-notifications-filters.js'
 
-import SearchBar from '@/components/search-bar.vue';
+import SearchBar from '@/components/search-bar.vue'
 import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { NotificationType } from '@/gql/graphql.js';
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/components/ui/select'
+import { NotificationType } from '@/gql/graphql.js'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const filters = useNotificationsFilters();
+const filters = useNotificationsFilters()
 </script>
 
 <template>
-	<div class="flex gap-2 max-lg:w-full">
-		<search-bar v-model="filters.searchInput" />
+	<div class="flex gap-2 max-sm:w-full">
+		<SearchBar v-model="filters.searchInput" />
 		<Select v-model="filters.filterInput">
 			<SelectTrigger class="h-9 w-[120px]">
 				<SelectValue />

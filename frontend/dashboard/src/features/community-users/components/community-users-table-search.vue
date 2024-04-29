@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { Settings2 } from 'lucide-vue-next';
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { Settings2Icon } from 'lucide-vue-next'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommunityTableActions } from '../composables/use-community-table-actions.js';
-import { TABLE_ACCESSOR_KEYS, useCommunityUsersTable } from '../composables/use-community-users-table.js';
+import { useCommunityTableActions } from '../composables/use-community-table-actions.js'
+import { TABLE_ACCESSOR_KEYS, useCommunityUsersTable } from '../composables/use-community-users-table.js'
 
-import SearchBar from '@/components/search-bar.vue';
-import { Button } from '@/components/ui/button';
+import SearchBar from '@/components/search-bar.vue'
+import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
-const { t } = useI18n();
-const communityTableActions = useCommunityTableActions();
-const communityUsersTable = useCommunityUsersTable();
+const { t } = useI18n()
+const communityTableActions = useCommunityTableActions()
+const communityUsersTable = useCommunityUsersTable()
 
 // TODO: column labels
 const columns = computed(() => {
@@ -27,15 +27,17 @@ const columns = computed(() => {
 		.getAllColumns()
 		.filter(column => {
 			if (column.id !== TABLE_ACCESSOR_KEYS.user) {
-				return typeof column.accessorFn !== 'undefined' && column.getCanHide();
+				return typeof column.accessorFn !== 'undefined' && column.getCanHide()
 			}
-		});
-});
+
+			return false
+		})
+})
 </script>
 
 <template>
 	<div class="flex gap-2">
-		<search-bar
+		<SearchBar
 			v-model="communityTableActions.searchInput"
 			:placeholder="t('community.users.searchPlaceholder')"
 		/>
@@ -46,7 +48,7 @@ const columns = computed(() => {
 					size="sm"
 					class="flex ml-auto h-9"
 				>
-					<Settings2 class="mr-2 h-4 w-4" />
+					<Settings2Icon class="mr-2 h-4 w-4" />
 					{{ t('sharedTexts.view') }}
 				</Button>
 			</DropdownMenuTrigger>

@@ -1,14 +1,12 @@
-import { useQueryClient } from '@tanstack/vue-query';
-import { createRequest, useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
-import { computed } from 'vue';
+import { useQueryClient } from '@tanstack/vue-query'
+import { createRequest, useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
+import { computed } from 'vue'
 
-import { useMutation } from '@/composables/use-mutation';
-import { useMutation as _useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
-import { ChannelRolePermissionEnum } from '@/gql/graphql.js';
-import { urqlClient, useUrqlClient } from '@/plugins/urql.js';
-
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql'
+import { ChannelRolePermissionEnum } from '@/gql/graphql.js'
+import { urqlClient, useUrqlClient } from '@/plugins/urql.js'
 
 export const profileQuery = createRequest(graphql(`
 	query AuthenticatedUser {
@@ -44,9 +42,9 @@ export const profileQuery = createRequest(graphql(`
 			}
 		}
 	}
-`), {});
+`), {})
 
-export const userInvalidateQueryKey = 'UserInvalidateQueryKey';
+export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
 
 export const useProfile = defineStore('auth/profile', () => {
 	const { data: response, executeQuery, fetching } = useQuery({
@@ -55,13 +53,13 @@ export const useProfile = defineStore('auth/profile', () => {
 		},
 		context: {
 			key: profileQuery.key,
-			additionalTypenames: [userInvalidateQueryKey],
-		},
-	});
+			additionalTypenames: [userInvalidateQueryKey]
+		}
+	})
 
 	const computedUser = computed(() => {
-		const user = response.value?.authenticatedUser;
-		if (!user) return null;
+		const user = response.value?.authenticatedUser
+		if (!user) return null
 
 		return {
 			id: user.id,
@@ -77,33 +75,33 @@ export const useProfile = defineStore('auth/profile', () => {
 			selectedDashboardId: user.selectedDashboardId,
 			selectedDashboardTwitchUser: user.selectedDashboardTwitchUser,
 			hideOnLandingPage: user.hideOnLandingPage,
-			availableDashboards: user.availableDashboards,
-		};
-	});
+			availableDashboards: user.availableDashboards
+		}
+	})
 
-	return { data: computedUser, executeQuery, isLoading: fetching };
-});
+	return { data: computedUser, executeQuery, isLoading: fetching }
+})
 
-export const useLogout = () => {
+export function useLogout() {
 	const { executeMutation } = useMutation(graphql(`
 		mutation userLogout {
 			logout
 		}
-	`));
+	`))
 
 	async function execute() {
-		const result = await executeMutation({});
-		if (result.error) throw new Error(result.error.toString());
-		window.location.replace('/');
+		const result = await executeMutation({})
+		if (result.error) throw new Error(result.error.toString())
+		window.location.replace('/')
 	}
 
 	return {
-		execute,
-	};
-};
+		execute
+	}
+}
 
 export const useUserSettings = defineStore('userSettings', () => {
-	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey';
+	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
 
 	const usePublicQuery = () => useQuery({
 		query: graphql(`
@@ -119,61 +117,60 @@ export const useUserSettings = defineStore('userSettings', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [userPublicSettingsInvalidateKey],
-		},
-	});
+			additionalTypenames: [userPublicSettingsInvalidateKey]
+		}
+	})
 
 	const usePublicMutation = () => useMutation(graphql(`
 		mutation userPublicSettingsUpdate($opts: UserUpdatePublicSettingsInput!) {
 			authenticatedUserUpdatePublicPage(opts: $opts)
 		}
-	`), [userPublicSettingsInvalidateKey]);
+	`), [userPublicSettingsInvalidateKey])
 
 	const useApiKeyGenerateMutation = () => useMutation(graphql(`
 		mutation userRegenerateApiKey {
 			authenticatedUserRegenerateApiKey
 		}
-	`), [userInvalidateQueryKey]);
+	`), [userInvalidateQueryKey])
 
 	const useUserUpdateMutation = () => useMutation(graphql(`
 		mutation userUpdateSettings($opts: UserUpdateSettingsInput!) {
 			authenticatedUserUpdateSettings(opts: $opts)
 		}
-	`), [userInvalidateQueryKey, userPublicSettingsInvalidateKey]);
+	`), [userInvalidateQueryKey, userPublicSettingsInvalidateKey])
 
 	return {
 		usePublicQuery,
 		usePublicMutation,
 		useApiKeyGenerateMutation,
-		useUserUpdateMutation,
-	};
-});
-
+		useUserUpdateMutation
+	}
+})
 
 export const useDashboard = defineStore('auth/dashboard', () => {
-	const urqlClient = useUrqlClient();
+	const urqlClient = useUrqlClient()
 
-	const mutationSetDashboard = _useMutation(graphql(`
+	const mutationSetDashboard = useMutation(graphql(`
 		mutation SetDashboard($dashboardId: String!) {
 			authenticatedUserSelectDashboard(dashboardId: $dashboardId)
 		}
-	`));
+	`))
 
-	const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
 	async function setDashboard(dashboardId: string) {
-		await mutationSetDashboard.executeMutation({ dashboardId });
-		urqlClient.reInitClient();
-		await queryClient.invalidateQueries();
-		await queryClient.resetQueries();
+		await mutationSetDashboard.executeMutation({ dashboardId })
+		urqlClient.reInitClient()
+		await queryClient.invalidateQueries()
+		await queryClient.resetQueries()
 	}
 
 	return {
-		setDashboard,
-	};
-});
+		setDashboard
+	}
+})
 
-type Flag = { perm: ChannelRolePermissionEnum, description: string } | 'delimiter';
+type Flag = { perm: ChannelRolePermissionEnum, description: string } | 'delimiter'
 
 export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.CanAccessDashboard, description: 'All permissions' },
@@ -218,43 +215,43 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.ManageAlerts, description: 'Can manage alerts' },
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewGames, description: 'Can view games' },
-	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' },
-];
+	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' }
+]
 
-export const useUserAccessFlagChecker = (flag: ChannelRolePermissionEnum) => {
-	const profile = useProfile();
+export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
+	const profile = useProfile()
 
 	return computed(() => {
-		if (!profile.data?.availableDashboards || !profile.data?.selectedDashboardId) return false;
+		if (!profile.data?.availableDashboards || !profile.data?.selectedDashboardId) return false
 
-		if (profile.data.id == profile.data.selectedDashboardId) {
-			return true;
+		if (profile.data.id === profile.data.selectedDashboardId) {
+			return true
 		}
 
-		if (profile.data.isBotAdmin) return true;
+		if (profile.data.isBotAdmin) return true
 
 		const dashboard = profile.data?.availableDashboards.find(dashboard => {
-			return dashboard.id === profile.data?.selectedDashboardId;
-		});
-		if (!dashboard) return false;
+			return dashboard.id === profile.data?.selectedDashboardId
+		})
+		if (!dashboard) return false
 
-		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
-		return dashboard.flags.includes(flag);
-	});
-};
+		if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
+		return dashboard.flags.includes(flag)
+	})
+}
 
-export const userAccessFlagChecker = async (flag: ChannelRolePermissionEnum) => {
-	const { data: profile } = await urqlClient.value.executeQuery(profileQuery);
+export async function userAccessFlagChecker(flag: ChannelRolePermissionEnum) {
+	const { data: profile } = await urqlClient.value.executeQuery(profileQuery)
 
-	if (profile?.authenticatedUser.isBotAdmin) return true;
-	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false;
-	if (profile.authenticatedUser.selectedDashboardId == profile.authenticatedUser.id) return true;
+	if (profile?.authenticatedUser.isBotAdmin) return true
+	if (!profile || !profile?.authenticatedUser.selectedDashboardId) return false
+	if (profile.authenticatedUser.selectedDashboardId === profile.authenticatedUser.id) return true
 
 	const dashboard = profile.authenticatedUser.availableDashboards.find(dashboard => {
-		return dashboard.id === profile.authenticatedUser.selectedDashboardId;
-	});
-	if (!dashboard) return false;
+		return dashboard.id === profile.authenticatedUser.selectedDashboardId
+	})
+	if (!dashboard) return false
 
-	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true;
-	return dashboard.flags.includes(flag);
-};
+	if (dashboard.flags.includes(ChannelRolePermissionEnum.CanAccessDashboard)) return true
+	return dashboard.flags.includes(flag)
+}
