@@ -27,8 +27,3 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 
 	return true, nil
 }
-
-// DropUserAuthSession is the resolver for the dropUserAuthSession field.
-func (r *mutationResolver) DropUserAuthSession(ctx context.Context, userID string) (bool, error) {
-	panic(fmt.Errorf("not implemented: DropUserAuthSession - dropUserAuthSession"))
-}

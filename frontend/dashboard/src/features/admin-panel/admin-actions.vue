@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import { useAdminActions } from '@/api/admin/actions'
+import { useMutationDropAllAuthSessions } from '@/api/admin/actions.js'
 import { Button } from '@/components/ui/button'
 
 const { t } = useI18n()
-const adminActions = useAdminActions()
-const dropAllAuthSessions = adminActions.useMutationDropAllAuthSessions()
+const dropAllAuthSessions = useMutationDropAllAuthSessions()
 
 function onDropSessions() {
 	// TODO: use confirm dialog from shadcn

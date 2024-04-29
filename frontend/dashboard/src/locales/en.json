@@ -943,7 +943,7 @@
 			"unBan": "Unban user",
 			"giveMod": "Give admin",
 			"unMod": "Remove admin",
-			"dropSession": "Drop session",
+			"dropSession": "Drop session"
 		},
 		"manageBadges": {
 			"title": "Badges",
@@ -959,7 +959,7 @@
 		"adminActions": {
 			"title": "Actions",
 			"dropAllSession": "Drop all sessions",
-			"dropAllSessionConfirm": "Are you sure you want to drop all sessions?",
+			"dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
 		}
 	}
 }

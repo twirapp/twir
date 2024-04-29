@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { BanIcon, LogOutIcon, SwordIcon, WrenchIcon } from 'lucide-vue-next'
+import { BanIcon, SwordIcon, WrenchIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useUsers } from '../composables/use-users.js'
 
-import { useAdminActions } from '@/api/admin/actions.js'
 import { Button } from '@/components/ui/button'
 import {
 	DropdownMenu,
@@ -21,9 +20,6 @@ defineProps<{
 
 const { t } = useI18n()
 const { switchBan, switchAdmin } = useUsers()
-
-const adminActions = useAdminActions()
-const dropAuthSession = adminActions.useMutationDropUserAuthSession()
 </script>
 
 <template>
@@ -34,11 +30,6 @@ const dropAuthSession = adminActions.useMutationDropUserAuthSession()
 			</Button>
 		</DropdownMenuTrigger>
 		<DropdownMenuContent align="end">
-			<DropdownMenuItem @click="dropAuthSession.executeMutation({ userId })">
-				<LogOutIcon class="mr-2 h-4 w-4" />
-				<span>{{ t('adminPanel.manageUsers.dropSession') }}</span>
-			</DropdownMenuItem>
-
 			<DropdownMenuItem @click="switchAdmin.executeMutation({ userId })">
 				<SwordIcon class="mr-2 h-4 w-4" />
 				<span>{{ isBotAdmin ? t('adminPanel.manageUsers.unMod') : t('adminPanel.manageUsers.giveMod') }}</span>
