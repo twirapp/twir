@@ -11,7 +11,7 @@ extend type Mutation {
 type Greeting {
 	id: ID!
 	userId: String!
-twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	enabled: Boolean!
 	isReply: Boolean!
 	text: String!
