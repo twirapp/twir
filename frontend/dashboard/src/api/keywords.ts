@@ -1,9 +1,10 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
 
-import { useMutation } from '@/composables/use-mutation';
-import { graphql } from '@/gql';
-import type { GetAllKeywordsQuery } from '@/gql/graphql';
+import type { GetAllKeywordsQuery } from '@/gql/graphql.js'
+
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
 export type KeywordResponse = GetAllKeywordsQuery['keywords'][0]
 export type Keyword = Omit<KeywordResponse, 'id' | 'response'> & {
@@ -11,7 +12,7 @@ export type Keyword = Omit<KeywordResponse, 'id' | 'response'> & {
 	response: string
 }
 
-const invalidateKey = 'KeywordsInvalidateKey';
+const invalidateKey = 'KeywordsInvalidateKey'
 
 export const useKeywordsApi = defineStore('api/keywords', () => {
 	const useQueryKeywords = () => useQuery({
@@ -30,8 +31,8 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 					usageCount
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const useMutationCreateKeyword = () => useMutation(graphql(`
 		mutation CreateKeyword($opts: KeywordCreateInput!) {
@@ -39,7 +40,7 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 				id
 			}
 		}
-	`), [invalidateKey]);
+	`), [invalidateKey])
 
 	const useMutationUpdateKeyword = () => useMutation(graphql(`
 		mutation UpdateKeyword($id: String!, $opts: KeywordUpdateInput!) {
@@ -47,18 +48,18 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 				id
 			}
 		}
-	`), [invalidateKey]);
+	`), [invalidateKey])
 
 	const useMutationRemoveKeyword = () => useMutation(graphql(`
 		mutation RemoveKeyword($id: String!) {
 			keywordRemove(id: $id)
 		}
-	`), [invalidateKey]);
+	`), [invalidateKey])
 
 	return {
 		useQueryKeywords,
 		useMutationCreateKeyword,
 		useMutationUpdateKeyword,
-		useMutationRemoveKeyword,
-	};
-});
+		useMutationRemoveKeyword
+	}
+})

@@ -1,10 +1,10 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
 
-import { useMutation } from '@/composables/use-mutation';
-import { graphql } from '@/gql';
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
-export const invalidationKey = 'CommandsInvalidateKey';
+export const invalidationKey = 'CommandsInvalidateKey'
 
 export const useCommandsApi = defineStore('api/commands', () => {
 	const useQueryCommands = () => useQuery({
@@ -48,10 +48,10 @@ export const useCommandsApi = defineStore('api/commands', () => {
 			}
 		`),
 		context: {
-			additionalTypenames: [invalidationKey],
+			additionalTypenames: [invalidationKey]
 		},
-		variables: {},
-	});
+		variables: {}
+	})
 
 	const useMutationDeleteCommand = () => useMutation(
 		graphql(`
@@ -59,8 +59,8 @@ export const useCommandsApi = defineStore('api/commands', () => {
 				commandsRemove(id: $id)
 			}
 		`),
-		[invalidationKey],
-	);
+		[invalidationKey]
+	)
 
 	const useMutationCreateCommand = () => useMutation(
 		graphql(`
@@ -68,8 +68,8 @@ export const useCommandsApi = defineStore('api/commands', () => {
 				commandsCreate(opts: $opts)
 			}
 		`),
-		[invalidationKey],
-	);
+		[invalidationKey]
+	)
 
 	const useMutationUpdateCommand = () => useMutation(
 		graphql(`
@@ -77,13 +77,13 @@ export const useCommandsApi = defineStore('api/commands', () => {
 				commandsUpdate(id: $id, opts: $opts)
 			}
 		`),
-		[invalidationKey],
-	);
+		[invalidationKey]
+	)
 
 	return {
 		useQueryCommands,
 		useMutationDeleteCommand,
 		useMutationCreateCommand,
-		useMutationUpdateCommand,
-	};
-});
+		useMutationUpdateCommand
+	}
+})

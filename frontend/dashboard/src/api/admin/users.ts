@@ -1,23 +1,24 @@
-import { useQuery } from '@urql/vue';
-import type { Ref } from 'vue';
+import { useQuery } from '@urql/vue'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
-import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql';
+import type { TwirUsersSearchParams, UsersGetAllQuery } from '@/gql/graphql'
+import type { Ref } from 'vue'
+
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql'
 
 export type User = UsersGetAllQuery['twirUsers']['users'][0]
 
-const invalidationKey = 'AdminUsersInvalidateKey';
+const invalidationKey = 'AdminUsersInvalidateKey'
 
-export const useAdminUsers = () => {
+export function useAdminUsers() {
 	const useQueryUsers = (variables: Ref<TwirUsersSearchParams>) => useQuery({
 		context: {
-			additionalTypenames: [invalidationKey],
+			additionalTypenames: [invalidationKey]
 		},
 		get variables() {
 			return {
-				opts: variables.value,
-			};
+				opts: variables.value
+			}
 		},
 		query: graphql(`
 			query UsersGetAll($opts: TwirUsersSearchParams!) {
@@ -36,24 +37,24 @@ export const useAdminUsers = () => {
 					}
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const useMutationUserSwitchBan = () => useMutation(graphql(`
 		mutation UserSwitchBan($userId: ID!) {
 			switchUserBan(userId: $userId)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUserSwitchAdmin = () => useMutation(graphql(`
 		mutation UserSwitchAdmin($userId: ID!) {
 			switchUserAdmin(userId: $userId)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		useQueryUsers,
 		useMutationUserSwitchBan,
-		useMutationUserSwitchAdmin,
-	};
-};
+		useMutationUserSwitchAdmin
+	}
+}

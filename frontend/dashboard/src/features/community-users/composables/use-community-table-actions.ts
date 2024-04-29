@@ -1,48 +1,49 @@
-import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table';
-import { refDebounced, useLocalStorage } from '@vueuse/core';
-import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { refDebounced, useLocalStorage } from '@vueuse/core'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
-import { TABLE_ACCESSOR_KEYS } from './use-community-users-table';
+import { TABLE_ACCESSOR_KEYS } from './use-community-users-table.js'
 
-import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql';
+import type { ColumnFiltersState, SortingState, VisibilityState } from '@tanstack/vue-table'
 
-const COLUMN_VISIBLE_STORAGE_KEY = 'twirCommunityUsersColumnVisibility';
+import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql.js'
+
+const COLUMN_VISIBLE_STORAGE_KEY = 'twirCommunityUsersColumnVisibility'
 
 export const useCommunityTableActions = defineStore('features/community-table-actions', () => {
-	const searchInput = ref('');
-	const debouncedSearchInput = refDebounced<string>(searchInput, 500);
+	const searchInput = ref('')
+	const debouncedSearchInput = refDebounced<string>(searchInput, 500)
 
 	const sorting = ref<SortingState>([
 		{
 			desc: true,
-			id: TABLE_ACCESSOR_KEYS.watchedMs, // accessorKey
-		},
-	]);
-	const columnFilters = ref<ColumnFiltersState>([]);
-	const columnVisibility = useLocalStorage<VisibilityState>(COLUMN_VISIBLE_STORAGE_KEY, {});
-	const rowSelection = ref({});
+			id: TABLE_ACCESSOR_KEYS.watchedMs // accessorKey
+		}
+	])
+	const columnFilters = ref<ColumnFiltersState>([])
+	const columnVisibility = useLocalStorage<VisibilityState>(COLUMN_VISIBLE_STORAGE_KEY, {})
+	const rowSelection = ref({})
 
 	const tableOrder = computed(() => {
 		return sorting.value[0].desc
 			? CommunityUsersOrder.Desc
-			: CommunityUsersOrder.Asc;
-	});
+			: CommunityUsersOrder.Asc
+	})
 
 	const tableSortBy = computed(() => {
-		const sortingItem = sorting.value[0];
+		const sortingItem = sorting.value[0]
 		switch (sortingItem.id) {
 			case TABLE_ACCESSOR_KEYS.messages:
-				return CommunityUsersSortBy.Messages;
+				return CommunityUsersSortBy.Messages
 			case TABLE_ACCESSOR_KEYS.usedEmotes:
-				return CommunityUsersSortBy.UsedEmotes;
+				return CommunityUsersSortBy.UsedEmotes
 			case TABLE_ACCESSOR_KEYS.usedChannelPoints:
-				return CommunityUsersSortBy.UsedChannelsPoints;
+				return CommunityUsersSortBy.UsedChannelsPoints
 			case TABLE_ACCESSOR_KEYS.watchedMs:
 			default:
-				return CommunityUsersSortBy.Watched;
+				return CommunityUsersSortBy.Watched
 		}
-	});
+	})
 
 	return {
 		searchInput,
@@ -54,6 +55,6 @@ export const useCommunityTableActions = defineStore('features/community-table-ac
 		sorting,
 		columnFilters,
 		columnVisibility,
-		rowSelection,
-	};
-});
+		rowSelection
+	}
+})

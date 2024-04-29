@@ -6,6 +6,7 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
 	"github.com/nicklaw5/helix/v2"
+	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
@@ -32,6 +33,7 @@ type Resolver struct {
 	subscriptionsStore *subscriptions_store.SubscriptionsStore
 	twirBus            *bus_core.Bus
 	logger             logger.Logger
+	redis              *redis.Client
 }
 
 type Opts struct {
@@ -46,6 +48,7 @@ type Opts struct {
 	SubscriptionsStore *subscriptions_store.SubscriptionsStore
 	TwirBus            *bus_core.Bus
 	Logger             logger.Logger
+	Redis              *redis.Client
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -64,6 +67,7 @@ func New(opts Opts) (*Resolver, error) {
 		subscriptionsStore: opts.SubscriptionsStore,
 		twirBus:            opts.TwirBus,
 		logger:             opts.Logger,
+		redis:              opts.Redis,
 	}, nil
 }
 

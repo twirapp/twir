@@ -1,13 +1,14 @@
-import { useQuery } from '@urql/vue';
-import { defineStore } from 'pinia';
+import { useQuery } from '@urql/vue'
+import { defineStore } from 'pinia'
 
-import { useMutation } from '@/composables/use-mutation.js';
-import { graphql } from '@/gql';
-import type { GetAllGreetingsQuery } from '@/gql/graphql';
+import type { GetAllGreetingsQuery } from '@/gql/graphql.js'
+
+import { useMutation } from '@/composables/use-mutation.js'
+import { graphql } from '@/gql/gql.js'
 
 export type Greetings = GetAllGreetingsQuery['greetings'][0]
 
-const invalidationKey = 'GreetingsInvalidateKey';
+const invalidationKey = 'GreetingsInvalidateKey'
 
 export const useGreetingsApi = defineStore('api/greetings', () => {
 	const useQueryGreetings = () => useQuery({
@@ -28,8 +29,8 @@ export const useGreetingsApi = defineStore('api/greetings', () => {
 					}
 				}
 			}
-		`),
-	});
+		`)
+	})
 
 	const useMutationCreateGreetings = () => useMutation(graphql(`
 		mutation CreateGreetings($opts: GreetingsCreateInput!) {
@@ -37,7 +38,7 @@ export const useGreetingsApi = defineStore('api/greetings', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationUpdateGreetings = () => useMutation(graphql(`
 		mutation UpdateGreetings($id: String!, $opts: GreetingsUpdateInput!) {
@@ -45,18 +46,18 @@ export const useGreetingsApi = defineStore('api/greetings', () => {
 				id
 			}
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	const useMutationRemoveGreetings = () => useMutation(graphql(`
 		mutation RemoveGreetings($id: String!) {
 			greetingsRemove(id: $id)
 		}
-	`), [invalidationKey]);
+	`), [invalidationKey])
 
 	return {
 		useQueryGreetings,
 		useMutationCreateGreetings,
 		useMutationUpdateGreetings,
-		useMutationRemoveGreetings,
-	};
-});
+		useMutationRemoveGreetings
+	}
+})

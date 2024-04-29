@@ -1,28 +1,28 @@
 <script setup lang="ts">
-import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next';
-import { NCard, NTime } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { useI18n } from 'vue-i18n';
+import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next'
+import { NCard, NTime } from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
-import BadgesPreview from './badges-preview.vue';
-import { useBadgesActions } from '../composables/use-badges-actions.js';
-import { useBadges } from '../composables/use-badges.js';
+import BadgesPreview from './badges-preview.vue'
+import { useBadgesActions } from '../composables/use-badges-actions.js'
+import { useBadges } from '../composables/use-badges.js'
 
-import { Badge as UiBadge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import DeleteConfirm from '@/components/ui/delete-confirm.vue';
+import { Badge as UiBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
 	DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu';
+	DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const { badges } = storeToRefs(useBadges());
-const badgesActions = useBadgesActions();
+const { badges } = storeToRefs(useBadges())
+const badgesActions = useBadgesActions()
 </script>
 
 <template>
@@ -31,7 +31,7 @@ const badgesActions = useBadgesActions();
 	</h4>
 
 	<div class="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full">
-		<n-card
+		<NCard
 			v-for="badge of badges"
 			:key="badge.id"
 			:title="badge.name"
@@ -75,33 +75,33 @@ const badgesActions = useBadgesActions();
 				</DropdownMenu>
 			</template>
 			<div class="flex flex-col gap-3">
-				<badges-preview :image="badge.fileUrl" />
+				<BadgesPreview :image="badge.fileUrl" />
 				<div class="flex flex-wrap gap-2">
-					<ui-badge :variant="badge.enabled ? 'secondary' : 'destructive'">
+					<UiBadge :variant="badge.enabled ? 'secondary' : 'destructive'">
 						<template v-if="badge.enabled">
 							{{ t('sharedTexts.enabled') }}
 						</template>
 						<template v-else>
 							{{ t('sharedTexts.disabled') }}
 						</template>
-					</ui-badge>
-					<ui-badge variant="secondary">
+					</UiBadge>
+					<UiBadge variant="secondary">
 						{{ t('adminPanel.manageBadges.usesCount', { count: badge.users?.length ?? 0 }) }}
-					</ui-badge>
-					<ui-badge variant="secondary">
+					</UiBadge>
+					<UiBadge variant="secondary">
 						{{ t('adminPanel.manageBadges.badgeSlot', { slot: badge.ffzSlot }) }}
-					</ui-badge>
-					<ui-badge variant="secondary">
+					</UiBadge>
+					<UiBadge variant="secondary">
 						<span>
-							Created <n-time :to="new Date(badge.createdAt)" format="dd.MM.yyyy HH:mm:ss" type="datetime" />
+							Created <NTime :to="new Date(badge.createdAt)" format="dd.MM.yyyy HH:mm:ss" type="datetime" />
 						</span>
-					</ui-badge>
+					</UiBadge>
 				</div>
 			</div>
-		</n-card>
+		</NCard>
 	</div>
 
-	<delete-confirm
+	<DeleteConfirm
 		v-model:open="badgesActions.isShowModalDelete"
 		@confirm="badgesActions.deleteBadge()"
 	/>

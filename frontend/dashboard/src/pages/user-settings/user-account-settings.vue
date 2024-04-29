@@ -1,44 +1,44 @@
 <script setup lang="ts">
-import { IconRefresh } from '@tabler/icons-vue';
-import { NButton, NCard, NFormItem, NInput, NSwitch, NText } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { useI18n } from 'vue-i18n';
+import { IconRefresh } from '@tabler/icons-vue'
+import { NButton, NCard, NFormItem, NInput, NSwitch, NText } from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
-import { useProfile, useUserSettings } from '@/api';
-import { useToast } from '@/components/ui/toast';
+import { useProfile, useUserSettings } from '@/api'
+import { useToast } from '@/components/ui/toast'
 
-const { data: profile } = storeToRefs(useProfile());
+const { data: profile } = storeToRefs(useProfile())
 
-const userManager = useUserSettings();
-const updateUser = userManager.useUserUpdateMutation();
-const regenerateUserApiKey = userManager.useApiKeyGenerateMutation();
+const userManager = useUserSettings()
+const updateUser = userManager.useUserUpdateMutation()
+const regenerateUserApiKey = userManager.useApiKeyGenerateMutation()
 
-const { t } = useI18n();
-const toast = useToast();
+const { t } = useI18n()
+const toast = useToast()
 
 async function changeLandingVisibility() {
-	if (!profile.value) return;
+	if (!profile.value) return
 
 	await updateUser.executeMutation({
 		opts: {
-			hideOnLandingPage: !profile.value.hideOnLandingPage,
-		},
-	});
+			hideOnLandingPage: !profile.value.hideOnLandingPage
+		}
+	})
 
 	toast.toast({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
-		variant: 'success',
-	});
+		variant: 'success'
+	})
 }
 
 async function callRegenerateKey() {
-	await regenerateUserApiKey.executeMutation({});
+	await regenerateUserApiKey.executeMutation({})
 
 	toast.toast({
 		title: t('sharedTexts.saved'),
-		variant: 'success',
-	});
+		variant: 'success'
+	})
 }
 </script>
 
@@ -48,16 +48,16 @@ async function callRegenerateKey() {
 			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 				Private
 			</h4>
-			<n-card size="small" bordered>
+			<NCard size="small" bordered>
 				<div class="flex gap-3">
-					<n-text>{{ t('userSettings.account.showMeOnLanding') }}</n-text>
-					<n-switch
+					<NText>{{ t('userSettings.account.showMeOnLanding') }}</NText>
+					<NSwitch
 						:value="!profile?.hideOnLandingPage"
 						:disabled="updateUser.fetching.value"
 						@update-value="changeLandingVisibility"
 					/>
 				</div>
-			</n-card>
+			</NCard>
 		</div>
 
 		<div class="flex flex-col gap-6">
@@ -65,28 +65,28 @@ async function callRegenerateKey() {
 				Api
 			</h4>
 
-			<n-card size="small" bordered>
-				<n-form-item label="Key">
+			<NCard size="small" bordered>
+				<NFormItem label="Key">
 					<div class="flex gap-1 w-full flex-wrap">
-						<n-input
+						<NInput
 							type="password"
 							show-password-on="click"
 							:value="profile?.apiKey"
 							:maxlength="8"
 							class="flex-1"
 						/>
-						<n-button secondary type="warning" class="min-w-[150px] sm:w-full" @click="callRegenerateKey">
+						<NButton secondary type="warning" class="min-w-[150px] sm:w-full" @click="callRegenerateKey">
 							<div class="flex items-center gap-1">
 								<IconRefresh class="h-5 w-5" />
 								{{ t('userSettings.account.regenerateApiKey.button') }}
 							</div>
-						</n-button>
+						</NButton>
 					</div>
-				</n-form-item>
-				<n-text class="text-sx" depth="3">
+				</NFormItem>
+				<NText class="text-sx" depth="3">
 					{{ t('userSettings.account.regenerateApiKey.info') }}
-				</n-text>
-			</n-card>
+				</NText>
+			</NCard>
 		</div>
 	</div>
 </template>

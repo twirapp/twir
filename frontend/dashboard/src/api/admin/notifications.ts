@@ -1,10 +1,11 @@
 import { useQuery, useSubscription } from '@urql/vue'
 import { computed, watch } from 'vue'
+
+import type { AdminNotificationsParams } from '@/gql/graphql'
 import type { Ref } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql/gql.js'
-import type { AdminNotificationsParams } from '@/gql/graphql'
 
 const invalidationKey = 'AdminNofiticationsInvalidateKey'
 

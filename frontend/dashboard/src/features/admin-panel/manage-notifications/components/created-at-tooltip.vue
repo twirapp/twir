@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import { NTime } from 'naive-ui';
+import { NTime } from 'naive-ui'
 
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger
+} from '@/components/ui/tooltip'
 
-defineProps<{ time: Date }>();
+defineProps<{ time: Date }>()
 </script>
 
 <template>
 	<Tooltip>
 		<TooltipTrigger as-child>
-			<n-time class="cursor-pointer text-nowrap" :time="time" type="relative" />
+			<NTime class="cursor-pointer text-nowrap" :time="time" type="relative" />
 		</TooltipTrigger>
 		<TooltipContent side="top">
 			{{ time.toLocaleString() }}

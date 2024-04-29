@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import UsersPage from './components/users-page.vue';
-import { useUsersTable } from './composables/use-users-table';
+import UsersPage from './components/users-page.vue'
+import { useUsersTable } from './composables/use-users-table.js'
 
-import Pagination from '@/components/pagination.vue';
+import Pagination from '@/components/pagination.vue'
 
-const usersTable = useUsersTable();
+const usersTable = useUsersTable()
 </script>
 
 <template>
-	<users-page>
+	<UsersPage>
 		<template #pagination>
-			<pagination
+			<Pagination
 				:total="usersTable.totalUsers"
 				:table="usersTable.table"
 				:pagination="usersTable.pagination"
@@ -18,5 +18,5 @@ const usersTable = useUsersTable();
 				@update:page-size="(pageSize) => usersTable.pagination.pageSize = pageSize"
 			/>
 		</template>
-	</users-page>
+	</UsersPage>
 </template>

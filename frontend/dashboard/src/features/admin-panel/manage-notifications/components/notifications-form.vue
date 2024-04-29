@@ -1,33 +1,33 @@
 <script setup lang="ts">
-import { NCard } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+import { NCard } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
-import { useNotificationsForm } from '../composables/use-notifications-form.js';
-import { useTextarea, textareaButtons } from '../composables/use-textarea.js';
+import { useNotificationsForm } from '../composables/use-notifications-form.js'
+import { textareaButtons, useTextarea } from '../composables/use-textarea.js'
 
-import TwitchUserSignle from '@/components/twitchUsers/single.vue';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import TwitchUserSignle from '@/components/twitchUsers/single.vue'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const notificationsForm = useNotificationsForm();
-const { textareaRef, applyModifier } = useTextarea();
+const notificationsForm = useNotificationsForm()
+const { textareaRef, applyModifier } = useTextarea()
 </script>
 
 <template>
 	<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
 		{{ t('adminPanel.notifications.formTitle') }}
 	</h4>
-	<n-card size="small" bordered>
+	<NCard size="small" bordered>
 		<form class="flex flex-col gap-4" @submit="notificationsForm.onSubmit">
 			<div class="space-y-2">
 				<Label for="userId">
 					{{ t('adminPanel.notifications.userLabel') }}
 				</Label>
-				<twitch-user-signle v-model="notificationsForm.userIdField.fieldModel" twir-only />
+				<TwitchUserSignle v-model="notificationsForm.userIdField.fieldModel" twir-only />
 			</div>
 
 			<div class="space-y-2">
@@ -93,5 +93,5 @@ const { textareaRef, applyModifier } = useTextarea();
 				</Button>
 			</div>
 		</form>
-	</n-card>
+	</NCard>
 </template>

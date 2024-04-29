@@ -17,10 +17,10 @@
     "setDefaultSettings": "Установить настройки по умолчанию",
     "goToDashboard": "Перейти в панель управления",
     "add": "Добавить",
-    "send": "Send",
-    "next": "Next",
-    "previous": "Previous",
-    "reset": "Reset"
+    "send": "Отправить",
+    "next": "Вперед",
+    "previous": "Назад",
+    "reset": "Сбросить"
   },
   "sharedTexts": {
     "saved": "Сохранено",
@@ -42,8 +42,9 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
-    "searchPlaceholder": "Search..."
+    "pagination": "из {page} страниц / {total} записей",
+		"paginationPerPage": "На страницу",
+    "searchPlaceholder": "Поиск..."
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -72,7 +73,7 @@
   "navbar": {
     "logout": "Выйти",
     "publicPage": "Публичная страница",
-    "seeAll": "See all"
+    "seeAll": "Смотреть все"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
@@ -258,8 +259,8 @@
       "info": "При предоставлении доступа к этому сервису, Twir сможет отслеживать ваши матчи в Valorant и автоматически настроит командные переменные, такие как {0}, {1} и многое другое."
     },
     "sevenTv": {
-      "description": "Мы можем управлять смайликами 7tv, когда эта интеграция включена.",
-      "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
+      "description": "Мы можем управлять смайликами 7TV, когда эта интеграция включена.",
+			"alert": "Вы также можете использовать {0} для управления смайликами 7TV.",
       "connected": "Подключено",
       "notConnected": "Не подключено",
       "notRegistered": "Вы не зарегистрированы на {0}",
@@ -272,7 +273,7 @@
       },
       "rewardForAddEmote": "Награда для добавления смайлика",
       "rewardForRemoveEmote": "Награда для удаления смайлика",
-      "rewardSelectorDescription": "Вы должны создать награду с вводом. Пользователи должны отправить ссылку на 7tv смайл при использовании награды."
+      "rewardSelectorDescription": "Вы должны создать награду с вводом. Пользователи должны отправить ссылку на 7TV смайл при использовании награды."
     }
   },
   "events": {
@@ -308,7 +309,7 @@
       "values": "Значения",
       "triggerAlert": "Триггер оповещения",
       "filters": {
-        "label": "Filters",
+        "label": "Фильтры",
         "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
         "placeholderLeft": "Left side of the condition",
         "placeholderRight": "Right side of the condition",

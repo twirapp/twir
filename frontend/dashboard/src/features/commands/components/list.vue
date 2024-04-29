@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { IconChevronRight, IconChevronDown } from '@tabler/icons-vue';
-import type { ColumnDef } from '@tanstack/vue-table';
 import {
 	FlexRender,
 	getCoreRowModel,
-	useVueTable,
 	getExpandedRowModel,
-} from '@tanstack/vue-table';
-import { rgbToHex, hexToRgb, colorBrightness, type Rgb } from '@zero-dependency/utils';
-import { useThemeVars } from 'naive-ui';
-import { h, computed } from 'vue';
+	useVueTable
+} from '@tanstack/vue-table'
+import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from '@zero-dependency/utils'
+import { ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
+import { useThemeVars } from 'naive-ui'
+import { computed, h } from 'vue'
 
-import EditModal from './edit-modal.vue';
-import ColumnActions from './list-actions.vue';
-import { type Group, isCommand, createGroups } from './list-groups.js';
+import EditModal from './edit-modal.vue'
+import ColumnActions from './list-actions.vue'
+import { type Group, createGroups, isCommand } from './list-groups.js'
+
+import type { Command } from '@/gql/graphql'
+import type { ColumnDef } from '@tanstack/vue-table'
 
 import {
 	Table,
@@ -21,47 +23,46 @@ import {
 	TableCell,
 	TableHead,
 	TableHeader,
-	TableRow,
-} from '@/components/ui/table';
-import type { Command } from '@/gql/graphql';
-
-const themeVars = useThemeVars();
+	TableRow
+} from '@/components/ui/table'
 
 const props = withDefaults(defineProps<{
 	commands: Command[]
-	enableGroups?: boolean,
+	enableGroups?: boolean
 	showBackground?: boolean
 }>(), {
 	showHeader: false,
-	enableGroups: false,
-});
+	enableGroups: false
+})
+
+const themeVars = useThemeVars()
 
 const columns: ColumnDef<Command | Group>[] = [
-  {
-    accessorKey: 'name',
+	{
+		accessorKey: 'name',
 		size: 10,
-    header: () => h('div', {}, 'Name'),
-    cell: ({ row }) => {
-			const chevron = row.getCanExpand() ? h(row.getIsExpanded() ? IconChevronDown : IconChevronRight) : null;
+		header: () => h('div', {}, 'Name'),
+		cell: ({ row }) => {
+			const chevron = row.getCanExpand() ? h(row.getIsExpanded() ? ChevronDownIcon : ChevronRightIcon) : null
 
 			if (isCommand(row.original)) {
 				return h(
 					'div',
 					{ class: 'flex gap-2 items-center select-none' },
-					[chevron, '!' + row.getValue('name') as string],
-				);
+					[chevron, `!${row.getValue('name')}` as string]
+				)
 			}
 
-			let rgbColor: Rgb | null = null;
+			let rgbColor: Rgb | null = null
 			if (row.original.color) {
-				rgbColor = hexToRgb(rgbToHex(row.original.color));
+				rgbColor = hexToRgb(rgbToHex(row.original.color))
 			}
 
 			const color = rgbColor
 				? (colorBrightness(rgbColor) >= 128 ? '#000' : '#fff')
-				: 'var(--n-text-color)';
+				: 'var(--n-text-color)'
 
-      return h(
+			return h(
 				'div',
 				{ class: 'flex gap-2 items-center select-none' },
 				[
@@ -70,77 +71,77 @@ const columns: ColumnDef<Command | Group>[] = [
 						'span',
 						{
 							class: 'p-1 rounded',
-							style: `background-color: ${row.original.color}; color: ${color}`,
+							style: `background-color: ${row.original.color}; color: ${color}`
 						},
-						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
-					),
-				],
-			);
-    },
-  },
+						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1)
+					)
+				]
+			)
+		}
+	},
 	{
-    accessorKey: 'responses',
-    header: () => h('div', {  }, 'Responses'),
+		accessorKey: 'responses',
+		header: () => h('div', { }, 'Responses'),
 		size: 85,
-    cell: ({ row }) => {
+		cell: ({ row }) => {
 			if (!isCommand(row.original)) {
-				return;
+				return
 			}
 
-			const responses: Command['responses'] = row.getValue('responses');
+			const responses: Command['responses'] = row.getValue('responses')
 			if (!responses?.length) {
-				return row.original.description;
+				return row.original.description
 			}
 
-			const mappedResponses = responses.map((r) => h('span', {}, r.text));
-      return h('div', { class: 'flex flex-col' }, mappedResponses);
-    },
-  },
+			const mappedResponses = responses.map((r) => h('span', {}, r.text))
+			return h('div', { class: 'flex flex-col' }, mappedResponses)
+		}
+	},
 	{
 		id: 'actions',
 		size: 5,
-    cell: ({ row }) => {
+		cell: ({ row }) => {
 			if (!isCommand(row.original)) {
-				return;
+				return
 			}
 
 			return h(
 				ColumnActions,
 				{
-					row: row.original,
-				},
-			);
-    },
-  },
-];
+					row: row.original
+				}
+			)
+		}
+	}
+]
 
-const tableValue = computed(() => props.enableGroups ? createGroups(props.commands) : props.commands);
+const tableValue = computed(() => props.enableGroups ? createGroups(props.commands) : props.commands)
 
 const table = useVueTable({
 	get data() {
-		return tableValue.value;
+		return tableValue.value
 	},
 	get columns() {
-		return columns;
+		return columns
 	},
 	getCoreRowModel: getCoreRowModel(),
 	getExpandedRowModel: getExpandedRowModel(),
 	getSubRows: (original) => {
 		if ('commands' in original) {
-			return original.commands;
+			return original.commands
 		}
-	},
-});
+	}
+})
 </script>
 
 <template>
-	<edit-modal />
+	<EditModal />
 
 	<div
 		class="border rounded-md"
 		:style="{
 			backgroundColor: props.showBackground ? themeVars.cardColor : 'inherit',
-			color: themeVars.textColor2
+			color: themeVars.textColor2,
 		}"
 	>
 		<Table>
