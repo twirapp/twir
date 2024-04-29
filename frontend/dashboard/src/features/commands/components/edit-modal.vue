@@ -42,7 +42,7 @@ import { useI18n } from 'vue-i18n'
 import { useCommandEdit } from '../composables/use-command-edit.js'
 
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
-import { useRolesManager } from '@/api/index.js'
+import { useRoles } from '@/api/roles'
 import TwitchCategorySearch from '@/components/twitch-category-search.vue'
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
@@ -54,11 +54,12 @@ const { formValue, isOpened: isEditOpened } = storeToRefs(commandEdit)
 
 const formRef = ref<FormInst | null>(null)
 
-const rolesManager = useRolesManager()
-const roles = rolesManager.getAll({})
+const rolesManager = useRoles()
+const { data: roles } = rolesManager.useRolesQuery()
+
 const rolesSelectOptions = computed(() => {
-	if (!roles.data?.value) return []
-	return roles.data.value.roles.map((role) => ({
+	if (!roles.value?.roles) return []
+	return roles.value.roles.map((role) => ({
 		label: role.name,
 		value: role.id
 	}))

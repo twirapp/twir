@@ -19,7 +19,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
-	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
 	"github.com/satont/twir/apps/api/internal/impl_protected/users"
 	config "github.com/satont/twir/libs/config"
@@ -41,7 +40,6 @@ type Protected struct {
 	*community.Community
 	*events.Events
 	*rewards.Rewards
-	*roles.Roles
 	*build_in_variables.BuildInVariables
 	*dashboard.Dashboard
 	*twitch.Twitch
@@ -96,7 +94,6 @@ func New(opts Opts) *Protected {
 		Community:        &community.Community{Deps: d},
 		Events:           &events.Events{Deps: d},
 		Rewards:          &rewards.Rewards{Deps: d},
-		Roles:            &roles.Roles{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},

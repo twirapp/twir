@@ -194,19 +194,16 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 
 		if msg.DbUser.Stats != nil && !userHasRole {
-			roleSettings := model.ChannelRoleSettings{}
-			if err := json.Unmarshal(r.Settings, &roleSettings); err == nil {
-				if msg.DbUser.Stats.Watched >= roleSettings.RequiredWatchTime {
-					userHasRole = true
-				}
+			if msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
+				userHasRole = true
+			}
 
-				if msg.DbUser.Stats.Messages >= roleSettings.RequiredMessages {
-					userHasRole = true
-				}
+			if msg.DbUser.Stats.Messages >= r.RequiredMessages {
+				userHasRole = true
+			}
 
-				if msg.DbUser.Stats.UsedChannelPoints >= roleSettings.RequiredUsedChannelPoints {
-					userHasRole = true
-				}
+			if msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
+				userHasRole = true
 			}
 		}
 
