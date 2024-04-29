@@ -3,8 +3,8 @@ package migrations
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 
-	"github.com/goccy/go-json"
 	"github.com/pressly/goose/v3"
 )
 
