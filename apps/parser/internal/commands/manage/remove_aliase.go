@@ -6,6 +6,7 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -21,6 +22,14 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 		Module:      "MANAGE",
 		IsReply:     true,
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: commandNameArgName,
+		},
+		command_arguments.String{
+			Name: commandAliaseArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -29,20 +38,18 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			Result: make([]string, 0),
 		}
 
-		if parseCtx.Text == nil {
-			result.Result = append(result.Result, incorrectUsage)
-			return result, nil
-		}
-
-		args := strings.Split(*parseCtx.Text, " ")
-
-		if len(args) < 2 {
-			result.Result = append(result.Result, incorrectUsage)
-			return result, nil
-		}
-
-		commandName := strings.ToLower(strings.ReplaceAll(args[0], "!", ""))
-		aliase := strings.ToLower(strings.ReplaceAll(strings.Join(args[1:], " "), "!", ""))
+		commandName := strings.ReplaceAll(
+			parseCtx.ArgsParser.Get(commandNameArgName).String(),
+			"!",
+			"",
+		)
+		commandName = strings.ToLower(commandName)
+		aliase := strings.ReplaceAll(
+			parseCtx.ArgsParser.Get(commandAliaseArgName).String(),
+			"!",
+			"",
+		)
+		aliase = strings.ToLower(aliase)
 
 		cmd := model.ChannelsCommands{}
 		err := parseCtx.Services.Gorm.

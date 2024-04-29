@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { useRouteQuery } from '@vueuse/router';
-import { useThemeVars } from 'naive-ui';
-import { TabsList, TabsRoot, TabsTrigger, TabsContent } from 'radix-vue';
-import { onBeforeMount, ref, type Component } from 'vue';
-import { watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouteQuery } from '@vueuse/router'
+import { useThemeVars } from 'naive-ui'
+import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
+import { type Component, onBeforeMount, ref } from 'vue'
+import { watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { useTheme } from '@/composables/use-theme';
+import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 
-const router = useRouter();
-const themeVars = useThemeVars();
-const { theme } = useTheme();
+import { useTheme } from '@/composables/use-theme.js'
+
+const props = withDefaults(defineProps<PageLayoutProps>(), {
+	activeTab: '',
+	tabs: () => []
+})
+const router = useRouter()
+const themeVars = useThemeVars()
+const { theme } = useTheme()
 
 export interface PageLayoutProps {
-	activeTab: string
-	tabs: PageLayoutTab[]
+	activeTab?: string
+	tabs?: PageLayoutTab[]
 }
 
 export interface PageLayoutTab {
@@ -23,27 +29,27 @@ export interface PageLayoutTab {
 	component: Component
 }
 
-const props = defineProps<PageLayoutProps>();
+const activeTab = ref(props.activeTab)
 
-const activeTab = ref(props.activeTab);
-
-const queryActiveTab = useRouteQuery<string>('tab');
-watch(queryActiveTab, setTab);
+const queryActiveTab = useRouteQuery<string>('tab')
+const unsubscribe = watch(queryActiveTab, setTab)
+if (!props.activeTab) unsubscribe()
 
 onBeforeMount(() => {
-	setTab();
-	onChangeTab(activeTab.value, true);
-});
+	if (!props.activeTab) return
+	setTab()
+	onChangeTab(activeTab.value, true)
+})
 
 function setTab(): void {
-	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase();
+	const tabValue = (queryActiveTab.value ?? props.activeTab).toLowerCase()
 	if (props.tabs.some((tab) => tab.name === tabValue)) {
-		activeTab.value = tabValue;
+		activeTab.value = tabValue
 	}
 }
 
-function onChangeTab(tab: string, replace = false): void {
-	router.push({ query: { tab }, replace });
+function onChangeTab(tab: StringOrNumber, replace = false): void {
+	router.push({ query: { tab }, replace })
 }
 </script>
 
@@ -54,12 +60,16 @@ function onChangeTab(tab: string, replace = false): void {
 			:class="[theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]']"
 			:style="{ 'background-color': themeVars.cardColor }"
 		>
-			<div class="container flex flex-col pt-9 gap-2">
+			<div
+				class="container flex flex-col gap-2"
+				:class="[activeTab ? 'pt-9' : 'py-9']"
+			>
 				<h1 class="text-4xl">
 					<slot name="title" />
 				</h1>
-				<div class="flex gap-2">
-					<TabsList class="flex overflow-x-auto -mb-px">
+
+				<div v-if="activeTab" class="flex gap-2">
+					<TabsList class="flex flex-wrap overflow-x-auto -mb-px">
 						<TabsTrigger
 							v-for="tab of props.tabs"
 							:key="tab.name"
@@ -68,7 +78,7 @@ function onChangeTab(tab: string, replace = false): void {
 							:class="[
 								theme === 'dark'
 									? 'data-[state=active]:after:border-white'
-									: 'data-[state=active]:after:border-zinc-800'
+									: 'data-[state=active]:after:border-zinc-800',
 							]"
 						>
 							{{ tab.title }}
@@ -78,9 +88,14 @@ function onChangeTab(tab: string, replace = false): void {
 			</div>
 		</div>
 		<div class="container py-8">
-			<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
-				<component :is="tab.component" />
-			</TabsContent>
+			<template v-if="activeTab">
+				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
+					<component :is="tab.component" />
+				</TabsContent>
+			</template>
+			<template v-else>
+				<slot name="content" />
+			</template>
 		</div>
 	</TabsRoot>
 </template>

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/satont/twir/apps/parser/internal/types/services"
 
@@ -35,6 +36,10 @@ type ReqError struct {
 	Error string
 }
 
+const (
+	songRequestArgName = "name or link"
+)
+
 var SrCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "sr",
@@ -42,6 +47,11 @@ var SrCommand = &types.DefaultCommand{
 		Module:      "SONGS",
 		IsReply:     true,
 		Visible:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: songRequestArgName,
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -79,11 +89,6 @@ var SrCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		if parseCtx.Text == nil {
-			result.Result = append(result.Result, parsedSettings.Translations.NoText)
-			return result, nil
-		}
-
 		if *parsedSettings.AcceptOnlyWhenOnline {
 			stream := &model.ChannelsStreams{}
 			parseCtx.Services.Gorm.WithContext(ctx).Where(
@@ -97,7 +102,10 @@ var SrCommand = &types.DefaultCommand{
 		}
 
 		req, err := parseCtx.Services.GrpcClients.Ytsr.Search(
-			context.Background(), &ytsr.SearchRequest{Search: *parseCtx.Text},
+			context.Background(),
+			&ytsr.SearchRequest{
+				Search: parseCtx.ArgsParser.Get(songRequestArgName).String(),
+			},
 		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{

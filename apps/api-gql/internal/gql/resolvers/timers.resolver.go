@@ -12,6 +12,7 @@ import (
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	"gorm.io/gorm"
 )
 
@@ -59,6 +60,13 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 		)
 	}
 
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
+	if entity.Enabled {
+		r.twirBus.Timers.AddTimer.Publish(timersReq)
+	} else {
+		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
+	}
+
 	return &gqlmodel.Timer{
 		ID:              entity.ID,
 		Name:            entity.Name,
@@ -101,9 +109,6 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 
 	txErr := r.gorm.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
-			if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
-				return err
-			}
 			if opts.Responses.IsSet() {
 				if err := tx.
 					Where(`"timerId" = ?`, entity.ID).
@@ -125,6 +130,10 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 				)
 			}
 
+			if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+				return err
+			}
+
 			return nil
 		},
 	)
@@ -143,6 +152,13 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 				IsAnnounce: response.IsAnnounce,
 			},
 		)
+	}
+
+	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
+	if entity.Enabled {
+		r.twirBus.Timers.AddTimer.Publish(timersReq)
+	} else {
+		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
 	}
 
 	return &gqlmodel.Timer{
@@ -172,6 +188,10 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 	if err := r.gorm.WithContext(ctx).Delete(&entity).Error; err != nil {
 		return false, err
 	}
+
+	r.twirBus.Timers.RemoveTimer.Publish(
+		timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID},
+	)
 
 	return true, nil
 }

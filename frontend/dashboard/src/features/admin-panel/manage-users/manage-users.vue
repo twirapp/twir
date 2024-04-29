@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import UsersPage from './components/users-page.vue'
+import { useUsersTable } from './composables/use-users-table.js'
 
-import UsersTablePagination from './components/users-table-pagination.vue';
-import UsersTableSearch from './components/users-table-search.vue';
-import UsersTable from './components/users-table.vue';
+import Pagination from '@/components/pagination.vue'
 
-import ShadcnLayout from '@/layout/shadcn-layout.vue';
+const usersTable = useUsersTable()
 </script>
 
 <template>
-	<div class="flex flex-col w-full gap-4">
-		<users-table-search />
-		<users-table-pagination />
-		<shadcn-layout>
-			<users-table />
-		</shadcn-layout>
-		<users-table-pagination />
-	</div>
+	<UsersPage>
+		<template #pagination>
+			<Pagination
+				:total="usersTable.totalUsers"
+				:table="usersTable.table"
+				:pagination="usersTable.pagination"
+				@update:page="(page) => usersTable.pagination.pageIndex = page"
+				@update:page-size="(pageSize) => usersTable.pagination.pageSize = pageSize"
+			/>
+		</template>
+	</UsersPage>
 </template>

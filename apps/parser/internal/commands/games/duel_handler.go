@@ -61,7 +61,12 @@ func (c *duelHandler) createHelixClient() (*helix.Client, error) {
 }
 
 func (c *duelHandler) getTwitchTargetUser() (helix.User, error) {
-	targetUserName := strings.Replace(*c.parseCtx.Text, "@", "", 1)
+	targetUserName := strings.Replace(
+		c.parseCtx.ArgsParser.Get(duelTargetArgName).String(),
+		"@",
+		"",
+		1,
+	)
 
 	userRequest, err := c.helixClient.GetUsers(&helix.UsersParams{Logins: []string{targetUserName}})
 	if err != nil {

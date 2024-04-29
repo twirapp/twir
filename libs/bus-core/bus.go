@@ -51,6 +51,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				30*time.Minute,
 				nats.GOB_ENCODER,
 			),
+
+			GetBuiltInVariables: NewNatsQueue[struct{}, []parser.BuiltInVariable](
+				nc,
+				parser.GetBuiltInVariablesSubject,
+				5*time.Second,
+				nats.GOB_ENCODER,
+			),
 		},
 
 		Bots: &botsBus{

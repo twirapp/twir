@@ -1,5 +1,5 @@
 import { useWebSocket } from '@vueuse/core';
-import { defineStore } from 'pinia';
+import { defineStore, storeToRefs } from 'pinia';
 import { computed, onMounted, ref, watch } from 'vue';
 
 import { useProfile, useYoutubeModuleSettings } from '@/api/index.js';
@@ -27,7 +27,7 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 	const videos = ref<Video[]>([]);
 	const currentVideo = computed(() => videos.value[0]);
 
-	const { data: userProfile } = useProfile();
+	const { data: userProfile } = storeToRefs(useProfile());
 
 	async function banUser(userId: string) {
 		await youtubeModuleUpdater.mutateAsync({
@@ -175,4 +175,3 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 		banSong,
 	};
 });
-

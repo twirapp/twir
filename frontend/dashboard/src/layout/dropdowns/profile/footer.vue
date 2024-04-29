@@ -1,23 +1,15 @@
 <script setup lang="ts">
-import { IconLogout, IconSettings, IconUser } from '@tabler/icons-vue';
+import { IconSettings, IconUser } from '@tabler/icons-vue';
 import { NButton } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
 
-import { useLogout, useProfile } from '@/api';
+import { useProfile } from '@/api';
+import ButtonLogout from '@/layout/buttons/buttonLogout.vue';
 
-const { t } = useI18n();
-
-const logout = useLogout();
-
-const profile = useProfile();
+const profile = storeToRefs(useProfile());
 const isAdmin = computed(() => profile.data.value?.isBotAdmin);
-
-async function callLogout() {
-	await logout.mutateAsync();
-	window.location.replace('/');
-}
 </script>
 
 <template>
@@ -56,18 +48,6 @@ async function callLogout() {
 			</n-button>
 		</router-link>
 
-		<n-button
-			secondary
-			block
-			type="error"
-			:loading="logout.isLoading.value"
-			@click="callLogout"
-		>
-			<template #icon>
-				<IconLogout />
-			</template>
-
-			{{ t('navbar.logout') }}
-		</n-button>
+		<button-logout />
 	</div>
 </template>

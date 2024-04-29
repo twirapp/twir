@@ -15,39 +15,34 @@ import {
 import { h, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useGreetingsManager, useTwitchGetUsers, useUserAccessFlagChecker } from '@/api/index.js';
+import { useGreetingsApi, type Greetings } from '@/api/greetings.js';
+import { useUserAccessFlagChecker } from '@/api/index.js';
 import GreetingsModal from '@/components/greetings/modal.vue';
-import { EditableGreeting } from '@/components/greetings/types.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers/index.js';
 
-const greetingsManager = useGreetingsManager();
-const greetings = greetingsManager.getAll({});
-const greetingsDeleter = greetingsManager.deleteOne;
-const greetingsPatcher = greetingsManager.patch!;
-
+const { t } = useI18n();
+const userCanManageGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageGreetings);
 const showModal = ref(false);
 
-const twitchUsersIds = computed(() => {
-	return greetings.data.value?.greetings.map((g) => g.userId) ?? [];
+const greetingsApi = useGreetingsApi();
+const greetingsUpdate = greetingsApi.useMutationUpdateGreetings();
+const greetingsRemove = greetingsApi.useMutationRemoveGreetings();
+const { data: greetingsData, fetching } = greetingsApi.useQueryGreetings();
+
+const greetings = computed(() => {
+	return greetingsData.value?.greetings ?? [];
 });
-const twitchUsers = useTwitchGetUsers({
-	ids: twitchUsersIds,
-});
 
-const userCanManageGreetings = useUserAccessFlagChecker('MANAGE_GREETINGS');
-
-const { t } = useI18n();
-
-const columns = computed<DataTableColumns<EditableGreeting>>(() => [
+const columns = computed<DataTableColumns<Greetings>>(() => [
 	{
 		title: '',
 		key: 'avatar',
 		width: 50,
 		render(row) {
-			const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
-			if (!user) return;
+			if (!row.twitchProfile) return;
 
-			return h(NAvatar, { size: 'medium', src: user.profileImageUrl, round: true });
+			return h(NAvatar, { size: 'medium', src: row.twitchProfile.profileImageUrl, round: true });
 		},
 	},
 	{
@@ -57,8 +52,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 		render(row) {
 			return h(NTag, { type: 'info', bordered: false }, {
 				default: () => {
-					const user = twitchUsers.data.value?.users.find((u) => u.id === row.userId);
-					return user ? user.displayName : 'Unknown';
+					return row.twitchProfile ? row.twitchProfile.displayName : 'Unknown';
 				},
 			});
 		},
@@ -80,8 +74,8 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 				NSwitch,
 				{
 					value: row.enabled,
-					onUpdateValue: (value: boolean) => {
-						greetingsPatcher.mutate({ id: row.id!, enabled: value });
+					onUpdateValue: (enabled) => {
+						greetingsUpdate.executeMutation({ id: row.id, opts: { enabled } });
 					},
 					disabled: !userCanManageGreetings.value,
 				},
@@ -109,7 +103,7 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => greetingsDeleter.mutate({ id: row.id! }),
+					onPositiveClick: () => greetingsRemove.executeMutation({ id: row.id }),
 					positiveText: t('deleteConfirmation.confirm'),
 					negativeText: t('deleteConfirmation.cancel'),
 				},
@@ -131,15 +125,10 @@ const columns = computed<DataTableColumns<EditableGreeting>>(() => [
 	},
 ]);
 
-const editableGreeting = ref<EditableGreeting | null>(null);
+const editableGreeting = ref<Greetings | null>(null);
 
-function openModal(t: EditableGreeting | null) {
-	const twitchUser = twitchUsers.data.value?.users.find((u) => u.id === t?.userId);
-	editableGreeting.value = t ? {
-		...t,
-		userName: twitchUser?.login || 'Unknown user',
-	} : null;
-
+function openModal(greetings: Greetings | null) {
+	editableGreeting.value = greetings;
 	showModal.value = true;
 }
 
@@ -149,33 +138,35 @@ function closeModal() {
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
-		<h2>{{ t('greetings.title') }}</h2>
-		<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
-			{{ t('sharedButtons.create') }}
-		</n-button>
-	</n-space>
-	<n-alert type="info" :title="t('greetings.info.title')">
-		{{ t('greetings.info.text') }}
-	</n-alert>
-	<n-data-table
-		:isLoading="greetings.isLoading.value || twitchUsers.isLoading.value"
-		:columns="columns"
-		:data="greetings.data.value?.greetings ?? []"
-		style="margin-top: 20px;"
-	/>
+	<div class="flex flex-col gap-4">
+		<div class="flex justify-between">
+			<h4 class="scroll-m-20 text-xl font-semibold tracking-tight">
+				{{ t('greetings.title') }}
+			</h4>
+			<n-button :disabled="!userCanManageGreetings" secondary type="success" @click="openModal(null)">
+				{{ t('sharedButtons.create') }}
+			</n-button>
+		</div>
+
+		<n-alert type="info" :title="t('greetings.info.title')">
+			{{ t('greetings.info.text') }}
+		</n-alert>
+
+		<n-data-table
+			:isLoading="fetching"
+			:columns="columns"
+			:data="greetings"
+		/>
+	</div>
 
 	<n-modal
 		v-model:show="showModal"
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
-		:title="editableGreeting?.userName || 'Create'"
+		:title="editableGreeting ? t('greetings.edit') : t('greetings.create')"
 		class="modal"
-		:style="{
-			width: '400px',
-			top: '50px',
-		}"
+		:style="{ width: '400px' }"
 		:on-close="closeModal"
 	>
 		<greetings-modal :greeting="editableGreeting" @close="closeModal" />

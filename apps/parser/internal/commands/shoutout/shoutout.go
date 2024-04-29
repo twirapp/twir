@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	"github.com/guregu/null"
@@ -18,6 +19,10 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 )
 
+const (
+	userArgName = "@nickname"
+)
+
 var ShoutOut = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "so",
@@ -25,16 +30,16 @@ var ShoutOut = &types.DefaultCommand{
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:      "MODERATION",
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.String{
+			Name: userArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
-
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			result.Result = append(result.Result, "you have to type streamer for shoutout.")
-			return result, nil
-		}
 
 		token, err := parseCtx.Services.GrpcClients.Tokens.RequestUserToken(
 			ctx, &tokens.GetUserTokenRequest{
@@ -72,42 +77,24 @@ var ShoutOut = &types.DefaultCommand{
 			}
 		}
 
-		usersReq, err := twitchClient.GetUsers(
-			&helix.UsersParams{
-				Logins: []string{*parseCtx.Text},
-			},
-		)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get user",
-				Err:     err,
-			}
-		}
-		if usersReq.ErrorMessage != "" {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot get user",
-				Err:     errors.New(usersReq.ErrorMessage),
-			}
-		}
-
-		if len(usersReq.Data.Users) == 0 {
-			result.Result = append(result.Result, "cannot find user with this name.")
+		if len(parseCtx.Mentions) == 0 {
+			result.Result = []string{"user not found."}
 			return result, nil
 		}
 
-		user := usersReq.Data.Users[0]
+		user := parseCtx.Mentions[0]
 
 		go twitchClient.SendShoutout(
 			&helix.SendShoutoutParams{
 				FromBroadcasterID: parseCtx.Channel.ID,
-				ToBroadcasterID:   user.ID,
+				ToBroadcasterID:   user.UserId,
 				ModeratorID:       parseCtx.Channel.ID,
 			},
 		)
 
 		streamsReq, err := twitchClient.GetStreams(
 			&helix.StreamsParams{
-				UserIDs: []string{user.ID},
+				UserIDs: []string{user.UserId},
 			},
 		)
 		if err != nil {
@@ -140,7 +127,7 @@ var ShoutOut = &types.DefaultCommand{
 		} else {
 			channelReq, err := twitchClient.GetChannelInformation(
 				&helix.GetChannelInformationParams{
-					BroadcasterIDs: []string{user.ID},
+					BroadcasterIDs: []string{user.UserId},
 				},
 			)
 			if err != nil {

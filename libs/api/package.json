@@ -22,9 +22,9 @@
 		}
 	},
 	"dependencies": {
-		"@bufbuild/protoc-gen-es": "1.6.0",
-		"@protobuf-ts/plugin": "2.9.3",
-		"@protobuf-ts/runtime": "2.9.3",
-		"@protobuf-ts/runtime-rpc": "2.9.3"
+		"@bufbuild/protoc-gen-es": "1.8.0",
+		"@protobuf-ts/plugin": "2.9.4",
+		"@protobuf-ts/runtime": "2.9.4",
+		"@protobuf-ts/runtime-rpc": "2.9.4"
 	}
 }

@@ -26,38 +26,6 @@ type Auth struct {
 	TwitchScopes []string
 }
 
-func (c *Auth) AuthGetLink(
-	ctx context.Context,
-	request *auth.GetLinkRequest,
-) (*auth.GetLinkResponse, error) {
-	if request.RedirectTo == "" {
-		return nil, twirp.NewError("400", "no redirect provided")
-	}
-
-	twitchClient, err := helix.NewClientWithContext(
-		ctx, &helix.Options{
-			ClientID:    c.Config.TwitchClientId,
-			RedirectURI: c.Config.TwitchCallbackUrl,
-		},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	state := base64.StdEncoding.EncodeToString([]byte(request.RedirectTo))
-
-	url := twitchClient.GetAuthorizationURL(
-		&helix.AuthorizationURLParams{
-			ResponseType: "code",
-			Scopes:       c.TwitchScopes,
-			State:        state,
-			ForceVerify:  false,
-		},
-	)
-
-	return &auth.GetLinkResponse{Link: url}, nil
-}
-
 func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) (
 	*auth.PostCodeResponse,
 	error,
@@ -207,34 +175,5 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 
 	return &auth.PostCodeResponse{
 		RedirectTo: string(redirectTo),
-	}, nil
-}
-
-func (c *Auth) GetPublicUserInfo(ctx context.Context, req *auth.GetPublicUserInfoRequest) (
-	*auth.
-		GetPublicUserInfoResponse, error,
-) {
-	if req.UserId == "" {
-		return nil, twirp.NewError("400", "no user id provided")
-	}
-
-	user := &model.Users{}
-	if err := c.Db.
-		WithContext(ctx).
-		Where("id = ?", req.UserId).
-		Preload("Channel").
-		First(user).Error; err != nil {
-		return nil, fmt.Errorf("cannot get user: %w", err)
-	}
-
-	var isBanned bool
-	if user.Channel != nil {
-		isBanned = user.IsBanned || user.Channel.IsTwitchBanned
-	}
-
-	return &auth.GetPublicUserInfoResponse{
-		IsAdmin:  user.IsBotAdmin,
-		IsBanned: isBanned,
-		UserId:   user.ID,
 	}, nil
 }

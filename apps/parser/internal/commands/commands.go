@@ -15,6 +15,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/cacher"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
@@ -313,6 +314,18 @@ func (c *Commands) ParseCommandResponses(
 	}
 
 	if command.Cmd.Default && defaultCommand != nil {
+		argsParser, err := command_arguments.NewParser(defaultCommand.Args, params)
+		if err != nil {
+			usage := argsParser.BuildUsageString(defaultCommand.Args, defaultCommand.Name)
+
+			results := &busparser.CommandParseResponse{
+				Responses: []string{fmt.Sprintf("[Usage]: %s", usage)},
+				IsReply:   command.Cmd.IsReply,
+			}
+			return results
+		}
+		parseCtx.ArgsParser = argsParser
+
 		results, err := defaultCommand.Handler(ctx, parseCtx)
 		if err != nil {
 			c.services.Logger.Sugar().Error(

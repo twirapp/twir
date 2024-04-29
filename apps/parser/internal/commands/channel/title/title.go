@@ -8,9 +8,14 @@ import (
 	"github.com/lib/pq"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+)
+
+const (
+	titleArgName = "title"
 )
 
 var SetCommand = &types.DefaultCommand{
@@ -22,7 +27,15 @@ var SetCommand = &types.DefaultCommand{
 		Visible:     false,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeModerator.String()},
 	},
-	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (*types.CommandsHandlerResult, error) {
+	Args: []command_arguments.Arg{
+		command_arguments.VariadicString{
+			Name: titleArgName,
+		},
+	},
+	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
+		*types.CommandsHandlerResult,
+		error,
+	) {
 		result := &types.CommandsHandlerResult{
 			Result: make([]string, 0),
 		}
@@ -37,14 +50,12 @@ var SetCommand = &types.DefaultCommand{
 			return nil, fmt.Errorf("cannot create broadcaster twitch api client: %w", err)
 		}
 
-		if parseCtx.Text == nil || *parseCtx.Text == "" {
-			return result, nil
-		}
+		title := parseCtx.ArgsParser.Get(titleArgName).String()
 
 		req, err := twitchClient.EditChannelInformation(
 			&helix.EditChannelInformationParams{
 				BroadcasterID: parseCtx.Channel.ID,
-				Title:         *parseCtx.Text,
+				Title:         title,
 			},
 		)
 
@@ -56,7 +67,7 @@ var SetCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
-		result.Result = append(result.Result, "✅ "+*parseCtx.Text)
+		result.Result = append(result.Result, "✅ "+title)
 		return result, nil
 	},
 }

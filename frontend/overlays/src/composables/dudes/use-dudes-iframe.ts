@@ -20,13 +20,13 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 	const dudesSettingsStore = useDudesSettings();
 
 	async function onPostMessage(msg: MessageEvent<string>) {
-		if (!dudesStore.dudes) return;
+		if (!dudesStore.dudes?.dudes) return;
 
 		const parsedData = JSON.parse(msg.data) as DudesPostMessage;
-		const dude = dudesStore.dudes.getDude(dudeMock.id);
+		const dude = dudesStore.dudes.dudes.getDude(dudeMock.id);
 
 		if (parsedData.action === 'reset') {
-			dudesStore.dudes.removeAllDudes();
+			dudesStore.dudes.dudes.removeAllDudes();
 			spawnIframeDude();
 			return;
 		}
@@ -82,10 +82,10 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 
 	async function spawnIframeDude() {
 		if (
-			!dudesStore.dudes ||
+			!dudesStore.dudes?.dudes ||
 			!dudesSettingsStore.dudesSettings ||
 			!dudesSettingsStore.channelData ||
-			dudesStore.dudes.getDude(dudeMock.id)
+			dudesStore.dudes.dudes.getDude(dudeMock.id)
 		) return;
 
 		const emote = dudesStore.getProxiedEmoteUrl({
@@ -94,7 +94,7 @@ export const useDudesIframe = defineStore('dudes-iframe', () => {
 		});
 
 		const dudeSprite = getSprite(dudesSettingsStore.dudesSettings.overlay.defaultSprite);
-		const dude = await dudesStore.dudes.createDude({
+		const dude = await dudesStore.dudes.dudes.createDude({
 			id: dudeMock.id,
 			name: dudeMock.name,
 			sprite: dudeSprite,

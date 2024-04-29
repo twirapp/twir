@@ -1,28 +1,24 @@
 {
-	"name": "twir",
-	"private": true,
-	"type": "module",
-	"engines": {
-		"node": ">= 20"
-	},
-	"scripts": {
-		"lint": "eslint --ext .ts,.vue apps/ libs/",
-		"lint:fix": "eslint --fix --ext .ts,.vue,tsx apps/ frontend/",
-		"cli": "go run ./cli/main.go",
-		"dev": "pnpm cli dev",
-		"build": "pnpm cli build"
-	},
-	"author": "Satont <satontworldwide@gmail.com>",
-	"devDependencies": {
-		"@types/node": "20.11.5",
-		"@typescript-eslint/eslint-plugin": "6.19.0",
-		"@typescript-eslint/parser": "6.19.0",
-		"eslint": "8.56.0",
-		"eslint-plugin-import": "2.29.1",
-		"eslint-plugin-unused-imports": "3.0.0",
-		"eslint-plugin-vue": "9.20.1",
-		"rimraf": "5.0.5",
-		"turbo": "1.11.3",
-		"typescript": "5.3.3"
-	}
+  "name": "twir",
+  "type": "module",
+  "private": true,
+  "author": "Satont <satontworldwide@gmail.com>",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm cli dev",
+    "build": "pnpm cli build",
+    "cli": "go run ./cli/main.go",
+    "lint": "eslint ./frontend",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "2.14.0",
+    "@types/node": "20.12.7",
+    "eslint-plugin-astro": "0.34.0",
+    "rimraf": "5.0.5",
+    "turbo": "1.13.2",
+    "typescript": "5.4.5"
+  }
 }

@@ -1,37 +1,42 @@
 <script setup lang="ts">
-import { CheckIcon, ListFilterIcon } from 'lucide-vue-next';
-import { useI18n } from 'vue-i18n';
+import { CheckIcon, ListFilterIcon } from 'lucide-vue-next'
+import { useI18n } from 'vue-i18n'
 
-import { useUsersTable } from '../composables/use-users-table';
-import { FilterType, useUsersTableFilters } from '../composables/use-users-table-filters';
+import { useUsersTableFilters } from '../composables/use-users-table-filters.js'
+import { useUsersTable } from '../composables/use-users-table.js'
 
-import SearchBar from '@/components/search-bar.vue';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import type { FilterType } from '../composables/use-users-table-filters.js'
+
+import SearchBar from '@/components/search-bar.vue'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
-	Command, CommandGroup, CommandItem, CommandList, CommandSeparator,
-} from '@/components/ui/command';
+	Command,
+	CommandGroup,
+	CommandItem,
+	CommandList,
+	CommandSeparator
+} from '@/components/ui/command'
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger,
-} from '@/components/ui/popover';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
+	PopoverTrigger
+} from '@/components/ui/popover'
+import { Separator } from '@/components/ui/separator'
 
-const { t } = useI18n();
-const usersTable = useUsersTable();
-const usersTableFilters = useUsersTableFilters();
+const { t } = useI18n()
+const usersTable = useUsersTable()
+const usersTableFilters = useUsersTableFilters()
 
 function applyFilter(filterKey: string, type: FilterType): void {
-	usersTableFilters.setFilterValue(filterKey, type);
-	usersTable.table.setPageIndex(0);
+	usersTableFilters.setFilterValue(filterKey, type)
+	usersTable.table.setPageIndex(0)
 }
 </script>
 
 <template>
-	<div class="flex gap-2 max-sm:flex-col">
-		<search-bar v-model="usersTableFilters.searchInput" />
+	<div class="flex gap-2">
+		<SearchBar v-model="usersTableFilters.searchInput" />
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-9">
@@ -64,14 +69,13 @@ function applyFilter(filterKey: string, type: FilterType): void {
 								@select="applyFilter(filter.key, filters.type)"
 							>
 								<div
-									:class="[
-										'mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary',
-										usersTableFilters.isFilterApplied(filter.key, filters.type)
-											? 'bg-primary text-primary-foreground'
-											: 'opacity-50 [&_svg]:invisible'
+									class="mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary"
+									:class="[usersTableFilters.isFilterApplied(filter.key, filters.type)
+										? 'bg-primary text-primary-foreground'
+										: 'opacity-50 [&_svg]:invisible',
 									]"
 								>
-									<CheckIcon :class="cn('h-4 w-4')" />
+									<CheckIcon class="h-4 w-4" />
 								</div>
 								<img v-if="filter.image" :src="filter.image" class="h-5 w-5 mr-2">
 								<span>{{ filter.label }}</span>

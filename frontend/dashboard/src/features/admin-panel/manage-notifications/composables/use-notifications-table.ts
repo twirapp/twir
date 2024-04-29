@@ -1,45 +1,47 @@
-import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table';
-import { defineStore } from 'pinia';
-import { computed, h } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
+import { defineStore } from 'pinia'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useNotificationsFilters } from './use-notifications-filters.js';
-import UsersTableCellUser from '../../manage-users/components/users-table-cell-user.vue';
-import CreatedAtTooltip from '../components/created-at-tooltip.vue';
-import NotificationsTableActions from '../components/notifications-table-actions.vue';
-import { useNotificationsForm } from '../composables/use-notifications-form.js';
+import { useNotificationsFilters } from './use-notifications-filters.js'
+import UsersTableCellUser from '../../manage-users/components/users-table-cell-user.vue'
+import CreatedAtTooltip from '../components/created-at-tooltip.vue'
+import NotificationsTableActions from '../components/notifications-table-actions.vue'
+import { useNotificationsForm } from '../composables/use-notifications-form.js'
 
-import { useAdminNotifications } from '@/api/admin/notifications.js';
-import { useLayout } from '@/composables/use-layout.js';
-import { usePagination } from '@/composables/use-pagination.js';
-import { NotificationType, type AdminNotificationsParams, type NotificationsByAdminQuery } from '@/gql/graphql.js';
+import { useAdminNotifications } from '@/api/admin/notifications.js'
+import { useLayout } from '@/composables/use-layout.js'
+import { usePagination } from '@/composables/use-pagination.js'
+import { type AdminNotificationsParams, NotificationType, type NotificationsByAdminQuery } from '@/gql/graphql.js'
+import { valueUpdater } from '@/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 
 export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
-	const layout = useLayout();
-	const { t } = useI18n();
+	const layout = useLayout()
+	const { t } = useI18n()
 
-	const form = useNotificationsForm();
+	const form = useNotificationsForm()
 
-	const { pagination, setPagination } = usePagination();
-	const filters = useNotificationsFilters();
+	const { pagination } = usePagination()
+	const filters = useNotificationsFilters()
 
-	const reqParams = computed<AdminNotificationsParams>(() => ({
+	const params = computed<AdminNotificationsParams>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
 		type: filters.filterInput,
-		search: filters.debounceSearchInput,
-	}));
+		search: filters.debounceSearchInput
+	}))
 
-	const notificationsApi = useAdminNotifications();
-	const { data } = notificationsApi.useQueryNotifications(reqParams);
-	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification();
+	const notificationsApi = useAdminNotifications()
+	const { data, fetching } = notificationsApi.useQueryNotifications(params)
+	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification()
 
 	const notifications = computed<Notifications>(() => {
-		if (!data.value) return [];
-		return data.value.notificationsByAdmin.notifications;
-	});
+		if (!data.value)
+			return []
+		return data.value.notificationsByAdmin.notifications
+	})
 
 	const tableColumns = computed(() => {
 		const columns: ColumnDef<Notifications[0]>[] = [
@@ -48,16 +50,16 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				size: 65,
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
-					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text });
-				},
+					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
+				}
 			},
 			{
 				accessorKey: 'createdAt',
 				size: 10,
 				header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
 				cell: ({ row }) => {
-					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) });
-				},
+					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) })
+				}
 			},
 			{
 				accessorKey: 'actions',
@@ -66,11 +68,11 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				cell: ({ row }) => {
 					return h(NotificationsTableActions, {
 						onDelete: () => onDeleteNotification(row.original.id),
-						onEdit: () => onEditNotification(row.original),
-					});
-				},
-			},
-		];
+						onEdit: () => onEditNotification(row.original)
+					})
+				}
+			}
+		]
 
 		if (filters.filterInput === NotificationType.User) {
 			columns.unshift({
@@ -79,90 +81,80 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				header: () => h('div', {}, t('adminPanel.notifications.userLabel')),
 				cell: ({ row }) => {
 					if (row.original.twitchProfile?.profileImageUrl && row.original.twitchProfile?.displayName) {
-						return h('a',
-							{
-								class: 'flex flex-col',
-								href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
-								target: '_blank',
-							},
-							h(UsersTableCellUser, {
-								userId: row.original.id,
-								avatar: row.original.twitchProfile.profileImageUrl,
-								name: row.original.twitchProfile.displayName,
-							}),
-						);
+						return h('a', {
+							class: 'flex flex-col',
+							href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
+							target: '_blank'
+						}, h(UsersTableCellUser, {
+							userId: row.original.id,
+							avatar: row.original.twitchProfile.profileImageUrl,
+							name: row.original.twitchProfile.displayName
+						}))
 					}
-				},
-			});
+				}
+			})
 		}
 
-		return columns;
-	});
+		return columns
+	})
 
-	const totalNotifications = computed(() => data.value?.notificationsByAdmin.total ?? 0);
+	const totalNotifications = computed(() => data.value?.notificationsByAdmin.total ?? 0)
 
 	const pageCount = computed(() => {
-		return Math.ceil((data.value?.notificationsByAdmin.total ?? 0) / pagination.value.pageSize);
-	});
+		return Math.ceil((data.value?.notificationsByAdmin.total ?? 0) / pagination.value.pageSize)
+	})
 
 	const table = useVueTable({
 		get pageCount() {
-			return pageCount.value;
+			return pageCount.value
 		},
 		state: {
-			pagination: pagination.value,
+			pagination: pagination.value
 		},
 		get data() {
-			return notifications.value;
+			return notifications.value
 		},
 		get columns() {
-			return tableColumns.value;
+			return tableColumns.value
 		},
 		manualPagination: true,
 		getCoreRowModel: getCoreRowModel(),
-		onPaginationChange: (updater) => {
-			if (typeof updater === 'function') {
-				setPagination(
-					updater({
-						pageIndex: pagination.value.pageIndex,
-						pageSize: pagination.value.pageSize,
-					}),
-				);
-			} else {
-				setPagination(updater);
-			}
-		},
-	});
+		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination)
+	})
 
 	async function onDeleteNotification(notificationId: string) {
 		if (form.editableMessageId === notificationId) {
-			form.onReset();
+			form.onReset()
 		}
 
-		await deleteNotification({ id: notificationId });
+		await deleteNotification({ id: notificationId })
 	}
 
 	async function onEditNotification(notification: Notifications[0]) {
-		let isConfirmed = true;
+		let isConfirmed = true
 
 		if (form.formValues.message || form.isEditableForm) {
-			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'));
+			// TODO: use confirm dialog from shadcn
+			// eslint-disable-next-line no-alert
+			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'))
 		}
 
 		if (isConfirmed) {
-			form.editableMessageId = notification.id;
-			form.userIdField.fieldModel = notification.userId ?? null;
-			form.messageField.fieldModel = notification.text;
-			layout.scrollToTop();
+			form.editableMessageId = notification.id
+			form.userIdField.fieldModel = notification.userId ?? null
+			form.messageField.fieldModel = notification.text
+			layout.scrollToTop()
 		}
 	}
 
 	return {
+		isLoading: fetching,
 		table,
 		tableColumns,
+		pagination,
 		notifications,
 		totalNotifications,
 		onDeleteNotification,
-		onEditNotification,
-	};
-});
+		onEditNotification
+	}
+})

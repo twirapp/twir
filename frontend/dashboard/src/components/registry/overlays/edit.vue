@@ -17,6 +17,7 @@ import {
 } from '@/api/index.js';
 import NewSelector from '@/components/registry/overlays/newSelector.vue';
 import { copyToClipBoard } from '@/helpers';
+import { storeToRefs } from 'pinia';
 
 const { t } = useI18n();
 
@@ -134,7 +135,7 @@ const removeLayer = (index: number) => {
 
 const isOverlayNewModalOpened = ref(false);
 
-const userProfile = useProfile();
+const userProfile = storeToRefs(useProfile());
 const copyUrl = async (id: string) => {
 	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`);
 };

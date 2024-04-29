@@ -3,8 +3,9 @@ import { NAvatar, NText } from 'naive-ui';
 
 import { useProfile } from '@/api';
 import { resolveUserName } from '@/helpers';
+import { storeToRefs } from 'pinia';
 
-const { data: profileData } = useProfile();
+const { data: profileData } = storeToRefs(useProfile());
 </script>
 
 <template>

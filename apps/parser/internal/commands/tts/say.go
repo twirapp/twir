@@ -10,6 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/guregu/null"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	model "github.com/satont/twir/libs/gomodels"
 
 	"github.com/samber/lo"
@@ -19,6 +20,10 @@ import (
 
 var emojiRx = regexp.MustCompile(`[\p{So}\p{Sk}\p{Sm}\p{Sc}]`)
 
+const (
+	ttsSayArgName = "text"
+)
+
 var SayCommand = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "tts",
@@ -27,17 +32,18 @@ var SayCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
+	Args: []command_arguments.Arg{
+		command_arguments.VariadicString{
+			Name: ttsSayArgName,
+		},
+	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		if parseCtx.Text == nil {
-			return result, nil
-		}
-
-		resultedText := *parseCtx.Text
+		resultedText := parseCtx.ArgsParser.Get(ttsSayArgName).String()
 
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 		if channelSettings == nil || !*channelSettings.Enabled {

@@ -10,6 +10,7 @@ import type { Command } from '@twir/api/messages/commands_unprotected/commands_u
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { computed, h, onMounted } from 'vue';
 
+import { useCommands } from '@/api/use-commands';
 import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -20,7 +21,6 @@ import {
 	TableRow,
 	TableCell,
 } from '@/components/ui/table';
-import { useCommands } from '@/composables/use-commands';
 import CommandsCooldownCell from '@/pages/commands/commands-cooldown-cell.vue';
 import CommandsNameCell from '@/pages/commands/commands-name-cell.vue';
 import CommandsPermissionsCell, {

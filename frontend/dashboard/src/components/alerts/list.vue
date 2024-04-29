@@ -16,12 +16,13 @@ import { useI18n } from 'vue-i18n';
 
 import {
 	useAlertsManager,
-	useCommandsManager,
 	useTwitchRewards,
 	useUserAccessFlagChecker,
 } from '@/api';
+import { useCommandsApi } from '@/api/commands/commands';
 import AlertModal from '@/components/alerts/modal.vue';
 import { type EditableAlert } from '@/components/alerts/types.js';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 import { renderIcon } from '@/helpers';
 
 const props = withDefaults(defineProps<{
@@ -41,9 +42,11 @@ const { data, isLoading } = manager.getAll({});
 
 const { t } = useI18n();
 
-const userCanManageAlerts = useUserAccessFlagChecker('MANAGE_ALERTS');
+const userCanManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts);
 const { data: rewards } = useTwitchRewards();
-const { data: commands } = useCommandsManager().getAll({});
+
+const commandsManager = useCommandsApi();
+const { data: commands } = commandsManager.useQueryCommands();
 
 const columns = computed<DataTableColumns<Alert>>(() => [
 	{

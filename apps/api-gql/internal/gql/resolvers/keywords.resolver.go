@@ -70,7 +70,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		Cooldown:            entity.Cooldown,
 		IsReply:             entity.IsReply,
 		IsRegularExpression: entity.IsRegular,
-		Usages:              entity.Usages,
+		UsageCount:          entity.Usages,
 	}, nil
 }
 
@@ -128,7 +128,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		Cooldown:            entity.Cooldown,
 		IsReply:             entity.IsReply,
 		IsRegularExpression: entity.IsRegular,
-		Usages:              entity.Usages,
+		UsageCount:          entity.Usages,
 	}, nil
 }
 
@@ -164,6 +164,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 	var entities []model.ChannelsKeywords
 	if err := r.gorm.WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
+		Order("id ASC").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
@@ -180,7 +181,7 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 				Cooldown:            entity.Cooldown,
 				IsReply:             entity.IsReply,
 				IsRegularExpression: entity.IsRegular,
-				Usages:              0,
+				UsageCount:          entity.Usages,
 			},
 		)
 	}

@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { TrashIcon, PencilIcon } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { PencilIcon, TrashIcon } from 'lucide-vue-next'
+import { ref } from 'vue'
 
-import { Button } from '@/components/ui/button';
-import DeleteConfirm from '@/components/ui/delete-confirm.vue';
+import { Button } from '@/components/ui/button'
+import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 
 const emits = defineEmits<{
 	(event: 'delete'): void
 	(event: 'edit'): void
-}>();
+}>()
 
-const showDelete = ref(false);
+const showDelete = ref(false)
 </script>
 
 <template>
@@ -23,7 +23,7 @@ const showDelete = ref(false);
 		</Button>
 	</div>
 
-	<delete-confirm
+	<DeleteConfirm
 		v-model:open="showDelete"
 		@confirm="emits('delete')"
 	/>

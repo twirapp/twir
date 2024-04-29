@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n';
 
 import { useUserAccessFlagChecker } from '@/api';
 import Card from '@/components/card/card.vue';
+import { ChannelRolePermissionEnum } from '@/gql/graphql';
 
 const props = withDefaults(defineProps<{
 	title: string
@@ -33,7 +34,7 @@ async function callSave() {
 	await props.save?.();
 }
 
-const userCanManageIntegrations = useUserAccessFlagChecker('MANAGE_INTEGRATIONS');
+const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations);
 
 const { t } = useI18n();
 

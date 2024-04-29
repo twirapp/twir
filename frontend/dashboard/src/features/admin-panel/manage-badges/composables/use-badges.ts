@@ -1,18 +1,18 @@
-import { defineStore } from 'pinia';
-import { computed } from 'vue';
+import { defineStore } from 'pinia'
+import { computed } from 'vue'
 
-import { useQueryBadges, useAdminBadges } from '@/api/admin/badges';
+import { useAdminBadges, useQueryBadges } from '@/api/admin/badges'
 
 export const useBadges = defineStore('admin-panel/badges', () => {
-	const badgesApi = useAdminBadges();
-	const badgesCreate = badgesApi.useMutationCreateBadge();
-	const badgesDelete = badgesApi.useMutationDeleteBadge();
-	const badgesUpdate = badgesApi.useMutationUpdateBadge();
-	const badgesAddUser = badgesApi.useMutationsAddUserBadge();
-	const badgesRemoveUser = badgesApi.useMutationsRemoveUserBadge();
+	const badgesApi = useAdminBadges()
+	const badgesCreate = badgesApi.useMutationCreateBadge()
+	const badgesDelete = badgesApi.useMutationDeleteBadge()
+	const badgesUpdate = badgesApi.useMutationUpdateBadge()
+	const badgesAddUser = badgesApi.useMutationsAddUserBadge()
+	const badgesRemoveUser = badgesApi.useMutationsRemoveUserBadge()
 
-	const { data } = useQueryBadges();
-	const badges = computed(() => data.value?.twirBadges ?? []);
+	const { data } = useQueryBadges()
+	const badges = computed(() => data.value?.twirBadges ?? [])
 
 	return {
 		badges,
@@ -20,6 +20,6 @@ export const useBadges = defineStore('admin-panel/badges', () => {
 		badgesDelete,
 		badgesUpdate,
 		badgesAddUser,
-		badgesRemoveUser,
-	};
-});
+		badgesRemoveUser
+	}
+})

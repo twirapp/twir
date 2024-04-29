@@ -41,7 +41,7 @@ linters-settings:
   forbidigo:
     forbid:
       - p: ^time\.After$
-        msg: "time.After may leak resources. Use time.NewTimer instead."
+        msg: time.After may leak resources. Use time.NewTimer instead.
   revive:
     severity: error
     confidence: 0.8
@@ -115,9 +115,9 @@ linters-settings:
           - 5
       - name: unhandled-error
         arguments:
-          - "fmt.*"
-          - "bytes.Buffer.*"
-          - "strings.Builder.*"
+          - 'fmt.*'
+          - 'bytes.Buffer.*'
+          - 'strings.Builder.*'
   tagliatelle:
     # Check the struck tag name case.
     case:
@@ -136,7 +136,7 @@ issues:
   # Exclude cyclomatic and cognitive complexity rules for functional tests in the `tests` root directory.
   exclude-rules:
     - path: ^tests\/.+\.go
-      text: "(cyclomatic|cognitive)"
+      text: '(cyclomatic|cognitive)'
       linters:
         - revive
     - path: _test\.go|^common/persistence\/tests\/.+\.go # Ignore things like err = errors.New("test error") in tests

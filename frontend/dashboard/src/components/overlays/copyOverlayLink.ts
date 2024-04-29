@@ -3,9 +3,10 @@ import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import { useProfile } from '@/api';
+import { storeToRefs } from 'pinia';
 
 export const useCopyOverlayLink = (overlayPath: string) => {
-	const { data: profile } = useProfile();
+	const { data: profile } = storeToRefs(useProfile());
 	const { t } = useI18n();
 	const messages = useNotification();
 

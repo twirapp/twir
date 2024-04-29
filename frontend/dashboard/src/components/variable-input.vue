@@ -1,9 +1,10 @@
 <script setup lang='ts'>
 import { MentionOption, NMention, NText } from 'naive-ui';
+import { storeToRefs } from 'pinia';
 import { computed, VNodeChild, h, FunctionalComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
 
-import { useAllVariables } from '@/api/index.js';
+import { useVariablesApi } from '@/api/variables';
 
 const text = defineModel<string>({ default: '' });
 const { t }  = useI18n();
@@ -20,13 +21,10 @@ defineSlots<{
 	underSelect: FunctionalComponent
 }>();
 
-const allVariables = useAllVariables();
+const { allVariables } = storeToRefs(useVariablesApi());
 
 const selectVariables = computed<MentionOption[]>(() => {
-	const variables = allVariables.data?.value;
-	if (!variables) return [];
-
-	return variables.map((variable) => ({
+	return allVariables.value.map((variable) => ({
 		label: `(${variable.example})`,
     value: `(${variable.example})`,
 		description: variable.description,

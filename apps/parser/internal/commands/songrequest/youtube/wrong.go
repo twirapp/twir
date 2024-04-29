@@ -3,16 +3,20 @@ package sr_youtube
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/guregu/null"
+	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 
 	"github.com/samber/lo"
+)
+
+const (
+	songSkipArgName = "number"
 )
 
 var WrongCommand = &types.DefaultCommand{
@@ -22,6 +26,13 @@ var WrongCommand = &types.DefaultCommand{
 		Module:      "SONGS",
 		IsReply:     true,
 		Visible:     true,
+	},
+	Args: []command_arguments.Arg{
+		command_arguments.Int{
+			Name:     songSkipArgName,
+			Optional: true,
+			Min:      lo.ToPtr(1),
+		},
 	},
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
@@ -53,17 +64,12 @@ var WrongCommand = &types.DefaultCommand{
 		}
 
 		number := 1
-
-		if parseCtx.Text != nil {
-			newNumber, err := strconv.Atoi(*parseCtx.Text)
-			if err != nil {
-				result.Result = append(result.Result, "Seems like you provided not a number.")
-				return result, nil
-			}
-			number = newNumber
+		songSkipArg := parseCtx.ArgsParser.Get(songSkipArgName)
+		if songSkipArg != nil {
+			number = songSkipArg.Int()
 		}
 
-		if number > len(songs)+1 || number <= 0 {
+		if number > len(songs)+1 {
 			result.Result = append(
 				result.Result,
 				fmt.Sprintf("there is only %v songs", len(songs)),
