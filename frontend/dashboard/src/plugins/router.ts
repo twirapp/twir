@@ -62,8 +62,8 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/community/roles',
-					component: () => import('../pages/CommunityRoles.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewRoles }
+					component: () => import('../features/community-roles/community-roles.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewRoles, noPadding: true }
 				},
 				{
 					path: '/dashboard/song-requests',

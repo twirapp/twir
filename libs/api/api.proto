@@ -10,7 +10,6 @@ import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
-import "messages/roles/roles.proto";
 import "messages/moderation/moderation.proto";
 import "messages/users/users.proto";
 
@@ -148,11 +147,6 @@ service Protected {
 
 	rpc RewardsGet(google.protobuf.Empty) returns (messages.rewards.GetResponse) {}
 
-	rpc RolesGetAll(google.protobuf.Empty) returns (messages.roles.GetAllResponse) {}
-	rpc RolesUpdate(messages.roles.UpdateRequest) returns (messages.roles.Role) {}
-	rpc RolesDelete(messages.roles.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc RolesCreate(messages.roles.CreateRequest) returns (messages.roles.Role) {}
-
 	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
 
 	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
@@ -244,7 +238,7 @@ service UnProtected {
 
 	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
 	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
-	
+
 	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (messages.auth.PostCodeResponse) {}
 
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}

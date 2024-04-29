@@ -108,6 +108,33 @@ func TestParser(t *testing.T) {
 				return nil
 			},
 		},
+		{
+			name: "multiple correct args",
+			args: []Arg{
+				Int{Name: "test1"},
+				String{Name: "test2"},
+			},
+			input:     "1 test",
+			expectErr: false,
+		},
+		{
+			name: "multiple correct args with optional",
+			args: []Arg{
+				Int{Name: "test1"},
+				String{Name: "test2", Optional: true},
+			},
+			input:     "1",
+			expectErr: false,
+		},
+		{
+			name: "multiple args with incorrect arg",
+			args: []Arg{
+				String{Name: "test1"},
+				Int{Name: "test2"},
+			},
+			input:     "test qwe",
+			expectErr: true,
+		},
 	}
 
 	for _, c := range cases {

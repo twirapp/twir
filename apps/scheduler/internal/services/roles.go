@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"sync"
@@ -62,20 +61,16 @@ func (c *Roles) CreateDefaultRoles(ctx context.Context, channelsIds []string) er
 					continue
 				}
 
-				settings, err := json.Marshal(&model.ChannelRoleSettings{})
-				if err != nil {
-					c.logger.Error("cannot marshal settings", slog.Any("err", err))
-					return
-				}
-
 				if err := c.db.WithContext(ctx).Create(
 					&model.ChannelRole{
-						ID:          uuid.New().String(),
-						ChannelID:   channel.ID,
-						Name:        roleType,
-						Type:        model.ChannelRoleEnum(roleType),
-						Permissions: pq.StringArray{},
-						Settings:    settings,
+						ID:                        uuid.New().String(),
+						ChannelID:                 channel.ID,
+						Name:                      roleType,
+						Type:                      model.ChannelRoleEnum(roleType),
+						Permissions:               pq.StringArray{},
+						RequiredMessages:          0,
+						RequiredWatchTime:         0,
+						RequiredUsedChannelPoints: 0,
 					},
 				).Error; err != nil {
 					c.logger.Error("cannot create role", slog.Any("err", err))
