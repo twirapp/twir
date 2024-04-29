@@ -43,7 +43,7 @@
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
     "pagination": "z {page} strana(y) / {total} položka(y)",
-    "paginationPerPage": "Per page",
+    "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
     "messages": "Správy",
     "asc": "Vzost.",
@@ -845,7 +845,7 @@
       "deny_list": {
         "name": "Zoznam zakázaných slov",
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
-        "empty": "List of disallowed words is empty! You can add one there.",
+        "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
         "regexpCheatSheet": "cheat sheet"
       },
@@ -894,7 +894,7 @@
       "title": "Účet",
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
-        "button": "Regenerate Private API key",
+        "button": "Vygenerovať súkromný kľúč API",
         "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
       }
     },
