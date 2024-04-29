@@ -43,6 +43,7 @@
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
     "pagination": "of {page} page(s) / {total} item(s)",
+    "paginationPerPage": "Per page",
     "searchPlaceholder": "Search...",
     "messages": "Messages",
     "asc": "Asc",
@@ -938,7 +939,12 @@
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
       "statusGroup": "Status",
-      "badgesGroup": "Badges"
+      "badgesGroup": "Badges",
+      "giveBan": "Ban user",
+      "unBan": "Unban user",
+      "giveMod": "Give admin",
+      "unMod": "Remove admin",
+      "dropSession": "Drop session"
     },
     "manageBadges": {
       "title": "Badges",
@@ -950,6 +956,11 @@
       "preview": "Preview",
       "usesCount": "Uses {count}",
       "badgeSlot": "Slot {slot}"
+    },
+    "adminActions": {
+      "title": "Actions",
+      "dropAllSession": "Drop all sessions",
+      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
   }
 }
