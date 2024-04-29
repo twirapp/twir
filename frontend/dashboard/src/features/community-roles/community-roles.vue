@@ -43,7 +43,7 @@ const { t } = useI18n()
 			{{ t('sidebar.roles') }}
 		</template>
 		<template #content>
-			<div class="flex flex-col justify-center gap-2 items-center container">
+			<div class="flex flex-col gap-2">
 				<NCard
 					class="min-w-[400px]"
 					:style="{ cursor: userCanManageRoles ? 'pointer' : 'not-allowed' }"
