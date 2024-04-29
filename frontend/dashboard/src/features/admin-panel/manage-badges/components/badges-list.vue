@@ -8,9 +8,9 @@ import BadgesPreview from './badges-preview.vue'
 import { useBadgesActions } from '../composables/use-badges-actions.js'
 import { useBadges } from '../composables/use-badges.js'
 
+import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Badge as UiBadge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -101,7 +101,7 @@ const badgesActions = useBadgesActions()
 		</NCard>
 	</div>
 
-	<DeleteConfirm
+	<ActionConfirm
 		v-model:open="badgesActions.isShowModalDelete"
 		@confirm="badgesActions.deleteBadge()"
 	/>

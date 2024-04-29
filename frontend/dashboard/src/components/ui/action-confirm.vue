@@ -1,28 +1,28 @@
 <script lang="ts" setup>
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
-
-const { t } = useI18n();
-
-defineEmits<{
-	cancel: [],
-	confirm: [],
-}>();
-
-const open = defineModel<boolean>({ default: false });
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 
 defineProps<{
 	confirmText?: string
 }>()
+
+defineEmits<{
+	cancel: []
+	confirm: []
+}>()
+
+const { t } = useI18n()
+
+const open = defineModel<boolean>({ default: false })
 </script>
 
 <template>
