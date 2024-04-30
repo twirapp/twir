@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
@@ -17,10 +17,18 @@ import (
 )
 
 // RewardsRedemptionsHistory is the resolver for the rewardsRedemptionsHistory field.
-func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlmodel.TwitchRedemptionsOpts) (*gqlmodel.TwitchRedemptionResponse, error) {
+func (r *queryResolver) RewardsRedemptionsHistory(
+	ctx context.Context,
+	opts gqlmodel.TwitchRedemptionsOpts,
+) (*gqlmodel.TwitchRedemptionResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	channelIdForRequest := dashboardId
+	if opts.ByChannelID.IsSet() {
+		channelIdForRequest = *opts.ByChannelID.Value()
 	}
 
 	page := 0
@@ -58,11 +66,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		query = query.Where(`"channel_redemptions_history"."user_id" IN ?`, ids)
 	}
 
-	if opts.ByChannelID.IsSet() {
-		query = query.Where(`"channel_redemptions_history"."channel_id" = ?`, opts.ByChannelID.Value())
-	} else {
-		query = query.Where(`"channel_redemptions_history"."channel_id" = ?`, dashboardId)
-	}
+	query = query.Where(`"channel_redemptions_history"."channel_id" = ?`, channelIdForRequest)
 
 	if opts.RewardsIds.IsSet() && len(opts.RewardsIds.Value()) > 0 {
 		query = query.Where(`"channel_redemptions_history"."reward_id" IN ?`, opts.RewardsIds.Value())
@@ -83,7 +87,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		}, nil
 	}
 
-	rewards, err := r.cachedTwitchClient.GetChannelRewards(ctx, dashboardId)
+	rewards, err := r.TwitchRewards(ctx, &channelIdForRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -98,18 +102,11 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		}
 
 		twitchReward, twitchRewardFound := lo.Find(
-			rewards, func(r helix.ChannelCustomReward) bool {
+			rewards, func(r gqlmodel.TwitchReward) bool {
 				return r.ID == entity.RewardID.String()
 			},
 		)
 		if twitchRewardFound {
-			reward.ImageUrls = append(
-				[]string{},
-				twitchReward.Image.Url1x,
-				twitchReward.Image.Url2x,
-				twitchReward.Image.Url4x,
-			)
-
 			reward.Title = twitchReward.Title
 		}
 
@@ -132,7 +129,10 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 }
 
 // User is the resolver for the user field.
-func (r *twitchRedemptionResolver) User(ctx context.Context, obj *gqlmodel.TwitchRedemption) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *twitchRedemptionResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.TwitchRedemption,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.User.ID)
 }
 
