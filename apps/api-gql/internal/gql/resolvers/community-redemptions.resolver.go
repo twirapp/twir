@@ -108,6 +108,9 @@ func (r *queryResolver) RewardsRedemptionsHistory(
 		)
 		if twitchRewardFound {
 			reward.Title = twitchReward.Title
+			reward.ImageUrls = twitchReward.ImageUrls
+			reward.UsedTimes = twitchReward.UsedTimes
+			reward.Enabled = twitchReward.Enabled
 		}
 
 		redemption := gqlmodel.TwitchRedemption{
