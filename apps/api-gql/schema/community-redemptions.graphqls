@@ -1,0 +1,34 @@
+extend type Query {
+	twitchRedemptions(opts: TwitchRedemptionsOpts!): TwitchRedemptionResponse! @isAuthenticated
+}
+
+type TwitchRedemptionResponse {
+	redemptions: [TwitchRedemption!]!
+	total: Int!
+}
+
+type TwitchRedemption {
+	id: ID!
+	channelId: String!
+	user: TwirUserTwitchInfo! @goField(forceResolver: true)
+	reward: TwitchReward!
+	redeemedAt: Time!
+	prompt: String
+}
+
+type TwitchReward {
+	id: ID!
+	title: String!
+	cost: Int!
+	imageUrls: [String!]
+	background_color: String
+	enabled: Boolean!
+}
+
+input TwitchRedemptionsOpts {
+	byChannelId: ID
+	userSearch: String
+	page: Int
+	perPage: Int
+	rewardsIds: [ID!]
+}

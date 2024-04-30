@@ -34,6 +34,7 @@ type Resolver struct {
 	twirBus            *bus_core.Bus
 	logger             logger.Logger
 	redis              *redis.Client
+	tokensGrpc         tokens.TokensClient
 }
 
 type Opts struct {
@@ -68,6 +69,7 @@ func New(opts Opts) (*Resolver, error) {
 		twirBus:            opts.TwirBus,
 		logger:             opts.Logger,
 		redis:              opts.Redis,
+		tokensGrpc:         opts.TokensGrpc,
 	}, nil
 }
 

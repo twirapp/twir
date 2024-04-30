@@ -228,6 +228,18 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId str
 			Version:   "1",
 			Condition: channelConditionWithModeratorId,
 		},
+		"channel.channel_points_custom_reward.add": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.channel_points_custom_reward.update": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
+		"channel.channel_points_custom_reward.remove": {
+			Version:   "1",
+			Condition: channelCondition,
+		},
 	}
 
 	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
