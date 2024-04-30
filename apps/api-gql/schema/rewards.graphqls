@@ -1,0 +1,16 @@
+extend type Query {
+	"""
+	Channel id is optional
+	"""
+	twitchRewards(channelId: String): [TwitchReward!]! @isAuthenticated
+}
+
+type TwitchReward {
+	id: ID!
+	title: String!
+	cost: Int!
+	imageUrls: [String!]
+	backgroundColor: String!
+	enabled: Boolean!
+	usedTimes: Int!
+}

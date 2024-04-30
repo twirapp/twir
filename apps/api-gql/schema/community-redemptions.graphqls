@@ -1,5 +1,5 @@
 extend type Query {
-	twitchRedemptions(opts: TwitchRedemptionsOpts!): TwitchRedemptionResponse! @isAuthenticated
+	rewardsRedemptionsHistory(opts: TwitchRedemptionsOpts!): TwitchRedemptionResponse! @isAuthenticated
 }
 
 type TwitchRedemptionResponse {
@@ -14,15 +14,6 @@ type TwitchRedemption {
 	reward: TwitchReward!
 	redeemedAt: Time!
 	prompt: String
-}
-
-type TwitchReward {
-	id: ID!
-	title: String!
-	cost: Int!
-	imageUrls: [String!]
-	background_color: String
-	enabled: Boolean!
 }
 
 input TwitchRedemptionsOpts {
