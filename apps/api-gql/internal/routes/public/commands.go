@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
 
@@ -23,20 +24,17 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		return
 	}
 
-	var commands []model.ChannelsCommands
-	if err := p.gorm.
-		WithContext(c.Request.Context()).
-		Where(
-			`channels_commands."channelId" = ? AND channels_commands.enabled IS TRUE AND channels_commands.visible IS TRUE`,
-			c.Param("channelId"),
-		).
-		Joins("Group").
-		Preload("Responses").
-		Find(&commands).
-		Error; err != nil {
+	commands, err := p.cachedCommands.GetCommands(c.Request.Context(), c.Param("channelId"))
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	commands = lo.Filter(
+		commands, func(item model.ChannelsCommands, index int) bool {
+			return item.Enabled && item.Visible
+		},
+	)
 
 	mappedCommands := make([]map[string]any, 0, len(commands))
 

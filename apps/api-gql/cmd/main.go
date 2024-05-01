@@ -12,6 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -28,6 +29,7 @@ func main() {
 			},
 			minio.New,
 			twitchcache.New,
+			commandscache.New,
 			buscore.NewNatsBusFx("api-gql"),
 			subscriptions_store.New,
 			resolvers.New,

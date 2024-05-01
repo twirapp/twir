@@ -13,6 +13,7 @@ import (
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -24,31 +25,33 @@ import (
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	config             config.Config
-	sessions           *sessions.Sessions
-	gorm               *gorm.DB
-	twitchClient       *helix.Client
-	cachedTwitchClient *twitchcahe.CachedTwitchClient
-	minioClient        *minio.Client
-	subscriptionsStore *subscriptions_store.SubscriptionsStore
-	twirBus            *bus_core.Bus
-	logger             logger.Logger
-	redis              *redis.Client
+	config               config.Config
+	sessions             *sessions.Sessions
+	gorm                 *gorm.DB
+	twitchClient         *helix.Client
+	cachedTwitchClient   *twitchcahe.CachedTwitchClient
+	cachedCommandsClient *commandscache.CachedCommandsClient
+	minioClient          *minio.Client
+	subscriptionsStore   *subscriptions_store.SubscriptionsStore
+	twirBus              *bus_core.Bus
+	logger               logger.Logger
+	redis                *redis.Client
 }
 
 type Opts struct {
 	fx.In
 
-	Sessions           *sessions.Sessions
-	Gorm               *gorm.DB
-	Config             config.Config
-	TokensGrpc         tokens.TokensClient
-	CachedTwitchClient *twitchcahe.CachedTwitchClient
-	Minio              *minio.Client
-	SubscriptionsStore *subscriptions_store.SubscriptionsStore
-	TwirBus            *bus_core.Bus
-	Logger             logger.Logger
-	Redis              *redis.Client
+	Sessions             *sessions.Sessions
+	Gorm                 *gorm.DB
+	Config               config.Config
+	TokensGrpc           tokens.TokensClient
+	CachedTwitchClient   *twitchcahe.CachedTwitchClient
+	CachedCommandsClient *commandscache.CachedCommandsClient
+	Minio                *minio.Client
+	SubscriptionsStore   *subscriptions_store.SubscriptionsStore
+	TwirBus              *bus_core.Bus
+	Logger               logger.Logger
+	Redis                *redis.Client
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -58,16 +61,17 @@ func New(opts Opts) (*Resolver, error) {
 	}
 
 	return &Resolver{
-		config:             opts.Config,
-		sessions:           opts.Sessions,
-		gorm:               opts.Gorm,
-		twitchClient:       twitchClient,
-		cachedTwitchClient: opts.CachedTwitchClient,
-		minioClient:        opts.Minio,
-		subscriptionsStore: opts.SubscriptionsStore,
-		twirBus:            opts.TwirBus,
-		logger:             opts.Logger,
-		redis:              opts.Redis,
+		config:               opts.Config,
+		sessions:             opts.Sessions,
+		gorm:                 opts.Gorm,
+		twitchClient:         twitchClient,
+		cachedTwitchClient:   opts.CachedTwitchClient,
+		minioClient:          opts.Minio,
+		subscriptionsStore:   opts.SubscriptionsStore,
+		twirBus:              opts.TwirBus,
+		logger:               opts.Logger,
+		redis:                opts.Redis,
+		cachedCommandsClient: opts.CachedCommandsClient,
 	}, nil
 }
 

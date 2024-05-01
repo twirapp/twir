@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -14,7 +15,10 @@ import (
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
-func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
+func (r *mutationResolver) CommandsGroupsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsGroupsCreateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -35,7 +39,11 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 }
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
-func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsGroupsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsGroupsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -62,6 +70,10 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 		return false, err
 	}
 
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	}
+
 	return true, nil
 }
 
@@ -86,6 +98,10 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 		Delete(&entity).
 		Error; err != nil {
 		return false, err
+	}
+
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
 	return true, nil

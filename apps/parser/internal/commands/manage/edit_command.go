@@ -92,6 +92,8 @@ var EditCommand = &types.DefaultCommand{
 			}
 		}
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = append(result.Result, "✅ Command edited.")
 		return result, nil
 	},

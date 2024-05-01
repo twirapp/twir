@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -32,4 +33,5 @@ type Services struct {
 	GrpcClients     *Grpc
 	TaskDistributor task_queue.TaskDistributor
 	Bus             *buscore.Bus
+	CommandsCache   *commandscache.CachedCommandsClient
 }
