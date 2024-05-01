@@ -24,7 +24,7 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		return
 	}
 
-	commands, err := p.cachedCommands.GetCommands(c.Request.Context(), c.Param("channelId"))
+	commands, err := p.cachedCommands.Get(c.Request.Context(), c.Param("channelId"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

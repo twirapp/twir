@@ -149,11 +149,6 @@ func main() {
 
 	bus := buscore.NewNatsBus(nc)
 
-	commandsCache, err := commandscache.New(*config, redisClient, db)
-	if err != nil {
-		panic(err)
-	}
-
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -169,7 +164,7 @@ func main() {
 		},
 		TaskDistributor: taskQueueDistributor,
 		Bus:             bus,
-		CommandsCache:   commandsCache,
+		CommandsCache:   commandscache.New(db, redisClient),
 	}
 
 	variablesService := variables.New(

@@ -2,8 +2,9 @@ package public
 
 import (
 	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
-	cachedcommands "github.com/twirapp/twir/libs/cache/commands"
+	db_generic_cacher "github.com/twirapp/twir/libs/cache/db-generic-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -14,13 +15,13 @@ type Opts struct {
 	Server         *httpserver.Server
 	Gorm           *gorm.DB
 	Config         config.Config
-	CachedCommands *cachedcommands.CachedCommandsClient
+	CachedCommands *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
 }
 
 type Public struct {
 	gorm           *gorm.DB
 	config         config.Config
-	cachedCommands *cachedcommands.CachedCommandsClient
+	cachedCommands *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
 }
 
 func New(opts Opts) *Public {
