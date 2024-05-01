@@ -256,12 +256,13 @@ func (c *vkService) GetTrack(ctx context.Context) *string {
 	resp, err := req.R().
 		SetContext(ctx).
 		SetQueryParam("access_token", c.integration.AccessToken.String).
-		SetQueryParam("v", "5.131").
+		SetQueryParam("v", "5.199").
 		SetSuccessResult(&data).
 		SetContentType("application/json").
 		Get("https://api.vk.com/method/status.get")
 
-	if err != nil || !resp.IsSuccess() {
+	fmt.Println("vkkkkk", resp.String())
+	if err != nil || !resp.IsSuccessState() {
 		return nil
 	}
 
