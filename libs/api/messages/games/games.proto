@@ -2,16 +2,6 @@ syntax = "proto3";
 option go_package = "github.com/twirapp/twir/libs/api/messages/games";
 package messages.games;
 
-message UpdateEightBallSettings {
-	repeated string answers = 1;
-	bool enabled = 2;
-}
-
-message EightBallSettingsResponse {
-	repeated string answers = 1;
-	bool enabled = 2;
-}
-
 message RussianRouletteSettingsResponse {
 	bool enabled = 1;
 	bool can_be_used_by_moderator = 2;

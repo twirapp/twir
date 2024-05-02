@@ -68,11 +68,6 @@ type YoutubeSettings struct {
 	BlackList               BlackListYoutubeSettings `json:"blacklist"               validate:"required"`
 }
 
-type EightBallSettings struct {
-	Answers []string `validate:"required" json:"answers"`
-	Enabled bool     `                    json:"enabled"`
-}
-
 type RussianRouletteSetting struct {
 	Enabled               bool `json:"enabled"`
 	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
