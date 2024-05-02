@@ -12,7 +12,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/feedback"
 	"github.com/satont/twir/apps/api/internal/impl_protected/files"
-	"github.com/satont/twir/apps/api/internal/impl_protected/games"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/moderation"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
@@ -45,7 +44,6 @@ type Protected struct {
 	*twitch.Twitch
 	*files.Files
 	*alerts.Alerts
-	*games.Games
 	*overlays.Overlays
 	*moderation.Moderation
 	*users.Users
@@ -99,7 +97,6 @@ func New(opts Opts) *Protected {
 		Twitch:           &twitch.Twitch{Deps: d},
 		Files:            files.New(d),
 		Alerts:           &alerts.Alerts{Deps: d},
-		Games:            &games.Games{Deps: d},
 		Overlays:         &overlays.Overlays{Deps: d},
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},

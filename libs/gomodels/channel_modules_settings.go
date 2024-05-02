@@ -68,24 +68,6 @@ type YoutubeSettings struct {
 	BlackList               BlackListYoutubeSettings `json:"blacklist"               validate:"required"`
 }
 
-type EightBallSettings struct {
-	Answers []string `validate:"required" json:"answers"`
-	Enabled bool     `                    json:"enabled"`
-}
-
-type RussianRouletteSetting struct {
-	Enabled               bool `json:"enabled"`
-	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
-	TimeoutSeconds        int  `json:"timeoutTime"`
-	DecisionSeconds       int  `json:"decisionTime"`
-	TumberSize            int  `json:"tumberSize"`
-	ChargedBullets        int  `json:"chargedBullets"`
-
-	InitMessage    string `json:"initMessage"`
-	SurviveMessage string `json:"surviveMessage"`
-	DeathMessage   string `json:"deathMessage"`
-}
-
 type ChatAlertsSettings struct {
 	Followers           ChatAlertsFollowersSettings   `json:"followers"`
 	Raids               ChatAlertsRaids               `json:"raids"`

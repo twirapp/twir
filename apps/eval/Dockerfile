@@ -3,10 +3,11 @@ WORKDIR /app
 RUN npm i -g pnpm@8
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY apps/integrations /app/apps/integrations
+COPY apps/eval /app/apps/eval
 COPY libs/config /app/libs/config
 COPY libs/grpc /app/libs/grpc
 COPY libs/pubsub /app/libs/pubsub
+COPY libs/bus-core /app/libs/bus-core
 
 RUN pnpm prune --prod
 

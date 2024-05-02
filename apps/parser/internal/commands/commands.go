@@ -126,7 +126,7 @@ func (c *Commands) GetChannelCommands(
 	ctx context.Context,
 	channelId string,
 ) ([]model.ChannelsCommands, error) {
-	return c.services.CommandsCache.GetCommands(ctx, channelId)
+	return c.services.CommandsCache.Get(ctx, channelId)
 }
 
 var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)

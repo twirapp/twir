@@ -1,15 +1,15 @@
-import { cacheExchange, Client, fetchExchange } from '@urql/vue';
+import { Client, cacheExchange, fetchExchange } from '@urql/vue'
 
-const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api-new/query`;
+const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api/query`
 
 export const urqlClient = new Client({
 	url: gqlApiUrl,
 	exchanges: [
 		cacheExchange,
-		fetchExchange,
+		fetchExchange
 	],
 	// requestPolicy: 'cache-first',
 	fetchOptions: {
-		credentials: 'include',
-	},
-});
+		credentials: 'include'
+	}
+})
