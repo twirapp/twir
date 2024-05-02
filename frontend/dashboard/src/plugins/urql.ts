@@ -2,8 +2,8 @@ import { Client, cacheExchange, fetchExchange, subscriptionExchange } from '@urq
 import { type SubscribePayload, createClient as createWS } from 'graphql-ws'
 import { ref } from 'vue'
 
-const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api-new/query`
-const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api-new/query`
+const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/query`
+const gqlApiUrl = `${window.location.protocol}//${window.location.host}/api/query`
 
 const gqlWs = createWS({
 	url: wsUrl,
