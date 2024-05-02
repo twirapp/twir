@@ -163,9 +163,9 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api`)
+        - traefik.http.routers.twir-api.rule=Host(`twir.app`) && PathPrefix(`/api-old`)
         - traefik.http.routers.twir-api.middlewares=api-stripprefix
-        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api
+        - traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api-old
         - traefik.http.services.twir-api.loadbalancer.server.port=3002
         - traefik.docker.network=traefik-public
       update_config:
@@ -188,9 +188,9 @@ services:
     deploy:
       labels:
         - traefik.enable=true
-        - traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api-new`)
+        - traefik.http.routers.twir-api-gql.rule=Host(`twir.app`) && PathPrefix(`/api`)
         - traefik.http.routers.twir-api-gql.middlewares=api-gql-stripprefix
-        - traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api-new
+        - traefik.http.middlewares.api-gql-stripprefix.stripprefix.prefixes=/api
         - traefik.http.services.twir-api-gql.loadbalancer.server.port=3009
         - traefik.docker.network=traefik-public
       update_config:
