@@ -1,59 +1,62 @@
 <script setup lang="ts">
-import { NowPlaying } from '@twir/frontend-now-playing';
-import { NAlert, NResult, NTabPane, NTabs, useThemeVars, NA } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { NowPlaying } from '@twir/frontend-now-playing'
+import { NA, NAlert, NResult, NTabPane, NTabs, useThemeVars } from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import {
 	useLastfmIntegration,
-	useNowPlayingOverlayManager, useSpotifyIntegration,
+	useNowPlayingOverlayManager,
+	useSpotifyIntegration,
 	useUserAccessFlagChecker,
-} from '@/api';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
-import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue';
+	useVKIntegration
+} from '@/api'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue'
 import {
-	useNowPlayingForm,
 	defaultSettings,
-} from '@/pages/overlays/now-playing/use-now-playing-form';
+	useNowPlayingForm
+} from '@/pages/overlays/now-playing/use-now-playing-form'
 
-const themeVars = useThemeVars();
-const { t } = useI18n();
-const { dialog } = useNaiveDiscrete();
+const themeVars = useThemeVars()
+const { t } = useI18n()
+const { dialog } = useNaiveDiscrete()
 
-const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
-const nowPlayingOverlayManager = useNowPlayingOverlayManager();
-const creator = nowPlayingOverlayManager.useCreate();
-const deleter = nowPlayingOverlayManager.useDelete();
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
+const nowPlayingOverlayManager = useNowPlayingOverlayManager()
+const creator = nowPlayingOverlayManager.useCreate()
+const deleter = nowPlayingOverlayManager.useDelete()
 
-const { data: spotifyData } = useSpotifyIntegration().useData();
-const { data: lastFmData } = useLastfmIntegration().useData();
+const { data: spotifyData } = useSpotifyIntegration().useData()
+const { data: lastFmData } = useLastfmIntegration().useData()
+const { data: vkData } = useVKIntegration().useData()
 
 const isSomeSongIntegrationEnabled = computed(() => {
-	return spotifyData.value?.userName || lastFmData.value?.userName;
-});
+	return spotifyData.value?.userName || lastFmData.value?.userName || vkData.value?.userName
+})
 
-const formStore = useNowPlayingForm();
-const { data: settings } = storeToRefs(formStore);
+const formStore = useNowPlayingForm()
+const { data: settings } = storeToRefs(formStore)
 
 const {
-	data: entities,
-} = nowPlayingOverlayManager.useGetAll();
+	data: entities
+} = nowPlayingOverlayManager.useGetAll()
 
-const openedTab = ref<string>();
+const openedTab = ref<string>()
 
 function resetTab() {
 	if (!entities.value?.settings.at(0)) {
-		openedTab.value = undefined;
-		return;
+		openedTab.value = undefined
+		return
 	}
 
-	openedTab.value = entities.value.settings.at(0)?.id;
+	openedTab.value = entities.value.settings.at(0)?.id
 }
 
 async function handleAdd() {
-	await creator.mutateAsync(defaultSettings);
+	await creator.mutateAsync(defaultSettings)
 }
 
 async function handleClose(id: string) {
@@ -64,28 +67,28 @@ async function handleClose(id: string) {
 		negativeText: 'Cancel',
 		showIcon: false,
 		onPositiveClick: async () => {
-			const entity = entities.value?.settings.find(s => s.id === id);
-			if (!entity?.id) return;
+			const entity = entities.value?.settings.find(s => s.id === id)
+			if (!entity?.id) return
 
-			await deleter.mutateAsync(entity.id);
-			resetTab();
-		},
-	});
+			await deleter.mutateAsync(entity.id)
+			resetTab()
+		}
+	})
 }
 
 const addable = computed(() => {
-	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5;
-});
+	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5
+})
 
 watch(openedTab, async (v) => {
-	const entity = entities.value?.settings.find(s => s.id === v);
-	if (!entity) return;
-	formStore.$setData(entity);
-});
+	const entity = entities.value?.settings.find(s => s.id === v)
+	if (!entity) return
+	formStore.$setData(entity)
+})
 
 watch(entities, () => {
-	resetTab();
-}, { immediate: true });
+	resetTab()
+}, { immediate: true })
 </script>
 
 <template>
@@ -96,28 +99,28 @@ watch(entities, () => {
 				:track="{
 					image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
 					artist: 'Slipknot',
-					title: 'Psychosocial'
+					title: 'Psychosocial',
 				}"
 			/>
 		</div>
 		<div>
-			<n-result
+			<NResult
 				v-if="!isSomeSongIntegrationEnabled"
 				status="warning"
 				title="No enabled song integrations!"
 			>
 				<template #footer>
-					Connect Spotify or Last.fm in
+					Connect Spotify, Last.fm or VK in
 					<router-link :to="{ name: 'Integrations' }" #="{ navigate, href }" custom>
-						<n-a :href="href" @click="navigate">
+						<NA :href="href" @click="navigate">
 							{{ t('sidebar.integrations') }}
-						</n-a>
+						</NA>
 					</router-link>
 					to use this overlay
 				</template>
-			</n-result>
+			</NResult>
 			<template v-if="isSomeSongIntegrationEnabled">
-				<n-tabs
+				<NTabs
 					v-model:value="openedTab"
 					type="card"
 					:closable="userCanEditOverlays"
@@ -131,19 +134,19 @@ watch(entities, () => {
 						{{ t('overlays.chat.presets') }}
 					</template>
 					<template v-if="entities?.settings.length">
-						<n-tab-pane
+						<NTabPane
 							v-for="(entity, entityIndex) in entities?.settings"
 							:key="entity.id"
-							:tab="`#${entityIndex+1}`"
+							:tab="`#${entityIndex + 1}`"
 							:name="entity.id!"
 						>
-							<now-playing-form />
-						</n-tab-pane>
+							<NowPlayingForm />
+						</NTabPane>
 					</template>
-				</n-tabs>
-				<n-alert v-if="!entities?.settings.length" type="info" class="mt-2">
+				</NTabs>
+				<NAlert v-if="!entities?.settings.length" type="info" class="mt-2">
 					Create new overlay for edit settings
-				</n-alert>
+				</NAlert>
 			</template>
 		</div>
 	</div>
