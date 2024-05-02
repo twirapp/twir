@@ -45,7 +45,7 @@ func New(opts Opts) *Server {
 	)
 
 	r.ForwardedByClientIP = true
-	r.RemoteIPHeaders = append(r.RemoteIPHeaders, "X-Forwarded-For", "X-Real-IP")
+	r.RemoteIPHeaders = append(r.RemoteIPHeaders, "X-Forwarded-For", "X-Real-IP", "Cf-Connecting-IP")
 
 	r.Use(opts.Sessions.Middleware())
 
