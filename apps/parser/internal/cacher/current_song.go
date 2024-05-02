@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	lfm "github.com/shkh/lastfm-go/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	"github.com/twirapp/twir/libs/integrations/vk"
+	"go.uber.org/zap"
 )
 
 func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
@@ -63,9 +64,14 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 			return integration.Integration.Service == "VK"
 		},
 	)
-	var vk *vkService
+	var vkService *vk.VK
 	if ok {
-		vk = newVk(vkIntegration)
+		vkService, _ = vk.New(
+			vk.Opts{
+				Gorm:        c.services.Gorm,
+				Integration: vkIntegration,
+			},
+		)
 	}
 
 	integrationsForFetch := lo.Map(
@@ -107,13 +113,16 @@ checkServices:
 				break checkServices
 			}
 		case model.IntegrationServiceVK:
-			if vk == nil {
+			if vkService == nil {
 				continue
 			}
-			track := vk.GetTrack(ctx)
+			track, err := vkService.GetTrack(ctx)
+			if err != nil {
+				c.services.Logger.Error("failed to get track", zap.Error(err))
+			}
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{
-					Name: *track,
+					Name: fmt.Sprintf("%s — %s", track.Artist, track.Title),
 				}
 				break checkServices
 			}
@@ -211,71 +220,4 @@ func (c *lastFm) GetTrack() *LFMGetTrackResponse {
 		Artist: track.Artist.Name,
 		Image:  cover,
 	}
-}
-
-type vkService struct {
-	integration *model.ChannelsIntegrations
-}
-
-func newVk(integration *model.ChannelsIntegrations) *vkService {
-	if integration == nil || !integration.AccessToken.Valid {
-		return nil
-	}
-
-	service := vkService{
-		integration: integration,
-	}
-
-	return &service
-}
-
-type vkError struct {
-	Code int    `json:"error_code,omitempty"`
-	Msg  string `error_msg:"msg,omitempty"`
-}
-
-type vkAudio struct {
-	Artist string `json:"artist,omitempty"`
-	Title  string `json:"title,omitempty"`
-}
-
-type vkStatus struct {
-	Text  *string  `json:"text,omitempty"`
-	Audio *vkAudio `json:"audio,omitempty"`
-}
-
-type vkResponse struct {
-	Error  *vkError  `json:"error,omitempty"`
-	Status *vkStatus `json:"response"`
-}
-
-func (c *vkService) GetTrack(ctx context.Context) *string {
-	data := vkResponse{}
-	var response string
-
-	resp, err := req.R().
-		SetContext(ctx).
-		SetQueryParam("access_token", c.integration.AccessToken.String).
-		SetQueryParam("v", "5.199").
-		SetSuccessResult(&data).
-		SetContentType("application/json").
-		Get("https://api.vk.com/method/status.get")
-
-	fmt.Println("vkkkkk", resp.String())
-	if err != nil || !resp.IsSuccessState() {
-		return nil
-	}
-
-	if data.Error != nil || data.Status == nil || data.Status.Audio == nil {
-		return nil
-	}
-
-	status := *data.Status.Audio
-	response = fmt.Sprintf(
-		"%s — %s",
-		status.Artist,
-		status.Title,
-	)
-
-	return &response
 }
