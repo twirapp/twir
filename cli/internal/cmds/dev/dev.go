@@ -35,6 +35,11 @@ func CreateDevCommand() *cli.Command {
 				Value: false,
 				Usage: "skip dependencies installation",
 			},
+			&cli.BoolFlag{
+				Name:  "debug",
+				Value: false,
+				Usage: "run backend in debug mode",
+			},
 		},
 		Before: func(context *cli.Context) error {
 			wd, err := os.Getwd()
@@ -55,6 +60,7 @@ func CreateDevCommand() *cli.Command {
 		},
 		Action: func(c *cli.Context) error {
 			skipDeps := c.Bool("skip-deps")
+			isDebugEnabled := c.Bool("debug")
 
 			if !skipDeps {
 				if err := dependencies.Cmd.Run(c); err != nil {
@@ -77,7 +83,7 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 
-			golangApps, err := golang.New()
+			golangApps, err := golang.New(isDebugEnabled)
 			if err != nil {
 				pterm.Fatal.Println(err)
 				return err

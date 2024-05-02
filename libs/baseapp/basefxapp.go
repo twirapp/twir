@@ -26,7 +26,7 @@ func CreateBaseApp(appName string) fx.Option {
 			),
 			newRedis,
 			newGorm,
-			uptrace.NewFx,
+			uptrace.NewFx(appName),
 		),
 	)
 }

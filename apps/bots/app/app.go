@@ -4,9 +4,7 @@ import (
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/redis/go-redis/v9"
 	bus_listener "github.com/satont/twir/apps/bots/internal/bus-listener"
-	"github.com/satont/twir/apps/bots/internal/gorm"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
@@ -14,8 +12,9 @@ import (
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	twirsentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -27,13 +26,9 @@ import (
 
 var App = fx.Module(
 	"bots",
+	baseapp.CreateBaseApp("bots"),
 	fx.Provide(
-		cfg.NewFx,
 		tlds.New,
-		twirsentry.NewFx(twirsentry.NewFxOpts{Service: "bots"}),
-		logger.NewFx(logger.Opts{Service: "bots"}),
-		gorm.New,
-		uptrace.NewFx("bots"),
 		buscore.NewNatsBusFx("bots"),
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
@@ -47,14 +42,7 @@ var App = fx.Module(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
-		func(config cfg.Config) (*redis.Client, error) {
-			redisOpts, err := redis.ParseURL(config.RedisUrl)
-			if err != nil {
-				return nil, err
-			}
-
-			return redis.NewClient(redisOpts), nil
-		},
+		keywordscache.New,
 		twitchactions.New,
 		moderationhelpers.New,
 		messagehandler.New,

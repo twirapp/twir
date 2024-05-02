@@ -8,13 +8,16 @@ import (
 )
 
 type GoApps struct {
-	apps []*goapp.TwirGoApp
+	apps         []*goapp.TwirGoApp
+	debugEnabled bool
 }
 
-func New() (*GoApps, error) {
-	ga := &GoApps{}
+func New(enableDebug bool) (*GoApps, error) {
+	ga := &GoApps{
+		debugEnabled: enableDebug,
+	}
 	for _, app := range goapp.Apps {
-		application, err := goapp.NewApplication(app.Name)
+		application, err := goapp.NewApplication(app.Name, enableDebug)
 		if err != nil {
 			return nil, err
 		}

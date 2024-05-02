@@ -63,6 +63,8 @@ var CheckAliasesCommand = &types.DefaultCommand{
 			return result, nil
 		}
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = append(result.Result, strings.Join(cmd.Aliases, ", "))
 		return result, nil
 	},

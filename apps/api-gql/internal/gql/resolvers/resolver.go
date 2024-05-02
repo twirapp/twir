@@ -8,11 +8,13 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/cache/db-generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -29,12 +31,14 @@ type Resolver struct {
 	gorm               *gorm.DB
 	twitchClient       *helix.Client
 	cachedTwitchClient *twitchcahe.CachedTwitchClient
+	cachedCommandsClient *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	minioClient        *minio.Client
 	subscriptionsStore *subscriptions_store.SubscriptionsStore
 	twirBus            *bus_core.Bus
 	logger             logger.Logger
 	redis              *redis.Client
 	tokensGrpc         tokens.TokensClient
+	keywordsCacher       *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 }
 
 type Opts struct {
@@ -45,11 +49,13 @@ type Opts struct {
 	Config             config.Config
 	TokensGrpc         tokens.TokensClient
 	CachedTwitchClient *twitchcahe.CachedTwitchClient
+	CachedCommandsClient *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	Minio              *minio.Client
 	SubscriptionsStore *subscriptions_store.SubscriptionsStore
 	TwirBus            *bus_core.Bus
 	Logger             logger.Logger
 	Redis              *redis.Client
+	KeywordsCacher       *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -70,6 +76,8 @@ func New(opts Opts) (*Resolver, error) {
 		logger:             opts.Logger,
 		redis:              opts.Redis,
 		tokensGrpc:         opts.TokensGrpc,
+		cachedCommandsClient: opts.CachedCommandsClient,
+		keywordsCacher:       opts.KeywordsCacher,
 	}, nil
 }
 
