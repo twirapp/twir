@@ -42,7 +42,6 @@ import "messages/dashboard/dashboard.proto";
 import "messages/twitch_protected/twitch_protected.proto";
 import "messages/files/files.proto";
 import "messages/alerts/alerts.proto";
-import "messages/games/games.proto";
 import "messages/overlays/overlays.proto";
 
 import "messages/feedback/feedback.proto";
@@ -165,17 +164,6 @@ service Protected {
 	rpc AlertsCreate(messages.alerts.CreateRequest) returns (messages.alerts.Alert) {}
 	rpc AlertsUpdate(messages.alerts.UpdateRequest) returns (messages.alerts.Alert) {}
 	rpc AlertsDelete(messages.alerts.RemoveRequest) returns (google.protobuf.Empty) {}
-
-	// Games
-	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (messages.games.EightBallSettingsResponse) {}
-	rpc GamesUpdateEightBallSettings(messages.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
-
-	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (messages.games.RussianRouletteSettingsResponse) {}
-	rpc GamesUpdateRouletteSettings(messages.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
-
-	rpc GamesGetDuelSettings(google.protobuf.Empty) returns (messages.games.DuelSettingsResponse) {}
-	rpc GamesUpdateDuelSettings(messages.games.UpdateDuelSettings) returns (google.protobuf.Empty) {}
-	//
 
 	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}
 	rpc OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay) {}

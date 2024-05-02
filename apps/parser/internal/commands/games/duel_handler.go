@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/hibiken/asynq"
@@ -25,24 +24,19 @@ type duelHandler struct {
 }
 
 func (c *duelHandler) getChannelSettings(ctx context.Context) (
-	model.ChannelModulesSettingsDuel,
+	model.ChannelGamesDuel,
 	error,
 ) {
-	entity := model.ChannelModulesSettings{}
-	var parsedSettings model.ChannelModulesSettingsDuel
+	entity := model.ChannelGamesDuel{}
 
 	if err := c.parseCtx.Services.Gorm.WithContext(ctx).Where(
-		`"channelId" = ? and "userId" is null and "type" = 'duel'`,
+		`"channel_id" = ?`,
 		c.parseCtx.Channel.ID,
 	).First(&entity).Error; err != nil {
-		return parsedSettings, err
+		return entity, err
 	}
 
-	if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-		return parsedSettings, err
-	}
-
-	return parsedSettings, nil
+	return entity, nil
 }
 
 func (c *duelHandler) createHelixClient() (*helix.Client, error) {
@@ -183,7 +177,7 @@ func (c *duelHandler) saveDuelData(
 	ctx context.Context,
 	targetUser helix.User,
 	moderators []helix.Moderator,
-	settings model.ChannelModulesSettingsDuel,
+	settings model.ChannelGamesDuel,
 ) error {
 	var senderModerator bool
 	var targetModerator bool
@@ -220,7 +214,7 @@ func (c *duelHandler) saveDuelData(
 
 func (c *duelHandler) timeoutUser(
 	ctx context.Context,
-	settings model.ChannelModulesSettingsDuel,
+	settings model.ChannelGamesDuel,
 	userID string,
 	isMod bool,
 ) error {
@@ -268,7 +262,7 @@ func (c *duelHandler) timeoutUser(
 func (c *duelHandler) saveResult(
 	ctx context.Context,
 	data model.ChannelDuel,
-	settings model.ChannelModulesSettingsDuel,
+	settings model.ChannelGamesDuel,
 	loserId null.String,
 ) error {
 
