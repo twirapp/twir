@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/lib/pq"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
@@ -16,6 +17,8 @@ func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightB
 
 	entity := model.ChannelGames8Ball{
 		ChannelId: dashboardId,
+		Enabled:   false,
+		Answers:   pq.StringArray{},
 	}
 	if err := r.gorm.
 		WithContext(ctx).

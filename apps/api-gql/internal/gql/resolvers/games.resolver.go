@@ -11,26 +11,17 @@ import (
 )
 
 // GamesEightBallUpdate is the resolver for the gamesEightBallUpdate field.
-func (r *mutationResolver) GamesEightBallUpdate(
-	ctx context.Context,
-	opts gqlmodel.EightBallGameOpts,
-) (*gqlmodel.EightBallGame, error) {
+func (r *mutationResolver) GamesEightBallUpdate(ctx context.Context, opts gqlmodel.EightBallGameOpts) (*gqlmodel.EightBallGame, error) {
 	return r.gamesUpdateEightBall(ctx, opts)
 }
 
 // GamesDuelUpdate is the resolver for the gamesDuelUpdate field.
-func (r *mutationResolver) GamesDuelUpdate(
-	ctx context.Context,
-	opts gqlmodel.DuelGameOpts,
-) (*gqlmodel.DuelGame, error) {
+func (r *mutationResolver) GamesDuelUpdate(ctx context.Context, opts gqlmodel.DuelGameOpts) (*gqlmodel.DuelGame, error) {
 	return r.gamesUpdateDuel(ctx, opts)
 }
 
 // GamesRussianRouletteUpdate is the resolver for the gamesRussianRouletteUpdate field.
-func (r *mutationResolver) GamesRussianRouletteUpdate(
-	ctx context.Context,
-	opts gqlmodel.RussianRouletteGameOpts,
-) (*gqlmodel.RussianRouletteGame, error) {
+func (r *mutationResolver) GamesRussianRouletteUpdate(ctx context.Context, opts gqlmodel.RussianRouletteGameOpts) (*gqlmodel.RussianRouletteGame, error) {
 	return r.gamesUpdateRussianRoulette(ctx, opts)
 }
 
@@ -45,9 +36,6 @@ func (r *queryResolver) GamesDuel(ctx context.Context) (*gqlmodel.DuelGame, erro
 }
 
 // GamesRussianRoulette is the resolver for the gamesRussianRoulette field.
-func (r *queryResolver) GamesRussianRoulette(ctx context.Context) (
-	*gqlmodel.RussianRouletteGame,
-	error,
-) {
+func (r *queryResolver) GamesRussianRoulette(ctx context.Context) (*gqlmodel.RussianRouletteGame, error) {
 	return r.gamesGetRussianRoulette(ctx)
 }
