@@ -169,9 +169,6 @@ service Protected {
 	// Games
 	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (messages.games.RussianRouletteSettingsResponse) {}
 	rpc GamesUpdateRouletteSettings(messages.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
-
-	rpc GamesGetDuelSettings(google.protobuf.Empty) returns (messages.games.DuelSettingsResponse) {}
-	rpc GamesUpdateDuelSettings(messages.games.UpdateDuelSettings) returns (google.protobuf.Empty) {}
 	// Games
 
 	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}

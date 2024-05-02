@@ -25,31 +25,3 @@ message UpdateRussianRouletteSettings {
 	int32 charged_bullets = 8;
 	int32 tumber_size = 9;
 }
-
-message DuelSettingsResponse {
-	int32 user_cooldown = 1;
-	int32 global_cooldown = 2;
-	int32 timeout_seconds = 3;
-	string start_message = 4;
-	string result_message = 5;
-	bool enabled = 6;
-	int32 seconds_to_accept = 7;
-	int32 points_per_win = 8;
-	int32 points_per_lose = 9;
-	int32 both_die_percent = 10;
-	string both_die_message = 11;
-}
-
-message UpdateDuelSettings {
-	int32 user_cooldown = 1;
-	int32 global_cooldown = 2;
-	int32 timeout_seconds = 3;
-	string start_message = 4;
-	string result_message = 5;
-	bool enabled = 6;
-	int32 seconds_to_accept = 7;
-	int32 points_per_win = 8;
-	int32 points_per_lose = 9;
-	int32 both_die_percent = 10;
-	string both_die_message = 11;
-}

@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'
 
-const eightBallInvalidationKey = '8ballInvalidationKey'
+const gamesInvalidationKey = 'gamesInvalidationKey'
 
 export const useGamesApi = defineStore('games/8ball', () => {
 	const useGamesQuery = () => useQuery({
@@ -14,11 +14,24 @@ export const useGamesApi = defineStore('games/8ball', () => {
 					answers
 					enabled
 				}
+				gamesDuel {
+					enabled
+					userCooldown
+					globalCooldown
+					timeoutSeconds
+					startMessage
+					resultMessage
+					secondsToAccept
+					pointsPerWin
+					pointsPerLose
+					bothDiePercent
+					bothDieMessage
+				}
 			}
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [eightBallInvalidationKey]
+			additionalTypenames: [gamesInvalidationKey]
 		}
 	})
 
@@ -31,12 +44,24 @@ export const useGamesApi = defineStore('games/8ball', () => {
 				}
 			}
 		`),
-		[eightBallInvalidationKey]
+		[gamesInvalidationKey]
+	)
+
+	const useDuelMutation = () => useMutation(
+		graphql(`
+			mutation UpdateDuelSettings($opts: DuelGameOpts!) {
+				gamesDuelUpdate(opts: $opts) {
+					bothDieMessage
+				}
+			}
+		`),
+		[gamesInvalidationKey]
 	)
 
 	return {
 		useGamesQuery,
-		useEightBallMutation
+		useEightBallMutation,
+		useDuelMutation
 	}
 })
 

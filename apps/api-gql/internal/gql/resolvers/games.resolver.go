@@ -11,11 +11,27 @@ import (
 )
 
 // GamesEightBallUpdate is the resolver for the gamesEightBallUpdate field.
-func (r *mutationResolver) GamesEightBallUpdate(ctx context.Context, opts gqlmodel.EightBallGameOpts) (*gqlmodel.EightBallGame, error) {
+func (r *mutationResolver) GamesEightBallUpdate(
+	ctx context.Context,
+	opts gqlmodel.EightBallGameOpts,
+) (*gqlmodel.EightBallGame, error) {
 	return r.gamesUpdateEightBall(ctx, opts)
+}
+
+// GamesDuelUpdate is the resolver for the gamesDuelUpdate field.
+func (r *mutationResolver) GamesDuelUpdate(
+	ctx context.Context,
+	opts gqlmodel.DuelGameOpts,
+) (*gqlmodel.DuelGame, error) {
+	return r.gamesUpdateDuel(ctx, opts)
 }
 
 // GamesEightBall is the resolver for the gamesEightBall field.
 func (r *queryResolver) GamesEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
 	return r.gamesGetEightBall(ctx)
+}
+
+// GamesDuel is the resolver for the gamesDuel field.
+func (r *queryResolver) GamesDuel(ctx context.Context) (*gqlmodel.DuelGame, error) {
+	return r.gamesGetDuel(ctx)
 }
