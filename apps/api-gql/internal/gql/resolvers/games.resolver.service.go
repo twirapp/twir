@@ -54,6 +54,12 @@ func (r *mutationResolver) gamesUpdateEightBall(
 			return nil, fmt.Errorf("max answers is 25")
 		}
 
+		for _, answer := range opts.Answers.Value() {
+			if len(answer) > 500 {
+				return nil, fmt.Errorf("max answer length is 500")
+			}
+		}
+
 		entity.Answers = opts.Answers.Value()
 	}
 
@@ -144,10 +150,18 @@ func (r *mutationResolver) gamesUpdateDuel(
 
 	if opts.StartMessage.IsSet() {
 		entity.StartMessage = *opts.StartMessage.Value()
+
+		if len(entity.StartMessage) > 500 {
+			return nil, fmt.Errorf("max start message length is 500")
+		}
 	}
 
 	if opts.ResultMessage.IsSet() {
 		entity.ResultMessage = *opts.ResultMessage.Value()
+
+		if len(entity.ResultMessage) > 500 {
+			return nil, fmt.Errorf("max result message length is 500")
+		}
 	}
 
 	if opts.SecondsToAccept.IsSet() {
@@ -168,6 +182,11 @@ func (r *mutationResolver) gamesUpdateDuel(
 
 	if opts.BothDieMessage.IsSet() {
 		entity.BothDieMessage = *opts.BothDieMessage.Value()
+
+		if len(entity.BothDieMessage) > 500 {
+			return nil, fmt.Errorf("max both die message length is 500")
+
+		}
 	}
 
 	if err := r.gorm.
@@ -178,4 +197,121 @@ func (r *mutationResolver) gamesUpdateDuel(
 	}
 
 	return r.Query().GamesDuel(ctx)
+}
+
+func (r *queryResolver) gamesGetRussianRoulette(ctx context.Context) (
+	*gqlmodel.
+		RussianRouletteGame, error,
+) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesRussianRoulette{
+		ChannelID:             dashboardId,
+		InitMessage:           "{sender} has initiated a game of roulette. Is luck on their side?",
+		SurviveMessage:        "{sender} survives the game of roulette! Luck smiles upon them.",
+		DeathMessage:          "{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.",
+		TimeoutSeconds:        60,
+		TumberSize:            6,
+		DecisionSeconds:       2,
+		ChargedBullets:        1,
+		CanBeUsedByModerators: false,
+	}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		FirstOrCreate(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get russian roulette settings: %w", err)
+	}
+
+	return &gqlmodel.RussianRouletteGame{
+		Enabled:              entity.Enabled,
+		CanBeUsedByModerator: entity.CanBeUsedByModerators,
+		TimeoutSeconds:       entity.TimeoutSeconds,
+		DecisionSeconds:      entity.DecisionSeconds,
+		InitMessage:          entity.InitMessage,
+		SurviveMessage:       entity.SurviveMessage,
+		DeathMessage:         entity.DeathMessage,
+		ChargedBullets:       entity.ChargedBullets,
+		TumberSize:           entity.TumberSize,
+	}, nil
+}
+
+func (r *mutationResolver) gamesUpdateRussianRoulette(
+	ctx context.Context,
+	opts gqlmodel.RussianRouletteGameOpts,
+) (*gqlmodel.RussianRouletteGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesRussianRoulette{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		First(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get russian roulette settings: %w", err)
+	}
+
+	if opts.Enabled.IsSet() {
+		entity.Enabled = *opts.Enabled.Value()
+	}
+
+	if opts.CanBeUsedByModerator.IsSet() {
+		entity.CanBeUsedByModerators = *opts.CanBeUsedByModerator.Value()
+	}
+
+	if opts.TimeoutSeconds.IsSet() {
+		entity.TimeoutSeconds = *opts.TimeoutSeconds.Value()
+	}
+
+	if opts.DecisionSeconds.IsSet() {
+		entity.DecisionSeconds = *opts.DecisionSeconds.Value()
+	}
+
+	if opts.TumberSize.IsSet() {
+		entity.TumberSize = *opts.TumberSize.Value()
+	}
+
+	if opts.ChargedBullets.IsSet() {
+		entity.ChargedBullets = *opts.ChargedBullets.Value()
+	}
+
+	if opts.InitMessage.IsSet() {
+		entity.InitMessage = *opts.InitMessage.Value()
+
+		if len(entity.InitMessage) > 500 {
+			return nil, fmt.Errorf("max init message length is 500")
+		}
+	}
+
+	if opts.SurviveMessage.IsSet() {
+		entity.SurviveMessage = *opts.SurviveMessage.Value()
+
+		if len(entity.SurviveMessage) > 500 {
+			return nil, fmt.Errorf("max survive message length is 500")
+		}
+	}
+
+	if opts.DeathMessage.IsSet() {
+		entity.DeathMessage = *opts.DeathMessage.Value()
+
+		if len(entity.DeathMessage) > 500 {
+			return nil, fmt.Errorf("max death message length is 500")
+		}
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to save settings: %w", err)
+	}
+
+	return r.Query().GamesRussianRoulette(ctx)
 }

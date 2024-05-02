@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 
 import Card from './card.vue'
 
-import { useGamesApi } from '@/api'
+import { useGamesApi } from '@/api/games/games.js'
 import CommandButton from '@/features/commands/components/command-button.vue'
 
 const isModalOpened = ref(false)

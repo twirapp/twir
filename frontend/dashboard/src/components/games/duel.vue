@@ -17,7 +17,7 @@ import Card from './card.vue'
 
 import type { GamesQuery } from '@/gql/graphql'
 
-import { useGamesApi } from '@/api'
+import { useGamesApi } from '@/api/games/games.js'
 import IconDuel from '@/assets/games/duel.svg?use'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import CommandButton from '@/features/commands/components/command-button.vue'

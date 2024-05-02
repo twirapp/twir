@@ -61,13 +61,13 @@ func upDuelToTable(ctx context.Context, tx *sql.Tx) error {
 			user_cooldown INT NOT NULL default 0,
 			global_cooldown INT NOT NULL default 0,
 			timeout_seconds INT NOT NULL default 0,
-			start_message TEXT NOT NULL default '',
-			result_message TEXT NOT NULL default '',
+			start_message varchar(500) NOT NULL default '',
+			result_message varchar(500) NOT NULL default '',
 			seconds_to_accept INT NOT NULL default 0,
 			points_per_win INT NOT NULL default 0,
 			points_per_lose INT NOT NULL default 0,
 			both_die_percent INT NOT NULL default 0,
-			both_die_message TEXT NOT NULL default ''
+			both_die_message varchar(500) NOT NULL default ''
 		)`,
 	)
 	if err != nil {

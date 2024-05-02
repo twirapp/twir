@@ -1,11 +1,13 @@
 extend type Query {
 	gamesEightBall: EightBallGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 	gamesDuel: DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
+	gamesRussianRoulette: RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 }
 
 extend type Mutation {
 	gamesEightBallUpdate(opts: EightBallGameOpts!): EightBallGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 	gamesDuelUpdate(opts: DuelGameOpts!): DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
+	gamesRussianRouletteUpdate(opts: RussianRouletteGameOpts!): RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 }
 
 type EightBallGame {
@@ -44,4 +46,28 @@ input DuelGameOpts {
 	pointsPerLose: Int
 	bothDiePercent: Int
 	bothDieMessage: String
+}
+
+type RussianRouletteGame {
+	enabled: Boolean!
+	canBeUsedByModerator: Boolean!
+	timeoutSeconds: Int!
+	decisionSeconds: Int!
+	initMessage: String!
+	surviveMessage: String!
+	deathMessage: String!
+	chargedBullets: Int!
+	tumberSize: Int!
+}
+
+input RussianRouletteGameOpts {
+	enabled: Boolean
+	canBeUsedByModerator: Boolean
+	timeoutSeconds: Int
+	decisionSeconds: Int
+	initMessage: String
+	surviveMessage: String
+	deathMessage: String
+	chargedBullets: Int
+	tumberSize: Int
 }

@@ -27,6 +27,17 @@ export const useGamesApi = defineStore('games/8ball', () => {
 					bothDiePercent
 					bothDieMessage
 				}
+				gamesRussianRoulette {
+					enabled
+					canBeUsedByModerator
+					timeoutSeconds
+					decisionSeconds
+					initMessage
+					surviveMessage
+					deathMessage
+					chargedBullets
+					tumberSize
+				}
 			}
 		`),
 		variables: {},
@@ -58,33 +69,21 @@ export const useGamesApi = defineStore('games/8ball', () => {
 		[gamesInvalidationKey]
 	)
 
+	const useRussianRouletteMutation = () => useMutation(
+		graphql(`
+			mutation UpdateRussianRouletteSettings($opts: RussianRouletteGameOpts!) {
+				gamesRussianRouletteUpdate(opts: $opts) {
+					chargedBullets
+				}
+			}
+		`),
+		[gamesInvalidationKey]
+	)
+
 	return {
 		useGamesQuery,
 		useEightBallMutation,
-		useDuelMutation
+		useDuelMutation,
+		useRussianRouletteMutation
 	}
 })
-
-// export const use8ballSettings = () => useQuery({
-// 	queryKey: ['8ballSettings'],
-// 	queryFn: async () => {
-// 		const req = await protectedApiClient.gamesGetEightBallSettings({});
-// 		return req.response;
-// 	},
-// });
-//
-// export const use8ballUpdateSettings = () => {
-// 	const queryClient = useQueryClient();
-//
-// 	return useMutation({
-// 		mutationKey: ['8ballSettings'],
-// 		mutationFn: async (opts: { answers: string[], enabled: boolean }) => {
-// 			const req = await protectedApiClient.gamesUpdateEightBallSettings(opts);
-// 			return req.response;
-// 		},
-// 		onSuccess: async () => {
-// 			await queryClient.invalidateQueries(['8ballSettings']);
-// 			await queryClient.invalidateQueries(['commands']);
-// 		},
-// 	});
-// };

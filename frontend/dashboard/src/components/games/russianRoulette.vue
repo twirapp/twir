@@ -1,32 +1,33 @@
 <script setup lang="ts">
-import { IconBomb } from '@tabler/icons-vue';
-import type { UpdateRussianRouletteSettings } from '@twir/api/messages/games/games';
+import { IconBomb } from '@tabler/icons-vue'
 import {
-	NModal,
+	NButton,
+	NDivider,
+	NFormItem,
 	NInput,
 	NInputNumber,
-	NFormItem,
-	NButton,
-	NSwitch,
-	NDivider,
+	NModal,
 	NSpace,
-} from 'naive-ui';
-import { ref, watch, toRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NSwitch
+} from 'naive-ui'
+import { ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import Card from './card.vue';
+import Card from './card.vue'
 
+import type { GamesQuery } from '@/gql/graphql'
 
-import { useRussianRouletteSettings, useRussianRouletteUpdateSettings } from '@/api/index.js';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import CommandButton from '@/features/commands/components/command-button.vue';
+import { useGamesApi } from '@/api/games/games'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import CommandButton from '@/features/commands/components/command-button.vue'
 
-const isModalOpened = ref(false);
+const isModalOpened = ref(false)
 
-const { data: settings } = useRussianRouletteSettings();
-const updater = useRussianRouletteUpdateSettings();
+const gamesManager = useGamesApi()
+const { data: settings } = gamesManager.useGamesQuery()
+const updater = gamesManager.useRussianRouletteMutation()
 
-const initialSettings: UpdateRussianRouletteSettings = {
+const initialSettings: GamesQuery['gamesRussianRoulette'] = {
 	enabled: false,
 	canBeUsedByModerator: false,
 	timeoutSeconds: 60,
@@ -35,38 +36,29 @@ const initialSettings: UpdateRussianRouletteSettings = {
 	initMessage: '{sender} has initiated a game of roulette. Is luck on their side?',
 	surviveMessage: '{sender} survives the game of roulette! Luck smiles upon them.',
 	deathMessage: `{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.`,
-	tumberSize: 6,
-};
+	tumberSize: 6
+}
 
-const formValue = ref<UpdateRussianRouletteSettings>({ ...initialSettings });
+const formValue = ref<GamesQuery['gamesRussianRoulette']>({ ...initialSettings })
 
 watch(settings, (v) => {
-	if (!v) return;
+	if (!v) return
 
-	const raw = toRaw(v);
+	const raw = toRaw(v)
 
-	formValue.value.enabled = raw.enabled;
-	formValue.value.canBeUsedByModerator = raw.canBeUsedByModerator;
-	formValue.value.timeoutSeconds = raw.timeoutSeconds;
-	formValue.value.decisionSeconds = raw.decisionSeconds;
-	formValue.value.initMessage = raw.initMessage;
-	formValue.value.surviveMessage = raw.surviveMessage;
-	formValue.value.deathMessage = raw.deathMessage;
-	formValue.value.chargedBullets = raw.chargedBullets;
-	formValue.value.tumberSize = raw.tumberSize;
-}, { immediate: true });
+	formValue.value = structuredClone(raw.gamesRussianRoulette)
+}, { immediate: true })
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const { dialog, notification } = useNaiveDiscrete();
+const { dialog, notification } = useNaiveDiscrete()
 
 async function save() {
-	const values = formValue.value;
-	await updater.mutateAsync(values);
+	await updater.executeMutation({ opts: formValue.value })
 	notification.success({
 		title: t('sharedTexts.saved'),
-		duration: 2500,
-	});
+		duration: 2500
+	})
 }
 
 function resetSettings() {
@@ -77,15 +69,15 @@ function resetSettings() {
 		positiveText: t('sharedButtons.confirm'),
 		negativeText: t('sharedButtons.close'),
 		onPositiveClick: () => {
-			formValue.value = initialSettings;
-			save();
-		},
-	});
+			formValue.value = initialSettings
+			save()
+		}
+	})
 }
 </script>
 
 <template>
-	<card
+	<Card
 		title="Russian Roulette"
 		:icon="IconBomb"
 		:icon-stroke="1"
@@ -93,7 +85,7 @@ function resetSettings() {
 		@open-settings="isModalOpened = true"
 	/>
 
-	<n-modal
+	<NModal
 		v-model:show="isModalOpened"
 		:mask-closable="false"
 		:segmented="true"
@@ -105,74 +97,74 @@ function resetSettings() {
 		<div class="flex gap-6">
 			<div class="flex flex-col gap-1 items-start">
 				<span>{{ t('sharedTexts.enabled') }}</span>
-				<n-switch v-model:value="formValue.enabled" />
+				<NSwitch v-model:value="formValue.enabled" />
 			</div>
 
-			<command-button name="roulette" />
+			<CommandButton name="roulette" />
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="flex flex-col gap-2 mt-[10px]">
-			<n-form-item :label="t('games.russianRoulette.canBeUsedByModerator')">
-				<n-switch v-model:value="formValue.canBeUsedByModerator" />
-			</n-form-item>
+			<NFormItem :label="t('games.russianRoulette.canBeUsedByModerator')">
+				<NSwitch v-model:value="formValue.canBeUsedByModerator" />
+			</NFormItem>
 
-			<n-form-item :label="t('games.russianRoulette.tumberSize')">
-				<n-input-number v-model:value="formValue.tumberSize" :min="2" :max="100" />
-			</n-form-item>
+			<NFormItem :label="t('games.russianRoulette.tumberSize')">
+				<NInputNumber v-model:value="formValue.tumberSize" :min="2" :max="100" />
+			</NFormItem>
 
-			<n-form-item
+			<NFormItem
 				:label="t('games.russianRoulette.chargedBullets', { tumberSize: formValue.tumberSize })"
 			>
-				<n-input-number
+				<NInputNumber
 					v-model:value="formValue.chargedBullets" :min="1"
-					:max="formValue.tumberSize-1"
+					:max="formValue.tumberSize - 1"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('games.russianRoulette.timeoutSeconds')">
-				<n-input-number v-model:value="formValue.timeoutSeconds" :max="1209600" />
-			</n-form-item>
+			<NFormItem :label="t('games.russianRoulette.timeoutSeconds')">
+				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="1209600" />
+			</NFormItem>
 
-			<n-form-item :label="t('games.russianRoulette.decisionSeconds')">
-				<n-input-number v-model:value="formValue.decisionSeconds" :max="60" />
-			</n-form-item>
+			<NFormItem :label="t('games.russianRoulette.decisionSeconds')">
+				<NInputNumber v-model:value="formValue.decisionSeconds" :max="60" />
+			</NFormItem>
 
-			<n-divider />
+			<NDivider />
 
-			<n-form-item :label="t('games.russianRoulette.initMessage')">
-				<n-input
+			<NFormItem :label="t('games.russianRoulette.initMessage')">
+				<NInput
 					v-model:value="formValue.initMessage" :maxlength="450" type="textarea" autosize
 					:rows="1"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('games.russianRoulette.surviveMessage')">
-				<n-input
+			<NFormItem :label="t('games.russianRoulette.surviveMessage')">
+				<NInput
 					v-model:value="formValue.surviveMessage" :maxlength="450" type="textarea" autosize
 					:rows="1"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('games.russianRoulette.deathMessage')">
-				<n-input
+			<NFormItem :label="t('games.russianRoulette.deathMessage')">
+				<NInput
 					v-model:value="formValue.deathMessage" :maxlength="450" type="textarea" autosize
 					:rows="1"
 				/>
-			</n-form-item>
+			</NFormItem>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
-		<n-space vertical>
-			<n-button block secondary type="warning" @click="resetSettings">
+		<NSpace vertical>
+			<NButton block secondary type="warning" @click="resetSettings">
 				{{ t('sharedButtons.setDefaultSettings') }}
-			</n-button>
+			</NButton>
 
-			<n-button block secondary type="success" @click="save">
+			<NButton block secondary type="success" @click="save">
 				{{ t('sharedButtons.save') }}
-			</n-button>
-		</n-space>
-	</n-modal>
+			</NButton>
+		</NSpace>
+	</NModal>
 </template>
