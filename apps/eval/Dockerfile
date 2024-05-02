@@ -7,6 +7,7 @@ COPY apps/eval /app/apps/eval
 COPY libs/config /app/libs/config
 COPY libs/grpc /app/libs/grpc
 COPY libs/pubsub /app/libs/pubsub
+COPY libs/bus-core /app/libs/bus-core
 
 RUN pnpm prune --prod
 
