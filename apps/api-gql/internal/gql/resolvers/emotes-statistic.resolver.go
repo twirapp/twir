@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -131,5 +130,5 @@ func (r *queryResolver) EmotesStatisticEmote(
 	ctx context.Context,
 	opts gqlmodel.EmotesStatisticEmoteOpts,
 ) ([]gqlmodel.EmoteStatisticUsage, error) {
-	panic(fmt.Errorf("not implemented: EmotesStatisticEmote - emotesStatisticEmote"))
+	return r.getEmoteStatisticUsagesForRange(ctx, opts.EmoteName, opts.Range)
 }
