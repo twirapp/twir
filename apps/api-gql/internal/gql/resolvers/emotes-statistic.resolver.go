@@ -73,7 +73,7 @@ func (r *queryResolver) EmotesStatistics(
     FROM
         channels_emotes_usages
     WHERE
-        "channelId" = '995463913'
+        "channelId" = ?
     GROUP BY
         emote
     ORDER BY
@@ -84,7 +84,7 @@ SELECT
     COUNT(*) AS count
 FROM
     emote_counts;
-`,
+`, dashboardId,
 		).
 		Scan(&totalCount).
 		Error; err != nil {
