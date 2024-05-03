@@ -11,7 +11,7 @@ type EmotesStatisticResponse {
 type EmotesStatistic {
 	emoteName: String!
 	usages: Int!
-	lastUsedAt: Time!
+	lastUsedTimestamp: Int!
 	graphicUsages: [EmoteStatisticUsage!]!
 }
 
@@ -37,5 +37,5 @@ input EmotesStatisticEmoteOpts {
 
 type EmoteStatisticUsage {
 	count: Int!
-	usedAt: Time!
+	timestamp: Int!
 }

@@ -67,8 +67,8 @@ ORDER BY
 		result = append(
 			result,
 			gqlmodel.EmoteStatisticUsage{
-				Count:  usage.Count,
-				UsedAt: usage.Time,
+				Count:     usage.Count,
+				Timestamp: int(usage.Time.UTC().UnixMilli()),
 			},
 		)
 	}
