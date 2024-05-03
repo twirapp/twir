@@ -6,13 +6,17 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
-func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
+func (r *queryResolver) EmotesStatistics(
+	ctx context.Context,
+	opts gqlmodel.EmotesStatisticsOpts,
+) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -90,11 +94,21 @@ FROM
 			return nil, err
 		}
 
+		usagesForLastDay, err := r.getEmoteStatisticUsagesForRange(
+			ctx,
+			entity.Emote,
+			gqlmodel.EmoteStatisticRangeLast24Hours,
+		)
+		if err != nil {
+			return nil, err
+		}
+
 		models = append(
 			models, gqlmodel.EmotesStatistic{
-				EmoteName:  entity.Emote,
-				Usages:     entity.Count,
-				LastUsedAt: lastUsedEntity.CreatedAt,
+				EmoteName:        entity.Emote,
+				Usages:           entity.Count,
+				LastUsedAt:       lastUsedEntity.CreatedAt,
+				Last24HourUsages: usagesForLastDay,
 			},
 		)
 	}
@@ -105,13 +119,10 @@ FROM
 	}, nil
 }
 
-// !!! WARNING !!!
-// The code below was going to be deleted when updating resolvers. It has been copied here so you have
-// one last chance to move it out of harms way if you want. There are two reasons this happens:
-//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
-//     it when you're done.
-//   - You have helper methods in this file. Move them out to keep these resolver files clean.
-type emoteEntityModelWithCount struct {
-	model.ChannelEmoteUsage
-	Count int `gorm:"column:count"`
+// EmotesStatisticEmote is the resolver for the emotesStatisticEmote field.
+func (r *queryResolver) EmotesStatisticEmote(
+	ctx context.Context,
+	opts gqlmodel.EmotesStatisticEmoteOpts,
+) ([]gqlmodel.EmoteStatisticUsage, error) {
+	panic(fmt.Errorf("not implemented: EmotesStatisticEmote - emotesStatisticEmote"))
 }

@@ -1,5 +1,6 @@
 extend type Query {
 	emotesStatistics(opts: EmotesStatisticsOpts!): EmotesStatisticResponse! @isAuthenticated
+	emotesStatisticEmote(opts: EmotesStatisticEmoteOpts!): [EmoteStatisticUsage!]! @isAuthenticated
 }
 
 type EmotesStatisticResponse {
@@ -11,10 +12,29 @@ type EmotesStatistic {
 	emoteName: String!
 	usages: Int!
 	lastUsedAt: Time!
+	last24HourUsages: [EmoteStatisticUsage!]!
 }
 
 input EmotesStatisticsOpts {
 	search: String
 	page: Int
 	perPage: Int
+}
+
+enum EmoteStatisticRange {
+	LAST_24_HOURS
+	LAST_7_DAYS
+	LAST_30_DAYS
+	LAST_90_DAYS
+	LAST_365_DAYS
+}
+
+input EmotesStatisticEmoteOpts {
+	emoteName: String!
+	range: EmoteStatisticRange!
+}
+
+type EmoteStatisticUsage {
+	count: Int!
+	usedAt: Time!
 }

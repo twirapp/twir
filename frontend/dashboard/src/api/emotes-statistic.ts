@@ -14,6 +14,10 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 					emoteName
 					lastUsedAt
 					usages
+					last24HourUsages {
+						count
+						usedAt
+					}
 				}
 				total
 			}
