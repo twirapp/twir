@@ -1,16 +1,22 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
+import Table from './components/community-emotes-table.vue'
+import { useCommunityEmotesStatisticTable } from './composables/use-community-emotes-statistic-table'
 
-import {
-	useCommunityEmotesStatisticTable
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-statistic-table'
+import Pagination from '@/components/pagination.vue'
 
-const { stats } = storeToRefs(useCommunityEmotesStatisticTable())
+const emotesTable = useCommunityEmotesStatisticTable()
 </script>
 
 <template>
-	<div>
-		<h1>stats</h1>
-		{{ stats }}
-	</div>
+	<Table>
+		<template #pagination>
+			<Pagination
+				:total="emotesTable.totalEmotes"
+				:table="emotesTable.table"
+				:pagination="emotesTable.pagination"
+				@update:page="(page) => emotesTable.pagination.pageIndex = page"
+				@update:page-size="(pageSize) => emotesTable.pagination.pageSize = pageSize"
+			/>
+		</template>
+	</Table>
 </template>

@@ -38,8 +38,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification()
 
 	const notifications = computed<Notifications>(() => {
-		if (!data.value)
-			return []
+		if (!data.value) return []
 		return data.value.notificationsByAdmin.notifications
 	})
 

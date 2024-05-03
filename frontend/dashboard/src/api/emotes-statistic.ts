@@ -1,32 +1,34 @@
 import { useQuery } from '@urql/vue'
 
-import type { EmotesStatisticsOpts } from '@/gql/graphql'
+import type { EmotesStatisticQuery, EmotesStatisticsOpts } from '@/gql/graphql'
 import type { Ref } from 'vue'
 
 import { graphql } from '@/gql'
 
+export type EmotesStatistics = EmotesStatisticQuery['emotesStatistics']['emotes']
+
 export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 	return useQuery({
-		query: graphql(`
-		query EmotesStatistic($opts: EmotesStatisticsOpts!) {
-			emotesStatistics(opts: $opts) {
-				emotes {
-					emoteName
-					lastUsedAt
-					usages
-					last24HourUsages {
-						count
-						usedAt
-					}
-				}
-				total
-			}
-		}
-	`),
 		get variables() {
 			return {
 				opts: opts.value
 			}
-		}
+		},
+		query: graphql(`
+			query EmotesStatistic($opts: EmotesStatisticsOpts!) {
+				emotesStatistics(opts: $opts) {
+					emotes {
+						emoteName
+						usages
+						lastUsedTimestamp
+						graphicUsages {
+							count
+							timestamp
+						}
+					}
+					total
+				}
+			}
+		`)
 	})
 }
