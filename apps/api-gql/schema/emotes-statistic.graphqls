@@ -12,22 +12,22 @@ type EmotesStatistic {
 	emoteName: String!
 	usages: Int!
 	lastUsedAt: Time!
-	last24HourUsages: [EmoteStatisticUsage!]!
+	graphicUsages: [EmoteStatisticUsage!]!
 }
 
 input EmotesStatisticsOpts {
 	search: String
 	page: Int
 	perPage: Int
-	range: EmoteStatisticRange
+	graphicRange: EmoteStatisticRange
 }
 
 enum EmoteStatisticRange {
-	LAST_24_HOURS
-	LAST_7_DAYS
-	LAST_30_DAYS
-	LAST_90_DAYS
-	LAST_365_DAYS
+	LAST_DAY
+	LAST_WEEK
+	LAST_MONTH
+	LAST_THREE_MONTH
+	LAST_YEAR
 }
 
 input EmotesStatisticEmoteOpts {

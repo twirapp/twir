@@ -12,10 +12,7 @@ import (
 )
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
-func (r *queryResolver) EmotesStatistics(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticsOpts,
-) (*gqlmodel.EmotesStatisticResponse, error) {
+func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -94,10 +91,10 @@ FROM
 		}
 
 		var rangeType gqlmodel.EmoteStatisticRange
-		if opts.Range.IsSet() {
-			rangeType = *opts.Range.Value()
+		if opts.GraphicRange.IsSet() {
+			rangeType = *opts.GraphicRange.Value()
 		} else {
-			rangeType = gqlmodel.EmoteStatisticRangeLast24Hours
+			rangeType = gqlmodel.EmoteStatisticRangeLastDay
 		}
 
 		usagesForLastDay, err := r.getEmoteStatisticUsagesForRange(
@@ -111,10 +108,10 @@ FROM
 
 		models = append(
 			models, gqlmodel.EmotesStatistic{
-				EmoteName:        entity.Emote,
-				Usages:           entity.Count,
-				LastUsedAt:       lastUsedEntity.CreatedAt,
-				Last24HourUsages: usagesForLastDay,
+				EmoteName:     entity.Emote,
+				Usages:        entity.Count,
+				LastUsedAt:    lastUsedEntity.CreatedAt,
+				GraphicUsages: usagesForLastDay,
 			},
 		)
 	}
@@ -126,9 +123,6 @@ FROM
 }
 
 // EmotesStatisticEmote is the resolver for the emotesStatisticEmote field.
-func (r *queryResolver) EmotesStatisticEmote(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticEmoteOpts,
-) ([]gqlmodel.EmoteStatisticUsage, error) {
+func (r *queryResolver) EmotesStatisticEmote(ctx context.Context, opts gqlmodel.EmotesStatisticEmoteOpts) ([]gqlmodel.EmoteStatisticUsage, error) {
 	return r.getEmoteStatisticUsagesForRange(ctx, opts.EmoteName, opts.Range)
 }

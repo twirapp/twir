@@ -19,19 +19,19 @@ func (r *queryResolver) getEmoteStatisticUsagesForRange(
 	var interval string
 	var truncateBy string
 	switch timeRange {
-	case gqlmodel.EmoteStatisticRangeLast24Hours:
+	case gqlmodel.EmoteStatisticRangeLastDay:
 		interval = "24 hours"
 		truncateBy = "hour"
-	case gqlmodel.EmoteStatisticRangeLast7Days:
+	case gqlmodel.EmoteStatisticRangeLastWeek:
 		interval = "7 days"
 		truncateBy = "day"
-	case gqlmodel.EmoteStatisticRangeLast30Days:
+	case gqlmodel.EmoteStatisticRangeLastMonth:
 		interval = "30 days"
 		truncateBy = "day"
-	case gqlmodel.EmoteStatisticRangeLast90Days:
+	case gqlmodel.EmoteStatisticRangeLastThreeMonth:
 		interval = "90 days"
 		truncateBy = "day"
-	case gqlmodel.EmoteStatisticRangeLast365Days:
+	case gqlmodel.EmoteStatisticRangeLastYear:
 		interval = "365 days"
 		truncateBy = "day"
 	default:
