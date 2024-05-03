@@ -56,8 +56,8 @@ export function newRouter() {
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewGreetings }
 				},
 				{
-					path: '/dashboard/community/users',
-					component: () => import('../pages/community-users.vue'),
+					path: '/dashboard/community',
+					component: () => import('../pages/community.vue'),
 					meta: { noPadding: true }
 				},
 				{

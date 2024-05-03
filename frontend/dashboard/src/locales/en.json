@@ -74,7 +74,8 @@
     "games": "Games",
     "users": "Users",
     "moderation": "Moderation",
-		"import": "Import"
+		"import": "Import",
+		"community": "Community"
   },
   "navbar": {
     "logout": "Logout",
@@ -757,8 +758,9 @@
 		}
   },
   "community": {
+		"title": "Community",
 		"users": {
-			"title": "Community Users",
+			"title": "Users",
 			"searchPlaceholder": "Search users...",
       "table": {
 				"user": "User",
@@ -773,7 +775,18 @@
 				"label": "Reset",
         "resetQuestion": "Are you sure you want to reset {title}?"
       }
-    }
+    },
+		"emotesStatistic": {
+			"title": "Emotes statistics",
+			"searchPlaceholder": "Search emotes...",
+			"table": {
+				"emote": "Emote",
+				"used": "Used",
+				"users": "Users",
+				"empty": "No emotes"
+			},
+			"total": "Total emotes: {total}"
+		}
   },
   "filePicker": {
     "innerText": "Select or drop {type} here.",
