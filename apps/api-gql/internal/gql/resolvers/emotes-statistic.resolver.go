@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -40,13 +41,21 @@ func (r *queryResolver) EmotesStatistics(
 	if opts.Search.IsSet() {
 		query = query.Where(`"emote" LIKE ?`, "%"+*opts.Search.Value()+"%")
 	}
+
+	var order gqlmodel.EmotesStatisticsOptsOrder
+	if opts.Order.IsSet() {
+		order = *opts.Order.Value()
+	} else {
+		order = gqlmodel.EmotesStatisticsOptsOrderDesc
+	}
+
 	var entities []emoteEntityModelWithCount
 	if err :=
 		query.
 			Debug().
 			Select(`"emote", COUNT(emote) as count`).
 			Group("emote").
-			Order("count DESC").
+			Order(fmt.Sprintf("count %s", order.String())).
 			Find(&entities).
 			Error; err != nil {
 		return nil, err

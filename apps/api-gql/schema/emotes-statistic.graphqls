@@ -15,11 +15,17 @@ type EmotesStatistic {
 	graphicUsages: [EmoteStatisticUsage!]!
 }
 
+enum EmotesStatisticsOptsOrder {
+	ASC
+	DESC
+}
+
 input EmotesStatisticsOpts {
 	search: String
 	page: Int
 	perPage: Int
 	graphicRange: EmoteStatisticRange
+	order: EmotesStatisticsOptsOrder
 }
 
 enum EmoteStatisticRange {
