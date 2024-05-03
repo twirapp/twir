@@ -78,7 +78,6 @@ func (r *queryResolver) EmotesStatistics(
         emote
     ORDER BY
         count DESC
-    LIMIT 10
 )
 SELECT
     COUNT(*) AS count
