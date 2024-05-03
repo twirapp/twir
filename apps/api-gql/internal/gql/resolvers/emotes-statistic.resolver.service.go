@@ -2,6 +2,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -14,24 +15,50 @@ func (r *queryResolver) getEmoteStatisticUsagesForRange(
 	timeRange gqlmodel.EmoteStatisticRange,
 ) ([]gqlmodel.EmoteStatisticUsage, error) {
 	var usages []emoteStatisticUsageModel
-	if err := r.gorm.
-		WithContext(ctx).
-		Raw(
-			`
-	SELECT
+
+	var interval string
+	var truncateBy string
+	switch timeRange {
+	case gqlmodel.EmoteStatisticRangeLast24Hours:
+		interval = "24 hours"
+		truncateBy = "hour"
+	case gqlmodel.EmoteStatisticRangeLast7Days:
+		interval = "7 days"
+		truncateBy = "day"
+	case gqlmodel.EmoteStatisticRangeLast30Days:
+		interval = "30 days"
+		truncateBy = "day"
+	case gqlmodel.EmoteStatisticRangeLast90Days:
+		interval = "90 days"
+		truncateBy = "day"
+	case gqlmodel.EmoteStatisticRangeLast365Days:
+		interval = "365 days"
+		truncateBy = "day"
+	default:
+	}
+
+	query := fmt.Sprintf(
+		`
+SELECT
     emote,
-    DATE_TRUNC('hour', "createdAt") AS time,
+    DATE_TRUNC('%s', "createdAt") AS time,
     COUNT(*) AS count
 FROM
     channels_emotes_usages
 WHERE
-    emote = ? AND "createdAt" >= NOW() - INTERVAL '24 hours'
+    emote = '%s' AND "createdAt" >= NOW() - INTERVAL '%s'
 GROUP BY
     emote, time
 ORDER BY
     time DESC;
-`, emoteName,
-		).Scan(&usages).Error; err != nil {
+`, truncateBy, emoteName, interval,
+	)
+
+	if err := r.gorm.
+		Debug().
+		WithContext(ctx).
+		Raw(query).
+		Scan(&usages).Error; err != nil {
 		return nil, err
 	}
 

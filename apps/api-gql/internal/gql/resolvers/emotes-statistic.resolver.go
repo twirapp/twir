@@ -94,10 +94,17 @@ FROM
 			return nil, err
 		}
 
+		var rangeType gqlmodel.EmoteStatisticRange
+		if opts.Range.IsSet() {
+			rangeType = *opts.Range.Value()
+		} else {
+			rangeType = gqlmodel.EmoteStatisticRangeLast24Hours
+		}
+
 		usagesForLastDay, err := r.getEmoteStatisticUsagesForRange(
 			ctx,
 			entity.Emote,
-			gqlmodel.EmoteStatisticRangeLast24Hours,
+			rangeType,
 		)
 		if err != nil {
 			return nil, err

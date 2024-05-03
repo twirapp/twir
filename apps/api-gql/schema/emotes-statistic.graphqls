@@ -19,6 +19,7 @@ input EmotesStatisticsOpts {
 	search: String
 	page: Int
 	perPage: Int
+	range: EmoteStatisticRange
 }
 
 enum EmoteStatisticRange {
