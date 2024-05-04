@@ -13,8 +13,8 @@ export const useCommunityEmotesStatisticFilters = defineStore('features/communit
 	const sortingState = ref<SortingState>([
 		{
 			desc: true,
-			id: 'usages' // accessorKey
-		}
+			id: 'usages', // accessorKey
+		},
 	])
 
 	const tableOrder = computed(() => {
@@ -23,7 +23,7 @@ export const useCommunityEmotesStatisticFilters = defineStore('features/communit
 			: EmotesStatisticsOptsOrder.Asc
 	})
 
-	const emotesRange = ref(EmoteStatisticRange.LastYear)
+	const emotesRange = ref(EmoteStatisticRange.LastDay)
 	function changeEmoteRange(range: EmoteStatisticRange) {
 		emotesRange.value = range
 	}
@@ -36,6 +36,6 @@ export const useCommunityEmotesStatisticFilters = defineStore('features/communit
 		tableOrder,
 
 		emotesRange,
-		changeEmoteRange
+		changeEmoteRange,
 	}
 })

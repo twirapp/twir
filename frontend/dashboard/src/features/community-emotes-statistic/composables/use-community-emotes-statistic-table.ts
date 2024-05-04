@@ -1,9 +1,18 @@
-import { type ColumnDef, getCoreRowModel, getFacetedRowModel, getFacetedUniqueValues, getPaginationRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table'
+import {
+	type ColumnDef,
+	getCoreRowModel,
+	getFacetedRowModel,
+	getFacetedUniqueValues,
+	getPaginationRowModel,
+	getSortedRowModel,
+	useVueTable
+} from '@tanstack/vue-table'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
+import CommunityEmotesTableChart from '../components/community-emotes-column-chart.vue'
 import CommunityEmotesTableColumn from '../components/community-emotes-table-column.vue'
 
 import type { EmotesStatisticsOpts } from '@/gql/graphql'
@@ -66,6 +75,16 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 			},
 			cell: ({ row }) => {
 				return h('div', `${row.original.usages}`)
+			}
+		},
+		{
+			accessorKey: 'chart',
+			size: 50,
+			header: () => h('div', {}, t('community.emotesStatistic.table.chart')),
+			cell: ({ row }) => {
+				return h(CommunityEmotesTableChart, {
+					usages: row.original.graphicUsages
+				})
 			}
 		}
 	])

@@ -2,11 +2,13 @@ package resolvers
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"gorm.io/gorm"
 )
 
 func (r *queryResolver) getEmoteStatisticUsagesForRange(
@@ -14,6 +16,11 @@ func (r *queryResolver) getEmoteStatisticUsagesForRange(
 	emoteName string,
 	timeRange gqlmodel.EmoteStatisticRange,
 ) ([]gqlmodel.EmoteStatisticUsage, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	var usages []emoteStatisticUsageModel
 
 	var interval string
@@ -40,25 +47,46 @@ func (r *queryResolver) getEmoteStatisticUsagesForRange(
 	query := fmt.Sprintf(
 		`
 SELECT
-    emote,
-    DATE_TRUNC('%s', "createdAt") AS time,
-    COUNT(*) AS count
-FROM
-    channels_emotes_usages
-WHERE
-    emote = '%s' AND "createdAt" >= NOW() - INTERVAL '%s'
+hh AS time, COUNT(emote) AS count
+FROM (select
+				generate_series(
+								DATE_TRUNC(@truncate_by, NOW() - INTERVAL '%s'),
+								DATE_TRUNC(@truncate_by, NOW()),
+								INTERVAL '1 %s'
+				) as hh
+) s
+left join channels_emotes_usages on DATE_TRUNC(@truncate_by, "createdAt") = hh AND "channelId" = @dashboard_id AND emote = @emote_name
 GROUP BY
-    emote, time
+	time
 ORDER BY
-    time DESC;
-`, truncateBy, emoteName, interval,
+	time asc;
+	`, interval, truncateBy,
 	)
+
+	stmt := r.gorm.
+		Session(&gorm.Session{DryRun: true}).
+		WithContext(ctx).
+		Raw(
+			query,
+			sql.Named("truncate_by", truncateBy),
+			sql.Named("my_interval", interval),
+			sql.Named("dashboard_id", dashboardId),
+			sql.Named("emote_name", emoteName),
+		).
+		Find(&usages).Statement
+	fmt.Println("query:", stmt.SQL.String(), "args:", stmt.Vars)
 
 	if err := r.gorm.
 		Debug().
 		WithContext(ctx).
-		Raw(query).
-		Scan(&usages).Error; err != nil {
+		Raw(
+			query,
+			sql.Named("truncate_by", truncateBy),
+			sql.Named("my_interval", interval),
+			sql.Named("dashboard_id", dashboardId),
+			sql.Named("emote_name", emoteName),
+		).
+		Find(&usages).Error; err != nil {
 		return nil, err
 	}
 

@@ -38,7 +38,7 @@ func (r *queryResolver) EmotesStatistics(
 		Limit(perPage).
 		Offset(page * perPage)
 
-	if opts.Search.IsSet() {
+	if opts.Search.IsSet() && *opts.Search.Value() != "" {
 		query = query.Where(`"emote" LIKE ?`, "%"+*opts.Search.Value()+"%")
 	}
 
@@ -62,32 +62,18 @@ func (r *queryResolver) EmotesStatistics(
 	}
 
 	var totalCount int64
-	if err := query.
+	if err := r.gorm.
 		WithContext(ctx).
 		Raw(
 			`
-	WITH emote_counts AS (
-    SELECT
-        emote,
-        COUNT(emote) AS count
-    FROM
-        channels_emotes_usages
-    WHERE
-        "channelId" = ?
-    GROUP BY
-        emote
-    ORDER BY
-        count DESC
-)
-SELECT
-    COUNT(*) AS count
-FROM
-    emote_counts;
-`, dashboardId,
+				SELECT COUNT(DISTINCT emote)
+				FROM channels_emotes_usages
+				WHERE "channelId" = ?
+				`,
+			dashboardId,
 		).
-		Scan(&totalCount).
-		Error; err != nil {
-		return nil, err
+		Scan(&totalCount).Error; err != nil {
+		return nil, fmt.Errorf("failed to get total count: %w", err)
 	}
 
 	models := make([]gqlmodel.EmotesStatistic, 0, len(entities))
