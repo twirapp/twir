@@ -87,8 +87,8 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "Доступ заборонено",
-    "description": "У вас немає прав для перегляду цієї сторінки, зверніться до стримера за доступом."
+    "title": "No access",
+    "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
     "title": "404 Сторінка не знайдена",
@@ -812,7 +812,7 @@
     "ban": {
       "alertInfo": "Встановіть час на 0, щоб виводити повідомлення в разі перманентного блокування<br>",
       "countLabel": "Час (у хвилинах)",
-      "ignoreTimeoutFrom": "Ігнорувати мути від наступних користувачів"
+      "ignoreTimeoutFrom": "Ignore timeouts from"
     },
     "labels": {
       "followers": "Фоловери",
