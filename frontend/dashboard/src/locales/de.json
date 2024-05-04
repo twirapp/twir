@@ -87,8 +87,8 @@
     "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "Nicht erlaubt",
-    "description": "Sie sind nicht berechtigt, diese Seite zu sehen, bitten Sie den Streamer, sie dafür bereitzustellen."
+    "title": "No access",
+    "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
     "title": "404 Nicht gefunden",
@@ -122,7 +122,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Aktiviere den Befehl nur in bestimmten Kategorien (leer lassen für deaktiviert)"
+        "label": "Enable command only in certain categories (leave empty for disable)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
@@ -812,7 +812,7 @@
     "ban": {
       "alertInfo": "Set time to 0 to print a message when the user is permanently banned.<br>",
       "countLabel": "Time (in minutes)",
-      "ignoreTimeoutFrom": "Moderatorenliste ignorieren"
+      "ignoreTimeoutFrom": "Ignore timeouts from"
     },
     "labels": {
       "followers": "Followers",
