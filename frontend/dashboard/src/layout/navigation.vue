@@ -16,7 +16,7 @@ import {
 	IconPencilPlus,
 	IconSpeakerphone,
 	IconSword,
-	IconUsers
+	IconUsers,
 } from '@tabler/icons-vue'
 import { NBadge, NMenu } from 'naive-ui'
 import { computed, h, onMounted, ref } from 'vue'
@@ -43,7 +43,7 @@ const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTim
 const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords)
 const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables)
 const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings)
-const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles)
+// const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles)
 const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts)
 const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames)
 const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration)
@@ -54,49 +54,49 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			label: t('sidebar.dashboard'),
 			icon: renderIcon(IconDashboard),
 			path: '/dashboard',
-			isNew: false
+			isNew: false,
 		},
 		{
 			label: t('sidebar.integrations'),
 			icon: renderIcon(IconBox),
 			path: '/dashboard/integrations',
-			disabled: !canViewIntegrations.value
+			disabled: !canViewIntegrations.value,
 		},
 		{
 			label: t('sidebar.alerts'),
 			icon: renderIcon(IconBell),
 			path: '/dashboard/alerts',
-			disabled: !canViewAlerts.value
+			disabled: !canViewAlerts.value,
 		},
 		{
 			label: t('sidebar.chatAlerts'),
 			icon: renderIcon(IconMessageCircle2),
 			path: '/dashboard/events/chat-alerts',
-			disabled: !canViewEvents.value
+			disabled: !canViewEvents.value,
 		},
 		{
 			label: t('sidebar.events'),
 			icon: renderIcon(IconCalendarEvent),
 			disabled: !canViewEvents.value,
-			path: '/dashboard/events/custom'
+			path: '/dashboard/events/custom',
 		},
 		{
 			label: t('sidebar.overlays'),
 			icon: renderIcon(IconDeviceDesktop),
 			path: '/dashboard/overlays',
-			disabled: !canViewOverlays.value
+			disabled: !canViewOverlays.value,
 		},
 		{
 			label: t('sidebar.songRequests'),
 			icon: renderIcon(IconHeadphones),
 			path: '/dashboard/song-requests',
-			disabled: !canViewSongRequests.value
+			disabled: !canViewSongRequests.value,
 		},
 		{
 			label: t('sidebar.games'),
 			icon: renderIcon(IconDeviceGamepad2),
 			path: '/dashboard/games',
-			disabled: !canViewGames.value
+			disabled: !canViewGames.value,
 		},
 		{
 			label: t('sidebar.commands.label'),
@@ -106,50 +106,50 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 				{
 					label: t('sidebar.commands.custom'),
 					icon: renderIcon(IconPencilPlus),
-					path: '/dashboard/commands/custom'
+					path: '/dashboard/commands/custom',
 				},
 				{
 					label: t('sidebar.commands.builtin'),
 					icon: renderIcon(IconHammer),
-					path: '/dashboard/commands/builtin'
-				}
-			]
+					path: '/dashboard/commands/builtin',
+				},
+			],
 		},
 		{
 			label: t('sidebar.moderation'),
 			icon: renderIcon(IconSword),
 			path: '/dashboard/moderation',
-			disabled: !canViewModeration.value
+			disabled: !canViewModeration.value,
 		},
 		{
 			label: t('sidebar.community'),
 			icon: renderIcon(IconUsers),
-			path: '/dashboard/community'
+			path: '/dashboard/community',
 		},
 		{
 			label: t('sidebar.timers'),
 			icon: renderIcon(IconClockHour7),
 			path: '/dashboard/timers',
-			disabled: !canViewTimers.value
+			disabled: !canViewTimers.value,
 		},
 		{
 			label: t('sidebar.keywords'),
 			icon: renderIcon(IconKey),
 			path: '/dashboard/keywords',
-			disabled: !canViewKeywords.value
+			disabled: !canViewKeywords.value,
 		},
 		{
 			label: t('sidebar.variables'),
 			icon: renderIcon(IconActivity),
 			path: '/dashboard/variables',
-			disabled: !canViewVariables.value
+			disabled: !canViewVariables.value,
 		},
 		{
 			label: t('sidebar.greetings'),
 			icon: renderIcon(IconSpeakerphone),
 			path: '/dashboard/greetings',
-			disabled: !canViewGreetings.value
-		}
+			disabled: !canViewGreetings.value,
+		},
 	].map((item) => ({
 		...item,
 		key: item.path ?? item.label,
@@ -160,8 +160,8 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 				RouterLink,
 				{
 					to: {
-						path: item.path
-					}
+						path: item.path,
+					},
 				},
 				{
 					default: () => item.isNew
@@ -169,10 +169,10 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 							type: 'info',
 							value: 'new',
 							processing: true,
-							offset: [17, 5]
+							offset: [17, 5],
 						}, { default: () => item.label })
-						: item.label
-				}
+						: item.label,
+				},
 			),
 		children: item.children?.map((child) => ({
 			...child,
@@ -183,12 +183,12 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 					RouterLink,
 					{
 						to: {
-							path: child.path
-						}
+							path: child.path,
+						},
 					},
-					{ default: () => child.label }
-				)
-		}))
+					{ default: () => child.label },
+				),
+		})),
 	}))
 })
 
