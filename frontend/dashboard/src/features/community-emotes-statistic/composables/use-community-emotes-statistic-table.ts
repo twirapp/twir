@@ -5,7 +5,7 @@ import {
 	getFacetedUniqueValues,
 	getPaginationRowModel,
 	getSortedRowModel,
-	useVueTable
+	useVueTable,
 } from '@tanstack/vue-table'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
@@ -28,7 +28,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		debouncedSearchInput,
 		emotesRange,
 		sortingState,
-		tableOrder
+		tableOrder,
 	} = storeToRefs(useCommunityEmotesStatisticFilters())
 
 	const emotesQueryOptions = computed<EmotesStatisticsOpts>((prevParams) => {
@@ -41,7 +41,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 			perPage: pagination.value.pageSize,
 			page: pagination.value.pageIndex,
 			graphicRange: emotesRange.value,
-			order: tableOrder.value
+			order: tableOrder.value,
 		}
 	})
 	const { data, fetching } = useEmotesStatisticQuery(emotesQueryOptions)
@@ -58,35 +58,35 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 	const statsColumn = computed<ColumnDef<EmotesStatistics[0]>[]>(() => [
 		{
 			accessorKey: 'name',
-			size: 50,
+			size: 15,
 			header: () => h('div', {}, t('community.emotesStatistic.table.emote')),
 			cell: ({ row }) => {
 				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.emoteName })
-			}
+			},
 		},
 		{
 			accessorKey: 'usages',
-			size: 50,
+			size: 15,
 			header: ({ column }) => {
 				return h(CommunityEmotesTableColumn, {
 					column,
-					title: t('community.emotesStatistic.table.usages')
+					title: t('community.emotesStatistic.table.usages'),
 				})
 			},
 			cell: ({ row }) => {
 				return h('div', `${row.original.usages}`)
-			}
+			},
 		},
 		{
 			accessorKey: 'chart',
-			size: 50,
+			size: 70,
 			header: () => h('div', {}, t('community.emotesStatistic.table.chart')),
 			cell: ({ row }) => {
 				return h(CommunityEmotesTableChart, {
-					usages: row.original.graphicUsages
+					usages: row.original.graphicUsages,
 				})
-			}
-		}
+			},
+		},
 	])
 
 	const table = useVueTable({
@@ -105,7 +105,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 			},
 			get pagination() {
 				return pagination.value
-			}
+			},
 		},
 		manualPagination: true,
 		enableRowSelection: true,
@@ -115,7 +115,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		onSortingChange: updaterOrValue => valueUpdater(updaterOrValue, sortingState),
 		getSortedRowModel: getSortedRowModel(),
 		getFacetedRowModel: getFacetedRowModel(),
-		getFacetedUniqueValues: getFacetedUniqueValues()
+		getFacetedUniqueValues: getFacetedUniqueValues(),
 	})
 
 	return {
@@ -123,6 +123,6 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		table,
 		totalEmotes,
 		pageCount,
-		pagination
+		pagination,
 	}
 })

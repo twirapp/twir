@@ -783,7 +783,8 @@
 				"emote": "Emote",
 				"usages": "Usages",
 				"users": "Users",
-				"empty": "No emotes"
+				"empty": "No emotes",
+				"chart": "Usages Chart"
 			},
 			"total": "Total emotes: {total}"
 		}
