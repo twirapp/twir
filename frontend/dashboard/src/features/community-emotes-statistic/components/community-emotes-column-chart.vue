@@ -41,6 +41,7 @@ onMounted(() => {
 			},
 		},
 		height: 50,
+		autoSize: true,
 		leftPriceScale: {
 			visible: false,
 		},
