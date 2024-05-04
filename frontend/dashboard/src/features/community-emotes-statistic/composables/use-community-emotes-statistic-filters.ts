@@ -23,9 +23,9 @@ export const useCommunityEmotesStatisticFilters = defineStore('features/communit
 			: EmotesStatisticsOptsOrder.Asc
 	})
 
-	const emotesRange = ref(EmoteStatisticRange.LastDay)
-	function changeEmoteRange(range: EmoteStatisticRange) {
-		emotesRange.value = range
+	const tableRange = ref(EmoteStatisticRange.LastDay)
+	function changeTableRange(range: EmoteStatisticRange) {
+		tableRange.value = range
 	}
 
 	return {
@@ -35,7 +35,7 @@ export const useCommunityEmotesStatisticFilters = defineStore('features/communit
 		sortingState,
 		tableOrder,
 
-		emotesRange,
-		changeEmoteRange,
+		tableRange,
+		changeTableRange,
 	}
 })

@@ -12,13 +12,13 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
-import CommunityEmotesTableChart from '../components/community-emotes-column-chart.vue'
+import CommunityEmotesTableColumnChartRange from '../components/community-emotes-table-column-chart-range.vue'
+import CommunityEmotesTableColumnChart from '../components/community-emotes-table-column-chart.vue'
 import CommunityEmotesTableColumn from '../components/community-emotes-table-column.vue'
-
-import type { EmotesStatisticsOpts } from '@/gql/graphql'
 
 import { type EmotesStatistics, useEmotesStatisticQuery } from '@/api/emotes-statistic.js'
 import { usePagination } from '@/composables/use-pagination.js'
+import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 export const useCommunityEmotesStatisticTable = defineStore('features/community-emotes-statistic-table', () => {
@@ -26,7 +26,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 	const { pagination } = usePagination()
 	const {
 		debouncedSearchInput,
-		emotesRange,
+		tableRange,
 		sortingState,
 		tableOrder,
 	} = storeToRefs(useCommunityEmotesStatisticFilters())
@@ -40,7 +40,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 			search: debouncedSearchInput.value,
 			perPage: pagination.value.pageSize,
 			page: pagination.value.pageIndex,
-			graphicRange: emotesRange.value,
+			graphicRange: tableRange.value,
 			order: tableOrder.value,
 		}
 	})
@@ -58,7 +58,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 	const statsColumn = computed<ColumnDef<EmotesStatistics[0]>[]>(() => [
 		{
 			accessorKey: 'name',
-			size: 15,
+			size: 5,
 			header: () => h('div', {}, t('community.emotesStatistic.table.emote')),
 			cell: ({ row }) => {
 				return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.emoteName })
@@ -66,7 +66,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		},
 		{
 			accessorKey: 'usages',
-			size: 15,
+			size: 5,
 			header: ({ column }) => {
 				return h(CommunityEmotesTableColumn, {
 					column,
@@ -79,10 +79,11 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		},
 		{
 			accessorKey: 'chart',
-			size: 70,
-			header: () => h('div', {}, t('community.emotesStatistic.table.chart')),
+			size: 90,
+			header: () => h(CommunityEmotesTableColumnChartRange),
 			cell: ({ row }) => {
-				return h(CommunityEmotesTableChart, {
+				return h(CommunityEmotesTableColumnChart, {
+					isDayRange: tableRange.value === EmoteStatisticRange.LastDay,
 					usages: row.original.graphicUsages,
 				})
 			},
@@ -108,7 +109,6 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 			},
 		},
 		manualPagination: true,
-		enableRowSelection: true,
 		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
