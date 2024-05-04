@@ -140,7 +140,7 @@ onUnmounted(() => {
 	<div ref="chartContainer" class="lw-chart h-full relative">
 		<div
 			v-if="tooltipVisible && tooltipBarData"
-			class="pointer-events-none absolute z-50 flex min-w-[108px] flex-col whitespace-nowrap rounded-md bg-stone-400/90 px-2.5 py-1.5 shadow-md backdrop-blur-sm"
+			class="pointer-events-none absolute z-50 flex min-w-[108px] flex-col whitespace-nowrap rounded-md bg-zinc-600/90 px-2.5 py-1.5 shadow-md backdrop-blur-sm"
 			:style="{
 				left: `${tooltipPosition.x}px`,
 				top: `${tooltipPosition.y}px`,
