@@ -6,7 +6,7 @@ import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useCommunityChartSize } from '../composables/use-community-chart-size.js'
 import { useCommunityChartStyles } from '../composables/use-community-chart-styles.js'
 
-import type { DeepPartial, IChartApi, TimeChartOptions, UTCTimestamp } from 'lightweight-charts'
+import type { DeepPartial, IChartApi, ISeriesApi, TimeChartOptions , UTCTimestamp } from 'lightweight-charts'
 
 const props = defineProps<{
 	isDayRange: boolean
@@ -75,30 +75,39 @@ function resizeHandler() {
 	chart.value.timeScale().fitContent()
 }
 
+const areaSeries = ref<ISeriesApi<'Line'> | null>(null)
+
 onMounted(() => {
 	if (!chartContainer.value) return
 
 	chart.value = createChart(chartContainer.value, chartOptions.value)
 
-	const areaSeries = chart.value.addLineSeries({
+	areaSeries.value = chart.value.addLineSeries({
 		crosshairMarkerVisible: false,
 		priceLineVisible: false,
 	})
 
-	areaSeries.setData(props.usages.map(({ timestamp, count }) => ({
-		time: timestamp / 1000 as UTCTimestamp,
-		value: count,
-	})))
+	setUsages()
 
 	resizeHandler()
 	window.addEventListener('resize', resizeHandler)
 })
+
+function setUsages() {
+	areaSeries.value?.setData(props.usages.map(({ timestamp, count }) => ({
+		time: timestamp / 1000 as UTCTimestamp,
+		value: count,
+	})))
+}
+
+watch(() => props.usages, setUsages)
 
 onUnmounted(() => {
 	if (!chart.value) return
 
 	chart.value.remove()
 	chart.value = null
+	areaSeries.value = null
 
 	window.removeEventListener('resize', resizeHandler)
 })

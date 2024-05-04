@@ -13,10 +13,7 @@ import (
 )
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
-func (r *queryResolver) EmotesStatistics(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticsOpts,
-) (*gqlmodel.EmotesStatisticResponse, error) {
+func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -120,9 +117,6 @@ func (r *queryResolver) EmotesStatistics(
 }
 
 // EmotesStatisticEmote is the resolver for the emotesStatisticEmote field.
-func (r *queryResolver) EmotesStatisticEmote(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticEmoteOpts,
-) ([]gqlmodel.EmoteStatisticUsage, error) {
+func (r *queryResolver) EmotesStatisticEmote(ctx context.Context, opts gqlmodel.EmotesStatisticEmoteOpts) ([]gqlmodel.EmoteStatisticUsage, error) {
 	return r.getEmoteStatisticUsagesForRange(ctx, opts.EmoteName, opts.Range)
 }
