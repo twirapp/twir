@@ -3,6 +3,7 @@ import { useQuery } from '@urql/vue'
 import type {
 	EmotesStatisticEmoteDetailedOpts,
 	EmotesStatisticQuery,
+	EmotesStatisticsDetailsQuery,
 	EmotesStatisticsOpts,
 } from '@/gql/graphql'
 import type { Ref } from 'vue'
@@ -37,6 +38,8 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 	})
 }
 
+export type EmotesStatisticsDetail = EmotesStatisticsDetailsQuery
+
 export function useEmotesStatisticDetailsQuery(opts: Ref<EmotesStatisticEmoteDetailedOpts>) {
 	return useQuery({
 		get variables() {
@@ -53,11 +56,14 @@ export function useEmotesStatisticDetailsQuery(opts: Ref<EmotesStatisticEmoteDet
 					}
 					usagesByUsers {
 						date
-						user {
+						userId
+						twitchProfile {
+							login
 							displayName
 							profileImageUrl
 						}
 					}
+					usagesByUsersTotal
 				}
 			}
 		`),

@@ -1,6 +1,6 @@
 extend type Query {
 	emotesStatistics(opts: EmotesStatisticsOpts!): EmotesStatisticResponse! @isAuthenticated
-	emotesStatisticEmoteDetailedInformation(opts: EmotesStatisticEmoteDetailedOpts!): EmotesStatisticEmoteDetailedResponse @isAuthenticated
+	emotesStatisticEmoteDetailedInformation(opts: EmotesStatisticEmoteDetailedOpts!): EmotesStatisticEmoteDetailedResponse! @isAuthenticated
 }
 
 type EmotesStatisticResponse {
@@ -49,6 +49,7 @@ type EmotesStatisticEmoteDetailedResponse {
 	lastUsedTimestamp: Int!
 	graphicUsages: [EmoteStatisticUsage!]!
 	usagesByUsers: [EmoteStatisticUserUsage!]!
+	usagesByUsersTotal: Int!
 }
 
 type EmoteStatisticUsage {
@@ -58,6 +59,6 @@ type EmoteStatisticUsage {
 
 type EmoteStatisticUserUsage {
 	userId: String!
-	user: TwirUserTwitchInfo! @goField(forceResolver: true)
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	date: Time!
 }

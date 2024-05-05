@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { InfoIcon } from 'lucide-vue-next'
+import { NScrollbar } from 'naive-ui'
 
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Button } from '@/components/ui/button'
@@ -22,7 +23,9 @@ defineEmits<{
 			</Button>
 		</DialogTrigger>
 		<DialogOrSheet class="p-0">
-			<CommunityEmotesDetailsContent />
+			<NScrollbar style="max-height: 85vh" trigger="none">
+				<CommunityEmotesDetailsContent />
+			</NScrollbar>
 		</DialogOrSheet>
 	</Dialog>
 </template>

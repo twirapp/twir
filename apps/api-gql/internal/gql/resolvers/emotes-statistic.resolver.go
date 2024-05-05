@@ -14,8 +14,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 )
 
-// User is the resolver for the user field.
-func (r *emoteStatisticUserUsageResolver) User(
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *emoteStatisticUserUsageResolver) TwitchProfile(
 	ctx context.Context,
 	obj *gqlmodel.EmoteStatisticUserUsage,
 ) (*gqlmodel.TwirUserTwitchInfo, error) {
@@ -186,6 +186,15 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 		return nil, err
 	}
 
+	var usagesByUsersTotalCount int64
+	if err := r.gorm.
+		WithContext(ctx).
+		Model(&model.ChannelEmoteUsage{}).
+		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
+		Count(&usagesByUsersTotalCount).Error; err != nil {
+		return nil, err
+	}
+
 	users := make([]gqlmodel.EmoteStatisticUserUsage, 0, len(usagesByUsers))
 	for _, usage := range usagesByUsers {
 		users = append(
@@ -197,11 +206,12 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 	}
 
 	return &gqlmodel.EmotesStatisticEmoteDetailedResponse{
-		EmoteName:         opts.EmoteName,
-		TotalUsages:       int(usages),
-		LastUsedTimestamp: int(lastUsedEntity.CreatedAt.UTC().UnixMilli()),
-		GraphicUsages:     graphicUsages,
-		UsagesByUsers:     users,
+		EmoteName:          opts.EmoteName,
+		TotalUsages:        int(usages),
+		LastUsedTimestamp:  int(lastUsedEntity.CreatedAt.UTC().UnixMilli()),
+		GraphicUsages:      graphicUsages,
+		UsagesByUsers:      users,
+		UsagesByUsersTotal: int(usagesByUsersTotalCount),
 	}, nil
 }
 

@@ -6,6 +6,8 @@ import { onMounted, ref, watch } from 'vue'
 
 import type { AutoscaleInfo, IChartApi , ISeriesApi, UTCTimestamp } from 'lightweight-charts'
 
+import CommunityEmotesDetailsContentUsers
+	from '@/features/community-emotes-statistic/components/community-emotes-details-content-users.vue'
 import {
 	useCommunityEmotesDetails,
 	useCommunityEmotesDetailsName,
@@ -115,6 +117,12 @@ watch(details, () => {
 		<h1 class="text-4xl font-medium px-6 py-6">
 			{{ emoteName }}
 		</h1>
+		<div class="px-6 py-6">
+			<h1 class="text-2xl font-medium">
+				Usages table
+			</h1>
+			<CommunityEmotesDetailsContentUsers />
+		</div>
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
