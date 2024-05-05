@@ -5,9 +5,7 @@ import {
 	useCommunityEmotesDetailsName,
 } from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
 
-const props = defineProps<{
-	emoteName: string
-}>()
+const props = defineProps<{ emoteName: string }>()
 
 const nameStore = useCommunityEmotesDetailsName()
 function setDetailsName() {
@@ -16,7 +14,10 @@ function setDetailsName() {
 </script>
 
 <template>
-	<div class="flex gap-2">
+	<div class="flex flex-col gap-0.5 break-words max-w-[450px]">
+		<h1 class="text-xl">
+			{{ emoteName }}
+		</h1>
 		<CommunityEmotesDetails @select="setDetailsName" />
 	</div>
 </template>

@@ -34,23 +34,11 @@ onMounted(() => {
 	if (!chartContainer.value) return
 	chart = createChart(chartContainer.value, {
 		height: 240,
-		handleScroll: {
-			horzTouchDrag: false,
-			mouseWheel: false,
-			pressedMouseMove: false,
-			vertTouchDrag: false,
-		},
 		autoSize: true,
 		layout: {
 			textColor: 'white',
 			fontFamily: 'Inter',
 			background: { type: ColorType.Solid, color: 'transparent' },
-		},
-		handleScale: {
-			pinch: false,
-			mouseWheel: false,
-			axisDoubleClickReset: false,
-			axisPressedMouseMove: false,
 		},
 		rightPriceScale: {
 			borderColor: '#454545',
@@ -124,7 +112,7 @@ const tableTab = ref<'top' | 'history'>('top')
 </script>
 
 <template>
-	<div class="flex flex-col divide-y divide-white/30">
+	<div class="flex flex-col divide-y divide-white/10">
 		<h1 class="text-4xl font-medium px-6 py-6">
 			{{ emoteName }}
 		</h1>

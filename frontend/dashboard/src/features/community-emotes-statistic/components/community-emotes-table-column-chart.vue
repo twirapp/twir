@@ -57,6 +57,8 @@ const chartOptions = computed<DeepPartial<TimeChartOptions>>(() => ({
 	handleScale: {
 		axisDoubleClickReset: false,
 		axisPressedMouseMove: false,
+		mouseWheel: false,
+		pinch: false,
 	},
 }))
 
