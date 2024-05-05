@@ -40,6 +40,9 @@ const chartOptions = computed<DeepPartial<TimeChartOptions>>(() => ({
 			visible: false,
 		},
 	},
+	localization: {
+		priceFormatter: (price: number) => price.toFixed(0),
+	},
 	timeScale: {
 		fixLeftEdge: true,
 		timeVisible: props.isDayRange,
@@ -98,10 +101,13 @@ onMounted(() => {
 })
 
 function setUsages() {
-	areaSeries.value?.setData(props.usages.map(({ timestamp, count }) => ({
+	if (!areaSeries.value || !chart.value) return
+
+	areaSeries.value.setData(props.usages.map(({ timestamp, count }) => ({
 		time: timestamp / 1000 as UTCTimestamp,
 		value: count,
 	})))
+	chart.value.timeScale().fitContent()
 }
 
 watch(() => props.usages, setUsages)
