@@ -12,7 +12,8 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
-import CommunityEmotesTableColumnChartRange from '../components/community-emotes-table-column-chart-range.vue'
+import CommunityEmotesTableColumnChartRange
+	from '../components/community-emotes-table-column-chart-range.vue'
 import CommunityEmotesTableColumnChart from '../components/community-emotes-table-column-chart.vue'
 import CommunityEmotesTableColumn from '../components/community-emotes-table-column.vue'
 
@@ -74,7 +75,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 				})
 			},
 			cell: ({ row }) => {
-				return h('div', `${row.original.usages}`)
+				return h('div', `${row.original.totalUsages}`)
 			},
 		},
 		{

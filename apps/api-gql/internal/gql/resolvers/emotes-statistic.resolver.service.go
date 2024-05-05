@@ -8,7 +8,6 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
-	"gorm.io/gorm"
 )
 
 func (r *queryResolver) getEmoteStatisticUsagesForRange(
@@ -63,21 +62,7 @@ ORDER BY
 	`, interval, truncateBy,
 	)
 
-	stmt := r.gorm.
-		Session(&gorm.Session{DryRun: true}).
-		WithContext(ctx).
-		Raw(
-			query,
-			sql.Named("truncate_by", truncateBy),
-			sql.Named("my_interval", interval),
-			sql.Named("dashboard_id", dashboardId),
-			sql.Named("emote_name", emoteName),
-		).
-		Find(&usages).Statement
-	fmt.Println("query:", stmt.SQL.String(), "args:", stmt.Vars)
-
 	if err := r.gorm.
-		Debug().
 		WithContext(ctx).
 		Raw(
 			query,
@@ -108,6 +93,7 @@ type emoteEntityModelWithCount struct {
 	model.ChannelEmoteUsage
 	Count int `gorm:"column:count"`
 }
+
 type emoteStatisticUsageModel struct {
 	Emote string    `gorm:"column:emote"`
 	Count int       `gorm:"column:count"`

@@ -11,7 +11,7 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 	return useQuery({
 		get variables() {
 			return {
-				opts: opts.value
+				opts: opts.value,
 			}
 		},
 		query: graphql(`
@@ -19,7 +19,7 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 				emotesStatistics(opts: $opts) {
 					emotes {
 						emoteName
-						usages
+						totalUsages
 						lastUsedTimestamp
 						graphicUsages {
 							count
@@ -29,6 +29,6 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 					total
 				}
 			}
-		`)
+		`),
 	})
 }
