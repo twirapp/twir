@@ -2,7 +2,7 @@ import {
 	type ColumnDef,
 	getCoreRowModel,
 	getPaginationRowModel,
-	useVueTable
+	useVueTable,
 } from '@tanstack/vue-table'
 import { defineStore } from 'pinia'
 import { computed, h } from 'vue'
@@ -39,7 +39,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			search: tableFilters.debounceSearchInput,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			badges: tableFilters.selectedBadges
+			badges: tableFilters.selectedBadges,
 		}
 	})
 
@@ -66,13 +66,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 				return h('a', {
 					class: 'flex flex-col',
 					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank'
+					target: '_blank',
 				}, h(UsersTableCellUser, {
 					avatar: row.original.twitchProfile.profileImageUrl,
 					userId: row.original.id,
-					name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName)
+					name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName),
 				}))
-			}
+			},
 		},
 		{
 			accessorKey: 'userId',
@@ -80,7 +80,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			header: () => h('div', {}, t('adminPanel.manageUsers.userId')),
 			cell: ({ row }) => {
 				return h('span', row.original.id)
-			}
+			},
 		},
 		{
 			accessorKey: 'actions',
@@ -92,17 +92,17 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 					{ class: 'flex items-center gap-2' },
 					[
 						h(UsersBadgeSelector, {
-							userId: row.original.id
+							userId: row.original.id,
 						}),
 						h(UsersActionSelector, {
 							userId: row.original.id,
 							isBanned: row.original.isBanned,
-							isBotAdmin: row.original.isBotAdmin
-						})
-					]
+							isBotAdmin: row.original.isBotAdmin,
+						}),
+					],
 				)
-			}
-		}
+			},
+		},
 	])
 
 	const table = useVueTable({
@@ -118,13 +118,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		state: {
 			get pagination() {
 				return pagination.value
-			}
+			},
 		},
 		manualPagination: true,
 		enableRowSelection: true,
 		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel()
+		getPaginationRowModel: getPaginationRowModel(),
 	})
 
 	return {
@@ -132,6 +132,6 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		pagination,
 		totalUsers,
 		table,
-		tableColumns
+		tableColumns,
 	}
 })

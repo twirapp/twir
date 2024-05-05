@@ -27,6 +27,7 @@ export interface PageLayoutTab {
 	name: string
 	title: string
 	component: Component
+	disabled?: boolean
 }
 
 const activeTab = ref(props.activeTab)
@@ -68,18 +69,19 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 					<slot name="title" />
 				</h1>
 
-				<div v-if="activeTab" class="flex gap-2">
+				<div v-if="props.tabs" class="flex gap-2">
 					<TabsList class="flex flex-wrap overflow-x-auto -mb-px">
 						<TabsTrigger
 							v-for="tab of props.tabs"
 							:key="tab.name"
-							class="tabs-trigger"
+							class="tabs-trigger data-[disabled]:cursor-not-allowed data-[disabled]:text-zinc-400"
 							:value="tab.name"
 							:class="[
 								theme === 'dark'
 									? 'data-[state=active]:after:border-white'
 									: 'data-[state=active]:after:border-zinc-800',
 							]"
+							:disabled="tab.disabled"
 						>
 							{{ tab.title }}
 						</TabsTrigger>

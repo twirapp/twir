@@ -1,32 +1,33 @@
 <script lang="ts" setup>
-import { IconSettings } from '@tabler/icons-vue';
-import { EventType } from '@twir/api/messages/dashboard/dashboard';
-import { useIntervalFn, useLocalStorage } from '@vueuse/core';
-import { NScrollbar, NText, NButton, NPopselect } from 'naive-ui';
-import { computed } from 'vue';
+import { IconSettings } from '@tabler/icons-vue'
+import { EventType } from '@twir/api/messages/dashboard/dashboard'
+import { useIntervalFn, useLocalStorage } from '@vueuse/core'
+import { NButton, NPopselect, NScrollbar, NText } from 'naive-ui'
+import { computed } from 'vue'
 
-import Card from './card.vue';
-import ChatClear from './events/chatClear.vue';
-import Donate from './events/donate.vue';
-import FirstUserMessage from './events/firstUserMessage.vue';
-import Follow from './events/follow.vue';
-import Raid from './events/raid.vue';
-import RedemptionCreated from './events/redemptionCreated.vue';
-import ReSubscribe from './events/resubscribe.vue';
-import SubGift from './events/subgift.vue';
-import Subscribe from './events/subscribe.vue';
+import Card from './card.vue'
+import Ban from './events/ban.vue'
+import ChatClear from './events/chatClear.vue'
+import Donate from './events/donate.vue'
+import FirstUserMessage from './events/firstUserMessage.vue'
+import Follow from './events/follow.vue'
+import Raid from './events/raid.vue'
+import RedemptionCreated from './events/redemptionCreated.vue'
+import ReSubscribe from './events/resubscribe.vue'
+import SubGift from './events/subgift.vue'
+import Subscribe from './events/subscribe.vue'
 
-import { useDashboardEvents } from '@/api/index.js';
-import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue';
-import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue';
+import { useDashboardEvents } from '@/api/index.js'
+import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
+import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
 
-const { data: events, isLoading, refetch } = useDashboardEvents();
-useIntervalFn(refetch, 1000);
+const { data: events, isLoading, refetch } = useDashboardEvents()
+useIntervalFn(refetch, 1000)
 
-const enabledEvents = useLocalStorage<number[]>('twirEventsWidgetFilterv2', Object.values(EventType).filter(t => typeof t === 'number') as number[]);
+const enabledEvents = useLocalStorage<number[]>('twirEventsWidgetFilterv2', Object.values(EventType).filter(t => typeof t === 'number') as number[])
 const filteredEvents = computed(() => events.value?.events.filter(e => {
-	return enabledEvents.value.includes(e.type);
-}) ?? []);
+	return enabledEvents.value.includes(e.type)
+}) ?? [])
 
 const enabledEventsOptions = [
 	{
@@ -77,22 +78,22 @@ const enabledEventsOptions = [
 		label: 'Unban request resolved',
 		value: 11,
 	},
-];
+]
 </script>
 
 <template>
-	<card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }">
+	<Card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }">
 		<template #header-extra>
-			<n-popselect
+			<NPopselect
 				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"
 				trigger="click"
 			>
-				<n-button text>
+				<NButton text>
 					<IconSettings />
-				</n-button>
-			</n-popselect>
+				</NButton>
+			</NPopselect>
 		</template>
-		<n-scrollbar v-if="filteredEvents.length" trigger="none">
+		<NScrollbar v-if="filteredEvents.length" trigger="none">
 			<TransitionGroup name="list">
 				<template v-for="(event) of filteredEvents" :key="event.createdAt">
 					<Follow
@@ -189,13 +190,13 @@ const enabledEventsOptions = [
 					/>
 				</template>
 			</TransitionGroup>
-		</n-scrollbar>
+		</NScrollbar>
 		<div v-else class="flex items-center justify-center h-full">
-			<n-text class="text-4xl">
+			<NText class="text-4xl">
 				No events
-			</n-text>
+			</NText>
 		</div>
-	</card>
+	</Card>
 </template>
 
 <style scoped>

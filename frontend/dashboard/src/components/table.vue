@@ -7,20 +7,21 @@ import {
 	TableHead,
 	TableHeader,
 	Table as TableRoot,
-	TableRow
+	TableRow,
 } from '@/components/ui/table'
 import ShadcnLayout from '@/layout/shadcn-layout.vue'
 
 defineProps<{
 	table: Table<T>
 	isLoading: boolean
+	hideHeader?: boolean
 }>()
 </script>
 
 <template>
 	<ShadcnLayout>
 		<TableRoot>
-			<TableHeader>
+			<TableHeader v-if="!hideHeader">
 				<TableRow v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id" class="border-b">
 					<TableHead v-for="header in headerGroup.headers" :key="header.id" :style="{ width: `${header.getSize()}%` }">
 						<FlexRender
