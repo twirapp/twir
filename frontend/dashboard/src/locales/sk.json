@@ -75,7 +75,7 @@
     "users": "Užívatelia",
     "moderation": "Moderovanie",
     "import": "Importovať",
-    "community": "Community"
+    "community": "Komunita"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
@@ -758,9 +758,9 @@
     }
   },
   "community": {
-    "title": "Community",
+    "title": "Komunita",
     "users": {
-      "title": "Users",
+      "title": "Užívatelia",
       "searchPlaceholder": "Hľadať uživateľov...",
       "table": {
         "user": "Užívateľ",
@@ -777,23 +777,28 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Štatistiky emotov",
+      "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
-        "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
+        "emote": "Emot",
+        "usages": "Celkový počet použití",
+        "users": "Užívatelia",
         "empty": "No emotes",
-        "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
-        "lastYear": "Year"
+        "chart": "Graf využitia",
+        "lastDay": "Deň",
+        "lastWeek": "Týždeň",
+        "lastMonth": "Mesiac",
+        "lastThreeMonth": "3 mesiace",
+        "lastYear": "Rok"
       },
-      "total": "Total emotes: {total}",
+      "total": "Celkový počet emotov: {total}",
       "details": {
-        "stats": "Stats"
+        "stats": "Štatistiky",
+        "users": "Users",
+        "usersTabs": {
+          "top": "Top",
+          "history": "History"
+        }
       }
     }
   },
@@ -827,7 +832,7 @@
     }
   },
   "chatAlerts": {
-    "randomedMessage": "Ak existuje niekoľko variantov upozornení na chat, vyberú sa náhodne.",
+    "randomedMessage": "Ak existuje niekoľko variantov upozornení v chate, vyberú sa náhodne.",
     "randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
     "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
     "cooldown": "Vychladnutie správy (v sekundách)",
