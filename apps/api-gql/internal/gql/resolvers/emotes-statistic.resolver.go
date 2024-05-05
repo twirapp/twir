@@ -180,6 +180,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
+		Order(`"createdAt" DESC`).
 		Limit(usagesByUserPerPage).
 		Offset(usagedByUserPage * usagesByUserPerPage).
 		Find(&usagesByUsers).Error; err != nil {
