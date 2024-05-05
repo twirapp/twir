@@ -74,7 +74,8 @@
     "games": "Ігри",
     "users": "Глядачі",
     "moderation": "Модерація",
-    "import": "Імпортувати"
+    "import": "Імпортувати",
+    "community": "Community"
   },
   "navbar": {
     "logout": "Вийти",
@@ -757,8 +758,9 @@
     }
   },
   "community": {
+    "title": "Community",
     "users": {
-      "title": "Community Users",
+      "title": "Users",
       "searchPlaceholder": "Search users...",
       "table": {
         "user": "Користувач",
@@ -772,6 +774,26 @@
       "reset": {
         "label": "Reset",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
+      }
+    },
+    "emotesStatistic": {
+      "title": "Emotes statistics",
+      "searchPlaceholder": "Search emotes...",
+      "table": {
+        "emote": "Emote",
+        "usages": "Total usages",
+        "users": "Users",
+        "empty": "No emotes",
+        "chart": "Usages chart",
+        "lastDay": "Day",
+        "lastWeek": "Week",
+        "lastMonth": "Month",
+        "lastThreeMonth": "3 months",
+        "lastYear": "Year"
+      },
+      "total": "Total emotes: {total}",
+      "details": {
+        "stats": "Stats"
       }
     }
   },
