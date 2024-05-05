@@ -3,6 +3,7 @@ import { ColorType, createChart } from 'lightweight-charts'
 import { storeToRefs } from 'pinia'
 import { RadioGroupItem, RadioGroupRoot } from 'radix-vue'
 import { onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import type { AutoscaleInfo, IChartApi , ISeriesApi, UTCTimestamp } from 'lightweight-charts'
 
@@ -16,6 +17,7 @@ import {
 	useTranslatedRanges,
 } from '@/features/community-emotes-statistic/composables/use-translated-ranges'
 
+const { t } = useI18n()
 const { ranges } = storeToRefs(useTranslatedRanges())
 const detailsStore = useCommunityEmotesDetails()
 const { emoteName } = storeToRefs(useCommunityEmotesDetailsName())
@@ -120,7 +122,7 @@ watch(details, () => {
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
-					Stats
+					{{ t('community.emotesStatistic.details.stats') }}
 				</h1>
 				<RadioGroupRoot v-model="range" class="inline-flex w-full rounded-[7px] bg-zinc-800 p-px md:w-auto">
 					<RadioGroupItem

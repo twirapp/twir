@@ -791,7 +791,10 @@
 				"lastThreeMonth": "3 months",
 				"lastYear": "Year"
 			},
-			"total": "Total emotes: {total}"
+			"total": "Total emotes: {total}",
+			"details": {
+				"stats": "Stats"
+			}
 		}
   },
   "filePicker": {
