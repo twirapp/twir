@@ -837,7 +837,7 @@
     "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
     "cooldown": "Vychladnutie správy (v sekundách)",
     "ban": {
-      "alertInfo": "Nastavte čas na 0, aby sa vytlačila správa, keď je používateľ trvalo zablokovaný.",
+      "alertInfo": "Nastavte čas na 0, aby sa odoslala správa, keď je používateľ trvalo zablokovaný.",
       "countLabel": "Čas (minútach)",
       "ignoreTimeoutFrom": "Ignorovať timeouty od"
     },
