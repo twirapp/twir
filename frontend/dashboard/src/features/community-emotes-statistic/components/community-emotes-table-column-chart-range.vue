@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { CheckIcon, GanttChartIcon } from 'lucide-vue-next'
-import { computed } from 'vue'
+import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
+
+import type { EmoteStatisticRange } from '@/gql/graphql'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -12,17 +14,13 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { EmoteStatisticRange } from '@/gql/graphql'
+import {
+	useTranslatedRanges,
+} from '@/features/community-emotes-statistic/composables/use-translated-ranges'
 
 const { t } = useI18n()
 
-const ranges = computed(() => ({
-	[EmoteStatisticRange.LastDay]: t('community.emotesStatistic.table.lastDay'),
-	[EmoteStatisticRange.LastWeek]: t('community.emotesStatistic.table.lastWeek'),
-	[EmoteStatisticRange.LastMonth]: t('community.emotesStatistic.table.lastMonth'),
-	[EmoteStatisticRange.LastThreeMonth]: t('community.emotesStatistic.table.lastThreeMonth'),
-	[EmoteStatisticRange.LastYear]: t('community.emotesStatistic.table.lastYear'),
-}))
+const { ranges } = storeToRefs(useTranslatedRanges())
 
 const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 </script>

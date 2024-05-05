@@ -47,10 +47,6 @@ const chartOptions = computed<DeepPartial<TimeChartOptions>>(() => ({
 		fixLeftEdge: true,
 		timeVisible: props.isDayRange,
 		borderColor: chartStyles.value.borderColor,
-		tickMarkFormatter: (time: number) => {
-			const date = new Date(time * 1000)
-			return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-		},
 	},
 	rightPriceScale: {
 		borderColor: chartStyles.value.borderColor,

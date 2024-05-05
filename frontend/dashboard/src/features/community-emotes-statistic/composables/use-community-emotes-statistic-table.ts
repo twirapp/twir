@@ -19,6 +19,8 @@ import CommunityEmotesTableColumn from '../components/community-emotes-table-col
 
 import { type EmotesStatistics, useEmotesStatisticQuery } from '@/api/emotes-statistic.js'
 import { usePagination } from '@/composables/use-pagination.js'
+import CommunityEmotesTableColumnActions
+	from '@/features/community-emotes-statistic/components/community-emotes-table-column-actions.vue'
 import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
@@ -80,13 +82,21 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		},
 		{
 			accessorKey: 'chart',
-			size: 90,
+			size: 80,
 			header: () => h(CommunityEmotesTableColumnChartRange),
 			cell: ({ row }) => {
 				return h(CommunityEmotesTableColumnChart, {
 					isDayRange: tableRange.value === EmoteStatisticRange.LastDay,
 					usages: row.original.graphicUsages,
 				})
+			},
+		},
+		{
+			accessorKey: 'actions',
+			size: 10,
+			header: () => '',
+			cell: ({ row }) => {
+				return h(CommunityEmotesTableColumnActions, { emoteName: row.original.emoteName })
 			},
 		},
 	])

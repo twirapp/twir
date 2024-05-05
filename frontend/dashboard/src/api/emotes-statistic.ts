@@ -1,6 +1,10 @@
 import { useQuery } from '@urql/vue'
 
-import type { EmotesStatisticQuery, EmotesStatisticsOpts } from '@/gql/graphql'
+import type {
+	EmotesStatisticEmoteDetailedOpts,
+	EmotesStatisticQuery,
+	EmotesStatisticsOpts,
+} from '@/gql/graphql'
 import type { Ref } from 'vue'
 
 import { graphql } from '@/gql'
@@ -27,6 +31,33 @@ export function useEmotesStatisticQuery(opts: Ref<EmotesStatisticsOpts>) {
 						}
 					}
 					total
+				}
+			}
+		`),
+	})
+}
+
+export function useEmotesStatisticDetailsQuery(opts: Ref<EmotesStatisticEmoteDetailedOpts>) {
+	return useQuery({
+		get variables() {
+			return {
+				opts: opts.value,
+			}
+		},
+		query: graphql(`
+			query EmotesStatisticsDetails($opts: EmotesStatisticEmoteDetailedOpts!) {
+				emotesStatisticEmoteDetailedInformation(opts: $opts) {
+					graphicUsages {
+						count
+						timestamp
+					}
+					usagesByUsers {
+						date
+						user {
+							displayName
+							profileImageUrl
+						}
+					}
 				}
 			}
 		`),

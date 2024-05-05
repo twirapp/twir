@@ -133,6 +133,10 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 	ctx context.Context,
 	opts gqlmodel.EmotesStatisticEmoteDetailedOpts,
 ) (*gqlmodel.EmotesStatisticEmoteDetailedResponse, error) {
+	if opts.EmoteName == "" {
+		return nil, nil
+	}
+
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

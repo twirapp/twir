@@ -785,11 +785,11 @@
 				"users": "Users",
 				"empty": "No emotes",
 				"chart": "Usages chart",
-				"lastDay": "Last day",
-				"lastWeek": "Last week",
-				"lastMonth": "Last month",
-				"lastThreeMonth": "Last three months",
-				"lastYear": "Last year"
+				"lastDay": "Day",
+				"lastWeek": "Week",
+				"lastMonth": "Month",
+				"lastThreeMonth": "3 months",
+				"lastYear": "Year"
 			},
 			"total": "Total emotes: {total}"
 		}
