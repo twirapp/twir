@@ -16,7 +16,7 @@ const users = useCommunityEmotesDetailsUsers()
 </script>
 
 <template>
-	<div class="flex flex-col w-full gap-4 pt-4">
+	<div class="flex flex-col w-full gap-4">
 		<Pagination
 			:total="users.total"
 			:table="users.table"

@@ -117,12 +117,6 @@ watch(details, () => {
 		<h1 class="text-4xl font-medium px-6 py-6">
 			{{ emoteName }}
 		</h1>
-		<div class="px-6 py-6">
-			<h1 class="text-2xl font-medium">
-				Usages table
-			</h1>
-			<CommunityEmotesDetailsContentUsers />
-		</div>
 		<div class="flex flex-col gap-6 px-6 py-7">
 			<div class="flex justify-between flex-wrap">
 				<h1 class="text-2xl font-medium">
@@ -144,6 +138,9 @@ watch(details, () => {
 				ref="chartContainer"
 				class="relative h-[240px]"
 			></div>
+		</div>
+		<div class="px-6 py-6">
+			<CommunityEmotesDetailsContentUsers />
 		</div>
 	</div>
 </template>
