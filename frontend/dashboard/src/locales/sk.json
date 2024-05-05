@@ -74,7 +74,8 @@
     "games": "Hry",
     "users": "Užívatelia",
     "moderation": "Moderovanie",
-    "import": "Importovať"
+    "import": "Importovať",
+    "community": "Community"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
@@ -757,8 +758,9 @@
     }
   },
   "community": {
+    "title": "Community",
     "users": {
-      "title": "Komunitní užívatelia",
+      "title": "Users",
       "searchPlaceholder": "Hľadať uživateľov...",
       "table": {
         "user": "Užívateľ",
@@ -772,6 +774,26 @@
       "reset": {
         "label": "Resetovať",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
+      }
+    },
+    "emotesStatistic": {
+      "title": "Emotes statistics",
+      "searchPlaceholder": "Search emotes...",
+      "table": {
+        "emote": "Emote",
+        "usages": "Total usages",
+        "users": "Users",
+        "empty": "No emotes",
+        "chart": "Usages chart",
+        "lastDay": "Day",
+        "lastWeek": "Week",
+        "lastMonth": "Month",
+        "lastThreeMonth": "3 months",
+        "lastYear": "Year"
+      },
+      "total": "Total emotes: {total}",
+      "details": {
+        "stats": "Stats"
       }
     }
   },
