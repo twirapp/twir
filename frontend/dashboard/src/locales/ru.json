@@ -793,7 +793,12 @@
       },
       "total": "Total emotes: {total}",
       "details": {
-        "stats": "Stats"
+        "stats": "Stats",
+        "users": "Users",
+        "usersTabs": {
+          "top": "Top",
+          "history": "History"
+        }
       }
     }
   },
