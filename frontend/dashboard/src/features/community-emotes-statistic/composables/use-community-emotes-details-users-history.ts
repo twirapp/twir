@@ -19,19 +19,19 @@ import UsersTableCellUser
 import { resolveUserName } from '@/helpers'
 import { valueUpdater } from '@/helpers/value-updater'
 
-type UserUsage = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['usagesByUsers'][number]
+type UserUsage = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['usagesHistory'][number]
 
-export const useCommunityEmotesDetailsUsers = defineStore(
-	'features/community-emotes-statistic-table/details-users',
+export const useCommunityEmotesDetailsUsersHistory = defineStore(
+	'features/community-emotes-statistic-table/details-users-history',
 	() => {
-		const { details, pagination } = storeToRefs(useCommunityEmotesDetails())
+		const { details, usagesPagination } = storeToRefs(useCommunityEmotesDetails())
 
 		const data = computed<UserUsage[]>(() => {
-			return details.value?.emotesStatisticEmoteDetailedInformation?.usagesByUsers ?? []
+			return details.value?.emotesStatisticEmoteDetailedInformation?.usagesHistory ?? []
 		})
 		const total = computed(() => details.value?.emotesStatisticEmoteDetailedInformation?.usagesByUsersTotal ?? 0)
 		const pageCount = computed(() => {
-			return Math.ceil(total.value / pagination.value.pageSize)
+			return Math.ceil(total.value / usagesPagination.value.pageSize)
 		})
 
 		const columns = computed<ColumnDef<UserUsage>[]>(() => [
@@ -74,11 +74,11 @@ export const useCommunityEmotesDetailsUsers = defineStore(
 			},
 			state: {
 				get pagination() {
-					return pagination.value
+					return usagesPagination.value
 				},
 			},
 			manualPagination: true,
-			onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
+			onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, usagesPagination),
 			getCoreRowModel: getCoreRowModel(),
 			getPaginationRowModel: getPaginationRowModel(),
 			getFacetedRowModel: getFacetedRowModel(),
@@ -87,7 +87,7 @@ export const useCommunityEmotesDetailsUsers = defineStore(
 
 		return {
 			table,
-			pagination,
+			usagesPagination,
 			total,
 			pageCount,
 		}

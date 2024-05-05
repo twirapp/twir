@@ -41,6 +41,8 @@ input EmotesStatisticEmoteDetailedOpts {
 	range: EmoteStatisticRange!
 	usagesByUsersPage: Int
 	usagesByUsersPerPage: Int
+	topUsersPage: Int
+	topUsersPerPage: Int
 }
 
 type EmotesStatisticEmoteDetailedResponse {
@@ -48,8 +50,10 @@ type EmotesStatisticEmoteDetailedResponse {
 	totalUsages: Int!
 	lastUsedTimestamp: Int!
 	graphicUsages: [EmoteStatisticUsage!]!
-	usagesByUsers: [EmoteStatisticUserUsage!]!
+	usagesHistory: [EmoteStatisticUserUsage!]!
 	usagesByUsersTotal: Int!
+	topUsers: [EmoteStatisticTopUser!]!
+	topUsersTotal: Int!
 }
 
 type EmoteStatisticUsage {
@@ -61,4 +65,10 @@ type EmoteStatisticUserUsage {
 	userId: String!
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	date: Time!
+}
+
+type EmoteStatisticTopUser {
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	count: Int!
 }

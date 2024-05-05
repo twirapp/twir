@@ -15,18 +15,17 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *emoteStatisticUserUsageResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.EmoteStatisticUserUsage,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *emoteStatisticTopUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.EmoteStatisticTopUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *emoteStatisticUserUsageResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.EmoteStatisticUserUsage) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
-func (r *queryResolver) EmotesStatistics(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticsOpts,
-) (*gqlmodel.EmotesStatisticResponse, error) {
+func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -129,10 +128,7 @@ func (r *queryResolver) EmotesStatistics(
 }
 
 // EmotesStatisticEmoteDetailedInformation is the resolver for the emotesStatisticEmoteDetailedInformation field.
-func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
-	ctx context.Context,
-	opts gqlmodel.EmotesStatisticEmoteDetailedOpts,
-) (*gqlmodel.EmotesStatisticEmoteDetailedResponse, error) {
+func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Context, opts gqlmodel.EmotesStatisticEmoteDetailedOpts) (*gqlmodel.EmotesStatisticEmoteDetailedResponse, error) {
 	if opts.EmoteName == "" {
 		return nil, nil
 	}
@@ -167,26 +163,23 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 
 	var usagedByUserPage int
 	usagesByUserPerPage := 10
-
 	if opts.UsagesByUsersPage.IsSet() {
 		usagedByUserPage = *opts.UsagesByUsersPage.Value()
 	}
-
 	if opts.UsagesByUsersPerPage.IsSet() {
 		usagesByUserPerPage = *opts.UsagesByUsersPerPage.Value()
 	}
 
-	var usagesByUsers []model.ChannelEmoteUsage
+	var usagesHistoryEntities []model.ChannelEmoteUsage
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
 		Order(`"createdAt" DESC`).
 		Limit(usagesByUserPerPage).
 		Offset(usagedByUserPage * usagesByUserPerPage).
-		Find(&usagesByUsers).Error; err != nil {
+		Find(&usagesHistoryEntities).Error; err != nil {
 		return nil, err
 	}
-
 	var usagesByUsersTotalCount int64
 	if err := r.gorm.
 		WithContext(ctx).
@@ -196,12 +189,56 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 		return nil, err
 	}
 
-	users := make([]gqlmodel.EmoteStatisticUserUsage, 0, len(usagesByUsers))
-	for _, usage := range usagesByUsers {
-		users = append(
-			users, gqlmodel.EmoteStatisticUserUsage{
+	var topUsersPage int
+	topUsersPerPage := 10
+	if opts.TopUsersPage.IsSet() {
+		topUsersPage = *opts.TopUsersPage.Value()
+	}
+	if opts.TopUsersPerPage.IsSet() {
+		topUsersPerPage = *opts.TopUsersPerPage.Value()
+	}
+
+	var topUsersEntities []emoteEntityModelWithCount
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
+		Select(`"userId", COUNT("userId") as count`).
+		Group("userId").
+		Order("count DESC").
+		Limit(topUsersPerPage).
+		Offset(topUsersPage * topUsersPerPage).
+		Find(&topUsersEntities).Error; err != nil {
+		return nil, err
+	}
+
+	var topUsersTotalCount int64
+	if err := r.gorm.
+		WithContext(ctx).
+		Model(&model.ChannelEmoteUsage{}).
+		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
+		Group(`"userId"`).
+		Count(&topUsersTotalCount).Error; err != nil {
+		return nil, err
+	}
+
+	usagesHistory := make([]gqlmodel.EmoteStatisticUserUsage, 0, len(usagesHistoryEntities))
+	for _, usage := range usagesHistoryEntities {
+		usagesHistory = append(
+			usagesHistory,
+			gqlmodel.EmoteStatisticUserUsage{
 				UserID: usage.UserID,
 				Date:   usage.CreatedAt,
+			},
+		)
+	}
+
+	topUsers := make([]gqlmodel.EmoteStatisticTopUser, 0, len(topUsersEntities))
+	for _, user := range topUsersEntities {
+		topUsers = append(
+			topUsers,
+			gqlmodel.EmoteStatisticTopUser{
+				UserID: user.UserID,
+				Count:  user.Count,
 			},
 		)
 	}
@@ -211,9 +248,16 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
 		TotalUsages:        int(usages),
 		LastUsedTimestamp:  int(lastUsedEntity.CreatedAt.UTC().UnixMilli()),
 		GraphicUsages:      graphicUsages,
-		UsagesByUsers:      users,
+		UsagesHistory:      usagesHistory,
 		UsagesByUsersTotal: int(usagesByUsersTotalCount),
+		TopUsers:           topUsers,
+		TopUsersTotal:      int(topUsersTotalCount),
 	}, nil
+}
+
+// EmoteStatisticTopUser returns graph.EmoteStatisticTopUserResolver implementation.
+func (r *Resolver) EmoteStatisticTopUser() graph.EmoteStatisticTopUserResolver {
+	return &emoteStatisticTopUserResolver{r}
 }
 
 // EmoteStatisticUserUsage returns graph.EmoteStatisticUserUsageResolver implementation.
@@ -221,4 +265,5 @@ func (r *Resolver) EmoteStatisticUserUsage() graph.EmoteStatisticUserUsageResolv
 	return &emoteStatisticUserUsageResolver{r}
 }
 
+type emoteStatisticTopUserResolver struct{ *Resolver }
 type emoteStatisticUserUsageResolver struct{ *Resolver }

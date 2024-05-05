@@ -27,15 +27,18 @@ export const useCommunityEmotesDetails = defineStore(
 	'features/community-emotes-statistic-table/details',
 	() => {
 		const { emoteName } = storeToRefs(useCommunityEmotesDetailsName())
-		const { pagination } = usePagination()
+		const { pagination: usagesPagination } = usePagination()
+		const { pagination: topPagination } = usePagination()
 		const range = ref(EmoteStatisticRange.LastDay)
 
 		const opts = computed<EmotesStatisticEmoteDetailedOpts>(() => {
 			return {
 				emoteName: emoteName.value!,
 				range: range.value,
-				usagesByUsersPage: pagination.value.pageIndex,
-				usagesByUsersPerPage: pagination.value.pageSize,
+				usagesByUsersPage: usagesPagination.value.pageIndex,
+				usagesByUsersPerPage: usagesPagination.value.pageSize,
+				topUsersPage: topPagination.value.pageIndex,
+				topUsersPerPage: topPagination.value.pageSize,
 			}
 		})
 
@@ -45,7 +48,8 @@ export const useCommunityEmotesDetails = defineStore(
 			range,
 			details,
 			isLoading,
-			pagination,
+			usagesPagination,
+			topPagination,
 		}
 	},
 )

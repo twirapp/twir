@@ -54,7 +54,7 @@ export function useEmotesStatisticDetailsQuery(opts: Ref<EmotesStatisticEmoteDet
 						count
 						timestamp
 					}
-					usagesByUsers {
+					usagesHistory {
 						date
 						userId
 						twitchProfile {
@@ -63,7 +63,17 @@ export function useEmotesStatisticDetailsQuery(opts: Ref<EmotesStatisticEmoteDet
 							profileImageUrl
 						}
 					}
+					topUsers {
+						userId
+						count
+						twitchProfile {
+							login
+							displayName
+							profileImageUrl
+						}
+					}
 					usagesByUsersTotal
+					topUsersTotal
 				}
 			}
 		`),

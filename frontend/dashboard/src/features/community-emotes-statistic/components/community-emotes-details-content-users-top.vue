@@ -8,11 +8,11 @@ import {
 	useCommunityEmotesDetails,
 } from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
 import {
-	useCommunityEmotesDetailsUsers,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details-users'
+	useCommunityEmotesDetailsUsersTop,
+} from '@/features/community-emotes-statistic/composables/use-community-emotes-details-users-top'
 
-const { isLoading } = storeToRefs(useCommunityEmotesDetails())
-const users = useCommunityEmotesDetailsUsers()
+const { isLoading, topPagination } = storeToRefs(useCommunityEmotesDetails())
+const users = useCommunityEmotesDetailsUsersTop()
 </script>
 
 <template>
@@ -20,9 +20,9 @@ const users = useCommunityEmotesDetailsUsers()
 		<Pagination
 			:total="users.total"
 			:table="users.table"
-			:pagination="users.pagination"
-			@update:page="(page) => users.pagination.pageIndex = page"
-			@update:page-size="(pageSize) => users.pagination.pageSize = pageSize"
+			:pagination="topPagination"
+			@update:page="(page) => topPagination.pageIndex = page"
+			@update:page-size="(pageSize) => topPagination.pageSize = pageSize"
 		/>
 
 		<NScrollbar style="max-height: 400px;" trigger="none">
