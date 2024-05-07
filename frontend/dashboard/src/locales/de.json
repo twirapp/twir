@@ -35,6 +35,7 @@
       "text": "Bot wird Antworten auf Befehle als Antwort senden"
     },
     "response": "Antwort",
+    "user": "User",
     "userName": "Benutzername",
     "dangerZone": "Gefahrenzone",
     "deleted": "Gelöscht",
