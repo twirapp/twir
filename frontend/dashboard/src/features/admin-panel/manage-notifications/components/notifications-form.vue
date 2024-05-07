@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
 import { textareaButtons, useTextarea } from '../composables/use-textarea.js'
 
-import TwitchUserSignle from '@/components/twitchUsers/single.vue'
+import TwitchUserSingle from '@/components/twitchUsers/single.vue'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -27,7 +27,7 @@ const { textareaRef, applyModifier } = useTextarea()
 				<Label for="userId">
 					{{ t('adminPanel.notifications.userLabel') }}
 				</Label>
-				<TwitchUserSignle v-model="notificationsForm.userIdField.fieldModel" twir-only />
+				<TwitchUserSingle v-model="notificationsForm.userIdField.fieldModel" twir-only />
 			</div>
 
 			<div class="space-y-2">

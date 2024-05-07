@@ -29,7 +29,7 @@ export const useGreetingsApi = defineStore('api/greetings', () => {
 					}
 				}
 			}
-		`)
+		`),
 	})
 
 	const useMutationCreateGreetings = () => useMutation(graphql(`
@@ -58,6 +58,6 @@ export const useGreetingsApi = defineStore('api/greetings', () => {
 		useQueryGreetings,
 		useMutationCreateGreetings,
 		useMutationUpdateGreetings,
-		useMutationRemoveGreetings
+		useMutationRemoveGreetings,
 	}
 })

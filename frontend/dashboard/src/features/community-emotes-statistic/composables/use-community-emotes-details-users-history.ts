@@ -16,7 +16,6 @@ import type { ColumnDef } from '@tanstack/vue-table'
 
 import UsersTableCellUser
 	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
-import { resolveUserName } from '@/helpers'
 import { valueUpdater } from '@/helpers/value-updater'
 
 type UserUsage = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['usagesHistory'][number]
@@ -46,8 +45,8 @@ export const useCommunityEmotesDetailsUsersHistory = defineStore(
 						target: '_blank',
 					}, h(UsersTableCellUser, {
 						avatar: row.original.twitchProfile.profileImageUrl,
-						userId: row.original.userId,
-						name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName),
+						name: row.original.twitchProfile.login,
+						displayName: row.original.twitchProfile.displayName,
 					}))
 				},
 			},

@@ -35,6 +35,7 @@
       "text": "Bot will send commands responses as reply"
     },
     "response": "Response",
+		"user": "User",
     "userName": "Username",
     "dangerZone": "Danger Zone",
     "deleted": "Deleted",

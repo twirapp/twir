@@ -19,7 +19,7 @@ export function useQueryNotifications() {
 					createdAt
 				}
 			}
-		`)
+		`),
 	})
 
 	const { data: newNotifications } = useSubscription({
@@ -31,7 +31,7 @@ export function useQueryNotifications() {
 					createdAt
 				}
 			}
-		`)
+		`),
 	})
 
 	watch(newNotifications, (newNotification) => {
@@ -50,11 +50,11 @@ export function useQueryNotifications() {
 export function useAdminNotifications() {
 	const useQueryNotifications = (variables: Ref<AdminNotificationsParams>) => useQuery({
 		context: {
-			additionalTypenames: [invalidationKey]
+			additionalTypenames: [invalidationKey],
 		},
 		get variables() {
 			return {
-				opts: variables.value
+				opts: variables.value,
 			}
 		},
 		query: graphql(`
@@ -66,6 +66,7 @@ export function useAdminNotifications() {
 						text
 						userId
 						twitchProfile {
+							login
 							displayName
 							profileImageUrl
 						}
@@ -73,7 +74,7 @@ export function useAdminNotifications() {
 					}
 				}
 			}
-		`)
+		`),
 	})
 
 	const useMutationCreateNotification = () => useMutation(graphql(`
@@ -102,6 +103,6 @@ export function useAdminNotifications() {
 		useQueryNotifications,
 		useMutationCreateNotification,
 		useMutationDeleteNotification,
-		useMutationUpdateNotifications
+		useMutationUpdateNotifications,
 	}
 }

@@ -30,7 +30,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
 		type: filters.filterInput,
-		search: filters.debounceSearchInput
+		search: filters.debounceSearchInput,
 	}))
 
 	const notificationsApi = useAdminNotifications()
@@ -50,7 +50,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
 					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
-				}
+				},
 			},
 			{
 				accessorKey: 'createdAt',
@@ -58,7 +58,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
 				cell: ({ row }) => {
 					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) })
-				}
+				},
 			},
 			{
 				accessorKey: 'actions',
@@ -67,10 +67,10 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				cell: ({ row }) => {
 					return h(NotificationsTableActions, {
 						onDelete: () => onDeleteNotification(row.original.id),
-						onEdit: () => onEditNotification(row.original)
+						onEdit: () => onEditNotification(row.original),
 					})
-				}
-			}
+				},
+			},
 		]
 
 		if (filters.filterInput === NotificationType.User) {
@@ -83,14 +83,14 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 						return h('a', {
 							class: 'flex flex-col',
 							href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
-							target: '_blank'
+							target: '_blank',
 						}, h(UsersTableCellUser, {
-							userId: row.original.id,
 							avatar: row.original.twitchProfile.profileImageUrl,
-							name: row.original.twitchProfile.displayName
+							name: row.original.twitchProfile.login,
+							displayName: row.original.twitchProfile.displayName,
 						}))
 					}
-				}
+				},
 			})
 		}
 
@@ -108,7 +108,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			return pageCount.value
 		},
 		state: {
-			pagination: pagination.value
+			pagination: pagination.value,
 		},
 		get data() {
 			return notifications.value
@@ -118,7 +118,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 		manualPagination: true,
 		getCoreRowModel: getCoreRowModel(),
-		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination)
+		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 	})
 
 	async function onDeleteNotification(notificationId: string) {
@@ -154,6 +154,6 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		notifications,
 		totalNotifications,
 		onDeleteNotification,
-		onEditNotification
+		onEditNotification,
 	}
 })
