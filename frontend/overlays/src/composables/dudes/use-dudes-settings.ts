@@ -1,18 +1,18 @@
-import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes';
-import { useFontSource } from '@twir/fontsource';
-import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays';
-import type { DudesTypes } from '@twirapp/dudes-vue/types';
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { useFontSource } from '@twir/fontsource'
+import { createGlobalState } from '@vueuse/core'
+import { ref } from 'vue'
 
-import type { ChannelData } from '@/types.js';
+import type { ChannelData } from '@/types.js'
+import type { IgnoreSettings } from '@twir/api/messages/overlays_dudes/overlays_dudes'
+import type { DudesSprite, DudesUserSettings } from '@twir/types/overlays'
+import type { DudesTypes } from '@twirapp/dudes-vue/types'
 
-export type DudesOverlaySettings = {
+export interface DudesOverlaySettings {
 	maxOnScreen: number
 	defaultSprite: keyof typeof DudesSprite
 }
 
-export type DudesConfig = {
+export interface DudesConfig {
 	ignore: IgnoreSettings
 	dudes: {
 		dude: DudesTypes.DudeStyles
@@ -24,18 +24,18 @@ export type DudesConfig = {
 	overlay: DudesOverlaySettings
 }
 
-export const useDudesSettings = defineStore('dudes-settings', () => {
-	const fontSource = useFontSource();
-	const dudesSettings = ref<DudesConfig | null>(null);
-	const dudesUserSettings = new Map<string, DudesUserSettings & { userDisplayName?: string }>();
-	const channelData = ref<ChannelData>();
+export const useDudesSettings = createGlobalState(() => {
+	const fontSource = useFontSource()
+	const dudesSettings = ref<DudesConfig | null>(null)
+	const dudesUserSettings = new Map<string, DudesUserSettings & { userDisplayName?: string }>()
+	const channelData = ref<ChannelData>()
 
 	function updateSettings(settings: DudesConfig): void {
-		dudesSettings.value = settings;
+		dudesSettings.value = settings
 	}
 
 	function updateChannelData(data: ChannelData): void {
-		channelData.value = data;
+		channelData.value = data
 	}
 
 	async function loadFont(
@@ -48,13 +48,13 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 				fontFamily,
 				fontWeight,
 				fontStyle,
-			);
+			)
 
-			const fontKey = `${fontFamily}-${fontWeight}-${fontStyle}`;
-			return fontKey;
+			const fontKey = `${fontFamily}-${fontWeight}-${fontStyle}`
+			return fontKey
 		} catch (err) {
-			console.error(err);
-			return 'Arial';
+			console.error(err)
+			return 'Arial'
 		}
 	}
 
@@ -65,5 +65,5 @@ export const useDudesSettings = defineStore('dudes-settings', () => {
 		dudesUserSettings,
 		updateSettings,
 		loadFont,
-	};
-});
+	}
+})

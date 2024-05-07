@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import type { GetAllChatAlertsQuery } from '@/gql/graphql.js'
@@ -11,7 +11,7 @@ export type ChatAlerts = GetAllChatAlertsQuery['chatAlerts']
 
 const invalidationKey = 'ChatAlertsInvalidateKey'
 
-export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
+export const useChatAlertsApi = createGlobalState(() => {
 	const { data } = useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidationKey] },
@@ -117,7 +117,7 @@ export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 					}
 				}
 			}
-		`)
+		`),
 	})
 
 	const chatAlerts = computed<ChatAlerts>(() => data.value?.chatAlerts)
@@ -132,6 +132,6 @@ export const useChatAlertsApi = defineStore('api/chat-alerts', () => {
 
 	return {
 		chatAlerts,
-		useMutationUpdateChatAlerts
+		useMutationUpdateChatAlerts,
 	}
 })

@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import type { GetAllKeywordsQuery } from '@/gql/graphql.js'
 
@@ -14,7 +14,7 @@ export type Keyword = Omit<KeywordResponse, 'id' | 'response'> & {
 
 const invalidateKey = 'KeywordsInvalidateKey'
 
-export const useKeywordsApi = defineStore('api/keywords', () => {
+export const useKeywordsApi = createGlobalState(() => {
 	const useQueryKeywords = () => useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidateKey] },
@@ -31,7 +31,7 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 					usageCount
 				}
 			}
-		`)
+		`),
 	})
 
 	const useMutationCreateKeyword = () => useMutation(graphql(`
@@ -60,6 +60,6 @@ export const useKeywordsApi = defineStore('api/keywords', () => {
 		useQueryKeywords,
 		useMutationCreateKeyword,
 		useMutationUpdateKeyword,
-		useMutationRemoveKeyword
+		useMutationRemoveKeyword,
 	}
 })

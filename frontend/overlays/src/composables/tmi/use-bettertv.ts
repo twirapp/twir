@@ -1,12 +1,13 @@
-import { defineStore } from 'pinia';
+import { createGlobalState } from '@vueuse/core'
 
-import { useEmotes } from './use-emotes.js';
+import { useEmotes } from './use-emotes.js'
 
-import { requestWithOutCache } from '@/helpers.js';
-import type { BttvChannelResponse, BttvGlobalResponse } from '@/types.js';
+import type { BttvChannelResponse, BttvGlobalResponse } from '@/types.js'
 
-export const useBetterTv = defineStore('bettertv', () => {
-	const { setBttvEmotes } = useEmotes();
+import { requestWithOutCache } from '@/helpers.js'
+
+export const useBetterTv = createGlobalState(() => {
+	const { setBttvEmotes } = useEmotes()
 
 	async function fetchBttvEmotes(channelId: string): Promise<void> {
 		try {
@@ -17,16 +18,16 @@ export const useBetterTv = defineStore('bettertv', () => {
 				requestWithOutCache<BttvChannelResponse>(
 					`https://api.betterttv.net/3/cached/users/twitch/${channelId}`,
 				),
-			]);
+			])
 
-			setBttvEmotes(globalEmotes);
-			setBttvEmotes(channelEmotes);
+			setBttvEmotes(globalEmotes)
+			setBttvEmotes(channelEmotes)
 		} catch (err) {
-			console.error(err);
+			console.error(err)
 		}
 	}
 
 	return {
 		fetchBttvEmotes,
-	};
-});
+	}
+})

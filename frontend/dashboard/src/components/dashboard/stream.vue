@@ -1,29 +1,27 @@
 <script lang="ts" setup>
-import { computed } from 'vue';
+import { computed } from 'vue'
 
-import Card from './card.vue';
+import Card from './card.vue'
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js';
-import { storeToRefs } from 'pinia';
+import { useProfile, useTwitchGetUsers } from '@/api/index.js'
 
-const { data: profile } = storeToRefs(useProfile());
+const { data: profile } = useProfile()
 
-const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '');
-const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId });
+const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '')
+const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId })
 
 const streamUrl = computed(() => {
-	if (!selectedDashboardTwitchUser.data.value?.users.length) return;
+	if (!selectedDashboardTwitchUser.data.value?.users.length) return
 
-	const user = selectedDashboardTwitchUser.data.value.users.at(0)!;
+	const user = selectedDashboardTwitchUser.data.value.users.at(0)!
+	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${window.location.host}&autoplay=false`
 
-	const url = `https://player.twitch.tv/?channel=${user.login}&parent=${window.location.host}&autoplay=false`;
-
-	return url;
-});
+	return url
+})
 </script>
 
 <template>
-	<card>
+	<Card>
 		<iframe
 			v-if="streamUrl"
 			:src="streamUrl"
@@ -34,5 +32,5 @@ const streamUrl = computed(() => {
 			allowfullscreen="true"
 		>
 		</iframe>
-	</card>
+	</Card>
 </template>

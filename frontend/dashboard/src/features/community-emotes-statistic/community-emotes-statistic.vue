@@ -11,11 +11,11 @@ const emotesTable = useCommunityEmotesStatisticTable()
 	<Table>
 		<template #pagination>
 			<Pagination
-				:total="emotesTable.totalEmotes"
+				:total="emotesTable.totalEmotes.value"
 				:table="emotesTable.table"
-				:pagination="emotesTable.pagination"
-				@update:page="(page) => emotesTable.pagination.pageIndex = page"
-				@update:page-size="(pageSize) => emotesTable.pagination.pageSize = pageSize"
+				:pagination="emotesTable.pagination.value"
+				@update:page="(page) => emotesTable.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => emotesTable.pagination.value.pageSize = pageSize"
 			/>
 		</template>
 	</Table>

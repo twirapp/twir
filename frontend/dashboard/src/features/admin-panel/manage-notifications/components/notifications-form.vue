@@ -27,7 +27,7 @@ const { textareaRef, applyModifier } = useTextarea()
 				<Label for="userId">
 					{{ t('adminPanel.notifications.userLabel') }}
 				</Label>
-				<TwitchUserSingle v-model="notificationsForm.userIdField.fieldModel" twir-only />
+				<TwitchUserSingle v-model="notificationsForm.userIdField.fieldModel.value" twir-only />
 			</div>
 
 			<div class="space-y-2">
@@ -58,20 +58,20 @@ const { textareaRef, applyModifier } = useTextarea()
 
 					<Textarea
 						ref="textareaRef"
-						v-model="notificationsForm.messageField.fieldModel"
+						v-model="notificationsForm.messageField.fieldModel.value"
 						rows="8"
 					/>
 				</div>
 			</div>
 
-			<template v-if="notificationsForm.formValues.message">
+			<template v-if="notificationsForm.formValues.value.message">
 				<Label>{{ t('adminPanel.notifications.messagePreview') }}</Label>
-				<div class="border rounded-md p-2" v-html="notificationsForm.formValues.message"></div>
+				<div class="border rounded-md p-2" v-html="notificationsForm.formValues.value.message"></div>
 			</template>
 
 			<div class="flex justify-end gap-4">
 				<Button
-					:disabled="!notificationsForm.formValues.message && !notificationsForm.editableMessageId"
+					:disabled="!notificationsForm.formValues.value.message && !notificationsForm.editableMessageId"
 					type="button"
 					variant="secondary"
 					@click="notificationsForm.onReset"

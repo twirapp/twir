@@ -1,7 +1,7 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 
-export const useLayout = defineStore('layout', () => {
+export const useLayout = createGlobalState(() => {
 	const layoutRef = ref<HTMLElement | null>(null)
 
 	function scrollToTop() {
@@ -17,6 +17,6 @@ export const useLayout = defineStore('layout', () => {
 	return {
 		layoutRef,
 		scrollToTop,
-		scrollToBottom
+		scrollToBottom,
 	}
 })

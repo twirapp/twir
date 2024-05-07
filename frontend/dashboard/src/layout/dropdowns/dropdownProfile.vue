@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { type DropdownOption, NAvatar, NButton, NDropdown, NSpin } from 'naive-ui';
-import { h } from 'vue';
+import { type DropdownOption, NAvatar, NButton, NDropdown, NSpin } from 'naive-ui'
+import { h } from 'vue'
 
-import DropdownFooter from './profile/footer.vue';
-import DropdownHeader from './profile/header.vue';
+import DropdownFooter from './profile/footer.vue'
+import DropdownHeader from './profile/header.vue'
 
-import { useProfile } from '@/api';
-import { storeToRefs } from 'pinia';
+import { useProfile } from '@/api/auth.js'
 
-const { data: profileData, isLoading: isProfileLoading } = storeToRefs(useProfile());
+const { data: profileData, isLoading: isProfileLoading } = useProfile()
 
 const profileOptions: DropdownOption[] = [
 	{
@@ -25,25 +24,25 @@ const profileOptions: DropdownOption[] = [
 		type: 'render',
 		render: () => h(DropdownFooter),
 	},
-];
+]
 </script>
 
 <template>
-	<n-dropdown
+	<NDropdown
 		trigger="click"
 		:options="profileOptions"
 		size="large"
 		style="top: 12px; left: 14px; width: 400px;"
 	>
-		<n-button text>
-			<n-spin v-if="isProfileLoading" size="small" />
+		<NButton text>
+			<NSpin v-if="isProfileLoading" size="small" />
 			<div v-else class="flex gap-1 items-center">
-				<n-avatar
+				<NAvatar
 					size="small"
 					:src="profileData?.avatar"
 					round
 				/>
 			</div>
-		</n-button>
-	</n-dropdown>
+		</NButton>
+	</NDropdown>
 </template>

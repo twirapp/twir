@@ -23,7 +23,6 @@
 		"clsx": "2.1.0",
 		"graphql": "16.8.1",
 		"lucide-vue-next": "0.368.0",
-		"pinia": "2.1.7",
 		"radix-vue": "1.7.0",
 		"tailwind-merge": "2.2.2",
 		"tailwindcss-animate": "1.0.7",

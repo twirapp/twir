@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { IconRefresh } from '@tabler/icons-vue'
 import { NButton, NCard, NFormItem, NInput, NSwitch, NText } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile, useUserSettings } from '@/api'
 import { useToast } from '@/components/ui/toast'
 
-const { data: profile } = storeToRefs(useProfile())
+const { data: profile } = useProfile()
 
 const userManager = useUserSettings()
 const updateUser = userManager.useUserUpdateMutation()
@@ -21,14 +20,14 @@ async function changeLandingVisibility() {
 
 	await updateUser.executeMutation({
 		opts: {
-			hideOnLandingPage: !profile.value.hideOnLandingPage
-		}
+			hideOnLandingPage: !profile.value.hideOnLandingPage,
+		},
 	})
 
 	toast.toast({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
-		variant: 'success'
+		variant: 'success',
 	})
 }
 
@@ -37,7 +36,7 @@ async function callRegenerateKey() {
 
 	toast.toast({
 		title: t('sharedTexts.saved'),
-		variant: 'success'
+		variant: 'success',
 	})
 }
 </script>

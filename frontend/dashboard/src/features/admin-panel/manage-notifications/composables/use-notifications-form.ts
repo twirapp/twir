@@ -1,5 +1,5 @@
 import { toTypedSchema } from '@vee-validate/zod'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import * as z from 'zod'
 
@@ -8,17 +8,17 @@ import { useFormField } from '@/composables/use-form-field'
 
 const formSchema = toTypedSchema(z.object({
 	userId: z.string().nullable(),
-	message: z.string()
+	message: z.string(),
 }))
 
-export const useNotificationsForm = defineStore('admin-panel/notifications-form', () => {
+export const useNotificationsForm = createGlobalState(() => {
 	const userIdField = useFormField<string | null>('userId', null)
 	const messageField = useFormField<string>('message', '')
 
 	const formValues = computed(() => {
 		return {
 			userId: userIdField.fieldModel.value,
-			message: messageField.fieldModel.value
+			message: messageField.fieldModel.value,
 		}
 	})
 
@@ -40,12 +40,12 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 			if (editableMessageId.value) {
 				await updateNotification({
 					id: editableMessageId.value,
-					opts: { text: value.message }
+					opts: { text: value.message },
 				})
 			} else {
 				await createNotification({
 					text: value.message,
-					userId: value.userId
+					userId: value.userId,
 				})
 			}
 
@@ -74,6 +74,6 @@ export const useNotificationsForm = defineStore('admin-panel/notifications-form'
 		editableMessageId,
 		onSubmit,
 		onReset,
-		resetFieldUserId
+		resetFieldUserId,
 	}
 })

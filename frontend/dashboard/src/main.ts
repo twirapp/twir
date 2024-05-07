@@ -3,7 +3,6 @@ import './assets/index.css'
 import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
-import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 import { i18n } from './plugins/i18n.js'
@@ -11,7 +10,6 @@ import { newRouter } from './plugins/router.js'
 
 import App from '@/App.vue'
 
-const pinia = createPinia()
 const app = createApp(App)
 
 const queryClient = new QueryClient({
@@ -20,18 +18,18 @@ const queryClient = new QueryClient({
 			refetchOnWindowFocus: false,
 			refetchOnMount: false,
 			refetchOnReconnect: false,
-			retry: false
-		}
-	}
+			retry: false,
+		},
+	},
 })
 
 broadcastQueryClient({
 	queryClient,
-	broadcastChannel: 'twir-dashboard'
+	broadcastChannel: 'twir-dashboard',
 })
 
 VueQueryPlugin.install(app, {
-	queryClient
+	queryClient,
 })
 
 const meta = document.createElement('meta')
@@ -39,7 +37,6 @@ meta.name = 'naive-ui-style'
 document.head.appendChild(meta)
 
 app
-	.use(pinia)
 	.use(i18n)
 	.use(newRouter())
 	.use(VueMonacoEditorPlugin)

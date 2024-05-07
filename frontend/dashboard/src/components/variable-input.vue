@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { NMention, NText } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -24,7 +23,7 @@ defineSlots<{
 const text = defineModel<string>({ default: '' })
 const { t } = useI18n()
 
-const { allVariables } = storeToRefs(useVariablesApi())
+const { allVariables } = useVariablesApi()
 
 const selectVariables = computed<MentionOption[]>(() => {
 	return allVariables.value.map((variable) => ({

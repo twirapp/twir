@@ -1,58 +1,51 @@
 <script setup lang="ts">
-import DudesOverlay from '@twirapp/dudes-vue';
-import { storeToRefs } from 'pinia';
-import { onMounted, onUnmounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import DudesOverlay from '@twirapp/dudes-vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import {
-	dudesSounds,
 	assetsLoaderOptions,
-} from '@/composables/dudes/dudes-config.js';
-import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js';
-import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js';
-import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js';
-import { useDudes } from '@/composables/dudes/use-dudes.js';
-import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
-import { normalizeDisplayName } from '@/helpers.js';
+	dudesSounds,
+} from '@/composables/dudes/dudes-config.js'
+import { useDudesIframe } from '@/composables/dudes/use-dudes-iframe.js'
+import { useDudesSettings } from '@/composables/dudes/use-dudes-settings.js'
+import { useDudesSocket } from '@/composables/dudes/use-dudes-socket.js'
+import { useDudes } from '@/composables/dudes/use-dudes.js'
+import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/tmi/use-chat-tmi.js'
+import { normalizeDisplayName } from '@/helpers.js'
 
-const route = useRoute();
-
-const dudesStore = useDudes();
-const { dudes, isDudeOverlayReady } = storeToRefs(dudesStore);
-
-const dudesSettingStore = useDudesSettings();
-const { channelData, dudesSettings } = storeToRefs(dudesSettingStore);
-
-const dudesSocketStore = useDudesSocket();
-
-const iframe = useDudesIframe();
+const route = useRoute()
+const { dudes, isDudeOverlayReady, createDude } = useDudes()
+const { channelData, dudesSettings } = useDudesSettings()
+const dudesSocketStore = useDudesSocket()
+const iframe = useDudesIframe()
 
 watch([isDudeOverlayReady, dudesSettings], ([isReady, settings]) => {
-	if (!isReady || !settings || !dudes.value?.dudes) return;
-	dudes.value.dudes.updateSettings(settings.dudes);
+	if (!isReady || !settings || !dudes.value?.dudes) return
+	dudes.value.dudes.updateSettings(settings.dudes)
 
 	if (iframe.isIframe) {
-		iframe.spawnIframeDude();
+		iframe.spawnIframeDude()
 	}
-});
+})
 
 async function onMessage(chatMessage: ChatMessage): Promise<void> {
-	if (!dudes.value || chatMessage.type === 'system') return;
+	if (!dudes.value || chatMessage.type === 'system') return
 
 	if (
-		dudesSettings.value?.ignore.ignoreUsers &&
-		dudesSettings.value.ignore.users.includes(chatMessage.senderId!)
+		dudesSettings.value?.ignore.ignoreUsers
+		&& dudesSettings.value.ignore.users.includes(chatMessage.senderId!)
 	) {
-		return;
+		return
 	}
 
-	const name = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!);
-	const dude = await dudesStore.createDude({
+	const name = normalizeDisplayName(chatMessage.senderDisplayName!, chatMessage.sender!)
+	const dude = await createDude({
 		userName: name,
 		userId: chatMessage.senderId!,
 		color: chatMessage.senderColor,
-	});
-	dude?.showMessage(chatMessage.chunks);
+	})
+	dude?.showMessage(chatMessage.chunks)
 }
 
 const chatSettings = computed<ChatSettings>(() => {
@@ -66,26 +59,26 @@ const chatSettings = computed<ChatSettings>(() => {
 			sevenTv: true,
 		},
 		onMessage,
-	};
-});
+	}
+})
 
-const { destroy } = useChatTmi(chatSettings);
+const { destroy } = useChatTmi(chatSettings)
 
 onMounted(async () => {
-	const apiKey = route.params.apiKey as string;
-	const overlayId = route.params.id as string;
-	dudesSocketStore.connect(apiKey, overlayId);
-	iframe.connect();
-});
+	const apiKey = route.params.apiKey as string
+	const overlayId = route.params.id as string
+	dudesSocketStore.connect(apiKey, overlayId)
+	iframe.connect()
+})
 
 onUnmounted(() => {
-	destroy();
-	iframe.destroy();
-});
+	destroy()
+	iframe.destroy()
+})
 </script>
 
 <template>
-	<dudes-overlay
+	<DudesOverlay
 		ref="dudes"
 		:assets-loader-options="assetsLoaderOptions"
 		:sounds="dudesSounds"

@@ -1,12 +1,13 @@
-import { defineStore } from 'pinia';
+import { createGlobalState } from '@vueuse/core'
 
-import { useEmotes } from './use-emotes.js';
+import { useEmotes } from './use-emotes.js'
 
-import { requestWithOutCache } from '@/helpers.js';
-import type { FfzChannelResponse, FfzGlobalResponse } from '@/types.js';
+import type { FfzChannelResponse, FfzGlobalResponse } from '@/types.js'
 
-export const useFrankerFaceZ = defineStore('ffz', () => {
-	const { setFrankerFaceZEmotes } = useEmotes();
+import { requestWithOutCache } from '@/helpers.js'
+
+export const useFrankerFaceZ = createGlobalState(() => {
+	const { setFrankerFaceZEmotes } = useEmotes()
 
 	async function fetchFrankerFaceZEmotes(channelId: string): Promise<void> {
 		try {
@@ -17,16 +18,16 @@ export const useFrankerFaceZ = defineStore('ffz', () => {
 				requestWithOutCache<FfzChannelResponse>(
 					`https://api.frankerfacez.com/v1/room/id/${channelId}`,
 				),
-			]);
+			])
 
-			setFrankerFaceZEmotes(globalEmotes);
-			setFrankerFaceZEmotes(channelEmotes);
+			setFrankerFaceZEmotes(globalEmotes)
+			setFrankerFaceZEmotes(channelEmotes)
 		} catch (err) {
-			console.error(err);
+			console.error(err)
 		}
 	}
 
 	return {
 		fetchFrankerFaceZEmotes,
-	};
-});
+	}
+})

@@ -1,21 +1,24 @@
 <script setup lang="ts">
-import { dragAndDrop } from '@formkit/drag-and-drop/vue';
+import { dragAndDrop } from '@formkit/drag-and-drop/vue'
 import {
-	IconTrash,
 	IconBan,
 	IconGripVertical,
-} from '@tabler/icons-vue';
+	IconTrash,
+} from '@tabler/icons-vue'
 import {
 	NCard,
-	NButton,
-	NTime,
 	NPopconfirm,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NTime,
+} from 'naive-ui'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useYoutubeSocket, Video } from '@/components/songRequests/hook.js';
+import ActionConfirm from '../ui/action-confirm.vue'
+
+import type { Video } from '@/components/songRequests/hook.js'
+
+import { useYoutubeSocket } from '@/components/songRequests/hook.js'
+import { Button } from '@/components/ui/button'
 import {
 	Table,
 	TableBody,
@@ -23,44 +26,58 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table';
-import { convertMillisToTime } from '@/helpers/convertMillisToTime.js';
+} from '@/components/ui/table'
+import { convertMillisToTime } from '@/helpers/convertMillisToTime.js'
 
-const socket = useYoutubeSocket();
-const { videos } = storeToRefs(socket);
+const {
+	videos,
+	moveVideo,
+	banSong,
+	banUser,
+	deleteVideo,
+	deleteAllVideos,
+} = useYoutubeSocket()
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 const totalSongsLength = computed(() => {
-	return convertMillisToTime(videos.value.reduce((acc, cur) => acc + cur.duration * 1000, 0));
-});
+	return convertMillisToTime(videos.value.reduce((acc, cur) => acc + cur.duration * 1000, 0))
+})
 
-const parentRef = ref<HTMLElement>();
+const parentRef = ref<HTMLElement>()
 dragAndDrop({
 	parent: parentRef,
 	values: videos,
 	dragHandle: '.drag-handle',
 	draggable(child) {
-		return !child.classList.contains('no-drag');
+		return !child.classList.contains('no-drag')
 	},
 	handleEnd(data) {
-		const item = data.targetData.node.data.value as Video;
-		socket.moveVideo(item.id, data.targetData.node.data.index);
+		const item = data.targetData.node.data.value as Video
+		moveVideo(item.id, data.targetData.node.data.index)
 	},
-});
+})
+
+const showConfirmClear = ref(false)
 </script>
 
 <template>
-	<n-card
+	<NCard
 		:title="t('songRequests.table.title')"
 		content-style="padding: 0;"
 		header-style="padding: 10px;"
 		segmented
 	>
 		<template #header-extra>
-			<n-button tertiary size="small" @click="$emit('deleteAllVideos')">
-				<IconTrash />
-			</n-button>
+			<Button
+				size="icon"
+				class="size-8"
+				variant="secondary"
+				:disabled="!videos.length"
+				@click="showConfirmClear = true"
+			>
+				<IconTrash class="size-4" />
+			</Button>
 		</template>
 		<Table class="w-full">
 			<TableHeader>
@@ -92,47 +109,47 @@ dragAndDrop({
 						<div class="flex items-center gap-2">
 							<span>{{ video.title }}</span>
 
-							<n-popconfirm
+							<NPopconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
 								:negative-text="t('deleteConfirmation.cancel')"
-								@positive-click="socket.banSong(video.videoId)"
+								@positive-click="banSong(video.videoId)"
 							>
 								<template #trigger>
-									<n-button size="tiny" text>
-										<IconBan />
-									</n-button>
+									<Button class="min-w-5" size="icon" variant="ghost">
+										<IconBan class="size-5" />
+									</Button>
 								</template>
 								{{ t('songRequests.ban.songConfirm') }}
-							</n-popconfirm>
+							</NPopconfirm>
 						</div>
 					</TableCell>
 					<TableCell>
 						<div class="flex items-center gap-2">
 							<span>{{ video.orderedByDisplayName || video.orderedByName }}</span>
-							<n-popconfirm
+							<NPopconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
 								:negative-text="t('deleteConfirmation.cancel')"
-								@positive-click="socket.banUser(video.orderedById)"
+								@positive-click="banUser(video.orderedById)"
 							>
 								<template #trigger>
-									<n-button size="tiny" text>
-										<IconBan />
-									</n-button>
+									<Button class="min-w-5" size="icon" variant="ghost">
+										<IconBan class="size-5" />
+									</Button>
 								</template>
 								{{ t('songRequests.ban.userConfirm') }}
-							</n-popconfirm>
+							</NPopconfirm>
 						</div>
 					</TableCell>
 					<TableCell>
-						<n-time type="relative" :time="0" :to="Date.now() - new Date(video.createdAt).getTime()" />
+						<NTime type="relative" :time="0" :to="Date.now() - new Date(video.createdAt).getTime()" />
 					</TableCell>
 					<TableCell>
 						{{ convertMillisToTime(video.duration * 1000) }}
 					</TableCell>
 					<TableCell>
-						<n-button size="tiny" type="error" text @click="socket.deleteVideo(video.id)">
-							<IconTrash />
-						</n-button>
+						<Button class="min-w-5" size="icon" variant="destructive" @click="deleteVideo(video.id)">
+							<IconTrash class="size-5" />
+						</Button>
 					</TableCell>
 				</TableRow>
 				<TableRow class="no-drag">
@@ -150,5 +167,11 @@ dragAndDrop({
 				</TableRow>
 			</TableBody>
 		</Table>
-	</n-card>
+	</NCard>
+
+	<ActionConfirm
+		v-model:open="showConfirmClear"
+		:confirm-text="t('songRequests.settings.confirmClearQueue')"
+		@confirm="deleteAllVideos"
+	/>
 </template>

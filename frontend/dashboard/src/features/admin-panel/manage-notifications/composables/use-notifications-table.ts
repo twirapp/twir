@@ -1,5 +1,5 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,20 +17,20 @@ import { valueUpdater } from '@/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 
-export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
+export const useNotificationsTable = createGlobalState(() => {
 	const layout = useLayout()
 	const { t } = useI18n()
 
 	const form = useNotificationsForm()
 
 	const { pagination } = usePagination()
-	const filters = useNotificationsFilters()
+	const { filterInput, debounceSearchInput } = useNotificationsFilters()
 
 	const params = computed<AdminNotificationsParams>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
-		type: filters.filterInput,
-		search: filters.debounceSearchInput,
+		type: filterInput.value,
+		search: debounceSearchInput.value,
 	}))
 
 	const notificationsApi = useAdminNotifications()
@@ -73,7 +73,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			},
 		]
 
-		if (filters.filterInput === NotificationType.User) {
+		if (filterInput.value === NotificationType.User) {
 			columns.unshift({
 				accessorKey: 'id',
 				size: 10,
@@ -122,7 +122,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	})
 
 	async function onDeleteNotification(notificationId: string) {
-		if (form.editableMessageId === notificationId) {
+		if (form.editableMessageId.value === notificationId) {
 			form.onReset()
 		}
 
@@ -132,16 +132,16 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	async function onEditNotification(notification: Notifications[0]) {
 		let isConfirmed = true
 
-		if (form.formValues.message || form.isEditableForm) {
+		if (form.formValues.value.message || form.isEditableForm) {
 			// TODO: use confirm dialog from shadcn
 			// eslint-disable-next-line no-alert
 			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'))
 		}
 
 		if (isConfirmed) {
-			form.editableMessageId = notification.id
-			form.userIdField.fieldModel = notification.userId ?? null
-			form.messageField.fieldModel = notification.text
+			form.editableMessageId.value = notification.id
+			form.userIdField.fieldModel.value = notification.userId ?? null
+			form.messageField.fieldModel.value = notification.text
 			layout.scrollToTop()
 		}
 	}

@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import type { GetAllGreetingsQuery } from '@/gql/graphql.js'
 
@@ -10,7 +10,7 @@ export type Greetings = GetAllGreetingsQuery['greetings'][0]
 
 const invalidationKey = 'GreetingsInvalidateKey'
 
-export const useGreetingsApi = defineStore('api/greetings', () => {
+export const useGreetingsApi = createGlobalState(() => {
 	const useQueryGreetings = () => useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidationKey] },

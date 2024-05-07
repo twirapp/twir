@@ -1,12 +1,12 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'
 
 const gamesInvalidationKey = 'gamesInvalidationKey'
 
-export const useGamesApi = defineStore('games/8ball', () => {
+export const useGamesApi = createGlobalState(() => {
 	const useGamesQuery = () => useQuery({
 		query: graphql(`
 			query Games {
@@ -42,8 +42,8 @@ export const useGamesApi = defineStore('games/8ball', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [gamesInvalidationKey]
-		}
+			additionalTypenames: [gamesInvalidationKey],
+		},
 	})
 
 	const useEightBallMutation = () => useMutation(
@@ -55,7 +55,7 @@ export const useGamesApi = defineStore('games/8ball', () => {
 				}
 			}
 		`),
-		[gamesInvalidationKey]
+		[gamesInvalidationKey],
 	)
 
 	const useDuelMutation = () => useMutation(
@@ -66,7 +66,7 @@ export const useGamesApi = defineStore('games/8ball', () => {
 				}
 			}
 		`),
-		[gamesInvalidationKey]
+		[gamesInvalidationKey],
 	)
 
 	const useRussianRouletteMutation = () => useMutation(
@@ -77,13 +77,13 @@ export const useGamesApi = defineStore('games/8ball', () => {
 				}
 			}
 		`),
-		[gamesInvalidationKey]
+		[gamesInvalidationKey],
 	)
 
 	return {
 		useGamesQuery,
 		useEightBallMutation,
 		useDuelMutation,
-		useRussianRouletteMutation
+		useRussianRouletteMutation,
 	}
 })

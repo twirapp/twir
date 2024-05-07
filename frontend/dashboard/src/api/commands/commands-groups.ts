@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import { invalidationKey as commandsInvalidationKey } from './commands.js'
 
@@ -8,7 +8,7 @@ import { graphql } from '@/gql/gql.js'
 
 const invalidationKey = 'CommandsGroupsInvalidateKey'
 
-export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
+export const useCommandsGroupsApi = createGlobalState(() => {
 	const useQueryGroups = () => useQuery({
 		query: graphql(`
 			query GetAllCommandsGroups {
@@ -21,8 +21,8 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [invalidationKey]
-		}
+			additionalTypenames: [invalidationKey],
+		},
 	})
 
 	const useMutationDeleteGroup = () => useMutation(
@@ -31,7 +31,7 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsRemove(id: $id)
 			}
 		`),
-		[invalidationKey, commandsInvalidationKey]
+		[invalidationKey, commandsInvalidationKey],
 	)
 
 	const useMutationCreateGroup = () => useMutation(
@@ -40,7 +40,7 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsCreate(opts: $opts)
 			}
 		`),
-		[invalidationKey]
+		[invalidationKey],
 	)
 
 	const useMutationUpdateGroup = () => useMutation(
@@ -49,13 +49,13 @@ export const useCommandsGroupsApi = defineStore('api/commands-groups', () => {
 				commandsGroupsUpdate(id: $id,opts: $opts)
 			}
 		`),
-		[invalidationKey, commandsInvalidationKey]
+		[invalidationKey, commandsInvalidationKey],
 	)
 
 	return {
 		useQueryGroups,
 		useMutationDeleteGroup,
 		useMutationCreateGroup,
-		useMutationUpdateGroup
+		useMutationUpdateGroup,
 	}
 })
