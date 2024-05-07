@@ -8,7 +8,7 @@ import {
 	NSpace,
 	NSwitch,
 } from 'naive-ui'
-import { onMounted, ref, toRaw } from 'vue'
+import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { GreetingsCreateInput } from '@/gql/graphql'
@@ -49,10 +49,10 @@ function resetFormValue() {
 	formValue.value = structuredClone(defaultFormValue)
 }
 
-onMounted(() => {
-	if (!props.greeting) return
-	formValue.value = structuredClone(toRaw(props.greeting))
-})
+watch(() => props.greeting, (greeting) => {
+	if (!greeting) return
+	formValue.value = structuredClone(toRaw(greeting))
+}, { immediate: true })
 
 const greetingsApi = useGreetingsApi()
 const greetingsUpdate = greetingsApi.useMutationUpdateGreetings()
