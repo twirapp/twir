@@ -35,6 +35,7 @@
       "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
+    "user": "User",
     "userName": "Užívateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
