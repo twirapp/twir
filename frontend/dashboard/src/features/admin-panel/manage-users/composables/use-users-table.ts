@@ -18,7 +18,6 @@ import type { User } from '@/api/admin/users.js'
 import type { TwirUsersSearchParams } from '@/gql/graphql'
 
 import { usePagination } from '@/composables/use-pagination.js'
-import { resolveUserName } from '@/helpers'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 export const useUsersTable = defineStore('manage-users/users-table', () => {
@@ -69,8 +68,8 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 					target: '_blank',
 				}, h(UsersTableCellUser, {
 					avatar: row.original.twitchProfile.profileImageUrl,
-					userId: row.original.id,
-					name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName),
+					name: row.original.twitchProfile.login,
+					displayName: row.original.twitchProfile.displayName,
 				}))
 			},
 		},
