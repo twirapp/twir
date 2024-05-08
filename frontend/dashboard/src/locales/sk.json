@@ -35,7 +35,7 @@
       "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
-    "user": "User",
+    "user": "Užívateľ",
     "userName": "Užívateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
@@ -648,7 +648,7 @@
     "title": "Kľúčové slová",
     "triggerText": "Spúšťací text",
     "usages": "Počet použití",
-    "isRegular": "Is a Regular Expression?",
+    "isRegular": "Je regulárny výraz?",
     "regularDescription": "Regulárny výraz by mal byť napísaný vo formáte golang! Pozri {0} tu.",
     "regularDescriptionCheatSheet": "Ťahák",
     "settings": "Nastavenia",
@@ -795,10 +795,10 @@
       "total": "Celkový počet emotov: {total}",
       "details": {
         "stats": "Štatistiky",
-        "users": "Users",
+        "users": "Užívatelia",
         "usersTabs": {
           "top": "Top",
-          "history": "History"
+          "history": "História"
         }
       }
     }
@@ -946,28 +946,28 @@
       "formTitle": "Send or edit notification",
       "emptyNotifications": "No notifications",
       "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
+      "userPlaceholder": "Vybrať užívateľa",
+      "messageLabel": "Správa",
+      "messagePreview": "Ukážka",
+      "createdAt": "Vytvorené",
       "globals": "Globals",
-      "users": "Users",
+      "users": "Užívatelia",
       "confirmResetForm": "Are you sure you want to reset the form?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
+      "title": "Užívatelia",
+      "user": "Užívateľ",
+      "userId": "ID používateľa",
+      "followers": "Sledovatelia",
+      "noUsers": "Žiadni používatelia",
+      "filters": "Filtre",
       "clearFilters": "Clear filters",
       "countSelected": "{count} selected",
       "isAdmin": "Admin",
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
-      "statusGroup": "Status",
-      "badgesGroup": "Badges",
+      "statusGroup": "Stav",
+      "badgesGroup": "Odznaky",
       "giveBan": "Ban user",
       "unBan": "Unban user",
       "giveMod": "Give admin",
@@ -975,18 +975,18 @@
       "dropSession": "Drop session"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
-      "name": "Name",
-      "users": "Users",
+      "title": "Odznaky",
+      "formTitle": "Vytvoriť alebo upraviť odznak",
+      "name": "Názov",
+      "users": "Užívatelia",
       "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
+      "image": "Obrázok",
+      "preview": "Náhľad",
       "usesCount": "Použití {count}",
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Akcie",
       "dropAllSession": "Drop all sessions",
       "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
