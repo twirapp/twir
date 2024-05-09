@@ -151,7 +151,7 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
 	var entities []model.ChannelAlert
