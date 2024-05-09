@@ -6,7 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -150,5 +149,36 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 
 // ChannelAlerts is the resolver for the channelAlerts field.
 func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAlert, error) {
-	panic(fmt.Errorf("not implemented: ChannelAlerts - channelAlerts"))
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	var entities []model.ChannelAlert
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channelId" = ?`, dashboardId).
+		Find(&entities).Error; err != nil {
+		return nil, err
+	}
+
+	var result []gqlmodel.ChannelAlert
+	for _, entity := range entities {
+		result = append(
+			result,
+			gqlmodel.ChannelAlert{
+				ID:           entity.ID,
+				ChannelID:    entity.ChannelID,
+				Name:         entity.Name,
+				AudioID:      entity.AudioID.Ptr(),
+				AudioVolume:  &entity.AudioVolume,
+				CommandIds:   entity.CommandIDS,
+				RewardIds:    entity.RewardIDS,
+				GreetingsIds: entity.GreetingsIDS,
+				KeywordsIds:  entity.KeywordsIDS,
+			},
+		)
+	}
+
+	return result, nil
 }
