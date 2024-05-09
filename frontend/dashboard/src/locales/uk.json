@@ -587,6 +587,7 @@
       "deniedUsers": "Користувачі, які не можуть замовляти пісні",
       "deniedSongs": "Заблоковані для замовлення пісні",
       "takeSongFromDonationMessage": "Бере посилання пісні з донат повідомлень?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Максимальна кількість замовлень для користувача",
         "minimalWatchTime": "Мінімальний час перегляду для замовлення пісні (у хвилинах)",
