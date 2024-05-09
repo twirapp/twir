@@ -158,6 +158,7 @@ func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAl
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
+		Order("name desc").
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
