@@ -42,8 +42,15 @@
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
-    "searchPlaceholder": "Search..."
+    "pagination": "of {page} page(s) / {total} item(s)",
+    "paginationPerPage": "Per page",
+    "searchPlaceholder": "Search...",
+    "messages": "Messages",
+    "asc": "Asc",
+    "desc": "Desc",
+    "hide": "Hide",
+    "view": "View",
+    "toggleColumns": "Toggle columns"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -619,7 +626,8 @@
         "responseLong": "Response is too long!"
       }
     },
-    "limitExceeded": "Timer Limit exceeded!"
+    "limitExceeded": "Timer Limit exceeded!",
+    "newTimer": "New timer"
   },
   "roles": {
     "modal": {
@@ -660,6 +668,8 @@
   },
   "greetings": {
     "title": "Begrüßung",
+    "create": "Create greeting",
+    "edit": "Edit greeting",
     "info": {
       "title": "Grüßinformationen",
       "text": "Grüße sind eine Art von Nachrichten, die Bot verwendet, um bekannte Stream-Zuschauer willkommen zu heißen, wenn sie ihre erste Nachricht im Chat auf jedem Stream senden. Wenn Sie jeden Benutzer im Chat begrüßen möchten, dann können Sie sich die Veranstaltungskategorie ansehen, anstatt Grüße."
@@ -748,15 +758,19 @@
   },
   "community": {
     "users": {
+      "title": "Community Users",
+      "searchPlaceholder": "Search users...",
       "table": {
         "user": "Nutzer",
         "watchedTime": "Zugeschaute Zeit",
         "messages": "Nachrichten",
         "usedEmotes": "Verwendete Emotes",
-        "usedChannelPoints": "Ausgegebene Kanalpunkte"
+        "usedChannelPoints": "Ausgegebene Kanalpunkte",
+        "empty": "No users"
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
+        "label": "Reset",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     }
@@ -898,7 +912,7 @@
     }
   },
   "adminPanel": {
-    "title": "Admin panel",
+    "title": "Admin Panel",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",
@@ -925,7 +939,12 @@
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
       "statusGroup": "Status",
-      "badgesGroup": "Badges"
+      "badgesGroup": "Badges",
+      "giveBan": "Ban user",
+      "unBan": "Unban user",
+      "giveMod": "Give admin",
+      "unMod": "Remove admin",
+      "dropSession": "Drop session"
     },
     "manageBadges": {
       "title": "Badges",
@@ -937,6 +956,11 @@
       "preview": "Preview",
       "usesCount": "Uses {count}",
       "badgeSlot": "Slot {slot}"
+    },
+    "adminActions": {
+      "title": "Actions",
+      "dropAllSession": "Drop all sessions",
+      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
   }
 }

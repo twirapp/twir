@@ -7,8 +7,8 @@ import type { CommunityUsersResetType } from '@/gql/graphql.js'
 import type { Column } from '@tanstack/vue-table'
 
 import { useCommunityUsersApi } from '@/api/community-users.js'
+import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
-import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -83,7 +83,7 @@ async function resetColumn() {
 		{{ title }}
 	</div>
 
-	<DeleteConfirm
+	<ActionConfirm
 		v-model:open="showConfirm"
 		:confirm-text="t('community.users.reset.resetQuestion', { title })"
 		@confirm="resetColumn"

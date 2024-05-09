@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { IconPlus, IconSettings, IconTrash } from '@tabler/icons-vue';
+import { IconPlus, IconSettings, IconTrash } from '@tabler/icons-vue'
 import {
 	NAlert,
 	NButton,
@@ -9,99 +9,98 @@ import {
 	NPopconfirm,
 	NTag,
 	useNotification,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+} from 'naive-ui'
+import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
-import { useOverlaysRegistry, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
-import Card from '@/components/card/card.vue';
-import { responsiveCols } from '@/components/consants.js';
-import Brb from '@/components/overlays/brb.vue';
-import Chat from '@/components/overlays/chat.vue';
-import Dudes from '@/components/overlays/dudes.vue';
-import Kappagen from '@/components/overlays/kappagen.vue';
-import NowPlaying from '@/components/overlays/now-playing.vue';
-import OBS from '@/components/overlays/obs.vue';
-import TTS from '@/components/overlays/tts.vue';
-import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
-import { copyToClipBoard } from '@/helpers/index.js';
+import { useOverlaysRegistry, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import Card from '@/components/card/card.vue'
+import { responsiveCols } from '@/components/consants.js'
+import Brb from '@/components/overlays/brb.vue'
+import Chat from '@/components/overlays/chat.vue'
+import Dudes from '@/components/overlays/dudes.vue'
+import Kappagen from '@/components/overlays/kappagen.vue'
+import NowPlaying from '@/components/overlays/now-playing.vue'
+import OBS from '@/components/overlays/obs.vue'
+import TTS from '@/components/overlays/tts.vue'
+import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { copyToClipBoard } from '@/helpers/index.js'
 
+const { t } = useI18n()
+const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
+const { data: profile } = useProfile()
 
-const { t } = useI18n();
-const userCanManageOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
-const userProfile = storeToRefs(useProfile());
-
-const message = useNotification();
-const copyUrl = async (id: string) => {
-	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`);
+const message = useNotification()
+async function copyUrl(id: string) {
+	await copyToClipBoard(`${window.location.origin}/overlays/${profile.value?.apiKey}/registry/overlays/${id}`)
 	message.success({
 		title: t('overlays.copied'),
 		duration: 2500,
-	});
-};
-const overlaysManager = useOverlaysRegistry();
-const deleter = overlaysManager.deleteOne;
-const { data: customOverlays, refetch } = overlaysManager.getAll({});
-onMounted(refetch);
+	})
+}
+const overlaysManager = useOverlaysRegistry()
+const deleter = overlaysManager.deleteOne
+const { data: customOverlays, refetch } = overlaysManager.getAll({})
+onMounted(refetch)
 
+const router = useRouter()
 
-const router = useRouter();
-
-const editCustomOverlay = (id?: string) => router.push({
-	name: 'RegistryOverlayEdit',
-	params: {
-		id: id ?? 'new',
-	},
-});
+function editCustomOverlay(id?: string) {
+	return router.push({
+		name: 'RegistryOverlayEdit',
+		params: {
+			id: id ?? 'new',
+		},
+	})
+}
 </script>
 
 <template>
 	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
-		<n-grid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
-			<n-grid-item :span="1">
-				<now-playing />
-			</n-grid-item>
-			<n-grid-item :span="1">
+		<NGrid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
+			<NGridItem :span="1">
+				<NowPlaying />
+			</NGridItem>
+			<NGridItem :span="1">
 				<TTS />
-			</n-grid-item>
-			<n-grid-item :span="1">
+			</NGridItem>
+			<NGridItem :span="1">
 				<OBS />
-			</n-grid-item>
-			<n-grid-item :span="1">
+			</NGridItem>
+			<NGridItem :span="1">
 				<Chat />
-			</n-grid-item>
-			<n-grid-item :span="1">
+			</NGridItem>
+			<NGridItem :span="1">
 				<Kappagen />
-			</n-grid-item>
-			<n-grid-item :span="1">
+			</NGridItem>
+			<NGridItem :span="1">
 				<Dudes />
-			</n-grid-item>
-			<n-grid-item :span="1">
+			</NGridItem>
+			<NGridItem :span="1">
 				<Brb />
-			</n-grid-item>
+			</NGridItem>
 
-			<n-grid-item v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
-				<card
+			<NGridItem v-for="overlay of customOverlays?.overlays" :key="overlay.id" :span="1">
+				<Card
 					:title="overlay.name"
 					style="height: 100%;"
 				>
 					<template #content>
 						<div v-if="overlay.layers.length" class="flex gap-1 flex-wrap">
-							<n-tag v-for="layer of overlay.layers" :key="layer.id" type="success">
+							<NTag v-for="layer of overlay.layers" :key="layer.id" type="success">
 								{{ convertOverlayLayerTypeToText(layer.type) }}
-							</n-tag>
+							</NTag>
 						</div>
-						<n-alert v-else type="warning" :title="t('overlaysRegistry.noLayersCreated.title')">
+						<NAlert v-else type="warning" :title="t('overlaysRegistry.noLayersCreated.title')">
 							{{ t('overlaysRegistry.noLayersCreated.description') }}
-						</n-alert>
+						</NAlert>
 					</template>
 
 					<template #footer>
 						<div class="flex gap-2 flex-wrap">
-							<n-button
+							<NButton
 								secondary
 								size="large"
 								:disabled="!userCanManageOverlays"
@@ -109,47 +108,47 @@ const editCustomOverlay = (id?: string) => router.push({
 							>
 								<span>{{ t('sharedButtons.settings') }}</span>
 								<IconSettings />
-							</n-button>
+							</NButton>
 
-							<n-button
+							<NButton
 								secondary
 								type="info"
 								size="large"
-								:disabled="!userCanManageOverlays || userProfile.data.value?.selectedDashboardId != userProfile.data.value?.id"
+								:disabled="!userCanManageOverlays || profile?.selectedDashboardId !== profile?.id"
 								@click="copyUrl(overlay.id)"
 							>
 								<span>{{ t('overlays.copyOverlayLink') }}</span>
 								<IconSettings />
-							</n-button>
+							</NButton>
 
-							<n-popconfirm
+							<NPopconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
 								:negative-text="t('deleteConfirmation.cancel')"
 								@positive-click="() => deleter.mutate({ id: overlay.id })"
 							>
 								{{ t('deleteConfirmation.text') }}
 								<template #trigger>
-									<n-button secondary size="large" type="error" :disabled="!userCanManageOverlays">
+									<NButton secondary size="large" type="error" :disabled="!userCanManageOverlays">
 										<span>{{ t('sharedButtons.delete') }}</span>
 										<IconTrash />
-									</n-button>
+									</NButton>
 								</template>
-							</n-popconfirm>
+							</NPopconfirm>
 						</div>
 					</template>
-				</card>
-			</n-grid-item>
+				</Card>
+			</NGridItem>
 
-			<n-grid-item :span="1">
-				<n-card
+			<NGridItem :span="1">
+				<NCard
 					class="flex items-center justify-center h-full"
 					:style="{ cursor: userCanManageOverlays ? 'pointer' : 'not-allowed' }"
 					embedded
 					@click="() => editCustomOverlay()"
 				>
 					<IconPlus class="h-20 w-20" />
-				</n-card>
-			</n-grid-item>
-		</n-grid>
+				</NCard>
+			</NGridItem>
+		</NGrid>
 	</div>
 </template>

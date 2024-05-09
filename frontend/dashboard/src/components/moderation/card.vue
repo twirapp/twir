@@ -1,66 +1,66 @@
 <script setup lang="ts">
-import { IconSettings, IconTrash } from '@tabler/icons-vue';
-import { type ItemWithId } from '@twir/api/messages/moderation/moderation';
-import { NSwitch, NButton, NPopconfirm, useNotification } from 'naive-ui';
-import { ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconSettings, IconTrash } from '@tabler/icons-vue'
+import { NButton, NPopconfirm, NSwitch, useNotification } from 'naive-ui'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { Icons } from './helpers.js';
+import { Icons } from './helpers.js'
 
-import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js';
-import Card from '@/components/card/card.vue';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { ItemWithId } from '@twir/api/messages/moderation/moderation'
+
+import { useModerationManager, useUserAccessFlagChecker } from '@/api/index.js'
+import Card from '@/components/card/card.vue'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = defineProps<{
 	item: ItemWithId
-}>();
-
-const manager = useModerationManager();
-const patcher = manager.patch!;
-const deleter = manager.deleteOne;
-
-const patchExecuting = ref(false);
+}>()
 
 defineEmits<{
 	showSettings: []
-}>();
+}>()
 
-const { t } = useI18n();
+const manager = useModerationManager()
+const patcher = manager.patch!
+const deleter = manager.deleteOne
 
-const userCanManageModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration);
+const patchExecuting = ref(false)
 
-const message = useNotification();
+const { t } = useI18n()
 
-const switchState = async (id: string, v: boolean) => {
-	patchExecuting.value = true;
+const userCanManageModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageModeration)
+
+const message = useNotification()
+
+async function switchState(id: string, v: boolean) {
+	patchExecuting.value = true
 
 	try {
-		await patcher.mutateAsync({ id, enabled: v });
-		props.item.data!.enabled = v;
+		await patcher.mutateAsync({ id, enabled: v })
 	} catch (error) {
-		console.error(error);
+		console.error(error)
 	} finally {
-		patchExecuting.value = false;
+		patchExecuting.value = false
 	}
-};
+}
 
 async function removeItem() {
-	await deleter.mutateAsync({ id: props.item.id });
+	await deleter.mutateAsync({ id: props.item.id })
 	message.success({
 		title: t('sharedTexts.deleted'),
 		duration: 2000,
-	});
+	})
 }
 </script>
 
 <template>
-	<card
+	<Card
 		:title="t(`moderation.types.${item.data!.type}.name`)"
 		:icon="Icons[item.data!.type]"
 		style="height:100%"
 	>
 		<template #headerExtra>
-			<n-switch
+			<NSwitch
 				:disabled="!userCanManageModeration"
 				:value="item.data!.enabled"
 				:loading="patchExecuting"
@@ -74,7 +74,7 @@ async function removeItem() {
 
 		<template #footer>
 			<div class="flex gap-2">
-				<n-button
+				<NButton
 					:disabled="!userCanManageModeration"
 					secondary
 					size="large"
@@ -84,14 +84,14 @@ async function removeItem() {
 						<span>{{ t('sharedButtons.settings') }}</span>
 						<IconSettings />
 					</div>
-				</n-button>
-				<n-popconfirm
+				</NButton>
+				<NPopconfirm
 					:positive-text="t('deleteConfirmation.confirm')"
 					:negative-text="t('deleteConfirmation.cancel')"
 					@positive-click="removeItem"
 				>
 					<template #trigger>
-						<n-button
+						<NButton
 							:disabled="!userCanManageModeration"
 							secondary
 							size="large"
@@ -101,11 +101,11 @@ async function removeItem() {
 								<span>{{ t('sharedButtons.delete') }}</span>
 								<IconTrash />
 							</div>
-						</n-button>
+						</NButton>
 					</template>
 					{{ t('deleteConfirmation.text') }}
-				</n-popconfirm>
+				</NPopconfirm>
 			</div>
 		</template>
-	</card>
+	</Card>
 </template>

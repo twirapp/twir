@@ -9,8 +9,8 @@ import type { Command } from '@/gql/graphql'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'
+import ActionConfirmation from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
-import DeleteConfirmation from '@/components/ui/delete-confirm.vue'
 import { Switch } from '@/components/ui/switch'
 import { useToast } from '@/components/ui/toast/use-toast'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -83,7 +83,7 @@ const commandEdit = useCommandEdit()
 		</div>
 	</div>
 
-	<DeleteConfirmation
+	<ActionConfirmation
 		v-model:open="showDelete"
 		@confirm="deleteCommand"
 	/>

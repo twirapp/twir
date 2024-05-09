@@ -11,23 +11,25 @@ import (
 )
 
 type TwirGoApp struct {
-	Name    string
-	Cmd     *exec.Cmd
-	Path    string
-	Watcher *watcher.Watcher
+	Name         string
+	Cmd          *exec.Cmd
+	Path         string
+	Watcher      *watcher.Watcher
+	debugEnabled bool
 }
 
-func NewApplication(name string) (*TwirGoApp, error) {
+func NewApplication(name string, enableDebug bool) (*TwirGoApp, error) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
 
 	app := TwirGoApp{
-		Name:    name,
-		Cmd:     nil,
-		Path:    filepath.Join(wd, "apps", name),
-		Watcher: watcher.New(),
+		Name:         name,
+		Cmd:          nil,
+		Path:         filepath.Join(wd, "apps", name),
+		Watcher:      watcher.New(),
+		debugEnabled: enableDebug,
 	}
 
 	cmd, err := app.CreateAppCommand()
@@ -72,7 +74,15 @@ func (c *TwirGoApp) getAppPath() string {
 }
 
 func (c *TwirGoApp) Build() error {
-	buildCmd := exec.Command("go", "build", "-ldflags=-s -w", "-o", c.getAppPath(), "./cmd/main.go")
+	args := []string{"build", "-o", c.getAppPath()}
+	if c.debugEnabled {
+		args = append(args, `-gcflags=all=-N -l`)
+	} else {
+		args = append(args, "-ldflags=-s -w")
+	}
+	args = append(args, "./cmd/main.go")
+
+	buildCmd := exec.Command("go", args...)
 	buildCmd.Dir = c.Path
 	buildCmd.Stdout = os.Stdout
 	buildCmd.Stderr = os.Stderr

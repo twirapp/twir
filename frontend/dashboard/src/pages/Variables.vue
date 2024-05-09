@@ -1,42 +1,41 @@
 <script setup lang="ts">
-import { IconPencil, IconTrash } from '@tabler/icons-vue';
+import { IconPencil, IconTrash } from '@tabler/icons-vue'
 import {
 	type DataTableColumns,
-	NDataTable,
-	NSpace,
-	NTag,
 	NAlert,
 	NButton,
-	NPopconfirm,
+	NDataTable,
 	NModal,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, h, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NPopconfirm,
+	NSpace,
+	NTag,
+} from 'naive-ui'
+import { computed, h, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api/index.js';
-import { useVariablesApi } from '@/api/variables';
-import { type CustomVariable, type EditableCustomVariable } from '@/api/variables';
-import Modal from '@/components/variables/modal.vue';
-import { ChannelRolePermissionEnum, VariableType } from '@/gql/graphql';
-import { renderIcon } from '@/helpers/index.js';
+import type { CustomVariable, EditableCustomVariable } from '@/api/variables'
 
-const variablesApi = useVariablesApi();
-const { customVariables, isLoading } = storeToRefs(variablesApi);
-const deleter = variablesApi.useMutationRemoveVariable();
+import { useUserAccessFlagChecker } from '@/api/index.js'
+import { useVariablesApi } from '@/api/variables'
+import Modal from '@/components/variables/modal.vue'
+import { ChannelRolePermissionEnum, VariableType } from '@/gql/graphql'
+import { renderIcon } from '@/helpers/index.js'
 
-const showModal = ref(false);
+const { customVariables, isLoading, useMutationRemoveVariable } = useVariablesApi()
+const removeVariableMutation = useMutationRemoveVariable()
 
-const userCanManageVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageVariables);
+const showModal = ref(false)
 
-const { t } = useI18n();
+const userCanManageVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageVariables)
+
+const { t } = useI18n()
 
 const columns = computed<DataTableColumns<CustomVariable>>(() => [
 	{
 		title: t('sharedTexts.name'),
 		key: 'name',
 		render(row) {
-			return row.name;
+			return row.name
 		},
 	},
 	{
@@ -45,7 +44,7 @@ const columns = computed<DataTableColumns<CustomVariable>>(() => [
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
 				default: () => row.type,
-			});
+			})
 		},
 	},
 	{
@@ -54,7 +53,7 @@ const columns = computed<DataTableColumns<CustomVariable>>(() => [
 		render(row) {
 			return h(NTag, { type: 'info', bordered: true }, {
 				default: () => row.type === VariableType.Script ? 'Script' : row.response,
-			});
+			})
 		},
 	},
 	{
@@ -70,14 +69,16 @@ const columns = computed<DataTableColumns<CustomVariable>>(() => [
 					onClick: () => openModal(row),
 					quaternary: true,
 					disabled: !userCanManageVariables.value,
-				}, {
+				},
+				{
 					icon: renderIcon(IconPencil),
-				});
+				},
+			)
 
 			const deleteButton = h(
 				NPopconfirm,
 				{
-					onPositiveClick: () => deleter.executeMutation({ id: row.id! }),
+					onPositiveClick: () => removeVariableMutation.executeMutation({ id: row.id! }),
 					positiveText: t('deleteConfirmation.confirm'),
 					negativeText: t('deleteConfirmation.cancel'),
 				},
@@ -92,43 +93,43 @@ const columns = computed<DataTableColumns<CustomVariable>>(() => [
 					}),
 					default: () => t('deleteConfirmation.text'),
 				},
-			);
+			)
 
-			return h(NSpace, {}, { default: () => [editButton, deleteButton] });
+			return h(NSpace, {}, { default: () => [editButton, deleteButton] })
 		},
 	},
-]);
+])
 
-const editableVariable = ref<EditableCustomVariable | null>(null);
+const editableVariable = ref<EditableCustomVariable | null>(null)
 
 function openModal(t: EditableCustomVariable | null) {
-	editableVariable.value = t;
-	showModal.value = true;
+	editableVariable.value = t
+	showModal.value = true
 }
 
 function closeModal() {
-	showModal.value = false;
+	showModal.value = false
 }
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
+	<NSpace justify="space-between" align="center">
 		<h2>{{ t('variables.title') }}</h2>
-		<n-button :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
+		<NButton :disabled="!userCanManageVariables" secondary type="success" @click="openModal(null)">
 			{{ t('sharedButtons.create') }}
-		</n-button>
-	</n-space>
-	<n-alert type="info">
+		</NButton>
+	</NSpace>
+	<NAlert type="info">
 		{{ t('variables.info') }}
-	</n-alert>
-	<n-data-table
+	</NAlert>
+	<NDataTable
 		:isLoading="isLoading"
 		:columns="columns"
 		:data="customVariables"
 		style="margin-top: 20px;"
 	/>
 
-	<n-modal
+	<NModal
 		v-model:show="showModal"
 		:mask-closable="false"
 		:segmented="true"
@@ -141,6 +142,6 @@ function closeModal() {
 		}"
 		:on-close="closeModal"
 	>
-		<modal :variable="editableVariable" @close="closeModal" />
-	</n-modal>
+		<Modal :variable="editableVariable" @close="closeModal" />
+	</NModal>
 </template>

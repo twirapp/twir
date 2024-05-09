@@ -33,7 +33,7 @@ var SayCommand = &types.DefaultCommand{
 		IsReply:     true,
 	},
 	Args: []command_arguments.Arg{
-		command_arguments.String{
+		command_arguments.VariadicString{
 			Name: ttsSayArgName,
 		},
 	},

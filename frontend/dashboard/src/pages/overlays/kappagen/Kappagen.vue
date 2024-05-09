@@ -1,26 +1,25 @@
 <script lang="ts" setup>
-import { RpcError } from '@protobuf-ts/runtime-rpc';
-import { TwirEventType } from '@twir/api/messages/events/events';
+import { RpcError } from '@protobuf-ts/runtime-rpc'
+import { TwirEventType } from '@twir/api/messages/events/events'
+import { useDebounceFn } from '@vueuse/core'
+import { CopyIcon } from 'lucide-vue-next'
+import { NButton, NButtonGroup, NTabPane, NTabs, useThemeVars } from 'naive-ui'
+import { computed, ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import SettingsAnimations from './settingsAnimations.vue'
+import SettingsEvents from './settingsEvents.vue'
+import SettingsGeneral from './settingsGeneral.vue'
+import { useKappagenFormSettings } from './store.js'
+
 import type {
 	Settings_AnimationSettings,
-} from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import { useDebounceFn } from '@vueuse/core';
-import { CopyIcon } from 'lucide-vue-next';
-import { NTabs, NTabPane, NButton, NButtonGroup, useThemeVars } from 'naive-ui';
-import { computed, ref, toRaw, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+} from '@twir/api/messages/overlays_kappagen/overlays_kappagen'
 
-import SettingsAnimations from './settingsAnimations.vue';
-import SettingsEvents from './settingsEvents.vue';
-import SettingsGeneral from './settingsGeneral.vue';
-import { useKappagenFormSettings } from './store.js';
-
-
-import { useKappaGenOverlayManager, useProfile } from '@/api';
-import { flatEvents } from '@/components/events/helpers.js';
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
-import { useToast } from '@/components/ui/toast';
-import { storeToRefs } from 'pinia';
+import { useKappaGenOverlayManager, useProfile } from '@/api'
+import { flatEvents } from '@/components/events/helpers.js'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
+import { useToast } from '@/components/ui/toast'
 
 const availableEvents = Object.values(flatEvents)
 	.filter(e => e.enumValue !== undefined && TwirEventType[e.enumValue])
@@ -28,69 +27,72 @@ const availableEvents = Object.values(flatEvents)
 		return {
 			name: e.name,
 			value: e.enumValue,
-		};
-	}) as Array<{ name: string, value: TwirEventType }>;
+		}
+	}) as Array<{ name: string, value: TwirEventType }>
 
-const themeVars = useThemeVars();
-const { t } = useI18n();
-const { copyOverlayLink } = useCopyOverlayLink('kappagen');
+const themeVars = useThemeVars()
+const { t } = useI18n()
+const { copyOverlayLink } = useCopyOverlayLink('kappagen')
 
-const kappagenManager = useKappaGenOverlayManager();
-const { data: settings, error } = kappagenManager.getSettings();
-const updater = kappagenManager.updateSettings();
+const kappagenManager = useKappaGenOverlayManager()
+const { data: settings, error } = kappagenManager.getSettings()
+const updater = kappagenManager.updateSettings()
 
-const { settings: formValue } = useKappagenFormSettings();
+const { data: profile } = useProfile()
+const { settings: formValue } = useKappagenFormSettings()
 
 watch(error, async (v) => {
 	if (v instanceof RpcError) {
 		if (v.code === 'not_found') {
-			await updater.mutateAsync(formValue.value);
+			await updater.mutateAsync(formValue.value)
 		}
 	}
-});
+})
 
-const { toast } = useToast();
+const { toast } = useToast()
 async function save() {
-	if (!formValue.value) return;
+	if (!formValue.value) return
 
-	await updater.mutateAsync(formValue.value);
+	await updater.mutateAsync(formValue.value)
 	toast({
 		title: t('sharedTexts.saved'),
 		variant: 'success',
-	});
+	})
 }
 
-const sendSettings = () => sendIframeMessage('settings', {
-	...toRaw(formValue.value),
-	channelName: profile.value?.login,
-	channelId: profile.value?.id,
-});
+function sendSettings() {
+	return sendIframeMessage('settings', {
+		...toRaw(formValue.value),
+		channelName: profile.value?.login,
+		channelId: profile.value?.id,
+	})
+}
 
 const debouncedSave = useDebounceFn(async () => {
-	await save();
-	sendSettings();
-}, 1000);
+	await save()
+	sendSettings()
+}, 1000)
 watch(formValue, () => {
-	debouncedSave();
-}, { deep: true });
+	debouncedSave()
+}, { deep: true })
 
 watch(settings, (s) => {
-	if (!s) return;
+	if (!s) return
 
-	const events = toRaw(s.events);
+	const events = toRaw(s.events)
 
 	for (const event of availableEvents) {
-		const isExists = events.some(e => e.event === event.value);
-		if (isExists) continue;
+		const isExists = events.some(e => e.event === event.value)
+		if (isExists) continue
 
-		events.push({ event: event.value, disabledStyles: [], enabled: false });
+		events.push({ event: event.value, disabledStyles: [], enabled: false })
 	}
 
 	formValue.value = {
 		...toRaw(s),
-		events: events,
-	};
-}, { immediate: true });
+		events,
+	}
+}, { immediate: true })
 
 watch(() => [
 	formValue.value.emotes,
@@ -98,67 +100,65 @@ watch(() => [
 	formValue.value.animation,
 	formValue.value.cube,
 	formValue.value.size,
-], () => sendSettings(), { deep: true });
+], () => sendSettings(), { deep: true })
 
-const { data: profile } = storeToRefs(useProfile());
-
-const kappagenIframeRef = ref<HTMLIFrameElement | null>(null);
+const kappagenIframeRef = ref<HTMLIFrameElement | null>(null)
 const kappagenIframeUrl = computed(() => {
-	if (!profile.value) return null;
+	if (!profile.value) return null
 
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/kappagen`;
-});
+	return `${window.location.origin}/overlays/${profile.value.apiKey}/kappagen`
+})
 
-const sendIframeMessage = (key: string, data?: any) => {
-	if (!kappagenIframeRef.value) return;
-	const win = kappagenIframeRef.value;
+function sendIframeMessage(key: string, data?: any) {
+	if (!kappagenIframeRef.value) return
+	const win = kappagenIframeRef.value
 
 	win.contentWindow?.postMessage(JSON.stringify({
 		key,
 		data: toRaw(data),
-	}));
-};
+	}))
+}
 
 watch(kappagenIframeRef, (v) => {
-	if (!v) return;
+	if (!v) return
 	v.contentWindow?.addEventListener('message', (event) => {
-		const data = JSON.parse(event.data);
-		if (data.key !== 'getSettings') return;
-		sendSettings();
-	});
-});
+		const data = JSON.parse(event.data)
+		if (data.key !== 'getSettings') return
+		sendSettings()
+	})
+})
 
-const playKappaPreview = (animation: Settings_AnimationSettings) => {
-	sendIframeMessage('kappaWithAnimation', { animation });
-};
+function playKappaPreview(animation: Settings_AnimationSettings) {
+	sendIframeMessage('kappaWithAnimation', { animation })
+}
 </script>
 
 <template>
 	<div class="flex h-full p-6 gap-10">
 		<div class="w-1/2">
 			<div class="header-buttons">
-				<n-button-group>
-					<n-button secondary @click="sendIframeMessage('kappa', 'EZ')">
+				<NButtonGroup>
+					<NButton secondary @click="sendIframeMessage('kappa', 'EZ')">
 						{{ t('overlays.kappagen.testKappagen') }}
-					</n-button>
-					<n-button secondary type="info" @click="sendIframeMessage('spawn', ['EZ'])">
+					</NButton>
+					<NButton secondary type="info" @click="sendIframeMessage('spawn', ['EZ'])">
 						{{ t('overlays.kappagen.testSpawn') }}
-					</n-button>
+					</NButton>
 
-					<n-button secondary type="warning" @click="sendIframeMessage('clear')">
+					<NButton secondary type="warning" @click="sendIframeMessage('clear')">
 						{{ t('overlays.kappagen.clear') }}
-					</n-button>
-				</n-button-group>
+					</NButton>
+				</NButtonGroup>
 
-				<n-button-group>
-					<n-button secondary type="info" @click="copyOverlayLink()">
+				<NButtonGroup>
+					<NButton secondary type="info" @click="copyOverlayLink()">
 						<CopyIcon class="mr-2 h-6 w-6" />
 						{{ t('overlays.copyOverlayLink') }}
-					</n-button>
-				</n-button-group>
+					</NButton>
+				</NButtonGroup>
 			</div>
 
-			<n-tabs
+			<NTabs
 				default-value="main"
 				type="line"
 				size="large"
@@ -166,30 +166,30 @@ const playKappaPreview = (animation: Settings_AnimationSettings) => {
 				animated
 				style="width: 100%; margin-top: 16px;"
 			>
-				<n-tab-pane name="main" :tab="t('overlays.kappagen.tabs.main')">
+				<NTabPane name="main" :tab="t('overlays.kappagen.tabs.main')">
 					<div class="card">
 						<div class="content">
 							<SettingsGeneral />
 						</div>
 					</div>
-				</n-tab-pane>
+				</NTabPane>
 
-				<n-tab-pane name="events" :tab="t('overlays.kappagen.tabs.events')">
+				<NTabPane name="events" :tab="t('overlays.kappagen.tabs.events')">
 					<div class="card">
 						<div class="content">
 							<SettingsEvents />
 						</div>
 					</div>
-				</n-tab-pane>
+				</NTabPane>
 
-				<n-tab-pane name="animations" :tab="t('overlays.kappagen.tabs.animations')">
+				<NTabPane name="animations" :tab="t('overlays.kappagen.tabs.animations')">
 					<div class="card">
 						<div class="content">
 							<SettingsAnimations @play="playKappaPreview" />
 						</div>
 					</div>
-				</n-tab-pane>
-			</n-tabs>
+				</NTabPane>
+			</NTabs>
 		</div>
 
 		<div class="w-1/2 h-full">

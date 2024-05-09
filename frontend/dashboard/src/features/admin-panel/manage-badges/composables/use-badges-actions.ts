@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -10,7 +10,7 @@ import type { Badge } from '@/gql/graphql'
 
 import { useLayout } from '@/composables/use-layout.js'
 
-export const useBadgesActions = defineStore('manage-badges/badges-actions', () => {
+export const useBadgesActions = createGlobalState(() => {
 	const layout = useLayout()
 	const badgesForm = useBadgesForm()
 	const { badgesDelete, badgesUpdate } = useBadges()
@@ -29,17 +29,17 @@ export const useBadgesActions = defineStore('manage-badges/badges-actions', () =
 	}
 
 	function editBadge(badge: Badge) {
-		badgesForm.editableBadgeId = badge.id
-		badgesForm.nameField.fieldModel = badge.name
-		badgesForm.fileField.fieldModel = badge.fileUrl
-		badgesForm.slotField.fieldModel = badge.ffzSlot
+		badgesForm.editableBadgeId.value = badge.id
+		badgesForm.nameField.fieldModel.value = badge.name
+		badgesForm.fileField.fieldModel.value = badge.fileUrl
+		badgesForm.slotField.fieldModel.value = badge.ffzSlot
 		layout.scrollToTop()
 	}
 
 	function toggleBadgeEnabled(badge: Badge) {
 		badgesUpdate.executeMutation({
 			id: badge.id,
-			opts: { enabled: !badge.enabled }
+			opts: { enabled: !badge.enabled },
 		})
 	}
 
@@ -50,7 +50,7 @@ export const useBadgesActions = defineStore('manage-badges/badges-actions', () =
 
 	function applyUserSearchBadgeFilter(badge: Badge): void {
 		userFilters.clearFilters()
-		userFilters.selectedBadges.push(badge.id)
+		userFilters.selectedBadges.value.push(badge.id)
 		router.push({ query: { tab: 'users' } })
 	}
 
@@ -60,6 +60,6 @@ export const useBadgesActions = defineStore('manage-badges/badges-actions', () =
 		deleteBadge,
 		toggleBadgeEnabled,
 		showModalDeleteBadge,
-		applyUserSearchBadgeFilter
+		applyUserSearchBadgeFilter,
 	}
 })

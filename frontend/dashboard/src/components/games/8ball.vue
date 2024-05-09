@@ -1,49 +1,52 @@
 <script setup lang="ts">
-import { IconMessageCircleQuestion, IconTrash } from '@tabler/icons-vue';
-import { NModal, NInput, NButton, NSwitch, NDivider, useMessage } from 'naive-ui';
-import { ref, watch, toRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconMessageCircleQuestion, IconTrash } from '@tabler/icons-vue'
+import { NButton, NDivider, NInput, NModal, NSwitch, useMessage } from 'naive-ui'
+import { ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import Card from './card.vue';
+import Card from './card.vue'
 
-import { use8ballSettings, use8ballUpdateSettings } from '@/api/index.js';
-import CommandButton from '@/features/commands/components/command-button.vue';
+import { useGamesApi } from '@/api/games/games.js'
+import CommandButton from '@/features/commands/components/command-button.vue'
 
-const isModalOpened = ref(false);
+const isModalOpened = ref(false)
 
-const maxAnswers = 25;
+const maxAnswers = 25
 
-const { data: settings } = use8ballSettings();
-const updater = use8ballUpdateSettings();
+const gamesManager = useGamesApi()
+const { data } = gamesManager.useGamesQuery()
+const updater = gamesManager.useEightBallMutation()
 
 const formValue = ref({
 	enabled: false,
-	answers: ['Yes', 'No'],
-});
+	answers: ['Yes', 'No']
+})
 
-watch(settings, (v) => {
-	if (!v) return;
+watch(data, (v) => {
+	if (!v) return
 
-	const raw = toRaw(v);
-	formValue.value.answers = raw.answers;
-	formValue.value.enabled = raw.enabled;
-}, { immediate: true });
+	const raw = toRaw(v)
+	formValue.value.answers = raw.gamesEightBall.answers
+	formValue.value.enabled = raw.gamesEightBall.enabled
+}, { immediate: true })
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const notifications = useMessage();
+const notifications = useMessage()
 
 async function save() {
-	await updater.mutateAsync({
-		answers: formValue.value.answers,
-		enabled: formValue.value.enabled,
-	});
-	notifications.success(t('sharedTexts.saved'));
+	await updater.executeMutation({
+		opts: {
+			answers: formValue.value.answers,
+			enabled: formValue.value.enabled
+		}
+	})
+	notifications.success(t('sharedTexts.saved'))
 }
 </script>
 
 <template>
-	<card
+	<Card
 		title="8ball"
 		:icon="IconMessageCircleQuestion"
 		:icon-stroke="1"
@@ -51,7 +54,7 @@ async function save() {
 		@open-settings="isModalOpened = true"
 	/>
 
-	<n-modal
+	<NModal
 		v-model:show="isModalOpened"
 		:mask-closable="false"
 		:segmented="true"
@@ -63,13 +66,13 @@ async function save() {
 		<div class="flex gap-6">
 			<div class="flex flex-col gap-1 items-center">
 				<span>{{ t('sharedTexts.enabled') }}</span>
-				<n-switch v-model:value="formValue.enabled"></n-switch>
+				<NSwitch v-model:value="formValue.enabled"></NSwitch>
 			</div>
 
-			<command-button name="8ball" />
+			<CommandButton name="8ball" />
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<h3>{{ t('games.8ball.answers') }} ({{ formValue.answers.length }}/{{ maxAnswers }})</h3>
 
@@ -79,12 +82,12 @@ async function save() {
 				:key="index"
 				class="flex gap-1"
 			>
-				<n-input
+				<NInput
 					v-model:value="formValue.answers[index]"
 					placeholder="Yes"
 				/>
 
-				<n-button
+				<NButton
 					secondary
 					type="error"
 					@click="() => {
@@ -92,10 +95,10 @@ async function save() {
 					}"
 				>
 					<IconTrash />
-				</n-button>
+				</NButton>
 			</div>
 
-			<n-button
+			<NButton
 				secondary
 				type="info"
 				block
@@ -103,13 +106,13 @@ async function save() {
 				@click="() => formValue.answers.push('')"
 			>
 				{{ t('sharedButtons.create') }}
-			</n-button>
+			</NButton>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
-		<n-button block secondary type="success" @click="save">
+		<NButton block secondary type="success" @click="save">
 			{{ t('sharedButtons.save') }}
-		</n-button>
-	</n-modal>
+		</NButton>
+	</NModal>
 </template>

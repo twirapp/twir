@@ -1,15 +1,26 @@
 <script setup lang="ts">
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { computed } from 'vue'
 
-defineProps<{ name: string, avatar: string }>()
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { resolveUserName } from '@/helpers/resolveUserName.js'
+
+const props = defineProps<{
+	name: string
+	displayName: string
+	avatar: string
+}>()
+
+const userName = computed(() => {
+	return resolveUserName(props.name, props.displayName)
+})
 </script>
 
 <template>
 	<div class="flex items-center gap-4 max-sm:justify-start">
-		<Avatar class="h-9 w-9">
+		<Avatar class="size-9">
 			<AvatarImage :src="avatar" :alt="name" loading="lazy" />
 			<AvatarFallback>{{ name.charAt(0).toUpperCase() }}</AvatarFallback>
 		</Avatar>
-		{{ name }}
+		{{ userName }}
 	</div>
 </template>

@@ -17,10 +17,10 @@
     "setDefaultSettings": "Встановити стандартні параметри",
     "goToDashboard": "Перейти до панелі управління",
     "add": "Додати",
-    "send": "Send",
-    "next": "Next",
-    "previous": "Previous",
-    "reset": "Reset"
+    "send": "Відправити",
+    "next": "Далі",
+    "previous": "Назад",
+    "reset": "Скинути"
   },
   "sharedTexts": {
     "saved": "Збережено",
@@ -42,8 +42,15 @@
     "disabled": "Вимкнено",
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
-    "pagination": "{page} of {total} page(s) / {items} item(s)",
-    "searchPlaceholder": "Search..."
+    "pagination": "of {page} page(s) / {total} item(s)",
+    "paginationPerPage": "Per page",
+    "searchPlaceholder": "Найти",
+    "messages": "Messages",
+    "asc": "Asc",
+    "desc": "Desc",
+    "hide": "Hide",
+    "view": "View",
+    "toggleColumns": "Toggle columns"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -72,7 +79,7 @@
   "navbar": {
     "logout": "Вийти",
     "publicPage": "Публічна сторінка",
-    "seeAll": "See all"
+    "seeAll": "Показати всі"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -619,7 +626,8 @@
         "responseLong": "Відповідь занадто довга!"
       }
     },
-    "limitExceeded": "Ліміт перевищено!"
+    "limitExceeded": "Ліміт перевищено!",
+    "newTimer": "New timer"
   },
   "roles": {
     "modal": {
@@ -660,6 +668,8 @@
   },
   "greetings": {
     "title": "Привітання",
+    "create": "Create greeting",
+    "edit": "Edit greeting",
     "info": {
       "title": "Інформація про привітання",
       "text": "Привітання - це той тип повідомлень, які використовує бот, щоб привітати відомих глядачів трансляції, коли вони надсилають своє перше повідомлення в чаті. Якщо ви бажаєте вітати кожного користувача у чаті, ви можете подивитися на категорію подій замість категорії привітань."
@@ -748,15 +758,19 @@
   },
   "community": {
     "users": {
+      "title": "Community Users",
+      "searchPlaceholder": "Search users...",
       "table": {
         "user": "Користувач",
         "watchedTime": "Час перегляду",
         "messages": "Повідомлення",
         "usedEmotes": "Використано емодзі",
-        "usedChannelPoints": "Використані бали каналу"
+        "usedChannelPoints": "Використані бали каналу",
+        "empty": "No users"
       },
       "total": "Всього {total} користувачів",
       "reset": {
+        "label": "Reset",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
       }
     }
@@ -898,7 +912,7 @@
     }
   },
   "adminPanel": {
-    "title": "Admin panel",
+    "title": "Admin Panel",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",
@@ -925,7 +939,12 @@
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
       "statusGroup": "Status",
-      "badgesGroup": "Badges"
+      "badgesGroup": "Badges",
+      "giveBan": "Ban user",
+      "unBan": "Unban user",
+      "giveMod": "Give admin",
+      "unMod": "Remove admin",
+      "dropSession": "Drop session"
     },
     "manageBadges": {
       "title": "Badges",
@@ -937,6 +956,11 @@
       "preview": "Preview",
       "usesCount": "Uses {count}",
       "badgeSlot": "Slot {slot}"
+    },
+    "adminActions": {
+      "title": "Actions",
+      "dropAllSession": "Drop all sessions",
+      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
   }
 }

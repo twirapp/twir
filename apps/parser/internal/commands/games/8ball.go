@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/goccy/go-json"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/samber/lo"
@@ -36,9 +35,9 @@ var EightBall = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
-		entity := model.ChannelModulesSettings{}
+		entity := model.ChannelGames8Ball{}
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
-			`"channelId" = ? and "userId" is null and "type" = '8ball'`,
+			`"channelId" = ?`,
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -51,29 +50,20 @@ var EightBall = &types.DefaultCommand{
 			}
 		}
 
-		var parsedSettings model.EightBallSettings
-		if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot parse 8ball settings",
-				Err:     err,
-			}
-		}
-
-		if !parsedSettings.Enabled {
+		if !entity.Enabled {
 			return &types.CommandsHandlerResult{
 				Result: []string{},
 			}, nil
 		}
 
-		if len(parsedSettings.Answers) == 0 {
-			return nil, &types.CommandHandlerError{
-				Message: `I cannot answer to your question, because 8ball not configured properly (missed answers)`,
-				Err:     nil,
-			}
+		if len(entity.Answers) == 0 {
+			return &types.CommandsHandlerResult{
+				Result: []string{},
+			}, nil
 		}
 
 		return &types.CommandsHandlerResult{
-			Result: []string{lo.Sample(parsedSettings.Answers)},
+			Result: []string{lo.Sample(entity.Answers)},
 		}, nil
 	},
 }

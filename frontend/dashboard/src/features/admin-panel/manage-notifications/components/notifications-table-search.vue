@@ -10,7 +10,7 @@ import {
 	SelectGroup,
 	SelectItem,
 	SelectTrigger,
-	SelectValue
+	SelectValue,
 } from '@/components/ui/select'
 import { NotificationType } from '@/gql/graphql.js'
 
@@ -21,8 +21,8 @@ const filters = useNotificationsFilters()
 
 <template>
 	<div class="flex gap-2 max-sm:w-full">
-		<SearchBar v-model="filters.searchInput" />
-		<Select v-model="filters.filterInput">
+		<SearchBar v-model="filters.searchInput.value" />
+		<Select v-model="filters.filterInput.value">
 			<SelectTrigger class="h-9 w-[120px]">
 				<SelectValue />
 			</SelectTrigger>

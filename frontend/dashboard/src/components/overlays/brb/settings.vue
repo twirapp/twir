@@ -1,36 +1,36 @@
 <script setup lang="ts">
-import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back';
 import {
+	NAlert,
 	NButton,
 	NColorPicker,
 	NDivider,
-	NInputNumber,
 	NInput,
-	NSwitch,
+	NInputNumber,
 	NModal,
+	NSwitch,
 	useNotification,
-	NAlert,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { ref, computed, toRaw, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+} from 'naive-ui'
+import { computed, ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCopyOverlayLink } from '../copyOverlayLink';
+import { useCopyOverlayLink } from '../copyOverlayLink'
 
-import { useBeRightBackOverlayManager, useProfile } from '@/api';
-import commandButton from '@/features/commands/components/command-button.vue';
+import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back'
+
+import { useBeRightBackOverlayManager, useProfile } from '@/api'
+import commandButton from '@/features/commands/components/command-button.vue'
 
 defineProps<{
 	showSettings: boolean
-}>();
+}>()
 
 defineEmits<{
 	close: []
-}>();
+}>()
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const { data: profile } = storeToRefs(useProfile());
+const { data: profile } = useProfile()
 
 const defaultSettings = {
 	backgroundColor: 'rgba(9, 8, 8, 0.50)',
@@ -44,82 +44,82 @@ const defaultSettings = {
 		enabled: true,
 	},
 	opacity: 50,
-};
+}
 
-const formValue = ref<Settings>(defaultSettings);
+const formValue = ref<Settings>(defaultSettings)
 
-const manager = useBeRightBackOverlayManager();
+const manager = useBeRightBackOverlayManager()
 const {
 	data: settings,
 	isError: isSettingsError,
 	isLoading: isSettingsLoading,
-} = manager.getSettings();
-const updater = manager.updateSettings();
+} = manager.getSettings()
+const updater = manager.updateSettings()
 
 watch(settings, (v) => {
-	if (!v) return;
+	if (!v) return
 
-	formValue.value = toRaw(v);
-}, { immediate: true });
+	formValue.value = toRaw(v)
+}, { immediate: true })
 
-const brbIframeRef = ref<HTMLIFrameElement | null>(null);
+const brbIframeRef = ref<HTMLIFrameElement | null>(null)
 const brbIframeUrl = computed(() => {
-	if (!profile.value) return null;
+	if (!profile.value) return null
 
-	return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`;
-});
+	return `${window.location.origin}/overlays/${profile.value.apiKey}/brb`
+})
 
-const sendIframeMessage = (key: string, data?: any) => {
-	if (!brbIframeRef.value) return;
-	const win = brbIframeRef.value;
+function sendIframeMessage(key: string, data?: any) {
+	if (!brbIframeRef.value) return
+	const win = brbIframeRef.value
 
 	win.contentWindow?.postMessage(JSON.stringify({
 		key,
 		data: toRaw(data),
-	}));
-};
+	}))
+}
 
-const sendSettings = () => {
+function sendSettings() {
 	sendIframeMessage('settings', {
 		...toRaw(formValue.value),
 		channelName: profile.value?.login,
 		channelId: profile.value?.id,
-	});
-};
+	})
+}
 
 watch(brbIframeRef, (v) => {
-	if (!v) return;
+	if (!v) return
 
 	v.contentWindow?.addEventListener('message', (e) => {
-		const parsed = JSON.parse(e.data);
-		if (parsed.key !== 'getSettings') return;
+		const parsed = JSON.parse(e.data)
+		if (parsed.key !== 'getSettings') return
 
-		sendSettings();
-	});
-});
+		sendSettings()
+	})
+})
 
 watch(() => formValue, () => {
-	if (!brbIframeRef.value) return;
+	if (!brbIframeRef.value) return
 
-	sendSettings();
-}, { deep: true });
+	sendSettings()
+}, { deep: true })
 
-const { copyOverlayLink } = useCopyOverlayLink('brb');
+const { copyOverlayLink } = useCopyOverlayLink('brb')
 
-const message = useNotification();
+const message = useNotification()
 
 async function save() {
-	await updater.mutateAsync(formValue.value);
+	await updater.mutateAsync(formValue.value)
 
 	message.success({
 		title: t('sharedTexts.saved'),
 		duration: 5000,
-	});
+	})
 }
 </script>
 
 <template>
-	<n-modal
+	<NModal
 		:show="showSettings"
 		:mask-closable="false"
 		:segmented="true"
@@ -133,9 +133,9 @@ async function save() {
 		<div class="flex gap-4 w-full">
 			<div class="flex gap-2 p-2 bg-[color:var(--n-card-color)] rounded-lg">
 				<div class="flex flex-col gap-3 w-1/2">
-					<n-divider class="m-0">
+					<NDivider class="m-0">
 						{{ t('overlays.brb.settings.main.label') }}
-					</n-divider>
+					</NDivider>
 
 					<div class="form-item">
 						<div class="flex flex-col gap-1">
@@ -143,9 +143,9 @@ async function save() {
 								name="brb"
 								:title="t('overlays.brb.settings.main.startCommand.description')"
 							/>
-							<n-alert type="info" :show-icon="false">
+							<NAlert type="info" :show-icon="false">
 								<span v-html="t('overlays.brb.settings.main.startCommand.example')" />
-							</n-alert>
+							</NAlert>
 						</div>
 
 						<command-button
@@ -156,12 +156,12 @@ async function save() {
 
 					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.text') }}</span>
-						<n-input v-model:value="formValue.text" :maxlength="500" />
+						<NInput v-model:value="formValue.text" :maxlength="500" />
 					</div>
 
 					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.background') }}</span>
-						<n-color-picker
+						<NColorPicker
 							v-model:value="formValue.backgroundColor" :modes="['rgb']"
 							show-preview
 						/>
@@ -169,7 +169,7 @@ async function save() {
 
 					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.font.color') }}</span>
-						<n-color-picker
+						<NColorPicker
 							v-model:value="formValue.fontColor" :modes="['hex', 'rgb']"
 							:show-alpha="false"
 						/>
@@ -177,27 +177,27 @@ async function save() {
 
 					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.main.font.size') }}</span>
-						<n-input-number v-model:value="formValue.fontSize" :min="1" :max="500" />
+						<NInputNumber v-model:value="formValue.fontSize" :min="1" :max="500" />
 					</div>
 				</div>
 
 				<div class="flex flex-col gap-3 w-1/2">
-					<n-divider class="m-0">
+					<NDivider class="m-0">
 						{{ t('overlays.brb.settings.late.label') }}
-					</n-divider>
+					</NDivider>
 
 					<div class="form-item">
 						<span>{{ t('overlays.brb.settings.late.text') }}</span>
-						<n-input v-model:value="formValue.late!.text" :maxlength="500" />
+						<NInput v-model:value="formValue.late!.text" :maxlength="500" />
 					</div>
 
 					<div class="flex gap-2">
-						<n-switch v-model:value="formValue.late!.enabled" />
+						<NSwitch v-model:value="formValue.late!.enabled" />
 						<span>{{ t('sharedTexts.enabled') }}</span>
 					</div>
 
 					<div class="flex gap-2">
-						<n-switch v-model:value="formValue.late!.displayBrbTime" />
+						<NSwitch v-model:value="formValue.late!.displayBrbTime" />
 						<span>{{ t('overlays.brb.settings.late.displayBrb') }}</span>
 					</div>
 				</div>
@@ -205,10 +205,10 @@ async function save() {
 			<div>
 				<div class="absolute top-[85px] right-[20px] font-medium">
 					<div class="flex gap-2">
-						<n-button secondary size="small" type="warning" @click="sendIframeMessage('stop')">
+						<NButton secondary size="small" type="warning" @click="sendIframeMessage('stop')">
 							{{ t('overlays.brb.preview.stop') }}
-						</n-button>
-						<n-button
+						</NButton>
+						<NButton
 							secondary
 							size="small"
 							type="success"
@@ -218,7 +218,7 @@ async function save() {
 							}"
 						>
 							{{ t('overlays.brb.preview.start') }}
-						</n-button>
+						</NButton>
 					</div>
 				</div>
 				<iframe
@@ -231,34 +231,34 @@ async function save() {
 		</div>
 		<template #footer>
 			<div class="flex justify-between gap-2">
-				<n-button
+				<NButton
 					secondary
 					type="error"
 					@click="formValue = defaultSettings"
 				>
 					{{ t('sharedButtons.setDefaultSettings') }}
-				</n-button>
+				</NButton>
 
 				<div class="flex gap-2">
-					<n-button
+					<NButton
 						secondary
 						type="info"
 						:disabled="isSettingsError || isSettingsLoading"
 						@click="copyOverlayLink()"
 					>
 						{{ t('overlays.copyOverlayLink') }}
-					</n-button>
-					<n-button
+					</NButton>
+					<NButton
 						secondary
 						type="success"
 						@click="save"
 					>
 						{{ t('sharedButtons.save') }}
-					</n-button>
+					</NButton>
 				</div>
 			</div>
 		</template>
-	</n-modal>
+	</NModal>
 </template>
 
 <style scoped>

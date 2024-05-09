@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useAdminBadges, useQueryBadges } from '@/api/admin/badges'
 
-export const useBadges = defineStore('admin-panel/badges', () => {
+export const useBadges = createGlobalState(() => {
 	const badgesApi = useAdminBadges()
 	const badgesCreate = badgesApi.useMutationCreateBadge()
 	const badgesDelete = badgesApi.useMutationDeleteBadge()
@@ -20,6 +20,6 @@ export const useBadges = defineStore('admin-panel/badges', () => {
 		badgesDelete,
 		badgesUpdate,
 		badgesAddUser,
-		badgesRemoveUser
+		badgesRemoveUser,
 	}
 })

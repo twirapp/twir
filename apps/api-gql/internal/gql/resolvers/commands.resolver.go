@@ -116,6 +116,10 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return false, fmt.Errorf("failed to create command: %w", err)
 	}
 
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	}
+
 	return true, nil
 }
 
@@ -256,16 +260,25 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		return false, fmt.Errorf("failed to update command: %w", txErr)
 	}
 
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	}
+
 	return true, nil
 }
 
 // CommandsRemove is the resolver for the commandsRemove field.
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	cmd := &model.ChannelsCommands{}
 
 	if err := r.gorm.
 		WithContext(ctx).
-		Where(`"id" = ?`, id).
+		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
 		First(cmd).
 		Error; err != nil {
 		return false, err
@@ -277,6 +290,10 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool,
 
 	if err := r.gorm.WithContext(ctx).Delete(&cmd).Error; err != nil {
 		return false, err
+	}
+
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
 	return true, nil

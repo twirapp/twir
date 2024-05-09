@@ -3,21 +3,17 @@ package model
 import "github.com/lib/pq"
 
 type ChannelRole struct {
-	ID          string          `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
-	ChannelID   string          `gorm:"column:channelId;type:uuid;" json:"-"`
-	Name        string          `gorm:"column:name;type:text;" json:"name"`
-	Type        ChannelRoleEnum `gorm:"column:type;type:text;" json:"type"`
-	Permissions pq.StringArray  `gorm:"column:permissions;type:text[]" json:"permissions"`
-	Settings    []byte          `gorm:"column:settings;type:jsonb" json:"settings"`
+	ID                        string          `gorm:"column:id;primary_key;type:uuid;default:uuid_generate_v4()" json:"id"`
+	ChannelID                 string          `gorm:"column:channelId;type:uuid;" json:"-"`
+	Name                      string          `gorm:"column:name;type:text;" json:"name"`
+	Type                      ChannelRoleEnum `gorm:"column:type;type:text;" json:"type"`
+	Permissions               pq.StringArray  `gorm:"column:permissions;type:text[]" json:"permissions"`
+	RequiredWatchTime         int64           `gorm:"column:required_watch_time" json:"requiredWatchTime"`
+	RequiredMessages          int32           `gorm:"column:required_messages" json:"requiredMessages"`
+	RequiredUsedChannelPoints int64           `gorm:"column:required_used_channel_points" json:"requiredUsedChannelPoints"`
 
 	Channel *Channels          `gorm:"foreignKey:ChannelID" json:"-"`
 	Users   []*ChannelRoleUser `gorm:"foreignKey:RoleID" json:"-"`
-}
-
-type ChannelRoleSettings struct {
-	RequiredWatchTime         int64 `json:"requiredWatchTime"`
-	RequiredMessages          int32 `json:"requiredMessages"`
-	RequiredUsedChannelPoints int64 `json:"requiredUsedChannelPoints"`
 }
 
 func (ChannelRole) TableName() string {

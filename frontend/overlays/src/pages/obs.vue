@@ -1,18 +1,18 @@
 <script lang="ts" setup>
-import { useWebSocket } from '@vueuse/core';
-import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useWebSocket } from '@vueuse/core'
+import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-import { useObs } from '@/composables/obs/use-obs.js';
-import { generateSocketUrlWithParams } from '@/helpers.js';
+import { useObs } from '@/composables/obs/use-obs.js'
+import { generateSocketUrlWithParams } from '@/helpers.js'
 
-const obs = useObs();
-const route = useRoute();
+const obs = useObs()
+const route = useRoute()
 
-const apiKey = route.params.apiKey as string;
+const apiKey = route.params.apiKey as string
 const obsUrl = generateSocketUrlWithParams('/overlays/obs', {
 	apiKey,
-});
+})
 
 const internalSocket = useWebSocket(obsUrl, {
 	immediate: true,
@@ -20,96 +20,96 @@ const internalSocket = useWebSocket(obsUrl, {
 		delay: 500,
 	},
 	onConnected(ws) {
-		ws.send(JSON.stringify({ eventName: 'requestSettings' }));
+		ws.send(JSON.stringify({ eventName: 'requestSettings' }))
 	},
-});
+})
 
-const settings = ref<Record<string, any> | null>(null);
+const settings = ref<Record<string, any> | null>(null)
 
 watch(internalSocket.data, (message) => {
-	const { eventName, data } = JSON.parse(message);
-	
+	const { eventName, data } = JSON.parse(message)
+
 	switch (eventName) {
 		case 'settings':
-			settings.value = data;
-			break;
+			settings.value = data
+			break
 		case 'setScene':
-			obs.setScene(data.sceneName);
-			break;
+			obs.setScene(data.sceneName)
+			break
 		case 'toggleSource':
-			obs.toggleSource(data.sourceName);
-			break;
+			obs.toggleSource(data.sourceName)
+			break
 		case 'toggleAudioSource':
-			obs.toggleAudioSource(data.audioSourceName);
-			break;
+			obs.toggleAudioSource(data.audioSourceName)
+			break
 		case 'setVolume':
-			obs.setVolume(data.audioSourceName, data.volume);
-			break;
+			obs.setVolume(data.audioSourceName, data.volume)
+			break
 		case 'increaseVolume':
-			obs.changeVolume(data.audioSourceName, data.step, 'increase');
-			break;
+			obs.changeVolume(data.audioSourceName, data.step, 'increase')
+			break
 		case 'decreaseVolume':
-			obs.changeVolume(data.audioSourceName, data.step, 'decrease');
-			break;
+			obs.changeVolume(data.audioSourceName, data.step, 'decrease')
+			break
 		case 'enableAudio':
-			obs.toggleAudioSource(data.audioSourceName, true);
-			break;
+			obs.toggleAudioSource(data.audioSourceName, true)
+			break
 		case 'disableAudio':
-			obs.toggleAudioSource(data.audioSourceName, false);
-			break;
+			obs.toggleAudioSource(data.audioSourceName, false)
+			break
 		case 'startStart':
-			obs.startStream();
-			break;
+			obs.startStream()
+			break
 		case 'stopStream':
-			obs.stopStream();
-			break;
+			obs.stopStream()
+			break
 	}
-});
+})
 
 watch(settings, async (settings) => {
 	if (!settings) {
-		await obs.disconnect();
-		return;
+		await obs.disconnect()
+		return
 	}
 
-	await obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword);
-	console.log('Twir obs socket opened');
+	await obs.connect(settings.serverAddress, settings.serverPort, settings.serverPassword)
+	console.log('Twir obs socket opened')
 
-	internalSocket.send(JSON.stringify({ eventName: 'obsConnected' }));
+	internalSocket.send(JSON.stringify({ eventName: 'obsConnected' }))
 
 	obs.getSources().then((sources) => {
-		if (!sources) return;
+		if (!sources) return
 		internalSocket.send(JSON.stringify({
 			eventName: 'setSources',
 			data: sources,
-		}));
-	});
+		}))
+	})
 
 	obs.getAudioSources().then((sources) => {
-		if (!sources) return;
+		if (!sources) return
 		internalSocket.send(JSON.stringify({
 			eventName: 'setAudioSources',
 			data: sources,
-		}));
-	});
+		}))
+	})
 
 	const scenesHandler = async () => {
-		const sources = await obs.getSources();
+		const sources = await obs.getSources()
 		internalSocket.send(JSON.stringify({
 			eventName: 'setSources',
 			data: sources,
-		}));
-	};
+		}))
+	}
 
 	const audioHandler = async () => {
-		const sources = await obs.getAudioSources();
+		const sources = await obs.getAudioSources()
 		internalSocket.send(JSON.stringify({
 			eventName: 'setAudioSources',
 			data: sources,
-		}));
-	};
+		}))
+	}
 
-	obs.instance
+	obs.instance.value
 		.on('SceneListChanged', scenesHandler)
 
 		.on('InputCreated', audioHandler)
@@ -117,6 +117,6 @@ watch(settings, async (settings) => {
 		.on('InputNameChanged', audioHandler)
 
 		.on('SceneItemCreated', scenesHandler)
-		.on('SceneItemRemoved', scenesHandler);
-});
+		.on('SceneItemRemoved', scenesHandler)
+})
 </script>

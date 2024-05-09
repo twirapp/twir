@@ -12,7 +12,7 @@ const usersTable = useUsersTable()
 <template>
 	<Table
 		:table="usersTable.table"
-		:is-loading="usersTable.isLoading"
+		:is-loading="usersTable.isLoading.value"
 	>
 		<template #empty-message>
 			{{ t('adminPanel.manageUsers.noUsers') }}

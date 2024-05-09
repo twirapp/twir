@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import type { CommunityUsersOpts, GetAllCommunityUsersQuery } from '@/gql/graphql.js'
 import type { Ref } from 'vue'
@@ -11,14 +11,14 @@ export type CommunityUser = GetAllCommunityUsersQuery['communityUsers']['users']
 
 const invalidationKey = 'CommunityInvalidateKey'
 
-export const useCommunityUsersApi = defineStore('api/community-users', () => {
+export const useCommunityUsersApi = createGlobalState(() => {
 	const useCommunityUsers = (variables: Ref<CommunityUsersOpts>) => useQuery({
 		context: {
-			additionalTypenames: [invalidationKey]
+			additionalTypenames: [invalidationKey],
 		},
 		get variables() {
 			return {
-				opts: variables.value
+				opts: variables.value,
 			}
 		},
 		query: graphql(`
@@ -39,7 +39,7 @@ export const useCommunityUsersApi = defineStore('api/community-users', () => {
 					}
 				}
 			}
-		`)
+		`),
 	})
 
 	const useMutationCommunityReset = () => useMutation(graphql(`
@@ -50,6 +50,6 @@ export const useCommunityUsersApi = defineStore('api/community-users', () => {
 
 	return {
 		useCommunityUsers,
-		useMutationCommunityReset
+		useMutationCommunityReset,
 	}
 })

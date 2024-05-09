@@ -1,10 +1,10 @@
-import type { KappagenConfig } from '@twirapp/kappagen/types';
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { createGlobalState } from '@vueuse/core'
+import { ref } from 'vue'
 
-import type { KappagenSettings } from '@/types.js';
+import type { KappagenSettings } from '@/types.js'
+import type { KappagenConfig } from '@twirapp/kappagen/types'
 
-export const useKappagenSettings = defineStore('kappagen-settings', () => {
+export const useKappagenSettings = createGlobalState(() => {
 	const kappagenSettings = ref<Required<KappagenConfig>>({
 		max: 0,
 		time: 5,
@@ -38,17 +38,17 @@ export const useKappagenSettings = defineStore('kappagen-settings', () => {
 				small: 1 / 24,
 			},
 		},
-	});
+	})
 
-	const overlaySettings = ref<KappagenSettings>();
+	const overlaySettings = ref<KappagenSettings>()
 
 	function updateOverlaySettings(settings: KappagenSettings): void {
-		overlaySettings.value = settings;
+		overlaySettings.value = settings
 
 		if (settings.emotes) {
-			kappagenSettings.value.max = settings.emotes.max;
-			kappagenSettings.value.time = settings.emotes.time;
-			kappagenSettings.value.queue = settings.emotes.queue;
+			kappagenSettings.value.max = settings.emotes.max
+			kappagenSettings.value.time = settings.emotes.time
+			kappagenSettings.value.queue = settings.emotes.queue
 		}
 
 		if (settings.size) {
@@ -59,25 +59,25 @@ export const useKappagenSettings = defineStore('kappagen-settings', () => {
 					normal: settings.size.ratioNormal,
 					small: settings.size.ratioSmall,
 				},
-			};
+			}
 		}
 
 		if (settings.cube) {
 			kappagenSettings.value.cube = {
 				speed: settings.cube.speed,
-			};
+			}
 		}
 
 		if (settings.animation) {
 			kappagenSettings.value.in = {
 				fade: settings.animation.fadeIn,
 				zoom: settings.animation.zoomIn,
-			};
+			}
 
 			kappagenSettings.value.out = {
 				fade: settings.animation.fadeOut,
 				zoom: settings.animation.zoomOut,
-			};
+			}
 		}
 	}
 
@@ -85,5 +85,5 @@ export const useKappagenSettings = defineStore('kappagen-settings', () => {
 		overlaySettings,
 		kappagenSettings,
 		updateSettings: updateOverlaySettings,
-	};
-});
+	}
+})

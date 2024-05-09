@@ -10,7 +10,7 @@ const communityUsersTable = useCommunityUsersTable()
 </script>
 
 <template>
-	<Table :table="communityUsersTable.table" :is-loading="communityUsersTable.isLoading">
+	<Table :table="communityUsersTable.table" :is-loading="communityUsersTable.isLoading.value">
 		<template #empty-message>
 			{{ t('community.users.table.empty') }}
 		</template>

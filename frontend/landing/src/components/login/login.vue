@@ -1,39 +1,39 @@
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue';
+import { onMounted, ref } from 'vue'
 
-import { browserUnProtectedClient } from '@/api/twirp-browser.js';
-import UiButton from '@/components/ui/ui-button.vue';
+import { browserUnProtectedClient } from '@/api/twirp-browser.js'
+import UiButton from '@/components/ui/ui-button.vue'
 
-const url = new URL(window.location.href);
-const code = url.searchParams.get('code');
-const state = url.searchParams.get('state');
-const error = ref(url.searchParams.get('error'));
-const loading = ref(true);
+const url = new URL(window.location.href)
+const code = url.searchParams.get('code')
+const state = url.searchParams.get('state')
+const error = ref(url.searchParams.get('error'))
+const loading = ref(true)
 
 onMounted(async () => {
 	if (error.value) {
-		return;
+		return
 	}
 
 	if (!code || !state) {
-		error.value = `Something unexpected happened, because authorization code wasn't provided. Please try to log in again`;
-		return;
+		error.value = `Something unexpected happened, because authorization code wasn't provided. Please try to log in again`
+		return
 	}
 
 	try {
 		const req = await browserUnProtectedClient.authPostCode({
 			code,
-			state,
-		});
+			state
+		})
 
-		window.location.replace(req.response.redirectTo);
+		window.location.replace(req.response.redirectTo)
 	} catch (requestError) {
-		console.error(requestError);
-		error.value = 'Internal error happened, please contact devs in discord';
+		console.error(requestError)
+		error.value = 'Internal error happened, please contact devs in discord'
 	} finally {
-		loading.value = false;
+		loading.value = false
 	}
-});
+})
 </script>
 
 <template>

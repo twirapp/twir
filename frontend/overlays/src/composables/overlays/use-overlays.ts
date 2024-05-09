@@ -1,36 +1,35 @@
-import { useWebSocket } from '@vueuse/core';
-import { defineStore } from 'pinia';
-import { ref, watch } from 'vue';
+import { createGlobalState, useWebSocket } from '@vueuse/core'
+import { ref, watch } from 'vue'
 
-import { base64DecodeUnicode, generateSocketUrlWithParams } from '@/helpers.js';
+import { base64DecodeUnicode, generateSocketUrlWithParams } from '@/helpers.js'
 
 export interface Layer {
-	id: string;
-	type: 'HTML';
-	settings: LayerSettings;
-	overlay_id: string;
-	pos_x: number;
-	pos_y: number;
-	width: number;
-	height: number;
-	createdAt: string;
-	updatedAt: string;
-	overlay: any;
-	periodically_refetch_data: boolean;
-	htmlContent?: string;
+	id: string
+	type: 'HTML'
+	settings: LayerSettings
+	overlay_id: string
+	pos_x: number
+	pos_y: number
+	width: number
+	height: number
+	createdAt: string
+	updatedAt: string
+	overlay: any
+	periodically_refetch_data: boolean
+	htmlContent?: string
 }
 
 export interface LayerSettings {
-	htmlOverlayDataPollSecondsInterval: number;
-	htmlOverlayHtml: string;
-	htmlOverlayCss: string;
-	htmlOverlayJs: string;
+	htmlOverlayDataPollSecondsInterval: number
+	htmlOverlayHtml: string
+	htmlOverlayCss: string
+	htmlOverlayJs: string
 }
 
-export const useOverlays = defineStore('overlays', () => {
-	const overlayUrl = ref('');
-	const overlayId = ref('');
-	const layers = ref<Array<Layer>>([]);
+export const useOverlays = createGlobalState(() => {
+	const overlayUrl = ref('')
+	const overlayId = ref('')
+	const layers = ref<Array<Layer>>([])
 
 	const { data, status, send, open } = useWebSocket(
 		overlayUrl,
@@ -47,18 +46,18 @@ export const useOverlays = defineStore('overlays', () => {
 							overlayId: overlayId.value,
 						},
 					}),
-				);
+				)
 			},
 		},
-	);
+	)
 
-	const parsedLayersData = ref<Record<string, string>>({});
+	const parsedLayersData = ref<Record<string, string>>({})
 
 	watch(data, (d) => {
-		const parsedData = JSON.parse(d);
+		const parsedData = JSON.parse(d)
 
 		if (parsedData.eventName === 'layers') {
-			const parsedLayers = parsedData.layers as Array<Layer>;
+			const parsedLayers = parsedData.layers as Array<Layer>
 
 			layers.value = parsedLayers.map((l) => ({
 				...l,
@@ -69,19 +68,19 @@ export const useOverlays = defineStore('overlays', () => {
 						: '',
 					htmlOverlayJs: l.settings.htmlOverlayJs ? base64DecodeUnicode(l.settings.htmlOverlayJs) : '',
 				},
-			}));
+			}))
 		}
 
 		if (parsedData.eventName === 'parsedLayerVariables') {
 			parsedLayersData.value[parsedData.layerId] = parsedData.data
 				? base64DecodeUnicode(parsedData.data)
-				: '';
+				: ''
 		}
 
 		if (parsedData.eventName === 'refreshOverlays') {
-			window.location.reload();
+			window.location.reload()
 		}
-	});
+	})
 
 	function requestLayerData(layerId: string): void {
 		send(
@@ -91,20 +90,20 @@ export const useOverlays = defineStore('overlays', () => {
 					layerId,
 				},
 			}),
-		);
+		)
 	}
 
 	function connectToOverlays(apiKey: string, _overlayId: string): void {
-		if (status.value === 'OPEN') return;
+		if (status.value === 'OPEN') return
 
 		const url = generateSocketUrlWithParams('/overlays/registry/overlays', {
 			apiKey,
-		});
+		})
 
-		overlayUrl.value = url;
-		overlayId.value = _overlayId;
+		overlayUrl.value = url
+		overlayId.value = _overlayId
 
-		open();
+		open()
 	}
 
 	return {
@@ -112,5 +111,5 @@ export const useOverlays = defineStore('overlays', () => {
 		parsedLayersData,
 		requestLayerData,
 		connectToOverlays,
-	};
-});
+	}
+})

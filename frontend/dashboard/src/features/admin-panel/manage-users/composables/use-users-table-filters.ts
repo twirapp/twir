@@ -1,5 +1,4 @@
-import { refDebounced } from '@vueuse/core'
-import { defineStore, storeToRefs } from 'pinia'
+import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,13 +16,13 @@ interface Filter {
 	}[]
 }
 
-export const useUsersTableFilters = defineStore('manage-users/users-table-filters', () => {
+export const useUsersTableFilters = createGlobalState(() => {
 	const { t } = useI18n()
 
 	const searchInput = ref('')
 	const debounceSearchInput = refDebounced(searchInput, 500)
 
-	const { badges } = storeToRefs(useBadges())
+	const { badges } = useBadges()
 
 	const selectedStatuses = ref<Record<string, true | undefined>>({})
 	const selectedBadges = ref<string[]>([])
@@ -39,17 +38,17 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 			list: [
 				{
 					label: t('adminPanel.manageUsers.isAdmin'),
-					key: 'isBotAdmin'
+					key: 'isBotAdmin',
 				},
 				{
 					label: t('adminPanel.manageUsers.isBanned'),
-					key: 'isBanned'
+					key: 'isBanned',
 				},
 				{
 					label: t('adminPanel.manageUsers.isBotEnabled'),
-					key: 'isBotEnabled'
-				}
-			]
+					key: 'isBotEnabled',
+				},
+			],
 		},
 		{
 			group: t('adminPanel.manageUsers.badgesGroup'),
@@ -57,9 +56,9 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 			list: badges.value.map((badge) => ({
 				label: badge.name,
 				key: badge.id,
-				image: badge.fileUrl
-			}))
-		}
+				image: badge.fileUrl,
+			})),
+		},
 	])
 
 	function clearFilters() {
@@ -108,6 +107,6 @@ export const useUsersTableFilters = defineStore('manage-users/users-table-filter
 		setFilterValue,
 		isFilterApplied,
 		clearFilters,
-		selectedBadges
+		selectedBadges,
 	}
 })
