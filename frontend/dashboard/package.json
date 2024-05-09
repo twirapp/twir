@@ -8,7 +8,7 @@
     "preview": "vite preview",
     "analyze": "vite-bundle-visualizer",
     "generate-pwa-assets": "pwa-assets-generator",
-		"codegen": "graphql-codegen"
+    "codegen": "graphql-codegen"
   },
   "dependencies": {
     "@discord-message-components/vue": "0.2.1",
@@ -39,11 +39,11 @@
     "graphql-ws": "5.16.0",
     "grid-layout-plus": "1.0.4",
     "kappagen": "0.3.5",
+    "lightweight-charts": "4.1.3",
     "lodash.chunk": "4.2.0",
     "lucide-vue-next": "0.368.0",
     "naive-ui": "2.38.1",
     "nested-css-to-flat": "1.0.5",
-    "pinia": "2.1.7",
     "plyr": "3.7.8",
     "radix-vue": "1.7.0",
     "tailwind-merge": "2.2.2",

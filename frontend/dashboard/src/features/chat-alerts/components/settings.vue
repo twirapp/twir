@@ -2,9 +2,8 @@
 import { TrashIcon } from 'lucide-vue-next'
 import {
 	NAlert,
-	NCard
+	NCard,
 } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { type VNode, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -32,9 +31,8 @@ const props = defineProps<{
 defineSlots<{
 	additionalSettings: VNode
 }>()
-const form = useForm()
-const { formValue, formInited, formRef } = storeToRefs(form)
 
+const { formValue, formInited, formRef } = useForm()
 const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
 
 watch(formInited, (v) => {
@@ -54,7 +52,7 @@ function createMessage() {
 
 		formValue?.value?.[props.formKey]?.messages.push({
 			count: countForSet,
-			text: props.defaultMessageText
+			text: props.defaultMessageText,
 		})
 	} else {
 		formValue?.value?.[props.formKey]?.messages.push({ text: props.defaultMessageText } as any)

@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -15,8 +15,8 @@ const defaultFormValue: EditableCommand = {
 	responses: [
 		{
 			text: '',
-			order: 0
-		}
+			order: 0,
+		},
 	],
 	description: '',
 	rolesIds: [],
@@ -35,10 +35,10 @@ const defaultFormValue: EditableCommand = {
 	groupId: null,
 	cooldownRolesIds: [],
 	enabledCategories: [],
-	module: 'CUSTOM'
+	module: 'CUSTOM',
 }
 
-export const useCommandEdit = defineStore('commands-edit', () => {
+export const useCommandEdit = createGlobalState(() => {
 	const commandsManager = useCommandsApi()
 	const { toast } = useToast()
 	const { t } = useI18n()
@@ -86,18 +86,18 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 			module: undefined,
 			responses: formValue.value.responses.map((response, i) => ({
 				text: response.text,
-				order: i
-			}))
+				order: i,
+			})),
 		}
 
 		if (formValue.value.id) {
 			await update.executeMutation({
 				id: formValue.value.id,
-				opts: transformedOpts
+				opts: transformedOpts,
 			})
 		} else {
 			await create.executeMutation({
-				opts: transformedOpts
+				opts: transformedOpts,
 			})
 		}
 
@@ -106,7 +106,7 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 		toast({
 			title: t('sharedTexts.saved'),
 			variant: 'success',
-			duration: 1500
+			duration: 1500,
 		})
 	}
 
@@ -116,6 +116,6 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 		editCommand,
 		createCommand,
 		close,
-		save
+		save,
 	}
 })

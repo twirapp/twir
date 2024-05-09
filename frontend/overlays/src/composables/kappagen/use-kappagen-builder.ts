@@ -1,60 +1,57 @@
-import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import type { MessageChunk } from '@twir/frontend-chat';
-import type { Emote } from '@twirapp/kappagen/types';
-import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen'
+import { computed } from 'vue'
 
-import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
-import { useEmotes } from '@/composables/tmi/use-emotes.js';
+import type { MessageChunk } from '@twir/frontend-chat'
+import type { Emote } from '@twirapp/kappagen/types'
 
-const getEmojiStyleName = (style: EmojiStyle) => {
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js'
+import { useEmotes } from '@/composables/tmi/use-emotes.js'
+
+function getEmojiStyleName(style: EmojiStyle) {
 	switch (style) {
 		case EmojiStyle.Blobmoji:
-			return 'blob';
+			return 'blob'
 		case EmojiStyle.Noto:
-			return 'noto';
+			return 'noto'
 		case EmojiStyle.Openmoji:
-			return 'openmoji';
+			return 'openmoji'
 		case EmojiStyle.Twemoji:
-			return 'twemoji';
+			return 'twemoji'
 	}
-};
-
-export type Buidler = {
-	buildKappagenEmotes: (chunks: MessageChunk[]) => Emote[];
-	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[];
 }
 
-export const useKappagenEmotesBuilder = (): Buidler => {
-	const emotesStore = useEmotes();
-	const { emotes } = storeToRefs(emotesStore);
+export interface Buidler {
+	buildKappagenEmotes: (chunks: MessageChunk[]) => Emote[]
+	buildSpawnEmotes: (chunks: MessageChunk[]) => Emote[]
+}
 
-	const kappagenSettingsStore = useKappagenSettings();
-	const { overlaySettings } = storeToRefs(kappagenSettingsStore);
+export function useKappagenEmotesBuilder(): Buidler {
+	const { emotes } = useEmotes()
+	const { overlaySettings } = useKappagenSettings()
 
 	const kappagenEmotes = computed(() => {
-		if (!emotes.value) return [];
-		const emotesArray = Object.values(emotes.value);
-		return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier);
-	});
+		if (!emotes.value) return []
+		const emotesArray = Object.values(emotes.value)
+		return emotesArray.filter(e => !e.isZeroWidth && !e.isModifier)
+	})
 
 	// chat events
 	const buildSpawnEmotes = (chunks: MessageChunk[]) => {
-		const emotes: Emote[] = [];
+		const emotes: Emote[] = []
 
 		for (const chunk of chunks) {
-			if (chunk.type === 'text') continue;
+			if (chunk.type === 'text') continue
 
-			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [];
+			const zwe = chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? []
 
-			if (chunk.emoteName && overlaySettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue;
+			if (chunk.emoteName && overlaySettings.value?.excludedEmotes?.includes(chunk.emoteName)) continue
 
 			if (chunk.type === 'emote') {
 				emotes.push({
 					url: chunk.value,
 					zwe: chunk.zeroWidthModifiers?.map(z => ({ url: z })) ?? [],
-				});
-				continue;
+				})
+				continue
 			}
 
 			if (chunk.type === '3rd_party_emote') {
@@ -63,28 +60,28 @@ export const useKappagenEmotesBuilder = (): Buidler => {
 					zwe,
 					width: chunk.emoteWidth,
 					height: chunk.emoteHeight,
-				});
-				continue;
+				})
+				continue
 			}
 
-			const emojiStyle = overlaySettings.value?.emotes?.emojiStyle;
+			const emojiStyle = overlaySettings.value?.emotes?.emojiStyle
 			if (chunk.type === 'emoji' && emojiStyle) {
-				const code = chunk.value.codePointAt(0)?.toString(16);
-				if (!code) continue;
+				const code = chunk.value.codePointAt(0)?.toString(16)
+				if (!code) continue
 				emotes.push({
 					url: `https://cdn.frankerfacez.com/static/emoji/images/${getEmojiStyleName(emojiStyle)}/${code}.png`,
-				});
+				})
 			}
 		}
 
-		return emotes;
-	};
+		return emotes
+	}
 
 	// command, twitch events
 	const buildKappagenEmotes = (chunks: MessageChunk[]) => {
-		const result: Emote[] = [];
+		const result: Emote[] = []
 
-		const emotesChunks = chunks.filter(c => c.type !== 'text');
+		const emotesChunks = chunks.filter(c => c.type !== 'text')
 		if (!emotesChunks.length) {
 			const mappedEmotes = kappagenEmotes.value
 				.filter(v => !overlaySettings.value?.excludedEmotes?.includes(v.name))
@@ -92,26 +89,26 @@ export const useKappagenEmotesBuilder = (): Buidler => {
 					url: v.urls.at(-1)!,
 					width: v.width,
 					height: v.height,
-				}));
+				}))
 
-			result.push(...mappedEmotes);
+			result.push(...mappedEmotes)
 		} else {
 			for (const chunk of emotesChunks) {
-				const emote = buildSpawnEmotes([chunk]);
+				const emote = buildSpawnEmotes([chunk])
 				if (emote.length) {
-					result.push(...emote);
+					result.push(...emote)
 				}
 			}
 		}
 
-		return result;
-	};
+		return result
+	}
 
 	return {
 		buildKappagenEmotes,
 		buildSpawnEmotes,
-	};
-};
+	}
+}
 
 export const twirEmote: Emote = {
 	url: 'https://cdn.7tv.app/emote/6548b7074789656a7be787e1/4x.webp',
@@ -120,4 +117,4 @@ export const twirEmote: Emote = {
 			url: 'https://cdn.7tv.app/emote/6128ed55a50c52b1429e09dc/4x.webp',
 		},
 	],
-};
+}

@@ -1,8 +1,8 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import { useAdminUsers } from '@/api/admin/users.js'
 
-export const useUsers = defineStore('admin-panel/users', () => {
+export const useUsers = createGlobalState(() => {
 	const usersApi = useAdminUsers()
 	const switchBan = usersApi.useMutationUserSwitchBan()
 	const switchAdmin = usersApi.useMutationUserSwitchAdmin()
@@ -10,6 +10,6 @@ export const useUsers = defineStore('admin-panel/users', () => {
 	return {
 		usersApi,
 		switchBan,
-		switchAdmin
+		switchAdmin,
 	}
 })

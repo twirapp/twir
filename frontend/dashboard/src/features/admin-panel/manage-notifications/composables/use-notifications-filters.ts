@@ -1,10 +1,9 @@
-import { refDebounced } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { createGlobalState, refDebounced } from '@vueuse/core'
 import { ref } from 'vue'
 
 import { NotificationType } from '@/gql/graphql'
 
-export const useNotificationsFilters = defineStore('admin-panel/notifications-filters', () => {
+export const useNotificationsFilters = createGlobalState(() => {
 	const searchInput = ref('')
 	const debounceSearchInput = refDebounced<string>(searchInput, 500)
 
@@ -13,6 +12,6 @@ export const useNotificationsFilters = defineStore('admin-panel/notifications-fi
 	return {
 		searchInput,
 		debounceSearchInput,
-		filterInput
+		filterInput,
 	}
 })

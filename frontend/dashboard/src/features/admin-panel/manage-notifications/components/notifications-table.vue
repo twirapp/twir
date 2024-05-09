@@ -16,7 +16,7 @@ const notificationsTable = useNotificationsTable()
 	<slot name="pagination" />
 
 	<TooltipProvider :delay-duration="100">
-		<Table :table="notificationsTable.table" :is-loading="notificationsTable.isLoading">
+		<Table :table="notificationsTable.table" :is-loading="notificationsTable.isLoading.value">
 			<template #empty-message>
 				{{ t('adminPanel.notifications.emptyNotifications') }}
 			</template>

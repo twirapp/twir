@@ -1,57 +1,57 @@
 <script setup lang="ts">
-import KappagenOverlay from '@twirapp/kappagen';
-import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types';
-import { storeToRefs } from 'pinia';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import KappagenOverlay from '@twirapp/kappagen'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 
-import { useKappagenEmotesBuilder } from '@/composables/kappagen/use-kappagen-builder.js';
-import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js';
-import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js';
-import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js';
-import { useChatTmi, type ChatSettings, type ChatMessage } from '@/composables/tmi/use-chat-tmi.js';
+import type { Emote, KappagenAnimations, KappagenMethods } from '@twirapp/kappagen/types'
 
-const kappagen = ref<KappagenMethods>();
-const route = useRoute();
-const { kappagenSettings, overlaySettings } = storeToRefs(useKappagenSettings());
+import { useKappagenEmotesBuilder } from '@/composables/kappagen/use-kappagen-builder.js'
+import { useKappagenIframe } from '@/composables/kappagen/use-kappagen-iframe.js'
+import { useKappagenSettings } from '@/composables/kappagen/use-kappagen-settings.js'
+import { useKappagenOverlaySocket } from '@/composables/kappagen/use-kappagen-socket.js'
+import { type ChatMessage, type ChatSettings, useChatTmi } from '@/composables/tmi/use-chat-tmi.js'
 
-const playAnimation = (emotes: Emote[], animation: KappagenAnimations) => {
-	if (!kappagen.value) return Promise.resolve();
-	return kappagen.value.playAnimation(emotes, animation);
-};
+const kappagen = ref<KappagenMethods>()
+const route = useRoute()
+const { kappagenSettings, overlaySettings } = useKappagenSettings()
 
-const showEmotes = (emotes: Emote[]) => {
-	if (!kappagen.value) return;
-	kappagen.value.showEmotes(emotes);
-};
+function playAnimation(emotes: Emote[], animation: KappagenAnimations) {
+	if (!kappagen.value) return Promise.resolve()
+	return kappagen.value.playAnimation(emotes, animation)
+}
 
-const emotesBuilder = useKappagenEmotesBuilder();
+function showEmotes(emotes: Emote[]) {
+	if (!kappagen.value) return
+	kappagen.value.showEmotes(emotes)
+}
+
+const emotesBuilder = useKappagenEmotesBuilder()
 
 const socket = useKappagenOverlaySocket({
 	playAnimation,
 	showEmotes,
 	emotesBuilder,
-});
+})
 
 const iframe = useKappagenIframe({
 	playAnimation,
 	showEmotes,
 	clear: () => {
-		kappagen.value?.clear();
+		kappagen.value?.clear()
 	},
-});
+})
 
 function onMessage(msg: ChatMessage): void {
-	if (msg.type === 'system' || !overlaySettings.value?.enableSpawn) return;
+	if (msg.type === 'system' || !overlaySettings.value?.enableSpawn) return
 
-	const firstChunk = msg.chunks.at(0)!;
+	const firstChunk = msg.chunks.at(0)!
 	if (firstChunk.type === 'text' && firstChunk.value.startsWith('!')) {
-		return;
+		return
 	}
 
-	const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks);
-	if (!generatedEmotes.length) return;
-	showEmotes(generatedEmotes);
+	const generatedEmotes = emotesBuilder.buildSpawnEmotes(msg.chunks)
+	if (!generatedEmotes.length) return
+	showEmotes(generatedEmotes)
 }
 
 const chatSettings = computed<ChatSettings>(() => {
@@ -64,27 +64,27 @@ const chatSettings = computed<ChatSettings>(() => {
 			sevenTv: overlaySettings.value?.emotes?.sevenTvEnabled,
 		},
 		onMessage,
-	};
-});
+	}
+})
 
-const { destroy } = useChatTmi(chatSettings);
+const { destroy } = useChatTmi(chatSettings)
 
 onMounted(() => {
 	if (window.frameElement) {
-		iframe.create();
+		iframe.create()
 	} else {
-		const apiKey = route.params.apiKey as string;
-		socket.connect(apiKey);
+		const apiKey = route.params.apiKey as string
+		socket.connect(apiKey)
 	}
-});
+})
 
 onUnmounted(() => {
-	iframe.destroy();
-	socket.destroy();
-	destroy();
-});
+	iframe.destroy()
+	socket.destroy()
+	destroy()
+})
 </script>
 
 <template>
-	<kappagen-overlay ref="kappagen" :config="kappagenSettings" :is-rave="overlaySettings?.enableRave" />
+	<KappagenOverlay ref="kappagen" :config="kappagenSettings" :is-rave="overlaySettings?.enableRave" />
 </template>

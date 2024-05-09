@@ -15,7 +15,7 @@ const TEXTAREA_MODIFIERS = {
 	img: '<img src="#">',
 	blockquote: '<blockquote id="bq">|</blockquote>',
 	list: '<ul id="ul"><li>|</li></ul>',
-	spoiler: '<details><summary>|</summary> </details>'
+	spoiler: '<details><summary>|</summary> </details>',
 } as const
 
 interface TextareaButton {
@@ -28,63 +28,63 @@ export const textareaButtons: TextareaButton[] = [
 	{
 		name: 'h1',
 		title: 'Heading 1',
-		icon: Heading1Icon
+		icon: Heading1Icon,
 	},
 	{
 		name: 'h2',
 		title: 'Heading 2',
-		icon: Heading2Icon
+		icon: Heading2Icon,
 	},
 	{
 		name: 'br',
 		title: 'Break',
-		icon: WrapTextIcon
+		icon: WrapTextIcon,
 	},
 	{
 		name: 'bold',
 		title: 'Bold',
-		icon: BoldIcon
+		icon: BoldIcon,
 	},
 	{
 		name: 'italic',
 		title: 'Italic',
-		icon: ItalicIcon
+		icon: ItalicIcon,
 	},
 	{
 		name: 'strikethrough',
 		title: 'Strikethrough',
-		icon: StrikethroughIcon
+		icon: StrikethroughIcon,
 	},
 	{
 		name: 'underline',
 		title: 'Underline',
-		icon: UnderlineIcon
+		icon: UnderlineIcon,
 	},
 	{
 		name: 'link',
 		title: 'Link',
-		icon: LinkIcon
+		icon: LinkIcon,
 	},
 	{
 		name: 'img',
 		title: 'Image',
-		icon: ImageIcon
+		icon: ImageIcon,
 	},
 	{
 		name: 'blockquote',
 		title: 'Blockquote',
-		icon: QuoteIcon
+		icon: QuoteIcon,
 	},
 	{
 		name: 'list',
 		title: 'List',
-		icon: ListIcon
+		icon: ListIcon,
 	},
 	{
 		name: 'spoiler',
 		title: 'Spoiler',
-		icon: ListCollapseIcon
-	}
+		icon: ListCollapseIcon,
+	},
 ]
 
 export function useTextarea() {
@@ -95,16 +95,17 @@ export function useTextarea() {
 		},
 		set(el: any) {
 			notificationForm.messageField.fieldRef = el?.$el
-		}
+		},
 	})
 
 	function getCursorPosition() {
 		const el = notificationForm.messageField.fieldRef!
-		return { start: el.selectionStart ?? 0, end: el.selectionEnd ?? 0 }
+		if (!el.value) return { start: 0, end: 0 }
+		return { start: el.value.selectionStart!, end: el.value.selectionEnd! }
 	}
 
 	function updateTextarea(newValue: string) {
-		notificationForm.messageField.fieldModel = newValue
+		notificationForm.messageField.fieldModel.value = newValue
 	}
 
 	function applyModifier(modifier: keyof typeof TEXTAREA_MODIFIERS) {
@@ -114,13 +115,13 @@ export function useTextarea() {
 		}
 
 		const { start, end } = getCursorPosition()
-		const msg = notificationForm.formValues.message ?? ''
+		const msg = notificationForm.formValues.value.message ?? ''
 		const selection = msg.slice(start, end)
 		updateTextarea(`${msg.slice(0, start)}${mod.replace('|', selection ?? '')}${msg.slice(end)}`)
 	}
 
 	return {
 		textareaRef,
-		applyModifier
+		applyModifier,
 	}
 }

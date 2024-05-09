@@ -3,52 +3,52 @@ import {
 	NGrid,
 	NGridItem,
 	NModal,
-} from 'naive-ui';
-import { computed, ref } from 'vue';
+} from 'naive-ui'
+import { computed, ref } from 'vue'
 
-import { useYoutubeModuleSettings } from '@/api/modules/ytsr.js';
-import { useYoutubeSocket } from '@/components/songRequests/hook.js';
-import Player from '@/components/songRequests/player.vue';
-import VideosQueue from '@/components/songRequests/queue.vue';
-import SettingsModal from '@/components/songRequests/settings.vue';
+import { useYoutubeModuleSettings } from '@/api/modules/ytsr.js'
+import { useYoutubeSocket } from '@/components/songRequests/hook.js'
+import Player from '@/components/songRequests/player.vue'
+import VideosQueue from '@/components/songRequests/queue.vue'
+import SettingsModal from '@/components/songRequests/settings.vue'
 
-const isSettingsModalOpened = ref(false);
-const openSettingsModal = () => isSettingsModalOpened.value = true;
+const isSettingsModalOpened = ref(false)
+const openSettingsModal = () => isSettingsModalOpened.value = true
 
-useYoutubeSocket();
+useYoutubeSocket()
 
-const youtubeModuleManager = useYoutubeModuleSettings();
-const youtubeModuleData = youtubeModuleManager.getAll();
+const youtubeModuleManager = useYoutubeModuleSettings()
+const youtubeModuleData = youtubeModuleManager.getAll()
 
 const noCookie = computed(() => {
-	return youtubeModuleData.data.value?.data?.playerNoCookieMode ?? false;
-});
+	return youtubeModuleData.data.value?.data?.playerNoCookieMode ?? false
+})
 </script>
 
 <template>
-	<n-grid cols="1 s:1 m:1 l:3" responsive="screen" :y-gap="15" :x-gap="15">
-		<n-grid-item :span="1">
-			<player
+	<NGrid cols="1 s:1 m:1 l:3" responsive="screen" :y-gap="15" :x-gap="15">
+		<NGridItem :span="1">
+			<Player
 				v-if="!youtubeModuleData.isLoading.value"
 				:no-cookie="noCookie"
 				:open-settings-modal="openSettingsModal"
 			/>
-		</n-grid-item>
+		</NGridItem>
 
-		<n-grid-item :span="2">
-			<videos-queue />
-		</n-grid-item>
-	</n-grid>
+		<NGridItem :span="2">
+			<VideosQueue />
+		</NGridItem>
+	</NGrid>
 
-	<n-modal
+	<NModal
 		v-model:show="isSettingsModalOpened"
 		:span="10"
 		:mask-closable="false"
 		:segmented="true"
 		preset="card"
 		title="Settings"
-		:style="{ width: '70%',top: '50px' }"
+		:style="{ width: '70%', top: '50px' }"
 	>
-		<settings-modal />
-	</n-modal>
+		<SettingsModal />
+	</NModal>
 </template>

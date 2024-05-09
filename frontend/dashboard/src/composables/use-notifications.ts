@@ -1,12 +1,11 @@
-import { useLocalStorage } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { createGlobalState, useLocalStorage } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useQueryNotifications } from '@/api/admin/notifications.js'
 
 const NOTIFICATIONS_STORAGE_KEY = 'twirNotificationsCounter'
 
-export const useNotifications = defineStore('notifications', () => {
+export const useNotifications = createGlobalState(() => {
 	const notifications = useQueryNotifications()
 
 	const notificationsStorage = useLocalStorage<string[]>(NOTIFICATIONS_STORAGE_KEY, [])
@@ -25,12 +24,12 @@ export const useNotifications = defineStore('notifications', () => {
 			onRead: (state: boolean) => {
 				if (state) return
 				notificationsStorage.value = notificationsIds
-			}
+			},
 		}
 	})
 
 	return {
 		notifications,
-		notificationsCounter
+		notificationsCounter,
 	}
 })

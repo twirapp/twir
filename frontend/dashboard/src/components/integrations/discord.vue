@@ -1,134 +1,134 @@
 <script setup lang='ts'>
-import '@discord-message-components/vue/dist/style.css';
+import '@discord-message-components/vue/dist/style.css'
 
 import {
-	DiscordMessages,
-	DiscordMessage,
 	DiscordEmbed,
-	DiscordEmbedFields,
 	DiscordEmbedField,
+	DiscordEmbedFields,
 	DiscordMention,
-	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-	// @ts-ignore
-} from '@discord-message-components/vue';
-import { useQueries } from '@tanstack/vue-query';
+	DiscordMessage,
+	DiscordMessages,
+	// eslint-disable-next-line ts/ban-ts-comment
+	// @ts-expect-error
+} from '@discord-message-components/vue'
+import { useQueries } from '@tanstack/vue-query'
 import {
 	ChannelType,
 	type GetDataResponse,
-} from '@twir/api/messages/integrations_discord/integrations_discord';
+} from '@twir/api/messages/integrations_discord/integrations_discord'
 import {
-	NTabs,
-	NTabPane,
-	NButton,
+	NAlert,
 	NAvatar,
+	NButton,
 	NDivider,
-	NSelect,
-	NSwitch,
-	useMessage,
 	NMention,
 	NPopconfirm,
-	NAlert,
-	useThemeVars,
+	NSelect,
 	NSpin,
-} from 'naive-ui';
-import type { SelectBaseOption, SelectOption } from 'naive-ui/es/select/src/interface';
-import { type VNode, computed, h, ref, toRaw, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NSwitch,
+	NTabPane,
+	NTabs,
+	useMessage,
+	useThemeVars,
+} from 'naive-ui'
+import { type VNode, computed, h, ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import WithSettings from './variants/withSettings.vue';
-import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue';
+import WithSettings from './variants/withSettings.vue'
+import TwitchMultipleUsersSelector from '../twitchUsers/multiple.vue'
 
-import { useDiscordIntegration, getGuildChannelsFn, useProfile } from '@/api/index.js';
-import StreamStarting from '@/assets/images/streamStarting.jpeg?url';
-import IconDiscord from '@/assets/integrations/discord.svg?use';
-import { storeToRefs } from 'pinia';
+import type { SelectBaseOption, SelectOption } from 'naive-ui/es/select/src/interface'
 
-const themeVars = useThemeVars();
+import { getGuildChannelsFn, useDiscordIntegration, useProfile } from '@/api/index.js'
+import StreamStarting from '@/assets/images/streamStarting.jpeg?url'
+import IconDiscord from '@/assets/integrations/discord.svg?use'
 
-const manager = useDiscordIntegration();
-const { data: authLink } = manager.getConnectLink();
+const themeVars = useThemeVars()
+
+const manager = useDiscordIntegration()
+const { data: authLink } = manager.getConnectLink()
 const {
 	data: discordIntegrationData,
 	isLoading: isDataLoading,
-} = manager.useData();
-const guildDisconnect = manager.disconnectGuild();
-const updateSettings = manager.updateData();
+} = manager.useData()
+const guildDisconnect = manager.disconnectGuild()
+const updateSettings = manager.updateData()
 
 const formValue = ref<GetDataResponse>({
 	guilds: [],
-});
+})
 
-const message = useMessage();
-const { t } = useI18n();
+const message = useMessage()
+const { t } = useI18n()
 
 async function saveSettings() {
-	await updateSettings.mutateAsync(formValue.value);
-	message.success(t('sharedTexts.saved'));
+	await updateSettings.mutateAsync(formValue.value)
+	message.success(t('sharedTexts.saved'))
 }
 
 function connectGuild() {
-	if (!authLink.value?.link) return;
+	if (!authLink.value?.link) return
 
-	window.open(authLink.value.link, 'Twir connect discord', 'width=800,height=600');
+	window.open(authLink.value.link, 'Twir connect discord', 'width=800,height=600')
 
 	// window.location.replace(authLink.value.link);
 }
 
 const isConnectDisabled = computed(() => {
-	return (discordIntegrationData?.value?.guilds?.length || 0) >= 2;
-});
+	return (discordIntegrationData?.value?.guilds?.length || 0) >= 2
+})
 
-const currentTab = ref<string>();
+const currentTab = ref<string>()
 watch(discordIntegrationData, (v) => {
-	if (!v) return;
+	if (!v) return
 
-	if (!currentTab.value) currentTab.value = v.guilds?.at(0)?.name;
+	if (!currentTab.value) currentTab.value = v.guilds?.at(0)?.name
 	if (!v.guilds.some(g => g.name === currentTab.value)) {
-		currentTab.value = v.guilds?.at(0)?.name;
+		currentTab.value = v.guilds?.at(0)?.name
 	}
 
-	formValue.value = toRaw(v);
-}, { immediate: true });
+	formValue.value = toRaw(v)
+}, { immediate: true })
 
 async function disconnectGuildById(guildId: string) {
-	const guild = discordIntegrationData.value?.guilds?.find(g => g.id === guildId);
-	if (!guild) return;
+	const guild = discordIntegrationData.value?.guilds?.find(g => g.id === guildId)
+	if (!guild) return
 
-	await guildDisconnect.mutateAsync(guildId);
-	message.success('Disconnected');
+	await guildDisconnect.mutateAsync(guildId)
+	message.success('Disconnected')
 }
 
 const guildsChannelsQueries = computed(() => {
 	return discordIntegrationData.value?.guilds?.map((guild: any) => ({
 		queryKey: ['discord', 'guild', guild.id, 'channels'],
 		queryFn: () => getGuildChannelsFn(guild.id),
-	})) ?? [];
-});
+	})) ?? []
+})
 
 const guildsChannelsResults = useQueries({
 	queries: guildsChannelsQueries,
-});
+})
 
 const liveChannelSelectorOptions = computed(() => {
-	const result: Array<Array<SelectBaseOption>> = [];
+	const result: Array<Array<SelectBaseOption>> = []
 
 	for (let index = 0; index < guildsChannelsResults.length; index++) {
-		const channels = guildsChannelsResults.at(index)!;
+		const channels = guildsChannelsResults.at(index)!
 
-		const channelsData = channels.data?.channels.filter(c => c.type === ChannelType.TEXT) ?? [];
+		const channelsData = channels.data?.channels.filter(c => c.type === ChannelType.TEXT) ?? []
 
 		result.push(channelsData.map(c => ({
 			label: `#${c.name}`,
 			value: c.id,
 			disabled: !c.canSendMessages,
-		})));
+		})))
 	}
 
-	return result;
-});
+	return result
+})
 
-const liveChannelSelectorRenderOption = ({ node, option }: { node: VNode; option: SelectOption }): VNode => {
-	if (!option.disabled) return node;
+function liveChannelSelectorRenderOption({ node, option }: { node: VNode, option: SelectOption }): VNode {
+	if (!option.disabled) return node
 
 	return h(
 		'div',
@@ -139,35 +139,35 @@ const liveChannelSelectorRenderOption = ({ node, option }: { node: VNode; option
 				t('integrations.discord.cannotSendMessage'),
 			],
 		},
-	);
-};
+	)
+}
 
 function getRolesMentionsOptions(guildId: string) {
-	const guild = discordIntegrationData.value?.guilds?.find((g) => g.id === guildId);
-	if (!guild) return [];
+	const guild = discordIntegrationData.value?.guilds?.find((g) => g.id === guildId)
+	if (!guild) return []
 
 	return guild.roles.map((r) => ({
 		label: r.name,
 		value: r.name.replace('@', ''),
-	})) ?? [];
+	})) ?? []
 }
 
 function getGuildRoleColorByName(guildId: string, roleName: string) {
-	const guild = discordIntegrationData.value?.guilds.find(g => g.id === guildId);
-	if (!guild) return;
-	const role = guild.roles.find(r => r.name === roleName.replace('@', ''));
-	if (!role || role.color === '0') return null;
+	const guild = discordIntegrationData.value?.guilds.find(g => g.id === guildId)
+	if (!guild) return
+	const role = guild.roles.find(r => r.name === roleName.replace('@', ''))
+	if (!role || role.color === '0') return null
 
-	const hexColor = Number(role.color).toString(16);
+	const hexColor = Number(role.color).toString(16)
 
-	return `#${hexColor.padStart(6, '0')}`;
+	return `#${hexColor.padStart(6, '0')}`
 }
 
-const { data: currentUser } = storeToRefs(useProfile());
+const { data: currentUser } = useProfile()
 </script>
 
 <template>
-	<with-settings
+	<WithSettings
 		title="Discord"
 		:save="saveSettings"
 		:isLoading="isDataLoading"
@@ -179,18 +179,18 @@ const { data: currentUser } = storeToRefs(useProfile());
 			{{ t('integrations.discord.description') }}
 		</template>
 		<template #settings>
-			<n-tabs
+			<NTabs
 				v-model:value="currentTab"
 				closable
 				tab-style="min-width: 80px;"
 			>
-				<n-tab-pane
+				<NTabPane
 					v-for="(guild, guildIndex) in formValue.guilds" :key="guild.id"
 					:name="guild.name"
 				>
 					<template #tab>
 						<div class="flex gap-1 items-center justify-center">
-							<n-avatar
+							<NAvatar
 								round
 								:src="`https://cdn.discordapp.com/${guild.id}/${guild.icon}.png`"
 								class="flex items-center justify-center w-5 h-5"
@@ -208,41 +208,41 @@ const { data: currentUser } = storeToRefs(useProfile());
 								<span class="text-base">
 									{{ t('integrations.discord.alerts.label') }}
 								</span>
-								<n-divider class="m-0 mb-1" />
+								<NDivider class="m-0 mb-1" />
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationEnabled" />
+									<NSwitch v-model:value="guild.liveNotificationEnabled" />
 									<span>{{ t('sharedTexts.enabled') }}</span>
 								</div>
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationShowTitle" />
+									<NSwitch v-model:value="guild.liveNotificationShowTitle" />
 									<span>{{ t('integrations.discord.alerts.showTitle') }}</span>
 								</div>
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationShowCategory" />
+									<NSwitch v-model:value="guild.liveNotificationShowCategory" />
 									<span>{{ t('integrations.discord.alerts.showCategory') }}</span>
 								</div>
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationShowPreview" />
+									<NSwitch v-model:value="guild.liveNotificationShowPreview" />
 									<span>{{ t('integrations.discord.alerts.showPreview') }}</span>
 								</div>
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationShowProfileImage" />
+									<NSwitch v-model:value="guild.liveNotificationShowProfileImage" />
 									<span>{{ t('integrations.discord.alerts.showProfileImage') }}</span>
 								</div>
 
 								<div class="switch">
-									<n-switch v-model:value="guild.liveNotificationShowViewers" />
+									<NSwitch v-model:value="guild.liveNotificationShowViewers" />
 									<span>{{ t('integrations.discord.alerts.showViewers') }}</span>
 								</div>
 
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.channelsSelect') }}</span>
-									<n-select
+									<NSelect
 										v-model:value="guild.liveNotificationChannelsIds"
 										multiple
 										clearable
@@ -254,7 +254,7 @@ const { data: currentUser } = storeToRefs(useProfile());
 									/>
 								</div>
 
-								<n-divider class="m-1" />
+								<NDivider class="m-1" />
 
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.additionalUsersIdsForLiveCheck') }}</span>
@@ -269,7 +269,7 @@ const { data: currentUser } = storeToRefs(useProfile());
 
 								<div class="form-item">
 									<span>{{ t('integrations.discord.alerts.streamOnlineLabel') }}</span>
-									<n-mention
+									<NMention
 										v-model:value="guild.liveNotificationMessage"
 										type="textarea"
 										:options="getRolesMentionsOptions(guild.id)"
@@ -282,7 +282,7 @@ const { data: currentUser } = storeToRefs(useProfile());
 								<div class="flex flex-col gap-2">
 									<div class="form-item">
 										<span>{{ t('integrations.discord.alerts.streamOfflineLabel') }}</span>
-										<n-mention
+										<NMention
 											v-model:value="guild.offlineNotificationMessage"
 											type="textarea"
 											:disabled="guild.shouldDeleteMessageOnOffline"
@@ -292,18 +292,17 @@ const { data: currentUser } = storeToRefs(useProfile());
 										<span class="description">{userName}, {displayName} – supported variables</span>
 									</div>
 
-
 									<div class="switch">
-										<n-switch v-model:value="guild.shouldDeleteMessageOnOffline" />
+										<NSwitch v-model:value="guild.shouldDeleteMessageOnOffline" />
 										<span>{{ t('integrations.discord.alerts.shouldDeleteMessageOnOffline') }}</span>
 									</div>
 								</div>
 
-								<n-divider />
+								<NDivider />
 
-								<n-alert type="info">
+								<NAlert type="info">
 									{{ t('integrations.discord.alerts.updateAlert') }}
-								</n-alert>
+								</NAlert>
 							</div>
 
 							<div class="w-1/2">
@@ -372,30 +371,30 @@ const { data: currentUser } = storeToRefs(useProfile());
 							<span class="text-base">
 								{{ t('sharedTexts.dangerZone') }}
 							</span>
-							<n-divider class="m-0 mb-1" />
+							<NDivider class="m-0 mb-1" />
 
-							<n-popconfirm
+							<NPopconfirm
 								:positive-text="t('deleteConfirmation.confirm')"
 								:negative-text="t('deleteConfirmation.cancel')"
 								@positive-click="() => disconnectGuildById(guild.id)"
 							>
 								<template #trigger>
-									<n-button type="error" secondary>
+									<NButton type="error" secondary>
 										{{ t('integrations.discord.disconnectGuild') }}
-									</n-button>
+									</NButton>
 								</template>
 								{{ t('deleteConfirmation.text') }}
-							</n-popconfirm>
+							</NPopconfirm>
 						</div>
 					</div>
-				</n-tab-pane>
+				</NTabPane>
 
 				<template v-if="!discordIntegrationData?.guilds?.length" #prefix>
 					{{ t('integrations.discord.noGuilds') }}
 				</template>
 
 				<template #suffix>
-					<n-button
+					<NButton
 						:disabled="isConnectDisabled"
 						type="success"
 						size="small"
@@ -403,9 +402,9 @@ const { data: currentUser } = storeToRefs(useProfile());
 						@click="connectGuild"
 					>
 						{{ t('integrations.discord.connectGuild') }}
-					</n-button>
+					</NButton>
 				</template>
-			</n-tabs>
+			</NTabs>
 		</template>
 
 		<template #additionalFooter>
@@ -413,7 +412,7 @@ const { data: currentUser } = storeToRefs(useProfile());
 				class="flex items-center p-2.5 gap-2 rounded-[var(--n-border-radius)]"
 				:style="{ backgroundColor: themeVars.buttonColor2 }"
 			>
-				<n-spin v-if="isDataLoading" class="h-4" />
+				<NSpin v-if="isDataLoading" class="h-4" />
 
 				<template v-else>
 					{{
@@ -422,15 +421,15 @@ const { data: currentUser } = storeToRefs(useProfile());
 							{
 								guilds: t(
 									'integrations.discord.guildPluralization',
-									discordIntegrationData?.guilds?.length ?? 0
-								)
-							}
+									discordIntegrationData?.guilds?.length ?? 0,
+								),
+							},
 						)
 					}}
 				</template>
 			</div>
 		</template>
-	</with-settings>
+	</WithSettings>
 </template>
 
 <style scoped>

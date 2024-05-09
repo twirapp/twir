@@ -1,5 +1,5 @@
 import { type ColumnDef, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,20 +17,20 @@ import { valueUpdater } from '@/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
 
-export const useNotificationsTable = defineStore('admin-panel/notifications-table', () => {
+export const useNotificationsTable = createGlobalState(() => {
 	const layout = useLayout()
 	const { t } = useI18n()
 
 	const form = useNotificationsForm()
 
 	const { pagination } = usePagination()
-	const filters = useNotificationsFilters()
+	const { filterInput, debounceSearchInput } = useNotificationsFilters()
 
 	const params = computed<AdminNotificationsParams>(() => ({
 		perPage: pagination.value.pageSize,
 		page: pagination.value.pageIndex,
-		type: filters.filterInput,
-		search: filters.debounceSearchInput
+		type: filterInput.value,
+		search: debounceSearchInput.value,
 	}))
 
 	const notificationsApi = useAdminNotifications()
@@ -38,8 +38,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	const { executeMutation: deleteNotification } = notificationsApi.useMutationDeleteNotification()
 
 	const notifications = computed<Notifications>(() => {
-		if (!data.value)
-			return []
+		if (!data.value) return []
 		return data.value.notificationsByAdmin.notifications
 	})
 
@@ -51,7 +50,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
 					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
-				}
+				},
 			},
 			{
 				accessorKey: 'createdAt',
@@ -59,7 +58,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				header: () => h('div', {}, t('adminPanel.notifications.createdAt')),
 				cell: ({ row }) => {
 					return h(CreatedAtTooltip, { time: new Date(row.original.createdAt) })
-				}
+				},
 			},
 			{
 				accessorKey: 'actions',
@@ -68,13 +67,13 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 				cell: ({ row }) => {
 					return h(NotificationsTableActions, {
 						onDelete: () => onDeleteNotification(row.original.id),
-						onEdit: () => onEditNotification(row.original)
+						onEdit: () => onEditNotification(row.original),
 					})
-				}
-			}
+				},
+			},
 		]
 
-		if (filters.filterInput === NotificationType.User) {
+		if (filterInput.value === NotificationType.User) {
 			columns.unshift({
 				accessorKey: 'id',
 				size: 10,
@@ -84,14 +83,14 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 						return h('a', {
 							class: 'flex flex-col',
 							href: `https://twitch.tv/${row.original.twitchProfile.displayName.toLowerCase()}`,
-							target: '_blank'
+							target: '_blank',
 						}, h(UsersTableCellUser, {
-							userId: row.original.id,
 							avatar: row.original.twitchProfile.profileImageUrl,
-							name: row.original.twitchProfile.displayName
+							name: row.original.twitchProfile.login,
+							displayName: row.original.twitchProfile.displayName,
 						}))
 					}
-				}
+				},
 			})
 		}
 
@@ -109,7 +108,7 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 			return pageCount.value
 		},
 		state: {
-			pagination: pagination.value
+			pagination: pagination.value,
 		},
 		get data() {
 			return notifications.value
@@ -119,11 +118,11 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		},
 		manualPagination: true,
 		getCoreRowModel: getCoreRowModel(),
-		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination)
+		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 	})
 
 	async function onDeleteNotification(notificationId: string) {
-		if (form.editableMessageId === notificationId) {
+		if (form.editableMessageId.value === notificationId) {
 			form.onReset()
 		}
 
@@ -133,16 +132,16 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 	async function onEditNotification(notification: Notifications[0]) {
 		let isConfirmed = true
 
-		if (form.formValues.message || form.isEditableForm) {
+		if (form.formValues.value.message || form.isEditableForm) {
 			// TODO: use confirm dialog from shadcn
 			// eslint-disable-next-line no-alert
 			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'))
 		}
 
 		if (isConfirmed) {
-			form.editableMessageId = notification.id
-			form.userIdField.fieldModel = notification.userId ?? null
-			form.messageField.fieldModel = notification.text
+			form.editableMessageId.value = notification.id
+			form.userIdField.fieldModel.value = notification.userId ?? null
+			form.messageField.fieldModel.value = notification.text
 			layout.scrollToTop()
 		}
 	}
@@ -155,6 +154,6 @@ export const useNotificationsTable = defineStore('admin-panel/notifications-tabl
 		notifications,
 		totalNotifications,
 		onDeleteNotification,
-		onEditNotification
+		onEditNotification,
 	}
 })

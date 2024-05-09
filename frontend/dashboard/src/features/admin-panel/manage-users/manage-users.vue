@@ -11,11 +11,11 @@ const usersTable = useUsersTable()
 	<UsersPage>
 		<template #pagination>
 			<Pagination
-				:total="usersTable.totalUsers"
+				:total="usersTable.totalUsers.value"
 				:table="usersTable.table"
-				:pagination="usersTable.pagination"
-				@update:page="(page) => usersTable.pagination.pageIndex = page"
-				@update:page-size="(pageSize) => usersTable.pagination.pageSize = pageSize"
+				:pagination="usersTable.pagination.value"
+				@update:page="(page) => usersTable.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => usersTable.pagination.value.pageSize = pageSize"
 			/>
 		</template>
 	</UsersPage>

@@ -11,11 +11,11 @@ const notifications = useNotificationsTable()
 	<NotificationsTable>
 		<template #pagination>
 			<Pagination
-				:total="notifications.totalNotifications"
+				:total="notifications.totalNotifications.value"
 				:table="notifications.table"
-				:pagination="notifications.pagination"
-				@update:page="(page) => notifications.pagination.pageIndex = page"
-				@update:page-size="(pageSize) => notifications.pagination.pageSize = pageSize"
+				:pagination="notifications.pagination.value"
+				@update:page="(page) => notifications.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => notifications.pagination.value.pageSize = pageSize"
 			/>
 		</template>
 	</NotificationsTable>

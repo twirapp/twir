@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { AwardIcon, CheckIcon } from 'lucide-vue-next'
-import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 
 import { useBadges } from '../../manage-badges/composables/use-badges'
@@ -10,19 +9,18 @@ import {
 	Command,
 	CommandGroup,
 	CommandItem,
-	CommandList
+	CommandList,
 } from '@/components/ui/command'
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger
+	PopoverTrigger,
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
 
 const props = defineProps<{ userId: string }>()
 
-const badgesStore = useBadges()
-const { badges } = storeToRefs(badgesStore)
+const { badges, badgesRemoveUser, badgesAddUser } = useBadges()
 
 const userBadgesIds = computed(() => {
 	return badges.value
@@ -32,9 +30,9 @@ const userBadgesIds = computed(() => {
 
 async function toggleBadge(badgeId: string) {
 	if (userBadgesIds.value.includes(badgeId)) {
-		await badgesStore.badgesRemoveUser.executeMutation({ id: badgeId, userId: props.userId })
+		await badgesRemoveUser.executeMutation({ id: badgeId, userId: props.userId })
 	} else {
-		await badgesStore.badgesAddUser.executeMutation({ id: badgeId, userId: props.userId })
+		await badgesAddUser.executeMutation({ id: badgeId, userId: props.userId })
 	}
 }
 </script>

@@ -1,5 +1,4 @@
-import { refDebounced, useLocalStorage } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { createGlobalState, refDebounced, useLocalStorage } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import { TABLE_ACCESSOR_KEYS } from './use-community-users-table.js'
@@ -10,15 +9,15 @@ import { CommunityUsersOrder, CommunityUsersSortBy } from '@/gql/graphql.js'
 
 const COLUMN_VISIBLE_STORAGE_KEY = 'twirCommunityUsersColumnVisibility'
 
-export const useCommunityTableActions = defineStore('features/community-table-actions', () => {
+export const useCommunityTableActions = createGlobalState(() => {
 	const searchInput = ref('')
 	const debouncedSearchInput = refDebounced<string>(searchInput, 500)
 
 	const sorting = ref<SortingState>([
 		{
 			desc: true,
-			id: TABLE_ACCESSOR_KEYS.watchedMs // accessorKey
-		}
+			id: TABLE_ACCESSOR_KEYS.watchedMs, // accessorKey
+		},
 	])
 	const columnFilters = ref<ColumnFiltersState>([])
 	const columnVisibility = useLocalStorage<VisibilityState>(COLUMN_VISIBLE_STORAGE_KEY, {})
@@ -55,6 +54,6 @@ export const useCommunityTableActions = defineStore('features/community-table-ac
 		sorting,
 		columnFilters,
 		columnVisibility,
-		rowSelection
+		rowSelection,
 	}
 })

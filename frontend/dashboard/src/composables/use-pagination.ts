@@ -10,12 +10,12 @@ export interface UsePagination {
 export function usePagination(): UsePagination {
 	const pagination = ref<PaginationState>({
 		pageIndex: 0,
-		pageSize: 10
+		pageSize: 10,
 	})
 
 	function setPagination({
 		pageIndex,
-		pageSize
+		pageSize,
 	}: PaginationState): PaginationState {
 		pagination.value.pageIndex = pageIndex
 		pagination.value.pageSize = pageSize
@@ -24,6 +24,6 @@ export function usePagination(): UsePagination {
 
 	return {
 		pagination,
-		setPagination
+		setPagination,
 	}
 }

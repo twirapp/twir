@@ -1,52 +1,55 @@
 <script setup lang="ts">
-import { IconPencil, IconTrash } from '@tabler/icons-vue';
-import { Alert } from '@twir/api/messages/alerts/alerts';
+import { IconPencil, IconTrash } from '@tabler/icons-vue'
 import {
-	DataTableColumns,
 	NButton,
 	NDataTable,
+	NImage,
 	NModal,
 	NPopconfirm,
 	NSpace,
 	NTag,
-	NImage,
-} from 'naive-ui';
-import { computed, h, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+} from 'naive-ui'
+import { computed, h, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import type { EditableAlert } from '@/components/alerts/types.js'
+import type { Alert } from '@twir/api/messages/alerts/alerts'
+import type {
+	DataTableColumns,
+} from 'naive-ui'
 
 import {
 	useAlertsManager,
 	useTwitchRewards,
 	useUserAccessFlagChecker,
-} from '@/api';
-import { useCommandsApi } from '@/api/commands/commands';
-import AlertModal from '@/components/alerts/modal.vue';
-import { type EditableAlert } from '@/components/alerts/types.js';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
-import { renderIcon } from '@/helpers';
+} from '@/api'
+import { useCommandsApi } from '@/api/commands/commands'
+import AlertModal from '@/components/alerts/modal.vue'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { renderIcon } from '@/helpers'
 
 const props = withDefaults(defineProps<{
-	withSelect: boolean
+	withSelect?: boolean
 }>(), {
 	withSelect: false,
-});
+})
 
 const emits = defineEmits<{
 	select: [id: string]
 	delete: [id: string]
-}>();
+}>()
 
-const manager = useAlertsManager();
-const deleter = manager.deleteOne;
-const { data, isLoading } = manager.getAll({});
+const manager = useAlertsManager()
+const deleter = manager.deleteOne
+const { data, isLoading } = manager.getAll({})
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const userCanManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts);
-const { data: rewards } = useTwitchRewards();
+const userCanManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
+const { data: rewards } = useTwitchRewards()
 
-const commandsManager = useCommandsApi();
-const { data: commands } = commandsManager.useQueryCommands();
+const commandsManager = useCommandsApi()
+const { data: commands } = commandsManager.useQueryCommands()
 
 const columns = computed<DataTableColumns<Alert>>(() => [
 	{
@@ -59,16 +62,16 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 				{
 					default: () => row.name,
 				},
-			);
+			)
 		},
 	},
 	{
 		title: 'Rewards',
 		key: 'rewardId',
 		render(row) {
-			const selectedRewards = rewards?.value?.rewards.filter(r => row.rewardIds.includes(r.id));
+			const selectedRewards = rewards?.value?.rewards.filter(r => row.rewardIds.includes(r.id))
 			if (!selectedRewards?.length) {
-				return '';
+				return ''
 			}
 
 			const mappedRewards = selectedRewards.map(r => h(NSpace, {
@@ -85,7 +88,7 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 					}),
 					r.title,
 				],
-			}));
+			}))
 
 			return h(
 				NSpace,
@@ -93,16 +96,16 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 				{
 					default: () => mappedRewards,
 				},
-			);
+			)
 		},
 	},
 	{
 		title: 'Commands',
 		key: 'commands',
 		render(row) {
-			const selectedCommands = commands?.value?.commands.filter(r => row.commandIds.includes(r.id));
+			const selectedCommands = commands?.value?.commands.filter(r => row.commandIds.includes(r.id))
 			if (!selectedCommands?.length) {
-				return '';
+				return ''
 			}
 
 			return h(
@@ -111,7 +114,7 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 				{
 					default: () => selectedCommands.map(c => `!${c.name}`),
 				},
-			);
+			)
 		},
 	},
 	{
@@ -127,9 +130,11 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 					onClick: () => openModal(row),
 					quaternary: true,
 					disabled: !userCanManageAlerts.value,
-				}, {
+				},
+				{
 					icon: renderIcon(IconPencil),
-				});
+				},
+			)
 
 			const deleteButton = h(
 				NPopconfirm,
@@ -149,7 +154,7 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 					}),
 					default: () => t('deleteConfirmation.text'),
 				},
-			);
+			)
 
 			const selectButton = h(
 				NButton,
@@ -160,46 +165,47 @@ const columns = computed<DataTableColumns<Alert>>(() => [
 					onClick: () => emits('select', row.id),
 					secondary: true,
 					disabled: !userCanManageAlerts.value,
-				}, {
+				},
+				{
 					default: () => t('sharedButtons.select'),
-				});
+				},
+			)
 
-			const buttons = [editButton, deleteButton];
+			const buttons = [editButton, deleteButton]
 
 			if (props.withSelect) {
-				buttons.unshift(selectButton);
+				buttons.unshift(selectButton)
 			}
 
-			return h(NSpace, {}, { default: () => buttons });
+			return h(NSpace, {}, { default: () => buttons })
 		},
 	},
-]);
+])
 
-
-const showModal = ref(false);
-const editableAlert = ref<EditableAlert | null>(null);
+const showModal = ref(false)
+const editableAlert = ref<EditableAlert | null>(null)
 
 function openModal(t: EditableAlert | null) {
-	editableAlert.value = t;
-	showModal.value = true;
+	editableAlert.value = t
+	showModal.value = true
 }
 </script>
 
 <template>
-	<n-space justify="space-between" align="center">
+	<NSpace justify="space-between" align="center">
 		<h2>{{ t('alerts.title') }}</h2>
-		<n-button :disabled="!userCanManageAlerts" secondary type="success" @click="openModal(null)">
+		<NButton :disabled="!userCanManageAlerts" secondary type="success" @click="openModal(null)">
 			{{ t('sharedButtons.create') }}
-		</n-button>
-	</n-space>
+		</NButton>
+	</NSpace>
 
-	<n-data-table
+	<NDataTable
 		:isLoading="isLoading"
 		:columns="columns"
 		:data="data?.alerts ?? []"
 	/>
 
-	<n-modal
+	<NModal
 		v-model:show="showModal"
 		:mask-closable="false"
 		:segmented="true"
@@ -212,6 +218,6 @@ function openModal(t: EditableAlert | null) {
 		}"
 		:on-close="() => showModal = false"
 	>
-		<alert-modal :alert="editableAlert" @close="() => showModal = false" />
-	</n-modal>
+		<AlertModal :alert="editableAlert" @close="() => showModal = false" />
+	</NModal>
 </template>

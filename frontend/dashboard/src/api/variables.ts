@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import type { GetCustomAndBuiltInVariablesQuery } from '@/gql/graphql.js'
@@ -14,7 +14,7 @@ const invalidationKey = 'VariablesInvalidateKey'
 export type CustomVariable = GetCustomAndBuiltInVariablesQuery['variables'][number]
 export type EditableCustomVariable = SetOptional<CustomVariable, 'id'>
 
-export const useVariablesApi = defineStore('api/variables', () => {
+export const useVariablesApi = createGlobalState(() => {
 	const variablesQuery = useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidationKey] },
@@ -36,7 +36,7 @@ export const useVariablesApi = defineStore('api/variables', () => {
 					canBeUsedInRegistry
 				}
 			}
-		`)
+		`),
 	})
 
 	const customVariables = computed(() => {
@@ -50,7 +50,7 @@ export const useVariablesApi = defineStore('api/variables', () => {
 			canBeUsedInRegistry: variable.type !== VariableType.Script,
 			type: variable.type,
 			response: variable.response,
-			evalValue: variable.evalValue
+			evalValue: variable.evalValue,
 		})) ?? []
 
 		return mapped
@@ -63,7 +63,7 @@ export const useVariablesApi = defineStore('api/variables', () => {
 			visible: variable.visible,
 			example: variable.example || `${variable.name}`,
 			isBuiltIn: true,
-			canBeUsedInRegistry: variable.canBeUsedInRegistry
+			canBeUsedInRegistry: variable.canBeUsedInRegistry,
 		})) ?? []
 
 		return mapped
@@ -72,7 +72,7 @@ export const useVariablesApi = defineStore('api/variables', () => {
 	const allVariables = computed(() => {
 		return [
 			...customVariables.value,
-			...builtInVariables.value
+			...builtInVariables.value,
 		]
 	})
 
@@ -109,6 +109,6 @@ export const useVariablesApi = defineStore('api/variables', () => {
 		isLoading,
 		useMutationCreateVariable,
 		useMutationUpdateVariable,
-		useMutationRemoveVariable
+		useMutationRemoveVariable,
 	}
 })

@@ -11,11 +11,11 @@ const communityUsersTable = useCommunityUsersTable()
 	<CommunityUsersPage>
 		<template #pagination>
 			<Pagination
-				:total="communityUsersTable.totalUsers"
+				:total="communityUsersTable.totalUsers.value"
 				:table="communityUsersTable.table"
-				:pagination="communityUsersTable.pagination"
-				@update:page="(page) => communityUsersTable.pagination.pageIndex = page"
-				@update:page-size="(pageSize) => communityUsersTable.pagination.pageSize = pageSize"
+				:pagination="communityUsersTable.pagination.value"
+				@update:page="(page) => communityUsersTable.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => communityUsersTable.pagination.value.pageSize = pageSize"
 			/>
 		</template>
 	</CommunityUsersPage>
