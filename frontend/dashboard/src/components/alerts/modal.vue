@@ -1,15 +1,13 @@
 <script setup lang="ts">
-import { IconPlayerPlay, IconTrash } from '@tabler/icons-vue'
+import { PlayIcon, TrashIcon } from 'lucide-vue-next'
 import {
 	type FormInst,
 	type FormItemRule,
 	type FormRules,
-	NButton,
 	NDivider,
 	NForm,
 	NFormItem,
-	NInput,
-	NModal,
+	NScrollbar,
 	NSelect,
 	NSlider,
 	NSpace,
@@ -17,39 +15,45 @@ import {
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import rewardsSelector from '../rewardsSelector.vue'
-
-import type { EditableAlert } from './types.js'
+import RewardsSelector from '../rewardsSelector.vue'
 
 import {
-	useAlertsManager,
 	useFiles,
 	useProfile,
 	useTwitchGetUsers,
 } from '@/api'
-import { useCommandsApi } from '@/api/commands/commands'
-import { useGreetingsApi } from '@/api/greetings'
-import { useKeywordsApi } from '@/api/keywords'
+import { type Alert, useAlertsCreateMutation, useAlertsUpdateMutation } from '@/api/alerts.js'
+import { useCommandsApi } from '@/api/commands/commands.js'
+import { useGreetingsApi } from '@/api/greetings.js'
+import { useKeywordsApi } from '@/api/keywords.js'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import FilesPicker from '@/components/files/files.vue'
-import { playAudio } from '@/helpers/index.js'
+import { Button } from '@/components/ui/button'
+import {
+	Dialog,
+	DialogHeader,
+	DialogTitle,
+	DialogTrigger,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { playAudio } from '@/helpers/playAudio.js'
 
-const props = defineProps<{
-	alert?: EditableAlert | null
-}>()
-const emits = defineEmits<{
-	close: []
-}>()
+const props = defineProps<{ alert?: Alert | null }>()
+const emits = defineEmits<{ close: [] }>()
+
+const { data: profile } = useProfile()
 
 const formRef = ref<FormInst | null>(null)
-const formValue = ref<EditableAlert>({
+const formValue = ref<Alert>({
 	id: '',
 	name: '',
-	audioId: undefined,
-	audioVolume: 100,
-	commandIds: [],
-	rewardIds: [],
-	greetingsIds: [],
-	keywordsIds: [],
+	channel_id: profile.value!.id,
+	audio_id: undefined,
+	audio_volume: 100,
+	command_ids: [],
+	reward_ids: [],
+	greetings_ids: [],
+	keywords_ids: [],
 })
 
 onMounted(() => {
@@ -72,9 +76,8 @@ const rules: FormRules = {
 	},
 }
 
-const manager = useAlertsManager()
-const creator = manager.create
-const updater = manager.update
+const alertsCreateMutation = useAlertsCreateMutation()
+const alertsUpdateMutation = useAlertsUpdateMutation()
 
 async function save() {
 	if (!formRef.value || !formValue.value) return
@@ -83,22 +86,23 @@ async function save() {
 	const data = formValue.value
 
 	if (data.id) {
-		await updater.mutateAsync({
-			...data,
-			id: data.id!,
+		await alertsUpdateMutation.executeMutation({
+			id: data.id,
+			opts: data,
 		})
 	} else {
-		await creator.mutateAsync(data)
+		await alertsCreateMutation.executeMutation({ opts: data })
 	}
 
 	emits('close')
 }
 
 const { data: files } = useFiles()
-const selectedAudio = computed(() => files.value?.files.find(f => f.id === formValue.value.audioId))
+const selectedAudio = computed(() => {
+	return files.value?.files
+		.find((file) => file.id === formValue.value.audio_id)
+})
 const showAudioModal = ref(false)
-
-const { data: profile } = useProfile()
 
 async function testAudio() {
 	if (!selectedAudio.value?.id || !profile.value) return
@@ -114,17 +118,17 @@ async function testAudio() {
 		return
 	}
 
-	await playAudio(await req.arrayBuffer(), formValue.value.audioVolume)
+	await playAudio(await req.arrayBuffer(), formValue.value.audio_volume ?? 50)
 }
 
-const commandsManager = useCommandsApi()
-const { data: commands } = commandsManager.useQueryCommands()
+const commandsApi = useCommandsApi()
+const { data: commands } = commandsApi.useQueryCommands()
 const commandsSelectOptions = computed(() => commands.value?.commands
 	.map((command) => ({ label: command.name, value: command.id })),
 )
 
-const greetingsManager = useGreetingsApi()
-const { data: greetings } = greetingsManager.useQueryGreetings()
+const greetingsApi = useGreetingsApi()
+const { data: greetings } = greetingsApi.useQueryGreetings()
 const greetingsUsersIds = computed(() => greetings.value?.greetings.map(g => g.userId) ?? [])
 const { data: twitchUsers } = useTwitchGetUsers({ ids: greetingsUsersIds })
 const greetingsSelectOptions = computed(() => {
@@ -135,8 +139,8 @@ const greetingsSelectOptions = computed(() => {
 	})
 })
 
-const keywordsManager = useKeywordsApi()
-const { data: keywords } = keywordsManager.useQueryKeywords()
+const keywordsApi = useKeywordsApi()
+const { data: keywords } = keywordsApi.useQueryKeywords()
 const keywordsSelectOptions = computed(() => keywords.value?.keywords
 	.map(k => ({ label: k.text, value: k.id })),
 )
@@ -145,19 +149,18 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 <template>
 	<NForm
 		ref="formRef"
+		class="p-6 pt-0"
 		:model="formValue"
 		:rules="rules"
 	>
 		<NSpace vertical class="w-full">
 			<NFormItem label="Name" path="name" show-require-mark>
-				<NInput v-model:value="formValue.name" :maxlength="30" />
+				<Input v-model="formValue.name" :maxlength="30" />
 			</NFormItem>
-
-			<NDivider />
 
 			<NFormItem :label="t('alerts.trigger.commands')" path="commandIds">
 				<NSelect
-					v-model:value="formValue.commandIds"
+					v-model:value="formValue.command_ids"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -166,12 +169,12 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			</NFormItem>
 
 			<NFormItem :label="t('alerts.trigger.rewards')" path="rewardIds">
-				<rewardsSelector v-model="formValue.rewardIds" multiple />
+				<RewardsSelector v-model="formValue.reward_ids!" multiple />
 			</NFormItem>
 
 			<NFormItem :label="t('alerts.trigger.keywords')" path="rewardIds">
 				<NSelect
-					v-model:value="formValue.keywordsIds"
+					v-model:value="formValue.keywords_ids"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -181,7 +184,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<NFormItem :label="t('alerts.trigger.greetings')" path="rewardIds">
 				<NSelect
-					v-model:value="formValue.greetingsIds"
+					v-model:value="formValue.greetings_ids"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -192,25 +195,64 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			<NDivider />
 
 			<NFormItem :label="t('alerts.select.audio')">
-				<div class="flex gap-2.5 w-[85%]">
-					<NButton class="overflow-hidden text-nowrap" block type="info" @click="showAudioModal = true">
-						{{ selectedAudio?.name ?? t('sharedButtons.select') }}
-					</NButton>
-					<NButton
-						:disabled="!formValue.audioId" text type="error"
-						@click="formValue.audioId = undefined"
+				<div class="flex gap-2 w-full">
+					<Dialog @update:open="showAudioModal = false">
+						<DialogTrigger as-child>
+							<Button class="w-full" @click="showAudioModal = true">
+								{{ selectedAudio?.name ?? t('sharedButtons.select') }}
+							</Button>
+						</DialogTrigger>
+
+						<DialogOrSheet class="p-0">
+							<DialogHeader class="p-6 border-b-[1px]">
+								<DialogTitle>
+									{{ t('alerts.select.audio') }}
+								</DialogTitle>
+							</DialogHeader>
+
+							<NScrollbar class="p-6 max-h-[85vh]" trigger="none">
+								<FilesPicker
+									mode="picker"
+									tab="audios"
+									@select="(id) => {
+										formValue.audio_id = id
+										showAudioModal = false
+									}"
+									@delete="(id) => {
+										if (id === formValue.audio_id) {
+											formValue.audio_id = undefined
+										}
+									}"
+								/>
+							</NScrollbar>
+						</DialogOrSheet>
+					</Dialog>
+
+					<Button
+						class="min-w-10"
+						size="icon"
+						variant="secondary"
+						:disabled="!formValue.audio_id"
+						@click="testAudio"
 					>
-						<IconTrash />
-					</NButton>
-					<NButton :disabled="!formValue.audioId" text type="info" @click="testAudio">
-						<IconPlayerPlay />
-					</NButton>
+						<PlayIcon class="size-4" />
+					</Button>
+
+					<Button
+						class="min-w-10"
+						size="icon"
+						variant="destructive"
+						:disabled="!formValue.audio_id"
+						@click="formValue.audio_id = undefined"
+					>
+						<TrashIcon class="size-4" />
+					</Button>
 				</div>
 			</NFormItem>
 
-			<NFormItem :label="t('alerts.audioVolume', { volume: formValue.audioVolume })">
+			<NFormItem :label="t('alerts.audioVolume', { volume: formValue.audio_volume })">
 				<NSlider
-					v-model:value="formValue.audioVolume"
+					v-model:value="formValue.audio_volume!"
 					:step="1"
 					:min="1"
 					:max="100"
@@ -219,50 +261,12 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 					:tooltip="false"
 				/>
 			</NFormItem>
-
-			<NFormItem :label="t('alerts.select.image')">
-				<NButton block type="info" disabled>
-					Soon...
-				</NButton>
-			</NFormItem>
-
-			<NFormItem :label="t('alerts.select.text')">
-				<NButton block type="info" disabled>
-					Soon...
-				</NButton>
-			</NFormItem>
 		</NSpace>
 
-		<NButton secondary type="success" block @click="save">
-			{{ t('sharedButtons.save') }}
-		</NButton>
+		<div class="flex justify-end">
+			<Button @click="save">
+				{{ t('sharedButtons.save') }}
+			</Button>
+		</div>
 	</NForm>
-
-	<NModal
-		v-model:show="showAudioModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="t('alerts.select.audio')"
-		class="modal"
-		:style="{
-			width: '1000px',
-			top: '50px',
-		}"
-		:on-close="() => showAudioModal = false"
-	>
-		<FilesPicker
-			mode="picker"
-			tab="audios"
-			@select="(id) => {
-				formValue.audioId = id
-				showAudioModal = false
-			}"
-			@delete="(id) => {
-				if (id === formValue.audioId) {
-					formValue.audioId = undefined
-				}
-			}"
-		/>
-	</NModal>
 </template>

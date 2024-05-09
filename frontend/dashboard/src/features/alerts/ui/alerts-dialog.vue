@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { NScrollbar } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { Alert } from '@/api/alerts.js'
 
+import AlertsModalContent from '@/components/alerts/modal.vue'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import {
 	Dialog,
@@ -30,14 +32,24 @@ const open = ref(false)
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[425px]">
-			<DialogHeader>
+
+		<DialogOrSheet class="p-0">
+			<DialogHeader class="p-6 border-b-[1px]">
 				<DialogTitle>
 					{{ alert ? t('alerts.editAlert') : t('alerts.createAlert') }}
 				</DialogTitle>
 			</DialogHeader>
 
-			TODO: form
+			<NScrollbar style="max-height: 85vh" trigger="none">
+				<AlertsModalContent
+					:alert="alert"
+					@close="() => open = false"
+				/>
+			</NScrollbar>
+
+			<!-- <DialogFooter>
+				TODO: save button
+			</DialogFooter> -->
 		</DialogOrSheet>
 	</Dialog>
 </template>

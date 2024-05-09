@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { RpcError } from '@protobuf-ts/runtime-rpc';
-import { IconArchive } from '@tabler/icons-vue';
-import { FileMeta } from '@twir/api/messages/files/files';
+import { RpcError } from '@protobuf-ts/runtime-rpc'
+import { IconArchive } from '@tabler/icons-vue'
 import {
 	NAlert,
 	NButton,
 	NCard,
-	NDivider,
 	NGrid,
 	NGridItem,
 	NIcon,
@@ -15,44 +13,54 @@ import {
 	NUpload,
 	NUploadDragger,
 	useMessage,
-} from 'naive-ui';
-import { computed, onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+} from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useFiles, useFileUpload, userFileDelete } from '@/api/index.js';
-import { convertBytesToSize } from '@/helpers/convertBytesToSize.js';
+import type { FileMeta } from '@twir/api/messages/files/files'
 
-
-const { t } = useI18n();
-
-const uploader = useFileUpload();
-const deleter = userFileDelete();
-
-const { data: files } = useFiles();
-
-const uploadedFilesSize = computed(() => {
-	if (!files.value?.files) return 0;
-
-	return files.value?.files.reduce((acc, curr) => acc + Number(curr.size), 0);
-});
-
-const computeFileUrl = (f: FileMeta) => {
-	const query = new URLSearchParams({
-		channel_id: f.channelId,
-		file_id: f.id,
-	});
-	return `${window.location.origin}/api/files/?${query}`;
-};
+import { useFileUpload, useFiles, userFileDelete } from '@/api/index.js'
+import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
 
 const props = withDefaults(defineProps<{
-	tab: string,
-	mode: 'list' | 'picker',
+	tab: string
+	mode: 'list' | 'picker'
 }>(), {
 	tab: 'Audios',
 	mode: 'list',
-});
+})
 
-type Tab = { name: string, disabled?: boolean, accept: string }
+defineEmits<{
+	select: [id: string]
+	delete: [id: string]
+}>()
+
+const { t } = useI18n()
+
+const uploader = useFileUpload()
+const deleter = userFileDelete()
+
+const { data: files } = useFiles()
+
+const uploadedFilesSize = computed(() => {
+	if (!files.value?.files) return 0
+
+	return files.value?.files.reduce((acc, curr) => acc + Number(curr.size), 0)
+})
+
+function computeFileUrl(f: FileMeta) {
+	const query = new URLSearchParams({
+		channel_id: f.channelId,
+		file_id: f.id,
+	})
+	return `${window.location.origin}/api/files/?${query}`
+}
+
+interface Tab {
+	name: string
+	disabled?: boolean
+	accept: string
+}
 const tabs: Array<Tab> = [
 	{
 		name: 'Audios',
@@ -63,32 +71,27 @@ const tabs: Array<Tab> = [
 		disabled: true,
 		accept: 'image/*',
 	},
-];
-const activeTab = ref<Tab>(tabs.at(0)!);
+]
+const activeTab = ref<Tab>(tabs.at(0)!)
 
 onMounted(() => {
-	const neededTab = tabs.find(t => t.name === props.tab);
-	if (!neededTab) return;
-	activeTab.value = neededTab;
-});
+	const neededTab = tabs.find(t => t.name === props.tab)
+	if (!neededTab) return
+	activeTab.value = neededTab
+})
 
-const audios = computed(() => files.value?.files.filter(f => f.mimetype.startsWith('audio')) ?? []);
+const audios = computed(() => files.value?.files.filter(f => f.mimetype.startsWith('audio')) ?? [])
 
-defineEmits<{
-	select: [id: string],
-	delete: [id: string]
-}>();
-
-const message = useMessage();
+const message = useMessage()
 
 async function upload(f: File) {
-	if (!f.type.startsWith(activeTab.value.accept.split('*').at(0)!)) return;
+	if (!f.type.startsWith(activeTab.value.accept.split('*').at(0)!)) return
 
 	try {
-		await uploader.mutateAsync(f);
+		await uploader.mutateAsync(f)
 	} catch (error) {
 		if (error instanceof RpcError) {
-			message.error(error.message);
+			message.error(error.message)
 		}
 	}
 }
@@ -96,25 +99,24 @@ async function upload(f: File) {
 
 <template>
 	<div class="flex gap-5">
-		<div class="flex flex-col pr-1 border-r-[color:var(--n-border-color)] border-r border-solid">
+		<div class="flex flex-col pr-1">
 			<div v-if="mode === 'list'" class="flex flex-col gap-1">
-				<n-button
-					v-for="tab of tabs"
-					:key="tab.name"
+				<NButton
+					v-for="tabItem of tabs"
+					:key="tabItem.name"
 					dashed
 					size="large"
-					:disabled="tab.disabled"
-					:type="tab.name === activeTab.name ? 'success' : 'default'"
+					:disabled="tabItem.disabled"
+					:type="tabItem.name === activeTab.name ? 'success' : 'default'"
 					block
-					@click="activeTab = tab"
+					@click="activeTab = tabItem"
 				>
-					{{ tab.name }}
-				</n-button>
-				<n-divider />
+					{{ tabItem.name }}
+				</NButton>
 			</div>
 
 			<div>
-				<n-upload
+				<NUpload
 					multiple
 					directory-dnd
 					:max="1"
@@ -126,50 +128,50 @@ async function upload(f: File) {
 						upload(data.file.file!)
 					}"
 				>
-					<n-upload-dragger>
+					<NUploadDragger>
 						<div v-if="!uploader.isLoading.value">
 							<div class="mb-3">
-								<n-icon size="30" :depth="3">
+								<NIcon size="30" :depth="3">
 									<IconArchive />
-								</n-icon>
+								</NIcon>
 							</div>
-							<n-text class="text-xs">
+							<NText class="text-xs">
 								{{ t('filePicker.innerText', { type: activeTab.name.toLowerCase() }) }}
-							</n-text>
+							</NText>
 						</div>
-						<n-spin v-else />
-					</n-upload-dragger>
-				</n-upload>
+						<NSpin v-else />
+					</NUploadDragger>
+				</NUpload>
 
-				<n-text>
+				<NText>
 					{{
 						t('filePicker.usedSpace', {
 							used: convertBytesToSize(uploadedFilesSize),
-							max: 100
+							max: 100,
 						})
 					}}
-				</n-text>
+				</NText>
 			</div>
 		</div>
 
 		<div v-if="activeTab.name === 'Audios'">
-			<n-alert v-if="!audios.length" type="info">
+			<NAlert v-if="!audios.length" type="info">
 				{{ t('filePicker.emptyText', { type: 'audios' }) }}
-			</n-alert>
+			</NAlert>
 
-			<n-grid v-else cols="1 s:1 m:2 l:3" responsive="screen" :x-gap="8" :y-gap="8">
-				<n-grid-item
+			<NGrid v-else cols="1 s:1 m:2 l:3" responsive="screen" :x-gap="8" :y-gap="8">
+				<NGridItem
 					v-for="f of audios"
 					:key="f.id"
 					:span="1"
 				>
-					<n-card
+					<NCard
 						:title="`${f.name} (${convertBytesToSize(Number(f.size))})`"
 						size="small"
 						segmented
 					>
 						<template #header-extra>
-							<n-button
+							<NButton
 								secondary
 								type="error"
 								size="small"
@@ -179,19 +181,19 @@ async function upload(f: File) {
 								}"
 							>
 								{{ t('sharedButtons.delete') }}
-							</n-button>
+							</NButton>
 						</template>
 
 						<audio controls :src="computeFileUrl(f)" class="w-full" />
 
 						<template v-if="mode === 'picker'" #footer>
-							<n-button block @click="$emit('select', f.id)">
+							<NButton block @click="$emit('select', f.id)">
 								{{ t('sharedButtons.select') }}
-							</n-button>
+							</NButton>
 						</template>
-					</n-card>
-				</n-grid-item>
-			</n-grid>
+					</NCard>
+				</NGridItem>
+			</NGrid>
 		</div>
 	</div>
 </template>

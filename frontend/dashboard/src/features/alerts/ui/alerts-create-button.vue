@@ -2,7 +2,7 @@
 import { PlusIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
-import GreetingsDialog from './greetings-dialog.vue'
+import AlertsDialog from './alerts-dialog.vue'
 
 import { Button } from '@/components/ui/button'
 
@@ -11,13 +11,13 @@ const { t } = useI18n()
 
 <template>
 	<div class="flex gap-2">
-		<GreetingsDialog>
+		<AlertsDialog>
 			<template #dialog-trigger>
 				<Button>
 					<PlusIcon class="size-5 mr-2" />
-					{{ t('greetings.create') }}
+					{{ t('alerts.createAlert') }}
 				</Button>
 			</template>
-		</GreetingsDialog>
+		</AlertsDialog>
 	</div>
 </template>
