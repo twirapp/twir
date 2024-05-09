@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { EmoteStatisticRange } from '@/gql/graphql'
 
-export const useTranslatedRanges = defineStore('features/community-emotes-statistic-table/ranges', () => {
+export const useTranslatedRanges = createGlobalState(() => {
 	const { t } = useI18n()
 
 	const ranges = computed(() => ({

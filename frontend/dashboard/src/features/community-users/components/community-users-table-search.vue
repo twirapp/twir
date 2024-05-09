@@ -14,7 +14,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger
+	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
 const { t } = useI18n()
@@ -38,7 +38,7 @@ const columns = computed(() => {
 <template>
 	<div class="flex gap-2">
 		<SearchBar
-			v-model="communityTableActions.searchInput"
+			v-model="communityTableActions.searchInput.value"
 			:placeholder="t('community.users.searchPlaceholder')"
 		/>
 		<DropdownMenu>

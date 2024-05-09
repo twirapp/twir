@@ -7,7 +7,7 @@ import {
 	getSortedRowModel,
 	useVueTable,
 } from '@tanstack/vue-table'
-import { defineStore, storeToRefs } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -24,7 +24,7 @@ import CommunityEmotesTableColumnEmote
 import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
-export const useCommunityEmotesStatisticTable = defineStore('features/community-emotes-statistic-table', () => {
+export const useCommunityEmotesStatisticTable = createGlobalState(() => {
 	const { t } = useI18n()
 	const { pagination } = usePagination()
 	const {
@@ -32,7 +32,7 @@ export const useCommunityEmotesStatisticTable = defineStore('features/community-
 		tableRange,
 		sortingState,
 		tableOrder,
-	} = storeToRefs(useCommunityEmotesStatisticFilters())
+	} = useCommunityEmotesStatisticFilters()
 
 	const emotesQueryOptions = computed<EmotesStatisticsOpts>((prevParams) => {
 		if (prevParams?.search !== debouncedSearchInput.value) {

@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useTheme } from '@/composables/use-theme.js'
 
-export const useCommunityChartStyles = defineStore('features/community-chart-styles', () => {
+export const useCommunityChartStyles = createGlobalState(() => {
 	const { theme } = useTheme()
 
 	const chartStyles = computed(() => {

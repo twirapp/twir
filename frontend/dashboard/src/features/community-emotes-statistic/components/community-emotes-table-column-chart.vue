@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ColorType, createChart } from 'lightweight-charts'
-import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 
 import { useCommunityChartSize } from '../composables/use-community-chart-size.js'
@@ -20,7 +19,7 @@ const chart = shallowRef<IChartApi | null>(null)
 const chartContainer = ref<HTMLElement | null>(null)
 
 const { chartSizes, setChartSize } = useCommunityChartSize()
-const { chartStyles } = storeToRefs(useCommunityChartStyles())
+const { chartStyles } = useCommunityChartStyles()
 
 const chartOptions = computed<DeepPartial<TimeChartOptions>>(() => ({
 	layout: {

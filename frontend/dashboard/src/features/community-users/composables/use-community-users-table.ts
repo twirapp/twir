@@ -8,7 +8,7 @@ import {
 	getSortedRowModel,
 	useVueTable,
 } from '@tanstack/vue-table'
-import { defineStore, storeToRefs } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -32,10 +32,10 @@ export const TABLE_ACCESSOR_KEYS = {
 	usedChannelPoints: 'usedChannelPoints',
 }
 
-export const useCommunityUsersTable = defineStore('features/community-users-table', () => {
+export const useCommunityUsersTable = createGlobalState(() => {
 	const { t } = useI18n()
 
-	const { data: profile } = storeToRefs(useProfile())
+	const { data: profile } = useProfile()
 	const communityUsersApi = useCommunityUsersApi()
 
 	const {
@@ -46,7 +46,7 @@ export const useCommunityUsersTable = defineStore('features/community-users-tabl
 		tableOrder,
 		tableSortBy,
 		debouncedSearchInput,
-	} = storeToRefs(useCommunityTableActions())
+	} = useCommunityTableActions()
 
 	const { pagination, setPagination } = usePagination()
 	const params = computed<CommunityUsersOpts>((prevParams) => {

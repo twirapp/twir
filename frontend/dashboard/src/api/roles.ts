@@ -1,12 +1,12 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import { useMutation } from '@/composables/use-mutation'
 import { graphql } from '@/gql'
 
 const rolesInvalidateKey = 'rolesInvalidateKey'
 
-export const useRoles = defineStore('api/channelRoles', () => {
+export const useRoles = createGlobalState(() => {
 	const useRolesQuery = () => useQuery({
 		query: graphql(`
 			query ChannelRoles {
@@ -31,8 +31,8 @@ export const useRoles = defineStore('api/channelRoles', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [rolesInvalidateKey]
-		}
+			additionalTypenames: [rolesInvalidateKey],
+		},
 	})
 
 	const useRolesDeleteMutation = () => useMutation(
@@ -41,7 +41,7 @@ export const useRoles = defineStore('api/channelRoles', () => {
 				rolesRemove(id: $id)
 			}
 		`),
-		[rolesInvalidateKey]
+		[rolesInvalidateKey],
 	)
 
 	const useRolesCreateMutation = () => useMutation(
@@ -50,7 +50,7 @@ export const useRoles = defineStore('api/channelRoles', () => {
 				rolesCreate(opts: $opts)
 			}
 		`),
-		[rolesInvalidateKey]
+		[rolesInvalidateKey],
 	)
 
 	const useRolesUpdateMutation = () => useMutation(
@@ -59,13 +59,13 @@ export const useRoles = defineStore('api/channelRoles', () => {
 				rolesUpdate(id: $id, opts: $opts)
 			}
 		`),
-		[rolesInvalidateKey]
+		[rolesInvalidateKey],
 	)
 
 	return {
 		useRolesQuery,
 		useRolesDeleteMutation,
 		useRolesCreateMutation,
-		useRolesUpdateMutation
+		useRolesUpdateMutation,
 	}
 })

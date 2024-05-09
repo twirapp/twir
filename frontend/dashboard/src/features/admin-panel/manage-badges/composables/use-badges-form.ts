@@ -1,5 +1,5 @@
 import { toTypedSchema } from '@vee-validate/zod'
-import { defineStore, storeToRefs } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import * as z from 'zod'
 
@@ -10,12 +10,11 @@ import { useFormField } from '@/composables/use-form-field.js'
 const formSchema = toTypedSchema(z.object({
 	name: z.string(),
 	slot: z.number(),
-	image: z.any()
+	image: z.any(),
 }))
 
-export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
-	const badgesApi = useBadges()
-	const { badges } = storeToRefs(badgesApi)
+export const useBadgesForm = createGlobalState(() => {
+	const { badges, badgesUpdate, badgesCreate } = useBadges()
 
 	const editableBadgeId = ref<string | null>(null)
 	const isEditableForm = computed(() => Boolean(editableBadgeId.value))
@@ -29,7 +28,7 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 		},
 		set(el: any) {
 			fileField.fieldRef.value = el?.$el
-		}
+		},
 	})
 
 	watch(badges, (badges) => {
@@ -43,7 +42,7 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 		return {
 			name: nameField.fieldModel.value,
 			image: fileField.fieldModel.value,
-			slot: slotField.fieldModel.value
+			slot: slotField.fieldModel.value,
 		}
 	})
 	const isFormDirty = computed(() => Boolean(formValues.value.name || formValues.value.image))
@@ -58,21 +57,21 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 				return
 
 			if (editableBadgeId.value) {
-				await badgesApi.badgesUpdate.executeMutation({
+				await badgesUpdate.executeMutation({
 					id: editableBadgeId.value,
 					opts: {
 						name: value.name,
 						ffzSlot: value.slot,
-						file: value.image instanceof File ? value.image : undefined
-					}
+						file: value.image instanceof File ? value.image : undefined,
+					},
 				})
 			} else {
-				await badgesApi.badgesCreate.executeMutation({
+				await badgesCreate.executeMutation({
 					opts: {
 						name: value.name,
 						file: value.image,
-						ffzSlot: value.slot
-					}
+						ffzSlot: value.slot,
+					},
 				})
 			}
 		} catch (err) {
@@ -111,6 +110,6 @@ export const useBadgesForm = defineStore('admin-panel/badges-form', () => {
 
 		onSubmit,
 		onReset,
-		setImageField
+		setImageField,
 	}
 })

@@ -12,9 +12,8 @@ import {
 	NModal,
 	NSelect,
 	NSlider,
-	NSpace
+	NSpace,
 } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -26,7 +25,7 @@ import {
 	useAlertsManager,
 	useFiles,
 	useProfile,
-	useTwitchGetUsers
+	useTwitchGetUsers,
 } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands'
 import { useGreetingsApi } from '@/api/greetings'
@@ -50,7 +49,7 @@ const formValue = ref<EditableAlert>({
 	commandIds: [],
 	rewardIds: [],
 	greetingsIds: [],
-	keywordsIds: []
+	keywordsIds: [],
 })
 
 onMounted(() => {
@@ -69,8 +68,8 @@ const rules: FormRules = {
 			}
 
 			return true
-		}
-	}
+		},
+	},
 }
 
 const manager = useAlertsManager()
@@ -86,7 +85,7 @@ async function save() {
 	if (data.id) {
 		await updater.mutateAsync({
 			...data,
-			id: data.id!
+			id: data.id!,
 		})
 	} else {
 		await creator.mutateAsync(data)
@@ -99,14 +98,14 @@ const { data: files } = useFiles()
 const selectedAudio = computed(() => files.value?.files.find(f => f.id === formValue.value.audioId))
 const showAudioModal = ref(false)
 
-const { data: profile } = storeToRefs(useProfile())
+const { data: profile } = useProfile()
 
 async function testAudio() {
 	if (!selectedAudio.value?.id || !profile.value) return
 
 	const query = new URLSearchParams({
 		channel_id: profile.value.selectedDashboardId,
-		file_id: selectedAudio.value.id
+		file_id: selectedAudio.value.id,
 	})
 
 	const req = await fetch(`${window.location.origin}/api-old/files/?${query}`)
@@ -121,7 +120,7 @@ async function testAudio() {
 const commandsManager = useCommandsApi()
 const { data: commands } = commandsManager.useQueryCommands()
 const commandsSelectOptions = computed(() => commands.value?.commands
-	.map((command) => ({ label: command.name, value: command.id }))
+	.map((command) => ({ label: command.name, value: command.id })),
 )
 
 const greetingsManager = useGreetingsApi()
@@ -139,7 +138,7 @@ const greetingsSelectOptions = computed(() => {
 const keywordsManager = useKeywordsApi()
 const { data: keywords } = keywordsManager.useQueryKeywords()
 const keywordsSelectOptions = computed(() => keywords.value?.keywords
-	.map(k => ({ label: k.text, value: k.id }))
+	.map(k => ({ label: k.text, value: k.id })),
 )
 </script>
 

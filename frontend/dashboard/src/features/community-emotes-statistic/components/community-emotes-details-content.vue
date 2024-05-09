@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ColorType, createChart } from 'lightweight-charts'
-import { storeToRefs } from 'pinia'
 import { RadioGroupItem, RadioGroupRoot } from 'radix-vue'
 import { onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -20,10 +19,9 @@ import {
 } from '@/features/community-emotes-statistic/composables/use-translated-ranges'
 
 const { t } = useI18n()
-const { ranges } = storeToRefs(useTranslatedRanges())
-const detailsStore = useCommunityEmotesDetails()
-const { emoteName } = storeToRefs(useCommunityEmotesDetailsName())
-const { details, range } = storeToRefs(detailsStore)
+const { ranges } = useTranslatedRanges()
+const { details, range } = useCommunityEmotesDetails()
+const { emoteName } = useCommunityEmotesDetailsName()
 
 const chartContainer = ref<HTMLElement>()
 

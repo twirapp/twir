@@ -1,103 +1,102 @@
 <script setup lang="ts">
-import { useFontSource } from '@twir/fontsource';
-import { useIntervalFn } from '@vueuse/core';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
+import { useFontSource } from '@twir/fontsource'
+import { useIntervalFn } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 
-import { useBrbSettings } from '@/composables/brb/use-brb-settings';
-import { getTimeDiffInMilliseconds, millisecondsToTime } from '@/helpers.js';
-import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js';
+import type { BrbOnStartFn, BrbOnStopFn } from '@/types.js'
 
-const brbSettingsStore = useBrbSettings();
-const { settings } = storeToRefs(brbSettingsStore);
+import { useBrbSettings } from '@/composables/brb/use-brb-settings.js'
+import { getTimeDiffInMilliseconds, millisecondsToTime } from '@/helpers.js'
 
-const minutes = ref(0);
-const text = ref<string | null>(null);
-const countDownTicks = ref(0);
-const countUpTicks = ref(0);
+const { settings } = useBrbSettings()
+
+const minutes = ref(0)
+const text = ref<string | null>(null)
+const countDownTicks = ref(0)
+const countUpTicks = ref(0)
+
+const countUpInterval = useIntervalFn(() => {
+	countUpTicks.value++
+}, 1000, { immediate: false })
 
 const countDownInterval = useIntervalFn(() => {
-	countDownTicks.value--;
+	countDownTicks.value--
 
 	if (!countDownTicks.value) {
-		countDownInterval.pause();
+		countDownInterval.pause()
 	}
 
 	if (!countDownTicks.value && settings.value?.late?.enabled) {
-		countUpInterval.resume();
+		countUpInterval.resume()
 	}
-}, 1000, { immediate: false });
-
-const countUpInterval = useIntervalFn(() => {
-	countUpTicks.value++;
-}, 1000, { immediate: false });
-
-const start: BrbOnStartFn = (incomingMinutes, incomingText) => {
-	stop();
-	const ticks = parseInt((getTimeDiffInMilliseconds(incomingMinutes) / 1000).toString());
-
-	countDownTicks.value = ticks;
-	minutes.value = getTimeDiffInMilliseconds(incomingMinutes);
-	text.value = incomingText;
-
-	countDownInterval.resume();
-};
+}, 1000, { immediate: false })
 
 const stop: BrbOnStopFn = () => {
-	countDownTicks.value = 0;
-	countUpTicks.value = 0;
-	minutes.value = 0;
-	text.value = null;
+	countDownTicks.value = 0
+	countUpTicks.value = 0
+	minutes.value = 0
+	text.value = null
 
-	countDownInterval.pause();
-	countUpInterval.pause();
-};
+	countDownInterval.pause()
+	countUpInterval.pause()
+}
 
-export type BrbTimerMethods = {
-	start: BrbOnStartFn,
-	stop: BrbOnStopFn,
+const start: BrbOnStartFn = (incomingMinutes, incomingText) => {
+	stop()
+	const ticks = Number.parseInt((getTimeDiffInMilliseconds(incomingMinutes) / 1000).toString())
+
+	countDownTicks.value = ticks
+	minutes.value = getTimeDiffInMilliseconds(incomingMinutes)
+	text.value = incomingText
+
+	countDownInterval.resume()
+}
+
+export interface BrbTimerMethods {
+	start: BrbOnStartFn
+	stop: BrbOnStopFn
 }
 
 defineExpose<BrbTimerMethods>({
 	start,
 	stop,
-});
+})
 
 const showCountDown = computed(() => {
-	const isActive = countDownInterval.isActive.value;
+	const isActive = countDownInterval.isActive.value
 
-	if (isActive) return true;
-	if (countUpInterval.isActive.value && !settings.value?.late?.displayBrbTime) return false;
+	if (isActive) return true
+	if (countUpInterval.isActive.value && !settings.value?.late?.displayBrbTime) return false
 
-	return true;
-});
+	return true
+})
 
-const fontSource = useFontSource(false);
+const fontSource = useFontSource(false)
 watch(() => settings.value?.fontFamily, (font) => {
-	if (!font) return;
-	fontSource.loadFont(font, 400, 'normal');
-}, { immediate: true });
+	if (!font) return
+	fontSource.loadFont(font, 400, 'normal')
+}, { immediate: true })
 
 const fontFamily = computed(() => {
-	return `"${settings.value?.fontFamily}-400-normal"`;
-});
+	return `"${settings.value?.fontFamily}-400-normal"`
+})
 
 const backgroundColor = computed(() => {
-	return settings.value?.backgroundColor || 'rgba(9, 8, 8, 0.50)';
-});
+	return settings.value?.backgroundColor || 'rgba(9, 8, 8, 0.50)'
+})
 
 const fontColor = computed(() => {
-	return settings.value?.fontColor || '#fff';
-});
+	return settings.value?.fontColor || '#fff'
+})
 
 const countUpFontSize = computed(() => {
-	if (!settings.value?.fontSize) return '16px';
-	return `${settings.value.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px`;
-});
+	if (!settings.value?.fontSize) return '16px'
+	return `${settings.value.fontSize / (countUpInterval.isActive.value ? 2 : 1)}px`
+})
 
 const countDownFontSize = computed(() => {
-	return `${settings.value?.fontSize || 16}px`;
-});
+	return `${settings.value?.fontSize || 16}px`
+})
 </script>
 
 <template>

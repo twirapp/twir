@@ -1,52 +1,51 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed } from 'vue'
 
-import { useStreamerProfile } from '@/api/use-streamer-profile';
-import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/use-tts-settings';
-import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue';
+import { useStreamerProfile } from '@/api/use-streamer-profile'
+import { useTTSChannelSettings, useTTSUsersSettings } from '@/api/use-tts-settings'
+import TableRowsSkeleton from '@/components/TableRowsSkeleton.vue'
 import {
 	Table,
-	TableBody, TableCell,
+	TableBody,
+	TableCell,
 	TableHead,
 	TableHeader,
 	TableRow,
-} from '@/components/ui/table';
-import { useTwitchGetUsers } from '@/composables/use-twitch-users';
-import UserRow from '@/pages/tts/user-row.vue';
+} from '@/components/ui/table'
+import { useTwitchGetUsers } from '@/composables/use-twitch-users'
+import UserRow from '@/pages/tts/user-row.vue'
 
-
-const { data: profile } = storeToRefs(useStreamerProfile());
+const { data: profile } = useStreamerProfile()
 const {
 	data: channelSettings,
 	isLoading: isChannelSettingsLoading,
-} = useTTSChannelSettings();
+} = useTTSChannelSettings()
 const {
 	data: usersSettings,
 	isLoading: isUsersSettingsLoading,
-} = useTTSUsersSettings();
+} = useTTSUsersSettings()
 
-const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? []);
-const { data: users, isLoading: isTwitchUsersLoading } = useTwitchGetUsers(usersIds);
+const usersIds = computed(() => usersSettings.value?.settings.map(s => s.userId) ?? [])
+const { data: users, isLoading: isTwitchUsersLoading } = useTwitchGetUsers(usersIds)
 
 const isLoading = computed(() => {
-	return isChannelSettingsLoading.value || isUsersSettingsLoading.value || isTwitchUsersLoading.value;
-});
+	return isChannelSettingsLoading.value || isUsersSettingsLoading.value || isTwitchUsersLoading.value
+})
 
 const usersWithProfiles = computed(() => {
-	if (!users.value?.users) return [];
+	if (!users.value?.users) return []
 
 	return users.value.users.map(u => {
-		const settings = usersSettings.value?.settings.find(s => s.userId === u.id);
-		if (!settings) return;
+		const settings = usersSettings.value?.settings.find(s => s.userId === u.id)
+		if (!settings) return null
 
 		return {
 			name: u.displayName,
 			avatar: u.profileImageUrl,
 			...settings,
-		};
-	}).filter(Boolean);
-});
+		}
+	}).filter(Boolean)
+})
 </script>
 
 <template>
@@ -71,7 +70,7 @@ const usersWithProfiles = computed(() => {
 			</TableHeader>
 			<Transition name="table-rows" appear mode="out-in">
 				<TableBody v-if="!usersWithProfiles || isLoading">
-					<table-rows-skeleton :rows="20" :colspan="5" />
+					<TableRowsSkeleton :rows="20" :colspan="5" />
 				</TableBody>
 				<TableBody v-else-if="!users?.users?.length">
 					<TableRow>
@@ -83,7 +82,7 @@ const usersWithProfiles = computed(() => {
 					</TableRow>
 				</TableBody>
 				<TableBody v-else>
-					<user-row
+					<UserRow
 						v-if="channelSettings && profile?.twitchGetUserByName"
 						:name="profile.twitchGetUserByName.displayName"
 						:avatar="profile.twitchGetUserByName.profileImageUrl"
@@ -92,7 +91,7 @@ const usersWithProfiles = computed(() => {
 						:voice="channelSettings.voice"
 					/>
 
-					<user-row
+					<UserRow
 						v-for="(user) of usersWithProfiles"
 						:key="user!.userId"
 						:name="user!.name"

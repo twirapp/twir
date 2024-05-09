@@ -4,7 +4,7 @@ import {
 	getPaginationRowModel,
 	useVueTable,
 } from '@tanstack/vue-table'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -20,7 +20,7 @@ import type { TwirUsersSearchParams } from '@/gql/graphql'
 import { usePagination } from '@/composables/use-pagination.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
-export const useUsersTable = defineStore('manage-users/users-table', () => {
+export const useUsersTable = createGlobalState(() => {
 	const { t } = useI18n()
 
 	const { pagination } = usePagination()
@@ -29,16 +29,16 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableParams = computed<TwirUsersSearchParams>((prevParams) => {
 		// reset pagination on search change
-		if (prevParams?.search !== tableFilters.debounceSearchInput) {
+		if (prevParams?.search !== tableFilters.debounceSearchInput.value) {
 			pagination.value.pageIndex = 0
 		}
 
 		return {
-			...tableFilters.selectedStatuses,
-			search: tableFilters.debounceSearchInput,
+			...tableFilters.selectedStatuses.value,
+			search: tableFilters.debounceSearchInput.value,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			badges: tableFilters.selectedBadges,
+			badges: tableFilters.selectedBadges.value,
 		}
 	})
 

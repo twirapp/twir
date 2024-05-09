@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CheckIcon, GanttChartIcon } from 'lucide-vue-next'
-import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from '../composables/use-community-emotes-statistic-filters.js'
@@ -20,7 +19,7 @@ import {
 
 const { t } = useI18n()
 
-const { ranges } = storeToRefs(useTranslatedRanges())
+const { ranges } = useTranslatedRanges()
 
 const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 </script>
@@ -45,7 +44,7 @@ const emotesStatisticFilter = useCommunityEmotesStatisticFilters()
 					@click="emotesStatisticFilter.changeTableRange(type as EmoteStatisticRange)"
 				>
 					<CheckIcon
-						v-if="emotesStatisticFilter.tableRange === type"
+						v-if="emotesStatisticFilter.tableRange.value === type"
 						class="mr-2 h-3.5 w-3.5"
 					/>
 					{{ text }}

@@ -1,29 +1,29 @@
-import { ref, toRaw } from 'vue';
+import { ref, toRaw } from 'vue'
 
-import { defaultChatSettings, type ChatSettingsWithOptionalId } from './default-settings';
+import { type ChatSettingsWithOptionalId, defaultChatSettings } from './default-settings'
 
-const data = ref<ChatSettingsWithOptionalId>(structuredClone(defaultChatSettings));
+const data = ref<ChatSettingsWithOptionalId>(structuredClone(defaultChatSettings))
 
-export const useChatOverlayForm = () => {
-	function $setData(d: ChatSettingsWithOptionalId) {
-		data.value = structuredClone(toRaw(d));
+export function useChatOverlayForm() {
+	function setData(d: ChatSettingsWithOptionalId) {
+		data.value = structuredClone(toRaw(d))
 	}
 
-	function $reset() {
+	function reset() {
 		data.value = {
 			id: data.value.id,
 			...structuredClone(defaultChatSettings),
-		};
+		}
 	}
 
-	function $getDefaultSettings() {
-		return structuredClone(defaultChatSettings);
+	function getDefaultSettings() {
+		return structuredClone(defaultChatSettings)
 	}
 
 	return {
 		data,
-		$setData,
-		$reset,
-		$getDefaultSettings,
-	};
-};
+		setData,
+		reset,
+		getDefaultSettings,
+	}
+}

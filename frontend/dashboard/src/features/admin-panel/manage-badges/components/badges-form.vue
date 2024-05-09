@@ -24,7 +24,7 @@ const badgesForm = useBadgesForm()
 					{{ t('adminPanel.manageBadges.name') }}
 				</Label>
 				<Input
-					v-model="badgesForm.nameField.fieldModel"
+					v-model="badgesForm.nameField.fieldModel.value"
 					name="name"
 					type="text"
 					placeholder=""
@@ -37,7 +37,7 @@ const badgesForm = useBadgesForm()
 					{{ t('adminPanel.manageBadges.slot') }}
 				</Label>
 				<Input
-					v-model="badgesForm.slotField.fieldModel"
+					v-model="badgesForm.slotField.fieldModel.value"
 					name="slot"
 					type="text"
 					inputmode="numeric"
@@ -61,11 +61,11 @@ const badgesForm = useBadgesForm()
 				</div>
 			</div>
 
-			<div v-if="badgesForm.isImageFile">
+			<div v-if="badgesForm.isImageFile.value">
 				<Label>
 					{{ t('adminPanel.manageBadges.preview') }}
 				</Label>
-				<BadgesPreview class="mt-2" :image="badgesForm.formValues.image!" />
+				<BadgesPreview class="mt-2" :image="badgesForm.formValues.value.image!" />
 			</div>
 
 			<div class="flex justify-end gap-4">

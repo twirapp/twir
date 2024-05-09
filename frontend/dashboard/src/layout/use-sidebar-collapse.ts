@@ -1,20 +1,19 @@
-import { useLocalStorage } from '@vueuse/core';
-import { defineStore } from 'pinia';
+import { createGlobalState, useLocalStorage } from '@vueuse/core'
 
-export const useSidebarCollapseStore = defineStore('isSidebarCollapsed', () => {
-	const isCollapsed = useLocalStorage('twirSidebarIsCollapsed', false);
+export const useSidebarCollapseStore = createGlobalState(() => {
+	const isCollapsed = useLocalStorage('twirSidebarIsCollapsed', false)
 
 	function set(v: boolean) {
-		isCollapsed.value = v;
+		isCollapsed.value = v
 	}
 
 	function toggle() {
-		isCollapsed.value = !isCollapsed.value;
+		isCollapsed.value = !isCollapsed.value
 	}
 
 	return {
 		isCollapsed,
 		set,
 		toggle,
-	};
-});
+	}
+})

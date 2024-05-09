@@ -1,5 +1,5 @@
 import { type ColumnDef, getCoreRowModel, getPaginationRowModel, useVueTable } from '@tanstack/vue-table'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,7 +10,7 @@ import { usePagination } from '@/composables/use-pagination.js'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
-export const useGreetingsTable = defineStore('features/greetings-table', () => {
+export const useGreetingsTable = createGlobalState(() => {
 	const { t } = useI18n()
 	const greetingsApi = useGreetingsApi()
 	const { pagination } = usePagination()

@@ -1,40 +1,39 @@
 <script setup lang="ts">
-import { type Font, FontSelector } from '@twir/fontsource';
-import { NButton, NSelect, NFormItem, useThemeVars, NColorPicker, NSwitch, NInputNumber } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { type Font, FontSelector } from '@twir/fontsource'
+import { NButton, NColorPicker, NFormItem, NInputNumber, NSelect, NSwitch, useThemeVars } from 'naive-ui'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useNowPlayingForm } from './use-now-playing-form';
+import { useNowPlayingForm } from './use-now-playing-form'
 
 import {
 	useNowPlayingOverlayManager,
 	useProfile,
 	useUserAccessFlagChecker,
-} from '@/api';
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+} from '@/api'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const themeVars = useThemeVars();
-const discrete = useNaiveDiscrete();
-const { copyOverlayLink } = useCopyOverlayLink('now-playing');
-const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
-const { data: profile } = storeToRefs(useProfile());
+const themeVars = useThemeVars()
+const discrete = useNaiveDiscrete()
+const { copyOverlayLink } = useCopyOverlayLink('now-playing')
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
-const { data: formValue } = storeToRefs(useNowPlayingForm());
+const { data: profile } = useProfile()
+const { data: formValue } = useNowPlayingForm()
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
-});
+	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
+})
 
-const manager = useNowPlayingOverlayManager();
-const updater = manager.useUpdate();
+const manager = useNowPlayingOverlayManager()
+const updater = manager.useUpdate()
 
 async function save() {
-	if (!formValue.value?.id) return;
+	if (!formValue.value?.id) return
 
 	await updater.mutateAsync({
 		id: formValue.value.id,
@@ -44,46 +43,46 @@ async function save() {
 		backgroundColor: formValue.value.backgroundColor,
 		showImage: formValue.value.showImage,
 		hideTimeout: formValue.value.hideTimeout,
-	});
+	})
 
 	discrete.notification.success({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
-	});
+	})
 }
 
-const fontData = ref<Font | null>(null);
+const fontData = ref<Font | null>(null)
 watch(() => fontData.value, (font) => {
-	console.log(font);
-	if (!font) return;
-	formValue.value.fontFamily = font.id;
-}, { deep: true });
+	console.log(font)
+	if (!font) return
+	formValue.value.fontFamily = font.id
+}, { deep: true })
 
 const fontWeightOptions = computed(() => {
-	if (!fontData.value) return [];
-	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }));
-});
+	if (!fontData.value) return []
+	return fontData.value.weights.map((weight) => ({ label: `${weight}`, value: weight }))
+})
 </script>
 
 <template>
 	<div v-if="formValue" class="card">
 		<div class="card-header">
-			<n-button
+			<NButton
 				secondary
 				type="info"
 				:disabled="!formValue.id || !canCopyLink"
 				@click="copyOverlayLink({ id: formValue.id! })"
 			>
 				{{ t('overlays.copyOverlayLink') }}
-			</n-button>
-			<n-button secondary type="success" @click="save">
+			</NButton>
+			<NButton secondary type="success" @click="save">
 				{{ t('sharedButtons.save') }}
-			</n-button>
+			</NButton>
 		</div>
 
 		<div class="card-body-column">
-			<n-form-item label="Style">
-				<n-select
+			<NFormItem label="Style">
+				<NSelect
 					v-model:value="formValue.preset"
 					:options="[
 						{ label: 'Aiden Redesign', value: 'AIDEN_REDESIGN' },
@@ -91,41 +90,41 @@ const fontWeightOptions = computed(() => {
 						{ label: 'Simple line', value: 'SIMPLE_LINE' },
 					]"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item label="Show image">
-				<n-switch v-model:value="formValue.showImage" />
-			</n-form-item>
+			<NFormItem label="Show image">
+				<NSwitch v-model:value="formValue.showImage" />
+			</NFormItem>
 
-			<n-form-item label="Background color">
-				<n-color-picker
+			<NFormItem label="Background color">
+				<NColorPicker
 					v-model:value="formValue.backgroundColor"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('overlays.chat.fontFamily')">
-				<font-selector
+			<NFormItem :label="t('overlays.chat.fontFamily')">
+				<FontSelector
 					v-model:font="fontData"
 					:font-family="formValue.fontFamily"
 					:font-weight="formValue.fontWeight"
-					:font-style="'normal'"
+					font-style="normal"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('overlays.chat.fontWeight')">
-				<n-select
+			<NFormItem :label="t('overlays.chat.fontWeight')">
+				<NSelect
 					v-model:value="formValue.fontWeight"
 					:options="fontWeightOptions"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('overlays.chat.hideTimeout')">
-				<n-input-number
+			<NFormItem :label="t('overlays.chat.hideTimeout')">
+				<NInputNumber
 					v-model:value="formValue.hideTimeout"
 					:min="0"
 					:max="600"
 				/>
-			</n-form-item>
+			</NFormItem>
 		</div>
 	</div>
 </template>

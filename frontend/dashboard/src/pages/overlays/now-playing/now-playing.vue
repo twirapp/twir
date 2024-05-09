@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NowPlaying } from '@twir/frontend-now-playing'
 import { NA, NAlert, NResult, NTabPane, NTabs, useThemeVars } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,14 +9,14 @@ import {
 	useNowPlayingOverlayManager,
 	useSpotifyIntegration,
 	useUserAccessFlagChecker,
-	useVKIntegration
+	useVKIntegration,
 } from '@/api'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import NowPlayingForm from '@/pages/overlays/now-playing/now-playing-form.vue'
 import {
 	defaultSettings,
-	useNowPlayingForm
+	useNowPlayingForm,
 } from '@/pages/overlays/now-playing/use-now-playing-form'
 
 const themeVars = useThemeVars()
@@ -37,11 +36,13 @@ const isSomeSongIntegrationEnabled = computed(() => {
 	return spotifyData.value?.userName || lastFmData.value?.userName || vkData.value?.userName
 })
 
-const formStore = useNowPlayingForm()
-const { data: settings } = storeToRefs(formStore)
+const {
+	data: settings,
+	setData,
+} = useNowPlayingForm()
 
 const {
-	data: entities
+	data: entities,
 } = nowPlayingOverlayManager.useGetAll()
 
 const openedTab = ref<string>()
@@ -72,7 +73,7 @@ async function handleClose(id: string) {
 
 			await deleter.mutateAsync(entity.id)
 			resetTab()
-		}
+		},
 	})
 }
 
@@ -83,7 +84,7 @@ const addable = computed(() => {
 watch(openedTab, async (v) => {
 	const entity = entities.value?.settings.find(s => s.id === v)
 	if (!entity) return
-	formStore.$setData(entity)
+	setData(entity)
 })
 
 watch(entities, () => {

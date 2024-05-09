@@ -1,12 +1,11 @@
-import { refDebounced } from '@vueuse/core'
-import { defineStore } from 'pinia'
+import { createGlobalState, refDebounced } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
 import type { SortingState } from '@tanstack/vue-table'
 
 import { EmoteStatisticRange, EmotesStatisticsOptsOrder } from '@/gql/graphql.js'
 
-export const useCommunityEmotesStatisticFilters = defineStore('features/community-emotes-statistic-filters', () => {
+export const useCommunityEmotesStatisticFilters = createGlobalState(() => {
 	const searchInput = ref('')
 	const debouncedSearchInput = refDebounced(searchInput, 500)
 

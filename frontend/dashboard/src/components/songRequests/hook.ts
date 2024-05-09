@@ -1,10 +1,9 @@
-import { useWebSocket } from '@vueuse/core';
-import { defineStore, storeToRefs } from 'pinia';
-import { computed, onMounted, ref, watch } from 'vue';
+import { createGlobalState, useWebSocket } from '@vueuse/core'
+import { computed, onMounted, ref, watch } from 'vue'
 
-import { useProfile, useYoutubeModuleSettings } from '@/api/index.js';
+import { useProfile, useYoutubeModuleSettings } from '@/api/index.js'
 
-export type Video = {
+export interface Video {
 	id: string
 	channelId: string
 	createdAt: string
@@ -19,15 +18,39 @@ export type Video = {
 	videoId: string
 }
 
-export const useYoutubeSocket = defineStore('youtubeSocket', () => {
-	const youtubeModuleManager = useYoutubeModuleSettings();
-	const { data: youtubeSettings } = youtubeModuleManager.getAll();
-	const youtubeModuleUpdater = youtubeModuleManager.update();
+export const useYoutubeSocket = createGlobalState(() => {
+	const youtubeModuleManager = useYoutubeModuleSettings()
+	const { data: youtubeSettings } = youtubeModuleManager.getAll()
+	const youtubeModuleUpdater = youtubeModuleManager.update()
 
-	const videos = ref<Video[]>([]);
-	const currentVideo = computed(() => videos.value[0]);
+	const videos = ref<Video[]>([])
+	const currentVideo = computed(() => videos.value[0])
 
-	const { data: userProfile } = storeToRefs(useProfile());
+	const { data: userProfile } = useProfile()
+
+	const socketUrl = computed(() => {
+		if (!userProfile?.value) return
+
+		const host = window.location.host
+		const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+		return `${protocol}://${host}/socket/youtube?apiKey=${userProfile.value.apiKey}`
+	})
+
+	const websocket = useWebSocket(socketUrl, {
+		immediate: false,
+		autoReconnect: {
+			delay: 1000,
+		},
+	})
+
+	function callWsSkip(ids: string | string[]) {
+		const request = JSON.stringify({
+			eventName: 'skip',
+			data: Array.isArray(ids) ? ids : [ids],
+		})
+
+		websocket.send(request)
+	}
 
 	async function banUser(userId: string) {
 		await youtubeModuleUpdater.mutateAsync({
@@ -41,10 +64,10 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 					],
 				},
 			},
-		});
+		})
 
-		callWsSkip(videos.value.filter(video => video.orderedById === userId).map(video => video.id));
-		videos.value = videos.value.filter(video => video.orderedById !== userId);
+		callWsSkip(videos.value.filter(video => video.orderedById === userId).map(video => video.id))
+		videos.value = videos.value.filter(video => video.orderedById !== userId)
 	}
 
 	async function banSong(videoId: string) {
@@ -59,99 +82,75 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 					],
 				},
 			},
-		});
+		})
 
-		const video = videos.value.find(video => video.videoId === videoId);
+		const video = videos.value.find(video => video.videoId === videoId)
 
-		callWsSkip(video!.id);
-		videos.value = videos.value.filter(video => video.videoId !== videoId);
+		callWsSkip(video!.id)
+		videos.value = videos.value.filter(video => video.videoId !== videoId)
 	}
 
-	const socketUrl = computed(() => {
-		if (!userProfile?.value) return;
-
-		const host = window.location.host;
-		const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-		return `${protocol}://${host}/socket/youtube?apiKey=${userProfile.value.apiKey}`;
-	});
-
-	const websocket = useWebSocket(socketUrl, {
-		immediate: false,
-		autoReconnect: {
-			delay: 1000,
-		},
-	});
-
 	watch(websocket.data, (data) => {
-		const parsedData = JSON.parse(data);
+		const parsedData = JSON.parse(data)
 		if (parsedData.eventName === 'currentQueue') {
-			const incomingVideos = parsedData.data;
+			const incomingVideos = parsedData.data
 
-			videos.value = incomingVideos;
+			videos.value = incomingVideos
 		}
 
 		if (parsedData.eventName === 'newTrack') {
-			videos.value.push(parsedData.data);
+			videos.value.push(parsedData.data)
 		}
 
 		if (parsedData.eventName === 'removeTrack') {
-			videos.value = videos.value.filter(video => video.id !== parsedData.data.id);
+			videos.value = videos.value.filter(video => video.id !== parsedData.data.id)
 		}
-	});
+	})
 
 	watch(socketUrl, (v) => {
-		if (!v) return;
-		websocket.open();
-	});
+		if (!v) return
+		websocket.open()
+	})
 
 	onMounted(() => {
 		if (websocket.status.value !== 'OPEN' && socketUrl.value) {
-			websocket.open();
+			websocket.open()
 		}
-	});
+	})
 
-	const callWsSkip = (ids: string | string[]) => {
-		const request = JSON.stringify({
-			eventName: 'skip',
-			data: Array.isArray(ids) ? ids : [ids],
-		});
+	function nextVideo() {
+		callWsSkip(currentVideo.value.id)
+		videos.value = videos.value.slice(1)
+	}
 
-		websocket.send(request);
-	};
+	function deleteVideo(id: string) {
+		callWsSkip(id)
+		videos.value = videos.value.filter(video => video.id !== id)
+	}
 
-	const nextVideo = () => {
-		callWsSkip(currentVideo.value.id);
-		videos.value = videos.value.slice(1);
-	};
+	function deleteAllVideos() {
+		callWsSkip(videos.value.map(video => video.id))
+		videos.value = []
+	}
 
-	const deleteVideo = (id: string) => {
-		callWsSkip(id);
-		videos.value = videos.value.filter(video => video.id !== id);
-	};
-
-	const deleteAllVideos = () => {
-		callWsSkip(videos.value.map(video => video.id));
-		videos.value = [];
-	};
-
-	const moveVideo = (id: string, newPosition: number) => {
-		const currentIndex = videos.value.findIndex(video => video.id === id);
-		const itemToMove = videos.value.splice(currentIndex, 1)[0];
-		videos.value.splice(newPosition, 0, itemToMove);
+	function moveVideo(id: string, newPosition: number) {
+		const currentIndex = videos.value.findIndex(video => video.id === id)
+		const itemToMove = videos.value.splice(currentIndex, 1)[0]
+		videos.value.splice(newPosition, 0, itemToMove)
 
 		videos.value.forEach((video, index) => {
-			video.queuePosition = index + 1;
-		});
+			video.queuePosition = index + 1
+		})
 
 		const request = JSON.stringify({
 			eventName: 'reorder',
 			data: videos.value,
-		});
-		websocket.send(request);
-	};
+		})
+		websocket.send(request)
+	}
 
-	const sendPlaying = () => {
-		if (!currentVideo.value) return;
+	function sendPlaying() {
+		if (!currentVideo.value) return
 
 		const request = JSON.stringify({
 			eventName: 'play',
@@ -159,9 +158,9 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 				id: currentVideo.value.id,
 				duration: currentVideo.value.duration,
 			},
-		});
-		websocket.send(request);
-	};
+		})
+		websocket.send(request)
+	}
 
 	return {
 		videos,
@@ -173,5 +172,5 @@ export const useYoutubeSocket = defineStore('youtubeSocket', () => {
 		sendPlaying,
 		banUser,
 		banSong,
-	};
-});
+	}
+})

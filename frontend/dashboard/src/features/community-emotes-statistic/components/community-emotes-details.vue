@@ -29,7 +29,3 @@ defineEmits<{
 		</DialogOrSheet>
 	</Dialog>
 </template>
-
-<style scoped>
-
-</style>

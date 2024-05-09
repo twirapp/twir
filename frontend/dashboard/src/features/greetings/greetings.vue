@@ -10,6 +10,6 @@ const greetingsTable = useGreetingsTable()
 <template>
 	<div class="flex flex-col w-full gap-4">
 		<GreetingsInformation />
-		<Table :table="greetingsTable.table" :is-loading="greetingsTable.isLoading" />
+		<Table :table="greetingsTable.table" :is-loading="greetingsTable.isLoading.value" />
 	</div>
 </template>

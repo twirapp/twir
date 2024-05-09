@@ -1,76 +1,80 @@
 <script setup lang="ts">
-import { IconCircleCheck, IconPlugOff } from '@tabler/icons-vue';
-import type {
-	UpdateDataRequest,
-} from '@twir/api/messages/integrations_seventv/integrations_seventv';
+import { IconCircleCheck, IconPlugOff } from '@tabler/icons-vue'
 import {
-	NTag,
-	NTimeline,
-	NTimelineItem,
 	NA,
-	NSpin,
 	NAlert,
 	NForm,
 	NFormItem,
 	NSpace,
-	NText,
+	NSpin,
 	NSwitch,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRouter } from 'vue-router';
+	NTag,
+	NText,
+	NTimeline,
+	NTimelineItem,
+} from 'naive-ui'
+import { computed, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
-import SevenTvButtonEditors from './seventv-button-editors.png';
+import SevenTvButtonEditors from './seventv-button-editors.png'
 
-import SevenTVSvg from '@/assets/integrations/seventv.svg?use';
-import { useSevenTv } from '@/components/integrations/use-seven-tv';
-import WithSettings from '@/components/integrations/variants/withSettings.vue';
-import RewardsSelector from '@/components/rewardsSelector.vue';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
+import type {
+	UpdateDataRequest,
+} from '@twir/api/messages/integrations_seventv/integrations_seventv'
 
-const { t } = useI18n();
+import SevenTVSvg from '@/assets/integrations/seventv.svg?use'
+import { useSevenTv } from '@/components/integrations/use-seven-tv'
+import WithSettings from '@/components/integrations/variants/withSettings.vue'
+import RewardsSelector from '@/components/rewardsSelector.vue'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 
-const { notification } = useNaiveDiscrete();
-const sevenTvStore = useSevenTv();
-const { isNotRegistered, data: sevenTvData, sevenTvProfileLink } = storeToRefs(sevenTvStore);
+const { t } = useI18n()
+
+const { notification } = useNaiveDiscrete()
+const {
+	isNotRegistered,
+	data: sevenTvData,
+	sevenTvProfileLink,
+	save,
+} = useSevenTv()
 
 const form = ref<UpdateDataRequest>({
 	deleteEmotesOnlyAddedByApp: true,
-});
+})
 watch(sevenTvData, (data) => {
-	if (!data) return;
+	if (!data) return
 	form.value = {
 		rewardIdForAddEmote: data.rewardIdForAddEmote,
 		rewardIdForRemoveEmote: data.rewardIdForRemoveEmote,
 		deleteEmotesOnlyAddedByApp: data.deleteEmotesOnlyAddedByApp,
-	};
-});
+	}
+})
 
-const router = useRouter();
+const router = useRouter()
 
 function goToEvents() {
-	router.push('/dashboard/events/custom');
+	router.push('/dashboard/events/custom')
 }
 
 const isSameRewardsChoosed = computed(() => {
-	if (!form.value.rewardIdForAddEmote || !form.value.rewardIdForRemoveEmote) return false;
+	if (!form.value.rewardIdForAddEmote || !form.value.rewardIdForRemoveEmote) return false
 
-	return form.value.rewardIdForAddEmote === form.value.rewardIdForRemoveEmote;
-});
+	return form.value.rewardIdForAddEmote === form.value.rewardIdForRemoveEmote
+})
 
 async function saveSettings() {
 	try {
-		await sevenTvStore.save(form.value);
-		notification.success({ title: t('sharedTexts.saved'), duration: 2500 });
+		await save(form.value)
+		notification.success({ title: t('sharedTexts.saved'), duration: 2500 })
 	} catch (err) {
-		notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 });
+		notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 })
 	}
 }
 </script>
 
 <template>
-	<with-settings
+	<WithSettings
 		title="7TV"
 		:save="saveSettings"
 		:icon="SevenTVSvg"
@@ -83,91 +87,90 @@ async function saveSettings() {
 
 		<template #settings>
 			<template v-if="isNotRegistered || !sevenTvData?.emoteSetId">
-				<n-alert v-if="isNotRegistered" type="error">
+				<NAlert v-if="isNotRegistered" type="error">
 					<i18n-t keypath="integrations.sevenTv.notRegistered">
-						<n-a href="https://7tv.app" target="_blank">
+						<NA href="https://7tv.app" target="_blank">
 							7tv.app
-						</n-a>
+						</NA>
 					</i18n-t>
-				</n-alert>
-				<n-alert v-else type="error">
+				</NAlert>
+				<NAlert v-else type="error">
 					Emote set not created on 7tv, please create at least one set on
-					<n-a :href="sevenTvProfileLink" target="_blank">
+					<NA :href="sevenTvProfileLink" target="_blank">
 						7tv
-					</n-a>
-				</n-alert>
+					</NA>
+				</NAlert>
 			</template>
 
 			<template v-else>
-				<n-spin :show="!sevenTvData?.isEditor">
-					<n-form>
-						<n-form-item :label="t('integrations.sevenTv.rewardForAddEmote')">
-							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForAddEmote" only-with-input clearable />
-								<n-text :depth="3" class="text-xs">
+				<NSpin :show="!sevenTvData?.isEditor">
+					<NForm>
+						<NFormItem :label="t('integrations.sevenTv.rewardForAddEmote')">
+							<NSpace vertical>
+								<RewardsSelector v-model="form.rewardIdForAddEmote" only-with-input clearable />
+								<NText :depth="3" class="text-xs">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
-								</n-text>
-							</n-space>
-						</n-form-item>
+								</NText>
+							</NSpace>
+						</NFormItem>
 
-						<n-form-item :label="t('integrations.sevenTv.rewardForRemoveEmote')">
-							<n-space vertical>
-								<rewards-selector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
-								<n-text :depth="3" class="text-xs">
+						<NFormItem :label="t('integrations.sevenTv.rewardForRemoveEmote')">
+							<NSpace vertical>
+								<RewardsSelector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
+								<NText :depth="3" class="text-xs">
 									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
-								</n-text>
+								</NText>
 
 								<div class="flex gap-1">
 									<span>{{ t('integrations.sevenTv.deleteOnlyAddedByApp') }}</span>
-									<n-switch v-model:value="form.deleteEmotesOnlyAddedByApp" />
+									<NSwitch v-model:value="form.deleteEmotesOnlyAddedByApp" />
 								</div>
-							</n-space>
-						</n-form-item>
-					</n-form>
-
+							</NSpace>
+						</NFormItem>
+					</NForm>
 
 					<div class="flex flex-col gap-1">
-						<n-alert v-if="isSameRewardsChoosed" type="error">
+						<NAlert v-if="isSameRewardsChoosed" type="error">
 							{{ t('integrations.sevenTv.errorSameReward') }}
-						</n-alert>
+						</NAlert>
 
-						<n-alert type="info" class="mb-2.5">
+						<NAlert type="info" class="mb-2.5">
 							<i18n-t keypath="integrations.sevenTv.alert">
-								<n-a @click="goToEvents">
+								<NA @click="goToEvents">
 									{{ t('sidebar.events').toLocaleLowerCase() }}
-								</n-a>
+								</NA>
 							</i18n-t>
-						</n-alert>
+						</NAlert>
 					</div>
 
 					<template #description>
-						<n-timeline>
-							<n-timeline-item>
+						<NTimeline>
+							<NTimelineItem>
 								<i18n-t keypath="integrations.sevenTv.connectSteps.step1">
-									<n-a :href="sevenTvProfileLink" target="_blank">
+									<NA :href="sevenTvProfileLink" target="_blank">
 										7tv
-									</n-a>
+									</NA>
 								</i18n-t>
-							</n-timeline-item>
-							<n-timeline-item>
+							</NTimelineItem>
+							<NTimelineItem>
 								<div class="flex flex-col">
 									<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
 									<img :src="SevenTvButtonEditors" height="50" width="100" />
 								</div>
-							</n-timeline-item>
-							<n-timeline-item>
+							</NTimelineItem>
+							<NTimelineItem>
 								<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
 									<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
 								</i18n-t>
-							</n-timeline-item>
-						</n-timeline>
+							</NTimelineItem>
+						</NTimeline>
 					</template>
-				</n-spin>
+				</NSpin>
 			</template>
 		</template>
 
 		<template #additionalFooter>
-			<n-tag
+			<NTag
 				class="!p-5"
 				:bordered="false"
 				:type="sevenTvData?.isEditor ? 'success' : 'error'"
@@ -182,7 +185,7 @@ async function saveSettings() {
 				<template v-else>
 					{{ t('integrations.sevenTv.notConnected') }}
 				</template>
-			</n-tag>
+			</NTag>
 		</template>
-	</with-settings>
+	</WithSettings>
 </template>

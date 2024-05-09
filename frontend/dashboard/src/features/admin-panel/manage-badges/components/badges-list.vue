@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next'
 import { NCard, NTime } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
 import BadgesPreview from './badges-preview.vue'
@@ -16,12 +15,12 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
-	DropdownMenuTrigger
+	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 
 const { t } = useI18n()
 
-const { badges } = storeToRefs(useBadges())
+const { badges } = useBadges()
 const badgesActions = useBadgesActions()
 </script>
 
@@ -102,7 +101,7 @@ const badgesActions = useBadgesActions()
 	</div>
 
 	<ActionConfirm
-		v-model:open="badgesActions.isShowModalDelete"
+		v-model:open="badgesActions.isShowModalDelete.value"
 		@confirm="badgesActions.deleteBadge()"
 	/>
 </template>
