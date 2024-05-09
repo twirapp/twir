@@ -147,7 +147,7 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 	return true, nil
 }
 
-// ChannelAlerts is the resolver for the channelAlerts field.
+// ChannelAlerts is the resolver for the channelAlerts  field.
 func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
@@ -157,7 +157,7 @@ func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAl
 	var entities []model.ChannelAlert
 	if err := r.gorm.
 		WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
+		Where(`"channel_id" = ?`, dashboardId).
 		Find(&entities).Error; err != nil {
 		return nil, err
 	}
