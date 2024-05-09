@@ -587,6 +587,7 @@
       "deniedUsers": "Zablokovaní používatelia",
       "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Maximálne množstvo žiadosti na používateľa",
         "minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
