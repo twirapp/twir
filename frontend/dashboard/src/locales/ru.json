@@ -587,6 +587,7 @@
       "deniedUsers": "Пользователи, которые не могут заказывать песни",
       "deniedSongs": "Запрещенные песни для заказа",
       "takeSongFromDonationMessage": "Попытаться получать ссылки на песни из сообщений о пожертвованиях?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Максимальное количество заказов для пользователя",
         "minimalWatchTime": "Минимальное время просмотра для заказа песни (в минутах)",
