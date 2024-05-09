@@ -587,6 +587,7 @@
       "deniedUsers": "Gesperrter Benutzer",
       "deniedSongs": "Gesperrte Songliste",
       "takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
         "minimalWatchTime": "Minimal Watch Time (in minutes)",
