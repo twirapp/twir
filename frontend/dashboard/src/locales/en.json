@@ -51,7 +51,8 @@
 		"desc": "Desc",
 		"hide": "Hide",
 		"view": "View",
-		"toggleColumns": "Toggle columns"
+		"toggleColumns": "Toggle columns",
+		"copied": "Copied"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -686,7 +687,10 @@
     "title": "Alerts",
     "info": "Alerts Information",
     "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+		"copyOverlayLink": "Copy overlay link",
     "name": "Name",
+		"rewards": "Rewards",
+		"commands": "Commands",
     "validations": {
       "name": "Name cannot be empty or longer than 30 symbols!"
     },
@@ -701,7 +705,9 @@
       "image": "Configure an Image",
       "text": "Configure Text"
     },
-    "audioVolume": "Audio Volume ({volume}%)"
+    "audioVolume": "Audio Volume ({volume}%)",
+		"createAlert": "Create alert",
+		"editAlert": "Edit alert"
   },
   "games": {
     "command": "Command",

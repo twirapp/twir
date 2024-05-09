@@ -126,7 +126,7 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/alerts',
-					component: () => import('../pages/Alerts.vue'),
+					component: () => import('../pages/alerts.vue'),
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewAlerts },
 				},
 				{
