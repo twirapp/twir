@@ -43,7 +43,7 @@
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
-    "pagination": "of {page} page(s) / {total} item(s)",
+    "pagination": "{page} page(s) / {total} item(s)",
     "paginationPerPage": "Per page",
     "searchPlaceholder": "Search...",
     "messages": "Messages",
@@ -51,7 +51,11 @@
     "desc": "Desc",
     "hide": "Hide",
     "view": "View",
-    "toggleColumns": "Toggle columns"
+    "toggleColumns": "Toggle columns",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -686,7 +690,10 @@
     "title": "Warnungen",
     "info": "Warnungsinformationen",
     "overlayLabel": "Warnungen sind ein grafischer Teil der Befehls- oder Ereignis-Implementierung. Sie können eine Benachrichtigung mit spezifiziertem Audio, Bild und Text konfigurieren und sie dann einem bestimmten Befehl, Event, Schlüsselwort oder Gruß zuordnen. Vergessen Sie auch nicht, Overlay-URL als Browserquelle in Ihre Streaming-Software einzufügen! (z. B. OBS, XSplit, etc.)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Name",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Der Name darf nicht leer oder länger als 30 Zeichen sein!"
     },
@@ -697,11 +704,14 @@
       "greetings": "Grußauslöser"
     },
     "select": {
-      "audio": "Konfugiere ein Audio",
-      "image": "Bild konfigurieren",
-      "text": "Text konfigurieren"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Audio-Lautstärke ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Befehl",
