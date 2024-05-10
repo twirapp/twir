@@ -855,7 +855,8 @@
       "chatCleared": "Чат очищено",
       "userBanned": "Заблокувати користувача",
       "channelUnbanRequestCreate": "Запит на зняття блокування створений",
-      "channelUnbanRequestResolve": "Запит на зняття блокування вирішений"
+      "channelUnbanRequestResolve": "Запит на зняття блокування вирішений",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
