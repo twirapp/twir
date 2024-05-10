@@ -87,6 +87,11 @@ export const useForm = createGlobalState(() => {
 			messages: [],
 			cooldown: 0,
 		},
+		messageDelete: {
+			enabled: false,
+			messages: [],
+			cooldown: 0,
+		},
 	})
 
 	const formInited = ref(false)

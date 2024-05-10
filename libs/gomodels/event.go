@@ -48,6 +48,7 @@ const (
 	EventChannelBan                 EventType = "CHANNEL_BAN"
 	EventChannelUnbanRequestCreate  EventType = "CHANNEL_UNBAN_REQUEST_CREATE"
 	EventChannelUnbanRequestResolve EventType = "CHANNEL_UNBAN_REQUEST_RESOLVE"
+	EventChannelMessageDelete       EventType = "CHANNEL_MESSAGE_DELETE"
 )
 
 type Event struct {

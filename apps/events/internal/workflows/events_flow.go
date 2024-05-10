@@ -365,6 +365,13 @@ func (c *EventWorkflow) Flow(
 					operation,
 					data,
 				).Get(ctx, nil)
+			case model.OperationMessageDelete:
+				operationErr = workflow.ExecuteActivity(
+					ctx,
+					c.eventsActivity.MessageDelete,
+					operation,
+					data,
+				).Get(ctx, nil)
 			}
 
 			if operationErr != nil {

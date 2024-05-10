@@ -342,6 +342,7 @@ func (c *EventsGrpcImplementation) CommandUsed(
 					CommandID:       msg.CommandId,
 					CommandInput:    msg.CommandInput,
 					UserID:          msg.UserId,
+					ChatMessageId:   msg.MessageId,
 				},
 			)
 			if err != nil {
@@ -1422,6 +1423,34 @@ func (c *EventsGrpcImplementation) ChannelUnbanRequestResolve(
 			ChannelUnbanRequestResolveDeclined: msg.Declined,
 			ModeratorName:                      msg.ModeratorUserLogin,
 			ModeratorDisplayName:               msg.ModeratorUserName,
+		},
+	)
+	if err != nil {
+		c.logger.Error("Error execute workflow", slog.Any("err", err))
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (c *EventsGrpcImplementation) ChannelMessageDelete(
+	ctx context.Context,
+	msg *events.ChannelMessageDeleteMessage,
+) (*emptypb.Empty, error) {
+	c.chatAlerts.ProcessEvent(
+		ctx,
+		msg.BaseInfo.ChannelId,
+		api_events.TwirEventType_CHANNEL_MESSAGE_DELETE,
+		msg,
+	)
+
+	err := c.eventsWorkflow.Execute(
+		ctx,
+		model.EventChannelMessageDelete,
+		shared.EventData{
+			ChannelID:       msg.BaseInfo.ChannelId,
+			UserName:        msg.UserLogin,
+			UserDisplayName: msg.UserName,
+			ChatMessageId:   msg.MessageId,
 		},
 	)
 	if err != nil {

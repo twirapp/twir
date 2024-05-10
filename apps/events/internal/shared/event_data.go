@@ -70,7 +70,8 @@ type EventData struct {
 	BanEndsInMinutes string `json:"banEndsInMinutes,omitempty"`
 
 	// generic message field
-	Message string `json:"message,omitempty"`
+	Message       string `json:"message,omitempty"`
+	ChatMessageId string `json:"chatMessageId"`
 
 	//
 	ChannelUnbanRequestResolveDeclined bool `json:"channelUnbanRequestResolveStatus,omitempty"`
