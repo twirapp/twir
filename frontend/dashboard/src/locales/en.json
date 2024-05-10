@@ -710,7 +710,8 @@
     },
     "audioVolume": "Audio volume",
 		"createAlert": "Create alert",
-		"editAlert": "Edit alert"
+		"editAlert": "Edit alert",
+		"tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Command",

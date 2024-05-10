@@ -30,7 +30,12 @@ const {
 
 		<div class="flex w-full items-center gap-2 mt-4">
 			<div class="relative w-full">
-				<Input :type="isShowOverlayLink ? 'text' : 'password'" :default-value="overlayLink" readonly />
+				<Input
+					class="pr-12"
+					:type="isShowOverlayLink ? 'text' : 'password'"
+					:default-value="overlayLink"
+					readonly
+				/>
 				<Button
 					variant="ghost"
 					size="icon"
