@@ -23,7 +23,7 @@ export function useAlertsTable(props?: Props) {
 	const tableColumns = computed<ColumnDef<Alert>[]>(() => [
 		{
 			accessorKey: 'name',
-			size: 25,
+			size: 15,
 			header: () => h('div', {}, t('alerts.name')),
 			cell: ({ row }) => {
 				return h(Badge, {}, { default: () => row.original.name })
@@ -31,7 +31,7 @@ export function useAlertsTable(props?: Props) {
 		},
 		{
 			accessorKey: 'rewards',
-			size: 25,
+			size: 15,
 			header: () => h('div', {}, t('alerts.rewards')),
 			cell: ({ row }) => h(
 				'div',
@@ -44,7 +44,7 @@ export function useAlertsTable(props?: Props) {
 		},
 		{
 			accessorKey: 'commands',
-			size: 25,
+			size: 15,
 			header: () => h('div', {}, t('alerts.commands')),
 			cell: ({ row }) => h(
 				'div',
@@ -57,7 +57,7 @@ export function useAlertsTable(props?: Props) {
 		},
 		{
 			accessorKey: 'keywords',
-			size: 25,
+			size: 15,
 			header: () => h('div', {}, t('alerts.trigger.keywords')),
 			cell: ({ row }) => h(
 				'div',
@@ -65,6 +65,26 @@ export function useAlertsTable(props?: Props) {
 				row.original.keywordsIds?.map((id) => {
 					const keyword = data.value?.keywords.find((k) => k.id === id)
 					return h('span', keyword?.text)
+				}),
+			),
+		},
+		{
+			accessorKey: 'greetings',
+			size: 15,
+			header: () => h('div', {}, t('alerts.trigger.greetings')),
+			cell: ({ row }) => h(
+				'div',
+				{ class: 'flex flex-col gap-0.5' },
+				row.original.greetingsIds?.map((id) => {
+					const greeting = data.value?.greetings.find((g) => g.id === id)
+					return h(
+						'div',
+						{ class: 'flex items-center gap-1' },
+						[
+							h('img', { src: greeting?.twitchProfile.profileImageUrl, class: 'size-4' }),
+							h('span', null, greeting?.twitchProfile.displayName),
+						],
+					)
 				}),
 			),
 		},

@@ -37,6 +37,7 @@ export function useAlertsQuery() {
 					id
 					twitchProfile {
 						displayName
+						profileImageUrl
 					}
 				}
 				twitchGetChannelRewards {
