@@ -1,0 +1,174 @@
+extend type Query {
+	songRequests: SongRequestsSettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
+	songRequestsSearchChannelOrVideo(opts: SongRequestsSearchChannelOrVideoOpts!): SongRequestsSearchChannelOrVideoResponse! @isAuthenticated
+}
+
+extend type Mutation {
+	songRequestsUpdate(opts: SongRequestsSettingsOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_SONG_REQUESTS)
+}
+
+type SongRequestsSettings {
+	enabled: Boolean!
+	acceptOnlyWhenOnline: Boolean!
+	maxRequests: Int!
+	channelPointsRewardId: String
+	announcePlay: Boolean!
+	neededVotesForSkip: Int!
+	user: SongRequestsUserSettings!
+	song: SongRequestsSongSettings!
+	denyList: SongRequestsDenyList!
+	translations: SongRequestsTranslations!
+	takeSongFromDonationMessages: Boolean!
+	playerNoCookieMode: Boolean!
+}
+
+type SongRequestsUserSettings {
+	maxRequests: Int!
+	minWatchTime: Int!
+	minMessages: Int!
+	minFollowTime: Int!
+}
+
+type SongRequestsSongSettings {
+	minLength: Int!
+	maxLength: Int!
+	minViews: Int!
+	acceptedCategories: [String!]!
+}
+
+type SongRequestsDenyList {
+	users: [String!]!
+	songs: [String!]!
+	channels: [String!]!
+	artistsNames: [String!]!
+	words: [String!]!
+}
+
+type SongRequestsTranslations {
+	nowPlaying: String!
+	notEnabled: String!
+	noText: String!
+	acceptOnlyWhenOnline: String!
+	user: SongRequestsUserTranslations!
+	song: SongRequestsSongTranslations!
+	channel: SongRequestsChannelTranslations!
+}
+
+type SongRequestsUserTranslations {
+	denied: String!
+	maxRequests: String!
+	minMessages: String!
+	minWatched: String!
+	minFollow: String!
+}
+
+type SongRequestsSongTranslations {
+	denied: String!
+	notFound: String!
+	alreadyInQueue: String!
+	ageRestrictions: String!
+	cannotGetInformation: String!
+	live: String!
+	maxLength: String!
+	minLength: String!
+	requestedMessage: String!
+	maximumOrdered: String!
+	minViews: String!
+}
+
+type SongRequestsChannelTranslations {
+	denied: String!
+}
+
+input SongRequestsSettingsOpts {
+	enabled: Boolean!
+	acceptOnlyWhenOnline: Boolean!
+	maxRequests: Int!
+	channelPointsRewardId: String
+	announcePlay: Boolean!
+	neededVotesForSkip: Int!
+	user: SongRequestsUserSettingsOpts!
+	song: SongRequestsSongSettingsOpts!
+	denyList: SongRequestsDenyListOpts!
+	translations: SongRequestsTranslationsOpts!
+	takeSongFromDonationMessages: Boolean!
+	playerNoCookieMode: Boolean!
+}
+
+input SongRequestsUserSettingsOpts {
+	maxRequests: Int!
+	minWatchTime: Int!
+	minMessages: Int!
+	minFollowTime: Int!
+}
+
+input SongRequestsSongSettingsOpts {
+	minLength: Int!
+	maxLength: Int!
+	minViews: Int!
+	acceptedCategories: [String!]!
+}
+
+input SongRequestsDenyListOpts {
+	users: [String!]!
+	songs: [String!]!
+	channels: [String!]!
+	artistsNames: [String!]!
+	words: [String!]!
+}
+
+input SongRequestsTranslationsOpts {
+	nowPlaying: String!
+	notEnabled: String!
+	noText: String!
+	acceptOnlyWhenOnline: String!
+	user: SongRequestsUserTranslationsOpts!
+	song: SongRequestsSongTranslationsOpts!
+	channel: SongRequestsChannelTranslationsOpts!
+}
+
+input SongRequestsUserTranslationsOpts {
+	denied: String!
+	maxRequests: String!
+	minMessages: String!
+	minWatched: String!
+	minFollow: String!
+}
+
+input SongRequestsSongTranslationsOpts {
+	denied: String!
+	notFound: String!
+	alreadyInQueue: String!
+	ageRestrictions: String!
+	cannotGetInformation: String!
+	live: String!
+	maxLength: String!
+	minLength: String!
+	requestedMessage: String!
+	maximumOrdered: String!
+	minViews: String!
+}
+
+input SongRequestsChannelTranslationsOpts {
+	denied: String!
+}
+
+enum SongRequestsSearchChannelOrVideoOptsType {
+	CHANNEL
+	VIDEO
+}
+
+input SongRequestsSearchChannelOrVideoOpts {
+	type: SongRequestsSearchChannelOrVideoOptsType!
+	query: [String!]!
+}
+
+type SongRequestsSearchChannelOrVideoResponse {
+	items: [SongRequestsSearchChannelOrVideoItem!]!
+}
+
+type SongRequestsSearchChannelOrVideoItem {
+	id: String!
+	title: String!
+	thumbnail: String!
+}

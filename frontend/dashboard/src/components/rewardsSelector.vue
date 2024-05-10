@@ -8,17 +8,13 @@ import type { VNodeChild } from 'vue'
 import { useTwitchRewards } from '@/api'
 import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
 	multiple?: boolean
 	clearable?: boolean
 	onlyWithInput?: boolean
-}>(), {
-	multiple: false,
-	clearable: true,
-	onlyWithInput: false,
-})
+}>()
 
-const modelValue = defineModel<string | string[]>()
+const modelValue = defineModel<string | string[] | undefined | null>()
 
 const { t } = useI18n()
 
@@ -54,20 +50,11 @@ const rewardsSelectOptions = computed(() => {
 
 function renderRewardTag(option: RewardSelectOptions): VNodeChild {
 	return h(NSpace, { align: 'center' }, {
-		default: () => h('div', { class: 'flex items-center gap-2' }, [
+		default: () => [
 			h(NAvatar, {
 				src: option.image || RewardFallbackImg,
 				color: option.color,
-				class: 'flex p-1',
-				style: props.multiple
-					? {
-						height: '24px',
-						width: '24px',
-					}
-					: {
-						height: '30px',
-						width: '30px',
-					},
+				class: 'flex w-5 h-5 p-1',
 			}),
 			h(NText, {
 				style: {
@@ -76,7 +63,7 @@ function renderRewardTag(option: RewardSelectOptions): VNodeChild {
 						: 'var(--n-text-color)',
 				},
 			}, { default: () => option.label }),
-		]),
+		],
 	})
 }
 </script>
@@ -85,7 +72,7 @@ function renderRewardTag(option: RewardSelectOptions): VNodeChild {
 	<NSelect
 		v-model:value="modelValue"
 		:multiple="multiple"
-		size="medium"
+		size="large"
 		:options="rewardsSelectOptions"
 		:placeholder="t('events.targetTwitchReward')"
 		:loading="isRewardsLoading"

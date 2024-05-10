@@ -28,7 +28,6 @@ import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/modules_sr/modules_sr.proto";
 import "messages/overlays_chat/overlays_chat.proto";
 import "messages/overlays_kappagen/overlays_kappagen.proto";
 import "messages/overlays_be_right_back/overlays_be_right_back.proto";
@@ -126,10 +125,6 @@ service Protected {
 	rpc ModulesTTSGetInfo(google.protobuf.Empty) returns (messages.modules_tts.GetInfoResponse) {}
 	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
 	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
-
-	rpc ModulesSRGet(google.protobuf.Empty) returns (messages.modules_sr.GetResponse) {}
-	rpc ModulesSRSearchVideosOrChannels(messages.modules_sr.GetSearchRequest) returns (messages.modules_sr.GetSearchResponse) {}
-	rpc ModulesSRUpdate(messages.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
 
 	rpc OverlayChatGet(messages.overlays_chat.GetRequest) returns (messages.overlays_chat.Settings) {}
 	rpc OverlayChatGetAll(google.protobuf.Empty) returns (messages.overlays_chat.GetAllResponse) {}
