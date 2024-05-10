@@ -78,7 +78,7 @@ input CommandsCreateOpts {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
-	groupId: String @validate(constraint: "max=500")
+	groupId: String @validate(constraint: "max=500,omitempty")
 }
 
 input CommandsUpdateOpts {

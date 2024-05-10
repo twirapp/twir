@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/go-playground/validator/v10"
@@ -26,10 +27,18 @@ func (c *Directives) Validate(
 ) (interface{}, error) {
 	val, err := next(ctx)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	pathContext := graphql.GetPathContext(ctx)
+
+	reqMap, ok := obj.(map[string]any)
+	if ok && pathContext.Field != nil {
+		v, valExists := reqMap[*pathContext.Field]
+		if valExists && v == nil && strings.Contains(constraint, "omitempty") {
+			return val, nil
+		}
+	}
 
 	err = validate.Var(val, constraint)
 	if err != nil {
