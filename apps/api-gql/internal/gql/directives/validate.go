@@ -40,7 +40,7 @@ func (c *Directives) Validate(
 				fieldName = *pathContext.Field
 			}
 
-			message := fmt.Sprintf("error validatig field %s", fieldName)
+			message := fmt.Sprintf(`Invalid field "%s"`, fieldName)
 
 			extensionValidationErrors := make(map[string]any)
 			for _, er := range validationErrors {
