@@ -855,7 +855,8 @@
       "chatCleared": "Очистка чата",
       "userBanned": "Отстранение пользователя",
       "channelUnbanRequestCreate": "Запрос на разбан создан",
-      "channelUnbanRequestResolve": "Запрос на разбан обработан"
+      "channelUnbanRequestResolve": "Запрос на разбан обработан",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
