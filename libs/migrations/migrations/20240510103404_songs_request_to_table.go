@@ -85,13 +85,13 @@ type YouTubeTranslations struct {
 }
 
 type YouTubeSettings struct {
-	Enabled                     *bool               `validate:"required" json:"enabled"`
-	AcceptOnlyWhenOnline        *bool               `validate:"required" json:"acceptOnlyWhenOnline"`
-	PlayerNoCookieMode          *bool               `validate:"required" json:"playerNoCookieMode"`
+	Enabled                     bool                `validate:"required" json:"enabled"`
+	AcceptOnlyWhenOnline        bool                `validate:"required" json:"acceptOnlyWhenOnline"`
+	PlayerNoCookieMode          bool                `validate:"required" json:"playerNoCookieMode"`
 	TakeSongFromDonationMessage bool                `json:"takeSongFromDonationMessage"`
 	MaxRequests                 int                 `validate:"lte=500"  json:"maxRequests"`
 	ChannelPointsRewardId       string              `validate:"max=100"  json:"channelPointsRewardId"`
-	AnnouncePlay                *bool               `validate:"required" json:"announcePlay"`
+	AnnouncePlay                bool                `validate:"required" json:"announcePlay"`
 	NeededVotesVorSkip          float64             `validate:"max=100,min=1" json:"neededVotesVorSkip"`
 	User                        YouTubeUserSettings `validate:"required" json:"user"`
 	Song                        YouTubeSongSettings `validate:"required" json:"song"`
@@ -282,12 +282,12 @@ func upSongsRequestToTable(ctx context.Context, tx *sql.Tx) error {
 			`,
 			entity.ID,
 			entity.ChannelId,
-			*settings.Enabled,
-			*settings.AcceptOnlyWhenOnline,
-			*settings.PlayerNoCookieMode,
+			settings.Enabled,
+			settings.AcceptOnlyWhenOnline,
+			settings.PlayerNoCookieMode,
 			settings.MaxRequests,
 			settings.ChannelPointsRewardId,
-			*settings.AnnouncePlay,
+			settings.AnnouncePlay,
 			settings.NeededVotesVorSkip,
 			settings.User.MaxRequests,
 			settings.User.MinWatchTime,
