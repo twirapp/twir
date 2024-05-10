@@ -9,7 +9,7 @@ import type { MaybeRefOrGetter } from 'vue'
 
 type CallFunc<
 	Req extends Record<any, any>,
-	Res extends Record<any, any>
+	Res extends Record<any, any>,
 > = (input: Req, options?: RpcOptions) => UnaryCall<Req, Res>
 
 export function createCrudManager<
@@ -18,7 +18,7 @@ export function createCrudManager<
 	Delete extends CallFunc<any, any>,
 	Patch extends CallFunc<any, any>,
 	Create extends CallFunc<any, any>,
-	Update extends CallFunc<any, any>
+	Update extends CallFunc<any, any>,
 >(opts: {
 	client: typeof protectedApiClient | typeof adminApiClient | typeof unprotectedApiClient
 	getAll: GetAll
@@ -49,7 +49,7 @@ export function createCrudManager<
 					const unrefedReq = unref(req)
 					const call = await opts.getAll(unrefedReq)
 					return call.response
-				}
+				},
 			})
 		},
 		getOne: opts.getOne
@@ -61,7 +61,7 @@ export function createCrudManager<
 					const call = await opts.getOne!(req)
 					return call.response
 				},
-				enabled: !req.isQueryDisabled
+				enabled: !req.isQueryDisabled,
 			})
 			: null,
 		deleteOne: useMutation({
@@ -74,7 +74,7 @@ export function createCrudManager<
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
 					queryClient.refetchQueries([queryKey])
 				}
-			}
+			},
 		}),
 		patch: opts.patch
 			? useMutation<Awaited<ReturnType<typeof opts.patch>['response']>, any, Parameters<typeof opts.patch>[0]>({
@@ -88,7 +88,7 @@ export function createCrudManager<
 					for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
 						queryClient.refetchQueries([queryKey])
 					}
-				}
+				},
 			})
 			: null,
 		create: useMutation<Awaited<ReturnType<typeof opts.create>['response']>, any, Parameters<typeof opts.create>[0]>({
@@ -102,7 +102,7 @@ export function createCrudManager<
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
 					queryClient.refetchQueries([queryKey])
 				}
-			}
+			},
 		}),
 		update: useMutation<Awaited<ReturnType<typeof opts.update>['response']>, any, Parameters<typeof opts.update>[0]>({
 			mutationFn: async (req: Parameters<typeof opts.update>[0]) => {
@@ -115,8 +115,8 @@ export function createCrudManager<
 				for (const queryKey of opts.invalidateAdditionalQueries ?? []) {
 					queryClient.refetchQueries([queryKey])
 				}
-			}
-		})
+			},
+		}),
 	}
 }
 
@@ -129,20 +129,7 @@ export function useEventsManager() {
 		create: protectedApiClient?.eventsCreate,
 		patch: protectedApiClient?.eventsEnableOrDisable,
 		deleteOne: protectedApiClient?.eventsDelete,
-		getOne: protectedApiClient?.eventsGetById
-	})
-}
-
-export function useAlertsManager() {
-	return createCrudManager({
-		client: protectedApiClient,
-		queryKey: 'alerts',
-		getAll: protectedApiClient?.alertsGetAll,
-		update: protectedApiClient?.alertsUpdate,
-		create: protectedApiClient?.alertsCreate,
-		patch: null,
-		deleteOne: protectedApiClient?.alertsDelete,
-		getOne: null
+		getOne: protectedApiClient?.eventsGetById,
 	})
 }
 
@@ -155,7 +142,7 @@ export function useOverlaysRegistry() {
 		create: protectedApiClient?.overlaysCreate,
 		patch: null,
 		deleteOne: protectedApiClient?.overlaysDelete,
-		getOne: protectedApiClient?.overlaysGetOne
+		getOne: protectedApiClient?.overlaysGetOne,
 	})
 }
 
@@ -167,6 +154,6 @@ export function useModerationManager() {
 		update: protectedApiClient?.moderationUpdate,
 		create: protectedApiClient?.moderationCreate,
 		deleteOne: protectedApiClient?.moderationDelete,
-		patch: protectedApiClient?.moderationEnableOrDisable
+		patch: protectedApiClient?.moderationEnableOrDisable,
 	})
 }

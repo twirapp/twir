@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { refDebounced } from '@vueuse/core'
+import { refDebounced, useElementSize } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import type { Channel, TwitchSearchChannelsRequest,TwitchUser } from '@twir/api/messages/twitch/twitch'
 import type { SelectEvent } from 'radix-vue/dist/Listbox/ListboxItem'
@@ -38,6 +39,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const userId = defineModel<string | string[] | undefined | null>()
 
+const { t } = useI18n()
+
 const ids = computed<string[]>(() => {
 	const selectedIds = (Array.isArray(userId.value) ? userId.value : [userId.value]).filter(i => !!i) as string[]
 	const initialArray = (Array.isArray(props.initial) ? props.initial : [props.initial]).filter(i => !!i) as string[]
@@ -45,9 +48,7 @@ const ids = computed<string[]>(() => {
 	return [...initialArray, ...selectedIds]
 })
 
-const getUsers = useTwitchGetUsers({
-	ids,
-})
+const getUsers = useTwitchGetUsers({ ids })
 
 const userName = ref('')
 const userNameDebounced = refDebounced(userName, 500)
@@ -108,12 +109,16 @@ function getCheckedClass(value: string) {
 	}
 	return userId.value === value ? 'opacity-100' : 'opacity-0'
 }
+
+const buttonRef = ref<HTMLButtonElement | null>(null)
+const { width: buttonWidth } = useElementSize(buttonRef)
 </script>
 
 <template>
 	<Popover v-model:open="open">
 		<PopoverTrigger as-child>
 			<Button
+				ref="buttonRef"
 				variant="outline"
 				role="combobox"
 				:aria-expanded="open"
@@ -123,14 +128,14 @@ function getCheckedClass(value: string) {
 				<template v-if="multiple">
 					<div v-if="userId?.length" class="flex gap-2 items-center">
 						<span v-if="userId?.length">
-							{{ userId?.length }} users selected
+							{{ t('sharedTexts.userSelected', { count: userId?.length }) }}
 						</span>
 						<div class="flex flex-row gap-0.5">
 							<img v-for="id in userId" :key="id" :src="options.find((option) => option.value === id)?.profileImageUrl" class="size-4 rounded-full" />
 						</div>
 					</div>
 					<span v-else>
-						Select users...
+						{{ t('sharedTexts.userSelectPlaceholder', Number(!multiple)) }}
 					</span>
 				</template>
 				<template v-else>
@@ -141,22 +146,26 @@ function getCheckedClass(value: string) {
 						</div>
 					</template>
 					<span v-else>
-						Select user...
+						{{ t('sharedTexts.userSelectPlaceholder') }}
 					</span>
 				</template>
 				<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
 			</Button>
 		</PopoverTrigger>
-		<PopoverContent class="w-full p-0 z-[9999]">
+		<PopoverContent
+			align="start"
+			class="p-0 z-[9999]"
+			:style="{ width: `${buttonWidth + 34}px` }"
+		>
 			<Command
 				v-model:searchTerm="userName"
 				:multiple="multiple"
 				:filter-function="(l) => l"
 				:reset-search-term-on-blur="false"
 			>
-				<CommandInput class="h-9" placeholder="Search user..." />
+				<CommandInput class="h-9" :placeholder="t('sharedTexts.searchPlaceholder')" />
 				<CommandEmpty>
-					No Users found.
+					{{ t('sharedTexts.userNotFound') }}
 				</CommandEmpty>
 				<CommandList>
 					<CommandGroup>

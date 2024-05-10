@@ -49,7 +49,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 							variant="secondary"
 							class="rounded-sm px-1 font-normal"
 						>
-							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount }) }}
+							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount.value }) }}
 						</Badge>
 					</template>
 				</Button>

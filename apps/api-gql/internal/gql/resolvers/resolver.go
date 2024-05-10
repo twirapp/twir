@@ -38,6 +38,7 @@ type Resolver struct {
 	logger               logger.Logger
 	redis                *redis.Client
 	keywordsCacher       *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	tokensClient         tokens.TokensClient
 }
 
 type Opts struct {
@@ -76,6 +77,7 @@ func New(opts Opts) (*Resolver, error) {
 		redis:                opts.Redis,
 		cachedCommandsClient: opts.CachedCommandsClient,
 		keywordsCacher:       opts.KeywordsCacher,
+		tokensClient:         opts.TokensGrpc,
 	}, nil
 }
 

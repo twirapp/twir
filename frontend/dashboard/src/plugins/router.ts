@@ -20,9 +20,7 @@ export function newRouter() {
 				{
 					path: '/dashboard',
 					component: () => import('../pages/Dashboard.vue'),
-					meta: {
-						noPadding: true,
-					},
+					meta: { noPadding: true },
 				},
 				{
 					name: 'Integrations',
@@ -66,7 +64,10 @@ export function newRouter() {
 				{
 					path: '/dashboard/community/roles',
 					component: () => import('../features/community-roles/community-roles.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewRoles, noPadding: true },
+					meta: {
+						neededPermission: ChannelRolePermissionEnum.ViewRoles,
+						noPadding: true,
+					},
 				},
 				{
 					path: '/dashboard/song-requests',
@@ -83,8 +84,8 @@ export function newRouter() {
 					path: '/dashboard/overlays/chat',
 					component: () => import('../pages/overlays/chat/Chat.vue'),
 					meta: {
-						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 					},
 				},
 				{
@@ -92,8 +93,8 @@ export function newRouter() {
 					path: '/dashboard/overlays/kappagen',
 					component: () => import('../pages/overlays/kappagen/Kappagen.vue'),
 					meta: {
-						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 					},
 				},
 				{
@@ -101,8 +102,8 @@ export function newRouter() {
 					path: '/dashboard/overlays/brb',
 					component: () => import('../pages/overlays/brb/Brb.vue'),
 					meta: {
-						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 					},
 				},
 				{
@@ -110,14 +111,17 @@ export function newRouter() {
 					path: '/dashboard/overlays/dudes',
 					component: () => import('../pages/overlays/dudes/dudes-settings.vue'),
 					meta: {
-						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 						fullScreen: true,
+						neededPermission: ChannelRolePermissionEnum.ManageOverlays,
 					},
 				},
 				{
 					path: '/dashboard/events/chat-alerts',
 					component: () => import('../pages/chat-alerts.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewEvents, noPadding: true },
+					meta: {
+						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ViewEvents,
+					},
 				},
 				{
 					path: '/dashboard/events/custom',
@@ -126,8 +130,11 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/alerts',
-					component: () => import('../pages/Alerts.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewAlerts },
+					component: () => import('../pages/alerts.vue'),
+					meta: {
+						noPadding: true,
+						neededPermission: ChannelRolePermissionEnum.ViewAlerts,
+					},
 				},
 				{
 					path: '/dashboard/games',

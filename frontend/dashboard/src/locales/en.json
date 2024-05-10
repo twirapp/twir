@@ -43,7 +43,7 @@
     "disabled": "Disabled",
 		"setDefaultSettings": "Are you sure you want to set default settings?",
 		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
-		"pagination": "of {page} page(s) / {total} item(s)",
+		"pagination": "{page} page(s) / {total} item(s)",
 		"paginationPerPage": "Per page",
 		"searchPlaceholder": "Search...",
 		"messages": "Messages",
@@ -51,7 +51,11 @@
 		"desc": "Desc",
 		"hide": "Hide",
 		"view": "View",
-		"toggleColumns": "Toggle columns"
+		"toggleColumns": "Toggle columns",
+		"copied": "Copied",
+		"userSelected": "{count} users selected",
+		"userSelectPlaceholder": "Select user|Select users",
+		"userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -686,7 +690,10 @@
     "title": "Alerts",
     "info": "Alerts Information",
     "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+		"copyOverlayLink": "Copy overlay link",
     "name": "Name",
+		"rewards": "Rewards",
+		"commands": "Commands",
     "validations": {
       "name": "Name cannot be empty or longer than 30 symbols!"
     },
@@ -697,11 +704,14 @@
       "greetings": "Greeting Trigger"
     },
     "select": {
-      "audio": "Confugure an Audio",
-      "image": "Configure an Image",
-      "text": "Configure Text"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Audio Volume ({volume}%)"
+    "audioVolume": "Audio volume",
+		"createAlert": "Create alert",
+		"editAlert": "Edit alert",
+		"tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Command",

@@ -43,29 +43,18 @@ function handlePageSizeChange(pageSize: string) {
 <template>
 	<div class="flex justify-between max-sm:flex-col gap-4">
 		<div class="flex gap-2 items-center">
-			<Input
-				class="w-20 h-9 max-sm:w-full"
-				:min="1"
-				:max="table.getPageCount()"
-				:model-value="currentPage"
-				inputmode="numeric"
-				type="number"
-				@input="handleGoToPage"
-			/>
 			<div class="text-sm text-muted-foreground text-nowrap">
 				{{ t('sharedTexts.pagination', {
 					page: table.getPageCount(),
 					total: formatNumber(total),
 				}) }}
 			</div>
-		</div>
-		<div class="flex gap-2 items-center">
-			<div class="text-sm text-muted-foreground text-nowrap">
-				{{ t('sharedTexts.paginationPerPage') }}
-			</div>
 			<Select default-value="10" @update:model-value="handlePageSizeChange">
-				<SelectTrigger class="w-20 h-9">
-					<SelectValue />
+				<SelectTrigger class="h-9 justify-between gap-2">
+					<div>
+						{{ t('sharedTexts.paginationPerPage') }}
+						<SelectValue class="flex-none" />
+					</div>
 				</SelectTrigger>
 				<SelectContent>
 					<SelectItem v-for="pageSize in ['10', '20', '50', '100']" :key="pageSize" :value="pageSize">
@@ -73,9 +62,11 @@ function handlePageSizeChange(pageSize: string) {
 					</SelectItem>
 				</SelectContent>
 			</Select>
+		</div>
+		<div class="flex gap-2 items-center">
 			<div class="flex gap-2 max-sm:justify-end max-sm:w-full">
 				<Button
-					class="h-9 w-9"
+					class="size-9 min-w-9 max-sm:w-full"
 					variant="outline"
 					size="icon"
 					:disabled="!table.getCanPreviousPage()"
@@ -83,8 +74,17 @@ function handlePageSizeChange(pageSize: string) {
 				>
 					<ChevronLeft class="h-4 w-4" />
 				</Button>
+				<Input
+					class="w-20 h-9 max-sm:w-full"
+					:min="1"
+					:max="table.getPageCount()"
+					:model-value="currentPage"
+					inputmode="numeric"
+					type="number"
+					@input="handleGoToPage"
+				/>
 				<Button
-					class="h-9 w-9"
+					class="size-9 min-w-9 max-sm:w-full"
 					variant="outline"
 					size="icon"
 					:disabled="!table.getCanNextPage()"

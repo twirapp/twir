@@ -32,21 +32,22 @@ import {
 	getOperation,
 	operationTypeSelectOptions,
 } from './helpers.js'
+import Table from '../table.vue'
 
 import type { EditableEvent, EventOperation } from './types.js'
 
+import { useAlertsApi } from '@/api/alerts'
 import { useCommandsApi } from '@/api/commands/commands'
 import {
-	useAlertsManager,
 	useEventsManager,
 	useObsOverlayManager,
 	useProfile,
 } from '@/api/index.js'
 import { useKeywordsApi } from '@/api/keywords.js'
 import { useVariablesApi } from '@/api/variables.js'
-import AlertModal from '@/components/alerts/list.vue'
 import { OPERATIONS } from '@/components/events/operations'
 import rewardsSelector from '@/components/rewardsSelector.vue'
+import { useAlertsTable } from '@/features/alerts/composables/use-alerts-table.js'
 
 const props = defineProps<{
 	event: EditableEvent | null
@@ -198,6 +199,9 @@ const keywordsSelectOptions = computed(() => {
 	}))
 })
 
+const alertsManager = useAlertsApi()
+const { data: alerts } = alertsManager.useAlertsQuery()
+
 const { t } = useI18n()
 
 function addOperation() {
@@ -257,9 +261,6 @@ async function save() {
 	emits('saved')
 }
 
-const manager = useAlertsManager()
-const { data: alerts } = manager.getAll({})
-
 const showAlertModal = ref(false)
 
 function getOperationLabel(type: string): string {
@@ -307,6 +308,14 @@ dragAndDrop({
 function variableText(variable: string) {
 	return `{${variable}}`
 }
+
+const alertsTable = useAlertsTable({
+	onSelect(alert) {
+		if (!currentOperation.value) return
+		currentOperation.value.target = alert.id
+		showAlertModal.value = false
+	},
+})
 
 const filteredOperationTypeSelectOptions = computed(() => {
 	return operationTypeSelectOptions.filter(option => {
@@ -573,7 +582,7 @@ const filteredOperationTypeSelectOptions = computed(() => {
 								<div class="flex gap-2.5 w-[90%]">
 									<NButton block type="info" @click="showAlertModal = true">
 										{{
-											alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
+											alerts?.channelAlerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
 										}}
 									</NButton>
 									<NButton
@@ -685,18 +694,9 @@ const filteredOperationTypeSelectOptions = computed(() => {
 		}"
 		:on-close="() => showAlertModal = false"
 	>
-		<AlertModal
-			:with-select="true"
-			@select="(id) => {
-				if (!currentOperation) return;
-				currentOperation.target = id
-				showAlertModal = false
-			}"
-			@delete="(id) => {
-				if (currentOperation && id === currentOperation.target) {
-					currentOperation.target = undefined
-				}
-			}"
+		<Table
+			:table="alertsTable.table"
+			:is-loading="alertsTable.isLoading.value"
 		/>
 	</NModal>
 </template>

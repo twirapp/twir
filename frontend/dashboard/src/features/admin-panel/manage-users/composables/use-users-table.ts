@@ -88,7 +88,7 @@ export const useUsersTable = createGlobalState(() => {
 			cell: ({ row }) => {
 				return h(
 					'div',
-					{ class: 'flex items-center gap-2' },
+					{ class: 'flex items-center justify-end gap-2' },
 					[
 						h(UsersBadgeSelector, {
 							userId: row.original.id,
