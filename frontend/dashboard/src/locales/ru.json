@@ -18,7 +18,7 @@
     "goToDashboard": "Перейти в панель управления",
     "add": "Добавить",
     "send": "Отправить",
-    "next": "Вперед",
+    "next": "Далее",
     "previous": "Назад",
     "reset": "Сбросить"
   },
@@ -35,6 +35,7 @@
       "text": "Бот будет отправлять команду как ответ"
     },
     "response": "Ответ",
+    "user": "User",
     "userName": "Имя пользователя",
     "dangerZone": "Опасная зона",
     "deleted": "Удалено",
@@ -42,15 +43,19 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "из {page} страниц / {total} записей",
-    "paginationPerPage": "На страницу",
+    "pagination": "{page} page(s) / {total} item(s)",
+    "paginationPerPage": "Per page",
     "searchPlaceholder": "Поиск",
     "messages": "Messages",
     "asc": "Asc",
     "desc": "Desc",
     "hide": "Hide",
     "view": "View",
-    "toggleColumns": "Toggle columns"
+    "toggleColumns": "Toggle columns",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -74,7 +79,8 @@
     "games": "Игры",
     "users": "Зрители",
     "moderation": "Модерация",
-    "import": "Импортировать"
+    "import": "Импортировать",
+    "community": "Community"
   },
   "navbar": {
     "logout": "Выйти",
@@ -87,8 +93,8 @@
     "confirm": "Подтвердить"
   },
   "haveNoAccess": {
-    "title": "Доступ запрещен",
-    "description": "У вас нет прав для просмотра этой страницы, обратитесь к стримеру за доступом."
+    "title": "No access",
+    "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
     "title": "404 Страница не найдена",
@@ -279,7 +285,7 @@
       },
       "rewardForAddEmote": "Награда для добавления смайлика",
       "rewardForRemoveEmote": "Награда для удаления смайлика",
-      "rewardSelectorDescription": "Вы должны создать награду с вводом. Пользователи должны отправить ссылку на 7TV смайл при использовании награды."
+      "rewardSelectorDescription": "Вы должны создать награду с вводом. Пользователи должны отправить ссылку на 7tv смайл при использовании награды."
     }
   },
   "events": {
@@ -585,6 +591,7 @@
       "deniedUsers": "Пользователи, которые не могут заказывать песни",
       "deniedSongs": "Запрещенные песни для заказа",
       "takeSongFromDonationMessage": "Попытаться получать ссылки на песни из сообщений о пожертвованиях?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Максимальное количество заказов для пользователя",
         "minimalWatchTime": "Минимальное время просмотра для заказа песни (в минутах)",
@@ -601,7 +608,8 @@
     "tabs": {
       "general": "Общие настройки",
       "users": "Настройки пользователей",
-      "songs": "Звуковые настройки"
+      "songs": "Звуковые настройки",
+      "translations": "Translations"
     },
     "ban": {
       "user": "Забанить пользователя",
@@ -683,7 +691,10 @@
     "title": "Оповещения",
     "info": "Информация по оповещениям",
     "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Название",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Имя не может быть пустым или содержать более 30 символов!"
     },
@@ -694,11 +705,14 @@
       "greetings": "Приветствия для триггера"
     },
     "select": {
-      "audio": "Настроить звук",
-      "image": "Настроить изображение",
-      "text": "Настроить текст"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Громкость звука ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Команда",
@@ -757,8 +771,9 @@
     }
   },
   "community": {
+    "title": "Community",
     "users": {
-      "title": "Community Users",
+      "title": "Users",
       "searchPlaceholder": "Search users...",
       "table": {
         "user": "Пользователь",
@@ -772,6 +787,31 @@
       "reset": {
         "label": "Reset",
         "resetQuestion": "Вы уверены, что хотите сбросить {title}?"
+      }
+    },
+    "emotesStatistic": {
+      "title": "Emotes statistics",
+      "searchPlaceholder": "Search emotes...",
+      "table": {
+        "emote": "Emote",
+        "usages": "Total usages",
+        "users": "Users",
+        "empty": "No emotes",
+        "chart": "Usages chart",
+        "lastDay": "Day",
+        "lastWeek": "Week",
+        "lastMonth": "Month",
+        "lastThreeMonth": "3 months",
+        "lastYear": "Year"
+      },
+      "total": "Total emotes: {total}",
+      "details": {
+        "stats": "Stats",
+        "users": "Users",
+        "usersTabs": {
+          "top": "Top",
+          "history": "History"
+        }
       }
     }
   },
@@ -812,7 +852,7 @@
     "ban": {
       "alertInfo": "Установите время на 0, чтобы выводить сообщение при перманентной блокировке<br>",
       "countLabel": "Время (в минутах)",
-      "ignoreTimeoutFrom": "Игнорировать муты от следующих пользователей"
+      "ignoreTimeoutFrom": "Ignore timeouts from"
     },
     "labels": {
       "followers": "Фолловеры",
@@ -826,7 +866,8 @@
       "chatCleared": "Очистка чата",
       "userBanned": "Отстранение пользователя",
       "channelUnbanRequestCreate": "Запрос на разбан создан",
-      "channelUnbanRequestResolve": "Запрос на разбан обработан"
+      "channelUnbanRequestResolve": "Запрос на разбан обработан",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
@@ -912,7 +953,7 @@
     }
   },
   "adminPanel": {
-    "title": "Admin panel",
+    "title": "Admin Panel",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",

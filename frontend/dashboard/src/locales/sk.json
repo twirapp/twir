@@ -35,6 +35,7 @@
       "text": "Bot odošle odpovede na príkazy ako odpoveď"
     },
     "response": "Odpoveď",
+    "user": "Užívateľ",
     "userName": "Užívateľské meno",
     "dangerZone": "Nebezpečná zóna",
     "deleted": "Odstránené",
@@ -42,15 +43,19 @@
     "disabled": "Vypnuté",
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
-    "pagination": "z {page} strana(y) / {total} položka(y)",
-    "paginationPerPage": "Per page",
+    "pagination": "{page} page(s) / {total} item(s)",
+    "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
     "messages": "Správy",
     "asc": "Vzost.",
     "desc": "Zost.",
     "hide": "Skryť",
     "view": "Zobraziť",
-    "toggleColumns": "Prepínanie stĺpcov"
+    "toggleColumns": "Prepínanie stĺpcov",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -74,7 +79,8 @@
     "games": "Hry",
     "users": "Užívatelia",
     "moderation": "Moderovanie",
-    "import": "Importovať"
+    "import": "Importovať",
+    "community": "Komunita"
   },
   "navbar": {
     "logout": "Odhlásiť sa",
@@ -585,6 +591,7 @@
       "deniedUsers": "Zablokovaní používatelia",
       "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
+      "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Maximálne množstvo žiadosti na používateľa",
         "minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
@@ -601,7 +608,8 @@
     "tabs": {
       "general": "Všeobecné",
       "users": "Užívatelia",
-      "songs": "Skladby"
+      "songs": "Skladby",
+      "translations": "Translations"
     },
     "ban": {
       "user": "Zablokovať užívateľa",
@@ -646,7 +654,7 @@
     "title": "Kľúčové slová",
     "triggerText": "Spúšťací text",
     "usages": "Počet použití",
-    "isRegular": "Is a Regular Expression?",
+    "isRegular": "Je regulárny výraz?",
     "regularDescription": "Regulárny výraz by mal byť napísaný vo formáte golang! Pozri {0} tu.",
     "regularDescriptionCheatSheet": "Ťahák",
     "settings": "Nastavenia",
@@ -683,7 +691,10 @@
     "title": "Upozornenia",
     "info": "Alerts Information",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Názov",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
@@ -694,11 +705,14 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Konfigurácia zvuku",
-      "image": "Vybrať obrázok",
-      "text": "Konfigurovať text"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Hlasitosť zvuku ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Príkaz",
@@ -757,8 +771,9 @@
     }
   },
   "community": {
+    "title": "Komunita",
     "users": {
-      "title": "Komunitní užívatelia",
+      "title": "Užívatelia",
       "searchPlaceholder": "Hľadať uživateľov...",
       "table": {
         "user": "Užívateľ",
@@ -772,6 +787,31 @@
       "reset": {
         "label": "Resetovať",
         "resetQuestion": "Ste si istí, že chcete obnoviť {title}?"
+      }
+    },
+    "emotesStatistic": {
+      "title": "Štatistiky emotov",
+      "searchPlaceholder": "Vyhľadať emoty...",
+      "table": {
+        "emote": "Emot",
+        "usages": "Celkový počet použití",
+        "users": "Užívatelia",
+        "empty": "No emotes",
+        "chart": "Graf využitia",
+        "lastDay": "Deň",
+        "lastWeek": "Týždeň",
+        "lastMonth": "Mesiac",
+        "lastThreeMonth": "3 mesiace",
+        "lastYear": "Rok"
+      },
+      "total": "Celkový počet emotov: {total}",
+      "details": {
+        "stats": "Štatistiky",
+        "users": "Užívatelia",
+        "usersTabs": {
+          "top": "Top",
+          "history": "História"
+        }
       }
     }
   },
@@ -805,12 +845,12 @@
     }
   },
   "chatAlerts": {
-    "randomedMessage": "Ak existuje niekoľko variantov upozornení na chat, vyberú sa náhodne.",
+    "randomedMessage": "Ak existuje niekoľko variantov upozornení v chate, vyberú sa náhodne.",
     "randomMessageWithCount": "Ak existuje niekoľko variantov s rovnakým číslom počítadla, vyberú sa náhodne.",
     "replacedInfo": "Dostupné premenné: {vars}. Budú nahradené aktuálnymi informáciami v upozornení.",
     "cooldown": "Vychladnutie správy (v sekundách)",
     "ban": {
-      "alertInfo": "Nastavte čas na 0, aby sa vytlačila správa, keď je používateľ trvalo zablokovaný.",
+      "alertInfo": "Nastavte čas na 0, aby sa odoslala správa, keď je používateľ trvalo zablokovaný.",
       "countLabel": "Čas (minútach)",
       "ignoreTimeoutFrom": "Ignorovať timeouty od"
     },
@@ -826,7 +866,8 @@
       "chatCleared": "Chat Clear",
       "userBanned": "User Ban",
       "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
-      "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban"
+      "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
@@ -845,7 +886,7 @@
       "deny_list": {
         "name": "Zoznam zakázaných slov",
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
-        "empty": "List of disallowed words is empty! You can add one there.",
+        "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
         "regexpCheatSheet": "cheat sheet"
       },
@@ -894,7 +935,7 @@
       "title": "Účet",
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
-        "button": "Regenerate Private API key",
+        "button": "Vygenerovať súkromný kľúč API",
         "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
       }
     },
@@ -918,28 +959,28 @@
       "formTitle": "Send or edit notification",
       "emptyNotifications": "No notifications",
       "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
+      "userPlaceholder": "Vybrať užívateľa",
+      "messageLabel": "Správa",
+      "messagePreview": "Ukážka",
+      "createdAt": "Vytvorené",
       "globals": "Globals",
-      "users": "Users",
+      "users": "Užívatelia",
       "confirmResetForm": "Are you sure you want to reset the form?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
+      "title": "Užívatelia",
+      "user": "Užívateľ",
+      "userId": "ID používateľa",
+      "followers": "Sledovatelia",
+      "noUsers": "Žiadni používatelia",
+      "filters": "Filtre",
       "clearFilters": "Clear filters",
       "countSelected": "{count} selected",
       "isAdmin": "Admin",
       "isBanned": "Banned",
       "isBotEnabled": "Bot enabled",
-      "statusGroup": "Status",
-      "badgesGroup": "Badges",
+      "statusGroup": "Stav",
+      "badgesGroup": "Odznaky",
       "giveBan": "Ban user",
       "unBan": "Unban user",
       "giveMod": "Give admin",
@@ -947,18 +988,18 @@
       "dropSession": "Drop session"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
-      "name": "Name",
-      "users": "Users",
+      "title": "Odznaky",
+      "formTitle": "Vytvoriť alebo upraviť odznak",
+      "name": "Názov",
+      "users": "Užívatelia",
       "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
+      "image": "Obrázok",
+      "preview": "Náhľad",
       "usesCount": "Použití {count}",
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Akcie",
       "dropAllSession": "Drop all sessions",
       "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
     }
