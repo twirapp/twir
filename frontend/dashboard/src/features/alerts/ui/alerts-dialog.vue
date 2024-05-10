@@ -22,14 +22,7 @@ const open = ref(false)
 </script>
 
 <template>
-	<Dialog
-		v-model:open="open"
-		@update:open="(state) => {
-			if (!state && !alert) {
-				// reset form
-			}
-		}"
-	>
+	<Dialog v-model:open="open">
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>

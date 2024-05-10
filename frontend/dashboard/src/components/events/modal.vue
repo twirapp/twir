@@ -32,6 +32,7 @@ import {
 	getOperation,
 	operationTypeSelectOptions,
 } from './helpers.js'
+import Table from '../table.vue'
 
 import type { EditableEvent, EventOperation } from './types.js'
 
@@ -44,8 +45,8 @@ import {
 } from '@/api/index.js'
 import { useKeywordsApi } from '@/api/keywords.js'
 import { useVariablesApi } from '@/api/variables.js'
-import AlertModal from '@/components/alerts/list.vue'
 import rewardsSelector from '@/components/rewardsSelector.vue'
+import { useAlertsTable } from '@/features/alerts/composables/use-alerts-table.js'
 
 const props = defineProps<{
 	event: EditableEvent | null
@@ -307,6 +308,14 @@ dragAndDrop({
 function variableText(variable: string) {
 	return `{${variable}}`
 }
+
+const alertsTable = useAlertsTable({
+	onSelect(alert) {
+		if (!currentOperation.value) return
+		currentOperation.value.target = alert.id
+		showAlertModal.value = false
+	},
+})
 </script>
 
 <template>
@@ -674,18 +683,9 @@ function variableText(variable: string) {
 		}"
 		:on-close="() => showAlertModal = false"
 	>
-		<AlertModal
-			:with-select="true"
-			@select="(id) => {
-				if (!currentOperation) return;
-				currentOperation.target = id
-				showAlertModal = false
-			}"
-			@delete="(id) => {
-				if (currentOperation && id === currentOperation.target) {
-					currentOperation.target = undefined
-				}
-			}"
+		<Table
+			:table="alertsTable.table"
+			:is-loading="alertsTable.isLoading.value"
 		/>
 	</NModal>
 </template>

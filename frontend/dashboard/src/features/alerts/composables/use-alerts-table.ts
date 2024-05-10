@@ -7,7 +7,11 @@ import AlertsTableActions from '../ui/alerts-table-actions.vue'
 import { type Alert, useAlertsQuery } from '@/api/alerts.js'
 import { Badge } from '@/components/ui/badge'
 
-export function useAlertsTable() {
+interface Props {
+	onSelect?: (alert: Alert) => void
+}
+
+export function useAlertsTable(props?: Props) {
 	const { t } = useI18n()
 
 	const { data, fetching } = useAlertsQuery()
@@ -68,7 +72,14 @@ export function useAlertsTable() {
 			accessorKey: 'actions',
 			size: 10,
 			header: () => '',
-			cell: ({ row }) => h(AlertsTableActions, { alert: row.original }),
+			cell: ({ row }) => h(AlertsTableActions, {
+				'alert': row.original,
+				'withSelect': Boolean(props?.onSelect),
+				'onUpdate:select-alert': (alert) => {
+					if (!props?.onSelect) return
+					props.onSelect(alert)
+				},
+			}),
 		},
 	])
 
