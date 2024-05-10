@@ -2,7 +2,6 @@ package sr_youtube
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -28,7 +27,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/samber/lo"
-	youtube "github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type ReqError struct {
@@ -59,10 +57,9 @@ var SrCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		moduleSettings := &model.ChannelModulesSettings{}
-		parsedSettings := &youtube.YouTubeSettings{}
+		moduleSettings := &model.ChannelSongRequestsSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ? AND "type" = ?`, parseCtx.Channel.ID, "youtube_song_requests").
+			Where(`"channel_id" = ?`, parseCtx.Channel.ID).
 			First(moduleSettings).Error
 
 		if err != nil {
@@ -76,27 +73,18 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 
-		err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot parse song requests settings",
-				Err:     err,
-			}
-		}
-
-		if !*parsedSettings.Enabled {
-			result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+		if !moduleSettings.Enabled {
 			return result, nil
 		}
 
-		if *parsedSettings.AcceptOnlyWhenOnline {
+		if moduleSettings.AcceptOnlyWhenOnline {
 			stream := &model.ChannelsStreams{}
 			parseCtx.Services.Gorm.WithContext(ctx).Where(
 				`"userId" = ?`,
 				parseCtx.Channel.ID,
 			).First(stream)
 			if stream.ID == "" {
-				result.Result = append(result.Result, parsedSettings.Translations.AcceptOnlineWhenOnline)
+				result.Result = append(result.Result, moduleSettings.TranslationsAcceptOnlineWhenOnline)
 				return result, nil
 			}
 		}
@@ -114,7 +102,7 @@ var SrCommand = &types.DefaultCommand{
 			}
 		}
 		if len(req.Songs) == 0 {
-			result.Result = append(result.Result, parsedSettings.Translations.Song.NotFound)
+			result.Result = append(result.Result, moduleSettings.TranslationsSongNotFound)
 			return result, nil
 		}
 
@@ -154,7 +142,7 @@ var SrCommand = &types.DefaultCommand{
 				parseCtx.Services,
 				parseCtx.Channel.ID,
 				parseCtx.Sender.ID,
-				parsedSettings,
+				*moduleSettings,
 				song,
 			)
 
@@ -224,10 +212,9 @@ func validate(
 	ctx context.Context,
 	services *services.Services,
 	channelId, userId string,
-	settings *youtube.YouTubeSettings,
+	settings model.ChannelSongRequestsSettings,
 	song *ytsr.Song,
 ) error {
-
 	alreadyRequestedSong := &model.RequestedSong{}
 	services.Gorm.WithContext(ctx).Where(
 		`"videoId" = ? AND "deletedAt" IS NULL AND "channelId" = ?`,
@@ -237,7 +224,7 @@ func validate(
 		Find(&alreadyRequestedSong)
 
 	if alreadyRequestedSong.ID != "" {
-		return errors.New(settings.Translations.Song.AlreadyInQueue)
+		return errors.New(settings.TranslationsSongAlreadyInQueue)
 	}
 
 	// if channelId == userId {
@@ -254,68 +241,68 @@ func validate(
 	}
 
 	if song.IsLive {
-		return errors.New(settings.Translations.Song.Live)
+		return errors.New(settings.TranslationsSongLive)
 	}
 
-	if len(settings.DenyList.Words) > 0 {
-		for _, word := range settings.DenyList.Words {
+	if len(settings.DenyListWords) > 0 {
+		for _, word := range settings.DenyListWords {
 			if word == "" {
 				continue
 			}
 			if strings.Contains(strings.ToLower(song.Title), strings.ToLower(word)) {
-				return errors.New(settings.Translations.Song.Denied)
+				return errors.New(settings.TranslationsSongDenied)
 			}
 		}
 
 		if song.Author != nil {
-			for _, word := range settings.DenyList.Words {
+			for _, word := range settings.DenyListWords {
 				if word == "" {
 					continue
 				}
 
 				if strings.Contains(strings.ToLower(song.Author.Name), strings.ToLower(word)) {
-					return errors.New(settings.Translations.Song.Denied)
+					return errors.New(settings.TranslationsSongDenied)
 				}
 			}
 		}
 	}
 
-	if len(settings.DenyList.Users) > 0 {
+	if len(settings.DenyListUsers) > 0 {
 		_, isUserDenied := lo.Find(
-			settings.DenyList.Users,
+			settings.DenyListUsers,
 			func(u string) bool {
 				return u == userId
 			},
 		)
 
 		if isUserDenied {
-			return errors.New(settings.Translations.User.Denied)
+			return errors.New(settings.TranslationsUserDenied)
 		}
 	}
 
-	if len(settings.DenyList.Channels) > 0 && song.Author != nil {
+	if len(settings.DenyListChannels) > 0 && song.Author != nil {
 		_, isChannelBlacklisted := lo.Find(
-			settings.DenyList.Channels,
+			settings.DenyListChannels,
 			func(u string) bool {
 				return u == song.Author.ChannelId
 			},
 		)
 
 		if isChannelBlacklisted {
-			return errors.New(settings.Translations.Channel.Denied)
+			return errors.New(settings.TranslationsChannelDenied)
 		}
 	}
 
-	if len(settings.DenyList.Songs) > 0 {
+	if len(settings.DenyListSongs) > 0 {
 		_, isSongBlackListed := lo.Find(
-			settings.DenyList.Songs,
+			settings.DenyListSongs,
 			func(u string) bool {
 				return u == song.Id
 			},
 		)
 
 		if isSongBlackListed {
-			return errors.New(settings.Translations.Song.Denied)
+			return errors.New(settings.TranslationsSongDenied)
 		}
 	}
 
@@ -326,7 +313,7 @@ func validate(
 			Count(&count)
 		if count >= int64(settings.MaxRequests) {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.Song.MaximumOrdered,
+				settings.TranslationsSongMaximumOrdered,
 				"{{", "}}",
 				map[string]interface{}{
 					"maximum": strconv.Itoa(settings.MaxRequests),
@@ -336,44 +323,44 @@ func validate(
 		}
 	}
 
-	if settings.Song.MinViews != 0 && int(song.Views) < settings.Song.MinViews {
+	if settings.SongMinViews != 0 && int(song.Views) < settings.SongMinViews {
 		message := fasttemplate.ExecuteString(
-			settings.Translations.Song.MinViews,
+			settings.TranslationsSongMinViews,
 			"{{", "}}",
 			map[string]interface{}{
 				"songTitle":   song.Title,
 				"songId":      song.Id,
 				"songViews":   strconv.Itoa(int(song.Views)),
-				"neededViews": strconv.Itoa(settings.Song.MinViews),
+				"neededViews": strconv.Itoa(settings.SongMinViews),
 			},
 		)
 		return errors.New(message)
 	}
 
 	songDuration := time.Duration(song.Duration) * time.Second
-	if settings.Song.MaxLength != 0 && int(math.Round(songDuration.Minutes())) > settings.Song.MaxLength {
+	if settings.SongMaxLength != 0 && int(math.Round(songDuration.Minutes())) > settings.SongMaxLength {
 		message := fasttemplate.ExecuteString(
-			settings.Translations.Song.MaxLength,
+			settings.TranslationsSongMaxLength,
 			"{{", "}}",
 			map[string]interface{}{
 				"songTitle": song.Title,
 				"songId":    song.Id,
 				"songViews": strconv.Itoa(int(song.Views)),
-				"maxLength": strconv.Itoa(settings.Song.MaxLength),
+				"maxLength": strconv.Itoa(settings.SongMaxLength),
 			},
 		)
 		return errors.New(message)
 	}
 
-	if settings.Song.MinLength != 0 && int(math.Round(songDuration.Minutes())) < settings.Song.MinLength {
+	if settings.SongMinLength != 0 && int(math.Round(songDuration.Minutes())) < settings.SongMinLength {
 		message := fasttemplate.ExecuteString(
-			settings.Translations.Song.MinLength,
+			settings.TranslationsSongMinLength,
 			"{{", "}}",
 			map[string]interface{}{
 				"songTitle": song.Title,
 				"songId":    song.Id,
 				"songViews": strconv.Itoa(int(song.Views)),
-				"minLength": strconv.Itoa(settings.Song.MinLength),
+				"minLength": strconv.Itoa(settings.SongMinLength),
 			},
 		)
 		return errors.New(message)
@@ -381,26 +368,26 @@ func validate(
 
 	// TODO: check categories
 
-	if settings.User.MaxRequests != 0 {
+	if settings.UserMaxRequests != 0 {
 		var count int64
 		services.Gorm.WithContext(ctx).
 			Model(&model.RequestedSong{}).
 			Where(`"orderedById" = ? AND "channelId" = ? AND "deletedAt" IS NULL`, userId, channelId).
 			Count(&count)
-		if count >= int64(settings.User.MaxRequests) {
+		if count >= int64(settings.UserMaxRequests) {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.User.MaxRequests,
+				settings.TranslationsUserMaxRequests,
 				"{{", "}}",
 				map[string]interface{}{
-					"count":   strconv.Itoa(settings.User.MaxRequests),
-					"maximum": strconv.Itoa(settings.User.MaxRequests),
+					"count":   strconv.Itoa(settings.UserMaxRequests),
+					"maximum": strconv.Itoa(settings.UserMaxRequests),
 				},
 			)
 			return errors.New(message)
 		}
 	}
 
-	if settings.User.MinMessages != 0 || settings.User.MinWatchTime != 0 {
+	if settings.UserMinMessages != 0 || settings.UserMinWatchTime != 0 {
 		user := &model.Users{}
 		services.Gorm.WithContext(ctx).Where("id = ?", userId).Preload("Stats").First(&user)
 		if user.ID == "" {
@@ -409,13 +396,13 @@ func validate(
 			)
 		}
 
-		if settings.User.MinMessages != 0 &&
-			user.Stats.Messages < int32(settings.User.MinMessages) {
+		if settings.UserMinMessages != 0 &&
+			user.Stats.Messages < int32(settings.UserMinMessages) {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.User.MinMessages,
+				settings.TranslationsUserMinMessages,
 				"{{", "}}",
 				map[string]interface{}{
-					"neededMessages": strconv.Itoa(settings.User.MinMessages),
+					"neededMessages": strconv.Itoa(settings.UserMinMessages),
 					"userMessages":   strconv.Itoa(int(user.Stats.Messages)),
 				},
 			)
@@ -423,13 +410,13 @@ func validate(
 		}
 
 		watchedInMinutes := time.Duration(user.Stats.Watched) * time.Millisecond
-		if settings.User.MinWatchTime != 0 &&
-			int64(watchedInMinutes.Minutes()) < settings.User.MinWatchTime {
+		if settings.UserMinWatchTime != 0 &&
+			int64(watchedInMinutes.Minutes()) < settings.UserMinWatchTime {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.User.MinWatched,
+				settings.TranslationsUserMinWatched,
 				"{{", "}}",
 				map[string]interface{}{
-					"minWatched":  strconv.Itoa(int(settings.User.MinWatchTime)),
+					"minWatched":  strconv.Itoa(int(settings.UserMinWatchTime)),
 					"userWatched": strconv.Itoa(int(watchedInMinutes)),
 				},
 			)
@@ -437,8 +424,8 @@ func validate(
 		}
 	}
 
-	if settings.User.MinFollowTime != 0 {
-		neededDuration := time.Minute * time.Duration(settings.User.MinFollowTime)
+	if settings.UserMinFollowTime != 0 {
+		neededDuration := time.Minute * time.Duration(settings.UserMinFollowTime)
 		followReq, err := twitchClient.GetUsersFollows(
 			&helix.UsersFollowsParams{
 				FromID: userId,
@@ -455,10 +442,10 @@ func validate(
 		followDuration := time.Since(followReq.Data.Follows[0].FollowedAt)
 		if followDuration.Minutes() < neededDuration.Minutes() {
 			message := fasttemplate.ExecuteString(
-				settings.Translations.User.MinFollow,
+				settings.TranslationsUserMinFollow,
 				"{{", "}}",
 				map[string]interface{}{
-					"minFollow":  strconv.Itoa(settings.User.MinFollowTime),
+					"minFollow":  strconv.Itoa(settings.UserMinFollowTime),
 					"userFollow": strconv.Itoa(int(followDuration.Minutes())),
 				},
 			)

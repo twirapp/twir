@@ -22,10 +22,7 @@ import (
 )
 
 // SongRequestsUpdate is the resolver for the songRequestsUpdate field.
-func (r *mutationResolver) SongRequestsUpdate(
-	ctx context.Context,
-	opts gqlmodel.SongRequestsSettingsOpts,
-) (bool, error) {
+func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel.SongRequestsSettingsOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -171,15 +168,8 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 	}, nil
 }
 
-func getThumbNailUrl(url string) string {
-	return strings.Replace(url, "http://", "https://", 1)
-}
-
 // SongRequestsSearchChannelOrVideo is the resolver for the songRequestsSearchChannelOrVideo field.
-func (r *queryResolver) SongRequestsSearchChannelOrVideo(
-	ctx context.Context,
-	opts gqlmodel.SongRequestsSearchChannelOrVideoOpts,
-) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
+func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, opts gqlmodel.SongRequestsSearchChannelOrVideoOpts) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
 	response := &gqlmodel.SongRequestsSearchChannelOrVideoResponse{
 		Items: make([]gqlmodel.SongRequestsSearchChannelOrVideoItem, 0, len(opts.Query)),
 	}
@@ -252,4 +242,14 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(
 	)
 
 	return response, nil
+}
+
+// !!! WARNING !!!
+// The code below was going to be deleted when updating resolvers. It has been copied here so you have
+// one last chance to move it out of harms way if you want. There are two reasons this happens:
+//   - When renaming or deleting a resolver the old code will be put in here. You can safely delete
+//     it when you're done.
+//   - You have helper methods in this file. Move them out to keep these resolver files clean.
+func getThumbNailUrl(url string) string {
+	return strings.Replace(url, "http://", "https://", 1)
 }
