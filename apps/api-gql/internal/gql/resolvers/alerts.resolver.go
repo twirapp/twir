@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	"github.com/kr/pretty"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
@@ -72,8 +71,6 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, i
 		).First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("channel alert not found: %w", err)
 	}
-
-	pretty.Println(entity)
 
 	if input.AudioVolume.IsSet() {
 		entity.AudioVolume = *input.AudioVolume.Value()
