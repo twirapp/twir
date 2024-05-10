@@ -43,7 +43,7 @@
     "disabled": "Отключено",
     "setDefaultSettings": "Сбросить настройки по умолчанию?",
     "placeCursorMessage": "Поместите курсор после \"$\", чтобы изменить переменную",
-    "pagination": "of {page} page(s) / {total} item(s)",
+    "pagination": "{page} page(s) / {total} item(s)",
     "paginationPerPage": "Per page",
     "searchPlaceholder": "Поиск",
     "messages": "Messages",
@@ -51,7 +51,11 @@
     "desc": "Desc",
     "hide": "Hide",
     "view": "View",
-    "toggleColumns": "Toggle columns"
+    "toggleColumns": "Toggle columns",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -686,7 +690,10 @@
     "title": "Оповещения",
     "info": "Информация по оповещениям",
     "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Название",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Имя не может быть пустым или содержать более 30 символов!"
     },
@@ -697,11 +704,14 @@
       "greetings": "Приветствия для триггера"
     },
     "select": {
-      "audio": "Настроить звук",
-      "image": "Настроить изображение",
-      "text": "Настроить текст"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Громкость звука ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Команда",
