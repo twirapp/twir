@@ -855,7 +855,8 @@
       "chatCleared": "Chat Clear",
       "userBanned": "User Ban",
       "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
-      "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban"
+      "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
