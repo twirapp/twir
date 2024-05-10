@@ -855,7 +855,8 @@
       "chatCleared": "Chat Clear",
       "userBanned": "Benutzer-Sperren",
       "channelUnbanRequestCreate": "Unban Request Create",
-      "channelUnbanRequestResolve": "Unban Request Resolve"
+      "channelUnbanRequestResolve": "Unban Request Resolve",
+      "messageDelete": "Message Deleted"
     }
   },
   "moderation": {
