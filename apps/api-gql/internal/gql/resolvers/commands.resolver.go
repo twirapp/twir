@@ -56,6 +56,10 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return false, err
 	}
 
+	if err := r.checkIsCommandWithNameOrAliaseExists(ctx, nil, opts.Name, opts.Aliases); err != nil {
+		return false, err
+	}
+
 	command := &model.ChannelsCommands{
 		ID:           uuid.New().String(),
 		Name:         strings.ToLower(opts.Name),
@@ -128,6 +132,28 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
+	}
+
+	if opts.Name.IsSet() {
+		if err := r.checkIsCommandWithNameOrAliaseExists(
+			ctx,
+			&id,
+			*opts.Name.Value(),
+			nil,
+		); err != nil {
+			return false, err
+		}
+	}
+
+	if opts.Aliases.IsSet() {
+		if err := r.checkIsCommandWithNameOrAliaseExists(
+			ctx,
+			&id,
+			"",
+			opts.Aliases.Value(),
+		); err != nil {
+			return false, err
+		}
 	}
 
 	cmd := &model.ChannelsCommands{}
