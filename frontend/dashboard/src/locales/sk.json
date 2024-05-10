@@ -608,7 +608,8 @@
     "tabs": {
       "general": "Všeobecné",
       "users": "Užívatelia",
-      "songs": "Skladby"
+      "songs": "Skladby",
+      "translations": "Translations"
     },
     "ban": {
       "user": "Zablokovať užívateľa",
