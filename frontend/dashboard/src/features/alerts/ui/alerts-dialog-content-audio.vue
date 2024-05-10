@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { PauseIcon, PlayIcon, TrashIcon } from 'lucide-vue-next'
 import { NScrollbar } from 'naive-ui'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useProfile } from '@/api/auth.js'
@@ -25,7 +25,12 @@ const volumeInputValue = computed({
 		return [props.initialVolume ?? 75]
 	},
 	set(value) {
-		emits('update:volume', value[0])
+		const volume = value[0]
+		if (audioId.value) {
+			setVolume(audioId.value, volume)
+		}
+
+		emits('update:volume', volume)
 	},
 })
 
@@ -42,8 +47,15 @@ const showAudioDialog = ref(false)
 const isAudioPlaying = ref(false)
 const loadedAudios = new Map<string, HTMLAudioElement>()
 
+watch(audioId, (audioId, prevValue) => {
+	if (audioId === undefined) {
+		loadedAudios.get(prevValue!)?.pause()
+		isAudioPlaying.value = false
+	}
+})
+
 async function playAudio(audio: HTMLAudioElement) {
-	audio.volume = volumeInputValue.value[0] / 100
+	setVolume(audioId.value!, volumeInputValue.value[0])
 	audio.currentTime = 0
 	audio.play()
 }
@@ -85,6 +97,12 @@ async function getAudio() {
 	audio.addEventListener('ended', () => {
 		isAudioPlaying.value = false
 	})
+}
+
+function setVolume(audioId: string, volume: number) {
+	const audio = loadedAudios.get(audioId)
+	if (!audio) return
+	audio.volume = volume / 100
 }
 </script>
 
