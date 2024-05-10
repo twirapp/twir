@@ -53,7 +53,7 @@ function computeFileUrl(f: FileMeta) {
 		channel_id: f.channelId,
 		file_id: f.id,
 	})
-	return `${window.location.origin}/api/files/?${query}`
+	return `${window.location.origin}/api-old/files/?${query}`
 }
 
 interface Tab {

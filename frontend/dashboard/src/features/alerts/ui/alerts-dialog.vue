@@ -3,9 +3,10 @@ import { NScrollbar } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AlertsModalContent from './alerts-dialog-content.vue'
+
 import type { Alert } from '@/api/alerts.js'
 
-import AlertsModalContent from '@/components/alerts/modal.vue'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import {
 	Dialog,
@@ -46,10 +47,6 @@ const open = ref(false)
 					@close="() => open = false"
 				/>
 			</NScrollbar>
-
-			<!-- <DialogFooter>
-				TODO: save button
-			</DialogFooter> -->
 		</DialogOrSheet>
 	</Dialog>
 </template>

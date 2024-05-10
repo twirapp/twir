@@ -15,8 +15,6 @@ import {
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import RewardsSelector from '../rewardsSelector.vue'
-
 import {
 	useFiles,
 	useProfile,
@@ -28,6 +26,7 @@ import { useGreetingsApi } from '@/api/greetings.js'
 import { useKeywordsApi } from '@/api/keywords.js'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import FilesPicker from '@/components/files/files.vue'
+import RewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -47,13 +46,13 @@ const formRef = ref<FormInst | null>(null)
 const formValue = ref<Alert>({
 	id: '',
 	name: '',
-	channel_id: profile.value!.id,
-	audio_id: undefined,
-	audio_volume: 100,
-	command_ids: [],
-	reward_ids: [],
-	greetings_ids: [],
-	keywords_ids: [],
+	channelId: profile.value?.selectedDashboardId,
+	audioId: undefined,
+	audioVolume: 100,
+	commandIds: [],
+	rewardIds: [],
+	greetingsIds: [],
+	keywordsIds: [],
 })
 
 onMounted(() => {
@@ -83,14 +82,15 @@ async function save() {
 	if (!formRef.value || !formValue.value) return
 	await formRef.value.validate()
 
-	const data = formValue.value
+	const data = { ...formValue.value, id: undefined }
 
-	if (data.id) {
+	if (props.alert?.id) {
 		await alertsUpdateMutation.executeMutation({
-			id: data.id,
+			id: props.alert.id,
 			opts: data,
 		})
 	} else {
+		delete data.id
 		await alertsCreateMutation.executeMutation({ opts: data })
 	}
 
@@ -100,7 +100,7 @@ async function save() {
 const { data: files } = useFiles()
 const selectedAudio = computed(() => {
 	return files.value?.files
-		.find((file) => file.id === formValue.value.audio_id)
+		.find((file) => file.id === formValue.value.audioId)
 })
 const showAudioModal = ref(false)
 
@@ -118,7 +118,7 @@ async function testAudio() {
 		return
 	}
 
-	await playAudio(await req.arrayBuffer(), formValue.value.audio_volume ?? 50)
+	await playAudio(await req.arrayBuffer(), formValue.value.audioVolume ?? 50)
 }
 
 const commandsApi = useCommandsApi()
@@ -160,7 +160,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<NFormItem :label="t('alerts.trigger.commands')" path="commandIds">
 				<NSelect
-					v-model:value="formValue.command_ids"
+					v-model:value="formValue.commandIds"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -169,12 +169,12 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 			</NFormItem>
 
 			<NFormItem :label="t('alerts.trigger.rewards')" path="rewardIds">
-				<RewardsSelector v-model="formValue.reward_ids!" multiple />
+				<RewardsSelector v-model="formValue.rewardIds!" multiple />
 			</NFormItem>
 
 			<NFormItem :label="t('alerts.trigger.keywords')" path="rewardIds">
 				<NSelect
-					v-model:value="formValue.keywords_ids"
+					v-model:value="formValue.keywordsIds"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -184,7 +184,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<NFormItem :label="t('alerts.trigger.greetings')" path="rewardIds">
 				<NSelect
-					v-model:value="formValue.greetings_ids"
+					v-model:value="formValue.greetingsIds"
 					:fallback-option="false"
 					filterable
 					multiple
@@ -196,7 +196,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 
 			<NFormItem :label="t('alerts.select.audio')">
 				<div class="flex gap-2 w-full">
-					<Dialog @update:open="showAudioModal = false">
+					<Dialog v-model:open="showAudioModal" @update:open="showAudioModal = false">
 						<DialogTrigger as-child>
 							<Button class="w-full" @click="showAudioModal = true">
 								{{ selectedAudio?.name ?? t('sharedButtons.select') }}
@@ -215,12 +215,12 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 									mode="picker"
 									tab="audios"
 									@select="(id) => {
-										formValue.audio_id = id
+										formValue.audioId = id
 										showAudioModal = false
 									}"
 									@delete="(id) => {
-										if (id === formValue.audio_id) {
-											formValue.audio_id = undefined
+										if (id === formValue.audioId) {
+											formValue.audioId = undefined
 										}
 									}"
 								/>
@@ -232,7 +232,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 						class="min-w-10"
 						size="icon"
 						variant="secondary"
-						:disabled="!formValue.audio_id"
+						:disabled="!formValue.audioId"
 						@click="testAudio"
 					>
 						<PlayIcon class="size-4" />
@@ -242,17 +242,17 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 						class="min-w-10"
 						size="icon"
 						variant="destructive"
-						:disabled="!formValue.audio_id"
-						@click="formValue.audio_id = undefined"
+						:disabled="!formValue.audioId"
+						@click="formValue.audioId = undefined"
 					>
 						<TrashIcon class="size-4" />
 					</Button>
 				</div>
 			</NFormItem>
 
-			<NFormItem :label="t('alerts.audioVolume', { volume: formValue.audio_volume })">
+			<NFormItem :label="t('alerts.audioVolume', { volume: formValue.audioVolume })">
 				<NSlider
-					v-model:value="formValue.audio_volume!"
+					v-model:value="formValue.audioVolume!"
 					:step="1"
 					:min="1"
 					:max="100"

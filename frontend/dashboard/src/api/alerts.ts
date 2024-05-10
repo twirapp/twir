@@ -7,7 +7,7 @@ import { graphql } from '@/gql/gql.js'
 
 const invalidateKey = 'AlertsInvalidateKey'
 
-export type Alert = AlertsGetAllQuery['channelAlerts'][0]
+export type Alert = AlertsGetAllQuery['channelAlerts'][number]
 
 export function useAlertsQuery() {
 	return useQuery({
@@ -17,14 +17,34 @@ export function useAlertsQuery() {
 			query AlertsGetAll {
 				channelAlerts {
 					id
-					channel_id
 					name
-					audio_id
-					audio_volume
-					command_ids
-					reward_ids
-					greetings_ids
-					keywords_ids
+					audioId
+					audioVolume
+					commandIds
+					rewardIds
+					greetingsIds
+					keywordsIds
+				}
+				keywords {
+					id
+					text
+				}
+				commands {
+					id
+					name
+				}
+				greetings {
+					id
+					twitchProfile {
+						displayName
+					}
+				}
+				twitchGetChannelRewards {
+					partnerOrAffiliate
+					rewards {
+						id
+						title
+					}
 				}
 			}
 		`),

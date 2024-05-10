@@ -26,15 +26,43 @@ export function useAlertsTable() {
 			},
 		},
 		{
-			accessorKey: 'reward_ids',
+			accessorKey: 'rewards',
 			size: 25,
 			header: () => h('div', {}, t('alerts.rewards')),
-			cell: ({ row }) => h('span', row.original.reward_ids?.join(', ')),
+			cell: ({ row }) => h(
+				'div',
+				{ class: 'flex flex-col gap-0.5' },
+				row.original.rewardIds?.map((id) => {
+					const reward = data.value?.twitchGetChannelRewards.rewards.find((r) => r.id === id)
+					return h('span', reward?.title)
+				}),
+			),
 		},
 		{
-			accessorKey: 'command_ids',
+			accessorKey: 'commands',
 			size: 25,
 			header: () => h('div', {}, t('alerts.commands')),
+			cell: ({ row }) => h(
+				'div',
+				{ class: 'flex flex-col gap-0.5' },
+				row.original.commandIds?.map((id) => {
+					const command = data.value?.commands.find((c) => c.id === id)
+					return h('span', `!${command?.name}`)
+				}),
+			),
+		},
+		{
+			accessorKey: 'keywords',
+			size: 25,
+			header: () => h('div', {}, t('alerts.trigger.keywords')),
+			cell: ({ row }) => h(
+				'div',
+				{ class: 'flex flex-col gap-0.5' },
+				row.original.keywordsIds?.map((id) => {
+					const keyword = data.value?.keywords.find((k) => k.id === id)
+					return h('span', keyword?.text)
+				}),
+			),
 		},
 		{
 			accessorKey: 'actions',

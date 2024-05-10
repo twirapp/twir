@@ -8,6 +8,8 @@ import (
 	"context"
 	"fmt"
 
+	helix "github.com/nicklaw5/helix/v2"
+	"github.com/satont/twir/libs/twitch"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
@@ -28,4 +30,99 @@ func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*
 	}
 
 	return data_loader.GetHelixUserByName(ctx, name)
+}
+
+// TwitchGetChannelRewards is the resolver for the twitchGetChannelRewards field.
+func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *string) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
+	var channelId string
+	if channelID == nil {
+		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+		if err != nil {
+			return nil, err
+		}
+		channelId = dashboardId
+	} else {
+		channelId = *channelID
+	}
+
+	if channelId == "" {
+		return nil, fmt.Errorf("channelID is required")
+	}
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, channelId, r.config, r.tokensClient)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := twitchClient.GetCustomRewards(
+		&helix.GetCustomRewardsParams{
+			BroadcasterID: channelId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	var isPartnerOrAffiliate bool
+	if resp.ErrorMessage != "" {
+		if resp.StatusCode == 403 && resp.ErrorMessage == "The broadcaster must have partner or affiliate status." {
+			isPartnerOrAffiliate = false
+		} else {
+			return nil, fmt.Errorf("cannot get channel rewards: %v %s", resp.StatusCode, resp.ErrorMessage)
+		}
+	}
+
+	rewards := make([]gqlmodel.TwirTwitchChannelReward, 0, len(resp.Data.ChannelCustomRewards))
+	for _, reward := range resp.Data.ChannelCustomRewards {
+		var image *gqlmodel.TwirTwitchChannelRewardImage
+		if reward.Image.Url1x == "" {
+			image = &gqlmodel.TwirTwitchChannelRewardImage{
+				URL1x: reward.DefaultImage.Url1x,
+				URL2x: reward.DefaultImage.Url2x,
+				URL4x: reward.DefaultImage.Url4x,
+			}
+		} else {
+			image = &gqlmodel.TwirTwitchChannelRewardImage{
+				URL1x: reward.Image.Url1x,
+				URL2x: reward.Image.Url2x,
+				URL4x: reward.Image.Url4x,
+			}
+		}
+
+		rewards = append(rewards, gqlmodel.TwirTwitchChannelReward{
+			ID:                  reward.ID,
+			BroadcasterName:     reward.BroadcasterName,
+			BroadcasterLogin:    reward.BroadcasterLogin,
+			BroadcasterID:       reward.BroadcasterID,
+			Image:               image,
+			BackgroundColor:     reward.BackgroundColor,
+			IsEnabled:           reward.IsEnabled,
+			Cost:                reward.Cost,
+			Title:               reward.Title,
+			Prompt:              reward.Prompt,
+			IsUserInputRequired: reward.IsUserInputRequired,
+			MaxPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerStreamSetting{
+				IsEnabled:    reward.MaxPerStreamSetting.IsEnabled,
+				MaxPerStream: reward.MaxPerStreamSetting.MaxPerStream,
+			},
+			MaxPerUserPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerUserPerStreamSetting{
+				IsEnabled:           reward.MaxPerUserPerStreamSetting.IsEnabled,
+				MaxPerUserPerStream: reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream,
+			},
+			GlobalCooldownSetting: &gqlmodel.TwirTwitchChannelRewardGlobalCooldownSetting{
+				IsEnabled:             reward.GlobalCooldownSetting.IsEnabled,
+				GlobalCooldownSeconds: reward.GlobalCooldownSetting.GlobalCooldownSeconds,
+			},
+			IsPaused:                          reward.IsPaused,
+			IsInStock:                         reward.IsInStock,
+			ShouldRedemptionsSkipRequestQueue: reward.ShouldRedemptionsSkipRequestQueue,
+			RedemptionsRedeemedCurrentStream:  reward.RedemptionsRedeemedCurrentStream,
+			CooldownExpiresAt:                 reward.CooldownExpiresAt,
+		})
+	}
+
+	return &gqlmodel.TwirTwitchChannelRewardResponse{
+		PartnerOrAffiliate: isPartnerOrAffiliate,
+		Rewards:            rewards,
+	}, nil
 }

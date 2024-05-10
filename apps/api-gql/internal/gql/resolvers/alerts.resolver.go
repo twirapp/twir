@@ -6,18 +6,17 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/kr/pretty"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // ChannelAlertsCreate is the resolver for the channelAlertsCreate field.
-func (r *mutationResolver) ChannelAlertsCreate(
-	ctx context.Context,
-	input gqlmodel.ChannelAlertCreateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -58,11 +57,7 @@ func (r *mutationResolver) ChannelAlertsCreate(
 }
 
 // ChannelAlertsUpdate is the resolver for the channelAlertsUpdate field.
-func (r *mutationResolver) ChannelAlertsUpdate(
-	ctx context.Context,
-	id string,
-	input gqlmodel.ChannelAlertUpdateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -72,11 +67,14 @@ func (r *mutationResolver) ChannelAlertsUpdate(
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(
-			`id = ? and "channelId" = ?`, id,
+			`id = ? and "channel_id" = ?`,
+			id,
 			dashboardId,
 		).First(&entity).Error; err != nil {
-		return nil, err
+		return nil, fmt.Errorf("channel alert not found: %w", err)
 	}
+
+	pretty.Println(entity)
 
 	if input.AudioVolume.IsSet() {
 		entity.AudioVolume = *input.AudioVolume.Value()
@@ -134,7 +132,7 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 	if err := r.gorm.
 		WithContext(ctx).
 		Where(
-			`id = ? and "channelId" = ?`, id,
+			`id = ? and "channel_id" = ?`, id,
 			dashboardId,
 		).First(&entity).Error; err != nil {
 		return false, err

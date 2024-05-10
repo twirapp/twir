@@ -10,33 +10,33 @@ extend type Mutation {
 
 type ChannelAlert {
 	id: ID!
-	channel_id: ID!
+	channelId: ID!
 	name: String!
-	audio_id: ID
-	audio_volume: Int
-	command_ids: [ID!]
-	reward_ids: [ID!]
-	greetings_ids: [ID!]
-	keywords_ids: [ID!]
+	audioId: ID
+	audioVolume: Int
+	commandIds: [ID!]
+	rewardIds: [ID!]
+	greetingsIds: [ID!]
+	keywordsIds: [ID!]
 }
 
 input ChannelAlertUpdateInput {
 	name: String
-	audio_id: ID
-	audio_volume: Int
-	command_ids: [ID!]
-	reward_ids: [ID!]
-	greetings_ids: [ID!]
-	keywords_ids: [ID!]
+	audioId: ID
+	audioVolume: Int
+	commandIds: [ID!]
+	rewardIds: [ID!]
+	greetingsIds: [ID!]
+	keywordsIds: [ID!]
 }
 
 input ChannelAlertCreateInput {
-	channel_id: ID!
+	channelId: ID!
 	name: String!
-	audio_id: ID
-	audio_volume: Int
-	command_ids: [ID!]
-	reward_ids: [ID!]
-	greetings_ids: [ID!]
-	keywords_ids: [ID!]
+	audioId: ID
+	audioVolume: Int
+	commandIds: [ID!]
+	rewardIds: [ID!]
+	greetingsIds: [ID!]
+	keywordsIds: [ID!]
 }
