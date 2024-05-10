@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ClipboardIcon, EyeIcon, EyeOffIcon, InfoIcon } from 'lucide-vue-next'
+import { CheckIcon, ClipboardIcon, EyeIcon, EyeOffIcon, InfoIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useAlertsInformation } from '../composables/use-alerts-information'
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input'
 
 const { t } = useI18n()
 const {
+	isCopied,
 	copyOverlayLink,
 	overlayLink,
 	isShowOverlayLink,
@@ -46,7 +47,8 @@ const {
 				</Button>
 			</div>
 			<Button size="icon" @click="copyOverlayLink">
-				<ClipboardIcon class="size-4 min-w-10" />
+				<ClipboardIcon v-if="!isCopied" class="size-4 min-w-10" />
+				<CheckIcon v-else class="size-4 min-w-10" />
 			</Button>
 		</div>
 	</Alert>

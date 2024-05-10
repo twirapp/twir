@@ -13,9 +13,12 @@ export function useAlertsInformation() {
 		isShowOverlayLink.value = !isShowOverlayLink.value
 	}
 
+	const isCopied = ref(false)
 	async function copyOverlayLink() {
 		try {
 			await navigator.clipboard.writeText(overlayLink.value)
+			isCopied.value = true
+			setTimeout(() => (isCopied.value = false), 1000)
 		} catch (error) {
 			console.error(error)
 		}
@@ -25,6 +28,7 @@ export function useAlertsInformation() {
 		overlayLink,
 		isShowOverlayLink,
 		toggleShowOverlayLink,
+		isCopied,
 		copyOverlayLink,
 	}
 }
