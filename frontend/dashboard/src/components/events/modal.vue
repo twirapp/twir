@@ -36,9 +36,9 @@ import Table from '../table.vue'
 
 import type { EditableEvent, EventOperation } from './types.js'
 
+import { useAlertsQuery } from '@/api/alerts'
 import { useCommandsApi } from '@/api/commands/commands'
 import {
-	useAlertsManager,
 	useEventsManager,
 	useObsOverlayManager,
 	useProfile,
@@ -199,6 +199,8 @@ const keywordsSelectOptions = computed(() => {
 	}))
 })
 
+const { data: alerts } = useAlertsQuery()
+
 const { t } = useI18n()
 
 function addOperation() {
@@ -257,9 +259,6 @@ async function save() {
 
 	emits('saved')
 }
-
-const manager = useAlertsManager()
-const { data: alerts } = manager.getAll({})
 
 const showAlertModal = ref(false)
 
@@ -582,7 +581,7 @@ const filteredOperationTypeSelectOptions = computed(() => {
 								<div class="flex gap-2.5 w-[90%]">
 									<NButton block type="info" @click="showAlertModal = true">
 										{{
-											alerts?.alerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
+											alerts?.channelAlerts.find(a => a.id === currentOperation!.target)?.name ?? t('sharedButtons.select')
 										}}
 									</NButton>
 									<NButton
