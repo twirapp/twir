@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/guregu/null"
 	"github.com/hibiken/asynq"
 	"github.com/lib/pq"
@@ -39,9 +38,9 @@ var RussianRoulette = &types.DefaultCommand{
 			Result: []string{},
 		}
 
-		entity := model.ChannelModulesSettings{}
+		entity := model.ChannelGamesRussianRoulette{}
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
-			`"channelId" = ? and "userId" is null and "type" = 'russian_roulette'`,
+			`"channel_id" = ?`,
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -54,30 +53,22 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 		}
 
-		var parsedSettings model.RussianRouletteSetting
-		if err := json.Unmarshal(entity.Settings, &parsedSettings); err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot parse roulette settings",
-				Err:     err,
-			}
-		}
-
-		if !parsedSettings.Enabled {
+		if !entity.Enabled {
 			return result, nil
 		}
 
 		initMessage := strings.ReplaceAll(
-			parsedSettings.InitMessage,
+			entity.InitMessage,
 			"{sender}",
 			parseCtx.Sender.DisplayName,
 		)
 		surviveMessage := strings.ReplaceAll(
-			parsedSettings.SurviveMessage,
+			entity.SurviveMessage,
 			"{sender}",
 			parseCtx.Sender.DisplayName,
 		)
 		deathMessage := strings.ReplaceAll(
-			parsedSettings.DeathMessage,
+			entity.DeathMessage,
 			"{sender}",
 			parseCtx.Sender.DisplayName,
 		)
@@ -104,8 +95,8 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 		}
 
-		if parsedSettings.DecisionSeconds > 0 {
-			time.Sleep(time.Duration(parsedSettings.DecisionSeconds) * time.Second)
+		if entity.DecisionSeconds > 0 {
+			time.Sleep(time.Duration(entity.DecisionSeconds) * time.Second)
 		}
 
 		if slices.Contains(parseCtx.Sender.Badges, "BROADCASTER") {
@@ -125,8 +116,8 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 		}
 
-		randomized := rand.Intn(parsedSettings.TumberSize + 1)
-		if randomized > parsedSettings.ChargedBullets {
+		randomized := rand.Intn(entity.TumberSize + 1)
+		if randomized > entity.ChargedBullets {
 			result.Result = []string{surviveMessage}
 			return result, nil
 		} else {
@@ -147,14 +138,14 @@ var RussianRoulette = &types.DefaultCommand{
 			}
 
 			isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
-			if parsedSettings.CanBeUsedByModerators && isModerator && parsedSettings.TimeoutSeconds > 0 {
+			if entity.CanBeUsedByModerators && isModerator && entity.TimeoutSeconds > 0 {
 				err = parseCtx.Services.TaskDistributor.DistributeModUser(
 					ctx,
 					&task_queue.TaskModUserPayload{
 						ChannelID: parseCtx.Channel.ID,
 						UserID:    parseCtx.Sender.ID,
 					},
-					asynq.ProcessIn(time.Duration(parsedSettings.TimeoutSeconds+2)*time.Second),
+					asynq.ProcessIn(time.Duration(entity.TimeoutSeconds+2)*time.Second),
 				)
 				if err != nil {
 					return nil, &types.CommandHandlerError{
@@ -177,14 +168,14 @@ var RussianRoulette = &types.DefaultCommand{
 				}
 			}
 
-			if parsedSettings.TimeoutSeconds > 0 &&
-				(!isModerator || (isModerator && parsedSettings.CanBeUsedByModerators)) {
+			if entity.TimeoutSeconds > 0 &&
+				(!isModerator || (isModerator && entity.CanBeUsedByModerators)) {
 				_, err = twitchClient.BanUser(
 					&helix.BanUserParams{
 						BroadcasterID: parseCtx.Channel.ID,
 						ModeratorId:   parseCtx.Channel.ID,
 						Body: helix.BanUserRequestBody{
-							Duration: parsedSettings.TimeoutSeconds,
+							Duration: entity.TimeoutSeconds,
 							Reason:   deathMessage,
 							UserId:   parseCtx.Sender.ID,
 						},

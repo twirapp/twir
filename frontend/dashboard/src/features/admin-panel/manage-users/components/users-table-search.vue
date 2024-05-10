@@ -15,12 +15,12 @@ import {
 	CommandGroup,
 	CommandItem,
 	CommandList,
-	CommandSeparator
+	CommandSeparator,
 } from '@/components/ui/command'
 import {
 	Popover,
 	PopoverContent,
-	PopoverTrigger
+	PopoverTrigger,
 } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
 
@@ -36,7 +36,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 
 <template>
 	<div class="flex gap-2">
-		<SearchBar v-model="usersTableFilters.searchInput" />
+		<SearchBar v-model="usersTableFilters.searchInput.value" />
 		<Popover>
 			<PopoverTrigger as-child>
 				<Button variant="outline" size="sm" class="h-9">
@@ -49,7 +49,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 							variant="secondary"
 							class="rounded-sm px-1 font-normal"
 						>
-							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount }) }}
+							{{ t('adminPanel.manageUsers.countSelected', { count: usersTableFilters.selectedFiltersCount.value }) }}
 						</Badge>
 					</template>
 				</Button>
@@ -58,7 +58,7 @@ function applyFilter(filterKey: string, type: FilterType): void {
 				<Command>
 					<CommandList>
 						<CommandGroup
-							v-for="filters of usersTableFilters.filtersList"
+							v-for="filters of usersTableFilters.filtersList.value"
 							:key="filters.group"
 							:heading="filters.group"
 						>

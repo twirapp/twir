@@ -1,44 +1,42 @@
 <script lang="ts" setup>
-import { IconSun, IconMoon } from '@tabler/icons-vue';
-import { NButton } from 'naive-ui';
-import { computed } from 'vue';
+import { IconMoon, IconSun } from '@tabler/icons-vue'
+import { NButton } from 'naive-ui'
+import { computed } from 'vue'
 
-import Card from './card.vue';
+import Card from './card.vue'
 
+import { useProfile, useTwitchGetUsers } from '@/api/index.js'
+import { useTheme } from '@/composables/use-theme.js'
 
-import { useProfile, useTwitchGetUsers } from '@/api/index.js';
-import { useTheme } from '@/composables/use-theme.js';
-import { storeToRefs } from 'pinia';
+const { data: profile } = useProfile()
 
-const { data: profile } = storeToRefs(useProfile());
+const { theme: chatTheme, toggleTheme } = useTheme('twirTwitchChatTheme')
 
-const { theme: chatTheme, toggleTheme } = useTheme('twirTwitchChatTheme');
-
-const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '');
-const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId });
+const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '')
+const selectedDashboardTwitchUser = useTwitchGetUsers({ ids: selectedTwitchId })
 
 const chatUrl = computed(() => {
-	if (!selectedDashboardTwitchUser.data.value?.users.length) return;
+	if (!selectedDashboardTwitchUser.data.value?.users.length) return
 
-	const user = selectedDashboardTwitchUser.data.value.users.at(0)!;
+	const user = selectedDashboardTwitchUser.data.value.users.at(0)!
 
-	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}`;
+	let url = `https://www.twitch.tv/embed/${user.login}/chat?parent=${window.location.host}`
 
 	if (chatTheme.value === 'dark') {
-		url += '&darkpopout';
+		url += '&darkpopout'
 	}
 
-	return url;
-});
+	return url
+})
 </script>
 
 <template>
-	<card :content-style="{ 'margin-bottom': '10px', padding: '0px' }">
+	<Card :content-style="{ 'margin-bottom': '10px', 'padding': '0px' }">
 		<template #header-extra>
-			<n-button size="small" text @click="toggleTheme">
+			<NButton size="small" text @click="toggleTheme">
 				<IconSun v-if="chatTheme === 'dark'" color="orange" />
 				<IconMoon v-else />
-			</n-button>
+			</NButton>
 		</template>
 
 		<iframe
@@ -48,5 +46,5 @@ const chatUrl = computed(() => {
 			class="w-full h-full"
 		>
 		</iframe>
-	</card>
+	</Card>
 </template>

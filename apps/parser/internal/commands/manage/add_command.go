@@ -109,6 +109,8 @@ var AddCommand = &types.DefaultCommand{
 			}
 		}
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = []string{"✅ Command added."}
 		return result, nil
 	},

@@ -5,7 +5,6 @@ import (
 	"slices"
 	"time"
 
-	"github.com/goccy/go-json"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -178,20 +177,15 @@ func (c *Commands) isUserHasPermissionToCommand(
 
 		// check role restriction by stats
 		for _, role := range commandRoles {
-			settings := &model.ChannelRoleSettings{}
-			if err := json.Unmarshal(role.Settings, settings); err != nil {
-				return false
-			}
-
-			if settings.RequiredWatchTime == 0 &&
-				settings.RequiredUsedChannelPoints == 0 &&
-				settings.RequiredMessages == 0 {
+			if role.RequiredWatchTime == 0 &&
+				role.RequiredUsedChannelPoints == 0 &&
+				role.RequiredMessages == 0 {
 				continue
 			}
 
-			if dbUser.Stats.UsedChannelPoints >= settings.RequiredUsedChannelPoints &&
-				dbUser.Stats.Messages >= settings.RequiredMessages &&
-				hoursWatched >= settings.RequiredWatchTime {
+			if dbUser.Stats.UsedChannelPoints >= role.RequiredUsedChannelPoints &&
+				dbUser.Stats.Messages >= role.RequiredMessages &&
+				hoursWatched >= role.RequiredWatchTime {
 				return true
 			}
 		}

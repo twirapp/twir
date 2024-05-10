@@ -15,23 +15,24 @@ export default antfu({
 		'style/no-tabs': 'off',
 		'antfu/if-newline': 'off',
 		'style/indent': ['error', 'tab'],
-		'eslint-comments/no-unlimited-disable': 'off'
+		'eslint-comments/no-unlimited-disable': 'off',
+		'style/comma-dangle': ['error', 'always-multiline'],
 	},
 	vue: {
 		overrides: {
 			'vue/block-order': ['error', {
-				order: [['script', 'template'], 'style']
+				order: [['script', 'template'], 'style'],
 			}],
 			'vue/multi-word-component-names': [
-				'off'
+				'off',
 			],
 			'vue/max-attributes-per-line': 'off',
 			'vue/static-class-names-order': 'off',
 			'vue/attribute-hyphenation': 'off',
 			'vue/html-self-closing': 'off',
 			'vue/html-indent': ['error', 'tab'],
-			'vue/no-v-text-v-html-on-component': 'off'
-		}
+			'vue/no-v-text-v-html-on-component': 'off',
+		},
 	},
 	stylistic: {
 		overrides: {
@@ -47,11 +48,11 @@ export default antfu({
 				'error',
 				'single',
 				{
-					allowTemplateLiterals: true
-				}
+					allowTemplateLiterals: true,
+				},
 			],
 			'style/brace-style': [
-				'error'
+				'error',
 			],
 			'style/comma-spacing': 'off',
 			'style/func-call-spacing': 'off',
@@ -59,8 +60,8 @@ export default antfu({
 				'error',
 				{
 					destructuring: 'all',
-					ignoreReadBeforeAssign: false
-				}
+					ignoreReadBeforeAssign: false,
+				},
 			],
 			'import/order': [
 				'error',
@@ -69,45 +70,45 @@ export default antfu({
 						'builtin',
 						'external',
 						[
-							'internal'
+							'internal',
 						],
 						[
 							'parent',
-							'sibling'
+							'sibling',
 						],
 						'index',
-						'type'
+						'type',
 					],
 					'newlines-between': 'always',
 					'alphabetize': {
 						order: 'asc',
-						caseInsensitive: true
+						caseInsensitive: true,
 					},
 					'pathGroups': [
 						{
 							pattern: 'src/**',
 							group: 'internal',
-							position: 'after'
-						}
-					]
-				}
+							position: 'after',
+						},
+					],
+				},
 			],
 			'import/no-cycle': [
 				2,
 				{
-					maxDepth: 1
-				}
+					maxDepth: 1,
+				},
 			],
 			'import/newline-after-import': [
 				'error',
 				{
-					count: 1
-				}
+					count: 1,
+				},
 			],
 			'style/object-curly-spacing': [
 				2,
-				'always'
-			]
-		}
-	}
+				'always',
+			],
+		},
+	},
 })

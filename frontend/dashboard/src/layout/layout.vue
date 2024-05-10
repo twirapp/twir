@@ -1,70 +1,68 @@
 <script setup lang="ts">
-import { useBreakpoints, breakpointsTailwind } from '@vueuse/core';
+import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
 import {
-	darkTheme,
-	lightTheme,
-	NLayout,
-	NLayoutHeader,
-	NLayoutContent,
-	NLayoutSider,
 	NConfigProvider,
+	NDialogProvider,
+	NLayout,
+	NLayoutContent,
+	NLayoutHeader,
+	NLayoutSider,
 	NMessageProvider,
 	NNotificationProvider,
-	NSpin,
-	NDialogProvider,
 	NScrollbar,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { computed, ref, watch } from 'vue';
-import { RouterView, useRouter } from 'vue-router';
+	NSpin,
+	darkTheme,
+	lightTheme,
+} from 'naive-ui'
+import { computed, ref, watch } from 'vue'
+import { RouterView, useRouter } from 'vue-router'
 
-import { Toaster as Sonner } from '@/components/ui/sonner';
-import { Toaster } from '@/components/ui/toast';
-import { useLayout } from '@/composables/use-layout';
-import { useTheme } from '@/composables/use-theme.js';
-import Header from '@/layout/header.vue';
-import Sidebar from '@/layout/sidebar.vue';
-import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse';
+import { Toaster as Sonner } from '@/components/ui/sonner'
+import { Toaster } from '@/components/ui/toast'
+import { useLayout } from '@/composables/use-layout'
+import { useTheme } from '@/composables/use-theme.js'
+import Header from '@/layout/header.vue'
+import Sidebar from '@/layout/sidebar.vue'
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse'
 
-const { theme } = useTheme();
-const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme);
+const { theme } = useTheme()
+const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightTheme)
 
-const { layoutRef } = storeToRefs(useLayout());
-const isRouterReady = ref(false);
-const router = useRouter();
+const { layoutRef } = useLayout()
+const isRouterReady = ref(false)
+const router = useRouter()
 
-router.isReady().finally(() => isRouterReady.value = true);
+router.isReady().finally(() => isRouterReady.value = true)
 
-const breakPoints = useBreakpoints(breakpointsTailwind);
+const breakPoints = useBreakpoints(breakpointsTailwind)
 // If we are on a smaller than or equal to lg, we want the sidebar to collapse.
-const smallerOrEqualLg = breakPoints.smallerOrEqual('lg');
+const smallerOrEqualLg = breakPoints.smallerOrEqual('lg')
 // If we are on a smaller than or equal to md, we want the sidebar to hide and show hamburger menu with drawer.
-const smallerOrEqualMd = breakPoints.smallerOrEqual('md');
+const smallerOrEqualMd = breakPoints.smallerOrEqual('md')
 
-const collapsedStore = useSidebarCollapseStore();
-const { isCollapsed } = storeToRefs(collapsedStore);
+const { isCollapsed, set: setIsCollapsed, toggle: toggleSidebar } = useSidebarCollapseStore()
 
 watch(smallerOrEqualLg, (v) => {
-	collapsedStore.set(v);
-});
+	setIsCollapsed(v)
+})
 </script>
 
 <template>
-	<n-config-provider
+	<NConfigProvider
 		:theme="themeStyles"
 		class="h-full"
-		:breakpoints="{ xs: 0, s: 640, m: 1024, l: 1280, xl: 1536, xxl: 1920, '2xl': 2560 }"
+		:breakpoints="{ 'xs': 0, 's': 640, 'm': 1024, 'l': 1280, 'xl': 1536, 'xxl': 1920, '2xl': 2560 }"
 	>
-		<n-notification-provider :max="5">
-			<n-message-provider :duration="2500" :closable="true">
-				<n-dialog-provider>
-					<n-layout class="h-full">
-						<n-layout-header bordered class="w-full" style="height: var(--layout-header-height)">
+		<NNotificationProvider :max="5">
+			<NMessageProvider :duration="2500" :closable="true">
+				<NDialogProvider>
+					<NLayout class="h-full">
+						<NLayoutHeader bordered class="w-full" style="height: var(--layout-header-height)">
 							<Header />
-						</n-layout-header>
+						</NLayoutHeader>
 
-						<n-layout has-sider style="height: calc(100vh - var(--layout-header-height))">
-							<n-layout-sider
+						<NLayout has-sider style="height: calc(100vh - var(--layout-header-height))">
+							<NLayoutSider
 								v-if="!smallerOrEqualMd"
 								bordered
 								collapse-mode="width"
@@ -74,39 +72,39 @@ watch(smallerOrEqualLg, (v) => {
 								:native-scrollbar="false"
 								:collapsed="isCollapsed"
 								:show-collapsed-content="false"
-								@update-collapsed="collapsedStore.toggle"
+								@update-collapsed="toggleSidebar"
 							>
 								<Sidebar />
-							</n-layout-sider>
-							<n-layout-content ref="layoutRef">
+							</NLayoutSider>
+							<NLayoutContent ref="layoutRef">
 								<div v-if="!isRouterReady" class="app-loader">
-									<n-spin size="large" />
+									<NSpin size="large" />
 								</div>
-								<router-view v-else v-slot="{ Component, route }">
-									<n-scrollbar trigger="none">
+								<RouterView v-else v-slot="{ Component, route }">
+									<NScrollbar trigger="none">
 										<transition :name="route.meta.transition as string || 'router'" mode="out-in">
 											<div
 												:key="route.path"
 												:style="{
-													padding: route.meta?.noPadding ? undefined: '24px',
-													height: route.meta?.fullScreen ? 'calc(100% - var(--layout-header-height))' : 'auto'
+													padding: route.meta?.noPadding ? undefined : '24px',
+													height: route.meta?.fullScreen ? 'calc(100% - var(--layout-header-height))' : 'auto',
 												}"
 											>
 												<component :is="Component" />
 											</div>
 										</transition>
-									</n-scrollbar>
-								</router-view>
+									</NScrollbar>
+								</RouterView>
 
 								<Toaster />
 								<Sonner />
-							</n-layout-content>
-						</n-layout>
-					</n-layout>
-				</n-dialog-provider>
-			</n-message-provider>
-		</n-notification-provider>
-	</n-config-provider>
+							</NLayoutContent>
+						</NLayout>
+					</NLayout>
+				</NDialogProvider>
+			</NMessageProvider>
+		</NNotificationProvider>
+	</NConfigProvider>
 </template>
 
 <style>

@@ -112,6 +112,8 @@ var AddAliaseCommand = &types.DefaultCommand{
 			}
 		}
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = append(result.Result, "✅ Aliase added.")
 		return result, nil
 	},

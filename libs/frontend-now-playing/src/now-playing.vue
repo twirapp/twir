@@ -1,35 +1,36 @@
 <script setup lang="ts">
-import './assets/style.css';
+import './assets/style.css'
 
-import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import { useFontSource } from '@twir/fontsource';
-import { ChannelOverlayNowPlayingPreset } from '@twir/types/api';
-import { computed, watch } from 'vue';
+import { useFontSource } from '@twir/fontsource'
+import { ChannelOverlayNowPlayingPreset } from '@twir/types/api'
+import { computed, watch } from 'vue'
 
-import PresetAidenRedesign from './presets/aiden-redesign.vue';
-import PresetSimpleLine from './presets/simple-line.vue';
-import PresetTransparent from './presets/transparent.vue';
-import type { Track } from './types.js';
+import PresetAidenRedesign from './presets/aiden-redesign.vue'
+import PresetSimpleLine from './presets/simple-line.vue'
+import PresetTransparent from './presets/transparent.vue'
+
+import type { Track } from './types.js'
+import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing'
 
 const props = defineProps<{
 	settings: Settings
 	track?: Track | null
-}>();
+}>()
 
 const presetComponent = computed(() => {
 	switch (props.settings.preset) {
 		case ChannelOverlayNowPlayingPreset.TRANSPARENT:
-			return PresetTransparent;
+			return PresetTransparent
 		case ChannelOverlayNowPlayingPreset.AIDEN_REDESIGN:
-			return PresetAidenRedesign;
+			return PresetAidenRedesign
 		case ChannelOverlayNowPlayingPreset.SIMPLE_LINE:
-			return PresetSimpleLine;
+			return PresetSimpleLine
 		default:
-			return PresetTransparent;
+			return PresetTransparent
 	}
-});
+})
 
-const fontSource = useFontSource(false);
+const fontSource = useFontSource(false)
 
 watch(() => [
 	props.settings.fontFamily,
@@ -39,12 +40,12 @@ watch(() => [
 		props.settings.fontFamily,
 		props.settings.fontWeight,
 		'normal',
-	);
-}, { deep: true, immediate: true });
+	)
+}, { deep: true, immediate: true })
 
 const fontFamily = computed(() => {
-	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-normal"`;
-});
+	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-normal"`
+})
 </script>
 
 <template>
@@ -60,5 +61,9 @@ const fontFamily = computed(() => {
 .name {
 	font-family: v-bind(fontFamily);
 	font-weight: v-bind('props.settings.fontWeight');
+}
+
+.image {
+	flex-shrink: 0;
 }
 </style>

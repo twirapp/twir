@@ -18,11 +18,7 @@ import (
 )
 
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
-	var keywords []model.ChannelsKeywords
-	err := c.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND "enabled" = ?`, msg.BroadcasterUserId,
-		true,
-	).Find(&keywords).Error
+	keywords, err := c.keywordsCacher.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}

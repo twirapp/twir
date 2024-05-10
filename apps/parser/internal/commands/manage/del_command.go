@@ -72,6 +72,8 @@ var DelCommand = &types.DefaultCommand{
 			Where(`"channelId" = ? AND name = ?`, parseCtx.Channel.ID, name).
 			Delete(&model.ChannelsCommands{})
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = append(result.Result, "✅ Command removed.")
 		return result, nil
 	},

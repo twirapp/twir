@@ -12,7 +12,7 @@ import { useTheme } from '@/composables/use-theme.js'
 
 const props = withDefaults(defineProps<PageLayoutProps>(), {
 	activeTab: '',
-	tabs: () => []
+	tabs: () => [],
 })
 const router = useRouter()
 const themeVars = useThemeVars()
@@ -27,6 +27,7 @@ export interface PageLayoutTab {
 	name: string
 	title: string
 	component: Component
+	disabled?: boolean
 }
 
 const activeTab = ref(props.activeTab)
@@ -64,22 +65,27 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 				class="container flex flex-col gap-2"
 				:class="[activeTab ? 'pt-9' : 'py-9']"
 			>
-				<h1 class="text-4xl">
-					<slot name="title" />
-				</h1>
+				<div class="flex justify-between gap-2 flex-wrap">
+					<h1 class="text-4xl">
+						<slot name="title" />
+					</h1>
 
-				<div v-if="activeTab" class="flex gap-2">
+					<slot name="action" />
+				</div>
+
+				<div v-if="props.tabs" class="flex gap-2">
 					<TabsList class="flex flex-wrap overflow-x-auto -mb-px">
 						<TabsTrigger
 							v-for="tab of props.tabs"
 							:key="tab.name"
-							class="tabs-trigger"
+							class="tabs-trigger data-[disabled]:cursor-not-allowed data-[disabled]:text-zinc-400"
 							:value="tab.name"
 							:class="[
 								theme === 'dark'
 									? 'data-[state=active]:after:border-white'
 									: 'data-[state=active]:after:border-zinc-800',
 							]"
+							:disabled="tab.disabled"
 						>
 							{{ tab.title }}
 						</TabsTrigger>

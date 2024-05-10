@@ -1,146 +1,149 @@
 <script setup lang="ts">
-import { IconSquare, IconSquareCheck } from '@tabler/icons-vue';
-import chunk from 'lodash.chunk';
+import { IconSquare, IconSquareCheck } from '@tabler/icons-vue'
+import chunk from 'lodash.chunk'
 import {
 	NButton,
+	NButtonGroup,
+	NDivider,
 	NFormItem,
 	NInput,
 	NInputNumber,
-	NDivider,
-	NButtonGroup,
-	useNotification,
-} from 'naive-ui';
-import { computed } from 'vue';
-import { useI18n } from 'vue-i18n';
+	useNotification
+} from 'naive-ui'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useEditableItem } from './helpers.js';
-import ModalCaps from './modal-caps.vue';
-import ModalDenylist from './modal-denylist.vue';
-import ModalEmotes from './modal-emotes.vue';
-import ModalLanguage from './modal-language.vue';
-import ModalLongMessage from './modal-longmessage.vue';
-import ModalSymbols from './modal-symbols.vue';
+import { useEditableItem } from './helpers.js'
+import ModalCaps from './modal-caps.vue'
+import ModalDenylist from './modal-denylist.vue'
+import ModalEmotes from './modal-emotes.vue'
+import ModalLanguage from './modal-language.vue'
+import ModalLongMessage from './modal-longmessage.vue'
+import ModalSymbols from './modal-symbols.vue'
 
-import { useModerationManager, useRolesManager } from '@/api';
+import { useModerationManager } from '@/api'
+import { useRoles } from '@/api/roles'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const manager = useModerationManager();
-const updater = manager.update;
-const creator = manager.create;
+const manager = useModerationManager()
+const updater = manager.update
+const creator = manager.create
 
-const { editableItem } = useEditableItem();
+const { editableItem } = useEditableItem()
 
-const { data: availableRoles } = useRolesManager().getAll({});
+const rolesManager = useRoles()
+const { data: availableRoles } = rolesManager.useRolesQuery()
+
 const rolesSelectOptions = computed(() => {
-	if (!availableRoles.value) return [];
+	if (!availableRoles.value?.roles) return []
 	return availableRoles.value.roles
 		.filter(r => !['BROADCASTER', 'MODERATOR'].includes(r.type))
 		.map((role) => ({
 			label: role.name,
-			value: role.id,
-		}));
-});
+			value: role.id
+		}))
+})
 
-const message = useNotification();
+const message = useNotification()
 
 async function saveSettings() {
-	if (!editableItem.value) return;
+	if (!editableItem.value) return
 
 	if (!editableItem.value.id) {
 		await creator.mutateAsync({
-			data: editableItem.value.data,
-		});
+			data: editableItem.value.data
+		})
 	} else {
 		await updater.mutateAsync({
 			id: editableItem.value.id,
-			data: editableItem.value.data,
-		});
+			data: editableItem.value.data
+		})
 	}
 	message.success({
 		title: t('sharedTexts.saved'),
-		duration: 2000,
-	});
+		duration: 2000
+	})
 }
 </script>
 
 <template>
 	<div class="flex flex-col gap-3">
-		<modal-symbols
+		<ModalSymbols
 			v-if="editableItem?.data?.type === 'symbols'"
 			class="form-block"
 		/>
 
-		<modal-language
+		<ModalLanguage
 			v-if="editableItem?.data?.type === 'language'"
 			class="form-block"
 		/>
 
-		<modal-long-message
+		<ModalLongMessage
 			v-if="editableItem?.data?.type === 'long_message'"
 			class="form-block"
 		/>
 
-		<modal-caps
+		<ModalCaps
 			v-if="editableItem?.data?.type === 'caps'"
 			class="form-block"
 		/>
 
-		<modal-emotes
+		<ModalEmotes
 			v-if="editableItem?.data?.type === 'emotes'"
 			class="form-block"
 		/>
 
 		<div class="form-block">
-			<n-form-item v-if="editableItem?.data" label="Timeout message">
-				<n-input
+			<NFormItem v-if="editableItem?.data" label="Timeout message">
+				<NInput
 					v-model:value="editableItem.data.banMessage"
 					type="textarea"
 					:maxLength="500"
 					autosize
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item v-if="editableItem?.data" :label="t('moderation.banTime')" :feedback="t('moderation.banDescription')">
-				<n-input-number
+			<NFormItem v-if="editableItem?.data" :label="t('moderation.banTime')" :feedback="t('moderation.banDescription')">
+				<NInputNumber
 					v-model:value="editableItem.data.banTime"
 					:min="0"
 					:max="86400"
 				/>
-			</n-form-item>
+			</NFormItem>
 		</div>
 
-		<n-divider class="m-0 p-0" />
+		<NDivider class="m-0 p-0" />
 
 		<div class="form-block">
-			<n-form-item v-if="editableItem?.data" :label="t('moderation.warningMessage')">
-				<n-input
+			<NFormItem v-if="editableItem?.data" :label="t('moderation.warningMessage')">
+				<NInput
 					v-model:value="editableItem.data.warningMessage"
 					type="textarea"
 					:maxLength="500"
 					autosize
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item v-if="editableItem?.data" :label="t('moderation.warningMaxCount')">
-				<n-input-number
+			<NFormItem v-if="editableItem?.data" :label="t('moderation.warningMaxCount')">
+				<NInputNumber
 					v-model:value="editableItem.data.maxWarnings"
 					:min="0"
 					:max="10"
 				/>
-			</n-form-item>
+			</NFormItem>
 		</div>
 
-		<n-divider class="m-0 p-0" />
+		<NDivider class="m-0 p-0" />
 
 		<div class="form-block">
 			<span>{{ t('moderation.excludedRoles') }}</span>
 			<div v-if="editableItem?.data" class="flex flex-col gap-1">
-				<n-button-group
+				<NButtonGroup
 					v-for="(group, index) of chunk(rolesSelectOptions.sort(), 5)"
 					:key="index"
 				>
-					<n-button
+					<NButton
 						v-for="option of group"
 						:key="option.value"
 						:type="editableItem?.data?.excludedRoles.includes(option.value) ? 'success' : 'default'"
@@ -148,7 +151,8 @@ async function saveSettings() {
 						@click="() => {
 							if (editableItem!.data!.excludedRoles.includes(option.value)) {
 								editableItem!.data!.excludedRoles = editableItem!.data!.excludedRoles.filter(r => r !== option.value)
-							} else {
+							}
+							else {
 								editableItem!.data!.excludedRoles.push(option.value)
 							}
 						}"
@@ -158,21 +162,21 @@ async function saveSettings() {
 							<IconSquare v-else />
 						</template>
 						{{ option.label }}
-					</n-button>
-				</n-button-group>
+					</NButton>
+				</NButtonGroup>
 			</div>
 		</div>
 
-		<modal-denylist
+		<ModalDenylist
 			v-if="editableItem?.data?.type === 'deny_list'"
 			class="form-block"
 		/>
 
-		<n-divider class="m-0 p-0" />
+		<NDivider class="m-0 p-0" />
 
-		<n-button type="success" secondary @click="saveSettings">
+		<NButton type="success" secondary @click="saveSettings">
 			{{ t('sharedButtons.save') }}
-		</n-button>
+		</NButton>
 	</div>
 </template>
 

@@ -1,0 +1,40 @@
+extend type Query {
+	channelAlerts: [ChannelAlert!]! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_ALERTS)
+}
+
+extend type Mutation {
+	channelAlertsCreate(input: ChannelAlertCreateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsUpdate(id: ID!, input: ChannelAlertUpdateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsDelete(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+}
+
+type ChannelAlert {
+	id: ID!
+	name: String!
+	audioId: ID
+	audioVolume: Int
+	commandIds: [ID!]
+	rewardIds: [ID!]
+	greetingsIds: [ID!]
+	keywordsIds: [ID!]
+}
+
+input ChannelAlertUpdateInput {
+	name: String
+	audioId: ID
+	audioVolume: Int @validate(constraint: "min=0,max=100")
+	commandIds: [ID!] @validate(constraint: "dive,max=500")
+	rewardIds: [ID!] @validate(constraint: "dive,max=500")
+	greetingsIds: [ID!] @validate(constraint: "dive,max=500")
+	keywordsIds: [ID!] @validate(constraint: "dive,max=500")
+}
+
+input ChannelAlertCreateInput {
+	name: String! @validate(constraint: "max=500")
+	audioId: ID
+	audioVolume: Int @validate(constraint: "min=0,max=100")
+	commandIds: [ID!] @validate(constraint: "dive,max=500")
+	rewardIds: [ID!] @validate(constraint: "dive,max=500")
+	greetingsIds: [ID!] @validate(constraint: "dive,max=500")
+	keywordsIds: [ID!] @validate(constraint: "dive,max=500")
+}

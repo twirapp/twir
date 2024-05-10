@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { CommandsCreateOpts } from '@/gql/graphql'
+import type { CombinedError } from '@urql/vue'
 
 import { useCommandsApi } from '@/api/commands/commands.js'
 import { useToast } from '@/components/ui/toast'
@@ -15,8 +16,8 @@ const defaultFormValue: EditableCommand = {
 	responses: [
 		{
 			text: '',
-			order: 0
-		}
+			order: 0,
+		},
 	],
 	description: '',
 	rolesIds: [],
@@ -35,10 +36,10 @@ const defaultFormValue: EditableCommand = {
 	groupId: null,
 	cooldownRolesIds: [],
 	enabledCategories: [],
-	module: 'CUSTOM'
+	module: 'CUSTOM',
 }
 
-export const useCommandEdit = defineStore('commands-edit', () => {
+export const useCommandEdit = createGlobalState(() => {
 	const commandsManager = useCommandsApi()
 	const { toast } = useToast()
 	const { t } = useI18n()
@@ -86,28 +87,46 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 			module: undefined,
 			responses: formValue.value.responses.map((response, i) => ({
 				text: response.text,
-				order: i
-			}))
+				order: i,
+			})),
 		}
 
-		if (formValue.value.id) {
-			await update.executeMutation({
-				id: formValue.value.id,
-				opts: transformedOpts
+		let combinedError: CombinedError | undefined
+		try {
+			if (formValue.value.id) {
+				const { error } = await update.executeMutation({
+					id: formValue.value.id,
+					opts: transformedOpts,
+				})
+				combinedError = error
+			} else {
+				const { error } = await create.executeMutation({
+					opts: transformedOpts,
+				})
+				combinedError = error
+			}
+
+			if (combinedError) {
+				throw combinedError
+			}
+
+			close()
+			toast({
+				title: t('sharedTexts.saved'),
+				variant: 'success',
+				duration: 1500,
 			})
-		} else {
-			await create.executeMutation({
-				opts: transformedOpts
-			})
+		} catch (e) {
+			if (combinedError) {
+				if (combinedError.graphQLErrors.some(e => e.extensions.code === 'ALREADY_EXISTS')) {
+					toast({
+						title: 'Command with this name or aliase already exists',
+						variant: 'destructive',
+						duration: 5000,
+					})
+				}
+			}
 		}
-
-		close()
-
-		toast({
-			title: t('sharedTexts.saved'),
-			variant: 'success',
-			duration: 1500
-		})
 	}
 
 	return {
@@ -116,6 +135,6 @@ export const useCommandEdit = defineStore('commands-edit', () => {
 		editCommand,
 		createCommand,
 		close,
-		save
+		save,
 	}
 })

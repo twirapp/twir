@@ -1,6 +1,6 @@
-import { BttvZeroModifiers } from '@twir/frontend-chat';
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { BttvZeroModifiers } from '@twir/frontend-chat'
+import { createGlobalState } from '@vueuse/core'
+import { ref } from 'vue'
 
 import type {
 	BttvChannelResponse,
@@ -11,53 +11,53 @@ import type {
 	SevenTvChannelResponse,
 	SevenTvEmote,
 	SevenTvGlobalResponse,
-} from '@/types.js';
+} from '@/types.js'
 
-type Emote = {
-	urls: string[];
-	isZeroWidth?: boolean;
-	name: string;
-	modifierFlag?: number;
-	isModifier?: boolean;
-	service: '7tv' | 'bttv' | 'ffz';
-	width?: number;
-	height?: number;
-};
+interface Emote {
+	urls: string[]
+	isZeroWidth?: boolean
+	name: string
+	modifierFlag?: number
+	isModifier?: boolean
+	service: '7tv' | 'bttv' | 'ffz'
+	width?: number
+	height?: number
+}
 
 function isZeroWidthEmote(flags: number): boolean {
-	return flags === 1 << 0;
+	return flags === 1 << 0
 }
 
 function bttvEmoteUrls(id: string, isAnimated: boolean): string[] {
-	const emoteExt = isAnimated ? 'gif' : 'webp';
+	const emoteExt = isAnimated ? 'gif' : 'webp'
 	return Array.from({ length: 3 }).map(
 		(_, index) => `https://cdn.betterttv.net/emote/${id}/${index + 1}x.${emoteExt}`,
-	);
+	)
 }
 
-export const useEmotes = defineStore('emotes', () => {
-	const emotes = ref<Record<string, Emote>>({});
+export const useEmotes = createGlobalState(() => {
+	const emotes = ref<Record<string, Emote>>({})
 
 	function setSevenTvEmotes(data: SevenTvChannelResponse | SevenTvGlobalResponse): void {
-		let emotesForParse: Array<SevenTvEmote>;
+		let emotesForParse: Array<SevenTvEmote>
 		if ('emote_set' in data) {
-			emotesForParse = data.emote_set.emotes;
+			emotesForParse = data.emote_set.emotes
 		} else {
-			emotesForParse = data.emotes;
+			emotesForParse = data.emotes
 		}
 
 		for (const emote of emotesForParse) {
-			updateSevenTvEmote(emote);
+			updateSevenTvEmote(emote)
 		}
 	}
 
 	function setBttvEmotes(data: BttvChannelResponse | BttvGlobalResponse): void {
-		let emotesForParse: Array<BttvEmote>;
+		let emotesForParse: Array<BttvEmote>
 
 		if ('channelEmotes' in data) {
-			emotesForParse = [...data.channelEmotes, ...data.sharedEmotes];
+			emotesForParse = [...data.channelEmotes, ...data.sharedEmotes]
 		} else {
-			emotesForParse = data;
+			emotesForParse = data
 		}
 
 		for (const emote of emotesForParse) {
@@ -68,13 +68,13 @@ export const useEmotes = defineStore('emotes', () => {
 				height: emote.height,
 				width: emote.width,
 				isModifier: emote.modifier ?? false,
-				isZeroWidth: BttvZeroModifiers.some((e) => e === emote.code),
-			};
+				isZeroWidth: BttvZeroModifiers.includes(emote.code),
+			}
 		}
 	}
 
 	function setFrankerFaceZEmotes(data: FfzChannelResponse | FfzGlobalResponse): void {
-		const sets = Object.values(data.sets);
+		const sets = Object.values(data.sets)
 		for (const set of sets) {
 			for (const emote of set.emoticons) {
 				emotes.value[emote.name] = {
@@ -85,21 +85,21 @@ export const useEmotes = defineStore('emotes', () => {
 					height: emote.height,
 					isModifier: emote.modifier,
 					modifierFlag: emote.modifier_flags,
-				};
+				}
 			}
 		}
 	}
 
 	function removeEmoteByName(emoteName: string): void {
 		if (emotes.value[emoteName]) {
-			delete emotes.value[emoteName];
+			delete emotes.value[emoteName]
 		}
 	}
 
 	function updateSevenTvEmote(emote: SevenTvEmote): void {
-		const files = emote.data.host.files.filter((file) => file.format === 'WEBP');
-		const { height, width } = files.at(0)!;
-		const isAnimated = emote.data.animated;
+		const files = emote.data.host.files.filter((file) => file.format === 'WEBP')
+		const { height, width } = files.at(0)!
+		const isAnimated = emote.data.animated
 
 		emotes.value[emote.name] = {
 			urls: files.map((file) => `https:${emote.data.host.url}/${isAnimated ? file.name.replace('.webp', '.gif') : file.name}`),
@@ -108,7 +108,7 @@ export const useEmotes = defineStore('emotes', () => {
 			service: '7tv',
 			width,
 			height,
-		};
+		}
 	}
 
 	// const loadedEmotes = ref<string[]>([]);
@@ -129,5 +129,5 @@ export const useEmotes = defineStore('emotes', () => {
 		removeEmoteByName,
 		setBttvEmotes,
 		setFrankerFaceZEmotes,
-	};
-});
+	}
+})

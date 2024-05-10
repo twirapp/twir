@@ -1,21 +1,21 @@
-import { useQuery } from '@urql/vue';
-import { defineStore, storeToRefs } from 'pinia';
-import { computed, unref, watch } from 'vue';
-import { useRouter } from 'vue-router';
+import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
+import { computed, unref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
-import { graphql } from '@/gql';
-import { routeNames } from '@/router';
+import { graphql } from '@/gql'
+import { routeNames } from '@/router'
 
-export const useStreamerProfile = defineStore('streamerProfile', () => {
-	const router = useRouter();
+export const useStreamerProfile = createGlobalState(() => {
+	const router = useRouter()
 	const streamerName = computed(() => {
-		const name = router.currentRoute.value.params.channelName;
+		const name = router.currentRoute.value.params.channelName
 		if (typeof name !== 'string') {
-			return '';
+			return ''
 		}
 
-		return name;
-	});
+		return name
+	})
 
 	const request = useQuery({
 		query: graphql(`
@@ -32,22 +32,22 @@ export const useStreamerProfile = defineStore('streamerProfile', () => {
 		`),
 		variables: {
 			get userName() {
-				return unref(streamerName);
+				return unref(streamerName)
 			},
 		},
-	});
+	})
 
 	watch([streamerName, request.error, request.data], ([name, error, data]) => {
 		if (!name || error || data?.twitchGetUserByName?.notFound) {
-			router.push({ name: routeNames.notFound });
+			router.push({ name: routeNames.notFound })
 		}
-	});
+	})
 
-	return request;
-});
+	return request
+})
 
-export const useStreamerPublicSettings = defineStore('streamerPublicSettings', () => {
-	const { data } = storeToRefs(useStreamerProfile());
+export const useStreamerPublicSettings = createGlobalState(() => {
+	const { data } = useStreamerProfile()
 
 	return useQuery({
 		query: graphql(`
@@ -63,11 +63,11 @@ export const useStreamerPublicSettings = defineStore('streamerPublicSettings', (
 		`),
 		variables: {
 			get userId() {
-				return data.value?.twitchGetUserByName?.id || '';
+				return data.value?.twitchGetUserByName?.id || ''
 			},
 		},
-	});
-});
+	})
+})
 
 // export const useStreamerPublicSettings = () => {
 // 	const { isLoading, data } = useStreamerProfile();

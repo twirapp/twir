@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import { IconCopy } from '@tabler/icons-vue';
-import { IconDeviceFloppy } from '@tabler/icons-vue';
-import { OverlayLayerType, type Overlay } from '@twir/api/messages/overlays/overlays';
-import { NInput, NFormItem, NButton, NDivider, NInputNumber, NModal, useMessage } from 'naive-ui';
-import { computed, ref, toRaw, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useRoute } from 'vue-router';
-import Moveable from 'vue3-moveable';
-import type { OnDrag, OnResize } from 'vue3-moveable';
+import { IconCopy , IconDeviceFloppy } from '@tabler/icons-vue'
+import { type Overlay, OverlayLayerType } from '@twir/api/messages/overlays/overlays'
+import { NButton, NDivider, NFormItem, NInput, NInputNumber, NModal, useMessage } from 'naive-ui'
+import { computed, ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+import Moveable from 'vue3-moveable'
 
-import HtmlLayer from './layers/html.vue';
-import HtmlLayerForm from './layers/htmlForm.vue';
+import HtmlLayer from './layers/html.vue'
+import HtmlLayerForm from './layers/htmlForm.vue'
+
+import type { OnDrag, OnResize } from 'vue3-moveable'
 
 import {
-	useOverlaysRegistry, useProfile,
-} from '@/api/index.js';
-import NewSelector from '@/components/registry/overlays/newSelector.vue';
-import { copyToClipBoard } from '@/helpers';
-import { storeToRefs } from 'pinia';
+	useOverlaysRegistry,
+	useProfile,
+} from '@/api/index.js'
+import NewSelector from '@/components/registry/overlays/newSelector.vue'
+import { copyToClipBoard } from '@/helpers'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const route = useRoute();
+const route = useRoute()
 const overlayId = computed(() => {
-	const id = route.params.id;
+	const id = route.params.id
 	if (typeof id !== 'string' || id === 'new') {
-		return '';
+		return ''
 	}
 
-	return id;
-});
+	return id
+})
 
-const overlaysManager = useOverlaysRegistry();
-const creator = overlaysManager.create;
-const updater = overlaysManager.update!;
+const overlaysManager = useOverlaysRegistry()
+const creator = overlaysManager.create
+const updater = overlaysManager.update!
 const { data: overlay, refetch } = overlaysManager.getOne!({
 	id: overlayId.value,
 	isQueryDisabled: true,
-});
+})
 
 watch(overlayId, (v) => {
-	if (!v) return;
-	refetch();
-}, { immediate: true });
+	if (!v) return
+	refetch()
+}, { immediate: true })
 
 type OverlayForm = Omit<Overlay, 'updatedAt' | 'channelId' | 'createdAt'>
 
@@ -52,95 +52,97 @@ const formValue = ref<OverlayForm>({
 	layers: [],
 	width: 1920,
 	height: 1080,
-});
+})
 
 watch(overlay, (v) => {
-	if (!v) return;
+	if (!v) return
 
-	const raw = toRaw(v);
+	const raw = toRaw(v)
 
-	formValue.value.id = raw.id;
-	formValue.value.name = raw.name;
-	formValue.value.layers = raw.layers;
-	formValue.value.width = raw.width;
-	formValue.value.height = raw.height;
-});
+	formValue.value.id = raw.id
+	formValue.value.name = raw.name
+	formValue.value.layers = raw.layers
+	formValue.value.width = raw.width
+	formValue.value.height = raw.height
+})
 
-const messages = useMessage();
+const messages = useMessage()
 
 async function save() {
-	const data = toRaw(formValue.value);
+	const data = toRaw(formValue.value)
 
 	if (!data.name || data.name.length > 30) {
-		messages.error(t('overlaysRegistry.validations.name'));
-		return;
+		messages.error(t('overlaysRegistry.validations.name'))
+		return
 	}
 
 	if (!data.layers.length || data.layers.length > 15) {
-		messages.error(t('overlaysRegistry.validations.layers'));
-		return;
+		messages.error(t('overlaysRegistry.validations.layers'))
+		return
 	}
 
 	if (data.id) {
 		await updater.mutateAsync({
 			...data,
 			id: data.id,
-		});
+		})
 	} else {
-		const newOverlayData = await creator.mutateAsync(data);
+		const newOverlayData = await creator.mutateAsync(data)
 
-		const raw = toRaw(newOverlayData);
+		const raw = toRaw(newOverlayData)
 
-		formValue.value.id = raw.id;
-		formValue.value.name = raw.name;
-		formValue.value.layers = raw.layers;
-		formValue.value.width = raw.width;
-		formValue.value.height = raw.height;
+		formValue.value.id = raw.id
+		formValue.value.name = raw.name
+		formValue.value.layers = raw.layers
+		formValue.value.width = raw.width
+		formValue.value.height = raw.height
 	}
 
-	messages.success(t('sharedTexts.saved'));
+	messages.success(t('sharedTexts.saved'))
 }
 
-const currentlyFocused = ref(0);
-const focus = (index: number) => {
-	currentlyFocused.value = index;
-};
+const currentlyFocused = ref(0)
+function focus(index: number) {
+	currentlyFocused.value = index
+}
 
-type EventWithLayerIndex = { index: number }
+interface EventWithLayerIndex {
+	index: number
+}
 
 function onDrag({ target, transform, index }: OnDrag & EventWithLayerIndex) {
-	focus(index);
-	target.style.transform = transform;
-	const [x, y] = transform.match(/(\d+\.\d+|\d+)px/g)!;
+	focus(index)
+	target.style.transform = transform
+	const [x, y] = transform.match(/(\d+\.\d+|\d+)px/g)!
 
-	formValue.value.layers[index].posX = parseInt(x);
-	formValue.value.layers[index].posY = parseInt(y);
+	formValue.value.layers[index].posX = Number.parseInt(x)
+	formValue.value.layers[index].posY = Number.parseInt(y)
 }
 
 function onResize({ target, width, height, transform, index }: OnResize & EventWithLayerIndex) {
-	focus(index);
+	focus(index)
 
-	target.style.width = `${width}px`;
-	target.style.height = `${height}px`;
-	target.style.transform = transform;
+	target.style.width = `${width}px`
+	target.style.height = `${height}px`
+	target.style.transform = transform
 
-	formValue.value.layers[index].height = height;
-	formValue.value.layers[index].width = width;
+	formValue.value.layers[index].height = height
+	formValue.value.layers[index].width = width
 }
 
-const removeLayer = (index: number) => {
-	formValue.value.layers = formValue.value.layers.filter((_, i) => i != index);
-	focus(-1);
-};
+function removeLayer(index: number) {
+	formValue.value.layers = formValue.value.layers.filter((_, i) => i !== index)
+	focus(-1)
+}
 
-const isOverlayNewModalOpened = ref(false);
+const isOverlayNewModalOpened = ref(false)
 
-const userProfile = storeToRefs(useProfile());
-const copyUrl = async (id: string) => {
-	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`);
-};
+const userProfile = useProfile()
+async function copyUrl(id: string) {
+	await copyToClipBoard(`${window.location.origin}/overlays/${userProfile.data.value?.apiKey}/registry/overlays/${id}`)
+}
 
-const innerWidth = computed(() => window.innerWidth);
+const innerWidth = computed(() => window.innerWidth)
 </script>
 
 <template>
@@ -151,7 +153,7 @@ const innerWidth = computed(() => window.innerWidth);
 				:style="{
 					width: `${formValue.width}px`,
 					height: `${formValue.height}px`,
-					transform: `scale(${(innerWidth / formValue.width) * 0.7})`
+					transform: `scale(${(innerWidth / formValue.width) * 0.7})`,
 				}"
 			>
 				<div v-for="(layer, index) of formValue.layers" :key="index">
@@ -170,7 +172,7 @@ const innerWidth = computed(() => window.innerWidth);
 
 					<Moveable
 						className="moveable"
-						:target="'#layer-' + index"
+						:target="`#layer-${index}`"
 						:draggable="true"
 						:resizable="true"
 						:rotatable="false"
@@ -180,7 +182,7 @@ const innerWidth = computed(() => window.innerWidth);
 							height: layer.height,
 							width: layer.width,
 							left: layer.posX,
-							top: layer.posY
+							top: layer.posY,
 						})"
 						:origin="false"
 						:renderDirections="currentlyFocused === index ? ['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'] : []"
@@ -193,55 +195,55 @@ const innerWidth = computed(() => window.innerWidth);
 			</div>
 		</div>
 		<div class="flex flex-col gap-1">
-			<n-button
+			<NButton
 				:disabled="!formValue.name || !formValue.layers.length" block secondary
 				type="success" @click="save"
 			>
 				<IconDeviceFloppy />
 				{{ t('sharedButtons.save') }}
-			</n-button>
-			<n-button
+			</NButton>
+			<NButton
 				block secondary type="info" :disabled="!formValue.id"
 				@click="copyUrl(formValue.id)"
 			>
 				<IconCopy />
 				{{ t('overlays.copyOverlayLink') }}
-			</n-button>
+			</NButton>
 
-			<n-form-item :label="t('overlaysRegistry.name')">
-				<n-input
+			<NFormItem :label="t('overlaysRegistry.name')">
+				<NInput
 					v-model:value="formValue.name" :placeholder="t('overlaysRegistry.name')"
 					:maxlength="30"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('overlaysRegistry.customWidth')">
-				<n-input-number
+			<NFormItem :label="t('overlaysRegistry.customWidth')">
+				<NInputNumber
 					v-model:value="formValue.width" :min="50"
 					:placeholder="t('overlaysRegistry.customWidth')"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-form-item :label="t('overlaysRegistry.customHeight')">
-				<n-input-number
+			<NFormItem :label="t('overlaysRegistry.customHeight')">
+				<NInputNumber
 					v-model:value="formValue.height" :min="50"
 					:placeholder="t('overlaysRegistry.customHeight')"
 				/>
-			</n-form-item>
+			</NFormItem>
 
-			<n-divider />
+			<NDivider />
 
-			<n-button
+			<NButton
 				secondary
 				type="success"
 				@click="isOverlayNewModalOpened = true"
 			>
 				{{ t('overlaysRegistry.createNewLayer') }}
-			</n-button>
+			</NButton>
 
 			<div class="flex flex-col gap-3 w-full">
 				<template v-for="(layer, index) of formValue.layers">
-					<html-layer-form
+					<HtmlLayerForm
 						v-if="layer.type === OverlayLayerType.HTML"
 						:key="index"
 						v-model:html="formValue.layers[index].settings!.htmlOverlayHtml"
@@ -260,17 +262,17 @@ const innerWidth = computed(() => window.innerWidth);
 		</div>
 	</div>
 
-	<n-modal
+	<NModal
 		v-model:show="isOverlayNewModalOpened" class="w-[50vw]" preset="card"
 		:title="t('sharedButtons.create')"
 	>
-		<new-selector
+		<NewSelector
 			@select="v => {
 				formValue.layers.push(v)
 				isOverlayNewModalOpened = false
 			}"
 		/>
-	</n-modal>
+	</NModal>
 </template>
 
 <style scoped>

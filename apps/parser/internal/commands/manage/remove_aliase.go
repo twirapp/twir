@@ -81,6 +81,8 @@ var RemoveAliaseCommand = &types.DefaultCommand{
 			}
 		}
 
+		parseCtx.Services.CommandsCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		result.Result = append(result.Result, "✅ Aliase removed.")
 		return result, nil
 	},

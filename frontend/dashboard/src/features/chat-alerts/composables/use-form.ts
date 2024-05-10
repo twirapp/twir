@@ -1,6 +1,5 @@
-import { useDebounceFn, watchDebounced } from '@vueuse/core'
+import { createGlobalState, useDebounceFn, watchDebounced } from '@vueuse/core'
 import { useNotification } from 'naive-ui'
-import { defineStore, storeToRefs } from 'pinia'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -13,87 +12,91 @@ import { useChatAlertsApi } from '@/api/chat-alerts.js'
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
 type Form = Record<FormKey, ChatAlertsSettings>
 
-export const useForm = defineStore('chat-alerts/form', () => {
+export const useForm = createGlobalState(() => {
 	const message = useNotification()
 	const { t } = useI18n()
 	const formRef = ref<HTMLFormElement>()
 
-	const chatAlertsApi = useChatAlertsApi()
-	const updateChatAlerts = chatAlertsApi.useMutationUpdateChatAlerts()
-	const { chatAlerts: data } = storeToRefs(chatAlertsApi)
+	const { chatAlerts, useMutationUpdateChatAlerts } = useChatAlertsApi()
+	const updateChatAlerts = useMutationUpdateChatAlerts()
 
 	const formValue = ref<Form>({
 		chatCleared: {
 			enabled: false,
 			messages: [],
-			cooldown: 2
+			cooldown: 2,
 		},
 		cheers: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		donations: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		firstUserMessage: {
 			enabled: false,
 			messages: [],
-			cooldown: 2
+			cooldown: 2,
 		},
 		followers: {
 			enabled: false,
 			messages: [],
-			cooldown: 3
+			cooldown: 3,
 		},
 		raids: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		redemptions: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		streamOffline: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		streamOnline: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		subscribers: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		ban: {
 			enabled: false,
 			messages: [],
 			cooldown: 2,
-			ignoreTimeoutFrom: []
+			ignoreTimeoutFrom: [],
 		},
 		unbanRequestCreate: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
+			cooldown: 0,
 		},
 		unbanRequestResolve: {
 			enabled: false,
 			messages: [],
-			cooldown: 0
-		}
+			cooldown: 0,
+		},
+		messageDelete: {
+			enabled: false,
+			messages: [],
+			cooldown: 0,
+		},
 	})
 
 	const formInited = ref(false)
 
-	watch(data, (v) => {
+	watch(chatAlerts, (v) => {
 		if (!v || formInited.value) return
 		formInited.value = false
 
@@ -127,12 +130,17 @@ export const useForm = defineStore('chat-alerts/form', () => {
 		} catch (error) {
 			message.error({
 				title: t('sharedTexts.errorOnSave'),
-				duration: 2500
+				duration: 2500,
 			})
 		}
 	}
 
 	const debouncedSave = useDebounceFn(save, 500)
 
-	return { formValue, formInited, save: debouncedSave, formRef }
+	return {
+		formValue,
+		formInited,
+		save: debouncedSave,
+		formRef,
+	}
 })

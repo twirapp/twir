@@ -62,6 +62,10 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		return nil, err
 	}
 
+	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate keywords cache", err)
+	}
+
 	return &gqlmodel.Keyword{
 		ID:                  entity.ID,
 		Text:                entity.Text,
@@ -120,6 +124,10 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		return nil, err
 	}
 
+	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate keywords cache", err)
+	}
+
 	return &gqlmodel.Keyword{
 		ID:                  entity.ID,
 		Text:                entity.Text,
@@ -149,6 +157,10 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, 
 	if err := r.gorm.WithContext(ctx).
 		Delete(&keyword).Error; err != nil {
 		return false, err
+	}
+
+	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate keywords cache", err)
 	}
 
 	return true, nil

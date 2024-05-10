@@ -15,11 +15,11 @@ type CommandGroup {
 }
 
 input CommandsGroupsCreateOpts {
-	name: String!
-	color: String!
+	name: String! @validate(constraint: "max=50")
+	color: String! @validate(constraint: "max=50")
 }
 
 input CommandsGroupsUpdateOpts {
-	name: String
-	color: String
+	name: String @validate(constraint: "max=50")
+	color: String @validate(constraint: "max=50")
 }

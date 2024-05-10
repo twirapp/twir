@@ -20,9 +20,10 @@ type ChatAlerts {
 	ban: ChatAlertsBan
 	unbanRequestCreate: ChatAlertsUnbanRequestCreate
 	unbanRequestResolve: ChatAlertsUnbanRequestResolve
+	messageDelete: ChatAlertsMessageDelete
 }
 
-union ChatAlertsSettings = ChatAlertsFollowersSettings | ChatAlertsRaids | ChatAlertsDonations | ChatAlertsSubscribers | ChatAlertsCheers | ChatAlertsRedemptions | ChatAlertsFirstUserMessage | ChatAlertsStreamOnline | ChatAlertsStreamOffline | ChatAlertsChatCleared | ChatAlertsBan | ChatAlertsUnbanRequestCreate | ChatAlertsUnbanRequestResolve
+union ChatAlertsSettings = ChatAlertsFollowersSettings | ChatAlertsRaids | ChatAlertsDonations | ChatAlertsSubscribers | ChatAlertsCheers | ChatAlertsRedemptions | ChatAlertsFirstUserMessage | ChatAlertsStreamOnline | ChatAlertsStreamOffline | ChatAlertsChatCleared | ChatAlertsBan | ChatAlertsUnbanRequestCreate | ChatAlertsUnbanRequestResolve | ChatAlertsMessageDelete
 
 type ChatAlertsCountedMessage {
 	count: Int!
@@ -93,6 +94,12 @@ type ChatAlertsChatCleared {
 	cooldown: Int!
 }
 
+type ChatAlertsMessageDelete {
+	enabled: Boolean!
+	messages: [ChatAlertsMessage!]!
+	cooldown: Int!
+}
+
 type ChatAlertsBan {
 	enabled: Boolean!
 	messages: [ChatAlertsCountedMessage!]!
@@ -126,6 +133,7 @@ input ChatAlertsInput {
 	ban: ChatAlertsBanInput
 	unbanRequestCreate: ChatAlertsUnbanRequestCreateInput
 	unbanRequestResolve: ChatAlertsUnbanRequestResolveInput
+	messageDelete: ChatAlertsMessageDeleteInput
 }
 
 input ChatAlertsFollowersSettingsInput {
@@ -208,10 +216,16 @@ input ChatAlertsUnbanRequestResolveInput {
 }
 
 input ChatAlertsMessageInput {
-	text: String
+	text: String @validate(constraint: "max=500")
 }
 
 input ChatAlertsCountedMessageInput {
 	count: Int
-	text: String
+	text: String @validate(constraint: "max=500")
+}
+
+input ChatAlertsMessageDeleteInput {
+	enabled: Boolean
+	messages: [ChatAlertsMessageInput]
+	cooldown: Int
 }

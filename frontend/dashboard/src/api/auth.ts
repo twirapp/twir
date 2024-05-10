@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/vue-query'
 import { createRequest, useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed } from 'vue'
 
 import { useMutation } from '@/composables/use-mutation.js'
@@ -46,15 +46,14 @@ export const profileQuery = createRequest(graphql(`
 
 export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
 
-export const useProfile = defineStore('auth/profile', () => {
+export const useProfile = createGlobalState(() => {
 	const { data: response, executeQuery, fetching } = useQuery({
 		query: profileQuery.query,
-		variables: {
-		},
+		variables: {},
 		context: {
 			key: profileQuery.key,
-			additionalTypenames: [userInvalidateQueryKey]
-		}
+			additionalTypenames: [userInvalidateQueryKey],
+		},
 	})
 
 	const computedUser = computed(() => {
@@ -75,7 +74,7 @@ export const useProfile = defineStore('auth/profile', () => {
 			selectedDashboardId: user.selectedDashboardId,
 			selectedDashboardTwitchUser: user.selectedDashboardTwitchUser,
 			hideOnLandingPage: user.hideOnLandingPage,
-			availableDashboards: user.availableDashboards
+			availableDashboards: user.availableDashboards,
 		}
 	})
 
@@ -96,11 +95,11 @@ export function useLogout() {
 	}
 
 	return {
-		execute
+		execute,
 	}
 }
 
-export const useUserSettings = defineStore('userSettings', () => {
+export const useUserSettings = createGlobalState(() => {
 	const userPublicSettingsInvalidateKey = 'UserPublicSettingsInvalidateKey'
 
 	const usePublicQuery = () => useQuery({
@@ -117,8 +116,8 @@ export const useUserSettings = defineStore('userSettings', () => {
 		`),
 		variables: {},
 		context: {
-			additionalTypenames: [userPublicSettingsInvalidateKey]
-		}
+			additionalTypenames: [userPublicSettingsInvalidateKey],
+		},
 	})
 
 	const usePublicMutation = () => useMutation(graphql(`
@@ -143,11 +142,11 @@ export const useUserSettings = defineStore('userSettings', () => {
 		usePublicQuery,
 		usePublicMutation,
 		useApiKeyGenerateMutation,
-		useUserUpdateMutation
+		useUserUpdateMutation,
 	}
 })
 
-export const useDashboard = defineStore('auth/dashboard', () => {
+export const useDashboard = createGlobalState(() => {
 	const urqlClient = useUrqlClient()
 
 	const mutationSetDashboard = useMutation(graphql(`
@@ -166,7 +165,7 @@ export const useDashboard = defineStore('auth/dashboard', () => {
 	}
 
 	return {
-		setDashboard
+		setDashboard,
 	}
 })
 
@@ -215,23 +214,23 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	{ perm: ChannelRolePermissionEnum.ManageAlerts, description: 'Can manage alerts' },
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewGames, description: 'Can view games' },
-	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' }
+	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' },
 ]
 
 export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {
-	const profile = useProfile()
+	const { data: profile } = useProfile()
 
 	return computed(() => {
-		if (!profile.data?.availableDashboards || !profile.data?.selectedDashboardId) return false
+		if (!profile.value?.availableDashboards || !profile.value?.selectedDashboardId) return false
 
-		if (profile.data.id === profile.data.selectedDashboardId) {
+		if (profile.value.id === profile.value.selectedDashboardId) {
 			return true
 		}
 
-		if (profile.data.isBotAdmin) return true
+		if (profile.value.isBotAdmin) return true
 
-		const dashboard = profile.data?.availableDashboards.find(dashboard => {
-			return dashboard.id === profile.data?.selectedDashboardId
+		const dashboard = profile.value?.availableDashboards.find(dashboard => {
+			return dashboard.id === profile.value?.selectedDashboardId
 		})
 		if (!dashboard) return false
 

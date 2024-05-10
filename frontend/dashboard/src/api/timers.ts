@@ -1,5 +1,5 @@
 import { useQuery } from '@urql/vue'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 
 import type { GetAllTimersQuery, TimerCreateInput } from '@/gql/graphql.js'
 
@@ -11,7 +11,7 @@ export type EditableTimer = TimerCreateInput & { id?: string }
 
 const invalidationKey = 'TimersInvalidateKey'
 
-export const useTimersApi = defineStore('api/timers', () => {
+export const useTimersApi = createGlobalState(() => {
 	const useQueryTimers = () => useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidationKey] },
@@ -29,7 +29,7 @@ export const useTimersApi = defineStore('api/timers', () => {
 					}
 				}
 			}
-		`)
+		`),
 	})
 
 	const useMutationCreateTimer = () => useMutation(graphql(`
@@ -58,6 +58,6 @@ export const useTimersApi = defineStore('api/timers', () => {
 		useQueryTimers,
 		useMutationCreateTimer,
 		useMutationUpdateTimer,
-		useMutationRemoveTimer
+		useMutationRemoveTimer,
 	}
 })

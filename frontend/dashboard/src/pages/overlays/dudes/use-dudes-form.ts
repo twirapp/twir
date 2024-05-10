@@ -1,29 +1,29 @@
-import { ref, toRaw } from 'vue';
+import { ref, toRaw } from 'vue'
 
-import { defaultDudesSettings, type DudesSettingsWithOptionalId } from './dudes-settings.js';
+import { type DudesSettingsWithOptionalId, defaultDudesSettings } from './dudes-settings.js'
 
-const data = ref<DudesSettingsWithOptionalId>(structuredClone(defaultDudesSettings));
+const data = ref<DudesSettingsWithOptionalId>(structuredClone(defaultDudesSettings))
 
-export const useDudesForm = () => {
-	function $setData(d: DudesSettingsWithOptionalId) {
-		data.value = structuredClone(toRaw(d));
+export function useDudesForm() {
+	function setData(d: DudesSettingsWithOptionalId) {
+		data.value = structuredClone(toRaw(d))
 	}
 
-	function $reset() {
+	function reset() {
 		data.value = {
-			...$getDefaultSettings(),
+			...getDefaultSettings(),
 			id: data.value.id,
-		};
+		}
 	}
 
-	function $getDefaultSettings() {
-		return structuredClone(defaultDudesSettings);
+	function getDefaultSettings() {
+		return structuredClone(defaultDudesSettings)
 	}
 
 	return {
 		data,
-		$setData,
-		$reset,
-		$getDefaultSettings,
-	};
-};
+		setData,
+		reset,
+		getDefaultSettings,
+	}
+}

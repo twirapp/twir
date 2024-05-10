@@ -2,9 +2,9 @@ import {
 	type ColumnDef,
 	getCoreRowModel,
 	getPaginationRowModel,
-	useVueTable
+	useVueTable,
 } from '@tanstack/vue-table'
-import { defineStore } from 'pinia'
+import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -18,10 +18,9 @@ import type { User } from '@/api/admin/users.js'
 import type { TwirUsersSearchParams } from '@/gql/graphql'
 
 import { usePagination } from '@/composables/use-pagination.js'
-import { resolveUserName } from '@/helpers'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
-export const useUsersTable = defineStore('manage-users/users-table', () => {
+export const useUsersTable = createGlobalState(() => {
 	const { t } = useI18n()
 
 	const { pagination } = usePagination()
@@ -30,16 +29,16 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 
 	const tableParams = computed<TwirUsersSearchParams>((prevParams) => {
 		// reset pagination on search change
-		if (prevParams?.search !== tableFilters.debounceSearchInput) {
+		if (prevParams?.search !== tableFilters.debounceSearchInput.value) {
 			pagination.value.pageIndex = 0
 		}
 
 		return {
-			...tableFilters.selectedStatuses,
-			search: tableFilters.debounceSearchInput,
+			...tableFilters.selectedStatuses.value,
+			search: tableFilters.debounceSearchInput.value,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			badges: tableFilters.selectedBadges
+			badges: tableFilters.selectedBadges.value,
 		}
 	})
 
@@ -66,13 +65,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 				return h('a', {
 					class: 'flex flex-col',
 					href: `https://twitch.tv/${row.original.twitchProfile.login}`,
-					target: '_blank'
+					target: '_blank',
 				}, h(UsersTableCellUser, {
 					avatar: row.original.twitchProfile.profileImageUrl,
-					userId: row.original.id,
-					name: resolveUserName(row.original.twitchProfile.login, row.original.twitchProfile.displayName)
+					name: row.original.twitchProfile.login,
+					displayName: row.original.twitchProfile.displayName,
 				}))
-			}
+			},
 		},
 		{
 			accessorKey: 'userId',
@@ -80,7 +79,7 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			header: () => h('div', {}, t('adminPanel.manageUsers.userId')),
 			cell: ({ row }) => {
 				return h('span', row.original.id)
-			}
+			},
 		},
 		{
 			accessorKey: 'actions',
@@ -89,20 +88,20 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 			cell: ({ row }) => {
 				return h(
 					'div',
-					{ class: 'flex items-center gap-2' },
+					{ class: 'flex items-center justify-end gap-2' },
 					[
 						h(UsersBadgeSelector, {
-							userId: row.original.id
+							userId: row.original.id,
 						}),
 						h(UsersActionSelector, {
 							userId: row.original.id,
 							isBanned: row.original.isBanned,
-							isBotAdmin: row.original.isBotAdmin
-						})
-					]
+							isBotAdmin: row.original.isBotAdmin,
+						}),
+					],
 				)
-			}
-		}
+			},
+		},
 	])
 
 	const table = useVueTable({
@@ -118,13 +117,13 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		state: {
 			get pagination() {
 				return pagination.value
-			}
+			},
 		},
 		manualPagination: true,
 		enableRowSelection: true,
 		onPaginationChange: (updaterOrValue) => valueUpdater(updaterOrValue, pagination),
 		getCoreRowModel: getCoreRowModel(),
-		getPaginationRowModel: getPaginationRowModel()
+		getPaginationRowModel: getPaginationRowModel(),
 	})
 
 	return {
@@ -132,6 +131,6 @@ export const useUsersTable = defineStore('manage-users/users-table', () => {
 		pagination,
 		totalUsers,
 		table,
-		tableColumns
+		tableColumns,
 	}
 })

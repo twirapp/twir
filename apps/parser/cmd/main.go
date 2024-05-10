@@ -20,6 +20,7 @@ import (
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -163,6 +164,7 @@ func main() {
 		},
 		TaskDistributor: taskQueueDistributor,
 		Bus:             bus,
+		CommandsCache:   commandscache.New(db, redisClient),
 	}
 
 	variablesService := variables.New(

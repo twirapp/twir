@@ -10,7 +10,6 @@ import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
-import "messages/roles/roles.proto";
 import "messages/moderation/moderation.proto";
 import "messages/users/users.proto";
 
@@ -29,7 +28,6 @@ import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/modules_sr/modules_sr.proto";
 import "messages/overlays_chat/overlays_chat.proto";
 import "messages/overlays_kappagen/overlays_kappagen.proto";
 import "messages/overlays_be_right_back/overlays_be_right_back.proto";
@@ -42,8 +40,6 @@ import "messages/built_in_variables/built_in_variables.proto";
 import "messages/dashboard/dashboard.proto";
 import "messages/twitch_protected/twitch_protected.proto";
 import "messages/files/files.proto";
-import "messages/alerts/alerts.proto";
-import "messages/games/games.proto";
 import "messages/overlays/overlays.proto";
 
 import "messages/feedback/feedback.proto";
@@ -130,10 +126,6 @@ service Protected {
 	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
 	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
 
-	rpc ModulesSRGet(google.protobuf.Empty) returns (messages.modules_sr.GetResponse) {}
-	rpc ModulesSRSearchVideosOrChannels(messages.modules_sr.GetSearchRequest) returns (messages.modules_sr.GetSearchResponse) {}
-	rpc ModulesSRUpdate(messages.modules_sr.PostRequest) returns (google.protobuf.Empty) {}
-
 	rpc OverlayChatGet(messages.overlays_chat.GetRequest) returns (messages.overlays_chat.Settings) {}
 	rpc OverlayChatGetAll(google.protobuf.Empty) returns (messages.overlays_chat.GetAllResponse) {}
 	rpc OverlayChatCreate(messages.overlays_chat.Settings) returns (messages.overlays_chat.Settings) {}
@@ -148,11 +140,6 @@ service Protected {
 
 	rpc RewardsGet(google.protobuf.Empty) returns (messages.rewards.GetResponse) {}
 
-	rpc RolesGetAll(google.protobuf.Empty) returns (messages.roles.GetAllResponse) {}
-	rpc RolesUpdate(messages.roles.UpdateRequest) returns (messages.roles.Role) {}
-	rpc RolesDelete(messages.roles.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc RolesCreate(messages.roles.CreateRequest) returns (messages.roles.Role) {}
-
 	rpc BuiltInVariablesGetAll(google.protobuf.Empty) returns (messages.built_in_variables.GetAllResponse) {}
 
 	rpc GetDashboardStats(google.protobuf.Empty) returns (messages.dashboard.DashboardStatsResponse) {}
@@ -165,23 +152,6 @@ service Protected {
 	rpc FilesGetAll(google.protobuf.Empty) returns (messages.files.GetAllResponse) {}
 	rpc FilesUpload(messages.files.UploadRequest) returns (messages.files.FileMeta) {}
 	rpc FilesDelete(messages.files.RemoveRequest) returns (google.protobuf.Empty) {}
-
-	rpc AlertsGetAll(google.protobuf.Empty) returns (messages.alerts.GetAllResponse) {}
-	rpc AlertsGetOne(messages.alerts.GetOneRequest) returns (messages.alerts.Alert) {}
-	rpc AlertsCreate(messages.alerts.CreateRequest) returns (messages.alerts.Alert) {}
-	rpc AlertsUpdate(messages.alerts.UpdateRequest) returns (messages.alerts.Alert) {}
-	rpc AlertsDelete(messages.alerts.RemoveRequest) returns (google.protobuf.Empty) {}
-
-	// Games
-	rpc GamesGetEightBallSettings(google.protobuf.Empty) returns (messages.games.EightBallSettingsResponse) {}
-	rpc GamesUpdateEightBallSettings(messages.games.UpdateEightBallSettings) returns (google.protobuf.Empty) {}
-
-	rpc GamesGetRouletteSettings(google.protobuf.Empty) returns (messages.games.RussianRouletteSettingsResponse) {}
-	rpc GamesUpdateRouletteSettings(messages.games.UpdateRussianRouletteSettings) returns (google.protobuf.Empty) {}
-
-	rpc GamesGetDuelSettings(google.protobuf.Empty) returns (messages.games.DuelSettingsResponse) {}
-	rpc GamesUpdateDuelSettings(messages.games.UpdateDuelSettings) returns (google.protobuf.Empty) {}
-	//
 
 	rpc OverlaysGetAll(google.protobuf.Empty) returns (messages.overlays.GetAllResponse) {}
 	rpc OverlaysGetOne(messages.overlays.GetByIdRequest) returns (messages.overlays.Overlay) {}
@@ -244,7 +214,7 @@ service UnProtected {
 
 	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
 	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
-	
+
 	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (messages.auth.PostCodeResponse) {}
 
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}

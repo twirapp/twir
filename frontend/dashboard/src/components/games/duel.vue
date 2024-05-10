@@ -1,32 +1,32 @@
 <script setup lang="ts">
-import type { DuelSettingsResponse } from '@twir/api/messages/games/games';
 import {
-	NModal,
 	NButton,
-	NSwitch,
-	NInput,
-	NFormItem,
-	NInputNumber,
 	NDivider,
-	useThemeVars,
+	NFormItem,
+	NInput,
+	NInputNumber,
+	NModal,
 	NSpace,
-} from 'naive-ui';
-import { ref, toRaw, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NSwitch,
+	useThemeVars
+} from 'naive-ui'
+import { ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import Card from './card.vue';
+import Card from './card.vue'
 
+import type { GamesQuery } from '@/gql/graphql'
 
-import { useDuelGame } from '@/api/games/duel';
-import IconDuel from '@/assets/games/duel.svg?use';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete';
-import CommandButton from '@/features/commands/components/command-button.vue';
+import { useGamesApi } from '@/api/games/games.js'
+import IconDuel from '@/assets/games/duel.svg?use'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import CommandButton from '@/features/commands/components/command-button.vue'
 
-const manager = useDuelGame();
-const { data: settings } = manager.useSettings();
-const updater = manager.useUpdate();
+const gamesApi = useGamesApi()
+const { data: settings } = gamesApi.useGamesQuery()
+const updater = gamesApi.useDuelMutation()
 
-const initialSettings: DuelSettingsResponse = {
+const initialSettings: GamesQuery['gamesDuel'] = {
 	enabled: false,
 	startMessage: '@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
 	resultMessage: `Sadly, @{loser} couldn't find a way to dodge the bullet and falls apart into eternal slumber.`,
@@ -37,29 +37,32 @@ const initialSettings: DuelSettingsResponse = {
 	timeoutSeconds: 600,
 	pointsPerWin: 0,
 	pointsPerLose: 0,
-	bothDiePercent: 0,
-};
+	bothDiePercent: 0
+}
 
-const formValue = ref<DuelSettingsResponse>({ ...initialSettings });
+const formValue = ref<GamesQuery['gamesDuel']>({ ...initialSettings })
 
 watch(settings, (v) => {
-	if (!v) return;
-	formValue.value = toRaw(v);
-}, { immediate: true });
+	if (!v) return
 
-const isModalOpened = ref(false);
+	formValue.value = toRaw(v.gamesDuel)
+}, { immediate: true })
 
-const themeVars = useThemeVars();
-const { dialog, notification } = useNaiveDiscrete();
-const { t } = useI18n();
+const isModalOpened = ref(false)
+
+const themeVars = useThemeVars()
+const { dialog, notification } = useNaiveDiscrete()
+const { t } = useI18n()
 
 async function save() {
-	if (!formValue.value) return;
-	await updater.mutateAsync(formValue.value);
+	if (!formValue.value) return
+	await updater.executeMutation({
+		opts: formValue.value
+	})
 	notification.success({
 		title: t('sharedTexts.saved'),
-		duration: 2500,
-	});
+		duration: 2500
+	})
 }
 
 function resetSettings() {
@@ -70,15 +73,15 @@ function resetSettings() {
 		positiveText: t('sharedButtons.confirm'),
 		negativeText: t('sharedButtons.close'),
 		onPositiveClick: () => {
-			formValue.value = initialSettings;
-			save();
-		},
-	});
+			formValue.value = initialSettings
+			save()
+		}
+	})
 }
 </script>
 
 <template>
-	<card
+	<Card
 		:title="t('games.duel.title')"
 		:description="t('games.duel.description')"
 		:icon="IconDuel"
@@ -87,7 +90,7 @@ function resetSettings() {
 		@open-settings="isModalOpened = true"
 	/>
 
-	<n-modal
+	<NModal
 		v-model:show="isModalOpened"
 		:mask-closable="false"
 		:segmented="true"
@@ -95,18 +98,18 @@ function resetSettings() {
 		:title="t('games.duel.title')"
 		content-style="padding: 10px; width: 100%"
 		:style="{
-			width: '40vw',
-			maxWidth: 'calc(100vw - 40px)',
+			'width': '40vw',
+			'maxWidth': 'calc(100vw - 40px)',
 			'--card-background': themeVars.actionColor,
-			'--title-border': `1px solid ${themeVars.borderColor}`
+			'--title-border': `1px solid ${themeVars.borderColor}`,
 		}"
 	>
 		<div class="flex flex-col gap-2">
-			<n-form-item label="Enabled" label-placement="left" :show-feedback="false">
-				<n-switch
+			<NFormItem label="Enabled" label-placement="left" :show-feedback="false">
+				<NSwitch
 					v-model:value="formValue.enabled"
 				/>
-			</n-form-item>
+			</NFormItem>
 
 			<div class="card">
 				<div class="content">
@@ -114,13 +117,12 @@ function resetSettings() {
 						{{ t('games.duel.commands.title') }}
 					</div>
 					<div class="form-item">
-						<command-button name="duel" :title="t('games.duel.commands.duel')" />
-						<command-button name="duel accept" :title="t('games.duel.commands.accept')" />
-						<command-button name="duel stats" :title="t('games.duel.commands.stats')" />
+						<CommandButton name="duel" :title="t('games.duel.commands.duel')" />
+						<CommandButton name="duel accept" :title="t('games.duel.commands.accept')" />
+						<CommandButton name="duel stats" :title="t('games.duel.commands.stats')" />
 					</div>
 				</div>
 			</div>
-
 
 			<div class="card">
 				<div class="content">
@@ -128,27 +130,27 @@ function resetSettings() {
 						{{ t('games.duel.cooldown.title') }}
 					</div>
 					<div class="form-item">
-						<n-form-item
+						<NFormItem
 							:label="t('games.duel.cooldown.user')" :show-feedback="false"
 							style="width: 45%"
 						>
-							<n-input-number
+							<NInputNumber
 								v-model:value="formValue.userCooldown"
 								:max="84000"
 								style="width: 100%"
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-form-item
+						<NFormItem
 							:label="t('games.duel.cooldown.global')" :show-feedback="false"
 							style="width: 45%"
 						>
-							<n-input-number
+							<NInputNumber
 								v-model:value="formValue.globalCooldown"
 								:max="84000"
 								style="width: 100%"
 							/>
-						</n-form-item>
+						</NFormItem>
 					</div>
 				</div>
 			</div>
@@ -159,45 +161,44 @@ function resetSettings() {
 						{{ t('games.duel.messages.title') }}
 					</div>
 					<div class="form-item flex-col">
-						<n-form-item
+						<NFormItem
 							:label="t('games.duel.messages.start.title')"
-							:feedback="t('games.duel.messages.start.description', {}, {escapeParameter: false})"
+							:feedback="t('games.duel.messages.start.description', {}, { escapeParameter: false })"
 						>
-							<n-input
+							<NInput
 								v-model:value="formValue.startMessage"
 								type="textarea"
 								:autosize="{ minRows: 2 }"
 								:maxlength="400"
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-form-item
+						<NFormItem
 							:label="t('games.duel.messages.result.title')"
 							:feedback="t('games.duel.messages.result.description')"
 						>
-							<n-input
+							<NInput
 								v-model:value="formValue.resultMessage"
 								type="textarea"
 								:autosize="{ minRows: 2 }"
 								:maxlength="400"
 							/>
-						</n-form-item>
+						</NFormItem>
 
-						<n-form-item
+						<NFormItem
 							:label="t('games.duel.messages.bothDie.title')"
 							:feedback="t('games.duel.messages.bothDie.description')"
 						>
-							<n-input
+							<NInput
 								v-model:value="formValue.bothDieMessage"
 								type="textarea"
 								:autosize="{ minRows: 2 }"
 								:maxlength="400"
 							/>
-						</n-form-item>
+						</NFormItem>
 					</div>
 				</div>
 			</div>
-
 
 			<div class="card">
 				<div class="content">
@@ -206,63 +207,63 @@ function resetSettings() {
 					</div>
 
 					<div class="form-item">
-						<n-form-item :label="t('games.duel.settings.secondsToAccept')" :show-feedback="false">
-							<n-input-number
+						<NFormItem :label="t('games.duel.settings.secondsToAccept')" :show-feedback="false">
+							<NInputNumber
 								v-model:value="formValue.secondsToAccept"
 								:max="600"
 							/>
-						</n-form-item>
-						<n-form-item :label="t('games.duel.settings.timeoutTime')" :show-feedback="false">
-							<n-input-number
+						</NFormItem>
+						<NFormItem :label="t('games.duel.settings.timeoutTime')" :show-feedback="false">
+							<NInputNumber
 								v-model:value="formValue.timeoutSeconds"
 								:max="84000"
 							/>
-						</n-form-item>
-						<n-form-item :label="t('games.duel.settings.bothDiePercent')" :show-feedback="false">
-							<n-input-number
+						</NFormItem>
+						<NFormItem :label="t('games.duel.settings.bothDiePercent')" :show-feedback="false">
+							<NInputNumber
 								v-model:value="formValue.bothDiePercent"
 								:max="100"
 							/>
-						</n-form-item>
-						<n-form-item :label="t('games.duel.settings.pointsPerWin')" :show-feedback="false">
-							<n-input-number
+						</NFormItem>
+						<NFormItem :label="t('games.duel.settings.pointsPerWin')" :show-feedback="false">
+							<NInputNumber
 								v-model:value="formValue.pointsPerWin"
 								:max="99999999"
 							/>
-						</n-form-item>
-						<n-form-item :label="t('games.duel.settings.pointsPerLose')" :show-feedback="false">
-							<n-input-number
+						</NFormItem>
+						<NFormItem :label="t('games.duel.settings.pointsPerLose')" :show-feedback="false">
+							<NInputNumber
 								v-model:value="formValue.pointsPerLose"
 								:max="99999999"
 							/>
-						</n-form-item>
+						</NFormItem>
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
-		<n-space vertical>
-			<n-button
+		<NSpace vertical>
+			<NButton
 				block
 				secondary
 				type="warning"
 				@click="resetSettings"
 			>
 				{{ t('sharedButtons.setDefaultSettings') }}
-			</n-button>
+			</NButton>
 
-			<n-button
+			<NButton
 				secondary
 				block
 				type="success"
 				@click="save"
 			>
 				{{ t('sharedButtons.save') }}
-			</n-button>
-		</n-space>
-	</n-modal>
+			</NButton>
+		</NSpace>
+	</NModal>
 </template>
 
 <style scoped>

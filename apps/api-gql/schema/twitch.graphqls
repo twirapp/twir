@@ -1,4 +1,56 @@
 extend type Query {
 	twitchGetUserById(id: ID!): TwirUserTwitchInfo
 	twitchGetUserByName(name: String!): TwirUserTwitchInfo
+	twitchGetChannelRewards(channelId: ID): TwirTwitchChannelRewardResponse!
+}
+
+type TwirTwitchChannelRewardResponse {
+	partnerOrAffiliate: Boolean!
+	rewards: [TwirTwitchChannelReward!]!
+}
+
+type TwirTwitchChannelReward {
+	id: ID!
+	broadcaster_name: String!
+	broadcaster_login: String!
+	broadcaster_id: ID!
+	"""
+	In case of image is not set - default image is used
+	"""
+	image: TwirTwitchChannelRewardImage!
+	background_color: String!
+	is_enabled: Boolean!
+	cost: Int!
+	title: String!
+	prompt: String!
+	is_user_input_required: Boolean!
+	max_per_stream_setting: TwirTwitchChannelRewardMaxPerStreamSetting!
+	max_per_user_per_stream_setting: TwirTwitchChannelRewardMaxPerUserPerStreamSetting!
+	global_cooldown_setting: TwirTwitchChannelRewardGlobalCooldownSetting!
+	is_paused: Boolean!
+	is_in_stock: Boolean!
+	should_redemptions_skip_request_queue: Boolean!
+	redemptions_redeemed_current_stream: Int!
+	cooldown_expires_at: String!
+}
+
+type TwirTwitchChannelRewardMaxPerStreamSetting {
+	is_enabled: Boolean!
+	max_per_stream: Int!
+}
+
+type TwirTwitchChannelRewardMaxPerUserPerStreamSetting {
+	is_enabled: Boolean!
+	max_per_user_per_stream: Int!
+}
+
+type TwirTwitchChannelRewardGlobalCooldownSetting {
+	is_enabled: Boolean!
+	global_cooldown_seconds: Int!
+}
+
+type TwirTwitchChannelRewardImage {
+	url_1x: String!
+	url_2x: String!
+	url_4x: String!
 }

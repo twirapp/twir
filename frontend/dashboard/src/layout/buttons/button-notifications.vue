@@ -1,14 +1,13 @@
 <script setup lang="ts">
-import { IconBell } from '@tabler/icons-vue';
-import { NButton, NBadge, NDropdown, type DropdownOption } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { h } from 'vue';
+import { IconBell } from '@tabler/icons-vue'
+import { type DropdownOption, NBadge, NButton, NDropdown } from 'naive-ui'
+import { h } from 'vue'
 
-import NotificationsDropdown from './notifications-dropdown.vue';
+import NotificationsDropdown from './notifications-dropdown.vue'
 
-import { useNotifications } from '@/composables/use-notifications';
+import { useNotifications } from '@/composables/use-notifications'
 
-const { notificationsCounter } = storeToRefs(useNotifications());
+const { notificationsCounter } = useNotifications()
 
 const profileOptions: DropdownOption[] = [
 	{
@@ -16,21 +15,21 @@ const profileOptions: DropdownOption[] = [
 		type: 'render',
 		render: () => h(NotificationsDropdown),
 	},
-];
+]
 </script>
 
 <template>
-	<n-dropdown
+	<NDropdown
 		trigger="click"
 		:options="profileOptions"
 		:on-update-show="notificationsCounter.onRead"
 		size="large"
 		style="top: 10px; left: 14px; width: 400px;"
 	>
-		<n-badge :value="notificationsCounter.counter">
-			<n-button circle quaternary>
+		<NBadge :value="notificationsCounter.counter">
+			<NButton circle quaternary>
 				<IconBell />
-			</n-button>
-		</n-badge>
-	</n-dropdown>
+			</NButton>
+		</NBadge>
+	</NDropdown>
 </template>

@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
 	"github.com/google/uuid"
 	model "github.com/satont/twir/libs/gomodels"
@@ -62,6 +63,10 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 		return false, err
 	}
 
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	}
+
 	return true, nil
 }
 
@@ -86,6 +91,10 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 		Delete(&entity).
 		Error; err != nil {
 		return false, err
+	}
+
+	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
 	return true, nil

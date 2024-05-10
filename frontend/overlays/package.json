@@ -22,7 +22,6 @@
     "emoji-regex": "10.3.0",
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.5",
-    "pinia": "2.1.7",
     "tmi.js": "1.8.5",
     "vue": "3.4.21",
     "vue-router": "4.3.0"

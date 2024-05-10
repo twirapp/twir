@@ -1,24 +1,23 @@
 <script setup lang="ts">
-import { NAvatar, NText } from 'naive-ui';
+import { NAvatar, NText } from 'naive-ui'
 
-import { useProfile } from '@/api';
-import { resolveUserName } from '@/helpers';
-import { storeToRefs } from 'pinia';
+import { useProfile } from '@/api/auth.js'
+import { resolveUserName } from '@/helpers/resolveUserName.js'
 
-const { data: profileData } = storeToRefs(useProfile());
+const { data: profile } = useProfile()
 </script>
 
 <template>
 	<div class="flex items-center px-3 py-2">
-		<div v-if="profileData" class="flex gap-3 items-center">
-			<n-avatar :src="profileData?.avatar" round />
+		<div v-if="profile" class="flex gap-3 items-center">
+			<NAvatar :src="profile?.avatar" round />
 			<div class="flex flex-col">
-				<n-text :depth="3" class="text-xs">
+				<NText :depth="3" class="text-xs">
 					Logged as
-				</n-text>
-				<n-text>
-					{{ resolveUserName(profileData.login, profileData.displayName) }}
-				</n-text>
+				</NText>
+				<NText>
+					{{ resolveUserName(profile.login, profile.displayName) }}
+				</NText>
 			</div>
 		</div>
 	</div>

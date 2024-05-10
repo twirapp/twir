@@ -1,0 +1,101 @@
+extend type Query {
+	roles: [Role!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_ROLES)
+}
+
+extend type Mutation  {
+	rolesCreate(opts: RolesCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
+	rolesUpdate(id: ID!, opts: RolesCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
+	rolesRemove(id: ID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
+}
+
+type Role {
+	id: ID!
+	channelId: String!
+	name: String!
+	type: RoleTypeEnum!
+	permissions: [ChannelRolePermissionEnum!]!
+	settings: RoleSettings!
+	"""
+	This is a list of user ids
+	"""
+	users: [TwirUserTwitchInfo!]! @goField(forceResolver: true)
+}
+
+enum RoleTypeEnum {
+	BROADCASTER
+	MODERATOR
+	VIP
+	SUBSCRIBER
+	VIEWER
+	CUSTOM
+}
+
+type RoleSettings {
+	requiredWatchTime: Int!
+	requiredMessages: Int!
+	requiredUserChannelPoints: Int!
+}
+
+enum ChannelRolePermissionEnum {
+	CAN_ACCESS_DASHBOARD
+
+	UPDATE_CHANNEL_TITLE
+	UPDATE_CHANNEL_CATEGORY
+
+	VIEW_COMMANDS
+	MANAGE_COMMANDS
+
+	VIEW_KEYWORDS
+	MANAGE_KEYWORDS
+
+	VIEW_TIMERS
+	MANAGE_TIMERS
+
+	VIEW_INTEGRATIONS
+	MANAGE_INTEGRATIONS
+
+	VIEW_SONG_REQUESTS
+	MANAGE_SONG_REQUESTS
+
+	VIEW_MODERATION
+	MANAGE_MODERATION
+
+	VIEW_VARIABLES
+	MANAGE_VARIABLES
+
+	VIEW_GREETINGS
+	MANAGE_GREETINGS
+
+	VIEW_OVERLAYS
+	MANAGE_OVERLAYS
+
+	VIEW_ROLES
+	MANAGE_ROLES
+
+	VIEW_EVENTS
+	MANAGE_EVENTS
+
+	VIEW_ALERTS
+	MANAGE_ALERTS
+
+	VIEW_GAMES
+	MANAGE_GAMES
+}
+
+directive @hasChannelRolesDashboardPermission(permission: ChannelRolePermissionEnum) on FIELD_DEFINITION
+
+input RolesCreateOrUpdateOpts {
+	name: String! @validate(constraint: "max=50")
+	permissions: [ChannelRolePermissionEnum!]!
+	settings: CreateOrUpdateRoleSettingsInput!
+	"""
+	This is a list of user ids
+	"""
+	users: [String!]!
+}
+
+input CreateOrUpdateRoleSettingsInput {
+	requiredWatchTime: Int! @validate(constraint: "max=99999999999999")
+	requiredMessages: Int! @validate(constraint: "max=99999999999999")
+	requiredUserChannelPoints: Int! @validate(constraint: "max=99999999999999")
+}

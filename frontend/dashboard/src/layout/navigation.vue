@@ -8,43 +8,45 @@ import {
 	IconCommand,
 	IconDashboard,
 	IconDeviceDesktop,
-	IconHammer,
 	IconDeviceGamepad2,
+	IconHammer,
 	IconHeadphones,
 	IconKey,
 	IconMessageCircle2,
 	IconPencilPlus,
-	IconShieldHalfFilled, IconSpeakerphone,
+	IconSpeakerphone,
 	IconSword,
 	IconUsers,
-} from '@tabler/icons-vue';
-import { MenuDividerOption, MenuOption, NBadge, NMenu } from 'naive-ui';
-import { computed, h, onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { RouterLink, useRouter } from 'vue-router';
+} from '@tabler/icons-vue'
+import { NBadge, NMenu } from 'naive-ui'
+import { computed, h, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { RouterLink, useRouter } from 'vue-router'
 
-import { renderIcon } from '../helpers/index.js';
+import { renderIcon } from '../helpers/index.js'
 
-import { useUserAccessFlagChecker } from '@/api';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { MenuDividerOption, MenuOption } from 'naive-ui'
 
-const { t } = useI18n();
+import { useUserAccessFlagChecker } from '@/api'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const activeKey = ref<string | null>('/');
+const { t } = useI18n()
 
-const canViewIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewIntegrations);
-const canViewEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewEvents);
-const canViewOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewOverlays);
-const canViewSongRequests = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewSongRequests);
-const canViewCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewCommands);
-const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTimers);
-const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords);
-const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables);
-const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings);
-const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles);
-const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts);
-const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames);
-const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration);
+const activeKey = ref<string | null>('/')
+
+const canViewIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewIntegrations)
+const canViewEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewEvents)
+const canViewOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewOverlays)
+const canViewSongRequests = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewSongRequests)
+const canViewCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewCommands)
+const canViewTimers = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewTimers)
+const canViewKeywords = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewKeywords)
+const canViewVariables = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewVariables)
+const canViewGreetings = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGreetings)
+// const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRoles)
+const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAlerts)
+const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames)
+const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration)
 
 const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 	return [
@@ -120,15 +122,9 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 			disabled: !canViewModeration.value,
 		},
 		{
-			label: t('sidebar.users'),
+			label: t('sidebar.community'),
 			icon: renderIcon(IconUsers),
-			path: '/dashboard/community/users',
-		},
-		{
-			label: t('sidebar.roles'),
-			icon: renderIcon(IconShieldHalfFilled),
-			path: '/dashboard/community/roles',
-			disabled: !canViewRoles.value,
+			path: '/dashboard/community',
 		},
 		{
 			label: t('sidebar.timers'),
@@ -158,50 +154,54 @@ const menuOptions = computed<(MenuOption | MenuDividerOption)[]>(() => {
 		...item,
 		key: item.path ?? item.label,
 		extra: item.disabled ? 'No perms' : undefined,
-		label: !item.path || item.disabled ? item.label ?? undefined : () => h(
-			RouterLink,
-			{
-				to: {
-					path: item.path,
-				},
-			},
-			{
-				default: () => item.isNew
-					? h(NBadge, {
-						type: 'info',
-						value: 'new',
-						processing: true,
-						offset: [17, 5],
-					}, { default: () => item.label })
-					: item.label,
-			},
-		),
-		children: item.children?.map((child) => ({
-			...child,
-			key: child.path,
-			label: item.disabled ? child.label : () => h(
+		label: !item.path || item.disabled
+			? item.label ?? undefined
+			: () => h(
 				RouterLink,
 				{
 					to: {
-						path: child.path,
+						path: item.path,
 					},
 				},
-				{ default: () => child.label },
+				{
+					default: () => item.isNew
+						? h(NBadge, {
+							type: 'info',
+							value: 'new',
+							processing: true,
+							offset: [17, 5],
+						}, { default: () => item.label })
+						: item.label,
+				},
 			),
+		children: item.children?.map((child) => ({
+			...child,
+			key: child.path,
+			label: item.disabled
+				? child.label
+				: () => h(
+					RouterLink,
+					{
+						to: {
+							path: child.path,
+						},
+					},
+					{ default: () => child.label },
+				),
 		})),
-	}));
-});
+	}))
+})
 
-const router = useRouter();
+const router = useRouter()
 
 onMounted(async () => {
-	await router.isReady();
-	activeKey.value = router.currentRoute.value.path;
-});
+	await router.isReady()
+	activeKey.value = router.currentRoute.value.path
+})
 </script>
 
 <template>
-	<n-menu
+	<NMenu
 		v-model:value="activeKey"
 		:collapsed-width="64"
 		:collapsed-icon-size="22"

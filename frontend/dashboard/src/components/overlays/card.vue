@@ -1,53 +1,53 @@
 <script setup lang="ts">
-import { IconSettings, IconCopy } from '@tabler/icons-vue';
-import { NButton, NTooltip } from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { FunctionalComponent } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconCopy, IconSettings } from '@tabler/icons-vue'
+import { NButton, NTooltip } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
-import { useCopyOverlayLink } from './copyOverlayLink.js';
+import { useCopyOverlayLink } from './copyOverlayLink.js'
 
-import { useProfile, useUserAccessFlagChecker } from '@/api/index.js';
-import Card from '@/components/card/card.vue';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { FunctionalComponent } from 'vue'
+
+import { useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import Card from '@/components/card/card.vue'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{
-	description: string;
-	title: string;
-	overlayPath?: string;
-	icon: FunctionalComponent;
-	iconStroke?: number;
-	showSettings?: boolean;
-	copyDisabled?: boolean;
-	showCopy?: boolean;
+	description: string
+	title: string
+	overlayPath?: string
+	icon: FunctionalComponent
+	iconStroke?: number
+	showSettings?: boolean
+	copyDisabled?: boolean
+	showCopy?: boolean
 }>(), {
 	showSettings: true,
 	copyDisabled: false,
 	showCopy: true,
 	iconStroke: 1,
 	overlayPath: '',
-});
+})
 
 defineEmits<{
-	openSettings: [];
-}>();
+	openSettings: []
+}>()
 
-const { t } = useI18n();
-const { data: profile } = storeToRefs(useProfile());
+const { t } = useI18n()
+const { data: profile } = useProfile()
 
-const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath);
+const { copyOverlayLink } = useCopyOverlayLink(props.overlayPath)
 
-const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 </script>
 
 <template>
-	<card :title="title" :icon="icon" :icon-stroke="iconStroke" class="h-full">
+	<Card :title="title" :icon="icon" :icon-stroke="iconStroke" class="h-full">
 		<template #content>
 			{{ description }}
 		</template>
 
 		<template #footer>
-			<n-button
+			<NButton
 				v-if="showSettings" :disabled="!userCanEditOverlays" secondary size="large"
 				@click="$emit('openSettings')"
 			>
@@ -55,23 +55,23 @@ const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.M
 					<span>{{ t('sharedButtons.settings') }}</span>
 					<IconSettings />
 				</div>
-			</n-button>
-			<n-tooltip v-if="showCopy" :disabled="profile?.id !== profile?.selectedDashboardId">
+			</NButton>
+			<NTooltip v-if="showCopy" :disabled="profile?.id !== profile?.selectedDashboardId">
 				<template #trigger>
-					<n-button
+					<NButton
 						size="large"
-						:disabled="copyDisabled || profile?.id != profile?.selectedDashboardId"
+						:disabled="copyDisabled || profile?.id !== profile?.selectedDashboardId"
 						@click="copyOverlayLink()"
 					>
 						<div class="flex gap-1">
 							<span>{{ t('overlays.copyOverlayLink') }}</span>
 							<IconCopy />
 						</div>
-					</n-button>
+					</NButton>
 				</template>
-				<span v-if="profile?.id != profile?.selectedDashboardId">{{ t('overlays.noAccess') }}</span>
+				<span v-if="profile?.id !== profile?.selectedDashboardId">{{ t('overlays.noAccess') }}</span>
 				<span v-else>{{ t('overlays.uncongirured') }}</span>
-			</n-tooltip>
+			</NTooltip>
 		</template>
-	</card>
+	</Card>
 </template>

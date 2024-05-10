@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { storeToRefs } from 'pinia';
-import { watch } from 'vue';
+import { watch } from 'vue'
 
-import { useStreamerProfile, useStreamerPublicSettings } from '@/api/use-streamer-profile';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useStreamerProfile, useStreamerPublicSettings } from '@/api/use-streamer-profile'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 
-const { data: profile, fetching } = storeToRefs(useStreamerProfile());
-const { data: publicSettings } = storeToRefs(useStreamerPublicSettings());
+const { data: profile, fetching } = useStreamerProfile()
+const { data: publicSettings } = useStreamerPublicSettings()
 
 watch(profile, (v) => {
-	if (!v) return;
-
-	window.document.title = `Twir - ${v.twitchGetUserByName?.displayName}`;
-});
+	if (!v) return
+	window.document.title = `Twir - ${v.twitchGetUserByName?.displayName}`
+})
 </script>
 
 <template>

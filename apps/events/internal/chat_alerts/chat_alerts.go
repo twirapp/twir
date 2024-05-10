@@ -171,6 +171,12 @@ func (c *ChatAlerts) ProcessEvent(
 			cooldown = parsedSettings.Ban.Cooldown
 			processErr = c.unbanRequestResolved(ctx, parsedSettings, casted)
 		}
+	case events.TwirEventType_CHANNEL_MESSAGE_DELETE:
+		casted, ok := data.(*events_messages.ChannelMessageDeleteMessage)
+		if ok {
+			cooldown = parsedSettings.MessageDelete.Cooldown
+			processErr = c.messageDelete(ctx, parsedSettings, casted)
+		}
 	default:
 		c.logger.Warn("unknown event", slog.Any("eventType", eventType))
 	}

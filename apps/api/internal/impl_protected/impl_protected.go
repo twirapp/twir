@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/apps/api/internal/impl_protected/alerts"
 	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
@@ -12,14 +11,12 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/events"
 	"github.com/satont/twir/apps/api/internal/impl_protected/feedback"
 	"github.com/satont/twir/apps/api/internal/impl_protected/files"
-	"github.com/satont/twir/apps/api/internal/impl_protected/games"
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/moderation"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
 	"github.com/satont/twir/apps/api/internal/impl_protected/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
-	"github.com/satont/twir/apps/api/internal/impl_protected/roles"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
 	"github.com/satont/twir/apps/api/internal/impl_protected/users"
 	config "github.com/satont/twir/libs/config"
@@ -41,13 +38,10 @@ type Protected struct {
 	*community.Community
 	*events.Events
 	*rewards.Rewards
-	*roles.Roles
 	*build_in_variables.BuildInVariables
 	*dashboard.Dashboard
 	*twitch.Twitch
 	*files.Files
-	*alerts.Alerts
-	*games.Games
 	*overlays.Overlays
 	*moderation.Moderation
 	*users.Users
@@ -96,13 +90,10 @@ func New(opts Opts) *Protected {
 		Community:        &community.Community{Deps: d},
 		Events:           &events.Events{Deps: d},
 		Rewards:          &rewards.Rewards{Deps: d},
-		Roles:            &roles.Roles{Deps: d},
 		BuildInVariables: &build_in_variables.BuildInVariables{Deps: d},
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},
 		Files:            files.New(d),
-		Alerts:           &alerts.Alerts{Deps: d},
-		Games:            &games.Games{Deps: d},
 		Overlays:         &overlays.Overlays{Deps: d},
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},

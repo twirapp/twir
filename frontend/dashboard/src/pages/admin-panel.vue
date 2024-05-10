@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import AdminActions from '@/features/admin-panel/admin-actions.vue'
+import AdminActions from '@/features/admin-panel/admin-actions/admin-actions.vue'
 import AdminManageBadges from '@/features/admin-panel/manage-badges/manage-badges.vue'
-import AdminManageNotifications from '@/features/admin-panel/manage-notifications/manage-notifications.vue'
+import AdminManageNotifications
+	from '@/features/admin-panel/manage-notifications/manage-notifications.vue'
 import AdminManageUsers from '@/features/admin-panel/manage-users/manage-users.vue'
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
 

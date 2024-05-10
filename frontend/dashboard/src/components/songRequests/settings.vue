@@ -1,46 +1,45 @@
 <script setup lang="ts">
-import type { YouTubeSettings } from '@twir/api/messages/modules_sr/modules_sr';
-import { useDebounce } from '@vueuse/core';
+import { useDebounce } from '@vueuse/core'
 import {
-	type SelectOption,
-	NTabs,
-	NTabPane,
-	NSpace,
-	NSwitch,
-	NText,
-	NInputNumber,
-	NForm,
-	NFormItem,
-	NSelect,
 	NAvatar,
 	NButton,
+	NForm,
+	NFormItem,
+	NInput,
+	NInputNumber,
+	NSelect,
+	NSpace,
+	NSwitch,
+	NTabPane,
+	NTabs,
+	NText,
+	type SelectOption,
 	useMessage,
-} from 'naive-ui';
-import { ref, computed, VNodeChild, h, watch, unref, toRaw } from 'vue';
-import { useI18n } from 'vue-i18n';
+} from 'naive-ui'
+import { computed, h, ref, toRaw, unref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+import RewardsSelector from '../rewardsSelector.vue'
 
-import RewardsSelector from '../rewardsSelector.vue';
+import type { SongRequestsSettingsOpts } from '@/gql/graphql'
+import type { VNodeChild } from 'vue'
 
-import { useCommandsApi } from '@/api/commands/commands';
-import {
-	useYoutubeVideoOrChannelSearch,
-	YoutubeSearchType,
-} from '@/api/index.js';
-import { useYoutubeModuleSettings } from '@/api/index.js';
-import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue';
-import CommandList from '@/features/commands/components/list.vue';
+import { useCommandsApi } from '@/api/commands/commands'
+import { useSongRequestsApi } from '@/api/song-requests'
+import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue'
+import CommandList from '@/features/commands/components/list.vue'
+import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql'
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const youtubeModuleManager = useYoutubeModuleSettings();
-const youtubeModuleData = youtubeModuleManager.getAll();
+const youtubeModuleManager = useSongRequestsApi()
+const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
 const youtubeModuleSettings = computed(() => {
-	return youtubeModuleData.data?.value?.data ?? null;
-});
-const youtubeModuleUpdater = youtubeModuleManager.update();
+	return youtubeModuleData.data?.value?.songRequests
+})
+const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
-const formValue = ref<YouTubeSettings>({
+const formValue = ref<SongRequestsSettingsOpts>({
 	enabled: false,
 	acceptOnlyWhenOnline: true,
 	takeSongFromDonationMessages: false,
@@ -48,7 +47,7 @@ const formValue = ref<YouTubeSettings>({
 	channelPointsRewardId: '',
 	maxRequests: 500,
 	announcePlay: true,
-	neededVotesVorSkip: 30,
+	neededVotesForSkip: 30,
 	denyList: {
 		artistsNames: [],
 		songs: [],
@@ -97,151 +96,149 @@ const formValue = ref<YouTubeSettings>({
 			denied: 'That channel is denied for requests.',
 		},
 	},
-});
+})
 
 watch(youtubeModuleSettings, async (v) => {
-	if (!v) return;
-	formValue.value = toRaw(v);
-}, { immediate: true });
+	if (!v) return
+	formValue.value = toRaw(v)
+}, { immediate: true })
 
-
-const message = useMessage();
+const message = useMessage()
 
 async function save() {
-	const data = unref(formValue);
+	const data = unref(formValue)
 
-	await youtubeModuleUpdater.mutateAsync({ data });
-	message.success(t('sharedTexts.saved'));
+	await youtubeModuleUpdater.executeMutation({ opts: data })
+	message.success(t('sharedTexts.saved'))
 }
 
-const renderSelectOption = (option: SelectOption & { image: string }): VNodeChild => {
-	return h(NSpace,
-		{
-			align: 'center',
-		},
-		{
-			default: () => [
-				h(NAvatar, {
-					src: option.image,
-					round: true,
-					class: 'flex h-5 w-5',
-				}),
-				h(NText, { class: 'ml-2' }, { default: () => option.label }),
-			],
-		});
-};
+function renderSelectOption(option: SelectOption & { image: string }): VNodeChild {
+	return h(NSpace, {
+		align: 'center',
+	}, {
+		default: () => [
+			h(NAvatar, {
+				src: option.image,
+				round: true,
+				class: 'flex h-5 w-5',
+			}),
+			h(NText, { class: 'ml-2' }, { default: () => option.label }),
+		],
+	})
+}
 
-const channelsSearchValue = ref('');
-const channelsSearchDebounced = useDebounce(channelsSearchValue, 500);
+const channelsSearchValue = ref('')
+const channelsSearchDebounced = useDebounce(channelsSearchValue, 500)
 
-const channelsIds = computed(() => {
-	return [...formValue!.value!.denyList!.channels, channelsSearchDebounced.value];
-});
-const selectedChannels = useYoutubeVideoOrChannelSearch(
-	channelsIds,
-	YoutubeSearchType.Channel,
-);
+const channelsSearchOpts = computed(() => {
+	return {
+		query: [...formValue!.value!.denyList!.channels, channelsSearchDebounced.value],
+		type: SongRequestsSearchChannelOrVideoOptsType.Channel,
+	}
+})
+const channelsSearch = youtubeModuleManager.useYoutubeVideoOrChannelSearch(channelsSearchOpts)
 
 const channelsOptions = computed(() => {
-	return selectedChannels?.data?.value?.items.map((channel) => {
+	return channelsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
 		return {
 			label: channel.title,
 			value: channel.id,
 			image: channel.thumbnail,
-		};
-	});
-});
+		}
+	})
+})
 
-const songsSearchValue = ref('');
-const songsSearchDebounced = useDebounce(songsSearchValue, 500);
+const songsSearchValue = ref('')
+const songsSearchDebounced = useDebounce(songsSearchValue, 500)
 
-const songsIds = computed(() => {
-	return [...formValue!.value!.denyList!.songs, songsSearchDebounced.value];
-});
-const songsSearch = useYoutubeVideoOrChannelSearch(
-	songsIds,
-	YoutubeSearchType.Video,
-);
+const songsSearchOpts = computed(() => {
+	return {
+		query: [...formValue!.value!.denyList!.songs, songsSearchDebounced.value],
+		type: SongRequestsSearchChannelOrVideoOptsType.Video,
+	}
+})
+
+const songsSearch = youtubeModuleManager.useYoutubeVideoOrChannelSearch(songsSearchOpts)
 const songsSearchOptions = computed(() => {
-	return songsSearch.data?.value?.items.map((channel) => {
+	return songsSearch?.data.value?.songRequestsSearchChannelOrVideo.items.map((channel) => {
 		return {
 			label: channel.title,
 			value: channel.id,
 			image: channel.thumbnail,
-		};
-	}) ?? [];
-});
+		}
+	}) ?? []
+})
 
-const commandsManager = useCommandsApi();
-const { data: commands } = commandsManager.useQueryCommands();
+const commandsManager = useCommandsApi()
+const { data: commands } = commandsManager.useQueryCommands()
 const srCommands = computed(() => {
-	return commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? [];
-});
+	return commands.value?.commands.filter((c) => c.module === 'SONGS' && c.defaultName !== 'song') ?? []
+})
 </script>
 
 <template>
-	<n-form>
-		<n-tabs
+	<NForm>
+		<NTabs
 			type="line"
 			animated
 		>
-			<n-tab-pane name="general" :tab="t('songRequests.tabs.general')">
-				<n-space vertical>
-					<n-space justify="space-between">
-						<n-text>{{ t('sharedTexts.enabled') }}</n-text>
-						<n-switch v-model:value="formValue.enabled" />
-					</n-space>
+			<NTabPane name="general" :tab="t('songRequests.tabs.general')">
+				<NSpace vertical>
+					<NSpace justify="space-between">
+						<NText>{{ t('sharedTexts.enabled') }}</NText>
+						<NSwitch v-model:value="formValue.enabled" />
+					</NSpace>
 
-					<n-space justify="space-between">
-						<n-text>{{ t('songRequests.settings.takeSongFromDonationMessage') }}</n-text>
-						<n-switch v-model:value="formValue.takeSongFromDonationMessages" />
-					</n-space>
+					<NSpace justify="space-between">
+						<NText>{{ t('songRequests.settings.takeSongFromDonationMessage') }}</NText>
+						<NSwitch v-model:value="formValue.takeSongFromDonationMessages" />
+					</NSpace>
 
-					<n-space justify="space-between">
-						<n-text>{{ t('songRequests.settings.onlineOnly') }}</n-text>
-						<n-switch v-model:value="formValue.acceptOnlyWhenOnline" />
-					</n-space>
+					<NSpace justify="space-between">
+						<NText>{{ t('songRequests.settings.onlineOnly') }}</NText>
+						<NSwitch v-model:value="formValue.acceptOnlyWhenOnline" />
+					</NSpace>
 
-					<n-space justify="space-between">
-						<n-text>{{ t('songRequests.settings.announcePlay') }}</n-text>
-						<n-switch v-model:value="formValue.announcePlay" />
-					</n-space>
+					<NSpace justify="space-between">
+						<NText>{{ t('songRequests.settings.announcePlay') }}</NText>
+						<NSwitch v-model:value="formValue.announcePlay" />
+					</NSpace>
 
 					<div>
-						<n-space justify="space-between">
-							<n-text>{{ t('songRequests.settings.playerNoCookieMode') }}</n-text>
-							<n-switch v-model:value="formValue.playerNoCookieMode" />
-						</n-space>
-						<n-text class="text-xs mt-1">
+						<NSpace justify="space-between">
+							<NText>{{ t('songRequests.settings.playerNoCookieMode') }}</NText>
+							<NSwitch v-model:value="formValue.playerNoCookieMode" />
+						</NSpace>
+						<NText class="text-xs mt-1">
 							{{ t('songRequests.settings.playerNoCookieModeDescription') }}
-						</n-text>
+						</NText>
 					</div>
 
-					<n-form-item
+					<NFormItem
 						:label="t('songRequests.settings.neededPercentageForskip')"
 						path="neededVotesVorSkip"
 					>
-						<n-input-number v-model:value="formValue.neededVotesVorSkip" />
-					</n-form-item>
+						<NInputNumber v-model:value="formValue.neededVotesForSkip" />
+					</NFormItem>
 
-					<n-form-item
+					<NFormItem
 						:label="t('songRequests.settings.channelReward')"
 						path="channelPointsRewardId"
 					>
-						<rewards-selector
+						<RewardsSelector
 							v-model="formValue.channelPointsRewardId"
 							only-with-input
 							clearable
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item
+					<NFormItem
 						:label="t('songRequests.settings.deniedChannels')"
 						path="channelPointsRewardId"
 					>
-						<n-select
+						<NSelect
 							v-model:value="formValue.denyList!.channels"
-							:loading="selectedChannels.isLoading.value"
+							:loading="channelsSearch.fetching.value"
 							remote
 							filterable
 							:options="channelsOptions"
@@ -251,75 +248,75 @@ const srCommands = computed(() => {
 							:render-label="renderSelectOption"
 							@search="(v) => channelsSearchValue = v"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item
+					<NFormItem
 						:label="t('songRequests.settings.deniedWords')"
 						path="channelPointsRewardId"
 					>
-						<n-select
+						<NSelect
 							v-model:value="formValue.denyList!.words"
 							filterable
 							multiple
 							clearable
 							tag
 						/>
-					</n-form-item>
-				</n-space>
-			</n-tab-pane>
+					</NFormItem>
+				</NSpace>
+			</NTabPane>
 
-			<n-tab-pane name="commands" :tab="t('commands.name')">
+			<NTabPane name="commands" :tab="t('commands.name')">
 				<CommandList class="mb-2" :commands="srCommands" />
-			</n-tab-pane>
+			</NTabPane>
 
-			<n-tab-pane name="users" :tab="t('songRequests.tabs.users')">
-				<n-form-item :label="t('songRequests.settings.users.maxRequests')" path="user.maxRequests">
-					<n-input-number v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
-				</n-form-item>
-				<n-form-item
+			<NTabPane name="users" :tab="t('songRequests.tabs.users')">
+				<NFormItem :label="t('songRequests.settings.users.maxRequests')" path="user.maxRequests">
+					<NInputNumber v-model:value="formValue.user!.maxRequests" :min="0" :max="1000" />
+				</NFormItem>
+				<NFormItem
 					:label="t('songRequests.settings.users.minimalWatchTime')"
 					path="user.minWatchTime"
 				>
-					<n-input-number v-model:value="formValue.user!.minWatchTime" :min="0" :max="999999999" />
-				</n-form-item>
-				<n-form-item
+					<NInputNumber v-model:value="formValue.user!.minWatchTime" :min="0" :max="999999999" />
+				</NFormItem>
+				<NFormItem
 					:label="t('songRequests.settings.users.minimalMessages')"
 					path="user.minMessages"
 				>
-					<n-input-number v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
-				</n-form-item>
-				<n-form-item
+					<NInputNumber v-model:value="formValue.user!.minMessages" :min="0" :max="999999999" />
+				</NFormItem>
+				<NFormItem
 					:label="t('songRequests.settings.users.minimalFollowTime')"
 					path="user.minFollowTime"
 				>
-					<n-input-number
+					<NInputNumber
 						v-model:value="formValue.user!.minFollowTime" :min="0"
 						:max="99999999999999"
 					/>
-				</n-form-item>
+				</NFormItem>
 
-				<n-form-item :label="t('songRequests.settings.deniedUsers')">
-					<twitch-search-users v-model="formValue.denyList!.users" />
-				</n-form-item>
-			</n-tab-pane>
+				<NFormItem :label="t('songRequests.settings.deniedUsers')">
+					<TwitchSearchUsers v-model="formValue.denyList!.users" />
+				</NFormItem>
+			</NTabPane>
 
-			<n-tab-pane name="songs" :tab="t('songRequests.tabs.songs')">
-				<n-form-item :label="t('songRequests.settings.songs.maxRequests')">
-					<n-input-number v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
-				</n-form-item>
-				<n-form-item :label="t('songRequests.settings.songs.minLength')">
-					<n-input-number v-model:value="formValue.song!.minLength" :min="0" :max="999999" />
-				</n-form-item>
-				<n-form-item :label="t('songRequests.settings.songs.maxLength')">
-					<n-input-number v-model:value="formValue.song!.maxLength" :min="0" :max="999999" />
-				</n-form-item>
-				<n-form-item :label="t('songRequests.settings.songs.minViews')">
-					<n-input-number v-model:value="formValue.song!.minViews" :min="0" :max="99999999999999" />
-				</n-form-item>
-				<n-form-item :label="t('songRequests.settings.deniedSongs')">
-					<n-select
+			<NTabPane name="songs" :tab="t('songRequests.tabs.songs')">
+				<NFormItem :label="t('songRequests.settings.songs.maxRequests')">
+					<NInputNumber v-model:value="formValue.maxRequests" :min="0" :max="99999999999999" />
+				</NFormItem>
+				<NFormItem :label="t('songRequests.settings.songs.minLength')">
+					<NInputNumber v-model:value="formValue.song!.minLength" :min="0" :max="999999" />
+				</NFormItem>
+				<NFormItem :label="t('songRequests.settings.songs.maxLength')">
+					<NInputNumber v-model:value="formValue.song!.maxLength" :min="0" :max="999999" />
+				</NFormItem>
+				<NFormItem :label="t('songRequests.settings.songs.minViews')">
+					<NInputNumber v-model:value="formValue.song!.minViews" :min="0" :max="99999999999999" />
+				</NFormItem>
+				<NFormItem :label="t('songRequests.settings.deniedSongs')">
+					<NSelect
 						v-model:value="formValue.denyList!.songs"
-						:loading="songsSearch.isLoading.value"
+						:loading="songsSearch.fetching.value"
 						remote
 						filterable
 						multiple
@@ -328,12 +325,205 @@ const srCommands = computed(() => {
 						clearable
 						@search="(v) => songsSearchValue = v"
 					/>
-				</n-form-item>
-			</n-tab-pane>
-		</n-tabs>
+				</NFormItem>
+			</NTabPane>
 
-		<n-button secondary block type="success" @click="save">
+			<NTabPane name="translations" :tab="t('songRequests.tabs.translations')" class="mb-5">
+				<div class="flex flex-wrap flex-row justify-between gap-2">
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.notEnabled"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.nowPlaying"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.noText"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.acceptOnlyWhenOnline"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.notFound"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.alreadyInQueue"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.ageRestrictions"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.cannotGetInformation"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.live"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.requestedMessage"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.maximumOrdered"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.minViews"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.maxLength"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.minLength"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.maxRequests"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minMessages"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minWatched"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minFollow"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.channel.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+				</div>
+			</NTabPane>
+		</NTabs>
+
+		<NButton secondary block type="success" @click="save">
 			{{ t('sharedButtons.save') }}
-		</n-button>
-	</n-form>
+		</NButton>
+	</NForm>
 </template>

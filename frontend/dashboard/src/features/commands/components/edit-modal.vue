@@ -5,7 +5,7 @@ import {
 	IconPlus,
 	IconSquare,
 	IconSquareCheck,
-	IconTrash
+	IconTrash,
 } from '@tabler/icons-vue'
 import chunk from 'lodash.chunk'
 import {
@@ -33,34 +33,38 @@ import {
 	NTabPane,
 	NTabs,
 	NTag,
-	NText
+	NText,
 } from 'naive-ui'
-import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEdit } from '../composables/use-command-edit.js'
 
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
-import { useRolesManager } from '@/api/index.js'
+import { useRoles } from '@/api/roles'
 import TwitchCategorySearch from '@/components/twitch-category-search.vue'
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import VariableInput from '@/components/variable-input.vue'
 
 const { t } = useI18n()
-const commandEdit = useCommandEdit()
-const { formValue, isOpened: isEditOpened } = storeToRefs(commandEdit)
+const {
+	formValue,
+	isOpened: isEditOpened,
+	close,
+	save,
+} = useCommandEdit()
 
 const formRef = ref<FormInst | null>(null)
 
-const rolesManager = useRolesManager()
-const roles = rolesManager.getAll({})
+const rolesManager = useRoles()
+const { data: roles } = rolesManager.useRolesQuery()
+
 const rolesSelectOptions = computed(() => {
-	if (!roles.data?.value) return []
-	return roles.data.value.roles.map((role) => ({
+	if (!roles.value?.roles) return []
+	return roles.value.roles.map((role) => ({
 		label: role.name,
-		value: role.id
+		value: role.id,
 	}))
 })
 
@@ -70,7 +74,7 @@ const commandsGroupsOptions = computed(() => {
 	if (!commandsGroups.data?.value) return []
 	return commandsGroups.data.value.commandsGroups.map((group) => ({
 		label: group.name,
-		value: group.id
+		value: group.id,
 	}))
 })
 
@@ -89,7 +93,7 @@ function nameValidator(_: FormItemRule, value: string) {
 const rules: FormRules = {
 	name: [{
 		trigger: ['input', 'blur'],
-		validator: nameValidator
+		validator: nameValidator,
 	}],
 	description: {
 		trigger: ['input', 'blur'],
@@ -98,7 +102,7 @@ const rules: FormRules = {
 				return new Error('Description cannot be longer than 500 characters')
 			}
 			return true
-		}
+		},
 	},
 	responses: {
 		trigger: ['input', 'blur'],
@@ -110,8 +114,8 @@ const rules: FormRules = {
 				return new Error(t('commands.modal.responses.validations.len'))
 			}
 			return true
-		}
-	}
+		},
+	},
 }
 
 const createButtonProps = { class: 'create-button' } as any
@@ -129,7 +133,7 @@ const createButtonProps = { class: 'create-button' } as any
 			width: '800px',
 			height: '90dvh',
 		}"
-		:on-close="commandEdit.close"
+		:on-close="close"
 		content-style="padding: 5px;"
 	>
 		<div v-if="formValue" class="flex flex-col justify-between h-full">
@@ -494,7 +498,7 @@ const createButtonProps = { class: 'create-button' } as any
 				</NTabs>
 			</NForm>
 
-			<NButton class="mt-2" secondary type="success" block @click="commandEdit.save">
+			<NButton class="mt-2" secondary type="success" block @click="save">
 				{{ t('sharedButtons.save') }}
 			</NButton>
 		</div>

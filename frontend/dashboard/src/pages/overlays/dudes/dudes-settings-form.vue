@@ -1,197 +1,197 @@
 <script setup lang="ts">
-import { Font, FontSelector } from '@twir/fontsource';
-import { DudesSprite } from '@twir/types/overlays';
-import { addZero, hexToRgb, colorBrightness, capitalize } from '@zero-dependency/utils';
-import { intervalToDuration } from 'date-fns';
+import { FontSelector } from '@twir/fontsource'
+import { DudesSprite } from '@twir/types/overlays'
+import { addZero, capitalize, colorBrightness, hexToRgb } from '@zero-dependency/utils'
+import { intervalToDuration } from 'date-fns'
 import {
 	NButton,
-	NSlider,
 	NColorPicker,
-	useThemeVars,
-	NSwitch,
-	NSelect,
 	NDynamicTags,
-	NTag,
-	NInputNumber,
-	NFormItem,
-	NScrollbar,
 	NForm,
-	NTabs,
+	NFormItem,
+	NInputNumber,
+	NScrollbar,
+	NSelect,
+	NSlider,
+	NSwitch,
 	NTabPane,
-} from 'naive-ui';
-import { storeToRefs } from 'pinia';
-import { h, computed, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+	NTabs,
+	NTag,
+	useThemeVars,
+} from 'naive-ui'
+import { computed, h, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useDudesForm } from './use-dudes-form.js';
-import { useDudesIframe } from './use-dudes-frame.js';
+import { useDudesForm } from './use-dudes-form.js'
+import { useDudesIframe } from './use-dudes-frame.js'
 
-import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js';
-import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js';
-import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { Font } from '@twir/fontsource'
 
+import { useDudesOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api/index.js'
+import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
+import SelectTwitchUsers from '@/components/twitchUsers/multiple.vue'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
-const { t } = useI18n();
-const themeVars = useThemeVars();
-const discrete = useNaiveDiscrete();
-const { copyOverlayLink } = useCopyOverlayLink('dudes');
-const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays);
-const { data: profile } = storeToRefs(useProfile());
+const { t } = useI18n()
+const themeVars = useThemeVars()
+const discrete = useNaiveDiscrete()
+const { copyOverlayLink } = useCopyOverlayLink('dudes')
+const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
 
-const { data: formValue, $reset } = useDudesForm();
-const { sendIframeMessage } = useDudesIframe();
+const { data: profile } = useProfile()
+const { data: formValue, reset } = useDudesForm()
+const { sendIframeMessage } = useDudesIframe()
 
 watch(formValue, (form) => {
-	if (!form) return;
-	if (!form.nameBoxSettings.fill.length) return;
-	sendIframeMessage('update-settings', form);
-}, { deep: true });
+	if (!form) return
+	if (!form.nameBoxSettings.fill.length) return
+	sendIframeMessage('update-settings', form)
+}, { deep: true })
 
 watch(() => formValue.value.dudeSettings.defaultSprite, (dudeSprite) => {
-	sendIframeMessage('update-sprite', dudeSprite);
-});
+	sendIframeMessage('update-sprite', dudeSprite)
+})
 
 watch(() => formValue.value.dudeSettings.color, (dudeColor) => {
-	sendIframeMessage('update-color', dudeColor);
-});
+	sendIframeMessage('update-color', dudeColor)
+})
 
 const canCopyLink = computed(() => {
-	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays;
-});
+	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
+})
 
-const manager = useDudesOverlayManager();
-const updater = manager.useUpdate();
+const manager = useDudesOverlayManager()
+const updater = manager.useUpdate()
 
 async function save() {
-	if (!formValue.value.id) return;
+	if (!formValue.value.id) return
 
 	await updater.mutateAsync({
 		id: formValue.value.id,
 		settings: formValue.value,
-	});
+	})
 
 	discrete.notification.success({
 		title: t('sharedTexts.saved'),
 		duration: 1500,
-	});
+	})
 }
 
 function formatDuration(duration: number) {
-	const { hours = 0, minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: duration });
+	const { hours = 0, minutes = 0, seconds = 0 } = intervalToDuration({ start: 0, end: duration })
 	if (hours === 0) {
-		return `${addZero(minutes)}:${addZero(seconds)}`;
+		return `${addZero(minutes)}:${addZero(seconds)}`
 	}
 
-	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`;
+	return `${addZero(hours)}:${addZero(minutes)}:${addZero(seconds)}`
 }
 
 const fillGradientStops = computed(() => {
-	if (!formValue.value) return [];
-	return formValue.value.nameBoxSettings.fillGradientStops.map((stop) => `${stop}`);
-});
+	if (!formValue.value) return []
+	return formValue.value.nameBoxSettings.fillGradientStops.map((stop) => `${stop}`)
+})
 
 const fillGradidentStopMessage = computed(() => {
 	if (!formValue.value.nameBoxSettings.fillGradientStops.length) {
-		return t('overlays.dudes.nameBoxFillGradientStopsError');
+		return t('overlays.dudes.nameBoxFillGradientStopsError')
 	}
 
-	return '';
-});
+	return ''
+})
 
 const nameBoxFillMessage = computed(() => {
 	if (!formValue.value.nameBoxSettings.fill.length) {
-		return t('overlays.dudes.nameBoxFillError');
+		return t('overlays.dudes.nameBoxFillError')
 	}
 
-	return '';
-});
+	return ''
+})
 
-const fontData = ref<Font | null>(null);
+const fontData = ref<Font | null>(null)
 watch(() => fontData.value, (font) => {
-	if (!font) return;
-	formValue.value.nameBoxSettings.fontFamily = font.id;
-	formValue.value.messageBoxSettings.fontFamily = font.id;
-});
+	if (!font) return
+	formValue.value.nameBoxSettings.fontFamily = font.id
+	formValue.value.messageBoxSettings.fontFamily = font.id
+})
 
 const fontWeightOptions = computed(() => {
-	if (!fontData.value) return [];
+	if (!fontData.value) return []
 	return fontData.value.weights.map((weight) => ({
 		label: `${weight}`,
 		value: weight,
-	}));
-});
+	}))
+})
 
 const fontStyleOptions = computed(() => {
-	if (!fontData.value) return [];
+	if (!fontData.value) return []
 	return fontData.value.styles.map((style) => ({
 		label: capitalize(style),
 		value: style,
-	}));
-});
+	}))
+})
 
 const fontVariantOptions = ['normal', 'small-caps'].map((variant) => ({
 	label: capitalize(variant),
 	value: variant,
-}));
+}))
 
 const lineJoinOptions = ['round', 'bevel', 'miter'].map((lineJoin) => ({
 	label: capitalize(lineJoin),
 	value: lineJoin,
-}));
+}))
 
 const isMessageBoxDisabled = computed(() => {
-	return !formValue.value.messageBoxSettings.enabled;
-});
+	return !formValue.value.messageBoxSettings.enabled
+})
 
 const isNameBoxDisabled = computed(() => {
-	return !formValue.value.dudeSettings.visibleName;
-});
+	return !formValue.value.dudeSettings.visibleName
+})
 
 const isDropShadowDisabled = computed(() => {
-	return isNameBoxDisabled.value || !formValue.value.nameBoxSettings.dropShadow;
-});
+	return isNameBoxDisabled.value || !formValue.value.nameBoxSettings.dropShadow
+})
 
 const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 	label: capitalize(key),
 	value: key,
-}));
+}))
 </script>
 
 <template>
 	<div v-if="formValue" class="card">
 		<div class="card-header">
-			<n-button
+			<NButton
 				secondary
 				type="error"
-				@click="$reset"
+				@click="reset"
 			>
 				{{ t('sharedButtons.setDefaultSettings') }}
-			</n-button>
-			<n-button
+			</NButton>
+			<NButton
 				secondary
 				type="info"
 				:disabled="!formValue.id || !canCopyLink"
 				@click="copyOverlayLink({ id: formValue.id! })"
 			>
 				{{ t('overlays.copyOverlayLink') }}
-			</n-button>
-			<n-button secondary type="success" @click="save">
+			</NButton>
+			<NButton secondary type="success" @click="save">
 				{{ t('sharedButtons.save') }}
-			</n-button>
+			</NButton>
 
-			<n-tabs class="pt-2" type="line" placement="left" default-value="dude" animated>
-				<n-tab-pane name="dude" :tab="t('overlays.dudes.dudeDivider')">
-					<n-form-item :label="t('overlays.dudes.dudeDefaultSprite')">
-						<n-select
+			<NTabs class="pt-2" type="line" placement="left" default-value="dude" animated>
+				<NTabPane name="dude" :tab="t('overlays.dudes.dudeDivider')">
+					<NFormItem :label="t('overlays.dudes.dudeDefaultSprite')">
+						<NSelect
 							v-model:value="formValue.dudeSettings.defaultSprite"
 							:options="dudesSprites"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxOnScreen')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.maxOnScreen"
 							:min="0"
 							:max="128"
@@ -204,76 +204,76 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 								return value;
 							}"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :label="t('overlays.dudes.dudeColor')">
-						<n-color-picker
+					<NFormItem :label="t('overlays.dudes.dudeColor')">
+						<NColorPicker
 							v-model:value="formValue.dudeSettings.color"
 							:modes="['hex']"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeGravity')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeGravity')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.gravity"
 							:min="100"
 							:max="5000"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeMaxLifeTime')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeMaxLifeTime')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.maxLifeTime"
 							:min="1000"
 							:max="120 * 60 * 1000"
 							:step="1000"
 							:format-tooltip="(value) => formatDuration(value)"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeScale')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeScale')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.scale"
 							:min="1"
 							:max="10"
 							:step="1"
 						/>
-					</n-form-item>
-				</n-tab-pane>
+					</NFormItem>
+				</NTabPane>
 
-				<n-tab-pane name="ignoring" :tab="t('overlays.dudes.ignoreDivider')">
-					<n-form-item
+				<NTabPane name="ignoring" :tab="t('overlays.dudes.ignoreDivider')">
+					<NFormItem
 						class="form-item-switch"
 						:show-feedback="false"
 						:label="t('overlays.dudes.ignoreCommands')"
 					>
-						<n-switch v-model:value="formValue.ignoreSettings.ignoreCommands" />
-					</n-form-item>
+						<NSwitch v-model:value="formValue.ignoreSettings.ignoreCommands" />
+					</NFormItem>
 
-					<n-form-item
+					<NFormItem
 						class="form-item-switch"
 						:show-feedback="false"
 						:label="t('overlays.dudes.ignoreUsers')"
 					>
-						<n-switch v-model:value="formValue.ignoreSettings.ignoreUsers" />
-					</n-form-item>
+						<NSwitch v-model:value="formValue.ignoreSettings.ignoreUsers" />
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.ignoreUsersList')">
-						<select-twitch-users v-model="formValue.ignoreSettings.users" />
-					</n-form-item>
-				</n-tab-pane>
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.ignoreUsersList')">
+						<SelectTwitchUsers v-model="formValue.ignoreSettings.users" />
+					</NFormItem>
+				</NTabPane>
 
-				<n-tab-pane name="sounds" :tab="t('overlays.dudes.dudeSoundsDivider')">
-					<n-form-item
+				<NTabPane name="sounds" :tab="t('overlays.dudes.dudeSoundsDivider')">
+					<NFormItem
 						class="form-item-switch"
 						:show-feedback="false"
 						:label="t('overlays.dudes.enable')"
 					>
-						<n-switch v-model:value="formValue.dudeSettings.soundsEnabled" />
-					</n-form-item>
+						<NSwitch v-model:value="formValue.dudeSettings.soundsEnabled" />
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.dudeSoundsVolume')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.dudeSoundsVolume')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.soundsVolume"
 							:min="0.01"
 							:max="1"
@@ -281,48 +281,48 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 							:format-tooltip="(value) => `${(value * 100).toFixed(0)}%`"
 							:disabled="!formValue.dudeSettings.soundsEnabled"
 						/>
-					</n-form-item>
-				</n-tab-pane>
+					</NFormItem>
+				</NTabPane>
 
-				<n-tab-pane name="grow" :tab="t('overlays.dudes.growDivider')">
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.growTime')">
-						<n-slider
+				<NTabPane name="grow" :tab="t('overlays.dudes.growDivider')">
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.growTime')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.growTime"
 							:min="5000"
 							:max="1000 * 60 * 60"
 							:step="1000"
 							:format-tooltip="(value) => formatDuration(value)"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.growMaxScale')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.growMaxScale')">
+						<NSlider
 							v-model:value="formValue.dudeSettings.growMaxScale"
 							:min="formValue.dudeSettings.scale + 1"
 							:max="32"
 							:step="1"
 						/>
-					</n-form-item>
-				</n-tab-pane>
+					</NFormItem>
+				</NTabPane>
 
-				<n-tab-pane name="name-box" :tab="t('overlays.dudes.nameBoxDivider')">
-					<n-scrollbar style="max-height: calc(62vh - var(--layout-header-height));" trigger="none">
+				<NTabPane name="name-box" :tab="t('overlays.dudes.nameBoxDivider')">
+					<NScrollbar style="max-height: calc(62vh - var(--layout-header-height));" trigger="none">
 						<div class="pr-4">
-							<n-form>
-								<n-form-item
+							<NForm>
+								<NFormItem
 									class="form-item-switch"
 									:show-feedback="false"
 									:label="t('overlays.dudes.enable')"
 								>
-									<n-switch v-model:value="formValue.dudeSettings.visibleName" />
-								</n-form-item>
+									<NSwitch v-model:value="formValue.dudeSettings.visibleName" />
+								</NFormItem>
 
-								<n-form-item
+								<NFormItem
 									:validation-status="nameBoxFillMessage ? 'error' : undefined"
 									:feedback="nameBoxFillMessage"
 									:label="t('overlays.dudes.nameBoxFill')"
 								>
-									<n-dynamic-tags
+									<NDynamicTags
 										v-model:value="formValue.nameBoxSettings.fill"
 										:disabled="isNameBoxDisabled"
 										:max="6"
@@ -343,12 +343,12 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 													color: tag,
 													borderColor: tag,
 													textColor,
-												}
+												},
 											}, { default: () => tag })
 										}"
 									>
 										<template #input="{ submit, deactivate }">
-											<n-color-picker
+											<NColorPicker
 												style="width: 80px;"
 												size="small"
 												default-show
@@ -360,25 +360,25 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 												@blur="deactivate"
 											/>
 										</template>
-									</n-dynamic-tags>
-								</n-form-item>
-							</n-form>
+									</NDynamicTags>
+								</NFormItem>
+							</NForm>
 
-							<n-form>
-								<n-form-item
+							<NForm>
+								<NFormItem
 									:disabled="isNameBoxDisabled"
 									:validation-status="fillGradidentStopMessage ? 'error' : undefined"
 									:feedback="fillGradidentStopMessage"
 									:label="t('overlays.dudes.nameBoxFillGradientStops')"
 								>
-									<n-dynamic-tags
+									<NDynamicTags
 										v-model:value="fillGradientStops"
 										:render-tag="(tag: string, index: number) => {
 											return h(NTag, {
 												closable: true,
 												onClose: () => {
 													formValue.nameBoxSettings.fillGradientStops.splice(index, 1)
-												}
+												},
 											}, { default: () => tag })
 										}"
 										:max="formValue.nameBoxSettings.fill.length"
@@ -387,7 +387,7 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 										}"
 									>
 										<template #input="{ submit, deactivate }">
-											<n-input-number
+											<NInputNumber
 												style="width: 100px;"
 												autofocus
 												placeholder=""
@@ -406,12 +406,12 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 												@blur="deactivate"
 											/>
 										</template>
-									</n-dynamic-tags>
-								</n-form-item>
-							</n-form>
+									</NDynamicTags>
+								</NFormItem>
+							</NForm>
 
-							<n-form-item :label="t('overlays.dudes.nameBoxGradientType')">
-								<n-select
+							<NFormItem :label="t('overlays.dudes.nameBoxGradientType')">
+								<NSelect
 									v-model:value="formValue.nameBoxSettings.fillGradientType"
 									:disabled="isNameBoxDisabled || formValue.nameBoxSettings.fill.length < 2"
 									:options="[
@@ -422,13 +422,13 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 										{
 											label: 'Horizontal',
 											value: 1,
-										}
+										},
 									]"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontFamily')">
-								<font-selector
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontFamily')">
+								<FontSelector
 									v-model:font="fontData"
 									:disabled="isNameBoxDisabled"
 									:font-family="formValue.nameBoxSettings.fontFamily"
@@ -436,118 +436,118 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 									:font-style="formValue.nameBoxSettings.fontStyle"
 									:subsets="['latin', 'cyrillic']"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontWeight')">
-								<n-select
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontWeight')">
+								<NSelect
 									v-model:value="formValue.nameBoxSettings.fontWeight"
 									:disabled="isNameBoxDisabled"
 									:options="fontWeightOptions"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontStyle')">
-								<n-select
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontStyle')">
+								<NSelect
 									v-model:value="formValue.nameBoxSettings.fontStyle"
 									:disabled="isNameBoxDisabled"
 									:options="fontStyleOptions"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxFontVariant')">
-								<n-select
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxFontVariant')">
+								<NSelect
 									v-model:value="formValue.nameBoxSettings.fontVariant"
 									:disabled="isNameBoxDisabled"
 									:options="fontVariantOptions"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :label="t('overlays.dudes.nameBoxFontSize')">
-								<n-slider
+							<NFormItem :label="t('overlays.dudes.nameBoxFontSize')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.fontSize"
 									:disabled="isNameBoxDisabled"
 									:min="1"
 									:max="128"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxStroke')">
-								<n-color-picker
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxStroke')">
+								<NColorPicker
 									v-model:value="formValue.nameBoxSettings.stroke"
 									:disabled="isNameBoxDisabled"
 									:modes="['hex']"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameStrokeThickness')">
-								<n-slider
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameStrokeThickness')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.strokeThickness"
 									:disabled="isNameBoxDisabled"
 									:min="0"
 									:max="16"
 									:step="1"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :label="t('overlays.dudes.nameBoxLineJoin')">
-								<n-select
+							<NFormItem :label="t('overlays.dudes.nameBoxLineJoin')">
+								<NSelect
 									v-model:value="formValue.nameBoxSettings.lineJoin"
 									:disabled="isNameBoxDisabled"
 									:options="lineJoinOptions"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item
+							<NFormItem
 								class="form-item-switch"
 								:show-feedback="false"
 								:label="t('overlays.dudes.nameBoxDropShadow')"
 							>
-								<n-switch
+								<NSwitch
 									v-model:value="formValue.nameBoxSettings.dropShadow"
 									:disabled="isNameBoxDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowColor')">
-								<n-color-picker
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowColor')">
+								<NColorPicker
 									v-model:value="formValue.nameBoxSettings.dropShadowColor"
 									:modes="['hex']"
 									:disabled="isDropShadowDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAlpha')">
-								<n-slider
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAlpha')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.dropShadowAlpha"
 									:min="0"
 									:max="1"
 									:step="0.01"
 									:disabled="isDropShadowDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowBlur')">
-								<n-slider
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowBlur')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.dropShadowBlur"
 									:min="0"
 									:max="32"
 									:step="0.1"
 									:disabled="isDropShadowDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowDistance')">
-								<n-slider
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowDistance')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.dropShadowDistance"
 									:min="0"
 									:max="32"
 									:step="0.1"
 									:disabled="isDropShadowDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 
-							<n-form-item :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAngle')">
-								<n-slider
+							<NFormItem :show-feedback="false" :label="t('overlays.dudes.nameBoxDropShadowAngle')">
+								<NSlider
 									v-model:value="formValue.nameBoxSettings.dropShadowAngle"
 									:min="0"
 									:max="Math.PI * 2"
@@ -555,22 +555,22 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 									:format-tooltip="(value) => `${Math.round((value * 180) / Math.PI)}°`"
 									:disabled="isDropShadowDisabled"
 								/>
-							</n-form-item>
+							</NFormItem>
 						</div>
-					</n-scrollbar>
-				</n-tab-pane>
+					</NScrollbar>
+				</NTabPane>
 
-				<n-tab-pane name="message-box" :tab="t('overlays.dudes.messageBoxDivider')">
-					<n-form-item
+				<NTabPane name="message-box" :tab="t('overlays.dudes.messageBoxDivider')">
+					<NFormItem
 						class="form-item-switch"
 						:show-feedback="false"
 						:label="t('overlays.dudes.enable')"
 					>
-						<n-switch v-model:value="formValue.messageBoxSettings.enabled" />
-					</n-form-item>
+						<NSwitch v-model:value="formValue.messageBoxSettings.enabled" />
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxShowTime')">
+						<NSlider
 							v-model:value="formValue.messageBoxSettings.showTime"
 							:min="1000"
 							:max="60 * 1000"
@@ -578,65 +578,65 @@ const dudesSprites = Object.keys(DudesSprite).map((key) => ({
 							:format-tooltip="(value) => `${Math.round(value / 1000)}s`"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxFill')">
-						<n-color-picker
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxFill')">
+						<NColorPicker
 							v-model:value="formValue.messageBoxSettings.fill"
 							:modes="['hex']"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxBackground')">
-						<n-color-picker
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxBackground')">
+						<NColorPicker
 							v-model:value="formValue.messageBoxSettings.boxColor"
 							:modes="['hex']"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxPadding')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxPadding')">
+						<NSlider
 							v-model:value="formValue.messageBoxSettings.padding"
 							:min="0"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxBorderRadius')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxBorderRadius')">
+						<NSlider
 							v-model:value="formValue.messageBoxSettings.borderRadius"
 							:min="0"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
+					</NFormItem>
 
-					<n-form-item :show-feedback="false" :label="t('overlays.dudes.messageBoxFontSize')">
-						<n-slider
+					<NFormItem :show-feedback="false" :label="t('overlays.dudes.messageBoxFontSize')">
+						<NSlider
 							v-model:value="formValue.messageBoxSettings.fontSize"
 							:min="12"
 							:max="64"
 							:step="1"
 							:disabled="isMessageBoxDisabled"
 						/>
-					</n-form-item>
-				</n-tab-pane>
+					</NFormItem>
+				</NTabPane>
 
-				<n-tab-pane name="emote" :tab="t('overlays.dudes.emoteDivider')">
-					<n-form-item
+				<NTabPane name="emote" :tab="t('overlays.dudes.emoteDivider')">
+					<NFormItem
 						class="form-item-switch"
 						:show-feedback="false"
 						:label="t('overlays.dudes.enable')"
 					>
-						<n-switch v-model:value="formValue.spitterEmoteSettings.enabled" />
-					</n-form-item>
-				</n-tab-pane>
-			</n-tabs>
+						<NSwitch v-model:value="formValue.spitterEmoteSettings.enabled" />
+					</NFormItem>
+				</NTabPane>
+			</NTabs>
 		</div>
 	</div>
 </template>

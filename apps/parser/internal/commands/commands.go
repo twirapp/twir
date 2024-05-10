@@ -125,20 +125,8 @@ func New(opts *Opts) *Commands {
 func (c *Commands) GetChannelCommands(
 	ctx context.Context,
 	channelId string,
-) ([]*model.ChannelsCommands, error) {
-	var cmds []*model.ChannelsCommands
-
-	err := c.services.Gorm.
-		Model(&model.ChannelsCommands{}).
-		Where(`"channelId" = ? AND "enabled" = ?`, channelId, true).
-		Preload("Responses").
-		WithContext(ctx).
-		Find(&cmds).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return cmds, nil
+) ([]model.ChannelsCommands, error) {
+	return c.services.CommandsCache.Get(ctx, channelId)
 }
 
 var splittedNameRegexp = regexp.MustCompile(`[^\s]+`)
@@ -154,7 +142,7 @@ type FindByMessageResult struct {
 // or we found a command in message
 func (c *Commands) FindChannelCommandInInput(
 	input string,
-	cmds []*model.ChannelsCommands,
+	cmds []model.ChannelsCommands,
 ) *FindByMessageResult {
 	msg := strings.ToLower(input)
 	splittedName := splittedNameRegexp.FindAllString(msg, -1)
@@ -168,7 +156,7 @@ func (c *Commands) FindChannelCommandInInput(
 		for _, cmd := range cmds {
 			if cmd.Name == query {
 				res.FoundBy = query
-				res.Cmd = cmd
+				res.Cmd = &cmd
 				break
 			}
 
@@ -178,7 +166,7 @@ func (c *Commands) FindChannelCommandInInput(
 				},
 			) {
 				res.FoundBy = query
-				res.Cmd = cmd
+				res.Cmd = &cmd
 				break
 			}
 		}
@@ -523,6 +511,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				UserId:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
 				DefaultCommandName: cmd.Cmd.DefaultName.String,
+				MessageId:          data.MessageId,
 			},
 		)
 

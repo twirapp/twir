@@ -1,18 +1,16 @@
-import './main.css';
-import './assets/index.css';
-import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor';
-import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental';
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
-import { createPinia } from 'pinia';
-import { createApp } from 'vue';
+import './main.css'
+import './assets/index.css'
+import { install as VueMonacoEditorPlugin } from '@guolao/vue-monaco-editor'
+import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { createApp } from 'vue'
 
-import { i18n } from './plugins/i18n.js';
-import { newRouter } from './plugins/router.js';
+import { i18n } from './plugins/i18n.js'
+import { newRouter } from './plugins/router.js'
 
-import App from '@/App.vue';
+import App from '@/App.vue'
 
-const pinia = createPinia();
-const app = createApp(App);
+const app = createApp(App)
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -23,28 +21,27 @@ const queryClient = new QueryClient({
 			retry: false,
 		},
 	},
-});
+})
 
 broadcastQueryClient({
 	queryClient,
 	broadcastChannel: 'twir-dashboard',
-});
+})
 
 VueQueryPlugin.install(app, {
 	queryClient,
-});
+})
 
-const meta = document.createElement('meta');
-meta.name = 'naive-ui-style';
-document.head.appendChild(meta);
+const meta = document.createElement('meta')
+meta.name = 'naive-ui-style'
+document.head.appendChild(meta)
 
 app
-	.use(pinia)
 	.use(i18n)
 	.use(newRouter())
 	.use(VueMonacoEditorPlugin)
-	.mount('#app');
+	.mount('#app')
 
 if (import.meta.env.DEV) {
-	document.title = 'Twir (dev)';
+	document.title = 'Twir (dev)'
 }

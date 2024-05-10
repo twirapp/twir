@@ -2,8 +2,8 @@
 import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
+import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
-import DeleteConfirm from '@/components/ui/delete-confirm.vue'
 
 const emits = defineEmits<{
 	(event: 'delete'): void
@@ -23,7 +23,7 @@ const showDelete = ref(false)
 		</Button>
 	</div>
 
-	<DeleteConfirm
+	<ActionConfirm
 		v-model:open="showDelete"
 		@confirm="emits('delete')"
 	/>

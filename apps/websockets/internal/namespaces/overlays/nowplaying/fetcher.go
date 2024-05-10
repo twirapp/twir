@@ -13,6 +13,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	vkservice "github.com/twirapp/twir/libs/integrations/vk"
 )
 
 func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error {
@@ -41,9 +42,16 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 			return integration.Integration.Service == "SPOTIFY" && integration.Enabled
 		},
 	)
+	vkEntity, _ := lo.Find(
+		channelIntegrations,
+		func(integration *model.ChannelsIntegrations) bool {
+			return integration.Integration.Service == "VK" && integration.Enabled
+		},
+	)
 
 	var lfm *lastfm.Lastfm
 	var spoti *spotify.Spotify
+	var vk *vkservice.VK
 
 	if lfmEntity != nil {
 		l, err := lastfm.New(
@@ -61,9 +69,22 @@ func (c *NowPlaying) startTrackUpdater(ctx context.Context, userId string) error
 		spoti = spotify.New(spotifyEntity, c.gorm)
 	}
 
+	if vkEntity != nil {
+		v, err := vkservice.New(
+			vkservice.Opts{
+				Gorm:        c.gorm,
+				Integration: vkEntity,
+			},
+		)
+		if err == nil {
+			vk = v
+		}
+	}
+
 	fetcher := &channelSongFetcher{
 		lfm:   lfm,
 		spoti: spoti,
+		vk:    vk,
 	}
 
 	redisKey := fmt.Sprintf("overlays:nowplaying:%s", userId)
@@ -113,6 +134,7 @@ func (i *Track) UnmarshalBinary(data []byte) error {
 type channelSongFetcher struct {
 	lfm   *lastfm.Lastfm
 	spoti *spotify.Spotify
+	vk    *vkservice.VK
 }
 
 func (c *channelSongFetcher) fetch() *Track {
@@ -137,6 +159,20 @@ func (c *channelSongFetcher) fetch() *Track {
 				Artist:   lastfmTrack.Artist,
 				Title:    lastfmTrack.Title,
 				ImageUrl: lastfmTrack.Image,
+			}
+		}
+	}
+
+	if c.vk != nil {
+		vkTrack, err := c.vk.GetTrack(context.Background())
+		if err != nil {
+			return nil
+		}
+		if vkTrack != nil {
+			return &Track{
+				Artist:   vkTrack.Artist,
+				Title:    vkTrack.Title,
+				ImageUrl: vkTrack.Image,
 			}
 		}
 	}
