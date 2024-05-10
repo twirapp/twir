@@ -24,8 +24,8 @@ type YouTubeSongSettings struct {
 	MinLength          int      `validate:"gte=0,lte=86399" json:"minLength"`
 	MaxLength          int      `validate:"lte=86400"          json:"maxLength"`
 	MinViews           int      `validate:"lte=10000000000000" json:"minViews"`
-	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories"`
-	WordsDenyList      []string `validate:"dive,max=300"       json:"wordsDenyList"`
+	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories,omitempty"`
+	WordsDenyList      []string `validate:"dive,max=300"       json:"wordsDenyList,omitempty"`
 }
 
 type YouTubeDenySettingsSongs struct {
@@ -41,11 +41,11 @@ type YouTubeDenySettingsChannels struct {
 }
 
 type YouTubeDenyList struct {
-	Users        []string `validate:"required,dive"         json:"users"`
-	Songs        []string `validate:"required,dive"         json:"songs"`
-	Channels     []string `validate:"required,dive"         json:"channels"`
-	ArtistsNames []string `validate:"required,dive,max=300" json:"artistsNames"`
-	Words        []string `validate:"required,dive,max=300" json:"words"`
+	Users        []string `validate:"required,dive"         json:"users,omitempty"`
+	Songs        []string `validate:"required,dive"         json:"songs,omitempty"`
+	Channels     []string `validate:"required,dive"         json:"channels,omitempty"`
+	ArtistsNames []string `validate:"required,dive,max=300" json:"artistsNames,omitempty"`
+	Words        []string `validate:"required,dive,max=300" json:"words,omitempty"`
 }
 
 type YouTubeUserTranslations struct {
