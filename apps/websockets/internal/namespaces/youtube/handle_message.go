@@ -11,8 +11,6 @@ import (
 	"github.com/satont/twir/apps/websockets/types"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/bots"
-
-	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
 type playEvent struct {
@@ -126,22 +124,13 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		return
 	}
 
-	channelSettings := &model.ChannelModulesSettings{}
-	err = c.gorm.Where(
-		`"channelId" = ? AND type = ?`, song.ChannelID, "youtube_song_requests",
-	).Find(channelSettings).Error
+	channelSettings := &model.ChannelSongRequestsSettings{}
+	err = c.gorm.Where(`"channel_id" = ?`, song.ChannelID).Find(channelSettings).Error
 	if err != nil {
 		c.logger.Error(err.Error())
 		return
 	}
 	if channelSettings.ID == "" {
-		return
-	}
-
-	youtubeSettings := &modules.YouTubeSettings{}
-	err = json.Unmarshal(channelSettings.Settings, youtubeSettings)
-	if err != nil {
-		c.logger.Error(err.Error())
 		return
 	}
 
@@ -152,8 +141,8 @@ func (c *YouTube) handlePlay(userId string, data *playEvent) {
 		songLink = fmt.Sprintf("https://youtu.be/%s", song.VideoID)
 	}
 
-	if current == "" && song.ID != "" && youtubeSettings.AnnouncePlay != nil && *youtubeSettings.AnnouncePlay {
-		message := youtubeSettings.Translations.NowPlaying
+	if current == "" && song.ID != "" && channelSettings.AnnouncePlay {
+		message := channelSettings.TranslationsNowPlaying
 		message = strings.ReplaceAll(message, "{{songTitle}}", song.Title)
 		message = strings.ReplaceAll(message, "{{songLink}}", songLink)
 		message = strings.ReplaceAll(message, "{{orderedByName}}", song.OrderedByName)

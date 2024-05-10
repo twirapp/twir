@@ -1,39 +1,40 @@
 <script setup lang="ts">
-import { type SelectOption, NSpace, NAvatar, NText, NSelect } from 'naive-ui';
-import { computed, VNodeChild, h } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { NAvatar, NSelect, NSpace, NText, type SelectOption } from 'naive-ui'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useTwitchRewards } from '@/api';
-import RewardFallbackImg from '@/assets/images/reward-fallback.png?url';
+import type { VNodeChild } from 'vue'
+
+import { useTwitchRewards } from '@/api'
+import RewardFallbackImg from '@/assets/images/reward-fallback.png?url'
 
 const props = defineProps<{
 	multiple?: boolean
 	clearable?: boolean
 	onlyWithInput?: boolean
-}>();
+}>()
 
-// eslint-disable-next-line no-undef
-const modelValue = defineModel<string | string[]>();
+const modelValue = defineModel<string | string[] | undefined | null>()
 
-const { t } = useI18n();
+const { t } = useI18n()
 
 const {
 	data: rewardsData,
 	isLoading: isRewardsLoading,
 	isError: isRewardsError,
-} = useTwitchRewards();
+} = useTwitchRewards()
 
 type RewardSelectOptions = SelectOption & {
-	image?: string,
-	color: string,
-};
+	image?: string
+	color: string
+}
 
 const rewardsSelectOptions = computed(() => {
-	const rewards: RewardSelectOptions[] = [];
-	if (!rewardsData.value?.rewards) return rewards;
+	const rewards: RewardSelectOptions[] = []
+	if (!rewardsData.value?.rewards) return rewards
 
 	for (const reward of rewardsData.value.rewards) {
-		if (props.onlyWithInput && !reward.isUserInputRequired) continue;
+		if (props.onlyWithInput && !reward.isUserInputRequired) continue
 
 		rewards.push({
 			value: reward.id,
@@ -41,13 +42,13 @@ const rewardsSelectOptions = computed(() => {
 			image: reward.image?.url4X,
 			color: reward.backgroundColor,
 			disabled: !reward.isEnabled,
-		});
+		})
 	}
 
-	return rewards;
-});
+	return rewards
+})
 
-const renderRewardTag = (option: RewardSelectOptions): VNodeChild => {
+function renderRewardTag(option: RewardSelectOptions): VNodeChild {
 	return h(NSpace, { align: 'center' }, {
 		default: () => [
 			h(NAvatar, {
@@ -63,12 +64,12 @@ const renderRewardTag = (option: RewardSelectOptions): VNodeChild => {
 				},
 			}, { default: () => option.label }),
 		],
-	});
-};
+	})
+}
 </script>
 
 <template>
-	<n-select
+	<NSelect
 		v-model:value="modelValue"
 		:multiple="multiple"
 		size="large"

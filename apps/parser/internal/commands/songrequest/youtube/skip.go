@@ -2,7 +2,6 @@ package sr_youtube
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -13,7 +12,6 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 
 	model "github.com/satont/twir/libs/gomodels"
-	youtube "github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"gorm.io/gorm"
 )
@@ -31,10 +29,9 @@ var SkipCommand = &types.DefaultCommand{
 	) {
 		result := &types.CommandsHandlerResult{}
 
-		moduleSettings := &model.ChannelModulesSettings{}
-		parsedSettings := &youtube.YouTubeSettings{}
+		moduleSettings := &model.ChannelSongRequestsSettings{}
 		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(`"channelId" = ? AND "type" = ?`, parseCtx.Channel.ID, "youtube_song_requests").
+			Where(`"channel_id" = ?`, parseCtx.Channel.ID).
 			First(moduleSettings).Error
 
 		if err != nil {
@@ -48,16 +45,7 @@ var SkipCommand = &types.DefaultCommand{
 			}
 		}
 
-		err = json.Unmarshal(moduleSettings.Settings, parsedSettings)
-		if err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot parse songrequests settings",
-				Err:     err,
-			}
-		}
-
-		if !*parsedSettings.Enabled {
-			result.Result = append(result.Result, parsedSettings.Translations.NotEnabled)
+		if !moduleSettings.Enabled {
 			return result, nil
 		}
 
@@ -116,7 +104,7 @@ var SkipCommand = &types.DefaultCommand{
 			}
 		}
 
-		neededVotes := int64(math.Round(parsedSettings.NeededVotesVorSkip * float64(onlineUsersCount) / 100))
+		neededVotes := int64(math.Round(moduleSettings.NeededVotesForSkip * float64(onlineUsersCount) / 100))
 
 		if currentVote {
 			result.Result = append(result.Result, fmt.Sprintf("%v/%v", votesCount, neededVotes))
