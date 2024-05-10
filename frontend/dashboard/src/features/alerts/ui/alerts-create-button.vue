@@ -14,7 +14,7 @@ const { t } = useI18n()
 		<AlertsDialog>
 			<template #dialog-trigger>
 				<Button>
-					<PlusIcon class="size-5 mr-2" />
+					<PlusIcon class="size-4 mr-2" />
 					{{ t('alerts.createAlert') }}
 				</Button>
 			</template>

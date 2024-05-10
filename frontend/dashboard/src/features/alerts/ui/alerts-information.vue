@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EyeIcon, EyeOffIcon, InfoIcon } from 'lucide-vue-next'
+import { ClipboardIcon, EyeIcon, EyeOffIcon, InfoIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useAlertsInformation } from '../composables/use-alerts-information'
@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 
 const { t } = useI18n()
 const {
-	copyButtonText,
 	copyOverlayLink,
 	overlayLink,
 	isShowOverlayLink,
@@ -42,12 +41,12 @@ const {
 					class="absolute right-0 top-1/2 -translate-y-1/2"
 					@click="toggleShowOverlayLink"
 				>
-					<EyeIcon v-if="isShowOverlayLink" class="size-5" />
-					<EyeOffIcon v-else class="size-5" />
+					<EyeIcon v-if="isShowOverlayLink" class="size-4" />
+					<EyeOffIcon v-else class="size-4" />
 				</Button>
 			</div>
-			<Button @click="copyOverlayLink">
-				{{ copyButtonText }}
+			<Button size="icon" @click="copyOverlayLink">
+				<ClipboardIcon class="size-4 min-w-10" />
 			</Button>
 		</div>
 	</Alert>
