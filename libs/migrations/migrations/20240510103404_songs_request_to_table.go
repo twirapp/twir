@@ -153,7 +153,7 @@ func upSongsRequestToTable(ctx context.Context, tx *sql.Tx) error {
 			max_requests INT CHECK (max_requests <= 500),
 			channel_points_reward_id VARCHAR(100) CHECK (LENGTH(channel_points_reward_id) <= 100),
 			announce_play BOOLEAN NOT NULL DEFAULT true,
-			needed_votes_for_skip FLOAT CHECK (needed_votes_for_skip <= 100 AND needed_votes_for_skip >= 1),
+			needed_votes_for_skip FLOAT CHECK (needed_votes_for_skip <= 100 AND needed_votes_for_skip >= 0),
 			user_max_requests INT DEFAULT 20,
 			user_min_watch_time BIGINT DEFAULT 0,
 			user_min_messages INT DEFAULT 0,
