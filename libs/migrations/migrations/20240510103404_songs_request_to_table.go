@@ -13,6 +13,22 @@ func init() {
 	goose.AddMigrationContext(upSongsRequestToTable, downSongsRequestToTable)
 }
 
+type YoutubeNullableSlice []string
+
+func (c *YoutubeNullableSlice) UnmarshalJSON(data []byte) error {
+	if string(data) == "null" {
+		return nil
+	}
+
+	var s []string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	*c = s
+
+	return nil
+}
+
 type YouTubeUserSettings struct {
 	MaxRequests   int   `json:"maxRequests"`
 	MinWatchTime  int64 `json:"minWatchTime"`
@@ -21,11 +37,11 @@ type YouTubeUserSettings struct {
 }
 
 type YouTubeSongSettings struct {
-	MinLength          int      `validate:"gte=0,lte=86399" json:"minLength"`
-	MaxLength          int      `validate:"lte=86400"          json:"maxLength"`
-	MinViews           int      `validate:"lte=10000000000000" json:"minViews"`
-	AcceptedCategories []string `validate:"dive,max=300"       json:"acceptedCategories,omitempty"`
-	WordsDenyList      []string `validate:"dive,max=300"       json:"wordsDenyList,omitempty"`
+	MinLength          int                  `validate:"gte=0,lte=86399" json:"minLength"`
+	MaxLength          int                  `validate:"lte=86400"          json:"maxLength"`
+	MinViews           int                  `validate:"lte=10000000000000" json:"minViews"`
+	AcceptedCategories YoutubeNullableSlice `validate:"dive,max=300"       json:"acceptedCategories,omitempty"`
+	WordsDenyList      YoutubeNullableSlice `validate:"dive,max=300"       json:"wordsDenyList,omitempty"`
 }
 
 type YouTubeDenySettingsSongs struct {
@@ -41,11 +57,11 @@ type YouTubeDenySettingsChannels struct {
 }
 
 type YouTubeDenyList struct {
-	Users        []string `validate:"required,dive"         json:"users,omitempty"`
-	Songs        []string `validate:"required,dive"         json:"songs,omitempty"`
-	Channels     []string `validate:"required,dive"         json:"channels,omitempty"`
-	ArtistsNames []string `validate:"required,dive,max=300" json:"artistsNames,omitempty"`
-	Words        []string `validate:"required,dive,max=300" json:"words,omitempty"`
+	Users        YoutubeNullableSlice `validate:"required,dive"         json:"users,omitempty"`
+	Songs        YoutubeNullableSlice `validate:"required,dive"         json:"songs,omitempty"`
+	Channels     YoutubeNullableSlice `validate:"required,dive"         json:"channels,omitempty"`
+	ArtistsNames YoutubeNullableSlice `validate:"required,dive,max=300" json:"artistsNames,omitempty"`
+	Words        YoutubeNullableSlice `validate:"required,dive,max=300" json:"words,omitempty"`
 }
 
 type YouTubeUserTranslations struct {
