@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsDialog from './alerts-dialog.vue'
 
-import { type Alert, useAlertsDeleteMutation } from '@/api/alerts.js'
+import { type Alert,useAlertsApi } from '@/api/alerts.js'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 
@@ -15,7 +15,8 @@ const emits = defineEmits<{ 'update:select-alert': [alert: Alert] }>()
 const { t } = useI18n()
 const showDelete = ref(false)
 
-const alertsDeleteMutation = useAlertsDeleteMutation()
+const manager = useAlertsApi()
+const alertsDeleteMutation = manager.useAlertsDeleteMutation()
 
 function deleteAlert() {
 	alertsDeleteMutation.executeMutation({ id: props.alert.id })

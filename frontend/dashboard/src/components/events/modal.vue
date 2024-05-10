@@ -36,7 +36,7 @@ import Table from '../table.vue'
 
 import type { EditableEvent, EventOperation } from './types.js'
 
-import { useAlertsQuery } from '@/api/alerts'
+import { useAlertsApi } from '@/api/alerts'
 import { useCommandsApi } from '@/api/commands/commands'
 import {
 	useEventsManager,
@@ -199,7 +199,8 @@ const keywordsSelectOptions = computed(() => {
 	}))
 })
 
-const { data: alerts } = useAlertsQuery()
+const alertsManager = useAlertsApi()
+const { data: alerts } = alertsManager.useAlertsQuery()
 
 const { t } = useI18n()
 

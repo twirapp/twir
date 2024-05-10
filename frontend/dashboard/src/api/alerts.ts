@@ -1,4 +1,5 @@
 import { useQuery } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
 
 import type { AlertsGetAllQuery } from '@/gql/graphql.js'
 
@@ -9,8 +10,8 @@ const invalidateKey = 'AlertsInvalidateKey'
 
 export type Alert = AlertsGetAllQuery['channelAlerts'][number]
 
-export function useAlertsQuery() {
-	return useQuery({
+export const useAlertsApi = createGlobalState(() => {
+	const useAlertsQuery = () => useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidateKey] },
 		query: graphql(`
@@ -50,32 +51,33 @@ export function useAlertsQuery() {
 			}
 		`),
 	})
-}
 
-export function useAlertsCreateMutation() {
-	return useMutation(graphql(`
+	const useAlertsCreateMutation = () => useMutation(graphql(`
 		mutation CreateAlert($opts: ChannelAlertCreateInput!) {
 			channelAlertsCreate(input: $opts) {
 				id
 			}
 		}
 	`), [invalidateKey])
-}
 
-export function useAlertsUpdateMutation() {
-	return useMutation(graphql(`
+	const useAlertsUpdateMutation = () => useMutation(graphql(`
 		mutation UpdateAlert($id: ID!, $opts: ChannelAlertUpdateInput!) {
 			channelAlertsUpdate(id: $id, input: $opts) {
 				id
 			}
 		}
 	`), [invalidateKey])
-}
 
-export function useAlertsDeleteMutation() {
-	return useMutation(graphql(`
+	const useAlertsDeleteMutation = () => useMutation(graphql(`
 		mutation DeleteAlert($id: ID!) {
 			channelAlertsDelete(id: $id)
 		}
 	`), [invalidateKey])
-}
+
+	return {
+		useAlertsQuery,
+		useAlertsCreateMutation,
+		useAlertsUpdateMutation,
+		useAlertsDeleteMutation,
+	}
+})

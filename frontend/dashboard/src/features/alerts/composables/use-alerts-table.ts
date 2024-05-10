@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import AlertsTableActions from '../ui/alerts-table-actions.vue'
 
-import { type Alert, useAlertsQuery } from '@/api/alerts.js'
+import { type Alert, useAlertsApi } from '@/api/alerts.js'
 import { Badge } from '@/components/ui/badge'
 
 interface Props {
@@ -14,7 +14,8 @@ interface Props {
 export function useAlertsTable(props?: Props) {
 	const { t } = useI18n()
 
-	const { data, fetching } = useAlertsQuery()
+	const manager = useAlertsApi()
+	const { data, fetching } = manager.useAlertsQuery()
 	const greetings = computed<Alert[]>(() => {
 		if (!data.value) return []
 		return data.value.channelAlerts

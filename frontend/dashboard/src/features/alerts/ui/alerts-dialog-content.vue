@@ -16,7 +16,7 @@ import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
 import {
 	useTwitchGetUsers,
 } from '@/api'
-import { type Alert, useAlertsCreateMutation, useAlertsUpdateMutation } from '@/api/alerts.js'
+import { type Alert,useAlertsApi } from '@/api/alerts.js'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import { useGreetingsApi } from '@/api/greetings.js'
 import { useKeywordsApi } from '@/api/keywords.js'
@@ -59,8 +59,9 @@ const rules: FormRules = {
 	},
 }
 
-const alertsCreateMutation = useAlertsCreateMutation()
-const alertsUpdateMutation = useAlertsUpdateMutation()
+const manager = useAlertsApi()
+const alertsCreateMutation = manager.useAlertsCreateMutation()
+const alertsUpdateMutation = manager.useAlertsUpdateMutation()
 
 async function save() {
 	if (!formRef.value || !formValue.value) return
