@@ -118,6 +118,12 @@ importers:
       protobufjs:
         specifier: 7.2.6
         version: 7.2.6
+      rate-limiter-algorithms:
+        specifier: 2.1.0
+        version: 2.1.0
+      redis:
+        specifier: 4.6.13
+        version: 4.6.13
       socket.io-client:
         specifier: 2.3.1
         version: 2.3.1
@@ -5868,6 +5874,9 @@ packages:
 
   rangetouch@2.0.1:
     resolution: {integrity: sha512-sln+pNSc8NGaHoLzwNBssFSf/rSYkqeBXzX1AtJlkJiUaVSJSbRAWJk+4omsXkN+EJalzkZhWQ3th1m0FpR5xA==}
+
+  rate-limiter-algorithms@2.1.0:
+    resolution: {integrity: sha512-CyEEyoTe/74Rxo5TiyatH0ygumYqssTaMgKttasQRKVa0x3JJ7IpmAdPiWt1rdZuxkAVjeO8eqSoDPXQI3NAdA==}
 
   rc9@2.1.2:
     resolution: {integrity: sha512-btXCnMmRIBINM2LDZoEmOogIZU7Qe7zn4BpomSKZ/ykbLObuBdvG+mFq11DL6fjH1DRwHhrlgtYWG96bJiC7Cg==}
@@ -13370,6 +13379,8 @@ snapshots:
   range-parser@1.2.1: {}
 
   rangetouch@2.0.1: {}
+
+  rate-limiter-algorithms@2.1.0: {}
 
   rc9@2.1.2:
     dependencies:

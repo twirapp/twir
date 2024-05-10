@@ -37,7 +37,7 @@ var EightBall = &types.DefaultCommand{
 	) {
 		entity := model.ChannelGames8Ball{}
 		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
-			`"channelId" = ?`,
+			`"channel_id" = ?`,
 			parseCtx.Channel.ID,
 		).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
