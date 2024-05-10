@@ -27,15 +27,15 @@ type Badge {
 }
 
 input TwirBadgeUpdateOpts {
-	name: String
+	name: String @validate(constraint: "max=200")
 	file: Upload
 	enabled: Boolean
-	ffzSlot: Int
+	ffzSlot: Int @validate(constraint: "max=999999")
 }
 
 input TwirBadgeCreateOpts {
-	name: String!
+	name: String! @validate(constraint: "max=500")
 	file: Upload!
 	enabled: Boolean
-	ffzSlot: Int!
+	ffzSlot: Int! @validate(constraint: "max=999999")
 }

@@ -22,19 +22,19 @@ type ChannelAlert {
 input ChannelAlertUpdateInput {
 	name: String
 	audioId: ID
-	audioVolume: Int
-	commandIds: [ID!]
-	rewardIds: [ID!]
-	greetingsIds: [ID!]
-	keywordsIds: [ID!]
+	audioVolume: Int @validate(constraint: "min=0,max=100")
+	commandIds: [ID!] @validate(constraint: "dive,max=500")
+	rewardIds: [ID!] @validate(constraint: "dive,max=500")
+	greetingsIds: [ID!] @validate(constraint: "dive,max=500")
+	keywordsIds: [ID!] @validate(constraint: "dive,max=500")
 }
 
 input ChannelAlertCreateInput {
-	name: String!
+	name: String! @validate(constraint: "max=500")
 	audioId: ID
-	audioVolume: Int
-	commandIds: [ID!]
-	rewardIds: [ID!]
-	greetingsIds: [ID!]
-	keywordsIds: [ID!]
+	audioVolume: Int @validate(constraint: "min=0,max=100")
+	commandIds: [ID!] @validate(constraint: "dive,max=500")
+	rewardIds: [ID!] @validate(constraint: "dive,max=500")
+	greetingsIds: [ID!] @validate(constraint: "dive,max=500")
+	keywordsIds: [ID!] @validate(constraint: "dive,max=500")
 }

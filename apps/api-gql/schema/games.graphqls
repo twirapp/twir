@@ -17,7 +17,7 @@ type EightBallGame {
 
 input EightBallGameOpts {
 	enabled: Boolean
-	answers: [String!]
+	answers: [String!] @validate(constraint: "dive,max=500")
 }
 
 type DuelGame {
@@ -36,16 +36,16 @@ type DuelGame {
 
 input DuelGameOpts {
 	enabled: Boolean
-	userCooldown: Int
-	globalCooldown: Int
-	timeoutSeconds: Int
-	startMessage: String
-	resultMessage: String
-	secondsToAccept: Int
-	pointsPerWin: Int
-	pointsPerLose: Int
-	bothDiePercent: Int
-	bothDieMessage: String
+	userCooldown: Int @validate(constraint: "max=999999")
+	globalCooldown: Int @validate(constraint: "max=999999")
+	timeoutSeconds: Int @validate(constraint: "max=999999")
+	startMessage: String @validate(constraint: "max=500")
+	resultMessage: String @validate(constraint: "max=500")
+	secondsToAccept: Int @validate(constraint: "max=600")
+	pointsPerWin: Int @validate(constraint: "max=999999")
+	pointsPerLose: Int @validate(constraint: "max=999999")
+	bothDiePercent: Int @validate(constraint: "min=0,max=100")
+	bothDieMessage: String @validate(constraint: "max=500")
 }
 
 type RussianRouletteGame {
@@ -63,11 +63,11 @@ type RussianRouletteGame {
 input RussianRouletteGameOpts {
 	enabled: Boolean
 	canBeUsedByModerator: Boolean
-	timeoutSeconds: Int
-	decisionSeconds: Int
-	initMessage: String
-	surviveMessage: String
-	deathMessage: String
-	chargedBullets: Int
-	tumberSize: Int
+	timeoutSeconds: Int @validate(constraint: "max=999999")
+	decisionSeconds: Int @validate(constraint: "max=999999")
+	initMessage: String @validate(constraint: "max=500")
+	surviveMessage: String @validate(constraint: "max=500")
+	deathMessage: String @validate(constraint: "max=500")
+	chargedBullets: Int @validate(constraint: "max=999999")
+	tumberSize: Int @validate(constraint: "max=999999")
 }

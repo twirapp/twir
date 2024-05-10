@@ -4,7 +4,7 @@ extend type Query {
 }
 
 extend type Mutation {
-	notificationsCreate(text: String!, userId: String): AdminNotification! @isAuthenticated @isAdmin
+	notificationsCreate(text: String! @validate(constraint: "max=10000"), userId: String): AdminNotification! @isAuthenticated @isAdmin
 	notificationsUpdate(id: ID!, opts: NotificationUpdateOpts!): AdminNotification! @isAuthenticated @isAdmin
 	notificationsDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
 }
@@ -51,7 +51,7 @@ input AdminNotificationsParams {
 }
 
 input NotificationUpdateOpts {
-	text: String
+	text: String @validate(constraint: "max=10000")
 }
 
 type AdminNotificationsResponse {
