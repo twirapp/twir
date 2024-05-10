@@ -69,10 +69,18 @@ const options = computed(() => {
 	const searchUsers = twitchSearch.data.value?.channels ?? []
 	const initialUsers = getUsers.data.value?.users ?? []
 
-	return [
+	const allOptions = [
 		...mapOptions(searchUsers),
 		...mapOptions(initialUsers),
 	]
+
+	const uniqueOptions = allOptions.filter((option, index, self) =>
+		index === self.findIndex((t) => (
+			t.value === option.value
+		)),
+	)
+
+	return uniqueOptions
 })
 
 const open = ref(false)

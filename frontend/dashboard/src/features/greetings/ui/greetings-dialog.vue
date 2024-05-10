@@ -15,7 +15,7 @@ import type { GreetingsCreateInput } from '@/gql/graphql'
 
 import { type Greetings, useGreetingsApi } from '@/api/greetings'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import TwitchUserSearch from '@/components/twitchUsers/single.vue'
+import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -129,7 +129,7 @@ const rules: FormRules = {
 				<div class="grid gap-4 py-4">
 					<NSpace vertical class="w-full">
 						<NFormItem :label="t('sharedTexts.userName')" path="userId" show-require-mark>
-							<TwitchUserSearch v-model="formValue.userId" :initial-user-id="props.greeting?.userId" />
+							<TwitchUsersSelect v-model="formValue.userId" :initial="formValue.userId" twir-only />
 						</NFormItem>
 						<NFormItem :label="t('sharedTexts.response')" path="text" show-require-mark>
 							<VariableInput v-model="formValue.text" input-type="textarea" />
