@@ -43,7 +43,7 @@
     "disabled": "Vypnuté",
     "setDefaultSettings": "Ste si istí, že chcete obnoviť predvolené nastavenia?",
     "placeCursorMessage": "Ak chcete zmeniť premennú, umiestnite kurzor za \"$\"",
-    "pagination": "z {page} strana(y) / {total} položka(y)",
+    "pagination": "{page} page(s) / {total} item(s)",
     "paginationPerPage": "Na stranu",
     "searchPlaceholder": "Hľadať...",
     "messages": "Správy",
@@ -51,7 +51,11 @@
     "desc": "Zost.",
     "hide": "Skryť",
     "view": "Zobraziť",
-    "toggleColumns": "Prepínanie stĺpcov"
+    "toggleColumns": "Prepínanie stĺpcov",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -686,7 +690,10 @@
     "title": "Upozornenia",
     "info": "Alerts Information",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Názov",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
@@ -697,11 +704,14 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Konfigurácia zvuku",
-      "image": "Vybrať obrázok",
-      "text": "Konfigurovať text"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Hlasitosť zvuku ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Príkaz",
