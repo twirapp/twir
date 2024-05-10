@@ -43,7 +43,7 @@
     "disabled": "Disabled",
 		"setDefaultSettings": "Are you sure you want to set default settings?",
 		"placeCursorMessage": "Place the cursor after \"$\" to change the variable",
-		"pagination": "of {page} page(s) / {total} item(s)",
+		"pagination": "{page} page(s) / {total} item(s)",
 		"paginationPerPage": "Per page",
 		"searchPlaceholder": "Search...",
 		"messages": "Messages",
