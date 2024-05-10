@@ -608,7 +608,8 @@
     "tabs": {
       "general": "General",
       "users": "Users",
-      "songs": "Songs"
+      "songs": "Songs",
+			"translations": "Translations"
     },
     "ban": {
       "user": "Ban user",

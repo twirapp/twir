@@ -6,9 +6,8 @@ import (
 )
 
 type Modules struct {
-	YouTube modules.YouTube
-	OBS     modules.OBS
-	TTS     modules.TTS
+	OBS modules.OBS
+	TTS modules.TTS
 }
 
 type Channels struct {

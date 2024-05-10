@@ -5,6 +5,7 @@ import {
 	NButton,
 	NForm,
 	NFormItem,
+	NInput,
 	NInputNumber,
 	NSelect,
 	NSpace,
@@ -325,6 +326,199 @@ const srCommands = computed(() => {
 						@search="(v) => songsSearchValue = v"
 					/>
 				</NFormItem>
+			</NTabPane>
+
+			<NTabPane name="translations" :tab="t('songRequests.tabs.translations')" class="mb-5">
+				<div class="flex flex-wrap flex-row justify-between gap-2">
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.notEnabled"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.nowPlaying"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.noText"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.acceptOnlyWhenOnline"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.notFound"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.alreadyInQueue"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.ageRestrictions"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.cannotGetInformation"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.live"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.requestedMessage"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.maximumOrdered"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.minViews"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.maxLength"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.song.minLength"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.maxRequests"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minMessages"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minWatched"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.user.minFollow"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+
+					<NFormItem style="width: 48%; height: 100%">
+						<NInput
+							v-model:value="formValue.translations.channel.denied"
+							class="w-full"
+							type="textarea"
+							autosize
+						/>
+					</NFormItem>
+				</div>
 			</NTabPane>
 		</NTabs>
 
