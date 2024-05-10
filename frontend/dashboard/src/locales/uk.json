@@ -43,7 +43,7 @@
     "disabled": "Вимкнено",
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
-    "pagination": "of {page} page(s) / {total} item(s)",
+    "pagination": "{page} page(s) / {total} item(s)",
     "paginationPerPage": "Per page",
     "searchPlaceholder": "Найти",
     "messages": "Messages",
@@ -51,7 +51,11 @@
     "desc": "Desc",
     "hide": "Hide",
     "view": "View",
-    "toggleColumns": "Toggle columns"
+    "toggleColumns": "Toggle columns",
+    "copied": "Copied",
+    "userSelected": "{count} users selected",
+    "userSelectPlaceholder": "Select user|Select users",
+    "userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -686,7 +690,10 @@
     "title": "Сповіщення",
     "info": "Інформація про сповіщення",
     "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати сповіщення із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену додатку для трансляцій! (наприклад, OBS, XSplit тощо)",
+    "copyOverlayLink": "Copy overlay link",
     "name": "Назва",
+    "rewards": "Rewards",
+    "commands": "Commands",
     "validations": {
       "name": "Назва не може бути порожньою і містити понад 30 символів!"
     },
@@ -697,11 +704,14 @@
       "greetings": "Привітання для тригера"
     },
     "select": {
-      "audio": "Налаштувати звук",
-      "image": "Налаштувати зображення",
-      "text": "Налаштувати текст"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Гучність звуку ({volume}%)"
+    "audioVolume": "Audio volume",
+    "createAlert": "Create alert",
+    "editAlert": "Edit alert",
+    "tableEmpty": "No alerts found"
   },
   "games": {
     "command": "Команда",
