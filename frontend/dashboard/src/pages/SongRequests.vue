@@ -6,7 +6,7 @@ import {
 } from 'naive-ui'
 import { computed, ref } from 'vue'
 
-import { useYoutubeModuleSettings } from '@/api/modules/ytsr.js'
+import { useSongRequestsApi } from '@/api/song-requests.js'
 import { useYoutubeSocket } from '@/components/songRequests/hook.js'
 import Player from '@/components/songRequests/player.vue'
 import VideosQueue from '@/components/songRequests/queue.vue'
@@ -17,11 +17,11 @@ const openSettingsModal = () => isSettingsModalOpened.value = true
 
 useYoutubeSocket()
 
-const youtubeModuleManager = useYoutubeModuleSettings()
-const youtubeModuleData = youtubeModuleManager.getAll()
+const youtubeModuleManager = useSongRequestsApi()
+const youtubeModuleData = youtubeModuleManager.useSongRequestQuery()
 
 const noCookie = computed(() => {
-	return youtubeModuleData.data.value?.data?.playerNoCookieMode ?? false
+	return youtubeModuleData.data.value?.songRequests?.playerNoCookieMode ?? false
 })
 </script>
 
@@ -29,7 +29,7 @@ const noCookie = computed(() => {
 	<NGrid cols="1 s:1 m:1 l:3" responsive="screen" :y-gap="15" :x-gap="15">
 		<NGridItem :span="1">
 			<Player
-				v-if="!youtubeModuleData.isLoading.value"
+				v-if="!youtubeModuleData.fetching.value"
 				:no-cookie="noCookie"
 				:open-settings-modal="openSettingsModal"
 			/>

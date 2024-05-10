@@ -1,6 +1,6 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
-    <option name="FORMATTER_OFF_TAG" value="(@formatter:off|.+(is the resolver|).+)" />
+    <option name="FORMATTER_OFF_TAG" value="@formatter:off" />
     <option name="FORMATTER_TAGS_ACCEPT_REGEXP" value="true" />
     <GoCodeStyleSettings>
       <option name="ADD_PARENTHESES_FOR_SINGLE_IMPORT" value="true" />
