@@ -52,7 +52,10 @@
 		"hide": "Hide",
 		"view": "View",
 		"toggleColumns": "Toggle columns",
-		"copied": "Copied"
+		"copied": "Copied",
+		"userSelected": "{count} users selected",
+		"userSelectPlaceholder": "Select user|Select users",
+		"userNotFound": "No users found"
   },
   "sidebar": {
     "dashboard": "Dashboard",
