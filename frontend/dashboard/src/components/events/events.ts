@@ -1,34 +1,15 @@
-import {
-	IconAccessPoint,
-	IconAccessPointOff,
-	IconAward,
-	IconBracketsContain,
-	IconCashBanknote,
-	IconDeviceDesktopAnalytics,
-	IconDice6,
-	IconEraser,
-	IconGift,
-	IconHeartHandshake,
-	IconMessageExclamation,
-	IconPick,
-	IconStar,
-	IconTransform,
-	IconUserCancel,
-	IconUserDollar,
-	IconUserHeart,
-	IconUserPlus,
-	IconUserStar,
-} from '@tabler/icons-vue';
-import { TwirEventType } from '@twir/api/messages/events/events';
-import { FunctionalComponent } from 'vue';
+import { IconAccessPoint, IconAccessPointOff, IconAward, IconBracketsContain, IconCashBanknote, IconDeviceDesktopAnalytics, IconDice6, IconEraser, IconGift, IconHeartHandshake, IconMessageExclamation, IconPick, IconStar, IconTransform, IconUserCancel, IconUserDollar, IconUserHeart, IconUserPlus, IconUserStar } from '@tabler/icons-vue'
+import { TwirEventType } from '@twir/api/messages/events/events'
 
-export type TwirEvent = {
-	name: string,
-	icon?: FunctionalComponent,
-	variables?: string[],
-	type?: 'group',
-	childrens?: Record<string, TwirEvent>,
-	enumValue?: TwirEventType,
+import type { FunctionalComponent } from 'vue'
+
+export interface TwirEvent {
+	name: string
+	icon?: FunctionalComponent
+	variables?: string[]
+	type?: 'group'
+	childrens?: Record<string, TwirEvent>
+	enumValue?: TwirEventType
 }
 
 export const TWIR_EVENTS: Record<string, TwirEvent> = {
@@ -263,4 +244,4 @@ export const TWIR_EVENTS: Record<string, TwirEvent> = {
 			},
 		},
 	},
-};
+}

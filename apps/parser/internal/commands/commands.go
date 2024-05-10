@@ -511,6 +511,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				UserId:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
 				DefaultCommandName: cmd.Cmd.DefaultName.String,
+				MessageId:          data.MessageId,
 			},
 		)
 

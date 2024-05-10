@@ -45,6 +45,7 @@ import {
 import { useKeywordsApi } from '@/api/keywords.js'
 import { useVariablesApi } from '@/api/variables.js'
 import AlertModal from '@/components/alerts/list.vue'
+import { OPERATIONS } from '@/components/events/operations'
 import rewardsSelector from '@/components/rewardsSelector.vue'
 
 const props = defineProps<{
@@ -295,7 +296,6 @@ const eventsOperationsFiltersTypes = Object.values(EventOperationFilterType).map
 }))
 
 const operations = toRef(formValue.value, 'operations')
-watch(operations, (v) => console.log(v))
 
 const dragParentRef = ref<HTMLElement>()
 dragAndDrop({
@@ -307,6 +307,16 @@ dragAndDrop({
 function variableText(variable: string) {
 	return `{${variable}}`
 }
+
+const filteredOperationTypeSelectOptions = computed(() => {
+	return operationTypeSelectOptions.filter(option => {
+		if (OPERATIONS[option.value as string].dependsOnEvents) {
+			return OPERATIONS[option.value as string].dependsOnEvents!.includes(formValue.value.type)
+		}
+
+		return true
+	})
+})
 </script>
 
 <template>
@@ -442,8 +452,9 @@ function variableText(variable: string) {
 						<NGridItem :span="2">
 							<NFormItem :label="t('events.operations.name')" required>
 								<NSelect
-									v-model:value="currentOperation.type" filterable
-									:options="operationTypeSelectOptions"
+									v-model:value="currentOperation.type"
+									filterable
+									:options="filteredOperationTypeSelectOptions"
 								/>
 							</NFormItem>
 						</NGridItem>

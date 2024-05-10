@@ -115,6 +115,13 @@ export const useChatAlertsApi = createGlobalState(() => {
 						}
 						cooldown
 					}
+					messageDelete {
+						enabled
+						cooldown
+						messages {
+							text
+						}
+					}
 				}
 			}
 		`),

@@ -73,6 +73,7 @@ const (
 	OperationSevenTvRemoveEmote       EventOperationType = "SEVENTV_REMOVE_EMOTE"
 	OperationRaidChannel              EventOperationType = "RAID_CHANNEL"
 	OperationShoutoutChannel          EventOperationType = "SHOUTOUT_CHANNEL"
+	OperationMessageDelete            EventOperationType = "MESSAGE_DELETE"
 )
 
 type EventOperation struct {

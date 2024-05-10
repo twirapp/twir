@@ -30,6 +30,7 @@ service Events {
 	rpc ChannelBan(ChannelBanMessage) returns (google.protobuf.Empty) {}
 	rpc ChannelUnbanRequestCreate(ChannelUnbanRequestCreateMessage) returns (google.protobuf.Empty) {}
 	rpc ChannelUnbanRequestResolve(ChannelUnbanRequestResolveMessage) returns (google.protobuf.Empty) {}
+	rpc ChannelMessageDelete(ChannelMessageDeleteMessage) returns (google.protobuf.Empty) {}
 }
 
 message BaseInfo {
@@ -99,6 +100,7 @@ message CommandUsedMessage {
 	string userId = 7;
 	bool is_default = 8;
 	string default_command_name = 9;
+	string message_id = 10;
 }
 
 message FirstUserMessageMessage {
@@ -107,6 +109,7 @@ message FirstUserMessageMessage {
 	string userId = 2;
 	string userName = 3;
 	string userDisplayName = 4;
+	string message_id = 5;
 }
 
 message RaidedMessage {
@@ -317,4 +320,15 @@ message ChannelUnbanRequestResolveMessage {
 	string moderator_user_login = 7;
 	bool declined = 8;
 	string reason = 9;
+}
+
+message ChannelMessageDeleteMessage {
+	BaseInfo baseInfo = 1;
+
+	string user_id = 2;
+	string user_name = 3;
+	string user_login = 4;
+	string broadcaster_user_name = 5;
+	string broadcaster_user_login = 6;
+	string message_id = 7;
 }

@@ -82,6 +82,7 @@ type ChatAlertsSettings struct {
 	Ban                 ChatAlertsBan                 `json:"ban"`
 	UnbanRequestCreate  ChatAlertsUnbanRequestCreate  `json:"unbanRequestCreate"`
 	UnbanRequestResolve ChatAlertsUnbanRequestResolve `json:"unbanRequestResolve"`
+	MessageDelete       ChatAlertsMessageDelete       `json:"messageDelete"`
 }
 
 type ChatAlertsFollowersSettings struct {
@@ -167,6 +168,12 @@ type ChatAlertsUnbanRequestCreate struct {
 }
 
 type ChatAlertsUnbanRequestResolve struct {
+	Enabled  bool                `json:"enabled"`
+	Messages []ChatAlertsMessage `json:"messages"`
+	Cooldown int                 `json:"cooldown"`
+}
+
+type ChatAlertsMessageDelete struct {
 	Enabled  bool                `json:"enabled"`
 	Messages []ChatAlertsMessage `json:"messages"`
 	Cooldown int                 `json:"cooldown"`

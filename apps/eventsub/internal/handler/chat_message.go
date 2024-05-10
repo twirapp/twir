@@ -7,6 +7,7 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/grpc/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -166,5 +167,33 @@ func (c *Handler) handleChannelChatMessage(
 		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
+	}
+}
+
+func (c *Handler) handleChannelChatMessageDelete(
+	_ *eventsub_bindings.ResponseHeaders,
+	event *eventsub_bindings.EventChannelChatMessageDelete,
+) {
+	c.logger.Info(
+		"message delete",
+		slog.String("channelId", event.BroadcasterUserID),
+		slog.String("channelName", event.BroadcasterUserName),
+		slog.String("userId", event.TargetUserID),
+		slog.String("userName", event.TargetUserLogin),
+	)
+
+	if _, err := c.eventsGrpc.ChannelMessageDelete(
+		context.Background(),
+		&events.ChannelMessageDeleteMessage{
+			BaseInfo:             &events.BaseInfo{ChannelId: event.BroadcasterUserID},
+			UserId:               event.TargetUserID,
+			UserName:             event.TargetUserLogin,
+			UserLogin:            event.TargetUserName,
+			BroadcasterUserName:  event.BroadcasterUserName,
+			BroadcasterUserLogin: event.BroadcasterUserLogin,
+			MessageId:            event.MessageID,
+		},
+	); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 }
