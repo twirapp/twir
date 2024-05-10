@@ -1,65 +1,63 @@
 <script setup lang="ts">
-import type { Channel, TwitchSearchChannelsRequest, TwitchUser } from '@twir/api/messages/twitch/twitch';
-import { refDebounced } from '@vueuse/core';
-import { NSelect, NTag, NAvatar } from 'naive-ui';
-import { computed, ref, h } from 'vue';
+import { refDebounced } from '@vueuse/core'
+import { NAvatar, NSelect, NTag } from 'naive-ui'
+import { computed, h, ref } from 'vue'
 
-import { useTwitchSearchChannels, useTwitchGetUsers } from '@/api/index.js';
-import { resolveUserName } from '@/helpers';
+import type { Channel, TwitchSearchChannelsRequest, TwitchUser } from '@twir/api/messages/twitch/twitch'
 
-// eslint-disable-next-line no-undef
-const usersIds = defineModel<string[]>({ default: [] });
+import { useTwitchGetUsers, useTwitchSearchChannels } from '@/api/index.js'
+import { resolveUserName } from '@/helpers'
+
 defineProps<{
 	max?: number
-}>();
-
+}>()
+const usersIds = defineModel<string[]>({ default: [] })
 const getUsers = useTwitchGetUsers({
 	ids: usersIds,
-});
+})
 
-const userName = ref('');
-const userNameDebounced = refDebounced(userName, 500);
+const userName = ref('')
+const userNameDebounced = refDebounced(userName, 500)
 
 const searchParams = computed<TwitchSearchChannelsRequest>(() => ({
 	query: userNameDebounced.value,
 	twirOnly: false,
-}));
-const twitchSearch = useTwitchSearchChannels(searchParams);
+}))
+const twitchSearch = useTwitchSearchChannels(searchParams)
 
-function mapOptions(users: (TwitchUser | Channel)[] ) {
+function mapOptions(users: (TwitchUser | Channel)[]) {
 	return users.map((user) => ({
 		label: resolveUserName(user.login, user.displayName),
 		value: user.id,
 		profileImageUrl: user.profileImageUrl,
-	}));
+	}))
 }
 
 const options = computed(() => {
-	const searchUsers = twitchSearch.data.value?.channels ?? [];
-	const initialUsers = getUsers.data.value?.users ?? [];
+	const searchUsers = twitchSearch.data.value?.channels ?? []
+	const initialUsers = getUsers.data.value?.users ?? []
 
 	return [
 		...mapOptions(searchUsers)
 			.filter((channel) => !initialUsers.find((user) => user.id === channel.value)),
 		...mapOptions(initialUsers),
-	];
-});
-
+	]
+})
 
 function handleSearch(query: string) {
-	userName.value = query;
+	userName.value = query
 }
 
-type Option = {
-	label: string;
-	value: string;
-	profileImageUrl: string;
-};
+interface Option {
+	label: string
+	value: string
+	profileImageUrl: string
+}
 
-const renderMultipleSelectTag = ({ option, handleClose }: {
-	option: Option;
-	handleClose: () => void;
-}) => {
+function renderMultipleSelectTag({ option, handleClose }: {
+	option: Option
+	handleClose: () => void
+}) {
 	return h(
 		NTag,
 		{
@@ -67,8 +65,8 @@ const renderMultipleSelectTag = ({ option, handleClose }: {
 			round: true,
 			closable: true,
 			onClose: (e) => {
-				e.stopPropagation();
-				handleClose();
+				e.stopPropagation()
+				handleClose()
 			},
 		},
 		{
@@ -87,10 +85,10 @@ const renderMultipleSelectTag = ({ option, handleClose }: {
 					],
 				),
 		},
-	);
-};
+	)
+}
 
-const renderLabel = (option: Option) => {
+function renderLabel(option: Option) {
 	return h(
 		'div',
 		{ class: 'flex items-center' },
@@ -106,12 +104,12 @@ const renderLabel = (option: Option) => {
 				[h('div', null, option.label)],
 			),
 		],
-	);
-};
+	)
+}
 </script>
 
 <template>
-	<n-select
+	<NSelect
 		v-model:value="usersIds"
 		multiple
 		:filterable="max ? usersIds.length !== max : true"
