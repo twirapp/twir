@@ -701,11 +701,11 @@
       "greetings": "Greeting Trigger"
     },
     "select": {
-      "audio": "Confugure an Audio",
-      "image": "Configure an Image",
-      "text": "Configure Text"
+      "audio": "Confugure an audio",
+      "image": "Configure an image",
+      "text": "Configure text"
     },
-    "audioVolume": "Audio Volume ({volume}%)",
+    "audioVolume": "Audio volume",
 		"createAlert": "Create alert",
 		"editAlert": "Edit alert"
   },

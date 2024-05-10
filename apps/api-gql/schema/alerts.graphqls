@@ -10,7 +10,6 @@ extend type Mutation {
 
 type ChannelAlert {
 	id: ID!
-	channelId: ID!
 	name: String!
 	audioId: ID
 	audioVolume: Int
@@ -31,7 +30,6 @@ input ChannelAlertUpdateInput {
 }
 
 input ChannelAlertCreateInput {
-	channelId: ID!
 	name: String!
 	audioId: ID
 	audioVolume: Int

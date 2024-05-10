@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { PlayIcon, TrashIcon } from 'lucide-vue-next'
 import {
 	type FormInst,
 	type FormItemRule,
@@ -7,48 +6,33 @@ import {
 	NDivider,
 	NForm,
 	NFormItem,
-	NScrollbar,
 	NSelect,
-	NSlider,
-	NSpace,
 } from 'naive-ui'
 import { computed, onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import AlertsDialogContentAudio from './alerts-dialog-content-audio.vue'
+
 import {
-	useFiles,
-	useProfile,
 	useTwitchGetUsers,
 } from '@/api'
 import { type Alert, useAlertsCreateMutation, useAlertsUpdateMutation } from '@/api/alerts.js'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import { useGreetingsApi } from '@/api/greetings.js'
 import { useKeywordsApi } from '@/api/keywords.js'
-import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import FilesPicker from '@/components/files/files.vue'
 import RewardsSelector from '@/components/rewardsSelector.vue'
 import { Button } from '@/components/ui/button'
-import {
-	Dialog,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { playAudio } from '@/helpers/playAudio.js'
 
 const props = defineProps<{ alert?: Alert | null }>()
 const emits = defineEmits<{ close: [] }>()
-
-const { data: profile } = useProfile()
 
 const formRef = ref<FormInst | null>(null)
 const formValue = ref<Alert>({
 	id: '',
 	name: '',
-	channelId: profile.value?.selectedDashboardId,
 	audioId: undefined,
-	audioVolume: 100,
+	audioVolume: 75,
 	commandIds: [],
 	rewardIds: [],
 	greetingsIds: [],
@@ -97,30 +81,6 @@ async function save() {
 	emits('close')
 }
 
-const { data: files } = useFiles()
-const selectedAudio = computed(() => {
-	return files.value?.files
-		.find((file) => file.id === formValue.value.audioId)
-})
-const showAudioModal = ref(false)
-
-async function testAudio() {
-	if (!selectedAudio.value?.id || !profile.value) return
-
-	const query = new URLSearchParams({
-		channel_id: profile.value.selectedDashboardId,
-		file_id: selectedAudio.value.id,
-	})
-
-	const req = await fetch(`${window.location.origin}/api-old/files/?${query}`)
-	if (!req.ok) {
-		console.error(await req.text())
-		return
-	}
-
-	await playAudio(await req.arrayBuffer(), formValue.value.audioVolume ?? 50)
-}
-
 const commandsApi = useCommandsApi()
 const { data: commands } = commandsApi.useQueryCommands()
 const commandsSelectOptions = computed(() => commands.value?.commands
@@ -153,7 +113,7 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 		:model="formValue"
 		:rules="rules"
 	>
-		<NSpace vertical class="w-full">
+		<div class="flex flex-col gap-6">
 			<NFormItem label="Name" path="name" show-require-mark>
 				<Input v-model="formValue.name" :maxlength="30" />
 			</NFormItem>
@@ -191,82 +151,22 @@ const keywordsSelectOptions = computed(() => keywords.value?.keywords
 					:options="greetingsSelectOptions"
 				/>
 			</NFormItem>
+		</div>
 
-			<NDivider />
+		<NDivider />
 
-			<NFormItem :label="t('alerts.select.audio')">
-				<div class="flex gap-2 w-full">
-					<Dialog v-model:open="showAudioModal" @update:open="showAudioModal = false">
-						<DialogTrigger as-child>
-							<Button class="w-full" @click="showAudioModal = true">
-								{{ selectedAudio?.name ?? t('sharedButtons.select') }}
-							</Button>
-						</DialogTrigger>
+		<div class="flex flex-col gap-6">
+			<AlertsDialogContentAudio
+				v-model:audio-id="formValue.audioId"
+				:initialVolume="formValue.audioVolume"
+				@update:volume="formValue.audioVolume = $event"
+			/>
 
-						<DialogOrSheet class="p-0">
-							<DialogHeader class="p-6 border-b-[1px]">
-								<DialogTitle>
-									{{ t('alerts.select.audio') }}
-								</DialogTitle>
-							</DialogHeader>
-
-							<NScrollbar class="p-6 max-h-[85vh]" trigger="none">
-								<FilesPicker
-									mode="picker"
-									tab="audios"
-									@select="(id) => {
-										formValue.audioId = id
-										showAudioModal = false
-									}"
-									@delete="(id) => {
-										if (id === formValue.audioId) {
-											formValue.audioId = undefined
-										}
-									}"
-								/>
-							</NScrollbar>
-						</DialogOrSheet>
-					</Dialog>
-
-					<Button
-						class="min-w-10"
-						size="icon"
-						variant="secondary"
-						:disabled="!formValue.audioId"
-						@click="testAudio"
-					>
-						<PlayIcon class="size-4" />
-					</Button>
-
-					<Button
-						class="min-w-10"
-						size="icon"
-						variant="destructive"
-						:disabled="!formValue.audioId"
-						@click="formValue.audioId = undefined"
-					>
-						<TrashIcon class="size-4" />
-					</Button>
-				</div>
-			</NFormItem>
-
-			<NFormItem :label="t('alerts.audioVolume', { volume: formValue.audioVolume })">
-				<NSlider
-					v-model:value="formValue.audioVolume!"
-					:step="1"
-					:min="1"
-					:max="100"
-					:marks="{ 1: '1', 100: '100' }"
-					:show-tooltip="false"
-					:tooltip="false"
-				/>
-			</NFormItem>
-		</NSpace>
-
-		<div class="flex justify-end">
-			<Button @click="save">
-				{{ t('sharedButtons.save') }}
-			</Button>
+			<div class="flex justify-end">
+				<Button @click="save">
+					{{ t('sharedButtons.save') }}
+				</Button>
+			</div>
 		</div>
 	</NForm>
 </template>

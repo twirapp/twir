@@ -45,7 +45,6 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 
 	return &gqlmodel.ChannelAlert{
 		ID:           entity.ID,
-		ChannelID:    entity.ChannelID,
 		Name:         entity.Name,
 		AudioID:      entity.AudioID.Ptr(),
 		AudioVolume:  &entity.AudioVolume,
@@ -110,7 +109,6 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, i
 
 	return &gqlmodel.ChannelAlert{
 		ID:           entity.ID,
-		ChannelID:    entity.ChannelID,
 		Name:         entity.Name,
 		AudioID:      entity.AudioID.Ptr(),
 		AudioVolume:  &entity.AudioVolume,
@@ -167,7 +165,6 @@ func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAl
 			result,
 			gqlmodel.ChannelAlert{
 				ID:           entity.ID,
-				ChannelID:    entity.ChannelID,
 				Name:         entity.Name,
 				AudioID:      entity.AudioID.Ptr(),
 				AudioVolume:  &entity.AudioVolume,
