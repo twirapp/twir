@@ -36,6 +36,7 @@ func New(opts Opts) *Gql {
 	graphConfig.Directives.HasAccessToSelectedDashboard = opts.Directives.HasAccessToSelectedDashboard
 	graphConfig.Directives.IsAdmin = opts.Directives.IsAdmin
 	graphConfig.Directives.HasChannelRolesDashboardPermission = opts.Directives.HasChannelRolesDashboardPermission
+	graphConfig.Directives.Validate = opts.Directives.Validate
 
 	schema := graph.NewExecutableSchema(graphConfig)
 

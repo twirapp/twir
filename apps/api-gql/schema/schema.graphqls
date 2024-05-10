@@ -11,5 +11,7 @@ directive @isAdmin on FIELD_DEFINITION
 
 directive @hasAccessToSelectedDashboard on FIELD_DEFINITION
 
+directive @validate(constraint: String!) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+
 scalar Upload
 scalar Time

@@ -83,10 +83,10 @@ type SongRequestsChannelTranslations {
 input SongRequestsSettingsOpts {
 	enabled: Boolean!
 	acceptOnlyWhenOnline: Boolean!
-	maxRequests: Int!
+	maxRequests: Int! @validate(constraint: "max=500")
 	channelPointsRewardId: String
 	announcePlay: Boolean!
-	neededVotesForSkip: Int!
+	neededVotesForSkip: Int! @validate(constraint: "min=0,max=100")
 	user: SongRequestsUserSettingsOpts!
 	song: SongRequestsSongSettingsOpts!
 	denyList: SongRequestsDenyListOpts!
@@ -96,61 +96,61 @@ input SongRequestsSettingsOpts {
 }
 
 input SongRequestsUserSettingsOpts {
-	maxRequests: Int!
-	minWatchTime: Int!
-	minMessages: Int!
-	minFollowTime: Int!
+	maxRequests: Int! @validate(constraint: "max=500")
+	minWatchTime: Int! @validate(constraint: "max=9999999999")
+	minMessages: Int! @validate(constraint: "max=9999999999")
+	minFollowTime: Int! @validate(constraint: "max=9999999999")
 }
 
 input SongRequestsSongSettingsOpts {
-	minLength: Int!
-	maxLength: Int!
-	minViews: Int!
-	acceptedCategories: [String!]!
+	minLength: Int! @validate(constraint: "max=86399")
+	maxLength: Int! @validate(constraint: "max=86400")
+	minViews: Int! @validate(constraint: "max=10000000000000")
+	acceptedCategories: [String!]! @validate(constraint: "dive,max=500")
 }
 
 input SongRequestsDenyListOpts {
-	users: [String!]!
-	songs: [String!]!
-	channels: [String!]!
-	artistsNames: [String!]!
-	words: [String!]!
+	users: [String!]! @validate(constraint: "dive,max=500")
+	songs: [String!]! @validate(constraint: "dive,max=500")
+	channels: [String!]! @validate(constraint: "dive,max=500")
+	artistsNames: [String!]! @validate(constraint: "dive,max=500")
+	words: [String!]! @validate(constraint: "dive,max=500")
 }
 
 input SongRequestsTranslationsOpts {
-	nowPlaying: String!
-	notEnabled: String!
-	noText: String!
-	acceptOnlyWhenOnline: String!
-	user: SongRequestsUserTranslationsOpts!
-	song: SongRequestsSongTranslationsOpts!
-	channel: SongRequestsChannelTranslationsOpts!
+	nowPlaying: String! @validate(constraint: "max=400")
+	notEnabled: String! @validate(constraint: "max=400")
+	noText: String! @validate(constraint: "max=400")
+	acceptOnlyWhenOnline: String! @validate(constraint: "max=400")
+	user: SongRequestsUserTranslationsOpts! @validate(constraint: "max=400")
+	song: SongRequestsSongTranslationsOpts! @validate(constraint: "max=400")
+	channel: SongRequestsChannelTranslationsOpts! @validate(constraint: "max=400")
 }
 
 input SongRequestsUserTranslationsOpts {
-	denied: String!
-	maxRequests: String!
-	minMessages: String!
-	minWatched: String!
-	minFollow: String!
+	denied: String! @validate(constraint: "max=400")
+	maxRequests: String! @validate(constraint: "max=400")
+	minMessages: String! @validate(constraint: "max=400")
+	minWatched: String! @validate(constraint: "max=400")
+	minFollow: String! @validate(constraint: "max=400")
 }
 
 input SongRequestsSongTranslationsOpts {
-	denied: String!
-	notFound: String!
-	alreadyInQueue: String!
-	ageRestrictions: String!
-	cannotGetInformation: String!
-	live: String!
-	maxLength: String!
-	minLength: String!
-	requestedMessage: String!
-	maximumOrdered: String!
-	minViews: String!
+	denied: String! @validate(constraint: "max=400")
+	notFound: String! @validate(constraint: "max=400")
+	alreadyInQueue: String! @validate(constraint: "max=400")
+	ageRestrictions: String! @validate(constraint: "max=400")
+	cannotGetInformation: String! @validate(constraint: "max=400")
+	live: String! @validate(constraint: "max=400")
+	maxLength: String! @validate(constraint: "max=400")
+	minLength: String! @validate(constraint: "max=400")
+	requestedMessage: String! @validate(constraint: "max=400")
+	maximumOrdered: String! @validate(constraint: "max=400")
+	minViews: String! @validate(constraint: "max=400")
 }
 
 input SongRequestsChannelTranslationsOpts {
-	denied: String!
+	denied: String! @validate(constraint: "max=400")
 }
 
 enum SongRequestsSearchChannelOrVideoOptsType {
