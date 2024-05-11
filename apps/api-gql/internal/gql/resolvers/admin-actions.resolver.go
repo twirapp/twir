@@ -7,6 +7,8 @@ package resolvers
 import (
 	"context"
 	"fmt"
+
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
@@ -26,4 +28,9 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 	}
 
 	return true, nil
+}
+
+// EventsubSubscribe is the resolver for the eventsubSubscribe field.
+func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
+	panic(fmt.Errorf("not implemented: EventsubSubscribe - eventsubSubscribe"))
 }
