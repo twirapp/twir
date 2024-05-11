@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+import { useForm } from '../composables/use-form.js'
+
 import { Label } from '@/components/ui/label'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
-import { useForm } from '@/features/chat-alerts/composables/use-form.js'
 
 const { formValue } = useForm()
 const { t } = useI18n()

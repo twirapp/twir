@@ -8,7 +8,7 @@ import {
 	NModal,
 	NSpace,
 	NSwitch,
-	useThemeVars
+	useThemeVars,
 } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -20,7 +20,7 @@ import type { GamesQuery } from '@/gql/graphql'
 import { useGamesApi } from '@/api/games/games.js'
 import IconDuel from '@/assets/games/duel.svg?use'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const gamesApi = useGamesApi()
 const { data: settings } = gamesApi.useGamesQuery()
@@ -37,7 +37,7 @@ const initialSettings: GamesQuery['gamesDuel'] = {
 	timeoutSeconds: 600,
 	pointsPerWin: 0,
 	pointsPerLose: 0,
-	bothDiePercent: 0
+	bothDiePercent: 0,
 }
 
 const formValue = ref<GamesQuery['gamesDuel']>({ ...initialSettings })
@@ -57,11 +57,11 @@ const { t } = useI18n()
 async function save() {
 	if (!formValue.value) return
 	await updater.executeMutation({
-		opts: formValue.value
+		opts: formValue.value,
 	})
 	notification.success({
 		title: t('sharedTexts.saved'),
-		duration: 2500
+		duration: 2500,
 	})
 }
 
@@ -75,7 +75,7 @@ function resetSettings() {
 		onPositiveClick: () => {
 			formValue.value = initialSettings
 			save()
-		}
+		},
 	})
 }
 </script>

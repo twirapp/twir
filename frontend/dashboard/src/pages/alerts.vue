@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import AlertsPage from '@/features/alerts/alerts-page.vue'
+import Alerts from '@/features/alerts/alerts.vue'
 import AlertsCreateButton from '@/features/alerts/ui/alerts-create-button.vue'
 import PageLayout from '@/layout/page-layout.vue'
 
@@ -19,7 +19,7 @@ const { t } = useI18n()
 		</template>
 
 		<template #content>
-			<AlertsPage />
+			<Alerts />
 		</template>
 	</PageLayout>
 </template>

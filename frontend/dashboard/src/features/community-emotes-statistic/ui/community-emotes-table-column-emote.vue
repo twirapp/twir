@@ -1,9 +1,6 @@
 <script setup lang="ts">
-import CommunityEmotesDetails
-	from '@/features/community-emotes-statistic/components/community-emotes-details.vue'
-import {
-	useCommunityEmotesDetailsName,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
+import { useCommunityEmotesDetailsName } from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
+import CommunityEmotesDetails from '@/features/community-emotes-statistic/ui/community-emotes-details.vue'
 
 const props = defineProps<{ emoteName: string }>()
 

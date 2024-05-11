@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import CommunityUsersPage from './components/community-users-page.vue'
 import { useCommunityUsersTable } from './composables/use-community-users-table.js'
+import CommunityUsersPage from './ui/community-users-page.vue'
 
 import Pagination from '@/components/pagination.vue'
 

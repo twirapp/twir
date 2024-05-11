@@ -5,8 +5,8 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import List from './components/list.vue'
 import { useCommandEdit } from './composables/use-command-edit'
+import List from './ui/list.vue'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'

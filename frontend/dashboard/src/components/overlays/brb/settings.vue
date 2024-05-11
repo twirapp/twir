@@ -18,7 +18,7 @@ import { useCopyOverlayLink } from '../copyOverlayLink'
 import type { Settings } from '@twir/api/messages/overlays_be_right_back/overlays_be_right_back'
 
 import { useBeRightBackOverlayManager, useProfile } from '@/api'
-import commandButton from '@/features/commands/components/command-button.vue'
+import commandButton from '@/features/commands/ui/command-button.vue'
 
 defineProps<{
 	showSettings: boolean

@@ -19,7 +19,7 @@ import type { Font } from '@twir/fontsource'
 
 import { useBeRightBackOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
-import commandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const themeVars = useThemeVars()
@@ -165,7 +165,7 @@ watch(() => fontData.value, (font) => {
 
 					<div class="item">
 						<div class="flex flex-col gap-1">
-							<command-button
+							<CommandButton
 								name="brb"
 								:title="t('overlays.brb.settings.main.startCommand.description')"
 							/>
@@ -174,7 +174,7 @@ watch(() => fontData.value, (font) => {
 							</NAlert>
 						</div>
 
-						<command-button
+						<CommandButton
 							name="brbstop"
 							:title="t('overlays.brb.settings.main.stopCommand.description')"
 						/>
