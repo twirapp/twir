@@ -999,9 +999,7 @@
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Akcie",
-      "dropAllSession": "Drop all sessions",
-      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
+      "title": "Akcie"
     }
   }
 }

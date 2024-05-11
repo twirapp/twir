@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-import AdminActions from '@/features/admin-panel/admin-actions/admin-actions.vue'
+import AdminActions from '@/features/admin-panel/actions/admin-actions.vue'
 import AdminManageBadges from '@/features/admin-panel/manage-badges/manage-badges.vue'
 import AdminManageNotifications
 	from '@/features/admin-panel/manage-notifications/manage-notifications.vue'
@@ -14,23 +14,23 @@ const pageTabs: PageLayoutTab[] = [
 	{
 		name: 'users',
 		title: t('adminPanel.manageUsers.title'),
-		component: AdminManageUsers
+		component: AdminManageUsers,
 	},
 	{
 		name: 'notifications',
 		title: t('adminPanel.notifications.title'),
-		component: AdminManageNotifications
+		component: AdminManageNotifications,
 	},
 	{
 		name: 'badges',
 		title: t('adminPanel.manageBadges.title'),
-		component: AdminManageBadges
+		component: AdminManageBadges,
 	},
 	{
 		name: 'actions',
 		title: t('adminPanel.adminActions.title'),
-		component: AdminActions
-	}
+		component: AdminActions,
+	},
 ]
 </script>
 
