@@ -18,6 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import { useToast } from '@/components/ui/toast'
 import { EventsubSubscribeConditionInput } from '@/gql/graphql'
 
 const { t } = useI18n()
@@ -62,10 +63,19 @@ const { handleSubmit } = useForm({
 	},
 })
 
-const onSubmit = handleSubmit((values) => {
-	mutationEventSubSubscribe.executeMutation({
+const toast = useToast()
+const onSubmit = handleSubmit(async (values) => {
+	const result = await mutationEventSubSubscribe.executeMutation({
 		opts: values,
 	})
+
+	if (result.error) {
+		toast.toast({
+			duration: 2500,
+			variant: 'destructive',
+			title: result.error.message,
+		})
+	}
 })
 </script>
 
