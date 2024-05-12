@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 
-UPDATE channels_commands SET name = '7tv_twir_migration' WHERE name = '7tv';
+UPDATE channels_commands SET name = '7tv_profile_twir_migration' WHERE name = '7tv profile';
 UPDATE channels_commands SET name = '7tv_emote_twir_migration' WHERE name = '7tv emote';
 UPDATE channels_commands SET name = '7tv_rename_twir_migration' WHERE name = '7tv rename';
 UPDATE channels_commands SET name = '7tv_delete_twir_migration' WHERE name = '7tv delete';
