@@ -83,3 +83,60 @@ func AddEmote(ctx context.Context, sevenTvToken, input, setID string) error {
 func RemoveEmote(ctx context.Context, sevenTvToken, input, setID string) error {
 	return emoteAction(ctx, "REMOVE", sevenTvToken, input, setID)
 }
+
+func RenameEmote(ctx context.Context, sevenTvToken, setID, emoteID, newName string) error {
+	body := map[string]any{
+		"operationName": "ChangeEmoteInSet",
+		"variables": map[string]string{
+			"action":   "UPDATE",
+			"id":       setID,
+			"emote_id": emoteID,
+			"name":     newName,
+		},
+		"query": query,
+	}
+
+	var result sevenTvResponse
+	resp, err := req.
+		SetContext(ctx).
+		SetBody(body).
+		SetBearerAuthToken(sevenTvToken).
+		SetSuccessResult(&result).
+		Post("https://7tv.io/v3/gql")
+	if err != nil {
+		return nil
+	}
+	if !resp.IsSuccessState() || len(result.Errors) > 0 {
+		return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
+	}
+
+	return nil
+}
+
+func RemoveEmoteByID(ctx context.Context, sevenTvToken, setID, emoteID string) error {
+	body := map[string]any{
+		"operationName": "ChangeEmoteInSet",
+		"variables": map[string]string{
+			"action":   "REMOVE",
+			"id":       setID,
+			"emote_id": emoteID,
+		},
+		"query": query,
+	}
+
+	var result sevenTvResponse
+	resp, err := req.
+		SetContext(ctx).
+		SetBody(body).
+		SetBearerAuthToken(sevenTvToken).
+		SetSuccessResult(&result).
+		Post("https://7tv.io/v3/gql")
+	if err != nil {
+		return nil
+	}
+	if !resp.IsSuccessState() || len(result.Errors) > 0 {
+		return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
+	}
+
+	return nil
+}

@@ -8,26 +8,36 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
+	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/gorm"
 )
 
 type Commands struct {
-	db         *gorm.DB
-	parserGrpc parser.ParserClient
-	lock       sync.Mutex
-	logger     logger.Logger
+	db            *gorm.DB
+	parserGrpc    parser.ParserClient
+	lock          sync.Mutex
+	logger        logger.Logger
+	commandsCache *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 }
 
-func NewCommands(db *gorm.DB, parserGrpc parser.ParserClient, l logger.Logger) *Commands {
+func NewCommands(
+	db *gorm.DB,
+	parserGrpc parser.ParserClient,
+	l logger.Logger,
+	redisClient *redis.Client,
+) *Commands {
 	return &Commands{
-		db:         db,
-		parserGrpc: parserGrpc,
-		logger:     l,
+		db:            db,
+		parserGrpc:    parserGrpc,
+		logger:        l,
+		commandsCache: commandscache.New(db, redisClient),
 	}
 }
 
@@ -106,6 +116,8 @@ func (c *Commands) CreateDefaultCommands(ctx context.Context, usersIds []string)
 				Error; err != nil {
 				return fmt.Errorf("cannot create default command: %w", err)
 			}
+
+			c.commandsCache.Invalidate(ctx, channel.ID)
 		}
 	}
 

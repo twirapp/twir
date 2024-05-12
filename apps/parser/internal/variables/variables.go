@@ -9,6 +9,7 @@ import (
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types/services"
+	seventv "github.com/satont/twir/apps/parser/internal/variables/7tv"
 	"github.com/satont/twir/apps/parser/internal/variables/channel"
 	"github.com/satont/twir/apps/parser/internal/variables/chat_eval"
 	"github.com/satont/twir/apps/parser/internal/variables/donations/last_donate"
@@ -124,6 +125,10 @@ func New(opts *Opts) *Variables {
 			user.Reputation,
 			weather.Weather,
 			channel.Name,
+			seventv.ProfileLink,
+			seventv.EmoteSetLink,
+			seventv.EmoteSetName,
+			seventv.EmoteSetCount,
 		}, func(v *types.Variable) (string, *types.Variable) {
 			return v.Name, v
 		},

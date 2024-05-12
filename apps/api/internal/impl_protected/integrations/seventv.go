@@ -61,8 +61,8 @@ func (c *Integrations) IntegrationsSevenTvGetData(
 		return nil, err
 	}
 
-	var botSevenTvResponse seventv.SevenTvProfileResponse
-	var userSevenTvResponse seventv.SevenTvProfileResponse
+	var botSevenTvResponse seventv.ProfileResponse
+	var userSevenTvResponse seventv.ProfileResponse
 
 	wg, wgCtx := errgroup.WithContext(ctx)
 	wg.Go(

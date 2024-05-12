@@ -7,12 +7,13 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	db_generic_cacher "github.com/twirapp/twir/libs/cache/db-generic-cacher"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/dota"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
+	"github.com/twirapp/twir/libs/integrations/seventv"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -26,13 +27,15 @@ type Grpc struct {
 }
 
 type Services struct {
-	Config          *cfg.Config
-	Logger          *zap.Logger
-	Gorm            *gorm.DB
-	Sqlx            *sqlx.DB
-	Redis           *redis.Client
-	GrpcClients     *Grpc
-	TaskDistributor task_queue.TaskDistributor
-	Bus             *buscore.Bus
-	CommandsCache   *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	Config                  *cfg.Config
+	Logger                  *zap.Logger
+	Gorm                    *gorm.DB
+	Sqlx                    *sqlx.DB
+	Redis                   *redis.Client
+	GrpcClients             *Grpc
+	TaskDistributor         task_queue.TaskDistributor
+	Bus                     *buscore.Bus
+	CommandsCache           *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	SevenTvCache            *generic_cacher.GenericCacher[*seventv.ProfileResponse]
+	SevenTvCacheBySevenTvID *generic_cacher.GenericCacher[*seventv.ProfileResponse]
 }
