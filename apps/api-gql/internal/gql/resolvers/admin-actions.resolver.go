@@ -6,9 +6,14 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
+	"github.com/google/uuid"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"gorm.io/gorm"
 )
 
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
@@ -31,6 +36,60 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 }
 
 // EventsubSubscribe is the resolver for the eventsubSubscribe field.
-func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
-	panic(fmt.Errorf("not implemented: EventsubSubscribe - eventsubSubscribe"))
+func (r *mutationResolver) EventsubSubscribe(
+	ctx context.Context,
+	opts gqlmodel.EventsubSubscribeInput,
+) (bool, error) {
+	existedSubscription := model.EventsubTopic{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("topic = ?", opts.Type).
+		First(&existedSubscription).
+		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, nil
+	}
+
+	if existedSubscription.Topic != "" {
+		return false, fmt.Errorf("subscription already exists")
+	}
+
+	condition, err := r.eventSubGqlToCondition(opts.Condition)
+	if err != nil {
+		return false, fmt.Errorf("failed to convert condition: %w", err)
+	}
+
+	newTopic := model.EventsubTopic{
+		ID:            uuid.New(),
+		Topic:         opts.Type,
+		Version:       opts.Version,
+		ConditionType: condition,
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Create(&newTopic).
+		Error; err != nil {
+		return false, fmt.Errorf("failed to create topic: %w", err)
+	}
+
+	var channels []model.Channels
+	if err := r.gorm.
+		WithContext(ctx).
+		Select("id", `"isEnabled"`).
+		Where(`"isEnabled" = ?`, true).
+		Find(&channels).Error; err != nil {
+		return false, fmt.Errorf("failed to get channels: %w", err)
+	}
+
+	for _, channel := range channels {
+		go func() {
+			r.twirBus.EventSub.Subscribe.Publish(
+				eventsub.EventsubSubscribeRequest{
+					ChannelID: channel.ID,
+				},
+			)
+		}()
+	}
+
+	return true, nil
 }

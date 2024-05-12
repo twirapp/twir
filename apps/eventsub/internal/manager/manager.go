@@ -3,12 +3,10 @@ package manager
 import (
 	"context"
 	"log/slog"
-	"slices"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -206,6 +204,7 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(&model.EventsubSubscription{UserID: broadcasterId}).
+		Where("status NOT IN ?", statusesForSkip).
 		Find(&existedSubscriptions).
 		Error; err != nil {
 		return err
@@ -214,16 +213,6 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 	var wg sync.WaitGroup
 
 	for _, topic := range topics {
-		subscription, subscriptionFound := lo.Find(
-			existedSubscriptions,
-			func(item model.EventsubSubscription) bool {
-				return item.TopicID == topic.ID
-			},
-		)
-		if subscriptionFound && slices.Contains(statusesForSkip, subscription.Status) {
-			continue
-		}
-
 		wg.Add(1)
 
 		topic := topic

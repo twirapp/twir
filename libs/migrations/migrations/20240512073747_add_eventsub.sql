@@ -29,7 +29,7 @@ CREATE TABLE "eventsub_subscriptions"
 	"callback_url" VARCHAR(255) NOT NULL
 );
 
-CREATE INDEX "eventsub_topics_topic_idx" ON "eventsub_topics" ("topic");
+CREATE UNIQUE INDEX "eventsub_topics_topic_idx" ON "eventsub_topics" ("topic");
 CREATE INDEX "eventsub_subscriptions_user_id_idx" ON "eventsub_subscriptions" ("user_id");
 
 INSERT INTO eventsub_topics (topic, version, condition_type)
