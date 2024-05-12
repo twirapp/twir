@@ -1,48 +1,51 @@
 <script setup lang="ts">
-import { IconSettings } from '@tabler/icons-vue';
-import { NButton, NModal, NSpace } from 'naive-ui';
-import { FunctionalComponent, onUnmounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconSettings } from '@tabler/icons-vue'
+import { NButton, NModal, NSpace } from 'naive-ui'
+import { onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useUserAccessFlagChecker } from '@/api';
-import Card from '@/components/card/card.vue';
-import { ChannelRolePermissionEnum } from '@/gql/graphql';
+import type { FunctionalComponent } from 'vue'
+
+import { useUserAccessFlagChecker } from '@/api'
+import Card from '@/components/card/card.vue'
+import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const props = withDefaults(defineProps<{
 	title: string
 	icon?: FunctionalComponent
 	iconFill?: string
 	save?: () => void | Promise<void>
-	modalWidth?: string,
-	iconWidth?: string,
-	isLoading?: boolean,
+	modalWidth?: string
+	iconWidth?: string
+	isLoading?: boolean
 	saveDisabled?: boolean
+	modalContentStyle?: string
 }>(), {
 	modalWidth: '600px',
-});
+})
 
 defineSlots<{
-	settings: FunctionalComponent,
-	customDescriptionSlot?: FunctionalComponent,
+	settings: FunctionalComponent
+	customDescriptionSlot?: FunctionalComponent
 	additionalFooter?: FunctionalComponent
 	description?: FunctionalComponent | string
-}>();
+}>()
 
-const showSettings = ref(false);
+const showSettings = ref(false)
 
 async function callSave() {
-	await props.save?.();
+	await props.save?.()
 }
 
-const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations);
+const userCanManageIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageIntegrations)
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-onUnmounted(() => showSettings.value = false);
+onUnmounted(() => showSettings.value = false)
 </script>
 
 <template>
-	<card
+	<Card
 		:title="title"
 		style="height: 100%;"
 		:with-stroke="false"
@@ -59,7 +62,7 @@ onUnmounted(() => showSettings.value = false);
 		<template #footer>
 			<div class="flex justify-between flex-wrap w-full items-center gap-2">
 				<div>
-					<n-button
+					<NButton
 						:disabled="!userCanManageIntegrations"
 						secondary
 						size="large"
@@ -69,7 +72,7 @@ onUnmounted(() => showSettings.value = false);
 							<span>{{ t('sharedButtons.settings') }}</span>
 							<IconSettings />
 						</div>
-					</n-button>
+					</NButton>
 				</div>
 
 				<div>
@@ -77,9 +80,9 @@ onUnmounted(() => showSettings.value = false);
 				</div>
 			</div>
 		</template>
-	</card>
+	</Card>
 
-	<n-modal
+	<NModal
 		v-model:show="showSettings"
 		:mask-closable="false"
 		:segmented="true"
@@ -89,8 +92,9 @@ onUnmounted(() => showSettings.value = false);
 		:style="{
 			width: modalWidth,
 			top: '5%',
-			bottom: '5%'
+			bottom: '5%',
 		}"
+		:content-style="modalContentStyle"
 	>
 		<template #header>
 			{{ title }}
@@ -98,14 +102,14 @@ onUnmounted(() => showSettings.value = false);
 		<slot name="settings" />
 
 		<template #action>
-			<n-space justify="end">
-				<n-button secondary @click="showSettings = false">
+			<NSpace justify="end">
+				<NButton secondary @click="showSettings = false">
 					{{ t('sharedButtons.close') }}
-				</n-button>
-				<n-button v-if="save" secondary type="success" :disabled="saveDisabled" @click="callSave">
+				</NButton>
+				<NButton v-if="save" secondary type="success" :disabled="saveDisabled" @click="callSave">
 					{{ t('sharedButtons.save') }}
-				</n-button>
-			</n-space>
+				</NButton>
+			</NSpace>
 		</template>
-	</n-modal>
+	</NModal>
 </template>

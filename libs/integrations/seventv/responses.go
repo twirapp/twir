@@ -1,6 +1,6 @@
 package seventv
 
-type SevenTvProfileResponse struct {
+type ProfileResponse struct {
 	Id            string      `json:"id"`
 	Platform      string      `json:"platform"`
 	Username      string      `json:"username"`
@@ -25,6 +25,7 @@ type SevenTvProfileResponse struct {
 			} `json:"style"`
 			Roles []string `json:"roles"`
 		} `json:"owner"`
+		Emotes []Emote `json:"emotes"`
 	} `json:"emote_set"`
 	User struct {
 		Id          string `json:"id"`
@@ -61,4 +62,43 @@ type SevenTvProfileResponse struct {
 			} `json:"emote_set"`
 		} `json:"connections"`
 	} `json:"user"`
+}
+
+type Emote struct {
+	Id        string `json:"id"`
+	Name      string `json:"name"`
+	Flags     int    `json:"flags"`
+	Timestamp int64  `json:"timestamp"`
+	ActorId   string `json:"actor_id"`
+	Data      struct {
+		Id        string   `json:"id"`
+		Name      string   `json:"name"`
+		Flags     int      `json:"flags"`
+		Tags      []string `json:"tags"`
+		Lifecycle int      `json:"lifecycle"`
+		State     []string `json:"state"`
+		Listed    bool     `json:"listed"`
+		Animated  bool     `json:"animated"`
+		Owner     struct {
+			Id          string `json:"id"`
+			Username    string `json:"username"`
+			DisplayName string `json:"display_name"`
+			AvatarUrl   string `json:"avatar_url"`
+			Style       struct {
+			} `json:"style"`
+			Roles []string `json:"roles"`
+		} `json:"owner"`
+		Host struct {
+			Url   string `json:"url"`
+			Files []struct {
+				Name       string `json:"name"`
+				StaticName string `json:"static_name"`
+				Width      int    `json:"width"`
+				Height     int    `json:"height"`
+				FrameCount int    `json:"frame_count"`
+				Size       int    `json:"size"`
+				Format     string `json:"format"`
+			} `json:"files"`
+		} `json:"host"`
+	} `json:"data"`
 }

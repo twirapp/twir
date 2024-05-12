@@ -1,4 +1,4 @@
-package db_generic_cacher
+package generic_cacher
 
 import (
 	"context"
