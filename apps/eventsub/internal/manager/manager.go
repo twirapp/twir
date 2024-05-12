@@ -55,6 +55,16 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 		tunnel:     opts.Tunnel,
 	}
 
+	// var topics []model.EventsubTopic
+	// err := opts.Gorm.
+	// 	Joins("Subscriptions").
+	// 	Joins("Subscriptions.Channel").
+	// 	Joins("Subscriptions.Channel.User").
+	// 	Find(&topics).Error
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
