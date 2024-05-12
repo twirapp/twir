@@ -25,10 +25,22 @@ const { t } = useI18n()
 const mutationEventSubSubscribe = useMutationEventSubSubscribe()
 
 const conditionTranslations = {
-	[EventsubSubscribeConditionInput.User]: t('adminPanel.adminActions.eventsub.user'),
-	[EventsubSubscribeConditionInput.Channel]: t('adminPanel.adminActions.eventsub.channel'),
-	[EventsubSubscribeConditionInput.ChannelWithBotId]: t('adminPanel.adminActions.eventsub.channelWithBotId'),
-	[EventsubSubscribeConditionInput.ChannelWithModeratorId]: t('adminPanel.adminActions.eventsub.channelWithModeratorId'),
+	[EventsubSubscribeConditionInput.User]: {
+		label: t('adminPanel.adminActions.eventsub.user'),
+		examplePayload: '{ "user_id": "1234" }',
+	},
+	[EventsubSubscribeConditionInput.Channel]: {
+		label: t('adminPanel.adminActions.eventsub.channel'),
+		examplePayload: '{ "broadcaster_user_id": "1234" }',
+	},
+	[EventsubSubscribeConditionInput.ChannelWithBotId]: {
+		label: t('adminPanel.adminActions.eventsub.channelWithBotId'),
+		examplePayload: '{ "broadcaster_user_id": "1234", "user_id": "1234" }',
+	},
+	[EventsubSubscribeConditionInput.ChannelWithModeratorId]: {
+		label: t('adminPanel.adminActions.eventsub.channelWithModeratorId'),
+		examplePayload: '{ "broadcaster_user_id": "1234", "moderator_user_id": "1234" }',
+	},
 }
 
 const formSchema = toTypedSchema(z.object({
@@ -86,7 +98,14 @@ const onSubmit = handleSubmit((values) => {
 											:key="condition"
 											:value="condition"
 										>
-											{{ conditionTranslations[condition] }}
+											<div class="flex gap-2 items-center">
+												<span>
+													{{ conditionTranslations[condition].label }}
+												</span>
+												<span class="text-xs text-zinc-500">
+													{{ conditionTranslations[condition].examplePayload }}
+												</span>
+											</div>
 										</SelectItem>
 									</SelectGroup>
 								</SelectContent>
