@@ -30,7 +30,7 @@ type Manager struct {
 	tunnel     *tunnel.AppTunnel
 }
 
-type ManagerOpts struct {
+type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
@@ -42,7 +42,7 @@ type ManagerOpts struct {
 	Tunnel     *tunnel.AppTunnel
 }
 
-func NewManager(opts ManagerOpts) (*Manager, error) {
+func NewManager(opts Opts) (*Manager, error) {
 	client := eventsub_framework.NewSubClient(opts.Creds)
 
 	manager := &Manager{
@@ -128,8 +128,9 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 						}
 					}
 
-					manager.Subscribe(
-						requestContext, &eventsub_framework.SubRequest{
+					manager.SubscribeWithLimits(
+						requestContext,
+						&eventsub_framework.SubRequest{
 							Type: "user.authorization.revoke",
 							Condition: map[string]string{
 								"client_id": opts.Config.TwitchClientId,
@@ -147,11 +148,6 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 	)
 
 	return manager, nil
-}
-
-type SubRequest struct {
-	Version   string
-	Condition map[string]string
 }
 
 func getTypeCondition(
@@ -238,7 +234,7 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 				return
 			}
 
-			status, err := c.Subscribe(
+			status, err := c.SubscribeWithLimits(
 				ctx,
 				&eventsub_framework.SubRequest{
 					Type:      topic.Topic,
@@ -283,28 +279,6 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 	}
 
 	wg.Wait()
-
-	// var subscriptions []helix.EventSubSubscription
-	// cursor := ""
-	// for {
-	// 	subs, err := twitchClient.GetEventSubSubscriptions(
-	// 		&helix.EventSubSubscriptionsParams{
-	// 			UserID: userId,
-	// 			After:  cursor,
-	// 		},
-	// 	)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	//
-	// 	subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
-	//
-	// 	if subs.Data.Pagination.Cursor == "" {
-	// 		break
-	// 	}
-	//
-	// 	cursor = subs.Data.Pagination.Cursor
-	// }
 
 	return nil
 }
