@@ -17,10 +17,10 @@
     "setDefaultSettings": "Standardeinstellungen festlegen",
     "goToDashboard": "Zur Übersicht gehen",
     "add": "Hinzufügen",
-    "send": "Send",
+    "send": "Senden",
     "next": "Next",
     "previous": "Previous",
-    "reset": "Reset"
+    "reset": "Zurücksetzen"
   },
   "sharedTexts": {
     "saved": "Erfolgreich gespeichert",
@@ -44,15 +44,15 @@
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
     "pagination": "{page} page(s) / {total} item(s)",
-    "paginationPerPage": "Per page",
+    "paginationPerPage": "Pro Seite",
     "searchPlaceholder": "Search...",
-    "messages": "Messages",
+    "messages": "Nachrichten",
     "asc": "Asc",
     "desc": "Desc",
     "hide": "Hide",
     "view": "View",
     "toggleColumns": "Toggle columns",
-    "copied": "Copied",
+    "copied": "Kopiert",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found"
