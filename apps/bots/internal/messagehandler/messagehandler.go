@@ -16,7 +16,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	db_generic_cacher "github.com/twirapp/twir/libs/cache/db-generic-cacher"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -39,7 +39,7 @@ type Opts struct {
 	ModerationHelpers *moderationhelpers.ModerationHelpers
 	Config            cfg.Config
 	Bus               *buscore.Bus
-	KeywordsCacher    *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	KeywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 }
 
 type MessageHandler struct {
@@ -53,7 +53,7 @@ type MessageHandler struct {
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
 	bus               *buscore.Bus
-	keywordsCacher    *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	keywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 }
 
 func New(opts Opts) *MessageHandler {
