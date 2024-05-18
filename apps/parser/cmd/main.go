@@ -20,6 +20,7 @@ import (
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
@@ -162,9 +163,11 @@ func main() {
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor: taskQueueDistributor,
-		Bus:             bus,
-		CommandsCache:   commandscache.New(db, redisClient),
+		TaskDistributor:         taskQueueDistributor,
+		Bus:                     bus,
+		CommandsCache:           commandscache.New(db, redisClient),
+		SevenTvCache:            seventv.New(redisClient),
+		SevenTvCacheBySevenTvID: seventv.NewBySeventvID(redisClient),
 	}
 
 	variablesService := variables.New(

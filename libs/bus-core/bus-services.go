@@ -34,6 +34,7 @@ type botsBus struct {
 	ProcessMessage Queue[twitch.TwitchChatMessage, struct{}]
 	SendMessage    Queue[botsservice.SendMessageRequest, struct{}]
 	DeleteMessage  Queue[botsservice.DeleteMessageRequest, struct{}]
+	BanUser        Queue[botsservice.BanRequest, struct{}]
 }
 
 type emotesCacherBus struct {
