@@ -5,6 +5,7 @@ import (
 	"log/slog"
 
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
+	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -28,23 +29,25 @@ type Opts struct {
 	Logger logger.Logger
 	Cfg    cfg.Config
 
-	TokensGrpc     tokens.TokensClient
-	TwitchActions  *twitchactions.TwitchActions
-	MessageHandler *messagehandler.MessageHandler
-	Tracer         trace.Tracer
-	Bus            *bus_core.Bus
+	TokensGrpc         tokens.TokensClient
+	TwitchActions      *twitchactions.TwitchActions
+	MessageHandler     *messagehandler.MessageHandler
+	Tracer             trace.Tracer
+	Bus                *bus_core.Bus
+	ModTaskDistributor mod_task_queue.TaskDistributor
 }
 
 func New(opts Opts) (*BusListener, error) {
 	listener := &BusListener{
-		gorm:           opts.Gorm,
-		logger:         opts.Logger,
-		config:         opts.Cfg,
-		tokensGrpc:     opts.TokensGrpc,
-		twitchactions:  opts.TwitchActions,
-		messageHandler: opts.MessageHandler,
-		tracer:         opts.Tracer,
-		bus:            opts.Bus,
+		gorm:               opts.Gorm,
+		logger:             opts.Logger,
+		config:             opts.Cfg,
+		tokensGrpc:         opts.TokensGrpc,
+		twitchactions:      opts.TwitchActions,
+		messageHandler:     opts.MessageHandler,
+		tracer:             opts.Tracer,
+		bus:                opts.Bus,
+		modTaskDistributor: opts.ModTaskDistributor,
 	}
 
 	opts.LC.Append(
@@ -53,6 +56,7 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.SendMessage.SubscribeGroup("bots", listener.sendMessage)
 				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
 				listener.bus.Bots.ProcessMessage.SubscribeGroup("bots", listener.handleChatMessage)
+				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
 
 				return nil
 			},
@@ -60,6 +64,8 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.SendMessage.Unsubscribe()
 				listener.bus.Bots.ProcessMessage.Unsubscribe()
 				listener.bus.Bots.DeleteMessage.Unsubscribe()
+				listener.bus.Bots.BanUser.Unsubscribe()
+
 				return nil
 			},
 		},
@@ -69,14 +75,15 @@ func New(opts Opts) (*BusListener, error) {
 }
 
 type BusListener struct {
-	gorm           *gorm.DB
-	logger         logger.Logger
-	config         cfg.Config
-	tokensGrpc     tokens.TokensClient
-	twitchactions  *twitchactions.TwitchActions
-	messageHandler *messagehandler.MessageHandler
-	tracer         trace.Tracer
-	bus            *bus_core.Bus
+	gorm               *gorm.DB
+	logger             logger.Logger
+	config             cfg.Config
+	tokensGrpc         tokens.TokensClient
+	twitchactions      *twitchactions.TwitchActions
+	messageHandler     *messagehandler.MessageHandler
+	tracer             trace.Tracer
+	bus                *bus_core.Bus
+	modTaskDistributor mod_task_queue.TaskDistributor
 }
 
 func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) struct{} {

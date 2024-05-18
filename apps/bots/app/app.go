@@ -6,6 +6,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/satont/twir/apps/bots/internal/bus-listener"
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
+	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -42,6 +43,10 @@ var App = fx.Module(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
+		fx.Annotate(
+			mod_task_queue.NewRedisModTaskDistributor,
+			fx.As(new(mod_task_queue.TaskDistributor)),
+		),
 		keywordscache.New,
 		twitchactions.New,
 		moderationhelpers.New,
@@ -60,5 +65,6 @@ var App = fx.Module(
 		func(l logger.Logger) {
 			l.Info("Bots started")
 		},
+		mod_task_queue.NewRedisTaskProcessor,
 	),
 )

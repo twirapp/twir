@@ -8,7 +8,7 @@ import {
 	NInputNumber,
 	NModal,
 	NSpace,
-	NSwitch
+	NSwitch,
 } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -36,7 +36,7 @@ const initialSettings: GamesQuery['gamesRussianRoulette'] = {
 	initMessage: '{sender} has initiated a game of roulette. Is luck on their side?',
 	surviveMessage: '{sender} survives the game of roulette! Luck smiles upon them.',
 	deathMessage: `{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.`,
-	tumberSize: 6
+	tumberSize: 6,
 }
 
 const formValue = ref<GamesQuery['gamesRussianRoulette']>({ ...initialSettings })
@@ -57,7 +57,7 @@ async function save() {
 	await updater.executeMutation({ opts: formValue.value })
 	notification.success({
 		title: t('sharedTexts.saved'),
-		duration: 2500
+		duration: 2500,
 	})
 }
 
@@ -71,7 +71,7 @@ function resetSettings() {
 		onPositiveClick: () => {
 			formValue.value = initialSettings
 			save()
-		}
+		},
 	})
 }
 </script>

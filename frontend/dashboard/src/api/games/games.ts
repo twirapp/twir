@@ -38,6 +38,13 @@ export const useGamesApi = createGlobalState(() => {
 					chargedBullets
 					tumberSize
 				}
+				gamesSeppuku {
+					enabled
+					message
+					messageModerators
+					timeoutModerators
+					timeoutSeconds
+				}
 			}
 		`),
 		variables: {},
@@ -80,10 +87,22 @@ export const useGamesApi = createGlobalState(() => {
 		[gamesInvalidationKey],
 	)
 
+	const useSeppukuMutation = () => useMutation(
+		graphql(`
+			mutation UpdateSeppukuSettings($opts: SeppukuGameOpts!) {
+				gamesSeppukuUpdate(opts: $opts) {
+					message
+				}
+			}
+		`),
+		[gamesInvalidationKey],
+	)
+
 	return {
 		useGamesQuery,
 		useEightBallMutation,
 		useDuelMutation,
 		useRussianRouletteMutation,
+		useSeppukuMutation,
 	}
 })

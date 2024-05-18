@@ -318,3 +318,82 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 
 	return r.Query().GamesRussianRoulette(ctx)
 }
+
+func (r *queryResolver) gamesSeppuku(ctx context.Context) (*gqlmodel.SeppukuGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesSeppuku{
+		ChannelID:         dashboardId,
+		Enabled:           false,
+		TimeoutSeconds:    60,
+		TimeoutModerators: false,
+		Message:           "{sender} said: my honor tarnished, I reclaim it through death. May my spirit find peace. Farewell.",
+		MessageModerators: "{sender} drew his sword and ripped open his belly for the sad emperor.",
+	}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		FirstOrCreate(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get seppuku settings: %w", err)
+	}
+
+	return &gqlmodel.SeppukuGame{
+		Enabled:           entity.Enabled,
+		TimeoutSeconds:    int(entity.TimeoutSeconds),
+		TimeoutModerators: entity.TimeoutModerators,
+		Message:           entity.Message,
+		MessageModerators: entity.MessageModerators,
+	}, nil
+}
+
+func (r *mutationResolver) gamesUpdateSeppuku(
+	ctx context.Context,
+	opts gqlmodel.SeppukuGameOpts,
+) (*gqlmodel.SeppukuGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesSeppuku{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		First(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get seppuku settings: %w", err)
+	}
+
+	if opts.Enabled.IsSet() {
+		entity.Enabled = *opts.Enabled.Value()
+	}
+
+	if opts.TimeoutSeconds.IsSet() {
+		entity.TimeoutSeconds = int8(*opts.TimeoutSeconds.Value())
+	}
+
+	if opts.TimeoutModerators.IsSet() {
+		entity.TimeoutModerators = *opts.TimeoutModerators.Value()
+	}
+
+	if opts.Message.IsSet() {
+		entity.Message = *opts.Message.Value()
+	}
+
+	if opts.MessageModerators.IsSet() {
+		entity.MessageModerators = *opts.MessageModerators.Value()
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to save settings: %w", err)
+	}
+
+	return r.Query().GamesSeppuku(ctx)
+}

@@ -104,6 +104,7 @@ func New(opts *Opts) *Commands {
 			games.Duel,
 			games.DuelAccept,
 			games.DuelStats,
+			games.Seppuku,
 			dudes.Jump,
 			dudes.Grow,
 			dudes.Color,

@@ -2,12 +2,14 @@ extend type Query {
 	gamesEightBall: EightBallGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 	gamesDuel: DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 	gamesRussianRoulette: RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
+	gamesSeppuku: SeppukuGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 }
 
 extend type Mutation {
 	gamesEightBallUpdate(opts: EightBallGameOpts!): EightBallGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 	gamesDuelUpdate(opts: DuelGameOpts!): DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 	gamesRussianRouletteUpdate(opts: RussianRouletteGameOpts!): RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
+	gamesSeppukuUpdate(opts: SeppukuGameOpts!): SeppukuGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 }
 
 type EightBallGame {
@@ -70,4 +72,20 @@ input RussianRouletteGameOpts {
 	deathMessage: String @validate(constraint: "max=500")
 	chargedBullets: Int @validate(constraint: "max=999999")
 	tumberSize: Int @validate(constraint: "max=999999")
+}
+
+type SeppukuGame {
+	enabled: Boolean!
+	timeoutSeconds: Int!
+	timeoutModerators: Boolean!
+	message: String!
+	messageModerators: String!
+}
+
+input SeppukuGameOpts {
+	enabled: Boolean
+	timeoutSeconds: Int @validate(constraint: "max=84600,min=1")
+	timeoutModerators: Boolean
+	message: String @validate(constraint: "max=500")
+	messageModerators: String @validate(constraint: "max=500")
 }

@@ -25,6 +25,11 @@ func (r *mutationResolver) GamesRussianRouletteUpdate(ctx context.Context, opts 
 	return r.gamesUpdateRussianRoulette(ctx, opts)
 }
 
+// GamesSeppukuUpdate is the resolver for the gamesSeppukuUpdate field.
+func (r *mutationResolver) GamesSeppukuUpdate(ctx context.Context, opts gqlmodel.SeppukuGameOpts) (*gqlmodel.SeppukuGame, error) {
+	return r.gamesUpdateSeppuku(ctx, opts)
+}
+
 // GamesEightBall is the resolver for the gamesEightBall field.
 func (r *queryResolver) GamesEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
 	return r.gamesGetEightBall(ctx)
@@ -38,4 +43,9 @@ func (r *queryResolver) GamesDuel(ctx context.Context) (*gqlmodel.DuelGame, erro
 // GamesRussianRoulette is the resolver for the gamesRussianRoulette field.
 func (r *queryResolver) GamesRussianRoulette(ctx context.Context) (*gqlmodel.RussianRouletteGame, error) {
 	return r.gamesGetRussianRoulette(ctx)
+}
+
+// GamesSeppuku is the resolver for the gamesSeppuku field.
+func (r *queryResolver) GamesSeppuku(ctx context.Context) (*gqlmodel.SeppukuGame, error) {
+	return r.gamesSeppuku(ctx)
 }
