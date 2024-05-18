@@ -3,6 +3,7 @@ extend type Query {
 	gamesDuel: DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 	gamesRussianRoulette: RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 	gamesSeppuku: SeppukuGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
+	gamesVoteban: VotebanGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_GAMES)
 }
 
 extend type Mutation {
@@ -10,6 +11,7 @@ extend type Mutation {
 	gamesDuelUpdate(opts: DuelGameOpts!): DuelGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 	gamesRussianRouletteUpdate(opts: RussianRouletteGameOpts!): RussianRouletteGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 	gamesSeppukuUpdate(opts: SeppukuGameOpts!): SeppukuGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
+	gamesVotebanUpdate(opts: VotebanGameOpts!): VotebanGame! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_GAMES)
 }
 
 type EightBallGame {
@@ -88,4 +90,41 @@ input SeppukuGameOpts {
 	timeoutModerators: Boolean
 	message: String @validate(constraint: "max=500")
 	messageModerators: String @validate(constraint: "max=500")
+}
+
+enum VoteBanGameVotingMode {
+	CHAT
+	POLLS
+}
+
+type VotebanGame {
+	enabled: Boolean!
+	timeoutSeconds: Int!
+	timeoutModerators: Boolean!
+	initMessage: String!
+	banMessage: String!
+	banMessageModerators: String!
+	surviveMessage: String!
+	surviveMessageModerators: String!
+	neededVotes: Int!
+	voteDuration: Int!
+	votingMode: VoteBanGameVotingMode!
+	chatVotesWordsPositive: [String!]!
+	chatVotesWordsNegative: [String!]!
+}
+
+input VotebanGameOpts {
+	enabled: Boolean
+	timeoutSeconds: Int @validate(constraint: "min=1,max=84600")
+	timeoutModerators: Boolean
+	initMessage: String @validate(constraint: "max=500")
+	banMessage: String @validate(constraint: "max=500")
+	banMessageModerators: String @validate(constraint: "max=500")
+	surviveMessage: String @validate(constraint: "max=500")
+	surviveMessageModerators: String @validate(constraint: "max=500")
+	neededVotes: Int @validate(constraint: "min=1,max=999999")
+	voteDuration: Int @validate(constraint: "min,max=84600")
+	votingMode: VoteBanGameVotingMode @validate(constraint: "max=500")
+	chatVotesWordsPositive: [String!] @validate(constraint: "dive,max=500")
+	chatVotesWordsNegative: [String!] @validate(constraint: "dive,max=500")
 }
