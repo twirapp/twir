@@ -768,6 +768,13 @@
         "pointsPerLose": "Репутация за поражение",
         "bothDiePercent": "Вероятность того, что оба пользователя умрут"
       }
+    },
+    "seppuku": {
+      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
+      "message": "Message",
+      "timeoutModerators": "Enable seppuku for moderators",
+      "messageModerators": "Message when moderator used seppuku",
+      "timeoutSeconds": "Timeout seconds"
     }
   },
   "community": {
