@@ -19,6 +19,7 @@ import Card from './card.vue'
 import type { VotebanGame } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games.js'
+import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import CommandButton from '@/features/commands/components/command-button.vue'
 import { VoteBanGameVotingMode } from '@/gql/graphql'
 
@@ -125,6 +126,24 @@ async function save() {
 					]"
 				/>
 			</NFormItem>
+
+			<TagsInput v-model="formValue.chatVotesWordsPositive" :max="maxWords" class="bg-zinc-700 w-full">
+				<TagsInputItem v-for="item in formValue.chatVotesWordsPositive" :key="item" :value="item">
+					<TagsInputItemText />
+					<TagsInputItemDelete />
+				</TagsInputItem>
+
+				<TagsInputInput :placeholder="t('games.voteban.wordsPositive')" />
+			</TagsInput>
+
+			<TagsInput v-model="formValue.chatVotesWordsNegative" :max="maxWords" class="bg-zinc-700 w-full mb-6">
+				<TagsInputItem v-for="item in formValue.chatVotesWordsNegative" :key="item" :value="item">
+					<TagsInputItemText />
+					<TagsInputItemDelete />
+				</TagsInputItem>
+
+				<TagsInputInput :placeholder="t('games.voteban.wordsNegative')" />
+			</TagsInput>
 
 			<NFormItem :label="t('games.voteban.voteDuration')">
 				<NInputNumber v-model:value="formValue.voteDuration" style="width: 100%" :min="1" :max="84600" />
