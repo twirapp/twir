@@ -86,7 +86,7 @@ export const features: Feature[] = [
 	},
 	{
 		title: 'Games',
-		description: 'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, and the magic 8-ball for your entertainment',
+		description: 'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
 		icon: GamesSvg,
 	},
 ]
