@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/kr/pretty"
 	"github.com/redis/go-redis/v9"
+	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	model "github.com/satont/twir/libs/gomodels"
 	"gorm.io/gorm"
 )
@@ -83,18 +83,62 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 		}
 	}
 
-	pretty.Println(voteEntity)
-
 	if voteEntity.TotalVotes >= gameEntity.NeededVotes {
-		// TODO: make logic for timeout/not timeout
+		isPositive := true
+		if voteEntity.NegativeVotes > voteEntity.PositiveVotes {
+			isPositive = false
+		}
 
-		pretty.Println(
-			"Voteban success",
-			voteEntity,
-		)
+		var message string
+		if isPositive {
+			if voteEntity.TargetIsMod {
+				message = gameEntity.BanMessageModerators
+			} else {
+				message = gameEntity.BanMessage
+			}
+		} else {
+			if voteEntity.TargetIsMod {
+				message = gameEntity.SurviveMessageModerators
+			} else {
+				message = gameEntity.SurviveMessage
+			}
+		}
+
+		if err := c.twitchActions.Ban(
+			ctx,
+			twitchactions.BanOpts{
+				Duration:       int(gameEntity.TimeoutSeconds),
+				Reason:         message,
+				BroadcasterID:  msg.BroadcasterUserId,
+				UserID:         voteEntity.TargetUserId,
+				ModeratorID:    msg.DbChannel.BotID,
+				IsModerator:    voteEntity.TargetIsMod,
+				AddModAfterBan: true,
+			},
+		); err != nil {
+			return err
+		}
+
+		if err := c.twitchActions.SendMessage(
+			ctx,
+			twitchactions.SendMessageOpts{
+				BroadcasterID: msg.BroadcasterUserId,
+				SenderID:      msg.DbChannel.BotID,
+				Message:       message,
+			},
+		); err != nil {
+			return err
+		}
 
 		if err := c.redis.Del(ctx, redisKey).Err(); err != nil {
 			return err
+		}
+
+		votesKeys := c.redis.Keys(ctx, fmt.Sprintf("%s:votes:*", redisKey)).Val()
+		if len(votesKeys) > 0 {
+			if err := c.redis.Del(ctx, votesKeys...).Err(); err != nil {
+				return err
+			}
 		}
 	} else {
 		if err := c.redis.HSet(

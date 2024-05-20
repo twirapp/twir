@@ -77,12 +77,24 @@ var Voteban = &types.DefaultCommand{
 				}, nil
 			}
 
+			targetUserStatsEntity := model.UsersStats{}
+			if err := parseCtx.Services.Gorm.
+				WithContext(ctx).
+				Where(`"userId" = ? AND "channelId" = ?`, targetUser.UserId, parseCtx.Channel.ID).
+				First(&targetUserStatsEntity).Error; err != nil {
+				return nil, &types.CommandHandlerError{
+					Message: "cannot find target user",
+					Err:     err,
+				}
+			}
+
 			if err := parseCtx.Services.Redis.HSet(
 				ctx,
 				redisKey,
 				model.ChannelGamesVoteBanRedisStruct{
 					TargetUserId:   targetUser.UserId,
 					TargetUserName: targetUser.UserName,
+					TargetIsMod:    targetUserStatsEntity.IsMod,
 					TotalVotes:     1,
 					PositiveVotes:  1,
 					NegativeVotes:  0,

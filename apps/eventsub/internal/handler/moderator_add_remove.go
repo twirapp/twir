@@ -17,6 +17,11 @@ func (c *Handler) handleChannelModeratorAdd(
 		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, true)
+
+	if err := c.updateUserModStatus(event.BroadcasterUserID, event.UserID, true); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+		return
+	}
 }
 
 func (c *Handler) handleChannelModeratorRemove(
@@ -29,6 +34,24 @@ func (c *Handler) handleChannelModeratorRemove(
 		slog.String("userName", event.UserLogin),
 	)
 	c.updateBotStatus(event.BroadcasterUserID, event.UserID, false)
+
+	if err := c.updateUserModStatus(event.BroadcasterUserID, event.UserID, false); err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+		return
+	}
+}
+
+func (c *Handler) updateUserModStatus(channelId string, userId string, newStatus bool) error {
+	userStats := model.UsersStats{}
+	if err := c.gorm.
+		Where(`"userId" = ? and "channelId" = ?`, userId, channelId).
+		First(&userStats).Error; err != nil {
+		return err
+	}
+
+	userStats.IsMod = newStatus
+
+	return c.gorm.Save(&userStats).Error
 }
 
 func (c *Handler) updateBotStatus(channelId string, userId string, newStatus bool) {
