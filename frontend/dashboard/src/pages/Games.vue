@@ -6,6 +6,7 @@ import EightBall from '@/components/games/8ball.vue'
 import Duel from '@/components/games/duel.vue'
 import RussianRoulette from '@/components/games/russianRoulette.vue'
 import Seppuku from '@/components/games/seppuku.vue'
+import Voteban from '@/components/games/voteban.vue'
 </script>
 
 <template>
@@ -25,6 +26,10 @@ import Seppuku from '@/components/games/seppuku.vue'
 
 			<NGridItem :span="1">
 				<Seppuku />
+			</NGridItem>
+
+			<NGridItem :span="1">
+				<Voteban />
 			</NGridItem>
 		</NGrid>
 	</div>

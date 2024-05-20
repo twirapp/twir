@@ -518,13 +518,14 @@ func (r *queryResolver) gamesVoteban(ctx context.Context) (*gqlmodel.VotebanGame
 		BanMessageModerators:     "User {targetUser} is not worthy of being in chat.",
 		SurviveMessage:           "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
 		SurviveMessageModerators: "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
-		NeededVotes:              0,
-		VoteDuration:             0,
+		NeededVotes:              1,
+		VoteDuration:             1,
 		VotingMode:               model.ChannelGamesVoteBanVotingModeChat,
 		ChatVotesWordsPositive:   pq.StringArray{"Yay"},
 		ChatVotesWordsNegative:   pq.StringArray{"Nay"},
 	}
 	if err := r.gorm.
+		Debug().
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		FirstOrCreate(&entity).

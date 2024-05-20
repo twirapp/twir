@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/guregu/null"
@@ -128,8 +129,24 @@ var Voteban = &types.DefaultCommand{
 				parseCtx.Services.Redis.Del(ctx, redisKey)
 			}
 
+			initMessage := strings.ReplaceAll(
+				entity.InitMessage,
+				"{targetUser}",
+				targetUser.UserName,
+			)
+			initMessage = strings.ReplaceAll(
+				initMessage,
+				"{positiveTexts}",
+				strings.Join(entity.ChatVotesWordsPositive, " · "),
+			)
+			initMessage = strings.ReplaceAll(
+				initMessage,
+				"{negativeTexts}",
+				strings.Join(entity.ChatVotesWordsNegative, " · "),
+			)
+
 			return &types.CommandsHandlerResult{
-				Result: []string{entity.InitMessage},
+				Result: []string{initMessage},
 			}, nil
 		}
 

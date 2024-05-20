@@ -104,6 +104,8 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			}
 		}
 
+		message = strings.ReplaceAll(message, "{targetUser}", voteEntity.TargetUserName)
+
 		if err := c.twitchActions.Ban(
 			ctx,
 			twitchactions.BanOpts{
