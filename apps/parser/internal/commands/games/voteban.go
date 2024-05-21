@@ -62,6 +62,10 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
+		if targetUser.UserId == parseCtx.Channel.ID {
+			return nil, nil
+		}
+
 		redisKey := fmt.Sprintf("channels:%s:games:voteban", parseCtx.Channel.ID)
 		if entity.VotingMode == model.ChannelGamesVoteBanVotingModeChat {
 			voteInProgress, err := parseCtx.Services.Redis.Exists(ctx, redisKey).Result()
