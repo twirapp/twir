@@ -24,7 +24,7 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 		return err
 	}
 
-	if voteExists == 0 {
+	if voteExists > 0 {
 		return nil
 	}
 
