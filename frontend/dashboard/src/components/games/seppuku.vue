@@ -24,7 +24,7 @@ const isModalOpened = ref(false)
 
 const gamesManager = useGamesApi()
 const { data } = gamesManager.useGamesQuery()
-const updater = gamesManager.useEightBallMutation()
+const updater = gamesManager.useSeppukuMutation()
 
 const formValue = ref<SeppukuGame>({
 	enabled: false,
