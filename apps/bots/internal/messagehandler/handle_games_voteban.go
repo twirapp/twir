@@ -106,19 +106,21 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 
 		message = strings.ReplaceAll(message, "{targetUser}", voteEntity.TargetUserName)
 
-		if err := c.twitchActions.Ban(
-			ctx,
-			twitchactions.BanOpts{
-				Duration:       gameEntity.TimeoutSeconds,
-				Reason:         message,
-				BroadcasterID:  msg.BroadcasterUserId,
-				UserID:         voteEntity.TargetUserId,
-				ModeratorID:    msg.DbChannel.BotID,
-				IsModerator:    voteEntity.TargetIsMod,
-				AddModAfterBan: true,
-			},
-		); err != nil {
-			return err
+		if isPositive {
+			if err := c.twitchActions.Ban(
+				ctx,
+				twitchactions.BanOpts{
+					Duration:       gameEntity.TimeoutSeconds,
+					Reason:         message,
+					BroadcasterID:  msg.BroadcasterUserId,
+					UserID:         voteEntity.TargetUserId,
+					ModeratorID:    msg.DbChannel.BotID,
+					IsModerator:    voteEntity.TargetIsMod,
+					AddModAfterBan: true,
+				},
+			); err != nil {
+				return err
+			}
 		}
 
 		if err := c.twitchActions.SendMessage(
