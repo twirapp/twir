@@ -16,7 +16,7 @@ type ChannelGamesVoteBan struct {
 	ID                       uuid.UUID                     `gorm:"column:id;type:uuid;default:gen_random_uuid()"`
 	ChannelID                string                        `gorm:"column:channel_id;type:text"`
 	Enabled                  bool                          `gorm:"column:enabled;type:bool"`
-	TimeoutSeconds           int8                          `gorm:"column:timeout_seconds;type:int2"`
+	TimeoutSeconds           int                           `gorm:"column:timeout_seconds;type:int"`
 	TimeoutModerators        bool                          `gorm:"column:timeout_moderators;type:bool"`
 	InitMessage              string                        `gorm:"column:init_message;type:text"`
 	BanMessage               string                        `gorm:"column:ban_message;type:text"`

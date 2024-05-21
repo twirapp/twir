@@ -443,7 +443,7 @@ func (r *mutationResolver) gamesUpdateVoteban(
 	}
 
 	if opts.TimeoutSeconds.IsSet() {
-		entity.TimeoutSeconds = int8(*opts.TimeoutSeconds.Value())
+		entity.TimeoutSeconds = *opts.TimeoutSeconds.Value()
 	}
 
 	if opts.TimeoutModerators.IsSet() {

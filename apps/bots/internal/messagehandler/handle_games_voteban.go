@@ -109,7 +109,7 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 		if err := c.twitchActions.Ban(
 			ctx,
 			twitchactions.BanOpts{
-				Duration:       int(gameEntity.TimeoutSeconds),
+				Duration:       gameEntity.TimeoutSeconds,
 				Reason:         message,
 				BroadcasterID:  msg.BroadcasterUserId,
 				UserID:         voteEntity.TargetUserId,
