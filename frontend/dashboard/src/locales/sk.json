@@ -52,11 +52,11 @@
     "hide": "Skryť",
     "view": "Zobraziť",
     "toggleColumns": "Prepínanie stĺpcov",
-    "copied": "Copied",
-    "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found",
-    "settings": "Settings"
+    "copied": "Skopírované",
+    "userSelected": "{count} vybraných používateľov",
+    "userSelectPlaceholder": "Vybrať používateľa|Vybrať používateľov",
+    "userNotFound": "Nenašli sa žiadni používatelia",
+    "settings": "Nastavenia"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -497,7 +497,7 @@
       "messageBoxPadding": "Vnútorný okraj",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Veľkosť písma",
-      "emoteDivider": "Emot",
+      "emoteDivider": "Emote",
       "growDivider": "Rast",
       "growTime": "Čas rastu",
       "growMaxScale": "Maximálne škálovanie"
@@ -592,7 +592,7 @@
       "deniedUsers": "Zablokovaní používatelia",
       "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
-      "confirmClearQueue": "Are you sure you want to clear the queue?",
+      "confirmClearQueue": "Naozaj chcete vymazať frontu?",
       "users": {
         "maxRequests": "Maximálne množstvo žiadosti na používateľa",
         "minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
@@ -610,7 +610,7 @@
       "general": "Všeobecné",
       "users": "Užívatelia",
       "songs": "Skladby",
-      "translations": "Translations"
+      "translations": "Preklady"
     },
     "ban": {
       "user": "Zablokovať užívateľa",
@@ -692,10 +692,10 @@
     "title": "Upozornenia",
     "info": "Alerts Information",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
-    "copyOverlayLink": "Copy overlay link",
+    "copyOverlayLink": "Skopírovať link prekrytia",
     "name": "Názov",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "rewards": "Odmeny",
+    "commands": "Príkazy",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
@@ -710,10 +710,10 @@
       "image": "Configure an image",
       "text": "Configure text"
     },
-    "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "audioVolume": "Hlasitosť zvuku",
+    "createAlert": "Vytvoriť upozornenie",
+    "editAlert": "Upraviť upozornenie",
+    "tableEmpty": "Nenašli sa žiadne upozornenia"
   },
   "games": {
     "command": "Príkaz",
