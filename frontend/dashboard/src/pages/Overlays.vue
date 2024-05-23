@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { IconPlus, IconSettings, IconTrash } from '@tabler/icons-vue'
+import { IconSettings, IconTrash } from '@tabler/icons-vue'
+import { SquarePen } from 'lucide-vue-next'
 import {
 	NAlert,
 	NButton,
@@ -141,12 +142,14 @@ function editCustomOverlay(id?: string) {
 
 			<NGridItem :span="1">
 				<NCard
-					class="flex items-center justify-center h-full"
+					class="h-full"
 					:style="{ cursor: userCanManageOverlays ? 'pointer' : 'not-allowed' }"
 					embedded
 					@click="() => editCustomOverlay()"
 				>
-					<IconPlus class="h-20 w-20" />
+					<div class="flex items-center justify-center h-full">
+						<SquarePen class="size-16" />
+					</div>
 				</NCard>
 			</NGridItem>
 		</NGrid>

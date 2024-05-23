@@ -122,7 +122,7 @@ const rules: FormRules = {
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[425px]">
+		<DialogOrSheet class="sm:max-w-[424px]">
 			<DialogHeader>
 				<DialogTitle>
 					{{ greeting ? t('greetings.edit') : t('greetings.create') }}
