@@ -1,12 +1,23 @@
-<script setup lang='ts'>
-import { NMention, NText } from 'naive-ui'
-import { computed, h } from 'vue'
+<script setup lang="ts">
+import { Variable } from 'lucide-vue-next'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { MentionOption } from 'naive-ui'
-import type { FunctionalComponent, VNodeChild } from 'vue'
+import type { FunctionalComponent } from 'vue'
 
-import { useVariablesApi } from '@/api/variables.js'
+import { useVariablesApi } from '@/api/variables'
+import { Button } from '@/components/ui/button'
+import {
+	Command,
+	CommandEmpty,
+	CommandGroup,
+	CommandInput,
+	CommandItem,
+	CommandList,
+} from '@/components/ui/command'
+import { Input } from '@/components/ui/input'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Textarea } from '@/components/ui/textarea'
 
 withDefaults(defineProps<{
 	inputType?: 'text' | 'textarea'
@@ -25,39 +36,56 @@ const { t } = useI18n()
 
 const { allVariables } = useVariablesApi()
 
-const selectVariables = computed<MentionOption[]>(() => {
+const selectVariables = computed(() => {
 	return allVariables.value.map((variable) => ({
-		label: `(${variable.example})`,
-		value: `(${variable.example})`,
+		label: `$(${variable.example})`,
+		value: `$(${variable.example})`,
 		description: variable.description,
 	}))
 })
 
-function renderVariableSelectLabel(option: {
-	type: string
-	label: string
-	description: string
-}): VNodeChild {
-	if (!option.description) return `$${option.label}`
-	const variable = `$${option.label}`
-	const description = h(NText, { depth: 3 }, option.description)
-	return h('span', {}, [variable, ' ', description])
+const open = ref(false)
+
+function handleSelect(value: string) {
+	text.value += ` ${value}`
 }
 </script>
 
 <template>
-	<NMention
-		v-model:value="text"
-		:render-label="renderVariableSelectLabel"
-		placeholder="Response"
-		prefix="$"
-		class="w-full"
-		:type="inputType"
-		:options="selectVariables"
-		:autosize="inputType === 'text' ? {} : { minRows, maxRows }"
-	>
-		<template #empty>
-			{{ t('sharedTexts.placeCursorMessage') }}
-		</template>
-	</NMention>
+	<Popover v-model:open="open">
+		<component :is="inputType === 'textarea' ? Textarea : Input" v-model="text" :maxlength="500" />
+		<PopoverTrigger as-child>
+			<Button class="ml-2" variant="ghost" size="icon">
+				<Variable class="size-auto opacity-50" />
+			</Button>
+		</PopoverTrigger>
+		<PopoverContent
+			align="start"
+			class="p-0 z-[9999] max-w-[400px]"
+		>
+			<Command
+				:reset-search-term-on-blur="false"
+			>
+				<CommandInput class="h-9" :placeholder="t('sharedTexts.searchPlaceholder')" />
+				<CommandEmpty>
+					Not found
+				</CommandEmpty>
+				<CommandList>
+					<CommandGroup>
+						<CommandItem
+							v-for="option in selectVariables"
+							:key="option.value"
+							:value="option.value"
+							@select="handleSelect(option.value)"
+						>
+							<div class="flex flex-wrap flex-col gap-0.5">
+								<span>{{ option.label }}</span>
+								<span v-if="option.description" class="text-xs">{{ option.description }}</span>
+							</div>
+						</CommandItem>
+					</CommandGroup>
+				</CommandList>
+			</Command>
+		</PopoverContent>
+	</Popover>
 </template>

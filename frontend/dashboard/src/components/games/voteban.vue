@@ -146,7 +146,7 @@ async function save() {
 			</TagsInput>
 
 			<NFormItem :label="t('games.voteban.voteDuration')">
-				<NInputNumber v-model:value="formValue.voteDuration" style="width: 100%" :min="1" :max="84600" />
+				<NInputNumber v-model:value="formValue.voteDuration" style="width: 100%" :min="1" :max="86400" />
 			</NFormItem>
 
 			<NFormItem :label="t('games.voteban.neededVotes')">
@@ -154,7 +154,7 @@ async function save() {
 			</NFormItem>
 
 			<NFormItem :label="t('games.voteban.banDuration')">
-				<NInputNumber v-model:value="formValue.timeoutSeconds" style="width: 100%" :min="1" :max="84600" />
+				<NInputNumber v-model:value="formValue.timeoutSeconds" style="width: 100%" :min="1" :max="86400" />
 			</NFormItem>
 		</div>
 

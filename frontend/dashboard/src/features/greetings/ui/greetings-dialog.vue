@@ -70,17 +70,20 @@ async function save() {
 		userId: data.userId,
 	}
 
-	if (data.id) {
-		await greetingsUpdate.executeMutation({
-			id: data.id,
-			opts,
-		})
-	} else {
-		await greetingsCreate.executeMutation({ opts })
+	try {
+		if (data.id) {
+			await greetingsUpdate.executeMutation({
+				id: data.id,
+				opts,
+			})
+		} else {
+			await greetingsCreate.executeMutation({ opts })
+		}
+		emits('close')
+		open.value = false
+	} catch (e) {
+		console.error(e)
 	}
-
-	emits('close')
-	open.value = false
 }
 
 const { t } = useI18n()

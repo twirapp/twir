@@ -98,7 +98,7 @@ async function save() {
 			<NInputNumber
 				v-model:value="formValue.timeoutSeconds"
 				min="1"
-				max="84600"
+				max="86400"
 			/>
 		</NFormItem>
 
