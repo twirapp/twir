@@ -25,6 +25,7 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 	}
 
 	if user.ID == dashboardId || user.IsBotAdmin {
+		fmt.Println(user.ID, dashboardId)
 		return next(ctx)
 	}
 
@@ -40,10 +41,12 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 	for _, role := range userRoles {
 		for _, perm := range role.Role.Permissions {
 			if perm == gqlmodel.ChannelRolePermissionEnumCanAccessDashboard.String() {
+				fmt.Println(user.ID, "1")
 				return next(ctx)
 			}
 
 			if permission.String() == perm {
+				fmt.Println(user.ID, "2")
 				return next(ctx)
 			}
 		}
