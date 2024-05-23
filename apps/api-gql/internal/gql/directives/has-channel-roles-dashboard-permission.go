@@ -25,28 +25,32 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 	}
 
 	if user.ID == dashboardId || user.IsBotAdmin {
-		fmt.Println(user.ID, dashboardId)
 		return next(ctx)
 	}
 
-	var userRoles []model.ChannelRoleUser
+	var channelRoles []model.ChannelRole
 	if err := c.gorm.
 		WithContext(ctx).
-		Where(`channels_roles_users."userId"`, user.ID).
-		Joins("Role", `"channelId = ?"`, dashboardId).
-		Find(&userRoles).Error; err != nil {
-		return nil, fmt.Errorf("cannot get user userRoles, probably have no access: %w", err)
+		Where(`"channelId" = ?`, dashboardId).
+		Preload("Users", `"userId" = ?`, user.ID).
+		Find(&channelRoles).
+		Error; err != nil {
+		return nil, fmt.Errorf("cannot get channel roles: %w", err)
 	}
 
-	for _, role := range userRoles {
-		for _, perm := range role.Role.Permissions {
+	for _, role := range channelRoles {
+		// we do not check does role.Users contains request author user
+		// because we are doing preload by user id
+		if len(role.Users) == 0 || len(role.Permissions) == 0 {
+			continue
+		}
+
+		for _, perm := range role.Permissions {
 			if perm == gqlmodel.ChannelRolePermissionEnumCanAccessDashboard.String() {
-				fmt.Println(user.ID, "1")
 				return next(ctx)
 			}
 
 			if permission.String() == perm {
-				fmt.Println(user.ID, "2")
 				return next(ctx)
 			}
 		}
