@@ -167,7 +167,7 @@ export function newRouter() {
 					name: 'AdminPanel',
 					path: '/dashboard/admin',
 					component: () => import('../pages/admin-panel.vue'),
-					meta: { noPadding: true },
+					meta: { noPadding: true, adminOnly: true },
 				},
 				{
 					name: 'Import',
@@ -200,6 +200,10 @@ export function newRouter() {
 			const profileRequest = await urqlClient.value.executeQuery(profileQuery)
 			if (!profileRequest.data) {
 				return window.location.replace('/')
+			}
+
+			if (to.meta.adminOnly && !profileRequest.data.authenticatedUser.isBotAdmin) {
+				return next({ name: 'NotFound' })
 			}
 
 			if (!to.meta.neededPermission) return next()
