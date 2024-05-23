@@ -15,7 +15,6 @@ import type { GreetingsCreateInput } from '@/gql/graphql'
 
 import { type Greetings, useGreetingsApi } from '@/api/greetings'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import NewVariableInput from '@/components/new-variable-input.vue'
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,6 +24,7 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from '@/components/ui/dialog'
+import VariableInput from '@/components/variable-input.vue'
 
 const props = defineProps<{
 	greeting?: Greetings | null
@@ -70,17 +70,20 @@ async function save() {
 		userId: data.userId,
 	}
 
-	if (data.id) {
-		await greetingsUpdate.executeMutation({
-			id: data.id,
-			opts,
-		})
-	} else {
-		await greetingsCreate.executeMutation({ opts })
+	try {
+		if (data.id) {
+			await greetingsUpdate.executeMutation({
+				id: data.id,
+				opts,
+			})
+		} else {
+			await greetingsCreate.executeMutation({ opts })
+		}
+		emits('close')
+		open.value = false
+	} catch (e) {
+		console.error(e)
 	}
-
-	emits('close')
-	open.value = false
 }
 
 const { t } = useI18n()
@@ -132,7 +135,7 @@ const rules: FormRules = {
 							<TwitchUsersSelect v-model="formValue.userId" :initial="formValue.userId" twir-only />
 						</NFormItem>
 						<NFormItem :label="t('sharedTexts.response')" path="text" show-require-mark>
-							<NewVariableInput v-model="formValue.text" input-type="textarea" />
+							<VariableInput v-model="formValue.text" input-type="textarea" />
 						</NFormItem>
 
 						<NFormItem :label="t('sharedTexts.reply.text')" path="text">
