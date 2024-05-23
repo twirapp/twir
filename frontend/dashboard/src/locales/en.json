@@ -55,7 +55,8 @@
     "copied": "Copied",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found"
+    "userNotFound": "No users found",
+		"settings": "Settings"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -768,7 +769,29 @@
         "pointsPerLose": "Reputation for lose",
         "bothDiePercent": "Percent of chance both users die"
       }
-    }
+    },
+		"seppuku": {
+			"description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
+			"message": "Message",
+			"timeoutModerators": "Enable seppuku for moderators",
+			"messageModerators": "Message when moderator used seppuku",
+			"timeoutSeconds": "Timeout seconds"
+		},
+		"voteban": {
+			"description": "Commence jury trial of the guilty chatterer!",
+			"banMessage": "Message on ban",
+			"banMessageModerators": "Message for ban moderator",
+			"surviveMessage": "Survive message",
+			"surviveMessageModerators": "Survive message for moderators",
+			"initialMessage": "Init message",
+			"neededVotes": "Needed votes",
+			"banDuration": "Duration of ban",
+			"voteMode": "Mode of vote",
+			"voteDuration": "Duration of vote in seconds",
+			"wordsNegative": "Words for vote to \"no\" option",
+			"wordsPositive": "Words for vote to \"yes\" option",
+			"timeoutModerators": "Enable voteban on moderators"
+		}
   },
   "community": {
     "title": "Community",

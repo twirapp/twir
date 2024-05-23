@@ -79,6 +79,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			BanUser: NewNatsQueue[botsservice.BanRequest, struct{}](
+				nc,
+				botsservice.BanSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 
 		Websocket: &websocketBus{

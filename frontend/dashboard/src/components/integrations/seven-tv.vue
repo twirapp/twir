@@ -114,14 +114,14 @@ const commands = computed(() => {
 			</template>
 
 			<template v-else>
-				<NSpin :show="!sevenTvData?.isEditor">
-					<NTabs
-						default-value="settings"
-						justify-content="space-evenly"
-						type="line"
-						pane-style="padding: 10px;"
-					>
-						<NTabPane name="settings" :tab="t('overlays.tts.tabs.general')">
+				<NTabs
+					default-value="settings"
+					justify-content="space-evenly"
+					type="line"
+					pane-style="padding: 10px;"
+				>
+					<NTabPane name="settings" :tab="t('overlays.tts.tabs.general')">
+						<NSpin :show="!sevenTvData?.isEditor">
 							<NForm>
 								<NFormItem :label="t('integrations.sevenTv.rewardForAddEmote')">
 									<NSpace vertical>
@@ -160,36 +160,36 @@ const commands = computed(() => {
 									</i18n-t>
 								</NAlert>
 							</div>
-						</NTabPane>
 
-						<NTabPane name="commands" :tab="t('sidebar.commands.label')">
-							<CommandsList :commands show-background />
-						</NTabPane>
-					</NTabs>
+							<template #description>
+								<NTimeline>
+									<NTimelineItem>
+										<i18n-t keypath="integrations.sevenTv.connectSteps.step1">
+											<NA :href="sevenTvProfileLink" target="_blank">
+												7tv
+											</NA>
+										</i18n-t>
+									</NTimelineItem>
+									<NTimelineItem>
+										<div class="flex flex-col">
+											<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
+											<img :src="SevenTvButtonEditors" height="50" width="100" />
+										</div>
+									</NTimelineItem>
+									<NTimelineItem>
+										<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
+											<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
+										</i18n-t>
+									</NTimelineItem>
+								</NTimeline>
+							</template>
+						</NSpin>
+					</NTabPane>
 
-					<template #description>
-						<NTimeline>
-							<NTimelineItem>
-								<i18n-t keypath="integrations.sevenTv.connectSteps.step1">
-									<NA :href="sevenTvProfileLink" target="_blank">
-										7tv
-									</NA>
-								</i18n-t>
-							</NTimelineItem>
-							<NTimelineItem>
-								<div class="flex flex-col">
-									<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
-									<img :src="SevenTvButtonEditors" height="50" width="100" />
-								</div>
-							</NTimelineItem>
-							<NTimelineItem>
-								<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
-									<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
-								</i18n-t>
-							</NTimelineItem>
-						</NTimeline>
-					</template>
-				</NSpin>
+					<NTabPane name="commands" :tab="t('sidebar.commands.label')">
+						<CommandsList :commands show-background />
+					</NTabPane>
+				</NTabs>
 			</template>
 		</template>
 

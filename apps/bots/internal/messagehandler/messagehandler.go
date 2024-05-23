@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -54,9 +56,12 @@ type MessageHandler struct {
 	config            cfg.Config
 	bus               *buscore.Bus
 	keywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	votebanMutex      *redsync.Mutex
 }
 
 func New(opts Opts) *MessageHandler {
+	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
+
 	handler := &MessageHandler{
 		logger:            opts.Logger,
 		gorm:              opts.Gorm,
@@ -69,6 +74,7 @@ func New(opts Opts) *MessageHandler {
 		config:            opts.Config,
 		bus:               opts.Bus,
 		keywordsCacher:    opts.KeywordsCacher,
+		votebanMutex:      votebanLock.NewMutex("bots:voteban_handle_message"),
 	}
 
 	return handler
@@ -95,6 +101,7 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleRemoveLurker,
 	(*MessageHandler).handleModeration,
 	(*MessageHandler).handleFirstStreamUserJoin,
+	(*MessageHandler).handleGamesVoteban,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {

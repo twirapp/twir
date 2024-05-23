@@ -19,7 +19,7 @@ const updater = gamesManager.useEightBallMutation()
 
 const formValue = ref({
 	enabled: false,
-	answers: ['Yes', 'No']
+	answers: ['Yes', 'No'],
 })
 
 watch(data, (v) => {
@@ -38,8 +38,8 @@ async function save() {
 	await updater.executeMutation({
 		opts: {
 			answers: formValue.value.answers,
-			enabled: formValue.value.enabled
-		}
+			enabled: formValue.value.enabled,
+		},
 	})
 	notifications.success(t('sharedTexts.saved'))
 }

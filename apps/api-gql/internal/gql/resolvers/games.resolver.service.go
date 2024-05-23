@@ -318,3 +318,234 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 
 	return r.Query().GamesRussianRoulette(ctx)
 }
+
+func (r *queryResolver) gamesSeppuku(ctx context.Context) (*gqlmodel.SeppukuGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesSeppuku{
+		ChannelID:         dashboardId,
+		Enabled:           false,
+		TimeoutSeconds:    60,
+		TimeoutModerators: false,
+		Message:           "{sender} said: my honor tarnished, I reclaim it through death. May my spirit find peace. Farewell.",
+		MessageModerators: "{sender} drew his sword and ripped open his belly for the sad emperor.",
+	}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		FirstOrCreate(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get seppuku settings: %w", err)
+	}
+
+	return &gqlmodel.SeppukuGame{
+		Enabled:           entity.Enabled,
+		TimeoutSeconds:    int(entity.TimeoutSeconds),
+		TimeoutModerators: entity.TimeoutModerators,
+		Message:           entity.Message,
+		MessageModerators: entity.MessageModerators,
+	}, nil
+}
+
+func (r *mutationResolver) gamesUpdateSeppuku(
+	ctx context.Context,
+	opts gqlmodel.SeppukuGameOpts,
+) (*gqlmodel.SeppukuGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesSeppuku{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		First(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get seppuku settings: %w", err)
+	}
+
+	if opts.Enabled.IsSet() {
+		entity.Enabled = *opts.Enabled.Value()
+	}
+
+	if opts.TimeoutSeconds.IsSet() {
+		entity.TimeoutSeconds = *opts.TimeoutSeconds.Value()
+	}
+
+	if opts.TimeoutModerators.IsSet() {
+		entity.TimeoutModerators = *opts.TimeoutModerators.Value()
+	}
+
+	if opts.Message.IsSet() {
+		entity.Message = *opts.Message.Value()
+	}
+
+	if opts.MessageModerators.IsSet() {
+		entity.MessageModerators = *opts.MessageModerators.Value()
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to save settings: %w", err)
+	}
+
+	return r.Query().GamesSeppuku(ctx)
+}
+
+func gamesVotebanVotingModeDbToGql(votingMode model.ChannelGamesVoteBanVotingMode) gqlmodel.VoteBanGameVotingMode {
+	switch votingMode {
+	case model.ChannelGamesVoteBanVotingModeChat:
+		return gqlmodel.VoteBanGameVotingModeChat
+	case model.ChannelGamesVoteBanVotingModeTwitchPolls:
+		return gqlmodel.VoteBanGameVotingModePolls
+	default:
+		return gqlmodel.VoteBanGameVotingModeChat
+	}
+}
+
+func gamesVotebanVotingModeGqlToDb(votingMode gqlmodel.VoteBanGameVotingMode) model.ChannelGamesVoteBanVotingMode {
+	switch votingMode {
+	case gqlmodel.VoteBanGameVotingModeChat:
+		return model.ChannelGamesVoteBanVotingModeChat
+	case gqlmodel.VoteBanGameVotingModePolls:
+		return model.ChannelGamesVoteBanVotingModeTwitchPolls
+	default:
+		return model.ChannelGamesVoteBanVotingModeChat
+	}
+}
+
+func (r *mutationResolver) gamesUpdateVoteban(
+	ctx context.Context,
+	opts gqlmodel.VotebanGameOpts,
+) (*gqlmodel.VotebanGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesVoteBan{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		First(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get voteban settings: %w", err)
+	}
+
+	if opts.Enabled.IsSet() {
+		entity.Enabled = *opts.Enabled.Value()
+	}
+
+	if opts.TimeoutSeconds.IsSet() {
+		entity.TimeoutSeconds = *opts.TimeoutSeconds.Value()
+	}
+
+	if opts.TimeoutModerators.IsSet() {
+		entity.TimeoutModerators = *opts.TimeoutModerators.Value()
+	}
+
+	if opts.InitMessage.IsSet() {
+		entity.InitMessage = *opts.InitMessage.Value()
+	}
+
+	if opts.BanMessage.IsSet() {
+		entity.BanMessage = *opts.BanMessage.Value()
+	}
+
+	if opts.BanMessageModerators.IsSet() {
+		entity.BanMessageModerators = *opts.BanMessageModerators.Value()
+	}
+
+	if opts.SurviveMessage.IsSet() {
+		entity.SurviveMessage = *opts.SurviveMessage.Value()
+	}
+
+	if opts.SurviveMessageModerators.IsSet() {
+		entity.SurviveMessageModerators = *opts.SurviveMessageModerators.Value()
+	}
+
+	if opts.NeededVotes.IsSet() {
+		entity.NeededVotes = *opts.NeededVotes.Value()
+	}
+
+	if opts.VoteDuration.IsSet() {
+		entity.VoteDuration = *opts.VoteDuration.Value()
+	}
+
+	if opts.VotingMode.IsSet() {
+		entity.VotingMode = gamesVotebanVotingModeGqlToDb(*opts.VotingMode.Value())
+	}
+
+	if opts.ChatVotesWordsPositive.IsSet() {
+		entity.ChatVotesWordsPositive = append(pq.StringArray{}, opts.ChatVotesWordsPositive.Value()...)
+	}
+
+	if opts.ChatVotesWordsNegative.IsSet() {
+		entity.ChatVotesWordsNegative = append(pq.StringArray{}, opts.ChatVotesWordsNegative.Value()...)
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Save(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to save settings: %w", err)
+	}
+
+	return r.Query().GamesVoteban(ctx)
+}
+
+func (r *queryResolver) gamesVoteban(ctx context.Context) (*gqlmodel.VotebanGame, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	entity := model.ChannelGamesVoteBan{
+		ChannelID:         dashboardId,
+		Enabled:           false,
+		TimeoutSeconds:    60,
+		TimeoutModerators: false,
+		InitMessage: "The Twitch Police have decided that {targetUser} is not worthy of" +
+			" being in chat for not knowing memes. Write \"{positiveTexts}\" to support, " +
+			"or \"{negativeTexts}\" if you disagree.",
+		BanMessage:               "User {targetUser} is not worthy of being in chat.",
+		BanMessageModerators:     "User {targetUser} is not worthy of being in chat.",
+		SurviveMessage:           "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
+		SurviveMessageModerators: "Looks like something is mixed up, {targetUser} is the kindest and most knowledgeable chat user.",
+		NeededVotes:              1,
+		VoteDuration:             1,
+		VotingMode:               model.ChannelGamesVoteBanVotingModeChat,
+		ChatVotesWordsPositive:   pq.StringArray{"Yay"},
+		ChatVotesWordsNegative:   pq.StringArray{"Nay"},
+	}
+	if err := r.gorm.
+		Debug().
+		WithContext(ctx).
+		Where(`"channel_id" = ?`, dashboardId).
+		FirstOrCreate(&entity).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to get voteban settings: %w", err)
+	}
+
+	return &gqlmodel.VotebanGame{
+		Enabled:                  entity.Enabled,
+		TimeoutSeconds:           int(entity.TimeoutSeconds),
+		TimeoutModerators:        entity.TimeoutModerators,
+		InitMessage:              entity.InitMessage,
+		BanMessage:               entity.BanMessage,
+		BanMessageModerators:     entity.BanMessageModerators,
+		SurviveMessage:           entity.SurviveMessage,
+		SurviveMessageModerators: entity.SurviveMessageModerators,
+		NeededVotes:              entity.NeededVotes,
+		VoteDuration:             entity.VoteDuration,
+		VotingMode:               gamesVotebanVotingModeDbToGql(entity.VotingMode),
+		ChatVotesWordsPositive:   entity.ChatVotesWordsPositive,
+		ChatVotesWordsNegative:   entity.ChatVotesWordsNegative,
+	}, nil
+}

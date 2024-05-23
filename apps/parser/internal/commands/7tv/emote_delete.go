@@ -11,6 +11,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/types"
 	model "github.com/satont/twir/libs/gomodels"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
+	"go.uber.org/zap"
 )
 
 const emoteForDeleteArgName = "name"
@@ -89,7 +90,9 @@ var EmoteDelete = &types.DefaultCommand{
 			}
 		}
 
-		parseCtx.Services.SevenTvCache.Invalidate(ctx, parseCtx.Channel.ID)
+		if err := parseCtx.Services.SevenTvCache.Invalidate(ctx, parseCtx.Channel.ID); err != nil {
+			parseCtx.Services.Logger.Error("cannot invalidate channel seventv cache", zap.Error(err))
+		}
 
 		return &types.CommandsHandlerResult{
 			Result: []string{
