@@ -18,13 +18,13 @@ const removeGreetingsMutation = greetingsApi.useMutationRemoveGreetings()
 
 function toggleEnabledGreetings() {
 	updateGreetingsMutation.executeMutation({
-		id: props.keyword.id,
-		opts: { enabled: !props.keyword.enabled },
+		id: props.greetings.id,
+		opts: { enabled: !props.greetings.enabled },
 	})
 }
 
 function deleteGreetings() {
-	removeGreetingsMutation.executeMutation({ id: props.keyword.id })
+	removeGreetingsMutation.executeMutation({ id: props.greetings.id })
 }
 </script>
 
