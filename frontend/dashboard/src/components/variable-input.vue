@@ -31,7 +31,7 @@ defineSlots<{
 	underSelect: FunctionalComponent
 }>()
 
-const text = defineModel<string>({ default: '' })
+const text = defineModel<string | undefined | null>({ default: '' })
 const { t } = useI18n()
 
 const { allVariables } = useVariablesApi()

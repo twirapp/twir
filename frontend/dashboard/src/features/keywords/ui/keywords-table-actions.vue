@@ -2,43 +2,45 @@
 import { PencilIcon, TrashIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
-import GreetingsDialog from './greetings-dialog.vue'
+import KeywordDialog from './keywords-dialog.vue'
 
-import { type Greetings, useGreetingsApi } from '@/api/greetings.js'
+import type { KeywordResponse } from '@/api/keywords'
+
+import { useKeywordsApi } from '@/api/keywords'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 
-const props = defineProps<{ greetings: Greetings }>()
+const props = defineProps<{ keyword: KeywordResponse }>()
 const showDelete = ref(false)
 
-const greetingsApi = useGreetingsApi()
-const updateGreetingsMutation = greetingsApi.useMutationUpdateGreetings()
-const removeGreetingsMutation = greetingsApi.useMutationRemoveGreetings()
+const keywordsApi = useKeywordsApi()
+const updateMutation = keywordsApi.useMutationUpdateKeyword()
+const removeMutation = keywordsApi.useMutationRemoveKeyword()
 
 function toggleEnabledGreetings() {
-	updateGreetingsMutation.executeMutation({
+	updateMutation.executeMutation({
 		id: props.keyword.id,
 		opts: { enabled: !props.keyword.enabled },
 	})
 }
 
 function deleteGreetings() {
-	removeGreetingsMutation.executeMutation({ id: props.keyword.id })
+	removeMutation.executeMutation({ id: props.keyword.id })
 }
 </script>
 
 <template>
 	<div class="flex items-center gap-2">
-		<Switch :checked="greetings.enabled" @update:checked="toggleEnabledGreetings" />
+		<Switch :checked="keyword.enabled" @update:checked="toggleEnabledGreetings" />
 
-		<GreetingsDialog :greeting="greetings">
+		<KeywordDialog :keyword="keyword">
 			<template #dialog-trigger>
 				<Button variant="secondary" size="icon">
 					<PencilIcon class="h-4 w-4" />
 				</Button>
 			</template>
-		</GreetingsDialog>
+		</KeywordDialog>
 
 		<Button variant="destructive" size="icon" @click="showDelete = true">
 			<TrashIcon class="h-4 w-4" />
