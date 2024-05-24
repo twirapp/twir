@@ -653,6 +653,10 @@
   },
   "keywords": {
     "title": "Schlagwörter",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Auslösetext",
     "usages": "Anzahl der Verwendungen",
     "isRegular": "Ist ein regulärer Ausdruck?",
