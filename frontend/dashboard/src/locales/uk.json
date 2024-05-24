@@ -653,6 +653,10 @@
   },
   "keywords": {
     "title": "Ключові слова",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
     "isRegular": "Є регулярним виразом?",
