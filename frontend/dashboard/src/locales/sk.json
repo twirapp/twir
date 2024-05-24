@@ -653,6 +653,10 @@
   },
   "keywords": {
     "title": "Kľúčové slová",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Spúšťací text",
     "usages": "Počet použití",
     "isRegular": "Je regulárny výraz?",
