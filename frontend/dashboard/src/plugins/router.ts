@@ -41,7 +41,7 @@ export function newRouter() {
 				{
 					path: '/dashboard/keywords',
 					component: () => import('../pages/Keywords.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewKeywords },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewKeywords, noPadding: true },
 				},
 				{
 					path: '/dashboard/variables',
