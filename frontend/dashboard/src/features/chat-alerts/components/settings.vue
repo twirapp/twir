@@ -32,13 +32,13 @@ defineSlots<{
 	additionalSettings: VNode
 }>()
 
-const { formValue, formInited, formRef } = useForm()
+const { formValue, formRef } = useForm()
 const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
 
-watch(formInited, (v) => {
+watch(formValue, (v) => {
 	if (!v) return
 
-	if (!formValue?.value?.[props.formKey]?.messages.length) {
+	if (!v[props.formKey]?.messages.length) {
 		createMessage()
 	}
 }, { immediate: true })

@@ -1,4 +1,4 @@
-import { createGlobalState, useDebounceFn, watchDebounced } from '@vueuse/core'
+import { createGlobalState, useDebounceFn, watchIgnorable } from '@vueuse/core'
 import { useNotification } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -17,7 +17,8 @@ export const useForm = createGlobalState(() => {
 	const { t } = useI18n()
 	const formRef = ref<HTMLFormElement>()
 
-	const { chatAlerts, useMutationUpdateChatAlerts } = useChatAlertsApi()
+	const { useChatAlertsQuery, useMutationUpdateChatAlerts } = useChatAlertsApi()
+	const { data } = useChatAlertsQuery()
 	const updateChatAlerts = useMutationUpdateChatAlerts()
 
 	const formValue = ref<Form>({
@@ -94,33 +95,6 @@ export const useForm = createGlobalState(() => {
 		},
 	})
 
-	const formInited = ref(false)
-
-	watch(chatAlerts, (v) => {
-		if (!v || formInited.value) return
-		formInited.value = false
-
-		for (const key of Object.keys(formValue.value) as FormKey[]) {
-			if (!v[key]) continue
-			// eslint-disable-next-line ts/ban-ts-comment
-			// @ts-expect-error
-			formValue.value[key] = v[key]
-		}
-
-		formInited.value = true
-	}, { immediate: true })
-
-	watchDebounced(formValue, () => {
-		if (!formInited.value) {
-			return
-		}
-
-		if (!formRef.value) return
-		if (!formRef.value?.reportValidity()) return
-
-		save()
-	}, { deep: true, debounce: 500 })
-
 	async function save() {
 		const input = toRaw(formValue.value)
 		if (!input) return
@@ -135,11 +109,33 @@ export const useForm = createGlobalState(() => {
 		}
 	}
 
-	const debouncedSave = useDebounceFn(save, 500)
+	const debouncedSave = useDebounceFn(save, 1000)
+
+	const { ignoreUpdates } = watchIgnorable(
+		formValue,
+		() => {
+			if (!formRef.value) return
+			if (!formRef.value?.reportValidity()) return
+
+			debouncedSave()
+		},
+		{ deep: true, immediate: true },
+	)
+
+	watch(data, (v) => {
+		ignoreUpdates(() => {
+			if (!v?.chatAlerts) return
+			for (const key of Object.keys(formValue.value) as FormKey[]) {
+				if (!v.chatAlerts[key]) continue
+				// eslint-disable-next-line ts/ban-ts-comment
+				// @ts-expect-error
+				formValue.value[key] = v.chatAlerts[key]
+			}
+		})
+	}, { immediate: true })
 
 	return {
 		formValue,
-		formInited,
 		save: debouncedSave,
 		formRef,
 	}
