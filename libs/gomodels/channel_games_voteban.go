@@ -28,6 +28,8 @@ type ChannelGamesVoteBan struct {
 	VotingMode               ChannelGamesVoteBanVotingMode `gorm:"column:voting_mode;type:channel_games_voteban_voting_mode"`
 	ChatVotesWordsPositive   pq.StringArray                `gorm:"column:chat_votes_words_positive;type:text[]"`
 	ChatVotesWordsNegative   pq.StringArray                `gorm:"column:chat_votes_words_negative;type:text[]"`
+
+	Channel *Channels `gorm:"foreignKey:ChannelID;references:ID"`
 }
 
 func (ChannelGamesVoteBan) TableName() string {

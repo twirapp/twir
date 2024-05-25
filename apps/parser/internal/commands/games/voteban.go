@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-redsync/redsync/v4"
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
@@ -37,11 +38,26 @@ var Voteban = &types.DefaultCommand{
 		*types.CommandsHandlerResult,
 		error,
 	) {
+		mu := parseCtx.Services.RedSync.NewMutex(
+			"parser:voteban:"+parseCtx.Channel.ID,
+			redsync.WithExpiry(5*time.Second),
+		)
+		if err := mu.Lock(); err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot lock voteban",
+				Err:     err,
+			}
+		}
+		defer mu.Unlock()
+
 		entity := model.ChannelGamesVoteBan{}
-		if err := parseCtx.Services.Gorm.WithContext(ctx).Where(
-			`"channel_id" = ?`,
-			parseCtx.Channel.ID,
-		).First(&entity).Error; err != nil {
+		if err := parseCtx.Services.Gorm.
+			WithContext(ctx).
+			Preload("Channel").
+			Where(
+				`"channel_id" = ?`,
+				parseCtx.Channel.ID,
+			).First(&entity).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, nil
 			}
@@ -62,7 +78,9 @@ var Voteban = &types.DefaultCommand{
 
 		targetUser := parseCtx.Mentions[0]
 
-		if targetUser.UserId == parseCtx.Channel.ID {
+		if entity.Channel == nil ||
+			targetUser.UserId == parseCtx.Channel.ID ||
+			targetUser.UserId == entity.Channel.BotID {
 			return nil, nil
 		}
 
