@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
@@ -39,6 +40,7 @@ type Resolver struct {
 	redis                *redis.Client
 	keywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	tokensClient         tokens.TokensClient
+	wsRouter             *wsrouter.WsSync
 }
 
 type Opts struct {
@@ -56,6 +58,7 @@ type Opts struct {
 	Logger               logger.Logger
 	Redis                *redis.Client
 	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	WsSync               *wsrouter.WsSync
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -78,6 +81,7 @@ func New(opts Opts) (*Resolver, error) {
 		cachedCommandsClient: opts.CachedCommandsClient,
 		keywordsCacher:       opts.KeywordsCacher,
 		tokensClient:         opts.TokensGrpc,
+		wsRouter:             opts.WsSync,
 	}, nil
 }
 
