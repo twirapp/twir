@@ -53,12 +53,10 @@ func (r *mutationResolver) NotificationsCreate(
 		CreatedAt: entity.CreatedAt,
 	}
 
-	var subKey string
+	subKey := "api.newNotifications"
 
-	if userID == nil {
-		subKey = "api.newNotifications"
-	} else {
-		subKey = "api.newNotifications." + *userID
+	if userID != nil {
+		subKey += "." + *userID
 	}
 
 	if err := r.wsRouter.Publish(subKey, &userNotification); err != nil {
