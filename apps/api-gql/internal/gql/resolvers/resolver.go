@@ -58,7 +58,7 @@ type Opts struct {
 	Logger               logger.Logger
 	Redis                *redis.Client
 	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
-	WsSync               *wsrouter.WsSync
+	WsRouter             *wsrouter.WsSync
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -81,7 +81,7 @@ func New(opts Opts) (*Resolver, error) {
 		cachedCommandsClient: opts.CachedCommandsClient,
 		keywordsCacher:       opts.KeywordsCacher,
 		tokensClient:         opts.TokensGrpc,
-		wsRouter:             opts.WsSync,
+		wsRouter:             opts.WsRouter,
 	}, nil
 }
 
