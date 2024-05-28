@@ -250,27 +250,29 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 				return
 			}
 
-			if len(status.Data) == 0 {
-				c.logger.Error("failed to subscribe to event", slog.Any("status", status))
-				return
+			if len(status.Data) > 0 || (casterErr != nil && casterErr.Status == 409) {
+				subStatus := "enabled"
+				subId := uuid.New()
+				if len(status.Data) > 0 {
+					subStatus = status.Data[0].Status
+					subId = uuid.MustParse(status.Data[0].ID)
+				}
+
+				if err := c.gorm.Create(
+					&model.EventsubSubscription{
+						ID:          subId,
+						TopicID:     topic.ID,
+						UserID:      broadcasterId,
+						Status:      subStatus,
+						Version:     topic.Version,
+						CallbackUrl: c.tunnel.GetAddr(),
+					},
+				).Error; err != nil {
+					c.logger.Error("failed to create subscription", slog.Any("err", err))
+				}
+
+				newSubsCount.Inc()
 			}
-
-			sub := status.Data[0]
-
-			if err := c.gorm.Create(
-				&model.EventsubSubscription{
-					ID:          uuid.MustParse(sub.ID),
-					TopicID:     topic.ID,
-					UserID:      broadcasterId,
-					Status:      sub.Status,
-					Version:     sub.Version,
-					CallbackUrl: c.tunnel.GetAddr(),
-				},
-			).Error; err != nil {
-				c.logger.Error("failed to create subscription", slog.Any("err", err))
-			}
-
-			newSubsCount.Inc()
 		}()
 	}
 
