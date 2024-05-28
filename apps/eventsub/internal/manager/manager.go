@@ -2,6 +2,7 @@ package manager
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"sync"
 
@@ -235,7 +236,9 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 					Version:   topic.Version,
 				},
 			)
-			if err != nil {
+
+			var casterErr *eventsub_framework.TwitchError
+			if err != nil && !errors.As(err, &casterErr) {
 				c.logger.Error(
 					"failed to subscribe to event",
 					slog.Any("err", err),
