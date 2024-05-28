@@ -11,10 +11,12 @@ const { data: profile } = useProfile()
 	<div class="flex items-center px-3 py-2">
 		<div v-if="profile" class="flex gap-3 items-center">
 			<NAvatar :src="profile?.avatar" round />
+
 			<div class="flex flex-col">
 				<NText :depth="3" class="text-xs">
 					Logged as
 				</NText>
+
 				<NText>
 					{{ resolveUserName(profile.login, profile.displayName) }}
 				</NText>

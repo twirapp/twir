@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 
 import { useProfile } from '@/api'
-import ButtonLogout from '@/layout/buttons/buttonLogout.vue'
+import ButtonLogout from '@/layout/buttons/button-logout.vue'
 
 const profile = useProfile()
 const isAdmin = computed(() => profile.data.value?.isBotAdmin)

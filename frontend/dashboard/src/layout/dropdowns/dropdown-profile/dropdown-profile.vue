@@ -2,13 +2,14 @@
 import { type DropdownOption, NAvatar, NButton, NDropdown, NSpin } from 'naive-ui'
 import { h } from 'vue'
 
-import DropdownFooter from './profile/footer.vue'
-import DropdownHeader from './profile/header.vue'
+import DropdownFooter from './dropdown-profile-footer.vue'
+import DropdownHeader from './dropdown-profile-header.vue'
 
 import { useProfile } from '@/api/auth.js'
 
 const { data: profileData, isLoading: isProfileLoading } = useProfile()
 
+// TODO: Close dropdown when clicking to options
 const profileOptions: DropdownOption[] = [
 	{
 		key: 'header',
@@ -36,6 +37,7 @@ const profileOptions: DropdownOption[] = [
 	>
 		<NButton text>
 			<NSpin v-if="isProfileLoading" size="small" />
+
 			<div v-else class="flex gap-1 items-center">
 				<NAvatar
 					size="small"

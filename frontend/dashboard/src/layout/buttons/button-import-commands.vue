@@ -3,7 +3,7 @@ import { IconDownload } from '@tabler/icons-vue'
 import { NA, NButton } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
-import { useSidebarCollapseStore } from '../use-sidebar-collapse'
+import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse'
 
 withDefaults(defineProps<{ isDrawer?: boolean }>(), {
 	isDrawer: false,
@@ -21,6 +21,7 @@ const { isCollapsed } = useSidebarCollapseStore()
 					<template #icon>
 						<IconDownload />
 					</template>
+
 					<template v-if="isDrawer || !isCollapsed">
 						{{ t('sidebar.import') }}
 					</template>

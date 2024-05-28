@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { NButton, useThemeVars } from 'naive-ui';
-import { computed } from 'vue';
+import { NButton, useThemeVars } from 'naive-ui'
+import { computed } from 'vue'
 
 const props = defineProps<{
 	url: string
-}>();
+}>()
 
-const themeVars = useThemeVars();
-const iconColor = computed(() => themeVars.value.textColor2);
-const openLink = () => window.open(props.url, '_blank');
+const themeVars = useThemeVars()
+const iconColor = computed(() => themeVars.value.textColor2)
+const openLink = () => window.open(props.url, '_blank')
 </script>
 
 <template>
-	<n-button
+	<NButton
 		quaternary
 		circle
 		style="padding: 5px"
 		@click="openLink"
 	>
 		<slot></slot>
-	</n-button>
+	</NButton>
 </template>
 
 <style scoped>

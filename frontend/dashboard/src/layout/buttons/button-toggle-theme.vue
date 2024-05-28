@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useTheme } from '@/composables/use-theme.js';
+import { useTheme } from '@/composables/use-theme.js'
 
-const { theme, toggleTheme } = useTheme();
+const { theme, toggleTheme } = useTheme()
 </script>
 
 <template>
