@@ -61,6 +61,7 @@ func (c *Handler) handleSubRevocate(
 		Where("topic = ?", revocation.Subscription.Type).
 		First(topic).Error; err != nil {
 		c.logger.Error("failed to get topic", slog.Any("err", err))
+		return
 	}
 
 	subscription := &model.EventsubSubscription{}
@@ -68,6 +69,7 @@ func (c *Handler) handleSubRevocate(
 		Where("topic_id = ?", topic.ID).
 		First(subscription).Error; err != nil {
 		c.logger.Error("failed to get subscription", slog.Any("err", err))
+		return
 	}
 
 	subscription.Status = revocation.Subscription.Status

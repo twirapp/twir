@@ -5,7 +5,6 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/satont/twir/apps/websockets/internal/bus-listener"
-	"github.com/satont/twir/apps/websockets/internal/gorm"
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
@@ -17,10 +16,9 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/youtube"
-	"github.com/satont/twir/apps/websockets/internal/redis"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	twirsentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -32,14 +30,9 @@ import (
 const service = "Websockets"
 
 var App = fx.Module(
-	"websockets",
+	service,
+	baseapp.CreateBaseApp(service),
 	fx.Provide(
-		config.NewFx,
-		twirsentry.NewFx(twirsentry.NewFxOpts{Service: service}),
-		logger.NewFx(logger.Opts{Service: service}),
-		uptrace.NewFx(service),
-		redis.New,
-		gorm.New,
 		buscore.NewNatsBusFx(service),
 		func(cfg config.Config) parser.ParserClient {
 			return clients.NewParser(cfg.AppEnv)

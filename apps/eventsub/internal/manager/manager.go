@@ -3,12 +3,10 @@ package manager
 import (
 	"context"
 	"log/slog"
-	"slices"
 	"sync"
 
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -16,6 +14,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	"go.uber.org/atomic"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -206,24 +205,16 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(&model.EventsubSubscription{UserID: broadcasterId}).
+		Where("status NOT IN ?", statusesForSkip).
 		Find(&existedSubscriptions).
 		Error; err != nil {
 		return err
 	}
 
 	var wg sync.WaitGroup
+	newSubsCount := atomic.NewInt64(0)
 
 	for _, topic := range topics {
-		existedSubscription, ok := lo.Find(
-			existedSubscriptions,
-			func(sub model.EventsubSubscription) bool {
-				return sub.TopicID == topic.ID
-			},
-		)
-		if ok && slices.Contains(statusesForSkip, existedSubscription.Status) {
-			continue
-		}
-
 		wg.Add(1)
 
 		topic := topic
@@ -275,10 +266,21 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 			).Error; err != nil {
 				c.logger.Error("failed to create subscription", slog.Any("err", err))
 			}
+
+			newSubsCount.Inc()
 		}()
 	}
 
 	wg.Wait()
+
+	if newSubsCount.Load() > 0 {
+		c.logger.Info(
+			"New subscriptions created for channel",
+			slog.String("channel_id", broadcasterId),
+			slog.String("bot_id", botId),
+			slog.Int64("count", newSubsCount.Load()),
+		)
+	}
 
 	return nil
 }
