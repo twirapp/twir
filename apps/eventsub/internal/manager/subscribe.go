@@ -28,10 +28,8 @@ func (c *Manager) SubscribeWithLimits(
 		retry.RetryIf(
 			func(err error) bool {
 				var e *eventsub_framework.TwitchError
-				if errors.As(err, &e) && e.Status != 409 {
-					if e.Status == 429 {
-						return true
-					}
+				if errors.As(err, &e) && e.Status == 429 {
+					return true
 				}
 
 				return false
