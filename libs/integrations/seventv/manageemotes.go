@@ -20,6 +20,7 @@ const query = `mutation ChangeEmoteInSet($id: ObjectID!, $action: ListItemAction
 
 var ErrCannotModify = errors.New("cannot modify channel emote set")
 var ErrBadEmoteUrl = errors.New("bad emote url")
+var ErrCannotAdd = errors.New("cannot add emote")
 
 var emoteRegex = regexp.MustCompile(`((cdn.)?7tv.app/emotes/)(?P<id>.{24})`)
 
@@ -39,8 +40,13 @@ func FindEmoteIdInInput(input string) string {
 	return result
 }
 
+type sevenTvError struct {
+	Message    string `json:"message"`
+	Extensions map[string]any
+}
+
 type sevenTvResponse struct {
-	Errors []any `json:"errors"`
+	Errors []sevenTvError `json:"errors"`
 }
 
 func emoteAction(ctx context.Context, action, sevenTvToken, input, setID string) error {
@@ -70,6 +76,15 @@ func emoteAction(ctx context.Context, action, sevenTvToken, input, setID string)
 		return nil
 	}
 	if !resp.IsSuccessState() || len(result.Errors) > 0 {
+		if len(result.Errors) > 0 {
+			var errs []string
+			for _, err := range result.Errors {
+				errs = append(errs, err.Message)
+			}
+
+			return fmt.Errorf("%w: %s", ErrCannotAdd, errs)
+		}
+
 		return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
 	}
 

@@ -124,7 +124,7 @@ function resetSettings() {
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.timeoutSeconds')">
-				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="1209600" />
+				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="86400" />
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.decisionSeconds')">

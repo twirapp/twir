@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
@@ -150,6 +152,8 @@ func main() {
 
 	bus := buscore.NewNatsBus(nc)
 
+	redSync := redsync.New(goredis.NewPool(redisClient))
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -168,6 +172,7 @@ func main() {
 		CommandsCache:           commandscache.New(db, redisClient),
 		SevenTvCache:            seventv.New(redisClient),
 		SevenTvCacheBySevenTvID: seventv.NewBySeventvID(redisClient),
+		RedSync:                 redSync,
 	}
 
 	variablesService := variables.New(

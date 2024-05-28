@@ -21,7 +21,7 @@ type Keyword {
 
 input KeywordCreateInput {
 	text: String! @validate(constraint: "max=5000")
-	response: String @validate(constraint: "max=500")
+	response: String @validate(constraint: "max=500,omitempty")
 	cooldown: Int @validate(constraint: "max=999999")
 	enabled: Boolean
 	usageCount: Int @validate(constraint: "max=999999999999999")
@@ -31,7 +31,7 @@ input KeywordCreateInput {
 
 input KeywordUpdateInput {
 	text: String @validate(constraint: "max=5000")
-	response: String @validate(constraint: "max=500")
+	response: String @validate(constraint: "max=500,omitempty")
 	cooldown: Int @validate(constraint: "max=999999")
 	enabled: Boolean
 	usageCount: Int @validate(constraint: "max=999999999999999")

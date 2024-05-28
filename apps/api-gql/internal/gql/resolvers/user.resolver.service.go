@@ -109,7 +109,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 			flags = append(flags, gqlmodel.ChannelRolePermissionEnum(flag))
 		}
 
-		if role.ID != "" {
+		if role.ID != "" && len(flags) > 0 {
 			dashboardsEntities[role.ChannelID] = gqlmodel.Dashboard{
 				ID:    role.ChannelID,
 				Flags: append(dashboardsEntities[role.ChannelID].Flags, flags...),

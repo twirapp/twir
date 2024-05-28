@@ -131,7 +131,7 @@ export const useDudes = createGlobalState(() => {
 			return `https://cdn.frankerfacez.com/static/emoji/images/twemoji/${code}.png`
 		}
 
-		return `${window.location.origin}/api/proxy?url=${messageChunk.value}`
+		return `${window.location.origin}/api-old/proxy?url=${messageChunk.value}`
 	}
 
 	function requestDudeUserSettings(userId: string) {
