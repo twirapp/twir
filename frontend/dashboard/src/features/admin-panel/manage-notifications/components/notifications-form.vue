@@ -79,7 +79,7 @@ const { textareaRef, applyModifier } = useTextarea()
 					variant="secondary"
 					@click="notificationsForm.onReset"
 				>
-					<template v-if="notificationsForm.editableMessageId">
+					<template v-if="notificationsForm.editableMessageId.value">
 						{{ t('sharedButtons.cancel') }}
 					</template>
 					<template v-else>
@@ -87,7 +87,7 @@ const { textareaRef, applyModifier } = useTextarea()
 					</template>
 				</Button>
 				<Button type="submit">
-					<template v-if="notificationsForm.editableMessageId">
+					<template v-if="notificationsForm.editableMessageId.value">
 						{{ t('sharedButtons.edit') }}
 					</template>
 					<template v-else>
