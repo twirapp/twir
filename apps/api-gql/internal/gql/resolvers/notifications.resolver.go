@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,15 +54,16 @@ func (r *mutationResolver) NotificationsCreate(
 		CreatedAt: entity.CreatedAt,
 	}
 
-	subKey := "api.newNotifications"
+	go func() {
+		subKey := notificationsSubscriptionKey
+		if userID != nil {
+			subKey += "." + *userID
+		}
 
-	if userID != nil {
-		subKey += "." + *userID
-	}
-
-	if err := r.wsRouter.Publish(subKey, &userNotification); err != nil {
-		return nil, err
-	}
+		if err := r.wsRouter.Publish(subKey, &userNotification); err != nil {
+			r.logger.Error("failed to publish notification", slog.Any("err", err))
+		}
+	}()
 
 	adminNotification := gqlmodel.AdminNotification{
 		ID:        entity.ID,
@@ -226,40 +228,6 @@ func (r *queryResolver) NotificationsByAdmin(
 		}
 	}
 
-	// needTwitch := slices.Contains(
-	// 	GetPreloads(ctx),
-	// 	"notifications.twitchProfile",
-	// )
-	// if needTwitch && opts.Type.IsSet() && *opts.Type.Value() == gqlmodel.NotificationTypeUser {
-	// 	usersIdsForRequest := make([]string, len(notifications))
-	// 	for i, notification := range notifications {
-	// 		usersIdsForRequest[i] = *notification.UserID
-	// 	}
-	//
-	// 	twitchUsers, err := r.cachedTwitchClient.GetUsersByIds(ctx, usersIdsForRequest)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	//
-	// 	for i, notification := range notifications {
-	// 		notificationTwitchUser, ok := lo.Find(
-	// 			twitchUsers, func(item twitchcahe.TwitchUser) bool {
-	// 				return item.ID == *notification.UserID
-	// 			},
-	// 		)
-	// 		if !ok {
-	// 			continue
-	// 		}
-	//
-	// 		notifications[i].TwitchProfile = &gqlmodel.TwirUserTwitchInfo{
-	// 			Login:           notificationTwitchUser.Login,
-	// 			DisplayName:     notificationTwitchUser.DisplayName,
-	// 			ProfileImageURL: notificationTwitchUser.ProfileImageURL,
-	// 			Description:     notificationTwitchUser.Description,
-	// 		}
-	// 	}
-	// }
-
 	return &gqlmodel.AdminNotificationsResponse{
 		Notifications: notifications,
 		Total:         int(total),
@@ -277,30 +245,27 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (
 	}
 
 	channel := make(chan *gqlmodel.UserNotification, 1)
-	// if r.subscriptionsStore.NewNotificationsChannels[user.ID] == nil {
-	// 	r.subscriptionsStore.NewNotificationsChannels[user.ID] = channel
-	// }
 
 	go func() {
 		sub, err := r.wsRouter.Subscribe(
 			[]string{
-				"api.newNotifications." + user.ID,
-				"api.newNotifications",
+				notificationsSubscriptionKey + "." + user.ID,
+				notificationsSubscriptionKey,
 			},
 		)
 		if err != nil {
 			panic(err)
 		}
 		defer func() {
-			close(channel)
 			sub.Unsubscribe()
+			close(channel)
 		}()
 
 		for {
 			select {
 			case <-ctx.Done():
 				return
-			case data := <-sub.Data:
+			case data := <-sub.GetChannel():
 				var notification gqlmodel.UserNotification
 				if err := json.Unmarshal(data, &notification); err != nil {
 					panic(err)

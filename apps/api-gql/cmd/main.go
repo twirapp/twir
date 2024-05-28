@@ -39,7 +39,10 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			buscore.NewNatsBusFx("api-gql"),
-			wsrouter.New,
+			fx.Annotate(
+				wsrouter.NewNatsSubscription,
+				fx.As(new(wsrouter.WsRouter)),
+			),
 			subscriptions_store.New,
 			resolvers.New,
 			directives.New,

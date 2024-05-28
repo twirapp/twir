@@ -3,37 +3,31 @@ package wsrouter
 import (
 	"github.com/goccy/go-json"
 	"github.com/nats-io/nats.go"
-	config "github.com/satont/twir/libs/config"
-	"go.uber.org/fx"
 )
 
-type Opts struct {
-	fx.In
-
-	Config config.Config
-}
-
-func New(opts Opts) (*WsSync, error) {
+func NewNatsSubscription(opts Opts) (*WsRouterNats, error) {
 	nc, err := nats.Connect(opts.Config.NatsUrl)
 	if err != nil {
 		return nil, err
 	}
 
-	return &WsSync{
+	return &WsRouterNats{
 		nc: nc,
 	}, nil
 }
 
-type WsSync struct {
+type WsRouterNats struct {
 	nc *nats.Conn
 }
 
-type Subscription struct {
-	subs []*nats.Subscription
-	Data chan []byte
+var _ WsRouter = &WsRouterNats{}
+
+type WsRouterNatsSubscription struct {
+	subs      []*nats.Subscription
+	dataChann chan []byte
 }
 
-func (c *Subscription) Unsubscribe() error {
+func (c *WsRouterNatsSubscription) Unsubscribe() error {
 	for _, sub := range c.subs {
 		if err := sub.Unsubscribe(); err != nil {
 			return err
@@ -43,7 +37,11 @@ func (c *Subscription) Unsubscribe() error {
 	return nil
 }
 
-func (c *WsSync) Subscribe(keys []string) (*Subscription, error) {
+func (c *WsRouterNatsSubscription) GetChannel() chan []byte {
+	return c.dataChann
+}
+
+func (c *WsRouterNats) Subscribe(keys []string) (WsRouterSubscription, error) {
 	ch := make(chan []byte)
 	subs := make([]*nats.Subscription, 0, len(keys))
 
@@ -62,13 +60,13 @@ func (c *WsSync) Subscribe(keys []string) (*Subscription, error) {
 		subs = append(subs, sub)
 	}
 
-	return &Subscription{
-		subs: subs,
-		Data: ch,
+	return &WsRouterNatsSubscription{
+		subs:      subs,
+		dataChann: ch,
 	}, nil
 }
 
-func (c *WsSync) Publish(key string, data any) error {
+func (c *WsRouterNats) Publish(key string, data any) error {
 	dataBytes, err := json.Marshal(data)
 	if err != nil {
 		return err

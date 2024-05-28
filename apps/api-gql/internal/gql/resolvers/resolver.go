@@ -40,7 +40,7 @@ type Resolver struct {
 	redis                *redis.Client
 	keywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	tokensClient         tokens.TokensClient
-	wsRouter             *wsrouter.WsSync
+	wsRouter             wsrouter.WsRouter
 }
 
 type Opts struct {
@@ -58,7 +58,7 @@ type Opts struct {
 	Logger               logger.Logger
 	Redis                *redis.Client
 	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
-	WsRouter             *wsrouter.WsSync
+	WsRouter             wsrouter.WsRouter
 }
 
 func New(opts Opts) (*Resolver, error) {
