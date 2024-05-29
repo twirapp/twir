@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { NScrollbar } from 'naive-ui'
+import { NScrollbar, useThemeVars } from 'naive-ui'
+import { computed } from 'vue'
 
 import Stats from './stats.vue'
+
+const themeVars = useThemeVars()
+const blockColor = computed(() => themeVars.value.buttonColor2)
 </script>
 
 <template>
@@ -19,5 +23,14 @@ import Stats from './stats.vue'
 	max-width: max-content;
 	min-width: 40%;
 	padding: unset;
+	background-color: v-bind(blockColor);
+	border-radius: 10px;
+}
+
+@media screen and (max-width: 768px) {
+	.scrollable-stats-block {
+		max-width: 100%;
+		min-width: 100%;
+	}
 }
 </style>

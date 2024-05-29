@@ -28,7 +28,7 @@ const uptime = computed(() => {
 	})
 
 	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0]
-	if (duration.days !== undefined && duration.days != 0) mappedDuration.unshift(duration.days)
+	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days)
 
 	return mappedDuration
 		.map(v => padTo2Digits(v!))
@@ -58,9 +58,10 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="!stats" class="py-1 w-full">
-			<NSkeleton width="100%" height="43px" :sharp="false" />
+		<div v-if="!stats" class="w-full">
+			<NSkeleton width="100%" height="45px" :sharp="false" style="border-radius: 10px" />
 		</div>
+
 		<div v-else class="flex gap-3 w-full px-4">
 			<div class="item flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="stats-item pr-2.5">
