@@ -1,7 +1,8 @@
 package eventsub
 
 const (
-	EventsubSubscribeSubject = "eventsub.subscribe"
+	EventsubSubscribeAllSubject = "eventsub.subscribeAll"
+	EventsubSubscribeSubject    = "eventsub.subscribe"
 )
 
 type EventsubSubscribeToAllEventsRequest struct {
