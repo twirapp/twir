@@ -6,17 +6,10 @@ import { useI18n } from 'vue-i18n'
 
 import type { AutoscaleInfo, IChartApi , ISeriesApi, UTCTimestamp } from 'lightweight-charts'
 
-import CommunityEmotesDetailsContentUsersHistory
-	from '@/features/community-emotes-statistic/components/community-emotes-details-content-users-history.vue'
-import CommunityEmotesDetailsContentUsersTop
-	from '@/features/community-emotes-statistic/components/community-emotes-details-content-users-top.vue'
-import {
-	useCommunityEmotesDetails,
-	useCommunityEmotesDetailsName,
-} from '@/features/community-emotes-statistic/composables/use-community-emotes-details'
-import {
-	useTranslatedRanges,
-} from '@/features/community-emotes-statistic/composables/use-translated-ranges'
+import { useCommunityEmotesDetails,	useCommunityEmotesDetailsName } from '@/features/community-emotes-statistic/composables/use-community-emotes-details.js'
+import { useTranslatedRanges } from '@/features/community-emotes-statistic/composables/use-translated-ranges.js'
+import CommunityEmotesDetailsContentUsersHistory from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-history.vue'
+import CommunityEmotesDetailsContentUsersTop from '@/features/community-emotes-statistic/ui/community-emotes-details-content-users-top.vue'
 
 const { t } = useI18n()
 const { ranges } = useTranslatedRanges()

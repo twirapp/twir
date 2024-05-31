@@ -5,11 +5,9 @@ import (
 	"errors"
 	"log/slog"
 	"sync"
-	"time"
 
-	"github.com/avast/retry-go/v4"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -17,6 +15,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	"go.uber.org/atomic"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -31,7 +30,7 @@ type Manager struct {
 	tunnel     *tunnel.AppTunnel
 }
 
-type ManagerOpts struct {
+type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
@@ -43,7 +42,7 @@ type ManagerOpts struct {
 	Tunnel     *tunnel.AppTunnel
 }
 
-func NewManager(opts ManagerOpts) (*Manager, error) {
+func NewManager(opts Opts) (*Manager, error) {
 	client := eventsub_framework.NewSubClient(opts.Creds)
 
 	manager := &Manager{
@@ -58,7 +57,58 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
+				if opts.Config.AppEnv != "production" {
+					if err := manager.
+						gorm.
+						Session(&gorm.Session{AllowGlobalUpdate: true}).
+						Delete(&model.EventsubSubscription{}).
+						Error; err != nil {
+						return err
+					}
+				}
+
 				go func() {
+					if opts.Config.AppEnv != "production" {
+						twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
+						if err != nil {
+							panic(err)
+						}
+
+						var subscriptions []helix.EventSubSubscription
+						cursor := ""
+						for {
+							subs, err := twitchClient.GetEventSubSubscriptions(
+								&helix.EventSubSubscriptionsParams{
+									After: cursor,
+								},
+							)
+							if err != nil {
+								panic(err)
+							}
+
+							subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
+
+							if subs.Data.Pagination.Cursor == "" {
+								break
+							}
+
+							cursor = subs.Data.Pagination.Cursor
+						}
+
+						var unsubWg sync.WaitGroup
+
+						for _, sub := range subscriptions {
+							sub := sub
+							unsubWg.Add(1)
+							go func() {
+								defer unsubWg.Done()
+								manager.Unsubscribe(ctx, sub.ID)
+							}()
+						}
+
+						unsubWg.Wait()
+					}
+
 					requestContext := context.Background()
 					var channels []model.Channels
 					err := manager.gorm.Where(
@@ -71,12 +121,30 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 						panic(err)
 					}
 
+					var topics []model.EventsubTopic
+					if err := opts.Gorm.WithContext(requestContext).Find(&topics).Error; err != nil {
+						panic(err)
+					}
+
 					for _, channel := range channels {
-						err = manager.SubscribeToNeededEvents(requestContext, channel.ID, channel.BotID)
+						err = manager.SubscribeToNeededEvents(requestContext, topics, channel.ID, channel.BotID)
 						if err != nil {
 							continue
 						}
 					}
+
+					manager.SubscribeWithLimits(
+						requestContext,
+						&eventsub_framework.SubRequest{
+							Type: "user.authorization.revoke",
+							Condition: map[string]string{
+								"client_id": opts.Config.TwitchClientId,
+							},
+							Callback: opts.Tunnel.GetAddr(),
+							Secret:   opts.Config.TwitchClientSecret,
+							Version:  "1",
+						},
+					)
 				}()
 
 				return nil
@@ -87,296 +155,147 @@ func NewManager(opts ManagerOpts) (*Manager, error) {
 	return manager, nil
 }
 
-type SubRequest struct {
-	Version   string
-	Condition map[string]string
+func getTypeCondition(
+	t model.EventsubConditionType,
+	topic,
+	channelID,
+	botId string,
+) map[string]string {
+	switch t {
+	case model.EventsubConditionTypeBroadcasterUserID:
+		return map[string]string{
+			"broadcaster_user_id": channelID,
+		}
+	case model.EventsubConditionTypeUserID:
+		return map[string]string{
+			"user_id": channelID,
+		}
+	case model.EventsubConditionTypeBroadcasterWithUserID:
+		data := map[string]string{
+			"broadcaster_user_id": channelID,
+			"user_id":             botId,
+		}
+		if topic == "channel.follow" {
+			data["user_id"] = channelID
+		}
+		return data
+	case model.EventsubConditionTypeBroadcasterWithModeratorID:
+		return map[string]string{
+			"broadcaster_user_id": channelID,
+			"moderator_user_id":   botId,
+		}
+	case model.EventsubConditionTypeToBroadcasterID:
+		return map[string]string{
+			"to_broadcaster_user_id": channelID,
+		}
+	default:
+		return nil
+	}
 }
 
-func (c *Manager) SubscribeToNeededEvents(ctx context.Context, userId, botId string) error {
-	channelCondition := map[string]string{
-		"broadcaster_user_id": userId,
-	}
-	userCondition := map[string]string{
-		"user_id": userId,
-	}
+var statusesForSkip = []string{
+	"enabled",
+	"webhook_callback_verification_pending",
+	"authorization_revoked",
+	"user_removed",
+	"version_removed",
+}
 
-	channelConditionWithBotId := map[string]string{
-		"broadcaster_user_id": userId,
-		"user_id":             botId,
-	}
-
-	channelConditionWithModeratorId := map[string]string{
-		"broadcaster_user_id": userId,
-		"moderator_user_id":   botId,
-	}
-
-	neededSubs := map[string]SubRequest{
-		"channel.update": {
-			Version:   "2",
-			Condition: channelCondition,
-		},
-		"stream.online": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"stream.offline": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"user.update": {
-			Condition: userCondition,
-			Version:   "1",
-		},
-		"channel.follow": {
-			Version: "2",
-			Condition: map[string]string{
-				"broadcaster_user_id": userId,
-				"moderator_user_id":   userId,
-			},
-		},
-		"channel.moderator.add": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.moderator.remove": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.channel_points_custom_reward_redemption.add": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.channel_points_custom_reward_redemption.update": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.poll.begin": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.poll.progress": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.poll.end": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.prediction.begin": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.prediction.lock": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.prediction.progress": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.prediction.end": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.ban": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.subscribe": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.subscription.gift": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.subscription.message": {
-			Version:   "1",
-			Condition: channelCondition,
-		},
-		"channel.raid": {
-			Version: "1",
-			Condition: map[string]string{
-				"to_broadcaster_user_id": userId,
-			},
-		},
-		"channel.chat.clear": {
-			Version:   "1",
-			Condition: channelConditionWithBotId,
-		},
-		"channel.chat.clear_user_messages": {
-			Version:   "1",
-			Condition: channelConditionWithBotId,
-		},
-		"channel.chat.message_delete": {
-			Version:   "1",
-			Condition: channelConditionWithBotId,
-		},
-		"channel.chat.notification": {
-			Version:   "1",
-			Condition: channelConditionWithBotId,
-		},
-		"channel.chat.message": {
-			Version:   "1",
-			Condition: channelConditionWithBotId,
-		},
-		"channel.unban_request.create": {
-			Version:   "1",
-			Condition: channelConditionWithModeratorId,
-		},
-		"channel.unban_request.resolve": {
-			Version:   "1",
-			Condition: channelConditionWithModeratorId,
-		},
-	}
-
-	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
-	if err != nil {
+func (c *Manager) SubscribeToNeededEvents(
+	ctx context.Context,
+	topics []model.EventsubTopic,
+	broadcasterId,
+	botId string,
+) error {
+	var existedSubscriptions []model.EventsubSubscription
+	if err := c.gorm.
+		WithContext(ctx).
+		Where(&model.EventsubSubscription{UserID: broadcasterId}).
+		Where("status NOT IN ?", statusesForSkip).
+		Find(&existedSubscriptions).
+		Error; err != nil {
 		return err
 	}
 
-	var subscriptions []helix.EventSubSubscription
-	cursor := ""
-	for {
-		subs, err := twitchClient.GetEventSubSubscriptions(
-			&helix.EventSubSubscriptionsParams{
-				UserID: userId,
-				After:  cursor,
-			},
-		)
-		if err != nil {
-			return err
-		}
+	var wg sync.WaitGroup
+	newSubsCount := atomic.NewInt64(0)
 
-		subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
+	for _, topic := range topics {
+		wg.Add(1)
 
-		if subs.Data.Pagination.Cursor == "" {
-			break
-		}
-
-		cursor = subs.Data.Pagination.Cursor
-	}
-
-	if c.config.AppEnv != "production" {
-		var unsubWg sync.WaitGroup
-
-		for _, sub := range subscriptions {
-			sub := sub
-			unsubWg.Add(1)
-			go func() {
-				defer unsubWg.Done()
-				c.Unsubscribe(ctx, sub.ID)
-			}()
-		}
-
-		unsubWg.Wait()
-
-		for key, value := range neededSubs {
-			key := key
-			value := value
-
-			go func() {
-				c.Subscribe(
-					ctx, &eventsub_framework.SubRequest{
-						Type:      key,
-						Condition: value.Condition,
-						Callback:  c.tunnel.GetAddr(),
-						Secret:    c.config.TwitchClientSecret,
-						Version:   value.Version,
-					},
+		topic := topic
+		go func() {
+			defer wg.Done()
+			condition := getTypeCondition(topic.ConditionType, topic.Topic, broadcasterId, botId)
+			if condition == nil {
+				c.logger.Error(
+					"failed to get condition",
+					slog.String("topic", topic.Topic),
+					slog.String("channel_id", broadcasterId),
+					slog.String("condition_type", string(topic.ConditionType)),
 				)
-
-				c.logger.Info(
-					"Subscribed",
-					slog.String("type", key),
-					slog.String("user_id", userId),
-				)
-			}()
-		}
-	} else {
-		for key, value := range neededSubs {
-			for _, sub := range subscriptions {
-				if sub.Type != key {
-					continue
-				}
-
-				if sub.Status == "notification_failures_exceeded" {
-					c.logger.Info(
-						"Notification failures exceeded, resubscribing",
-						slog.String("type", key),
-						slog.String("user_id", userId),
-					)
-
-					if err := retry.Do(
-						func() error {
-							_, subscribeErr := c.Subscribe(
-								ctx, &eventsub_framework.SubRequest{
-									Type:      key,
-									Condition: value.Condition,
-									Callback:  c.tunnel.GetAddr(),
-									Secret:    c.config.TwitchClientSecret,
-									Version:   value.Version,
-								},
-							)
-
-							return subscribeErr
-						},
-						retry.Attempts(0),
-						retry.Delay(1*time.Second),
-						retry.RetryIf(
-							func(err error) bool {
-								var e *eventsub_framework.TwitchError
-								if errors.As(err, &e) && e.Status != 409 {
-									if e.Status == 429 {
-										return true
-									}
-								}
-
-								return false
-							},
-						),
-					); err != nil {
-						c.logger.Error(
-							"Failed to resubscribe",
-							slog.Any("err", err),
-							slog.String("type", key),
-							slog.String("user_id", userId),
-						)
-					}
-				}
+				return
 			}
 
-			_, isExists := lo.Find(
-				subscriptions, func(item helix.EventSubSubscription) bool {
-					return item.Type == key
+			status, err := c.SubscribeWithLimits(
+				ctx,
+				&eventsub_framework.SubRequest{
+					Type:      topic.Topic,
+					Condition: condition,
+					Callback:  c.tunnel.GetAddr(),
+					Secret:    c.config.TwitchClientSecret,
+					Version:   topic.Version,
 				},
 			)
 
-			if !isExists {
-				c.logger.Info(
-					"Subscription not found, resubscribing",
-					slog.String("type", key),
-					slog.String("user_id", userId),
+			var casterErr *eventsub_framework.TwitchError
+			if err != nil && !errors.As(err, &casterErr) {
+				c.logger.Error(
+					"failed to subscribe to event",
+					slog.Any("err", err),
+					slog.Any("topic", topic.Topic),
+					slog.Any("condition", condition),
+					slog.String("version", topic.Version),
+					slog.String("callback", c.tunnel.GetAddr()),
 				)
-
-				if _, err := c.Subscribe(
-					ctx, &eventsub_framework.SubRequest{
-						Type:      key,
-						Condition: value.Condition,
-						Callback:  c.tunnel.GetAddr(),
-						Secret:    c.config.TwitchClientSecret,
-						Version:   value.Version,
-					},
-				); err != nil {
-					c.logger.Error(
-						"Failed to resubscribe",
-						slog.Any("err", err),
-						slog.String("type", key),
-						slog.String("user_id", userId),
-					)
-				}
+				return
 			}
-		}
+
+			if len(status.Data) > 0 || (casterErr != nil && casterErr.Status == 409) {
+				subStatus := "enabled"
+				subId := uuid.New()
+				if len(status.Data) > 0 {
+					subStatus = status.Data[0].Status
+					subId = uuid.MustParse(status.Data[0].ID)
+				}
+
+				if err := c.gorm.Create(
+					&model.EventsubSubscription{
+						ID:          subId,
+						TopicID:     topic.ID,
+						UserID:      broadcasterId,
+						Status:      subStatus,
+						Version:     topic.Version,
+						CallbackUrl: c.tunnel.GetAddr(),
+					},
+				).Error; err != nil {
+					c.logger.Error("failed to create subscription", slog.Any("err", err))
+				}
+
+				newSubsCount.Inc()
+			}
+		}()
+	}
+
+	wg.Wait()
+
+	if newSubsCount.Load() > 0 {
+		c.logger.Info(
+			"New subscriptions created for channel",
+			slog.String("channel_id", broadcasterId),
+			slog.String("bot_id", botId),
+			slog.Int64("count", newSubsCount.Load()),
+		)
 	}
 
 	return nil

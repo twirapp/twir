@@ -13,13 +13,13 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useCommunityTableActions } from './use-community-table-actions.js'
-import CommunityUsersTableColumn from '../components/community-users-table-column.vue'
+import CommunityUsersTableColumn from '../ui/community-users-table-column.vue'
 
 import { useProfile } from '@/api/auth.js'
 import { type CommunityUser, useCommunityUsersApi } from '@/api/community-users.js'
 import { usePagination } from '@/composables/use-pagination.js'
 import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
+	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import { type CommunityUsersOpts, CommunityUsersResetType } from '@/gql/graphql.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 

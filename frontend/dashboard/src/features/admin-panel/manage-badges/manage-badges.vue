@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import BadgesForm from './components/badges-form.vue'
-import BadgesList from './components/badges-list.vue'
+import BadgesForm from './ui/badges-form.vue'
+import BadgesList from './ui/badges-list.vue'
 </script>
 
 <template>
-	<div class="w-full flex flex-wrap gap-6">
+	<div class="flex flex-col w-full gap-4">
 		<BadgesForm />
 		<BadgesList />
 	</div>

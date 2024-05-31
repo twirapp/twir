@@ -1,3 +1,17 @@
 extend type Mutation {
 	dropAllAuthSessions: Boolean! @isAuthenticated @isAdmin
+	eventsubSubscribe(opts: EventsubSubscribeInput!): Boolean! @isAuthenticated @isAdmin
+}
+
+input EventsubSubscribeInput {
+	type: String! @validate(constraint: "max=50")
+	version: String! @validate(constraint: "max=50")
+	condition: EventsubSubscribeConditionInput!
+}
+
+enum EventsubSubscribeConditionInput {
+	CHANNEL
+	USER
+	CHANNEL_WITH_MODERATOR_ID
+	CHANNEL_WITH_BOT_ID
 }

@@ -6,8 +6,8 @@ import { useI18n } from 'vue-i18n'
 
 import EditModal from './edit-modal.vue'
 
-import { useCommandsApi } from '@/api/commands/commands'
-import { useCommandEdit } from '@/features/commands/composables/use-command-edit'
+import { useCommandsApi } from '@/api/commands/commands.js'
+import { useCommandEdit } from '@/features/commands/composables/use-command-edit.js'
 
 const props = defineProps<{
 	name: string

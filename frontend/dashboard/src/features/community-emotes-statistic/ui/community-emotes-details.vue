@@ -7,7 +7,7 @@ import {
 	Dialog,
 	DialogTrigger,
 } from '@/components/ui/dialog'
-import CommunityEmotesDetailsContent from '@/features/community-emotes-statistic/components/community-emotes-details-content.vue'
+import CommunityEmotesDetailsContent from '@/features/community-emotes-statistic/ui/community-emotes-details-content.vue'
 
 defineEmits<{
 	select: []

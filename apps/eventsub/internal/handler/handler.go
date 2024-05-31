@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net"
 	"net/http"
 
@@ -10,6 +11,7 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/cache/7tv"
@@ -20,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
+	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -66,6 +69,20 @@ type Opts struct {
 func New(opts Opts) *Handler {
 	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
 
+	handler.OnNotification = func(
+		h *eventsub_bindings.ResponseHeaders,
+		notification *eventsub_bindings.EventNotification,
+	) {
+		if err := opts.Gorm.
+			Model(&model.EventsubSubscription{}).
+			Where("id = ?", notification.Subscription.ID).
+			Update("status", notification.Subscription.Status).
+			Error; err != nil {
+			opts.Logger.Error("failed to update subscription", slog.Any("err", err))
+			return
+		}
+	}
+
 	myHandler := &Handler{
 		manager:        opts.Manager,
 		logger:         opts.Logger,
@@ -80,6 +97,9 @@ func New(opts Opts) *Handler {
 		bus:            opts.Bus,
 		seventvCache:   seventv.New(opts.Redis),
 	}
+
+	handler.HandleUserAuthorizationRevoke = myHandler.handleUserAuthorizationRevoke
+	handler.OnRevocate = myHandler.handleSubRevocate
 
 	handler.HandleChannelUpdate = myHandler.handleChannelUpdate
 	handler.HandleStreamOnline = myHandler.handleStreamOnline

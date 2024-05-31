@@ -30,7 +30,7 @@ require (
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	github.com/twirapp/twir/libs/integrations v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
-	github.com/twirapp/twitch-eventsub-framework v1.3.2
+	github.com/twirapp/twitch-eventsub-framework v1.3.6
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0
 	go.opentelemetry.io/otel v1.24.0
 	go.opentelemetry.io/otel/trace v1.24.0

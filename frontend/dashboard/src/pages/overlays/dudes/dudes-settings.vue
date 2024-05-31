@@ -22,7 +22,7 @@ import {
 	useUserAccessFlagChecker,
 } from '@/api/index.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const themeVars = useThemeVars()

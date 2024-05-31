@@ -15,7 +15,7 @@ import type { EmotesStatisticsDetail } from '@/api/emotes-statistic'
 import type { ColumnDef } from '@tanstack/vue-table'
 
 import UsersTableCellUser
-	from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
+	from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 import { valueUpdater } from '@/helpers/value-updater'
 
 type UserUsage = NonNullable<EmotesStatisticsDetail['emotesStatisticEmoteDetailedInformation']>['usagesHistory'][number]

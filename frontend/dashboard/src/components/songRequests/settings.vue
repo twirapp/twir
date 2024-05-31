@@ -27,7 +27,7 @@ import type { VNodeChild } from 'vue'
 import { useCommandsApi } from '@/api/commands/commands'
 import { useSongRequestsApi } from '@/api/song-requests'
 import TwitchSearchUsers from '@/components/twitchUsers/multiple.vue'
-import CommandList from '@/features/commands/components/list.vue'
+import CommandList from '@/features/commands/ui/list.vue'
 import { SongRequestsSearchChannelOrVideoOptsType } from '@/gql/graphql'
 
 const { t } = useI18n()

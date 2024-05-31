@@ -10,9 +10,9 @@ import { useI18n } from 'vue-i18n'
 
 import { useUsersTableFilters } from './use-users-table-filters.js'
 import { useUsers } from './use-users.js'
-import UsersActionSelector from '../components/users-action-selector.vue'
-import UsersBadgeSelector from '../components/users-badge-selector.vue'
-import UsersTableCellUser from '../components/users-table-cell-user.vue'
+import UsersActionSelector from '../ui/users-action-selector.vue'
+import UsersBadgeSelector from '../ui/users-badge-selector.vue'
+import UsersTableCellUser from '../ui/users-table-cell-user.vue'
 
 import type { User } from '@/api/admin/users.js'
 import type { TwirUsersSearchParams } from '@/gql/graphql'

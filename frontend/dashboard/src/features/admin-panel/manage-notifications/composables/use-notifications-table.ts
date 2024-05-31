@@ -4,10 +4,10 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useNotificationsFilters } from './use-notifications-filters.js'
-import UsersTableCellUser from '../../manage-users/components/users-table-cell-user.vue'
-import CreatedAtTooltip from '../components/created-at-tooltip.vue'
-import NotificationsTableActions from '../components/notifications-table-actions.vue'
+import UsersTableCellUser from '../../manage-users/ui/users-table-cell-user.vue'
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
+import CreatedAtTooltip from '../ui/created-at-tooltip.vue'
+import NotificationsTableActions from '../ui/notifications-table-actions.vue'
 
 import { useAdminNotifications } from '@/api/admin/notifications.js'
 import { useLayout } from '@/composables/use-layout.js'
