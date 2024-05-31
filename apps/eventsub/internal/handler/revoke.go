@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"context"
 	"database/sql"
 	"log/slog"
 
 	model "github.com/satont/twir/libs/gomodels"
+	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"github.com/twirapp/twitch-eventsub-framework/esb"
 )
 
@@ -53,28 +55,21 @@ func (c *Handler) handleUserAuthorizationRevoke(
 }
 
 func (c *Handler) handleSubRevocate(
-	h *esb.ResponseHeaders,
+	_ *esb.ResponseHeaders,
 	revocation *esb.RevocationNotification,
 ) {
-	topic := &model.EventsubTopic{}
-	if err := c.gorm.
-		Where("topic = ?", revocation.Subscription.Type).
-		First(topic).Error; err != nil {
-		c.logger.Error("failed to get topic", slog.Any("err", err))
-		return
-	}
+	c.logger.Info("handleSubRevocate", slog.Any("revocation", revocation))
 
-	subscription := &model.EventsubSubscription{}
-	if err := c.gorm.
-		Where("topic_id = ?", topic.ID).
-		First(subscription).Error; err != nil {
-		c.logger.Error("failed to get subscription", slog.Any("err", err))
-		return
-	}
-
-	subscription.Status = revocation.Subscription.Status
-
-	if err := c.gorm.Save(&subscription).Error; err != nil {
-		c.logger.Error("failed to delete subscription", slog.Any("err", err))
+	if revocation.Subscription.Status == "notification_failures_exceeded" {
+		c.manager.SubscribeWithLimits(
+			context.Background(),
+			&eventsub_framework.SubRequest{
+				Type:      revocation.Subscription.Type,
+				Condition: revocation.Subscription.Condition,
+				Callback:  revocation.Subscription.Transport.Callback,
+				Secret:    c.config.TwitchClientSecret,
+				Version:   revocation.Subscription.Version,
+			},
+		)
 	}
 }

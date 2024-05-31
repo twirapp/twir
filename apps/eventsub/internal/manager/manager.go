@@ -4,15 +4,9 @@ import (
 	"context"
 	"errors"
 	"log/slog"
-	"slices"
 	"sync"
 
-	"github.com/go-redsync/redsync/v4"
-	redsyncredis "github.com/go-redsync/redsync/v4/redis/goredis/v9"
-	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/redis/go-redis/v9"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -45,7 +39,6 @@ type Opts struct {
 	TokensGrpc tokens.TokensClient
 	Gorm       *gorm.DB
 	Tunnel     *tunnel.AppTunnel
-	Redis      *redis.Client
 }
 
 func NewManager(opts Opts) (*Manager, error) {
@@ -59,9 +52,6 @@ func NewManager(opts Opts) (*Manager, error) {
 		gorm:       opts.Gorm,
 		tunnel:     opts.Tunnel,
 	}
-
-	locker := redsync.New(redsyncredis.NewPool(opts.Redis))
-	startDistributedLock := locker.NewMutex("eventsub:startDistributedLock")
 
 	opts.Lc.Append(
 		fx.Hook{
@@ -116,66 +106,21 @@ func NewManager(opts Opts) (*Manager, error) {
 						}
 
 						unsubWg.Wait()
-					}
-
-					requestContext := context.Background()
-					var channels []model.Channels
-					err := manager.gorm.Where(
-						`"channels"."isEnabled" = ? AND "User"."is_banned" = ? AND "channels"."isTwitchBanned" = ?`,
-						true,
-						false,
-						false,
-					).Joins("User").Find(&channels).Error
-					if err != nil {
-						panic(err)
-					}
-
-					var topics []model.EventsubTopic
-					if err := opts.Gorm.WithContext(requestContext).Find(&topics).Error; err != nil {
-						panic(err)
-					}
-
-					startDistributedLock.Lock()
-
-					channelsWg := sync.WaitGroup{}
-
-					for _, channel := range channels {
-						channelsWg.Add(1)
-
-						channel := channel
-
-						go func() {
-							defer channelsWg.Done()
-							err = manager.SubscribeToNeededEvents(
-								requestContext,
-								topics,
-								channel.ID,
-								channel.BotID,
-							)
-							if err != nil {
-								opts.Logger.Error(
-									"failed to subscribe to needed events",
-									slog.Any("err", err),
-								)
-							}
-						}()
+						manager.populateChannels()
 					}
 
 					manager.SubscribeWithLimits(
-						requestContext,
+						context.Background(),
 						&eventsub_framework.SubRequest{
 							Type: "user.authorization.revoke",
 							Condition: map[string]string{
-								"client_id": opts.Config.TwitchClientId,
+								"client_id": manager.config.TwitchClientId,
 							},
-							Callback: opts.Tunnel.GetAddr(),
-							Secret:   opts.Config.TwitchClientSecret,
+							Callback: manager.tunnel.GetAddr(),
+							Secret:   manager.config.TwitchClientSecret,
 							Version:  "1",
 						},
 					)
-
-					channelsWg.Wait()
-					startDistributedLock.Unlock()
 				}()
 
 				return nil
@@ -186,44 +131,16 @@ func NewManager(opts Opts) (*Manager, error) {
 	return manager, nil
 }
 
-var statusesForSkip = []string{
-	"enabled",
-	"webhook_callback_verification_pending",
-	"authorization_revoked",
-	"user_removed",
-	"version_removed",
-}
-
 func (c *Manager) SubscribeToNeededEvents(
 	ctx context.Context,
 	topics []model.EventsubTopic,
 	broadcasterId,
 	botId string,
 ) error {
-	var existedSubscriptions []model.EventsubSubscription
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(&model.EventsubSubscription{UserID: broadcasterId}).
-		Find(&existedSubscriptions).
-		Error; err != nil {
-		return err
-	}
-
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
 	for _, topic := range topics {
-		existedSubForTopic, subExists := lo.Find(
-			existedSubscriptions,
-			func(item model.EventsubSubscription) bool {
-				return item.TopicID == topic.ID
-			},
-		)
-
-		if subExists && slices.Contains(statusesForSkip, existedSubForTopic.Status) {
-			continue
-		}
-
 		wg.Add(1)
 
 		topic := topic
@@ -240,7 +157,7 @@ func (c *Manager) SubscribeToNeededEvents(
 				return
 			}
 
-			status, err := c.SubscribeWithLimits(
+			_, err := c.SubscribeWithLimits(
 				ctx,
 				&eventsub_framework.SubRequest{
 					Type:      topic.Topic,
@@ -262,26 +179,6 @@ func (c *Manager) SubscribeToNeededEvents(
 					slog.String("callback", c.tunnel.GetAddr()),
 				)
 				return
-			}
-
-			subStatus := "unknown"
-			subId := uuid.New()
-			if status != nil && len(status.Data) > 0 {
-				subStatus = status.Data[0].Status
-				subId = uuid.MustParse(status.Data[0].ID)
-			}
-
-			if err := c.gorm.Create(
-				&model.EventsubSubscription{
-					ID:          subId,
-					TopicID:     topic.ID,
-					UserID:      broadcasterId,
-					Status:      subStatus,
-					Version:     topic.Version,
-					CallbackUrl: c.tunnel.GetAddr(),
-				},
-			).Error; err != nil {
-				c.logger.Error("failed to create subscription", slog.Any("err", err))
 			}
 
 			newSubsCount.Inc()
