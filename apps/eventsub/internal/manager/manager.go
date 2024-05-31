@@ -261,7 +261,7 @@ func (c *Manager) SubscribeToNeededEvents(
 				return
 			}
 
-			if len(status.Data) > 0 || (casterErr != nil && casterErr.Status == 409) {
+			if (status != nil && len(status.Data) > 0) || (casterErr != nil && casterErr.Status == 409) {
 				subStatus := "enabled"
 				subId := uuid.New()
 				if len(status.Data) > 0 {
