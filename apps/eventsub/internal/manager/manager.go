@@ -131,14 +131,6 @@ func NewManager(opts Opts) (*Manager, error) {
 	return manager, nil
 }
 
-var statusesForSkip = []string{
-	"enabled",
-	"webhook_callback_verification_pending",
-	"authorization_revoked",
-	"user_removed",
-	"version_removed",
-}
-
 func (c *Manager) SubscribeToNeededEvents(
 	ctx context.Context,
 	topics []model.EventsubTopic,

@@ -3,16 +3,13 @@ package handler
 import (
 	"context"
 	"errors"
-	"log/slog"
 	"net"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/cache/7tv"
@@ -23,12 +20,10 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
-	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Handler struct {
@@ -68,81 +63,8 @@ type Opts struct {
 	Tracer trace.Tracer
 }
 
-// order metters
-// user_id should be the last
-var conditionKeys = []string{
-	"broadcaster_user_id",
-	"broadcaster_user_id",
-	"to_broadcaster_user_id",
-	"user_id",
-}
-
-var knownTopicsEntities = map[string]model.EventsubTopic{}
-
 func New(opts Opts) *Handler {
 	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
-
-	handler.OnNotification = func(
-		h *eventsub_bindings.ResponseHeaders,
-		notification *eventsub_bindings.EventNotification,
-	) {
-		condition, ok := notification.Subscription.Condition.(map[string]any)
-		if !ok {
-			opts.Logger.Error(
-				"failed to cast condition",
-				slog.Any("condition", notification.Subscription.Condition),
-			)
-			return
-		}
-
-		var userId string
-		for _, key := range conditionKeys {
-			if val, ok := condition[key].(string); ok {
-				userId = val
-				break
-			}
-		}
-
-		if userId == "" {
-			opts.Logger.Error("failed to find user_id")
-			return
-		}
-
-		var topicId uuid.UUID
-		if topic, ok := knownTopicsEntities[notification.Subscription.Type]; ok {
-			topicId = topic.ID
-		} else {
-			if err := opts.Gorm.
-				Where("topic = ?", notification.Subscription.Type).
-				First(&topic).
-				Error; err != nil {
-				opts.Logger.Error("failed to find topic", slog.Any("err", err))
-				return
-			}
-			knownTopicsEntities[notification.Subscription.Type] = topic
-			topicId = topic.ID
-		}
-
-		if err := opts.Gorm.Debug().Clauses(
-			clause.OnConflict{
-				Columns:   []clause.Column{{Name: "id"}},
-				DoUpdates: clause.Assignments(map[string]interface{}{"status": notification.Subscription.Status}),
-			},
-		).Create(
-			&model.EventsubSubscription{
-				ID:      uuid.New(),
-				UserID:  userId,
-				TopicID: topicId,
-				Status:  notification.Subscription.Status,
-				Version: notification.Subscription.Version,
-				// CallbackUrl: notification.Subscription.Transport.Callback,
-			},
-		).Error; err != nil {
-			if !errors.Is(err, gorm.ErrDuplicatedKey) {
-				opts.Logger.Error("failed to create subscription", slog.Any("err", err))
-			}
-		}
-	}
 
 	myHandler := &Handler{
 		manager:        opts.Manager,
@@ -159,6 +81,7 @@ func New(opts Opts) *Handler {
 		seventvCache:   seventv.New(opts.Redis),
 	}
 
+	handler.OnNotification = myHandler.onNotification
 	handler.HandleUserAuthorizationRevoke = myHandler.handleUserAuthorizationRevoke
 	handler.OnRevocate = myHandler.handleSubRevocate
 
