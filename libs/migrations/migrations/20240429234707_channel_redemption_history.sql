@@ -16,6 +16,7 @@ CREATE TABLE "channel_redemptions_history" (
 
 CREATE INDEX "channel_redemptions_history_channel_id_idx" ON "channel_redemptions_history" (channel_id);
 CREATE INDEX "channel_redemptions_history_user_id_idx" ON "channel_redemptions_history" (user_id);
+CREATE INDEX "channel_redemptions_history_reward_id_idx" ON "channel_redemptions_history" (reward_id);
 -- +goose StatementEnd
 
 -- +goose Down
