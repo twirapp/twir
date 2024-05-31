@@ -23,12 +23,11 @@ import { computed, h, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRouter } from 'vue-router'
 
-import { renderIcon } from '../helpers/index.js'
-
 import type { MenuDividerOption, MenuOption } from 'naive-ui'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import { renderIcon } from '@/helpers/renderIcon'
 
 const { t } = useI18n()
 
@@ -201,12 +200,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<NMenu
-		v-model:value="activeKey"
-		:collapsed-width="64"
-		:collapsed-icon-size="22"
-		:options="menuOptions"
-	/>
+	<NMenu v-model:value="activeKey" :collapsed-width="64" :collapsed-icon-size="22" :options="menuOptions" />
 </template>
 
 <style scoped>

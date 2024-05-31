@@ -21,7 +21,7 @@ import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
 import { useLayout } from '@/composables/use-layout'
 import { useTheme } from '@/composables/use-theme.js'
-import Header from '@/layout/header.vue'
+import Header from '@/layout/header'
 import Sidebar from '@/layout/sidebar.vue'
 import { useSidebarCollapseStore } from '@/layout/use-sidebar-collapse'
 

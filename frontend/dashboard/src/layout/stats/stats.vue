@@ -1,48 +1,48 @@
 <script setup lang="ts">
-import { IconEdit } from '@tabler/icons-vue';
-import { useIntervalFn } from '@vueuse/core';
-import { intervalToDuration } from 'date-fns';
-import { NSkeleton, NText } from 'naive-ui';
-import { computed, onBeforeUnmount, ref, h } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconEdit } from '@tabler/icons-vue'
+import { useIntervalFn } from '@vueuse/core'
+import { intervalToDuration } from 'date-fns'
+import { NSkeleton, NText } from 'naive-ui'
+import { computed, h, onBeforeUnmount, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import StreamInfoEditor from './components/StreamInfoEditor.vue';
+import StreamInfoEditor from '../stream-info-editor.vue'
 
-import { useRealtimeDashboardStats } from '@/api';
-import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js';
-import { padTo2Digits } from '@/helpers/convertMillisToTime';
+import { useRealtimeDashboardStats } from '@/api'
+import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import { padTo2Digits } from '@/helpers/convertMillisToTime'
 
-const { stats } = useRealtimeDashboardStats();
+const { stats } = useRealtimeDashboardStats()
 
-const currentTime = ref(new Date());
+const currentTime = ref(new Date())
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
-	currentTime.value = new Date();
-}, 1000);
+	currentTime.value = new Date()
+}, 1000)
 
 const uptime = computed(() => {
-	if (!stats.value?.startedAt) return '00:00:00';
+	if (!stats.value?.startedAt) return '00:00:00'
 
 	const duration = intervalToDuration({
 		start: new Date(stats.value.startedAt),
 		end: currentTime.value,
-	});
+	})
 
-	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0];
-	if (duration.days !== undefined && duration.days != 0) mappedDuration.unshift(duration.days);
+	const mappedDuration = [duration.hours ?? 0, duration.minutes ?? 0, duration.seconds ?? 0]
+	if (duration.days !== undefined && duration.days !== 0) mappedDuration.unshift(duration.days)
 
 	return mappedDuration
 		.map(v => padTo2Digits(v!))
 		.filter(v => typeof v !== 'undefined')
-		.join(':');
-});
+		.join(':')
+})
 
 onBeforeUnmount(() => {
-	pauseUptimeInterval();
-});
+	pauseUptimeInterval()
+})
 
-const { t } = useI18n();
+const { t } = useI18n()
 
-const discrete = useNaiveDiscrete();
+const discrete = useNaiveDiscrete()
 
 function openInfoEditor() {
 	discrete.dialog.create({
@@ -52,24 +52,25 @@ function openInfoEditor() {
 			categoryId: stats.value?.categoryId,
 			categoryName: stats.value?.categoryName,
 		}),
-	});
+	})
 }
 </script>
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="!stats" class="py-1 w-full">
-			<n-skeleton width="100%" height="43px" :sharp="false" />
+		<div v-if="!stats" class="w-full">
+			<NSkeleton width="100%" height="45px" :sharp="false" style="border-radius: 10px" />
 		</div>
+
 		<div v-else class="flex gap-3 w-full px-4">
 			<div class="item flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="stats-item pr-2.5">
-					<n-text>
+					<NText>
 						{{ stats?.title ?? 'No title' }}
-					</n-text>
-					<n-text>
+					</NText>
+					<NText>
 						{{ stats?.categoryName ?? 'No category' }}
-					</n-text>
+					</NText>
 				</div>
 				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
@@ -77,79 +78,79 @@ function openInfoEditor() {
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.uptime`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ uptime }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.viewers`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ stats?.viewers ?? 0 }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.followers`) }}
-				</n-text>
+				</NText>
 
-				<n-text class="stats-display">
+				<NText class="stats-display">
 					{{ stats?.followers }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.messages`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ stats?.chatMessages }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.subs`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ stats?.subs }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ stats?.usedEmotes }}
-				</n-text>
+				</NText>
 			</div>
 
 			<div class="divider" />
 
 			<div class="item stats-item">
-				<n-text :depth="3" class="stats-type">
+				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
-				</n-text>
-				<n-text class="stats-display">
+				</NText>
+				<NText class="stats-display">
 					{{ stats?.requestedSongs }}
-				</n-text>
+				</NText>
 			</div>
 		</div>
 	</Transition>

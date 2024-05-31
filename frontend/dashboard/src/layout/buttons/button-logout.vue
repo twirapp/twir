@@ -19,6 +19,7 @@ const logout = useLogout()
 		@click="logout.execute"
 	>
 		<NSpin v-if="isProfileLoading" size="small" />
+
 		<template v-else>
 			<IconLogout class="w-5 h-5" />
 			<span class="inline-block ml-1">{{ t('navbar.logout') }}</span>

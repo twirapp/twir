@@ -1,10 +1,12 @@
-import { SVGProps } from '@tabler/icons-vue';
-import { FunctionalComponent, h } from 'vue';
+import { h } from 'vue'
 
-type Opts = {
+import type { SVGProps } from '@tabler/icons-vue'
+import type { FunctionalComponent } from 'vue'
+
+interface Opts {
 	color?: string
 }
 
-export const renderIcon = (icon: (props: SVGProps) => FunctionalComponent<SVGProps>, opts?: Opts) => {
-	return () => h(icon, opts, { default: () => h(icon) });
-};
+export function renderIcon(icon: (props: SVGProps) => FunctionalComponent<SVGProps>, opts?: Opts) {
+	return () => h(icon, opts, { default: () => h(icon) })
+}

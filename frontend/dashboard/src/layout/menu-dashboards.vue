@@ -135,6 +135,7 @@ const popoverPlacement = computed(() => {
 							class="flex self-center"
 							:src="currentDashboard?.twitchProfile.profileImageUrl"
 						/>
+
 						<div
 							v-if="isDrawerCollapsed"
 							class="flex flex-col whitespace-nowrap overflow-hidden overflow-ellipsis"
@@ -142,6 +143,7 @@ const popoverPlacement = computed(() => {
 							<NText :depth="3" class="whitespace-nowrap text-xs">
 								{{ t(`dashboard.header.managingUser`) }}
 							</NText>
+
 							<NText :class="[displayNameLength > 16 ? 'text-xs' : 'text-sm']">
 								{{ currentDashboard?.twitchProfile.displayName }}
 							</NText>
@@ -158,11 +160,14 @@ const popoverPlacement = computed(() => {
 				</div>
 			</div>
 		</template>
+
 		<NSpin v-if="isProfileLoading"></NSpin>
+
 		<div v-else ref="refPopoverList" class="dashboards-container">
 			<NText :depth="3" class="text-xs">
 				{{ t(`dashboard.header.channelsAccess`) }}
 			</NText>
+
 			<NVirtualList
 				class="max-h-[400px]"
 				:item-size="42"
@@ -181,6 +186,7 @@ const popoverPlacement = computed(() => {
 					</div>
 				</template>
 			</NVirtualList>
+
 			<template v-if="(profile?.availableDashboards.length ?? 0) > 10">
 				<NInput v-model:value="filterValue" placeholder="Search" />
 			</template>

@@ -52,6 +52,7 @@ const { isCollapsed } = useSidebarCollapseStore()
 			<template #icon>
 				<IconMessageShare />
 			</template>
+
 			<template v-if="isDrawer || !isCollapsed">
 				{{ t('feedback.button') }}
 			</template>
