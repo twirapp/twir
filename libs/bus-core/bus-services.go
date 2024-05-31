@@ -52,7 +52,8 @@ type evalBus struct {
 }
 
 type eventSubBus struct {
-	Subscribe Queue[eventsub.EventsubSubscribeRequest, struct{}]
+	SubscribeToAllEvents Queue[eventsub.EventsubSubscribeToAllEventsRequest, struct{}]
+	Subscribe            Queue[eventsub.EventsubSubscribeRequest, struct{}]
 }
 
 type schedulerBus struct {

@@ -19,6 +19,10 @@ func (EventsubTopic) TableName() string {
 
 type EventsubConditionType string
 
+func (t EventsubConditionType) String() string {
+	return string(t)
+}
+
 const (
 	// EventsubConditionTypeBroadcasterUserID { "broadcaster_user_id": "1234" }
 	EventsubConditionTypeBroadcasterUserID EventsubConditionType = "BROADCASTER_USER_ID"
@@ -31,3 +35,20 @@ const (
 	// EventsubConditionTypeToBroadcasterID { "to_broadcaster_user_id": userId }
 	EventsubConditionTypeToBroadcasterID EventsubConditionType = "TO_BROADCASTER_ID"
 )
+
+func FindEventsubCondition(t string) EventsubConditionType {
+	switch t {
+	case "BROADCASTER_USER_ID":
+		return EventsubConditionTypeBroadcasterUserID
+	case "USER_ID":
+		return EventsubConditionTypeUserID
+	case "BROADCASTER_WITH_USER_ID":
+		return EventsubConditionTypeBroadcasterWithUserID
+	case "BROADCASTER_WITH_MODERATOR_ID":
+		return EventsubConditionTypeBroadcasterWithModeratorID
+	case "TO_BROADCASTER_ID":
+		return EventsubConditionTypeToBroadcasterID
+	default:
+		return ""
+	}
+}

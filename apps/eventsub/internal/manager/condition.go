@@ -4,7 +4,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func getTypeCondition(
+func GetTypeCondition(
 	t model.EventsubConditionType,
 	topic,
 	channelID,

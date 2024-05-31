@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log/slog"
 	"sync"
 
@@ -146,7 +147,7 @@ func (c *Manager) SubscribeToNeededEvents(
 		topic := topic
 		go func() {
 			defer wg.Done()
-			condition := getTypeCondition(topic.ConditionType, topic.Topic, broadcasterId, botId)
+			condition := GetTypeCondition(topic.ConditionType, topic.Topic, broadcasterId, botId)
 			if condition == nil {
 				c.logger.Error(
 					"failed to get condition",
@@ -197,4 +198,48 @@ func (c *Manager) SubscribeToNeededEvents(
 	}
 
 	return nil
+}
+
+func (c *Manager) SubscribeToEvent(
+	ctx context.Context,
+	conditionType,
+	topic,
+	version,
+	channelId string,
+) error {
+	channel := model.Channels{}
+	err := c.gorm.
+		WithContext(ctx).
+		Where(
+			`"id" = ?`,
+			channelId,
+		).First(&channel).Error
+	if err != nil {
+		return err
+	}
+
+	convertedCondition := model.FindEventsubCondition(conditionType)
+	if conditionType == "" {
+		return errors.New("condition type not found")
+	}
+
+	condition := GetTypeCondition(convertedCondition, topic, channel.ID, channel.BotID)
+
+	fmt.Println(conditionType, topic, version, channelId)
+	if condition == nil {
+		return errors.New("condition not found")
+	}
+
+	_, err = c.SubscribeWithLimits(
+		ctx,
+		&eventsub_framework.SubRequest{
+			Type:      topic,
+			Condition: condition,
+			Callback:  c.tunnel.GetAddr(),
+			Secret:    c.config.TwitchClientSecret,
+			Version:   version,
+		},
+	)
+
+	return err
 }

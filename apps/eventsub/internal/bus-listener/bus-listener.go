@@ -40,9 +40,24 @@ func New(opts Opts) (*BusListener, error) {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				return impl.bus.EventSub.Subscribe.SubscribeGroup("eventsub", impl.subscribeToEvents)
+				if err := impl.bus.EventSub.SubscribeToAllEvents.SubscribeGroup(
+					"eventsub",
+					impl.subscribeToAllEvents,
+				); err != nil {
+					return err
+				}
+
+				if err := impl.bus.EventSub.Subscribe.SubscribeGroup(
+					"eventsub",
+					impl.subscribe,
+				); err != nil {
+					return err
+				}
+
+				return nil
 			},
 			OnStop: func(ctx context.Context) error {
+				impl.bus.EventSub.SubscribeToAllEvents.Unsubscribe()
 				impl.bus.EventSub.Subscribe.Unsubscribe()
 				return nil
 			},
@@ -52,9 +67,9 @@ func New(opts Opts) (*BusListener, error) {
 	return impl, nil
 }
 
-func (c *BusListener) subscribeToEvents(
+func (c *BusListener) subscribeToAllEvents(
 	ctx context.Context,
-	msg eventsub.EventsubSubscribeRequest,
+	msg eventsub.EventsubSubscribeToAllEventsRequest,
 ) struct{} {
 	channel := model.Channels{}
 	err := c.gorm.
@@ -81,6 +96,23 @@ func (c *BusListener) subscribeToEvents(
 		channel.BotID,
 	); err != nil {
 		return struct{}{}
+	}
+
+	return struct{}{}
+}
+
+func (c *BusListener) subscribe(
+	ctx context.Context,
+	msg eventsub.EventsubSubscribeRequest,
+) struct{} {
+	if err := c.eventSubClient.SubscribeToEvent(
+		ctx,
+		msg.ConditionType,
+		msg.Topic,
+		msg.Version,
+		msg.ChannelID,
+	); err != nil {
+		c.logger.Error("error subscribing to event", err)
 	}
 
 	return struct{}{}

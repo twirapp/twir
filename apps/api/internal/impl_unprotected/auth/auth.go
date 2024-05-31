@@ -165,8 +165,8 @@ func (c *Auth) AuthPostCode(ctx context.Context, request *auth.PostCodeRequest) 
 	c.SessionManager.Put(ctx, "twitchUser", &twitchUser)
 	c.SessionManager.Put(ctx, "dashboardId", dbUser.ID)
 
-	if err := c.Bus.EventSub.Subscribe.Publish(
-		eventsub.EventsubSubscribeRequest{
+	if err := c.Bus.EventSub.SubscribeToAllEvents.Publish(
+		eventsub.EventsubSubscribeToAllEventsRequest{
 			ChannelID: dbUser.ID,
 		},
 	); err != nil {

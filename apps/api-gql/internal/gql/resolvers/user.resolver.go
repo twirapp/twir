@@ -11,7 +11,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
@@ -21,27 +21,42 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *authenticatedUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *authenticatedUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // SelectedDashboardTwitchUser is the resolver for the selectedDashboardTwitchUser field.
-func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(ctx context.Context, obj *gqlmodel.AuthenticatedUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *authenticatedUserResolver) SelectedDashboardTwitchUser(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.SelectedDashboardID)
 }
 
 // AvailableDashboards is the resolver for the availableDashboards field.
-func (r *authenticatedUserResolver) AvailableDashboards(ctx context.Context, obj *gqlmodel.AuthenticatedUser) ([]gqlmodel.Dashboard, error) {
+func (r *authenticatedUserResolver) AvailableDashboards(
+	ctx context.Context,
+	obj *gqlmodel.AuthenticatedUser,
+) ([]gqlmodel.Dashboard, error) {
 	return r.getAvailableDashboards(ctx, obj)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Dashboard) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *dashboardResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.Dashboard,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
-func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserSelectDashboard(
+	ctx context.Context,
+	dashboardID string,
+) (bool, error) {
 	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
@@ -50,7 +65,10 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context,
 }
 
 // AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
-func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UserUpdateSettingsInput) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdateSettings(
+	ctx context.Context,
+	opts gqlmodel.UserUpdateSettingsInput,
+) (bool, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -104,7 +122,10 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 }
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
-func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
+func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(
+	ctx context.Context,
+	opts gqlmodel.UserUpdatePublicSettingsInput,
+) (bool, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -180,7 +201,10 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 }
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
-func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
+func (r *queryResolver) AuthenticatedUser(ctx context.Context) (
+	*gqlmodel.AuthenticatedUser,
+	error,
+) {
 	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
@@ -219,7 +243,10 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 }
 
 // UserPublicSettings is the resolver for the userPublicSettings field.
-func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) (*gqlmodel.PublicSettings, error) {
+func (r *queryResolver) UserPublicSettings(
+	ctx context.Context,
+	userID *string,
+) (*gqlmodel.PublicSettings, error) {
 	dashboardId, _ := r.sessions.GetSelectedDashboard(ctx)
 
 	var idForFetch string
@@ -312,6 +339,7 @@ var twitchScopes = []string{
 	"moderation:read",
 	"channel:manage:broadcast",
 	"channel:read:redemptions",
+	"channel:manage:redemptions",
 	"moderator:read:chatters",
 	"moderator:manage:shoutouts",
 	"moderator:manage:banned_users",

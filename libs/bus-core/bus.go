@@ -165,6 +165,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		},
 
 		EventSub: &eventSubBus{
+			SubscribeToAllEvents: NewNatsQueue[eventsub.EventsubSubscribeToAllEventsRequest, struct{}](
+				nc,
+				eventsub.EventsubSubscribeSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 			Subscribe: NewNatsQueue[eventsub.EventsubSubscribeRequest, struct{}](
 				nc,
 				eventsub.EventsubSubscribeSubject,
