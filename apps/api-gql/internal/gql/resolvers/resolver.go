@@ -11,7 +11,6 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
-	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
@@ -34,7 +33,6 @@ type Resolver struct {
 	cachedTwitchClient   *twitchcahe.CachedTwitchClient
 	cachedCommandsClient *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	minioClient          *minio.Client
-	subscriptionsStore   *subscriptions_store.SubscriptionsStore
 	twirBus              *bus_core.Bus
 	logger               logger.Logger
 	redis                *redis.Client
@@ -53,7 +51,6 @@ type Opts struct {
 	CachedTwitchClient   *twitchcahe.CachedTwitchClient
 	CachedCommandsClient *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	Minio                *minio.Client
-	SubscriptionsStore   *subscriptions_store.SubscriptionsStore
 	TwirBus              *bus_core.Bus
 	Logger               logger.Logger
 	Redis                *redis.Client
@@ -74,7 +71,6 @@ func New(opts Opts) (*Resolver, error) {
 		twitchClient:         twitchClient,
 		cachedTwitchClient:   opts.CachedTwitchClient,
 		minioClient:          opts.Minio,
-		subscriptionsStore:   opts.SubscriptionsStore,
 		twirBus:              opts.TwirBus,
 		logger:               opts.Logger,
 		redis:                opts.Redis,

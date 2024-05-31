@@ -5,7 +5,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
-	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
@@ -43,7 +42,6 @@ func main() {
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),
 			),
-			subscriptions_store.New,
 			resolvers.New,
 			directives.New,
 			httpserver.New,
