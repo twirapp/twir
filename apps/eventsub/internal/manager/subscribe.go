@@ -23,7 +23,8 @@ func (c *Manager) SubscribeWithLimits(
 			return c.Subscribe(ctx, srq)
 		},
 		retry.Attempts(0),
-		retry.Delay(1*time.Second),
+		retry.DelayType(retry.BackOffDelay),
+		retry.Delay(500*time.Millisecond),
 		retry.RetryIf(
 			func(err error) bool {
 				var e *eventsub_framework.TwitchError
