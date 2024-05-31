@@ -61,7 +61,7 @@ func NewManager(opts Opts) (*Manager, error) {
 	}
 
 	locker := redsync.New(redsyncredis.NewPool(opts.Redis))
-	startDistributedLock := locker.NewMutex("eventsub:startDistrubitedLock")
+	startDistributedLock := locker.NewMutex("eventsub:startDistributedLock")
 
 	opts.Lc.Append(
 		fx.Hook{
@@ -142,6 +142,8 @@ func NewManager(opts Opts) (*Manager, error) {
 
 					for _, channel := range channels {
 						channelsWg.Add(1)
+
+						channel := channel
 
 						go func() {
 							defer channelsWg.Done()

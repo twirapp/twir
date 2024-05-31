@@ -19,9 +19,7 @@ func (c *Manager) SubscribeWithLimits(
 ) {
 	data, err := retry.DoWithData(
 		func() (*esb.RequestStatus, error) {
-			data, subscribeErr := c.Subscribe(ctx, srq)
-
-			return data, subscribeErr
+			return c.Subscribe(ctx, srq)
 		},
 		retry.Attempts(0),
 		retry.Delay(1*time.Second),
