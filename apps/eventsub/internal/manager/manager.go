@@ -121,8 +121,13 @@ func NewManager(opts Opts) (*Manager, error) {
 						panic(err)
 					}
 
+					var topics []model.EventsubTopic
+					if err := opts.Gorm.WithContext(requestContext).Find(&topics).Error; err != nil {
+						panic(err)
+					}
+
 					for _, channel := range channels {
-						err = manager.SubscribeToNeededEvents(requestContext, channel.ID, channel.BotID)
+						err = manager.SubscribeToNeededEvents(requestContext, topics, channel.ID, channel.BotID)
 						if err != nil {
 							continue
 						}
@@ -196,12 +201,12 @@ var statusesForSkip = []string{
 	"version_removed",
 }
 
-func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, botId string) error {
-	var topics []model.EventsubTopic
-	if err := c.gorm.WithContext(ctx).Find(&topics).Error; err != nil {
-		return err
-	}
-
+func (c *Manager) SubscribeToNeededEvents(
+	ctx context.Context,
+	topics []model.EventsubTopic,
+	broadcasterId,
+	botId string,
+) error {
 	var existedSubscriptions []model.EventsubSubscription
 	if err := c.gorm.
 		WithContext(ctx).
@@ -223,6 +228,12 @@ func (c *Manager) SubscribeToNeededEvents(ctx context.Context, broadcasterId, bo
 			defer wg.Done()
 			condition := getTypeCondition(topic.ConditionType, topic.Topic, broadcasterId, botId)
 			if condition == nil {
+				c.logger.Error(
+					"failed to get condition",
+					slog.String("topic", topic.Topic),
+					slog.String("channel_id", broadcasterId),
+					slog.String("condition_type", string(topic.ConditionType)),
+				)
 				return
 			}
 
