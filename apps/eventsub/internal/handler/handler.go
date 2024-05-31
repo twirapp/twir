@@ -111,6 +111,9 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelUnbanRequestCreate = myHandler.handleChannelUnbanRequestCreate
 	handler.HandleChannelUnbanRequestResolve = myHandler.handleChannelUnbanRequestResolve
 	handler.HandleChannelChatMessageDelete = myHandler.handleChannelChatMessageDelete
+	handler.HandleChannelPointsRewardAdd = myHandler.handleChannelPointsRewardAdd
+	handler.HandleChannelPointsRewardUpdate = myHandler.handleChannelPointsRewardUpdate
+	handler.HandleChannelPointsRewardRemove = myHandler.handleChannelPointsRewardRemove
 
 	httpHandler := otelhttp.NewHandler(handler, "")
 

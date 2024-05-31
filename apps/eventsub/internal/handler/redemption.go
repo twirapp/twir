@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/guregu/null"
 	"github.com/lib/pq"
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -34,6 +35,22 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	)
 
 	err := c.gorm.Create(
+		&model.ChannelRedemption{
+			ID:           uuid.MustParse(event.ID),
+			ChannelID:    event.BroadcasterUserID,
+			UserID:       event.UserID,
+			RewardID:     uuid.MustParse(event.Reward.ID),
+			RewardTitle:  event.Reward.Title,
+			RewardPrompt: null.StringFrom(event.Reward.Prompt),
+			RewardCost:   event.Reward.Cost,
+			RedeemedAt:   time.Now().UTC(),
+		},
+	).Error
+	if err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+	}
+
+	err = c.gorm.Create(
 		&model.ChannelsEventsListItem{
 			ID:        uuid.New().String(),
 			ChannelID: event.BroadcasterUserID,
