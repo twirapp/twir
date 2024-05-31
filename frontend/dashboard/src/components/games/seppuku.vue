@@ -18,7 +18,7 @@ import Card from './card.vue'
 import type { SeppukuGame } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games.js'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 

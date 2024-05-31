@@ -20,7 +20,7 @@ import type { VotebanGame } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games.js'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 import { VoteBanGameVotingMode } from '@/gql/graphql'
 
 const isModalOpened = ref(false)
