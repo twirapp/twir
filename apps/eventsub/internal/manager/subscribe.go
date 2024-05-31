@@ -30,6 +30,10 @@ func (c *Manager) SubscribeWithLimits(
 					return true
 				}
 
+				if errors.Is(err, context.DeadlineExceeded) {
+					return true
+				}
+
 				return false
 			},
 		),

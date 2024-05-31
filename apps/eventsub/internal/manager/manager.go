@@ -136,7 +136,6 @@ func NewManager(opts Opts) (*Manager, error) {
 					}
 
 					startDistributedLock.Lock()
-					defer startDistributedLock.Unlock()
 
 					channelsWg := sync.WaitGroup{}
 
@@ -176,6 +175,7 @@ func NewManager(opts Opts) (*Manager, error) {
 					)
 
 					channelsWg.Wait()
+					startDistributedLock.Unlock()
 				}()
 
 				return nil
