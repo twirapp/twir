@@ -1027,8 +1027,24 @@
     },
     "adminActions": {
       "title": "Actions",
-      "dropAllSession": "Drop all sessions",
-      "dropAllSessionConfirm": "Are you sure you want to drop all sessions?"
+      "eventsub": {
+        "title": "Subscribe to EventSub",
+        "condition": "Condition",
+        "type": "Type",
+        "typeError": "Please select a type",
+        "version": "Version",
+        "user": "User",
+        "channel": "Channel",
+        "channelWithBotId": "Channel with bot ID",
+        "channelWithModeratorId": "Channel with moderator ID"
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "revoke": "Revoke",
+        "revokeSessions": "Revoke sessions",
+        "revokeAllSessionsDescription": "All user sessions will be revoked",
+        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+      }
     }
   }
 }
