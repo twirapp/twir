@@ -3,6 +3,7 @@ package manager
 import (
 	"context"
 	"errors"
+	"strings"
 	"time"
 
 	"github.com/avast/retry-go/v4"
@@ -31,6 +32,10 @@ func (c *Manager) SubscribeWithLimits(
 				}
 
 				if errors.Is(err, context.DeadlineExceeded) {
+					return true
+				}
+
+				if strings.Contains(err.Error(), "context deadline exceeded") {
 					return true
 				}
 
