@@ -41,14 +41,14 @@ func New(opts Opts) (*BusListener, error) {
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				if err := impl.bus.EventSub.SubscribeToAllEvents.SubscribeGroup(
-					"eventsub",
+					"eventsub.subscribeAll",
 					impl.subscribeToAllEvents,
 				); err != nil {
 					return err
 				}
 
 				if err := impl.bus.EventSub.Subscribe.SubscribeGroup(
-					"eventsub",
+					"eventsub.subscribe",
 					impl.subscribe,
 				); err != nil {
 					return err

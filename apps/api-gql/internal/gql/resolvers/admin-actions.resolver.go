@@ -33,10 +33,7 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 }
 
 // EventsubSubscribe is the resolver for the eventsubSubscribe field.
-func (r *mutationResolver) EventsubSubscribe(
-	ctx context.Context,
-	opts gqlmodel.EventsubSubscribeInput,
-) (bool, error) {
+func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
 	var channels []model.Channels
 	if err := r.gorm.
 		WithContext(ctx).
