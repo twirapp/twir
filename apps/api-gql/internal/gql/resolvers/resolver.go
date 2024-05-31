@@ -51,13 +51,14 @@ type Opts struct {
 	Config               config.Config
 	TokensGrpc           tokens.TokensClient
 	CachedTwitchClient   *twitchcahe.CachedTwitchClient
-	CachedCommandsClient *db_generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CachedCommandsClient *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	Minio                *minio.Client
 	SubscriptionsStore   *subscriptions_store.SubscriptionsStore
 	TwirBus              *bus_core.Bus
 	Logger               logger.Logger
 	Redis                *redis.Client
-	KeywordsCacher       *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	WsRouter             wsrouter.WsRouter
 }
 
 func New(opts Opts) (*Resolver, error) {

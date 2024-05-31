@@ -5,11 +5,8 @@ import (
 	"errors"
 	"log/slog"
 	"sync"
-	"time"
 
-	"github.com/avast/retry-go/v4"
 	"github.com/nicklaw5/helix/v2"
-	"github.com/samber/lo"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
