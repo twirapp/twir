@@ -52,10 +52,11 @@
     "hide": "Skryť",
     "view": "Zobraziť",
     "toggleColumns": "Prepínanie stĺpcov",
-    "copied": "Copied",
-    "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found"
+    "copied": "Skopírované",
+    "userSelected": "{count} vybraných používateľov",
+    "userSelectPlaceholder": "Vybrať používateľa|Vybrať používateľov",
+    "userNotFound": "Nenašli sa žiadni používatelia",
+    "settings": "Nastavenia"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -496,7 +497,7 @@
       "messageBoxPadding": "Vnútorný okraj",
       "messageBoxBorderRadius": "Border radius",
       "messageBoxFontSize": "Veľkosť písma",
-      "emoteDivider": "Emot",
+      "emoteDivider": "Emote",
       "growDivider": "Rast",
       "growTime": "Čas rastu",
       "growMaxScale": "Maximálne škálovanie"
@@ -591,7 +592,7 @@
       "deniedUsers": "Zablokovaní používatelia",
       "deniedSongs": "Zoznam zakázaných piesní",
       "takeSongFromDonationMessage": "Pokus o získanie odkazov na skladby z darcovských správ?",
-      "confirmClearQueue": "Are you sure you want to clear the queue?",
+      "confirmClearQueue": "Naozaj chcete vymazať frontu?",
       "users": {
         "maxRequests": "Maximálne množstvo žiadosti na používateľa",
         "minimalWatchTime": "Minimálny čas sledovania streamu (v minútach)",
@@ -609,7 +610,7 @@
       "general": "Všeobecné",
       "users": "Užívatelia",
       "songs": "Skladby",
-      "translations": "Translations"
+      "translations": "Preklady"
     },
     "ban": {
       "user": "Zablokovať užívateľa",
@@ -652,6 +653,10 @@
   },
   "keywords": {
     "title": "Kľúčové slová",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Spúšťací text",
     "usages": "Počet použití",
     "isRegular": "Je regulárny výraz?",
@@ -691,10 +696,10 @@
     "title": "Upozornenia",
     "info": "Alerts Information",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
-    "copyOverlayLink": "Copy overlay link",
+    "copyOverlayLink": "Skopírovať link prekrytia",
     "name": "Názov",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "rewards": "Odmeny",
+    "commands": "Príkazy",
     "validations": {
       "name": "Názov nesmie byť prázdny alebo dlhší ako 30 znakov!"
     },
@@ -709,10 +714,10 @@
       "image": "Configure an image",
       "text": "Configure text"
     },
-    "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "audioVolume": "Hlasitosť zvuku",
+    "createAlert": "Vytvoriť upozornenie",
+    "editAlert": "Upraviť upozornenie",
+    "tableEmpty": "Nenašli sa žiadne upozornenia"
   },
   "games": {
     "command": "Príkaz",
@@ -775,6 +780,21 @@
       "timeoutModerators": "Enable seppuku for moderators",
       "messageModerators": "Message when moderator used seppuku",
       "timeoutSeconds": "Timeout seconds"
+    },
+    "voteban": {
+      "description": "Commence jury trial of the guilty chatterer!",
+      "banMessage": "Message on ban",
+      "banMessageModerators": "Message for ban moderator",
+      "surviveMessage": "Survive message",
+      "surviveMessageModerators": "Survive message for moderators",
+      "initialMessage": "Init message",
+      "neededVotes": "Needed votes",
+      "banDuration": "Duration of ban",
+      "voteMode": "Mode of vote",
+      "voteDuration": "Duration of vote in seconds",
+      "wordsNegative": "Words for vote to \"no\" option",
+      "wordsPositive": "Words for vote to \"yes\" option",
+      "timeoutModerators": "Enable voteban on moderators"
     }
   },
   "community": {
