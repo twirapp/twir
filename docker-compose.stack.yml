@@ -274,11 +274,15 @@ services:
       - twir
       - traefik-public
     deploy:
+      mode: replicated
+      replicas: 3
+      update_config:
+        parallelism: 1
+      endpoint_mode: dnsrr
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
-      endpoint_mode: dnsrr
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
@@ -290,10 +294,10 @@ services:
     secrets:
       - twir_doppler_token
     deploy:
-      update_config:
-        parallelism: 2
       mode: replicated
       replicas: 8
+      update_config:
+        parallelism: 2
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
