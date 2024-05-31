@@ -15,7 +15,7 @@ import type { GreetingsCreateInput } from '@/gql/graphql'
 
 import { type Greetings, useGreetingsApi } from '@/api/greetings'
 import DialogOrSheet from '@/components/dialog-or-sheet.vue'
-import TwitchUserSearch from '@/components/twitchUsers/single.vue'
+import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import {
 	Dialog,
@@ -70,17 +70,20 @@ async function save() {
 		userId: data.userId,
 	}
 
-	if (data.id) {
-		await greetingsUpdate.executeMutation({
-			id: data.id,
-			opts,
-		})
-	} else {
-		await greetingsCreate.executeMutation({ opts })
+	try {
+		if (data.id) {
+			await greetingsUpdate.executeMutation({
+				id: data.id,
+				opts,
+			})
+		} else {
+			await greetingsCreate.executeMutation({ opts })
+		}
+		emits('close')
+		open.value = false
+	} catch (e) {
+		console.error(e)
 	}
-
-	emits('close')
-	open.value = false
 }
 
 const { t } = useI18n()
@@ -119,7 +122,7 @@ const rules: FormRules = {
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[425px]">
+		<DialogOrSheet class="sm:max-w-[424px]">
 			<DialogHeader>
 				<DialogTitle>
 					{{ greeting ? t('greetings.edit') : t('greetings.create') }}
@@ -129,7 +132,7 @@ const rules: FormRules = {
 				<div class="grid gap-4 py-4">
 					<NSpace vertical class="w-full">
 						<NFormItem :label="t('sharedTexts.userName')" path="userId" show-require-mark>
-							<TwitchUserSearch v-model="formValue.userId" :initial-user-id="props.greeting?.userId" />
+							<TwitchUsersSelect v-model="formValue.userId" :initial="formValue.userId" twir-only />
 						</NFormItem>
 						<NFormItem :label="t('sharedTexts.response')" path="text" show-require-mark>
 							<VariableInput v-model="formValue.text" input-type="textarea" />

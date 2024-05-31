@@ -11,6 +11,7 @@ import (
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -38,6 +39,10 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			buscore.NewNatsBusFx("api-gql"),
+			fx.Annotate(
+				wsrouter.NewNatsSubscription,
+				fx.As(new(wsrouter.WsRouter)),
+			),
 			subscriptions_store.New,
 			resolvers.New,
 			directives.New,

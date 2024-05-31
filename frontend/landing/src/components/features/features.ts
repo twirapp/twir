@@ -1,20 +1,20 @@
-import AlertsSvg from '@/assets/features/alerts.svg?use';
-import CommandsSvg from '@/assets/features/commands.svg?use';
-import ConnectionSvg from '@/assets/features/connection.svg?use';
-import EventsSvg from '@/assets/features/events.svg?use';
-import GamesSvg from '@/assets/features/games.svg?use';
-import GreetingsSvg from '@/assets/features/greetings.svg?use';
-import KeywordsSvg from '@/assets/features/keywords.svg?use';
-import ModerationSvg from '@/assets/features/moderation.svg?use';
-import OverlaysSvg from '@/assets/features/overlays.svg?use';
-import SongRequestsSvg from '@/assets/features/song-requests.svg?use';
-import StatsSvg from '@/assets/features/stats.svg?use';
-import TimersSvg from '@/assets/features/timers.svg?use';
+import AlertsSvg from '@/assets/features/alerts.svg?use'
+import CommandsSvg from '@/assets/features/commands.svg?use'
+import ConnectionSvg from '@/assets/features/connection.svg?use'
+import EventsSvg from '@/assets/features/events.svg?use'
+import GamesSvg from '@/assets/features/games.svg?use'
+import GreetingsSvg from '@/assets/features/greetings.svg?use'
+import KeywordsSvg from '@/assets/features/keywords.svg?use'
+import ModerationSvg from '@/assets/features/moderation.svg?use'
+import OverlaysSvg from '@/assets/features/overlays.svg?use'
+import SongRequestsSvg from '@/assets/features/song-requests.svg?use'
+import StatsSvg from '@/assets/features/stats.svg?use'
+import TimersSvg from '@/assets/features/timers.svg?use'
 
 interface Feature {
-	title: string;
-	description: string;
-	icon: any;
+	title: string
+	description: string
+	icon: any
 }
 
 export const features: Feature[] = [
@@ -86,7 +86,7 @@ export const features: Feature[] = [
 	},
 	{
 		title: 'Games',
-		description: 'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, and the magic 8-ball for your entertainment',
+		description: 'Looking to add a touch of fun and relaxation to the chat? No problem! We offer Russian roulette, duels, seppuku, voteban, and the magic 8-ball for your entertainment',
 		icon: GamesSvg,
 	},
-];
+]

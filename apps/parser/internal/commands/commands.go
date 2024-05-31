@@ -16,6 +16,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/cacher"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
+	seventv "github.com/satont/twir/apps/parser/internal/commands/7tv"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
@@ -95,19 +96,26 @@ func New(opts *Opts) *Commands {
 			sr_youtube.SrCommand,
 			sr_youtube.SrListCommand,
 			sr_youtube.WrongCommand,
-			games.EightBall,
-			games.RussianRoulette,
 			kappagen.Kappagen,
 			brb.Start,
 			brb.Stop,
+			games.EightBall,
+			games.RussianRoulette,
+			games.Voteban,
 			games.Duel,
 			games.DuelAccept,
 			games.DuelStats,
+			games.Seppuku,
 			dudes.Jump,
 			dudes.Grow,
 			dudes.Color,
 			dudes.Sprite,
 			dudes.Leave,
+			seventv.Profile,
+			seventv.EmoteFind,
+			seventv.EmoteRename,
+			seventv.EmoteDelete,
+			seventv.EmoteAdd,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -511,6 +519,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				UserId:             data.ChatterUserId,
 				IsDefault:          cmd.Cmd.Default,
 				DefaultCommandName: cmd.Cmd.DefaultName.String,
+				MessageId:          data.MessageId,
 			},
 		)
 

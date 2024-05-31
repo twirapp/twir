@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import Card from './card.vue'
 
 import { useGamesApi } from '@/api/games/games.js'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 
@@ -19,7 +19,7 @@ const updater = gamesManager.useEightBallMutation()
 
 const formValue = ref({
 	enabled: false,
-	answers: ['Yes', 'No']
+	answers: ['Yes', 'No'],
 })
 
 watch(data, (v) => {
@@ -38,8 +38,8 @@ async function save() {
 	await updater.executeMutation({
 		opts: {
 			answers: formValue.value.answers,
-			enabled: formValue.value.enabled
-		}
+			enabled: formValue.value.enabled,
+		},
 	})
 	notifications.success(t('sharedTexts.saved'))
 }

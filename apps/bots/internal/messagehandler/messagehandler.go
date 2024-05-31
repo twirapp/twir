@@ -8,6 +8,8 @@ import (
 	"runtime"
 	"sync"
 
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
@@ -16,7 +18,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	db_generic_cacher "github.com/twirapp/twir/libs/cache/db-generic-cacher"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -39,7 +41,7 @@ type Opts struct {
 	ModerationHelpers *moderationhelpers.ModerationHelpers
 	Config            cfg.Config
 	Bus               *buscore.Bus
-	KeywordsCacher    *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	KeywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 }
 
 type MessageHandler struct {
@@ -53,10 +55,13 @@ type MessageHandler struct {
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
 	bus               *buscore.Bus
-	keywordsCacher    *db_generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	keywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	votebanMutex      *redsync.Mutex
 }
 
 func New(opts Opts) *MessageHandler {
+	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
+
 	handler := &MessageHandler{
 		logger:            opts.Logger,
 		gorm:              opts.Gorm,
@@ -69,6 +74,7 @@ func New(opts Opts) *MessageHandler {
 		config:            opts.Config,
 		bus:               opts.Bus,
 		keywordsCacher:    opts.KeywordsCacher,
+		votebanMutex:      votebanLock.NewMutex("bots:voteban_handle_message"),
 	}
 
 	return handler
@@ -95,6 +101,7 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleRemoveLurker,
 	(*MessageHandler).handleModeration,
 	(*MessageHandler).handleFirstStreamUserJoin,
+	(*MessageHandler).handleGamesVoteban,
 }
 
 func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessage) error {

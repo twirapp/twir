@@ -8,6 +8,8 @@ import {
 	NSpace,
 	NSpin,
 	NSwitch,
+	NTabPane,
+	NTabs,
 	NTag,
 	NText,
 	NTimeline,
@@ -23,11 +25,13 @@ import type {
 	UpdateDataRequest,
 } from '@twir/api/messages/integrations_seventv/integrations_seventv'
 
+import { useCommandsApi } from '@/api/commands/commands'
 import SevenTVSvg from '@/assets/integrations/seventv.svg?use'
 import { useSevenTv } from '@/components/integrations/use-seven-tv'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
 import RewardsSelector from '@/components/rewardsSelector.vue'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
+import CommandsList from '@/features/commands/ui/list.vue'
 
 const { t } = useI18n()
 
@@ -71,6 +75,12 @@ async function saveSettings() {
 		notification.error({ title: t('sharedTexts.errorOnSave'), duration: 2500 })
 	}
 }
+
+const commandsManager = useCommandsApi()
+const { data: commandsData } = commandsManager.useQueryCommands()
+const commands = computed(() => {
+	return commandsData.value?.commands.filter((c) => c.module === '7tv') ?? []
+})
 </script>
 
 <template>
@@ -80,6 +90,7 @@ async function saveSettings() {
 		:icon="SevenTVSvg"
 		icon-width="48px"
 		:save-disabled="isSameRewardsChoosed"
+		modal-content-style="padding: 0px"
 	>
 		<template #description>
 			{{ t('integrations.sevenTv.description') }}
@@ -103,69 +114,82 @@ async function saveSettings() {
 			</template>
 
 			<template v-else>
-				<NSpin :show="!sevenTvData?.isEditor">
-					<NForm>
-						<NFormItem :label="t('integrations.sevenTv.rewardForAddEmote')">
-							<NSpace vertical>
-								<RewardsSelector v-model="form.rewardIdForAddEmote" only-with-input clearable />
-								<NText :depth="3" class="text-xs">
-									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
-								</NText>
-							</NSpace>
-						</NFormItem>
+				<NTabs
+					default-value="settings"
+					justify-content="space-evenly"
+					type="line"
+					pane-style="padding: 10px;"
+				>
+					<NTabPane name="settings" :tab="t('overlays.tts.tabs.general')">
+						<NSpin :show="!sevenTvData?.isEditor">
+							<NForm>
+								<NFormItem :label="t('integrations.sevenTv.rewardForAddEmote')">
+									<NSpace vertical>
+										<RewardsSelector v-model="form.rewardIdForAddEmote" only-with-input clearable />
+										<NText :depth="3" class="text-xs">
+											{{ t('integrations.sevenTv.rewardSelectorDescription') }}
+										</NText>
+									</NSpace>
+								</NFormItem>
 
-						<NFormItem :label="t('integrations.sevenTv.rewardForRemoveEmote')">
-							<NSpace vertical>
-								<RewardsSelector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
-								<NText :depth="3" class="text-xs">
-									{{ t('integrations.sevenTv.rewardSelectorDescription') }}
-								</NText>
+								<NFormItem :label="t('integrations.sevenTv.rewardForRemoveEmote')">
+									<NSpace vertical>
+										<RewardsSelector v-model="form.rewardIdForRemoveEmote" only-with-input clearable />
+										<NText :depth="3" class="text-xs">
+											{{ t('integrations.sevenTv.rewardSelectorDescription') }}
+										</NText>
 
-								<div class="flex gap-1">
-									<span>{{ t('integrations.sevenTv.deleteOnlyAddedByApp') }}</span>
-									<NSwitch v-model:value="form.deleteEmotesOnlyAddedByApp" />
-								</div>
-							</NSpace>
-						</NFormItem>
-					</NForm>
+										<div class="flex gap-1">
+											<span>{{ t('integrations.sevenTv.deleteOnlyAddedByApp') }}</span>
+											<NSwitch v-model:value="form.deleteEmotesOnlyAddedByApp" />
+										</div>
+									</NSpace>
+								</NFormItem>
+							</NForm>
 
-					<div class="flex flex-col gap-1">
-						<NAlert v-if="isSameRewardsChoosed" type="error">
-							{{ t('integrations.sevenTv.errorSameReward') }}
-						</NAlert>
+							<div class="flex flex-col gap-1">
+								<NAlert v-if="isSameRewardsChoosed" type="error">
+									{{ t('integrations.sevenTv.errorSameReward') }}
+								</NAlert>
 
-						<NAlert type="info" class="mb-2.5">
-							<i18n-t keypath="integrations.sevenTv.alert">
-								<NA @click="goToEvents">
-									{{ t('sidebar.events').toLocaleLowerCase() }}
-								</NA>
-							</i18n-t>
-						</NAlert>
-					</div>
+								<NAlert type="info" class="mb-2.5">
+									<i18n-t keypath="integrations.sevenTv.alert">
+										<NA @click="goToEvents">
+											{{ t('sidebar.events').toLocaleLowerCase() }}
+										</NA>
+									</i18n-t>
+								</NAlert>
+							</div>
 
-					<template #description>
-						<NTimeline>
-							<NTimelineItem>
-								<i18n-t keypath="integrations.sevenTv.connectSteps.step1">
-									<NA :href="sevenTvProfileLink" target="_blank">
-										7tv
-									</NA>
-								</i18n-t>
-							</NTimelineItem>
-							<NTimelineItem>
-								<div class="flex flex-col">
-									<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
-									<img :src="SevenTvButtonEditors" height="50" width="100" />
-								</div>
-							</NTimelineItem>
-							<NTimelineItem>
-								<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
-									<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
-								</i18n-t>
-							</NTimelineItem>
-						</NTimeline>
-					</template>
-				</NSpin>
+							<template #description>
+								<NTimeline>
+									<NTimelineItem>
+										<i18n-t keypath="integrations.sevenTv.connectSteps.step1">
+											<NA :href="sevenTvProfileLink" target="_blank">
+												7tv
+											</NA>
+										</i18n-t>
+									</NTimelineItem>
+									<NTimelineItem>
+										<div class="flex flex-col">
+											<span>{{ t('integrations.sevenTv.connectSteps.step2') }}</span>
+											<img :src="SevenTvButtonEditors" height="50" width="100" />
+										</div>
+									</NTimelineItem>
+									<NTimelineItem>
+										<i18n-t keypath="integrations.sevenTv.connectSteps.step3">
+											<b classs="text-[color:var(--n-color-target)]">{{ sevenTvData?.botSeventvProfile?.username }}</b>
+										</i18n-t>
+									</NTimelineItem>
+								</NTimeline>
+							</template>
+						</NSpin>
+					</NTabPane>
+
+					<NTabPane name="commands" :tab="t('sidebar.commands.label')">
+						<CommandsList :commands show-background />
+					</NTabPane>
+				</NTabs>
 			</template>
 		</template>
 
@@ -189,3 +213,9 @@ async function saveSettings() {
 		</template>
 	</WithSettings>
 </template>
+
+<style>
+:deep(.n-card__content) {
+	padding: 0px;
+}
+</style>

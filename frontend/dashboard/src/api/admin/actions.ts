@@ -9,3 +9,11 @@ export function useMutationDropAllAuthSessions() {
 		}
 	`))
 }
+
+export function useMutationEventSubSubscribe() {
+	return useMutation(graphql(`
+		mutation EventsubSubscribe($opts: EventsubSubscribeInput!) {
+			eventsubSubscribe(opts: $opts)
+		}
+	`))
+}

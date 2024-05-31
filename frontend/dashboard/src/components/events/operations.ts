@@ -1,10 +1,10 @@
-export type Operation = {
-	name: string;
-	haveInput?: boolean;
-	additionalValues?: Array<string>;
-	producedVariables?: Array<string>;
-	dependsOnEvents?: string[];
-	color?: 'default' | 'success' | 'error' | 'warning' | 'info';
+export interface Operation {
+	name: string
+	haveInput?: boolean
+	additionalValues?: Array<string>
+	producedVariables?: Array<string>
+	dependsOnEvents?: string[]
+	color?: 'default' | 'success' | 'error' | 'warning' | 'info'
 	type?: 'group'
 	childrens?: Record<string, Operation>
 }
@@ -15,6 +15,11 @@ export const OPERATIONS: Record<string, Operation> = {
 		haveInput: true,
 		additionalValues: ['useAnnounce'],
 		color: 'success',
+	},
+	MESSAGE_DELETE: {
+		name: 'Delete message',
+		color: 'error',
+		dependsOnEvents: ['COMMAND_USED'],
 	},
 
 	TRIGGER_ALERT: {
@@ -133,7 +138,6 @@ export const OPERATIONS: Record<string, Operation> = {
 	// 	description: 'Cancel reward and back points to user',
 	// 	color: 'error',
 	// },
-
 
 	CHAT: {
 		name: 'Manage chat',
@@ -348,4 +352,4 @@ export const OPERATIONS: Record<string, Operation> = {
 		haveInput: true,
 		color: 'info',
 	},
-};
+}

@@ -21,12 +21,12 @@ input GreetingsCreateInput {
 	enabled: Boolean!
 	isReply: Boolean!
 	userId: String!
-	text: String!
+	text: String! @validate(constraint: "max=500")
 }
 
 input GreetingsUpdateInput {
 	enabled: Boolean
 	isReply: Boolean
 	userId: String
-	text: String
+	text: String @validate(constraint: "max=500")
 }

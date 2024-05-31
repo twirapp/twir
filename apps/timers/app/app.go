@@ -1,12 +1,8 @@
 package app
 
 import (
-	"log/slog"
-
 	"github.com/satont/twir/apps/timers/internal/activity"
 	bus_listener "github.com/satont/twir/apps/timers/internal/bus-listener"
-	"github.com/satont/twir/apps/timers/internal/gorm"
-	"github.com/satont/twir/apps/timers/internal/redis"
 	"github.com/satont/twir/apps/timers/internal/repositories/channels"
 	"github.com/satont/twir/apps/timers/internal/repositories/streams"
 	"github.com/satont/twir/apps/timers/internal/repositories/timers"
@@ -14,7 +10,7 @@ import (
 	"github.com/satont/twir/apps/timers/internal/workflow"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	sentryInternal "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -24,14 +20,9 @@ import (
 
 var App = fx.Module(
 	"timers",
+	baseapp.CreateBaseApp("timers"),
 	fx.Provide(
-		cfg.NewFx,
-		sentryInternal.NewFx(sentryInternal.NewFxOpts{Service: "timers"}),
-		logger.NewFx(logger.Opts{Level: slog.LevelInfo, Service: "timers"}),
-		uptrace.NewFx("timers"),
-		gorm.New,
 		buscore.NewNatsBusFx("timers"),
-		redis.New,
 		timers.NewGorm,
 		activity.New,
 		workflow.New,

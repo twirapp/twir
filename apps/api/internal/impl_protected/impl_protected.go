@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/apps/api/internal/impl_protected/alerts"
 	"github.com/satont/twir/apps/api/internal/impl_protected/bot"
 	"github.com/satont/twir/apps/api/internal/impl_protected/build_in_variables"
 	"github.com/satont/twir/apps/api/internal/impl_protected/community"
@@ -43,7 +42,6 @@ type Protected struct {
 	*dashboard.Dashboard
 	*twitch.Twitch
 	*files.Files
-	*alerts.Alerts
 	*overlays.Overlays
 	*moderation.Moderation
 	*users.Users
@@ -96,7 +94,6 @@ func New(opts Opts) *Protected {
 		Dashboard:        &dashboard.Dashboard{Deps: d},
 		Twitch:           &twitch.Twitch{Deps: d},
 		Files:            files.New(d),
-		Alerts:           &alerts.Alerts{Deps: d},
 		Overlays:         &overlays.Overlays{Deps: d},
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},

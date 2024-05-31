@@ -85,7 +85,7 @@ enum ChannelRolePermissionEnum {
 directive @hasChannelRolesDashboardPermission(permission: ChannelRolePermissionEnum) on FIELD_DEFINITION
 
 input RolesCreateOrUpdateOpts {
-	name: String!
+	name: String! @validate(constraint: "max=50")
 	permissions: [ChannelRolePermissionEnum!]!
 	settings: CreateOrUpdateRoleSettingsInput!
 	"""
@@ -95,7 +95,7 @@ input RolesCreateOrUpdateOpts {
 }
 
 input CreateOrUpdateRoleSettingsInput {
-	requiredWatchTime: Int!
-	requiredMessages: Int!
-	requiredUserChannelPoints: Int!
+	requiredWatchTime: Int! @validate(constraint: "max=99999999999999")
+	requiredMessages: Int! @validate(constraint: "max=99999999999999")
+	requiredUserChannelPoints: Int! @validate(constraint: "max=99999999999999")
 }

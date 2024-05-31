@@ -49,8 +49,7 @@ export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
 export const useProfile = createGlobalState(() => {
 	const { data: response, executeQuery, fetching } = useQuery({
 		query: profileQuery.query,
-		variables: {
-		},
+		variables: {},
 		context: {
 			key: profileQuery.key,
 			additionalTypenames: [userInvalidateQueryKey],

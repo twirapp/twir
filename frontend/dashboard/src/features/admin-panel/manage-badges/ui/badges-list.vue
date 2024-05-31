@@ -1,0 +1,106 @@
+<script setup lang="ts">
+import { EditIcon, MoreVerticalIcon, ToggleLeftIcon, ToggleRightIcon, TrashIcon, UserIcon } from 'lucide-vue-next'
+import { NTime } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+
+import BadgesPreview from './badges-preview.vue'
+import { useBadgesActions } from '../composables/use-badges-actions.js'
+import { useBadges } from '../composables/use-badges.js'
+
+import ActionConfirm from '@/components/ui/action-confirm.vue'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+const { t } = useI18n()
+
+const { badges } = useBadges()
+const badgesActions = useBadgesActions()
+</script>
+
+<template>
+	<h4 v-if="badges.length" class="scroll-m-20 text-xl font-semibold tracking-tight w-full">
+		{{ t('adminPanel.manageBadges.title') }}
+	</h4>
+
+	<div class="grid grid-cols-1 gap-4 xl:grid-cols-2 w-full">
+		<Card
+			v-for="badge of badges"
+			:key="badge.id"
+		>
+			<CardHeader class="flex-row justify-between items-center border-b-[1px] p-4">
+				<CardTitle>
+					{{ badge.name }}
+				</CardTitle>
+				<DropdownMenu>
+					<DropdownMenuTrigger as-child>
+						<Button variant="ghost" size="icon">
+							<MoreVerticalIcon class="size-4" />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem @click="badgesActions.applyUserSearchBadgeFilter(badge)">
+							<UserIcon class="mr-2 h-4 w-4" />
+							<span>{{ t('adminPanel.manageBadges.users') }}</span>
+						</DropdownMenuItem>
+						<DropdownMenuItem @click="badgesActions.editBadge(badge)">
+							<EditIcon class="mr-2 h-4 w-4" />
+							<span>{{ t('sharedButtons.edit') }}</span>
+						</DropdownMenuItem>
+						<DropdownMenuSeparator />
+						<DropdownMenuItem @click="badgesActions.toggleBadgeEnabled(badge)">
+							<template v-if="badge.enabled">
+								<ToggleRightIcon class="mr-2 h-4 w-4" />
+								<span>{{ t('sharedTexts.enabled') }}</span>
+							</template>
+							<template v-else>
+								<ToggleLeftIcon class="mr-2 h-4 w-4" />
+								<span>{{ t('sharedTexts.disabled') }}</span>
+							</template>
+						</DropdownMenuItem>
+						<DropdownMenuItem @click="badgesActions.showModalDeleteBadge(badge)">
+							<TrashIcon class="mr-2 h-4 w-4" />
+							<span>{{ t('sharedButtons.delete') }}</span>
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</CardHeader>
+			<CardContent class="flex flex-col gap-4 p-4">
+				<BadgesPreview :image="badge.fileUrl" />
+				<div class="flex flex-wrap gap-2">
+					<Badge :variant="badge.enabled ? 'success' : 'destructive'">
+						<template v-if="badge.enabled">
+							{{ t('sharedTexts.enabled') }}
+						</template>
+						<template v-else>
+							{{ t('sharedTexts.disabled') }}
+						</template>
+					</Badge>
+					<Badge>
+						{{ t('adminPanel.manageBadges.usesCount', { count: badge.users?.length ?? 0 }) }}
+					</Badge>
+					<Badge>
+						{{ t('adminPanel.manageBadges.badgeSlot', { slot: badge.ffzSlot }) }}
+					</Badge>
+					<Badge>
+						<span>
+							Created <NTime :to="new Date(badge.createdAt)" format="dd.MM.yyyy HH:mm:ss" type="datetime" />
+						</span>
+					</Badge>
+				</div>
+			</CardContent>
+		</Card>
+	</div>
+
+	<ActionConfirm
+		v-model:open="badgesActions.isShowModalDelete.value"
+		@confirm="badgesActions.deleteBadge()"
+	/>
+</template>

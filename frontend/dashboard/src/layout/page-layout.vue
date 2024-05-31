@@ -93,12 +93,14 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 				</div>
 			</div>
 		</div>
+
 		<div class="container py-8">
 			<template v-if="activeTab">
 				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
 					<component :is="tab.component" />
 				</TabsContent>
 			</template>
+
 			<template v-else>
 				<slot name="content" />
 			</template>

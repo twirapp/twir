@@ -48,11 +48,11 @@ type SocialLink {
 }
 
 input UserUpdatePublicSettingsInput {
-	description: String
+	description: String @validate(constraint: "max=5000")
 	socialLinks: [SocialLinkInput!]
 }
 
 input SocialLinkInput {
-	title: String!
-	href: String!
+	title: String! @validate(constraint: "max=50")
+	href: String! @validate(constraint: "max=500")
 }

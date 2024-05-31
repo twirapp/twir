@@ -1,7 +1,8 @@
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { computed, onMounted, ref, watch } from 'vue'
 
-import { useProfile, useYoutubeModuleSettings } from '@/api/index.js'
+import { useProfile } from '@/api/index.js'
+import { useSongRequestsApi } from '@/api/song-requests'
 
 export interface Video {
 	id: string
@@ -19,9 +20,9 @@ export interface Video {
 }
 
 export const useYoutubeSocket = createGlobalState(() => {
-	const youtubeModuleManager = useYoutubeModuleSettings()
-	const { data: youtubeSettings } = youtubeModuleManager.getAll()
-	const youtubeModuleUpdater = youtubeModuleManager.update()
+	const youtubeModuleManager = useSongRequestsApi()
+	const { data: youtubeSettings } = youtubeModuleManager.useSongRequestQuery()
+	const youtubeModuleUpdater = youtubeModuleManager.useSongRequestMutation()
 
 	const videos = ref<Video[]>([])
 	const currentVideo = computed(() => videos.value[0])
@@ -53,13 +54,16 @@ export const useYoutubeSocket = createGlobalState(() => {
 	}
 
 	async function banUser(userId: string) {
-		await youtubeModuleUpdater.mutateAsync({
-			data: {
-				...youtubeSettings.value!.data!,
+		if (!youtubeSettings.value?.songRequests) return
+		const settings = youtubeSettings.value.songRequests
+
+		await youtubeModuleUpdater.executeMutation({
+			opts: {
+				...settings,
 				denyList: {
-					...youtubeSettings.value!.data!.denyList!,
+					...settings.denyList,
 					users: [
-						...youtubeSettings.value!.data!.denyList!.users,
+						...settings.denyList.users,
 						userId,
 					],
 				},
@@ -71,13 +75,16 @@ export const useYoutubeSocket = createGlobalState(() => {
 	}
 
 	async function banSong(videoId: string) {
-		await youtubeModuleUpdater.mutateAsync({
-			data: {
-				...youtubeSettings.value!.data!,
+		if (!youtubeSettings.value?.songRequests) return
+		const settings = youtubeSettings.value.songRequests
+
+		await youtubeModuleUpdater.executeMutation({
+			opts: {
+				...settings,
 				denyList: {
-					...youtubeSettings.value!.data!.denyList!,
+					...settings.denyList,
 					songs: [
-						...youtubeSettings.value!.data!.denyList!.songs,
+						...settings.denyList.songs,
 						videoId,
 					],
 				},

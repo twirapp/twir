@@ -20,7 +20,7 @@ function onInteractOutside(event: any) {
 	>
 		<slot />
 	</DialogContent>
-	<SheetContent v-else side="bottom">
+	<SheetContent v-else side="bottom" @interact-outside="onInteractOutside">
 		<slot />
 	</SheetContent>
 </template>

@@ -38,7 +38,10 @@ defineProps<{
 						:data-state="row.getIsSelected() ? 'selected' : undefined" class="border-b"
 					>
 						<TableCell
-							v-for="cell in row.getVisibleCells()" :key="cell.id" @click="() => {
+							v-for="cell in row.getVisibleCells()"
+							:key="cell.id"
+							class="md:break-all"
+							@click="() => {
 								if (row.getCanExpand()) {
 									row.getToggleExpandedHandler()()
 								}

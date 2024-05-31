@@ -8,7 +8,7 @@ import {
 	NInputNumber,
 	NModal,
 	NSpace,
-	NSwitch
+	NSwitch,
 } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -19,7 +19,7 @@ import type { GamesQuery } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 
@@ -36,7 +36,7 @@ const initialSettings: GamesQuery['gamesRussianRoulette'] = {
 	initMessage: '{sender} has initiated a game of roulette. Is luck on their side?',
 	surviveMessage: '{sender} survives the game of roulette! Luck smiles upon them.',
 	deathMessage: `{sender} couldn't make it through the game of roulette. Unfortunately, luck wasn't on their side this time.`,
-	tumberSize: 6
+	tumberSize: 6,
 }
 
 const formValue = ref<GamesQuery['gamesRussianRoulette']>({ ...initialSettings })
@@ -57,7 +57,7 @@ async function save() {
 	await updater.executeMutation({ opts: formValue.value })
 	notification.success({
 		title: t('sharedTexts.saved'),
-		duration: 2500
+		duration: 2500,
 	})
 }
 
@@ -71,7 +71,7 @@ function resetSettings() {
 		onPositiveClick: () => {
 			formValue.value = initialSettings
 			save()
-		}
+		},
 	})
 }
 </script>
@@ -124,7 +124,7 @@ function resetSettings() {
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.timeoutSeconds')">
-				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="1209600" />
+				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="86400" />
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.decisionSeconds')">

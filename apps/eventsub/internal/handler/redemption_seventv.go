@@ -95,5 +95,7 @@ func (c *Handler) handleRewardsSevenTvEmote(
 		return err
 	}
 
+	c.seventvCache.Invalidate(ctx, event.BroadcasterUserID)
+
 	return nil
 }

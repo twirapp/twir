@@ -1,18 +1,20 @@
 <script lang="ts" setup>
-import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen';
-import { NSlider, NSwitch, NAlert, NDivider, NSelect, NButton } from 'naive-ui';
-import { SelectBaseOption } from 'naive-ui/es/select/src/interface';
-import { VNodeChild, h } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { EmojiStyle } from '@twir/api/messages/overlays_kappagen/overlays_kappagen'
+import { NAlert, NButton, NDivider, NSelect, NSlider, NSwitch } from 'naive-ui'
+import { h } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useKappagenFormSettings } from './store.js';
+import { useKappagenFormSettings } from './store.js'
 
-import CommandButton from '@/features/commands/components/command-button.vue';
+import type { SelectBaseOption } from 'naive-ui/es/select/src/interface'
+import type { VNodeChild } from 'vue'
 
-const { settings: formValue } = useKappagenFormSettings();
-const { t } = useI18n();
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
-const formatSizeValue = (v: number) => parseInt(`${v}`.split('.')[1]);
+const { settings: formValue } = useKappagenFormSettings()
+const { t } = useI18n()
+
+const formatSizeValue = (v: number) => Number.parseInt(`${v}`.split('.')[1])
 
 const emojiStylesOptions: SelectBaseOption[] = [
 	{ label: 'Disabled', value: EmojiStyle.None },
@@ -20,13 +22,13 @@ const emojiStylesOptions: SelectBaseOption[] = [
 	{ label: 'Openmoji', value: EmojiStyle.Openmoji },
 	{ label: 'Noto', value: EmojiStyle.Noto },
 	{ label: 'Blob', value: EmojiStyle.Blobmoji },
-];
+]
 
-const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
-	const style = emojiStylesOptions.find(s => s.value === option.value);
-	if (!style || style.value === EmojiStyle.None) return 'Disabled';
+function renderEmojiLabel(option: SelectBaseOption): VNodeChild {
+	const style = emojiStylesOptions.find(s => s.value === option.value)
+	if (!style || style.value === EmojiStyle.None) return 'Disabled'
 
-	const preview = `https://cdn.frankerfacez.com/static/emoji/images/${style.label?.toString().toLowerCase()}/1f609.png`;
+	const preview = `https://cdn.frankerfacez.com/static/emoji/images/${style.label?.toString().toLowerCase()}/1f609.png`
 
 	return [
 		h(
@@ -39,27 +41,27 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 				],
 			},
 		),
-	];
-};
+	]
+}
 </script>
 
 <template>
 	<div class="tab">
-		<n-alert type="info" :show-icon="false" class="mt-1">
+		<NAlert type="info" :show-icon="false" class="mt-1">
 			{{ t('overlays.kappagen.info') }}
-		</n-alert>
+		</NAlert>
 		<CommandButton name="kappagen" />
 
 		<div class="switch">
-			<n-switch v-model:value="formValue.enableSpawn" />
+			<NSwitch v-model:value="formValue.enableSpawn" />
 			<span>{{ t('overlays.kappagen.settings.spawn') }}</span>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="slider">
 			{{ t('overlays.kappagen.settings.size') }}({{ formatSizeValue(formValue.size!.ratioNormal) }})
-			<n-slider
+			<NSlider
 				v-model:value="formValue.size!.ratioNormal"
 				:format-tooltip="formatSizeValue"
 				:step="0.01"
@@ -72,7 +74,7 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 			{{ t('overlays.kappagen.settings.sizeSmall') }}({{
 				formatSizeValue(formValue.size!.ratioSmall)
 			}})
-			<n-slider
+			<NSlider
 				v-model:value="formValue.size!.ratioSmall"
 				:format-tooltip="formatSizeValue"
 				:step="0.01"
@@ -83,23 +85,23 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 
 		<div class="switchers">
 			<div class="switch">
-				<n-switch v-model:value="formValue.emotes!.bttvEnabled" />
+				<NSwitch v-model:value="formValue.emotes!.bttvEnabled" />
 				<span>{{ t('overlays.kappagen.settings.emotes.bttvEnabled') }}</span>
 			</div>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.emotes!.ffzEnabled" />
+				<NSwitch v-model:value="formValue.emotes!.ffzEnabled" />
 				<span>{{ t('overlays.kappagen.settings.emotes.ffzEnabled') }}</span>
 			</div>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.emotes!.sevenTvEnabled" />
+				<NSwitch v-model:value="formValue.emotes!.sevenTvEnabled" />
 				<span>{{ t('overlays.kappagen.settings.emotes.seventvEnabled') }}</span>
 			</div>
 
 			<div class="switch">
 				<span>{{ t('overlays.kappagen.settings.emotes.emojiStyle') }}</span>
-				<n-select
+				<NSelect
 					v-model:value="formValue.emotes!.emojiStyle"
 					:options="emojiStylesOptions"
 					style="width: 40%;"
@@ -109,11 +111,11 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 			</div>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="slider">
 			{{ t('overlays.kappagen.settings.time') }}({{ formValue.emotes!.time }}s)
-			<n-slider
+			<NSlider
 				v-model:value="formValue.emotes!.time"
 				:min="1"
 				:max="15"
@@ -122,58 +124,58 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 
 		<div class="slider">
 			{{ t('overlays.kappagen.settings.maxEmotes') }}({{ formValue.emotes!.max }})
-			<n-slider
+			<NSlider
 				v-model:value="formValue.emotes!.max"
 				:min="0"
 				:max="250"
 			/>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="switchers">
 			<span>{{ t('overlays.kappagen.settings.animationsOnAppear') }}</span>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.animation!.fadeIn" />
+				<NSwitch v-model:value="formValue.animation!.fadeIn" />
 				<span>Fade</span>
 			</div>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.animation!.zoomIn" />
+				<NSwitch v-model:value="formValue.animation!.zoomIn" />
 				<span>Zoom</span>
 			</div>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="switchers">
 			<span>{{ t('overlays.kappagen.settings.animationsOnDisappear') }}</span>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.animation!.fadeOut" />
+				<NSwitch v-model:value="formValue.animation!.fadeOut" />
 				<span>Fade</span>
 			</div>
 
 			<div class="switch">
-				<n-switch v-model:value="formValue.animation!.zoomOut" />
+				<NSwitch v-model:value="formValue.animation!.zoomOut" />
 				<span>Zoom</span>
 			</div>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="switch">
-			<n-switch v-model:value="formValue.enableRave" />
+			<NSwitch v-model:value="formValue.enableRave" />
 			<span>{{ t('overlays.kappagen.settings.rave') }}</span>
 		</div>
 
-		<n-divider />
+		<NDivider />
 
 		<div class="flex flex-col gap-1">
 			<span>{{ t('overlays.kappagen.settings.excludedEmotes') }}</span>
 
-			<n-select
+			<NSelect
 				v-model:value="formValue.excludedEmotes"
 				filterable
 				multiple
@@ -182,9 +184,9 @@ const renderEmojiLabel = (option: SelectBaseOption): VNodeChild => {
 				:show-arrow="false"
 				:show="false"
 			/>
-			<n-button secondary type="error" @click="formValue.excludedEmotes = []">
+			<NButton secondary type="error" @click="formValue.excludedEmotes = []">
 				Clear
-			</n-button>
+			</NButton>
 		</div>
 	</div>
 </template>

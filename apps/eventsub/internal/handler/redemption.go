@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"database/sql"
-	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -18,7 +17,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/api/modules"
 	"github.com/twirapp/twir/libs/grpc/events"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 )
@@ -214,10 +212,9 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	settings := &modules.YouTubeSettings{}
-	entity := &model.ChannelModulesSettings{}
+	entity := &model.ChannelSongRequestsSettings{}
 	err := c.gorm.
-		Where(`"channelId" = ? AND "type" = ?`, event.BroadcasterUserID, "youtube_song_requests").
+		Where(`"channel_id" = ?`, event.BroadcasterUserID).
 		Find(entity).
 		Error
 	if err != nil {
@@ -227,12 +224,7 @@ func (c *Handler) handleYoutubeSongRequests(
 		return nil
 	}
 
-	err = json.Unmarshal(entity.Settings, settings)
-	if err != nil {
-		return err
-	}
-
-	if !*settings.Enabled || event.Reward.ID != settings.ChannelPointsRewardId {
+	if !entity.Enabled || event.Reward.ID != entity.ChannelPointsRewardID.String {
 		return nil
 	}
 

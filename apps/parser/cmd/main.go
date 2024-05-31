@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/getsentry/sentry-go"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
@@ -20,6 +22,7 @@ import (
 	variables_bus "github.com/satont/twir/apps/parser/internal/variables-bus"
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
@@ -149,6 +152,8 @@ func main() {
 
 	bus := buscore.NewNatsBus(nc)
 
+	redSync := redsync.New(goredis.NewPool(redisClient))
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -162,9 +167,12 @@ func main() {
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor: taskQueueDistributor,
-		Bus:             bus,
-		CommandsCache:   commandscache.New(db, redisClient),
+		TaskDistributor:         taskQueueDistributor,
+		Bus:                     bus,
+		CommandsCache:           commandscache.New(db, redisClient),
+		SevenTvCache:            seventv.New(redisClient),
+		SevenTvCacheBySevenTvID: seventv.NewBySeventvID(redisClient),
+		RedSync:                 redSync,
 	}
 
 	variablesService := variables.New(

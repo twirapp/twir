@@ -38,6 +38,28 @@ export const useGamesApi = createGlobalState(() => {
 					chargedBullets
 					tumberSize
 				}
+				gamesSeppuku {
+					enabled
+					message
+					messageModerators
+					timeoutModerators
+					timeoutSeconds
+				}
+				gamesVoteban {
+					enabled
+					timeoutSeconds
+					timeoutModerators
+					initMessage
+					banMessage
+					banMessageModerators
+					surviveMessage
+					surviveMessageModerators
+					neededVotes
+					voteDuration
+					votingMode
+					chatVotesWordsPositive
+					chatVotesWordsNegative
+				}
 			}
 		`),
 		variables: {},
@@ -80,10 +102,34 @@ export const useGamesApi = createGlobalState(() => {
 		[gamesInvalidationKey],
 	)
 
+	const useSeppukuMutation = () => useMutation(
+		graphql(`
+			mutation UpdateSeppukuSettings($opts: SeppukuGameOpts!) {
+				gamesSeppukuUpdate(opts: $opts) {
+					message
+				}
+			}
+		`),
+		[gamesInvalidationKey],
+	)
+
+	const useVotebanMutation = () => useMutation(
+		graphql(`
+			mutation UpdateVotebanSettings($opts: VotebanGameOpts!) {
+				gamesVotebanUpdate(opts: $opts) {
+					timeoutSeconds
+				}
+			}
+		`),
+		[gamesInvalidationKey],
+	)
+
 	return {
 		useGamesQuery,
 		useEightBallMutation,
 		useDuelMutation,
 		useRussianRouletteMutation,
+		useSeppukuMutation,
+		useVotebanMutation,
 	}
 })

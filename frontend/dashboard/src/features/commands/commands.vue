@@ -5,8 +5,8 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import List from './components/list.vue'
 import { useCommandEdit } from './composables/use-command-edit'
+import List from './ui/list.vue'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'
@@ -21,6 +21,8 @@ const editCommand = useCommandEdit()
 const commandsManager = useCommandsApi()
 const { data: commandsResponse } = commandsManager.useQueryCommands()
 
+const excludedModules = ['7tv']
+
 const commandsFilter = ref('')
 const commands = computed(() => {
 	if (!commandsResponse.value?.commands) return []
@@ -33,11 +35,10 @@ const commands = computed(() => {
 				return c.module === 'CUSTOM'
 			}
 
-			return c.module !== 'CUSTOM'
+			return c.module !== 'CUSTOM' && !excludedModules.includes(c.module)
 		})
 		.filter(c => {
-			return c.name.includes(commandsFilter.value)
-			  || c.aliases.some(a => a.includes(commandsFilter.value))
+			return c.name.includes(commandsFilter.value) || c.aliases.some(a => a.includes(commandsFilter.value))
 		})
 })
 

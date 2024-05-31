@@ -1,6 +1,5 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
-import { computed } from 'vue'
 
 import type { GetAllChatAlertsQuery } from '@/gql/graphql.js'
 
@@ -12,7 +11,7 @@ export type ChatAlerts = GetAllChatAlertsQuery['chatAlerts']
 const invalidationKey = 'ChatAlertsInvalidateKey'
 
 export const useChatAlertsApi = createGlobalState(() => {
-	const { data } = useQuery({
+	const useChatAlertsQuery = () => useQuery({
 		variables: {},
 		context: { additionalTypenames: [invalidationKey] },
 		query: graphql(`
@@ -115,12 +114,17 @@ export const useChatAlertsApi = createGlobalState(() => {
 						}
 						cooldown
 					}
+					messageDelete {
+						enabled
+						cooldown
+						messages {
+							text
+						}
+					}
 				}
 			}
 		`),
 	})
-
-	const chatAlerts = computed<ChatAlerts>(() => data.value?.chatAlerts)
 
 	const useMutationUpdateChatAlerts = () => useMutation(graphql(`
 		mutation UpdateChatAlerts($input: ChatAlertsInput!) {
@@ -131,7 +135,7 @@ export const useChatAlertsApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	return {
-		chatAlerts,
+		useChatAlertsQuery,
 		useMutationUpdateChatAlerts,
 	}
 })

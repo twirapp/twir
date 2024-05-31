@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import NotificationsForm from './components/notifications-form.vue'
-import NotificationsList from './components/notifications-list.vue'
+import NotificationsForm from './ui/notifications-form.vue'
+import NotificationsList from './ui/notifications-list.vue'
 </script>
 
 <template>

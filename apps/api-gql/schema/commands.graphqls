@@ -59,32 +59,32 @@ type PublicCommandPermission {
 }
 
 input CommandsCreateOpts {
-	name: String!
-	description: String!
-	aliases: [String!]!
+	name: String! @validate(constraint: "max=50")
+	description: String! @validate(constraint: "max=500")
+	aliases: [String!]! @validate(constraint: "dive,max=50")
 	responses: [CreateOrUpdateCommandResponseInput!]!
-	cooldown: Int!
+	cooldown: Int! @validate(constraint: "max=90000")
 	cooldownType: String!
 	enabled: Boolean!
 	visible: Boolean!
 	isReply: Boolean!
 	keepResponsesOrder: Boolean!
-	deniedUsersIds: [String!]!
-	allowedUsersIds: [String!]!
-	rolesIds: [String!]!
+	deniedUsersIds: [String!]! @validate(constraint: "dive,max=500")
+	allowedUsersIds: [String!]! @validate(constraint: "dive,max=500")
+	rolesIds: [String!]! @validate(constraint: "dive,max=500")
 	onlineOnly: Boolean!
-	cooldownRolesIds: [String!]!
-	enabledCategories: [String!]!
+	cooldownRolesIds: [String!]! @validate(constraint: "dive,max=500")
+	enabledCategories: [String!]! @validate(constraint: "dive,max=500")
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
-	groupId: String
+	groupId: String @validate(constraint: "max=500,omitempty")
 }
 
 input CommandsUpdateOpts {
-	name: String
-	description: String
-	aliases: [String!]
+	name: String @validate(constraint: "max=50")
+	description: String @validate(constraint: "max=500")
+	aliases: [String!] @validate(constraint: "dive,max=50")
 	responses: [CreateOrUpdateCommandResponseInput!]
 	cooldown: Int
 	cooldownType: String
@@ -92,19 +92,19 @@ input CommandsUpdateOpts {
 	visible: Boolean
 	isReply: Boolean
 	keepResponsesOrder: Boolean
-	deniedUsersIds: [String!]
-	allowedUsersIds: [String!]
+	deniedUsersIds: [String!] @validate(constraint: "dive,max=500")
+	allowedUsersIds: [String!] @validate(constraint: "dive,max=500")
 	rolesIds: [String!]
 	onlineOnly: Boolean
-	cooldownRolesIds: [String!]
-	enabledCategories: [String!]
+	cooldownRolesIds: [String!] @validate(constraint: "dive,max=500")
+	enabledCategories: [String!] @validate(constraint: "dive,max=500")
 	requiredWatchTime: Int
 	requiredMessages: Int
 	requiredUsedChannelPoints: Int
-	groupId: String
+	groupId: String @validate(constraint: "max=500,omitempty")
 }
 
 input CreateOrUpdateCommandResponseInput {
-	text: String!
+	text: String! @validate(constraint: "max=500")
 	order: Int!
 }
