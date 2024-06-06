@@ -1,12 +1,73 @@
+import { useQuery, useSubscription } from '@urql/vue'
 import { createGlobalState, useWebSocket } from '@vueuse/core'
 import { ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 import type { TwirWebSocketEvent } from '@/api.js'
 import type { BadgeVersion, ChatBadge, Settings } from '@twir/frontend-chat'
 
+import { graphql } from '@/gql'
 import { generateSocketUrlWithParams } from '@/helpers.js'
 
 export const useChatOverlaySocket = createGlobalState(() => {
+	const route = useRoute()
+
+	useQuery({
+		query: graphql(`
+			query ChatOverlayWithAdditionalData($overlayId: String!) {
+				authenticatedUser {
+					id
+					twitchProfile {
+						login
+						displayName
+						profileImageUrl
+					}
+				}
+				chatOverlaysById(id: $overlayId) {
+					id
+					messageHideTimeout
+				}
+				twitchGetGlobalBadges {
+					badges {
+						set_id
+						versions {
+							image_url_1x
+						}
+					}
+				}
+				twitchGetChannelBadges {
+					badges {
+						set_id
+						versions {
+							image_url_1x
+						}
+					}
+				}
+			}
+		`),
+		variables: {
+			overlayId: route.query.id,
+		},
+	})
+
+	const sub = useSubscription({
+		query: graphql(`
+			subscription ChatOverlaySettings($id: String!, $apiKey: String!) {
+				chatOverlaySettings(id: $id, apiKey: $apiKey) {
+					id
+					animation
+					fontSize
+				}
+			}
+		`),
+		variables: {
+			id: route.query.id,
+			apiKey: route.params.apiKey,
+		},
+	})
+
+	watch(sub.data, (n) => console.log(n))
+
 	const settings = ref<Settings>({
 		channelId: '',
 		channelName: '',

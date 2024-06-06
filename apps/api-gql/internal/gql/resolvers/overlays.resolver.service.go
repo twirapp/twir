@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -38,16 +39,42 @@ func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay
 	}
 }
 
+func (r *queryResolver) chatOverlays(
+	ctx context.Context,
+) ([]gqlmodel.ChatOverlay, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var entities []model.ChatOverlaySettings
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("channel_id = ?", dashboardId).
+		Find(&entities).Error; err != nil {
+		return nil, fmt.Errorf("failed to get chat overlay settings: %w", err)
+	}
+
+	var result []gqlmodel.ChatOverlay
+	for _, entity := range entities {
+		result = append(result, *chatOverlayDbToGql(&entity))
+	}
+
+	return result, nil
+}
+
 func (r *Resolver) getChatOverlaySettings(
 	ctx context.Context,
+	id,
 	channelId string,
 ) (*gqlmodel.ChatOverlay, error) {
 	entity := model.ChatOverlaySettings{
+		ID:        uuid.MustParse(id),
 		ChannelID: channelId,
 	}
 	if err := r.gorm.
 		WithContext(ctx).
-		FirstOrCreate(&entity).Error; err != nil {
+		First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to get chat overlay settings: %w", err)
 	}
 
@@ -66,7 +93,7 @@ func (r *mutationResolver) updateChatOverlay(
 	entity := model.ChatOverlaySettings{}
 	if err := r.gorm.
 		WithContext(ctx).
-		Where("channel_id = ?", dashboardId).
+		Where("channel_id = ? AND id = ?", dashboardId, opts.ID).
 		First(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to get chat overlay settings: %w", err)
 	}
@@ -146,7 +173,7 @@ func (r *mutationResolver) updateChatOverlay(
 	}
 
 	if err := r.wsRouter.Publish(
-		chatOverlaySubscriptionKeyCreate(entity.ChannelID),
+		chatOverlaySubscriptionKeyCreate(entity.ID.String(), entity.ChannelID),
 		chatOverlayDbToGql(&entity),
 	); err != nil {
 		r.logger.Error("failed to publish settings", slog.Any("err", err))

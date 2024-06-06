@@ -1,5 +1,6 @@
 extend type Query {
-	chatOverlay: ChatOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	chatOverlays: [ChatOverlay!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	chatOverlaysById(id: String!): ChatOverlay @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
 }
 
 extend type Mutation {
@@ -7,7 +8,7 @@ extend type Mutation {
 }
 
 extend type Subscription {
-	chatOverlaySettings(apiKey: String!): ChatOverlay!
+	chatOverlaySettings(id: String!, apiKey: String!): ChatOverlay
 }
 
 enum ChatOverlayAnimation {
@@ -36,6 +37,7 @@ type ChatOverlay {
 }
 
 input ChatOverlayUpdateOpts {
+	id: String!
 	messageHideTimeout: Int
 	messageShowDelay: Int
 	preset: String

@@ -5,6 +5,6 @@ const (
 	chatOverlaySubscriptionKey   = "api.chatOverlaySettings"
 )
 
-func chatOverlaySubscriptionKeyCreate(userId string) string {
-	return chatOverlaySubscriptionKey + "." + userId
+func chatOverlaySubscriptionKeyCreate(id, userId string) string {
+	return chatOverlaySubscriptionKey + "." + userId + "." + id
 }
