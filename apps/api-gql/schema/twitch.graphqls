@@ -4,6 +4,11 @@ extend type Query {
 
 	twitchGetChannelRewards(channelId: ID): TwirTwitchChannelRewardResponse!
 
+	"""
+	Get channel badges.
+	If channelId is not provided - selected dashboard/authenticated user channelId is used, depending on context.
+	For example if queried by apiKey - userId belongs to apiKey owner id.
+	"""
 	twitchGetChannelBadges(channelId: ID): TwirTwitchChannelBadgeResponse!
 	twitchGetGlobalBadges: TwirTwitchGlobalBadgeResponse!
 }
