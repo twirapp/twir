@@ -1,7 +1,11 @@
 extend type Query {
 	twitchGetUserById(id: ID!): TwirUserTwitchInfo
 	twitchGetUserByName(name: String!): TwirUserTwitchInfo
+
 	twitchGetChannelRewards(channelId: ID): TwirTwitchChannelRewardResponse!
+
+	twitchGetChannelBadges(channelId: ID): TwirTwitchChannelBadgeResponse!
+	twitchGetGlobalBadges: TwirTwitchGlobalBadgeResponse!
 }
 
 type TwirTwitchChannelRewardResponse {
@@ -53,4 +57,24 @@ type TwirTwitchChannelRewardImage {
 	url_1x: String!
 	url_2x: String!
 	url_4x: String!
+}
+
+type TwitchBadge {
+	set_id: String!
+	versions: [TwitchBadgeVersion!]!
+}
+
+type TwitchBadgeVersion {
+	id: String!
+	image_url_1x: String!
+	image_url_2x: String!
+	image_url_4x: String!
+}
+
+type TwirTwitchChannelBadgeResponse {
+	badges: [TwitchBadge!]!
+}
+
+type TwirTwitchGlobalBadgeResponse {
+	badges: [TwitchBadge!]!
 }

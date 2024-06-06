@@ -1,4 +1,4 @@
-package sessions
+package auth
 
 import (
 	"context"
@@ -7,7 +7,12 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 )
 
-func (s *Sessions) GetAuthenticatedUser(ctx context.Context) (*model.Users, error) {
+func (s *Auth) GetAuthenticatedUser(ctx context.Context) (*model.Users, error) {
+	userByApyKey, err := s.GetAuthenticatedUserByApiKey(ctx)
+	if err == nil {
+		return userByApyKey, nil
+	}
+
 	user, ok := s.sessionManager.Get(ctx, "dbUser").(model.Users)
 	if !ok {
 		return nil, fmt.Errorf("not authenticated")
@@ -21,7 +26,12 @@ func (s *Sessions) GetAuthenticatedUser(ctx context.Context) (*model.Users, erro
 	return &freshUser, nil
 }
 
-func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
+func (s *Auth) GetSelectedDashboard(ctx context.Context) (string, error) {
+	userByApyKey, err := s.GetAuthenticatedUserByApiKey(ctx)
+	if err == nil {
+		return userByApyKey.ID, nil
+	}
+
 	selectedDashboardId, ok := s.sessionManager.Get(ctx, "dashboardId").(string)
 	if !ok {
 		return "", fmt.Errorf("cannot get dashboardId from context")
@@ -30,13 +40,13 @@ func (s *Sessions) GetSelectedDashboard(ctx context.Context) (string, error) {
 	return selectedDashboardId, nil
 }
 
-func (s *Sessions) SetSelectedDashboard(ctx context.Context, dashboardId string) error {
+func (s *Auth) SetSessionSelectedDashboard(ctx context.Context, dashboardId string) error {
 	s.sessionManager.Put(ctx, "dashboardId", dashboardId)
 	s.sessionManager.Commit(ctx)
 
 	return nil
 }
 
-func (s *Sessions) Logout(ctx context.Context) error {
+func (s *Auth) SessionLogout(ctx context.Context) error {
 	return s.sessionManager.Destroy(ctx)
 }

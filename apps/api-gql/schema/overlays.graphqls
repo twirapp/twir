@@ -1,0 +1,56 @@
+extend type Query {
+	chatOverlay: ChatOverlay! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	chatOverlayUpdate(opts: ChatOverlayUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	chatOverlaySettings(apiKey: String!): ChatOverlay!
+}
+
+enum ChatOverlayAnimation {
+	DISABLED
+}
+
+type ChatOverlay {
+	id: String!
+	messageHideTimeout: Int!
+	messageShowDelay: Int!
+	preset: String!
+	fontSize: Int!
+	hideCommands: Boolean!
+	hideBots: Boolean!
+	fontFamily: String!
+	showBadges: Boolean!
+	showAnnounceBadge: Boolean!
+	textShadowColor: String!
+	textShadowSize: Int!
+	chatBackgroundColor: String!
+	direction: String!
+	fontWeight: Int!
+	fontStyle: String!
+	paddingContainer: Int!
+	animation: ChatOverlayAnimation
+}
+
+input ChatOverlayUpdateOpts {
+	messageHideTimeout: Int
+	messageShowDelay: Int
+	preset: String
+	fontSize: Int
+	hideCommands: Boolean
+	hideBots: Boolean
+	fontFamily: String
+	showBadges: Boolean
+	showAnnounceBadge: Boolean
+	textShadowColor: String
+	textShadowSize: Int
+	chatBackgroundColor: String
+	direction: String
+	fontWeight: Int
+	fontStyle: String
+	paddingContainer: Int
+	animation: ChatOverlayAnimation
+}

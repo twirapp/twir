@@ -8,14 +8,17 @@ import (
 	"context"
 	"fmt"
 
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // TwitchGetUserByID is the resolver for the twitchGetUserById field.
-func (r *queryResolver) TwitchGetUserByID(ctx context.Context, id string) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *queryResolver) TwitchGetUserByID(
+	ctx context.Context,
+	id string,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if id == "" {
 		return nil, fmt.Errorf("id is required")
 	}
@@ -24,7 +27,10 @@ func (r *queryResolver) TwitchGetUserByID(ctx context.Context, id string) (*gqlm
 }
 
 // TwitchGetUserByName is the resolver for the twitchGetUserByName field.
-func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *queryResolver) TwitchGetUserByName(
+	ctx context.Context,
+	name string,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if name == "" {
 		return nil, fmt.Errorf("name is required")
 	}
@@ -33,7 +39,10 @@ func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*
 }
 
 // TwitchGetChannelRewards is the resolver for the twitchGetChannelRewards field.
-func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *string) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
+func (r *queryResolver) TwitchGetChannelRewards(
+	ctx context.Context,
+	channelID *string,
+) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
 	var channelId string
 	if channelID == nil {
 		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
@@ -68,7 +77,11 @@ func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *
 		if resp.StatusCode == 403 && resp.ErrorMessage == "The broadcaster must have partner or affiliate status." {
 			isPartnerOrAffiliate = false
 		} else {
-			return nil, fmt.Errorf("cannot get channel rewards: %v %s", resp.StatusCode, resp.ErrorMessage)
+			return nil, fmt.Errorf(
+				"cannot get channel rewards: %v %s",
+				resp.StatusCode,
+				resp.ErrorMessage,
+			)
 		}
 	}
 
@@ -89,40 +102,164 @@ func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *
 			}
 		}
 
-		rewards = append(rewards, gqlmodel.TwirTwitchChannelReward{
-			ID:                  reward.ID,
-			BroadcasterName:     reward.BroadcasterName,
-			BroadcasterLogin:    reward.BroadcasterLogin,
-			BroadcasterID:       reward.BroadcasterID,
-			Image:               image,
-			BackgroundColor:     reward.BackgroundColor,
-			IsEnabled:           reward.IsEnabled,
-			Cost:                reward.Cost,
-			Title:               reward.Title,
-			Prompt:              reward.Prompt,
-			IsUserInputRequired: reward.IsUserInputRequired,
-			MaxPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerStreamSetting{
-				IsEnabled:    reward.MaxPerStreamSetting.IsEnabled,
-				MaxPerStream: reward.MaxPerStreamSetting.MaxPerStream,
+		rewards = append(
+			rewards, gqlmodel.TwirTwitchChannelReward{
+				ID:                  reward.ID,
+				BroadcasterName:     reward.BroadcasterName,
+				BroadcasterLogin:    reward.BroadcasterLogin,
+				BroadcasterID:       reward.BroadcasterID,
+				Image:               image,
+				BackgroundColor:     reward.BackgroundColor,
+				IsEnabled:           reward.IsEnabled,
+				Cost:                reward.Cost,
+				Title:               reward.Title,
+				Prompt:              reward.Prompt,
+				IsUserInputRequired: reward.IsUserInputRequired,
+				MaxPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerStreamSetting{
+					IsEnabled:    reward.MaxPerStreamSetting.IsEnabled,
+					MaxPerStream: reward.MaxPerStreamSetting.MaxPerStream,
+				},
+				MaxPerUserPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerUserPerStreamSetting{
+					IsEnabled:           reward.MaxPerUserPerStreamSetting.IsEnabled,
+					MaxPerUserPerStream: reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream,
+				},
+				GlobalCooldownSetting: &gqlmodel.TwirTwitchChannelRewardGlobalCooldownSetting{
+					IsEnabled:             reward.GlobalCooldownSetting.IsEnabled,
+					GlobalCooldownSeconds: reward.GlobalCooldownSetting.GlobalCooldownSeconds,
+				},
+				IsPaused:                          reward.IsPaused,
+				IsInStock:                         reward.IsInStock,
+				ShouldRedemptionsSkipRequestQueue: reward.ShouldRedemptionsSkipRequestQueue,
+				RedemptionsRedeemedCurrentStream:  reward.RedemptionsRedeemedCurrentStream,
+				CooldownExpiresAt:                 reward.CooldownExpiresAt,
 			},
-			MaxPerUserPerStreamSetting: &gqlmodel.TwirTwitchChannelRewardMaxPerUserPerStreamSetting{
-				IsEnabled:           reward.MaxPerUserPerStreamSetting.IsEnabled,
-				MaxPerUserPerStream: reward.MaxPerUserPerStreamSetting.MaxPerUserPerStream,
-			},
-			GlobalCooldownSetting: &gqlmodel.TwirTwitchChannelRewardGlobalCooldownSetting{
-				IsEnabled:             reward.GlobalCooldownSetting.IsEnabled,
-				GlobalCooldownSeconds: reward.GlobalCooldownSetting.GlobalCooldownSeconds,
-			},
-			IsPaused:                          reward.IsPaused,
-			IsInStock:                         reward.IsInStock,
-			ShouldRedemptionsSkipRequestQueue: reward.ShouldRedemptionsSkipRequestQueue,
-			RedemptionsRedeemedCurrentStream:  reward.RedemptionsRedeemedCurrentStream,
-			CooldownExpiresAt:                 reward.CooldownExpiresAt,
-		})
+		)
 	}
 
 	return &gqlmodel.TwirTwitchChannelRewardResponse{
 		PartnerOrAffiliate: isPartnerOrAffiliate,
 		Rewards:            rewards,
+	}, nil
+}
+
+// TwitchGetChannelBadges is the resolver for the twitchGetChannelBadges field.
+func (r *queryResolver) TwitchGetChannelBadges(
+	ctx context.Context,
+	channelID *string,
+) (*gqlmodel.TwirTwitchChannelBadgeResponse, error) {
+	var userId string
+	if channelID != nil {
+		userId = *channelID
+	} else {
+		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+		if err != nil {
+			return nil, err
+		}
+		userId = dashboardId
+	}
+
+	if userId == "" {
+		return nil, fmt.Errorf("channelID is required")
+	}
+
+	twitchClient, err := twitch.NewUserClientWithContext(ctx, userId, r.config, r.tokensClient)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := twitchClient.GetChannelChatBadges(
+		&helix.GetChatBadgeParams{
+			BroadcasterID: userId,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	if resp.ErrorMessage != "" {
+		return nil, fmt.Errorf(
+			"cannot get channel badges: %v %s",
+			resp.StatusCode,
+			resp.ErrorMessage,
+		)
+	}
+
+	badges := make([]gqlmodel.TwitchBadge, 0, len(resp.Data.Badges))
+	for _, badge := range resp.Data.Badges {
+		versions := make([]gqlmodel.TwitchBadgeVersion, 0, len(badge.Versions))
+		for _, version := range badge.Versions {
+			versions = append(
+				versions,
+				gqlmodel.TwitchBadgeVersion{
+					ID:         version.ID,
+					ImageURL1x: version.ImageUrl1x,
+					ImageURL2x: version.ImageUrl2x,
+					ImageURL4x: version.ImageUrl4x,
+				},
+			)
+		}
+
+		badges = append(
+			badges,
+			gqlmodel.TwitchBadge{
+				SetID:    badge.SetID,
+				Versions: versions,
+			},
+		)
+	}
+
+	return &gqlmodel.TwirTwitchChannelBadgeResponse{
+		Badges: badges,
+	}, nil
+}
+
+// TwitchGetGlobalBadges is the resolver for the twitchGetGlobalBadges field.
+func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (
+	*gqlmodel.TwirTwitchGlobalBadgeResponse,
+	error,
+) {
+
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, r.config, r.tokensClient)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := twitchClient.GetGlobalChatBadges()
+	if err != nil {
+		return nil, err
+	}
+	if resp.ErrorMessage != "" {
+		return nil, fmt.Errorf(
+			"cannot get global badges: %v %s",
+			resp.StatusCode,
+			resp.ErrorMessage,
+		)
+	}
+
+	badges := make([]gqlmodel.TwitchBadge, 0, len(resp.Data.Badges))
+	for _, badge := range resp.Data.Badges {
+		versions := make([]gqlmodel.TwitchBadgeVersion, 0, len(badge.Versions))
+		for _, version := range badge.Versions {
+			versions = append(
+				versions,
+				gqlmodel.TwitchBadgeVersion{
+					ID:         version.ID,
+					ImageURL1x: version.ImageUrl1x,
+					ImageURL2x: version.ImageUrl2x,
+					ImageURL4x: version.ImageUrl4x,
+				},
+			)
+		}
+
+		badges = append(
+			badges,
+			gqlmodel.TwitchBadge{
+				SetID:    badge.SetID,
+				Versions: versions,
+			},
+		)
+	}
+
+	return &gqlmodel.TwirTwitchGlobalBadgeResponse{
+		Badges: badges,
 	}, nil
 }

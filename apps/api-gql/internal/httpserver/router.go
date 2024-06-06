@@ -9,9 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 	sloggin "github.com/samber/slog-gin"
 	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
-	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gincontext"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"go.uber.org/fx"
 )
@@ -20,7 +21,7 @@ type Opts struct {
 	fx.In
 	LC                 fx.Lifecycle
 	GqlHandler         *gql.Gql
-	Sessions           *sessions.Sessions
+	Sessions           *auth.Auth
 	CachedTwitchClient *twitch.CachedTwitchClient
 	Logger             logger.Logger
 }
@@ -72,11 +73,13 @@ func New(opts Opts) *Server {
 
 	// r.Use(
 	// 	func(c *gin.Context) {
-	// 		fmt.Println(opts.Sessions.GetAuthenticatedUser(c.Request.Context()))
+	// 		fmt.Println(opts.Auth.GetAuthenticatedUser(c.Request.Context()))
 	// 	},
 	// )
 
-	playgroundHandler := playground.Handler("GraphQL", "/query")
+	playgroundHandler := playground.Handler("GraphQL", "/api/query")
+
+	r.Use(gincontext.Middleware())
 
 	r.Any(
 		"/", func(c *gin.Context) {
