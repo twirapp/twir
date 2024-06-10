@@ -439,6 +439,9 @@ importers:
       emoji-regex:
         specifier: 10.3.0
         version: 10.3.0
+      graphql:
+        specifier: 16.8.1
+        version: 16.8.1
       graphql-ws:
         specifier: 5.16.0
         version: 5.16.0(graphql@16.8.1)
@@ -461,6 +464,12 @@ importers:
       '@graphql-codegen/cli':
         specifier: 5.0.2
         version: 5.0.2(@types/node@20.12.7)(graphql@16.8.1)(typescript@5.4.5)
+      '@graphql-codegen/client-preset':
+        specifier: 4.2.5
+        version: 4.2.5(graphql@16.8.1)
+      '@graphql-typed-document-node/core':
+        specifier: 3.2.0
+        version: 3.2.0(graphql@16.8.1)
       '@twir/types':
         specifier: workspace:*
         version: link:../../libs/types
@@ -5584,6 +5593,7 @@ packages:
 
   /buffer@5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
+    requiresBuild: true
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1

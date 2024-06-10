@@ -4,7 +4,9 @@ extend type Query {
 }
 
 extend type Mutation {
-	chatOverlayUpdate(opts: ChatOverlayUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	chatOverlayUpdate(id: String!, opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	chatOverlayCreate(opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	chatOverlayDelete(id: String!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 }
 
 extend type Subscription {
@@ -13,6 +15,7 @@ extend type Subscription {
 
 enum ChatOverlayAnimation {
 	DISABLED
+	DEFAULT
 }
 
 type ChatOverlay {
@@ -33,11 +36,10 @@ type ChatOverlay {
 	fontWeight: Int!
 	fontStyle: String!
 	paddingContainer: Int!
-	animation: ChatOverlayAnimation
+	animation: ChatOverlayAnimation!
 }
 
-input ChatOverlayUpdateOpts {
-	id: String!
+input ChatOverlayMutateOpts {
 	messageHideTimeout: Int
 	messageShowDelay: Int
 	preset: String

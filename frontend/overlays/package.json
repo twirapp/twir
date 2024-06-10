@@ -22,6 +22,7 @@
     "@vueuse/core": "10.9.0",
     "@zero-dependency/utils": "1.7.7",
     "emoji-regex": "10.3.0",
+    "graphql": "16.8.1",
     "graphql-ws": "5.16.0",
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.5",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/client-preset": "4.2.5",
+    "@graphql-typed-document-node/core": "3.2.0",
     "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
     "@vitejs/plugin-vue": "5.0.4",

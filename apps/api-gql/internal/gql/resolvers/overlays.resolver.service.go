@@ -6,17 +6,11 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay {
-	var animation *gqlmodel.ChatOverlayAnimation
-	if entity.Animation != nil {
-		animation = lo.ToPtr(gqlmodel.ChatOverlayAnimation(*entity.Animation))
-	}
-
 	return &gqlmodel.ChatOverlay{
 		ID:                  entity.ID.String(),
 		MessageHideTimeout:  int(entity.MessageHideTimeout),
@@ -35,7 +29,7 @@ func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay
 		FontWeight:          int(entity.FontWeight),
 		FontStyle:           entity.FontStyle,
 		PaddingContainer:    int(entity.PaddingContainer),
-		Animation:           animation,
+		Animation:           gqlmodel.ChatOverlayAnimation(entity.Animation),
 	}
 }
 
@@ -83,7 +77,8 @@ func (r *Resolver) getChatOverlaySettings(
 
 func (r *mutationResolver) updateChatOverlay(
 	ctx context.Context,
-	opts gqlmodel.ChatOverlayUpdateOpts,
+	id string,
+	opts gqlmodel.ChatOverlayMutateOpts,
 ) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
@@ -93,7 +88,7 @@ func (r *mutationResolver) updateChatOverlay(
 	entity := model.ChatOverlaySettings{}
 	if err := r.gorm.
 		WithContext(ctx).
-		Where("channel_id = ? AND id = ?", dashboardId, opts.ID).
+		Where("channel_id = ? AND id = ?", dashboardId, id).
 		First(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to get chat overlay settings: %w", err)
 	}
@@ -163,7 +158,7 @@ func (r *mutationResolver) updateChatOverlay(
 	}
 
 	if opts.Animation.IsSet() {
-		entity.Animation = lo.ToPtr(model.ChatOverlaySettingsAnimationType(*opts.Animation.Value()))
+		entity.Animation = model.ChatOverlaySettingsAnimationType(*opts.Animation.Value())
 	}
 
 	if err := r.gorm.

@@ -1,23 +1,27 @@
 <script setup lang="ts">
-import { useFontSource } from '@twir/fontsource';
-import { useWindowSize } from '@vueuse/core';
-import { computed, nextTick, ref, toValue, watch } from 'vue';
+import { useFontSource } from '@twir/fontsource'
+import { useWindowSize } from '@vueuse/core'
+import { computed, nextTick, ref, toValue, watch } from 'vue'
 
-import { getChatDirection, getUserColor } from '../helpers.js';
-import MessageHorizontalBoxed from '../styles/boxed/message-horizontal.vue';
-import MessageVerticalBoxed from '../styles/boxed/message-vertical.vue';
-import MessageHorizontalClean from '../styles/clean/message-horizontal.vue';
-import MessageVerticalClean from '../styles/clean/message-vertical.vue';
-import type { Message, Settings } from '../types.js';
+import { useMappedBadges } from '../composables/mapped-badges.js'
+import { getChatDirection, getUserColor } from '../helpers.js'
+import MessageHorizontalBoxed from '../styles/boxed/message-horizontal.vue'
+import MessageVerticalBoxed from '../styles/boxed/message-vertical.vue'
+import MessageHorizontalClean from '../styles/clean/message-horizontal.vue'
+import MessageVerticalClean from '../styles/clean/message-vertical.vue'
+
+import type { Message, Settings } from '../types.js'
 
 const props = defineProps<{
 	messages: Message[]
 	settings: Settings
-}>();
+}>()
 
-const chatMessages = ref<HTMLDivElement>();
+const chatMessages = ref<HTMLDivElement>()
 
-const fontSource = useFontSource(false);
+const fontSource = useFontSource(false)
+
+const { setChannelBadges, setGlobalBadges } = useMappedBadges()
 
 watch(() => [
 	props.settings.fontFamily,
@@ -28,135 +32,155 @@ watch(() => [
 		props.settings.fontFamily,
 		props.settings.fontWeight,
 		props.settings.fontStyle,
-	);
-});
+	)
+})
+
+watch(() => props.settings.channelBadges, (channelBadges) => {
+	setChannelBadges(channelBadges)
+}, { immediate: true })
+
+watch(() => props.settings.globalBadges, (globalBadges) => {
+	setGlobalBadges(globalBadges)
+}, { immediate: true })
 
 watch(() => props.messages.length, async () => {
-	await nextTick();
-	scrollByDirection(props.settings.direction);
-});
+	await nextTick()
+	scrollByDirection(props.settings.direction)
+})
 
 watch(() => props.settings.direction, async (direction) => {
-	await nextTick();
-	scrollByDirection(direction);
-});
+	await nextTick()
+	scrollByDirection(direction)
+})
 
 function scrollToBottom() {
-	if (!chatMessages.value) return;
-	chatMessages.value.scrollIntoView(true);
+	if (!chatMessages.value) return
+	chatMessages.value.scrollIntoView(true)
 }
 
 function scrollToTop() {
-	if (!chatMessages.value) return;
-	chatMessages.value.scrollIntoView(false);
+	if (!chatMessages.value) return
+	chatMessages.value.scrollIntoView(false)
 }
 
 function scrollToLeft() {
-	if (!chatMessages.value) return;
-	chatMessages.value.scrollLeft += 999999;
+	if (!chatMessages.value) return
+	chatMessages.value.scrollLeft += 999999
 }
 
 function scrollToRight() {
-	if (!chatMessages.value) return;
-	chatMessages.value.scrollLeft -= 999999;
+	if (!chatMessages.value) return
+	chatMessages.value.scrollLeft -= 999999
 }
 
 function scrollByDirection(direction: string) {
 	if (direction === 'bottom') {
-		scrollToBottom();
+		scrollToBottom()
 	}
 
 	if (direction === 'top') {
-		scrollToTop();
+		scrollToTop()
 	}
 
 	if (direction === 'left') {
-		scrollToLeft();
+		scrollToLeft()
 	}
 
 	if (direction === 'right') {
-		scrollToRight();
+		scrollToRight()
 	}
 }
 
-const chatDirection = computed(() => getChatDirection(props.settings.direction));
+const chatDirection = computed(() => getChatDirection(props.settings.direction))
 
 const messagesFlexDirection = computed(() => {
 	switch (props.settings.direction) {
 		case 'top':
-			return 'column';
+			return 'column'
 		case 'bottom':
-			return 'column-reverse';
+			return 'column-reverse'
 		case 'left':
-			return 'row';
+			return 'row'
 		case 'right':
-			return 'row-reverse';
+			return 'row-reverse'
 		default:
-			return 'column';
+			return 'column'
 	}
-});
+})
 
 const chatMessageComponent = computed(() => {
 	switch (props.settings.preset) {
 		case 'boxed':
 			if (chatDirection.value === 'horizontal') {
-				return MessageHorizontalBoxed;
+				return MessageHorizontalBoxed
 			}
 
 			if (chatDirection.value === 'vertical') {
-				return MessageVerticalBoxed;
+				return MessageVerticalBoxed
 			}
 
-			return MessageVerticalBoxed;
+			return MessageVerticalBoxed
 		case 'clean':
 			if (chatDirection.value === 'horizontal') {
-				return MessageHorizontalClean;
+				return MessageHorizontalClean
 			}
 
 			if (chatDirection.value === 'vertical') {
-				return MessageVerticalClean;
+				return MessageVerticalClean
 			}
 
-			return MessageHorizontalClean;
+			return MessageHorizontalClean
 		default:
-			return MessageVerticalClean;
+			return MessageVerticalClean
 	}
-});
+})
 
-const { height } = useWindowSize();
+const { height } = useWindowSize()
 const windowHeight = computed(() => {
 	if (getChatDirection(props.settings.direction) === 'horizontal') {
-		return `${height.value}px`;
+		return `${height.value}px`
 	}
 
-	return 'auto';
-});
+	return 'auto'
+})
 
-const fontSize = computed(() => `${props.settings.fontSize}px`);
+const fontSize = computed(() => `${props.settings.fontSize}px`)
 const fontFamily = computed(() => {
-	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-${props.settings.fontStyle}"`;
-});
+	return `"${props.settings.fontFamily}-${props.settings.fontWeight}-${props.settings.fontStyle}"`
+})
 
 const textShadow = computed(() => {
-	if (!props.settings.textShadowColor || !props.settings.textShadowSize) return '';
+	if (!props.settings.textShadowColor || !props.settings.textShadowSize) return ''
 
 	const array = Array.from({ length: 5 }).map((_, i) => {
-		const n = i + 1;
-		return `0px 0px ${props.settings.textShadowSize! + n}px ${props.settings.textShadowColor}`;
-	});
+		const n = i + 1
+		return `0px 0px ${props.settings.textShadowSize! + n}px ${props.settings.textShadowColor}`
+	})
 
-	return array.join(', ');
-});
+	return array.join(', ')
+})
 
 const paddingContainer = computed(() => {
-	return `${props.settings.paddingContainer}px`;
-});
+	return `${props.settings.paddingContainer}px`
+})
+
+const transitionName = computed(() => {
+	if (props.settings.animation === 'DEFAULT') {
+		return 'list'
+	}
+
+	if (props.settings.animation === 'DISABLED') {
+		return ''
+	}
+
+	return ''
+})
 </script>
 
 <template>
 	<div class="chat">
 		<div ref="chatMessages" class="messages">
-			<TransitionGroup name="list">
+			<TransitionGroup :name="transitionName">
 				<component
 					:is="chatMessageComponent"
 					v-for="msg of messages"
