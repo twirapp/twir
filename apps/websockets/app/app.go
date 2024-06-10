@@ -8,7 +8,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/grpc_impl"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/nowplaying"
@@ -44,7 +43,6 @@ var App = fx.Module(
 		obs.NewObs,
 		youtube.NewYouTube,
 		alerts.NewAlerts,
-		chat.New,
 		kappagen.New,
 		overlays.New,
 		be_right_back.New,

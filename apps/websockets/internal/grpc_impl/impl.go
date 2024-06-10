@@ -8,7 +8,6 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/alerts"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/chat"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/nowplaying"
@@ -46,7 +45,6 @@ type GrpcImpl struct {
 	obsServer              *obs.OBS
 	alertsServer           *alerts.Alerts
 	overlaysRegistryServer *overlays.Registry
-	chatServer             *chat.Chat
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
@@ -66,7 +64,6 @@ type GrpcOpts struct {
 	OBSServer              *obs.OBS
 	AlertsServer           *alerts.Alerts
 	OverlaysRegistryServer *overlays.Registry
-	ChatServer             *chat.Chat
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
@@ -83,7 +80,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		obsServer:              opts.OBSServer,
 		alertsServer:           opts.AlertsServer,
 		overlaysRegistryServer: opts.OverlaysRegistryServer,
-		chatServer:             opts.ChatServer,
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
@@ -136,8 +132,6 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 		err = c.beRightBackServer.SendSettings(req.GetChannelId())
 	case websockets.RefreshOverlaySettingsName_DUDES:
 		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
-	case websockets.RefreshOverlaySettingsName_CHAT:
-		err = c.chatServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	case websockets.RefreshOverlaySettingsName_NOW_PLAYING:
 		err = c.nowplayingServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	default:
