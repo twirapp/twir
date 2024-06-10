@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
@@ -125,7 +126,7 @@ func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
 
 	if track != nil && !track.fromCache {
 		redisKey := fmt.Sprintf("overlays:nowplaying:%s", c.channelId)
-		if err := c.redis.Set(ctx, redisKey, track, 0).Err(); err != nil {
+		if err := c.redis.Set(ctx, redisKey, track, 10*time.Second).Err(); err != nil {
 			return nil, err
 		}
 	}

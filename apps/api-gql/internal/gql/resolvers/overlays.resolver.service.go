@@ -591,7 +591,12 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 				track, err := npService.Fetch(ctx)
 				if err != nil {
 					r.logger.Error("failed to get now playing track", slog.Any("err", err))
-					time.Sleep(10 * time.Second)
+					time.Sleep(5 * time.Second)
+					continue
+				}
+
+				if track == nil {
+					time.Sleep(5 * time.Second)
 					continue
 				}
 
@@ -606,7 +611,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 					ImageURL: imageUrl,
 				}
 
-				time.Sleep(10 * time.Second)
+				time.Sleep(5 * time.Second)
 			}
 		}
 	}()
