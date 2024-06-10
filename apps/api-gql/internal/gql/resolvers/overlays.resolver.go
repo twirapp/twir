@@ -130,6 +130,6 @@ func (r *subscriptionResolver) NowPlayingOverlaySettings(ctx context.Context, id
 }
 
 // NowPlayingCurrentTrack is the resolver for the nowPlayingCurrentTrack field.
-func (r *subscriptionResolver) NowPlayingCurrentTrack(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
-	return r.nowPlayingCurrentTrackSubscription(ctx, id, apiKey)
+func (r *subscriptionResolver) NowPlayingCurrentTrack(ctx context.Context, apiKey string) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
+	return r.nowPlayingCurrentTrackSubscription(ctx, apiKey)
 }

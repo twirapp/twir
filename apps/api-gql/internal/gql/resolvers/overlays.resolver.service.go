@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -553,7 +554,6 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 
 func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	ctx context.Context,
-	channelID string,
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
 	user := model.Users{}
@@ -583,6 +583,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 				track, err := npService.Fetch(ctx)
 				if err != nil {
 					r.logger.Error("failed to get now playing track", slog.Any("err", err))
+					time.Sleep(10 * time.Second)
 					continue
 				}
 
@@ -596,6 +597,8 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 					Title:    track.Title,
 					ImageURL: imageUrl,
 				}
+
+				time.Sleep(10 * time.Second)
 			}
 		}
 	}()
