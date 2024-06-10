@@ -509,7 +509,11 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlay, error) {
 	user := model.Users{}
-	if err := r.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"apiKey" = ?`, apiKey).
+		First(&user).
+		Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
@@ -557,7 +561,11 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
 	user := model.Users{}
-	if err := r.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	if err := r.gorm.
+		WithContext(ctx).
+		Where(`"apiKey" = ?`, apiKey).
+		First(&user).
+		Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
