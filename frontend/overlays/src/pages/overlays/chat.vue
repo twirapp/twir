@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ChatBox } from '@twir/frontend-chat'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
 
 import type { Message } from '@twir/frontend-chat'
 
@@ -13,12 +12,10 @@ import {
 	useChatTmi,
 } from '@/composables/tmi/use-chat-tmi.js'
 
-const route = useRoute()
-
 const messages = ref<Message[]>([])
 const maxMessages = ref(30)
 
-const { settings, connect, destroy } = useChatOverlaySocket()
+const { overlaySettings: settings, neededData, chatLibSettings } = useChatOverlaySocket()
 
 function removeMessageByInternalId(id: string) {
 	messages.value = messages.value.filter(m => m.internalId !== id)
@@ -33,17 +30,17 @@ function removeMessageByUserName(userName: string) {
 }
 
 function onMessage(m: ChatMessage) {
-	if (m.sender && settings.value.hideBots && knownBots.has(m.sender)) {
+	if (m.sender && settings.value?.hideBots && knownBots.has(m.sender)) {
 		return
 	}
 
-	if (settings.value.hideCommands && m.chunks.at(0)?.value.startsWith('!')) {
+	if (settings.value?.hideCommands && m.chunks.at(0)?.value.startsWith('!')) {
 		return
 	}
 
 	const internalId = crypto.randomUUID()
 
-	const showDelay = settings.value.messageShowDelay ?? settings.value.messageShowDelay
+	const showDelay = (settings.value?.messageShowDelay ?? settings.value?.messageShowDelay) || 0
 
 	if (messages.value.length >= maxMessages.value) {
 		messages.value = messages.value.slice(1)
@@ -59,7 +56,7 @@ function onMessage(m: ChatMessage) {
 		})
 	}, showDelay * 1000)
 
-	const hideTimeout = m.messageHideTimeout ?? settings.value.messageHideTimeout
+	const hideTimeout = m.messageHideTimeout ?? settings.value?.messageHideTimeout
 
 	if (hideTimeout) {
 		setTimeout(() => removeMessageByInternalId(internalId), hideTimeout * 1000)
@@ -68,8 +65,8 @@ function onMessage(m: ChatMessage) {
 
 const chatSettings = computed<ChatSettings>(() => {
 	return {
-		channelId: settings.value.channelId,
-		channelName: settings.value.channelName,
+		channelId: neededData.value?.authenticatedUser.id ?? '',
+		channelName: neededData.value?.authenticatedUser.twitchProfile.login ?? '',
 		emotes: {
 			ffz: true,
 			bttv: true,
@@ -89,17 +86,18 @@ const chatTmiStore = useChatTmi(chatSettings)
 onMounted(() => {
 	document.body.style.overflow = 'hidden'
 
-	const apiKey = route.params.apiKey as string
-	const overlayId = route.query.id as string
-	connect(apiKey, overlayId)
+	chatTmiStore.destroy()
 })
 
 onUnmounted(async () => {
-	destroy()
-	chatTmiStore.destroy()
+	await chatTmiStore.destroy()
 })
 </script>
 
 <template>
-	<ChatBox :messages="messages" :settings="settings" />
+	<ChatBox
+		v-if="chatLibSettings"
+		:messages
+		:settings="chatLibSettings"
+	/>
 </template>

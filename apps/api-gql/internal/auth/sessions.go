@@ -1,4 +1,4 @@
-package sessions
+package auth
 
 import (
 	"encoding/gob"
@@ -22,12 +22,12 @@ type Opts struct {
 	Gorm  *gorm.DB
 }
 
-type Sessions struct {
+type Auth struct {
 	sessionManager *scs.SessionManager
 	gorm           *gorm.DB
 }
 
-func New(opts Opts) *Sessions {
+func NewSessions(opts Opts) *Auth {
 	sessionManager := scs.New()
 	sessionManager.Lifetime = 24 * time.Hour * 31
 	sessionManager.Store = goredisstore.New(opts.Redis)
@@ -35,7 +35,7 @@ func New(opts Opts) *Sessions {
 	gob.Register(model.Users{})
 	gob.Register(helix.User{})
 
-	return &Sessions{
+	return &Auth{
 		sessionManager: sessionManager,
 		gorm:           opts.Gorm,
 	}
@@ -43,7 +43,7 @@ func New(opts Opts) *Sessions {
 
 const SESSION_KEY = "__session__"
 
-func (s *Sessions) Middleware() gin.HandlerFunc {
+func (s *Auth) Middleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		defer func() {
 			if r := recover(); r != nil {

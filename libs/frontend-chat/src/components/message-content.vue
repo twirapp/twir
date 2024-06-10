@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EmoteFlag, type MessageChunk } from '../types.js';
+import { EmoteFlag, type MessageChunk } from '../types.js'
 
 const props = defineProps<{
 	chunks: MessageChunk[]
@@ -7,32 +7,32 @@ const props = defineProps<{
 	textShadowColor?: string
 	textShadowSize?: number
 	userColor: string
-}>();
+}>()
 
-const getEmoteWidth = (isGrowX: boolean, width?: number) => {
+function getEmoteWidth(isGrowX: boolean, width?: number) {
 	if (isGrowX) {
-		return `${width ? `${width * 2}px` : 'auto'}`;
+		return `${width ? `${width * 2}px` : 'auto'}`
 	}
 
 	if (width) {
-		return `${width}px`;
+		return `${width}px`
 	}
-};
+}
 
 const mappedChunks = props.chunks.reduce((acc, chunk) => {
 	if (chunk.type === 'text') {
-		const lastChunk = acc[acc.length - 1];
+		const lastChunk = acc[acc.length - 1]
 		if (lastChunk && lastChunk.type === 'text') {
-			lastChunk.value += ' ' + chunk.value;
+			lastChunk.value += ` ${chunk.value}`
 		} else {
-			acc.push(chunk);
+			acc.push(chunk)
 		}
 	} else {
-		acc.push(chunk);
+		acc.push(chunk)
 	}
 
-	return acc;
-}, [] as MessageChunk[]);
+	return acc
+}, [] as MessageChunk[])
 </script>
 
 <template>

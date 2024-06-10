@@ -11,7 +11,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
-	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -27,7 +27,7 @@ import (
 
 type Resolver struct {
 	config               config.Config
-	sessions             *sessions.Sessions
+	sessions             *auth.Auth
 	gorm                 *gorm.DB
 	twitchClient         *helix.Client
 	cachedTwitchClient   *twitchcahe.CachedTwitchClient
@@ -44,7 +44,7 @@ type Resolver struct {
 type Opts struct {
 	fx.In
 
-	Sessions             *sessions.Sessions
+	Sessions             *auth.Auth
 	Gorm                 *gorm.DB
 	Config               config.Config
 	TokensGrpc           tokens.TokensClient

@@ -1,5 +1,3 @@
-import type { Settings as ChatSettings } from '@twir/api/messages/overlays_chat/overlays_chat';
-
 export enum EmoteFlag {
 	Hidden = 2,
 	FlipX = 3,
@@ -22,11 +20,11 @@ export const BttvZeroModifiers = [
 	'SantaHat',
 	'ReinDeer',
 	'CandyCane',
-];
+]
 
-export type MessageChunk = {
-	type: 'text' | 'emote' | '3rd_party_emote' | 'emoji';
-	value: string;
+export interface MessageChunk {
+	type: 'text' | 'emote' | '3rd_party_emote' | 'emoji'
+	value: string
 	flags?: EmoteFlag[]
 	modifier_flags?: number
 	zeroWidthModifiers?: string[]
@@ -35,44 +33,60 @@ export type MessageChunk = {
 	emoteName?: string
 }
 
-export type BadgeVersion = {
-	id: string,
-	image_url_1x: string,
-	image_url_2x: string,
-	image_url_4x: string,
+export interface BadgeVersion {
+	id: string
+	image_url_1x: string
+	image_url_2x: string
+	image_url_4x: string
 }
 
-export type ChatBadge = {
-	set_id: string,
+export interface ChatBadge {
+	set_id: string
 	versions: Array<BadgeVersion>
 }
 
-export type Message = {
-	internalId: string,
-	id?: string,
-	type: 'message' | 'system',
-	chunks: MessageChunk[],
-	sender?: string,
-	senderColor?: string,
+export interface Message {
+	internalId: string
+	id?: string
+	type: 'message' | 'system'
+	chunks: MessageChunk[]
+	sender?: string
+	senderColor?: string
 	senderDisplayName?: string
-	badges?: Record<string, string>,
-	isItalic: boolean;
-	createdAt: Date;
-	announceColor?: string;
-	isAnnounce: boolean;
-};
+	badges?: Record<string, string>
+	isItalic: boolean
+	createdAt: Date
+	announceColor?: string
+	isAnnounce: boolean
+}
 
-export type Settings = {
+export interface Settings {
 	channelId: string
 	channelName: string
 	channelDisplayName: string
-	globalBadges: Map<string, ChatBadge>
-	channelBadges: Map<string, BadgeVersion>
-} & ChatSettings;
+	animation: string
+	chatBackgroundColor: string
+	direction: string
+	fontFamily: string
+	fontSize: number
+	fontStyle: string
+	fontWeight: number
+	hideBots: boolean
+	hideCommands: boolean
+	messageHideTimeout: number
+	messageShowDelay: number
+	paddingContainer: number
+	preset: string
+	showAnnounceBadge: boolean
+	showBadges: boolean
+	textShadowColor: string
+	textShadowSize: number
+	globalBadges: ChatBadge[]
+	channelBadges: ChatBadge[]
+}
 
-
-export type MessageComponentProps = {
-	msg: Message,
-	settings: Settings,
-	userColor: string,
+export interface MessageComponentProps {
+	msg: Message
+	settings: Settings
+	userColor: string
 }

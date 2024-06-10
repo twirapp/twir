@@ -12,7 +12,7 @@ const config: CodegenConfig = {
 		},
 	},
 	schema: schemaDir,
-	documents: ['src/api/**/*.ts'],
+	documents: ['src/**/*.ts'],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {
 		'./src/gql/': {

@@ -1,6 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
 
-export const routes = createRouter({
+export const router = createRouter({
 	history: createWebHistory('/overlays'),
 	routes: [
 		{
@@ -40,4 +40,4 @@ export const routes = createRouter({
 			component: () => import('@/pages/overlays/now-playing.vue'),
 		},
 	],
-});
+})

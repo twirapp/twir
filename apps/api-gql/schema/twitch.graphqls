@@ -1,7 +1,16 @@
 extend type Query {
 	twitchGetUserById(id: ID!): TwirUserTwitchInfo
 	twitchGetUserByName(name: String!): TwirUserTwitchInfo
+
 	twitchGetChannelRewards(channelId: ID): TwirTwitchChannelRewardResponse!
+
+	"""
+	Get channel badges.
+	If channelId is not provided - selected dashboard/authenticated user channelId is used, depending on context.
+	For example if queried by apiKey - userId belongs to apiKey owner id.
+	"""
+	twitchGetChannelBadges(channelId: ID): TwirTwitchChannelBadgeResponse!
+	twitchGetGlobalBadges: TwirTwitchGlobalBadgeResponse!
 }
 
 type TwirTwitchChannelRewardResponse {
@@ -53,4 +62,24 @@ type TwirTwitchChannelRewardImage {
 	url_1x: String!
 	url_2x: String!
 	url_4x: String!
+}
+
+type TwitchBadge {
+	set_id: String!
+	versions: [TwitchBadgeVersion!]!
+}
+
+type TwitchBadgeVersion {
+	id: String!
+	image_url_1x: String!
+	image_url_2x: String!
+	image_url_4x: String!
+}
+
+type TwirTwitchChannelBadgeResponse {
+	badges: [TwitchBadge!]!
+}
+
+type TwirTwitchGlobalBadgeResponse {
+	badges: [TwitchBadge!]!
 }

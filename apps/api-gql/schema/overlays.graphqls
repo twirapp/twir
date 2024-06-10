@@ -1,0 +1,60 @@
+extend type Query {
+	chatOverlays: [ChatOverlay!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	chatOverlaysById(id: String!): ChatOverlay @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+}
+
+extend type Mutation {
+	chatOverlayUpdate(id: String!, opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	chatOverlayCreate(opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	chatOverlayDelete(id: String!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+}
+
+extend type Subscription {
+	chatOverlaySettings(id: String!, apiKey: String!): ChatOverlay
+}
+
+enum ChatOverlayAnimation {
+	DISABLED
+	DEFAULT
+}
+
+type ChatOverlay {
+	id: String!
+	messageHideTimeout: Int!
+	messageShowDelay: Int!
+	preset: String!
+	fontSize: Int!
+	hideCommands: Boolean!
+	hideBots: Boolean!
+	fontFamily: String!
+	showBadges: Boolean!
+	showAnnounceBadge: Boolean!
+	textShadowColor: String!
+	textShadowSize: Int!
+	chatBackgroundColor: String!
+	direction: String!
+	fontWeight: Int!
+	fontStyle: String!
+	paddingContainer: Int!
+	animation: ChatOverlayAnimation!
+}
+
+input ChatOverlayMutateOpts {
+	messageHideTimeout: Int
+	messageShowDelay: Int
+	preset: String
+	fontSize: Int
+	hideCommands: Boolean
+	hideBots: Boolean
+	fontFamily: String
+	showBadges: Boolean
+	showAnnounceBadge: Boolean
+	textShadowColor: String
+	textShadowSize: Int
+	chatBackgroundColor: String
+	direction: String
+	fontWeight: Int
+	fontStyle: String
+	paddingContainer: Int
+	animation: ChatOverlayAnimation
+}

@@ -1,10 +1,19 @@
+import urql from '@urql/vue'
 import { createApp } from 'vue'
 
 import MainApp from './app.vue'
-import { routes } from './routes.js'
-import './style.css'
+import { router } from './plugins/router.js'
 
-createApp(MainApp).use(routes).mount('#app')
+import './style.css'
+import { urqlClientOptions } from '@/plugins/urql.ts'
+
+const app = createApp(MainApp)
+
+app
+	.use(router)
+	.use(urql, urqlClientOptions)
+
+app.mount('#app')
 
 // refresh the page when new version comes
 document.body.addEventListener('plugin_web_update_notice', () => {
