@@ -28,6 +28,21 @@ func (r *mutationResolver) ChatOverlayDelete(ctx context.Context, id string) (bo
 	return r.chatOverlayDelete(ctx, id)
 }
 
+// NowPlayingOverlayUpdate is the resolver for the nowPlayingOverlayUpdate field.
+func (r *mutationResolver) NowPlayingOverlayUpdate(ctx context.Context, id string, opts gqlmodel.NowPlayingOverlayMutateOpts) (bool, error) {
+	return r.updateNowPlayingOverlay(ctx, id, opts)
+}
+
+// NowPlayingOverlayCreate is the resolver for the nowPlayingOverlayCreate field.
+func (r *mutationResolver) NowPlayingOverlayCreate(ctx context.Context, opts gqlmodel.NowPlayingOverlayMutateOpts) (bool, error) {
+	return r.createNowPlayingOverlay(ctx, opts)
+}
+
+// NowPlayingOverlayDelete is the resolver for the nowPlayingOverlayDelete field.
+func (r *mutationResolver) NowPlayingOverlayDelete(ctx context.Context, id string) (bool, error) {
+	return r.deleteNowPlayingOverlay(ctx, id)
+}
+
 // ChatOverlays is the resolver for the chatOverlays field.
 func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverlay, error) {
 	overlays, err := r.chatOverlays(ctx)
@@ -46,6 +61,21 @@ func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmo
 	}
 
 	return r.getChatOverlaySettings(ctx, id, dashboardId)
+}
+
+// NowPlayingOverlays is the resolver for the nowPlayingOverlays field.
+func (r *queryResolver) NowPlayingOverlays(ctx context.Context) ([]gqlmodel.NowPlayingOverlay, error) {
+	return r.nowPlayingOverlays(ctx)
+}
+
+// NowPlayingOverlaysByID is the resolver for the nowPlayingOverlaysById field.
+func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (*gqlmodel.NowPlayingOverlay, error) {
+	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return r.getNowPlayingOverlaySettings(ctx, id, dashboardID)
 }
 
 // ChatOverlaySettings is the resolver for the chatOverlaySettings field.
@@ -92,4 +122,14 @@ func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id strin
 	}()
 
 	return channel, nil
+}
+
+// NowPlayingOverlaySettings is the resolver for the nowPlayingOverlaySettings field.
+func (r *subscriptionResolver) NowPlayingOverlaySettings(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.NowPlayingOverlay, error) {
+	return r.nowPlayingOverlaySettingsSubscription(ctx, id, apiKey)
+}
+
+// NowPlayingCurrentTrack is the resolver for the nowPlayingCurrentTrack field.
+func (r *subscriptionResolver) NowPlayingCurrentTrack(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
+	return r.nowPlayingCurrentTrackSubscription(ctx, id, apiKey)
 }
