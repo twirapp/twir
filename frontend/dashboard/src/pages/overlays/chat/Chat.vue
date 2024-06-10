@@ -129,7 +129,7 @@ async function handleClose(id: string) {
 			const entity = chatOverlaysData.value?.chatOverlays.find(s => s.id === id)
 			if (!entity?.id) return
 
-			await deleter.executeMutation(entity.id)
+			await deleter.executeMutation({ id: entity.id })
 			resetTab()
 		},
 	})

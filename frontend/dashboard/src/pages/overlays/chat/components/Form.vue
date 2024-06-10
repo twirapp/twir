@@ -166,12 +166,10 @@ async function save() {
 					<span>Animation</span>
 					<NSelect
 						v-model:value="formValue.animation"
-						clearable
 						:options="[
 							{ value: 'DEFAULT', label: 'Default' },
 							{ value: 'DISABLED', label: 'Disabled' },
 						]"
-						@on-clear="formValue.animation = null"
 					/>
 				</div>
 

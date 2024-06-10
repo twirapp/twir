@@ -1,5 +1,7 @@
 import type { ChatOverlay } from '@/gql/graphql'
 
+import { ChatOverlayAnimation } from '@/gql/graphql'
+
 export type ChatSettingsWithOptionalId = Omit<ChatOverlay, 'id'> & { id?: string }
 
 export const defaultChatSettings: ChatSettingsWithOptionalId = {
@@ -19,4 +21,5 @@ export const defaultChatSettings: ChatSettingsWithOptionalId = {
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
 	direction: 'top',
 	paddingContainer: 0,
+	animation: ChatOverlayAnimation.Default,
 }

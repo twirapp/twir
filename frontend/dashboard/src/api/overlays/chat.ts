@@ -35,6 +35,7 @@ export const useChatOverlayApi = createGlobalState(() => {
 		context: {
 			additionalTypenames: cacheKey,
 		},
+		variables: {},
 	})
 
 	const useOverlayDelete = () => useMutation(
