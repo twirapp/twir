@@ -14,18 +14,25 @@ import (
 )
 
 // ChatOverlayUpdate is the resolver for the chatOverlayUpdate field.
-func (r *mutationResolver) ChatOverlayUpdate(ctx context.Context, id string, opts gqlmodel.ChatOverlayMutateOpts) (bool, error) {
+func (r *mutationResolver) ChatOverlayUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.ChatOverlayMutateOpts,
+) (bool, error) {
 	return r.updateChatOverlay(ctx, id, opts)
 }
 
 // ChatOverlayCreate is the resolver for the chatOverlayCreate field.
-func (r *mutationResolver) ChatOverlayCreate(ctx context.Context, opts gqlmodel.ChatOverlayMutateOpts) (bool, error) {
-	panic(fmt.Errorf("not implemented: ChatOverlayCreate - chatOverlayCreate"))
+func (r *mutationResolver) ChatOverlayCreate(
+	ctx context.Context,
+	opts gqlmodel.ChatOverlayMutateOpts,
+) (bool, error) {
+	return r.chatOverlayCreate(ctx, opts)
 }
 
 // ChatOverlayDelete is the resolver for the chatOverlayDelete field.
 func (r *mutationResolver) ChatOverlayDelete(ctx context.Context, id string) (bool, error) {
-	panic(fmt.Errorf("not implemented: ChatOverlayDelete - chatOverlayDelete"))
+	return r.chatOverlayDelete(ctx, id)
 }
 
 // ChatOverlays is the resolver for the chatOverlays field.
@@ -39,7 +46,10 @@ func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverla
 }
 
 // ChatOverlaysByID is the resolver for the chatOverlaysById field.
-func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmodel.ChatOverlay, error) {
+func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (
+	*gqlmodel.ChatOverlay,
+	error,
+) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -49,7 +59,11 @@ func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmo
 }
 
 // ChatOverlaySettings is the resolver for the chatOverlaySettings field.
-func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.ChatOverlay, error) {
+func (r *subscriptionResolver) ChatOverlaySettings(
+	ctx context.Context,
+	id string,
+	apiKey string,
+) (<-chan *gqlmodel.ChatOverlay, error) {
 	user := model.Users{}
 	if err := r.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)

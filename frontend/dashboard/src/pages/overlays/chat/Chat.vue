@@ -185,7 +185,7 @@ const addable = computed(() => {
 					</NTabPane>
 				</template>
 			</NTabs>
-			<NAlert v-if="!chatOverlaysData?.chatOverlays" type="info" class="mt-2">
+			<NAlert v-if="!chatOverlaysData?.chatOverlays.length" type="info" class="mt-2">
 				Create new overlay for edit settings
 			</NAlert>
 		</div>

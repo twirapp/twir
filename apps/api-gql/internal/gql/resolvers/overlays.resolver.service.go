@@ -176,3 +176,111 @@ func (r *mutationResolver) updateChatOverlay(
 
 	return true, nil
 }
+
+func (r *mutationResolver) chatOverlayCreate(
+	ctx context.Context,
+	opts gqlmodel.ChatOverlayMutateOpts,
+) (bool, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	entity := model.ChatOverlaySettings{
+		ID:        uuid.UUID{},
+		ChannelID: dashboardId,
+	}
+
+	if opts.MessageHideTimeout.IsSet() {
+		entity.MessageHideTimeout = uint32(*opts.MessageHideTimeout.Value())
+	}
+
+	if opts.MessageShowDelay.IsSet() {
+		entity.MessageShowDelay = uint32(*opts.MessageShowDelay.Value())
+	}
+
+	if opts.Preset.IsSet() {
+		entity.Preset = *opts.Preset.Value()
+	}
+
+	if opts.FontSize.IsSet() {
+		entity.FontSize = uint32(*opts.FontSize.Value())
+	}
+
+	if opts.HideCommands.IsSet() {
+		entity.HideCommands = *opts.HideCommands.Value()
+	}
+
+	if opts.HideBots.IsSet() {
+		entity.HideBots = *opts.HideBots.Value()
+	}
+
+	if opts.FontFamily.IsSet() {
+		entity.FontFamily = *opts.FontFamily.Value()
+	}
+
+	if opts.ShowBadges.IsSet() {
+		entity.ShowBadges = *opts.ShowBadges.Value()
+	}
+
+	if opts.ShowAnnounceBadge.IsSet() {
+		entity.ShowAnnounceBadge = *opts.ShowAnnounceBadge.Value()
+	}
+
+	if opts.TextShadowColor.IsSet() {
+		entity.TextShadowColor = *opts.TextShadowColor.Value()
+	}
+
+	if opts.TextShadowSize.IsSet() {
+		entity.TextShadowSize = uint32(*opts.TextShadowSize.Value())
+	}
+
+	if opts.ChatBackgroundColor.IsSet() {
+		entity.ChatBackgroundColor = *opts.ChatBackgroundColor.Value()
+	}
+
+	if opts.Direction.IsSet() {
+		entity.Direction = *opts.Direction.Value()
+	}
+
+	if opts.FontWeight.IsSet() {
+		entity.FontWeight = uint32(*opts.FontWeight.Value())
+	}
+
+	if opts.FontStyle.IsSet() {
+		entity.FontStyle = *opts.FontStyle.Value()
+	}
+
+	if opts.PaddingContainer.IsSet() {
+		entity.PaddingContainer = uint32(*opts.PaddingContainer.Value())
+	}
+
+	if opts.Animation.IsSet() {
+		entity.Animation = model.ChatOverlaySettingsAnimationType(*opts.Animation.Value())
+	}
+
+	if err := r.gorm.
+		WithContext(ctx).
+		Create(&entity).Error; err != nil {
+		return false, fmt.Errorf("failed to create chat overlay settings: %w", err)
+	}
+
+	return true, nil
+}
+
+func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bool, error) {
+	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	entity := model.ChatOverlaySettings{}
+	if err := r.gorm.
+		WithContext(ctx).
+		Where("channel_id = ? AND id = ?", dashboardId, id).
+		Delete(&entity).Error; err != nil {
+		return false, fmt.Errorf("failed to delete chat overlay settings: %w", err)
+	}
+
+	return true, nil
+}
