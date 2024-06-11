@@ -57,8 +57,13 @@ function resetTab() {
 }
 
 async function handleAdd() {
+	const input = { ...defaultSettings }
+	// eslint-disable-next-line ts/ban-ts-comment
+	// @ts-expect-error
+	delete input.channelId
+
 	await creator.executeMutation({
-		input: defaultSettings,
+		input,
 	})
 }
 
