@@ -1,16 +1,26 @@
 extend type Query {
 	chatOverlays: [ChatOverlay!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
 	chatOverlaysById(id: String!): ChatOverlay @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+
+	nowPlayingOverlays: [NowPlayingOverlay!]! @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
+	nowPlayingOverlaysById(id: String!): NowPlayingOverlay @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_OVERLAYS)
 }
 
 extend type Mutation {
 	chatOverlayUpdate(id: String!, opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 	chatOverlayCreate(opts: ChatOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 	chatOverlayDelete(id: String!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+
+	nowPlayingOverlayUpdate(id: String!, opts: NowPlayingOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	nowPlayingOverlayCreate(opts: NowPlayingOverlayMutateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
+	nowPlayingOverlayDelete(id: String!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_OVERLAYS)
 }
 
 extend type Subscription {
 	chatOverlaySettings(id: String!, apiKey: String!): ChatOverlay
+
+	nowPlayingOverlaySettings(id: String!, apiKey: String!): NowPlayingOverlay
+	nowPlayingCurrentTrack(apiKey: String!): NowPlayingOverlayTrack
 }
 
 enum ChatOverlayAnimation {
@@ -57,4 +67,36 @@ input ChatOverlayMutateOpts {
 	fontStyle: String
 	paddingContainer: Int
 	animation: ChatOverlayAnimation
+}
+
+enum NowPlayingOverlayPreset {
+	TRANSPARENT
+	AIDEN_REDESIGN
+	SIMPLE_LINE
+}
+
+type NowPlayingOverlay {
+	id: String!
+	preset: NowPlayingOverlayPreset!
+	channelId: String!
+	fontFamily: String!
+	fontWeight: Int!
+	backgroundColor: String!
+	showImage: Boolean!
+	hideTimeout: Int
+}
+
+input NowPlayingOverlayMutateOpts {
+	preset: NowPlayingOverlayPreset
+	fontFamily: String
+	fontWeight: Int
+	backgroundColor: String
+	showImage: Boolean
+	hideTimeout: Int
+}
+
+type NowPlayingOverlayTrack {
+	artist: String!
+	title: String!
+	imageUrl: String
 }

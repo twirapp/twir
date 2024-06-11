@@ -10,7 +10,6 @@ import (
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/be_right_back"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/dudes"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/kappagen"
-	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/nowplaying"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/obs"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/registry/overlays"
 	"github.com/satont/twir/apps/websockets/internal/namespaces/overlays/tts"
@@ -48,7 +47,6 @@ type GrpcImpl struct {
 	kappagenServer         *kappagen.Kappagen
 	beRightBackServer      *be_right_back.BeRightBack
 	dudesServer            *dudes.Dudes
-	nowplayingServer       *nowplaying.NowPlaying
 }
 
 type GrpcOpts struct {
@@ -67,7 +65,6 @@ type GrpcOpts struct {
 	KappagenServer         *kappagen.Kappagen
 	BeRightBackServer      *be_right_back.BeRightBack
 	DudesServer            *dudes.Dudes
-	NowplayingServer       *nowplaying.NowPlaying
 }
 
 func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
@@ -83,7 +80,6 @@ func NewGrpcImplementation(opts GrpcOpts) (websockets.WebsocketServer, error) {
 		kappagenServer:         opts.KappagenServer,
 		beRightBackServer:      opts.BeRightBackServer,
 		dudesServer:            opts.DudesServer,
-		nowplayingServer:       opts.NowplayingServer,
 	}
 
 	grpcServer := grpc.NewServer(grpc.StatsHandler(otelgrpc.NewServerHandler()))
@@ -132,8 +128,6 @@ func (c *GrpcImpl) RefreshOverlaySettings(
 		err = c.beRightBackServer.SendSettings(req.GetChannelId())
 	case websockets.RefreshOverlaySettingsName_DUDES:
 		err = c.dudesServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
-	case websockets.RefreshOverlaySettingsName_NOW_PLAYING:
-		err = c.nowplayingServer.SendSettings(req.GetChannelId(), req.GetOverlayId())
 	default:
 		return nil, fmt.Errorf("unknown overlay: %s", req.GetOverlayName())
 	}

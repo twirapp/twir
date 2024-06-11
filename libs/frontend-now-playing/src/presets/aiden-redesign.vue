@@ -1,45 +1,44 @@
 <script setup lang="ts">
-import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import { useElementSize } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { useElementSize } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
-import type { Track } from '../types.js';
+import type { Settings, Track } from '../types.js'
 
 const props = defineProps<{
 	track?: Track | null
 	settings: Settings
-}>();
+}>()
 
 const bgColor = computed(() => {
 	if (props.settings.backgroundColor === 'rgba(0, 0, 0, 0)') {
-		return '#1E1E1E';
+		return '#1E1E1E'
 	}
 
-	return props.settings.backgroundColor;
-});
+	return props.settings.backgroundColor
+})
 
-const infoRef = ref<HTMLElement>();
-const nameRef = ref<HTMLElement>();
-const artistRef = ref<HTMLElement>();
+const infoRef = ref<HTMLElement>()
+const nameRef = ref<HTMLElement>()
+const artistRef = ref<HTMLElement>()
 
-const { width: infoWidth } = useElementSize(infoRef);
-const { width: nameWidth } = useElementSize(nameRef);
-const { width: artistWidth } = useElementSize(artistRef);
+const { width: infoWidth } = useElementSize(infoRef)
+const { width: nameWidth } = useElementSize(nameRef)
+const { width: artistWidth } = useElementSize(artistRef)
 
 const nameMarqueEnabled = computed(() => {
-	return nameWidth.value > infoWidth.value;
-});
+	return nameWidth.value > infoWidth.value
+})
 
 const artistMarqueEnabled = computed(() => {
-	return artistWidth.value > infoWidth.value;
-});
+	return artistWidth.value > infoWidth.value
+})
 </script>
 
 <template>
 	<div v-if="track" class="spotify">
 		<img
 			v-if="settings.showImage" class="cover"
-			:src="track.image_url ?? '/overlays/images/play.png'"
+			:src="track.imageUrl ?? '/overlays/images/play.png'"
 		/>
 		<div ref="infoRef" class="info">
 			<div ref="artistRef" class="artist" :class="{ marque: artistMarqueEnabled }">

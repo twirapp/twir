@@ -2,15 +2,14 @@
 import './assets/style.css'
 
 import { useFontSource } from '@twir/fontsource'
-import { ChannelOverlayNowPlayingPreset } from '@twir/types/api'
 import { computed, watch } from 'vue'
 
 import PresetAidenRedesign from './presets/aiden-redesign.vue'
 import PresetSimpleLine from './presets/simple-line.vue'
 import PresetTransparent from './presets/transparent.vue'
+import { Preset } from './types.js'
 
-import type { Track } from './types.js'
-import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing'
+import type { Settings, Track } from './types.js'
 
 const props = defineProps<{
 	settings: Settings
@@ -19,11 +18,11 @@ const props = defineProps<{
 
 const presetComponent = computed(() => {
 	switch (props.settings.preset) {
-		case ChannelOverlayNowPlayingPreset.TRANSPARENT:
+		case Preset.TRANSPARENT:
 			return PresetTransparent
-		case ChannelOverlayNowPlayingPreset.AIDEN_REDESIGN:
+		case Preset.AIDEN_REDESIGN:
 			return PresetAidenRedesign
-		case ChannelOverlayNowPlayingPreset.SIMPLE_LINE:
+		case Preset.SIMPLE_LINE:
 			return PresetSimpleLine
 		default:
 			return PresetTransparent

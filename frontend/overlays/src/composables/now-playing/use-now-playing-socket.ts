@@ -1,63 +1,67 @@
-import type { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import type { Track } from '@twir/frontend-now-playing';
-import type { ChannelOverlayNowPlayingPreset } from '@twir/types/api';
-import { useWebSocket } from '@vueuse/core';
-import { ref, watch } from 'vue';
+import { useSubscription } from '@urql/vue'
+import { ref, watch } from 'vue'
 
-import type { TwirWebSocketEvent } from '@/api.js';
-import { generateSocketUrlWithParams } from '@/helpers.js';
+import type { Settings, Track } from '@twir/frontend-now-playing'
 
-type Options = {
-	apiKey: string,
-	overlayId: string,
+import { graphql } from '@/gql'
+
+interface Options {
+	apiKey: string
+	overlayId: string
 }
 
-type SettingsWithTypedPreset = Settings & { preset: ChannelOverlayNowPlayingPreset }
-
-export const useNowPlayingSocket = (options: Options) => {
-	const brbUrl = generateSocketUrlWithParams('/overlays/nowplaying', {
-		apiKey: options.apiKey,
-		id: options.overlayId,
-	});
-	const currentTrack = ref<Track | null | undefined>();
-	const settings = ref<SettingsWithTypedPreset>();
-
-	const { data, open, close } = useWebSocket(
-		brbUrl,
-		{
-			immediate: false,
-			autoReconnect: {
-				delay: 500,
-			},
+export function useNowPlayingSocket(options: Options) {
+	const settingsSub = useSubscription({
+		query: graphql(`
+			subscription NowPlayingOverlaySettings($overlayId: String!, $apiKey: String!) {
+				nowPlayingOverlaySettings(id: $overlayId, apiKey: $apiKey) {
+					id
+					backgroundColor
+					channelId
+					fontFamily
+					fontWeight
+					hideTimeout
+					preset
+					showImage
+				}
+			}
+		`),
+		variables: {
+			apiKey: options.apiKey,
+			overlayId: options.overlayId,
 		},
-	);
+	})
 
-	watch(data, (v) => {
-		const parsedData = JSON.parse(v) as TwirWebSocketEvent;
-		if (parsedData.eventName === 'settings') {
-			settings.value = parsedData.data as SettingsWithTypedPreset;
-		}
+	const currentTrackSub = useSubscription({
+		query: graphql(`
+			subscription NowPlayingOverlayNowPlaying($apiKey: String!) {
+				nowPlayingCurrentTrack(apiKey: $apiKey) {
+					title
+					artist
+					imageUrl
+				}
+			}
+		`),
+		variables: {
+			apiKey: options.apiKey,
+		},
+	})
 
-		if (parsedData.eventName === 'nowplaying') {
-			const track = parsedData.data as Track | null;
-			if (!track) return;
-			if (track.artist == currentTrack.value?.artist && track.title == currentTrack.value?.title) return;
-			currentTrack.value = parsedData.data as Track | null;
-		}
-	});
+	const currentTrack = ref<Track | null | undefined>()
+	const settings = ref<Settings>()
 
-	function connect(): void {
-		open();
-	}
+	watch(currentTrackSub.data, (data) => {
+		currentTrack.value = data?.nowPlayingCurrentTrack
+	}, { immediate: true })
 
-	function destroy(): void {
-		close();
-	}
+	watch(settingsSub.data, (data) => {
+		if (!data?.nowPlayingOverlaySettings) return
+
+		settings.value = data.nowPlayingOverlaySettings
+	}, { immediate: true })
 
 	return {
-		connect,
-		destroy,
 		currentTrack,
 		settings,
-	};
-};
+	}
+}
