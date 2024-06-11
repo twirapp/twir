@@ -61,6 +61,8 @@ async function handleAdd() {
 	// eslint-disable-next-line ts/ban-ts-comment
 	// @ts-expect-error
 	delete input.channelId
+	// eslint-disable-next-line ts/ban-ts-comment
+	// @ts-expect-error
 	delete input.id
 
 	await creator.executeMutation({
