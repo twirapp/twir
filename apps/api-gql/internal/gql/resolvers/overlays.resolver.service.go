@@ -420,7 +420,11 @@ func (r *mutationResolver) createNowPlayingOverlay(
 	}
 
 	if opts.HideTimeout.IsSet() {
-		entity.HideTimeout = null.IntFrom(int64(*opts.HideTimeout.Value()))
+		if opts.HideTimeout.Value() == nil {
+			entity.HideTimeout = null.Int{}
+		} else {
+			entity.HideTimeout = null.IntFrom(int64(*opts.HideTimeout.Value()))
+		}
 	}
 
 	if err := r.gorm.
@@ -473,7 +477,11 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 	}
 
 	if opts.HideTimeout.IsSet() {
-		entity.HideTimeout = null.IntFrom(int64(*opts.HideTimeout.Value()))
+		if opts.HideTimeout.Value() == nil {
+			entity.HideTimeout = null.Int{}
+		} else {
+			entity.HideTimeout = null.IntFrom(int64(*opts.HideTimeout.Value()))
+		}
 	}
 
 	if err := r.gorm.
