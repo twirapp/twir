@@ -1,32 +1,30 @@
 <script setup lang="ts">
-import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import { useElementSize } from '@vueuse/core';
-import { computed, ref } from 'vue';
+import { useElementSize } from '@vueuse/core'
+import { computed, ref } from 'vue'
 
-import type { Track } from '../types.js';
+import type { Settings, Track } from '../types.js'
 
 defineProps<{
 	track?: Track | null
 	settings: Settings
-}>();
+}>()
 
-const spotifyRef = ref<HTMLElement>();
-const infoRef = ref<HTMLElement>();
+const spotifyRef = ref<HTMLElement>()
+const infoRef = ref<HTMLElement>()
 
-
-const { width: spotifyWidth } = useElementSize(spotifyRef);
-const { width: infoWidth } = useElementSize(infoRef);
+const { width: spotifyWidth } = useElementSize(spotifyRef)
+const { width: infoWidth } = useElementSize(infoRef)
 
 const nameMarqueEnabled = computed(() => {
-	return infoWidth.value > spotifyWidth.value;
-});
+	return infoWidth.value > spotifyWidth.value
+})
 </script>
 
 <template>
 	<div v-if="track" ref="spotifyRef" class="spotify">
 		<img
 			v-if="settings.showImage" class="cover"
-			:src="track.image_url ?? '/overlays/images/play.png'"
+			:src="track.imageUrl ?? '/overlays/images/play.png'"
 		/>
 		<div ref="infoRef" class="info" :class="{ marque: nameMarqueEnabled }">
 			<div class="name">

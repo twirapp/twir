@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import { useNowPlayingForm } from './use-now-playing-form'
 
 import {
-	useNowPlayingOverlayManager,
+	useNowPlayingOverlayApi,
 	useProfile,
 	useUserAccessFlagChecker,
 } from '@/api'
@@ -29,20 +29,22 @@ const canCopyLink = computed(() => {
 	return profile?.value?.selectedDashboardId === profile.value?.id && userCanEditOverlays
 })
 
-const manager = useNowPlayingOverlayManager()
-const updater = manager.useUpdate()
+const manager = useNowPlayingOverlayApi()
+const updater = manager.useNowPlayingUpdate()
 
 async function save() {
 	if (!formValue.value?.id) return
 
-	await updater.mutateAsync({
+	await updater.executeMutation({
 		id: formValue.value.id,
-		preset: formValue.value.preset,
-		fontFamily: formValue.value.fontFamily,
-		fontWeight: formValue.value.fontWeight,
-		backgroundColor: formValue.value.backgroundColor,
-		showImage: formValue.value.showImage,
-		hideTimeout: formValue.value.hideTimeout,
+		input: {
+			preset: formValue.value.preset,
+			fontFamily: formValue.value.fontFamily,
+			fontWeight: formValue.value.fontWeight,
+			backgroundColor: formValue.value.backgroundColor,
+			showImage: formValue.value.showImage,
+			hideTimeout: formValue.value.hideTimeout,
+		},
 	})
 
 	discrete.notification.success({
