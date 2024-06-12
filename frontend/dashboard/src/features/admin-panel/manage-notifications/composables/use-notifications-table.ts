@@ -150,7 +150,7 @@ export const useNotificationsTable = createGlobalState(() => {
 		if (isConfirmed) {
 			form.editableMessageId.value = notification.id
 			form.userIdField.fieldModel.value = notification.userId ?? null
-			form.editorJsJsonField.fieldModel.value = notification.editorJsJson
+			form.editorJsJsonField.fieldModel.value = notification.editorJsJson ?? ''
 			layout.scrollToTop()
 		}
 	}
