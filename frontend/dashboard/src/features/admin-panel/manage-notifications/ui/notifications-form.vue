@@ -24,7 +24,7 @@ const textareaRef = computed({
 	set(value) {
 		// eslint-disable-next-line ts/ban-ts-comment
 		// @ts-expect-error
-		notificationsForm.messageField.fieldRef.value = value.$el
+		notificationsForm.messageField.fieldRef.value = value?.$el
 	},
 })
 </script>

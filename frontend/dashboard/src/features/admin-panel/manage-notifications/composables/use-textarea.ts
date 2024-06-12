@@ -1,8 +1,7 @@
 import { BoldIcon, Heading1Icon, Heading2Icon, ImageIcon, ItalicIcon, LinkIcon, ListCollapseIcon, ListIcon, QuoteIcon, StrikethroughIcon, UnderlineIcon, WrapTextIcon } from 'lucide-vue-next'
+import { type Component, onMounted, onUnmounted } from 'vue'
 
 import { useNotificationsForm } from './use-notifications-form'
-
-import type { Component } from 'vue'
 
 const TEXTAREA_MODIFIERS = {
 	h1: '<h1 id="h1">|</h1>',
@@ -112,6 +111,29 @@ export function useTextarea() {
 		const selection = msg.slice(start, end)
 		updateTextarea(`${msg.slice(0, start)}${mod.replace('|', selection ?? '')}${msg.slice(end)}`)
 	}
+
+	function onPressTab(event: KeyboardEvent) {
+		if (event.key === 'Tab') {
+			event.preventDefault()
+
+			const { end, start } = getCursorPosition()
+			const el = event.target as HTMLInputElement
+
+			el.value = `${el.value.substring(0, start)}\t${el.value.substring(end)}`
+			notificationForm.formValues.value.message = el.value
+			el.selectionStart = el.selectionEnd = start + 1
+		}
+	}
+
+	onMounted(() => {
+		notificationForm.messageField.fieldRef.value
+			?.addEventListener('keydown', onPressTab)
+	})
+
+	onUnmounted(() => {
+		notificationForm.messageField.fieldRef.value
+			?.removeEventListener('keydown', onPressTab)
+	})
 
 	return {
 		applyModifier,
