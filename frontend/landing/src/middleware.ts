@@ -27,7 +27,10 @@ async function assignProfile(context: APIContext) {
 }
 
 async function assignLoginLink(context: APIContext) {
-	const redirectTo = `${context.url.origin}/dashboard`
+	let redirectTo = `${context.url.origin}/dashboard`
+	redirectTo = redirectTo
+		.replace(':80', '')
+		.replace(':443', '')
 
 	try {
 		context.locals.authLink = await getAuthLink(redirectTo)
