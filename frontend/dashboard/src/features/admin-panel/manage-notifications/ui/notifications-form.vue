@@ -2,19 +2,17 @@
 import { useI18n } from 'vue-i18n'
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
-import { textareaButtons, useTextarea } from '../composables/use-textarea.js'
 
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
+import BlocksRender from '@/components/ui/editorjs/blocks-render.vue'
+import EditorJS from '@/components/ui/editorjs/editorjs.vue'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 const { t } = useI18n()
 
 const notificationsForm = useNotificationsForm()
-const { textareaRef, applyModifier } = useTextarea()
 </script>
 
 <template>
@@ -40,44 +38,18 @@ const { textareaRef, applyModifier } = useTextarea()
 						{{ t('adminPanel.notifications.messageLabel') }}
 					</Label>
 
-					<div class="flex flex-col gap-2">
-						<div class="flex gap-2 flex-wrap">
-							<TooltipProvider>
-								<Tooltip v-for="button in textareaButtons" :key="button.name">
-									<TooltipTrigger as-child>
-										<Button
-											type="button"
-											variant="secondary"
-											size="icon"
-											@click="applyModifier(button.name)"
-										>
-											<component :is="button.icon" class="h-4 w-4" />
-										</Button>
-									</TooltipTrigger>
-									<TooltipContent>
-										<p>{{ button.title }}</p>
-									</TooltipContent>
-								</Tooltip>
-							</TooltipProvider>
-						</div>
-
-						<Textarea
-							ref="textareaRef"
-							v-model="notificationsForm.messageField.fieldModel.value"
-							rows="8"
-						/>
-					</div>
+					<EditorJS v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value" />
 				</div>
 
-				<template v-if="notificationsForm.formValues.value.message">
+				<template v-if="notificationsForm.editorJsJsonField.fieldModel.value">
 					<Label>{{ t('adminPanel.notifications.messagePreview') }}</Label>
-					<div class="border rounded-md p-2" v-html="notificationsForm.formValues.value.message"></div>
+					<BlocksRender :data="notificationsForm.editorJsJsonField.fieldModel.value" />
 				</template>
 			</CardContent>
 
 			<CardFooter class="flex justify-end gap-4">
 				<Button
-					:disabled="!notificationsForm.formValues.value.message && !notificationsForm.editableMessageId"
+					:disabled="!notificationsForm.editorJsJsonField.fieldModel.value && !notificationsForm.editableMessageId"
 					type="button"
 					variant="secondary"
 					@click="notificationsForm.onReset"

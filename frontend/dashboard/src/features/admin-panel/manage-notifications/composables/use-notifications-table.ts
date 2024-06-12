@@ -10,9 +10,14 @@ import CreatedAtTooltip from '../ui/created-at-tooltip.vue'
 import NotificationsTableActions from '../ui/notifications-table-actions.vue'
 
 import { useAdminNotifications } from '@/api/admin/notifications.js'
+import BlocksRenderer from '@/components/ui/editorjs/blocks-render.vue'
 import { useLayout } from '@/composables/use-layout.js'
 import { usePagination } from '@/composables/use-pagination.js'
-import { type AdminNotificationsParams, NotificationType, type NotificationsByAdminQuery } from '@/gql/graphql.js'
+import {
+	type AdminNotificationsParams,
+	NotificationType,
+	type NotificationsByAdminQuery,
+} from '@/gql/graphql.js'
 import { valueUpdater } from '@/helpers/value-updater.js'
 
 type Notifications = NotificationsByAdminQuery['notificationsByAdmin']['notifications']
@@ -49,7 +54,11 @@ export const useNotificationsTable = createGlobalState(() => {
 				size: 65,
 				header: () => h('div', {}, t('adminPanel.notifications.messageLabel')),
 				cell: ({ row }) => {
-					return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
+					if (row.original.text) {
+						return h('div', { class: 'break-words max-w-[450px]', innerHTML: row.original.text })
+					} else if (row.original.editorJsJson) {
+						return h(BlocksRenderer, { data: row.original.editorJsJson })
+					}
 				},
 			},
 			{
@@ -132,7 +141,7 @@ export const useNotificationsTable = createGlobalState(() => {
 	async function onEditNotification(notification: Notifications[0]) {
 		let isConfirmed = true
 
-		if (form.formValues.value.message || form.isEditableForm) {
+		if (form.formValues.value.editorJsJson || form.isEditableForm) {
 			// TODO: use confirm dialog from shadcn
 			// eslint-disable-next-line no-alert
 			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'))
@@ -141,7 +150,7 @@ export const useNotificationsTable = createGlobalState(() => {
 		if (isConfirmed) {
 			form.editableMessageId.value = notification.id
 			form.userIdField.fieldModel.value = notification.userId ?? null
-			form.messageField.fieldModel.value = notification.text
+			form.editorJsJsonField.fieldModel.value = notification.editorJsJson ?? ''
 			layout.scrollToTop()
 		}
 	}

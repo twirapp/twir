@@ -17,6 +17,7 @@ export function useQueryNotifications() {
 					id
 					text
 					createdAt
+					editorJsJson
 				}
 			}
 		`),
@@ -29,6 +30,7 @@ export function useQueryNotifications() {
 					id
 					text
 					createdAt
+					editorJsJson
 				}
 			}
 		`),
@@ -64,6 +66,7 @@ export function useAdminNotifications() {
 					notifications {
 						id
 						text
+						editorJsJson
 						userId
 						twitchProfile {
 							login
@@ -78,8 +81,8 @@ export function useAdminNotifications() {
 	})
 
 	const useMutationCreateNotification = () => useMutation(graphql(`
-		mutation CreateNotification($text: String!, $userId: String) {
-      notificationsCreate(text: $text, userId: $userId) {
+		mutation CreateNotification($editorJsJson: String!, $userId: String) {
+      notificationsCreate(editorJsJson: $editorJsJson, userId: $userId) {
 				id
 			}
     }

@@ -14,7 +14,6 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/integrations"
 	"github.com/satont/twir/apps/api/internal/impl_protected/moderation"
 	"github.com/satont/twir/apps/api/internal/impl_protected/modules"
-	"github.com/satont/twir/apps/api/internal/impl_protected/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_protected/overlays"
 	"github.com/satont/twir/apps/api/internal/impl_protected/rewards"
 	"github.com/satont/twir/apps/api/internal/impl_protected/twitch"
@@ -46,7 +45,6 @@ type Protected struct {
 	*moderation.Moderation
 	*users.Users
 	*feedback.Feedback
-	*notifications.Notifications
 }
 
 type Opts struct {
@@ -98,6 +96,5 @@ func New(opts Opts) *Protected {
 		Moderation:       &moderation.Moderation{Deps: d},
 		Users:            &users.Users{Deps: d},
 		Feedback:         &feedback.Feedback{Deps: d},
-		Notifications:    &notifications.Notifications{Deps: d},
 	}
 }
