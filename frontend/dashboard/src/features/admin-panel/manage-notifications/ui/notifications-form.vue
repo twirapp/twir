@@ -1,5 +1,16 @@
 <script setup lang="ts">
+import CodeTool from '@editorjs/code'
+import Delimiter from '@editorjs/delimiter'
+import EditorJS from '@editorjs/editorjs'
+import Header from '@editorjs/header'
+import InlineCode from '@editorjs/inline-code'
+import List from '@editorjs/list'
+import Paragraph from '@editorjs/paragraph'
+import Quote from '@editorjs/quote'
+import SimpleImage from '@editorjs/simple-image'
+import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import './notifications-form.css'
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
 import { textareaButtons, useTextarea } from '../composables/use-textarea.js'
@@ -15,6 +26,46 @@ const { t } = useI18n()
 
 const notificationsForm = useNotificationsForm()
 const { textareaRef, applyModifier } = useTextarea()
+
+const editor = ref<EditorJS | null>(null)
+const editorHtmlElement = ref<HTMLElement | null>(null)
+
+const d = ref()
+
+onMounted(() => {
+	if (!editorHtmlElement.value) return
+
+	editor.value = new EditorJS({
+		holder: editorHtmlElement.value,
+		onChange(api, event) {
+			editor.value?.save().then((outputData) => {
+				d.value = outputData
+			})
+		},
+		tools: {
+			header: Header,
+			image: SimpleImage,
+			list: {
+				class: List,
+				inlineToolbar: true,
+				config: {
+					defaultStyle: 'unordered',
+				},
+			},
+			inlineCode: {
+				class: InlineCode,
+				shortcut: 'CMD+SHIFT+M',
+			},
+			delimiter: Delimiter,
+			code: CodeTool,
+			paragraph: {
+				class: Paragraph,
+				inlineToolbar: true,
+			},
+			quote: Quote,
+		},
+	})
+})
 </script>
 
 <template>
@@ -67,6 +118,9 @@ const { textareaRef, applyModifier } = useTextarea()
 							rows="8"
 						/>
 					</div>
+
+					{{ d }}
+					<div ref="editorHtmlElement" class="border border-border rounded-md"></div>
 				</div>
 
 				<template v-if="notificationsForm.formValues.value.message">

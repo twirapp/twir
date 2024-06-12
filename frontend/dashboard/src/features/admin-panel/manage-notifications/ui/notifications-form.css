@@ -1,0 +1,167 @@
+.tc-add-row:before,
+div .video-tool__video,
+.ce-inline-toolbar,
+.codex-editor--narrow .ce-toolbox,
+.ce-conversion-toolbar,
+.ce-settings,
+.ce-settings__button,
+.ce-toolbar__settings-btn,
+.cdx-button,
+.ce-popover,
+.tc-popover--opened,
+.ce-toolbar__plus:hover {
+	background-color: var(--accent);
+	border-color: var(--border);
+	color: white;
+}
+
+.codex-editor__redactor {
+	padding-bottom: 100px !important;
+}
+
+.ce-block--selected .ce-block__content {
+	background-color: var(--accent);
+}
+
+/* table and the default popover */
+.tc-popover__item-icon,
+.ce-popover__item-icon,
+.ce-conversion-tool__icon {
+	background-color: var(--accent);
+	box-shadow: none;
+}
+
+.ce-inline-tool,
+.ce-conversion-toolbar__label,
+.ce-toolbox__button,
+.cdx-settings-button,
+.ce-toolbar__plus {
+	color: white;
+}
+
+.ce-popover-item__title {
+	color: white;
+}
+
+.cdx-search-field {
+	border-color: var(--border);
+	background-color: var(--accent);
+	color: white;
+}
+
+::selection {
+	background: var(--accent);
+}
+
+.ce-popover-item:hover,
+.cdx-settings-button:hover,
+.ce-settings__button:hover,
+.ce-toolbox__button--active,
+.ce-toolbox__button:hover,
+.cdx-button:hover,
+.ce-inline-toolbar__dropdown:hover,
+.ce-inline-tool:hover,
+.ce-popover__item:hover,
+.ce-conversion-tool:hover,
+.ce-toolbar__settings-btn:hover {
+	background-color: var(--mantine-color-gray-7);
+}
+
+.cdx-notify--error {
+	background: var(--mantine-color-gray-7) !important;
+}
+
+.cdx-notify__cross::after,
+.cdx-notify__cross::before {
+	background: white;
+}
+
+/* video */
+div.cdx-block .video-tool__video {
+	border: none;
+	display: flex;
+}
+
+div.cdx-block .video-tool__video div {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/* table */
+/* selector for last element of .tc-cell (remove the border right) */
+.tc-cell:last-child {
+	border-right: none;
+}
+
+.tc-add-column:hover,
+.tc-add-row:hover,
+.tc-add-row:hover:before {
+	background-color: var(--accent);
+}
+
+/* file attachment */
+.tc-cell--selected,
+.cdx-attaches {
+	background-color: var(--accent);
+	border-color: var(--border);
+}
+
+a.cdx-attaches__download-button {
+	background-color: var(--accent);
+}
+
+a.cdx-attaches__download-button:hover {
+	background-color: var(--accent);
+}
+
+/* checkbox */
+.cdx-checklist__item-checkbox-check {
+	background-color: var(--accent);
+	border-color: var(--accent);
+}
+
+/* code */
+.ce-code__textarea {
+	background-color: var(--accent);
+	border-color: var(--accent);
+	color: white;
+	min-height: 50px;
+}
+
+.cdx-text-variant__toggler {
+	background-color: var(--accent);
+	margin: .1rem
+}
+
+/* link tool */
+.link-tool__content {
+	background-color: var(--accent);
+	border-color: var(--accent);
+
+}
+/* alert */
+.cdx-alert {
+	color: white;
+	border-color: var(--accent);
+}
+.cdx-alert-primary {
+	background-color: var(--accent);
+}
+.cdx-alert-secondary {
+	background-color: #101878;
+}
+.cdx-alert-info {
+	background-color: var(--accent);
+}
+.cdx-alert-warning {
+	background-color: var(--accent);
+}
+.cdx-alert-danger {
+	background-color: var(--accent);
+}
+.cdx-alert-success {
+	background-color: var(--accent);
+}
+.cdx-alert-light {
+	color: black;
+}
