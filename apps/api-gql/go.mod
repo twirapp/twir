@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.22.2
+go 1.22.4
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -12,6 +12,7 @@ replace (
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
@@ -115,6 +116,7 @@ require (
 	github.com/satont/twir/libs/types v0.0.0-20240411125706-789748d8a577 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000 // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect

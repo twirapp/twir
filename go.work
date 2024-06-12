@@ -1,4 +1,4 @@
-go 1.22.2
+go 1.22.4
 
 use (
 	./apps/api
@@ -33,4 +33,5 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
+	./libs/redis_keys
 )

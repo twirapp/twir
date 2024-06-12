@@ -12,6 +12,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/api/messages/dashboard"
+	"github.com/twirapp/twir/libs/redis_keys"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -142,13 +143,15 @@ func (c *Dashboard) GetDashboardStats(
 
 	wg.Wait()
 
+	streamMessages, _ := c.Redis.Get(ctx, redis_keys.StreamParsedMessages(stream.ID)).Int()
+
 	return &dashboard.DashboardStatsResponse{
 		CategoryId:     channelCategoryId,
 		CategoryName:   channelCategoryName,
 		Viewers:        uint32(stream.ViewerCount),
 		StartedAt:      lo.If[*string](stream.ID == "", nil).Else(&startedAt),
 		Title:          channelTitle,
-		ChatMessages:   uint32(stream.ParsedMessages),
+		ChatMessages:   uint32(streamMessages),
 		Followers:      followersCount,
 		UsedEmotes:     uint32(usedEmotes),
 		RequestedSongs: 0,

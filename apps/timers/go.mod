@@ -1,12 +1,13 @@
 module github.com/satont/twir/apps/timers
 
-go 1.21.5
+go 1.22.4
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/logger => ../../libs/logger
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
@@ -74,6 +75,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000 // indirect
 	github.com/uptrace/uptrace-go v1.21.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.46.1 // indirect

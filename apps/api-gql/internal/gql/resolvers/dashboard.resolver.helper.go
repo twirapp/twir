@@ -7,6 +7,7 @@ import (
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/libs/redis_keys"
 )
 
 func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardStats, error) {
@@ -53,10 +54,16 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 		result.CategoryName = channelInformation.GameName
 		result.Title = channelInformation.Title
 		result.CategoryID = channelInformation.GameID
-
 	}
 	if stream.ID != "" {
-		result.ChatMessages = stream.ParsedMessages
+		parsedMessages, _ := r.redis.Get(
+			ctx,
+			redis_keys.StreamParsedMessages(
+				stream.ID,
+			),
+		).Int()
+
+		result.ChatMessages = parsedMessages
 		result.StartedAt = &stream.StartedAt
 	}
 

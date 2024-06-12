@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/bots
 
-go 1.21.5
+go 1.22.4
 
 require (
 	github.com/aidenwallis/go-ratelimiting v0.0.5
@@ -75,6 +75,7 @@ require (
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000 // indirect
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0 // indirect
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.uber.org/dig v1.17.1 // indirect
@@ -100,8 +101,9 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/satont/twir/libs/utils => ../../libs/utils
+	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
-	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
 )
