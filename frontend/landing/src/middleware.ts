@@ -27,8 +27,7 @@ async function assignProfile(context: APIContext) {
 }
 
 async function assignLoginLink(context: APIContext) {
-	let redirectTo = `${context.url.origin}/dashboard`
-	redirectTo = redirectTo
+	const redirectTo = `${context.url.origin}/dashboard`
 		.replace(':80', '')
 		.replace(':443', '')
 
