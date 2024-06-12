@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_admin/badges"
-	"github.com/satont/twir/apps/api/internal/impl_admin/notifications"
 	"github.com/satont/twir/apps/api/internal/impl_admin/users"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
 	config "github.com/satont/twir/libs/config"
@@ -21,7 +20,6 @@ import (
 
 type Admin struct {
 	*users.Users
-	*notifications.Notifications
 	*badges.Badges
 }
 
@@ -60,8 +58,7 @@ func New(opts Opts) *Admin {
 	}
 
 	return &Admin{
-		Users:         &users.Users{Deps: d},
-		Notifications: &notifications.Notifications{Deps: d},
-		Badges:        badges.NewBadges(d),
+		Users:  &users.Users{Deps: d},
+		Badges: badges.NewBadges(d),
 	}
 }

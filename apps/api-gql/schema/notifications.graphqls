@@ -4,7 +4,11 @@ extend type Query {
 }
 
 extend type Mutation {
-	notificationsCreate(text: String! @validate(constraint: "max=10000"), userId: String): AdminNotification! @isAuthenticated @isAdmin
+	notificationsCreate(
+		text: String @validate(constraint: "max=10000"),
+		editorJsJson: String @validate(constraint: "max=10000")
+		userId: String
+	): AdminNotification! @isAuthenticated @isAdmin
 	notificationsUpdate(id: ID!, opts: NotificationUpdateOpts!): AdminNotification! @isAuthenticated @isAdmin
 	notificationsDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
 }
@@ -19,23 +23,26 @@ extend type Subscription {
 interface Notification {
 	id: ID!
 	userId: ID
-	text: String!
+	text: String
+	editorJsJson: String
 	createdAt: Time!
 }
 
 type UserNotification implements Notification {
 	id: ID!
 	userId: ID
-	text: String!
+	text: String
 	createdAt: Time!
+	editorJsJson: String
 }
 
 type AdminNotification implements Notification {
 	id: ID!
-	text: String!
+	text: String
 	userId: ID
 	twitchProfile: TwirUserTwitchInfo @goField(forceResolver: true)
 	createdAt: Time!
+	editorJsJson: String
 }
 
 enum NotificationType {
@@ -52,6 +59,7 @@ input AdminNotificationsParams {
 
 input NotificationUpdateOpts {
 	text: String @validate(constraint: "max=10000")
+	editorJsJson: String @validate(constraint: "max=10000")
 }
 
 type AdminNotificationsResponse {

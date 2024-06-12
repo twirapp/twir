@@ -9,9 +9,10 @@ div .video-tool__video,
 .cdx-button,
 .ce-popover,
 .tc-popover--opened,
+.ce-inline-tool-input,
 .ce-toolbar__plus:hover {
-	background-color: var(--accent);
-	border-color: var(--border);
+	background-color: hsl(var(--card));
+	border-color: hsl(var(--border));
 	color: white;
 }
 
@@ -21,6 +22,10 @@ div .video-tool__video,
 
 .ce-block--selected .ce-block__content {
 	background-color: var(--accent);
+}
+
+.ce-popover-item:hover {
+	background-color: hsl(var(--accent)) !important;
 }
 
 /* table and the default popover */
@@ -64,11 +69,11 @@ div .video-tool__video,
 .ce-popover__item:hover,
 .ce-conversion-tool:hover,
 .ce-toolbar__settings-btn:hover {
-	background-color: var(--mantine-color-gray-7);
+	background-color: var(--accent);
 }
 
 .cdx-notify--error {
-	background: var(--mantine-color-gray-7) !important;
+	background: var(--accent) !important;
 }
 
 .cdx-notify__cross::after,

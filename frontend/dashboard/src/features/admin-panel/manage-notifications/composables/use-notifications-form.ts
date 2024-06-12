@@ -8,17 +8,17 @@ import { useFormField } from '@/composables/use-form-field'
 
 const formSchema = toTypedSchema(z.object({
 	userId: z.string().nullable(),
-	message: z.string(),
+	editorJsJson: z.string(),
 }))
 
 export const useNotificationsForm = createGlobalState(() => {
 	const userIdField = useFormField<string | null>('userId', null)
-	const messageField = useFormField<string>('message', '')
+	const editorJsJsonField = useFormField<string>('editorJsJson', '')
 
 	const formValues = computed(() => {
 		return {
 			userId: userIdField.fieldModel.value,
-			message: messageField.fieldModel.value,
+			editorJsJson: editorJsJsonField.fieldModel.value,
 		}
 	})
 
@@ -40,11 +40,11 @@ export const useNotificationsForm = createGlobalState(() => {
 			if (editableMessageId.value) {
 				await updateNotification({
 					id: editableMessageId.value,
-					opts: { text: value.message },
+					opts: { editorJsJson: value.editorJsJson },
 				})
 			} else {
 				await createNotification({
-					text: value.message,
+					editorJsJson: value.editorJsJson,
 					userId: value.userId,
 				})
 			}
@@ -56,7 +56,7 @@ export const useNotificationsForm = createGlobalState(() => {
 	}
 
 	function onReset(): void {
-		messageField.reset()
+		editorJsJsonField.reset()
 		userIdField.reset()
 		editableMessageId.value = null
 	}
@@ -69,7 +69,7 @@ export const useNotificationsForm = createGlobalState(() => {
 	return {
 		formValues,
 		userIdField,
-		messageField,
+		editorJsJsonField,
 		isEditableForm,
 		editableMessageId,
 		onSubmit,

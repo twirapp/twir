@@ -149,9 +149,6 @@ importers:
       '@discord-message-components/vue':
         specifier: 0.2.1
         version: 0.2.1(vue@3.4.21)
-      '@editorjs/code':
-        specifier: 2.9.0
-        version: 2.9.0
       '@editorjs/delimiter':
         specifier: 1.4.0
         version: 1.4.0
@@ -161,9 +158,6 @@ importers:
       '@editorjs/header':
         specifier: 2.8.1
         version: 2.8.1
-      '@editorjs/inline-code':
-        specifier: 1.5.0
-        version: 1.5.0
       '@editorjs/list':
         specifier: 1.9.0
         version: 1.9.0
@@ -176,6 +170,9 @@ importers:
       '@editorjs/simple-image':
         specifier: 1.6.0
         version: 1.6.0
+      '@editorjs/underline':
+        specifier: 1.1.0
+        version: 1.1.0
       '@formkit/drag-and-drop':
         specifier: 0.0.38
         version: 0.0.38
@@ -1743,12 +1740,6 @@ packages:
     resolution: {integrity: sha512-F+sL1YmebZTY2CnjoR9BXFEULpq7y8dxyLx48LZVa0BSDseXdLG/DtPISfM1iNv1XKCeiBzVNfAT/MOQ69v1Zw==}
     dev: false
 
-  /@editorjs/code@2.9.0:
-    resolution: {integrity: sha512-QNOWxF29j6mYl/gM5HJzeGOt3s4laoZCUbuRqj6RkIvLBWMU+ASwjckEiouA61hcYUOMfpw4vQjzhsfC7xm/vA==}
-    dependencies:
-      '@codexteam/icons': 0.0.5
-    dev: false
-
   /@editorjs/delimiter@1.4.0:
     resolution: {integrity: sha512-i1Wm3UQsVisM7Fh9focJ1a4kX2l7IxO3zrEd+GmYoPVaNwxb/63GLNbGfCCGZBuvUyzeUDnc8cdhD1QQGwUZIg==}
     dependencies:
@@ -1761,12 +1752,6 @@ packages:
 
   /@editorjs/header@2.8.1:
     resolution: {integrity: sha512-y0HVXRP7m2W617CWo3fsb5HhXmSLaRpb9GzFx0Vkp/HEm9Dz5YO1s8tC7R8JD3MskwoYh7V0hRFQt39io/r6hA==}
-    dependencies:
-      '@codexteam/icons': 0.0.5
-    dev: false
-
-  /@editorjs/inline-code@1.5.0:
-    resolution: {integrity: sha512-5i6BCOG8eOg4/6qGoLJuL6XSZZg834zIByDW8K80doM1L7ss/VqtLY0nrB2Q5bfs1KA0tOlVHOfjE4JD4438FQ==}
     dependencies:
       '@codexteam/icons': 0.0.5
     dev: false
@@ -1791,6 +1776,12 @@ packages:
 
   /@editorjs/simple-image@1.6.0:
     resolution: {integrity: sha512-WvdGfQPlozwZd3PXQrJnRXk6gEYbv1U2vRupYJ6lTd3/UsLInXYUX5jSFcnGB5ZMH3bd0JDZfcb4d4Sv1/1big==}
+    dependencies:
+      '@codexteam/icons': 0.0.6
+    dev: false
+
+  /@editorjs/underline@1.1.0:
+    resolution: {integrity: sha512-vQj2ROW1KreD31QHlhaPikmDJGWYzRBusN4Zyfwl9nIIQCByt4S8fZQpsrRvH4sct5mkirsHllNT00rJlqHK7Q==}
     dependencies:
       '@codexteam/icons': 0.0.6
     dev: false

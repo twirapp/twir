@@ -45,8 +45,6 @@ import "messages/feedback/feedback.proto";
 
 import "messages/integrations_seventv/integrations_seventv.proto";
 
-import "messages/notifications/notifications.proto";
-
 service Protected {
 	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
 	rpc BotJoinPart(messages.bots.BotJoinPartRequest) returns (google.protobuf.Empty) {}
@@ -178,8 +176,6 @@ service Protected {
 	rpc IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse) {}
 	rpc IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.notifications.NotificationsGetAllResponse) {}
 }
 
 // UnProtected
@@ -213,18 +209,12 @@ service UnProtected {
 }
 
 import "messages/admin_users/admin_users.proto";
-import "messages/admin_notifications/admin_notifications.proto";
 import "messages/admin_badges/admin_badges.proto";
 
 service Admin {
 	rpc UserSwitchBan(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
 	rpc UserSwitchAdmin(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
 	rpc GetUsers(messages.admin_users.UsersGetRequest) returns (messages.admin_users.UsersGetResponse) {}
-
-	rpc NotificationsCreate(messages.admin_notifications.CreateNotificationRequest) returns (messages.admin_notifications.Notification) {}
-	rpc NotificationsGetAll(messages.admin_notifications.GetNotificationsRequest) returns (messages.admin_notifications.GetNotificationsResponse) {}
-	rpc NotificationsUpdate(messages.admin_notifications.UpdateNotificationRequest) returns (messages.admin_notifications.Notification) {}
-	rpc NotificationsDelete(messages.admin_notifications.DeleteNotificationRequest) returns (google.protobuf.Empty) {}
 
 	rpc BadgesCreate(messages.admin_badges.CreateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
 	rpc BadgesUpdate(messages.admin_badges.UpdateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
