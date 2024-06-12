@@ -1,7 +1,8 @@
 import { BoldIcon, Heading1Icon, Heading2Icon, ImageIcon, ItalicIcon, LinkIcon, ListCollapseIcon, ListIcon, QuoteIcon, StrikethroughIcon, UnderlineIcon, WrapTextIcon } from 'lucide-vue-next'
-import { type Component, computed } from 'vue'
 
 import { useNotificationsForm } from './use-notifications-form'
+
+import type { Component } from 'vue'
 
 const TEXTAREA_MODIFIERS = {
 	h1: '<h1 id="h1">|</h1>',
@@ -89,14 +90,6 @@ export const textareaButtons: TextareaButton[] = [
 
 export function useTextarea() {
 	const notificationForm = useNotificationsForm()
-	const textareaRef = computed({
-		get() {
-			return notificationForm.messageField.fieldRef
-		},
-		set(el: any) {
-			notificationForm.messageField.fieldRef = el?.$el
-		},
-	})
 
 	function getCursorPosition() {
 		const el = notificationForm.messageField.fieldRef!
@@ -121,7 +114,6 @@ export function useTextarea() {
 	}
 
 	return {
-		textareaRef,
 		applyModifier,
 	}
 }

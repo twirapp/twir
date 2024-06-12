@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
@@ -14,7 +15,18 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 const { t } = useI18n()
 
 const notificationsForm = useNotificationsForm()
-const { textareaRef, applyModifier } = useTextarea()
+const { applyModifier } = useTextarea()
+
+const textareaRef = computed({
+	get() {
+		return notificationsForm.messageField.fieldRef.value
+	},
+	set(value) {
+		// eslint-disable-next-line ts/ban-ts-comment
+		// @ts-expect-error
+		notificationsForm.messageField.fieldRef.value = value.$el
+	},
+})
 </script>
 
 <template>
