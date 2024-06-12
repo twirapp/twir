@@ -106,8 +106,13 @@ func (c *Handler) handleStreamOnline(
 
 	c.bus.Channel.StreamOnline.Publish(
 		bustwitch.StreamOnlineMessage{
-			ChannelID: event.BroadcasterUserID,
-			StreamID:  event.ID,
+			ChannelID:    event.BroadcasterUserID,
+			StreamID:     event.ID,
+			CategoryName: stream.GameName,
+			CategoryID:   stream.GameID,
+			Title:        stream.Title,
+			Viewers:      stream.ViewerCount,
+			StartedAt:    stream.StartedAt,
 		},
 	)
 }
