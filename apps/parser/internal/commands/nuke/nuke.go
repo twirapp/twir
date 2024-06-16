@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
-	"github.com/kr/pretty"
 	"github.com/lib/pq"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -53,9 +52,6 @@ var Command = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
-
-		pretty.Println(messages)
-		return nil, nil
 
 		if len(messages) == 0 {
 			return nil, nil
