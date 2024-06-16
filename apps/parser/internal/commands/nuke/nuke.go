@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/guregu/null"
+	"github.com/kr/pretty"
 	"github.com/lib/pq"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -40,7 +41,7 @@ var Command = &types.DefaultCommand{
 		var messages []model.ChannelChatMessage
 		err := parseCtx.Services.Gorm.WithContext(ctx).
 			Where(
-				`"canBeDeleted" IS TRUE AND text LIKE ? AND "createdAt" > NOW() - INTERVAL '60 minutes' AND "channelId" = ?`,
+				`"can_be_deleted" IS TRUE AND text LIKE ? AND "created_at" > NOW() - INTERVAL '60 minutes' AND "channel_id" = ?`,
 				"%"+strings.ToLower(phrase)+"%",
 				parseCtx.Channel.ID,
 			).
@@ -52,6 +53,9 @@ var Command = &types.DefaultCommand{
 				Err:     err,
 			}
 		}
+
+		pretty.Println(messages)
+		return nil, nil
 
 		if len(messages) == 0 {
 			return nil, nil

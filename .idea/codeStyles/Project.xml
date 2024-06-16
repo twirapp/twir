@@ -60,7 +60,7 @@
     <codeStyleSettings language="go">
       <option name="RIGHT_MARGIN" value="100" />
       <option name="CALL_PARAMETERS_WRAP" value="5" />
-      <option name="WRAP_ON_TYPING" value="1" />
+      <option name="WRAP_ON_TYPING" value="0" />
       <option name="SOFT_MARGINS" value="100" />
       <indentOptions>
         <option name="INDENT_SIZE" value="2" />
