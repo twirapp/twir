@@ -148,7 +148,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 
 	if c.spotifyService != nil {
 		spotifyTrack := c.spotifyService.GetTrack()
-		if spotifyTrack != nil {
+		if spotifyTrack != nil && spotifyTrack.IsPlaying {
 			return &Track{
 				Artist:   spotifyTrack.Artist,
 				Title:    spotifyTrack.Title,
