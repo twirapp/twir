@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/redis/go-redis/v9"
+	duplicate_tracker "github.com/satont/twir/apps/eventsub/internal/duplicate-tracker"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
@@ -65,6 +66,7 @@ type Opts struct {
 
 func New(opts Opts) *Handler {
 	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
+	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
 		manager:        opts.Manager,
