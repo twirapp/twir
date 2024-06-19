@@ -54,7 +54,7 @@
     "toggleColumns": "Toggle columns",
     "copied": "Kopiert",
     "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Select user|Select users",
+    "userSelectPlaceholder": "Wähle einen Benutzer | Wähle mehrere Benutzer",
     "userNotFound": "Keine Benutzer gefunden",
     "settings": "Einstellungen"
   },
@@ -86,7 +86,7 @@
   "navbar": {
     "logout": "Abmelden",
     "publicPage": "Öffentliche Seite",
-    "seeAll": "See all"
+    "seeAll": "Alles anzeigen"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -94,8 +94,8 @@
     "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "No access",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "title": "Kein Zugriff",
+    "description": "Du bist nicht berechtigt diese Seite zu sehen, frage den Streamer nach einer Bereitstellung."
   },
   "pageNotFound": {
     "title": "404 Nicht gefunden",
@@ -129,7 +129,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
@@ -324,8 +324,8 @@
       "filters": {
         "label": "Filter",
         "description": "Sie können Ereignisse nach bestimmten Bedingungen filtern. Wenn du zum Beispiel \"{'{raidViewers}'} für Schlachtzugsereignisse gleich 10\" verwendest, wird die Operation nur dann ausgelöst, wenn die Anzahl der Schlachtzugmitglieder 10 beträgt.",
-        "placeholderLeft": "Left side of the condition",
-        "placeholderRight": "Right side of the condition",
+        "placeholderLeft": "Linke Seite des Zustands",
+        "placeholderRight": "Rechte Seite des Zustands",
         "empty": "Keine Filter ausgewählt"
       }
     },
@@ -522,7 +522,7 @@
         "animationsOnAppear": "Anscheinende Emote Animation",
         "animationsOnDisappear": "Verschwindende Emote Animation",
         "excludedEmotes": "Ausgeschlossene Emotes",
-        "rave": "Show Rave (Rainbow) Emotes",
+        "rave": "Zeige Rave (Regenbogen) Emotes an",
         "emotes": {
           "bttvEnabled": "BetterTTV Emotes aktivieren?",
           "ffzEnabled": "FrankerFaceZ Emotes aktivieren?",
@@ -537,16 +537,16 @@
         "main": {
           "label": "Einstellungen",
           "startCommand": {
-            "description": "Overlay Start Command",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "description": "Overlay-Start-Befehl",
+            "example": "<b>!brb 1 Kaffee</b> – startet einen einminütigen Timer mit dem Label 'Coffee'.<br><b>!brb 1</b> – startet einen einminütigen Timer mit dem in den Abschnitten Einstellungen und Post-Timer Einstellungen angegebenen Standardtext."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Overlay-Stop-Befehl",
             "example": "!brbstop"
           },
           "text": "Overlay-Text",
           "background": "",
-          "backgroundOpacity": "Overlay Background Opacity",
+          "backgroundOpacity": "Deckkraft des Overlay-Hintergrunds",
           "font": {
             "color": "Schriftfarbe",
             "family": "Schriftart",
@@ -554,7 +554,7 @@
           }
         },
         "late": {
-          "label": "Post-Timer Settings",
+          "label": "Post-Timer Einstellungen",
           "text": "Overlay Post-Timer Text",
           "displayBrb": "Display Countdown Information"
         }
