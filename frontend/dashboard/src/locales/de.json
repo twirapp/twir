@@ -18,8 +18,8 @@
     "goToDashboard": "Zur Übersicht gehen",
     "add": "Hinzufügen",
     "send": "Senden",
-    "next": "Next",
-    "previous": "Previous",
+    "next": "Nächste",
+    "previous": "Vorherige",
     "reset": "Zurücksetzen"
   },
   "sharedTexts": {
@@ -43,20 +43,20 @@
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
-    "pagination": "{page} page(s) / {total} item(s)",
+    "pagination": "{page} Seite(n) / {total} Gegenstand(e)",
     "paginationPerPage": "Pro Seite",
-    "searchPlaceholder": "Search...",
+    "searchPlaceholder": "Suche...",
     "messages": "Nachrichten",
     "asc": "Asc",
     "desc": "Desc",
-    "hide": "Hide",
-    "view": "View",
+    "hide": "Ausblenden",
+    "view": "Anzeigen",
     "toggleColumns": "Toggle columns",
     "copied": "Kopiert",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found",
-    "settings": "Settings"
+    "userNotFound": "Keine Benutzer gefunden",
+    "settings": "Einstellungen"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -80,7 +80,7 @@
     "games": "Spiele",
     "users": "Benutzer",
     "moderation": "Moderation",
-    "import": "Import",
+    "import": "Importieren",
     "community": "Community"
   },
   "navbar": {
