@@ -3,6 +3,7 @@ package nodejs
 var appsForStart = []twirApp{
 	{name: "eval"},
 	{name: "integrations"},
+	{name: "chat-messages-store"},
 }
 
 type NodejsApps struct {

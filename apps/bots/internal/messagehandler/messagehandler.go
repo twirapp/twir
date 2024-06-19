@@ -96,7 +96,6 @@ var handlersForExecute = []func(
 	(*MessageHandler).handleGreetings,
 	(*MessageHandler).handleKeywords,
 	(*MessageHandler).handleEmotesUsages,
-	(*MessageHandler).handleStoreMessage,
 	(*MessageHandler).handleTts,
 	(*MessageHandler).handleRemoveLurker,
 	(*MessageHandler).handleModeration,

@@ -135,14 +135,11 @@ services:
       test: exit 0
 
   redis:
-    image: bitnami/redis:latest
+    image: redis/redis-stack-server:7.2.0-v11
     volumes:
-      - redis-data:/bitnami/redis/data
+      - redis-stack-data:/data
     networks:
       - twir
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    command: /opt/bitnami/scripts/redis/run.sh --protected-mode no
     deploy:
       restart_policy:
         condition: any
@@ -221,6 +218,23 @@ services:
 
   parser:
     image: twirapp/parser:latest
+    secrets:
+      - twir_doppler_token
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 6
+      endpoint_mode: dnsrr
+    networks:
+      - twir
+
+  chat-messages-store:
+    image: twirapp/chat-messages-store:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -550,6 +564,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  redis-stack-data:
   minio-data:
 
 networks:

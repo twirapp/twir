@@ -6,6 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	chat_messages_store "github.com/twirapp/twir/libs/bus-core/chat-messages-store"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -17,15 +18,17 @@ import (
 )
 
 type Bus struct {
-	Parser       *parserBus
-	Websocket    *websocketBus
-	Channel      *channelBus
-	Bots         *botsBus
-	EmotesCacher *emotesCacherBus
-	Timers       *timersBus
-	Eval         *evalBus
-	EventSub     *eventSubBus
-	Scheduler    *schedulerBus
+	Parser            *parserBus
+	Websocket         *websocketBus
+	Channel           *channelBus
+	Bots              *botsBus
+	EmotesCacher      *emotesCacherBus
+	Timers            *timersBus
+	Eval              *evalBus
+	EventSub          *eventSubBus
+	Scheduler         *schedulerBus
+	ChatMessages      Queue[twitch.TwitchChatMessage, struct{}]
+	ChatMessagesStore *chatMessagesStoreBus
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -61,12 +64,6 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 		},
 
 		Bots: &botsBus{
-			ProcessMessage: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
-				nc,
-				CHAT_MESSAGE_BOTS_SUBJECT,
-				30*time.Minute,
-				nats.GOB_ENCODER,
-			),
 			SendMessage: NewNatsQueue[botsservice.SendMessageRequest, struct{}](
 				nc,
 				botsservice.SendMessageSubject,
@@ -191,6 +188,21 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				scheduler.CreateDefaultRolesSubject,
 				1*time.Minute,
 				nats.GOB_ENCODER,
+			),
+		},
+
+		ChatMessages: NewNatsQueue[twitch.TwitchChatMessage, struct{}](
+			nc,
+			CHAT_MESSAGES_SUBJECT,
+			30*time.Minute,
+			nats.JSON_ENCODER,
+		),
+		ChatMessagesStore: &chatMessagesStoreBus{
+			GetChatMessagesByTextForDelete: NewNatsQueue[chat_messages_store.GetChatMessagesByTextRequest, chat_messages_store.GetChatMessagesByTextResponse](
+				nc,
+				CHAT_MESSAGES_STORE_GET_BY_TEXT_FOR_DELETE_SUBJECT,
+				1*time.Minute,
+				nats.JSON_ENCODER,
 			),
 		},
 	}

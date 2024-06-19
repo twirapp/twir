@@ -2,13 +2,13 @@ package nuke
 
 import (
 	"context"
-	"strings"
 
 	"github.com/guregu/null"
 	"github.com/lib/pq"
 	command_arguments "github.com/satont/twir/apps/parser/internal/command-arguments"
 	"github.com/satont/twir/apps/parser/internal/types"
 	"github.com/twirapp/twir/libs/bus-core/bots"
+	chat_messages_store "github.com/twirapp/twir/libs/bus-core/chat-messages-store"
 
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -37,15 +37,13 @@ var Command = &types.DefaultCommand{
 	) {
 		phrase := parseCtx.ArgsParser.Get(nukePhraseArgName).String()
 
-		var messages []model.ChannelChatMessage
-		err := parseCtx.Services.Gorm.WithContext(ctx).
-			Where(
-				`"can_be_deleted" IS TRUE AND text LIKE ? AND "created_at" > NOW() - INTERVAL '60 minutes' AND "channel_id" = ?`,
-				"%"+strings.ToLower(phrase)+"%",
-				parseCtx.Channel.ID,
-			).
-			Find(&messages).
-			Error
+		messages, err := parseCtx.Services.Bus.ChatMessagesStore.GetChatMessagesByTextForDelete.Request(
+			ctx,
+			chat_messages_store.GetChatMessagesByTextRequest{
+				ChannelID: parseCtx.Channel.ID,
+				Text:      phrase,
+			},
+		)
 		if err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot get messages",
@@ -53,18 +51,14 @@ var Command = &types.DefaultCommand{
 			}
 		}
 
-		if len(messages) == 0 {
+		if len(messages.Data.Messages) == 0 {
 			return nil, nil
 		}
 
-		mappedMessagesIds := make([]string, 0, len(messages))
+		mappedMessagesIds := make([]string, 0, len(messages.Data.Messages))
 
-		for _, message := range messages {
-			if !message.CanBeDeleted {
-				continue
-			}
-
-			mappedMessagesIds = append(mappedMessagesIds, message.MessageId)
+		for _, message := range messages.Data.Messages {
+			mappedMessagesIds = append(mappedMessagesIds, message.MessageID)
 		}
 
 		if err := parseCtx.Services.Bus.Bots.DeleteMessage.Publish(
@@ -76,14 +70,6 @@ var Command = &types.DefaultCommand{
 		); err != nil {
 			return nil, &types.CommandHandlerError{
 				Message: "cannot delete messages",
-				Err:     err,
-			}
-		}
-
-		if err = parseCtx.Services.Gorm.WithContext(ctx).Where(`"messageId" IN ?`, mappedMessagesIds).
-			Delete(&model.ChannelChatMessage{}).Error; err != nil {
-			return nil, &types.CommandHandlerError{
-				Message: "cannot delete messages from db",
 				Err:     err,
 			}
 		}

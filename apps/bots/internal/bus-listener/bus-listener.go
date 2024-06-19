@@ -55,14 +55,14 @@ func New(opts Opts) (*BusListener, error) {
 			OnStart: func(ctx context.Context) error {
 				listener.bus.Bots.SendMessage.SubscribeGroup("bots", listener.sendMessage)
 				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
-				listener.bus.Bots.ProcessMessage.SubscribeGroup("bots", listener.handleChatMessage)
+				listener.bus.ChatMessages.SubscribeGroup("bots", listener.handleChatMessage)
 				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				listener.bus.Bots.SendMessage.Unsubscribe()
-				listener.bus.Bots.ProcessMessage.Unsubscribe()
+				listener.bus.ChatMessages.Unsubscribe()
 				listener.bus.Bots.DeleteMessage.Unsubscribe()
 				listener.bus.Bots.BanUser.Unsubscribe()
 
