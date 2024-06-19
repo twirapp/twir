@@ -43,7 +43,7 @@ const ignoredBadges = ['broadcaster', 'moderator', 'vip', 'subscriber'];
 	for await (const m of chatMessagesSub) {
 		const data = sc.decode(m.data)
 
-		const canBeDeleted = !data.badges.some(b => ignoredBadges.includes(b.set_id))
+		const canBeDeleted = !data.badges?.some(b => ignoredBadges.includes(b.set_id))
 
 		const entity = await repository.save({
 			message_id: data.message_id,
