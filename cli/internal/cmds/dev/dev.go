@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
+	"github.com/twirapp/twir/cli/internal/cmds/proxy"
 	"github.com/urfave/cli/v2"
 )
 
@@ -39,6 +40,11 @@ func CreateDevCommand() *cli.Command {
 				Name:  "debug",
 				Value: false,
 				Usage: "run backend in debug mode",
+			},
+			&cli.BoolFlag{
+				Name:  "proxy",
+				Value: false,
+				Usage: "start with proxy",
 			},
 		},
 		Before: func(context *cli.Context) error {
@@ -114,6 +120,15 @@ func CreateDevCommand() *cli.Command {
 			if err := nodejsApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
+			}
+
+			if c.Bool("proxy") {
+				go func() {
+					if err := proxy.Cmd.Run(c); err != nil {
+						pterm.Error.Println(err)
+						return
+					}
+				}()
 			}
 
 			exitSignal := make(chan os.Signal, 1)
