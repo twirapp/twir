@@ -604,6 +604,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 				}
 
 				if track == nil {
+					channel <- nil
 					time.Sleep(5 * time.Second)
 					continue
 				}
