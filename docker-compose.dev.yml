@@ -27,10 +27,11 @@ services:
       - tsuwari-dev
 
   redis:
-    image: redis/redis-stack-server:latest
+    image: redis/redis-stack:latest
     restart: always
     ports:
       - '6385:6379'
+      - '8001:8001'
     volumes:
       - redis-data:/data
     networks:
