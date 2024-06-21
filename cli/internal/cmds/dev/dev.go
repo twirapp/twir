@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/helpers"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
 	"github.com/twirapp/twir/cli/internal/cmds/proxy"
@@ -30,6 +31,9 @@ func CreateDevCommand() *cli.Command {
 	var cmd = &cli.Command{
 		Name:  "dev",
 		Usage: "start project in dev mode",
+		Subcommands: []*cli.Command{
+			helpers.CleanPortsCmd,
+		},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "skip-deps",
@@ -59,7 +63,9 @@ func CreateDevCommand() *cli.Command {
 			}
 
 			if config.NgrokAuthToken == "" {
-				return errors.New("NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok")
+				return errors.New(
+					"NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok",
+				)
 			}
 
 			return nil

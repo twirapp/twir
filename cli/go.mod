@@ -5,6 +5,7 @@ go 1.21.5
 replace (
 	github.com/satont/twir/libs/config => ../libs/config
 	github.com/satont/twir/libs/migrations => ../libs/migrations
+	gituh.com/satont/twir/libs/grpc => ../libs/grpc
 )
 
 require (
