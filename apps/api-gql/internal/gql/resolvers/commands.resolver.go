@@ -20,7 +20,10 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -50,7 +53,10 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 }
 
 // CommandsCreate is the resolver for the commandsCreate field.
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (bool, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -60,22 +66,22 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return false, err
 	}
 
+	aliases := []string{}
+	for _, alias := range opts.Aliases {
+		a := strings.TrimSuffix(strings.ToLower(alias), "!")
+		a = strings.ReplaceAll(a, " ", "")
+		if a != "" {
+			aliases = append(aliases, a)
+		}
+	}
+
 	command := &model.ChannelsCommands{
-		ID:           uuid.New().String(),
-		Name:         strings.ToLower(opts.Name),
-		Cooldown:     null.IntFrom(int64(opts.Cooldown)),
-		CooldownType: opts.CooldownType,
-		Enabled:      opts.Enabled,
-		Aliases: lo.Map(
-			lo.IfF(
-				opts.Aliases == nil, func() []string {
-					return []string{}
-				},
-			).Else(opts.Aliases),
-			func(alias string, _ int) string {
-				return strings.TrimSuffix(strings.ToLower(alias), "!")
-			},
-		),
+		ID:                        uuid.New().String(),
+		Name:                      strings.ToLower(opts.Name),
+		Cooldown:                  null.IntFrom(int64(opts.Cooldown)),
+		CooldownType:              opts.CooldownType,
+		Enabled:                   opts.Enabled,
+		Aliases:                   aliases,
 		Description:               null.StringFrom(opts.Description),
 		Visible:                   opts.Visible,
 		ChannelID:                 dashboardId,
@@ -128,7 +134,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -144,6 +154,8 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 			return false, err
 		}
 	}
+
+	aliases := []string{}
 
 	if opts.Aliases.IsSet() {
 		if err := r.checkIsCommandWithNameOrAliaseExists(
@@ -184,12 +196,15 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 	}
 
 	if opts.Aliases.IsSet() {
-		cmd.Aliases = lo.Map(
-			opts.Aliases.Value(),
-			func(alias string, _ int) string {
-				return strings.TrimSuffix(strings.ToLower(alias), "!")
-			},
-		)
+		for _, alias := range opts.Aliases.Value() {
+			a := strings.TrimSuffix(strings.ToLower(alias), "!")
+			a = strings.ReplaceAll(a, " ", "")
+			if a != "" {
+				aliases = append(aliases, a)
+			}
+		}
+
+		cmd.Aliases = aliases
 	}
 
 	if opts.Description.IsSet() {
@@ -386,7 +401,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}
