@@ -2,7 +2,7 @@ module github.com/twirapp/twir/libs/bus-core
 
 go 1.21.5
 
-require github.com/nats-io/nats.go v1.33.1
+require github.com/nats-io/nats.go v1.36.0
 
 require (
 	github.com/klauspost/compress v1.17.7 // indirect

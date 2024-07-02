@@ -11,7 +11,7 @@ replace (
 )
 
 require (
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000

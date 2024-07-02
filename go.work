@@ -4,6 +4,7 @@ use (
 	./apps/api
 	./apps/api-gql
 	./apps/bots
+	./apps/chat-messages-store
 	./apps/discord
 	./apps/emotes-cacher
 	./apps/events
@@ -14,7 +15,6 @@ use (
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
-	./apps/chat-messages-store
 	./cli
 	./libs/api
 	./libs/baseapp
@@ -29,10 +29,10 @@ use (
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
+	./libs/redis_keys
 	./libs/sentry
 	./libs/twitch
 	./libs/types
 	./libs/uptrace
 	./libs/utils
-	./libs/redis_keys
 )
