@@ -10,5 +10,5 @@ RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM go_prod_base
-COPY apps/chat-msgs-store/.out/chat-msgs-store /bin/twir_application
+COPY apps/chat-messages-store/.out/twir-chat-messages-store /bin/twir_application
 CMD ["/bin/twir_application"]
