@@ -14,4 +14,5 @@ var Apps = []TwirGoApp{
 	{Name: "scheduler"},
 	{Name: "discord"},
 	{Name: "api-gql"},
+	{Name: "chat-messages-store"},
 }

@@ -14,6 +14,7 @@ use (
 	./apps/tokens
 	./apps/websockets
 	./apps/ytsr
+	./apps/chat-messages-store
 	./cli
 	./libs/api
 	./libs/baseapp
