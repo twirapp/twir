@@ -202,7 +202,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				nc,
 				CHAT_MESSAGES_STORE_GET_BY_TEXT_FOR_DELETE_SUBJECT,
 				1*time.Minute,
-				nats.JSON_ENCODER,
+				nats.GOB_ENCODER,
+			),
+			RemoveMessages: NewNatsQueue[chat_messages_store.RemoveMessagesRequest, struct{}](
+				nc,
+				CHAT_MESSAGES_STRORE_REMOVE_MESSAGES_SUBJECT,
+				1*time.Minute,
+				nats.GOB_ENCODER,
 			),
 		},
 	}

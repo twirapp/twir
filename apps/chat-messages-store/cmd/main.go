@@ -31,10 +31,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	logger := twirlogger.New(twirlogger.Opts{
-		Env:     cfg.AppEnv,
-		Service: "chat-messages-store",
-	})
+	logger := twirlogger.New(
+		twirlogger.Opts{
+			Env:     cfg.AppEnv,
+			Service: "chat-messages-store",
+		},
+	)
 
 	url, err := redis.ParseURL(cfg.RedisUrl)
 	if err != nil {
@@ -51,9 +53,11 @@ func main() {
 	defer rdb.Close()
 	rdb.Conn()
 
-	pool := &redigo.Pool{Dial: func() (redigo.Conn, error) {
-		return redigo.Dial("tcp", url.Addr, redigo.DialPassword(url.Password))
-	}}
+	pool := &redigo.Pool{
+		Dial: func() (redigo.Conn, error) {
+			return redigo.Dial("tcp", url.Addr, redigo.DialPassword(url.Password))
+		},
+	}
 	rsc := redisearch.NewClientFromPool(pool, "chat-messages-store:message:")
 
 	sc := redisearch.NewSchema(redisearch.DefaultOptions).
@@ -61,12 +65,10 @@ func main() {
 		AddField(redisearch.NewTextFieldOptions("text", redisearch.TextFieldOptions{Weight: 5.0})).
 		AddField(redisearch.NewTagField("channel_id"))
 
-	if err := rsc.Drop(); err != nil {
-		panic(err)
-	}
-
 	if err := rsc.CreateIndex(sc); err != nil {
-		panic(err)
+		if err.Error() != "Index already exists" {
+			panic(err)
+		}
 	}
 
 	nc, err := nats.Connect(cfg.NatsUrl)
@@ -79,9 +81,11 @@ func main() {
 	err = bus.ChatMessages.SubscribeGroup(
 		"chat-messages-store",
 		func(ctx context.Context, msg twitch.TwitchChatMessage) struct{} {
-			canBeDeleted := !lo.SomeBy(msg.Badges, func(b twitch.ChatMessageBadge) bool {
-				return lo.Contains(ignoredBadges, b.SetId)
-			})
+			canBeDeleted := !lo.SomeBy(
+				msg.Badges, func(b twitch.ChatMessageBadge) bool {
+					return lo.Contains(ignoredBadges, b.SetId)
+				},
+			)
 
 			doc := redisearch.NewDocument("chat-messages-store:message:"+msg.MessageId, 1.0)
 			doc.Set("can_be_deleted", strconv.FormatBool(canBeDeleted)).
@@ -114,7 +118,10 @@ func main() {
 
 	err = bus.ChatMessagesStore.GetChatMessagesByTextForDelete.SubscribeGroup(
 		"chat-messages-store",
-		func(ctx context.Context, req chat_messages_store.GetChatMessagesByTextRequest) chat_messages_store.GetChatMessagesByTextResponse {
+		func(
+			ctx context.Context,
+			req chat_messages_store.GetChatMessagesByTextRequest,
+		) chat_messages_store.GetChatMessagesByTextResponse {
 			if len(req.ChannelID) == 0 || len(req.Text) == 0 {
 				return chat_messages_store.GetChatMessagesByTextResponse{
 					Messages: []chat_messages_store.StoredChatMessage{},
@@ -127,9 +134,19 @@ func main() {
 			for {
 				docs, total, err := rsc.Search(
 					redisearch.NewAggregateQuery().
-						SetQuery(redisearch.NewQuery(fmt.Sprintf("(@deleted:{false}) (@can_be_deleted:{true}) (@channel_id:{%s}) (@text:*%s*)", req.ChannelID, req.Text))).
+						SetQuery(
+							redisearch.NewQuery(
+								fmt.Sprintf(
+									"(@can_be_deleted:{true}) (@channel_id:{%s}) (@text:*%s*)",
+									req.ChannelID,
+									req.Text,
+								),
+							),
+						).
 						Query.Limit(offset, limit).
-						SetReturnFields("message_id", "channel_id",
+						SetReturnFields(
+							"message_id",
+							"channel_id",
 							"user_id",
 							"user_login",
 							"text",
@@ -152,14 +169,17 @@ func main() {
 			}
 			var chatMessages []chat_messages_store.StoredChatMessage
 			for _, doc := range allDocs {
-				chatMessages = append(chatMessages, chat_messages_store.StoredChatMessage{
-					MessageID:    doc.Properties["message_id"].(string),
-					ChannelID:    doc.Properties["channel_id"].(string),
-					UserID:       doc.Properties["user_id"].(string),
-					UserLogin:    doc.Properties["user_login"].(string),
-					Text:         doc.Properties["text"].(string),
-					CanBeDeleted: doc.Properties["can_be_deleted"].(string) == "true",
-				})
+				chatMessages = append(
+					chatMessages, chat_messages_store.StoredChatMessage{
+						MessageID:    doc.Properties["message_id"].(string),
+						ChannelID:    doc.Properties["channel_id"].(string),
+						UserID:       doc.Properties["user_id"].(string),
+						UserLogin:    doc.Properties["user_login"].(string),
+						Text:         doc.Properties["text"].(string),
+						CanBeDeleted: doc.Properties["can_be_deleted"].(string) == "true",
+						RedisID:      doc.Id,
+					},
+				)
 			}
 
 			return chat_messages_store.GetChatMessagesByTextResponse{
@@ -172,11 +192,29 @@ func main() {
 	}
 	defer bus.ChatMessagesStore.GetChatMessagesByTextForDelete.Unsubscribe()
 
+	err = bus.ChatMessagesStore.RemoveMessages.SubscribeGroup(
+		"chat-messages-store",
+		func(ctx context.Context, data chat_messages_store.RemoveMessagesRequest) struct{} {
+			for _, id := range data.MessagesRedisIDS {
+				if err := rsc.DeleteDocument(id); err != nil {
+					logger.Error("Error in deleting document", slog.String("err", err.Error()))
+				}
+			}
+
+			return struct{}{}
+		},
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer bus.ChatMessagesStore.RemoveMessages.Unsubscribe()
+
+	logger.Info("chat-messages-store is running")
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
 	sig := <-sigCh
-	fmt.Printf("Received signal: %v\n", sig)
+	logger.Info("Received signal", slog.Any("sig", sig))
 
-	fmt.Println("Graceful shutdown complete")
+	logger.Info("Shutting down chat-messages-store")
 }

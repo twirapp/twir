@@ -63,4 +63,5 @@ type schedulerBus struct {
 
 type chatMessagesStoreBus struct {
 	GetChatMessagesByTextForDelete Queue[chat_messages_store.GetChatMessagesByTextRequest, chat_messages_store.GetChatMessagesByTextResponse]
+	RemoveMessages                 Queue[chat_messages_store.RemoveMessagesRequest, struct{}]
 }

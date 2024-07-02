@@ -1,19 +1,25 @@
 package chat_messages_store
 
 type GetChatMessagesByTextRequest struct {
-	ChannelID string `json:"channel_id"`
-	Text      string `json:"text"`
+	ChannelID string
+	Text      string
 }
 
 type GetChatMessagesByTextResponse struct {
-	Messages []StoredChatMessage `json:"messages"`
+	Messages []StoredChatMessage
 }
 
 type StoredChatMessage struct {
-	MessageID    string `json:"message_id"`
-	ChannelID    string `json:"channel_id"`
-	UserID       string `json:"user_id"`
-	UserLogin    string `json:"user_login"`
-	Text         string `json:"text"`
-	CanBeDeleted bool   `json:"can_be_deleted"`
+	RedisID string
+
+	MessageID    string
+	ChannelID    string
+	UserID       string
+	UserLogin    string
+	Text         string
+	CanBeDeleted bool
+}
+
+type RemoveMessagesRequest struct {
+	MessagesRedisIDS []string
 }
