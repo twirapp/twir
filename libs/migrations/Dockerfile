@@ -13,6 +13,7 @@ FROM golang:1.22.1-alpine as builder
 WORKDIR /app
 COPY libs/config /app/libs/config
 COPY libs/migrations /app/libs/migrations
+COPY libs/grpc /app/libs/grpc
 COPY cli /app/cli
 RUN cd cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_application ./main.go
 
