@@ -74,6 +74,22 @@ var Command = &types.DefaultCommand{
 			}
 		}
 
+		redisMessagesIds := make([]string, 0, len(messages.Data.Messages))
+		for _, message := range messages.Data.Messages {
+			redisMessagesIds = append(redisMessagesIds, message.RedisID)
+		}
+
+		if err = parseCtx.Services.Bus.ChatMessagesStore.RemoveMessages.Publish(
+			chat_messages_store.RemoveMessagesRequest{
+				MessagesRedisIDS: redisMessagesIds,
+			},
+		); err != nil {
+			return nil, &types.CommandHandlerError{
+				Message: "cannot remove messages",
+				Err:     err,
+			}
+		}
+
 		return nil, nil
 	},
 }

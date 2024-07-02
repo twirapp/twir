@@ -8,4 +8,5 @@ const (
 	STREAM_OFFLINE_SUBJECT                             = "stream.offline"
 	CHAT_MESSAGES_SUBJECT                              = "chat.messages"
 	CHAT_MESSAGES_STORE_GET_BY_TEXT_FOR_DELETE_SUBJECT = "chat_messages_store.get_by_text_for_delete"
+	CHAT_MESSAGES_STRORE_REMOVE_MESSAGES_SUBJECT       = "chat_messages_store.remove_messages"
 )
