@@ -6,6 +6,8 @@ replace github.cim/satont/twir/libs/config => ./../config
 
 replace github.cim/satont/twir/libs/crypto => ./../crypto
 
+replace github.com/twirapp/twir/libs/grpc => ./../grpc
+
 require (
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
