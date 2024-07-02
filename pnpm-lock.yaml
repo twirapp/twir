@@ -27,24 +27,6 @@ importers:
         specifier: 5.4.5
         version: 5.4.5
 
-  apps/chat-messages-store:
-    dependencies:
-      '@twir/bus-core':
-        specifier: workspace:*
-        version: link:../../libs/bus-core
-      '@twir/config':
-        specifier: workspace:*
-        version: link:../../libs/config
-      nats:
-        specifier: 2.22.0
-        version: 2.22.0
-      redis:
-        specifier: 4.6.13
-        version: 4.6.13
-      redis-om:
-        specifier: 0.4.3
-        version: 0.4.3
-
   apps/dota:
     dependencies:
       '@twir/config':
@@ -8851,15 +8833,6 @@ packages:
     optionalDependencies:
       graceful-fs: 4.2.11
 
-  /jsonpath-plus@7.2.0:
-    resolution: {integrity: sha512-zBfiUPM5nD0YZSBT/o/fbCUlCcepMIdP0CJZxM1+KgA4f2T206f6VAg9e7mX35+KlMaIc5qXW34f3BnwJ3w+RA==}
-    engines: {node: '>=12.0.0'}
-    dev: false
-
-  /just-clone@6.2.0:
-    resolution: {integrity: sha512-1IynUYEc/HAwxhi3WDpIpxJbZpMCvvrrmZVqvj9EhpvbH8lls7HhdhiByjL7DkAaWlLIzpC0Xc/VPvy/UxLNjA==}
-    dev: false
-
   /kappagen@0.3.5(vue@3.4.21):
     resolution: {integrity: sha512-plN9g2+wLjnF2bj49aoxnhB+Owlu28V1N0UlWxopUb85nuz07f3msKGwS/bbMTMZZ8GBH9yJo+hdSPYKTp2i2g==}
     peerDependencies:
@@ -10943,16 +10916,6 @@ packages:
     engines: {node: '>=4'}
     dev: false
 
-  /redis-om@0.4.3:
-    resolution: {integrity: sha512-OQ2ydJYm8j5YMWj3K2ieQdUcfu2gP1nW2XsdaFLbHkaSlYqj1Kfu8X+T44vPuesY3cKdVj6tv9bHEmI9oqwHgA==}
-    engines: {node: '>= 14'}
-    dependencies:
-      jsonpath-plus: 7.2.0
-      just-clone: 6.2.0
-      redis: 4.6.13
-      ulid: 2.3.0
-    dev: false
-
   /redis-parser@3.0.0:
     resolution: {integrity: sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A==}
     engines: {node: '>=4'}
@@ -12395,11 +12358,6 @@ packages:
   /ufo@1.5.3:
     resolution: {integrity: sha512-Y7HYmWaFwPUmkoQCUIAYpKqkOf+SbVj/2fJJZ4RJMCfZp0rTGwRbzQD+HghfnhKOjL9E01okqz+ncJskGYfBNw==}
     dev: true
-
-  /ulid@2.3.0:
-    resolution: {integrity: sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==}
-    hasBin: true
-    dev: false
 
   /unc-path-regex@0.1.2:
     resolution: {integrity: sha512-eXL4nmJT7oCpkZsHZUOJo8hcX3GbsiDOa0Qu9F646fi8dT3XuSVopVqAcEiVzSKKH7UoDti23wNX3qGFxcW5Qg==}
