@@ -710,7 +710,7 @@
       "greetings": "Spúšťač pozdravu"
     },
     "select": {
-      "audio": "Confugure an audio",
+      "audio": "Konfigurácia zvuku",
       "image": "Configure an image",
       "text": "Configure text"
     },
@@ -782,16 +782,16 @@
       "timeoutSeconds": "Timeout seconds"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
+      "description": "Začnite súdny proces s porotou s vinným četujúcim!",
       "banMessage": "Message on ban",
       "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
+      "surviveMessage": "Správa o prežití",
+      "surviveMessageModerators": "Správa o prežití pre moderátora",
       "initialMessage": "Init message",
       "neededVotes": "Potrebné hlasy",
       "banDuration": "Dĺžka banu",
       "voteMode": "Mode of vote",
-      "voteDuration": "Duration of vote in seconds",
+      "voteDuration": "Dĺžka hlasovania v sekundách",
       "wordsNegative": "Words for vote to \"no\" option",
       "wordsPositive": "Words for vote to \"yes\" option",
       "timeoutModerators": "Enable voteban on moderators"
@@ -890,7 +890,7 @@
       "firstUserMessage": "Prvá správa používateľa",
       "streamOnline": "Vysielanie je online",
       "streamOffline": "Vysielanie je offline",
-      "chatCleared": "Chat Clear",
+      "chatCleared": "Chat vyčistený",
       "userBanned": "User Ban",
       "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
       "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban",
@@ -915,7 +915,7 @@
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
         "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
         "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
-        "regexpCheatSheet": "cheat sheet"
+        "regexpCheatSheet": "Ťahák"
       },
       "symbols": {
         "name": "Symboly",
@@ -963,7 +963,7 @@
       "showMeOnLanding": "Show yourself on the Landing Page?",
       "regenerateApiKey": {
         "button": "Vygenerovať súkromný kľúč API",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "info": "Tento kľúč sa používa pre všetky odkazy prekrytí. Pri jeho vygenerovaní musíte skontrolovať všetky svoje prekrytia v softvéri na streamovanie a nahradiť adresy URL novými odkazmi."
       }
     },
     "public": {
@@ -974,25 +974,25 @@
       "errorInvalidLength": "Nesprávna dĺžka",
       "errorInvalidLink": "Neplatný odkaz",
       "errorEmpty": "Nemôže byť prázdne",
-      "errorTooLong": "Too long",
-      "linkTitle": "Title",
-      "linkLabel": "Link"
+      "errorTooLong": "Príliš dlhé",
+      "linkTitle": "Názov",
+      "linkLabel": "Odkaz"
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Administračný panel",
     "notifications": {
-      "title": "Notifications",
+      "title": "Notifikácie",
       "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
+      "emptyNotifications": "Žiadne upozornenia",
+      "userLabel": "Užívateľ",
       "userPlaceholder": "Vybrať užívateľa",
       "messageLabel": "Správa",
       "messagePreview": "Ukážka",
       "createdAt": "Vytvorené",
       "globals": "Globals",
       "users": "Užívatelia",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "confirmResetForm": "Ste si istí, že chcete resetovať formulár?"
     },
     "manageUsers": {
       "title": "Užívatelia",
@@ -1001,7 +1001,7 @@
       "followers": "Sledovatelia",
       "noUsers": "Žiadni používatelia",
       "filters": "Filtre",
-      "clearFilters": "Clear filters",
+      "clearFilters": "Vymazať filtre",
       "countSelected": "{count} selected",
       "isAdmin": "Admin",
       "isBanned": "Banned",
