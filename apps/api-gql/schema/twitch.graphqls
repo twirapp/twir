@@ -83,3 +83,10 @@ type TwirTwitchChannelBadgeResponse {
 type TwirTwitchGlobalBadgeResponse {
 	badges: [TwitchBadge!]!
 }
+
+
+type TwitchCategory {
+	id: String!
+	name: String!
+	boxArtUrl: String!
+}

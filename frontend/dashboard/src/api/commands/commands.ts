@@ -20,6 +20,12 @@ export const useCommandsApi = createGlobalState(() => {
 						commandId
 						text
 						order
+						twitchCategoriesIds
+						twitchCategories {
+							id
+							name
+							boxArtUrl
+						}
 					}
 					cooldown
 					cooldownType

@@ -3,6 +3,7 @@ import {
 	IconArrowNarrowDown,
 	IconArrowNarrowUp,
 	IconPlus,
+	IconSettings,
 	IconSquare,
 	IconSquareCheck,
 	IconTrash,
@@ -26,6 +27,7 @@ import {
 	NInputGroup,
 	NInputGroupLabel,
 	NInputNumber,
+
 	NModal,
 	NSelect,
 	NSpace,
@@ -44,6 +46,7 @@ import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
 import { useRoles } from '@/api/roles'
 import TwitchCategorySearch from '@/components/twitch-category-search.vue'
 import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue'
+import { Separator } from '@/components/ui/separator'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import VariableInput from '@/components/variable-input.vue'
 
@@ -119,6 +122,8 @@ const rules: FormRules = {
 }
 
 const createButtonProps = { class: 'create-button' } as any
+
+const showCategoryModal = ref(false)
 </script>
 
 <template>
@@ -197,28 +202,55 @@ const createButtonProps = { class: 'create-button' } as any
 								</template>
 
 								<template #action="{ index, remove, move }">
-									<div class="flex items-center ml-1 gap-x-1">
-										<NButton size="small" type="error" quaternary @click="() => remove(index)">
-											<IconTrash />
-										</NButton>
-										<NButton
-											size="small"
-											type="info"
-											quaternary
-											:disabled="index === 0"
-											@click="() => move('up', index)"
-										>
-											<IconArrowNarrowUp />
-										</NButton>
-										<NButton
-											size="small"
-											type="info"
-											quaternary
-											:disabled="!!formValue.responses.length && index === formValue.responses.length - 1"
-											@click="() => move('down', index)"
-										>
-											<IconArrowNarrowDown />
-										</NButton>
+									<div class="flex flex items-center ml-1 gap-x-1">
+										<div class="flex flex-col gap-1">
+											<NButton size="small" type="default" quaternary @click="showCategoryModal = true">
+												<IconSettings />
+											</NButton>
+											<NModal v-model:show="showCategoryModal">
+												<NCard
+													style="width: 400px"
+													title="Response settings"
+													size="huge"
+													role="dialog"
+													aria-modal="true"
+													preset="card"
+													closable
+													header-style="padding: 8px;"
+													content-style="padding: 8px;"
+													@close="() => showCategoryModal = false"
+												>
+													<Separator class="bg-zinc-700 mb-4" />
+													<div class="flex flex-col gap-2">
+														<span class="text-md">Send response only for certain categories</span>
+														<TwitchCategorySearch v-model="formValue.responses[index].twitchCategoriesIds" multiple />
+													</div>
+												</NCard>
+											</NModal>
+											<NButton size="small" type="error" quaternary @click="() => remove(index)">
+												<IconTrash />
+											</NButton>
+										</div>
+										<div class="flex flex-col gap-1">
+											<NButton
+												size="small"
+												type="info"
+												quaternary
+												:disabled="index === 0"
+												@click="() => move('up', index)"
+											>
+												<IconArrowNarrowUp />
+											</NButton>
+											<NButton
+												size="small"
+												type="info"
+												quaternary
+												:disabled="!!formValue.responses.length && index === formValue.responses.length - 1"
+												@click="() => move('down', index)"
+											>
+												<IconArrowNarrowDown />
+											</NButton>
+										</div>
 									</div>
 								</template>
 							</NDynamicInput>
@@ -227,7 +259,9 @@ const createButtonProps = { class: 'create-button' } as any
 								block
 								style="margin-top:10px"
 								:disabled="formValue.responses.length >= 3"
-								@click="() => formValue!.responses.push({ text: '', order: formValue!.responses.length })"
+								@click="() => {
+									formValue!.responses.push({ text: '', order: formValue!.responses.length, twitchCategoriesIds: [] })
+								}"
 							>
 								<IconPlus />
 								{{ t('commands.modal.responses.add') }}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -38,15 +39,44 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 		convertedResponses = append(
 			convertedResponses,
 			gqlmodel.CommandResponse{
-				ID:        response.ID,
-				CommandID: response.CommandID,
-				Text:      response.Text.String,
-				Order:     response.Order,
+				ID:                  response.ID,
+				CommandID:           response.CommandID,
+				Text:                response.Text.String,
+				Order:               response.Order,
+				TwitchCategoriesIds: response.TwitchCategoryIDs,
+				TwitchCategories:    make([]gqlmodel.TwitchCategory, 0, len(response.TwitchCategoryIDs)),
 			},
 		)
 	}
 
 	return convertedResponses, nil
+}
+
+// TwitchCategories is the resolver for the twitchCategories field.
+func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
+	var categories []gqlmodel.TwitchCategory
+
+	for _, id := range obj.TwitchCategoriesIds {
+		category, err := r.cachedTwitchClient.GetGame(ctx, id)
+		if err != nil {
+			r.logger.Error("failed to fetch twitch category", slog.Any("err", err))
+			continue
+		}
+		if category == nil {
+			continue
+		}
+
+		categories = append(
+			categories,
+			gqlmodel.TwitchCategory{
+				ID:        id,
+				Name:      category.Name,
+				BoxArtURL: category.BoxArtURL,
+			},
+		)
+	}
+
+	return categories, nil
 }
 
 // CommandsCreate is the resolver for the commandsCreate field.
@@ -107,10 +137,12 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		}
 
 		command.Responses = append(
-			command.Responses, &model.ChannelsCommandsResponses{
-				ID:    uuid.New().String(),
-				Text:  null.StringFrom(res.Text),
-				Order: res.Order,
+			command.Responses,
+			&model.ChannelsCommandsResponses{
+				ID:                uuid.New().String(),
+				Text:              null.StringFrom(res.Text),
+				Order:             res.Order,
+				TwitchCategoryIDs: append(pq.StringArray{}, res.TwitchCategoriesIds...),
 			},
 		)
 	}
@@ -261,9 +293,10 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 			}
 
 			response := &model.ChannelsCommandsResponses{
-				Text:      null.StringFrom(res.Text),
-				Order:     res.Order,
-				CommandID: cmd.ID,
+				Text:              null.StringFrom(res.Text),
+				Order:             res.Order,
+				CommandID:         cmd.ID,
+				TwitchCategoryIDs: append(pq.StringArray{}, res.TwitchCategoriesIds...),
 			}
 
 			cmd.Responses = append(cmd.Responses, response)
@@ -455,4 +488,10 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 // Command returns graph.CommandResolver implementation.
 func (r *Resolver) Command() graph.CommandResolver { return &commandResolver{r} }
 
+// CommandResponse returns graph.CommandResponseResolver implementation.
+func (r *Resolver) CommandResponse() graph.CommandResponseResolver {
+	return &commandResponseResolver{r}
+}
+
 type commandResolver struct{ *Resolver }
+type commandResponseResolver struct{ *Resolver }

@@ -40,6 +40,8 @@ type CommandResponse {
 	commandId: ID!
 	text: String!
 	order: Int!
+	twitchCategoriesIds: [String!]!
+	twitchCategories: [TwitchCategory!]! @goField(forceResolver: true)
 }
 
 type PublicCommand {
@@ -106,5 +108,6 @@ input CommandsUpdateOpts {
 
 input CreateOrUpdateCommandResponseInput {
 	text: String! @validate(constraint: "max=500")
-	order: Int!
+	order: Int! @validate(constraint: "max=500")
+	twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
 }
