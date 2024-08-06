@@ -825,33 +825,33 @@
         "users": "Benutzer",
         "empty": "Keine Emotes",
         "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
-        "lastYear": "Year"
+        "lastDay": "Tag",
+        "lastWeek": "Woche",
+        "lastMonth": "Monat",
+        "lastThreeMonth": "3 Monate",
+        "lastYear": "Jahr"
       },
-      "total": "Total emotes: {total}",
+      "total": "Gesamte Emotes: {total}",
       "details": {
-        "stats": "Stats",
-        "users": "Users",
+        "stats": "Statistiken",
+        "users": "Benutzer",
         "usersTabs": {
-          "top": "Top",
-          "history": "History"
+          "top": "Oben",
+          "history": "Verlauf"
         }
       }
     }
   },
   "filePicker": {
-    "innerText": "Select or drop {type} here.",
-    "usedSpace": "Used {used} / {max} MB",
-    "emptyText": "No {type} uploaded."
+    "innerText": "Hier {type} auswählen oder ablegen.",
+    "usedSpace": "Verwendeter {used} / {max} MB",
+    "emptyText": "Kein {type} hochgeladen."
   },
   "overlaysRegistry": {
-    "description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
+    "description": "In dieser Kategorie kannst du benutzerdefinierte Overlays für OBS erstellen. Derzeit werden nur HTML-Overlays unterstützt, aber andere Overlay-Varianten werden später hinzugefügt. Vielen Dank für die Geduld. <3",
     "noLayersCreated": {
-      "title": "Not Configured",
-      "description": "Currently layers of overlays not created"
+      "title": "Nicht konfiguriert",
+      "description": "Momentan sind Ebenen von Overlays nicht erstellt"
     },
     "customWidth": "Breite",
     "customHeight": "Höhe",
@@ -980,61 +980,61 @@
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Admin Bereich",
     "notifications": {
-      "title": "Notifications",
-      "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
-      "globals": "Globals",
-      "users": "Users",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "title": "Benachrichtigungen",
+      "formTitle": "Benachrichtigung senden oder bearbeiten",
+      "emptyNotifications": "Keine Benachrichtigungen",
+      "userLabel": "Benutzer",
+      "userPlaceholder": "Benutzer wählen",
+      "messageLabel": "Nachricht",
+      "messagePreview": "Vorschau",
+      "createdAt": "Erstellt am",
+      "globals": "Global",
+      "users": "Benutzer",
+      "confirmResetForm": "Bist du sicher, dass du deine Änderungen zurücksetzen möchtest?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
+      "title": "Benutzer",
+      "user": "Benutzer",
+      "userId": "Benutzer-ID",
       "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
-      "clearFilters": "Clear filters",
-      "countSelected": "{count} selected",
+      "noUsers": "Keine Benutzer",
+      "filters": "Filter",
+      "clearFilters": "Filter zurücksetzen",
+      "countSelected": "{count} ausgewählt",
       "isAdmin": "Admin",
       "isBanned": "Banned",
-      "isBotEnabled": "Bot enabled",
+      "isBotEnabled": "Bot aktiviert",
       "statusGroup": "Status",
-      "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
-      "giveMod": "Give admin",
-      "unMod": "Remove admin",
-      "dropSession": "Drop session"
+      "badgesGroup": "Abzeichen",
+      "giveBan": "Benutzer bannen",
+      "unBan": "Benutzer entsperren",
+      "giveMod": "Admin geben",
+      "unMod": "Admin entfernen",
+      "dropSession": "Sitzung abbrechen"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
+      "title": "Abzeichen",
+      "formTitle": "Abzeichen erstellen oder bearbeiten",
       "name": "Name",
-      "users": "Users",
+      "users": "Benutzer",
       "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
-      "usesCount": "Uses {count}",
+      "image": "Bild",
+      "preview": "Vorschau",
+      "usesCount": "Verwendet {count}",
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Aktionen",
       "eventsub": {
-        "title": "Subscribe to EventSub",
-        "condition": "Condition",
-        "type": "Type",
-        "typeError": "Please select a type",
+        "title": "EventSub abonnieren",
+        "condition": "Bedingung",
+        "type": "Typ",
+        "typeError": "Geben Sie einen Typ an",
         "version": "Version",
-        "user": "User",
-        "channel": "Channel",
+        "user": "Benutzer",
+        "channel": "Kanal",
         "channelWithBotId": "Channel with bot ID",
         "channelWithModeratorId": "Channel with moderator ID"
       },
