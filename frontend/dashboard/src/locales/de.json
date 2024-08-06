@@ -595,35 +595,35 @@
       "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
-        "minimalWatchTime": "Minimal Watch Time (in minutes)",
-        "minimalMessages": "Minimal Message Amount",
+        "minimalWatchTime": "Minimale Zuschauzeit (in Minuten)",
+        "minimalMessages": "Minimale Nachrichtenanzahl",
         "minimalFollowTime": "Minimale Folgezeit (in Minuten)"
       },
       "songs": {
         "maxRequests": "Maximale Song-Warteschlangen-Limit",
         "minLength": "Minimale Songlänge (in Minuten)",
         "maxLength": "Maximale Songlänge (in Minuten)",
-        "minViews": "Minimal Views Amount"
+        "minViews": "Minimale Anzahl an Aufrufen"
       }
     },
     "tabs": {
       "general": "Allgemein",
       "users": "Benutzer",
       "songs": "Songs",
-      "translations": "Translations"
+      "translations": "Übersetzungen"
     },
     "ban": {
       "user": "Benutzer bannen",
       "song": "Song bannen",
-      "userConfirm": "Are you sure you want to ban this user?",
-      "songConfirm": "Are you sure you want to ban this song?"
+      "userConfirm": "Bist du dir sicher, dass du diesen Benutzer bannen möchtest?",
+      "songConfirm": "Bist du sicher, dass du diesen Song sperren möchtest?"
     }
   },
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (in minutes)",
-        "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
+        "intervalInMinutes": "Intervall (in Minuten)",
+        "intervalInMessages": "Intervall (in Chat-Nachrichten, auf 0 stellen zur Deaktivierung)"
       }
     },
     "modal": {
@@ -747,18 +747,18 @@
       },
       "cooldown": {
         "title": "Duell Abklingzeit",
-        "user": "Individual",
+        "user": "Individuell",
         "global": "Global"
       },
       "messages": {
         "title": "Nachrichten",
         "start": {
-          "title": "Initial Message",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "title": "Erste Nachricht",
+          "description": "Sendet diese Nachricht, wenn das Duell gestartet wird. Verfügbare Variablen: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Ergebnisnachricht",
+          "description": "Sendet diese Nachricht, wenn das Duell vorbei ist. Verfügbare Variablen: {'{loser}, {winner}'}"
         },
         "bothDie": {
           "title": "«Niemand überlebt» Nachricht",
@@ -775,55 +775,55 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
-      "timeoutModerators": "Enable seppuku for moderators",
-      "messageModerators": "Message when moderator used seppuku",
-      "timeoutSeconds": "Timeout seconds"
+      "description": "Seppuku ist eine Form des ritualistischen Selbstmords durch Entkörperung.",
+      "message": "Nachricht",
+      "timeoutModerators": "Aktiviere seppuku für Moderatoren",
+      "messageModerators": "Nachricht wenn Moderator seppuku benutzt hat",
+      "timeoutSeconds": "Timeout Sekunden"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
-      "banMessage": "Message on ban",
-      "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
-      "initialMessage": "Init message",
-      "neededVotes": "Needed votes",
-      "banDuration": "Duration of ban",
-      "voteMode": "Mode of vote",
-      "voteDuration": "Duration of vote in seconds",
+      "description": "Beginne den Prozess der Jury gegen den Schuldigen Chatter!",
+      "banMessage": "Nachricht beim Bannen",
+      "banMessageModerators": "Nachricht um Moderator zu sperren",
+      "surviveMessage": "Nachricht überleben",
+      "surviveMessageModerators": "Überlebende Nachricht für Moderatoren",
+      "initialMessage": "Erste Nachricht",
+      "neededVotes": "Benötigte Stimmen",
+      "banDuration": "Dauer des Banns",
+      "voteMode": "Modus der Abstimmung",
+      "voteDuration": "Dauer der Abstimmung in Sekunden",
       "wordsNegative": "Words for vote to \"no\" option",
       "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Enable voteban on moderators"
+      "timeoutModerators": "Aktiviere voteban gegen Moderatoren"
     }
   },
   "community": {
     "title": "Community",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Benutzer",
+      "searchPlaceholder": "Benutzer suchen...",
       "table": {
         "user": "Nutzer",
         "watchedTime": "Zugeschaute Zeit",
         "messages": "Nachrichten",
         "usedEmotes": "Verwendete Emotes",
         "usedChannelPoints": "Ausgegebene Kanalpunkte",
-        "empty": "No users"
+        "empty": "Keine Benutzer"
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "label": "Reset",
+        "label": "Zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Emote Statistiken",
+      "searchPlaceholder": "Suche Emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
-        "empty": "No emotes",
+        "usages": "Gesamtnutzung",
+        "users": "Benutzer",
+        "empty": "Keine Emotes",
         "chart": "Usages chart",
         "lastDay": "Day",
         "lastWeek": "Week",
