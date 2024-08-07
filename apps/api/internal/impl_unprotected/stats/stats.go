@@ -191,7 +191,7 @@ func (c *Stats) cacheStreamers() {
 			func() {
 				userTwitchClientCtx, userTwitchClientCtxCancel := context.WithTimeout(
 					context.Background(),
-					5*time.Second,
+					60*time.Second,
 				)
 				defer userTwitchClientCtxCancel()
 				userTwitchClient, err := twitch.NewUserClientWithContext(
