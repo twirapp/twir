@@ -204,7 +204,15 @@ func (c *Stats) cacheStreamers() {
 					c.Grpc.Tokens,
 				)
 				if err != nil {
-					c.Logger.Error("cannot create twitch client", slog.Any("err", err))
+					c.Logger.Error(
+						"cannot create twitch client",
+						slog.Any("err", err),
+						slog.Group(
+							"user",
+							slog.String("id", user.ID),
+							slog.String("login", user.Login),
+						),
+					)
 					return
 				}
 

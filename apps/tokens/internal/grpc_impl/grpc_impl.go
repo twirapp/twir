@@ -152,7 +152,11 @@ func (c *tokensGrpcImpl) RequestUserToken(
 	}
 
 	if user.ID == "" || user.Token == nil || user.Token.ID == "" {
-		return nil, errors.New("cannot find user token in db")
+		return nil, fmt.Errorf(
+			"cannot find user token in db, userId: %s, token: %v",
+			user.ID,
+			user.Token,
+		)
 	}
 
 	decryptedRefreshToken, err := crypto.Decrypt(user.Token.RefreshToken, c.config.TokensCipherKey)
