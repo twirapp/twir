@@ -122,13 +122,16 @@ func (c *Stats) cacheStreamers() {
 			true,
 			false,
 			false,
-		).Joins("User").Find(&streamers).Error; err != nil {
+		).
+		Joins("User").
+		Find(&streamers).Error; err != nil {
 		c.Logger.Error("cannot cache streamers", slog.Any("err", err))
 		return
 	}
 
 	streamers = lo.Filter(
-		streamers, func(item model.Channels, _ int) bool {
+		streamers,
+		func(item model.Channels, _ int) bool {
 			return item.User != nil && !item.User.HideOnLandingPage
 		},
 	)
@@ -136,7 +139,7 @@ func (c *Stats) cacheStreamers() {
 	helixUsersMu := sync.Mutex{}
 	helixUsers := make([]helix.User, 0, len(streamers))
 
-	errGroup, ctx := errgroup.WithContext(context.Background())
+	usersWgGrp, ctx := errgroup.WithContext(context.Background())
 	chunks := lo.Chunk(streamers, 100)
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.Config, c.Grpc.Tokens)
@@ -147,7 +150,7 @@ func (c *Stats) cacheStreamers() {
 
 	for _, chunk := range chunks {
 		chunk := chunk
-		errGroup.Go(
+		usersWgGrp.Go(
 			func() error {
 				usersIds := lo.Map(
 					chunk, func(item model.Channels, _ int) string {
@@ -176,7 +179,7 @@ func (c *Stats) cacheStreamers() {
 		)
 	}
 
-	if err := errGroup.Wait(); err != nil {
+	if err := usersWgGrp.Wait(); err != nil {
 		c.Logger.Error("cannot get users", slog.Any("err", err))
 		return
 	}
@@ -211,13 +214,27 @@ func (c *Stats) cacheStreamers() {
 					},
 				)
 				if followersErr != nil {
-					c.Logger.Error("cannot get followers", slog.Any("err", followersErr))
+					c.Logger.Error(
+						"cannot get followers",
+						slog.Any("err", followersErr),
+						slog.Group(
+							"user",
+							slog.String("id", user.ID),
+							slog.String("login", user.Login),
+						),
+					)
 					return
 				}
 				if followersReq.ErrorMessage != "" {
 					c.Logger.Error(
 						"cannot get followers",
 						slog.Any("err", followersReq.ErrorMessage),
+						slog.Group(
+							"user",
+							slog.String("id", user.ID),
+							slog.String("login", user.Login),
+						),
+						slog.Int("status", followersReq.StatusCode),
 					)
 					return
 				}
