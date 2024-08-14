@@ -71,12 +71,6 @@ func New(opts Opts) *Server {
 
 	r.Use(gin.Recovery())
 
-	// r.Use(
-	// 	func(c *gin.Context) {
-	// 		fmt.Println(opts.Auth.GetAuthenticatedUser(c.Request.Context()))
-	// 	},
-	// )
-
 	playgroundHandler := playground.Handler("GraphQL", "/api/query")
 
 	r.Use(gincontext.Middleware())
@@ -114,6 +108,7 @@ func New(opts Opts) *Server {
 	opts.LC.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
+				opts.Logger.Info("Starting server")
 				go func() {
 					server.StartServer()
 				}()

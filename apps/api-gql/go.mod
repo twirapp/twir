@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.23.0
+go 1.21
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config

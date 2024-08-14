@@ -6,7 +6,6 @@ package api;
 import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
-import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
@@ -198,7 +197,6 @@ service UnProtected {
 	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
 	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
 
-	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (messages.auth.PostCodeResponse) {}
 
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
 

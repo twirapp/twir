@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/gob"
 	"fmt"
 	"time"
@@ -77,4 +78,9 @@ func (s *Auth) Middleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func (s *Auth) Put(ctx context.Context, key string, val interface{}) {
+	s.sessionManager.Put(ctx, key, val)
+	s.sessionManager.Commit(ctx)
 }

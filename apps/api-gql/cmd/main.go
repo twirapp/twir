@@ -8,6 +8,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/auth"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -50,6 +51,7 @@ func main() {
 		fx.Invoke(
 			pubclicroutes.New,
 			webhooks.New,
+			authroutes.New,
 		),
 	).Run()
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/api/internal/impl_deps"
-	"github.com/satont/twir/apps/api/internal/impl_unprotected/auth"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/badges"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/commands"
 	"github.com/satont/twir/apps/api/internal/impl_unprotected/community"
@@ -28,7 +27,6 @@ type UnProtected struct {
 	*twitch.Twitch
 	*stats.Stats
 	*commands.Commands
-	*auth.Auth
 	*modules.Modules
 	*songs.Songs
 	*tts.Tts
@@ -75,9 +73,6 @@ func New(opts Opts) *UnProtected {
 		},
 		Stats: stats.New(d),
 		Commands: &commands.Commands{
-			Deps: d,
-		},
-		Auth: &auth.Auth{
 			Deps: d,
 		},
 		Modules: &modules.Modules{
