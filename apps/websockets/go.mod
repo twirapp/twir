@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/websockets
 
-go 1.21.5
+go 1.23.0
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config

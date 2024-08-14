@@ -1,6 +1,6 @@
 module github.com/satont/twir/libs/migrations
 
-go 1.21
+go 1.23.0
 
 replace github.cim/satont/twir/libs/config => ./../config
 
