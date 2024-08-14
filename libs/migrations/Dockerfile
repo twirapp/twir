@@ -9,7 +9,7 @@ COPY docker-entrypoint.sh /app/
 RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
-FROM golang:1.22.1-alpine as builder
+FROM golang:1.23.0-alpine as builder
 WORKDIR /app
 COPY libs/config /app/libs/config
 COPY libs/migrations /app/libs/migrations
