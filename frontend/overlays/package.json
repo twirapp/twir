@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "build": "pnpm codegen && vue-tsc && vite build",
+    "preview": "vite preview",
+    "codegen": "graphql-codegen"
   },
   "dependencies": {
     "@plugin-web-update-notification/vite": "1.7.1",
@@ -17,9 +18,12 @@
     "@twir/grpc": "workspace:*",
     "@twirapp/dudes-vue": "0.1.0",
     "@twirapp/kappagen": "1.0.1",
+    "@urql/vue": "1.1.3",
     "@vueuse/core": "10.9.0",
     "@zero-dependency/utils": "1.7.7",
     "emoji-regex": "10.3.0",
+    "graphql": "16.8.1",
+    "graphql-ws": "5.16.0",
     "nested-css-to-flat": "1.0.5",
     "obs-websocket-js": "5.0.5",
     "tmi.js": "1.8.5",
@@ -27,11 +31,15 @@
     "vue-router": "4.3.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.2",
+    "@graphql-codegen/client-preset": "4.2.5",
+    "@graphql-typed-document-node/core": "3.2.0",
     "@twir/types": "workspace:*",
     "@types/tmi.js": "1.8.6",
     "@vitejs/plugin-vue": "5.0.4",
     "typescript": "5.4.5",
     "vite": "5.2.8",
+    "vite-plugin-watch": "0.3.1",
     "vue-tsc": "2.0.13"
   }
 }

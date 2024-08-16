@@ -100,6 +100,11 @@ func (c *MessageHandler) keywordsIncrementStats(
 		UTC()
 
 	query["usages"] = keyword.Usages + count
+	if keyword.Cooldown != 0 {
+		query["cooldownExpireAt"] = time.Now().
+			Add(time.Duration(keyword.Cooldown) * time.Second).
+			UTC()
+	}
 	err := c.gorm.WithContext(ctx).Model(&keyword).Where(
 		"id = ?",
 		keyword.ID,

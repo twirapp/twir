@@ -1,9 +1,10 @@
-go 1.22.2
+go 1.23.0
 
 use (
 	./apps/api
 	./apps/api-gql
 	./apps/bots
+	./apps/chat-messages-store
 	./apps/discord
 	./apps/emotes-cacher
 	./apps/events
@@ -28,6 +29,7 @@ use (
 	./libs/logger
 	./libs/migrations
 	./libs/pubsub
+	./libs/redis_keys
 	./libs/sentry
 	./libs/twitch
 	./libs/types

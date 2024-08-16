@@ -13,8 +13,10 @@ import (
 	"github.com/twirapp/twir/cli/internal/cmds/dependencies"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/frontend"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/golang"
+	"github.com/twirapp/twir/cli/internal/cmds/dev/helpers"
 	"github.com/twirapp/twir/cli/internal/cmds/dev/nodejs"
 	"github.com/twirapp/twir/cli/internal/cmds/migrations"
+	"github.com/twirapp/twir/cli/internal/cmds/proxy"
 	"github.com/urfave/cli/v2"
 )
 
@@ -29,6 +31,9 @@ func CreateDevCommand() *cli.Command {
 	var cmd = &cli.Command{
 		Name:  "dev",
 		Usage: "start project in dev mode",
+		Subcommands: []*cli.Command{
+			helpers.CleanPortsCmd,
+		},
 		Flags: []cli.Flag{
 			&cli.BoolFlag{
 				Name:  "skip-deps",
@@ -39,6 +44,11 @@ func CreateDevCommand() *cli.Command {
 				Name:  "debug",
 				Value: false,
 				Usage: "run backend in debug mode",
+			},
+			&cli.BoolFlag{
+				Name:  "proxy",
+				Value: false,
+				Usage: "start with proxy",
 			},
 		},
 		Before: func(context *cli.Context) error {
@@ -53,7 +63,9 @@ func CreateDevCommand() *cli.Command {
 			}
 
 			if config.NgrokAuthToken == "" {
-				return errors.New("NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok")
+				return errors.New(
+					"NGROK_AUTH_TOKEN is required in .env. Please set it to enable ngrok",
+				)
 			}
 
 			return nil
@@ -114,6 +126,15 @@ func CreateDevCommand() *cli.Command {
 			if err := nodejsApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
+			}
+
+			if c.Bool("proxy") {
+				go func() {
+					if err := proxy.Cmd.Run(c); err != nil {
+						pterm.Error.Println(err)
+						return
+					}
+				}()
 			}
 
 			exitSignal := make(chan os.Signal, 1)

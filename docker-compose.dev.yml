@@ -31,6 +31,7 @@ services:
     restart: always
     ports:
       - '6385:6379'
+      - '8001:8001'
     volumes:
       - redis-data:/data
     networks:

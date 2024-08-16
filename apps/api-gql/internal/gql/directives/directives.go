@@ -1,7 +1,7 @@
 package directives
 
 import (
-	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -9,7 +9,7 @@ import (
 type Opts struct {
 	fx.In
 
-	Sessions *sessions.Sessions
+	Sessions *auth.Auth
 	Gorm     *gorm.DB
 }
 
@@ -21,6 +21,6 @@ func New(opts Opts) *Directives {
 }
 
 type Directives struct {
-	sessions *sessions.Sessions
+	sessions *auth.Auth
 	gorm     *gorm.DB
 }

@@ -2,8 +2,9 @@ package messagehandler
 
 import (
 	"context"
+	"time"
 
-	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/redis_keys"
 )
 
 func (c *MessageHandler) handleIncrementStreamMessages(
@@ -14,12 +15,15 @@ func (c *MessageHandler) handleIncrementStreamMessages(
 		return nil
 	}
 
-	return c.gorm.
-		WithContext(ctx).
-		Model(&model.ChannelsStreams{}).
-		Where(`"userId" = ?`, msg.BroadcasterUserId).
-		Update(
-			"parsedMessages",
-			msg.DbStream.ParsedMessages+1,
-		).Error
+	err := c.redis.Incr(
+		ctx,
+		redis_keys.StreamParsedMessages(
+			msg.DbStream.ID,
+		),
+	).Err()
+	if err != nil {
+		return err
+	}
+
+	return c.redis.Expire(ctx, redis_keys.StreamParsedMessages(msg.DbStream.ID), 50*time.Hour).Err()
 }

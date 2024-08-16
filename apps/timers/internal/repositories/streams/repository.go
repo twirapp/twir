@@ -10,8 +10,7 @@ type Repository interface {
 }
 
 type Stream struct {
-	ID             string
-	UserLogin      string
-	UserID         string
-	ParsedMessages int
+	ID        string
+	UserLogin string
+	UserID    string
 }

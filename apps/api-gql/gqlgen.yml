@@ -88,3 +88,6 @@ models:
   DateTime:
     model:
       - github.com/99designs/gqlgen/graphql.Time
+  UUID:
+    model:
+      - github.com/99designs/gqlgen/graphql.UUID

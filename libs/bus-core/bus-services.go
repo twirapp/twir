@@ -2,6 +2,7 @@ package buscore
 
 import (
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
+	chat_messages_store "github.com/twirapp/twir/libs/bus-core/chat-messages-store"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
@@ -31,10 +32,9 @@ type channelBus struct {
 }
 
 type botsBus struct {
-	ProcessMessage Queue[twitch.TwitchChatMessage, struct{}]
-	SendMessage    Queue[botsservice.SendMessageRequest, struct{}]
-	DeleteMessage  Queue[botsservice.DeleteMessageRequest, struct{}]
-	BanUser        Queue[botsservice.BanRequest, struct{}]
+	SendMessage   Queue[botsservice.SendMessageRequest, struct{}]
+	DeleteMessage Queue[botsservice.DeleteMessageRequest, struct{}]
+	BanUser       Queue[botsservice.BanRequest, struct{}]
 }
 
 type emotesCacherBus struct {
@@ -52,10 +52,16 @@ type evalBus struct {
 }
 
 type eventSubBus struct {
-	Subscribe Queue[eventsub.EventsubSubscribeRequest, struct{}]
+	SubscribeToAllEvents Queue[eventsub.EventsubSubscribeToAllEventsRequest, struct{}]
+	Subscribe            Queue[eventsub.EventsubSubscribeRequest, struct{}]
 }
 
 type schedulerBus struct {
 	CreateDefaultCommands Queue[scheduler.CreateDefaultCommandsRequest, struct{}]
 	CreateDefaultRoles    Queue[scheduler.CreateDefaultRolesRequest, struct{}]
+}
+
+type chatMessagesStoreBus struct {
+	GetChatMessagesByTextForDelete Queue[chat_messages_store.GetChatMessagesByTextRequest, chat_messages_store.GetChatMessagesByTextResponse]
+	RemoveMessages                 Queue[chat_messages_store.RemoveMessagesRequest, struct{}]
 }

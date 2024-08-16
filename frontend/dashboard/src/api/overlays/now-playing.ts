@@ -1,57 +1,63 @@
-import { useQueryClient, useQuery, useMutation } from '@tanstack/vue-query';
-import type {
-	UpdateRequest,
-	GetAllResponse,
-	CreateRequest,
-} from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-import { unref } from 'vue';
-import type { MaybeRef } from 'vue';
+import { useQuery } from '@urql/vue'
 
-import { protectedApiClient } from '@/api/twirp.js';
+import { useMutation } from '@/composables/use-mutation'
+import { graphql } from '@/gql'
 
-export const useNowPlayingOverlayManager = () => {
-	const queryClient = useQueryClient();
-	const queryKey = 'nowPlayingOverlay';
+export function useNowPlayingOverlayApi() {
+	const cacheKey = ['nowPlayingOverlay']
+
+	const useNowPlayingQuery = () => useQuery({
+		query: graphql(`
+			query NowPlayingOverlays {
+				nowPlayingOverlays {
+					id
+					channelId
+					preset
+					hideTimeout
+					fontWeight
+					fontFamily
+					backgroundColor
+					showImage
+				}
+			}
+		`),
+		context: {
+			additionalTypenames: cacheKey,
+		},
+		variables: {},
+	})
+
+	const useNowPlayingCreate = () => useMutation(
+		graphql(`
+			mutation NowPlayingOverlayCreate($input: NowPlayingOverlayMutateOpts!) {
+				nowPlayingOverlayCreate(opts: $input)
+			}
+		`),
+		cacheKey,
+	)
+
+	const useNowPlayingUpdate = () => useMutation(
+		graphql(`
+			mutation NowPlayingOverlayUpdate($id: String!, $input: NowPlayingOverlayMutateOpts!) {
+				nowPlayingOverlayUpdate(id: $id, opts: $input)
+			}
+		`),
+		cacheKey,
+	)
+
+	const useNowPlayingDelete = () => useMutation(
+		graphql(`
+			mutation NowPlayingOverlayDelete($id: String!) {
+				nowPlayingOverlayDelete(id: $id)
+			}
+		`),
+		cacheKey,
+	)
 
 	return {
-		useGetAll: () => useQuery({
-			queryKey: [queryKey],
-			queryFn: async (): Promise<GetAllResponse> => {
-				const call = await protectedApiClient.overlaysNowPlayingGetAll({});
-				return call.response;
-			},
-		}),
-		useCreate: () => useMutation({
-			mutationKey: ['nowPlayingOverlayCreate'],
-			mutationFn: async (opts: CreateRequest) => {
-				const call = await protectedApiClient.overlaysNowPlayingCreate(opts);
-				return call.response;
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries([queryKey]);
-			},
-		}),
-		useUpdate: () => useMutation({
-			mutationKey: ['nowPlayingOverlayUpdate'],
-			mutationFn: async (opts: MaybeRef<UpdateRequest>) => {
-				const data = unref(opts);
-				await protectedApiClient.overlaysNowPlayingUpdate(data);
-			},
-			onSuccess: async (_, opts) => {
-				const data = unref(opts);
-				await queryClient.invalidateQueries([queryKey, data.id]);
-			},
-		}),
-		useDelete: () => useMutation({
-			mutationKey: ['nowPlayingOverlayDelete'],
-			mutationFn: async (id: MaybeRef<string>) => {
-				await protectedApiClient.overlaysNowPlayingDelete({
-					id: unref(id),
-				});
-			},
-			onSuccess: async () => {
-				await queryClient.invalidateQueries([queryKey]);
-			},
-		}),
-	};
-};
+		useNowPlayingQuery,
+		useNowPlayingCreate,
+		useNowPlayingUpdate,
+		useNowPlayingDelete,
+	}
+}

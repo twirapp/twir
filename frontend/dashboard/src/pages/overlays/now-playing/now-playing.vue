@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { NowPlaying } from '@twir/frontend-now-playing'
+import { NowPlaying, Preset } from '@twir/frontend-now-playing'
 import { NA, NAlert, NResult, NTabPane, NTabs, useThemeVars } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import {
 	useLastfmIntegration,
-	useNowPlayingOverlayManager,
+	useNowPlayingOverlayApi,
 	useSpotifyIntegration,
 	useUserAccessFlagChecker,
 	useVKIntegration,
@@ -24,9 +24,9 @@ const { t } = useI18n()
 const { dialog } = useNaiveDiscrete()
 
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
-const nowPlayingOverlayManager = useNowPlayingOverlayManager()
-const creator = nowPlayingOverlayManager.useCreate()
-const deleter = nowPlayingOverlayManager.useDelete()
+const nowPlayingOverlayManager = useNowPlayingOverlayApi()
+const creator = nowPlayingOverlayManager.useNowPlayingCreate()
+const deleter = nowPlayingOverlayManager.useNowPlayingDelete()
 
 const { data: spotifyData } = useSpotifyIntegration().useData()
 const { data: lastFmData } = useLastfmIntegration().useData()
@@ -43,21 +43,31 @@ const {
 
 const {
 	data: entities,
-} = nowPlayingOverlayManager.useGetAll()
+} = nowPlayingOverlayManager.useNowPlayingQuery()
 
 const openedTab = ref<string>()
 
 function resetTab() {
-	if (!entities.value?.settings.at(0)) {
+	if (!entities.value?.nowPlayingOverlays.at(0)) {
 		openedTab.value = undefined
 		return
 	}
 
-	openedTab.value = entities.value.settings.at(0)?.id
+	openedTab.value = entities.value.nowPlayingOverlays.at(0)?.id
 }
 
 async function handleAdd() {
-	await creator.mutateAsync(defaultSettings)
+	const input = { ...defaultSettings }
+	// eslint-disable-next-line ts/ban-ts-comment
+	// @ts-expect-error
+	delete input.channelId
+	// eslint-disable-next-line ts/ban-ts-comment
+	// @ts-expect-error
+	delete input.id
+
+	await creator.executeMutation({
+		input,
+	})
 }
 
 async function handleClose(id: string) {
@@ -68,21 +78,23 @@ async function handleClose(id: string) {
 		negativeText: 'Cancel',
 		showIcon: false,
 		onPositiveClick: async () => {
-			const entity = entities.value?.settings.find(s => s.id === id)
+			const entity = entities.value?.nowPlayingOverlays.find(s => s.id === id)
 			if (!entity?.id) return
 
-			await deleter.mutateAsync(entity.id)
+			await deleter.executeMutation({
+				id: entity.id,
+			})
 			resetTab()
 		},
 	})
 }
 
 const addable = computed(() => {
-	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5
+	return userCanEditOverlays.value && (entities.value?.nowPlayingOverlays.length ?? 0) < 5
 })
 
 watch(openedTab, async (v) => {
-	const entity = entities.value?.settings.find(s => s.id === v)
+	const entity = entities.value?.nowPlayingOverlays.find(s => s.id === v)
 	if (!entity) return
 	setData(entity)
 })
@@ -96,9 +108,9 @@ watch(entities, () => {
 	<div class="flex flex-col gap-3">
 		<div>
 			<NowPlaying
-				:settings="settings ?? { preset: 'TRANSPARENT' }"
+				:settings="settings ?? { preset: Preset.TRANSPARENT }"
 				:track="{
-					image_url: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
+					imageUrl: 'https://i.scdn.co/image/ab67616d0000b273e7fbc0883149094912559f2c',
 					artist: 'Slipknot',
 					title: 'Psychosocial',
 				}"
@@ -134,9 +146,9 @@ watch(entities, () => {
 					<template #prefix>
 						{{ t('overlays.chat.presets') }}
 					</template>
-					<template v-if="entities?.settings.length">
+					<template v-if="entities?.nowPlayingOverlays.length">
 						<NTabPane
-							v-for="(entity, entityIndex) in entities?.settings"
+							v-for="(entity, entityIndex) in entities?.nowPlayingOverlays"
 							:key="entity.id"
 							:tab="`#${entityIndex + 1}`"
 							:name="entity.id!"
@@ -145,7 +157,7 @@ watch(entities, () => {
 						</NTabPane>
 					</template>
 				</NTabs>
-				<NAlert v-if="!entities?.settings.length" type="info" class="mt-2">
+				<NAlert v-if="!entities?.nowPlayingOverlays.length" type="info" class="mt-2">
 					Create new overlay for edit settings
 				</NAlert>
 			</template>

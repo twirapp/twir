@@ -1,6 +1,6 @@
 module github.com/satont/twir/libs/twitch
 
-go 1.21
+go 1.23.0
 
 replace github.com/nicklaw5/helix/v2 => ../helix
 

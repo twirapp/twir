@@ -70,17 +70,20 @@ async function save() {
 		userId: data.userId,
 	}
 
-	if (data.id) {
-		await greetingsUpdate.executeMutation({
-			id: data.id,
-			opts,
-		})
-	} else {
-		await greetingsCreate.executeMutation({ opts })
+	try {
+		if (data.id) {
+			await greetingsUpdate.executeMutation({
+				id: data.id,
+				opts,
+			})
+		} else {
+			await greetingsCreate.executeMutation({ opts })
+		}
+		emits('close')
+		open.value = false
+	} catch (e) {
+		console.error(e)
 	}
-
-	emits('close')
-	open.value = false
 }
 
 const { t } = useI18n()
@@ -119,7 +122,7 @@ const rules: FormRules = {
 		<DialogTrigger as-child>
 			<slot name="dialog-trigger" />
 		</DialogTrigger>
-		<DialogOrSheet class="sm:max-w-[425px]">
+		<DialogOrSheet class="sm:max-w-[424px]">
 			<DialogHeader>
 				<DialogTitle>
 					{{ greeting ? t('greetings.edit') : t('greetings.create') }}

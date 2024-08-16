@@ -2,6 +2,8 @@ package baseapp
 
 import (
 	"context"
+	"log"
+	"os"
 	"time"
 
 	"github.com/redis/go-redis/v9"
@@ -12,6 +14,7 @@ import (
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormlogger "gorm.io/gorm/logger"
 )
 
 func CreateBaseApp(appName string) fx.Option {
@@ -41,8 +44,22 @@ func newRedis(cfg config.Config) (*redis.Client, error) {
 }
 
 func newGorm(cfg config.Config, lc fx.Lifecycle) (*gorm.DB, error) {
+	newLogger := gormlogger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
+		gormlogger.Config{
+			SlowThreshold:             100 * time.Millisecond,
+			LogLevel:                  gormlogger.Warn,
+			IgnoreRecordNotFoundError: true,
+			ParameterizedQueries:      true,
+			Colorful:                  true,
+		},
+	)
+
 	db, err := gorm.Open(
 		postgres.Open(cfg.DatabaseUrl),
+		&gorm.Config{
+			Logger: newLogger,
+		},
 	)
 	if err != nil {
 		return nil, err

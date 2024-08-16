@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/redis/go-redis/v9"
+	duplicate_tracker "github.com/satont/twir/apps/eventsub/internal/duplicate-tracker"
 	"github.com/satont/twir/apps/eventsub/internal/manager"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
@@ -65,6 +66,7 @@ type Opts struct {
 
 func New(opts Opts) *Handler {
 	handler := eventsub_framework.NewSubHandler(true, []byte(opts.Config.TwitchClientSecret))
+	handler.IDTracker = duplicate_tracker.New(duplicate_tracker.Opts{Redis: opts.Redis})
 
 	myHandler := &Handler{
 		manager:        opts.Manager,
@@ -80,6 +82,10 @@ func New(opts Opts) *Handler {
 		bus:            opts.Bus,
 		seventvCache:   seventv.New(opts.Redis),
 	}
+
+	handler.OnNotification = myHandler.onNotification
+	handler.HandleUserAuthorizationRevoke = myHandler.handleUserAuthorizationRevoke
+	handler.OnRevocate = myHandler.handleSubRevocate
 
 	handler.HandleChannelUpdate = myHandler.handleChannelUpdate
 	handler.HandleStreamOnline = myHandler.handleStreamOnline
@@ -107,6 +113,9 @@ func New(opts Opts) *Handler {
 	handler.HandleChannelUnbanRequestCreate = myHandler.handleChannelUnbanRequestCreate
 	handler.HandleChannelUnbanRequestResolve = myHandler.handleChannelUnbanRequestResolve
 	handler.HandleChannelChatMessageDelete = myHandler.handleChannelChatMessageDelete
+	handler.HandleChannelPointsRewardAdd = myHandler.handleChannelPointsRewardAdd
+	handler.HandleChannelPointsRewardUpdate = myHandler.handleChannelPointsRewardUpdate
+	handler.HandleChannelPointsRewardRemove = myHandler.handleChannelPointsRewardRemove
 
 	httpHandler := otelhttp.NewHandler(handler, "")
 

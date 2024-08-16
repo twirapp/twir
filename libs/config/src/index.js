@@ -1,11 +1,10 @@
-import { resolve } from 'node:path';
+import { resolve } from 'node:path'
 
-import * as dotenv from 'dotenv';
-import { bool, cleanEnv, str } from 'envalid';
+import * as dotenv from 'dotenv'
+import { bool, cleanEnv, str } from 'envalid'
 
 try {
-	dotenv.config({ path: resolve(process.cwd(), '../../.env') });
-	// eslint-disable-next-line no-empty
+	dotenv.config({ path: resolve(process.cwd(), '../../.env') })
 } catch {
 }
 
@@ -33,5 +32,6 @@ export const config = cleanEnv(process.env, {
 	SPOTIFY_CLIENT_SECRET: str({ default: '' }),
 	ODESLI_API_KEY: str({ default: '' }),
 	DISCORD_FEEDBACK_URL: str({ default: '' }),
-	NATS_URL: str({ default: 'nats://localhost:4222' }),
-});
+	NATS_URL: str({ default: '127.0.0.1:4222' }),
+	USE_WSS: bool({ default: false }),
+})

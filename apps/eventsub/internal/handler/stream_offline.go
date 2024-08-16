@@ -30,6 +30,22 @@ func (c *Handler) handleStreamOffline(
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
 
+	dbStream := model.ChannelsStreams{}
+	if err := c.gorm.Where(
+		`"userId" = ?`,
+		event.BroadcasterUserID,
+	).First(&dbStream).Error; err != nil {
+		c.logger.Error(err.Error(), slog.Any("err", err))
+		return
+	}
+
+	c.bus.Channel.StreamOffline.Publish(
+		twitch.StreamOfflineMessage{
+			ChannelID: event.BroadcasterUserID,
+			StartedAt: dbStream.StartedAt,
+		},
+	)
+
 	err = c.gorm.Where(
 		`"userId" = ?`,
 		event.BroadcasterUserID,
@@ -37,6 +53,4 @@ func (c *Handler) handleStreamOffline(
 	if err != nil {
 		c.logger.Error(err.Error(), slog.Any("err", err))
 	}
-
-	c.bus.Channel.StreamOffline.Publish(twitch.StreamOfflineMessage{ChannelID: event.BroadcasterUserID})
 }

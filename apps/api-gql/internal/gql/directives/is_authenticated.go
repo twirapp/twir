@@ -2,6 +2,7 @@ package directives
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 )
@@ -11,9 +12,11 @@ func (c *Directives) IsAuthenticated(
 	obj interface{},
 	next graphql.Resolver,
 ) (interface{}, error) {
-	_, err := c.sessions.GetAuthenticatedUser(ctx)
-	if err != nil {
-		return nil, err
+	_, apiKeyErr := c.sessions.GetAuthenticatedUserByApiKey(ctx)
+	_, sessionErr := c.sessions.GetAuthenticatedUser(ctx)
+
+	if apiKeyErr != nil && sessionErr != nil {
+		return nil, fmt.Errorf("not authenticated")
 	}
 
 	return next(ctx)

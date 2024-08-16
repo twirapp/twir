@@ -135,14 +135,11 @@ services:
       test: exit 0
 
   redis:
-    image: bitnami/redis:latest
+    image: redis/redis-stack-server:7.2.0-v11
     volumes:
-      - redis-data:/bitnami/redis/data
+      - redis-stack-data:/data
     networks:
       - twir
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    command: /opt/bitnami/scripts/redis/run.sh --protected-mode no
     deploy:
       restart_policy:
         condition: any
@@ -236,6 +233,23 @@ services:
     networks:
       - twir
 
+  chat-messages-store:
+    image: twirapp/chat-messages-store:latest
+    secrets:
+      - twir_doppler_token
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 6
+      endpoint_mode: dnsrr
+    networks:
+      - twir
+
   timers:
     image: twirapp/timers:latest
     secrets:
@@ -274,11 +288,15 @@ services:
       - twir
       - traefik-public
     deploy:
+      mode: replicated
+      replicas: 3
+      update_config:
+        parallelism: 1
+      endpoint_mode: dnsrr
       restart_policy:
         condition: any
         delay: 30s
         max_attempts: 30
-      endpoint_mode: dnsrr
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
@@ -290,10 +308,10 @@ services:
     secrets:
       - twir_doppler_token
     deploy:
-      update_config:
-        parallelism: 2
       mode: replicated
       replicas: 8
+      update_config:
+        parallelism: 2
       endpoint_mode: dnsrr
       restart_policy:
         condition: any
@@ -546,6 +564,7 @@ services:
 volumes:
   postgres-data:
   redis-data:
+  redis-stack-data:
   minio-data:
 
 networks:

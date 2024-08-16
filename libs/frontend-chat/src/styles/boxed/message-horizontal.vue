@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import MessageContent from '../../components/message-content.vue'
+import { useMappedBadges } from '../../composables/mapped-badges.js'
+import { normalizeDisplayName } from '../../helpers.js'
 
-import MessageContent from '../../components/message-content.vue';
-import { normalizeDisplayName } from '../../helpers.js';
-import type { MessageComponentProps } from '../../types.js';
+import type { MessageComponentProps } from '../../types.js'
 
-defineProps<MessageComponentProps>();
+defineProps<MessageComponentProps>()
+
+const { globalMappedBadges, channelMappedBadges } = useMappedBadges()
 </script>
 
 <template>
@@ -21,23 +24,23 @@ defineProps<MessageComponentProps>();
 			<div v-if="settings.showBadges" class="badges">
 				<template
 					v-for="(badgeValue, badgeName) of msg.badges"
-					:key="badgeName+badgeValue"
+					:key="badgeName + badgeValue"
 				>
 					<img
-						v-if="settings.channelBadges.get(`${badgeName}-${badgeValue}`)"
-						:src="settings.channelBadges.get(`${badgeName}-${badgeValue}`)!.image_url_4x"
+						v-if="channelMappedBadges[badgeName]"
+						:src="channelMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
 						class="badge"
 					/>
 
 					<img
-						v-else-if="settings.globalBadges.get(badgeName)?.versions.length"
-						:src="settings.globalBadges.get(badgeName)!.versions.at(-1)!.image_url_4x"
+						v-if="globalMappedBadges[badgeName]"
+						:src="globalMappedBadges[badgeName]!.versions[badgeValue].image_url_4x"
 						class="badge"
 					/>
 				</template>
 			</div>
 		</div>
-		<message-content
+		<MessageContent
 			:chunks="msg.chunks"
 			:is-italic="msg.isItalic"
 			:text-shadow-color="settings.textShadowColor"

@@ -13,14 +13,14 @@ import { useI18n } from 'vue-i18n'
 
 import { useCommunityEmotesStatisticFilters } from './use-community-emotes-statistic-filters.js'
 import CommunityEmotesTableColumnChartRange
-	from '../components/community-emotes-table-column-chart-range.vue'
-import CommunityEmotesTableColumnChart from '../components/community-emotes-table-column-chart.vue'
-import CommunityEmotesTableColumn from '../components/community-emotes-table-column.vue'
+	from '../ui/community-emotes-table-column-chart-range.vue'
+import CommunityEmotesTableColumnChart from '../ui/community-emotes-table-column-chart.vue'
+import CommunityEmotesTableColumn from '../ui/community-emotes-table-column.vue'
 
 import { type EmotesStatistics, useEmotesStatisticQuery } from '@/api/emotes-statistic.js'
 import { usePagination } from '@/composables/use-pagination.js'
 import CommunityEmotesTableColumnEmote
-	from '@/features/community-emotes-statistic/components/community-emotes-table-column-emote.vue'
+	from '@/features/community-emotes-statistic/ui/community-emotes-table-column-emote.vue'
 import { EmoteStatisticRange, type EmotesStatisticsOpts } from '@/gql/graphql'
 import { valueUpdater } from '@/helpers/value-updater.js'
 

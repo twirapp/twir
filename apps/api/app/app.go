@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"time"
 
 	"github.com/alexedwards/scs/v2"
 	"github.com/redis/go-redis/v9"
@@ -21,7 +20,7 @@ import (
 	"github.com/satont/twir/apps/api/internal/webhooks"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
-	internalSentry "github.com/satont/twir/libs/sentry"
+	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
@@ -32,26 +31,11 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 var App = fx.Options(
+	baseapp.CreateBaseApp("api"),
 	fx.Provide(
-		func() cfg.Config {
-			config, err := cfg.New()
-			if err != nil {
-				panic(err)
-			}
-			return *config
-		},
-		internalSentry.NewFx(
-			internalSentry.NewFxOpts{
-				Service: "api",
-			},
-		),
-		logger.NewFx(logger.Opts{Service: "api"}),
-		uptrace.NewFx("api"),
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
 		},
@@ -70,46 +54,8 @@ var App = fx.Options(
 		func(c cfg.Config) discord.DiscordClient {
 			return clients.NewDiscord(c.AppEnv)
 		},
-		func(config cfg.Config, lc fx.Lifecycle) (*redis.Client, error) {
-			redisOpts, err := redis.ParseURL(config.RedisUrl)
-			if err != nil {
-				return nil, err
-			}
-			client := redis.NewClient(redisOpts)
-			lc.Append(
-				fx.Hook{
-					OnStop: func(ctx context.Context) error {
-						return client.Close()
-					},
-				},
-			)
-
-			return client, nil
-		},
 		func(r *redis.Client) *scs.SessionManager {
 			return sessions.New(r)
-		},
-		func(config cfg.Config, lc fx.Lifecycle) (*gorm.DB, error) {
-			db, err := gorm.Open(
-				postgres.Open(config.DatabaseUrl),
-			)
-			if err != nil {
-				return nil, err
-			}
-			d, _ := db.DB()
-			d.SetMaxIdleConns(1)
-			d.SetMaxOpenConns(10)
-			d.SetConnMaxLifetime(time.Hour)
-
-			lc.Append(
-				fx.Hook{
-					OnStop: func(_ context.Context) error {
-						return d.Close()
-					},
-				},
-			)
-
-			return db, nil
 		},
 		buscore.NewNatsBusFx("api"),
 		interceptors.New,

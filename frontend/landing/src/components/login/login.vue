@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
 
-import { browserUnProtectedClient } from '@/api/twirp-browser.js'
 import UiButton from '@/components/ui/ui-button.vue'
 
 const url = new URL(window.location.href)
@@ -21,12 +20,21 @@ onMounted(async () => {
 	}
 
 	try {
-		const req = await browserUnProtectedClient.authPostCode({
-			code,
-			state
+		const req = await fetch(`/api/auth`, {
+			method: 'POST',
+			body: JSON.stringify({
+				code,
+				state,
+			}),
 		})
+		if (!req.ok) {
+			const { error } = await req.json()
+			throw new Error(error)
+		}
 
-		window.location.replace(req.response.redirectTo)
+		const data = await req.json()
+
+		window.location.replace(data.redirect_to)
 	} catch (requestError) {
 		console.error(requestError)
 		error.value = 'Internal error happened, please contact devs in discord'

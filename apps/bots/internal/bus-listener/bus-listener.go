@@ -43,7 +43,7 @@ func New(opts Opts) (*BusListener, error) {
 		logger:             opts.Logger,
 		config:             opts.Cfg,
 		tokensGrpc:         opts.TokensGrpc,
-		twitchactions:      opts.TwitchActions,
+		twitchActions:      opts.TwitchActions,
 		messageHandler:     opts.MessageHandler,
 		tracer:             opts.Tracer,
 		bus:                opts.Bus,
@@ -55,14 +55,14 @@ func New(opts Opts) (*BusListener, error) {
 			OnStart: func(ctx context.Context) error {
 				listener.bus.Bots.SendMessage.SubscribeGroup("bots", listener.sendMessage)
 				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
-				listener.bus.Bots.ProcessMessage.SubscribeGroup("bots", listener.handleChatMessage)
+				listener.bus.ChatMessages.SubscribeGroup("bots", listener.handleChatMessage)
 				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
 
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				listener.bus.Bots.SendMessage.Unsubscribe()
-				listener.bus.Bots.ProcessMessage.Unsubscribe()
+				listener.bus.ChatMessages.Unsubscribe()
 				listener.bus.Bots.DeleteMessage.Unsubscribe()
 				listener.bus.Bots.BanUser.Unsubscribe()
 
@@ -79,7 +79,7 @@ type BusListener struct {
 	logger             logger.Logger
 	config             cfg.Config
 	tokensGrpc         tokens.TokensClient
-	twitchactions      *twitchactions.TwitchActions
+	twitchActions      *twitchactions.TwitchActions
 	messageHandler     *messagehandler.MessageHandler
 	tracer             trace.Tracer
 	bus                *bus_core.Bus
@@ -106,7 +106,7 @@ func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageR
 	for _, m := range req.MessageIds {
 		wg.Go(
 			func() {
-				e := c.twitchactions.DeleteMessage(
+				e := c.twitchActions.DeleteMessage(
 					ctx,
 					twitchactions.DeleteMessageOpts{
 						BroadcasterID: req.ChannelId,
@@ -141,7 +141,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 		return struct{}{}
 	}
 
-	err = c.twitchactions.SendMessage(
+	err = c.twitchActions.SendMessage(
 		ctx,
 		twitchactions.SendMessageOpts{
 			BroadcasterID:        req.ChannelId,

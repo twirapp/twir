@@ -193,23 +193,22 @@ func (c *streams) processStreams(ctx context.Context) error {
 				}
 
 				channelStream := &model.ChannelsStreams{
-					ID:             twitchStream.ID,
-					UserId:         userId,
-					UserLogin:      twitchStream.UserLogin,
-					UserName:       twitchStream.UserName,
-					GameId:         twitchStream.GameID,
-					GameName:       twitchStream.GameName,
-					CommunityIds:   nil,
-					Type:           twitchStream.Type,
-					Title:          twitchStream.Title,
-					ViewerCount:    twitchStream.ViewerCount,
-					StartedAt:      twitchStream.StartedAt,
-					Language:       twitchStream.Language,
-					ThumbnailUrl:   twitchStream.ThumbnailURL,
-					TagIds:         nil,
-					Tags:           tags,
-					IsMature:       twitchStream.IsMature,
-					ParsedMessages: dbStream.ParsedMessages,
+					ID:           twitchStream.ID,
+					UserId:       userId,
+					UserLogin:    twitchStream.UserLogin,
+					UserName:     twitchStream.UserName,
+					GameId:       twitchStream.GameID,
+					GameName:     twitchStream.GameName,
+					CommunityIds: nil,
+					Type:         twitchStream.Type,
+					Title:        twitchStream.Title,
+					ViewerCount:  twitchStream.ViewerCount,
+					StartedAt:    twitchStream.StartedAt,
+					Language:     twitchStream.Language,
+					ThumbnailUrl: twitchStream.ThumbnailURL,
+					TagIds:       nil,
+					Tags:         tags,
+					IsMature:     twitchStream.IsMature,
 				}
 
 				if twitchStreamExists && dbStreamExists {
@@ -235,8 +234,13 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 					c.bus.Channel.StreamOnline.Publish(
 						bustwitch.StreamOnlineMessage{
-							ChannelID: channelStream.UserId,
-							StreamID:  channelStream.ID,
+							ChannelID:    channelStream.UserId,
+							StreamID:     channelStream.ID,
+							CategoryName: channelStream.GameName,
+							CategoryID:   channelStream.GameId,
+							Title:        channelStream.Title,
+							Viewers:      channelStream.ViewerCount,
+							StartedAt:    channelStream.StartedAt,
 						},
 					)
 				}
@@ -255,6 +259,7 @@ func (c *streams) processStreams(ctx context.Context) error {
 					c.bus.Channel.StreamOffline.Publish(
 						bustwitch.StreamOfflineMessage{
 							ChannelID: channelStream.UserId,
+							StartedAt: dbStream.StartedAt,
 						},
 					)
 				}

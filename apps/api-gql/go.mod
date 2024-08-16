@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.22.2
+go 1.21
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -12,39 +12,50 @@ replace (
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
 require (
 	github.com/99designs/gqlgen v0.17.45
+	github.com/Masterminds/squirrel v1.5.4
 	github.com/alexedwards/scs/goredisstore v0.0.0-20240316134038-7e11d57e8885
 	github.com/alexedwards/scs/v2 v2.8.0
+	github.com/evanphx/json-patch/v5 v5.9.0
 	github.com/gin-contrib/cors v1.7.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-chi/httplog/v2 v2.0.9
+	github.com/go-playground/validator/v10 v10.19.0
+	github.com/goccy/go-json v0.10.2
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.69
+	github.com/nats-io/nats.go v1.36.0
 	github.com/nicklaw5/helix/v2 v2.28.1
+	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/ravilushqa/otelgqlgen v0.15.0
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/samber/lo v1.39.0
+	github.com/samber/slog-gin v1.11.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/types v0.0.0-20240411125706-789748d8a577
 	github.com/twirapp/twir/libs/baseapp v0.0.0-00010101000000-000000000000
+	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/cache v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
+	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000
 	github.com/vektah/gqlparser/v2 v2.5.11
 	github.com/vikstrous/dataloadgen v0.0.6
 	go.uber.org/fx v1.21.0
-	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.9
 )
 
 require (
-	github.com/RaveNoX/go-jsonmerge v1.0.0 // indirect
 	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.3 // indirect
@@ -56,7 +67,6 @@ require (
 	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
-	github.com/evanphx/json-patch/v5 v5.9.0 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/getsentry/sentry-go v0.26.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -65,9 +75,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.19.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/pprof v0.0.0-20240227163752-401108e1b7e7 // indirect
@@ -87,8 +95,9 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
@@ -96,6 +105,8 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
+	github.com/nats-io/nkeys v0.4.7 // indirect
+	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -106,13 +117,10 @@ require (
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/samber/slog-common v0.15.0 // indirect
-	github.com/samber/slog-gin v1.11.0 // indirect
 	github.com/samber/slog-multi v1.0.2 // indirect
 	github.com/samber/slog-sentry/v2 v2.4.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
-	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000 // indirect
-	github.com/satont/twir/libs/types v0.0.0-20240411125706-789748d8a577 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000 // indirect
@@ -153,4 +161,5 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gorm.io/driver/postgres v1.5.7 // indirect
 )

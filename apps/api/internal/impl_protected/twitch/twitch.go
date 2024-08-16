@@ -22,6 +22,10 @@ func (c *Twitch) TwitchSearchCategories(
 ) (*twitch_protected.SearchCategoriesResponse, error) {
 	selectedDashboardId := c.SessionManager.Get(ctx, "dashboardId").(string)
 
+	if req.Query == "" {
+		return nil, fmt.Errorf("query is required")
+	}
+
 	twitchClient, err := twitch.NewUserClientWithContext(
 		ctx,
 		selectedDashboardId,
@@ -112,6 +116,10 @@ func (c *Twitch) TwitchGetCategories(
 	dashboardId, err := helpers.GetSelectedDashboardIDFromContext(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(req.Ids) == 0 {
+		return &twitch_protected.SearchCategoriesResponse{}, nil
 	}
 
 	twitchClient, err := twitch.NewUserClientWithContext(

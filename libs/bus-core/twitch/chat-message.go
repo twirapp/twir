@@ -1,20 +1,21 @@
 package twitch
 
 type TwitchChatMessage struct {
-	BroadcasterUserId           string
-	BroadcasterUserName         string
-	BroadcasterUserLogin        string
-	ChatterUserId               string
-	ChatterUserName             string
-	ChatterUserLogin            string
-	MessageId                   string
-	Message                     *ChatMessageMessage
-	Color                       string
-	Badges                      []ChatMessageBadge
-	MessageType                 string
-	Cheer                       *ChatMessageCheer
-	Reply                       *ChatMessageReply
-	ChannelPointsCustomRewardId string
+	ID                          string              `json:"id"`
+	BroadcasterUserId           string              `json:"broadcaster_user_id"`
+	BroadcasterUserName         string              `json:"broadcaster_user_name"`
+	BroadcasterUserLogin        string              `json:"broadcaster_user_login"`
+	ChatterUserId               string              `json:"chatter_user_id"`
+	ChatterUserName             string              `json:"chatter_user_name"`
+	ChatterUserLogin            string              `json:"chatter_user_login"`
+	MessageId                   string              `json:"message_id"`
+	Message                     *ChatMessageMessage `json:"message,omitempty"`
+	Color                       string              `json:"color"`
+	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
+	MessageType                 string              `json:"message_type"`
+	Cheer                       *ChatMessageCheer   `json:"cheer,omitempty"`
+	Reply                       *ChatMessageReply   `json:"reply,omitempty"`
+	ChannelPointsCustomRewardId string              `json:"channel_points_custom_reward_id"`
 }
 
 type FragmentType int32
@@ -27,61 +28,61 @@ const (
 )
 
 type ChatMessageMessageFragmentPosition struct {
-	Start int
-	End   int
+	Start int `json:"start,omitempty"`
+	End   int `json:"end,omitempty"`
 }
 
 type ChatMessageMessageFragmentEmote struct {
-	Id         string
-	EmoteSetId string
-	OwnerId    string
-	Format     []string
+	Id         string   `json:"id,omitempty"`
+	EmoteSetId string   `json:"emote_set_id,omitempty"`
+	OwnerId    string   `json:"owner_id,omitempty"`
+	Format     []string `json:"format,omitempty"`
 }
 
 type ChatMessageMessageFragmentMention struct {
-	UserId    string
-	UserName  string
-	UserLogin string
+	UserId    string `json:"user_id,omitempty"`
+	UserName  string `json:"user_name,omitempty"`
+	UserLogin string `json:"user_login,omitempty"`
 }
 
 type ChatMessageMessageFragmentCheermote struct {
-	Prefix string
-	Bits   int64
-	Tier   int64
+	Prefix string `json:"prefix,omitempty"`
+	Bits   int64  `json:"bits,omitempty"`
+	Tier   int64  `json:"tier,omitempty"`
 }
 
 type ChatMessageMessageFragment struct {
-	Type      FragmentType
-	Text      string
-	Cheermote *ChatMessageMessageFragmentCheermote
-	Emote     *ChatMessageMessageFragmentEmote
-	Mention   *ChatMessageMessageFragmentMention
-	Position  ChatMessageMessageFragmentPosition
+	Type      FragmentType                         `json:"type"`
+	Text      string                               `json:"text"`
+	Cheermote *ChatMessageMessageFragmentCheermote `json:"cheermote,omitempty"`
+	Emote     *ChatMessageMessageFragmentEmote     `json:"emote,omitempty"`
+	Mention   *ChatMessageMessageFragmentMention   `json:"mention,omitempty"`
+	Position  ChatMessageMessageFragmentPosition   `json:"position,omitempty"`
 }
 
 type ChatMessageMessage struct {
-	Text      string
-	Fragments []ChatMessageMessageFragment
+	Text      string                       `json:"text"`
+	Fragments []ChatMessageMessageFragment `json:"fragments,omitempty"`
 }
 
 type ChatMessageBadge struct {
-	Id    string
-	SetId string
-	Info  string
+	Id    string `json:"id,omitempty"`
+	SetId string `json:"set_id,omitempty"`
+	Info  string `json:"info,omitempty"`
 }
 
 type ChatMessageCheer struct {
-	Bits int64
+	Bits int64 `json:"bits,omitempty"`
 }
 
 type ChatMessageReply struct {
-	ParentMessageId   string
-	ParentMessageBody string
-	ParentUserId      string
-	ParentUserName    string
-	ParentUserLogin   string
-	ThreadMessageId   string
-	ThreadUserId      string
-	ThreadUserName    string
-	ThreadUserLogin   string
+	ParentMessageId   string `json:"parent_message_id,omitempty"`
+	ParentMessageBody string `json:"parent_message_body,omitempty"`
+	ParentUserId      string `json:"parent_user_id,omitempty"`
+	ParentUserName    string `json:"parent_user_name,omitempty"`
+	ParentUserLogin   string `json:"parent_user_login,omitempty"`
+	ThreadMessageId   string `json:"thread_message_id,omitempty"`
+	ThreadUserId      string `json:"thread_user_id,omitempty"`
+	ThreadUserName    string `json:"thread_user_name,omitempty"`
+	ThreadUserLogin   string `json:"thread_user_login,omitempty"`
 }

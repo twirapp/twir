@@ -1,6 +1,8 @@
-import type { Settings } from '@twir/api/messages/overlays_chat/overlays_chat';
+import type { ChatOverlay } from '@/gql/graphql'
 
-export type ChatSettingsWithOptionalId = Omit<Settings, 'id'> & { id?: string }
+import { ChatOverlayAnimation } from '@/gql/graphql'
+
+export type ChatSettingsWithOptionalId = Omit<ChatOverlay, 'id'> & { id?: string }
 
 export const defaultChatSettings: ChatSettingsWithOptionalId = {
 	fontFamily: 'inter',
@@ -19,4 +21,5 @@ export const defaultChatSettings: ChatSettingsWithOptionalId = {
 	chatBackgroundColor: 'rgba(0, 0, 0, 0)',
 	direction: 'top',
 	paddingContainer: 0,
-};
+	animation: ChatOverlayAnimation.Default,
+}

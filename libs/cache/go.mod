@@ -11,12 +11,13 @@ replace (
 require (
 	github.com/goccy/go-json v0.10.2
 	github.com/nicklaw5/helix/v2 v2.28.1
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
 	golang.org/x/sync v0.7.0
+	gorm.io/gorm v1.25.9
 )
 
 require (
@@ -31,6 +32,8 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/imroc/req/v3 v3.42.3 // indirect
+	github.com/jinzhu/inflection v1.0.0 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect

@@ -7,6 +7,10 @@ package resolvers
 import (
 	"context"
 	"fmt"
+
+	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/libs/bus-core/eventsub"
 )
 
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
@@ -23,6 +27,38 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 	err = r.redis.Del(ctx, keys...).Err()
 	if err != nil {
 		return false, fmt.Errorf("failed to delete sessions: %w", err)
+	}
+
+	return true, nil
+}
+
+// EventsubSubscribe is the resolver for the eventsubSubscribe field.
+func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
+	var channels []model.Channels
+	if err := r.gorm.
+		WithContext(ctx).
+		Select("id", `"isEnabled"`).
+		Where(`"isEnabled" = ?`, true).
+		Find(&channels).Error; err != nil {
+		return false, fmt.Errorf("failed to get channels: %w", err)
+	}
+
+	condition, err := r.eventSubGqlToCondition(opts.Condition)
+	if err != nil {
+		return false, fmt.Errorf("failed to convert condition: %w", err)
+	}
+
+	for _, channel := range channels {
+		go func() {
+			r.twirBus.EventSub.Subscribe.Publish(
+				eventsub.EventsubSubscribeRequest{
+					ChannelID:     channel.ID,
+					Topic:         opts.Type,
+					ConditionType: condition.String(),
+					Version:       opts.Version,
+				},
+			)
+		}()
 	}
 
 	return true, nil

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import UsersPage from './components/users-page.vue'
 import { useUsersTable } from './composables/use-users-table.js'
+import UsersPage from './ui/users-page.vue'
 
 import Pagination from '@/components/pagination.vue'
 

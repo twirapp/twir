@@ -1,10 +1,12 @@
 module github.com/satont/twir/libs/migrations
 
-go 1.21
+go 1.23.0
 
 replace github.cim/satont/twir/libs/config => ./../config
 
 replace github.cim/satont/twir/libs/crypto => ./../crypto
+
+replace github.com/twirapp/twir/libs/grpc => ./../grpc
 
 require (
 	github.com/google/uuid v1.6.0

@@ -1,10 +1,11 @@
 module github.com/twirapp/twir/cli
 
-go 1.21.5
+go 1.23.0
 
 replace (
 	github.com/satont/twir/libs/config => ../libs/config
 	github.com/satont/twir/libs/migrations => ../libs/migrations
+	github.com/twirapp/twir/libs/grpc => ../libs/grpc
 )
 
 require (
@@ -16,6 +17,7 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240201110132-12475b437e7a
 	github.com/satont/twir/libs/migrations v0.0.0-20240201110132-12475b437e7a
+	github.com/twirapp/twir/libs/grpc v0.0.0-00010101000000-000000000000
 	github.com/urfave/cli/v2 v2.27.1
 	golang.org/x/sync v0.7.0
 )
@@ -46,7 +48,6 @@ require (
 	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	github.com/xrash/smetrics v0.0.0-20231213231151-1d8dd44e695e // indirect
-	go.opentelemetry.io/otel v1.24.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/mod v0.16.0 // indirect

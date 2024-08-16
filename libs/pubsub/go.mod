@@ -1,8 +1,8 @@
 module github.com/satont/twir/libs/pubsub
 
-go 1.21
+go 1.23.0
 
-require github.com/redis/go-redis/v9 v9.5.1
+require github.com/redis/go-redis/v9 v9.5.3
 
 require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

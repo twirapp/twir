@@ -37,6 +37,7 @@ const rules: FormRules = {
 			/>
 		</NFormItem>
 	</NForm>
+
 	<NAlert v-if="error" type="error">
 		{{ error }}
 	</NAlert>

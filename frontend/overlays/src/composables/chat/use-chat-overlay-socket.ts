@@ -1,96 +1,109 @@
-import { createGlobalState, useWebSocket } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import { useQuery, useSubscription } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
-import type { TwirWebSocketEvent } from '@/api.js'
-import type { BadgeVersion, ChatBadge, Settings } from '@twir/frontend-chat'
+import type { ChatOverlaySettingsSubscription } from '@/gql/graphql.js'
+import type { Settings } from '@twir/frontend-chat'
 
-import { generateSocketUrlWithParams } from '@/helpers.js'
+import { graphql } from '@/gql'
 
 export const useChatOverlaySocket = createGlobalState(() => {
-	const settings = ref<Settings>({
-		channelId: '',
-		channelName: '',
-		channelDisplayName: '',
-		globalBadges: new Map<string, ChatBadge>(),
-		channelBadges: new Map<string, BadgeVersion>(),
-		messageHideTimeout: 0,
-		messageShowDelay: 0,
-		preset: 'clean',
-		fontSize: 20,
-		hideBots: false,
-		hideCommands: false,
-		fontFamily: 'Roboto',
-		showAnnounceBadge: true,
-		showBadges: true,
-		textShadowColor: '',
-		textShadowSize: 0,
-		chatBackgroundColor: '',
-		direction: 'top',
-		fontStyle: 'normal',
-		fontWeight: 400,
-		paddingContainer: 0,
+	const route = useRoute()
+	const overlaySettings = ref<ChatOverlaySettingsSubscription['chatOverlaySettings'] | null>(null)
+
+	const { data: neededData } = useQuery({
+		query: graphql(`
+			query ChatOverlayWithAdditionalData {
+				authenticatedUser {
+					id
+					twitchProfile {
+						login
+						displayName
+						profileImageUrl
+					}
+				}
+				twitchGetGlobalBadges {
+					badges {
+						set_id
+						versions {
+							id
+							image_url_1x
+							image_url_2x
+							image_url_4x
+						}
+					}
+				}
+				twitchGetChannelBadges {
+					badges {
+						set_id
+						versions {
+							id
+							image_url_1x
+							image_url_2x
+							image_url_4x
+						}
+					}
+				}
+			}
+		`),
 	})
 
-	const overlayId = ref<string | undefined>()
-	const socketUrl = ref('')
-
-	const { data, status, send, open, close } = useWebSocket(
-		socketUrl,
-		{
-			immediate: false,
-			autoReconnect: {
-				delay: 500,
-			},
-			onConnected() {
-				send(JSON.stringify({ eventName: 'getSettings' }))
-			},
+	const sub = useSubscription({
+		query: graphql(`
+			subscription ChatOverlaySettings($id: String!, $apiKey: String!) {
+				chatOverlaySettings(id: $id, apiKey: $apiKey) {
+					id
+					messageHideTimeout
+					messageShowDelay
+					preset
+					fontSize
+					hideCommands
+					hideBots
+					fontFamily
+					showBadges
+					showAnnounceBadge
+					textShadowColor
+					textShadowSize
+					chatBackgroundColor
+					direction
+					fontWeight
+					fontStyle
+					paddingContainer
+					animation
+				}
+			}
+		`),
+		variables: {
+			id: route.query.id as string,
+			apiKey: route.params.apiKey as string,
 		},
-	)
+	})
 
-	watch(data, (d: string) => {
-		const event = JSON.parse(d) as TwirWebSocketEvent<Settings>
-		if (event.eventName === 'settings') {
-			if (overlayId.value && event.data.id !== overlayId.value) return
+	watch(sub.data, (n) => {
+		if (!n?.chatOverlaySettings) return
 
-			const data = event.data
-
-			settings.value = {
-				...data,
-				globalBadges: new Map(),
-				channelBadges: new Map(),
-			}
-
-			for (const badge of Object.values(data.globalBadges)) {
-				settings.value.globalBadges.set(badge.set_id, badge)
-			}
-
-			for (const [setId, version] of Object.entries(data.channelBadges)) {
-				settings.value.channelBadges.set(setId, version)
-			}
+		overlaySettings.value = {
+			...n.chatOverlaySettings,
 		}
 	})
 
-	function destroy(): void {
-		close()
-	}
+	const chatLibSettings = computed<Settings | null>(() => {
+		if (!overlaySettings.value || !neededData.value) return null
 
-	function connect(apiKey: string, _overlayId?: string): void {
-		if (status.value === 'OPEN') return
-
-		const url = generateSocketUrlWithParams('/overlays/chat', {
-			apiKey,
-			id: _overlayId,
-		})
-
-		socketUrl.value = url
-		overlayId.value = _overlayId
-
-		open()
-	}
+		return {
+			...overlaySettings.value,
+			channelBadges: neededData.value.twitchGetChannelBadges.badges,
+			globalBadges: neededData.value.twitchGetGlobalBadges.badges,
+			channelId: neededData.value.authenticatedUser.id ?? '',
+			channelName: neededData.value.authenticatedUser.twitchProfile.login ?? '',
+			channelDisplayName: neededData.value.authenticatedUser.twitchProfile.displayName ?? '',
+		}
+	})
 
 	return {
-		settings,
-		connect,
-		destroy,
+		neededData,
+		overlaySettings,
+		chatLibSettings,
 	}
 })

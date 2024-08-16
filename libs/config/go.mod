@@ -1,6 +1,6 @@
 module github.com/satont/twir/libs/config
 
-go 1.21
+go 1.23.0
 
 require (
 	github.com/joho/godotenv v1.5.1

@@ -1,10 +1,13 @@
-import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing'
 import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw } from 'vue'
 
-export const defaultSettings: Settings = {
+import type { NowPlayingOverlay } from '@/gql/graphql'
+
+import { NowPlayingOverlayPreset } from '@/gql/graphql'
+
+export const defaultSettings: NowPlayingOverlay = {
 	id: '',
-	preset: 'TRANSPARENT',
+	preset: NowPlayingOverlayPreset.Transparent,
 	backgroundColor: 'rgba(0, 0, 0, 0)',
 	channelId: '',
 	fontFamily: 'inter',
@@ -14,14 +17,14 @@ export const defaultSettings: Settings = {
 }
 
 export const useNowPlayingForm = createGlobalState(() => {
-	const data = ref<Settings>(structuredClone(defaultSettings))
+	const data = ref<NowPlayingOverlay>(structuredClone(defaultSettings))
 
-	function setData(d: Settings) {
+	function setData(d: NowPlayingOverlay) {
 		data.value = structuredClone(toRaw(d))
 	}
 
 	function getDefaultSettings() {
-		return structuredClone(Settings)
+		return structuredClone(defaultSettings)
 	}
 
 	return {

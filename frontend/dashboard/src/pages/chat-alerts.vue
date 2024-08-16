@@ -2,8 +2,8 @@
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import BanSettings from '@/features/chat-alerts/components/ban-settings.vue'
-import Settings from '@/features/chat-alerts/components/settings.vue'
+import BanSettings from '@/features/chat-alerts/ui/ban-settings.vue'
+import Settings from '@/features/chat-alerts/ui/settings.vue'
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
 
 const { t } = useI18n()

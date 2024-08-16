@@ -36,10 +36,11 @@ JSON Sample
 */
 
 type Notifications struct {
-	ID        string      `gorm:"primaryKey;AUTO_INCREMENT;column:id;type:TEXT;"            json:"id"`
-	CreatedAt time.Time   `gorm:"column:createdAt;type:TIMESTAMP;default:CURRENT_TIMESTAMP;" json:"created_at"`
-	UserID    null.String `gorm:"column:userId;type:TEXT;"                                   json:"user_id"`
-	Message   string      `gorm:"column:message;type:TEXT;"                                  json:"message"`
+	ID           string      `gorm:"primaryKey;AUTO_INCREMENT;column:id;type:TEXT;"            json:"id"`
+	CreatedAt    time.Time   `gorm:"column:createdAt;type:TIMESTAMP;default:CURRENT_TIMESTAMP;" json:"created_at"`
+	UserID       null.String `gorm:"column:userId;type:TEXT;"                                   json:"user_id"`
+	Message      null.String `gorm:"column:message;type:TEXT;"                                  json:"message"`
+	EditorJsJson null.String `gorm:"column:editor_js_json;type:TEXT;"                                  json:"editorJsJson"`
 }
 
 func (n *Notifications) TableName() string {

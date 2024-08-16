@@ -1,6 +1,6 @@
 module github.com/satont/twir/libs/sentry
 
-go 1.21
+go 1.23.0
 
 replace github.com/satont/twir/libs/config => ../config
 

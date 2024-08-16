@@ -152,8 +152,8 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 	}
 
 	if dbChannel.IsEnabled {
-		c.Bus.EventSub.Subscribe.Publish(
-			eventsub.EventsubSubscribeRequest{ChannelID: dashboardId},
+		c.Bus.EventSub.SubscribeToAllEvents.Publish(
+			eventsub.EventsubSubscribeToAllEventsRequest{ChannelID: dashboardId},
 		)
 	}
 

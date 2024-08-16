@@ -17,6 +17,7 @@ const defaultFormValue: EditableCommand = {
 		{
 			text: '',
 			order: 0,
+			twitchCategoriesIds: [],
 		},
 	],
 	description: '',
@@ -88,6 +89,7 @@ export const useCommandEdit = createGlobalState(() => {
 			responses: formValue.value.responses.map((response, i) => ({
 				text: response.text,
 				order: i,
+				twitchCategoriesIds: response.twitchCategoriesIds,
 			})),
 		}
 

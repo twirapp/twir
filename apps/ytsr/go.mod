@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/ytsr
 
-go 1.21.5
+go 1.23.0
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -15,7 +15,6 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20231218071827-5dc09a0eae99
 	github.com/satont/twir/libs/logger v0.0.0-20231218071827-5dc09a0eae99
-	github.com/satont/twir/libs/sentry v0.0.0-20231218071827-5dc09a0eae99
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0

@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/bots"
 	busparser "github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	"github.com/twirapp/twir/libs/redis_keys"
 	"go.uber.org/fx"
 )
 
@@ -99,8 +100,13 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 		return 0, err
 	}
 
+	parsedMessages, err := c.redis.Get(
+		ctx,
+		redis_keys.StreamParsedMessages(stream.ID),
+	).Int()
+
 	if timer.MessageInterval != 0 &&
-		lastTriggerMessageNumber-stream.ParsedMessages+timer.MessageInterval > 0 {
+		lastTriggerMessageNumber-parsedMessages+timer.MessageInterval > 0 {
 		return currentResponse, nil
 	}
 
@@ -133,7 +139,7 @@ func (c *Activity) SendMessage(ctx context.Context, timerId string) (
 	}
 
 	err = c.redis.Set(
-		ctx, getLastTriggerMessageNumberKey(timerId, stream.ID), stream.ParsedMessages,
+		ctx, getLastTriggerMessageNumberKey(timerId, stream.ID), parsedMessages,
 		24*time.Hour,
 	).Err()
 	if err != nil {

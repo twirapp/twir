@@ -17,12 +17,15 @@ func (c *Handler) handleChannelFollow(
 	_ *eventsub_bindings.ResponseHeaders,
 	event *eventsub_bindings.EventChannelFollow,
 ) {
+	ctx := context.Background()
 	redisKey := fmt.Sprintf("follows-cache:%s:%s", event.BroadcasterUserID, event.UserID)
-	key, _ := c.redisClient.Get(context.Background(), redisKey).Result()
+	key, _ := c.redisClient.Get(ctx, redisKey).Result()
 
 	if key != "" {
 		return
 	}
+
+	c.redisClient.Set(ctx, redisKey, redisKey, 24*7*time.Hour)
 
 	c.logger.Info(
 		"channel follow",
@@ -46,8 +49,6 @@ func (c *Handler) handleChannelFollow(
 		},
 	)
 
-	ctx := context.Background()
-
 	c.eventsGrpc.Follow(
 		ctx,
 		&events.FollowMessage{
@@ -57,6 +58,4 @@ func (c *Handler) handleChannelFollow(
 			UserId:          event.UserID,
 		},
 	)
-
-	c.redisClient.Set(ctx, redisKey, redisKey, 24*7*time.Hour)
 }

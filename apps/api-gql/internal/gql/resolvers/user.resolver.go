@@ -42,7 +42,7 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
 func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
-	if err := r.sessions.SetSelectedDashboard(ctx, dashboardID); err != nil {
+	if err := r.sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
 
@@ -172,7 +172,7 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	if err := r.sessions.Logout(ctx); err != nil {
+	if err := r.sessions.SessionLogout(ctx); err != nil {
 		return false, err
 	}
 
@@ -204,7 +204,6 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 		IsBotAdmin:          user.IsBotAdmin,
 		IsBanned:            user.IsBanned,
 		HideOnLandingPage:   user.HideOnLandingPage,
-		TwitchProfile:       &gqlmodel.TwirUserTwitchInfo{},
 		APIKey:              user.ApiKey,
 		SelectedDashboardID: dashboardId,
 	}
@@ -312,6 +311,7 @@ var twitchScopes = []string{
 	"moderation:read",
 	"channel:manage:broadcast",
 	"channel:read:redemptions",
+	"channel:manage:redemptions",
 	"moderator:read:chatters",
 	"moderator:manage:shoutouts",
 	"moderator:manage:banned_users",

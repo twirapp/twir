@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/tokens
 
-go 1.21
+go 1.23.0
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -15,18 +15,16 @@ replace (
 require (
 	github.com/go-redsync/redsync/v4 v4.11.0
 	github.com/nicklaw5/helix/v2 v2.25.2
-	github.com/redis/go-redis/v9 v9.5.1
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/satont/twir/libs/config v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/crypto v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/gomodels v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/satont/twir/libs/logger v0.0.0-20231218035440-fe1a71c14ff7
-	github.com/satont/twir/libs/sentry v0.0.0-20231218035440-fe1a71c14ff7
 	github.com/twirapp/twir/libs/grpc v0.0.0-20231218035440-fe1a71c14ff7
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0
 	go.uber.org/fx v1.21.0
 	google.golang.org/grpc v1.62.0
 	google.golang.org/protobuf v1.33.0
-	gorm.io/driver/postgres v1.5.7
 	gorm.io/gorm v1.25.9
 )
 
@@ -44,10 +42,6 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
-	github.com/jackc/pgx/v5 v5.5.2 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -69,7 +63,6 @@ require (
 	go.uber.org/dig v1.17.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp v0.0.0-20240222234643-814bf88cf225 // indirect
 	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect

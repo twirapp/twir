@@ -16,7 +16,6 @@
     "vue": "3.4.21"
   },
   "devDependencies": {
-    "@twir/api": "workspace:*",
     "vue-tsc": "2.0.13"
   },
   "peerDependencies": {

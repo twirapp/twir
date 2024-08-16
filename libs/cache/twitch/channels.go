@@ -3,6 +3,7 @@ package twitch
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
@@ -47,7 +48,7 @@ func (c *CachedTwitchClient) SearchChannels(
 		return nil, err
 	}
 	if twitchSearchUsersReq.ErrorMessage != "" {
-		return nil, err
+		return nil, fmt.Errorf(twitchSearchUsersReq.ErrorMessage)
 	}
 
 	channelsBytes, err := json.Marshal(twitchSearchUsersReq.Data.Channels)

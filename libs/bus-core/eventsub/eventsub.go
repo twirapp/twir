@@ -1,9 +1,17 @@
 package eventsub
 
 const (
-	EventsubSubscribeSubject = "eventsub.subscribe"
+	EventsubSubscribeAllSubject = "eventsub.subscribeAll"
+	EventsubSubscribeSubject    = "eventsub.subscribe"
 )
 
-type EventsubSubscribeRequest struct {
+type EventsubSubscribeToAllEventsRequest struct {
 	ChannelID string
+}
+
+type EventsubSubscribeRequest struct {
+	ChannelID     string
+	Topic         string
+	ConditionType string
+	Version       string
 }

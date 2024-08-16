@@ -1,32 +1,35 @@
 <script setup lang="ts">
-import { refDebounced } from '@vueuse/core';
-import { NSelect, SelectOption } from 'naive-ui';
-import { computed, h, ref, VNodeChild, watch } from 'vue';
+import { refDebounced } from '@vueuse/core'
+import { NSelect } from 'naive-ui'
+import { computed, h, ref, watch } from 'vue'
 
-import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api';
+import type { SelectOption } from 'naive-ui'
+import type { VNodeChild } from 'vue'
+
+import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api'
 
 defineProps<{
 	multiple?: boolean
-}>();
-const category = defineModel<string | string[]>();
+}>()
+const category = defineModel<undefined | null | string | string[]>()
 
-const categoriesSearch = ref('');
-const categoriesSearchDebounced = refDebounced(categoriesSearch, 500);
+const categoriesSearch = ref('')
+const categoriesSearchDebounced = refDebounced(categoriesSearch, 500)
 
 const {
 	data: searchCategoriesData,
 	isLoading: isSearchCategoriesLoading,
-} = useTwitchSearchCategories(categoriesSearchDebounced);
+} = useTwitchSearchCategories(categoriesSearchDebounced)
 
-const getCategoriesRef = ref<string[]>([]);
+const getCategoriesRef = ref<string[]>([])
 watch(() => category.value, (v) => {
-	if (!v) return [];
-	getCategoriesRef.value = Array.isArray(v) ? v : [v];
-}, { immediate: true, once: true });
+	if (!v) return []
+	getCategoriesRef.value = Array.isArray(v) ? v : [v]
+}, { immediate: true, once: true })
 const {
 	data: getCategoriesData,
 	isLoading: isGetCategoriesLoading,
-} = useTwitchGetCategories(getCategoriesRef);
+} = useTwitchGetCategories(getCategoriesRef)
 
 const categoriesOptions = computed(() => {
 	return [
@@ -40,10 +43,10 @@ const categoriesOptions = computed(() => {
 			value: c.id,
 			image: c.image.replace('{width}', '144').replace('{height}', '192'),
 		})) ?? [],
-	];
-});
+	]
+})
 
-const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
+function renderCategory(o: SelectOption & { image?: string }): VNodeChild {
 	return [h(
 		'div',
 		{ class: 'flex gap-2.5 h-24 items-center' },
@@ -54,22 +57,22 @@ const renderCategory = (o: SelectOption & { image?: string }): VNodeChild => {
 			}),
 			h('span', {}, o.label! as string),
 		],
-	)];
-};
-
+	)]
+}
 </script>
 
 <template>
-	<n-select
+	<NSelect
 		v-model:value="category"
 		filterable
-		placeholder="Search..."
+		placeholder="Search for category..."
 		:options="categoriesOptions"
 		remote
 		:multiple
 		:render-label="renderCategory"
 		:loading="isSearchCategoriesLoading || isGetCategoriesLoading"
 		:render-tag="(t) => t.option.label as string ?? ''"
+		clearable
 		@search="(v) => categoriesSearch = v"
 	/>
 </template>

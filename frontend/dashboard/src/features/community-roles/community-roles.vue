@@ -6,12 +6,12 @@ import {
 	NModal,
 	NPopconfirm,
 	NSpace,
-	NText
+	NText,
 } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import RoleModal from './components/modal.vue'
+import RoleModal from './ui/modal.vue'
 
 import type { ChannelRolesQuery } from '@/gql/graphql'
 

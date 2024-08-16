@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-	type BadgeVersion,
 	ChatBox,
 	type Settings as ChatBoxSettings,
 	type Message,
@@ -23,7 +22,7 @@ import { globalBadges } from './constants.js'
 import * as faker from './faker.js'
 
 import {
-	useChatOverlayManager,
+	useChatOverlayApi,
 	useUserAccessFlagChecker,
 } from '@/api/index.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete.js'
@@ -31,18 +30,14 @@ import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const themeVars = useThemeVars()
 const userCanEditOverlays = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageOverlays)
-const chatManager = useChatOverlayManager()
-const creator = chatManager.useCreate()
-const deleter = chatManager.useDelete()
 
 const { t } = useI18n()
 const { dialog } = useNaiveDiscrete()
 
-const {
-	data: entities,
-} = chatManager.useGetAll()
-
-const globalBadgesObject = Object.fromEntries(globalBadges)
+const chatOverlaysManager = useChatOverlayApi()
+const deleter = chatOverlaysManager.useOverlayDelete()
+const creator = chatOverlaysManager.useOverlayCreate()
+const { data: chatOverlaysData } = chatOverlaysManager.useOverlaysQuery()
 
 const messagesMock = ref<Message[]>([])
 
@@ -69,7 +64,7 @@ useIntervalFn(() => {
 		senderColor: faker.rgb(),
 		announceColor: '',
 		badges: {
-			[faker.randomObjectKey(globalBadgesObject)]: '1',
+			[faker.randomArrayItem(globalBadges).set_id]: '1',
 		},
 		id: crypto.randomUUID(),
 		senderDisplayName: faker.firstName(),
@@ -89,20 +84,20 @@ useIntervalFn(() => {
 const openedTab = ref<string>()
 
 function resetTab() {
-	if (!entities.value?.settings.at(0)) {
+	if (!chatOverlaysData.value?.chatOverlays.at(0)) {
 		openedTab.value = undefined
 		return
 	}
 
-	openedTab.value = entities.value.settings.at(0)!.id
+	openedTab.value = chatOverlaysData.value.chatOverlays.at(0)!.id
 }
 
-watch(entities, () => {
+watch(() => chatOverlaysData.value?.chatOverlays, () => {
 	resetTab()
 }, { immediate: true })
 
 watch(openedTab, (v) => {
-	const entity = entities.value?.settings.find(s => s.id === v)
+	const entity = chatOverlaysData.value?.chatOverlays.find(s => s.id === v)
 	if (!entity) return
 
 	setData(entity)
@@ -118,7 +113,7 @@ const chatBoxSettings = computed<ChatBoxSettings>(() => {
 		channelName: '',
 		channelDisplayName: '',
 		globalBadges,
-		channelBadges: new Map<string, BadgeVersion>(),
+		channelBadges: [],
 		...formValue.value,
 	}
 })
@@ -131,21 +126,21 @@ async function handleClose(id: string) {
 		negativeText: 'Cancel',
 		showIcon: false,
 		onPositiveClick: async () => {
-			const entity = entities.value?.settings.find(s => s.id === id)
+			const entity = chatOverlaysData.value?.chatOverlays.find(s => s.id === id)
 			if (!entity?.id) return
 
-			await deleter.mutateAsync(entity.id)
+			await deleter.executeMutation({ id: entity.id })
 			resetTab()
 		},
 	})
 }
 
 async function handleAdd() {
-	await creator.mutateAsync(getDefaultSettings())
+	await creator.executeMutation({ input: getDefaultSettings() })
 }
 
 const addable = computed(() => {
-	return userCanEditOverlays.value && (entities.value?.settings.length ?? 0) < 5
+	return userCanEditOverlays.value && (chatOverlaysData.value?.chatOverlays.length ?? 0) < 5
 })
 </script>
 
@@ -177,9 +172,9 @@ const addable = computed(() => {
 				<template #prefix>
 					{{ t('overlays.chat.presets') }}
 				</template>
-				<template v-if="entities?.settings.length">
+				<template v-if="chatOverlaysData?.chatOverlays.length">
 					<NTabPane
-						v-for="(entity, entityIndex) in entities?.settings"
+						v-for="(entity, entityIndex) in chatOverlaysData.chatOverlays"
 						:key="entity.id"
 						:tab="`#${entityIndex + 1}`"
 						:name="entity.id!"
@@ -190,7 +185,7 @@ const addable = computed(() => {
 					</NTabPane>
 				</template>
 			</NTabs>
-			<NAlert v-if="!entities?.settings.length" type="info" class="mt-2">
+			<NAlert v-if="!chatOverlaysData?.chatOverlays.length" type="info" class="mt-2">
 				Create new overlay for edit settings
 			</NAlert>
 		</div>

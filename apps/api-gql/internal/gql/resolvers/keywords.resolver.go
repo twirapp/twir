@@ -34,7 +34,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		Usages:           0,
 	}
 
-	if opts.Response.IsSet() {
+	if opts.Response.IsSet() && opts.Response.Value() != nil {
 		entity.Response = *opts.Response.Value()
 	}
 

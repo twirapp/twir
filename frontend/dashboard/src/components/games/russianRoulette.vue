@@ -19,7 +19,7 @@ import type { GamesQuery } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 
@@ -124,7 +124,7 @@ function resetSettings() {
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.timeoutSeconds')">
-				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="1209600" />
+				<NInputNumber v-model:value="formValue.timeoutSeconds" :max="86400" />
 			</NFormItem>
 
 			<NFormItem :label="t('games.russianRoulette.decisionSeconds')">

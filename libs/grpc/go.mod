@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/grpc
 
-go 1.21
+go 1.23.0
 
 require (
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.48.0

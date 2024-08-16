@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/api
 
-go 1.21.5
+go 1.23.0
 
 require (
 	github.com/twitchtv/twirp v8.1.3+incompatible

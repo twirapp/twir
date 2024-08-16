@@ -2,6 +2,7 @@ package messagehandler
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -13,8 +14,18 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 		return nil
 	}
 
+	redisKey := fmt.Sprintf("first:stream:user:join:%s:%s", msg.DbStream.ID, msg.ChatterUserId)
+	exists, err := c.redis.Exists(ctx, redisKey).Result()
+	if err != nil {
+		return err
+	}
+
+	if exists == 1 {
+		return nil
+	}
+
 	ignoredUser := &model.IgnoredUser{}
-	err := c.gorm.
+	err = c.gorm.
 		WithContext(ctx).
 		Where("login = ? OR id = ?", msg.ChatterUserLogin, msg.ChatterUserId).
 		Find(ignoredUser).Error
@@ -22,17 +33,6 @@ func (c *MessageHandler) handleFirstStreamUserJoin(ctx context.Context, msg hand
 		return err
 	}
 	if ignoredUser.ID != "" {
-		return nil
-	}
-
-	redisKey := "first:stream:user:join:" + msg.ChatterUserId
-
-	exists, err := c.redis.Exists(ctx, redisKey).Result()
-	if err != nil {
-		return err
-	}
-
-	if exists == 1 {
 		return nil
 	}
 

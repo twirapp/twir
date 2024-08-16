@@ -68,23 +68,22 @@ func (c *Handler) handleStreamOnline(
 
 		err = c.gorm.Create(
 			&model.ChannelsStreams{
-				ID:             event.ID,
-				UserId:         event.BroadcasterUserID,
-				UserLogin:      event.BroadcasterUserLogin,
-				UserName:       event.BroadcasterUserName,
-				GameId:         stream.GameID,
-				GameName:       stream.GameName,
-				CommunityIds:   nil,
-				Type:           stream.Type,
-				Title:          stream.Title,
-				ViewerCount:    stream.ViewerCount,
-				StartedAt:      stream.StartedAt,
-				Language:       stream.Language,
-				ThumbnailUrl:   stream.ThumbnailURL,
-				TagIds:         &tagIds,
-				Tags:           &tags,
-				IsMature:       stream.IsMature,
-				ParsedMessages: 0,
+				ID:           event.ID,
+				UserId:       event.BroadcasterUserID,
+				UserLogin:    event.BroadcasterUserLogin,
+				UserName:     event.BroadcasterUserName,
+				GameId:       stream.GameID,
+				GameName:     stream.GameName,
+				CommunityIds: nil,
+				Type:         stream.Type,
+				Title:        stream.Title,
+				ViewerCount:  stream.ViewerCount,
+				StartedAt:    stream.StartedAt,
+				Language:     stream.Language,
+				ThumbnailUrl: stream.ThumbnailURL,
+				TagIds:       &tagIds,
+				Tags:         &tags,
+				IsMature:     stream.IsMature,
 			},
 		).Error
 		if err != nil {
@@ -106,8 +105,13 @@ func (c *Handler) handleStreamOnline(
 
 	c.bus.Channel.StreamOnline.Publish(
 		bustwitch.StreamOnlineMessage{
-			ChannelID: event.BroadcasterUserID,
-			StreamID:  event.ID,
+			ChannelID:    event.BroadcasterUserID,
+			StreamID:     event.ID,
+			CategoryName: stream.GameName,
+			CategoryID:   stream.GameID,
+			Title:        stream.Title,
+			Viewers:      stream.ViewerCount,
+			StartedAt:    stream.StartedAt,
 		},
 	)
 }

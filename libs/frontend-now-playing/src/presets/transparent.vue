@@ -1,19 +1,17 @@
 <script setup lang="ts">
-import { Settings } from '@twir/api/messages/overlays_now_playing/overlays_now_playing';
-
-import type { Track } from '../types.js';
+import type { Settings, Track } from '../types.js'
 
 defineProps<{
 	track?: Track | null
 	settings: Settings
-}>();
+}>()
 </script>
 
 <template>
 	<div v-if="track" class="spotify">
 		<img
 			v-if="settings.showImage" class="image"
-			:src="track.image_url ?? '/overlays/images/play.png'"
+			:src="track.imageUrl ?? '/overlays/images/play.png'"
 		/>
 		<div class="info">
 			<span class="name">{{ track.title }}</span>

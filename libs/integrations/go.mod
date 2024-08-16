@@ -1,6 +1,6 @@
 module github.com/twirapp/twir/libs/integrations
 
-go 1.21.5
+go 1.23.0
 
 require (
 	github.com/guregu/null v4.0.0+incompatible

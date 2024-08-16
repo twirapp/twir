@@ -54,20 +54,19 @@ var Seppuku = &types.DefaultCommand{
 			}, nil
 		}
 
-		if parseCtx.Sender.ID == parseCtx.Channel.ID {
-			return &types.CommandsHandlerResult{
-				Result: []string{entity.Message},
-			}, nil
-		}
-
 		var message string
 		if slices.Contains(parseCtx.Sender.Badges, "MODERATOR") {
 			message = entity.MessageModerators
 		} else {
 			message = entity.Message
 		}
-
 		message = strings.ReplaceAll(message, "{sender}", parseCtx.Sender.DisplayName)
+
+		if parseCtx.Sender.ID == parseCtx.Channel.ID {
+			return &types.CommandsHandlerResult{
+				Result: []string{message},
+			}, nil
+		}
 
 		isModerator := slices.Contains(parseCtx.Sender.Badges, "MODERATOR")
 		if !entity.TimeoutModerators && isModerator {
@@ -80,7 +79,7 @@ var Seppuku = &types.DefaultCommand{
 			bots.BanRequest{
 				ChannelID:      parseCtx.Channel.ID,
 				UserID:         parseCtx.Sender.ID,
-				BanTime:        int(entity.TimeoutSeconds),
+				BanTime:        entity.TimeoutSeconds,
 				Reason:         message,
 				IsModerator:    isModerator,
 				AddModAfterBan: true,
@@ -93,7 +92,7 @@ var Seppuku = &types.DefaultCommand{
 		}
 
 		return &types.CommandsHandlerResult{
-			Result: []string{entity.Message},
+			Result: []string{message},
 		}, nil
 	},
 }

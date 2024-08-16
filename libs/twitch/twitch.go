@@ -2,6 +2,7 @@ package twitch
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	cfg "github.com/satont/twir/libs/config"
@@ -91,11 +92,12 @@ func NewUserClientWithContext(
 		grpc.WaitForReady(true),
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot request user token from tokens service: %w", err)
 	}
 
 	client, err := helix.NewClientWithContext(
-		ctx, &helix.Options{
+		ctx,
+		&helix.Options{
 			ClientID:        config.TwitchClientId,
 			ClientSecret:    config.TwitchClientSecret,
 			RedirectURI:     config.TwitchCallbackUrl,
@@ -104,7 +106,7 @@ func NewUserClientWithContext(
 		},
 	)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("cannot create helix client: %w", err)
 	}
 
 	return client, nil

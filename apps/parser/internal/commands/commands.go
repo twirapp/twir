@@ -41,6 +41,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Commands struct {
@@ -96,11 +97,12 @@ func New(opts *Opts) *Commands {
 			sr_youtube.SrCommand,
 			sr_youtube.SrListCommand,
 			sr_youtube.WrongCommand,
-			games.EightBall,
-			games.RussianRoulette,
 			kappagen.Kappagen,
 			brb.Start,
 			brb.Stop,
+			games.EightBall,
+			games.RussianRoulette,
+			games.Voteban,
 			games.Duel,
 			games.DuelAccept,
 			games.DuelStats,
@@ -308,6 +310,18 @@ func (c *Commands) ParseCommandResponses(
 		Command:  command.Cmd,
 	}
 
+	channelStream := model.ChannelsStreams{}
+	if err := c.services.Gorm.WithContext(ctx).First(&channelStream).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			c.services.Logger.Sugar().Error(
+				"error happened on getting channel stream",
+				zap.Error(err),
+				zap.String("channel_id", requestData.BroadcasterUserId),
+			)
+			return nil
+		}
+	}
+
 	if command.Cmd.Default && defaultCommand != nil {
 		argsParser, err := command_arguments.NewParser(defaultCommand.Args, params)
 		if err != nil {
@@ -363,8 +377,25 @@ func (c *Commands) ParseCommandResponses(
 				},
 			)
 	} else {
+		responsesForCategory := make([]model.ChannelsCommandsResponses, 0, len(command.Cmd.Responses))
+		for _, r := range command.Cmd.Responses {
+			if len(r.TwitchCategoryIDs) > 0 && channelStream.ID != "" {
+				if !lo.ContainsBy(
+					r.TwitchCategoryIDs,
+					func(categoryId string) bool {
+						return categoryId == channelStream.GameId
+					},
+				) {
+					continue
+				}
+			}
+
+			responsesForCategory = append(responsesForCategory, *r)
+		}
+
 		result.Responses = lo.Map(
-			command.Cmd.Responses, func(r *model.ChannelsCommandsResponses, _ int) string {
+			responsesForCategory,
+			func(r model.ChannelsCommandsResponses, _ int) string {
 				return r.Text.String
 			},
 		)

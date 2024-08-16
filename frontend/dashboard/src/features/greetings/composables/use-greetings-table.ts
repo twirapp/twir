@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import GreetingsTableActions from '../ui/greetings-table-actions.vue'
 
 import { type Greetings, useGreetingsApi } from '@/api/greetings.js'
-import UsersTableCellUser from '@/features/admin-panel/manage-users/components/users-table-cell-user.vue'
+import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
 
 export const useGreetingsTable = createGlobalState(() => {
 	const { t } = useI18n()

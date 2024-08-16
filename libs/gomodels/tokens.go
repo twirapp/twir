@@ -2,8 +2,9 @@ package model
 
 import (
 	"database/sql"
-	"github.com/lib/pq"
 	"time"
+
+	"github.com/lib/pq"
 
 	"github.com/guregu/null"
 	uuid "github.com/satori/go.uuid"
@@ -17,7 +18,7 @@ var (
 )
 
 type Tokens struct {
-	ID                  string         `gorm:"primary_key;AUTO_INCREMENT;column:id;type:TEXT;" json:"id"`
+	ID                  string         `gorm:"column:id;type:TEXT;" json:"id"`
 	AccessToken         string         `gorm:"column:accessToken;type:TEXT;"                   json:"accessToken"`
 	RefreshToken        string         `gorm:"column:refreshToken;type:TEXT;"                  json:"refreshToken"`
 	ExpiresIn           int32          `gorm:"column:expiresIn;type:INT4;"                     json:"expiresIn"`

@@ -2,15 +2,16 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
-	subscriptions_store "github.com/twirapp/twir/apps/api-gql/internal/gql/subscriptions-store"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/auth"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
-	"github.com/twirapp/twir/apps/api-gql/internal/sessions"
+	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -26,7 +27,7 @@ func main() {
 	fx.New(
 		baseapp.CreateBaseApp("api-gql"),
 		fx.Provide(
-			sessions.New,
+			auth.NewSessions,
 			func(config cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(config.AppEnv)
 			},
@@ -38,7 +39,10 @@ func main() {
 			commandscache.New,
 			keywordscacher.New,
 			buscore.NewNatsBusFx("api-gql"),
-			subscriptions_store.New,
+			fx.Annotate(
+				wsrouter.NewNatsSubscription,
+				fx.As(new(wsrouter.WsRouter)),
+			),
 			resolvers.New,
 			directives.New,
 			httpserver.New,
@@ -47,6 +51,7 @@ func main() {
 		fx.Invoke(
 			pubclicroutes.New,
 			webhooks.New,
+			authroutes.New,
 		),
 	).Run()
 }

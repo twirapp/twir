@@ -17,7 +17,11 @@ import { useI18n } from 'vue-i18n'
 import { defaultChatSettings } from './default-settings'
 import { useChatOverlayForm } from './form.js'
 
-import { useChatOverlayManager, useProfile, useUserAccessFlagChecker } from '@/api'
+import {
+	useChatOverlayApi,
+	useProfile,
+	useUserAccessFlagChecker,
+} from '@/api'
 import { useCopyOverlayLink } from '@/components/overlays/copyOverlayLink.js'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -67,15 +71,19 @@ const sliderMarks = {
 	60: '60',
 }
 
-const manager = useChatOverlayManager()
-const updater = manager.useUpdate()
+const manager = useChatOverlayApi()
+const updater = manager.useOverlayUpdate()
 
 async function save() {
 	if (!formValue.value.id) return
 
-	await updater.mutateAsync({
-		id: formValue.value.id,
-		settings: formValue.value,
+	const input = { ...formValue.value }
+	const id = input.id!
+	delete input.id
+
+	await updater.executeMutation({
+		id,
+		input,
 	})
 
 	discrete.notification.success({
@@ -87,7 +95,7 @@ async function save() {
 
 <template>
 	<div v-if="formValue" class="card">
-		<div class="flex-wrap justify-start">
+		<div class="flex flex-wrap justify-start gap-2">
 			<NButton
 				secondary
 				type="error"
@@ -151,6 +159,17 @@ async function save() {
 					<NSlider
 						v-model:value="formValue.paddingContainer" :min="0" :max="256"
 						:marks="{ 0: '0', 256: '256' }"
+					/>
+				</div>
+
+				<div class="flex flex-col gap-2">
+					<span>Animation</span>
+					<NSelect
+						v-model:value="formValue.animation"
+						:options="[
+							{ value: 'DEFAULT', label: 'Default' },
+							{ value: 'DISABLED', label: 'Disabled' },
+						]"
 					/>
 				</div>
 

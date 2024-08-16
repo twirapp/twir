@@ -6,7 +6,6 @@ package api;
 import "google/protobuf/empty.proto";
 import "messages/meta/meta.proto";
 
-import "messages/auth/auth.proto";
 import "messages/bots/bots.proto";
 import "messages/community/community.proto";
 import "messages/events/events.proto";
@@ -28,7 +27,6 @@ import "messages/integrations_nightbot/integrations_nightbot.proto";
 
 import "messages/modules_obs_websocket/modules_obs_websocket.proto";
 import "messages/modules_tts/modules_tts.proto";
-import "messages/overlays_chat/overlays_chat.proto";
 import "messages/overlays_kappagen/overlays_kappagen.proto";
 import "messages/overlays_be_right_back/overlays_be_right_back.proto";
 import "messages/overlays_dudes/overlays_dudes.proto";
@@ -45,9 +43,6 @@ import "messages/overlays/overlays.proto";
 import "messages/feedback/feedback.proto";
 
 import "messages/integrations_seventv/integrations_seventv.proto";
-import "messages/overlays_now_playing/overlays_now_playing.proto";
-
-import "messages/notifications/notifications.proto";
 
 service Protected {
 	rpc BotInfo(messages.meta.BaseRequestMeta) returns (messages.bots.BotInfo) {}
@@ -126,12 +121,6 @@ service Protected {
 	rpc ModulesTTSGetUsersSettings(google.protobuf.Empty) returns (messages.modules_tts.GetUsersSettingsResponse) {}
 	rpc ModulesTTSUsersDelete(messages.modules_tts.UsersDeleteRequest) returns (google.protobuf.Empty) {}
 
-	rpc OverlayChatGet(messages.overlays_chat.GetRequest) returns (messages.overlays_chat.Settings) {}
-	rpc OverlayChatGetAll(google.protobuf.Empty) returns (messages.overlays_chat.GetAllResponse) {}
-	rpc OverlayChatCreate(messages.overlays_chat.Settings) returns (messages.overlays_chat.Settings) {}
-	rpc OverlayChatUpdate(messages.overlays_chat.UpdateRequest) returns (messages.overlays_chat.Settings) {}
-	rpc OverlayChatDelete(messages.overlays_chat.DeleteRequest) returns (google.protobuf.Empty) {}
-
 	rpc OverlayBeRightBackGet(google.protobuf.Empty) returns (messages.overlays_be_right_back.Settings) {}
 	rpc OverlayBeRightBackUpdate(messages.overlays_be_right_back.Settings) returns (messages.overlays_be_right_back.Settings) {}
 
@@ -186,13 +175,6 @@ service Protected {
 	rpc IntegrationsValorantGetData(google.protobuf.Empty) returns (messages.integrations_valorant.GetDataResponse) {}
 	rpc IntegrationsValorantPostCode(messages.integrations_valorant.PostCodeRequest) returns (google.protobuf.Empty) {}
 	rpc IntegrationsValorantLogout(google.protobuf.Empty) returns (google.protobuf.Empty) {}
-
-	rpc OverlaysNowPlayingGetAll(google.protobuf.Empty) returns (messages.overlays_now_playing.GetAllResponse) {}
-	rpc OverlaysNowPlayingUpdate(messages.overlays_now_playing.UpdateRequest) returns (messages.overlays_now_playing.Settings) {}
-	rpc OverlaysNowPlayingDelete(messages.overlays_now_playing.DeleteRequest) returns (google.protobuf.Empty) {}
-	rpc OverlaysNowPlayingCreate(messages.overlays_now_playing.CreateRequest) returns (messages.overlays_now_playing.Settings) {}
-
-	rpc NotificationsGetAll(google.protobuf.Empty) returns (messages.notifications.NotificationsGetAllResponse) {}
 }
 
 // UnProtected
@@ -215,7 +197,6 @@ service UnProtected {
 	rpc GetChannelCommands(messages.commands_unprotected.GetChannelCommandsRequest) returns (messages.commands_unprotected.GetChannelCommandsResponse) {}
 	rpc GetSongsQueue(messages.songs_unprotected.GetSongsQueueRequest) returns (messages.songs_unprotected.GetSongsQueueResponse) {}
 
-	rpc AuthPostCode(messages.auth.PostCodeRequest) returns (messages.auth.PostCodeResponse) {}
 
 	rpc ModulesTTSSay(messages.modules_tts.SayRequest) returns (messages.modules_tts.SayResponse) {}
 
@@ -226,18 +207,12 @@ service UnProtected {
 }
 
 import "messages/admin_users/admin_users.proto";
-import "messages/admin_notifications/admin_notifications.proto";
 import "messages/admin_badges/admin_badges.proto";
 
 service Admin {
 	rpc UserSwitchBan(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
 	rpc UserSwitchAdmin(messages.admin_users.UserSwitchSomeStateRequest) returns (google.protobuf.Empty) {}
 	rpc GetUsers(messages.admin_users.UsersGetRequest) returns (messages.admin_users.UsersGetResponse) {}
-
-	rpc NotificationsCreate(messages.admin_notifications.CreateNotificationRequest) returns (messages.admin_notifications.Notification) {}
-	rpc NotificationsGetAll(messages.admin_notifications.GetNotificationsRequest) returns (messages.admin_notifications.GetNotificationsResponse) {}
-	rpc NotificationsUpdate(messages.admin_notifications.UpdateNotificationRequest) returns (messages.admin_notifications.Notification) {}
-	rpc NotificationsDelete(messages.admin_notifications.DeleteNotificationRequest) returns (google.protobuf.Empty) {}
 
 	rpc BadgesCreate(messages.admin_badges.CreateBadgeRequest) returns (messages.badges_unprotected.Badge) {}
 	rpc BadgesUpdate(messages.admin_badges.UpdateBadgeRequest) returns (messages.badges_unprotected.Badge) {}

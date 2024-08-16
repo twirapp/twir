@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/go-redsync/redsync/v4"
 	"github.com/jmoiron/sqlx"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/parser/internal/task-queue"
@@ -38,4 +39,6 @@ type Services struct {
 	CommandsCache           *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	SevenTvCache            *generic_cacher.GenericCacher[*seventv.ProfileResponse]
 	SevenTvCacheBySevenTvID *generic_cacher.GenericCacher[*seventv.ProfileResponse]
+	RedSync                 *redsync.Redsync
+	CommandsLock            *redsync.Mutex
 }

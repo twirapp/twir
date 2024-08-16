@@ -1,6 +1,6 @@
 module github.com/satont/twir/apps/scheduler
 
-go 1.21.5
+go 1.23.0
 
 replace (
 	github.com/satont/twir/libs/bus-core => ../../libs/bus-core
@@ -11,6 +11,7 @@ replace (
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/satont/twir/libs/utils => ../../libs/utils
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
@@ -19,11 +20,11 @@ require (
 	github.com/guregu/null v4.0.0+incompatible
 	github.com/lib/pq v1.10.9
 	github.com/nicklaw5/helix/v2 v2.25.3
+	github.com/redis/go-redis/v9 v9.5.3
 	github.com/samber/lo v1.39.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
 	github.com/satont/twir/libs/gomodels v0.0.0-20240225024146-742838c78cea
 	github.com/satont/twir/libs/logger v0.0.0-20231219061239-afa2b6688b59
-	github.com/satont/twir/libs/sentry v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/twitch v0.0.0-20231219040737-d6df9f25e101
 	github.com/satont/twir/libs/utils v0.0.0-20231219040737-d6df9f25e101
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240227201031-fc47186022f4
@@ -38,7 +39,9 @@ require (
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
+	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/cloudflare/circl v1.3.7 // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/getsentry/sentry-go v0.26.0 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -62,7 +65,7 @@ require (
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/nats-io/nats.go v1.33.1 // indirect
+	github.com/nats-io/nats.go v1.36.0 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/onsi/ginkgo/v2 v2.15.0 // indirect

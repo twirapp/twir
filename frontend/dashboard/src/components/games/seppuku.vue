@@ -18,13 +18,13 @@ import Card from './card.vue'
 import type { SeppukuGame } from '@/gql/graphql'
 
 import { useGamesApi } from '@/api/games/games.js'
-import CommandButton from '@/features/commands/components/command-button.vue'
+import CommandButton from '@/features/commands/ui/command-button.vue'
 
 const isModalOpened = ref(false)
 
 const gamesManager = useGamesApi()
 const { data } = gamesManager.useGamesQuery()
-const updater = gamesManager.useEightBallMutation()
+const updater = gamesManager.useSeppukuMutation()
 
 const formValue = ref<SeppukuGame>({
 	enabled: false,
@@ -98,7 +98,7 @@ async function save() {
 			<NInputNumber
 				v-model:value="formValue.timeoutSeconds"
 				min="1"
-				max="84600"
+				max="86400"
 			/>
 		</NFormItem>
 

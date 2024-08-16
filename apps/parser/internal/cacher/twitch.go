@@ -55,22 +55,21 @@ func (c *cacher) GetChannelStream(ctx context.Context) *model.ChannelsStreams {
 			tags = append(tags, t)
 		}
 		stream = model.ChannelsStreams{
-			ID:             helixStream.ID,
-			UserId:         helixStream.UserID,
-			UserLogin:      helixStream.UserLogin,
-			UserName:       helixStream.UserName,
-			GameId:         helixStream.GameID,
-			GameName:       helixStream.GameName,
-			CommunityIds:   []string{},
-			Type:           helixStream.Type,
-			Title:          helixStream.Title,
-			ViewerCount:    helixStream.ViewerCount,
-			StartedAt:      helixStream.StartedAt,
-			Language:       helixStream.Language,
-			ThumbnailUrl:   helixStream.ThumbnailURL,
-			TagIds:         &tags,
-			IsMature:       helixStream.IsMature,
-			ParsedMessages: 0,
+			ID:           helixStream.ID,
+			UserId:       helixStream.UserID,
+			UserLogin:    helixStream.UserLogin,
+			UserName:     helixStream.UserName,
+			GameId:       helixStream.GameID,
+			GameName:     helixStream.GameName,
+			CommunityIds: []string{},
+			Type:         helixStream.Type,
+			Title:        helixStream.Title,
+			ViewerCount:  helixStream.ViewerCount,
+			StartedAt:    helixStream.StartedAt,
+			Language:     helixStream.Language,
+			ThumbnailUrl: helixStream.ThumbnailURL,
+			TagIds:       &tags,
+			IsMature:     helixStream.IsMature,
 		}
 
 		c.services.Gorm.Save(&stream)
