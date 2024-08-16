@@ -47,13 +47,10 @@ type tokensGrpcImpl struct {
 	globalClient   *helix.Client
 	appAccessToken *appToken
 
-	appLock   *redsync.Mutex
-	usersLock *redsync.Mutex
-	botsLock  *redsync.Mutex
-
-	db     *gorm.DB
-	config cfg.Config
-	log    logger.Logger
+	db      *gorm.DB
+	config  cfg.Config
+	log     logger.Logger
+	redSync *redsync.Redsync
 }
 
 func NewTokens(opts Opts) error {
@@ -80,12 +77,10 @@ func NewTokens(opts Opts) error {
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
 
-		botsLock:  opts.Redsync.NewMutex("tokens-bots-lock"),
-		usersLock: opts.Redsync.NewMutex("tokens-users-lock"),
-		appLock:   opts.Redsync.NewMutex("tokens-app-lock"),
-		db:        opts.Gorm,
-		config:    opts.Config,
-		log:       opts.Logger,
+		db:      opts.Gorm,
+		config:  opts.Config,
+		log:     opts.Logger,
+		redSync: opts.Redsync,
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.TOKENS_SERVER_PORT))
@@ -115,8 +110,9 @@ func (c *tokensGrpcImpl) RequestAppToken(
 	_ context.Context,
 	_ *emptypb.Empty,
 ) (*tokens.Token, error) {
-	c.appLock.Lock()
-	defer c.appLock.Unlock()
+	mu := c.redSync.NewMutex("tokens-app-lock")
+	mu.Lock()
+	defer mu.Unlock()
 
 	if isTokenExpired(c.appAccessToken.ExpiresIn, c.appAccessToken.ObtainmentTime) {
 		appAccessToken, err := c.globalClient.RequestAppAccessToken(appTokenScopes)
@@ -142,8 +138,9 @@ func (c *tokensGrpcImpl) RequestUserToken(
 	ctx context.Context,
 	data *tokens.GetUserTokenRequest,
 ) (*tokens.Token, error) {
-	c.usersLock.Lock()
-	defer c.usersLock.Unlock()
+	mu := c.redSync.NewMutex("tokens-users-lock-" + data.GetUserId())
+	mu.Lock()
+	defer mu.Unlock()
 
 	user := model.Users{}
 	err := c.db.WithContext(ctx).Where("id = ?", data.UserId).Preload("Token").Find(&user).Error
@@ -168,6 +165,9 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
 			return nil, err
+		}
+		if newToken.ErrorMessage != "" {
+			return nil, fmt.Errorf("refresh token error: %s", newToken.ErrorMessage)
 		}
 
 		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, c.config.TokensCipherKey)
@@ -206,8 +206,9 @@ func (c *tokensGrpcImpl) RequestBotToken(
 	ctx context.Context,
 	data *tokens.GetBotTokenRequest,
 ) (*tokens.Token, error) {
-	c.botsLock.Lock()
-	defer c.botsLock.Unlock()
+	mu := c.redSync.NewMutex("tokens-bots-lock-" + data.GetBotId())
+	mu.Lock()
+	defer mu.Unlock()
 
 	bot := model.Bots{}
 	err := c.db.WithContext(ctx).Where("id = ?", data.BotId).Preload("Token").Find(&bot).Error
@@ -228,6 +229,10 @@ func (c *tokensGrpcImpl) RequestBotToken(
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
 			return nil, err
+		}
+
+		if newToken.ErrorMessage != "" {
+			return nil, fmt.Errorf("refresh token error: %s", newToken.ErrorMessage)
 		}
 
 		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, c.config.TokensCipherKey)
