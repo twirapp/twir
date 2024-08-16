@@ -188,7 +188,14 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		if err := c.db.WithContext(ctx).Save(&user.Token).Error; err != nil {
 			return nil, err
 		}
-		c.log.Info("user token refreshed", slog.String("user_id", user.ID))
+
+		c.log.Info(
+			"user token refreshed",
+			slog.String("user_id", user.ID),
+			slog.Int("expires_in", int(user.Token.ExpiresIn)),
+			slog.String("access_token", newAccessToken),
+			slog.String("refresh_token", newRefreshToken),
+		)
 	}
 
 	decryptedAccessToken, err := crypto.Decrypt(user.Token.AccessToken, c.config.TokensCipherKey)
