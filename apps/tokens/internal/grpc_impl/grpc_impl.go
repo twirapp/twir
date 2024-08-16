@@ -53,12 +53,33 @@ type tokensGrpcImpl struct {
 	redSync *redsync.Redsync
 }
 
+func rateLimitFunc(lastResponse *helix.Response) error {
+	if lastResponse.GetRateLimitRemaining() > 0 {
+		return nil
+	}
+
+	var reset64 int64
+	reset64 = int64(lastResponse.GetRateLimitReset())
+
+	currentTime := time.Now().UTC().Unix()
+
+	if currentTime < reset64 {
+		timeDiff := time.Duration(reset64 - currentTime)
+		if timeDiff > 0 {
+			time.Sleep(timeDiff * time.Second)
+		}
+	}
+
+	return nil
+}
+
 func NewTokens(opts Opts) error {
 	helixClient, err := helix.NewClient(
 		&helix.Options{
-			ClientID:     opts.Config.TwitchClientId,
-			ClientSecret: opts.Config.TwitchClientSecret,
-			RedirectURI:  opts.Config.TwitchCallbackUrl,
+			ClientID:      opts.Config.TwitchClientId,
+			ClientSecret:  opts.Config.TwitchClientSecret,
+			RedirectURI:   opts.Config.TwitchCallbackUrl,
+			RateLimitFunc: rateLimitFunc,
 		},
 	)
 	if err != nil {
@@ -161,6 +182,10 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		return nil, err
 	}
 
+	if decryptedRefreshToken == "" {
+		return nil, errors.New("refresh token is empty")
+	}
+
 	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
@@ -168,6 +193,10 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		}
 		if newToken.ErrorMessage != "" {
 			return nil, fmt.Errorf("refresh token error: %s", newToken.ErrorMessage)
+		}
+
+		if newToken.StatusCode != 200 || newToken.Data.AccessToken == "" {
+			return nil, fmt.Errorf("refresh token status code: %d", newToken.StatusCode)
 		}
 
 		newRefreshToken, err := crypto.Encrypt(newToken.Data.RefreshToken, c.config.TokensCipherKey)
@@ -191,7 +220,6 @@ func (c *tokensGrpcImpl) RequestUserToken(
 
 		c.log.Info(
 			"user token refreshed",
-			slog.Any("twitchResponse", newToken),
 			slog.String("user_id", user.ID),
 			slog.Int("expires_in", int(user.Token.ExpiresIn)),
 			slog.String("access_token", newAccessToken),
