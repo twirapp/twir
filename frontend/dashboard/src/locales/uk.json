@@ -55,7 +55,8 @@
     "copied": "Copied",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found"
+    "userNotFound": "No users found",
+    "settings": "Settings"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -652,6 +653,10 @@
   },
   "keywords": {
     "title": "Ключові слова",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
     "isRegular": "Є регулярним виразом?",
@@ -775,6 +780,21 @@
       "timeoutModerators": "Enable seppuku for moderators",
       "messageModerators": "Message when moderator used seppuku",
       "timeoutSeconds": "Timeout seconds"
+    },
+    "voteban": {
+      "description": "Commence jury trial of the guilty chatterer!",
+      "banMessage": "Message on ban",
+      "banMessageModerators": "Message for ban moderator",
+      "surviveMessage": "Survive message",
+      "surviveMessageModerators": "Survive message for moderators",
+      "initialMessage": "Init message",
+      "neededVotes": "Needed votes",
+      "banDuration": "Duration of ban",
+      "voteMode": "Mode of vote",
+      "voteDuration": "Duration of vote in seconds",
+      "wordsNegative": "Words for vote to \"no\" option",
+      "wordsPositive": "Words for vote to \"yes\" option",
+      "timeoutModerators": "Enable voteban on moderators"
     }
   },
   "community": {
@@ -1006,7 +1026,25 @@
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Actions"
+      "title": "Actions",
+      "eventsub": {
+        "title": "Subscribe to EventSub",
+        "condition": "Condition",
+        "type": "Type",
+        "typeError": "Please select a type",
+        "version": "Version",
+        "user": "User",
+        "channel": "Channel",
+        "channelWithBotId": "Channel with bot ID",
+        "channelWithModeratorId": "Channel with moderator ID"
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "revoke": "Revoke",
+        "revokeSessions": "Revoke sessions",
+        "revokeAllSessionsDescription": "All user sessions will be revoked",
+        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+      }
     }
   }
 }

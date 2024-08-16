@@ -18,8 +18,8 @@
     "goToDashboard": "Zur Übersicht gehen",
     "add": "Hinzufügen",
     "send": "Senden",
-    "next": "Next",
-    "previous": "Previous",
+    "next": "Nächste",
+    "previous": "Vorherige",
     "reset": "Zurücksetzen"
   },
   "sharedTexts": {
@@ -43,19 +43,20 @@
     "disabled": "Deaktiviert",
     "setDefaultSettings": "Sind Sie sich sicher, dass Sie die Standardwerte wiederherstellen möchten?",
     "placeCursorMessage": "Platziere den Cursor nach \"$\" um die Variable zu ändern",
-    "pagination": "{page} page(s) / {total} item(s)",
+    "pagination": "{page} Seite(n) / {total} Gegenstand(e)",
     "paginationPerPage": "Pro Seite",
-    "searchPlaceholder": "Search...",
+    "searchPlaceholder": "Suche...",
     "messages": "Nachrichten",
     "asc": "Asc",
     "desc": "Desc",
-    "hide": "Hide",
-    "view": "View",
+    "hide": "Ausblenden",
+    "view": "Anzeigen",
     "toggleColumns": "Toggle columns",
     "copied": "Kopiert",
     "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found"
+    "userSelectPlaceholder": "Wähle einen Benutzer | Wähle mehrere Benutzer",
+    "userNotFound": "Keine Benutzer gefunden",
+    "settings": "Einstellungen"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -79,13 +80,13 @@
     "games": "Spiele",
     "users": "Benutzer",
     "moderation": "Moderation",
-    "import": "Import",
+    "import": "Importieren",
     "community": "Community"
   },
   "navbar": {
     "logout": "Abmelden",
     "publicPage": "Öffentliche Seite",
-    "seeAll": "See all"
+    "seeAll": "Alles anzeigen"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -93,8 +94,8 @@
     "confirm": "Bestätigen"
   },
   "haveNoAccess": {
-    "title": "No access",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "title": "Kein Zugriff",
+    "description": "Du bist nicht berechtigt diese Seite zu sehen, frage den Streamer nach einer Bereitstellung."
   },
   "pageNotFound": {
     "title": "404 Nicht gefunden",
@@ -128,7 +129,7 @@
         "label": "Aliase"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
       },
       "description": {
         "label": "Befehlsbeschreibung"
@@ -323,8 +324,8 @@
       "filters": {
         "label": "Filter",
         "description": "Sie können Ereignisse nach bestimmten Bedingungen filtern. Wenn du zum Beispiel \"{'{raidViewers}'} für Schlachtzugsereignisse gleich 10\" verwendest, wird die Operation nur dann ausgelöst, wenn die Anzahl der Schlachtzugmitglieder 10 beträgt.",
-        "placeholderLeft": "Left side of the condition",
-        "placeholderRight": "Right side of the condition",
+        "placeholderLeft": "Linke Seite des Zustands",
+        "placeholderRight": "Rechte Seite des Zustands",
         "empty": "Keine Filter ausgewählt"
       }
     },
@@ -521,7 +522,7 @@
         "animationsOnAppear": "Anscheinende Emote Animation",
         "animationsOnDisappear": "Verschwindende Emote Animation",
         "excludedEmotes": "Ausgeschlossene Emotes",
-        "rave": "Show Rave (Rainbow) Emotes",
+        "rave": "Zeige Rave (Regenbogen) Emotes an",
         "emotes": {
           "bttvEnabled": "BetterTTV Emotes aktivieren?",
           "ffzEnabled": "FrankerFaceZ Emotes aktivieren?",
@@ -536,16 +537,16 @@
         "main": {
           "label": "Einstellungen",
           "startCommand": {
-            "description": "Overlay Start Command",
-            "example": "<b>!brb 1 Coffee</b> – starts an 1-minute timer with 'Coffee' label.<br><b>!brb 1</b> – starts an 1-minute timer with default text specified in the Settings and Post-Timer Settings sections."
+            "description": "Overlay-Start-Befehl",
+            "example": "<b>!brb 1 Kaffee</b> – startet einen einminütigen Timer mit dem Label 'Coffee'.<br><b>!brb 1</b> – startet einen einminütigen Timer mit dem in den Abschnitten Einstellungen und Post-Timer Einstellungen angegebenen Standardtext."
           },
           "stopCommand": {
-            "description": "Overlay Stop Command",
+            "description": "Overlay-Stop-Befehl",
             "example": "!brbstop"
           },
           "text": "Overlay-Text",
           "background": "",
-          "backgroundOpacity": "Overlay Background Opacity",
+          "backgroundOpacity": "Deckkraft des Overlay-Hintergrunds",
           "font": {
             "color": "Schriftfarbe",
             "family": "Schriftart",
@@ -553,7 +554,7 @@
           }
         },
         "late": {
-          "label": "Post-Timer Settings",
+          "label": "Post-Timer Einstellungen",
           "text": "Overlay Post-Timer Text",
           "displayBrb": "Display Countdown Information"
         }
@@ -594,35 +595,35 @@
       "confirmClearQueue": "Are you sure you want to clear the queue?",
       "users": {
         "maxRequests": "Maximum Request Per-User Amount",
-        "minimalWatchTime": "Minimal Watch Time (in minutes)",
-        "minimalMessages": "Minimal Message Amount",
+        "minimalWatchTime": "Minimale Zuschauzeit (in Minuten)",
+        "minimalMessages": "Minimale Nachrichtenanzahl",
         "minimalFollowTime": "Minimale Folgezeit (in Minuten)"
       },
       "songs": {
         "maxRequests": "Maximale Song-Warteschlangen-Limit",
         "minLength": "Minimale Songlänge (in Minuten)",
         "maxLength": "Maximale Songlänge (in Minuten)",
-        "minViews": "Minimal Views Amount"
+        "minViews": "Minimale Anzahl an Aufrufen"
       }
     },
     "tabs": {
       "general": "Allgemein",
       "users": "Benutzer",
       "songs": "Songs",
-      "translations": "Translations"
+      "translations": "Übersetzungen"
     },
     "ban": {
       "user": "Benutzer bannen",
       "song": "Song bannen",
-      "userConfirm": "Are you sure you want to ban this user?",
-      "songConfirm": "Are you sure you want to ban this song?"
+      "userConfirm": "Bist du dir sicher, dass du diesen Benutzer bannen möchtest?",
+      "songConfirm": "Bist du sicher, dass du diesen Song sperren möchtest?"
     }
   },
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (in minutes)",
-        "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
+        "intervalInMinutes": "Intervall (in Minuten)",
+        "intervalInMessages": "Intervall (in Chat-Nachrichten, auf 0 stellen zur Deaktivierung)"
       }
     },
     "modal": {
@@ -652,6 +653,10 @@
   },
   "keywords": {
     "title": "Schlagwörter",
+    "info": {
+      "text": "Keywords helps you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Auslösetext",
     "usages": "Anzahl der Verwendungen",
     "isRegular": "Ist ein regulärer Ausdruck?",
@@ -742,18 +747,18 @@
       },
       "cooldown": {
         "title": "Duell Abklingzeit",
-        "user": "Individual",
+        "user": "Individuell",
         "global": "Global"
       },
       "messages": {
         "title": "Nachrichten",
         "start": {
-          "title": "Initial Message",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "title": "Erste Nachricht",
+          "description": "Sendet diese Nachricht, wenn das Duell gestartet wird. Verfügbare Variablen: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
-          "description": "Sends this message when duel happened. Available variables: {'{loser}, {winner}'}"
+          "title": "Ergebnisnachricht",
+          "description": "Sendet diese Nachricht, wenn das Duell vorbei ist. Verfügbare Variablen: {'{loser}, {winner}'}"
         },
         "bothDie": {
           "title": "«Niemand überlebt» Nachricht",
@@ -770,68 +775,83 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
-      "timeoutModerators": "Enable seppuku for moderators",
-      "messageModerators": "Message when moderator used seppuku",
-      "timeoutSeconds": "Timeout seconds"
+      "description": "Seppuku ist eine Form des ritualistischen Selbstmords durch Entkörperung.",
+      "message": "Nachricht",
+      "timeoutModerators": "Aktiviere seppuku für Moderatoren",
+      "messageModerators": "Nachricht wenn Moderator seppuku benutzt hat",
+      "timeoutSeconds": "Timeout Sekunden"
+    },
+    "voteban": {
+      "description": "Beginne den Prozess der Jury gegen den Schuldigen Chatter!",
+      "banMessage": "Nachricht beim Bannen",
+      "banMessageModerators": "Nachricht um Moderator zu sperren",
+      "surviveMessage": "Nachricht überleben",
+      "surviveMessageModerators": "Überlebende Nachricht für Moderatoren",
+      "initialMessage": "Erste Nachricht",
+      "neededVotes": "Benötigte Stimmen",
+      "banDuration": "Dauer des Banns",
+      "voteMode": "Modus der Abstimmung",
+      "voteDuration": "Dauer der Abstimmung in Sekunden",
+      "wordsNegative": "Words for vote to \"no\" option",
+      "wordsPositive": "Words for vote to \"yes\" option",
+      "timeoutModerators": "Aktiviere voteban gegen Moderatoren"
     }
   },
   "community": {
     "title": "Community",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Benutzer",
+      "searchPlaceholder": "Benutzer suchen...",
       "table": {
         "user": "Nutzer",
         "watchedTime": "Zugeschaute Zeit",
         "messages": "Nachrichten",
         "usedEmotes": "Verwendete Emotes",
         "usedChannelPoints": "Ausgegebene Kanalpunkte",
-        "empty": "No users"
+        "empty": "Keine Benutzer"
       },
       "total": "Gesamte Benutzer: {total}",
       "reset": {
-        "label": "Reset",
+        "label": "Zurücksetzen",
         "resetQuestion": "Sind sie sich sicher, dass sie {title} zurücksetzen wollen?"
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Emote Statistiken",
+      "searchPlaceholder": "Suche Emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
-        "empty": "No emotes",
+        "usages": "Gesamtnutzung",
+        "users": "Benutzer",
+        "empty": "Keine Emotes",
         "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
-        "lastYear": "Year"
+        "lastDay": "Tag",
+        "lastWeek": "Woche",
+        "lastMonth": "Monat",
+        "lastThreeMonth": "3 Monate",
+        "lastYear": "Jahr"
       },
-      "total": "Total emotes: {total}",
+      "total": "Gesamte Emotes: {total}",
       "details": {
-        "stats": "Stats",
-        "users": "Users",
+        "stats": "Statistiken",
+        "users": "Benutzer",
         "usersTabs": {
-          "top": "Top",
-          "history": "History"
+          "top": "Oben",
+          "history": "Verlauf"
         }
       }
     }
   },
   "filePicker": {
-    "innerText": "Select or drop {type} here.",
-    "usedSpace": "Used {used} / {max} MB",
-    "emptyText": "No {type} uploaded."
+    "innerText": "Hier {type} auswählen oder ablegen.",
+    "usedSpace": "Verwendeter {used} / {max} MB",
+    "emptyText": "Kein {type} hochgeladen."
   },
   "overlaysRegistry": {
-    "description": "This category allows you to create custom configurable overlays for OBS. Currently only HTML Overlays are supported, but other overlay variants will be added later. Thank you for the patience. <3",
+    "description": "In dieser Kategorie kannst du benutzerdefinierte Overlays für OBS erstellen. Derzeit werden nur HTML-Overlays unterstützt, aber andere Overlay-Varianten werden später hinzugefügt. Vielen Dank für die Geduld. <3",
     "noLayersCreated": {
-      "title": "Not Configured",
-      "description": "Currently layers of overlays not created"
+      "title": "Nicht konfiguriert",
+      "description": "Momentan sind Ebenen von Overlays nicht erstellt"
     },
     "customWidth": "Breite",
     "customHeight": "Höhe",
@@ -960,53 +980,71 @@
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Admin Bereich",
     "notifications": {
-      "title": "Notifications",
-      "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
-      "globals": "Globals",
-      "users": "Users",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "title": "Benachrichtigungen",
+      "formTitle": "Benachrichtigung senden oder bearbeiten",
+      "emptyNotifications": "Keine Benachrichtigungen",
+      "userLabel": "Benutzer",
+      "userPlaceholder": "Benutzer wählen",
+      "messageLabel": "Nachricht",
+      "messagePreview": "Vorschau",
+      "createdAt": "Erstellt am",
+      "globals": "Global",
+      "users": "Benutzer",
+      "confirmResetForm": "Bist du sicher, dass du deine Änderungen zurücksetzen möchtest?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
+      "title": "Benutzer",
+      "user": "Benutzer",
+      "userId": "Benutzer-ID",
       "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
-      "clearFilters": "Clear filters",
-      "countSelected": "{count} selected",
+      "noUsers": "Keine Benutzer",
+      "filters": "Filter",
+      "clearFilters": "Filter zurücksetzen",
+      "countSelected": "{count} ausgewählt",
       "isAdmin": "Admin",
       "isBanned": "Banned",
-      "isBotEnabled": "Bot enabled",
+      "isBotEnabled": "Bot aktiviert",
       "statusGroup": "Status",
-      "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
-      "giveMod": "Give admin",
-      "unMod": "Remove admin",
-      "dropSession": "Drop session"
+      "badgesGroup": "Abzeichen",
+      "giveBan": "Benutzer bannen",
+      "unBan": "Benutzer entsperren",
+      "giveMod": "Admin geben",
+      "unMod": "Admin entfernen",
+      "dropSession": "Sitzung abbrechen"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
+      "title": "Abzeichen",
+      "formTitle": "Abzeichen erstellen oder bearbeiten",
       "name": "Name",
-      "users": "Users",
+      "users": "Benutzer",
       "slot": "Slot",
-      "image": "Image",
-      "preview": "Preview",
-      "usesCount": "Uses {count}",
+      "image": "Bild",
+      "preview": "Vorschau",
+      "usesCount": "Verwendet {count}",
       "badgeSlot": "Slot {slot}"
     },
     "adminActions": {
-      "title": "Actions"
+      "title": "Aktionen",
+      "eventsub": {
+        "title": "EventSub abonnieren",
+        "condition": "Bedingung",
+        "type": "Typ",
+        "typeError": "Geben Sie einen Typ an",
+        "version": "Version",
+        "user": "Benutzer",
+        "channel": "Kanal",
+        "channelWithBotId": "Channel with bot ID",
+        "channelWithModeratorId": "Channel with moderator ID"
+      },
+      "dangerZone": {
+        "title": "Danger Zone",
+        "revoke": "Revoke",
+        "revokeSessions": "Revoke sessions",
+        "revokeAllSessionsDescription": "All user sessions will be revoked",
+        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+      }
     }
   }
 }
