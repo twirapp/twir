@@ -191,6 +191,7 @@ func (c *tokensGrpcImpl) RequestUserToken(
 
 		c.log.Info(
 			"user token refreshed",
+			slog.Any("twitchResponse", newToken),
 			slog.String("user_id", user.ID),
 			slog.Int("expires_in", int(user.Token.ExpiresIn)),
 			slog.String("access_token", newAccessToken),
