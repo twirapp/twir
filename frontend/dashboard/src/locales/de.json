@@ -54,7 +54,7 @@
     "toggleColumns": "Toggle columns",
     "copied": "Kopiert",
     "userSelected": "{count} users selected",
-    "userSelectPlaceholder": "Wähle einen Benutzer | Wähle mehrere Benutzer",
+    "userSelectPlaceholder": "Wähle einen Benutzer|Wähle mehrere Benutzer",
     "userNotFound": "Keine Benutzer gefunden",
     "settings": "Einstellungen"
   },
@@ -545,7 +545,7 @@
             "example": "!brbstop"
           },
           "text": "Overlay-Text",
-          "background": "",
+          "background": "Overlay-Hintergrund",
           "backgroundOpacity": "Deckkraft des Overlay-Hintergrunds",
           "font": {
             "color": "Schriftfarbe",
@@ -794,7 +794,7 @@
       "voteDuration": "Dauer der Abstimmung in Sekunden",
       "wordsNegative": "Words for vote to \"no\" option",
       "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Aktiviere voteban gegen Moderatoren"
+      "timeoutModerators": "Aktiviere Voteban gegen Moderatoren"
     }
   },
   "community": {
@@ -1031,7 +1031,7 @@
         "title": "EventSub abonnieren",
         "condition": "Bedingung",
         "type": "Typ",
-        "typeError": "Geben Sie einen Typ an",
+        "typeError": "Gebe einen Typ an",
         "version": "Version",
         "user": "Benutzer",
         "channel": "Kanal",
