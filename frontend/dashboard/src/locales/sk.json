@@ -792,8 +792,8 @@
       "banDuration": "Dĺžka banu",
       "voteMode": "Mode of vote",
       "voteDuration": "Dĺžka hlasovania v sekundách",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
+      "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
+      "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
       "timeoutModerators": "Enable voteban on moderators"
     }
   },
