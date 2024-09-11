@@ -2,6 +2,8 @@ package overlays
 
 import (
 	"encoding/json"
+	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -52,7 +54,9 @@ func New(opts Opts) *Registry {
 		func(session *melody.Session) {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				opts.Logger.Error(err.Error())
+				if !errors.Is(err, helpers.ErrUserNotFound) {
+					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				}
 				return
 			}
 			session.Write([]byte(`{"eventName":"connected to overlays namespace"}`))

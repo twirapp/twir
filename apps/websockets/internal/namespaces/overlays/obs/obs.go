@@ -2,6 +2,8 @@ package obs
 
 import (
 	"encoding/json"
+	"errors"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -52,7 +54,9 @@ func NewObs(opts Opts) *OBS {
 		func(session *melody.Session) {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				opts.Logger.Error(err.Error())
+				if !errors.Is(err, helpers.ErrUserNotFound) {
+					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				}
 				return
 			}
 

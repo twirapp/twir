@@ -9,6 +9,8 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrUserNotFound = errors.New("no user found")
+
 func CheckUserByApiKey(db *gorm.DB, session *melody.Session) error {
 	apiKey := session.Request.URL.Query().Get("apiKey")
 	if apiKey == "" {
@@ -21,7 +23,7 @@ func CheckUserByApiKey(db *gorm.DB, session *melody.Session) error {
 	if err != nil {
 		zap.S().Errorf(apiKey, err)
 		session.Close()
-		return errors.New("no user found")
+		return ErrUserNotFound
 	}
 
 	session.Set("userId", dbUser.ID)

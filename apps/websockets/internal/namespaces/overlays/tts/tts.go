@@ -2,6 +2,7 @@ package tts
 
 import (
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -54,7 +55,9 @@ func NewTts(opts Opts) *TTS {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 
 			if err != nil {
-				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				if !errors.Is(err, helpers.ErrUserNotFound) {
+					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				}
 				return
 			}
 

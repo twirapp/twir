@@ -1,6 +1,7 @@
 package kappagen
 
 import (
+	"errors"
 	"log/slog"
 	"net/http"
 	"time"
@@ -63,7 +64,9 @@ func New(opts Opts) *Kappagen {
 		func(session *melody.Session) {
 			err := helpers.CheckUserByApiKey(opts.Gorm, session)
 			if err != nil {
-				opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				if !errors.Is(err, helpers.ErrUserNotFound) {
+					opts.Logger.Error("cannot check user by api key", slog.Any("err", err))
+				}
 				return
 			}
 
