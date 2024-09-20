@@ -28,6 +28,25 @@ func (s *Service) getUserByApiKey(apiKey string) (*model.Users, error) {
 func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		apiKey := ctx.Value("apiKey")
+		if apiKey != nil {
+			castedApiKey, ok := apiKey.(string)
+			if !ok {
+				return nil, twirp.Internal.Error("internal error, wrong api key")
+			}
+
+			dbUser, err := s.getUserByApiKey(castedApiKey)
+			if err != nil {
+				s.logger.Error("get user by api key", slog.Any("err", err))
+				return nil, twirp.Internal.Error("internal error")
+			}
+			if dbUser == nil {
+				return nil, twirp.Unauthenticated.Error("not authenticated")
+			}
+			ctx = context.WithValue(ctx, "dbUser", dbUser)
+
+			return next(ctx, req)
+		}
+
 		sessionUser := s.sessionManager.Get(ctx, "dbUser")
 		if sessionUser == nil {
 			return nil, twirp.Unauthenticated.Error("not authenticated")
@@ -39,25 +58,6 @@ func (s *Service) DbUserInterceptor(next twirp.Method) twirp.Method {
 			return next(ctx, req)
 		}
 
-		if apiKey == nil || apiKey == "" {
-			return nil, twirp.Unauthenticated.Error("not authenticated")
-		}
-
-		castedApiKey, ok := apiKey.(string)
-		if !ok {
-			return nil, twirp.Internal.Error("internal error")
-		}
-
-		dbUser, err := s.getUserByApiKey(castedApiKey)
-		if err != nil {
-			s.logger.Error("get user by api key", slog.Any("err", err))
-			return nil, twirp.Internal.Error("internal error")
-		}
-		if dbUser == nil {
-			return nil, twirp.Unauthenticated.Error("not authenticated")
-		}
-		ctx = context.WithValue(ctx, "dbUser", dbUser)
-
-		return next(ctx, req)
+		return nil, twirp.Unauthenticated.Error("not authenticated")
 	}
 }

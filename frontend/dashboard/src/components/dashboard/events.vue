@@ -17,9 +17,13 @@ import ReSubscribe from './events/resubscribe.vue'
 import SubGift from './events/subgift.vue'
 import Subscribe from './events/subscribe.vue'
 
-import { useDashboardEvents } from '@/api/index.js'
+import { useDashboardEvents, useProfile } from '@/api/index.js'
 import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
 import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
+
+const props = defineProps<{
+	popup?: boolean
+}>()
 
 const { data: events, isLoading, refetch } = useDashboardEvents()
 useIntervalFn(refetch, 1000)
@@ -79,11 +83,26 @@ const enabledEventsOptions = [
 		value: 11,
 	},
 ]
+
+const { data } = useProfile()
+
+function openPopup() {
+	if (!data.value) return
+
+	window.open(
+		`https://dev.twir.app/dashboard/popup/widgets/eventslist?apiKey=${data.value?.apiKey}`,
+		'_blank',
+		'width=400,height=600,popup=true',
+	)
+}
 </script>
 
 <template>
-	<Card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }">
+	<Card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }" :popup="props.popup">
 		<template #header-extra>
+			<NButton :disabled="!data" secondary size="small" type="info" class="uppercase" @click="openPopup">
+				Popup
+			</NButton>
 			<NPopselect
 				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"
 				trigger="click"

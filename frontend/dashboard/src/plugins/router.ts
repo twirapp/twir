@@ -14,6 +14,17 @@ export function newRouter() {
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},
 		{
+			path: '/dashboard/popup',
+			component: () => import('../popup-layout/popup-layout.vue'),
+			children: [
+				{
+					path: '/dashboard/popup/widgets/eventslist',
+					component: () => import('../components/dashboard/events.vue'),
+					props: { popup: true },
+				},
+			],
+		},
+		{
 			path: '/dashboard',
 			component: () => import('../layout/layout.vue'),
 			children: [
@@ -196,6 +207,8 @@ export function newRouter() {
 	})
 
 	router.beforeEach(async (to, _, next) => {
+		if (to.path.startsWith('/dashboard/popup')) return next()
+
 		try {
 			const profileRequest = await urqlClient.value.executeQuery(profileQuery)
 			if (!profileRequest.data) {
