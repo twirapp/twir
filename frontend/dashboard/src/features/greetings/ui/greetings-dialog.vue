@@ -49,7 +49,7 @@ function resetFormValue() {
 	formValue.value = structuredClone(defaultFormValue)
 }
 
-watch(() => props.greeting, (greeting) => {
+watch(() => props.variable, (greeting) => {
 	if (!greeting) return
 	formValue.value = structuredClone(toRaw(greeting))
 }, { immediate: true })
