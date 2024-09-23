@@ -18,11 +18,13 @@ defineSlots<{
 	rightContent: any
 }>()
 
+const locale = navigator.language
 const theme = useTheme()
 const color = computed(() => {
 	if (!props.iconColor) return
 	return props.iconColor.at(Number(theme.theme.value === 'dark'))
 })
+const date = computed(() => new Date(Number(props.createdAt)))
 </script>
 
 <template>
@@ -42,13 +44,39 @@ const color = computed(() => {
 			<div class="flex items-end text-xs h-full py-2 flex-shrink-0">
 				<UseTimeAgo
 					v-slot="{ timeAgo }"
-					:time="new Date(Number(createdAt))"
+					:time="date"
 					:update-interval="1000"
 					show-second
 				>
-					{{ timeAgo }}
+					<span class="tooltip" :data-utc="date.toLocaleString(locale)">
+						{{ timeAgo }}
+					</span>
 				</UseTimeAgo>
 			</div>
 		</div>
 	</div>
 </template>
+
+<style scoped>
+.tooltip {
+  position: relative;
+}
+
+.tooltip:after {
+  content: attr(data-utc);
+  position: absolute;
+  top: 0px;
+  right: 0;
+  left: -100px;
+  display: none;
+  text-align: center;
+  background-color: #000;
+  border-radius: 4px;
+  padding: 2px;
+	white-space: nowrap;
+}
+
+.tooltip:hover:after {
+  display: block;
+}
+</style>
