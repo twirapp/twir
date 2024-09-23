@@ -20,7 +20,8 @@
     "send": "Відправити",
     "next": "Далі",
     "previous": "Назад",
-    "reset": "Скинути"
+    "reset": "Скинути",
+    "popout": "Popout in new window"
   },
   "sharedTexts": {
     "saved": "Збережено",
