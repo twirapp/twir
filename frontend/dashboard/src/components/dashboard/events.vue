@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { IconSettings } from '@tabler/icons-vue'
+import { IconExternalLink, IconSettings } from '@tabler/icons-vue'
 import { EventType } from '@twir/api/messages/dashboard/dashboard'
 import { useIntervalFn, useLocalStorage } from '@vueuse/core'
-import { NButton, NPopselect, NScrollbar, NText } from 'naive-ui'
+import { NButton, NPopselect, NScrollbar, NText, NTooltip } from 'naive-ui'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 import Card from './card.vue'
 import Ban from './events/ban.vue'
@@ -25,6 +26,7 @@ const props = defineProps<{
 	popup?: boolean
 }>()
 
+const { t } = useI18n()
 const { data: events, isLoading, refetch } = useDashboardEvents()
 useIntervalFn(refetch, 1000)
 
@@ -89,10 +91,15 @@ const { data } = useProfile()
 function openPopup() {
 	if (!data.value) return
 
+	const height = 800
+	const width = 500
+	const top = Math.max(0, (screen.height - height) / 2)
+	const left = Math.max(0, (screen.width - width) / 2)
+
 	window.open(
-		`${window.location.origin}/dashboard/popup/widgets/eventslist?apiKey=${data.value?.apiKey}`,
+		`${window.location.origin}/dashboard/popup/widgets/eventslist?apiKey=${data.value.apiKey}`,
 		'_blank',
-		'width=400,height=600,popup=true',
+		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`,
 	)
 }
 </script>
@@ -100,9 +107,16 @@ function openPopup() {
 <template>
 	<Card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }" :popup="props.popup">
 		<template #header-extra>
-			<NButton :disabled="!data" secondary size="small" type="info" class="uppercase" @click="openPopup">
-				Popup
-			</NButton>
+			<NTooltip trigger="hover" placement="bottom">
+				<template #trigger>
+					<NButton size="small" text @click="openPopup">
+						<IconExternalLink />
+					</NButton>
+				</template>
+
+				{{ t('sharedButtons.popout') }}
+			</NTooltip>
+
 			<NPopselect
 				v-model:value="enabledEvents" multiple :options="enabledEventsOptions"
 				trigger="click"

@@ -20,7 +20,8 @@
     "send": "Send",
     "next": "Next",
     "previous": "Previous",
-    "reset": "Reset"
+    "reset": "Reset",
+    "popout": "Popout in new window"
   },
   "sharedTexts": {
     "saved": "Saved",
