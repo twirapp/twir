@@ -90,7 +90,7 @@ function openPopup() {
 	if (!data.value) return
 
 	window.open(
-		`https://dev.twir.app/dashboard/popup/widgets/eventslist?apiKey=${data.value?.apiKey}`,
+		`${window.location.origin}/dashboard/popup/widgets/eventslist?apiKey=${data.value?.apiKey}`,
 		'_blank',
 		'width=400,height=600,popup=true',
 	)
