@@ -20,7 +20,8 @@
     "send": "Odoslať",
     "next": "Ďalšie",
     "previous": "Predchádzajúce",
-    "reset": "Resetovať"
+    "reset": "Resetovať",
+    "popout": "Popout in new window"
   },
   "sharedTexts": {
     "saved": "Uložené",
