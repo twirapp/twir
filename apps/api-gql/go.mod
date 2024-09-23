@@ -1,6 +1,8 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.21
+go 1.23.0
+
+toolchain go1.23.1
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -30,6 +32,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/websocket v1.5.1
 	github.com/guregu/null v4.0.0+incompatible
+	github.com/kr/pretty v0.3.1
 	github.com/lib/pq v1.10.9
 	github.com/minio/minio-go/v7 v7.0.69
 	github.com/nats-io/nats.go v1.36.0
@@ -40,14 +43,17 @@ require (
 	github.com/samber/lo v1.39.0
 	github.com/samber/slog-gin v1.11.0
 	github.com/satont/twir/libs/config v0.0.0-20240126231400-72985ccc25a5
-	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/crypto v0.0.0-20240923063656-34c54be7623e
+	github.com/satont/twir/libs/gomodels v0.0.0-20240208154120-fc098a9e20a2
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/pubsub v0.0.0-20240923063656-34c54be7623e
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/types v0.0.0-20240411125706-789748d8a577
 	github.com/twirapp/twir/libs/baseapp v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/cache v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/grpc v0.0.0-20240126231400-72985ccc25a5
+	github.com/twirapp/twir/libs/integrations v0.0.0-20240923063656-34c54be7623e
 	github.com/twirapp/twir/libs/redis_keys v0.0.0-00010101000000-000000000000
 	github.com/vektah/gqlparser/v2 v2.5.11
 	github.com/vikstrous/dataloadgen v0.0.6
@@ -95,6 +101,7 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.7 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
@@ -113,6 +120,7 @@ require (
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/quic-go v0.41.0 // indirect
 	github.com/refraction-networking/utls v1.6.1 // indirect
+	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/rs/xid v1.5.0 // indirect
 	github.com/rs/zerolog v1.31.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
@@ -122,6 +130,7 @@ require (
 	github.com/samber/slog-zerolog/v2 v2.2.0 // indirect
 	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
+	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect

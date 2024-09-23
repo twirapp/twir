@@ -1,11 +1,13 @@
 package public
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
@@ -15,6 +17,11 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		Where(`"id" = ?`, c.Param("channelId")).
 		First(&channel).
 		Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "channel not found"})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "channel not found"})
 		return
 	}

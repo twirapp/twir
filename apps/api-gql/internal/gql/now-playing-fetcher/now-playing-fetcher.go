@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/goccy/go-json"
+	"github.com/kr/pretty"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
@@ -120,6 +121,9 @@ func (i *Track) UnmarshalBinary(data []byte) error {
 
 func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
 	track, err := c.fetchWrapper(ctx)
+	if c.channelId == "115133555" {
+		pretty.Println("track for suhodolskiy", track, err)
+	}
 	if err != nil {
 		return nil, err
 	}
