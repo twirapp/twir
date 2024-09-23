@@ -1,21 +1,26 @@
-import { useColorMode } from '@vueuse/core'
+import { createGlobalState, useColorMode } from '@vueuse/core'
 
 export type Theme = 'light' | 'dark'
 
-export function useTheme(key?: string) {
-	const mode = useColorMode({
-		storage: localStorage,
-		storageKey: key ?? 'twirTheme',
-		initialValue: 'dark'
-	})
+function _useTheme(key?: string) {
+	return createGlobalState(() => {
+		const mode = useColorMode({
+			storage: localStorage,
+			storageKey: key,
+			initialValue: 'dark',
+		})
 
-	return {
-		theme: mode,
-		toggleTheme: () => {
-			mode.value = mode.value === 'light' ? 'dark' : 'light'
-		},
-		changeTheme: (newTheme: Theme) => {
-			mode.value = newTheme
+		return {
+			theme: mode,
+			toggleTheme: () => {
+				mode.value = mode.value === 'light' ? 'dark' : 'light'
+			},
+			changeTheme: (newTheme: Theme) => {
+				mode.value = newTheme
+			},
 		}
-	}
+	})
 }
+
+export const useTheme = _useTheme('twirTheme')
+export const useThemeTwitchChat = _useTheme('twirTwitchChatTheme')

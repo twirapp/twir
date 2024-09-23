@@ -9,6 +9,7 @@ import {
 } from 'naive-ui'
 import { computed } from 'vue'
 
+import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
 import { useTheme } from '@/composables/use-theme'
 
@@ -26,7 +27,6 @@ const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightThe
 			<NMessageProvider :duration="2500" :closable="true">
 				<NDialogProvider>
 					<RouterView />
-
 					<Toaster />
 					<Sonner />
 				</NDialogProvider>
@@ -34,7 +34,3 @@ const themeStyles = computed(() => theme.value === 'dark' ? darkTheme : lightThe
 		</NNotificationProvider>
 	</NConfigProvider>
 </template>
-
-<style scoped>
-
-</style>
