@@ -582,6 +582,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			Gorm:      r.gorm,
 			ChannelID: user.ID,
 			Redis:     r.redis,
+			Logger:    r.logger,
 		},
 	)
 	if err != nil {

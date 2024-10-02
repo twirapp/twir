@@ -90,7 +90,10 @@ checkServices:
 			if spoti == nil {
 				continue
 			}
-			track := spoti.GetTrack()
+			track, err := spoti.GetTrack()
+			if err != nil {
+				c.services.Logger.Error("failed to get track", zap.Error(err))
+			}
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{
 					Name:  track.Artist + " — " + track.Title,

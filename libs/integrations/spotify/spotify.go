@@ -1,7 +1,7 @@
 package spotify
 
 import (
-	"errors"
+	"fmt"
 	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
@@ -37,7 +37,7 @@ type SpotifyRefreshResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-func (c *Spotify) refreshToken() *error {
+func (c *Spotify) refreshToken() error {
 	data := SpotifyRefreshResponse{}
 
 	body := make(map[string]string, 2)
@@ -46,16 +46,18 @@ func (c *Spotify) refreshToken() *error {
 
 	resp, err := req.R().
 		SetFormData(body).
-		SetResult(&data).
+		SetSuccessResult(&data).
 		SetBasicAuth(
 			c.integration.Integration.ClientID.String,
 			c.integration.Integration.ClientSecret.String,
 		).
 		Post("https://accounts.spotify.com/api/token")
 
-	if err != nil || resp.StatusCode != 200 {
-		res := errors.New("cannot refresh token")
-		return &res
+	if err != nil {
+		return err
+	}
+	if !resp.IsSuccessState() {
+		return fmt.Errorf("cannot refresh spotify token: %s", resp.String())
 	}
 
 	c.integration.AccessToken = null.StringFrom(data.AccessToken)
@@ -97,25 +99,27 @@ type GetTrackResponse struct {
 	IsPlaying bool   `json:"isPlaying"`
 }
 
-func (c *Spotify) GetTrack() *GetTrackResponse {
+func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
 	data := SpotifyResponse{}
-	req, err := req.R().
+	resp, err := req.R().
 		SetBearerAuthToken(c.integration.AccessToken.String).
 		SetSuccessResult(&data).
 		Get("https://api.spotify.com/v1/me/player/currently-playing")
 
-	if req.StatusCode == 401 && !c.isRetry {
+	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
 		c.refreshToken()
 		return c.GetTrack()
 	}
-
 	if err != nil {
-		return nil
+		return nil, err
+	}
+	if !resp.IsSuccessState() {
+		return nil, fmt.Errorf("cannot get spotify track: %s", resp.String())
 	}
 
 	if data.Track == nil {
-		return nil
+		return nil, nil
 	}
 
 	artistsMap := lo.Map(
@@ -134,7 +138,7 @@ func (c *Spotify) GetTrack() *GetTrackResponse {
 		Title:     data.Track.Name,
 		Image:     imageUrl,
 		IsPlaying: data.IsPlaying,
-	}
+	}, nil
 }
 
 type SpotifyProfile struct {
@@ -166,12 +170,12 @@ type SpotifyProfile struct {
 
 func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
 	data := SpotifyProfile{}
-	req, err := req.R().
+	resp, err := req.R().
 		SetBearerAuthToken(c.integration.AccessToken.String).
 		SetSuccessResult(&data).
 		Get("https://api.spotify.com/v1/me")
 
-	if req.StatusCode == 401 && !c.isRetry {
+	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
 		c.refreshToken()
 		return c.GetProfile()
@@ -181,8 +185,8 @@ func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
 		return nil, err
 	}
 
-	if !req.IsSuccessState() {
-		return nil, errors.New("cannot get profile")
+	if !resp.IsSuccessState() {
+		return nil, fmt.Errorf("cannot get profile: %s", resp.String())
 	}
 
 	return &data, nil
