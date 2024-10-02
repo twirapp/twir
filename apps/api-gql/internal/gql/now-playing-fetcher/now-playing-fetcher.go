@@ -139,7 +139,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	if c.spotifyService != nil {
 		spotifyTrack, err := c.spotifyService.GetTrack()
 		if err != nil {
-			c.logger.Error("cannot fetch spotify track", slog.Any("err", err))
+			c.logger.Error(
+				"cannot fetch spotify track",
+				slog.Any("err", err),
+				slog.String("channel_id", c.channelId),
+			)
 		}
 
 		if spotifyTrack != nil && spotifyTrack.IsPlaying {
@@ -153,9 +157,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 
 	if c.lastfmService != nil {
 		lastfmTrack, err := c.lastfmService.GetTrack()
-		if err != nil {
-			c.logger.Error("cannot fetch lastfm track", slog.Any("err", err))
-		}
+		c.logger.Error(
+			"cannot fetch lastfm track",
+			slog.Any("err", err),
+			slog.String("channel_id", c.channelId),
+		)
 
 		if lastfmTrack != nil {
 			return &Track{
@@ -169,7 +175,11 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	if c.vkService != nil {
 		vkTrack, err := c.vkService.GetTrack(ctx)
 		if err != nil {
-			c.logger.Error("cannot fetch vk track", slog.Any("err", err))
+			c.logger.Error(
+				"cannot fetch vk track",
+				slog.Any("err", err),
+				slog.String("channel_id", c.channelId),
+			)
 		}
 
 		if vkTrack != nil {
