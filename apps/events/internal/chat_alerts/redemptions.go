@@ -2,6 +2,7 @@ package chat_alerts
 
 import (
 	"context"
+	"slices"
 	"strings"
 
 	"github.com/samber/lo"
@@ -20,6 +21,10 @@ func (c *ChatAlerts) redemption(
 	}
 
 	if len(settings.Redemptions.Messages) == 0 {
+		return nil
+	}
+
+	if slices.Contains(settings.Redemptions.IgnoredRewardsIDS, req.Id) {
 		return nil
 	}
 

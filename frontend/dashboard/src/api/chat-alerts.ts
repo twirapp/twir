@@ -71,6 +71,7 @@ export const useChatAlertsApi = createGlobalState(() => {
 							text
 						}
 						cooldown
+						ignoredRewardsIds
 					}
 					firstUserMessage {
 						enabled

@@ -73,9 +73,10 @@ type ChatAlertsCheers struct {
 }
 
 type ChatAlertsRedemptions struct {
-	Enabled  bool                `json:"enabled"`
-	Messages []ChatAlertsMessage `json:"messages"`
-	Cooldown int                 `json:"cooldown"`
+	Enabled           bool                `json:"enabled"`
+	Messages          []ChatAlertsMessage `json:"messages"`
+	Cooldown          int                 `json:"cooldown"`
+	IgnoredRewardsIDS []string            `json:"ignoredRewardsIds,omitempty"`
 }
 
 type ChatAlertsFirstUserMessage struct {

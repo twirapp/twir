@@ -68,6 +68,7 @@ type ChatAlertsRedemptions {
 	enabled: Boolean!
 	messages: [ChatAlertsMessage!]!
 	cooldown: Int!
+	ignoredRewardsIds: [String!]!
 }
 
 type ChatAlertsFirstUserMessage {
@@ -170,6 +171,7 @@ input ChatAlertsRedemptionsInput {
 	enabled: Boolean
 	messages: [ChatAlertsMessageInput]
 	cooldown: Int
+	ignoredRewardsIds: [String!]
 }
 
 input ChatAlertsFirstUserMessageInput {
