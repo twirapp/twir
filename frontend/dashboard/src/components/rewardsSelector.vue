@@ -68,10 +68,9 @@ function renderRewardLabel(option: RewardSelectOptions): VNodeChild {
 	})
 }
 
-function renderRewardTag(props: { option: RewardSelectOptions, handleClose: () => void }): VNodeChild {
+function renderRewardTag(props: { option: SelectOption, handleClose: () => void }): VNodeChild {
 	return h(NTag, {
 		bordered: false,
-		// type: 'info',
 		closable: true,
 		onClose: props.handleClose,
 	},	{
