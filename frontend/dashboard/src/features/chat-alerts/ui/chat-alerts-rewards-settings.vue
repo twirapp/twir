@@ -7,7 +7,7 @@ const { formValue } = useForm()
 </script>
 
 <template>
-	<div v-if="'ignoredRewardsIds' in formValue.redemptions" class="grid items-center gap-1.5">
+	<div class="grid items-center gap-1.5">
 		<Label for="rewardsIgnoredIds">Ignored rewards</Label>
 		<RewardsSelector
 			id="rewardsIgnoredIds"

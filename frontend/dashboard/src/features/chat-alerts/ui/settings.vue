@@ -48,6 +48,8 @@ function createMessage() {
 
 	if (props.count) {
 		const latest = formValue?.value?.[props.formKey]?.messages.at(-1)
+		// eslint-disable-next-line ts/ban-ts-comment
+		// @ts-expect-error
 		const countForSet = latest && 'count' in latest ? latest.count + 1 : 1
 
 		formValue?.value?.[props.formKey]?.messages.push({
@@ -63,8 +65,6 @@ function removeMessage(index: number) {
 	if (!hasAccessToManageAlerts) return
 	if (!formValue?.value?.[props.formKey]?.messages) return
 
-	// eslint-disable-next-line ts/ban-ts-comment
-	// @ts-expect-error
 	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter((_, i) => i !== index)
 }
 
