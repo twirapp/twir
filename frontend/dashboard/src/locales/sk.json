@@ -20,7 +20,8 @@
     "send": "Odoslať",
     "next": "Ďalšie",
     "previous": "Predchádzajúce",
-    "reset": "Resetovať"
+    "reset": "Resetovať",
+    "popout": "Popout v novom okne"
   },
   "sharedTexts": {
     "saved": "Uložené",
@@ -694,7 +695,7 @@
   },
   "alerts": {
     "title": "Upozornenia",
-    "info": "Alerts Information",
+    "info": "Informácie o upozorneniach",
     "overlayLabel": "Upozornenia sú grafickou súčasťou implementácie príkazu alebo udalosti. Upozornenie môžete nakonfigurovať s určeným zvukom, obrázkom a textom a potom ho priradiť ku konkrétnemu príkazu, udalosti, kľúčovému slovu alebo pozdravu. Nezabudnite tiež vložiť overlay adresu URL ako zdroj prehliadača do scény streamovacieho softvéru! (napríklad OBS, XSplit atď.)",
     "copyOverlayLink": "Skopírovať link prekrytia",
     "name": "Názov",
@@ -711,8 +712,8 @@
     },
     "select": {
       "audio": "Konfigurácia zvuku",
-      "image": "Configure an image",
-      "text": "Configure text"
+      "image": "Vybrať obrázok",
+      "text": "Konfigurovať text"
     },
     "audioVolume": "Hlasitosť zvuku",
     "createAlert": "Vytvoriť upozornenie",
@@ -754,7 +755,7 @@
         "title": "Správy",
         "start": {
           "title": "Úvodná správa",
-          "description": "Sends this message when duel initiated. Available variables: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
+          "description": "Túto správu odošle po spustení duelu. Dostupné premenné: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
           "title": "Výsledná správa",
@@ -762,7 +763,7 @@
         },
         "bothDie": {
           "title": "«No One Survived» Message",
-          "description": "Sends this message when duel happened and both duelists are dead. Available variables: {'{target}, {initiator}'}"
+          "description": "Odošle túto správu, keď sa uskutočnil duel a obaja účastníci súboja sú mŕtvi. Dostupné premenné: {'{target}, {initiator}'}"
         }
       },
       "settings": {
@@ -775,11 +776,11 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
+      "description": "Seppuku je forma japonskej rituálnej samovraždy vykuchaním.",
       "message": "Správa",
       "timeoutModerators": "Povoliť seppuku pre moderátorov",
-      "messageModerators": "Message when moderator used seppuku",
-      "timeoutSeconds": "Timeout seconds"
+      "messageModerators": "Správa, keď moderátor použil seppuku",
+      "timeoutSeconds": "Timeout v sekundách"
     },
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
@@ -792,8 +793,8 @@
       "banDuration": "Dĺžka banu",
       "voteMode": "Mode of vote",
       "voteDuration": "Dĺžka hlasovania v sekundách",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
+      "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
+      "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
       "timeoutModerators": "Enable voteban on moderators"
     }
   },
@@ -894,7 +895,7 @@
       "userBanned": "User Ban",
       "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
       "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban",
-      "messageDelete": "Message Deleted"
+      "messageDelete": "Správa bola zmazaná"
     }
   },
   "moderation": {
@@ -1002,7 +1003,7 @@
       "noUsers": "Žiadni používatelia",
       "filters": "Filtre",
       "clearFilters": "Vymazať filtre",
-      "countSelected": "{count} vybraný",
+      "countSelected": "{count} vybraných",
       "isAdmin": "Admin",
       "isBanned": "Zabanovaný",
       "isBotEnabled": "Bot povolený",
