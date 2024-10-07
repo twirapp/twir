@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 interface Props {
 	variant: 'primary' | 'secondary'
-	href: string
+	href?: string
 }
 
 const props = defineProps<Props>()
@@ -18,7 +18,8 @@ const variant = computed(() => variantStyles[props.variant])
 
 <template>
 	<a
-		:href="href" class="inline-flex justify-center items-center py-3 px-7 xs:py-4 font-semibold text-white rounded-lg transition-[background,box-shadow] text-base sm:text-lg focus-visible:outline-none focus-visible:ring-4 text-center whitespace-nowrap" :class="[
+		:href="props.href"
+		class="inline-flex justify-center items-center py-3 px-7 xs:py-4 font-semibold text-white rounded-lg transition-[background,box-shadow] text-base sm:text-lg focus-visible:outline-none focus-visible:ring-4 text-center whitespace-nowrap" :class="[
 			variant,
 		]"
 	>

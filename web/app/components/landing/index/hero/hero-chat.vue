@@ -38,6 +38,7 @@ function onMouseLeave() {
 			>
 				<ChatAvatar
 					v-if="message.type === 'message'"
+					:fontControlled="false"
 					:is-bot="message.sender === 'bot'"
 					:variant="message.variant"
 				/>
@@ -51,6 +52,7 @@ function onMouseLeave() {
 					]"
 				>
 					<ChatMessageTail
+						:fontControlled="false"
 						class="absolute h-[21px] w-[11px] top-0 -left-[10px]"
 						:class="{
 							'text-[#534FDB]': message.sender === 'bot',

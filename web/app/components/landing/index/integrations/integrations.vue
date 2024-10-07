@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { integrations } from '~/pages/index/integrations/integrations'
+import { integrations } from './integrations.js'
 </script>
 
 <template>

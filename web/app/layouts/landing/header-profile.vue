@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useProfile } from '~/api/user'
 
-const { data: profile } = useProfile()
+const { data: profile } = await useProfile()
 </script>
 
 <template>
@@ -13,13 +13,12 @@ const { data: profile } = useProfile()
 		Login
 		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
 	</a>
-
 	<a v-else href="/dashboard" class="text-white/75 inline-flex gap-x-3 items-center">
 		<span class="max-[600px]:hidden">
-			{{ profile.displayName }}
+			{{ profile.authenticatedUser.twitchProfile.login }}
 		</span>
 		<NuxtImg
-			:src="profile.avatar"
+			:src="profile.authenticatedUser.twitchProfile.profileImageUrl"
 			alt="avatarImage"
 			class="rounded-full w-9 h-9 object-cover"
 		/>

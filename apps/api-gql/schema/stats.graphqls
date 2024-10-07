@@ -1,0 +1,21 @@
+extend type Query {
+	twirStats: TwirStats!
+}
+
+type TwirStats {
+	channels: Int!
+	createdCommands: Int!
+	viewers: Int!
+	messages: Int!
+	usedEmotes: Int!
+	usedCommands: Int!
+	streamers: [TwirStatsStreamer!]!
+}
+
+type TwirStatsStreamer {
+	id: String!
+	twitchProfile: TwirUserTwitchInfo!
+	isLive: Boolean!
+	isPartner: Boolean!
+	followersCount: Int!
+}

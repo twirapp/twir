@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { developers, socialLinkLabels } from '~/pages/index/team/team'
+import { developers, socialLinkLabels } from './team.js'
 </script>
 
 <template>

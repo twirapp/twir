@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL } from '@twir/brand'
 
-import { features } from '~/pages/index/features/features'
+import { features } from './features.js'
 </script>
 
 <template>

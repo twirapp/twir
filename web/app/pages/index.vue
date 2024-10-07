@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import { profileQuery, userInvalidateQueryKey } from '~/api/user'
-import Features from '~/pages/index/features/features.vue'
-import Hero from '~/pages/index/hero/hero.vue'
-import Integrations from '~/pages/index/integrations/integrations.vue'
-import Stats from '~/pages/index/stats/stats.vue'
-import Team from '~/pages/index/team/team.vue'
+import { useProfile } from '~/api/user'
+import Features from '~/components/landing/index/features/features.vue'
+import Hero from '~/components/landing/index/hero/hero.vue'
+import Integrations from '~/components/landing/index/integrations/integrations.vue'
+import Stats from '~/components/landing/index/stats/stats.vue'
+import Streamers from '~/components/landing/index/streamers/streamers.vue'
+import Team from '~/components/landing/index/team/team.vue'
+
+await useProfile()
 
 definePageMeta({
 	layout: 'landing',
-})
-
-await useQuery({
-	query: profileQuery.query,
-	variables: {},
-	context: {
-		key: profileQuery.key,
-		additionalTypenames: [userInvalidateQueryKey],
-	},
 })
 </script>
 
@@ -26,6 +20,7 @@ await useQuery({
 		<Stats />
 		<Features />
 		<Integrations />
+		<Streamers />
 		<Team />
 	</div>
 </template>

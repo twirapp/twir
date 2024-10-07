@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import { useLandingStats } from '~/api/landing/stats'
+
 const formatter = Intl.NumberFormat('en-US', {
 	notation: 'compact',
 	maximumFractionDigits: 1,
 })
+
+const { data } = await useLandingStats()
 
 function formatNumber(value?: number | bigint) {
 	return formatter.format(value ?? 0)
@@ -11,27 +15,27 @@ function formatNumber(value?: number | bigint) {
 const stats = [
 	{
 		key: 'Channels',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.channels),
 	},
 	{
 		key: 'Created commands',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.createdCommands),
 	},
 	{
 		key: 'Viewers',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.viewers),
 	},
 	{
 		key: 'Messages',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.messages),
 	},
 	{
 		key: 'Used emotes',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.usedEmotes),
 	},
 	{
 		key: 'Used commands',
-		value: formatNumber(1),
+		value: formatNumber(data.value?.twirStats.usedCommands),
 	},
 ]
 </script>

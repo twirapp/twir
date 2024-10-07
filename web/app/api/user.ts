@@ -1,5 +1,4 @@
 import { createRequest } from '@urql/vue'
-import { computed } from 'vue'
 
 import { graphql } from '~/gql'
 
@@ -41,8 +40,8 @@ export const profileQuery = createRequest(graphql(`
 
 export const userInvalidateQueryKey = 'UserInvalidateQueryKey'
 
-export const useProfile = createGlobalState(() => {
-	const { data: response, executeQuery, fetching } = useQuery({
+export function useProfile() {
+	return useQuery({
 		query: profileQuery.query,
 		variables: {},
 		context: {
@@ -50,28 +49,4 @@ export const useProfile = createGlobalState(() => {
 			additionalTypenames: [userInvalidateQueryKey],
 		},
 	})
-
-	const computedUser = computed(() => {
-		const user = response.value?.authenticatedUser
-		if (!user) return null
-
-		return {
-			id: user.id,
-			avatar: user.twitchProfile.profileImageUrl,
-			login: user.twitchProfile.login,
-			displayName: user.twitchProfile.displayName,
-			apiKey: user.apiKey,
-			isBotAdmin: user.isBotAdmin,
-			isEnabled: user.isEnabled,
-			isBanned: user.isBanned,
-			isBotModerator: user.isBotModerator,
-			botId: user.botId,
-			selectedDashboardId: user.selectedDashboardId,
-			selectedDashboardTwitchUser: user.selectedDashboardTwitchUser,
-			hideOnLandingPage: user.hideOnLandingPage,
-			availableDashboards: user.availableDashboards,
-		}
-	})
-
-	return { data: computedUser, executeQuery, isLoading: fetching }
-})
+}
