@@ -3,7 +3,6 @@ package frontend
 import (
 	"os"
 	"os/exec"
-	"path/filepath"
 	"syscall"
 
 	"github.com/twirapp/twir/cli/internal/shell"
@@ -15,16 +14,11 @@ type twirApp struct {
 	path string
 }
 
-func newApplication(name string) (*twirApp, error) {
-	wd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
+func newApplication(name, path string) (*twirApp, error) {
 	app := twirApp{
 		name: name,
 		cmd:  nil,
-		path: filepath.Join(wd, "frontend", name),
+		path: path,
 	}
 
 	cmd, err := app.createAppCommand()

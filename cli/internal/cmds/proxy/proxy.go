@@ -28,7 +28,7 @@ var Cmd = &cli.Command{
 		return shell.ExecCommand(
 			shell.ExecCommandOpts{
 				Command: fmt.Sprintf(
-					"%s reverse-proxy --from dev.twir.app --to 127.0.0.1:3005 --insecure --internal-certs",
+					"%s reverse-proxy --from twir.localhost --to 127.0.0.1:3005",
 					caddyPath,
 				),
 				Stdout: os.Stdout,
