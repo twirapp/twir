@@ -5,20 +5,22 @@ const keywords = 'twitch, bot, chat, moderation, moderation bot, twitch bot, twi
 
 useHead({
 	title: siteName,
-	titleTemplate: `%s - ${siteName}`,
+	titleTemplate: (title) => title === siteName ? title : `${title} - ${siteName}`,
 	meta: [
 		{ name: 'darkreader-lock' },
-		{ name: 'author', content: 'Satont, me@satont.ru' },
+		{ name: 'author', content: 'Satont, me@satont.dev' },
 		{ name: 'keywords', content: keywords },
 		{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
 		{ name: 'description', content: description },
 	],
 	script: [
-		{
-			'src': 'https://umami.twir.app/script.js',
-			'async': true,
-			'data-website-id': '77f327a4-1744-4fb5-9fea-97ffbbc76806',
-		},
+		!import.meta.dev
+			? {
+				'src': 'https://umami.twir.app/script.js',
+				'async': true,
+				'data-website-id': '77f327a4-1744-4fb5-9fea-97ffbbc76806',
+			}
+			: {},
 	],
 })
 

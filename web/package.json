@@ -26,6 +26,7 @@
     "graphql-ws": "5.16.0",
     "nuxt": "^3.13.0",
     "nuxt-svgo": "4.0.6",
+    "nuxt-typed-router": "3.7.0",
     "vue": "latest",
     "vue-router": "latest"
   },

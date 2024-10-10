@@ -774,6 +774,9 @@ importers:
       nuxt-svgo:
         specifier: 4.0.6
         version: 4.0.6(magicast@0.3.5)(rollup@4.24.0)(vue@3.5.11(typescript@5.4.5))
+      nuxt-typed-router:
+        specifier: 3.7.0
+        version: 3.7.0(magicast@0.3.5)(prettier@3.3.3)(rollup@4.24.0)
       vue:
         specifier: latest
         version: 3.5.11(typescript@5.4.5)
@@ -6487,6 +6490,10 @@ packages:
     resolution: {integrity: sha512-i24m8rpwhmPIS4zscNzK6MSEhk0DUWa/8iYQWxhffV8jkI4Phvs3F+quL5xvS0gdQR0FyTCMMH33Y78dDTzzIw==}
     engines: {node: '>=18'}
 
+  log-symbols@7.0.0:
+    resolution: {integrity: sha512-zrc91EDk2M+2AXo/9BTvK91pqb7qrPg2nX/Hy+u8a5qQlbaOflCKO+6SqgZ+M+xUFxGdKTgwnGiL96b1W3ikRA==}
+    engines: {node: '>=18'}
+
   log-update@4.0.0:
     resolution: {integrity: sha512-9fkkDevMefjg0mmzWFBW8YkFP91OrizzkW3diF7CpG+S2EYdy4+TVfGwz1zeF8x7hCx1ovSPTOE9Ngib74qqUg==}
     engines: {node: '>=10'}
@@ -7023,6 +7030,11 @@ packages:
         optional: true
       vue-svg-loader:
         optional: true
+
+  nuxt-typed-router@3.7.0:
+    resolution: {integrity: sha512-8JMOsChzdjIVtD0x8z5Rs2yawtlp6KMSei7gBVw9xj6prmaSWhBo+sBmVdVnHW+wH1JKgorPtn8Tia9QnnHujA==}
+    peerDependencies:
+      prettier: ^2.5.x || 3.x
 
   nuxt@3.13.2:
     resolution: {integrity: sha512-Bjc2qRsipfBhjXsBEJCN+EUAukhdgFv/KoIR5HFB2hZOYRSqXBod3oWQs78k3ja1nlIhAEdBG533898KJxUtJw==}
@@ -9548,6 +9560,10 @@ packages:
   yocto-queue@1.1.1:
     resolution: {integrity: sha512-b4JR1PFR10y1mKjhHY9LaGo6tmrgjit7hxVIeAmyMw3jegXR4dhYqLaQF5zMXZxY7tLpMyJeLjr1C4rLmkVe8g==}
     engines: {node: '>=12.20'}
+
+  yoctocolors@2.1.1:
+    resolution: {integrity: sha512-GQHQqAopRhwU8Kt1DDM8NjibDXHC8eoh1erhGAJPEyveY9qqVeXvVikNKrDz69sHowPMorbPUrH/mx8c50eiBQ==}
+    engines: {node: '>=18'}
 
   zhead@2.2.4:
     resolution: {integrity: sha512-8F0OI5dpWIA5IGG5NHUg9staDwz/ZPxZtvGVf01j7vHqSyZ0raHY+78atOVxRqb73AotX22uV1pXt3gYSstGag==}
@@ -16432,6 +16448,11 @@ snapshots:
       chalk: 5.3.0
       is-unicode-supported: 1.3.0
 
+  log-symbols@7.0.0:
+    dependencies:
+      is-unicode-supported: 2.1.0
+      yoctocolors: 2.1.1
+
   log-update@4.0.0:
     dependencies:
       ansi-escapes: 4.3.2
@@ -17198,6 +17219,23 @@ snapshots:
       mini-svg-data-uri: 1.4.4
       svgo: 3.0.2
       vue: 3.5.11(typescript@5.4.5)
+    transitivePeerDependencies:
+      - magicast
+      - rollup
+      - supports-color
+      - webpack-sources
+
+  nuxt-typed-router@3.7.0(magicast@0.3.5)(prettier@3.3.3)(rollup@4.24.0):
+    dependencies:
+      '@nuxt/kit': 3.13.2(magicast@0.3.5)(rollup@4.24.0)
+      chalk: 5.3.0
+      defu: 6.1.4
+      lodash-es: 4.17.21
+      log-symbols: 7.0.0
+      mkdirp: 3.0.1
+      nanoid: 5.0.7
+      pathe: 1.1.2
+      prettier: 3.3.3
     transitivePeerDependencies:
       - magicast
       - rollup
@@ -20381,6 +20419,8 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   yocto-queue@1.1.1: {}
+
+  yoctocolors@2.1.1: {}
 
   zhead@2.2.4: {}
 

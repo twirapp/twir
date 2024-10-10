@@ -39,6 +39,7 @@ export default defineNuxtConfig({
 		'nuxt-svgo',
 		'@vueuse/nuxt',
 		'@nuxt-alt/proxy',
+		'nuxt-typed-router',
 	],
 
 	css: [
@@ -49,7 +50,7 @@ export default defineNuxtConfig({
 		plugins: [
 			watch({
 				onInit: true,
-				pattern: '~/api/**/*.ts',
+				pattern: '~/app/**/*.ts',
 				command: 'graphql-codegen',
 			}),
 		],
