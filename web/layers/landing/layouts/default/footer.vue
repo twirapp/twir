@@ -2,7 +2,7 @@
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
 import TwirLogo from '@twir/brand/src/logo.svg?component'
 
-import { anchorLinks } from '~/layouts/landing/anchor-links'
+import { anchorLinks } from '~/layers/landing/layouts/default/anchor-links'
 </script>
 
 <template>

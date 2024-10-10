@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useProfile } from '~/api/user'
+import { useProfile } from '~/layers/landing/api/user'
 
 const { data: profile } = await useProfile()
 </script>

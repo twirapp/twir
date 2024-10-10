@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useLandingStats } from '~/api/landing/stats'
+import { useLandingStats } from '~/layers/landing/api/stats.js'
 
 const formatter = Intl.NumberFormat('en-US', {
 	notation: 'compact',

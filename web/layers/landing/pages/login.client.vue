@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import UiButton from '~/components/landing-kit/ui-button.vue'
+import UiButton from '~/layers/landing/components/ui-button.vue'
 
 definePageMeta({
 	title: 'Login',
+	layout: 'clean',
 })
 
 const url = new URL(window.location.href)

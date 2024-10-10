@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script setup lang="ts">
 const description = 'Powerful and useful Twitch bot that helps manage chat on big channels. Developed from streamers for streamers with love.'
 const siteName = 'Twir'
 const keywords = 'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot'

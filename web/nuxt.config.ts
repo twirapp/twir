@@ -22,35 +22,17 @@ export default defineNuxtConfig({
 
 	devServer: {
 		port: 3005,
-		// https,
 	},
 
 	experimental: {
 		inlineRouteRules: true,
 	},
 
-	srcDir: './app',
-
-	modules: [
-		'@nuxtjs/tailwindcss',
-		'@nuxt/image',
-		'@nuxt/fonts',
-		'@bicou/nuxt-urql',
-		'nuxt-svgo',
-		'@vueuse/nuxt',
-		'@nuxt-alt/proxy',
-		'nuxt-typed-router',
-	],
-
-	css: [
-		'~/assets/styles/global.css',
-	],
-
 	vite: {
 		plugins: [
 			watch({
 				onInit: true,
-				pattern: '~/app/**/*.ts',
+				pattern: '~/layers/**/*.ts',
 				command: 'graphql-codegen',
 			}),
 		],
@@ -125,12 +107,5 @@ export default defineNuxtConfig({
 				ws: true,
 			},
 		},
-	},
-
-	urql: {
-		endpoint: process.env.NODE_ENV !== 'production'
-			? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
-			: 'https://twir.app/api/query',
-		client: '~/configs/urql.ts',
 	},
 })

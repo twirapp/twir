@@ -1,4 +1,4 @@
-import { useLandingStats } from '~/api/landing/stats'
+import { useLandingStats } from '~/layers/landing/api/stats'
 
 export async function getStreamers() {
 	const { data, error } = await useLandingStats()

@@ -3,8 +3,8 @@ import { DISCORD_INVITE_URL } from '@twir/brand'
 
 import HeroChat from './hero-chat.vue'
 
-import { useProfile } from '~/api/user'
-import UiButton from '~/components/landing-kit/ui-button.vue'
+import { useProfile } from '~/layers/landing/api/user'
+import UiButton from '~/layers/landing/components/ui-button.vue'
 
 const { data: profile } = useProfile()
 

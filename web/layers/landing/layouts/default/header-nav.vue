@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { anchorLinks } from '~/layouts/landing/anchor-links'
+import { anchorLinks } from '~/layers/landing/layouts/default/anchor-links'
 </script>
 
 <template>
