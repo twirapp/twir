@@ -40,7 +40,7 @@ func (c *gormAuditHooks) create(tx *gorm.DB) {
 		NewValue:      null.StringFrom(prepareData(recordMap)),
 		ObjectID:      null.StringFrom(objId),
 		UserID:        null.StringFromPtr(userID),
-		DashboardID:   null.StringFromPtr(dashboardID),
+		ChannelID:     null.StringFromPtr(dashboardID),
 	}
 
 	if err := tx.Session(
@@ -79,7 +79,7 @@ func (c *gormAuditHooks) delete(tx *gorm.DB) {
 		OldValue:      null.StringFrom(prepareData(recordMap)),
 		ObjectID:      null.StringFrom(objId),
 		UserID:        null.StringFromPtr(userID),
-		DashboardID:   null.StringFromPtr(dashboardID),
+		ChannelID:     null.StringFromPtr(dashboardID),
 	}
 
 	if err := tx.Session(
@@ -118,7 +118,7 @@ func (c *gormAuditHooks) update(tx *gorm.DB) {
 		NewValue:      null.StringFrom(prepareData(recordMap)),
 		ObjectID:      null.StringFrom(objId),
 		UserID:        null.StringFromPtr(userID),
-		DashboardID:   null.StringFromPtr(dashboardID),
+		ChannelID:     null.StringFromPtr(dashboardID),
 	}
 
 	if err := tx.Session(

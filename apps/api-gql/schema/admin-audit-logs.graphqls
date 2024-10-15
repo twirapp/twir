@@ -6,7 +6,7 @@ input AdminAuditLogsInput {
 	table: String
 	objectId: String
 	userId: String
-	dashboardId: String
+	channelId: String
 	operationType: AuditOperationType
 	page: Int
 	perPage: Int
@@ -20,11 +20,11 @@ type AdminAuditLog {
 	newValue: String
 	objectId: String
 	userId: String
-	dashboardId: String
+	channelId: String
 	createdAt: Time!
 
 	user: TwirUserTwitchInfo @goField(forceResolver: true)
-	dashboardUser: TwirUserTwitchInfo @goField(forceResolver: true)
+	channel: TwirUserTwitchInfo @goField(forceResolver: true)
 }
 
 enum AuditOperationType {

@@ -14,12 +14,12 @@ type AuditLog struct {
 	OldValue      null.String        `gorm:"column:old_value;type:text"`
 	NewValue      null.String        `gorm:"column:new_value;type:text"`
 	ObjectID      null.String        `gorm:"column:object_id;type:uuid"`
+	ChannelID     null.String        `gorm:"column:channel_id;type:uuid"`
 	UserID        null.String        `gorm:"column:user_id;type:uuid"`
-	DashboardID   null.String        `gorm:"column:dashboard_id;type:uuid"`
 	CreatedAt     time.Time          `gorm:"column:created_at;type:timestamp;default:now()"`
 
-	User      *Users `gorm:"foreignKey:UserID"`
-	Dashboard *Users `gorm:"foreignKey:DashboardID"`
+	Channel *Users `gorm:"foreignKey:ChannelID"`
+	User    *Users `gorm:"foreignKey:UserID"`
 }
 
 func (c *AuditLog) TableName() string {

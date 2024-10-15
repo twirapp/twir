@@ -17,3 +17,16 @@ func AuditTypeModelToGql(t model.AuditOperationType) gqlmodel.AuditOperationType
 		return ""
 	}
 }
+
+func AuditTypeGqlToModel(t gqlmodel.AuditOperationType) model.AuditOperationType {
+	switch t {
+	case gqlmodel.AuditOperationTypeUpdate:
+		return model.AuditOperationUpdate
+	case gqlmodel.AuditOperationTypeCreate:
+		return model.AuditOperationCreate
+	case gqlmodel.AuditOperationTypeDelete:
+		return model.AuditOperationDelete
+	default:
+		return ""
+	}
+}

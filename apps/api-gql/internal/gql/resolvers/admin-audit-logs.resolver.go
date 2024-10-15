@@ -27,16 +27,16 @@ func (r *adminAuditLogResolver) User(
 	return data_loader.GetHelixUserById(ctx, *obj.UserID)
 }
 
-// DashboardUser is the resolver for the dashboardUser field.
-func (r *adminAuditLogResolver) DashboardUser(
+// Channel is the resolver for the channel field.
+func (r *adminAuditLogResolver) Channel(
 	ctx context.Context,
 	obj *gqlmodel.AdminAuditLog,
 ) (*gqlmodel.TwirUserTwitchInfo, error) {
-	if obj.DashboardID == nil {
+	if obj.ChannelID == nil {
 		return nil, nil
 	}
 
-	return data_loader.GetHelixUserById(ctx, *obj.DashboardID)
+	return data_loader.GetHelixUserById(ctx, *obj.ChannelID)
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
@@ -62,8 +62,8 @@ func (r *queryResolver) AdminAuditLogs(
 		query = query.Where("user_id = ?", *input.UserID.Value())
 	}
 
-	if input.DashboardID.IsSet() {
-		query = query.Where("dashboard_id = ?", *input.DashboardID.Value())
+	if input.ChannelID.IsSet() {
+		query = query.Where("channel_id = ?", *input.ChannelID.Value())
 	}
 
 	if input.ObjectID.IsSet() {
@@ -72,6 +72,13 @@ func (r *queryResolver) AdminAuditLogs(
 
 	if input.Table.IsSet() {
 		query = query.Where("table_name = ?", *input.Table.Value())
+	}
+
+	if input.OperationType.IsSet() {
+		query = query.Where(
+			"operation_type = ?",
+			mappers.AuditTypeGqlToModel(*input.OperationType.Value()),
+		)
 	}
 
 	var logs []model.AuditLog
@@ -95,7 +102,7 @@ func (r *queryResolver) AdminAuditLogs(
 				NewValue:      l.NewValue.Ptr(),
 				ObjectID:      l.ObjectID.Ptr(),
 				UserID:        l.UserID.Ptr(),
-				DashboardID:   l.DashboardID.Ptr(),
+				ChannelID:     l.ChannelID.Ptr(),
 				CreatedAt:     l.CreatedAt,
 			},
 		)
