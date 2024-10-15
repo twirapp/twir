@@ -8,6 +8,10 @@ import Streamers from '~/layers/landing/components/index/streamers/streamers.vue
 import Team from '~/layers/landing/components/index/team/team.vue'
 
 await useProfile()
+
+definePageMeta({
+	layout: 'landing',
+})
 </script>
 
 <template>

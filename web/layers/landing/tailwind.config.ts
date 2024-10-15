@@ -1,7 +1,12 @@
+import path from 'node:path'
+import url from 'node:url'
+
 import type { Config } from 'tailwindcss'
 
+const currentDir = path.dirname(url.fileURLToPath(import.meta.url))
+
 export default <Config>{
-	content: ['./**/*.{html,js,astro,vue,ts,tsx}'],
+	content: [`${currentDir}/**/*.{html,js,vue,ts,tsx}`],
 	theme: {
 		extend: {
 			screens: {

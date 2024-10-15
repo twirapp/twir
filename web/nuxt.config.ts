@@ -20,6 +20,15 @@ export default defineNuxtConfig({
 		},
 	},
 
+	modules: [
+		'@nuxtjs/tailwindcss',
+		'@nuxt/image',
+		'@nuxt/fonts',
+		'nuxt-svgo',
+		'@vueuse/nuxt',
+		'@nuxt-alt/proxy',
+	],
+
 	devServer: {
 		port: 3005,
 	},

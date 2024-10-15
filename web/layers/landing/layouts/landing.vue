@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import '~/layers/landing/assets/styles/global.css'
-
 import Footer from './default/footer.vue'
 import Header from './default/header.vue'
 </script>
