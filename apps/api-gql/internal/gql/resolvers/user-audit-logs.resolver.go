@@ -40,18 +40,19 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 		return nil, err
 	}
 
-	channel := make(chan *gqlmodel.AuditLog)
-
 	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
-	defer func() {
-		_ = auditLogs.Close()
-		close(channel)
-	}()
+
+	channel := make(chan *gqlmodel.AuditLog)
 
 	go func() {
+		defer func() {
+			_ = auditLogs.Close()
+			close(channel)
+	  }()
+		
 		for {
 			select {
 			case <-ctx.Done():
