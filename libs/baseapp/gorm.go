@@ -2,15 +2,11 @@ package baseapp
 
 import (
 	"context"
-	"database/sql"
 	"log"
-	"log/slog"
 	"os"
 	"time"
 
-	"github.com/google/uuid"
 	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
@@ -64,152 +60,26 @@ func newGorm(withAudit bool) func(
 				},
 			},
 		)
-
-		h := &auditHooks{
+		
+		auditHooks := &gormAuditHooks{
 			l,
 		}
 
 		if withAudit {
 			db.Callback().Create().After("gorm:create").Register(
 				"custom_plugin:create_audit_log",
-				h.create,
+				auditHooks.create,
 			)
-			// db.Callback().Update().After("gorm:update").Register(
-			// 	"custom_plugin:update_audit_log",
-			// 	updateAuditLog,
-			// )
+			db.Callback().Update().After("gorm:update").Register(
+				"custom_plugin:update_audit_log",
+				auditHooks.update,
+			)
 			db.Callback().Delete().Before("gorm:delete").Register(
 				"custom_plugin:delete_audit_log",
-				h.delete,
+				auditHooks.delete,
 			)
 		}
 
 		return db, nil
-	}
-}
-
-type auditHooks struct {
-	logger logger.Logger
-}
-
-func (c *auditHooks) create(tx *gorm.DB) {
-	if tx.Statement.Schema != nil && tx.Statement.Schema.Table == "audit_logs" || tx.Error != nil {
-		return
-	}
-
-	recordMap, err := getDataBeforeOperation(tx)
-	if err != nil {
-		return
-	}
-
-	objId := getKeyFromData("id", recordMap)
-	if objId == "" {
-		return
-	}
-
-	ctx := tx.Statement.Context
-	userID := getUserIDFromContext(ctx)
-	dashboardID := getDashboardIDFromContext(ctx)
-
-	audit := model.AuditLog{
-		ID:            uuid.New(),
-		Table:         tx.Statement.Schema.Table,
-		OperationType: model.AuditOperationCreate,
-		NewValue: sql.Null[string]{
-			V:     prepareData(recordMap),
-			Valid: true,
-		},
-		ObjectID: sql.Null[string]{
-			V:     objId,
-			Valid: true,
-		},
-		UserID: sql.Null[string]{
-			V:     "",
-			Valid: false,
-		},
-		DashboardID: sql.Null[string]{},
-	}
-
-	if userID != nil {
-		audit.UserID = sql.Null[string]{
-			V:     *userID,
-			Valid: true,
-		}
-	}
-
-	if dashboardID != nil {
-		audit.DashboardID = sql.Null[string]{
-			V:     *dashboardID,
-			Valid: true,
-		}
-	}
-
-	if err := tx.Session(
-		&gorm.Session{
-			SkipHooks: true,
-			NewDB:     true,
-		},
-	).Create(&audit).Error; err != nil {
-		c.logger.Error("error in audit log creation", slog.Any("err", err))
-	}
-}
-
-func (c *auditHooks) delete(tx *gorm.DB) {
-	if tx.Statement.Schema != nil && tx.Statement.Schema.Table == "audit_logs" || tx.Error != nil {
-		return
-	}
-
-	recordMap, err := getDataBeforeOperation(tx)
-	if err != nil {
-		return
-	}
-	objId := getKeyFromData("id", recordMap)
-
-	if objId == "" {
-		return
-	}
-
-	ctx := tx.Statement.Context
-	userID := getUserIDFromContext(ctx)
-	dashboardID := getDashboardIDFromContext(ctx)
-
-	audit := model.AuditLog{
-		ID:            uuid.New(),
-		Table:         tx.Statement.Schema.Table,
-		OperationType: model.AuditOperationDelete,
-		OldValue: sql.Null[string]{
-			V:     prepareData(recordMap),
-			Valid: true,
-		},
-		NewValue: sql.Null[string]{},
-		ObjectID: sql.Null[string]{
-			V:     objId,
-			Valid: true,
-		},
-		UserID:      sql.Null[string]{},
-		DashboardID: sql.Null[string]{},
-	}
-
-	if userID != nil {
-		audit.UserID = sql.Null[string]{
-			V:     *userID,
-			Valid: true,
-		}
-	}
-
-	if dashboardID != nil {
-		audit.DashboardID = sql.Null[string]{
-			V:     *dashboardID,
-			Valid: true,
-		}
-	}
-
-	if err := tx.Session(
-		&gorm.Session{
-			SkipHooks: true,
-			NewDB:     true,
-		},
-	).Create(&audit).Error; err != nil {
-		c.logger.Error("error in audit log creation", slog.Any("err", err))
 	}
 }
