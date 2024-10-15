@@ -18,7 +18,7 @@ import (
 )
 
 var App = fx.Options(
-	baseapp.CreateBaseApp("eventsub"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "eventsub"}),
 	fx.Provide(
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)

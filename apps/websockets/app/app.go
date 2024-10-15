@@ -29,7 +29,7 @@ const service = "Websockets"
 
 var App = fx.Module(
 	service,
-	baseapp.CreateBaseApp(service),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
 		buscore.NewNatsBusFx(service),
 		func(cfg config.Config) parser.ParserClient {

@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gincontext"
+	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"go.uber.org/fx"
 )
@@ -62,12 +63,35 @@ func New(opts Opts) *Server {
 
 	r.Use(
 		func(c *gin.Context) {
-			user, err := opts.Sessions.GetAuthenticatedUser(c.Request.Context())
-			if err == nil {
+			user, userErr := opts.Sessions.GetAuthenticatedUser(c.Request.Context())
+			if userErr == nil {
 				sloggin.AddCustomAttributes(c, slog.String("userId", user.ID))
+				c.Request = c.Request.WithContext(
+					context.WithValue(c.Request.Context(), baseapp.RequesterUserIdContextKey, user.ID),
+				)
+			}
+
+			selectedDashboardID, err := opts.Sessions.GetSelectedDashboard(c.Request.Context())
+			var dashboardIdForSet string
+			if err == nil {
+				dashboardIdForSet = selectedDashboardID
+			} else if userErr == nil {
+				dashboardIdForSet = user.ID
+			}
+
+			if dashboardIdForSet != "" {
+				c.Request = c.Request.WithContext(
+					context.WithValue(
+						c.Request.Context(),
+						baseapp.SelectedDashboardContextKey,
+						dashboardIdForSet,
+					),
+				)
 			}
 		},
 	)
+
+	r.Use()
 
 	r.Use(gin.Recovery())
 

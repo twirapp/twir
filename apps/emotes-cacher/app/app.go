@@ -13,7 +13,7 @@ const service = "emotes-cacher"
 
 var App = fx.Module(
 	service,
-	baseapp.CreateBaseApp(service),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
 		buscore.NewNatsBusFx("emotes-cacher"),
 	),

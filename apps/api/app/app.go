@@ -34,7 +34,7 @@ import (
 )
 
 var App = fx.Options(
-	baseapp.CreateBaseApp("api"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "api"}),
 	fx.Provide(
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)

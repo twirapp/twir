@@ -25,7 +25,7 @@ import (
 
 func main() {
 	fx.New(
-		baseapp.CreateBaseApp("api-gql"),
+		baseapp.CreateBaseApp(baseapp.Opts{AppName: "api-gql", WithAudit: true}),
 		fx.Provide(
 			auth.NewSessions,
 			func(config cfg.Config) tokens.TokensClient {

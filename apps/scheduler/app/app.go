@@ -19,7 +19,7 @@ const service = "scheduler"
 
 var App = fx.Module(
 	service,
-	baseapp.CreateBaseApp(service),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
 		func(c config.Config) parser.ParserClient {
 			return clients.NewParser(c.AppEnv)

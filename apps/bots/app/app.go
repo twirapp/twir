@@ -27,7 +27,7 @@ import (
 
 var App = fx.Module(
 	"bots",
-	baseapp.CreateBaseApp("bots"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
 	fx.Provide(
 		tlds.New,
 		buscore.NewNatsBusFx("bots"),

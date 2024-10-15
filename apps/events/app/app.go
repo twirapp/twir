@@ -20,7 +20,7 @@ import (
 
 var App = fx.Module(
 	"events",
-	baseapp.CreateBaseApp("events"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "events"}),
 	fx.Provide(
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)

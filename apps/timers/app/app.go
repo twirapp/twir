@@ -20,7 +20,7 @@ import (
 
 var App = fx.Module(
 	"timers",
-	baseapp.CreateBaseApp("timers"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "timers"}),
 	fx.Provide(
 		buscore.NewNatsBusFx("timers"),
 		timers.NewGorm,

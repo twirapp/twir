@@ -15,7 +15,7 @@ import (
 
 var App = fx.Module(
 	"discord",
-	baseapp.CreateBaseApp("discord"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "discord"}),
 	fx.Provide(
 		buscore.NewNatsBusFx("discord"),
 		sended_messages_store.New,
