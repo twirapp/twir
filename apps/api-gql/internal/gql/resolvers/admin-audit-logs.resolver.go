@@ -16,10 +16,7 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *adminAuditLogResolver) User(
-	ctx context.Context,
-	obj *gqlmodel.AdminAuditLog,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -28,10 +25,7 @@ func (r *adminAuditLogResolver) User(
 }
 
 // Channel is the resolver for the channel field.
-func (r *adminAuditLogResolver) Channel(
-	ctx context.Context,
-	obj *gqlmodel.AdminAuditLog,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.ChannelID == nil {
 		return nil, nil
 	}
@@ -40,10 +34,7 @@ func (r *adminAuditLogResolver) Channel(
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
-func (r *queryResolver) AdminAuditLogs(
-	ctx context.Context,
-	input gqlmodel.AdminAuditLogsInput,
-) ([]gqlmodel.AdminAuditLog, error) {
+func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.AdminAuditLogsInput) ([]gqlmodel.AdminAuditLog, error) {
 	var page int
 	perPage := 20
 

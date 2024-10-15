@@ -1,0 +1,16 @@
+extend type Subscription {
+	auditLog: AuditLog! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type AuditLog {
+	id: UUID!
+	table: String!
+	operationType: AuditOperationType!
+	oldValue: String
+	newValue: String
+	objectId: String
+	userId: String
+	createdAt: Time!
+
+	user: TwirUserTwitchInfo @goField(forceResolver: true)
+}

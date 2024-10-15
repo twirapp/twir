@@ -50,6 +50,7 @@ func (c *gormAuditHooks) create(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
+		return
 	}
 }
 
@@ -89,6 +90,7 @@ func (c *gormAuditHooks) delete(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
+		return
 	}
 }
 
@@ -128,5 +130,6 @@ func (c *gormAuditHooks) update(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
+		return
 	}
 }

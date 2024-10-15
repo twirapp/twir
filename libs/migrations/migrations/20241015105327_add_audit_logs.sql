@@ -10,10 +10,10 @@ CREATE TABLE "audit_logs" (
 	"new_value" TEXT,
 	"object_id" TEXT,
 	"user_id" TEXT,
-	"dashboard_id" TEXT,
+	"channel_id" TEXT,
 	"created_at" TIMESTAMP default now() NOT NULL,
 	FOREIGN KEY ("user_id") REFERENCES "users" ("id") ON DELETE NO ACTION,
-	FOREIGN KEY ("dashboard_id") REFERENCES "users" ("id") ON DELETE NO ACTION
+	FOREIGN KEY ("channel_id") REFERENCES "users" ("id") ON DELETE NO ACTION
 );
 
 -- +goose StatementEnd

@@ -60,9 +60,9 @@ func newGorm(withAudit bool) func(
 				},
 			},
 		)
-		
+
 		auditHooks := &gormAuditHooks{
-			l,
+			logger: l,
 		}
 
 		if withAudit {
