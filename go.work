@@ -1,4 +1,4 @@
-go 1.23.0
+go 1.23.2
 
 use (
 	./apps/api
@@ -17,6 +17,7 @@ use (
 	./apps/ytsr
 	./cli
 	./libs/api
+	./libs/audit-logs
 	./libs/baseapp
 	./libs/bus-core
 	./libs/cache

@@ -6,20 +6,73 @@ package resolvers
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 
+	dataloader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+func (r *auditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
+	if obj.UserID == nil {
+		return nil, errors.New("user ID is not provided for this audit log")
+	}
+
+	user, err := dataloader.GetHelixUserById(ctx, *obj.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("get helix user with dataloader: %s", err)
+	}
+
+	return user, nil
 }
 
 // AuditLog is the resolver for the auditLog field.
 func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.AuditLog, error) {
-	panic(fmt.Errorf("not implemented: AuditLog - auditLog"))
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	channel := make(chan *gqlmodel.AuditLog)
+
+	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		_ = auditLogs.Close()
+		close(channel)
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case auditLog := <-auditLogs.Channel():
+				userTwitchInfo, err := dataloader.GetHelixUserById(ctx, user.ID)
+				if err != nil {
+					r.logger.Error(
+						"failed to load helix user for audit log",
+						slog.String("user_id", user.ID),
+						slog.String("audit_log_id", auditLog.ID.String()),
+					)
+					return
+				}
+
+				channel <- mappers.AuditLogToGql(auditLog, userTwitchInfo)
+			}
+		}
+	}()
+
+	return channel, nil
 }
 
 // AuditLog returns graph.AuditLogResolver implementation.
