@@ -1,32 +1,37 @@
 package baseapp
 
 import (
+	"context"
 	"log/slog"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"gorm.io/gorm"
 )
 
+type auditHook func(tx *gorm.DB) model.AuditLog
+
 type gormAuditHooks struct {
-	logger logger.Logger
+	logger          logger.Logger
+	auditLogsPubSub auditlogs.PubSub
 }
 
-func (c *gormAuditHooks) create(tx *gorm.DB) {
+func (c *gormAuditHooks) create(tx *gorm.DB) model.AuditLog {
 	if tx.Statement.Schema != nil && tx.Statement.Schema.Table == "audit_logs" || tx.Error != nil {
-		return
+		return model.AuditLog{}
 	}
 
 	recordMap, err := getDataBeforeOperation(tx)
 	if err != nil {
-		return
+		return model.AuditLog{}
 	}
 
 	objId := getKeyFromData("id", recordMap)
 	if objId == "" {
-		return
+		return model.AuditLog{}
 	}
 
 	ctx := tx.Statement.Context
@@ -50,23 +55,25 @@ func (c *gormAuditHooks) create(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
-		return
+		return model.AuditLog{}
 	}
+
+	return audit
 }
 
-func (c *gormAuditHooks) delete(tx *gorm.DB) {
+func (c *gormAuditHooks) delete(tx *gorm.DB) model.AuditLog {
 	if tx.Statement.Schema != nil && tx.Statement.Schema.Table == "audit_logs" || tx.Error != nil {
-		return
+		return model.AuditLog{}
 	}
 
 	recordMap, err := getDataBeforeOperation(tx)
 	if err != nil {
-		return
+		return model.AuditLog{}
 	}
 	objId := getKeyFromData("id", recordMap)
 
 	if objId == "" {
-		return
+		return model.AuditLog{}
 	}
 
 	ctx := tx.Statement.Context
@@ -90,23 +97,25 @@ func (c *gormAuditHooks) delete(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
-		return
+		return model.AuditLog{}
 	}
+
+	return audit
 }
 
-func (c *gormAuditHooks) update(tx *gorm.DB) {
+func (c *gormAuditHooks) update(tx *gorm.DB) model.AuditLog {
 	if tx.Statement.Schema != nil && tx.Statement.Schema.Table == "audit_logs" || tx.Error != nil {
-		return
+		return model.AuditLog{}
 	}
 
 	recordMap, err := getDataBeforeOperation(tx)
 	if err != nil {
-		return
+		return model.AuditLog{}
 	}
 
 	objId := getKeyFromData("id", recordMap)
 	if objId == "" {
-		return
+		return model.AuditLog{}
 	}
 
 	ctx := tx.Statement.Context
@@ -130,6 +139,34 @@ func (c *gormAuditHooks) update(tx *gorm.DB) {
 		},
 	).Create(&audit).Error; err != nil {
 		c.logger.Error("error in audit log creation", slog.Any("err", err))
-		return
+		return model.AuditLog{}
+	}
+
+	return audit
+}
+
+func (c *gormAuditHooks) withPublisher(hook auditHook) func(tx *gorm.DB) {
+	return func(tx *gorm.DB) {
+		auditLog := hook(tx)
+
+		err := c.auditLogsPubSub.Publish(
+			context.Background(), auditlogs.AuditLog{
+				ID:            auditLog.ID,
+				Table:         auditLog.Table,
+				OperationType: auditlogs.AuditOperationType(auditLog.OperationType),
+				OldValue:      auditLog.OldValue,
+				NewValue:      auditLog.NewValue,
+				ObjectID:      auditLog.ObjectID,
+				ChannelID:     auditLog.ChannelID,
+				UserID:        auditLog.UserID,
+				CreatedAt:     auditLog.CreatedAt,
+			},
+		)
+		if err != nil {
+			c.logger.Error(
+				"failed to publish audit log",
+				slog.String("audit_log_id", auditLog.ID.String()),
+			)
+		}
 	}
 }
