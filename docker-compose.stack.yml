@@ -337,29 +337,29 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  landing:
-    image: twirapp/landing:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-      - traefik-public
-    deploy:
-      update_config:
-        parallelism: 2
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      mode: replicated
-      replicas: 4
-      endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
-        - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
-        - traefik.http.services.twir-landing.loadbalancer.server.port=3000
-        - traefik.docker.network=traefik-public
+#  landing:
+#    image: twirapp/landing:latest
+#    secrets:
+#      - twir_doppler_token
+#    networks:
+#      - twir
+#      - traefik-public
+#    deploy:
+#      update_config:
+#        parallelism: 2
+#      restart_policy:
+#        condition: any
+#        delay: 30s
+#        max_attempts: 30
+#      mode: replicated
+#      replicas: 4
+#      endpoint_mode: dnsrr
+#      labels:
+#        - traefik.enable=true
+#        - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
+#        - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
+#        - traefik.http.services.twir-landing.loadbalancer.server.port=3000
+#        - traefik.docker.network=traefik-public
 
   web:
     image: twirapp/web:latest
@@ -380,10 +380,8 @@ services:
       endpoint_mode: dnsrr
       labels:
         - traefik.enable=true
-        - traefik.http.routers.twir-web.rule=Host(`twir.app`) && PathPrefix(`/web`)
+        - traefik.http.routers.twir-web.rule=Host(`twir.app`)
         - traefik.http.routers.twir-web.middlewares=cloudflarewarp
-        - traefik.http.routers.twir-web.middlewares=web-stripprefix
-        - traefik.http.middlewares.web-stripprefix.stripprefix.prefixes=/web
         - traefik.http.services.twir-web.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
 
