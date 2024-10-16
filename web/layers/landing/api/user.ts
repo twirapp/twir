@@ -50,3 +50,18 @@ export function useProfile() {
 		},
 	})
 }
+
+export function useAuthLink(redirectTo: MaybeRef<string>) {
+	return useQuery({
+		query: graphql(`
+			query AuthLink($redirectTo: String!) {
+				authLink(redirectTo: $redirectTo)
+			}
+		`),
+		get variables() {
+			return {
+				redirectTo: unref(redirectTo),
+			}
+		},
+	})
+}

@@ -3,17 +3,25 @@ import { DISCORD_INVITE_URL } from '@twir/brand'
 
 import HeroChat from './hero-chat.vue'
 
-import { useProfile } from '~/layers/landing/api/user'
+import { useAuthLink, useProfile } from '~/layers/landing/api/user'
 import UiButton from '~/layers/landing/components/ui-button.vue'
 
-const { data: profile } = useProfile()
+const { data: profile } = await useProfile()
+
+const pageUrl = useRequestURL()
+
+const redirectUrl = computed(() => {
+	return pageUrl.origin
+})
+
+const { data: authLinkData } = await useAuthLink(redirectUrl)
 
 const isLogged = computed(() => {
-	return !!profile
+	return !!profile.value
 })
 
 const startButtonHref = computed(() => {
-	return isLogged.value ? '/dashboard' : '/auth'
+	return isLogged.value ? '/dashboard' : authLinkData.value?.authLink
 })
 
 const startButtonText = computed(() => {
