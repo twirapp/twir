@@ -361,6 +361,32 @@ services:
         - traefik.http.services.twir-landing.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
 
+  web:
+    image: twirapp/web:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+      - traefik-public
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-web.rule=Host(`twir.app`) && PathPrefix(`/web`)
+        - traefik.http.routers.twir-web.middlewares=cloudflarewarp
+        - traefik.http.routers.twir-web.middlewares=web-stripprefix
+        - traefik.http.middlewares.web-stripprefix.stripprefix.prefixes=/web
+        - traefik.http.services.twir-web.loadbalancer.server.port=3000
+        - traefik.docker.network=traefik-public
+
   dashboard:
     image: twirapp/dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
