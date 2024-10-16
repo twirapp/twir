@@ -22,6 +22,7 @@ COPY --from=builder /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install
 
 COPY --from=builder /app/out/full/ .
+COPY apps/api-gql/schema ./apps/api-gql/schema
 COPY tsconfig.json tsconfig.json
 COPY turbo.json turbo.json
 
