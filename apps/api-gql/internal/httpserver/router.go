@@ -91,8 +91,6 @@ func New(opts Opts) *Server {
 		},
 	)
 
-	r.Use()
-
 	r.Use(gin.Recovery())
 
 	playgroundHandler := playground.Handler("GraphQL", "/api/query")
