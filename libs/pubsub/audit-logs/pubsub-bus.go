@@ -116,6 +116,7 @@ func (b BusPubSub) Subscribe(_ context.Context, dashboardIDs ...string) (Subscri
 				b.subsLocker.Lock()
 				delete(b.subs, subID)
 				b.subsLocker.Unlock()
+				return
 			}
 		}
 	}()
