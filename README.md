@@ -69,7 +69,7 @@ pnpm cli migrations run
 
 ## Https on localhost (optional)
 
-We'll use `dev.twir.app` domain, but you can use any other domain.
+We'll use `twir.localhost` domain, which is enables ability to grant ssl out of the box, but you can use any other domain and deal with ssl yourself.
 
 * Add `https://twir.localhost/login` to your twitch application redirect url's
 

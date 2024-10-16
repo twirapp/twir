@@ -90,13 +90,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Login to Twir registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.twir.app
+          username: ${{ secrets.DOCKER_TWIR_LOGIN }}
+          password: ${{ secrets.DOCKER_TWIR_TOKEN }}
       - name: Build docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: true
-          tags: twirapp/${{ env.app }}:latest
+          tags:
+            - twirapp/${{ env.app }}:latest
+            - registry.twir.app/twirapp/${{ env.app }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -111,13 +119,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Login to Twir registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.twir.app
+          username: ${{ secrets.DOCKER_TWIR_LOGIN }}
+          password: ${{ secrets.DOCKER_TWIR_TOKEN }}
       - name: Build docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./libs/migrations/Dockerfile
           push: true
-          tags: twirapp/migrations:latest
+          tags:
+            - twirapp/migrations:latest
+            - registry.twir.app/twirapp/migrations:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -132,13 +148,21 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+      - name: Login to Twir registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.twir.app
+          username: ${{ secrets.DOCKER_TWIR_LOGIN }}
+          password: ${{ secrets.DOCKER_TWIR_TOKEN }}
       - name: Build docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./web/Dockerfile
           push: true
-          tags: twirapp/web:latest
+          tags:
+            - twirapp/web:latest
+            - registry.twir.app/twirapp/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
