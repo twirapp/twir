@@ -2,8 +2,8 @@ package mappers
 
 import (
 	model "github.com/satont/twir/libs/gomodels"
+	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
-	auditlogs "github.com/twirapp/twir/libs/audit-logs"
 )
 
 func AuditLogToGql(auditLog auditlogs.AuditLog) *gqlmodel.AuditLog {
