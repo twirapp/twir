@@ -6,10 +6,7 @@ import (
 	auditlogs "github.com/twirapp/twir/libs/audit-logs"
 )
 
-func AuditLogToGql(
-	auditLog auditlogs.AuditLog,
-	userTwitchInfo *gqlmodel.TwirUserTwitchInfo,
-) *gqlmodel.AuditLog {
+func AuditLogToGql(auditLog auditlogs.AuditLog) *gqlmodel.AuditLog {
 	return &gqlmodel.AuditLog{
 		ID:            auditLog.ID,
 		Table:         auditLog.Table,
@@ -19,7 +16,6 @@ func AuditLogToGql(
 		ObjectID:      auditLog.ObjectID.Ptr(),
 		UserID:        auditLog.UserID.Ptr(),
 		CreatedAt:     auditLog.CreatedAt,
-		User:          userTwitchInfo,
 	}
 }
 

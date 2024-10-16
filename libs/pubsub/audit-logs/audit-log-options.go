@@ -1,7 +1,7 @@
 package auditlog
 
 import (
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null"
 )
 
 type Option func(*AuditLog)
@@ -21,6 +21,12 @@ func WithNewValue(newValue string) Option {
 func WithObjectID(objectID string) Option {
 	return func(al *AuditLog) {
 		al.ObjectID = null.StringFrom(objectID)
+	}
+}
+
+func WithChannelID(channelID string) Option {
+	return func(al *AuditLog) {
+		al.ChannelID = null.StringFrom(channelID)
 	}
 }
 

@@ -6,8 +6,6 @@ package resolvers
 
 import (
 	"context"
-	"errors"
-	"fmt"
 	"log/slog"
 
 	dataloader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
@@ -22,12 +20,18 @@ func (r *auditLogResolver) User(
 	obj *gqlmodel.AuditLog,
 ) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
-		return nil, errors.New("user ID is not provided for this audit log")
+		return nil, nil
 	}
 
 	user, err := dataloader.GetHelixUserById(ctx, *obj.UserID)
 	if err != nil {
-		return nil, fmt.Errorf("get helix user with dataloader: %s", err)
+		r.logger.Error(
+			"failed to get helix user for audit log",
+			slog.String("user_id", *obj.UserID),
+			slog.String("audit_log_id", obj.ID.String()),
+		)
+
+		return nil, err
 	}
 
 	return user, nil
@@ -35,12 +39,12 @@ func (r *auditLogResolver) User(
 
 // AuditLog is the resolver for the auditLog field.
 func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.AuditLog, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, user.ID)
+	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, dashboardID)
 	if err != nil {
 		return nil, err
 	}
@@ -51,24 +55,14 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 		defer func() {
 			_ = auditLogs.Close()
 			close(channel)
-	  }()
-		
+		}()
+
 		for {
 			select {
 			case <-ctx.Done():
 				return
 			case auditLog := <-auditLogs.Channel():
-				userTwitchInfo, err := dataloader.GetHelixUserById(ctx, user.ID)
-				if err != nil {
-					r.logger.Error(
-						"failed to load helix user for audit log",
-						slog.String("user_id", user.ID),
-						slog.String("audit_log_id", auditLog.ID.String()),
-					)
-					return
-				}
-
-				channel <- mappers.AuditLogToGql(auditLog, userTwitchInfo)
+				channel <- mappers.AuditLogToGql(auditLog)
 			}
 		}
 	}()

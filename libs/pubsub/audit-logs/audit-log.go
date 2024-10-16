@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null"
 )
 
 type AuditOperationType string
@@ -22,6 +22,7 @@ type AuditLog struct {
 	OldValue      null.String
 	NewValue      null.String
 	ObjectID      null.String
+	ChannelID     null.String
 	UserID        null.String
 	CreatedAt     time.Time
 }

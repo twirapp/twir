@@ -1,7 +1,7 @@
 package auditlog
 
 import (
-	"github.com/guregu/null/v5"
+	"github.com/guregu/null"
 	busauditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 )
 

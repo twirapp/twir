@@ -2,6 +2,7 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
+	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
@@ -12,7 +13,6 @@ import (
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
-	auditlog "github.com/twirapp/twir/libs/audit-logs"
 	"github.com/twirapp/twir/libs/baseapp"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -50,8 +50,8 @@ func main() {
 				fx.As(new(wsrouter.WsRouter)),
 			),
 			fx.Annotate(
-				auditlog.NewBusPubSub,
-				fx.As(new(auditlog.PubSub)),
+				auditlogs.NewBusPubSub,
+				fx.As(new(auditlogs.PubSub)),
 			),
 			resolvers.New,
 			directives.New,
