@@ -102,9 +102,9 @@ jobs:
           context: .
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
           push: true
-          tags:
-            - twirapp/${{ env.app }}:latest
-            - registry.twir.app/twirapp/${{ env.app }}:latest
+          tags: |
+            twirapp/${{ env.app }}:latest
+            registry.twir.app/twirapp/${{ env.app }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -131,9 +131,9 @@ jobs:
           context: .
           file: ./libs/migrations/Dockerfile
           push: true
-          tags:
-            - twirapp/migrations:latest
-            - registry.twir.app/twirapp/migrations:latest
+          tags: |
+            twirapp/migrations:latest
+            registry.twir.app/twirapp/migrations:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -161,8 +161,8 @@ jobs:
           file: ./web/Dockerfile
           push: true
           tags:
-            - twirapp/web:latest
-            - registry.twir.app/twirapp/web:latest
+            twirapp/web:latest
+            registry.twir.app/twirapp/web:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
