@@ -94,7 +94,8 @@ func (r *queryResolver) AdminAuditLogs(
 	gqllogs := make([]gqlmodel.AdminAuditLog, 0, len(logs))
 	for _, l := range logs {
 		gqllogs = append(
-			gqllogs, gqlmodel.AdminAuditLog{
+			gqllogs,
+			gqlmodel.AdminAuditLog{
 				ID:            l.ID,
 				System:        mappers.AuditTableNameToGqlSystem(l.Table),
 				OperationType: mappers.AuditTypeModelToGql(l.OperationType),

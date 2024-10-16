@@ -1,3 +1,7 @@
+extend type Query	{
+	auditLog: [AuditLog!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
 extend type Subscription {
 	auditLog: AuditLog! @isAuthenticated @hasAccessToSelectedDashboard
 }

@@ -8,6 +8,7 @@ import (
 	"context"
 	"log/slog"
 
+	model "github.com/satont/twir/libs/gomodels"
 	dataloader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
@@ -15,7 +16,10 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *auditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -32,6 +36,44 @@ func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*g
 	}
 
 	return user, nil
+}
+
+// AuditLog is the resolver for the auditLog field.
+func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, error) {
+	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var logs []model.AuditLog
+	if err := r.gorm.
+		WithContext(ctx).
+		Limit(100).
+		Order("created_at DESC").
+		Where("channel_id = ?", dashboardID).
+		Find(&logs).Error; err != nil {
+		r.logger.Error("error in fetching audit logs", slog.Any("err", err))
+		return nil, err
+	}
+
+	gqllogs := make([]gqlmodel.AuditLog, 0, len(logs))
+	for _, l := range logs {
+		gqllogs = append(
+			gqllogs,
+			gqlmodel.AuditLog{
+				ID:            l.ID,
+				System:        mappers.AuditTableNameToGqlSystem(l.Table),
+				OperationType: mappers.AuditTypeModelToGql(l.OperationType),
+				OldValue:      l.OldValue.Ptr(),
+				NewValue:      l.NewValue.Ptr(),
+				ObjectID:      l.ObjectID.Ptr(),
+				UserID:        l.UserID.Ptr(),
+				CreatedAt:     l.CreatedAt,
+			},
+		)
+	}
+
+	return gqllogs, nil
 }
 
 // AuditLog is the resolver for the auditLog field.
