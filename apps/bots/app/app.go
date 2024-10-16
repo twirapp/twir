@@ -14,7 +14,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -30,7 +29,6 @@ var App = fx.Module(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
 	fx.Provide(
 		tlds.New,
-		buscore.NewNatsBusFx("bots"),
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
 		},

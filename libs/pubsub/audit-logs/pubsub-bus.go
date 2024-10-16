@@ -16,7 +16,7 @@ type (
 		bus *buscore.Bus
 
 		subs       map[string]BusSubscription
-		subsLocker *sync.RWMutex
+		subsLocker sync.RWMutex
 	}
 
 	BusSubscription struct {
@@ -31,15 +31,15 @@ var (
 	_ Subscription = (*BusSubscription)(nil)
 )
 
-func NewBusPubSub(bus *buscore.Bus) BusPubSub {
-	return BusPubSub{
+func NewBusPubSub(bus *buscore.Bus) *BusPubSub {
+	return &BusPubSub{
 		bus:        bus,
 		subs:       make(map[string]BusSubscription),
-		subsLocker: &sync.RWMutex{},
+		subsLocker: sync.RWMutex{},
 	}
 }
 
-func NewBusPubSubFx(bus *buscore.Bus, lc fx.Lifecycle) BusPubSub {
+func NewBusPubSubFx(bus *buscore.Bus, lc fx.Lifecycle) *BusPubSub {
 	bps := NewBusPubSub(bus)
 
 	lc.Append(
@@ -57,7 +57,7 @@ func NewBusPubSubFx(bus *buscore.Bus, lc fx.Lifecycle) BusPubSub {
 	return bps
 }
 
-func (b BusPubSub) Start() error {
+func (b *BusPubSub) Start() error {
 	err := b.bus.AuditLogs.Logs.Subscribe(
 		func(ctx context.Context, msg busauditlog.NewAuditLogMessage) struct{} {
 			auditLog := fromBusNewAuditLogMessage(msg)
@@ -80,11 +80,11 @@ func (b BusPubSub) Start() error {
 	return nil
 }
 
-func (b BusPubSub) Stop() {
+func (b *BusPubSub) Stop() {
 	b.bus.AuditLogs.Logs.Unsubscribe()
 }
 
-func (b BusPubSub) Publish(_ context.Context, auditLog AuditLog) error {
+func (b *BusPubSub) Publish(_ context.Context, auditLog AuditLog) error {
 	auditLogMsg := toBusNewAuditLogMessage(auditLog)
 
 	if err := b.bus.AuditLogs.Logs.Publish(auditLogMsg); err != nil {
@@ -94,7 +94,7 @@ func (b BusPubSub) Publish(_ context.Context, auditLog AuditLog) error {
 	return nil
 }
 
-func (b BusPubSub) Subscribe(_ context.Context, dashboardIDs ...string) (Subscription, error) {
+func (b *BusPubSub) Subscribe(_ context.Context, dashboardIDs ...string) (Subscription, error) {
 	var (
 		sub = BusSubscription{
 			channel:      make(chan AuditLog),
@@ -110,14 +110,10 @@ func (b BusPubSub) Subscribe(_ context.Context, dashboardIDs ...string) (Subscri
 	b.subsLocker.Unlock()
 
 	go func() {
-		for {
-			select {
-			case <-sub.done:
-				b.subsLocker.Lock()
-				delete(b.subs, subID)
-				b.subsLocker.Unlock()
-				return
-			}
+		for range sub.done {
+			b.subsLocker.Lock()
+			delete(b.subs, subID)
+			b.subsLocker.Unlock()
 		}
 	}()
 
@@ -129,6 +125,7 @@ func (b BusSubscription) Channel() <-chan AuditLog {
 }
 
 func (b BusSubscription) Close() error {
+	b.done <- struct{}{}
 	close(b.done)
 	return nil
 }

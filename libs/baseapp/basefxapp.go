@@ -6,6 +6,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	twirsentry "github.com/satont/twir/libs/sentry"
+	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -26,8 +27,9 @@ func CreateBaseApp(opts Opts) fx.Option {
 					Service: opts.AppName,
 				},
 			),
+			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
-				auditlogs.NewBusPubSub,
+				auditlogs.NewBusPubSubFx,
 				fx.As(new(auditlogs.PubSub)),
 			),
 			newRedis,

@@ -17,7 +17,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -31,7 +30,6 @@ var App = fx.Module(
 	service,
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: service}),
 	fx.Provide(
-		buscore.NewNatsBusFx(service),
 		func(cfg config.Config) parser.ParserClient {
 			return clients.NewParser(cfg.AppEnv)
 		},

@@ -15,6 +15,7 @@ func fromBusNewAuditLogMessage(msg busauditlog.NewAuditLogMessage) AuditLog {
 		ObjectID:      null.StringFromPtr(msg.ObjectID),
 		UserID:        null.StringFromPtr(msg.UserID),
 		CreatedAt:     msg.CreatedAt,
+		ChannelID:     null.StringFromPtr(msg.ChannelID),
 	}
 }
 
@@ -28,5 +29,6 @@ func toBusNewAuditLogMessage(auditLog AuditLog) busauditlog.NewAuditLogMessage {
 		ObjectID:      auditLog.ObjectID.Ptr(),
 		UserID:        auditLog.UserID.Ptr(),
 		CreatedAt:     auditLog.CreatedAt,
+		ChannelID:     auditLog.ChannelID.Ptr(),
 	}
 }

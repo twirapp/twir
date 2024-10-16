@@ -8,6 +8,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
+	buscoreauditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	"gorm.io/gorm"
 )
 
@@ -155,7 +156,7 @@ func (c *gormAuditHooks) withPublisher(hook auditHook) func(tx *gorm.DB) {
 			tx.Statement.Context, auditlogs.AuditLog{
 				ID:            auditLog.ID,
 				Table:         auditLog.Table,
-				OperationType: auditlogs.AuditOperationType(auditLog.OperationType),
+				OperationType: buscoreauditlogs.AuditOperationType(auditLog.OperationType),
 				OldValue:      auditLog.OldValue,
 				NewValue:      auditLog.NewValue,
 				ObjectID:      auditLog.ObjectID,
@@ -168,6 +169,7 @@ func (c *gormAuditHooks) withPublisher(hook auditHook) func(tx *gorm.DB) {
 			c.logger.Error(
 				"failed to publish audit log",
 				slog.String("audit_log_id", auditLog.ID.String()),
+				slog.Any("err", err),
 			)
 		}
 	}

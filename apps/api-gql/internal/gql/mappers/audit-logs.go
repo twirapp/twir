@@ -2,11 +2,12 @@ package mappers
 
 import (
 	model "github.com/satont/twir/libs/gomodels"
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
+	pubsubauditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	buscoreauditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 )
 
-func AuditLogToGql(auditLog auditlogs.AuditLog) *gqlmodel.AuditLog {
+func AuditLogToGql(auditLog pubsubauditlogs.AuditLog) *gqlmodel.AuditLog {
 	return &gqlmodel.AuditLog{
 		ID:            auditLog.ID,
 		Table:         auditLog.Table,
@@ -19,13 +20,13 @@ func AuditLogToGql(auditLog auditlogs.AuditLog) *gqlmodel.AuditLog {
 	}
 }
 
-func AuditLogOperationTypeToGql(t auditlogs.AuditOperationType) gqlmodel.AuditOperationType {
+func AuditLogOperationTypeToGql(t buscoreauditlogs.AuditOperationType) gqlmodel.AuditOperationType {
 	switch t {
-	case auditlogs.AuditOperationTypeUpdate:
+	case buscoreauditlogs.AuditOperationTypeUpdate:
 		return gqlmodel.AuditOperationTypeUpdate
-	case auditlogs.AuditOperationTypeCreate:
+	case buscoreauditlogs.AuditOperationTypeCreate:
 		return gqlmodel.AuditOperationTypeCreate
-	case auditlogs.AuditOperationTypeDelete:
+	case buscoreauditlogs.AuditOperationTypeDelete:
 		return gqlmodel.AuditOperationTypeDelete
 	default:
 		return ""

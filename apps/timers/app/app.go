@@ -11,7 +11,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -22,7 +21,6 @@ var App = fx.Module(
 	"timers",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "timers"}),
 	fx.Provide(
-		buscore.NewNatsBusFx("timers"),
 		timers.NewGorm,
 		activity.New,
 		workflow.New,

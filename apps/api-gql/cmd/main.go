@@ -2,7 +2,6 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
@@ -15,7 +14,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -45,14 +43,9 @@ func main() {
 			twitchcache.New,
 			commandscache.New,
 			keywordscacher.New,
-			buscore.NewNatsBusFx("api-gql"),
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),
-			),
-			fx.Annotate(
-				auditlogs.NewBusPubSubFx,
-				fx.As(new(auditlogs.PubSub)),
 			),
 			twir_stats.New,
 			resolvers.New,

@@ -7,7 +7,6 @@ import (
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
@@ -29,7 +28,6 @@ var App = fx.Module(
 		},
 		services.NewRoles,
 		services.NewCommands,
-		buscore.NewNatsBusFx(service),
 	),
 	fx.Invoke(
 		uptrace.NewFx(service),

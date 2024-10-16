@@ -10,7 +10,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
@@ -32,7 +31,6 @@ var App = fx.Module(
 		eventsActivity.New,
 		workflows.NewEventsWorkflow,
 		chat_alerts.New,
-		buscore.NewNatsBusFx("events"),
 	),
 	fx.Invoke(
 		uptrace.NewFx("events"),

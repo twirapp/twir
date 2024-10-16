@@ -7,7 +7,6 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -32,7 +31,6 @@ var App = fx.Options(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
-		buscore.NewNatsBusFx("eventsub"),
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,
