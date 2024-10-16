@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+	scroll-behavior: smooth;
+}
+
+html,
+body {
+	scrollbar-gutter: stable;
+	font-family: Inter, sans-serif;
+	font-feature-settings: normal;
+	font-variation-settings: normal;
+}
+
+:root {
+	color-scheme: dark;
+}
+
+.blue-gradient {
+	background-image: radial-gradient(50% 50% at 50% 50%, #181f4e, #09090b00);
+}
+
+.purple-gradient {
+	background-image: radial-gradient(50% 50% at 50% 50%, #1f1232, #09090b00);
+}

@@ -13,6 +13,7 @@ import (
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
+	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -41,6 +42,7 @@ type Resolver struct {
 	tokensClient         tokens.TokensClient
 	wsRouter             wsrouter.WsRouter
 	auditLogsPubSub      auditlogs.PubSub
+	twirStats            *twir_stats.TwirStats
 }
 
 type Opts struct {
@@ -59,6 +61,7 @@ type Opts struct {
 	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	WsRouter             wsrouter.WsRouter
 	AuditLogsPubSub      auditlogs.PubSub
+	TwirStats            *twir_stats.TwirStats
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -82,6 +85,7 @@ func New(opts Opts) (*Resolver, error) {
 		tokensClient:         opts.TokensGrpc,
 		wsRouter:             opts.WsRouter,
 		auditLogsPubSub:      opts.AuditLogsPubSub,
+		twirStats:            opts.TwirStats,
 	}, nil
 }
 

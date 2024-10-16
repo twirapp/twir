@@ -1,8 +1,13 @@
 package frontend
 
+import (
+	"os"
+	"path/filepath"
+)
+
 var appsForStart = []twirApp{
 	{name: "dashboard"},
-	{name: "landing"},
+	{name: "web"},
 	{name: "overlays"},
 	{name: "public-page"},
 }
@@ -12,9 +17,21 @@ type FrontendApps struct {
 }
 
 func New() (*FrontendApps, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
 	fa := &FrontendApps{}
 	for _, app := range appsForStart {
-		application, err := newApplication(app.name)
+		var path string
+		if app.name == "web" {
+			path = filepath.Join(wd, app.name)
+		} else {
+			path = filepath.Join(wd, "frontend", app.name)
+		}
+
+		application, err := newApplication(app.name, path)
 		if err != nil {
 			return nil, err
 		}

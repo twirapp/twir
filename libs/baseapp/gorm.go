@@ -39,7 +39,7 @@ func newGorm(withAudit bool) func(
 			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 			gormlogger.Config{
 				SlowThreshold:             100 * time.Millisecond,
-				LogLevel:                  gormlogger.Warn,
+				LogLevel:                  gormlogger.Error,
 				IgnoreRecordNotFoundError: true,
 				ParameterizedQueries:      true,
 				Colorful:                  true,

@@ -7,6 +7,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
+	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
 	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/auth"
@@ -53,6 +54,7 @@ func main() {
 				auditlogs.NewBusPubSubFx,
 				fx.As(new(auditlogs.PubSub)),
 			),
+			twir_stats.New,
 			resolvers.New,
 			directives.New,
 			httpserver.New,
