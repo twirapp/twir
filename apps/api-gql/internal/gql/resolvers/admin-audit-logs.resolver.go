@@ -16,7 +16,10 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -25,7 +28,10 @@ func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAud
 }
 
 // Channel is the resolver for the channel field.
-func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) Channel(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.ChannelID == nil {
 		return nil, nil
 	}
@@ -34,7 +40,10 @@ func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.Admin
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
-func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.AdminAuditLogsInput) ([]gqlmodel.AdminAuditLog, error) {
+func (r *queryResolver) AdminAuditLogs(
+	ctx context.Context,
+	input gqlmodel.AdminAuditLogsInput,
+) ([]gqlmodel.AdminAuditLog, error) {
 	var page int
 	perPage := 20
 
@@ -61,8 +70,8 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		query = query.Where("object_id = ?", *input.ObjectID.Value())
 	}
 
-	if input.Table.IsSet() {
-		query = query.Where("table_name = ?", *input.Table.Value())
+	if input.System.IsSet() {
+		query = query.Where("table_name = ?", mappers.AuditSystemToTableName(*input.System.Value()))
 	}
 
 	if input.OperationType.IsSet() {
@@ -87,7 +96,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		gqllogs = append(
 			gqllogs, gqlmodel.AdminAuditLog{
 				ID:            l.ID,
-				Table:         l.Table,
+				System:        mappers.AuditTableNameToGqlSystem(l.Table),
 				OperationType: mappers.AuditTypeModelToGql(l.OperationType),
 				OldValue:      l.OldValue.Ptr(),
 				NewValue:      l.NewValue.Ptr(),

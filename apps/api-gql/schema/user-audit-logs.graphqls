@@ -4,7 +4,7 @@ extend type Subscription {
 
 type AuditLog {
 	id: UUID!
-	table: String!
+	system: AuditLogSystem!
 	operationType: AuditOperationType!
 	oldValue: String
 	newValue: String
@@ -13,4 +13,27 @@ type AuditLog {
 	createdAt: Time!
 
 	user: TwirUserTwitchInfo @goField(forceResolver: true)
+}
+
+enum AuditLogSystem {
+	BADGE
+	BADGE_USER
+	CHANNEL_COMMAND
+	CHANNEL_COMMAND_GROUP
+	CHANNEL_VARIABLE
+	CHANNEL_GAMES_EIGHT_BALL
+	CHANNEL_GAMES_DUEL
+	CHANNEL_GAMES_RUSSIAN_ROULETTE
+	CHANNEL_GAMES_SEPPUKU
+	CHANNEL_GAMES_VOTEBAN
+	CHANNEL_GREETING
+	CHANNEL_KEYWORD
+	CHANNEL_MODERATION_SETTING
+	CHANNEL_OVERLAY_CHAT
+	CHANNEL_OVERLAY_DUDES
+	CHANNEL_OVERLAY_NOW_PLAYING
+	CHANNEL_ROLES
+	CHANNEL_TIMERS
+	CHANNEL_SONG_REQUESTS
+	CHANNEL_INTEGRATIONS
 }

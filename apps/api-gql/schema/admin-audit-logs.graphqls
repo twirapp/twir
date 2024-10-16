@@ -3,7 +3,7 @@ extend type Query {
 }
 
 input AdminAuditLogsInput {
-	table: String
+	system: AuditLogSystem
 	objectId: String
 	userId: String
 	channelId: String
@@ -14,7 +14,7 @@ input AdminAuditLogsInput {
 
 type AdminAuditLog {
 	id: UUID!
-	table: String!
+	system: AuditLogSystem!
 	operationType: AuditOperationType!
 	oldValue: String
 	newValue: String
