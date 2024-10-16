@@ -2,6 +2,9 @@ name: Build and lint
 
 on:
   push:
+    branches:
+      - !main
+      - *
 
 jobs:
   build-lint:

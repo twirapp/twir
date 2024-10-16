@@ -11,7 +11,7 @@ const { data: profile } = await useProfile()
 const pageUrl = useRequestURL()
 
 const redirectUrl = computed(() => {
-	return pageUrl.origin
+	return `${pageUrl.origin}/dashboard`
 })
 
 const { data: authLinkData } = await useAuthLink(redirectUrl)
