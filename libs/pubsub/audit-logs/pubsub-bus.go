@@ -33,8 +33,9 @@ var (
 
 func NewBusPubSub(bus *buscore.Bus) BusPubSub {
 	return BusPubSub{
-		bus:  bus,
-		subs: make(map[string]BusSubscription),
+		bus:        bus,
+		subs:       make(map[string]BusSubscription),
+		subsLocker: &sync.RWMutex{},
 	}
 }
 
