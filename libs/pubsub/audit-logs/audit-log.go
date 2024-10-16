@@ -27,22 +27,22 @@ type AuditLog struct {
 	CreatedAt     time.Time
 }
 
-type Options struct {
+type Params struct {
 	ID            uuid.UUID
 	Table         string
 	OperationType AuditOperationType
 	CreatedAt     time.Time
 }
 
-func NewAuditLog(opts Options, optionals ...Option) AuditLog {
+func NewAuditLog(params Params, opts ...Option) AuditLog {
 	auditLog := AuditLog{
-		ID:            opts.ID,
-		Table:         opts.Table,
-		OperationType: opts.OperationType,
-		CreatedAt:     opts.CreatedAt,
+		ID:            params.ID,
+		Table:         params.Table,
+		OperationType: params.OperationType,
+		CreatedAt:     params.CreatedAt,
 	}
 
-	for _, opt := range optionals {
+	for _, opt := range opts {
 		opt(&auditLog)
 	}
 

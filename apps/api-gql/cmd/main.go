@@ -50,7 +50,7 @@ func main() {
 				fx.As(new(wsrouter.WsRouter)),
 			),
 			fx.Annotate(
-				auditlogs.NewBusPubSub,
+				auditlogs.NewBusPubSubFx,
 				fx.As(new(auditlogs.PubSub)),
 			),
 			resolvers.New,

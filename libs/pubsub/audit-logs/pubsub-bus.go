@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	busauditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
+	"go.uber.org/fx"
 )
 
 type (
@@ -30,11 +31,29 @@ var (
 	_ Subscription = (*BusSubscription)(nil)
 )
 
-func NewBusPubSub(bus *buscore.Bus) (BusPubSub, error) {
+func NewBusPubSub(bus *buscore.Bus) BusPubSub {
 	return BusPubSub{
 		bus:  bus,
 		subs: make(map[string]BusSubscription),
-	}, nil
+	}
+}
+
+func NewBusPubSubFx(bus *buscore.Bus, lc fx.Lifecycle) BusPubSub {
+	bps := NewBusPubSub(bus)
+
+	lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				return bps.Start()
+			},
+			OnStop: func(ctx context.Context) error {
+				bps.Stop()
+				return nil
+			},
+		},
+	)
+
+	return bps
 }
 
 func (b BusPubSub) Start() error {
