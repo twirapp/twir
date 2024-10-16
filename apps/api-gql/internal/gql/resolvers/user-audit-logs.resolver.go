@@ -6,20 +6,68 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 
+	dataloader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
-	panic(fmt.Errorf("not implemented: User - user"))
+func (r *auditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
+	if obj.UserID == nil {
+		return nil, nil
+	}
+
+	user, err := dataloader.GetHelixUserById(ctx, *obj.UserID)
+	if err != nil {
+		r.logger.Error(
+			"failed to get helix user for audit log",
+			slog.String("user_id", *obj.UserID),
+			slog.String("audit_log_id", obj.ID.String()),
+		)
+
+		return nil, err
+	}
+
+	return user, nil
 }
 
 // AuditLog is the resolver for the auditLog field.
 func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.AuditLog, error) {
-	panic(fmt.Errorf("not implemented: AuditLog - auditLog"))
+	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, dashboardID)
+	if err != nil {
+		return nil, err
+	}
+
+	channel := make(chan *gqlmodel.AuditLog)
+
+	go func() {
+		defer func() {
+			_ = auditLogs.Close()
+			close(channel)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case auditLog := <-auditLogs.Channel():
+				channel <- mappers.AuditLogToGql(auditLog)
+			}
+		}
+	}()
+
+	return channel, nil
 }
 
 // AuditLog returns graph.AuditLogResolver implementation.

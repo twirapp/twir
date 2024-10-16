@@ -2,6 +2,7 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
+	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
@@ -48,6 +49,10 @@ func main() {
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),
+			),
+			fx.Annotate(
+				auditlogs.NewBusPubSubFx,
+				fx.As(new(auditlogs.PubSub)),
 			),
 			twir_stats.New,
 			resolvers.New,

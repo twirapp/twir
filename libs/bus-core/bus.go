@@ -5,6 +5,7 @@ import (
 
 	"github.com/nats-io/nats.go"
 	cfg "github.com/satont/twir/libs/config"
+	auditlog "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	chat_messages_store "github.com/twirapp/twir/libs/bus-core/chat-messages-store"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -18,6 +19,7 @@ import (
 )
 
 type Bus struct {
+	AuditLogs         *auditLogsBus
 	Parser            *parserBus
 	Websocket         *websocketBus
 	Channel           *channelBus
@@ -33,6 +35,15 @@ type Bus struct {
 
 func NewNatsBus(nc *nats.Conn) *Bus {
 	return &Bus{
+		AuditLogs: &auditLogsBus{
+			Logs: NewNatsQueue[auditlog.NewAuditLogMessage, struct{}](
+				nc,
+				AUDIT_LOGS_SUBJECT,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
+		},
+
 		Parser: &parserBus{
 			GetCommandResponse: NewNatsQueue[twitch.TwitchChatMessage, parser.CommandParseResponse](
 				nc,
