@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { useAuthLink, useProfile } from '~/layers/landing/api/user'
 
-const { data: profile } = await useProfile()
-
 const pageUrl = useRequestURL()
 
 const redirectUrl = computed(() => {
 	return `${pageUrl.origin}/dashboard`
 })
 
-const { data: authLinkData } = await useAuthLink(redirectUrl)
+const [
+	{ data: profile },
+	{ data: authLinkData },
+] = await Promise.all([
+	useProfile(),
+	useAuthLink(redirectUrl),
+])
 </script>
 
 <template>

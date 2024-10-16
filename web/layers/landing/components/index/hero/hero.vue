@@ -6,15 +6,16 @@ import HeroChat from './hero-chat.vue'
 import { useAuthLink, useProfile } from '~/layers/landing/api/user'
 import UiButton from '~/layers/landing/components/ui-button.vue'
 
-const { data: profile } = await useProfile()
-
 const pageUrl = useRequestURL()
 
 const redirectUrl = computed(() => {
 	return `${pageUrl.origin}/dashboard`
 })
 
-const { data: authLinkData } = await useAuthLink(redirectUrl)
+const [{ data: profile }, { data: authLinkData }] = await Promise.all([
+	useProfile(),
+	useAuthLink(redirectUrl),
+])
 
 const isLogged = computed(() => {
 	return !!profile.value
