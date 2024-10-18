@@ -160,7 +160,7 @@ jobs:
           context: .
           file: ./web/Dockerfile
           push: true
-          tags:
+          tags: |
             twirapp/web:latest
             registry.twir.app/twirapp/web:latest
           cache-from: type=gha
