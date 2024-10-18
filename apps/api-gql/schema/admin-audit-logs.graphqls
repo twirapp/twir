@@ -1,0 +1,34 @@
+extend type Query {
+	adminAuditLogs(input: AdminAuditLogsInput!): [AdminAuditLog!]! @isAuthenticated @isAdmin
+}
+
+input AdminAuditLogsInput {
+	system: AuditLogSystem
+	objectId: String
+	userId: String
+	channelId: String
+	operationType: AuditOperationType
+	page: Int
+	perPage: Int
+}
+
+type AdminAuditLog {
+	id: UUID!
+	system: AuditLogSystem!
+	operationType: AuditOperationType!
+	oldValue: String
+	newValue: String
+	objectId: String
+	userId: String
+	channelId: String
+	createdAt: Time!
+
+	user: TwirUserTwitchInfo @goField(forceResolver: true)
+	channel: TwirUserTwitchInfo @goField(forceResolver: true)
+}
+
+enum AuditOperationType {
+	CREATE
+	UPDATE
+	DELETE
+}

@@ -10,6 +10,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
+	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
@@ -40,6 +41,7 @@ type Resolver struct {
 	keywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	tokensClient         tokens.TokensClient
 	wsRouter             wsrouter.WsRouter
+	auditLogsPubSub      auditlogs.PubSub
 	twirStats            *twir_stats.TwirStats
 }
 
@@ -58,6 +60,7 @@ type Opts struct {
 	Redis                *redis.Client
 	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	WsRouter             wsrouter.WsRouter
+	AuditLogsPubSub      auditlogs.PubSub
 	TwirStats            *twir_stats.TwirStats
 }
 
@@ -81,6 +84,7 @@ func New(opts Opts) (*Resolver, error) {
 		keywordsCacher:       opts.KeywordsCacher,
 		tokensClient:         opts.TokensGrpc,
 		wsRouter:             opts.WsRouter,
+		auditLogsPubSub:      opts.AuditLogsPubSub,
 		twirStats:            opts.TwirStats,
 	}, nil
 }

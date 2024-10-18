@@ -7,7 +7,6 @@ import (
 	"github.com/satont/twir/apps/discord/internal/sended_messages_store"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -15,9 +14,8 @@ import (
 
 var App = fx.Module(
 	"discord",
-	baseapp.CreateBaseApp("discord"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "discord"}),
 	fx.Provide(
-		buscore.NewNatsBusFx("discord"),
 		sended_messages_store.New,
 		messages_updater.New,
 		discord_go.New,

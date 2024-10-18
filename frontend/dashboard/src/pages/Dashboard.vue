@@ -4,6 +4,7 @@ import { SquarePen } from 'lucide-vue-next'
 import { NButton, NDropdown } from 'naive-ui'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
+import AuditLogs from '@/components/dashboard/audit-logs.vue'
 import BotStatus from '@/components/dashboard/bot-status.vue'
 import Chat from '@/components/dashboard/chat.vue'
 import Events from '@/components/dashboard/events.vue'
@@ -75,6 +76,7 @@ onBeforeUnmount(() => {
 				<Chat v-if="item.i === 'chat'" :item="item" class="h-full" />
 				<Stream v-if="item.i === 'stream'" :item="item" class="h-full" />
 				<Events v-if="item.i === 'events'" :item="item" class="h-full" />
+				<AuditLogs v-if="item.i === 'audit-logs'" :item="item" class="h-full" />
 			</GridItem>
 		</GridLayout>
 
