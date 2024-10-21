@@ -54,8 +54,14 @@ func New(opts Opts) *Server {
 		sloggin.NewWithConfig(
 			opts.Logger.GetSlog(),
 			sloggin.Config{
-				WithSpanID:  true,
-				WithTraceID: true,
+				WithSpanID:         true,
+				WithTraceID:        true,
+				DefaultLevel:       slog.LevelError,
+				WithResponseBody:   true,
+				WithRequestBody:    true,
+				WithRequestHeader:  true,
+				WithUserAgent:      true,
+				WithResponseHeader: true,
 			},
 		),
 	)
