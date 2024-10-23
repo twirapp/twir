@@ -43,7 +43,7 @@ func (r *adminAuditLogResolver) Channel(
 func (r *queryResolver) AdminAuditLogs(
 	ctx context.Context,
 	input gqlmodel.AdminAuditLogsInput,
-) ([]gqlmodel.AdminAuditLog, error) {
+) (*gqlmodel.AdminAuditLogResponse, error) {
 	var page int
 	perPage := 20
 
@@ -109,7 +109,16 @@ func (r *queryResolver) AdminAuditLogs(
 		)
 	}
 
-	return gqllogs, nil
+	var total int64
+	if err := query.Model(&model.AuditLog{}).Count(&total).Error; err != nil {
+		r.logger.Error("error in fetching audit logs count", slog.Any("err", err))
+		return nil, err
+	}
+
+	return &gqlmodel.AdminAuditLogResponse{
+		Logs:  gqllogs,
+		Total: int(total),
+	}, nil
 }
 
 // AdminAuditLog returns graph.AdminAuditLogResolver implementation.

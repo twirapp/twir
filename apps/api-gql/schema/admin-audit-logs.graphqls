@@ -1,5 +1,5 @@
 extend type Query {
-	adminAuditLogs(input: AdminAuditLogsInput!): [AdminAuditLog!]! @isAuthenticated @isAdmin
+	adminAuditLogs(input: AdminAuditLogsInput!): AdminAuditLogResponse! @isAuthenticated @isAdmin
 }
 
 input AdminAuditLogsInput {
@@ -10,6 +10,11 @@ input AdminAuditLogsInput {
 	operationType: AuditOperationType
 	page: Int
 	perPage: Int
+}
+
+type AdminAuditLogResponse {
+	logs: [AdminAuditLog!]!
+	total: Int!
 }
 
 type AdminAuditLog {

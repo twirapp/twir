@@ -147,6 +147,14 @@ func (c *gormAuditHooks) update(tx *gorm.DB) *model.AuditLog {
 
 func (c *gormAuditHooks) withPublisher(hook auditHook) func(tx *gorm.DB) {
 	return func(tx *gorm.DB) {
+		ctx := tx.Statement.Context
+		userID := getUserIDFromContext(ctx)
+		dashboardID := getDashboardIDFromContext(ctx)
+
+		if userID == nil && dashboardID == nil {
+			return
+		}
+
 		auditLog := hook(tx)
 		if auditLog == nil {
 			return

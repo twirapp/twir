@@ -1076,6 +1076,9 @@
         "revokeAllSessionsDescription": "All user sessions will be revoked",
         "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
       }
+    },
+    "auditLogs": {
+      "title": "Audit logs"
     }
   }
 }
