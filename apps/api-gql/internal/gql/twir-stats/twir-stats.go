@@ -3,7 +3,6 @@ package twir_stats
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync"
 	"time"
@@ -14,6 +13,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -204,14 +204,20 @@ func (c *TwirStats) cacheStreamers() {
 
 	streamersFollowers := make(map[string]int)
 	streamersFollowersMu := sync.Mutex{}
-	streamersFollowersErrGrp, streamersFollowersErrGrpCtx := errgroup.WithContext(ctx)
+	streamersFollowersWg := utils.NewGoroutinesGroup()
 
 	for _, user := range helixUsers {
 		user := user
-		streamersFollowersErrGrp.Go(
-			func() error {
+		streamersFollowersWg.Go(
+			func() {
+				userTwitchClientCtx, userTwitchClientCtxCancel := context.WithTimeout(
+					context.Background(),
+					1*time.Second,
+				)
+				defer userTwitchClientCtxCancel()
+
 				userTwitchClient, err := twitch.NewUserClientWithContext(
-					streamersFollowersErrGrpCtx,
+					userTwitchClientCtx,
 					user.ID,
 					c.config,
 					c.grpcTokensClients,
@@ -226,7 +232,7 @@ func (c *TwirStats) cacheStreamers() {
 							slog.String("login", user.Login),
 						),
 					)
-					return fmt.Errorf("cannot create twitch client: %w", err)
+					return
 				}
 
 				followersReq, followersErr := userTwitchClient.GetChannelFollows(
@@ -244,7 +250,7 @@ func (c *TwirStats) cacheStreamers() {
 							slog.String("login", user.Login),
 						),
 					)
-					return fmt.Errorf("cannot get followers: %w", followersErr)
+					return
 				}
 				if followersReq.ErrorMessage != "" {
 					c.logger.Error(
@@ -257,22 +263,19 @@ func (c *TwirStats) cacheStreamers() {
 						),
 						slog.Int("status", followersReq.StatusCode),
 					)
-					return fmt.Errorf("cannot get followers: %s", followersReq.ErrorMessage)
+					return
 				}
 
 				streamersFollowersMu.Lock()
 				streamersFollowers[user.ID] = followersReq.Data.Total
 				streamersFollowersMu.Unlock()
 
-				return nil
+				return
 			},
 		)
 	}
 
-	if err := streamersFollowersErrGrp.Wait(); err != nil {
-		c.logger.Error("cannot get followers", slog.Any("err", err))
-		return
-	}
+	streamersFollowersWg.Wait()
 
 	streamersWithFollowers := make(
 		[]gqlmodel.TwirStatsStreamer,
