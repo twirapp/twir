@@ -41,7 +41,7 @@ jobs:
           echo "folder=$(dirname ${{ matrix.folders }})" >> $GITHUB_ENV
           echo "app=$(basename ${{ matrix.folders }})" >> $GITHUB_ENV
 
-      - name: Get all changed markdown files
+      - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
@@ -142,7 +142,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Get all changed markdown files
+      - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
@@ -181,7 +181,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Get all changed markdown files
+      - name: Get changed files
         id: changed-files
         uses: tj-actions/changed-files@v45
         with:
