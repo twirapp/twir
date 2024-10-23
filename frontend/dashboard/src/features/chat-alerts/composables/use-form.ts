@@ -1,5 +1,4 @@
 import { createGlobalState } from '@vueuse/core'
-import { useNotification } from 'naive-ui'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -7,6 +6,7 @@ import type { ChatAlerts } from '@/gql/graphql'
 import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
 
 import { useChatAlertsApi } from '@/api/chat-alerts.js'
+import { useToast } from '@/components/ui/toast'
 
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
 
@@ -25,7 +25,7 @@ type NonNullableFields<T> = {
 type Form = OmitDeep<NonNullableFields<ChatAlerts>, '__typename'>
 
 export const useForm = createGlobalState(() => {
-	const message = useNotification()
+	const { toast } = useToast()
 	const { t } = useI18n()
 	const formRef = ref<HTMLFormElement>()
 
@@ -114,9 +114,14 @@ export const useForm = createGlobalState(() => {
 
 		try {
 			await updateChatAlerts.executeMutation({ input })
+			toast({
+				title: t('sharedTexts.saved'),
+				duration: 2500,
+			})
 		} catch (error) {
-			message.error({
+			toast({
 				title: t('sharedTexts.errorOnSave'),
+				variant: 'destructive',
 				duration: 2500,
 			})
 		}
