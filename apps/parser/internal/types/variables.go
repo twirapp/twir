@@ -27,6 +27,7 @@ type Variable struct {
 	CommandsOnly        bool
 	Visible             *bool
 	CanBeUsedInRegistry bool
+	NotCachable         bool
 }
 
 type VariableParseContext struct {
