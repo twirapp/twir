@@ -121,7 +121,7 @@ services:
           - node.role == manager
 
   migrations:
-    image: twirapp/migrations:latest
+    image: registry.twir.app/twirapp/migrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -151,7 +151,7 @@ services:
           - node.role == manager
 
   api:
-    image: twirapp/api:latest
+    image: registry.twir.app/twirapp/api:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -176,7 +176,7 @@ services:
       replicas: 1
 
   api-gql:
-    image: twirapp/api-gql:latest
+    image: registry.twir.app/twirapp/api-gql:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -201,7 +201,7 @@ services:
       replicas: 1
 
   bots:
-    image: twirapp/bots:latest
+    image: registry.twir.app/twirapp/bots:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -217,7 +217,7 @@ services:
           - node.role == manager
 
   parser:
-    image: twirapp/parser:latest
+    image: registry.twir.app/twirapp/parser:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -234,7 +234,7 @@ services:
       - twir
 
   chat-messages-store:
-    image: twirapp/chat-messages-store:latest
+    image: registry.twir.app/twirapp/chat-messages-store:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -251,7 +251,7 @@ services:
       - twir
 
   timers:
-    image: twirapp/timers:latest
+    image: registry.twir.app/twirapp/timers:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -268,7 +268,7 @@ services:
       endpoint_mode: dnsrr
 
   scheduler:
-    image: twirapp/scheduler:latest
+    image: registry.twir.app/twirapp/scheduler:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -281,7 +281,7 @@ services:
       endpoint_mode: dnsrr
 
   eventsub:
-    image: twirapp/eventsub:latest
+    image: registry.twir.app/twirapp/eventsub:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -304,7 +304,7 @@ services:
         - traefik.docker.network=traefik-public
 
   eval:
-    image: twirapp/eval:latest
+    image: registry.twir.app/twirapp/eval:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -325,7 +325,7 @@ services:
       - twir
 
   integrations:
-    image: twirapp/integrations:latest
+    image: registry.twir.app/twirapp/integrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -338,7 +338,7 @@ services:
       endpoint_mode: dnsrr
 
 #  landing:
-#    image: twirapp/landing:latest
+#    image: registry.twir.app/twirapp/landing:latest
 #    secrets:
 #      - twir_doppler_token
 #    networks:
@@ -362,7 +362,7 @@ services:
 #        - traefik.docker.network=traefik-public
 
   web:
-    image: twirapp/web:latest
+    image: registry.twir.app/twirapp/web:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -386,7 +386,7 @@ services:
         - traefik.docker.network=traefik-public
 
   dashboard:
-    image: twirapp/dashboard:latest
+    image: registry.twir.app/twirapp/dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
     secrets:
       - twir_doppler_token
@@ -408,7 +408,7 @@ services:
         - traefik.docker.network=traefik-public
 
   public-page:
-    image: twirapp/public-page:latest
+    image: registry.twir.app/twirapp/public-page:latest
     command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
@@ -430,7 +430,7 @@ services:
         - traefik.docker.network=traefik-public
 
   overlays:
-    image: twirapp/overlays:latest
+    image: registry.twir.app/twirapp/overlays:latest
     command: --gzip --brotli --threshold 500
     networks:
       - twir
@@ -450,7 +450,7 @@ services:
         - traefik.docker.network=traefik-public
 
   websockets:
-    image: twirapp/websockets:latest
+    image: registry.twir.app/twirapp/websockets:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -471,7 +471,7 @@ services:
         - traefik.docker.network=traefik-public
 
   tokens:
-    image: twirapp/tokens:latest
+    image: registry.twir.app/twirapp/tokens:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -488,7 +488,7 @@ services:
       endpoint_mode: dnsrr
 
   emotes-cacher:
-    image: twirapp/emotes-cacher:latest
+    image: registry.twir.app/twirapp/emotes-cacher:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -505,7 +505,7 @@ services:
       replicas: 4
 
   events:
-    image: twirapp/events:latest
+    image: registry.twir.app/twirapp/events:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -522,7 +522,7 @@ services:
       replicas: 6
 
   ytsr:
-    image: twirapp/ytsr:latest
+    image: registry.twir.app/twirapp/ytsr:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -554,7 +554,7 @@ services:
       replicas: 4
 
   discord:
-    image: twirapp/discord:latest
+    image: registry.twir.app/twirapp/discord:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -567,7 +567,7 @@ services:
       endpoint_mode: dnsrr
 
   language-detector:
-    image: ghcr.io/twirapp/language-detector:latest
+    image: ghcr.io/registry.twir.app/twirapp/language-detector:latest
     secrets:
       - twir_doppler_token
     environment:

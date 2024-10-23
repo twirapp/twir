@@ -154,10 +154,13 @@ func (c *TwirStats) cacheStreamers() {
 	helixUsersMu := sync.Mutex{}
 	helixUsers := make([]helix.User, 0, len(streamers))
 
-	usersWgGrp, ctx := errgroup.WithContext(context.Background())
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+
+	usersWgGrp, usersWgCtx := errgroup.WithContext(ctx)
 	chunks := lo.Chunk(streamers, 100)
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.grpcTokensClients)
+	twitchClient, err := twitch.NewAppClientWithContext(usersWgCtx, c.config, c.grpcTokensClients)
 	if err != nil {
 		c.logger.Error("cannot create twitch client", slog.Any("err", err))
 		return
@@ -186,8 +189,8 @@ func (c *TwirStats) cacheStreamers() {
 				}
 
 				helixUsersMu.Lock()
-				defer helixUsersMu.Unlock()
 				helixUsers = append(helixUsers, usersReq.Data.Users...)
+				helixUsersMu.Unlock()
 
 				return nil
 			},
@@ -209,9 +212,10 @@ func (c *TwirStats) cacheStreamers() {
 			func() {
 				userTwitchClientCtx, userTwitchClientCtxCancel := context.WithTimeout(
 					context.Background(),
-					60*time.Second,
+					1*time.Second,
 				)
 				defer userTwitchClientCtxCancel()
+
 				userTwitchClient, err := twitch.NewUserClientWithContext(
 					userTwitchClientCtx,
 					user.ID,
@@ -263,8 +267,10 @@ func (c *TwirStats) cacheStreamers() {
 				}
 
 				streamersFollowersMu.Lock()
-				defer streamersFollowersMu.Unlock()
 				streamersFollowers[user.ID] = followersReq.Data.Total
+				streamersFollowersMu.Unlock()
+
+				return
 			},
 		)
 	}

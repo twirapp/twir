@@ -14,6 +14,7 @@ var CustomVar = &types.Variable{
 	Name:        "customvar",
 	Description: lo.ToPtr("Custom variable"),
 	Visible:     lo.ToPtr(false),
+	NotCachable: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

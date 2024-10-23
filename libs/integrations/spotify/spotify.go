@@ -10,7 +10,6 @@ import (
 	"github.com/imroc/req/v3"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 )
 
 type Spotify struct {
@@ -61,10 +60,9 @@ func (c *Spotify) refreshToken() error {
 	}
 
 	c.integration.AccessToken = null.StringFrom(data.AccessToken)
-	c.db.Where(`"id" = ?`, c.integration.ID).
-		Select("*").
-		Updates(c.integration).
-		Clauses(clause.Returning{})
+	if err := c.db.Save(&c.integration).Error; err != nil {
+		return fmt.Errorf("cannot save spotify token: %w", err)
+	}
 
 	return nil
 }
@@ -108,7 +106,9 @@ func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
 
 	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
-		c.refreshToken()
+		if err := c.refreshToken(); err != nil {
+			return nil, err
+		}
 		return c.GetTrack()
 	}
 	if err != nil {

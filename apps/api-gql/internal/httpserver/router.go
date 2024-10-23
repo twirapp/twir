@@ -55,8 +55,12 @@ func New(opts Opts) *Server {
 		sloggin.NewWithConfig(
 			opts.Logger.GetSlog(),
 			sloggin.Config{
-				WithSpanID:  true,
-				WithTraceID: true,
+				DefaultLevel:     slog.LevelInfo,
+				ClientErrorLevel: slog.LevelWarn,
+				ServerErrorLevel: slog.LevelError,
+				Filters: []sloggin.Filter{
+					sloggin.IgnoreStatus(200, 404),
+				},
 			},
 		),
 	)
