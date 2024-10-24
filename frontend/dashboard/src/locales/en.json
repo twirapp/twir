@@ -234,11 +234,18 @@
       },
       "audit-logs": {
         "title": "Audit logs",
+        "search-label": "Search by",
+        "search": {
+          "channel": "Channel",
+          "actor": "Actor"
+        },
+        "operation-type-label": "Operation type",
         "operation-type": {
           "create": "Created",
           "delete": "Deleted",
           "update": "Edited"
         },
+        "systems-label": "Systems",
         "systems": {
           "badge": "Badge",
           "badge-user": "Badge User",

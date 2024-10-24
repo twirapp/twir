@@ -7,6 +7,8 @@ import {
 import { createGlobalState } from '@vueuse/core'
 import { computed, h } from 'vue'
 
+import { useAuditFilters } from './use-audit-filters.js'
+
 import type { BadgeVariants } from '@/components/ui/badge'
 import type { AdminAuditLogsInput, AdminAuditLogsQuery } from '@/gql/graphql'
 
@@ -31,15 +33,21 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 
 export const useAuditTable = createGlobalState(() => {
 	const { pagination } = usePagination()
+	const { searchType, searchUserId, selectedFilters } = useAuditFilters()
 
-	const tableParams = computed<AdminAuditLogsInput>(() => {
-		return {
+	const auditParams = computed<AdminAuditLogsInput>(() => {
+		const userSearchKey = searchType.value === 'channel' ? 'channelId' : 'userId'
+		const params: AdminAuditLogsInput = {
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
+			[userSearchKey]: searchUserId.value || undefined,
+			// operationType: selectedFilters.value['operation-type'],
+			// system: selectedFilters.value.system,
 		}
+		return params
 	})
 
-	const { data, fetching } = useAdminAuditLogs(tableParams)
+	const { data, fetching } = useAdminAuditLogs(auditParams)
 
 	const logs = computed<AdminAuditLogsQuery['adminAuditLogs']['logs']>(() => {
 		if (!data.value) return []
@@ -57,7 +65,7 @@ export const useAuditTable = createGlobalState(() => {
 			accessorKey: 'channel',
 			size: 15,
 			minSize: 15,
-			header: () => h('div', {}, 'Channel'),
+			header: () => h('div', {}, { default: () => 'Channel' }),
 			cell: ({ row }) => {
 				if (!row.original.channel) {
 					return null
@@ -78,7 +86,7 @@ export const useAuditTable = createGlobalState(() => {
 			accessorKey: 'user',
 			size: 15,
 			minSize: 15,
-			header: () => h('div', {}, 'Actor'),
+			header: () => h('div', {}, { default: () => 'Actor' }),
 			cell: ({ row }) => {
 				if (!row.original.user) {
 					return null
@@ -99,7 +107,7 @@ export const useAuditTable = createGlobalState(() => {
 			accessorKey: 'system',
 			size: 15,
 			minSize: 15,
-			header: () => h('div', {}, 'System'),
+			header: () => h('div', {}, { default: () => 'System' }),
 			cell: ({ row }) => {
 				return row.original.system?.toLowerCase()
 			},
@@ -108,12 +116,12 @@ export const useAuditTable = createGlobalState(() => {
 			accessorKey: 'operationType',
 			size: 15,
 			minSize: 15,
-			header: () => h('div', {}, 'Operation'),
+			header: () => h('div', {}, { default: () => 'Operation' }),
 			cell: ({ row }) => {
 				return h(
 					Badge,
 					{ variant: computeOperationBadgeVariant(row.original.operationType) },
-					row.original.operationType.toLowerCase(),
+					{ default: () => row.original.operationType.toLowerCase() },
 				)
 			},
 		},
@@ -121,7 +129,7 @@ export const useAuditTable = createGlobalState(() => {
 			accessorKey: 'value',
 			size: 40,
 			minSize: 40,
-			header: () => h('div', {}, 'Values'),
+			header: () => h('div', {}, { default: () => 'Values' }),
 			cell: ({ row }) => {
 				return h(AuditTableValue, { log: row.original })
 			},
