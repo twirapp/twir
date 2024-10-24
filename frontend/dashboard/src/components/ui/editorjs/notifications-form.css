@@ -54,10 +54,6 @@ div .video-tool__video,
 	color: white;
 }
 
-::selection {
-	background: var(--accent);
-}
-
 .ce-popover-item:hover,
 .cdx-settings-button:hover,
 .ce-settings__button:hover,
