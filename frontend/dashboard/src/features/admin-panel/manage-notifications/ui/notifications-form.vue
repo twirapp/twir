@@ -28,7 +28,7 @@ const notificationsForm = useNotificationsForm()
 						{{ t('adminPanel.notifications.userLabel') }}
 					</Label>
 					<TwitchUsersSelect
-						v-model="notificationsForm.userIdField.fieldModel.value"
+						v-model="notificationsForm.userIdField.fieldModel.value as string"
 						twir-only
 					/>
 				</div>

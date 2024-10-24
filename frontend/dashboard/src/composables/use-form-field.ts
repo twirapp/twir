@@ -16,6 +16,6 @@ export function useFormField<T>(name: string, initialValue: T) {
 	return {
 		fieldRef,
 		fieldModel,
-		reset
+		reset,
 	}
 }

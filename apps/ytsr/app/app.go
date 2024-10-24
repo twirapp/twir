@@ -10,7 +10,7 @@ import (
 
 var App = fx.Module(
 	"ytsr",
-	baseapp.CreateBaseApp("ytsr"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "ytsr"}),
 	fx.Invoke(
 		uptrace.NewFx("ytsr"),
 		grpc_impl.New,

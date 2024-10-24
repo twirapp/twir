@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends string | string[]">
 import { refDebounced, useElementSize } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
@@ -27,9 +27,10 @@ import { resolveUserName } from '@/helpers'
 import { cn } from '@/lib/utils'
 
 interface Props {
-	initial?: string | string[] | null
+	initial?: T | null
 	twirOnly?: boolean
 	multiple?: boolean
+	placeholder?: string
 }
 const props = withDefaults(defineProps<Props>(), {
 	twirOnly: false,
@@ -37,9 +38,13 @@ const props = withDefaults(defineProps<Props>(), {
 	multiple: false,
 })
 
-const userId = defineModel<string | string[] | undefined | null>()
+const userId = defineModel<T>({ required: true })
 
 const { t } = useI18n()
+
+const inputPlaceholder = computed(() => {
+	return props.placeholder ?? t('sharedTexts.userSelectPlaceholder', Number(!props.multiple))
+})
 
 const ids = computed<string[]>(() => {
 	const selectedIds = (Array.isArray(userId.value) ? userId.value : [userId.value]).filter(i => !!i) as string[]
@@ -90,12 +95,12 @@ function handleSelect(event: SelectEvent<AcceptableValue>) {
 	if (typeof event.detail.value !== 'string') return
 	if (props.multiple && Array.isArray(userId.value)) {
 		if (userId.value?.includes(event.detail.value)) {
-			userId.value = userId.value?.filter((id) => id !== event.detail.value)
+			userId.value = userId.value?.filter((id) => id !== event.detail.value) as T
 		} else {
-			userId.value = [...userId.value ?? [], event.detail.value]
+			userId.value = [...userId.value ?? [], event.detail.value] as T
 		}
 	} else {
-		userId.value = event.detail.value
+		userId.value = event.detail.value as T
 	}
 
 	if (!props.multiple) {
@@ -135,7 +140,7 @@ const { width: buttonWidth } = useElementSize(buttonRef)
 						</div>
 					</div>
 					<span v-else>
-						{{ t('sharedTexts.userSelectPlaceholder', Number(!multiple)) }}
+						{{ inputPlaceholder }}
 					</span>
 				</template>
 				<template v-else>
@@ -146,7 +151,7 @@ const { width: buttonWidth } = useElementSize(buttonRef)
 						</div>
 					</template>
 					<span v-else>
-						{{ t('sharedTexts.userSelectPlaceholder') }}
+						{{ inputPlaceholder }}
 					</span>
 				</template>
 				<ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />

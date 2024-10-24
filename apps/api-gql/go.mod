@@ -16,6 +16,7 @@ replace (
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
+	github.com/twirapp/twir/libs/pubsub => ../../libs/pubsub
 )
 
 require (

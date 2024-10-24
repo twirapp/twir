@@ -21,7 +21,6 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -34,7 +33,7 @@ import (
 )
 
 var App = fx.Options(
-	baseapp.CreateBaseApp("api"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "api"}),
 	fx.Provide(
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)
@@ -57,7 +56,6 @@ var App = fx.Options(
 		func(r *redis.Client) *scs.SessionManager {
 			return sessions.New(r)
 		},
-		buscore.NewNatsBusFx("api"),
 		interceptors.New,
 		impl_protected.New,
 		impl_unprotected.New,
