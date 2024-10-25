@@ -15,6 +15,10 @@ import Header from './default/header.vue'
 </template>
 
 <style>
+html {
+	scroll-behavior: smooth;
+}
+
 body {
 	@apply bg-[#09090B] overflow-x-hidden
 }
