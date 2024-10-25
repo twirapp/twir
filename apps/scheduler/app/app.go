@@ -40,6 +40,7 @@ var App = fx.Module(
 		timers.NewCommandsAndRoles,
 		timers.NewBannedChannels,
 		timers.NewWatched,
+		timers.NewExpiredCommands,
 		func(l logger.Logger) {
 			l.Info("Started")
 		},

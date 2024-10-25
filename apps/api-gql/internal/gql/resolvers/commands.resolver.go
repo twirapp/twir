@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
@@ -99,6 +100,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		}
 	}
 
+	expiresAt := null.TimeFromPtr(nil)
+	if opts.ExpiredIn != 0 {
+		expiresAt = null.TimeFrom(time.Now().UTC().Add(time.Duration(opts.ExpiredIn) * time.Minute))
+	}
+
 	command := &model.ChannelsCommands{
 		ID:                        uuid.New().String(),
 		Name:                      strings.ToLower(opts.Name),
@@ -129,6 +135,9 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		GroupID:           null.StringFromPtr(opts.GroupID.Value()),
 		CooldownRolesIDs:  opts.CooldownRolesIds,
 		EnabledCategories: opts.EnabledCategories,
+		ExpiresAt:         expiresAt,
+		Expired:           false,
+		ExpiredIn:         opts.ExpiredIn,
 	}
 
 	for _, res := range opts.Responses {
@@ -303,6 +312,17 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		}
 	}
 
+	if opts.ExpiredIn.IsSet() {
+		expiresAt := null.TimeFromPtr(nil)
+		if *opts.ExpiredIn.Value() != 0 {
+			expiresAt = null.TimeFrom(time.Now().UTC().Add(time.Duration(*opts.ExpiredIn.Value()) * time.Minute))
+		}
+
+		cmd.ExpiresAt = expiresAt
+		cmd.Expired = false
+		cmd.ExpiredIn = *opts.ExpiredIn.Value()
+	}
+
 	txErr := r.gorm.
 		WithContext(ctx).
 		Transaction(
@@ -408,6 +428,9 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 			RequiredWatchTime:         entity.RequiredWatchTime,
 			RequiredMessages:          entity.RequiredMessages,
 			RequiredUsedChannelPoints: entity.RequiredUsedChannelPoints,
+			ExpiredIn:                 entity.ExpiredIn,
+			Expired:                   entity.Expired,
+			ExpiresAt:                 entity.ExpiresAt.Ptr(),
 		}
 
 		if entity.Group != nil {

@@ -439,6 +439,37 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, nil
 	}
 
+	if cmd.Cmd.Expired {
+		return nil, nil
+	}
+
+	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiredIn > 0 {
+		if cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Model(&model.ChannelsCommands{}).
+				Updates(map[string]interface{}{
+					"expired": true,
+				}).Error
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			err = c.services.CommandsCache.Invalidate(
+				ctx,
+				cmd.Cmd.ChannelID,
+			)
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			return nil, nil
+		}
+	}
+
 	if cmd.Cmd.OnlineOnly {
 		stream := &model.ChannelsStreams{}
 		err = c.services.Gorm.

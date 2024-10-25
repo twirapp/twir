@@ -33,6 +33,9 @@ type Command {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	expiredIn: Int!
+	expired: Boolean!
+	expiresAt: Time
 	group: CommandGroup
 }
 type CommandResponse {
@@ -80,6 +83,7 @@ input CommandsCreateOpts {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	expiredIn: Int!
 	groupId: String @validate(constraint: "max=500,omitempty")
 }
 
@@ -103,6 +107,8 @@ input CommandsUpdateOpts {
 	requiredWatchTime: Int
 	requiredMessages: Int
 	requiredUsedChannelPoints: Int
+	expiredIn: Int
+	expired: Boolean
 	groupId: String @validate(constraint: "max=500,omitempty")
 }
 
