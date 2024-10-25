@@ -20,7 +20,12 @@ function convertFilterKey(key: string): string {
 	return key.toLowerCase().replaceAll('_', '-')
 }
 
-const defaultFilters = {
+interface SelectedFilters {
+	'operation-type': AuditOperationType[]
+	'system': AuditLogSystem[]
+}
+
+const defaultFilters: SelectedFilters = {
 	'operation-type': [],
 	'system': [],
 }
@@ -43,7 +48,7 @@ export const useAuditFilters = createGlobalState(() => {
 		},
 	])
 
-	const selectedFilters = ref<Record<AuditFilterType, string[]>>(structuredClone(defaultFilters))
+	const selectedFilters = ref<SelectedFilters>(structuredClone(defaultFilters))
 	const selectedFiltersCount = computed(() => {
 		return selectedFilters.value['operation-type'].length + selectedFilters.value.system.length
 	})
@@ -51,14 +56,14 @@ export const useAuditFilters = createGlobalState(() => {
 	const filtersList = computed<Filter[]>(() => {
 		const systemList: Filter['list'] = Object.values(AuditLogSystem).map((system) => {
 			return {
-				label: t(`dashboard.widgets.audit-logs.systems.${convertFilterKey(system)}`),
+				label: t(`dashboard.widgets.audit-logs.systems.${convertFilterKey(system)}`, {}, { default: system }),
 				key: system,
 			}
 		})
 
 		const operationTypeList: Filter['list'] = Object.values(AuditOperationType).map((operationType) => {
 			return {
-				label: t(`dashboard.widgets.audit-logs.operation-type.${convertFilterKey(operationType)}`),
+				label: t(`dashboard.widgets.audit-logs.operation-type.${convertFilterKey(operationType)}`, {}, { default: operationType }),
 				key: operationType,
 			}
 		})
@@ -82,7 +87,7 @@ export const useAuditFilters = createGlobalState(() => {
 	}
 
 	function setFilterValue(type: AuditFilterType, value: string) {
-		const filter = selectedFilters.value[type]
+		const filter = selectedFilters.value[type] as string[]
 		if (filter.includes(value)) {
 			const valueIndex = filter.findIndex((filter) => filter === value)
 			filter.splice(valueIndex, 1)
@@ -92,7 +97,7 @@ export const useAuditFilters = createGlobalState(() => {
 	}
 
 	function isFilterApplied(type: AuditFilterType, value: string): boolean {
-		return selectedFilters.value[type].includes(value)
+		return (selectedFilters.value[type] as string[]).includes(value)
 	}
 
 	return {

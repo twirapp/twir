@@ -8,6 +8,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
@@ -56,6 +57,7 @@ func (r *queryResolver) AdminAuditLogs(
 	}
 
 	query := r.gorm.
+		Debug().
 		WithContext(ctx)
 
 	if input.UserID.IsSet() {
@@ -71,14 +73,32 @@ func (r *queryResolver) AdminAuditLogs(
 	}
 
 	if input.System.IsSet() {
-		query = query.Where("table_name = ?", mappers.AuditSystemToTableName(*input.System.Value()))
+		mappedSystems := lo.Map(
+			input.System.Value(),
+			func(item gqlmodel.AuditLogSystem, _ int) string {
+				return mappers.AuditSystemToTableName(item)
+			},
+		)
+
+		if len(mappedSystems) != 0 {
+			query = query.Where("table_name IN ?", mappedSystems)
+		}
 	}
 
-	if input.OperationType.IsSet() {
-		query = query.Where(
-			"operation_type = ?",
-			mappers.AuditTypeGqlToModel(*input.OperationType.Value()),
+	if input.OperationType.IsSet() && len(input.OperationType.Value()) > 0 {
+		mappedOperations := lo.Map(
+			input.OperationType.Value(),
+			func(item gqlmodel.AuditOperationType, _ int) string {
+				return string(mappers.AuditTypeGqlToModel(item))
+			},
 		)
+
+		if len(mappedOperations) != 0 {
+			query = query.Where(
+				"operation_type IN (?)",
+				mappedOperations,
+			)
+		}
 	}
 
 	var logs []model.AuditLog

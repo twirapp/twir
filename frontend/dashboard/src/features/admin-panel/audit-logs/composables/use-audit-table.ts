@@ -33,7 +33,7 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 
 export const useAuditTable = createGlobalState(() => {
 	const { pagination } = usePagination()
-	const { searchType, searchUserId/* , selectedFilters */ } = useAuditFilters()
+	const { searchType, searchUserId, selectedFilters } = useAuditFilters()
 
 	const auditParams = computed<AdminAuditLogsInput>(() => {
 		const userSearchKey = searchType.value === 'channel' ? 'channelId' : 'userId'
@@ -41,8 +41,8 @@ export const useAuditTable = createGlobalState(() => {
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
 			[userSearchKey]: searchUserId.value || undefined,
-			// operationType: selectedFilters.value['operation-type'],
-			// system: selectedFilters.value.system,
+			operationType: selectedFilters.value['operation-type'],
+			system: selectedFilters.value.system,
 		}
 		return params
 	})
