@@ -132,6 +132,9 @@
       "gameCategories": {
         "label": "Enable command only in certain categories (leave empty for disable)"
       },
+      "expiration": {
+        "label": "Choose expiration time in minutes from now, 0 for not expiring",
+      },
       "description": {
         "label": "Command Description"
       },

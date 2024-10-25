@@ -25,9 +25,9 @@ import {
 	NGridItem,
 	NInput,
 	NInputGroup,
+
 	NInputGroupLabel,
 	NInputNumber,
-
 	NModal,
 	NSelect,
 	NSpace,
@@ -490,6 +490,14 @@ const showCategoryModal = ref(false)
 							<NInput
 								v-model:value="formValue.description" placeholder="Description" type="textarea"
 								autosize
+							/>
+						</NFormItem>
+						<NFormItem
+							:label="t('commands.modal.expiration.label')" path="expiredIn"
+						>
+							<NInputNumber
+								v-model:value="formValue.expiredIn"
+								:min="0"
 							/>
 						</NFormItem>
 
