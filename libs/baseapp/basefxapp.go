@@ -45,6 +45,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 			logger.NewFx(
 				logger.Opts{
 					Service: opts.AppName,
+					Level:   slog.LevelInfo,
 				},
 			),
 			uptrace.NewFx(opts.AppName),
