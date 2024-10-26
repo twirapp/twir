@@ -10,13 +10,24 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // ChannelAlertsCreate is the resolver for the channelAlertsCreate field.
-func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsCreate(
+	ctx context.Context,
+	input gqlmodel.ChannelAlertCreateInput,
+) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,6 +53,18 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 		return nil, err
 	}
 
+	r.logger.Audit(
+		"Channel alert create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channel_alerts",
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.ChannelAlert{
 		ID:           entity.ID,
 		Name:         entity.Name,
@@ -55,8 +78,17 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 }
 
 // ChannelAlertsUpdate is the resolver for the channelAlertsUpdate field.
-func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsUpdate(
+	ctx context.Context,
+	id string,
+	input gqlmodel.ChannelAlertUpdateInput,
+) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,6 +102,11 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, i
 			dashboardId,
 		).First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("channel alert not found: %w", err)
+	}
+
+	var entityCopy model.ChannelAlert
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if input.AudioVolume.IsSet() {
@@ -104,6 +141,19 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, i
 		return nil, err
 	}
 
+	r.logger.Audit(
+		"Channel alert update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channel_alerts",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.ChannelAlert{
 		ID:           entity.ID,
 		Name:         entity.Name,
@@ -123,6 +173,11 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelAlert{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -136,6 +191,18 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 	if err := r.gorm.WithContext(ctx).Delete(&entity).Error; err != nil {
 		return false, err
 	}
+
+	r.logger.Audit(
+		"Channel alert delete",
+		audit.Fields{
+			OldValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channel_alerts",
+			OperationType: audit.OperationDelete,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return true, nil
 }

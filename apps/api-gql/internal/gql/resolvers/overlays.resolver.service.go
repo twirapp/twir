@@ -11,7 +11,9 @@ import (
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/types/types/api/overlays"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/gql/now-playing-fetcher"
 )
@@ -91,12 +93,22 @@ func (r *mutationResolver) updateChatOverlay(
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChatOverlaySettings{}
 	if err := r.gorm.
 		WithContext(ctx).
 		Where("channel_id = ? AND id = ?", dashboardId, id).
 		First(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to get chat overlay settings: %w", err)
+	}
+
+	var entityCopy model.ChatOverlaySettings
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return false, fmt.Errorf("failed to copy chat overlay settings: %w", err)
 	}
 
 	if opts.MessageHideTimeout.IsSet() {
@@ -182,6 +194,18 @@ func (r *mutationResolver) updateChatOverlay(
 		}
 	}()
 
+	r.logger.Audit(
+		"Chat overlay update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_overlays_chat",
+			OperationType: audit.OperationUpdate,
+		},
+	)
+
 	return true, nil
 }
 
@@ -190,6 +214,11 @@ func (r *mutationResolver) chatOverlayCreate(
 	opts gqlmodel.ChatOverlayMutateOpts,
 ) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -273,11 +302,27 @@ func (r *mutationResolver) chatOverlayCreate(
 		return false, fmt.Errorf("failed to create chat overlay settings: %w", err)
 	}
 
+	r.logger.Audit(
+		"Chat overlay create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_overlays_chat",
+			OperationType: audit.OperationCreate,
+		},
+	)
+
 	return true, nil
 }
 
 func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -289,6 +334,18 @@ func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bo
 		Delete(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to delete chat overlay settings: %w", err)
 	}
+
+	r.logger.Audit(
+		"Chat overlay delete",
+		audit.Fields{
+			OldValue:      entity,
+			NewValue:      nil,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_overlays_chat",
+			OperationType: audit.OperationDelete,
+		},
+	)
 
 	return true, nil
 }
@@ -372,6 +429,11 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
 		ID:        uuid.MustParse(id),
 		ChannelID: dashboardID,
@@ -382,6 +444,19 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		return false, fmt.Errorf("failed to delete now playing overlay settings: %w", err)
 	}
 
+	r.logger.Audit(
+		"Now playing overlay delete",
+		audit.Fields{
+			OldValue:      entity,
+			NewValue:      nil,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardID),
+			System:        "channels_overlays_now_playing",
+			OperationType: audit.OperationDelete,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
+
 	return true, nil
 }
 
@@ -390,6 +465,11 @@ func (r *mutationResolver) createNowPlayingOverlay(
 	opts gqlmodel.NowPlayingOverlayMutateOpts,
 ) (bool, error) {
 	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -433,6 +513,17 @@ func (r *mutationResolver) createNowPlayingOverlay(
 		return false, fmt.Errorf("failed to create now playing overlay settings: %w", err)
 	}
 
+	r.logger.Audit(
+		"Now playing overlay create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardID),
+			System:        "channels_overlays_now_playing",
+			OperationType: audit.OperationCreate,
+		},
+	)
+
 	return true, nil
 }
 
@@ -446,6 +537,11 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelOverlayNowPlaying{
 		ID:        uuid.MustParse(id),
 		ChannelID: dashboardID,
@@ -454,6 +550,11 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		WithContext(ctx).
 		First(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to get now playing overlay settings: %w", err)
+	}
+
+	var entityCopy model.ChannelOverlayNowPlaying
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return false, fmt.Errorf("failed to copy now playing overlay settings: %w", err)
 	}
 
 	if opts.Preset.IsSet() {
@@ -507,6 +608,19 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 			r.logger.Error("failed to publish settings", slog.Any("err", err))
 		}
 	}()
+
+	r.logger.Audit(
+		"Now playing overlay update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardID),
+			System:        "channels_overlays_now_playing",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
 
 	return true, nil
 }

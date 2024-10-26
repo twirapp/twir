@@ -11,14 +11,25 @@ import (
 
 	jsonpatch "github.com/evanphx/json-patch/v5"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"gorm.io/gorm"
 )
 
 // UpdateChatAlerts is the resolver for the updateChatAlerts field.
-func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.ChatAlertsInput) (*gqlmodel.ChatAlerts, error) {
+func (r *mutationResolver) UpdateChatAlerts(
+	ctx context.Context,
+	input gqlmodel.ChatAlertsInput,
+) (*gqlmodel.ChatAlerts, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,6 +52,10 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 			return nil, err
 		}
 	}
+	var entityCopy model.ChannelModulesSettings
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
+	}
 
 	inputBytes, err := json.Marshal(input)
 	if err != nil {
@@ -62,6 +77,19 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 		Save(&entity).Error; err != nil {
 		return nil, err
 	}
+
+	r.logger.Audit(
+		"Chat alerts updated",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_modules_settings",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return r.Query().ChatAlerts(ctx)
 }

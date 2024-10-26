@@ -17,13 +17,22 @@ import (
 	"github.com/samber/lo"
 	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"gorm.io/gorm"
 )
 
 // SongRequestsUpdate is the resolver for the songRequestsUpdate field.
-func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel.SongRequestsSettingsOpts) (bool, error) {
+func (r *mutationResolver) SongRequestsUpdate(
+	ctx context.Context,
+	opts gqlmodel.SongRequestsSettingsOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -88,6 +97,18 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 	if err != nil {
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
 	}
+
+	r.logger.Audit(
+		"Song requests updated",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_song_requests_settings",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return true, nil
 }
@@ -169,7 +190,10 @@ func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequest
 }
 
 // SongRequestsSearchChannelOrVideo is the resolver for the songRequestsSearchChannelOrVideo field.
-func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, opts gqlmodel.SongRequestsSearchChannelOrVideoOpts) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
+func (r *queryResolver) SongRequestsSearchChannelOrVideo(
+	ctx context.Context,
+	opts gqlmodel.SongRequestsSearchChannelOrVideoOpts,
+) (*gqlmodel.SongRequestsSearchChannelOrVideoResponse, error) {
 	response := &gqlmodel.SongRequestsSearchChannelOrVideoResponse{
 		Items: make([]gqlmodel.SongRequestsSearchChannelOrVideoItem, 0, len(opts.Query)),
 	}

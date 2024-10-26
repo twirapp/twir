@@ -10,13 +10,24 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 )
 
 // VariablesCreate is the resolver for the variablesCreate field.
-func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesCreate(
+	ctx context.Context,
+	opts gqlmodel.VariableCreateInput,
+) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +48,18 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 		return nil, err
 	}
 
+	r.logger.Audit(
+		"Variable create",
+		audit.Fields{
+			OldValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_customvars",
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Variable{
 		ID:          entity.ID,
 		Name:        entity.Name,
@@ -48,8 +71,17 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.VariableUpdateInput,
+) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +91,11 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts 
 		WithContext(ctx).
 		Where(`"channelId" = ? AND id = ?`, dashboardId, id).
 		First(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	var entityCopy model.ChannelsCustomvars
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
 		return nil, err
 	}
 
@@ -88,6 +125,19 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts 
 		return nil, err
 	}
 
+	r.logger.Audit(
+		"Variable update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_customvars",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Variable{
 		ID:          entity.ID,
 		Name:        entity.Name,
@@ -105,6 +155,11 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id string) (bool
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelsCustomvars{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -118,6 +173,18 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id string) (bool
 		Delete(&entity).Error; err != nil {
 		return false, err
 	}
+
+	r.logger.Audit(
+		"Variable delete",
+		audit.Fields{
+			OldValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_customvars",
+			OperationType: audit.OperationDelete,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return true, nil
 }

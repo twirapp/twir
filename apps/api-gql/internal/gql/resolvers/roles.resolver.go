@@ -12,6 +12,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
@@ -19,8 +21,16 @@ import (
 )
 
 // RolesCreate is the resolver for the rolesCreate field.
-func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
+func (r *mutationResolver) RolesCreate(
+	ctx context.Context,
+	opts gqlmodel.RolesCreateOrUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -57,12 +67,33 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 		return false, err
 	}
 
+	r.logger.Audit(
+		"Role create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_roles",
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // RolesUpdate is the resolver for the rolesUpdate field.
-func (r *mutationResolver) RolesUpdate(ctx context.Context, id string, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
+func (r *mutationResolver) RolesUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.RolesCreateOrUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -88,6 +119,11 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id string, opts gqlm
 		First(entity).
 		Error; err != nil {
 		return false, fmt.Errorf("failed to find role: %w", err)
+	}
+
+	var entityCopy model.ChannelRole
+	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
+		return false, err
 	}
 
 	entity.Name = opts.Name
@@ -131,12 +167,30 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id string, opts gqlm
 		return false, fmt.Errorf("failed to update role: %w", txErr)
 	}
 
+	r.logger.Audit(
+		"Role update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_roles",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // RolesRemove is the resolver for the rolesRemove field.
 func (r *mutationResolver) RolesRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -160,6 +214,18 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id string) (bool, er
 		Error; err != nil {
 		return false, err
 	}
+
+	r.logger.Audit(
+		"Role remove",
+		audit.Fields{
+			OldValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_roles",
+			OperationType: audit.OperationDelete,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return true, nil
 }
@@ -217,7 +283,10 @@ func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
 }
 
 // Users is the resolver for the users field.
-func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmodel.TwirUserTwitchInfo, error) {
+func (r *roleResolver) Users(
+	ctx context.Context,
+	obj *gqlmodel.Role,
+) ([]gqlmodel.TwirUserTwitchInfo, error) {
 	var users []model.ChannelRoleUser
 	if err := r.gorm.
 		WithContext(ctx).

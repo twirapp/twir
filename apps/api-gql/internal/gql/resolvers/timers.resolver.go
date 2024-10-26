@@ -11,14 +11,24 @@ import (
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	"gorm.io/gorm"
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(
+	ctx context.Context,
+	opts gqlmodel.TimerCreateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -67,6 +77,18 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
 	}
 
+	r.logger.Audit(
+		"Timers create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_timers",
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Timer{
 		ID:              entity.ID,
 		Name:            entity.Name,
@@ -78,8 +100,17 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.TimerUpdateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +120,11 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("timer not found: %w", err)
+	}
+
+	var entityCopy model.ChannelsTimers
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Name.IsSet() {
@@ -161,6 +197,19 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
 	}
 
+	r.logger.Audit(
+		"Timers update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_timers",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Timer{
 		ID:              entity.ID,
 		Name:            entity.Name,
@@ -178,6 +227,11 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	entity := model.ChannelsTimers{}
 	if err := r.gorm.WithContext(ctx).
 		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
@@ -191,6 +245,18 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 
 	r.twirBus.Timers.RemoveTimer.Publish(
 		timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID},
+	)
+
+	r.logger.Audit(
+		"Timers remove",
+		audit.Fields{
+			OldValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_timers",
+			OperationType: audit.OperationDelete,
+			ObjectID:      &entity.ID,
+		},
 	)
 
 	return true, nil
