@@ -21,7 +21,7 @@
     "next": "Nächste",
     "previous": "Vorherige",
     "reset": "Zurücksetzen",
-    "popout": "Popout in new window"
+    "popout": "In neuem Fenster öffnen"
   },
   "sharedTexts": {
     "saved": "Erfolgreich gespeichert",
@@ -48,13 +48,13 @@
     "paginationPerPage": "Pro Seite",
     "searchPlaceholder": "Suche...",
     "messages": "Nachrichten",
-    "asc": "Asc",
-    "desc": "Desc",
+    "asc": "Aufstieg",
+    "desc": "Trennen",
     "hide": "Ausblenden",
     "view": "Anzeigen",
-    "toggleColumns": "Toggle columns",
+    "toggleColumns": "Spalten umschalten",
     "copied": "Kopiert",
-    "userSelected": "{count} users selected",
+    "userSelected": "{count} Benutzer ausgewählt",
     "userSelectPlaceholder": "Wähle einen Benutzer|Wähle mehrere Benutzer",
     "userNotFound": "Keine Benutzer gefunden",
     "settings": "Einstellungen"
@@ -556,8 +556,8 @@
         },
         "late": {
           "label": "Post-Timer Einstellungen",
-          "text": "Overlay Post-Timer Text",
-          "displayBrb": "Display Countdown Information"
+          "text": "Post-Timer-Text überlagern",
+          "displayBrb": "Countdown-Informationen anzeigen"
         }
       },
       "preview": {
@@ -567,10 +567,10 @@
     }
   },
   "songRequests": {
-    "waiting": "Awaiting a Song Request...",
+    "waiting": "Ich warte auf eine Songanfrage...",
     "player": {
       "title": "Aktueller Song",
-      "noAccess": "Seems, that you are not able to listen songs there... Go to your own dashboard Song Requests to access the player."
+      "noAccess": "Anscheinend können Sie dort keine Songs anhören... Gehen Sie zu Ihrem eigenen Dashboard „Song-Anfragen“, um auf den Player zuzugreifen."
     },
     "table": {
       "title": "Warteschlange",
@@ -583,19 +583,19 @@
     },
     "settings": {
       "onlineOnly": "Liedanfragen während des Streamens erlauben?",
-      "announcePlay": "Announce Current Song into Chat?",
-      "playerNoCookieMode": "Incognito mode for player",
-      "playerNoCookieModeDescription": "Enabling this option will allow you to listen to songs without cookies and viewing history. Need refresh page after enabling.",
-      "neededPercentageForskip": "User Skip Percentage",
-      "channelReward": "Channel Points Reward Request Trigger",
-      "deniedChannels": "Banned YouTube Channels List (from requesting songs)",
-      "deniedWords": "Banned Word List (affects both titles and YouTube channel names)",
+      "announcePlay": "Aktuellen Song im Chat ankündigen?",
+      "playerNoCookieMode": "Inkognito-Modus für Spieler",
+      "playerNoCookieModeDescription": "Wenn Sie diese Option aktivieren, können Sie Songs ohne Cookies anhören und den Verlauf anzeigen. Nach der Aktivierung muss die Seite aktualisiert werden.",
+      "neededPercentageForskip": "Prozentsatz der übersprungenen Benutzer",
+      "channelReward": "Auslöser für Kanalpunkte-Prämienanfrage",
+      "deniedChannels": "Liste gesperrter YouTube-Kanäle (vom Anfordern von Songs)",
+      "deniedWords": "Liste verbotener Wörter (betrifft sowohl Titel als auch YouTube-Kanalnamen)",
       "deniedUsers": "Gesperrter Benutzer",
       "deniedSongs": "Gesperrte Songliste",
-      "takeSongFromDonationMessage": "Attempt to get song links from donation messages?",
-      "confirmClearQueue": "Are you sure you want to clear the queue?",
+      "takeSongFromDonationMessage": "Versuchen Sie, Song-Links aus Spendennachrichten zu erhalten?",
+      "confirmClearQueue": "Sind Sie sicher, dass Sie die Warteschlange löschen möchten?",
       "users": {
-        "maxRequests": "Maximum Request Per-User Amount",
+        "maxRequests": "Maximaler Anforderungsbetrag pro Benutzer",
         "minimalWatchTime": "Minimale Zuschauzeit (in Minuten)",
         "minimalMessages": "Minimale Nachrichtenanzahl",
         "minimalFollowTime": "Minimale Folgezeit (in Minuten)"
@@ -628,7 +628,7 @@
       }
     },
     "modal": {
-      "timelineDescription": "Each response will be sent once both interval conditions is met.",
+      "timelineDescription": "Jede Antwort wird gesendet, sobald beide Bedingungen Intervall erfüllt sind.",
       "validations": {
         "nameLong": "Timer Name is too long!",
         "nameRequired": "Timer Name is required!",
