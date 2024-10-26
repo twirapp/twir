@@ -630,19 +630,19 @@
     "modal": {
       "timelineDescription": "Jede Antwort wird gesendet, sobald beide Bedingungen Intervall erfüllt sind.",
       "validations": {
-        "nameLong": "Timer Name is too long!",
-        "nameRequired": "Timer Name is required!",
-        "responseRequired": "Response Text is required!",
-        "responseLong": "Response is too long!"
+        "nameLong": "Tiername ist zu lang!",
+        "nameRequired": "Tiername ist erforderlich!",
+        "responseRequired": "Antworttext ist erforderlich!",
+        "responseLong": "Antwort ist zu lang!"
       }
     },
-    "limitExceeded": "Timer Limit exceeded!",
-    "newTimer": "New timer"
+    "limitExceeded": "Timer-Limit überschritten!",
+    "newTimer": "Neuer Timer"
   },
   "roles": {
     "modal": {
-      "accessToUsers": "Permitted Users",
-      "accessByStats": "Permitted Users (by stats)",
+      "accessToUsers": "Zulässige Benutzer",
+      "accessByStats": "Zulässige Benutzer (nach Statistiken)",
       "requiredWatchTime": "Erforderliche Beobachtungszeit",
       "requiredMessages": "Benötigte Nachrichtenanzahl",
       "requiredChannelPoints": "Benötigte Kanalpunkte",
@@ -655,9 +655,9 @@
   "keywords": {
     "title": "Schlagwörter",
     "info": {
-      "text": "Keywords helps you to trigger chat message on certain words matching."
+      "text": "Mithilfe von Schlüsselwörtern können Sie bei bestimmten passenden Wörtern eine Chat-Nachricht auslösen."
     },
-    "create": "Create keyword",
+    "create": "Schlüsselwort erstellen",
     "triggerText": "Auslösetext",
     "usages": "Anzahl der Verwendungen",
     "isRegular": "Ist ein regulärer Ausdruck?",
@@ -682,8 +682,8 @@
   },
   "greetings": {
     "title": "Begrüßung",
-    "create": "Create greeting",
-    "edit": "Edit greeting",
+    "create": "Begrüßung erstellen",
+    "edit": "Begrüßung bearbeiten",
     "info": {
       "title": "Grüßinformationen",
       "text": "Grüße sind eine Art von Nachrichten, die Bot verwendet, um bekannte Stream-Zuschauer willkommen zu heißen, wenn sie ihre erste Nachricht im Chat auf jedem Stream senden. Wenn Sie jeden Benutzer im Chat begrüßen möchten, dann können Sie sich die Veranstaltungskategorie ansehen, anstatt Grüße."
@@ -697,10 +697,10 @@
     "title": "Warnungen",
     "info": "Warnungsinformationen",
     "overlayLabel": "Warnungen sind ein grafischer Teil der Befehls- oder Ereignis-Implementierung. Sie können eine Benachrichtigung mit spezifiziertem Audio, Bild und Text konfigurieren und sie dann einem bestimmten Befehl, Event, Schlüsselwort oder Gruß zuordnen. Vergessen Sie auch nicht, Overlay-URL als Browserquelle in Ihre Streaming-Software einzufügen! (z. B. OBS, XSplit, etc.)",
-    "copyOverlayLink": "Copy overlay link",
+    "copyOverlayLink": "Overlay-Link kopieren",
     "name": "Name",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "rewards": "Belohnungen",
+    "commands": "Befehle",
     "validations": {
       "name": "Der Name darf nicht leer oder länger als 30 Zeichen sein!"
     },
@@ -711,14 +711,14 @@
       "greetings": "Grußauslöser"
     },
     "select": {
-      "audio": "Confugure an audio",
-      "image": "Configure an image",
-      "text": "Configure text"
+      "audio": "Verwirren Sie, ob ich höre",
+      "image": "Konfigurieren Sie ein Bild",
+      "text": "Text konfigurieren"
     },
-    "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "audioVolume": "Audiolautstärke",
+    "createAlert": "Alarm erstellen",
+    "editAlert": "Benachrichtigung bearbeiten",
+    "tableEmpty": "Keine Warnungen gefunden"
   },
   "games": {
     "command": "Befehl",
@@ -731,18 +731,18 @@
       "canBeUsedByModerator": "Timeout Moderatoren? *Moderatorenrechte werden nach dem Timeout wieder gewährt.",
       "timeoutSeconds": "Timeout-Zeit (in Sekunden, setzen Sie es auf 0, um ein Timeout zu deaktivieren)",
       "decisionSeconds": "Verzögerung (in Sek.)",
-      "initMessage": "Trigger Pull Announcement (Game Start Message)",
-      "surviveMessage": "User Survived Message",
-      "deathMessage": "User Lost Message",
-      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
-      "tumberSize": "Revolver Сylinder's Size"
+      "initMessage": "Trigger-Null-Ankündigung (Spielstartnachricht)",
+      "surviveMessage": "Nachricht „Benutzer hat überlebt“",
+      "deathMessage": "Benutzernachricht verloren",
+      "chargedBullets": "Menge aufgeladener Kugeln: {tumberSize}",
+      "tumberSize": "Größe der Revolvertrommel"
     },
     "duel": {
       "title": "Duelle",
-      "description": "A simple chat game between two users allowing to test their dodge skills!",
+      "description": "Ein einfaches Chat-Spiel zwischen zwei Benutzern, bei dem Sie Ihre Ausweichfähigkeiten testen können!",
       "commands": {
         "title": "Duellbefehle",
-        "duel": "Ask for a Duel",
+        "duel": "Bitte um ein Duell",
         "accept": "Duell akzeptieren",
         "stats": "Statistiken"
       },
@@ -793,8 +793,8 @@
       "banDuration": "Dauer des Banns",
       "voteMode": "Modus der Abstimmung",
       "voteDuration": "Dauer der Abstimmung in Sekunden",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
+      "wordsNegative": "Worte für die Abstimmung mit der Option „Nein“",
+      "wordsPositive": "Worte für die Abstimmung mit der Option „Ja“",
       "timeoutModerators": "Aktiviere Voteban gegen Moderatoren"
     }
   },
@@ -825,7 +825,7 @@
         "usages": "Gesamtnutzung",
         "users": "Benutzer",
         "empty": "Keine Emotes",
-        "chart": "Usages chart",
+        "chart": "Verwendungsdiagramm",
         "lastDay": "Tag",
         "lastWeek": "Woche",
         "lastMonth": "Monat",
@@ -942,7 +942,7 @@
       },
       "language": {
         "name": "Sprache",
-        "description": "Scans and filters out inappropriate languages.",
+        "description": "Scannt und filtert unangemessene Sprachen heraus.",
         "allowedLanguages": "Liste der erlaubten Sprachen",
         "disallowedLanguages": "Liste der nicht erlaubten Sprachen"
       }
@@ -961,10 +961,10 @@
     "title": "Benutzereinstellungen",
     "account": {
       "title": "Account",
-      "showMeOnLanding": "Show yourself on the Landing Page?",
+      "showMeOnLanding": "Sich auf der Landing-Page zeigen?",
       "regenerateApiKey": {
         "button": "Privaten API Schlüssel neu generieren",
-        "info": "This key is used for all overlays links. When you regenerate it, you need to check all your overlays in your streaming software and replace URLs with the new links."
+        "info": "Dieser Schlüssel wird für alle Overlay-Links verwendet. Wenn Sie es neu generieren, müssen Sie alle Ihre Overlays in Ihrer Streaming-Software überprüfen und URLs durch die neuen Links ersetzen."
       }
     },
     "public": {
@@ -1036,15 +1036,15 @@
         "version": "Version",
         "user": "Benutzer",
         "channel": "Kanal",
-        "channelWithBotId": "Channel with bot ID",
-        "channelWithModeratorId": "Channel with moderator ID"
+        "channelWithBotId": "Kanal mit Bot-ID",
+        "channelWithModeratorId": "Kanal mit Moderator-ID"
       },
       "dangerZone": {
-        "title": "Danger Zone",
-        "revoke": "Revoke",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "title": "Gefahrenzone",
+        "revoke": "Widerrufen",
+        "revokeSessions": "Sitzungen widerrufen",
+        "revokeAllSessionsDescription": "Alle Benutzersitzungen werden widerrufen",
+        "revokeAllSessionsConfirm": "Sind Sie sicher, dass Sie alle Sitzungen widerrufen möchten?"
       }
     }
   }
