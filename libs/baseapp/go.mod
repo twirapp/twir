@@ -10,6 +10,7 @@ replace (
 	github.com/satont/twir/libs/sentry => ../sentry
 	github.com/satont/twir/libs/gomodels => ../gomodels
 	github.com/twirapp/twir/libs/uptrace => ../uptrace
+	github.com/satont/twir/libs/pubsub => ../pubsub
 )
 
 require (

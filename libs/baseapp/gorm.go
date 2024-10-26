@@ -7,8 +7,6 @@ import (
 	"time"
 
 	config "github.com/satont/twir/libs/config"
-	"github.com/satont/twir/libs/logger"
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"go.uber.org/fx"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -23,16 +21,12 @@ const (
 	RequesterUserIdContextKey   = requesterUserIdContextKeyType("__requesterUserId__")
 )
 
-func newGorm(withAudit bool) func(
+func newGorm() func(
 	cfg config.Config,
-	logger logger.Logger,
-	auditLogsPubSub auditlogs.PubSub,
 	lc fx.Lifecycle,
 ) (*gorm.DB, error) {
 	return func(
 		cfg config.Config,
-		logger logger.Logger,
-		auditLogsPubSub auditlogs.PubSub,
 		lc fx.Lifecycle,
 	) (*gorm.DB, error) {
 		newLogger := gormlogger.New(
@@ -67,26 +61,6 @@ func newGorm(withAudit bool) func(
 				},
 			},
 		)
-
-		auditHooks := &gormAuditHooks{
-			logger:          logger,
-			auditLogsPubSub: auditLogsPubSub,
-		}
-
-		if withAudit {
-			db.Callback().Create().After("gorm:create").Register(
-				"custom_plugin:create_audit_log",
-				auditHooks.withPublisher(auditHooks.create),
-			)
-			db.Callback().Update().After("gorm:update").Register(
-				"custom_plugin:update_audit_log",
-				auditHooks.withPublisher(auditHooks.update),
-			)
-			db.Callback().Delete().Before("gorm:delete").Register(
-				"custom_plugin:delete_audit_log",
-				auditHooks.withPublisher(auditHooks.delete),
-			)
-		}
 
 		return db, nil
 	}

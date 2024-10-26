@@ -27,8 +27,7 @@ func main() {
 	fx.New(
 		baseapp.CreateBaseApp(
 			baseapp.Opts{
-				AppName:   "api-gql",
-				WithAudit: true,
+				AppName: "api-gql",
 			},
 		),
 		fx.Provide(

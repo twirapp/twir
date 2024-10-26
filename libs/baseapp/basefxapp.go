@@ -1,9 +1,12 @@
 package baseapp
 
 import (
+	"log/slog"
+
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	"github.com/satont/twir/libs/logger/audit"
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -22,18 +25,28 @@ func CreateBaseApp(opts Opts) fx.Option {
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
-			logger.NewFx(
-				logger.Opts{
-					Service: opts.AppName,
-				},
-			),
+			newRedis,
+			newGorm(),
 			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
 				auditlogs.NewBusPubSubFx,
 				fx.As(new(auditlogs.PubSub)),
 			),
-			newRedis,
-			newGorm(opts.WithAudit),
+			fx.Annotate(
+				audit.NewGormFx(),
+				fx.As(new(slog.Handler)),
+				fx.ResultTags(`group:"slog-handlers"`),
+			),
+			fx.Annotate(
+				audit.NewPubsubFx(),
+				fx.As(new(slog.Handler)),
+				fx.ResultTags(`group:"slog-handlers"`),
+			),
+			logger.NewFx(
+				logger.Opts{
+					Service: opts.AppName,
+				},
+			),
 			uptrace.NewFx(opts.AppName),
 		),
 	)

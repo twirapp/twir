@@ -15,13 +15,18 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 	"gorm.io/gorm"
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -53,7 +58,10 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 }
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(
+	ctx context.Context,
+	obj *gqlmodel.CommandResponse,
+) ([]gqlmodel.TwitchCategory, error) {
 	var categories []gqlmodel.TwitchCategory
 
 	for _, id := range obj.TwitchCategoriesIds {
@@ -80,8 +88,16 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 }
 
 // CommandsCreate is the resolver for the commandsCreate field.
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (bool, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -156,12 +172,34 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
+	r.logger.
+		Audit(
+			"New command created",
+			audit.Fields{
+				OldValue:      nil,
+				NewValue:      command,
+				ActorID:       lo.ToPtr(user.ID),
+				ChannelID:     lo.ToPtr(dashboardId),
+				System:        "channels_commands",
+				OperationType: audit.OperationCreate,
+			},
+		)
+
 	return true, nil
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -199,6 +237,12 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		First(cmd).
 		Error; err != nil {
 		return false, fmt.Errorf("command not found: %w", err)
+	}
+
+	var cmdCopy model.ChannelsCommands
+	err = utils.DeepCopy(cmd, &cmdCopy)
+	if err != nil {
+		return false, fmt.Errorf("cannot create copy of command: %w", err)
 	}
 
 	if opts.Name.IsSet() {
@@ -328,12 +372,31 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
+	r.logger.
+		Audit(
+			"Command edited",
+			audit.Fields{
+				OldValue:      cmdCopy,
+				NewValue:      cmd,
+				ActorID:       lo.ToPtr(user.ID),
+				ChannelID:     lo.ToPtr(dashboardId),
+				System:        "channels_commands",
+				OperationType: audit.OperationUpdate,
+				ObjectID:      &cmd.ID,
+			},
+		)
+
 	return true, nil
 }
 
 // CommandsRemove is the resolver for the commandsRemove field.
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -359,6 +422,20 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool,
 	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
+
+	r.logger.
+		Audit(
+			"Command removed",
+			audit.Fields{
+				OldValue:      cmd,
+				NewValue:      nil,
+				ActorID:       lo.ToPtr(user.ID),
+				ChannelID:     lo.ToPtr(dashboardId),
+				System:        "channels_commands",
+				OperationType: audit.OperationUpdate,
+				ObjectID:      &cmd.ID,
+			},
+		)
 
 	return true, nil
 }
@@ -424,7 +501,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}

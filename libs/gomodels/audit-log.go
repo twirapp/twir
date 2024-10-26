@@ -8,7 +8,7 @@ import (
 )
 
 type AuditLog struct {
-	ID            uuid.UUID          `gorm:"column:id;type:uuid"`
+	ID            uuid.UUID          `gorm:"column:id;type:uuid;default:uuid_generate_v4()"`
 	Table         string             `gorm:"column:table_name;type:varchar(255)"`
 	OperationType AuditOperationType `gorm:"column:operation_type;type:varchar(255)"`
 	OldValue      null.String        `gorm:"column:old_value;type:text"`
@@ -29,7 +29,8 @@ func (c *AuditLog) TableName() string {
 type AuditOperationType string
 
 const (
-	AuditOperationCreate AuditOperationType = "CREATE"
-	AuditOperationUpdate AuditOperationType = "UPDATE"
-	AuditOperationDelete AuditOperationType = "DELETE"
+	AuditOperationCreate      AuditOperationType = "CREATE"
+	AuditOperationUpdate      AuditOperationType = "UPDATE"
+	AuditOperationDelete      AuditOperationType = "DELETE"
+	AuditOperationTypeUnknown AuditOperationType = "UNKNOWN"
 )
