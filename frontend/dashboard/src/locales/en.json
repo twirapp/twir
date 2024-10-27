@@ -57,7 +57,7 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-		"settings": "Settings"
+    "settings": "Settings"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -231,6 +231,45 @@
       },
       "bot": {
         "title": "Bot Management"
+      },
+      "audit-logs": {
+        "title": "Audit logs",
+        "search-label": "Search by",
+        "search": {
+          "channel": "Channel",
+          "actor": "Actor"
+        },
+        "operation-type-label": "Operation type",
+        "operation-type": {
+          "create": "Created",
+          "delete": "Deleted",
+          "update": "Edited"
+        },
+        "systems-label": "Systems",
+        "systems": {
+          "badge": "Badge",
+          "badge-user": "Badge User",
+          "channel-command": "Command",
+          "channel-command-group": "Command Group",
+          "channel-variable": "Variable",
+          "channel-games-eight-ball": "8ball",
+          "channel-games-duel": "Duel",
+          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-seppuku": "Seppuku",
+          "channel-games-voteban": "Voteban",
+          "channel-greeting": "Greeting",
+          "channel-keyword": "Keyword",
+          "channel-moderation-setting": "Moderation Setting",
+          "channel-overlay-chat": "Chat Overlay",
+          "channel-overlay-dudes": "Dudes Overlay",
+          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-roles": "Role",
+          "channel-timers": "Timer",
+          "channel-song-requests": "Song Requests",
+          "channel-integrations": "Integration",
+          "channel-alerts": "Alert",
+          "channel-chat-alerts": "Chat alerts"
+        }
       }
     }
   },
@@ -654,10 +693,10 @@
   },
   "keywords": {
     "title": "Keywords",
-		"info": {
-			"text": "Keywords helps you to trigger chat message on certain words matching."
-		},
-		"create": "Create keyword",
+    "info": {
+      "text": "Keywords help you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Trigger Text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
@@ -711,7 +750,7 @@
       "greetings": "Greeting Trigger"
     },
     "select": {
-      "audio": "Confugure an audio",
+      "audio": "Configure an audio",
       "image": "Configure an image",
       "text": "Configure text"
     },
@@ -775,28 +814,28 @@
         "bothDiePercent": "Percent of chance both users die"
       }
     },
-		"seppuku": {
-			"description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-			"message": "Message",
-			"timeoutModerators": "Enable seppuku for moderators",
-			"messageModerators": "Message when moderator used seppuku",
-			"timeoutSeconds": "Timeout seconds"
-		},
-		"voteban": {
-			"description": "Commence jury trial of the guilty chatterer!",
-			"banMessage": "Message on ban",
-			"banMessageModerators": "Message for ban moderator",
-			"surviveMessage": "Survive message",
-			"surviveMessageModerators": "Survive message for moderators",
-			"initialMessage": "Init message",
-			"neededVotes": "Needed votes",
-			"banDuration": "Duration of ban",
-			"voteMode": "Mode of vote",
-			"voteDuration": "Duration of vote in seconds",
-			"wordsNegative": "Words for vote to \"no\" option",
-			"wordsPositive": "Words for vote to \"yes\" option",
-			"timeoutModerators": "Enable voteban on moderators"
-		}
+    "seppuku": {
+      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+      "message": "Message",
+      "timeoutModerators": "Enable seppuku for moderators",
+      "messageModerators": "Message when moderator used seppuku",
+      "timeoutSeconds": "Timeout duration (seconds)"
+    },
+    "voteban": {
+      "description": "Commence jury trial of the guilty chatterer!",
+      "banMessage": "Message on ban",
+      "banMessageModerators": "Message for banned moderators",
+      "surviveMessage": "Survive message",
+      "surviveMessageModerators": "Survive message for moderators",
+      "initialMessage": "Initial message",
+      "neededVotes": "Needed votes",
+      "banDuration": "Ban duration (seconds)",
+      "voteMode": "Voting mode",
+      "voteDuration": "Voting duration (seconds)",
+      "wordsNegative": "Words to vote for \"no\" option",
+      "wordsPositive": "Words to vote for \"yes\" option",
+      "timeoutModerators": "Enable voteban on moderators"
+    }
   },
   "community": {
     "title": "Community",
@@ -818,18 +857,18 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
+      "title": "Emote Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
+        "usages": "Total usage",
         "users": "Users",
         "empty": "No emotes",
-        "chart": "Usages chart",
+        "chart": "Usage chart",
         "lastDay": "Day",
         "lastWeek": "Week",
         "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
+        "lastThreeMonth": "3 Months",
         "lastYear": "Year"
       },
       "total": "Total emotes: {total}",
@@ -1046,6 +1085,9 @@
         "revokeAllSessionsDescription": "All user sessions will be revoked",
         "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
       }
+    },
+    "auditLogs": {
+      "title": "Audit logs"
     }
   }
 }
