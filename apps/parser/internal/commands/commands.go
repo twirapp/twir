@@ -457,6 +457,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
 				c.services.Logger.Sugar().Error(err)
+				return nil, err
 			}
 		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete {
 			err = c.services.Gorm.
@@ -470,6 +471,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
 				c.services.Logger.Sugar().Error(err)
+				return nil, err
 			}
 		}
 
