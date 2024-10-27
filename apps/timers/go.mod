@@ -5,6 +5,7 @@ go 1.23.0
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
@@ -66,6 +67,7 @@ require (
 	github.com/samber/slog-multi v1.2.0 // indirect
 	github.com/samber/slog-sentry/v2 v2.8.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.0 // indirect
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.9.0 // indirect

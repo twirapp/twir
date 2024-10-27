@@ -6,8 +6,10 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
+	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
@@ -51,6 +53,7 @@ require (
 	github.com/samber/slog-sentry/v2 v2.8.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.0 // indirect
 	github.com/satont/twir/libs/gomodels v0.0.0-00010101000000-000000000000 // indirect
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.uber.org/dig v1.18.0 // indirect

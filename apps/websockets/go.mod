@@ -6,6 +6,7 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/types => ../../libs/types
 	github.com/twirapp/twir/libs/api => ../../libs/api
@@ -69,6 +70,7 @@ require (
 	github.com/samber/slog-multi v1.2.0 // indirect
 	github.com/samber/slog-sentry/v2 v2.8.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.0 // indirect
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000 // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	go.opentelemetry.io/otel v1.28.0 // indirect
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect

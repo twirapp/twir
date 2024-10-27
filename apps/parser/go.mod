@@ -11,6 +11,7 @@ replace (
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 )
 
 require (

@@ -5,6 +5,7 @@ go 1.23.0
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
@@ -48,6 +49,7 @@ require (
 	github.com/samber/slog-sentry/v2 v2.8.0 // indirect
 	github.com/samber/slog-zerolog/v2 v2.7.0 // indirect
 	github.com/satont/twir/libs/config v0.0.0 // indirect
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000 // indirect
 	github.com/uptrace/uptrace-go v1.27.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0 // indirect
 	go.opentelemetry.io/otel v1.28.0 // indirect

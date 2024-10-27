@@ -10,6 +10,7 @@ replace (
 	github.com/satont/twir/libs/logger => ../logger
 	github.com/satont/twir/libs/pubsub => ../pubsub
 	github.com/satont/twir/libs/sentry => ../sentry
+	github.com/twirapp/twir/libs/bus-core => ../bus-core
 	github.com/twirapp/twir/libs/uptrace => ../uptrace
 )
 
@@ -17,6 +18,7 @@ require (
 	github.com/redis/go-redis/v9 v9.6.1
 	github.com/satont/twir/libs/config v0.0.0-20231203205548-e635accc6b72
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
+	github.com/satont/twir/libs/pubsub v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/sentry v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/uptrace v0.0.0-00010101000000-000000000000

@@ -8,13 +8,14 @@ replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/gomodels => ../../libs/gomodels
 	github.com/satont/twir/libs/logger => ../../libs/logger
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/satont/twir/libs/twitch => ../../libs/twitch
 	github.com/twirapp/twir/libs/baseapp => ../../libs/baseapp
 	github.com/twirapp/twir/libs/bus-core => ../../libs/bus-core
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
-	github.com/twirapp/twir/libs/pubsub => ../../libs/pubsub
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
@@ -49,6 +50,7 @@ require (
 	github.com/satont/twir/libs/pubsub v0.0.0-20240923063656-34c54be7623e
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe
+	github.com/satont/twir/libs/utils v0.0.0-20241026093228-a5284254dcfe
 	github.com/twirapp/twir/libs/baseapp v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
 	github.com/twirapp/twir/libs/cache v0.0.0-00010101000000-000000000000

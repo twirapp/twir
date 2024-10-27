@@ -13,6 +13,7 @@ replace (
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/integrations => ../../libs/integrations
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
+	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 )
 
 require (
