@@ -10,13 +10,22 @@ import (
 	"log/slog"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
 func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -32,12 +41,29 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 		return false, err
 	}
 
+	r.logger.Audit(
+		"New command group",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
 func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -49,6 +75,11 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 		First(&entity).
 		Error; err != nil {
 		return false, fmt.Errorf("group not found: %w", err)
+	}
+
+	var entityCopy model.ChannelCommandGroup
+	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
+		return false, err
 	}
 
 	if opts.Name.IsSet() {
@@ -67,12 +98,30 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
+	r.logger.Audit(
+		"Command group update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // CommandsGroupsRemove is the resolver for the commandsGroupsRemove field.
 func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -96,6 +145,19 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
+
+	r.logger.Audit(
+		"Command group remove",
+		audit.Fields{
+			OldValue:      entity,
+			NewValue:      nil,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
+			OperationType: audit.OperationDelete,
+			ObjectID:      &entity.ID,
+		},
+	)
 
 	return true, nil
 }

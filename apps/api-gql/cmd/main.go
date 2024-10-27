@@ -14,7 +14,6 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
-	buscore "github.com/twirapp/twir/libs/bus-core"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -26,7 +25,11 @@ import (
 
 func main() {
 	fx.New(
-		baseapp.CreateBaseApp("api-gql"),
+		baseapp.CreateBaseApp(
+			baseapp.Opts{
+				AppName: "api-gql",
+			},
+		),
 		fx.Provide(
 			auth.NewSessions,
 			func(config cfg.Config) tokens.TokensClient {
@@ -39,7 +42,6 @@ func main() {
 			twitchcache.New,
 			commandscache.New,
 			keywordscacher.New,
-			buscore.NewNatsBusFx("api-gql"),
 			fx.Annotate(
 				wsrouter.NewNatsSubscription,
 				fx.As(new(wsrouter.WsRouter)),

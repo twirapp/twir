@@ -1,6 +1,7 @@
 package buscore
 
 import (
+	auditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
 	botsservice "github.com/twirapp/twir/libs/bus-core/bots"
 	chat_messages_store "github.com/twirapp/twir/libs/bus-core/chat-messages-store"
 	emotes_cacher "github.com/twirapp/twir/libs/bus-core/emotes-cacher"
@@ -12,6 +13,10 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/bus-core/websockets"
 )
+
+type auditLogsBus struct {
+	Logs Queue[auditlogs.NewAuditLogMessage, struct{}]
+}
 
 type parserBus struct {
 	GetCommandResponse      Queue[twitch.TwitchChatMessage, parser.CommandParseResponse]

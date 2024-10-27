@@ -231,6 +231,45 @@
       },
       "bot": {
         "title": "Bot Management"
+      },
+      "audit-logs": {
+        "title": "Audit logs",
+        "search-label": "Search by",
+        "search": {
+          "channel": "Channel",
+          "actor": "Actor"
+        },
+        "operation-type-label": "Operation type",
+        "operation-type": {
+          "create": "Created",
+          "delete": "Deleted",
+          "update": "Edited"
+        },
+        "systems-label": "Systems",
+        "systems": {
+          "badge": "Badge",
+          "badge-user": "Badge User",
+          "channel-command": "Command",
+          "channel-command-group": "Command Group",
+          "channel-variable": "Variable",
+          "channel-games-eight-ball": "8ball",
+          "channel-games-duel": "Duel",
+          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-seppuku": "Seppuku",
+          "channel-games-voteban": "Voteban",
+          "channel-greeting": "Greeting",
+          "channel-keyword": "Keyword",
+          "channel-moderation-setting": "Moderation Setting",
+          "channel-overlay-chat": "Chat Overlay",
+          "channel-overlay-dudes": "Dudes Overlay",
+          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-roles": "Role",
+          "channel-timers": "Timer",
+          "channel-song-requests": "Song Requests",
+          "channel-integrations": "Integration",
+          "channel-alerts": "Alert",
+          "channel-chat-alerts": "Chat alerts"
+        }
       }
     }
   },
@@ -1046,6 +1085,9 @@
         "revokeAllSessionsDescription": "All user sessions will be revoked",
         "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
       }
+    },
+    "auditLogs": {
+      "title": "Audit logs"
     }
   }
 }
