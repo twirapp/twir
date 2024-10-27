@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/guregu/null"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	config "github.com/satont/twir/libs/config"
@@ -76,10 +77,9 @@ func NewExpiredCommands(opts ExpiredCommandsOpts) *expiredCommands {
 
 func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 	var commands []model.ChannelsCommands
-	if err := s.db.WithContext(ctx).Preload("Channel").Where(
-		`"expires_at" < ? AND "expired" = ?`,
+	if err := s.db.WithContext(ctx).Where(
+		`"expires_at" < ?`,
 		time.Now().UTC(),
-		false,
 	).Find(&commands).Error; err != nil {
 		s.logger.Error("failed to get commands", slog.Any("err", err))
 		return
@@ -87,22 +87,32 @@ func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 
 	for _, c := range commands {
 		s.logger.Info("Command expired", slog.Any("command", c))
-		c.Expired = true
 
-		err := s.db.WithContext(ctx).Updates(
-			&c,
-		).Error
-		if err != nil {
-			s.logger.Error("failed to update command", slog.Any("err", err))
+		if !c.ExpiresAt.Valid || c.ExpiresType == nil {
+			continue
 		}
 
-		err = s.commandsCache.Invalidate(
+		if *c.ExpiresType == model.ChannelCommandExpiresTypeDisable && c.Enabled {
+			c.Enabled = false
+			c.ExpiresType = nil
+			c.ExpiresAt = null.Time{}
+			s.db.WithContext(ctx).Save(&c)
+		} else if *c.ExpiresType == model.ChannelCommandExpiresTypeDelete {
+			err := s.db.WithContext(ctx).Delete(
+				&c,
+			).Error
+			if err != nil {
+				s.logger.Error("failed to delete command", slog.Any("err", err))
+			}
+		}
+
+		err := s.commandsCache.Invalidate(
 			ctx,
-			c.Channel.ID)
+			c.ChannelID,
+		)
 		if err != nil {
 			s.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 			return
 		}
-
 	}
 }

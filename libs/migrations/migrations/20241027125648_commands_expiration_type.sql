@@ -2,7 +2,7 @@
 -- +goose StatementBegin
 SELECT 'up SQL query';
 
-ALTER TABLE channels_commands ADD COLUMN expires_at timestamptz;
+ALTER TABLE channels_commands ADD COLUMN expires_type varchar(255);
 -- +goose StatementEnd
 
 -- +goose Down

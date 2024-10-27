@@ -38,7 +38,8 @@ const defaultFormValue: EditableCommand = {
 	cooldownRolesIds: [],
 	enabledCategories: [],
 	module: 'CUSTOM',
-	expiredIn: 0,
+	expiresAt: null,
+	expiresType: null,
 }
 
 export const useCommandEdit = createGlobalState(() => {

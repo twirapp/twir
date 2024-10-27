@@ -33,11 +33,11 @@ type Command {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
-	expiredIn: Int!
-	expired: Boolean!
-	expiresAt: Time
 	group: CommandGroup
+	expiresAt: Int
+	expiresType: CommandExpiresType
 }
+
 type CommandResponse {
 	id: ID!
 	commandId: ID!
@@ -83,8 +83,9 @@ input CommandsCreateOpts {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
-	expiredIn: Int!
 	groupId: String @validate(constraint: "max=500,omitempty")
+	expiresAt: Int
+	expiresType: CommandExpiresType
 }
 
 input CommandsUpdateOpts {
@@ -107,13 +108,18 @@ input CommandsUpdateOpts {
 	requiredWatchTime: Int
 	requiredMessages: Int
 	requiredUsedChannelPoints: Int
-	expiredIn: Int
-	expired: Boolean
 	groupId: String @validate(constraint: "max=500,omitempty")
+	expiresAt: Int
+	expiresType: CommandExpiresType
 }
 
 input CreateOrUpdateCommandResponseInput {
 	text: String! @validate(constraint: "max=500")
 	order: Int! @validate(constraint: "max=500")
 	twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
+}
+
+enum CommandExpiresType {
+	DISABLE
+	DELETE
 }

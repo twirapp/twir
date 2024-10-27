@@ -439,35 +439,41 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, nil
 	}
 
-	if cmd.Cmd.Expired {
-		return nil, nil
-	}
-
-	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiredIn > 0 {
-		if cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
+	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiresType != nil && cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
+		if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDisable && cmd.Cmd.Enabled {
 			err = c.services.Gorm.
 				WithContext(ctx).
 				Where(`"id" = ?`, cmd.Cmd.ID).
 				Model(&model.ChannelsCommands{}).
-				Updates(map[string]interface{}{
-					"expired": true,
-				}).Error
+				Updates(
+					map[string]interface{}{
+						"enabled": false,
+					},
+				).Error
 			if err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
 
-			err = c.services.CommandsCache.Invalidate(
-				ctx,
-				cmd.Cmd.ChannelID,
-			)
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+			}
+		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Delete(&model.ChannelsCommands{}).Error
 			if err != nil {
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
 
-			return nil, nil
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+			}
 		}
+
+		return nil, nil
 	}
 
 	if cmd.Cmd.OnlineOnly {

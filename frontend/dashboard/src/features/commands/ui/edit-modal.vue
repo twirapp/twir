@@ -17,6 +17,7 @@ import {
 	NButton,
 	NButtonGroup,
 	NCard,
+	NDatePicker,
 	NDivider,
 	NDynamicInput,
 	NForm,
@@ -24,8 +25,8 @@ import {
 	NGrid,
 	NGridItem,
 	NInput,
-	NInputGroup,
 
+	NInputGroup,
 	NInputGroupLabel,
 	NInputNumber,
 	NModal,
@@ -42,6 +43,8 @@ import { useI18n } from 'vue-i18n'
 
 import { useCommandEdit } from '../composables/use-command-edit.js'
 
+import type { SelectMixedOption } from 'naive-ui/es/select/src/interface'
+
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
 import { useRoles } from '@/api/roles'
 import TwitchCategorySearch from '@/components/twitch-category-search.vue'
@@ -49,6 +52,7 @@ import TwitchUsersMultiple from '@/components/twitchUsers/multiple.vue'
 import { Separator } from '@/components/ui/separator'
 import { TagsInput, TagsInputInput, TagsInputItem, TagsInputItemDelete, TagsInputItemText } from '@/components/ui/tags-input'
 import VariableInput from '@/components/variable-input.vue'
+import { CommandExpiresType } from '@/gql/graphql'
 
 const { t } = useI18n()
 const {
@@ -124,6 +128,13 @@ const rules: FormRules = {
 const createButtonProps = { class: 'create-button' } as any
 
 const showCategoryModal = ref(false)
+
+const expiresTypeOptions = computed<SelectMixedOption[]>(() => {
+	return [
+		{ label: t('commands.modal.expiration.actions.disable'), value: CommandExpiresType.Disable },
+		{ label: t('commands.modal.expiration.actions.delete'), value: CommandExpiresType.Delete },
+	]
+})
 </script>
 
 <template>
@@ -428,6 +439,13 @@ const showCategoryModal = ref(false)
 						</div>
 					</NTabPane>
 					<NTabPane name="settings" :tab="t('commands.modal.settings.divider')">
+						<NFormItem :label="t('commands.modal.description.label')" path="description">
+							<NInput
+								v-model:value="formValue.description" placeholder="Description" type="textarea"
+								autosize
+							/>
+						</NFormItem>
+
 						<NGrid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5" :y-gap="5">
 							<NGridItem :span="1">
 								<NCard class="h-full">
@@ -479,26 +497,28 @@ const showCategoryModal = ref(false)
 						</NGrid>
 
 						<NDivider>
+							{{ t('commands.modal.expiration.label') }}
+						</NDivider>
+
+						<NFormItem>
+							<div class="flex gap-0.5 justify-between w-full">
+								<NSelect
+									v-model:value="formValue.expiresType"
+									:placeholder="t('commands.modal.expiration.actionsLabel')"
+									class="w-full"
+									:options="expiresTypeOptions"
+									clearable
+								/>
+								<NDatePicker v-model:value="formValue.expiresAt" class="w-full" type="datetime" clearable />
+							</div>
+						</NFormItem>
+
+						<NDivider>
 							{{ t('commands.modal.settings.other.divider') }}
 						</NDivider>
 
 						<NFormItem :label="t('commands.modal.gameCategories.label')" path="enabledGameCategories">
 							<TwitchCategorySearch v-model="formValue.enabledCategories" multiple />
-						</NFormItem>
-
-						<NFormItem :label="t('commands.modal.description.label')" path="description">
-							<NInput
-								v-model:value="formValue.description" placeholder="Description" type="textarea"
-								autosize
-							/>
-						</NFormItem>
-						<NFormItem
-							:label="t('commands.modal.expiration.label')" path="expiredIn"
-						>
-							<NInputNumber
-								v-model:value="formValue.expiredIn"
-								:min="0"
-							/>
 						</NFormItem>
 
 						<NFormItem :label="t('commands.modal.settings.other.commandGroup')" path="groupId">

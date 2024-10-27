@@ -40,15 +40,33 @@ type ChannelsCommands struct {
 	RequiredWatchTime         int                          `gorm:"column:requiredWatchTime;type:INT4;default:0;"             json:"requiredWatchTime"`
 	RequiredMessages          int                          `gorm:"column:requiredMessages;type:INT4;default:0;"              json:"requiredMessages"`
 	RequiredUsedChannelPoints int                          `gorm:"column:requiredUsedChannelPoints;type:INT4;default:0;"     json:"requiredUsedChannelPoints"`
-	ExpiresAt                 null.Time                    `gorm:"column:expires_at;type:TIMESTAMPTZ;"                       json:"expires_at"`
-	Expired                   bool                         `gorm:"column:expired;type:BOOL;default:false;"                   json:"expired"`
-	ExpiredIn                 int                          `gorm:"column:expired_in;type:INT4;default:0;"                    json:"expired_in"`
 	Channel                   *Channels                    `gorm:"foreignKey:ChannelID"                                      json:"-"`
 	Responses                 []*ChannelsCommandsResponses `gorm:"foreignKey:CommandID"                                      json:"responses"`
 	GroupID                   null.String                  `gorm:"column:groupId;type:UUID"                                  json:"groupId"`
 	Group                     *ChannelCommandGroup         `gorm:"foreignKey:GroupID"                                        json:"group"`
+	ExpiresAt                 null.Time                    `gorm:"column:expires_at;type:TIMESTAMPTZ;"                       json:"expires_at"`
+	ExpiresType               *ChannelCommandExpiresType   `gorm:"column:expires_type;type:VARCHAR;"         json:"expires_type"`
 }
 
 func (c *ChannelsCommands) TableName() string {
 	return "channels_commands"
 }
+
+func (c *ChannelsCommands) IsExpired() bool {
+	if !c.ExpiresAt.Valid {
+		return false
+	}
+
+	if c.ExpiresAt.Time.Before(time.Now()) {
+		return false
+	}
+
+	return true
+}
+
+type ChannelCommandExpiresType string
+
+const (
+	ChannelCommandExpiresTypeDisable ChannelCommandExpiresType = "DISABLE"
+	ChannelCommandExpiresTypeDelete  ChannelCommandExpiresType = "DELETE"
+)
