@@ -21,10 +21,7 @@ import (
 )
 
 // UpdateChatAlerts is the resolver for the updateChatAlerts field.
-func (r *mutationResolver) UpdateChatAlerts(
-	ctx context.Context,
-	input gqlmodel.ChatAlertsInput,
-) (*gqlmodel.ChatAlerts, error) {
+func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.ChatAlertsInput) (*gqlmodel.ChatAlerts, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
