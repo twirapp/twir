@@ -132,6 +132,14 @@
       "gameCategories": {
         "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
       },
+      "expiration": {
+        "label": "Expiration",
+        "actionsLabel": "Action on expire",
+        "actions": {
+          "delete": "Command will be deleted",
+          "disable": "Command will be disabled"
+        }
+      },
       "description": {
         "label": "Befehlsbeschreibung"
       },
