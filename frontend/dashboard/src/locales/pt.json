@@ -132,6 +132,14 @@
       "gameCategories": {
         "label": "Enable command only in certain categories (leave empty for disable)"
       },
+      "expiration": {
+        "label": "Expiration",
+        "actionsLabel": "Action on expire",
+        "actions": {
+          "delete": "Command will be deleted",
+          "disable": "Command will be disabled"
+        }
+      },
       "description": {
         "label": "Command Description"
       },
