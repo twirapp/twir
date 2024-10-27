@@ -59,96 +59,40 @@ func AuditTypeGqlToModel(t gqlmodel.AuditOperationType) model.AuditOperationType
 	}
 }
 
+var tableToGqlModel = map[string]gqlmodel.AuditLogSystem{
+	"badges":                          gqlmodel.AuditLogSystemBadge,
+	"badge_users":                     gqlmodel.AuditLogSystemBadgeUser,
+	"channels_commands":               gqlmodel.AuditLogSystemChannelCommand,
+	"channels_command_groups":         gqlmodel.AuditLogSystemChannelCommandGroup,
+	"channels_customvars":             gqlmodel.AuditLogSystemChannelVariable,
+	"channels_games_8ball":            gqlmodel.AuditLogSystemChannelGamesEightBall,
+	"channels_games_duel":             gqlmodel.AuditLogSystemChannelGamesDuel,
+	"channels_games_russian_roulette": gqlmodel.AuditLogSystemChannelGamesRussianRoulette,
+	"channels_games_seppuku":          gqlmodel.AuditLogSystemChannelGamesSeppuku,
+	"channels_games_voteban":          gqlmodel.AuditLogSystemChannelGamesVoteban,
+	"channels_greetings":              gqlmodel.AuditLogSystemChannelGreeting,
+	"channels_keywords":               gqlmodel.AuditLogSystemChannelKeyword,
+	"channels_moderation_settings":    gqlmodel.AuditLogSystemChannelModerationSetting,
+	"channels_overlays_chat":          gqlmodel.AuditLogSystemChannelOverlayChat,
+	"channels_overlays_dudes":         gqlmodel.AuditLogSystemChannelOverlayDudes,
+	"channels_overlays_now_playing":   gqlmodel.AuditLogSystemChannelOverlayNowPlaying,
+	"channels_roles":                  gqlmodel.AuditLogSystemChannelRoles,
+	"channels_timers":                 gqlmodel.AuditLogSystemChannelTimers,
+	"channels_song_requests_settings": gqlmodel.AuditLogSystemChannelSongRequests,
+	"channels_integrations":           gqlmodel.AuditLogSystemChannelIntegrations,
+	"channels_alerts":                 gqlmodel.AuditLogSystemChannelsAlerts,
+	"channels_chat_alerts":            gqlmodel.AuditLogSystemChannelsChatAlerts,
+}
+
 func AuditTableNameToGqlSystem(t string) gqlmodel.AuditLogSystem {
-	switch t {
-	case "badges":
-		return gqlmodel.AuditLogSystemBadge
-	case "badge_users":
-		return gqlmodel.AuditLogSystemBadgeUser
-	case "channels_commands":
-		return gqlmodel.AuditLogSystemChannelCommand
-	case "channels_command_groups":
-		return gqlmodel.AuditLogSystemChannelCommandGroup
-	case "channels_customvars":
-		return gqlmodel.AuditLogSystemChannelVariable
-	case "channels_games_8ball":
-		return gqlmodel.AuditLogSystemChannelGamesEightBall
-	case "channels_games_duel":
-		return gqlmodel.AuditLogSystemChannelGamesDuel
-	case "channels_games_russian_roulette":
-		return gqlmodel.AuditLogSystemChannelGamesRussianRoulette
-	case "channels_games_seppuku":
-		return gqlmodel.AuditLogSystemChannelGamesSeppuku
-	case "channels_games_voteban":
-		return gqlmodel.AuditLogSystemChannelGamesVoteban
-	case "channels_greetings":
-		return gqlmodel.AuditLogSystemChannelGreeting
-	case "channels_keywords":
-		return gqlmodel.AuditLogSystemChannelKeyword
-	case "channels_moderation_settings":
-		return gqlmodel.AuditLogSystemChannelModerationSetting
-	case "channels_overlays_chat":
-		return gqlmodel.AuditLogSystemChannelOverlayChat
-	case "channels_overlays_dudes":
-		return gqlmodel.AuditLogSystemChannelOverlayDudes
-	case "channels_overlays_now_playing":
-		return gqlmodel.AuditLogSystemChannelOverlayNowPlaying
-	case "channels_roles":
-		return gqlmodel.AuditLogSystemChannelRoles
-	case "channels_timers":
-		return gqlmodel.AuditLogSystemChannelTimers
-	case "channels_song_requests_settings":
-		return gqlmodel.AuditLogSystemChannelSongRequests
-	case "channels_integrations":
-		return gqlmodel.AuditLogSystemChannelIntegrations
-	default:
-		return ""
-	}
+	return tableToGqlModel[t]
 }
 
 func AuditSystemToTableName(s gqlmodel.AuditLogSystem) string {
-	switch s {
-	case gqlmodel.AuditLogSystemBadge:
-		return "badges"
-	case gqlmodel.AuditLogSystemBadgeUser:
-		return "badge_users"
-	case gqlmodel.AuditLogSystemChannelCommand:
-		return "channels_commands"
-	case gqlmodel.AuditLogSystemChannelCommandGroup:
-		return "channels_command_groups"
-	case gqlmodel.AuditLogSystemChannelVariable:
-		return "channels_customvars"
-	case gqlmodel.AuditLogSystemChannelGamesEightBall:
-		return "channels_games_8ball"
-	case gqlmodel.AuditLogSystemChannelGamesDuel:
-		return "channels_games_duel"
-	case gqlmodel.AuditLogSystemChannelGamesRussianRoulette:
-		return "channels_games_russian_roulette"
-	case gqlmodel.AuditLogSystemChannelGamesSeppuku:
-		return "channels_games_seppuku"
-	case gqlmodel.AuditLogSystemChannelGamesVoteban:
-		return "channels_games_voteban"
-	case gqlmodel.AuditLogSystemChannelGreeting:
-		return "channels_greetings"
-	case gqlmodel.AuditLogSystemChannelKeyword:
-		return "channels_keywords"
-	case gqlmodel.AuditLogSystemChannelModerationSetting:
-		return "channels_moderation_settings"
-	case gqlmodel.AuditLogSystemChannelOverlayChat:
-		return "channels_overlays_chat"
-	case gqlmodel.AuditLogSystemChannelOverlayDudes:
-		return "channels_overlays_dudes"
-	case gqlmodel.AuditLogSystemChannelOverlayNowPlaying:
-		return "channels_overlays_now_playing"
-	case gqlmodel.AuditLogSystemChannelRoles:
-		return "channels_roles"
-	case gqlmodel.AuditLogSystemChannelTimers:
-		return "channels_timers"
-	case gqlmodel.AuditLogSystemChannelSongRequests:
-		return "channels_song_requests_settings"
-	case gqlmodel.AuditLogSystemChannelIntegrations:
-		return "channels_integrations"
-	default:
-		return ""
+	for k, v := range tableToGqlModel {
+		if v == s {
+			return k
+		}
 	}
+	return ""
 }

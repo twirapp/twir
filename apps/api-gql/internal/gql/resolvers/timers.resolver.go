@@ -14,15 +14,13 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	"gorm.io/gorm"
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(
-	ctx context.Context,
-	opts gqlmodel.TimerCreateInput,
-) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -83,7 +81,7 @@ func (r *mutationResolver) TimersCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_timers",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -100,11 +98,7 @@ func (r *mutationResolver) TimersCreate(
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.TimerUpdateInput,
-) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -204,7 +198,7 @@ func (r *mutationResolver) TimersUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_timers",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -253,7 +247,7 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 			OldValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_timers",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &entity.ID,
 		},

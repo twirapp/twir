@@ -15,13 +15,11 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // KeywordCreate is the resolver for the keywordCreate field.
-func (r *mutationResolver) KeywordCreate(
-	ctx context.Context,
-	opts gqlmodel.KeywordCreateInput,
-) (*gqlmodel.Keyword, error) {
+func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.KeywordCreateInput) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -83,7 +81,7 @@ func (r *mutationResolver) KeywordCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_keywords",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -102,11 +100,7 @@ func (r *mutationResolver) KeywordCreate(
 }
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
-func (r *mutationResolver) KeywordUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.KeywordUpdateInput,
-) (*gqlmodel.Keyword, error) {
+func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -172,7 +166,7 @@ func (r *mutationResolver) KeywordUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_keywords",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -224,7 +218,7 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, 
 			OldValue:      keyword,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_keywords",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &keyword.ID,
 		},

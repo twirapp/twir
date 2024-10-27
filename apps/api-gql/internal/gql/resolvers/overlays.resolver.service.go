@@ -15,6 +15,7 @@ import (
 	"github.com/satont/twir/libs/types/types/api/overlays"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 	now_playing_fetcher "github.com/twirapp/twir/apps/api-gql/internal/gql/now-playing-fetcher"
 )
 
@@ -201,7 +202,7 @@ func (r *mutationResolver) updateChatOverlay(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_overlays_chat",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
 			OperationType: audit.OperationUpdate,
 		},
 	)
@@ -308,7 +309,7 @@ func (r *mutationResolver) chatOverlayCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_overlays_chat",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
 			OperationType: audit.OperationCreate,
 		},
 	)
@@ -342,7 +343,7 @@ func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bo
 			NewValue:      nil,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_overlays_chat",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayChat),
 			OperationType: audit.OperationDelete,
 		},
 	)
@@ -451,7 +452,7 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 			NewValue:      nil,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardID),
-			System:        "channels_overlays_now_playing",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
 			OperationType: audit.OperationDelete,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},
@@ -519,7 +520,7 @@ func (r *mutationResolver) createNowPlayingOverlay(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardID),
-			System:        "channels_overlays_now_playing",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
 			OperationType: audit.OperationCreate,
 		},
 	)
@@ -616,7 +617,7 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardID),
-			System:        "channels_overlays_now_playing",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelOverlayNowPlaying),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},

@@ -16,21 +16,16 @@ import (
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *greetingResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.Greeting,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Greeting) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
-func (r *mutationResolver) GreetingsCreate(
-	ctx context.Context,
-	opts gqlmodel.GreetingsCreateInput,
-) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -61,7 +56,7 @@ func (r *mutationResolver) GreetingsCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_greetings",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -77,11 +72,7 @@ func (r *mutationResolver) GreetingsCreate(
 }
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
-func (r *mutationResolver) GreetingsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.GreetingsUpdateInput,
-) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -133,7 +124,7 @@ func (r *mutationResolver) GreetingsUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_greetings",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -180,7 +171,7 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool
 			OldValue:      greeting,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_greetings",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &greeting.ID,
 		},

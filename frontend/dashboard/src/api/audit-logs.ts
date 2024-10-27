@@ -110,6 +110,14 @@ export function mapSystemToTranslate(system: AuditLogSystem) {
 			return 'dashboard.widgets.audit-logs.systems.channel-song-requests'
 		case AuditLogSystem.ChannelIntegrations:
 			return 'dashboard.widgets.audit-logs.systems.channel-integrations'
+		case AuditLogSystem.ChannelsAlerts:
+			return 'dashboard.widgets.audit-logs.systems.channel-alerts'
+		case AuditLogSystem.ChannelsModulesSettings:
+			return 'dashboard.widgets.audit-logs.systems.channel-modules-settings'
+		case AuditLogSystem.ChannelsChatAlerts:
+			return 'dashboard.widgets.audit-logs.systems.channel-chat-alerts'
+		default:
+			return 'dashboard.widgets.audit-logs.systems.unknown'
 	}
 }
 

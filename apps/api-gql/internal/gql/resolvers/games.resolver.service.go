@@ -10,6 +10,7 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
@@ -97,7 +98,7 @@ func (r *mutationResolver) gamesUpdateEightBall(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_games_8ball",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesEightBall),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},
@@ -242,7 +243,7 @@ func (r *mutationResolver) gamesUpdateDuel(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_games_duel",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesDuel),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},
@@ -382,7 +383,7 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_games_russian_roulette",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesRussianRoulette),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},
@@ -484,7 +485,7 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_games_seppuku",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesSeppuku),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      lo.ToPtr(entity.ID.String()),
 		},

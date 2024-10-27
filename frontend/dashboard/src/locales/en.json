@@ -266,7 +266,9 @@
           "channel-roles": "Role",
           "channel-timers": "Timer",
           "channel-song-requests": "Song Requests",
-          "channel-integrations": "Integration"
+          "channel-integrations": "Integration",
+          "channel-alerts": "Alert",
+          "channel-chat-alerts": "Chat alerts"
         }
       }
     }

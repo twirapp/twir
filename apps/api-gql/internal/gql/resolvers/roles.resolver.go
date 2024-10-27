@@ -17,14 +17,12 @@ import (
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 	"gorm.io/gorm"
 )
 
 // RolesCreate is the resolver for the rolesCreate field.
-func (r *mutationResolver) RolesCreate(
-	ctx context.Context,
-	opts gqlmodel.RolesCreateOrUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -73,7 +71,7 @@ func (r *mutationResolver) RolesCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_roles",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -83,11 +81,7 @@ func (r *mutationResolver) RolesCreate(
 }
 
 // RolesUpdate is the resolver for the rolesUpdate field.
-func (r *mutationResolver) RolesUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.RolesCreateOrUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) RolesUpdate(ctx context.Context, id string, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -174,7 +168,7 @@ func (r *mutationResolver) RolesUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_roles",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -221,7 +215,7 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id string) (bool, er
 			OldValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_roles",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelRoles),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &entity.ID,
 		},
@@ -283,10 +277,7 @@ func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
 }
 
 // Users is the resolver for the users field.
-func (r *roleResolver) Users(
-	ctx context.Context,
-	obj *gqlmodel.Role,
-) ([]gqlmodel.TwirUserTwitchInfo, error) {
+func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmodel.TwirUserTwitchInfo, error) {
 	var users []model.ChannelRoleUser
 	if err := r.gorm.
 		WithContext(ctx).

@@ -16,6 +16,7 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 	"gorm.io/gorm"
 )
 
@@ -85,7 +86,7 @@ func (r *mutationResolver) UpdateChatAlerts(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_modules_settings",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsChatAlerts),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},

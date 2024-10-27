@@ -15,13 +15,11 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // ChannelAlertsCreate is the resolver for the channelAlertsCreate field.
-func (r *mutationResolver) ChannelAlertsCreate(
-	ctx context.Context,
-	input gqlmodel.ChannelAlertCreateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -59,7 +57,7 @@ func (r *mutationResolver) ChannelAlertsCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channel_alerts",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -78,11 +76,7 @@ func (r *mutationResolver) ChannelAlertsCreate(
 }
 
 // ChannelAlertsUpdate is the resolver for the channelAlertsUpdate field.
-func (r *mutationResolver) ChannelAlertsUpdate(
-	ctx context.Context,
-	id string,
-	input gqlmodel.ChannelAlertUpdateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id string, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -148,7 +142,7 @@ func (r *mutationResolver) ChannelAlertsUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channel_alerts",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -198,7 +192,7 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id string) (
 			OldValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channel_alerts",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelsAlerts),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &entity.ID,
 		},

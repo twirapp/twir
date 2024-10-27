@@ -15,13 +15,11 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // VariablesCreate is the resolver for the variablesCreate field.
-func (r *mutationResolver) VariablesCreate(
-	ctx context.Context,
-	opts gqlmodel.VariableCreateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -54,7 +52,7 @@ func (r *mutationResolver) VariablesCreate(
 			OldValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_customvars",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -71,11 +69,7 @@ func (r *mutationResolver) VariablesCreate(
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.VariableUpdateInput,
-) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -132,7 +126,7 @@ func (r *mutationResolver) VariablesUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_customvars",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -180,7 +174,7 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id string) (bool
 			OldValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_customvars",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &entity.ID,
 		},

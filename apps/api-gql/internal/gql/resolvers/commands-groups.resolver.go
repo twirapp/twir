@@ -15,13 +15,11 @@ import (
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
-func (r *mutationResolver) CommandsGroupsCreate(
-	ctx context.Context,
-	opts gqlmodel.CommandsGroupsCreateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -49,7 +47,7 @@ func (r *mutationResolver) CommandsGroupsCreate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_commands_groups",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
 			OperationType: audit.OperationCreate,
 			ObjectID:      &entity.ID,
 		},
@@ -59,11 +57,7 @@ func (r *mutationResolver) CommandsGroupsCreate(
 }
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
-func (r *mutationResolver) CommandsGroupsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.CommandsGroupsUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -111,7 +105,7 @@ func (r *mutationResolver) CommandsGroupsUpdate(
 			NewValue:      entity,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_commands_groups",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
 			OperationType: audit.OperationUpdate,
 			ObjectID:      &entity.ID,
 		},
@@ -159,7 +153,7 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 			NewValue:      nil,
 			ActorID:       lo.ToPtr(user.ID),
 			ChannelID:     lo.ToPtr(dashboardId),
-			System:        "channels_commands_groups",
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommandGroup),
 			OperationType: audit.OperationDelete,
 			ObjectID:      &entity.ID,
 		},

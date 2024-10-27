@@ -47,7 +47,9 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 					</div>
 					<Badge :variant="computeOperationBadgeVariant(log.operationType)">
 						{{ t(mapOperationTypeToTranslate(log.operationType)).toLocaleLowerCase() }}
-						{{ t(mapSystemToTranslate(log.system)).toLocaleLowerCase() }}
+						<template v-if="log.system">
+							{{ t(mapSystemToTranslate(log.system), {}, { default: log.system }).toLocaleLowerCase() }}
+						</template>
 					</Badge>
 					<Badge v-if="computeValueHint(log.oldValue, log.newValue)" variant="secondary">
 						{{ computeValueHint(log.oldValue, log.newValue) }}
