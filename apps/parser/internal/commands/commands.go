@@ -439,6 +439,45 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, nil
 	}
 
+	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiresType != nil && cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
+		if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDisable && cmd.Cmd.Enabled {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Model(&model.ChannelsCommands{}).
+				Updates(
+					map[string]interface{}{
+						"enabled": false,
+					},
+				).Error
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Delete(&model.ChannelsCommands{}).Error
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+		}
+
+		return nil, nil
+	}
+
 	if cmd.Cmd.OnlineOnly {
 		stream := &model.ChannelsStreams{}
 		err = c.services.Gorm.

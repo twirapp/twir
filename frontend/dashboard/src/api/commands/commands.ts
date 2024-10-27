@@ -50,6 +50,8 @@ export const useCommandsApi = createGlobalState(() => {
 						name
 						color
 					}
+					expiresAt
+					expiresType
 				}
 			}
 		`),
