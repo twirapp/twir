@@ -20,6 +20,7 @@ replace (
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
+
 require (
 	github.com/99designs/gqlgen v0.17.45
 	github.com/Masterminds/squirrel v1.5.4

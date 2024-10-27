@@ -29,7 +29,6 @@ jobs:
           - apps/ytsr
           - apps/chat-messages-store
           - frontend/dashboard
-          - frontend/landing
           - frontend/overlays
           - frontend/public-page
     steps:
