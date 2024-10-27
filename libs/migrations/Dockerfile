@@ -17,6 +17,7 @@ COPY libs/grpc /app/libs/grpc
 COPY cli /app/cli
 RUN cd cli && CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o /app/twir_application ./main.go
 
+
 FROM go_prod_base
 COPY --from=builder /app/twir_application /app/twir_application
 COPY libs/migrations/migrations /app/libs/migrations/migrations

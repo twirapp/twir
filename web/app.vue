@@ -22,6 +22,11 @@ useHead({
 			}
 			: {},
 	],
+	link: [
+		{ rel: 'dns-prefetch', href: 'https://umami.twir.app' },
+		{ rel: 'dns-prefetch', href: 'https://static-cdn.jtvnw.net' },
+		{ rel: 'dns-prefetch', href: 'https://avatars.githubusercontent.com' },
+	],
 })
 
 useSeoMeta({
@@ -33,7 +38,7 @@ useSeoMeta({
 	ogSiteName: siteName,
 	ogTitle: siteName,
 	ogType: 'website',
-	keywords: 'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot',
+	keywords,
 })
 </script>
 

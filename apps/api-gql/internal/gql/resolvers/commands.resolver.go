@@ -16,8 +16,11 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 	"gorm.io/gorm"
 )
 
@@ -83,6 +86,11 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 // CommandsCreate is the resolver for the commandsCreate field.
 func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -165,12 +173,29 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
+	r.logger.Audit(
+		"New command created",
+		audit.Fields{
+			NewValue:      command,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+			OperationType: audit.OperationCreate,
+			ObjectID:      &command.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
 func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -208,6 +233,12 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		First(cmd).
 		Error; err != nil {
 		return false, fmt.Errorf("command not found: %w", err)
+	}
+
+	var cmdCopy model.ChannelsCommands
+	err = utils.DeepCopy(cmd, &cmdCopy)
+	if err != nil {
+		return false, fmt.Errorf("cannot create copy of command: %w", err)
 	}
 
 	if opts.Name.IsSet() {
@@ -348,12 +379,30 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
+	r.logger.Audit(
+		"Command edited",
+		audit.Fields{
+			OldValue:      cmdCopy,
+			NewValue:      cmd,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &cmd.ID,
+		},
+	)
+
 	return true, nil
 }
 
 // CommandsRemove is the resolver for the commandsRemove field.
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -379,6 +428,18 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool,
 	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
 		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
+
+	r.logger.Audit(
+		"Command removed",
+		audit.Fields{
+			OldValue:      cmd,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
+			OperationType: audit.OperationDelete,
+			ObjectID:      &cmd.ID,
+		},
+	)
 
 	return true, nil
 }

@@ -1,6 +1,7 @@
 package buscore
 
 const (
+	AUDIT_LOGS_SUBJECT                                 = "audit_logs.logs"
 	PARSER_COMMANDS_SUBJECT                            = "paser.commands_queue"
 	PARSER_TEXT_VARIABLES_SUBJECT                      = "parser.parse_text_variables"
 	PARSER_PROCESS_MESSAGE_AS_COMMAND_SUBJECT          = "parser.process_message_as_command"

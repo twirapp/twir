@@ -9,10 +9,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -23,6 +27,11 @@ func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Gree
 // GreetingsCreate is the resolver for the greetingsCreate field.
 func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,6 +50,18 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 		return nil, fmt.Errorf("cannot create greeting: %w", err)
 	}
 
+	r.logger.Audit(
+		"New greeting",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Greeting{
 		ID:      entity.ID,
 		UserID:  entity.UserID,
@@ -57,6 +78,11 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts 
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := &model.ChannelsGreetings{}
 	if err := r.gorm.WithContext(ctx).Where(
 		`"channelId" = ? AND id = ?`,
@@ -64,6 +90,11 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts 
 		id,
 	).First(entity).Error; err != nil {
 		return nil, fmt.Errorf("cannot find greeting: %w", err)
+	}
+
+	var entityCopy model.ChannelsGreetings
+	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
+		return nil, fmt.Errorf("cannot copy greeting: %w", err)
 	}
 
 	if opts.IsReply.IsSet() {
@@ -86,6 +117,19 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts 
 		return nil, fmt.Errorf("cannot update greeting: %w", err)
 	}
 
+	r.logger.Audit(
+		"Update greeting",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Greeting{
 		ID:      entity.ID,
 		UserID:  entity.UserID,
@@ -98,6 +142,11 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts 
 // GreetingsRemove is the resolver for the greetingsRemove field.
 func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -115,6 +164,18 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool
 	if err := r.gorm.WithContext(ctx).Delete(greeting).Error; err != nil {
 		return false, fmt.Errorf("cannot remove greeting: %w", err)
 	}
+
+	r.logger.Audit(
+		"Remove greeting",
+		audit.Fields{
+			OldValue:      greeting,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
+			OperationType: audit.OperationDelete,
+			ObjectID:      &greeting.ID,
+		},
+	)
 
 	return true, nil
 }

@@ -4,7 +4,7 @@ go 1.23.0
 
 require (
 	github.com/twitchtv/twirp v8.1.3+incompatible
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/protobuf v1.34.2
 )
 
 require (

@@ -5,8 +5,12 @@ import (
 	"fmt"
 
 	"github.com/lib/pq"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
@@ -43,6 +47,11 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelGames8Ball{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -50,6 +59,11 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		First(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to get eight ball settings: %w", err)
+	}
+
+	var entityCopy model.ChannelGames8Ball
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Answers.IsSet() {
@@ -76,6 +90,19 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
+
+	r.logger.Audit(
+		"8ball update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesEightBall),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
 
 	return r.Query().GamesEightBall(ctx)
 }
@@ -126,6 +153,11 @@ func (r *mutationResolver) gamesUpdateDuel(
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelGamesDuel{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -133,6 +165,11 @@ func (r *mutationResolver) gamesUpdateDuel(
 		First(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to get duel settings: %w", err)
+	}
+
+	var entityCopy model.ChannelGamesDuel
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Enabled.IsSet() {
@@ -199,6 +236,19 @@ func (r *mutationResolver) gamesUpdateDuel(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
+	r.logger.Audit(
+		"Duel update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesDuel),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
+
 	return r.Query().GamesDuel(ctx)
 }
 
@@ -252,6 +302,11 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelGamesRussianRoulette{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -259,6 +314,11 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		First(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to get russian roulette settings: %w", err)
+	}
+
+	var entityCopy model.ChannelGamesRussianRoulette
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Enabled.IsSet() {
@@ -316,6 +376,19 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
+	r.logger.Audit(
+		"Russian roulette update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesRussianRoulette),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
+
 	return r.Query().GamesRussianRoulette(ctx)
 }
 
@@ -359,6 +432,11 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelGamesSeppuku{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -366,6 +444,11 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		First(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to get seppuku settings: %w", err)
+	}
+
+	var entityCopy model.ChannelGamesSeppuku
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Enabled.IsSet() {
@@ -394,6 +477,19 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
+
+	r.logger.Audit(
+		"Seppuku update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGamesSeppuku),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
 
 	return r.Query().GamesSeppuku(ctx)
 }
@@ -429,6 +525,11 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelGamesVoteBan{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -436,6 +537,11 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		First(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to get voteban settings: %w", err)
+	}
+
+	var entityCopy model.ChannelGamesVoteBan
+	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
+		return nil, err
 	}
 
 	if opts.Enabled.IsSet() {
@@ -496,6 +602,19 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
+
+	r.logger.Audit(
+		"Voteban update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        "channels_games_voteban",
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(entity.ID.String()),
+		},
+	)
 
 	return r.Query().GamesVoteban(ctx)
 }

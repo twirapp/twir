@@ -10,13 +10,22 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger/audit"
+	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
 // KeywordCreate is the resolver for the keywordCreate field.
 func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.KeywordCreateInput) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -66,6 +75,18 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		r.logger.Error("failed to invalidate keywords cache", err)
 	}
 
+	r.logger.Audit(
+		"Keywords create",
+		audit.Fields{
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+			OperationType: audit.OperationCreate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Keyword{
 		ID:                  entity.ID,
 		Text:                entity.Text,
@@ -85,10 +106,20 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		return nil, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	entity := model.ChannelsKeywords{}
 	if err := r.gorm.WithContext(ctx).
 		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).Error; err != nil {
+		return nil, err
+	}
+
+	var entityCopy model.ChannelsKeywords
+	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
 		return nil, err
 	}
 
@@ -128,6 +159,19 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		r.logger.Error("failed to invalidate keywords cache", err)
 	}
 
+	r.logger.Audit(
+		"Keywords update",
+		audit.Fields{
+			OldValue:      entityCopy,
+			NewValue:      entity,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      &entity.ID,
+		},
+	)
+
 	return &gqlmodel.Keyword{
 		ID:                  entity.ID,
 		Text:                entity.Text,
@@ -147,6 +191,11 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, 
 		return false, err
 	}
 
+	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	keyword := model.ChannelsKeywords{}
 	if err := r.gorm.WithContext(ctx).
 		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
@@ -162,6 +211,18 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, 
 	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
 		r.logger.Error("failed to invalidate keywords cache", err)
 	}
+
+	r.logger.Audit(
+		"Keywords remove",
+		audit.Fields{
+			OldValue:      keyword,
+			ActorID:       lo.ToPtr(user.ID),
+			ChannelID:     lo.ToPtr(dashboardId),
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
+			OperationType: audit.OperationDelete,
+			ObjectID:      &keyword.ID,
+		},
+	)
 
 	return true, nil
 }

@@ -33,7 +33,8 @@ func New(integration *model.ChannelsIntegrations, db *gorm.DB) *Spotify {
 }
 
 type SpotifyRefreshResponse struct {
-	AccessToken string `json:"access_token"`
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }
 
 func (c *Spotify) refreshToken() error {
@@ -60,6 +61,7 @@ func (c *Spotify) refreshToken() error {
 	}
 
 	c.integration.AccessToken = null.StringFrom(data.AccessToken)
+	c.integration.RefreshToken = null.StringFrom(data.RefreshToken)
 	if err := c.db.Save(&c.integration).Error; err != nil {
 		return fmt.Errorf("cannot save spotify token: %w", err)
 	}

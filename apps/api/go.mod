@@ -2,8 +2,6 @@ module github.com/satont/twir/apps/api
 
 go 1.23.0
 
-toolchain go1.23.0
-
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
 	github.com/satont/twir/libs/crypto => ../../libs/crypto
@@ -40,12 +38,11 @@ require (
 	github.com/rs/cors v1.11.0
 	github.com/samber/lo v1.47.0
 	github.com/satont/twir/libs/config v0.0.0-20240807231545-3a665c8d4d3a
-	github.com/satont/twir/libs/crypto v0.0.0-20240807231545-3a665c8d4d3a
 	github.com/satont/twir/libs/gomodels v0.0.0-20240807231545-3a665c8d4d3a
 	github.com/satont/twir/libs/logger v0.0.0-20240807231545-3a665c8d4d3a
 	github.com/satont/twir/libs/pubsub v0.0.0-20240807231545-3a665c8d4d3a
 	github.com/satont/twir/libs/twitch v0.0.0-20240807231545-3a665c8d4d3a
-	github.com/satont/twir/libs/types v0.0.0-20240807231545-3a665c8d4d3a
+	github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe
 	github.com/satont/twir/libs/utils v0.0.0-20240807231545-3a665c8d4d3a
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0
 	github.com/twirapp/twir/libs/api v0.0.0-20240807231545-3a665c8d4d3a
@@ -58,15 +55,13 @@ require (
 	github.com/twitchtv/twirp v8.1.3+incompatible
 	go.uber.org/fx v1.22.2
 	golang.org/x/sync v0.8.0
-	gorm.io/gorm v1.25.11
+	gorm.io/gorm v1.25.12
 )
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bytedance/sonic/loader v0.2.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/chenzhuoyu/base64x v0.0.0-20230717121745-296ad89f973d // indirect
-	github.com/chenzhuoyu/iasm v0.9.1 // indirect
 	github.com/cloudflare/circl v1.3.9 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
@@ -75,7 +70,6 @@ require (
 	github.com/go-ini/ini v1.67.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
-	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
 	github.com/go-task/slim-sprig/v3 v3.0.0 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.0 // indirect
 	github.com/google/pprof v0.0.0-20240727154555-813a5fbdbec8 // indirect
@@ -83,7 +77,6 @@ require (
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
-	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
@@ -91,9 +84,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/minio/md5-simd v1.1.2 // indirect
-	github.com/minio/sha256-simd v1.0.1 // indirect
-	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/nats-io/nats.go v1.37.0 // indirect
 	github.com/nats-io/nkeys v0.4.7 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
@@ -116,10 +106,8 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0 // indirect
 	go.opentelemetry.io/otel v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp v0.4.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.28.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.28.0 // indirect
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.28.0 // indirect
 	go.opentelemetry.io/otel/log v0.4.0 // indirect
@@ -141,7 +129,6 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20240812133136-8ffd90a71988 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988 // indirect
 	google.golang.org/grpc v1.65.0 // indirect
-	gopkg.in/ini.v1 v1.67.0 // indirect
 	gorm.io/driver/postgres v1.5.9 // indirect
 )
 

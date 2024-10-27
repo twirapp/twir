@@ -11,7 +11,7 @@ import (
 
 var App = fx.Module(
 	"tokens",
-	baseapp.CreateBaseApp("tokens"),
+	baseapp.CreateBaseApp(baseapp.Opts{AppName: "tokens"}),
 	fx.Provide(
 		redis.NewRedisLock,
 	),
