@@ -270,13 +270,13 @@
           "channel-moderation-setting": "Nastavenia moderovania",
           "channel-overlay-chat": "Prekrytie chatu",
           "channel-overlay-dudes": "Prekrytie Dudes",
-          "channel-overlay-now-playing": "Now Playing Overlay",
-          "channel-roles": "Role",
+          "channel-overlay-now-playing": "Prekrytie Now Playing",
+          "channel-roles": "Rola",
           "channel-timers": "Timer",
-          "channel-song-requests": "Song Requests",
-          "channel-integrations": "Integration",
-          "channel-alerts": "Alert",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-song-requests": "Žiadosti o pieseň",
+          "channel-integrations": "Integrácia",
+          "channel-alerts": "Upozornenie",
+          "channel-chat-alerts": "Upozornenia chatu"
         }
       }
     }
