@@ -133,11 +133,11 @@
         "label": "Povoliť príkaz len v určitých kategóriách (pre zakázanie nechajte prázdne)"
       },
       "expiration": {
-        "label": "Expiration",
-        "actionsLabel": "Action on expire",
+        "label": "Vypršanie platnosti",
+        "actionsLabel": "Akcia pri expirovaní platnosti",
         "actions": {
-          "delete": "Command will be deleted",
-          "disable": "Command will be disabled"
+          "delete": "Príkaz bude vymazaný",
+          "disable": "Príkaz bude deaktivovaný"
         }
       },
       "description": {
@@ -241,35 +241,35 @@
         "title": "Správa bota"
       },
       "audit-logs": {
-        "title": "Audit logs",
-        "search-label": "Search by",
+        "title": "Denník záznamov",
+        "search-label": "Hľadať podľa",
         "search": {
-          "channel": "Channel",
+          "channel": "Kanál",
           "actor": "Actor"
         },
-        "operation-type-label": "Operation type",
+        "operation-type-label": "Typ operácie",
         "operation-type": {
-          "create": "Created",
-          "delete": "Deleted",
-          "update": "Edited"
+          "create": "Vytvorené",
+          "delete": "Odstránené",
+          "update": "Upravené"
         },
-        "systems-label": "Systems",
+        "systems-label": "Systémy",
         "systems": {
-          "badge": "Badge",
+          "badge": "Odznak",
           "badge-user": "Badge User",
-          "channel-command": "Command",
-          "channel-command-group": "Command Group",
-          "channel-variable": "Variable",
+          "channel-command": "Príkaz",
+          "channel-command-group": "Skupina príkazov",
+          "channel-variable": "Premenná",
           "channel-games-eight-ball": "8ball",
           "channel-games-duel": "Duel",
-          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-russian-roulette": "Ruská ruleta",
           "channel-games-seppuku": "Seppuku",
           "channel-games-voteban": "Voteban",
-          "channel-greeting": "Greeting",
-          "channel-keyword": "Keyword",
-          "channel-moderation-setting": "Moderation Setting",
-          "channel-overlay-chat": "Chat Overlay",
-          "channel-overlay-dudes": "Dudes Overlay",
+          "channel-greeting": "Pozdrav",
+          "channel-keyword": "Kľúčové slovo",
+          "channel-moderation-setting": "Nastavenia moderovania",
+          "channel-overlay-chat": "Prekrytie chatu",
+          "channel-overlay-dudes": "Prekrytie Dudes",
           "channel-overlay-now-playing": "Now Playing Overlay",
           "channel-roles": "Role",
           "channel-timers": "Timer",
