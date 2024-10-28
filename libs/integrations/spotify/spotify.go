@@ -61,7 +61,9 @@ func (c *Spotify) refreshToken() error {
 	}
 
 	c.integration.AccessToken = null.StringFrom(data.AccessToken)
-	c.integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	if len(data.RefreshToken) > 0 {
+		c.integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	}
 	if err := c.db.Save(&c.integration).Error; err != nil {
 		return fmt.Errorf("cannot save spotify token: %w", err)
 	}
