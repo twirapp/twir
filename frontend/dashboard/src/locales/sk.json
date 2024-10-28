@@ -245,7 +245,7 @@
         "search-label": "Hľadať podľa",
         "search": {
           "channel": "Kanál",
-          "actor": "Actor"
+          "actor": "Činiteľ"
         },
         "operation-type-label": "Typ operácie",
         "operation-type": {
@@ -634,7 +634,7 @@
       "playerNoCookieMode": "Režim inkognito pre hráča",
       "playerNoCookieModeDescription": "Ak túto možnosť povolíte, budete môcť počúvať skladby bez povolenia cookies a histórie zobrazenia. Po povolení je potrebné obnoviť stránku.",
       "neededPercentageForskip": "Percentuálny podiel užívateľov za preskočenie",
-      "channelReward": "Odmena kanálovými bodmi kanálu za žiadosť o pieseň",
+      "channelReward": "Spúšťače odmien kanálových bodov",
       "deniedChannels": "Zoznam zakázaných kanálov YouTube (zo žiadostí o skladby)",
       "deniedWords": "Zoznam zakázaných slov (týka sa názvov videí aj kanálov YouTube)",
       "deniedUsers": "Zablokovaní používatelia",
@@ -753,7 +753,7 @@
     },
     "trigger": {
       "commands": "Spúšťací príkaz",
-      "rewards": "Channel Points Reward Trigger",
+      "rewards": "Spúšťač odmeny za kanálové body",
       "keywords": "Spúštacie kľúčové slovo",
       "greetings": "Spúšťač pozdravu"
     },
@@ -778,11 +778,11 @@
       "canBeUsedByModerator": "Dočasne zablokovať moderátora? *Právomoci moderátora budú po uplynutí timeoutu opäť udelené.",
       "timeoutSeconds": "Čas timeoutu (v sekundách, ak chcete zrušiť timeout, nastavte ho na 0)",
       "decisionSeconds": "Oneskorenie (v sek.)",
-      "initMessage": "Trigger Pull Announcement (Game Start Message)",
-      "surviveMessage": "User Survived Message",
-      "deathMessage": "User Lost Message",
-      "chargedBullets": "Charged Bullets Amount: {tumberSize}",
-      "tumberSize": "Revolver Сylinder's Size"
+      "initMessage": "Oznámenie spustenia (správa o spustení hry)",
+      "surviveMessage": "Správa Používateľ prežil",
+      "deathMessage": "Správa Používateľ prehral",
+      "chargedBullets": "Množstvo nabitých nábojov: {tumberSize}",
+      "tumberSize": "Veľkosť revolverového bubna"
     },
     "duel": {
       "title": "Duely",
@@ -809,7 +809,7 @@
           "description": "Odošle túto správu, keď dôjde k súboju. Dostupné premenné: {'{loser}, {winner}'}"
         },
         "bothDie": {
-          "title": "«No One Survived» Message",
+          "title": "«Nikto neprežil» Správa",
           "description": "Odošle túto správu, keď sa uskutočnil duel a obaja účastníci súboja sú mŕtvi. Dostupné premenné: {'{target}, {initiator}'}"
         }
       },
@@ -831,18 +831,18 @@
     },
     "voteban": {
       "description": "Začnite súdny proces s porotou s vinným četujúcim!",
-      "banMessage": "Message on ban",
-      "banMessageModerators": "Message for ban moderator",
+      "banMessage": "Správa pri bane",
+      "banMessageModerators": "Správa pri bane moderátora",
       "surviveMessage": "Správa o prežití",
       "surviveMessageModerators": "Správa o prežití pre moderátora",
-      "initialMessage": "Init message",
+      "initialMessage": "Úvodná správa",
       "neededVotes": "Potrebné hlasy",
       "banDuration": "Dĺžka banu",
-      "voteMode": "Mode of vote",
+      "voteMode": "Spôsob hlasovania",
       "voteDuration": "Dĺžka hlasovania v sekundách",
       "wordsNegative": "Slová pre hlasovanie pre možnosť \"nie\"",
       "wordsPositive": "Slová pre hlasovanie pre možnosť \"áno\"",
-      "timeoutModerators": "Enable voteban on moderators"
+      "timeoutModerators": "Aktivovať voteban proti moderátorom"
     }
   },
   "community": {
@@ -884,16 +884,16 @@
         "stats": "Štatistiky",
         "users": "Užívatelia",
         "usersTabs": {
-          "top": "Top",
+          "top": "Hore",
           "history": "História"
         }
       }
     }
   },
   "filePicker": {
-    "innerText": "Select or drop {type} here.",
+    "innerText": "Tu vyberte alebo presuňte {type}.",
     "usedSpace": "Použité {used} / {max} MB",
-    "emptyText": "No {type} uploaded."
+    "emptyText": "Nebol nahraný žiadny {type}."
   },
   "overlaysRegistry": {
     "description": "Táto kategória umožňuje vytvárať vlastné konfigurovateľné prekrytia pre OBS. V súčasnosti sú podporované len HTML prekrytia, ale neskôr budú pridané aj ďalšie varianty prekrytia. Ďakujeme vám za trpezlivosť. <3",
@@ -939,7 +939,7 @@
       "streamOnline": "Vysielanie je online",
       "streamOffline": "Vysielanie je offline",
       "chatCleared": "Chat vyčistený",
-      "userBanned": "User Ban",
+      "userBanned": "Bany používateľov",
       "channelUnbanRequestCreate": "Vytvoriť žiadosť o unban",
       "channelUnbanRequestResolve": "Vyriešiť žiadosť o unban",
       "messageDelete": "Správa bola zmazaná"
@@ -951,7 +951,7 @@
     "banDescription": "Nastavte na 0 pre trvalý ban.",
     "banMessage": "Správa timeoutu",
     "warningMessage": "Varovná správa",
-    "warningMaxCount": "Warning Maximum Count",
+    "warningMaxCount": "Upozornenie Maximálny počet",
     "excludedRoles": "Vyberte roly, na ktoré tento filter nebude mať vplyv:",
     "types": {
       "links": {
@@ -962,7 +962,7 @@
         "name": "Zoznam zakázaných slov",
         "description": "Pomáha udržiavať čistý chat filtrovaním slov alebo fráz uvedených v preddefinovanom zozname, čím zabraňuje ich zobrazovaniu.",
         "empty": "Zoznam nepovolených slov je prázdny! Môžete ho vytvoriť tu.",
-        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
+        "regexp": "Ak ste pokročilý používateľ, zoznam zakázaných slov podporuje aj regulárne výrazy. Regulárny výraz by mal byť zapísaný vo formáte golang! Pozri {0} tu.",
         "regexpCheatSheet": "Ťahák"
       },
       "symbols": {
@@ -1008,7 +1008,7 @@
     "title": "Užívateľské nastavenia",
     "account": {
       "title": "Účet",
-      "showMeOnLanding": "Show yourself on the Landing Page?",
+      "showMeOnLanding": "Ukázať sa na domovskej stránke?",
       "regenerateApiKey": {
         "button": "Vygenerovať súkromný kľúč API",
         "info": "Tento kľúč sa používa pre všetky odkazy prekrytí. Pri jeho vygenerovaní musíte skontrolovať všetky svoje prekrytia v softvéri na streamovanie a nahradiť adresy URL novými odkazmi."
@@ -1031,14 +1031,14 @@
     "title": "Administračný panel",
     "notifications": {
       "title": "Notifikácie",
-      "formTitle": "Send or edit notification",
+      "formTitle": "Odoslať alebo upraviť oznámenie",
       "emptyNotifications": "Žiadne upozornenia",
       "userLabel": "Užívateľ",
       "userPlaceholder": "Vybrať užívateľa",
       "messageLabel": "Správa",
       "messagePreview": "Ukážka",
       "createdAt": "Vytvorené",
-      "globals": "Globals",
+      "globals": "Global",
       "users": "Užívatelia",
       "confirmResetForm": "Ste si istí, že chcete resetovať formulár?"
     },
@@ -1058,9 +1058,9 @@
       "badgesGroup": "Odznaky",
       "giveBan": "Zabanovať užívateľa",
       "unBan": "Odbanovať užívateľa",
-      "giveMod": "Give admin",
+      "giveMod": "Dať admina",
       "unMod": "Odstrániť správcu",
-      "dropSession": "Drop session"
+      "dropSession": "Zrušiť reláciu"
     },
     "manageBadges": {
       "title": "Odznaky",
@@ -1076,26 +1076,26 @@
     "adminActions": {
       "title": "Akcie",
       "eventsub": {
-        "title": "Subscribe to EventSub",
+        "title": "Prihlásiť sa na odber EventSub",
         "condition": "Podmienka",
         "type": "Typ",
-        "typeError": "Please select a type",
+        "typeError": "Vyberte typ",
         "version": "Verzia",
         "user": "Užívateľ",
         "channel": "Kanál",
-        "channelWithBotId": "Channel with bot ID",
-        "channelWithModeratorId": "Channel with moderator ID"
+        "channelWithBotId": "Kanál s bot ID",
+        "channelWithModeratorId": "Kanál s Moderator ID"
       },
       "dangerZone": {
-        "title": "Danger Zone",
-        "revoke": "Revoke",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "title": "Nebezpečná zóna",
+        "revoke": "Odvolať",
+        "revokeSessions": "Odvolať relácie",
+        "revokeAllSessionsDescription": "Všetky používateľské relácie budú odvolané",
+        "revokeAllSessionsConfirm": "Naozaj chcete odvolať všetky relácie?"
       }
     },
     "auditLogs": {
-      "title": "Audit logs"
+      "title": "Denník záznamov"
     }
   }
 }
