@@ -25,10 +25,7 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(
-	ctx context.Context,
-	obj *gqlmodel.Command,
-) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -60,10 +57,7 @@ func (r *commandResolver) Responses(
 }
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(
-	ctx context.Context,
-	obj *gqlmodel.CommandResponse,
-) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
 	var categories []gqlmodel.TwitchCategory
 
 	for _, id := range obj.TwitchCategoriesIds {
@@ -90,10 +84,7 @@ func (r *commandResponseResolver) TwitchCategories(
 }
 
 // CommandsCreate is the resolver for the commandsCreate field.
-func (r *mutationResolver) CommandsCreate(
-	ctx context.Context,
-	opts gqlmodel.CommandsCreateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -198,11 +189,7 @@ func (r *mutationResolver) CommandsCreate(
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.CommandsUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -521,10 +508,7 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(
-	ctx context.Context,
-	channelID string,
-) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}

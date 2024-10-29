@@ -19,6 +19,7 @@ import (
 	seventv "github.com/satont/twir/apps/parser/internal/commands/7tv"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
+	"github.com/satont/twir/apps/parser/internal/commands/clip"
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
@@ -117,6 +118,7 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteRename,
 			seventv.EmoteDelete,
 			seventv.EmoteAdd,
+			clip.MakeClip,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
