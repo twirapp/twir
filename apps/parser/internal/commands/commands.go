@@ -461,7 +461,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 				c.services.Logger.Sugar().Error(err)
 				return nil, err
 			}
-		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete {
+		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete && !cmd.Cmd.Default {
 			err = c.services.Gorm.
 				WithContext(ctx).
 				Where(`"id" = ?`, cmd.Cmd.ID).

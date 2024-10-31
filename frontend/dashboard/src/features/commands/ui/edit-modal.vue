@@ -130,9 +130,11 @@ const createButtonProps = { class: 'create-button' } as any
 const showCategoryModal = ref(false)
 
 const expiresTypeOptions = computed<SelectMixedOption[]>(() => {
+	const isCommandDefault = formValue.value?.module !== 'CUSTOM'
+
 	return [
 		{ label: t('commands.modal.expiration.actions.disable'), value: CommandExpiresType.Disable },
-		{ label: t('commands.modal.expiration.actions.delete'), value: CommandExpiresType.Delete },
+		{ label: t('commands.modal.expiration.actions.delete'), value: CommandExpiresType.Delete, disabled: isCommandDefault },
 	]
 })
 </script>

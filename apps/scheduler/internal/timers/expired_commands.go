@@ -97,7 +97,7 @@ func (s *expiredCommands) checkForExpiredCommands(ctx context.Context) {
 			c.ExpiresType = nil
 			c.ExpiresAt = null.Time{}
 			s.db.WithContext(ctx).Save(&c)
-		} else if *c.ExpiresType == model.ChannelCommandExpiresTypeDelete {
+		} else if *c.ExpiresType == model.ChannelCommandExpiresTypeDelete && !c.Default {
 			err := s.db.WithContext(ctx).Delete(
 				&c,
 			).Error
