@@ -17,7 +17,7 @@ interface Feature {
 	icon: any
 }
 
-export const features: Feature[] = [
+export const featuresData: Feature[] = [
 	{
 		title: 'Commands',
 		description:

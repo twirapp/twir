@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL } from '@twir/brand'
 
-import { features } from './features.js'
+import { featuresData } from './features-data.js'
 </script>
 
 <template>
@@ -20,7 +20,7 @@ import { features } from './features.js'
 				</p>
 			</div>
 			<ul class="mt-[64px] grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-[32px] gap-y-[64px]">
-				<li v-for="feature of features" :key="feature.title" class="flex flex-col items-center text-center">
+				<li v-for="feature of featuresData" :key="feature.title" class="flex flex-col items-center text-center">
 					<div class="bg-[#B1AEFF]/[.12] p-2.5 rounded-full flex ring-8 ring-[#B1AEFF]/5 mb-5 ">
 						<component :is="feature.icon" class="w-6 h-6 text-[#B0ADFF]" />
 					</div>

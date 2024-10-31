@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { getStreamers } from './streamers-data.js'
 import StreamersList from './streamers-list.vue'
-import { getStreamers } from './streamers.js'
 
 const streamers = await getStreamers()
 </script>

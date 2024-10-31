@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { integrations } from './integrations.js'
+import { integrationsData } from './integrations-data.js'
 </script>
 
 <template>
@@ -21,7 +21,7 @@ import { integrations } from './integrations.js'
 				</div>
 				<div class="flex flex-wrap justify-center mt-[64px] gap-[24px]" role="list">
 					<a
-						v-for="integration of integrations"
+						v-for="integration of integrationsData"
 						:key="integration.href"
 						:href="integration.href"
 						target="_blank"

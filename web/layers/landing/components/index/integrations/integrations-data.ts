@@ -20,7 +20,7 @@ interface Integration {
 	width?: string
 }
 
-export const integrations: Integration[] = [
+export const integrationsData: Integration[] = [
 
 	{
 		icon: Twitch,
