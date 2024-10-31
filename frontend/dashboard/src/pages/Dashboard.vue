@@ -10,6 +10,7 @@ import Chat from '@/components/dashboard/chat.vue'
 import Events from '@/components/dashboard/events.vue'
 import Stream from '@/components/dashboard/stream.vue'
 import { useWidgets } from '@/components/dashboard/widgets.js'
+import Stats from '@/layout/stats/stats.vue'
 
 const widgets = useWidgets()
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible))
@@ -54,6 +55,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+	<Stats />
 	<BotStatus />
 	<div class="w-full h-full pl-1">
 		<GridLayout

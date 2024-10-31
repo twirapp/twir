@@ -1,28 +1,37 @@
 <script setup lang="ts">
-import { breakpointsTailwind, useBreakpoints } from '@vueuse/core'
+import { Menu } from 'lucide-vue-next'
 
-import HeaderDesktop from './header-desktop.vue'
-import HeaderMobile from './header-mobile.vue'
+import { useSidebar } from '@/components/ui/sidebar'
+import { useIsMobile } from '@/composables/use-is-mobile'
+import DiscordButton from '@/layout/buttons/button-discord.vue'
+import GithubButton from '@/layout/buttons/button-github.vue'
+import ButtonToggleTheme from '@/layout/buttons/button-toggle-theme.vue'
+import DropdownLanguage from '@/layout/dropdowns/dropdown-language.vue'
+import NotificationsButton from '@/layout/notifications/notifications-button.vue'
 
-import TwirLogo from '@/components/twir-logo.vue'
+const { isMobile } = useIsMobile()
 
-const breakPoints = useBreakpoints(breakpointsTailwind)
-const isDesktopWindow = breakPoints.greaterOrEqual('md')
+const sidebar = useSidebar()
+const openSidebar = () => sidebar.setOpenMobile(true)
 </script>
 
 <template>
-	<div class="header">
-		<div class="content">
-			<a href="/" class="logo">
-				<TwirLogo style="width: 36px; height: 36px; display: flex" />
-			</a>
+	<div class="w-full bg-sidebar h-[45px] border-b border-b-border">
+		<div class="flex h-full items-center px-3.5 py-2 justify-end gap-3">
+			<div class="flex gap-3">
+				<div class="flex gap-2 items-center">
+					<DiscordButton />
+					<GithubButton />
+					<NotificationsButton />
+					<DropdownLanguage />
+					<ButtonToggleTheme />
+				</div>
+			</div>
 
-			<template v-if="isDesktopWindow">
-				<HeaderDesktop />
-			</template>
-
-			<template v-if="!isDesktopWindow">
-				<HeaderMobile />
+			<template v-if="isMobile">
+				<Button @click="openSidebar">
+					<Menu />
+				</Button>
 			</template>
 		</div>
 	</div>
@@ -30,24 +39,16 @@ const isDesktopWindow = breakPoints.greaterOrEqual('md')
 
 <style scoped>
 .header {
-	height: 100%;
 	padding-top: 10px;
 	padding-left: 10px;
 	padding-right: 10px;
 }
 
-.content .logo {
+.content {
 	display: flex;
 	align-items: center;
 	text-decoration: none;
 	padding-right: 14px;
-}
-
-.content > div {
-	display: flex;
-	justify-content: flex-start;
-	gap: 5px;
-	height: 45px;
 }
 
 .content {

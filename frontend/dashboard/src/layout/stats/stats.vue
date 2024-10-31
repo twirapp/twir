@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n'
 import StreamInfoEditor from '../stream-info-editor.vue'
 
 import { useRealtimeDashboardStats } from '@/api'
+import { Separator } from '@/components/ui/separator'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
 
@@ -62,7 +63,7 @@ function openInfoEditor() {
 			<NSkeleton width="100%" height="45px" :sharp="false" style="border-radius: 10px" />
 		</div>
 
-		<div v-else class="flex gap-3 w-full px-4">
+		<div v-else class="flex bg-card gap-3 py-2 px-2 flex-wrap w-full border-b border-b-border justify-center">
 			<div class="item flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="stats-item pr-2.5">
 					<NText>
@@ -75,7 +76,7 @@ function openInfoEditor() {
 				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -86,7 +87,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -97,7 +98,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -109,7 +110,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -120,7 +121,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -131,7 +132,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -142,7 +143,7 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<div class="divider" />
+			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -152,6 +153,8 @@ function openInfoEditor() {
 					{{ stats?.requestedSongs }}
 				</NText>
 			</div>
+
+			<Separator orientation="vertical" class="mx-2" />
 		</div>
 	</Transition>
 </template>
@@ -166,11 +169,6 @@ function openInfoEditor() {
 .v-leave-to {
 	opacity: 0;
 }
-
-.item {
-	@apply min-w-max;
-}
-
 .divider {
 	@apply my-2 border-l-[color:var(--n-border-color)] border-l border-solid;
 }

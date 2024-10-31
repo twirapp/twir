@@ -10,6 +10,10 @@ import Card from '@/components/dashboard/card.vue'
 import { Badge } from '@/components/ui/badge'
 import { AuditOperationType } from '@/gql/graphql'
 
+const props = defineProps<{
+	popup?: boolean
+}>()
+
 const { logs } = useAuditLogs()
 
 const { t } = useI18n()

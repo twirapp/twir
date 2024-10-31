@@ -556,7 +556,7 @@ importers:
     dependencies:
       '@bufbuild/protoc-gen-es':
         specifier: 1.8.0
-        version: 1.8.0(@bufbuild/protobuf@2.2.1)
+        version: 1.8.0(@bufbuild/protobuf@1.8.0)
       '@protobuf-ts/plugin':
         specifier: 2.9.4
         version: 2.9.4
@@ -1280,9 +1280,6 @@ packages:
 
   '@bufbuild/protobuf@1.8.0':
     resolution: {integrity: sha512-qR9FwI8QKIveDnUYutvfzbC21UZJJryYrLuZGjeZ/VGz+vXelUkK+xgkOHsvPEdYEdxtgUUq4313N8QtOehJ1Q==}
-
-  '@bufbuild/protobuf@2.2.1':
-    resolution: {integrity: sha512-gdWzq7eX017a1kZCU/bP/sbk4e0GZ6idjsXOcMrQwODCb/rx985fHJJ8+hCu79KpuG7PfZh7bo3BBjPH37JuZw==}
 
   '@bufbuild/protoc-gen-es@1.8.0':
     resolution: {integrity: sha512-jnvBKwHq3o/iOgfKxaxn5Za7ay4oAs8KWgoHiDc9Fsb0g+/d1z+mHlHvmevOiCPcVZsnH6V3LImOJvGStPONpA==}
@@ -9600,14 +9597,11 @@ snapshots:
 
   '@bufbuild/protobuf@1.8.0': {}
 
-  '@bufbuild/protobuf@2.2.1':
-    optional: true
-
-  '@bufbuild/protoc-gen-es@1.8.0(@bufbuild/protobuf@2.2.1)':
+  '@bufbuild/protoc-gen-es@1.8.0(@bufbuild/protobuf@1.8.0)':
     dependencies:
       '@bufbuild/protoplugin': 1.8.0
     optionalDependencies:
-      '@bufbuild/protobuf': 2.2.1
+      '@bufbuild/protobuf': 1.8.0
     transitivePeerDependencies:
       - supports-color
 
@@ -12436,7 +12430,7 @@ snapshots:
 
   '@vue/compiler-core@3.5.12':
     dependencies:
-      '@babel/parser': 7.25.7
+      '@babel/parser': 7.26.2
       '@vue/shared': 3.5.12
       entities: 4.5.0
       estree-walker: 2.0.2
@@ -13764,7 +13758,7 @@ snapshots:
       '@babel/core': 7.25.7
       '@babel/preset-typescript': 7.26.0(@babel/core@7.25.7)
       '@vue/compiler-dom': 3.5.12
-      '@vue/compiler-sfc': 3.5.11
+      '@vue/compiler-sfc': 3.5.12
       '@vuedx/template-ast-types': 0.7.1
       fast-glob: 3.3.2
       prettier: 2.8.8
@@ -13777,7 +13771,7 @@ snapshots:
       '@babel/core': 7.25.7
       '@babel/preset-typescript': 7.26.0(@babel/core@7.25.7)
       '@vue/compiler-dom': 3.5.12
-      '@vue/compiler-sfc': 3.5.11
+      '@vue/compiler-sfc': 3.5.12
       '@vuedx/template-ast-types': 0.7.1
       fast-glob: 3.3.2
       prettier: 3.3.3
