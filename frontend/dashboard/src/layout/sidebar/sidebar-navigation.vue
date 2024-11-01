@@ -185,7 +185,7 @@ const links = computed(() => {
 				>
 					<SidebarMenuItem>
 						<CollapsibleTrigger as-child>
-							<SidebarMenuButton tooltip="item.title" :variant="currentRoute.path.startsWith(item.path) ? 'active' : 'default'">
+							<SidebarMenuButton :tooltip="item.name" :variant="currentRoute.path.startsWith(item.path) ? 'active' : 'default'">
 								<component :is="item.icon" />
 								<span>{{ item.name }}</span>
 								<ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />

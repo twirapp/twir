@@ -69,14 +69,15 @@ const { open: sidebarOpen } = useSidebar()
 					<SidebarMenuButton
 						v-if="currentDashboard"
 						size="lg"
-						class="flex items-center justify-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						class="flex items-center  data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
-						<Avatar :class="{ 'size-6': !sidebarOpen, 'size-8': sidebarOpen }">
-							<AvatarImage :src="currentDashboard.twitchProfile.profileImageUrl" :alt="currentDashboard.twitchProfile.displayName" />
-							<AvatarFallback>
-								{{ currentDashboard.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
-							</AvatarFallback>
-						</Avatar>
+						<img :src="currentDashboard.twitchProfile.profileImageUrl" class="size-6" />
+						<!--						<Avatar> -->
+						<!--							<AvatarImage :src="currentDashboard.twitchProfile.profileImageUrl" :alt="currentDashboard.twitchProfile.displayName" /> -->
+						<!--							<AvatarFallback> -->
+						<!--								{{ currentDashboard.twitchProfile.displayName.slice(0, 2).toUpperCase() }} -->
+						<!--							</AvatarFallback> -->
+						<!--						</Avatar> -->
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{{ currentDashboard.twitchProfile.displayName }}</span>
 							<span class="truncate text-xs">{{ t(`dashboard.header.managingUser`) }}</span>
@@ -98,7 +99,6 @@ const { open: sidebarOpen } = useSidebar()
 										if (typeof ev.detail.value === 'string') {
 											selectDashboard(ev.detail.value)
 										}
-
 									}"
 								>
 									<div class="flex items-center gap-2">
@@ -126,7 +126,7 @@ const { open: sidebarOpen } = useSidebar()
 			</Popover>
 		</SidebarMenuItem>
 		<SidebarMenuItem v-if="publicPageHref">
-			<SidebarMenuButton as-child>
+			<SidebarMenuButton as-child :tooltip="t('navbar.publicPage')">
 				<a :href="publicPageHref" target="_blank">
 					<Globe class="mr-0.5" />
 					{{ t('navbar.publicPage') }}
