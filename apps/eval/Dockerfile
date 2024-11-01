@@ -1,6 +1,6 @@
 FROM node:20-alpine as builder
 WORKDIR /app
-RUN npm i -g pnpm@8
+RUN npm i -g pnpm@9
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/eval /app/apps/eval

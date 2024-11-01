@@ -38,7 +38,7 @@
     "@nuxtjs/color-mode": "3.5.1",
     "@nuxtjs/tailwindcss": "6.12.1",
     "@tailwindcss/forms": "0.5.9",
-    "@vueuse/core": "10.9.0",
+    "@vueuse/core": "catalog:",
     "@vueuse/nuxt": "11.1.0",
     "tailwindcss": "3.4.13",
     "tailwindcss-animate": "1.0.7",
