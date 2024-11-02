@@ -45,7 +45,7 @@ router.isReady().finally(() => isRouterReady.value = true)
 										padding: route.meta?.noPadding ? undefined : '24px',
 										height: '100%',
 									}"
-									class="bg-[#101014]"
+									class="dark:bg-[#101014]"
 								>
 									<component :is="Component" />
 								</div>

@@ -60,7 +60,7 @@ const logout = useLogout()
 			<DropdownMenuGroup>
 				<DropdownMenuItem as-child>
 					<RouterLink to="/dashboard/settings" class="flex items-center">
-						<Settings class="mr-2" />
+						<Settings class="mr-2 size-4" />
 						Settings
 					</RouterLink>
 				</DropdownMenuItem>
@@ -70,15 +70,15 @@ const logout = useLogout()
 				<DropdownMenuGroup>
 					<DropdownMenuItem>
 						<RouterLink to="/dashboard/admin" class="flex items-center">
-							<Shield class="mr-2" />
+							<Shield class="mr-2 size-4" />
 							Admin panel
 						</RouterLink>
 					</DropdownMenuItem>
 				</DropdownMenuGroup>
 				<DropdownMenuSeparator />
 			</template>
-			<DropdownMenuItem @click="logout">
-				<LogOut class="mr-2" />
+			<DropdownMenuItem @click="() => logout">
+				<LogOut class="mr-2 size-4" />
 				{{ t('navbar.logout') }}
 			</DropdownMenuItem>
 		</DropdownMenuContent>
