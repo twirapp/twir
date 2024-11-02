@@ -70,6 +70,8 @@ services:
       - twir_postgres_db
     networks:
       - twir
+    ports:
+      - "127.0.0.1:5432:5432"
     deploy:
       restart_policy:
         condition: any
