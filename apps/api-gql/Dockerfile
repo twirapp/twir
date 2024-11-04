@@ -10,5 +10,5 @@ RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM go_prod_base
-COPY apps/api-gql/.out/twir-api-gql /bin/twir_application
-CMD ["/bin/twir_application"]
+COPY apps/api-gql/.out/twir-api-gql /bin/twir-api-gql
+CMD ["/bin/twir-api-gql"]

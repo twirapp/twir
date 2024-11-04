@@ -10,5 +10,5 @@ RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM go_prod_base
-COPY apps/emotes-cacher/.out/twir-emotes-cacher /bin/twir_application
-CMD ["/bin/twir_application"]
+COPY apps/emotes-cacher/.out/twir-emotes-cacher /bin/twir-emotes-cacher
+CMD ["/bin/twir-emotes-cacher"]
