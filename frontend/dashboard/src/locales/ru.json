@@ -81,13 +81,15 @@
     "games": "Игры",
     "users": "Зрители",
     "moderation": "Модерация",
+    "publicPage": "Public Page",
     "import": "Импортировать",
-    "community": "Community"
-  },
-  "navbar": {
-    "logout": "Выйти",
-    "publicPage": "Публичная страница",
-    "seeAll": "Показать все"
+    "community": "Community",
+    "logout": "Logout",
+    "loggedAs": "Logged as",
+    "lang": "Language",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "notifications": "Notifications"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
@@ -865,7 +867,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
+      "title": "Emotes Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
