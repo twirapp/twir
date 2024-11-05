@@ -81,13 +81,15 @@
     "games": "Ігри",
     "users": "Глядачі",
     "moderation": "Модерація",
+    "publicPage": "Public Page",
     "import": "Імпортувати",
-    "community": "Community"
-  },
-  "navbar": {
-    "logout": "Вийти",
-    "publicPage": "Публічна сторінка",
-    "seeAll": "Показати всі"
+    "community": "Community",
+    "logout": "Logout",
+    "loggedAs": "Logged as",
+    "lang": "Language",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "notifications": "Notifications"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -865,7 +867,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
+      "title": "Emotes Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
