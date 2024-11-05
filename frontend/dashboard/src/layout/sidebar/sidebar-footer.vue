@@ -41,7 +41,7 @@ const { notificationsCounter } = useNotifications()
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 
-			<SidebarMenuItem>
+			<div class="flex flex-row group-data-[collapsible=icon]:flex-col w-full">
 				<SidebarMenuButton as-child tooltip="Discord">
 					<a :href="DISCORD_INVITE_URL" target="_blank">
 						<DiscordLogo />
@@ -49,9 +49,7 @@ const { notificationsCounter } = useNotifications()
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>
-			</SidebarMenuItem>
 
-			<SidebarMenuItem>
 				<SidebarMenuButton as-child tooltip="GitHub">
 					<a :href="GITHUB_REPOSITORY_URL" target="_blank">
 						<GithubLogo />
@@ -59,7 +57,7 @@ const { notificationsCounter } = useNotifications()
 						<ExternalLink class="ml-auto" />
 					</a>
 				</SidebarMenuButton>
-			</SidebarMenuItem>
+			</div>
 
 			<SidebarMenuItem v-if="publicPageHref">
 				<SidebarMenuButton as-child :tooltip="t('sidebar.publicPage')">
