@@ -141,8 +141,10 @@ export const useNotificationsTable = createGlobalState(() => {
 	async function onEditNotification(notification: Notifications[0]) {
 		let isConfirmed = true
 
-		if (form.formValues.value.editorJsJson || form.isEditableForm) {
+		if (form.isEditableForm.value) {
 			// TODO: use confirm dialog from shadcn
+
+			console.log(form.formValues.value.editorJsJson, form.isEditableForm)
 			// eslint-disable-next-line no-alert
 			isConfirmed = confirm(t('adminPanel.notifications.confirmResetForm'))
 		}

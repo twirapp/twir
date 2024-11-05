@@ -38,7 +38,10 @@ const notificationsForm = useNotificationsForm()
 						{{ t('adminPanel.notifications.messageLabel') }}
 					</Label>
 
-					<EditorJS v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value" />
+					<EditorJS
+						v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value"
+						@update:model-value="(v: string) => notificationsForm.editorJsJsonField.fieldModel.value = v"
+					/>
 				</div>
 
 				<template v-if="notificationsForm.editorJsJsonField.fieldModel.value">
