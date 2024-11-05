@@ -104,6 +104,10 @@ export async function addIntegration(integration) {
 		break
 	}
 
+	if (!profileData) {
+		return
+	}
+
 	const { id, socket_connection_token } = profileData
 	const instance = new DonationAlerts(
 		accessToken,
