@@ -71,10 +71,6 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 	}
 })
 
-function repeat<T>(array: T[], times: number) {
-	return Array.from({ length: times }, () => array).flat()
-}
-
 const options = computed(() => {
 	return profile.value?.availableDashboards ?? []
 })
