@@ -81,13 +81,15 @@
     "games": "Hry",
     "users": "Užívatelia",
     "moderation": "Moderovanie",
+    "publicPage": "Public Page",
     "import": "Importovať",
-    "community": "Komunita"
-  },
-  "navbar": {
-    "logout": "Odhlásiť sa",
-    "publicPage": "Verejná stránka",
-    "seeAll": "Zobraziť všetko"
+    "community": "Komunita",
+    "logout": "Logout",
+    "loggedAs": "Logged as",
+    "lang": "Language",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "notifications": "Notifications"
   },
   "deleteConfirmation": {
     "text": "Ste si istí, že to chcete odstrániť?",
@@ -865,7 +867,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Štatistiky emotov",
+      "title": "Emotes Statistics",
       "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
         "emote": "Emot",
