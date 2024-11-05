@@ -132,6 +132,11 @@ func CreateDevCommand() *cli.Command {
 				return err
 			}
 
+			if err := nodejsApps.Start(); err != nil {
+				pterm.Error.Println(err)
+				return err
+			}
+
 			exitSignal := make(chan os.Signal, 1)
 			signal.Notify(exitSignal, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 

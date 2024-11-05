@@ -16,7 +16,7 @@ func (c *Integrations) IntegrationsDonatepayGet(
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
-		model.IntegrationServiceDonateStream,
+		model.IntegrationServiceDonatePay,
 		dashboardId,
 	)
 	if err != nil {
@@ -35,7 +35,7 @@ func (c *Integrations) IntegrationsDonatepayPut(
 	dashboardId := ctx.Value("dashboardId").(string)
 	integration, err := c.getChannelIntegrationByService(
 		ctx,
-		model.IntegrationServiceDonateStream,
+		model.IntegrationServiceDonatePay,
 		dashboardId,
 	)
 	if err != nil {

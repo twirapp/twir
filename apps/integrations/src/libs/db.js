@@ -1,21 +1,21 @@
-import { config } from '@twir/config';
-import Knex from 'knex';
+import { config } from '@twir/config'
+import Knex from 'knex'
 
 export const db = Knex({
 	client: 'pg',
 	connection: config.DATABASE_URL,
-});
+})
 
 export const Services = Object.freeze({
 	DONATIONALERTS: 'DONATIONALERTS',
 	STREAMLABS: 'STREAMLABS',
 	DONATEPAY: 'DONATEPAY',
-});
+})
 
 /**
-	* @param {string} [integrationId]
-	* @returns {Promise<Integration | Integration[]>}
-*/
+ * @param {string} [integrationId]
+ * @returns {Promise<Integration | Integration[]>}
+ */
 export async function getIntegrations(integrationId) {
 	let query = db
 		.from('channels_integrations')
@@ -31,11 +31,13 @@ export async function getIntegrations(integrationId) {
 		.andWhere('channel.isEnabled', true)
 		.leftJoin('integrations as integration', 'integration.id', '=', 'channels_integrations.integrationId')
 		.leftJoin('channels as channel', 'channel.id', '=', 'channels_integrations.channelId')
-		.groupBy(['channels_integrations.id', 'integration.id', 'channel.id']);
+		.groupBy(['channels_integrations.id', 'integration.id', 'channel.id'])
 
 	if (integrationId) {
-		query = query.andWhere('channels_integrations.id', integrationId).first();
+		query = query.andWhere('channels_integrations.id', integrationId).first()
 	}
 
-	return query;
+	console.log(query.clone().toQuery())
+
+	return query
 }
