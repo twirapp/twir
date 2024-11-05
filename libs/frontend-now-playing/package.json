@@ -13,12 +13,9 @@
     "@twir/fontsource": "workspace:*",
     "@twir/types": "workspace:*",
     "@vueuse/core": "10.9.0",
-    "vue": "3.4.21"
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "vue-tsc": "2.0.13"
-  },
-  "peerDependencies": {
-    "vue": "3.3.12"
+    "vue-tsc": "catalog:"
   }
 }

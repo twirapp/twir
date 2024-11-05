@@ -22,6 +22,11 @@ export function newRouter() {
 					component: () => import('../components/dashboard/events.vue'),
 					props: { popup: true },
 				},
+				{
+					path: '/dashboard/popup/widgets/audit-log',
+					component: () => import('../components/dashboard/audit-logs.vue'),
+					props: { popup: true },
+				},
 			],
 		},
 		{
@@ -184,6 +189,12 @@ export function newRouter() {
 					name: 'Import',
 					path: '/dashboard/import',
 					component: () => import('../pages/Import.vue'),
+				},
+				{
+					name: 'Notifications',
+					path: '/dashboard/notifications',
+					component: () => import('../pages/notifications.vue'),
+					meta: { noPadding: true },
 				},
 				{
 					name: 'Forbidden',

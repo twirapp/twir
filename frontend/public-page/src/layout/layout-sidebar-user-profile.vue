@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { IconLogout } from '@tabler/icons-vue';
+import { IconLogout } from '@tabler/icons-vue'
 
-import { useLoginLink, useLogout, useUserProfile } from '@/api/use-user-profile';
-import TwitchIcon from '@/assets/icons/socials/twitch.svg?use';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useLoginLink, useLogout, useUserProfile } from '@/api/use-user-profile'
+import TwitchIcon from '@/assets/icons/socials/twitch.svg?use'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-const { data, fetching: isFetchingProfile, error: isProfileError } = useUserProfile();
-const logout = useLogout();
+const { data, fetching: isFetchingProfile, error: isProfileError } = useUserProfile()
+const logout = useLogout()
 
-const { data: loginLink, error: isLoginLinkError } = useLoginLink(window.location.href);
+const { data: loginLink, error: isLoginLinkError } = useLoginLink(window.location.href)
 </script>
 
 <template>
@@ -37,7 +37,7 @@ const { data: loginLink, error: isLoginLinkError } = useLoginLink(window.locatio
 						</small>
 					</div>
 				</div>
-				<IconLogout class="cursor-pointer" @click="logout.executeMutation" />
+				<IconLogout class="cursor-pointer" @click="() => logout.executeMutation({})" />
 			</div>
 			<div v-else>
 				<Button

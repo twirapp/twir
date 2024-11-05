@@ -1,14 +1,20 @@
 <script setup lang="ts">
+import { IconExternalLink } from '@tabler/icons-vue'
 import { UseTimeAgo } from '@vueuse/components'
-import { NScrollbar } from 'naive-ui'
+import { NButton, NScrollbar, NTooltip } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 import type { BadgeVariants } from '@/components/ui/badge'
 
+import { useProfile } from '@/api'
 import { mapOperationTypeToTranslate, mapSystemToTranslate, useAuditLogs } from '@/api/audit-logs'
 import Card from '@/components/dashboard/card.vue'
 import { Badge } from '@/components/ui/badge'
 import { AuditOperationType } from '@/gql/graphql'
+
+const props = defineProps<{
+	popup?: boolean
+}>()
 
 const { logs } = useAuditLogs()
 
@@ -35,10 +41,39 @@ function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVaria
 			return 'default'
 	}
 }
+
+const { data: profile } = useProfile()
+
+function openPopup() {
+	if (!profile.value) return
+
+	const height = 800
+	const width = 500
+	const top = Math.max(0, (screen.height - height) / 2)
+	const left = Math.max(0, (screen.width - width) / 2)
+
+	window.open(
+		`${window.location.origin}/dashboard/popup/widgets/audit-log?apiKey=${profile.value.apiKey}`,
+		'_blank',
+		`height=${height},width=${width},top=${top},left=${left},status=0,location=0,menubar=0,toolbar=0`,
+	)
+}
 </script>
 
 <template>
-	<Card :content-style="{ padding: '0px', height: '80%' }">
+	<Card :content-style="{ padding: '0px', height: '80%' }" :popup="props.popup">
+		<template #header-extra>
+			<NTooltip trigger="hover" placement="bottom">
+				<template #trigger>
+					<NButton size="small" text @click="openPopup">
+						<IconExternalLink />
+					</NButton>
+				</template>
+
+				{{ t('sharedButtons.popout') }}
+			</NTooltip>
+		</template>
+
 		<NScrollbar trigger="none">
 			<TransitionGroup name="list">
 				<div v-for="log of logs" :key="log.id" class="flex flex-col md:flex-row md:justify-between p-2 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid">

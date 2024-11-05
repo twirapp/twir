@@ -35,6 +35,7 @@ export default defineNuxtConfig({
 
 	experimental: {
 		inlineRouteRules: true,
+		typedPages: true,
 	},
 
 	vite: {
