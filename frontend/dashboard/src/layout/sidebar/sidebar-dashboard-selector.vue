@@ -111,9 +111,9 @@ const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(o
 							No user found
 						</CommandEmpty>
 						<CommandList>
-							<div v-bind="containerProps" class="min-h-72 max-h-72">
-								<div v-bind="wrapperProps">
-									<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
+							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
+								<div v-bind="containerProps" class="max-h-72">
+									<div v-bind="wrapperProps">
 										<CommandItem
 											v-for="option in virtualizedList"
 											:key="option.index"
@@ -143,9 +143,9 @@ const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(o
 												)"
 											/>
 										</CommandItem>
-									</CommandGroup>
+									</div>
 								</div>
-							</div>
+							</CommandGroup>
 						</CommandList>
 					</Command>
 				</PopoverContent>
