@@ -10,7 +10,7 @@ const { isMobile } = useSidebar()
 		<div v-if="!isMobile" class="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
 			<a href="/" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
 				<TwirLogo class="size-8" />
-				<h1 class="text-2xl font-semibold text-white group-data-[collapsible=icon]:hidden">
+				<h1 class="text-2xl font-semibold text-white group-data-[collapsible=icon]:hidden text-accent-foreground">
 					Twir
 				</h1>
 			</a>
