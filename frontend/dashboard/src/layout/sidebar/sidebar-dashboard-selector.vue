@@ -50,8 +50,12 @@ function selectDashboard(id: string) {
 	open.value = false
 }
 
+const search = ref('')
+
 function filterFunction(_items: any, searchTerm: string): string[] {
 	if (!profile.value?.availableDashboards) return []
+
+	search.value = searchTerm
 
 	return profile.value.availableDashboards
 		.filter((item) => {
@@ -72,7 +76,9 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 })
 
 const options = computed(() => {
-	return profile.value?.availableDashboards ?? []
+	return profile.value?.availableDashboards.filter((item) => {
+		return item.twitchProfile.login.toLowerCase().includes(search.value.toLowerCase())
+	}) ?? []
 })
 
 const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(options, {
@@ -106,7 +112,7 @@ const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(o
 						<CommandEmpty>
 							No user found
 						</CommandEmpty>
-						<CommandList>
+						<CommandList class="!max-h-full">
 							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
 								<div v-bind="containerProps" class="max-h-72">
 									<div v-bind="wrapperProps">
