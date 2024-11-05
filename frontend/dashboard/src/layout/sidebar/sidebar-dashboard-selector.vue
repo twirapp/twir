@@ -82,7 +82,7 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 						class="flex justify-start items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
 						<div class="flex aspect-square size-8 items-center justify-center">
-							<img :src="currentDashboard.twitchProfile.profileImageUrl" />
+							<img :src="currentDashboard.twitchProfile.profileImageUrl" class="rounded-full" />
 						</div>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{{ currentDashboard.twitchProfile.displayName }}</span>

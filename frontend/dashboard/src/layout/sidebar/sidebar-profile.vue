@@ -64,7 +64,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 				size="lg"
 				class="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 			>
-				<Avatar class="size-8 rounded-lg">
+				<Avatar class="size-8 rounded-full">
 					<AvatarImage :src="profileData.avatar" :alt="profileData.login" />
 					<AvatarFallback class="rounded-lg">
 						{{ profileData.login.slice(0, 2).toUpperCase() }}
