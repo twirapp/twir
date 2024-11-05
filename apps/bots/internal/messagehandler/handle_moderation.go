@@ -21,9 +21,9 @@ import (
 )
 
 type moderationHandleResult struct {
-	IsDelete bool
-	Time     int
-	Message  string
+	IsWarn  bool
+	Time    int
+	Message string
 }
 
 var messagesTimeouterStore = utils.NewTtlSyncMap[struct{}](10 * time.Second)
@@ -65,22 +65,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			continue
 		}
 
-		if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
-			opts := twitchactions.SendMessageOpts{
-				Message:       entity.BanMessage,
-				SenderID:      msg.DbChannel.BotID,
-				BroadcasterID: msg.BroadcasterUserId,
-			}
-			if res.IsDelete {
-				opts.Message = entity.WarningMessage
-			}
-			if opts.Message != "" {
-				c.twitchActions.SendMessage(ctx, opts)
-			}
-			messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
-		}
-
-		if res.IsDelete {
+		if res.IsWarn {
 			err := c.twitchActions.DeleteMessage(
 				ctx,
 				twitchactions.DeleteMessageOpts{
@@ -92,6 +77,23 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			if err != nil {
 				c.logger.Error(
 					"cannot delete message",
+					slog.String("userId", msg.ChatterUserId),
+					slog.String("channelId", msg.BroadcasterUserId),
+					slog.Any("err", err),
+				)
+			}
+
+			err = c.twitchActions.WarnUser(
+				ctx, twitchactions.WarnUserOpts{
+					BroadcasterID: msg.BroadcasterUserId,
+					ModeratorID:   msg.DbChannel.BotID,
+					UserID:        msg.ChatterUserId,
+					Reason:        entity.WarningMessage,
+				},
+			)
+			if err != nil {
+				c.logger.Error(
+					"cannot warn user",
 					slog.String("userId", msg.ChatterUserId),
 					slog.String("channelId", msg.BroadcasterUserId),
 					slog.Any("err", err),
@@ -117,6 +119,21 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 		}
+
+		// maybe back it if user asked for chat message
+		// if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
+		// 	opts := twitchactions.SendMessageOpts{
+		// 		Message:       entity.BanMessage,
+		// 		SenderID:      msg.DbChannel.BotID,
+		// 		BroadcasterID: msg.BroadcasterUserId,
+		// 	}
+		//
+		// 	if opts.Message != "" {
+		// 		c.twitchActions.SendMessage(ctx, opts)
+		// 	}
+		//
+		// 	messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
+		// }
 
 		return nil
 	}
@@ -237,8 +254,8 @@ func (c *MessageHandler) moderationHandleResult(
 		)
 
 		return &moderationHandleResult{
-			IsDelete: true,
-			Message:  settings.WarningMessage,
+			IsWarn:  true,
+			Message: settings.WarningMessage,
 		}
 	} else {
 		duration := time.Duration(settings.BanTime) * time.Second
@@ -248,9 +265,9 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 
 		return &moderationHandleResult{
-			IsDelete: false,
-			Time:     int(duration.Seconds()),
-			Message:  settings.BanMessage,
+			IsWarn:  false,
+			Time:    int(duration.Seconds()),
+			Message: settings.BanMessage,
 		}
 	}
 }

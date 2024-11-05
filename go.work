@@ -24,7 +24,6 @@ use (
 	./libs/crypto
 	./libs/gomodels
 	./libs/grpc
-	./libs/helix
 	./libs/integrations
 	./libs/logger
 	./libs/migrations
