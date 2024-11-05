@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
 		<div
 			v-if="dropdownOptions.length"
 			class="fixed bottom-2 right-2"
-			:class="[{ 'right-14': isMobile }]"
+			:class="[{ '!right-14': isMobile }]"
 		>
 			<NDropdown
 				size="huge"
