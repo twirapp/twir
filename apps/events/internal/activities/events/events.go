@@ -19,7 +19,7 @@ type Opts struct {
 	Cfg            config.Config
 	TokensGrpc     tokens.TokensClient
 	WebsocketsGrpc websockets.WebsocketClient
-	Hydrator       *hydrator.Hydrador
+	Hydrator       *hydrator.Hydrator
 	Bus            *bus_core.Bus
 }
 
@@ -41,6 +41,6 @@ type Activity struct {
 	cfg            config.Config
 	tokensGrpc     tokens.TokensClient
 	websocketsGrpc websockets.WebsocketClient
-	hydrator       *hydrator.Hydrador
+	hydrator       *hydrator.Hydrator
 	bus            *bus_core.Bus
 }
