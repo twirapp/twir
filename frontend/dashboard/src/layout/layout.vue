@@ -10,10 +10,11 @@ import {
 import { computed, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 
+import SidebarFloatingButton from './sidebar/sidebar-floating-button.vue'
+
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
 import { useTheme } from '@/composables/use-theme.js'
-import Header from '@/layout/header'
 import Sidebar from '@/layout/sidebar/sidebar.vue'
 
 const { theme } = useTheme()
@@ -35,8 +36,7 @@ router.isReady().finally(() => isRouterReady.value = true)
 			<NMessageProvider :duration="2500" :closable="true">
 				<NDialogProvider>
 					<Sidebar>
-						<Header />
-
+						<SidebarFloatingButton />
 						<RouterView v-slot="{ Component, route }">
 							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
 								<div

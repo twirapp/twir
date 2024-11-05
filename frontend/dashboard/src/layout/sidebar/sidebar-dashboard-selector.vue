@@ -1,9 +1,11 @@
 <script lang="ts" setup>
-import { Check, ChevronsUpDown, Globe } from 'lucide-vue-next'
+import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { resolveUserName } from '../../helpers'
+
+import type { PopoverContentProps } from 'radix-vue'
 
 import { useDashboard, useProfile } from '@/api'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -26,11 +28,10 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from '@/components/ui/sidebar'
-import { usePublicPageHref } from '@/layout/use-public-page-href'
 import { cn } from '@/lib/utils'
 
 const { t } = useI18n()
-const publicPageHref = usePublicPageHref()
+const { open: sidebarOpen } = useSidebar()
 const { data: profile } = useProfile()
 const { setDashboard } = useDashboard()
 
@@ -58,26 +59,31 @@ function filterFunction(_items: any, searchTerm: string): string[] {
 		.map(item => item.id)
 }
 
-const { open: sidebarOpen } = useSidebar()
+const popoverProps = computed((): PopoverContentProps & { class?: string } => {
+	if (sidebarOpen.value) return { class: 'w-[--radix-popper-anchor-width]' }
+	return {
+		class: 'w-[300px]',
+		alignOffset: -4,
+		align: 'start',
+		sideOffset: 12,
+		side: 'right',
+	}
+})
 </script>
 
 <template>
-	<SidebarMenu>
+	<SidebarMenu class="p-2">
 		<SidebarMenuItem v-if="profile">
 			<Popover v-model:open="open">
 				<PopoverTrigger as-child>
 					<SidebarMenuButton
 						v-if="currentDashboard"
 						size="lg"
-						class="flex items-center  data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+						class="flex justify-start items-center data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 					>
-						<img :src="currentDashboard.twitchProfile.profileImageUrl" class="size-6" />
-						<!--						<Avatar> -->
-						<!--							<AvatarImage :src="currentDashboard.twitchProfile.profileImageUrl" :alt="currentDashboard.twitchProfile.displayName" /> -->
-						<!--							<AvatarFallback> -->
-						<!--								{{ currentDashboard.twitchProfile.displayName.slice(0, 2).toUpperCase() }} -->
-						<!--							</AvatarFallback> -->
-						<!--						</Avatar> -->
+						<div class="flex aspect-square size-8 items-center justify-center">
+							<img :src="currentDashboard.twitchProfile.profileImageUrl" />
+						</div>
 						<div class="grid flex-1 text-left text-sm leading-tight">
 							<span class="truncate font-semibold">{{ currentDashboard.twitchProfile.displayName }}</span>
 							<span class="truncate text-xs">{{ t(`dashboard.header.managingUser`) }}</span>
@@ -85,7 +91,7 @@ const { open: sidebarOpen } = useSidebar()
 						<ChevronsUpDown class="ml-auto" />
 					</SidebarMenuButton>
 				</PopoverTrigger>
-				<PopoverContent class="w-full p-0">
+				<PopoverContent class="p-0" v-bind="popoverProps">
 					<Command :filter-function="filterFunction">
 						<CommandInput class="h-9" placeholder="Search user" />
 						<CommandEmpty>No user found</CommandEmpty>
@@ -124,14 +130,6 @@ const { open: sidebarOpen } = useSidebar()
 					</Command>
 				</PopoverContent>
 			</Popover>
-		</SidebarMenuItem>
-		<SidebarMenuItem v-if="publicPageHref">
-			<SidebarMenuButton as-child :tooltip="t('navbar.publicPage')">
-				<a :href="publicPageHref" target="_blank">
-					<Globe class="mr-0.5" />
-					{{ t('navbar.publicPage') }}
-				</a>
-			</SidebarMenuButton>
 		</SidebarMenuItem>
 	</SidebarMenu>
 </template>

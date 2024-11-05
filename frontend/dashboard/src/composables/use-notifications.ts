@@ -21,10 +21,7 @@ export const useNotifications = createGlobalState(() => {
 
 		return {
 			counter: notificationsCounter,
-			onRead: (state: boolean) => {
-				if (state) return
-				notificationsStorage.value = notificationsIds
-			},
+			onRead: () => notificationsStorage.value = notificationsIds,
 		}
 	})
 

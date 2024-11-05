@@ -7,6 +7,7 @@ import {
 	Box,
 	ChevronRight,
 	Dices,
+	Import,
 	LayoutDashboard,
 	MessageCircleHeart,
 	MessageCircleWarning,
@@ -14,7 +15,9 @@ import {
 	PackageCheck,
 	PackagePlus,
 	Shield,
+	Smile,
 	Timer,
+	UserCog,
 	Users,
 	Variable,
 	WholeWord,
@@ -32,11 +35,13 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSub,
 	SidebarMenuSubItem,
+	useSidebar,
 } from '@/components/ui/sidebar'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 
 const { t } = useI18n()
 const currentRoute = useRoute()
+const sidebar = useSidebar()
 
 const canViewIntegrations = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewIntegrations)
 const canViewEvents = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewEvents)
@@ -130,6 +135,23 @@ const links = computed(() => {
 			name: t('sidebar.community'),
 			icon: Users,
 			path: '/dashboard/community',
+			child: [
+				{
+					name: t('community.users.title'),
+					icon: Users,
+					path: '/dashboard/community?tab=users',
+				},
+				{
+					name: t('sidebar.roles'),
+					icon: UserCog,
+					path: '/dashboard/community?tab=permissions',
+				},
+				{
+					name: t('community.emotesStatistic.title'),
+					icon: Smile,
+					path: '/dashboard/community?tab=emotes-stats',
+				},
+			],
 		},
 		{
 			name: t('sidebar.timers'),
@@ -155,12 +177,23 @@ const links = computed(() => {
 			disabled: !canViewGreetings.value,
 			path: '/dashboard/greetings',
 		},
+		{
+			name: t('sidebar.import'),
+			icon: Import,
+			path: '/dashboard/import',
+		},
 	]
 })
+
+function goToRoute() {
+	if (sidebar.isMobile.value) {
+		sidebar.setOpenMobile(false)
+	}
+}
 </script>
 
 <template>
-	<SidebarGroup>
+	<SidebarGroup :class="{ 'max-h-64': sidebar.isMobile.value }">
 		<SidebarMenu>
 			<SidebarMenuItem
 				v-for="item in links"
@@ -171,6 +204,7 @@ const links = computed(() => {
 					as-child
 					:tooltip="item.name"
 					:variant="currentRoute.path === item.path ? 'active' : 'default'"
+					@click="goToRoute"
 				>
 					<RouterLink :to="item.path!">
 						<component :is="item.icon" />
@@ -197,7 +231,7 @@ const links = computed(() => {
 									v-for="child in item.child"
 									:key="child.name"
 								>
-									<SidebarMenuButton as-child>
+									<SidebarMenuButton as-child @click="goToRoute">
 										<RouterLink :to="child.path!">
 											<component :is="child.icon" />
 											<span>{{ child.name }}</span>

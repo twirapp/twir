@@ -94,9 +94,7 @@ export function useLogout() {
 		window.location.replace('/')
 	}
 
-	return {
-		execute,
-	}
+	return execute
 }
 
 export const useUserSettings = createGlobalState(() => {

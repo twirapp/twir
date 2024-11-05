@@ -191,6 +191,12 @@ export function newRouter() {
 					component: () => import('../pages/Import.vue'),
 				},
 				{
+					name: 'Notifications',
+					path: '/dashboard/notifications',
+					component: () => import('../pages/notifications.vue'),
+					meta: { noPadding: true },
+				},
+				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('../pages/NoAccess.vue'),

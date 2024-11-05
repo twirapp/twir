@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from 'grid-layout-plus'
 import { SquarePen } from 'lucide-vue-next'
-import { NButton, NDropdown } from 'naive-ui'
+import { NDropdown } from 'naive-ui'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import AuditLogs from '@/components/dashboard/audit-logs.vue'
@@ -10,8 +10,11 @@ import Chat from '@/components/dashboard/chat.vue'
 import Events from '@/components/dashboard/events.vue'
 import Stream from '@/components/dashboard/stream.vue'
 import { useWidgets } from '@/components/dashboard/widgets.js'
+import { Button } from '@/components/ui/button'
+import { useIsMobile } from '@/composables/use-is-mobile'
 import Stats from '@/layout/stats/stats.vue'
 
+const { isMobile } = useIsMobile()
 const widgets = useWidgets()
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible))
 const dropdownOptions = computed(() => {
@@ -82,11 +85,20 @@ onBeforeUnmount(() => {
 			</GridItem>
 		</GridLayout>
 
-		<div v-if="dropdownOptions.length" class="fixed bottom-2.5 right-2">
-			<NDropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
-				<NButton block circle type="success" style="width: 100%; height: 100%; padding: 8px;">
-					<SquarePen class="size-8" />
-				</NButton>
+		<div
+			v-if="dropdownOptions.length"
+			class="fixed bottom-2 right-2"
+			:class="[{ 'right-14': isMobile }]"
+		>
+			<NDropdown
+				size="huge"
+				trigger="click"
+				:options="dropdownOptions"
+				@select="addWidget"
+			>
+				<Button variant="ghost" size="icon">
+					<SquarePen class="size-6" />
+				</Button>
 			</NDropdown>
 		</div>
 	</div>

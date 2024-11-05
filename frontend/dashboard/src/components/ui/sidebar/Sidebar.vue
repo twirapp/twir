@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { SIDEBAR_WIDTH_MOBILE, useSidebar } from './utils'
+import { useSidebar } from './utils'
+import { Drawer } from '../drawer'
+import DrawerContent from '../drawer/DrawerContent.vue'
 
 import type { HTMLAttributes } from 'vue'
 
-import Sheet from '@/components/ui/sheet/Sheet.vue'
-import SheetContent from '@/components/ui/sheet/SheetContent.vue'
 import { cn } from '@/lib/utils'
 
 defineOptions({
@@ -34,20 +34,18 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 		<slot />
 	</div>
 
-	<Sheet v-else-if="isMobile" :open="openMobile" v-bind="$attrs" @update:open="setOpenMobile">
-		<SheetContent
-			data-sidebar="sidebar"
-			data-mobile="true"
-			class="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
-			:style="{
-				'--sidebar-width': SIDEBAR_WIDTH_MOBILE,
-			}"
-		>
+	<Drawer
+		v-else-if="isMobile"
+		:open="openMobile"
+		v-bind="$attrs"
+		@update:open="setOpenMobile"
+	>
+		<DrawerContent>
 			<div class="flex h-full w-full flex-col">
 				<slot />
 			</div>
-		</SheetContent>
-	</Sheet>
+		</DrawerContent>
+	</Drawer>
 
 	<div
 		v-else class="group peer hidden md:block"

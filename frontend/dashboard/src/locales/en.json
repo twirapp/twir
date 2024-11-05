@@ -81,13 +81,15 @@
     "games": "Games",
     "users": "Users",
     "moderation": "Moderation",
-    "import": "Import from other bots",
-    "community": "Community"
-  },
-  "navbar": {
+    "publicPage": "Public Page",
+    "import": "Import",
+    "community": "Community",
     "logout": "Logout",
-    "publicPage": "Public page",
-    "seeAll": "See all"
+    "loggedAs": "Logged as",
+    "lang": "Language",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "notifications": "Notifications"
   },
   "deleteConfirmation": {
     "text": "Are you sure about deleting this thing?",
@@ -865,7 +867,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
+      "title": "Emotes Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
