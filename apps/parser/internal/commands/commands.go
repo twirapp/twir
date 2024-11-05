@@ -23,6 +23,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
+	"github.com/satont/twir/apps/parser/internal/commands/marker"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/brb"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
@@ -119,6 +120,7 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteDelete,
 			seventv.EmoteAdd,
 			clip.MakeClip,
+			marker.Marker,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
