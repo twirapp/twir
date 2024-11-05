@@ -9,7 +9,7 @@ COPY libs/grpc /app/libs/grpc
 COPY libs/pubsub /app/libs/pubsub
 COPY libs/bus-core /app/libs/bus-core
 
-RUN pnpm prune --prod
+RUN pnpm i
 
 FROM node:20-alpine as node_prod_base
 WORKDIR /app
