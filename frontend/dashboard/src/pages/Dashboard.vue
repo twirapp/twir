@@ -87,8 +87,8 @@ onBeforeUnmount(() => {
 
 		<div
 			v-if="dropdownOptions.length"
-			class="fixed bottom-2 right-2"
-			:class="[{ '!right-14': isMobile }]"
+			class="fixed right-[2rem] bottom-[2rem] z-50"
+			:class="[{ '!right-[6rem]': isMobile }]"
 		>
 			<NDropdown
 				size="huge"
@@ -96,8 +96,8 @@ onBeforeUnmount(() => {
 				:options="dropdownOptions"
 				@select="addWidget"
 			>
-				<Button variant="ghost" size="icon">
-					<SquarePen class="size-6" />
+				<Button variant="secondary" class="h-14 w-14" size="icon">
+					<SquarePen class="size-8" />
 				</Button>
 			</NDropdown>
 		</div>

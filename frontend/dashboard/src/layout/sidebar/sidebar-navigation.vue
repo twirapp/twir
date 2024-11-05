@@ -195,7 +195,7 @@ function goToRoute() {
 
 <template>
 	<ScrollArea type="auto">
-		<SidebarGroup :class="{ 'max-h-64': sidebar.isMobile.value }">
+		<SidebarGroup :class="{ 'max-h-4/5': sidebar.isMobile.value }">
 			<SidebarMenu>
 				<SidebarMenuItem
 					v-for="item in links"
