@@ -103,6 +103,7 @@ const dropdownProps = computed((): DropdownMenuContentProps & { class?: string }
 								@select="() => {
 									locale = lang.code
 									currentLocale = lang.code
+									toggleMobileSidebar()
 								}"
 							>
 								<DropdownMenuCheckboxItem :checked="currentLocale === lang.code" />
