@@ -46,8 +46,22 @@ function createClient() {
 			}),
 		],
 		// requestPolicy: 'cache-first',
-		fetchOptions: {
-			credentials: 'include',
+		fetchOptions: () => {
+			const locationQuery = new URLSearchParams(window.location.search)
+			const apiKey = locationQuery.get('apiKey')
+
+			const options: RequestInit = {
+				credentials: 'include',
+			}
+
+			if (apiKey) {
+				options.headers = {
+					...options.headers,
+					'Api-Key': apiKey,
+				}
+			}
+
+			return options
 		},
 	})
 }

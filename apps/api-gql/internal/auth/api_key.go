@@ -14,7 +14,7 @@ func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, 
 		return nil, fmt.Errorf("failed to get gin context: %w", err)
 	}
 
-	apiKey := ginCtx.GetHeader("x-api-key")
+	apiKey := ginCtx.GetHeader("api-key")
 	if apiKey == "" {
 		return nil, fmt.Errorf("api key is required")
 	}
