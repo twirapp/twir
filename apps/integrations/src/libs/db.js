@@ -37,7 +37,5 @@ export async function getIntegrations(integrationId) {
 		query = query.andWhere('channels_integrations.id', integrationId).first()
 	}
 
-	console.log(query.clone().toQuery())
-
 	return query
 }

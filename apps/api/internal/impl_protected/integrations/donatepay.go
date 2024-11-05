@@ -6,6 +6,7 @@ import (
 	"github.com/guregu/null"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_donatepay"
+	"github.com/twirapp/twir/libs/grpc/integrations"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -33,7 +34,7 @@ func (c *Integrations) IntegrationsDonatepayPut(
 	request *integrations_donatepay.PostRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(
+	entity, err := c.getChannelIntegrationByService(
 		ctx,
 		model.IntegrationServiceDonatePay,
 		dashboardId,
@@ -42,11 +43,18 @@ func (c *Integrations) IntegrationsDonatepayPut(
 		return nil, err
 	}
 
-	integration.APIKey = null.StringFrom(request.ApiKey)
-	integration.Enabled = true
-	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
+	entity.APIKey = null.StringFrom(request.ApiKey)
+	entity.Enabled = true
+	if err = c.Db.WithContext(ctx).Save(&entity).Error; err != nil {
 		return nil, err
 	}
+
+	c.Grpc.Integrations.AddIntegration(
+		ctx,
+		&integrations.Request{
+			Id: entity.ID,
+		},
+	)
 
 	return &emptypb.Empty{}, nil
 }
