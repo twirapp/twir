@@ -64,6 +64,7 @@ onBeforeUnmount(() => {
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
+			:use-css-transforms="false"
 		>
 			<GridItem
 				v-for="item in visibleWidgets"

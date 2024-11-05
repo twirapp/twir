@@ -21,6 +21,20 @@ const { notificationsCounter } = useNotifications()
 <template>
 	<SidebarFooter>
 		<SidebarMenu>
+			<div class="flex gap-2 group-data-[collapsible=icon]:flex-col">
+				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="Discord">
+					<a :href="DISCORD_INVITE_URL" target="_blank">
+						<DiscordLogo />
+					</a>
+				</SidebarMenuButton>
+
+				<SidebarMenuButton class="flex justify-center" variant="active" as-child tooltip="GitHub">
+					<a :href="GITHUB_REPOSITORY_URL" target="_blank">
+						<GithubLogo />
+					</a>
+				</SidebarMenuButton>
+			</div>
+
 			<SidebarMenuItem>
 				<SidebarMenuButton
 					as-child
@@ -38,26 +52,6 @@ const { notificationsCounter } = useNotifications()
 							{{ notificationsCounter.counter }}
 						</Badge>
 					</RouterLink>
-				</SidebarMenuButton>
-			</SidebarMenuItem>
-
-			<SidebarMenuItem>
-				<SidebarMenuButton as-child tooltip="Discord">
-					<a :href="DISCORD_INVITE_URL" target="_blank">
-						<DiscordLogo />
-						<span>Discord</span>
-						<ExternalLink class="ml-auto" />
-					</a>
-				</SidebarMenuButton>
-			</SidebarMenuItem>
-
-			<SidebarMenuItem>
-				<SidebarMenuButton as-child tooltip="GitHub">
-					<a :href="GITHUB_REPOSITORY_URL" target="_blank">
-						<GithubLogo />
-						<span>GitHub</span>
-						<ExternalLink class="ml-auto" />
-					</a>
 				</SidebarMenuButton>
 			</SidebarMenuItem>
 

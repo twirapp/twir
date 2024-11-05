@@ -59,7 +59,7 @@ function openInfoEditor() {
 
 <template>
 	<Transition appear mode="out-in">
-		<div v-if="!stats" class="w-full">
+		<div v-if="!stats" class="w-full p-2">
 			<NSkeleton width="100%" height="45px" :sharp="false" style="border-radius: 10px" />
 		</div>
 

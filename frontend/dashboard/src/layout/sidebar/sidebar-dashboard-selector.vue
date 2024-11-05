@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useVirtualList } from '@vueuse/core'
 import { Check, ChevronsUpDown } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -69,6 +70,18 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 		side: 'right',
 	}
 })
+
+function repeat<T>(array: T[], times: number) {
+	return Array.from({ length: times }, () => array).flat()
+}
+
+const options = computed(() => {
+	return profile.value?.availableDashboards ?? []
+})
+
+const { list: virtualizedList, containerProps, wrapperProps } = useVirtualList(options, {
+	itemHeight: 32,
+})
 </script>
 
 <template>
@@ -94,38 +107,45 @@ const popoverProps = computed((): PopoverContentProps & { class?: string } => {
 				<PopoverContent class="p-0" v-bind="popoverProps">
 					<Command :filter-function="filterFunction">
 						<CommandInput class="h-9" placeholder="Search user" />
-						<CommandEmpty>No user found</CommandEmpty>
+						<CommandEmpty>
+							No user found
+						</CommandEmpty>
 						<CommandList>
-							<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
-								<CommandItem
-									v-for="dashboard in profile.availableDashboards"
-									:key="dashboard.id"
-									:value="dashboard.id"
-									@select="(ev) => {
-										if (typeof ev.detail.value === 'string') {
-											selectDashboard(ev.detail.value)
-										}
-									}"
-								>
-									<div class="flex items-center gap-2">
-										<Avatar class="size-4">
-											<AvatarImage :src="dashboard.twitchProfile.profileImageUrl" :alt="dashboard.twitchProfile.displayName" />
-											<AvatarFallback>
-												{{ dashboard.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
-											</AvatarFallback>
-										</Avatar>
-										<span>
-											{{ resolveUserName(dashboard.twitchProfile.login, dashboard.twitchProfile.displayName) }}
-										</span>
-									</div>
-									<Check
-										:class="cn(
-											'ml-auto h-4 w-4',
-											profile.selectedDashboardId === dashboard.id ? 'opacity-100' : 'opacity-0',
-										)"
-									/>
-								</CommandItem>
-							</CommandGroup>
+							<div v-bind="containerProps" class="min-h-72 max-h-72">
+								<div v-bind="wrapperProps">
+									<CommandGroup :heading="t(`dashboard.header.channelsAccess`)">
+										<CommandItem
+											v-for="option in virtualizedList"
+											:key="option.index"
+											style="height: 32px"
+											:value="option.data.id"
+											@select="(ev) => {
+												if (typeof ev.detail.value === 'string') {
+													selectDashboard(ev.detail.value)
+												}
+											}"
+										>
+											<div class="flex items-center gap-2">
+												<Avatar class="size-4">
+													<AvatarImage :src="option.data.twitchProfile.profileImageUrl" :alt="option.data.twitchProfile.displayName" />
+													<AvatarFallback>
+														{{ option.data.twitchProfile.displayName.slice(0, 2).toUpperCase() }}
+													</AvatarFallback>
+												</Avatar>
+												<span>
+													{{ resolveUserName(option.data.twitchProfile.login, option.data.twitchProfile.displayName) }}
+												</span>
+											</div>
+											<Check
+												:class="cn(
+													'ml-auto h-4 w-4',
+													profile.selectedDashboardId === option.data.id ? 'opacity-100' : 'opacity-0',
+												)"
+											/>
+										</CommandItem>
+									</CommandGroup>
+								</div>
+							</div>
 						</CommandList>
 					</Command>
 				</PopoverContent>
