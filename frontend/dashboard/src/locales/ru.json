@@ -47,17 +47,17 @@
     "pagination": "из {page} страниц / {total} записей",
     "paginationPerPage": "Постранично",
     "searchPlaceholder": "Поиск",
-    "messages": "Messages",
-    "asc": "Asc",
+    "messages": "Сообщения",
+    "asc": "",
     "desc": "Desc",
-    "hide": "Hide",
+    "hide": "Скрыть",
     "view": "Смотреть",
     "toggleColumns": "Toggle columns",
-    "copied": "Copied",
+    "copied": "Скопировано",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-    "settings": "Settings"
+    "settings": "Настройки"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -81,14 +81,14 @@
     "games": "Игры",
     "users": "Зрители",
     "moderation": "Модерация",
-    "publicPage": "Public Page",
+    "publicPage": "Публичная страница",
     "import": "Импортировать",
-    "community": "Community",
+    "community": "Сообщество",
     "logout": "Выйти",
     "loggedAs": "Logged as",
-    "lang": "Language",
-    "darkTheme": "Dark Theme",
-    "lightTheme": "Light Theme",
+    "lang": "Язык",
+    "darkTheme": "Тёмная тема",
+    "lightTheme": "Светлая тема",
     "notifications": "Notifications"
   },
   "deleteConfirmation": {
@@ -97,7 +97,7 @@
     "confirm": "Подтвердить"
   },
   "haveNoAccess": {
-    "title": "No access",
+    "title": "Нет доступа",
     "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
@@ -135,7 +135,7 @@
         "label": "Включить команду только в определенных категориях (оставьте пустым для отключения)"
       },
       "expiration": {
-        "label": "Expiration",
+        "label": "Срок действия",
         "actionsLabel": "Action on expire",
         "actions": {
           "delete": "Command will be deleted",
@@ -246,39 +246,39 @@
         "title": "Audit logs",
         "search-label": "Search by",
         "search": {
-          "channel": "Channel",
-          "actor": "Actor"
+          "channel": "Канал",
+          "actor": "Актер"
         },
-        "operation-type-label": "Operation type",
+        "operation-type-label": "Тип операции",
         "operation-type": {
-          "create": "Created",
-          "delete": "Deleted",
-          "update": "Edited"
+          "create": "Создан",
+          "delete": "Удалено",
+          "update": "отредактировано"
         },
-        "systems-label": "Systems",
+        "systems-label": "Системы",
         "systems": {
-          "badge": "Badge",
-          "badge-user": "Badge User",
-          "channel-command": "Command",
+          "badge": "Значок",
+          "badge-user": "Пользователь значка",
+          "channel-command": "Команда",
           "channel-command-group": "Command Group",
-          "channel-variable": "Variable",
+          "channel-variable": "Переменная",
           "channel-games-eight-ball": "8ball",
-          "channel-games-duel": "Duel",
-          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-duel": "Дуэль",
+          "channel-games-russian-roulette": "Русская Рулетка",
           "channel-games-seppuku": "Seppuku",
-          "channel-games-voteban": "Voteban",
+          "channel-games-voteban": "",
           "channel-greeting": "Greeting",
-          "channel-keyword": "Keyword",
+          "channel-keyword": "Ключевое слово",
           "channel-moderation-setting": "Moderation Setting",
           "channel-overlay-chat": "Chat Overlay",
           "channel-overlay-dudes": "Dudes Overlay",
           "channel-overlay-now-playing": "Now Playing Overlay",
-          "channel-roles": "Role",
-          "channel-timers": "Timer",
+          "channel-roles": "Роль",
+          "channel-timers": "Таймер",
           "channel-song-requests": "Song Requests",
           "channel-integrations": "Integration",
-          "channel-alerts": "Alert",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-alerts": "Оповещение",
+          "channel-chat-alerts": "Оповещения в чате"
         }
       }
     }
@@ -660,7 +660,7 @@
       "general": "Общие настройки",
       "users": "Настройки пользователей",
       "songs": "Звуковые настройки",
-      "translations": "Translations"
+      "translations": "Переводы"
     },
     "ban": {
       "user": "Забанить пользователя",
@@ -686,7 +686,7 @@
       }
     },
     "limitExceeded": "Достигнут предел таймеров!",
-    "newTimer": "New timer"
+    "newTimer": "Новый таймер"
   },
   "roles": {
     "modal": {
@@ -749,7 +749,7 @@
     "copyOverlayLink": "Copy overlay link",
     "name": "Название",
     "rewards": "Rewards",
-    "commands": "Commands",
+    "commands": "Команды",
     "validations": {
       "name": "Имя не может быть пустым или содержать более 30 символов!"
     },
@@ -764,10 +764,10 @@
       "image": "Configure an image",
       "text": "Configure text"
     },
-    "audioVolume": "Audio volume",
+    "audioVolume": "Громкость звука",
     "createAlert": "Create alert",
-    "editAlert": "Edit alert",
-    "tableEmpty": "No alerts found"
+    "editAlert": "Изменить оповещение ",
+    "tableEmpty": "Уведомления не найдены"
   },
   "games": {
     "command": "Команда",
@@ -798,7 +798,7 @@
       "cooldown": {
         "title": "Перезарядка Дуэли",
         "user": "Individual",
-        "global": "Global"
+        "global": "Глобальный"
       },
       "messages": {
         "title": "Сообщения",
@@ -826,7 +826,7 @@
     },
     "seppuku": {
       "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
+      "message": "Сообщение",
       "timeoutModerators": "Enable seppuku for moderators",
       "messageModerators": "Message when moderator used seppuku",
       "timeoutSeconds": "Timeout seconds"
@@ -850,8 +850,8 @@
   "community": {
     "title": "Community",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Пользователи",
+      "searchPlaceholder": "Поиск пользователей...",
       "table": {
         "user": "Пользователь",
         "watchedTime": "Время просмотра",
@@ -870,15 +870,15 @@
       "title": "Emotes Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
-        "emote": "Emote",
-        "usages": "Total usages",
-        "users": "Users",
+        "emote": "Эмоция",
+        "usages": "Всего использовано",
+        "users": "Пользователи",
         "empty": "No emotes",
         "chart": "Usages chart",
-        "lastDay": "Day",
-        "lastWeek": "Week",
-        "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
+        "lastDay": "День",
+        "lastWeek": "Неделя",
+        "lastMonth": "Месяц",
+        "lastThreeMonth": "3 месяца",
         "lastYear": "Year"
       },
       "total": "Total emotes: {total}",
@@ -886,8 +886,8 @@
         "stats": "Stats",
         "users": "Users",
         "usersTabs": {
-          "top": "Top",
-          "history": "History"
+          "top": "Сверху",
+          "history": "История"
         }
       }
     }
@@ -1025,19 +1025,19 @@
       "errorInvalidLink": "Некорректная ссылка",
       "errorEmpty": "Не может быть пустым",
       "errorTooLong": "Too long",
-      "linkTitle": "Title",
+      "linkTitle": "Название",
       "linkLabel": "Link"
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Панель администратора",
     "notifications": {
       "title": "Notifications",
       "formTitle": "Send or edit notification",
       "emptyNotifications": "No notifications",
       "userLabel": "User",
       "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
+      "messageLabel": "Сообщение",
       "messagePreview": "Preview",
       "createdAt": "Created At",
       "globals": "Globals",
@@ -1048,9 +1048,9 @@
       "title": "Users",
       "user": "User",
       "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
+      "followers": "Фолловеры",
+      "noUsers": "Нет пользователей",
+      "filters": "Фильтры",
       "clearFilters": "Clear filters",
       "countSelected": "{count} selected",
       "isAdmin": "Admin",
@@ -1058,20 +1058,20 @@
       "isBotEnabled": "Bot enabled",
       "statusGroup": "Status",
       "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
+      "giveBan": "Забанить пользователя",
+      "unBan": "Разбанить пользователя",
       "giveMod": "Give admin",
       "unMod": "Remove admin",
       "dropSession": "Drop session"
     },
     "manageBadges": {
-      "title": "Badges",
+      "title": "Значки",
       "formTitle": "Create or edit badge",
       "name": "Name",
-      "users": "Users",
+      "users": "Пользователи",
       "slot": "Slot",
       "image": "Image",
-      "preview": "Preview",
+      "preview": "Предпросмотр",
       "usesCount": "Uses {count}",
       "badgeSlot": "Slot {slot}"
     },
@@ -1083,13 +1083,13 @@
         "type": "Type",
         "typeError": "Please select a type",
         "version": "Version",
-        "user": "User",
-        "channel": "Channel",
+        "user": "Пользователь",
+        "channel": "Канал",
         "channelWithBotId": "Channel with bot ID",
         "channelWithModeratorId": "Channel with moderator ID"
       },
       "dangerZone": {
-        "title": "Danger Zone",
+        "title": "Опасная зона",
         "revoke": "Revoke",
         "revokeSessions": "Revoke sessions",
         "revokeAllSessionsDescription": "All user sessions will be revoked",
