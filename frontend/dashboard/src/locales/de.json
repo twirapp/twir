@@ -81,15 +81,15 @@
     "games": "Spiele",
     "users": "Benutzer",
     "moderation": "Moderation",
-    "publicPage": "Public Page",
+    "publicPage": "Öffentliche Seite",
     "import": "Importieren",
     "community": "Community",
-    "logout": "Logout",
-    "loggedAs": "Logged as",
-    "lang": "Language",
-    "darkTheme": "Dark Theme",
-    "lightTheme": "Light Theme",
-    "notifications": "Notifications"
+    "logout": "Ausloggen",
+    "loggedAs": "Eingeloggt als",
+    "lang": "Sprache",
+    "darkTheme": "Dunkles Design",
+    "lightTheme": "Helles Design",
+    "notifications": "Benachrichtigungen"
   },
   "deleteConfirmation": {
     "text": "Bist du sicher, dass du das löschen möchtest?",
@@ -135,11 +135,11 @@
         "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
       },
       "expiration": {
-        "label": "Expiration",
-        "actionsLabel": "Action on expire",
+        "label": "Ablauf",
+        "actionsLabel": "Aktion nach Ablauf",
         "actions": {
-          "delete": "Command will be deleted",
-          "disable": "Command will be disabled"
+          "delete": "Befehl wird gelöscht",
+          "disable": "Befehl wird deaktiviert"
         }
       },
       "description": {
@@ -243,42 +243,42 @@
         "title": "Bot-Verwaltung"
       },
       "audit-logs": {
-        "title": "Audit logs",
-        "search-label": "Search by",
+        "title": "Audit-Logs",
+        "search-label": "Suche nach",
         "search": {
-          "channel": "Channel",
-          "actor": "Actor"
+          "channel": "Kanal",
+          "actor": "Akteur"
         },
-        "operation-type-label": "Operation type",
+        "operation-type-label": "Operationstyp",
         "operation-type": {
-          "create": "Created",
-          "delete": "Deleted",
-          "update": "Edited"
+          "create": "Erstellt",
+          "delete": "Gelöscht",
+          "update": "Bearbeitet"
         },
-        "systems-label": "Systems",
+        "systems-label": "Systeme",
         "systems": {
           "badge": "Badge",
-          "badge-user": "Badge User",
-          "channel-command": "Command",
-          "channel-command-group": "Command Group",
-          "channel-variable": "Variable",
+          "badge-user": "Benutzer Abzeichen",
+          "channel-command": "Befehl",
+          "channel-command-group": "Befehlsgruppe",
+          "channel-variable": "Variabel",
           "channel-games-eight-ball": "8ball",
-          "channel-games-duel": "Duel",
-          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-duel": "Duell",
+          "channel-games-russian-roulette": "Russisches Roulette",
           "channel-games-seppuku": "Seppuku",
           "channel-games-voteban": "Voteban",
-          "channel-greeting": "Greeting",
-          "channel-keyword": "Keyword",
-          "channel-moderation-setting": "Moderation Setting",
+          "channel-greeting": "Begrüßung",
+          "channel-keyword": "Schlüsselwort",
+          "channel-moderation-setting": "Moderations-Einstellung",
           "channel-overlay-chat": "Chat Overlay",
           "channel-overlay-dudes": "Dudes Overlay",
           "channel-overlay-now-playing": "Now Playing Overlay",
-          "channel-roles": "Role",
+          "channel-roles": "Rolle",
           "channel-timers": "Timer",
           "channel-song-requests": "Song Requests",
           "channel-integrations": "Integration",
           "channel-alerts": "Alert",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-chat-alerts": "Chat Alerts"
         }
       }
     }
@@ -867,7 +867,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes Statistics",
+      "title": "Emote Statistiken",
       "searchPlaceholder": "Suche Emotes...",
       "table": {
         "emote": "Emote",
@@ -1097,7 +1097,7 @@
       }
     },
     "auditLogs": {
-      "title": "Audit logs"
+      "title": "Audit-Logs"
     }
   }
 }
