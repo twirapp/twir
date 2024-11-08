@@ -56,7 +56,7 @@
     "copied": "Скопировано",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found",
+    "userNotFound": "Пользователи не найдены",
     "settings": "Настройки"
   },
   "sidebar": {
@@ -253,12 +253,12 @@
         "operation-type": {
           "create": "Создан",
           "delete": "Удалено",
-          "update": "отредактировано"
+          "update": "Отредактировано"
         },
         "systems-label": "Системы",
         "systems": {
           "badge": "Значок",
-          "badge-user": "Пользователь значка",
+          "badge-user": "Значок пользователя",
           "channel-command": "Команда",
           "channel-command-group": "Command Group",
           "channel-variable": "Переменная",
@@ -765,7 +765,7 @@
       "text": "Configure text"
     },
     "audioVolume": "Громкость звука",
-    "createAlert": "Create alert",
+    "createAlert": "Создать оповещение",
     "editAlert": "Изменить оповещение ",
     "tableEmpty": "Уведомления не найдены"
   },
