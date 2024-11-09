@@ -107,12 +107,12 @@
     "description": "Você sabe que a vida é sempre ridícula."
   },
   "commands": {
-    "name": "Command | Commands",
-    "searchPlaceholder": "Search the command...",
-    "newCommandTitle": "New Command",
-    "importCommands": "Import commands",
+    "name": "Comando | Comandos",
+    "searchPlaceholder": "Procurar pelo comando...",
+    "newCommandTitle": "Novo Comando",
+    "importCommands": "Importar comandos",
     "groups": {
-      "manageButton": "Manage Groups",
+      "manageButton": "Gerenciar Grupos",
       "name": "Name",
       "color": "Color"
     },
