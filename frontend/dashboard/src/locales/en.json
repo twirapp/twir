@@ -57,7 +57,7 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-		"settings": "Settings",
+    "settings": "Settings",
     "create": "Create",
     "edit": "Edit"
   },
@@ -705,10 +705,10 @@
   },
   "keywords": {
     "title": "Keywords",
-		"info": {
-			"text": "Keywords helps you to trigger chat message on certain words matching."
-		},
-		"create": "Create keyword",
+    "info": {
+      "text": "Keywords help you to trigger chat message on certain words matching."
+    },
+    "create": "Create keyword",
     "triggerText": "Trigger Text",
     "usages": "Usage Count",
     "isRegular": "Is a Regular Expression?",
@@ -762,7 +762,7 @@
       "greetings": "Greeting Trigger"
     },
     "select": {
-      "audio": "Confugure an audio",
+      "audio": "Configure an audio",
       "image": "Configure an image",
       "text": "Configure text"
     },
@@ -826,28 +826,28 @@
         "bothDiePercent": "Percent of chance both users die"
       }
     },
-		"seppuku": {
-			"description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-			"message": "Message",
-			"timeoutModerators": "Enable seppuku for moderators",
-			"messageModerators": "Message when moderator used seppuku",
-			"timeoutSeconds": "Timeout seconds"
-		},
-		"voteban": {
-			"description": "Commence jury trial of the guilty chatterer!",
-			"banMessage": "Message on ban",
-			"banMessageModerators": "Message for ban moderator",
-			"surviveMessage": "Survive message",
-			"surviveMessageModerators": "Survive message for moderators",
-			"initialMessage": "Init message",
-			"neededVotes": "Needed votes",
-			"banDuration": "Duration of ban",
-			"voteMode": "Mode of vote",
-			"voteDuration": "Duration of vote in seconds",
-			"wordsNegative": "Words for vote to \"no\" option",
-			"wordsPositive": "Words for vote to \"yes\" option",
-			"timeoutModerators": "Enable voteban on moderators"
-		}
+    "seppuku": {
+      "description": "Seppuku is a form of Japanese ritualistic suicide by disembowelment.",
+      "message": "Message",
+      "timeoutModerators": "Enable seppuku for moderators",
+      "messageModerators": "Message when moderator used seppuku",
+      "timeoutSeconds": "Timeout duration (seconds)"
+    },
+    "voteban": {
+      "description": "Commence jury trial of the guilty chatterer!",
+      "banMessage": "Message on ban",
+      "banMessageModerators": "Message for banned moderators",
+      "surviveMessage": "Survive message",
+      "surviveMessageModerators": "Survive message for moderators",
+      "initialMessage": "Initial message",
+      "neededVotes": "Needed votes",
+      "banDuration": "Ban duration (seconds)",
+      "voteMode": "Voting mode",
+      "voteDuration": "Voting duration (seconds)",
+      "wordsNegative": "Words to vote for \"no\" option",
+      "wordsPositive": "Words to vote for \"yes\" option",
+      "timeoutModerators": "Enable voteban on moderators"
+    }
   },
   "community": {
     "title": "Community",
@@ -873,14 +873,14 @@
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
-        "usages": "Total usages",
+        "usages": "Total usage",
         "users": "Users",
         "empty": "No emotes",
-        "chart": "Usages chart",
+        "chart": "Usage chart",
         "lastDay": "Day",
         "lastWeek": "Week",
         "lastMonth": "Month",
-        "lastThreeMonth": "3 months",
+        "lastThreeMonth": "3 Months",
         "lastYear": "Year"
       },
       "total": "Total emotes: {total}",
