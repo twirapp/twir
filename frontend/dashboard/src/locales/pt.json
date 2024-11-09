@@ -113,45 +113,45 @@
     "importCommands": "Importar comandos",
     "groups": {
       "manageButton": "Gerenciar Grupos",
-      "name": "Name",
-      "color": "Color"
+      "name": "Nome",
+      "color": "Cor"
     },
     "table": {
       "responses": {
-        "empty": "Responses are empty!"
+        "empty": "As respostas estão vazias!"
       }
     },
     "modal": {
       "name": {
-        "label": "Name",
+        "label": "Nome",
         "validations": {
-          "empty": "Command Name is required.",
-          "startsWith": "Command Name should not start with '!'.",
-          "len": "Command Name should be less than 25 characters."
+          "empty": "Nome do Comando é obrigatório.",
+          "startsWith": "Nome do Comando não deve começar com '!'.",
+          "len": "Nome do Comando deve ter menos de 25 caracteres."
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Pseudônimos"
       },
       "gameCategories": {
-        "label": "Enable command only in certain categories (leave empty for disable)"
+        "label": "Ativar comando apenas em certas categorias (deixe em branco para desativar)"
       },
       "expiration": {
-        "label": "Expiration",
-        "actionsLabel": "Action on expire",
+        "label": "Expiração",
+        "actionsLabel": "Ação ao expirar",
         "actions": {
-          "delete": "Command will be deleted",
-          "disable": "Command will be disabled"
+          "delete": "Comando será excluído",
+          "disable": "Comando será desativado"
         }
       },
       "description": {
-        "label": "Command Description"
+        "label": "Descrição do Comando"
       },
       "responses": {
-        "add": "Add Response",
-        "description": "This is your command response. You can use command variables like {0}.",
+        "add": "Adicionar Resposta",
+        "description": "Esta é sua resposta do comando. Você pode usar variáveis de comando como {0}.",
         "validations": {
-          "empty": "Response should not be empty. Command can be created without a response, so you can skip this field.",
+          "empty": "A resposta não deve estar vazia. Comandos podem ser criados sem uma resposta, então você pode pular este campo.",
           "len": "Response should be less than 500 characters."
         },
         "defaultWarning": "Responses cannot be edited for default commands."
