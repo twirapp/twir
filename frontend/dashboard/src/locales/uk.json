@@ -56,7 +56,7 @@
     "copied": "Скопійовано",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
-    "userNotFound": "No users found",
+    "userNotFound": "Користувачів не знайдено",
     "settings": "Налаштування",
     "create": "Створити",
     "edit": "Редагувати"
@@ -83,7 +83,7 @@
     "games": "Ігри",
     "users": "Глядачі",
     "moderation": "Модерація",
-    "publicPage": "Public Page",
+    "publicPage": "Публічна сторінка",
     "import": "Імпортувати",
     "community": "Спільнота",
     "logout": "Вийти",
@@ -91,7 +91,7 @@
     "lang": "Мова",
     "darkTheme": "Темна тема",
     "lightTheme": "Світла тема",
-    "notifications": "Notifications"
+    "notifications": "Сповіщення"
   },
   "deleteConfirmation": {
     "text": "Ви впевнені, що хочете видалити це?",
@@ -99,7 +99,7 @@
     "confirm": "Підтвердити"
   },
   "haveNoAccess": {
-    "title": "No access",
+    "title": "Немає доступу",
     "description": "You are not authorized to this, ask the broadcaster to provide it."
   },
   "pageNotFound": {
@@ -245,7 +245,7 @@
         "title": "Керування ботом та інформація"
       },
       "audit-logs": {
-        "title": "Audit logs",
+        "title": "Журнали аудиту",
         "search-label": "Search by",
         "search": {
           "channel": "Канал",
@@ -255,7 +255,7 @@
         "operation-type": {
           "create": "Створена",
           "delete": "Видалено",
-          "update": "Edited"
+          "update": "Відредаговано"
         },
         "systems-label": "Системи",
         "systems": {
@@ -263,7 +263,7 @@
           "badge-user": "Значок користувача",
           "channel-command": "Команда",
           "channel-command-group": "Command Group",
-          "channel-variable": "Variable",
+          "channel-variable": "Змінна",
           "channel-games-eight-ball": "8ball",
           "channel-games-duel": "Поєдинок",
           "channel-games-russian-roulette": "Російська рулетка",
@@ -750,8 +750,8 @@
     "overlayLabel": "Сповіщення - це графічна частина реалізації команди або події. Ви можете налаштувати сповіщення із заданим звуком, зображенням і текстом, а потім призначити його певній команді, події, ключовому слову або привітанню. Також не забудьте вставити URL-адресу накладання як джерело браузера у вашу сцену додатку для трансляцій! (наприклад, OBS, XSplit тощо)",
     "copyOverlayLink": "Copy overlay link",
     "name": "Назва",
-    "rewards": "Rewards",
-    "commands": "Commands",
+    "rewards": "Нагороди",
+    "commands": "Команди",
     "validations": {
       "name": "Назва не може бути порожньою і містити понад 30 символів!"
     },
@@ -767,7 +767,7 @@
       "text": "Configure text"
     },
     "audioVolume": "Audio volume",
-    "createAlert": "Create alert",
+    "createAlert": "Створити оповіщення",
     "editAlert": "Edit alert",
     "tableEmpty": "No alerts found"
   },
@@ -828,7 +828,7 @@
     },
     "seppuku": {
       "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
-      "message": "Message",
+      "message": "Повідомлення",
       "timeoutModerators": "Enable seppuku for moderators",
       "messageModerators": "Message when moderator used seppuku",
       "timeoutSeconds": "Timeout seconds"
