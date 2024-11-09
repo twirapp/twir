@@ -36,7 +36,7 @@
       "text": "Бот надсилатиме команди відповіді як відповідь"
     },
     "response": "Відповідь",
-    "user": "User",
+    "user": "Користувач",
     "userName": "Ім’я користувача",
     "dangerZone": "Небезпечна зона",
     "deleted": "Видалено",
@@ -51,15 +51,15 @@
     "asc": "Asc",
     "desc": "Desc",
     "hide": "Приховати",
-    "view": "View",
+    "view": "Перегляд",
     "toggleColumns": "Toggle columns",
     "copied": "Скопійовано",
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-    "settings": "Settings",
+    "settings": "Налаштування",
     "create": "Створити",
-    "edit": "Edit"
+    "edit": "Редагувати"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -85,10 +85,10 @@
     "moderation": "Модерація",
     "publicPage": "Public Page",
     "import": "Імпортувати",
-    "community": "Community",
+    "community": "Спільнота",
     "logout": "Вийти",
     "loggedAs": "Зареєстровано як",
-    "lang": "Language",
+    "lang": "Мова",
     "darkTheme": "Темна тема",
     "lightTheme": "Світла тема",
     "notifications": "Notifications"
@@ -253,7 +253,7 @@
         },
         "operation-type-label": "Тип операції",
         "operation-type": {
-          "create": "Created",
+          "create": "Створена",
           "delete": "Видалено",
           "update": "Edited"
         },
@@ -271,16 +271,16 @@
           "channel-games-voteban": "Проголосувати",
           "channel-greeting": "Greeting",
           "channel-keyword": "Ключове слово",
-          "channel-moderation-setting": "Moderation Setting",
-          "channel-overlay-chat": "Chat Overlay",
+          "channel-moderation-setting": "Налаштування модерації",
+          "channel-overlay-chat": "Спливаючий чат",
           "channel-overlay-dudes": "Dudes Overlay",
           "channel-overlay-now-playing": "Now Playing Overlay",
-          "channel-roles": "Role",
-          "channel-timers": "Timer",
+          "channel-roles": "Роль",
+          "channel-timers": "Лічильник",
           "channel-song-requests": "Song Requests",
           "channel-integrations": "Integration",
-          "channel-alerts": "Alert",
-          "channel-chat-alerts": "Chat alerts"
+          "channel-alerts": "Сповіщення",
+          "channel-chat-alerts": "Сповіщення чата"
         }
       }
     }
@@ -662,7 +662,7 @@
       "general": "Загальні",
       "users": "Налаштування користувачів",
       "songs": "Звукові налаштування",
-      "translations": "Translations"
+      "translations": "Переклади"
     },
     "ban": {
       "user": "Заблокувати користувача",
@@ -688,7 +688,7 @@
       }
     },
     "limitExceeded": "Ліміт перевищено!",
-    "newTimer": "New timer"
+    "newTimer": "Новий таймер"
   },
   "roles": {
     "modal": {
@@ -708,7 +708,7 @@
     "info": {
       "text": "Keywords helps you to trigger chat message on certain words matching."
     },
-    "create": "Create keyword",
+    "create": "Створіть ключове слово",
     "triggerText": "Текст тригеру",
     "usages": "Кількість використань",
     "isRegular": "Є регулярним виразом?",
@@ -1091,7 +1091,7 @@
         "channelWithModeratorId": "Channel with moderator ID"
       },
       "dangerZone": {
-        "title": "Danger Zone",
+        "title": "Небезпечна зона",
         "revoke": "Revoke",
         "revokeSessions": "Revoke sessions",
         "revokeAllSessionsDescription": "All user sessions will be revoked",
