@@ -74,37 +74,37 @@
     "overlays": "Sobreposições",
     "overlaysRegistry": "Cadastro de Sobreposições",
     "songRequests": "Pedidos de Músicas",
-    "timers": "Timers",
-    "roles": "Permissions",
-    "keywords": "Keywords",
-    "variables": "Variables",
-    "greetings": "Greetings",
-    "alerts": "Alerts",
-    "games": "Games",
-    "users": "Users",
-    "moderation": "Moderation",
-    "publicPage": "Public Page",
-    "import": "Import",
-    "community": "Community",
-    "logout": "Logout",
-    "loggedAs": "Logged as",
-    "lang": "Language",
-    "darkTheme": "Dark Theme",
-    "lightTheme": "Light Theme",
-    "notifications": "Notifications"
+    "timers": "Temporizadores",
+    "roles": "Permissões",
+    "keywords": "Palavras-chave",
+    "variables": "Variáveis",
+    "greetings": "Saudações",
+    "alerts": "Alertas",
+    "games": "Jogos",
+    "users": "Usuários",
+    "moderation": "Moderação",
+    "publicPage": "Página Pública",
+    "import": "Importar",
+    "community": "Comunidade",
+    "logout": "Sair",
+    "loggedAs": "Logado como",
+    "lang": "Idioma",
+    "darkTheme": "Tema Escuro",
+    "lightTheme": "Tema Claro",
+    "notifications": "Notificações"
   },
   "deleteConfirmation": {
-    "text": "Are you sure about deleting this thing?",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "text": "Tem certeza em deletar esta coisa?",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar"
   },
   "haveNoAccess": {
-    "title": "No access",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "title": "Sem acesso",
+    "description": "Você não tem autorização para isso, peça permissão ao streamer."
   },
   "pageNotFound": {
-    "title": "404 Not Found",
-    "description": "You know life is always ridiculous."
+    "title": "404 Não Encontrado",
+    "description": "Você sabe que a vida é sempre ridícula."
   },
   "commands": {
     "name": "Command | Commands",
