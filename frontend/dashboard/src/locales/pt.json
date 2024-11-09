@@ -152,65 +152,65 @@
         "description": "Esta é sua resposta do comando. Você pode usar variáveis de comando como {0}.",
         "validations": {
           "empty": "A resposta não deve estar vazia. Comandos podem ser criados sem uma resposta, então você pode pular este campo.",
-          "len": "Response should be less than 500 characters."
+          "len": "A resposta deve conter menos de 500 caracteres."
         },
-        "defaultWarning": "Responses cannot be edited for default commands."
+        "defaultWarning": "As respostas não podem ser editadas para comandos padrão."
       },
       "permissions": {
-        "divider": "Permissions",
-        "name": "Roles",
-        "placeholder": "Select roles to grant permissions to use commands",
-        "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "divider": "Permissões",
+        "name": "Funções",
+        "placeholder": "Selecione funções para conceder permissões para usar comandos",
+        "deniedUsers": "Usuários, que não podem usar esse comando.",
+        "allowedUsers": "Usuários, que podem ignorar as restrições de funções para esse comando."
       },
       "restrictions": {
-        "name": "Restrictions by stats",
-        "watchTime": "Required watch time to use that command.",
-        "messages": "Required message count to use that command.",
-        "channelsPoints": "Required spent channels points to use that command."
+        "name": "Restrições por estatísticas",
+        "watchTime": "Tempo de relógio necessário para usar esse comando.",
+        "messages": "Contagem de mensagens necessárias para usar esse comando.",
+        "channelsPoints": "Gasto de Pontos de Canais necessário para usar esse comando."
       },
       "cooldown": {
-        "label": "Cooldown",
-        "value": "Cooldown in seconds",
+        "label": "Tempo de Recarga",
+        "value": "Tempo de Recarga em segundos",
         "type": {
-          "name": "Cooldown per",
+          "name": "Tempo de Recarga por",
           "global": "Global",
-          "user": "Individual (per user)"
+          "user": "Individual (por usuário)"
         }
       },
       "settings": {
-        "divider": "Settings",
+        "divider": "Configurações",
         "visible": {
-          "label": "Visibility",
-          "text": "Command visibility on a public commands list page."
+          "label": "Visibilidade",
+          "text": "Visibilidade do comando em uma página de comandos pública."
         },
         "keepOrder": {
-          "label": "Keep Order",
-          "text": "Bot will keep this order of responses when sending them into chat."
+          "label": "Manter a Ordem",
+          "text": "O Bot irá manter esta ordem de respostas quando enviá-las ao bate-papo."
         },
         "onlineOnly": {
-          "label": "Only When Online",
-          "text": "This command will work only when the stream is online."
+          "label": "Somente quando Online",
+          "text": "Este comando só funcionará quando a stream estiver online."
         },
         "other": {
-          "divider": "Other",
-          "commandGroup": "Command Group"
+          "divider": "Outro",
+          "commandGroup": "Grupo de Comando"
         }
       },
       "alert": {
-        "label": "Select an alert, which will be triggered when the command used."
+        "label": "Selecione um alerta, o qual será acionado quando o comando for usado."
       }
     }
   },
   "dashboard": {
     "header": {
-      "managingUser": "Managing user",
-      "channelsAccess": "Channels you have access to"
+      "managingUser": "Gerenciando Usuário",
+      "channelsAccess": "Canais que você tem acesso"
     },
     "botManage": {
-      "title": "Bot status",
-      "success": "Enabled and have moderator status",
-      "notEnabledTitle": "Bot is not enabled on channel",
+      "title": "Estado do bot",
+      "success": "Ativar e ter estado de moderador",
+      "notEnabledTitle": "O bot não está ativado no canal",
       "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
       "leave": "Disable",
       "join": "Enable"
