@@ -57,7 +57,9 @@
     "userSelected": "Выбрано {count} пользователей",
     "userSelectPlaceholder": "Выбрать пользователя|Выберите пользователей",
     "userNotFound": "Пользователи не найдены",
-    "settings": "Настройки"
+    "settings": "Настройки",
+    "create": "Создать",
+    "edit": "Редактировать"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -672,8 +674,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Интервал (в минутах)",
-        "intervalInMessages": "Интервал (в сообщениях, укажите 0, чтобы выключить)"
+        "intervalInMinutes": "Интервал в минутах",
+        "intervalInMessages": "Интервал в сообщениях"
       }
     },
     "modal": {
@@ -867,7 +869,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Статистика смайла",
+      "title": "Emotes statistics",
       "searchPlaceholder": "Поиск смайлов...",
       "table": {
         "emote": "Эмоция",
@@ -1034,7 +1036,7 @@
     "notifications": {
       "title": "Уведомления",
       "formTitle": "Отправить или изменить уведомление",
-      "emptyNotifications": "No notifications",
+      "emptyNotifications": "Нет уведомлений",
       "userLabel": "Пользователь",
       "userPlaceholder": "Выберите пользователя",
       "messageLabel": "Сообщение",
@@ -1052,7 +1054,7 @@
       "noUsers": "Нет пользователей",
       "filters": "Фильтры",
       "clearFilters": "Очистить фильтры",
-      "countSelected": "{count} selected",
+      "countSelected": "Выбрано {count}",
       "isAdmin": "Администратор",
       "isBanned": "Заблокирован",
       "isBotEnabled": "Бот включен",
@@ -1066,19 +1068,19 @@
     },
     "manageBadges": {
       "title": "Значки",
-      "formTitle": "Create or edit badge",
+      "formTitle": "Создать или изменить значок",
       "name": "Имя",
       "users": "Пользователи",
       "slot": "Слот",
       "image": "Изображение",
       "preview": "Предпросмотр",
-      "usesCount": "Uses {count}",
-      "badgeSlot": "Slot {slot}"
+      "usesCount": "Использует {count}",
+      "badgeSlot": "Слот {slot}"
     },
     "adminActions": {
-      "title": "Actions",
+      "title": "Действия",
       "eventsub": {
-        "title": "Subscribe to EventSub",
+        "title": "Подписаться на EventSub",
         "condition": "Условие",
         "type": "Тип",
         "typeError": "Пожалуйста выберите тип",
@@ -1093,7 +1095,7 @@
         "revoke": "Отмена",
         "revokeSessions": "Прервать сессии",
         "revokeAllSessionsDescription": "Все сессии пользователей будут отозваны",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "revokeAllSessionsConfirm": "Вы уверены, что хотите отменить все сеансы?"
       }
     },
     "auditLogs": {
