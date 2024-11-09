@@ -57,7 +57,9 @@
     "userSelected": "{count} vybraných používateľov",
     "userSelectPlaceholder": "Vybrať používateľa|Vybrať používateľov",
     "userNotFound": "Nenašli sa žiadni používatelia",
-    "settings": "Nastavenia"
+    "settings": "Nastavenia",
+    "create": "Create",
+    "edit": "Edit"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -672,8 +674,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (v minútach)",
-        "intervalInMessages": "Interval (v chatových správach, nastavte 0 pre vypnutie)"
+        "intervalInMinutes": "Interval in minutes",
+        "intervalInMessages": "Chat lines interval"
       }
     },
     "modal": {
