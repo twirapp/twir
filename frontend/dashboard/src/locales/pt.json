@@ -57,7 +57,9 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-    "settings": "Settings"
+    "settings": "Settings",
+    "create": "Create",
+    "edit": "Edit"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -672,8 +674,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (in minutes)",
-        "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
+        "intervalInMinutes": "Interval in minutes",
+        "intervalInMessages": "Chat lines interval"
       }
     },
     "modal": {
