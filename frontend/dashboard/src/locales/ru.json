@@ -49,13 +49,13 @@
     "searchPlaceholder": "Поиск",
     "messages": "Сообщения",
     "asc": "",
-    "desc": "По убыванию",
+    "desc": "Описание",
     "hide": "Скрыть",
     "view": "Смотреть",
     "toggleColumns": "Переключить столбцы",
     "copied": "Скопировано",
     "userSelected": "Выбрано {count} пользователей",
-    "userSelectPlaceholder": "Select user|Select users",
+    "userSelectPlaceholder": "Выбрать пользователя|Выберите пользователей",
     "userNotFound": "Пользователи не найдены",
     "settings": "Настройки"
   },
@@ -89,7 +89,7 @@
     "lang": "Язык",
     "darkTheme": "Тёмная тема",
     "lightTheme": "Светлая тема",
-    "notifications": "Уведомления"
+    "notifications": "Уведомление"
   },
   "deleteConfirmation": {
     "text": "Вы уверены, что хотите удалить это?",
@@ -98,7 +98,7 @@
   },
   "haveNoAccess": {
     "title": "Нет доступа",
-    "description": "You are not authorized to this, ask the broadcaster to provide it."
+    "description": "У вас нет на это полномочий, попросите вещателя предоставить это."
   },
   "pageNotFound": {
     "title": "404 Страница не найдена",
