@@ -267,14 +267,14 @@
           "channel-games-eight-ball": "8мяч",
           "channel-games-duel": "Дуэль",
           "channel-games-russian-roulette": "Русская Рулетка",
-          "channel-games-seppuku": "Seppuku",
+          "channel-games-seppuku": "Харакири",
           "channel-games-voteban": "",
           "channel-greeting": "Приветствие",
           "channel-keyword": "Ключевое слово",
           "channel-moderation-setting": "Настройки Модерации",
-          "channel-overlay-chat": "Chat Overlay",
-          "channel-overlay-dudes": "Dudes Overlay",
-          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-overlay-chat": "Всплывающий чат",
+          "channel-overlay-dudes": "Наложение оверлея",
+          "channel-overlay-now-playing": "Играет в оверлей",
           "channel-roles": "Роль",
           "channel-timers": "Таймер",
           "channel-song-requests": "Заказ песен",
@@ -706,7 +706,7 @@
   "keywords": {
     "title": "Ключевые слова",
     "info": {
-      "text": "Keywords helps you to trigger chat message on certain words matching."
+      "text": "Ключевые слова помогают срабатывать чат сообщение при совпадении определенных слов."
     },
     "create": "Создать ключевое слово",
     "triggerText": "Текст активации",
@@ -737,7 +737,7 @@
     "edit": "Редактировать приветствие",
     "info": {
       "title": "Информация о приветствиях",
-      "text": "Greetings are a type of messages that bot uses to welcome known stream viewers when they send their first message in chat on each stream. If you wish to greet every user in chat, then you can look at the events category instead of Greetings."
+      "text": "Приветствие - это тип сообщений, которые бот использует, чтобы приветствовать известных зрителей потока, когда они посылают свое первое сообщение в чате в каждом потоке. Если вы хотите поприветствовать каждого пользователя в чате, вы можете посмотреть на категорию событий вместо приветствия."
     },
     "validations": {
       "userName": "Имя пользователя не должно быть пустым!",
@@ -747,7 +747,7 @@
   "alerts": {
     "title": "Оповещения",
     "info": "Информация по оповещениям",
-    "overlayLabel": "Alerts are a graphical part of the command or event implementation. You can configure an alert with specified audio, image and text, then assign it to specific command, event, keyword or greeting. Also do not forget to insert overlay URL as a browser source into your streaming software scene! (such as OBS, XSplit, etc.)",
+    "overlayLabel": "Оповещения - это графическая часть реализации команды или события. Вы можете настроить оповещение с помощью указанного аудио, изображения и текста, а затем назначить его определенной команде, событию, ключевому слову или приветствию. Также не забудьте вставить URL оверлей в качестве источника браузера в область вашего программного обеспечения потокового вещания (например, OBS, XSplit и т. д.)",
     "copyOverlayLink": "Скопировать ссылку на оверлей",
     "name": "Название",
     "rewards": "Награды",
@@ -827,26 +827,26 @@
       }
     },
     "seppuku": {
-      "description": "Seppuku, is a form of Japanese ritualistic suicide by disembowelment.",
+      "description": "Сеппуку – это форма японского ритуалистического самоубийства дизелем.",
       "message": "Сообщение",
-      "timeoutModerators": "Enable seppuku for moderators",
-      "messageModerators": "Message when moderator used seppuku",
+      "timeoutModerators": "Включить seppuku для модераторов",
+      "messageModerators": "Сообщение при использовании seppuku модератором",
       "timeoutSeconds": "Таймаут в секундах"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
+      "description": "Начиная суду жюри виновного чаттерера!",
       "banMessage": "Сообщение о бане",
-      "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
+      "banMessageModerators": "Сообщение для модератора бана",
+      "surviveMessage": "Сообщение о выживании",
+      "surviveMessageModerators": "Сообщение о выживании для модераторов",
       "initialMessage": "Исходное сообщение",
       "neededVotes": "Нужно голосов",
       "banDuration": "Срок блокировки",
       "voteMode": "Режим голосования",
       "voteDuration": "Продолжительность голосования в секундах",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Enable voteban on moderators"
+      "wordsNegative": "Слова для голосования в опцию \"нет\"",
+      "wordsPositive": "Слова для голосования в опцию \"да\"",
+      "timeoutModerators": "Включить бан голосований для модераторов"
     }
   },
   "community": {
@@ -883,7 +883,7 @@
         "lastThreeMonth": "3 месяца",
         "lastYear": "Год"
       },
-      "total": "Total emotes: {total}",
+      "total": "Всего смайликов: {total} ",
       "details": {
         "stats": "Статистика",
         "users": "Пользователи",
@@ -931,7 +931,7 @@
     "ban": {
       "alertInfo": "Установите время на 0, чтобы выводить сообщение при перманентной блокировке<br>",
       "countLabel": "Время (в минутах)",
-      "ignoreTimeoutFrom": "Ignore timeouts from"
+      "ignoreTimeoutFrom": "Игнорировать тайм-ауты от"
     },
     "labels": {
       "followers": "Фолловеры",
@@ -966,7 +966,7 @@
         "name": "Список запрещённых слов",
         "description": "Помогает поддерживать чистоту чата, отфильтровывая слова и фразы, указанные в предопределенном списке, предотвращая их отправку.",
         "empty": "Список запрещенных слов пуст, добавьте хотя бы одно.",
-        "regexp": "If you are an advanced user, Disallowed Words List also support regular expressions. Regular Expression should be written in golang format! See {0} here.",
+        "regexp": "Если вы продвинутый пользователь, список запрещённых слов также поддерживает регулярные выражения. Регулярное выражение должно быть написано в формате golang! Смотрите {0} здесь.",
         "regexpCheatSheet": "шпаргалку"
       },
       "symbols": {
