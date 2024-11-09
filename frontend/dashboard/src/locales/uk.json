@@ -57,7 +57,9 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-    "settings": "Settings"
+    "settings": "Settings",
+    "create": "Create",
+    "edit": "Edit"
   },
   "sidebar": {
     "dashboard": "Панель керування",
@@ -672,8 +674,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Інтервал (у хвилинах)",
-        "intervalInMessages": "Інтервал у повідомленнях (встановіть 0, щоб вимкнути)"
+        "intervalInMinutes": "Interval in minutes",
+        "intervalInMessages": "Chat lines interval"
       }
     },
     "modal": {
