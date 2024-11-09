@@ -809,7 +809,7 @@
           "description": "Это сообщение будет отправлено при начале дуэли. Доступные переменные: {'{target}, {initiator}, {duelAcceptCommandName}, {acceptSeconds}'}"
         },
         "result": {
-          "title": "Result Message",
+          "title": "Результат сообщения",
           "description": "Это сообщение будет отправлено, когда дуэль завершится. Доступные переменные: {'{loser}, {winner}'}"
         },
         "bothDie": {
@@ -820,7 +820,7 @@
       "settings": {
         "title": "Настройки",
         "secondsToAccept": "Время для принятия вызова (сек.)",
-        "timeoutTime": "Timeout time for loser",
+        "timeoutTime": "Время ожидания проигравшего",
         "pointsPerWin": "Репутация за победу",
         "pointsPerLose": "Репутация за поражение",
         "bothDiePercent": "Вероятность того, что оба пользователя умрут"
@@ -839,11 +839,11 @@
       "banMessageModerators": "Message for ban moderator",
       "surviveMessage": "Survive message",
       "surviveMessageModerators": "Survive message for moderators",
-      "initialMessage": "Init message",
-      "neededVotes": "Needed votes",
+      "initialMessage": "Исходное сообщение",
+      "neededVotes": "Нужно голосов",
       "banDuration": "Срок блокировки",
       "voteMode": "Режим голосования",
-      "voteDuration": "Duration of vote in seconds",
+      "voteDuration": "Продолжительность голосования в секундах",
       "wordsNegative": "Words for vote to \"no\" option",
       "wordsPositive": "Words for vote to \"yes\" option",
       "timeoutModerators": "Enable voteban on moderators"
@@ -876,7 +876,7 @@
         "usages": "Всего использовано",
         "users": "Пользователи",
         "empty": "Нет смайлика",
-        "chart": "Usages chart",
+        "chart": "График использования",
         "lastDay": "День",
         "lastWeek": "Неделя",
         "lastMonth": "Месяц",
@@ -1044,7 +1044,7 @@
       "createdAt": "Создано в",
       "globals": "Глобальный",
       "users": "Пользователи",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "confirmResetForm": "Вы действительно хотите удалить форму?"
     },
     "manageUsers": {
       "title": "Пользователи",
