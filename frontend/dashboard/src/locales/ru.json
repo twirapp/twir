@@ -136,7 +136,7 @@
       },
       "expiration": {
         "label": "Срок действия",
-        "actionsLabel": "Action on expire",
+        "actionsLabel": "Действие по истечению",
         "actions": {
           "delete": "Команда будет удалена",
           "disable": "Команда будет отключена"
@@ -260,7 +260,7 @@
           "badge": "Значок",
           "badge-user": "Значок пользователя",
           "channel-command": "Команда",
-          "channel-command-group": "Command Group",
+          "channel-command-group": "Группа команды",
           "channel-variable": "Переменная",
           "channel-games-eight-ball": "8мяч",
           "channel-games-duel": "Дуэль",
@@ -642,7 +642,7 @@
       "deniedUsers": "Пользователи, которые не могут заказывать песни",
       "deniedSongs": "Запрещенные песни для заказа",
       "takeSongFromDonationMessage": "Попытаться получать ссылки на песни из сообщений о пожертвованиях?",
-      "confirmClearQueue": "Are you sure you want to clear the queue?",
+      "confirmClearQueue": "Вы уверены что хотите очистить очередь?",
       "users": {
         "maxRequests": "Максимальное количество заказов для пользователя",
         "minimalWatchTime": "Минимальное время просмотра для заказа песни (в минутах)",
@@ -723,7 +723,7 @@
   "variables": {
     "title": "Переменные",
     "type": "Тип",
-    "info": "Variables is a type of a context that can be used in bot responses, commands and other parts of the bot. You can specify a constant value or put a script to get some values that is usually cannot be easily accessed by the bot. Script Variables are recommended for advanced users.",
+    "info": "Переменные - это тип контекста, который может использоваться в ответах ботов, командах и других частях бота. Вы можете указать постоянное значение или установить скрипт, чтобы получить некоторые значения, которые обычно не могут быть легко доступны ботом. Переменные скрипта рекомендуются опытным пользователям.",
     "validations": {
       "nameRequired": "Название не должно быть пустым!",
       "nameLong": "Слишком длинное название"
@@ -760,8 +760,8 @@
       "greetings": "Приветствия для триггера"
     },
     "select": {
-      "audio": "Confugure an audio",
-      "image": "Configure an image",
+      "audio": "Настроить звук",
+      "image": "Настроить изображение",
       "text": "Настроить текст"
     },
     "audioVolume": "Громкость звука",
@@ -839,7 +839,7 @@
       "surviveMessageModerators": "Survive message for moderators",
       "initialMessage": "Init message",
       "neededVotes": "Needed votes",
-      "banDuration": "Duration of ban",
+      "banDuration": "Срок блокировки",
       "voteMode": "Режим голосования",
       "voteDuration": "Duration of vote in seconds",
       "wordsNegative": "Words for vote to \"no\" option",
@@ -848,7 +848,7 @@
     }
   },
   "community": {
-    "title": "Community",
+    "title": "Сообщество",
     "users": {
       "title": "Пользователи",
       "searchPlaceholder": "Поиск пользователей...",
@@ -944,7 +944,7 @@
       "userBanned": "Отстранение пользователя",
       "channelUnbanRequestCreate": "Запрос на разбан создан",
       "channelUnbanRequestResolve": "Запрос на разбан обработан",
-      "messageDelete": "Message Deleted"
+      "messageDelete": "Сообщение удалено"
     }
   },
   "moderation": {
@@ -1017,7 +1017,7 @@
       }
     },
     "public": {
-      "title": "Public page",
+      "title": "Публичная страница",
       "description": "Описание канала",
       "socialLinks": "Ссылки",
       "errorCreateLink": "\"{title}\" содержит некорректную ссылку {href}",
@@ -1091,8 +1091,8 @@
       "dangerZone": {
         "title": "Опасная зона",
         "revoke": "Отмена",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
+        "revokeSessions": "Прервать сессии",
+        "revokeAllSessionsDescription": "Все сессии пользователей будут отозваны",
         "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
       }
     },
