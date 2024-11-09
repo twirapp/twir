@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import SidebarNavigation from '@/layout/sidebar/sidebar-navigation.vue'
+
 import SidebarDashboardSelector from './sidebar-dashboard-selector.vue'
 import SidebarFooter from './sidebar-footer.vue'
 import SidebarHeader from './sidebar-header.vue'
@@ -10,7 +12,6 @@ import {
 	SidebarProvider,
 	SidebarSeparator,
 } from '@/components/ui/sidebar'
-import SidebarNavigation from '@/layout/sidebar/sidebar-navigation.vue'
 </script>
 
 <template>

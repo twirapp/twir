@@ -40,8 +40,8 @@ const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
 		v-bind="$attrs"
 		@update:open="setOpenMobile"
 	>
-		<DrawerContent>
-			<div class="flex h-full w-full flex-col">
+		<DrawerContent class="max-h-[75dvh]">
+			<div class="flex w-full flex-col vaul-scrollable overflow-auto overscroll-none">
 				<slot />
 			</div>
 		</DrawerContent>

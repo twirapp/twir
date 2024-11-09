@@ -15,12 +15,12 @@ function onInteractOutside(event: any) {
 <template>
 	<DialogContent
 		v-if="windowWidth > 800"
-		class="max-w-3xl overflow-hidden rounded-2xl outline-none"
+		class="max-w-3xl max-h-[90dvh] overflow-auto rounded-2xl outline-none"
 		@interact-outside="onInteractOutside"
 	>
 		<slot />
 	</DialogContent>
-	<SheetContent v-else side="bottom" @interact-outside="onInteractOutside">
+	<SheetContent v-else side="bottom" class="max-h-[90dvh] overflow-auto" @interact-outside="onInteractOutside">
 		<slot />
 	</SheetContent>
 </template>

@@ -6,7 +6,8 @@ const themeVars = useThemeVars()
 
 <template>
 	<div
-		class="flex-wrap w-full border rounded-md" :style="{
+		class="flex-wrap w-full border rounded-md"
+		:style="{
 			backgroundColor: themeVars.cardColor,
 			color: themeVars.textColor2,
 		}"

@@ -28,7 +28,6 @@ import { useRoute } from 'vue-router'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ScrollArea } from '@/components/ui/scroll-area'
 import {
 	SidebarGroup,
 	SidebarMenu,
@@ -194,58 +193,56 @@ function goToRoute() {
 </script>
 
 <template>
-	<ScrollArea type="auto">
-		<SidebarGroup :class="{ 'max-h-4/5': sidebar.isMobile.value }">
-			<SidebarMenu>
-				<SidebarMenuItem
-					v-for="item in links"
-					:key="item.name"
+	<SidebarGroup>
+		<SidebarMenu>
+			<SidebarMenuItem
+				v-for="item in links"
+				:key="item.name"
+			>
+				<SidebarMenuButton
+					v-if="!item.child"
+					as-child
+					:tooltip="item.name"
+					:variant="currentRoute.path === item.path ? 'active' : 'default'"
+					@click="goToRoute"
 				>
-					<SidebarMenuButton
-						v-if="!item.child"
-						as-child
-						:tooltip="item.name"
-						:variant="currentRoute.path === item.path ? 'active' : 'default'"
-						@click="goToRoute"
-					>
-						<RouterLink :to="item.path!">
-							<component :is="item.icon" />
-							<span>{{ item.name }}</span>
-						</RouterLink>
-					</SidebarMenuButton>
-					<Collapsible
-						v-else
-						as-child
-						:default-open="false"
-						class="group/collapsible"
-					>
-						<SidebarMenuItem>
-							<CollapsibleTrigger as-child>
-								<SidebarMenuButton :tooltip="item.name" :variant="currentRoute.path.startsWith(item.path) ? 'active' : 'default'">
-									<component :is="item.icon" />
-									<span>{{ item.name }}</span>
-									<ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-								</SidebarMenuButton>
-							</CollapsibleTrigger>
-							<CollapsibleContent>
-								<SidebarMenuSub>
-									<SidebarMenuSubItem
-										v-for="child in item.child"
-										:key="child.name"
-									>
-										<SidebarMenuButton as-child @click="goToRoute">
-											<RouterLink :to="child.path!">
-												<component :is="child.icon" />
-												<span>{{ child.name }}</span>
-											</RouterLink>
-										</SidebarMenuButton>
-									</SidebarMenuSubItem>
-								</SidebarMenuSub>
-							</CollapsibleContent>
-						</SidebarMenuItem>
-					</Collapsible>
-				</SidebarMenuItem>
-			</SidebarMenu>
-		</SidebarGroup>
-	</ScrollArea>
+					<RouterLink :to="item.path!">
+						<component :is="item.icon" />
+						<span>{{ item.name }}</span>
+					</RouterLink>
+				</SidebarMenuButton>
+				<Collapsible
+					v-else
+					as-child
+					:default-open="false"
+					class="group/collapsible"
+				>
+					<SidebarMenuItem>
+						<CollapsibleTrigger as-child>
+							<SidebarMenuButton :tooltip="item.name" :variant="currentRoute.path.startsWith(item.path) ? 'active' : 'default'">
+								<component :is="item.icon" />
+								<span>{{ item.name }}</span>
+								<ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+							</SidebarMenuButton>
+						</CollapsibleTrigger>
+						<CollapsibleContent>
+							<SidebarMenuSub>
+								<SidebarMenuSubItem
+									v-for="child in item.child"
+									:key="child.name"
+								>
+									<SidebarMenuButton as-child @click="goToRoute">
+										<RouterLink :to="child.path!">
+											<component :is="child.icon" />
+											<span>{{ child.name }}</span>
+										</RouterLink>
+									</SidebarMenuButton>
+								</SidebarMenuSubItem>
+							</SidebarMenuSub>
+						</CollapsibleContent>
+					</SidebarMenuItem>
+				</Collapsible>
+			</SidebarMenuItem>
+		</SidebarMenu>
+	</SidebarGroup>
 </template>

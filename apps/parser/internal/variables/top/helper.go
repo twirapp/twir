@@ -65,6 +65,7 @@ func getTop(
 			},
 		).
 		Where(`NOT EXISTS (select 1 from users_ignored where "id" = "users_stats"."userId")`).
+		Where(`NOT EXISTS (select 1 from bots where "id" = "users_stats"."userId")`).
 		Limit(uint64(limit)).
 		Offset(uint64(offset)).
 		OrderBy(fmt.Sprintf(`"%s" DESC`, topType)).

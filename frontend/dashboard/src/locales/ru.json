@@ -623,8 +623,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Интервал (в минутах)",
-        "intervalInMessages": "Интервал (в сообщениях, укажите 0, чтобы выключить)"
+        "intervalInMinutes": "Интервал в минутах",
+        "intervalInMessages": "Интервал в сообщениях"
       }
     },
     "modal": {
