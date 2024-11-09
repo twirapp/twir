@@ -210,25 +210,25 @@
     "botManage": {
       "title": "Estado do bot",
       "success": "Ativar e ter estado de moderador",
-      "notEnabledTitle": "O bot não está ativado no canal",
-      "notModerator": "We have found that the bot is not a moderator on this channel. Please, use {0}, otherwise bot will not send messages in chat and most functions will not work",
-      "leave": "Disable",
-      "join": "Enable"
+      "notEnabledTitle": "O bot não está habilitado no canal",
+      "notModerator": "Descobrimos que o bot não é um moderador neste canal. Por favor, use {0}, caso contrário o bot não enviará mensagens no bate-papo e a maioria das funções não funcionará",
+      "leave": "Desabilitar",
+      "join": "Habilitado"
     },
     "statsWidgets": {
       "streamInfo": {
-        "noTitle": "Cannot get Stream Title!",
-        "noCategory": "Cannot get Category!",
-        "modalTitle": "Edit Stream Information",
-        "title": "Stream Title",
-        "category": "Category"
+        "noTitle": "Não foi possível obter o Título da Transmissão!",
+        "noCategory": "Não foi possível obter Categoria!",
+        "modalTitle": "Editar informações da Transmissão",
+        "title": "Título da Transmissão",
+        "category": "Categoria"
       },
       "uptime": "Uptime",
-      "followers": "Followers",
-      "messages": "Messages",
+      "followers": "Seguidores",
+      "messages": "Mensagens",
       "subs": "Subs",
-      "usedEmotes": "Emotes Sent",
-      "viewers": "Viewers",
+      "usedEmotes": "Emotes Enviados",
+      "viewers": "Espectadores",
       "requestedSongs": "Requested Songs"
     },
     "widgets": {
@@ -236,7 +236,7 @@
         "title": "Chat"
       },
       "stream": {
-        "title": "Stream"
+        "title": "Transmissão"
       },
       "events": {
         "title": "Events List"
