@@ -223,37 +223,37 @@
         "title": "Título da Transmissão",
         "category": "Categoria"
       },
-      "uptime": "Uptime",
+      "uptime": "Tempo de atividade",
       "followers": "Seguidores",
       "messages": "Mensagens",
-      "subs": "Subs",
+      "subs": "Subscritores",
       "usedEmotes": "Emotes Enviados",
       "viewers": "Espectadores",
-      "requestedSongs": "Requested Songs"
+      "requestedSongs": "Músicas solicitadas"
     },
     "widgets": {
       "chat": {
-        "title": "Chat"
+        "title": "Conversa"
       },
       "stream": {
         "title": "Transmissão"
       },
       "events": {
-        "title": "Events List"
+        "title": "Lista de eventos"
       },
       "bot": {
-        "title": "Bot Management"
+        "title": "Gestão de bots"
       },
       "audit-logs": {
-        "title": "Audit logs",
-        "search-label": "Search by",
+        "title": "Registos de auditoria",
+        "search-label": "Pesquisar por",
         "search": {
-          "channel": "Channel",
-          "actor": "Actor"
+          "channel": "Canal",
+          "actor": "Atriz"
         },
         "operation-type-label": "Operation type",
         "operation-type": {
-          "create": "Created",
+          "create": "Criado",
           "delete": "Deleted",
           "update": "Edited"
         },
