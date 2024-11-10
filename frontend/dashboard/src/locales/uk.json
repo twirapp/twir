@@ -21,7 +21,7 @@
     "next": "Далі",
     "previous": "Назад",
     "reset": "Скинути",
-    "popout": "Popout in new window"
+    "popout": "Вигляд у новому вікні"
   },
   "sharedTexts": {
     "saved": "Збережено",
@@ -44,7 +44,7 @@
     "disabled": "Вимкнено",
     "setDefaultSettings": "Ви впевнені, що хочете встановити параметри за замовчуванням?",
     "placeCursorMessage": "Помістіть курсор після \"$\", щоб змінити змінну",
-    "pagination": "{page} page(s) / {total} item(s)",
+    "pagination": "Сторінки {page} / {total} елемент(и)",
     "paginationPerPage": "На сторінці",
     "searchPlaceholder": "Найти",
     "messages": "Повідомлення",
@@ -834,46 +834,46 @@
       "timeoutSeconds": "Час очікування секунд"
     },
     "voteban": {
-      "description": "Commence jury trial of the guilty chatterer!",
-      "banMessage": "Message on ban",
-      "banMessageModerators": "Message for ban moderator",
-      "surviveMessage": "Survive message",
-      "surviveMessageModerators": "Survive message for moderators",
-      "initialMessage": "Init message",
-      "neededVotes": "Needed votes",
-      "banDuration": "Duration of ban",
-      "voteMode": "Mode of vote",
-      "voteDuration": "Duration of vote in seconds",
-      "wordsNegative": "Words for vote to \"no\" option",
-      "wordsPositive": "Words for vote to \"yes\" option",
-      "timeoutModerators": "Enable voteban on moderators"
+      "description": "Спостереження щодо винного гачка!",
+      "banMessage": "Повідомлення на блокування",
+      "banMessageModerators": "Повідомлення для блокування модератора",
+      "surviveMessage": "Повідомлення вижити",
+      "surviveMessageModerators": "Повідомлення з виживання для модераторів",
+      "initialMessage": "Початкове повідомлення",
+      "neededVotes": "Потрібні голоси",
+      "banDuration": "Тривалість блокування",
+      "voteMode": "Режим голосування",
+      "voteDuration": "Тривалість голосування у секундах",
+      "wordsNegative": "Слова за голосування в опції \"ні\"",
+      "wordsPositive": "Слова за голосування за опцією \"так\"",
+      "timeoutModerators": "Увімкнути заборону на голосування модераторів"
     }
   },
   "community": {
-    "title": "Community",
+    "title": "Спільнота",
     "users": {
-      "title": "Users",
-      "searchPlaceholder": "Search users...",
+      "title": "Користувачі",
+      "searchPlaceholder": "Пошук користувачів...",
       "table": {
         "user": "Користувач",
         "watchedTime": "Час перегляду",
         "messages": "Повідомлення",
         "usedEmotes": "Використано емодзі",
         "usedChannelPoints": "Використані бали каналу",
-        "empty": "No users"
+        "empty": "Немає користувачів"
       },
       "total": "Всього {total} користувачів",
       "reset": {
-        "label": "Reset",
+        "label": "Скинути",
         "resetQuestion": "Ви впевнені, що хочете скинути значення {title}?"
       }
     },
     "emotesStatistic": {
-      "title": "Emotes Statistics",
-      "searchPlaceholder": "Search emotes...",
+      "title": "Статистика емоцій",
+      "searchPlaceholder": "Пошук смайлів...",
       "table": {
-        "emote": "Emote",
-        "usages": "Total usages",
+        "emote": "Емоція",
+        "usages": "історія",
         "users": "Користувачі",
         "empty": "Без емоцій",
         "chart": "Використовуваний графік",
@@ -889,7 +889,7 @@
         "users": "Користувачі",
         "usersTabs": {
           "top": "Зверху",
-          "history": "History"
+          "history": "Історія"
         }
       }
     }
@@ -931,7 +931,7 @@
     "ban": {
       "alertInfo": "Встановіть час на 0, щоб виводити повідомлення в разі перманентного блокування<br>",
       "countLabel": "Час (у хвилинах)",
-      "ignoreTimeoutFrom": "Ignore timeouts from"
+      "ignoreTimeoutFrom": "Ігнорувати тайм-аути від"
     },
     "labels": {
       "followers": "Фоловери",
@@ -946,7 +946,7 @@
       "userBanned": "Заблокувати користувача",
       "channelUnbanRequestCreate": "Запит на зняття блокування створений",
       "channelUnbanRequestResolve": "Запит на зняття блокування вирішений",
-      "messageDelete": "Message Deleted"
+      "messageDelete": "Повідомлення видалено"
     }
   },
   "moderation": {
@@ -1032,43 +1032,43 @@
     }
   },
   "adminPanel": {
-    "title": "Admin Panel",
+    "title": "Панель адміністратора",
     "notifications": {
-      "title": "Notifications",
-      "formTitle": "Send or edit notification",
-      "emptyNotifications": "No notifications",
-      "userLabel": "User",
-      "userPlaceholder": "Select a user",
-      "messageLabel": "Message",
-      "messagePreview": "Preview",
-      "createdAt": "Created At",
-      "globals": "Globals",
-      "users": "Users",
-      "confirmResetForm": "Are you sure you want to reset the form?"
+      "title": "Сповіщення",
+      "formTitle": "Надіслати або відредагувати сповіщення",
+      "emptyNotifications": "Немає повідомлень",
+      "userLabel": "Користувачі",
+      "userPlaceholder": "Виберіть користувача",
+      "messageLabel": "Повідомлення",
+      "messagePreview": "Попередній перегляд",
+      "createdAt": "Створено в",
+      "globals": "Глобальні",
+      "users": "Користувачі",
+      "confirmResetForm": "Ви впевнені, що бажаєте скинути форму?"
     },
     "manageUsers": {
-      "title": "Users",
-      "user": "User",
-      "userId": "User ID",
-      "followers": "Followers",
-      "noUsers": "No users",
-      "filters": "Filters",
-      "clearFilters": "Clear filters",
-      "countSelected": "{count} selected",
-      "isAdmin": "Admin",
-      "isBanned": "Banned",
-      "isBotEnabled": "Bot enabled",
-      "statusGroup": "Status",
-      "badgesGroup": "Badges",
-      "giveBan": "Ban user",
-      "unBan": "Unban user",
-      "giveMod": "Give admin",
-      "unMod": "Remove admin",
-      "dropSession": "Drop session"
+      "title": "Користувачі",
+      "user": "Користувач",
+      "userId": "ID користувача",
+      "followers": "Послідовники",
+      "noUsers": "Немає користувачів",
+      "filters": "Фільтри",
+      "clearFilters": "Прибрати фільтри",
+      "countSelected": "Вибрано {count}",
+      "isAdmin": "Адмін",
+      "isBanned": "Заблокований",
+      "isBotEnabled": "Бот увімкнено",
+      "statusGroup": "Статус",
+      "badgesGroup": "Позначки",
+      "giveBan": "Заблокувати користувача",
+      "unBan": "Розблокувати користувача",
+      "giveMod": "Надати адміністратора",
+      "unMod": "Видалити адміністратора",
+      "dropSession": "Видалити сесію"
     },
     "manageBadges": {
-      "title": "Badges",
-      "formTitle": "Create or edit badge",
+      "title": "Позначки",
+      "formTitle": "Створити або редагувати значок",
       "name": "Ім’я",
       "users": "Користувачі",
       "slot": "Слот",
@@ -1081,25 +1081,25 @@
       "title": "Дії",
       "eventsub": {
         "title": "Підписатися на EventSub",
-        "condition": "Condition",
-        "type": "Type",
-        "typeError": "Please select a type",
-        "version": "Version",
-        "user": "User",
-        "channel": "Channel",
-        "channelWithBotId": "Channel with bot ID",
-        "channelWithModeratorId": "Channel with moderator ID"
+        "condition": "Умова",
+        "type": "Вид",
+        "typeError": "Будь ласка, оберіть тип",
+        "version": "Версія",
+        "user": "Користувач",
+        "channel": "Канал",
+        "channelWithBotId": "Канал з ID бота",
+        "channelWithModeratorId": "Канал з ID модератора"
       },
       "dangerZone": {
         "title": "Небезпечна зона",
-        "revoke": "Revoke",
-        "revokeSessions": "Revoke sessions",
-        "revokeAllSessionsDescription": "All user sessions will be revoked",
-        "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
+        "revoke": "Скасувати",
+        "revokeSessions": "Скасувати сесії",
+        "revokeAllSessionsDescription": "Усі сеанси користувачів буде скасовано",
+        "revokeAllSessionsConfirm": "Ви впевнені, що хочете скасувати всі сеанси?"
       }
     },
     "auditLogs": {
-      "title": "Audit logs"
+      "title": "Журнал аудиту"
     }
   }
 }
