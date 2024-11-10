@@ -255,17 +255,17 @@
         "operation-type": {
           "create": "Criado",
           "delete": "Deleted",
-          "update": "Edited"
+          "update": "Editado"
         },
         "systems-label": "Systems",
         "systems": {
           "badge": "Badge",
           "badge-user": "Badge User",
           "channel-command": "Command",
-          "channel-command-group": "Command Group",
+          "channel-command-group": "Grupo de Comando",
           "channel-variable": "Variable",
           "channel-games-eight-ball": "8ball",
-          "channel-games-duel": "Duel",
+          "channel-games-duel": "Duelo",
           "channel-games-russian-roulette": "Russian Roulette",
           "channel-games-seppuku": "Seppuku",
           "channel-games-voteban": "Voteban",
