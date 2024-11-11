@@ -140,6 +140,14 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
+	if err := c.unsubscribeChannel(ctx, broadcasterId); err != nil {
+		c.logger.Error(
+			"failed to unsubscribe from topics",
+			slog.Any("err", err),
+			slog.String("channel_id", broadcasterId),
+		)
+	}
+
 	for _, topic := range topics {
 		wg.Add(1)
 
@@ -155,15 +163,6 @@ func (c *Manager) SubscribeToNeededEvents(
 					slog.String("condition_type", string(topic.ConditionType)),
 				)
 				return
-			}
-
-			if err := c.unsubscribeFromTopic(ctx, broadcasterId, topic.Topic); err != nil {
-				c.logger.Error(
-					"failed to unsubscribe from topic",
-					slog.Any("err", err),
-					slog.String("topic", topic.Topic),
-					slog.String("channel_id", broadcasterId),
-				)
 			}
 
 			_, err := c.SubscribeWithLimits(

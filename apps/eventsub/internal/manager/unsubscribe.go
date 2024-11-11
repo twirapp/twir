@@ -8,7 +8,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 )
 
-func (c *Manager) unsubscribeFromTopic(ctx context.Context, channelID, topic string) error {
+func (c *Manager) unsubscribeChannel(ctx context.Context, channelID string) error {
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	if err != nil {
 		return err
@@ -16,7 +16,6 @@ func (c *Manager) unsubscribeFromTopic(ctx context.Context, channelID, topic str
 
 	existedSubsRes, _ := twitchClient.GetEventSubSubscriptions(
 		&helix.EventSubSubscriptionsParams{
-			Type:   topic,
 			UserID: channelID,
 		},
 	)
