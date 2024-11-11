@@ -140,11 +140,6 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
-	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
-	if err != nil {
-		return err
-	}
-
 	for _, topic := range topics {
 		wg.Add(1)
 
@@ -162,32 +157,13 @@ func (c *Manager) SubscribeToNeededEvents(
 				return
 			}
 
-			existedSub, _ := twitchClient.GetEventSubSubscriptions(
-				&helix.EventSubSubscriptionsParams{
-					Type:   topic.Topic,
-					UserID: broadcasterId,
-				},
-			)
-
-			if len(existedSub.Data.EventSubSubscriptions) > 0 {
-				res, err := twitchClient.RemoveEventSubSubscription(existedSub.Data.EventSubSubscriptions[0].ID)
-				if err != nil {
-					c.logger.Error(
-						"failed to remove subscription",
-						slog.Any("err", err),
-						slog.Any("response", res),
-						slog.String("topic", topic.Topic),
-						slog.String("channel_id", broadcasterId),
-					)
-				}
-				if res.ErrorMessage != "" {
-					c.logger.Error(
-						"failed to remove subscription",
-						slog.String("error_message", res.ErrorMessage),
-						slog.String("topic", topic.Topic),
-						slog.String("channel_id", broadcasterId),
-					)
-				}
+			if err := c.unsubscribeFromTopic(ctx, broadcasterId, topic.Topic); err != nil {
+				c.logger.Error(
+					"failed to unsubscribe from topic",
+					slog.Any("err", err),
+					slog.String("topic", topic.Topic),
+					slog.String("channel_id", broadcasterId),
+				)
 			}
 
 			_, err := c.SubscribeWithLimits(
