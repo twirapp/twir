@@ -278,8 +278,8 @@
           "channel-roles": "Funções",
           "channel-timers": "Temporizadora",
           "channel-song-requests": "Solicitações de músicas",
-          "channel-integrations": "Integration",
-          "channel-alerts": "Alert",
+          "channel-integrations": "Integração",
+          "channel-alerts": "Alerta",
           "channel-chat-alerts": "Chat alerts"
         }
       }
@@ -326,8 +326,8 @@
     "sevenTv": {
       "description": "We can manage 7tv channel emotes, when this integration is enabled.",
       "alert": "You also can do advanced flow via {0} system to manage 7tv emotes.",
-      "connected": "Connected",
-      "notConnected": "Not connected",
+      "connected": "Conectado",
+      "notConnected": "Não conectado",
       "notRegistered": "You are not registered at {0}",
       "errorSameReward": "You cannot use the same reward for adding and removing emotes!",
       "deleteOnlyAddedByApp": "Remove emotes only added by Twir",
@@ -343,16 +343,16 @@
   },
   "events": {
     "delay": "Delay (in seconds)",
-    "repeat": "Repeat Count",
+    "repeat": "Contagem de testes",
     "onlineOnly": "Online-Only Execution",
-    "type": "Type",
-    "description": "Description",
-    "targetCommand": "Target Command",
+    "type": "Tipo",
+    "description": "Descrição",
+    "targetCommand": "Comando de Destino",
     "targetVariable": "Target Variable",
     "targetTwitchReward": "Target Twitch Reward",
     "targetKeyword": "Target Keyword",
     "operations": {
-      "divider": "Actions",
+      "divider": "Ações",
       "name": "Action",
       "inputs": {
         "message": "Message To Send (supports variables)",
@@ -371,10 +371,10 @@
         "source": "OBS Source",
         "audioSource": "OBS Audio Source"
       },
-      "values": "Values",
+      "values": "Valores",
       "triggerAlert": "Trigger Alert",
       "filters": {
-        "label": "Filters",
+        "label": "Filtros",
         "description": "You can filter events by specific conditions. For example if you use \"{'{raidViewers}'} equals 10\" on raid event, it will trigger operation only when raiders amount is 10.",
         "placeholderLeft": "Left side of the condition",
         "placeholderRight": "Right side of the condition",
@@ -386,9 +386,9 @@
       "userDisplayName": "Event Triggerer Display Name",
       "targetUserName": "Event Target Username",
       "targetDisplayUserName": "Event Target Display Name",
-      "subLevel": "Subscription Levels (such as “1”/“2”/“3”/“prime”)",
-      "resubMonths": "Subscriber Length Streak",
-      "resubStreak": "Total Subscriber Months Count",
+      "subLevel": "Níveis de assinatura (como “1”/“2”/“3”/“primo”)",
+      "resubMonths": "Comprimento da assinatura",
+      "resubStreak": "Contagem total de meses assinantes",
       "resubMessage": "User Resubscription Message",
       "rewardName": "Channel Points Reward Name",
       "rewardCost": "Channel Points Reward Price",
