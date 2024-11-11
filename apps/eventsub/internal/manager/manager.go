@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -141,6 +140,11 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
+	twitchClient, err := twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
+	if err != nil {
+		return err
+	}
+
 	for _, topic := range topics {
 		wg.Add(1)
 
@@ -156,6 +160,34 @@ func (c *Manager) SubscribeToNeededEvents(
 					slog.String("condition_type", string(topic.ConditionType)),
 				)
 				return
+			}
+
+			existedSub, _ := twitchClient.GetEventSubSubscriptions(
+				&helix.EventSubSubscriptionsParams{
+					Type:   topic.Topic,
+					UserID: broadcasterId,
+				},
+			)
+
+			if len(existedSub.Data.EventSubSubscriptions) > 0 {
+				res, err := twitchClient.RemoveEventSubSubscription(existedSub.Data.EventSubSubscriptions[0].ID)
+				if err != nil {
+					c.logger.Error(
+						"failed to remove subscription",
+						slog.Any("err", err),
+						slog.Any("response", res),
+						slog.String("topic", topic.Topic),
+						slog.String("channel_id", broadcasterId),
+					)
+				}
+				if res.ErrorMessage != "" {
+					c.logger.Error(
+						"failed to remove subscription",
+						slog.String("error_message", res.ErrorMessage),
+						slog.String("topic", topic.Topic),
+						slog.String("channel_id", broadcasterId),
+					)
+				}
 			}
 
 			_, err := c.SubscribeWithLimits(
@@ -225,7 +257,6 @@ func (c *Manager) SubscribeToEvent(
 
 	condition := GetTypeCondition(convertedCondition, topic, channel.ID, channel.BotID)
 
-	fmt.Println(conditionType, topic, version, channelId)
 	if condition == nil {
 		return errors.New("condition not found")
 	}
