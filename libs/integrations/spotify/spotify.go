@@ -110,10 +110,12 @@ func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
 
 	if resp.StatusCode == 401 && !c.isRetry {
 		c.isRetry = true
+		defer func() {
+			c.isRetry = false
+		}()
 		if err := c.refreshToken(); err != nil {
 			return nil, err
 		}
-		c.isRetry = false
 
 		return c.GetTrack()
 	}
