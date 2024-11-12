@@ -2,7 +2,6 @@
 import { FlexRender, type RowData, type Table } from '@tanstack/vue-table'
 
 import { Card } from '@/components/ui/card'
-import { Separator } from '@/components/ui/separator'
 import {
 	TableBody,
 	TableCell,
@@ -47,6 +46,9 @@ const { isDesktop } = useIsMobile()
 							v-for="cell in row.getVisibleCells()"
 							:key="cell.id"
 							class="md:break-all"
+							:class="{
+								'cursor-pointer': row.getCanExpand(),
+							}"
 							@click="() => {
 								if (row.getCanExpand()) {
 									row.getToggleExpandedHandler()()
@@ -74,7 +76,11 @@ const { isDesktop } = useIsMobile()
 				v-for="cell in row.getVisibleCells()"
 				:key="cell.id"
 			>
-				<div v-if="cell.column.id !== 'actions'" class="px-4 py-2">
+				<div v-if="row.getCanExpand()" class="px-2 my-2 cursor-pointer">
+					<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" @click="() => row.getToggleExpandedHandler()()" />
+				</div>
+
+				<div v-else-if="cell.column.id !== 'actions'" class="px-4 py-2 border-b-2">
 					<FlexRender :render="cell.column.columnDef.header" class="text-sm text-zinc-400/80" />
 					<FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
 				</div>
@@ -85,8 +91,6 @@ const { isDesktop } = useIsMobile()
 						:props="cell.getContext()"
 					/>
 				</div>
-
-				<Separator v-if="cell.column.id !== 'actions'" />
 			</div>
 		</Card>
 	</div>
