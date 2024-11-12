@@ -113,6 +113,8 @@ func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
 		if err := c.refreshToken(); err != nil {
 			return nil, err
 		}
+		c.isRetry = false
+
 		return c.GetTrack()
 	}
 	if err != nil {
