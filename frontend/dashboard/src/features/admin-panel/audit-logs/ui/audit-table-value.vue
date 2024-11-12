@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import formatJson from '@crashmax/json-format-highlight'
+
 import type { AdminAuditLogsQuery } from '@/gql/graphql'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 defineProps<{
 	log: AdminAuditLogsQuery['adminAuditLogs']['logs'][0]
@@ -12,8 +15,10 @@ function computeDisplayedText(text?: string | null) {
 
 	try {
 		const json = JSON.parse(text)
-		return JSON.stringify(json, null, 4)
-	} catch (e) {
+		return formatJson(json, {
+			wordWrap: true,
+		})
+	} catch {
 		return text
 	}
 }
@@ -21,21 +26,27 @@ function computeDisplayedText(text?: string | null) {
 
 <template>
 	<Accordion type="multiple" collapsible>
-		<AccordionItem value="oldValue" :disabled="!log.oldValue">
+		<AccordionItem v-if="log.oldValue" value="oldValue">
 			<AccordionTrigger>Old value</AccordionTrigger>
 			<AccordionContent>
-				<pre class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-					{{ computeDisplayedText(log.oldValue) }}
-				</pre>
+				<ScrollArea class="max-h-[200px] rounded-md border bg-[#1e1e1e]">
+					<pre class="code" v-html="computeDisplayedText(log.oldValue)" />
+				</ScrollArea>
 			</AccordionContent>
 		</AccordionItem>
-		<AccordionItem value="newValue" :disabled="!log.newValue">
+		<AccordionItem v-if="log.newValue" value="newValue" class="border-none">
 			<AccordionTrigger>New value</AccordionTrigger>
 			<AccordionContent>
-				<pre class="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
-					{{ computeDisplayedText(log.newValue) }}
-				</pre>
+				<ScrollArea class="max-h-[200px] rounded-md border bg-[#1e1e1e]">
+					<pre class="code" v-html="computeDisplayedText(log.newValue)" />
+				</ScrollArea>
 			</AccordionContent>
 		</AccordionItem>
 	</Accordion>
 </template>
+
+<style scoped>
+.code {
+	@apply p-2 bg-[#1e1e1e] select-text max-h-[200px];
+}
+</style>
