@@ -68,7 +68,7 @@ const { isDesktop } = useIsMobile()
 		</TableRoot>
 	</ShadcnLayout>
 
-	<div v-else class="flex flex-col gap-4">
+	<div v-else class="grid grid-cols-1 gap-4">
 		<Card v-for="row in table.getRowModel().rows" :key="row.id">
 			<div
 				v-for="cell in row.getVisibleCells()"

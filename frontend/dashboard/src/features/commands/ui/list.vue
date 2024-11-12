@@ -82,7 +82,7 @@ const columns: ColumnDef<Command | Group>[] = [
 				return row.original.description
 			}
 
-			const mappedResponses = responses.map((r) => h('span', {}, r.text))
+			const mappedResponses = responses.map((r) => h('span', { class: 'truncate md:whitespace-normal' }, r.text))
 			return h('div', { class: 'flex flex-col' }, mappedResponses)
 		},
 	},
@@ -125,59 +125,5 @@ const table = useVueTable({
 
 <template>
 	<EditModal />
-
 	<Table :table="table" :is-loading="false" />
-	<!--		<Table> -->
-	<!--			<TableHeader> -->
-	<!--				<TableRow -->
-	<!--					v-for="headerGroup in table.getHeaderGroups()" -->
-	<!--					:key="headerGroup.id" -->
-	<!--					class="border-b" -->
-	<!--				> -->
-	<!--					<TableHead -->
-	<!--						v-for="header in headerGroup.headers" -->
-	<!--						:key="header.id" -->
-	<!--						:style="{ width: `${header.getSize()}%` }" -->
-	<!--					> -->
-	<!--						<FlexRender -->
-	<!--							v-if="!header.isPlaceholder" -->
-	<!--							:render="header.column.columnDef.header" -->
-	<!--							:props="header.getContext()" -->
-	<!--						/> -->
-	<!--					</TableHead> -->
-	<!--				</TableRow> -->
-	<!--			</TableHeader> -->
-	<!--			<TableBody> -->
-	<!--				<template v-if="table.getRowModel().rows?.length"> -->
-	<!--					<TableRow -->
-	<!--						v-for="row in table.getRowModel().rows" :key="row.id" -->
-	<!--						:data-state="row.getIsSelected() ? 'selected' : undefined" -->
-	<!--						class="border-b" -->
-	<!--						:class="{ 'cursor-pointer': !isCommand(row.original) }" -->
-	<!--					> -->
-	<!--						<TableCell -->
-	<!--							v-for="cell in row.getVisibleCells()" -->
-	<!--							:key="cell.id" -->
-	<!--							@click="() => { -->
-	<!--								if (row.getCanExpand()) { -->
-	<!--									row.getToggleExpandedHandler()() -->
-	<!--								} -->
-	<!--							}" -->
-	<!--						> -->
-	<!--							<FlexRender -->
-	<!--								:render="cell.column.columnDef.cell" -->
-	<!--								:props="cell.getContext()" -->
-	<!--							/> -->
-	<!--						</TableCell> -->
-	<!--					</TableRow> -->
-	<!--				</template> -->
-	<!--				<template v-else> -->
-	<!--					<TableRow> -->
-	<!--						<TableCell :colSpan="columns.length" class="h-24 text-center"> -->
-	<!--							No commands -->
-	<!--						</TableCell> -->
-	<!--					</TableRow> -->
-	<!--				</template> -->
-	<!--			</TableBody> -->
-	<!--		</Table> -->
 </template>
