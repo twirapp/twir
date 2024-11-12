@@ -12,6 +12,7 @@
     "shadcn": "shadcn-vue"
   },
   "dependencies": {
+    "@crashmax/json-format-highlight": "1.1.0",
     "@discord-message-components/vue": "0.2.1",
     "@editorjs/delimiter": "1.4.0",
     "@editorjs/editorjs": "2.29.1",
