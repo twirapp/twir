@@ -66,7 +66,7 @@ func NewManager(opts Opts) (*Manager, error) {
 					}
 				}
 
-				manager.populateChannels()
+				go manager.populateChannels()
 
 				go func() {
 					if opts.Config.AppEnv != "production" {
