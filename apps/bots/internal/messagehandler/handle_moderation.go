@@ -222,15 +222,15 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 
 		if msg.DbUser.Stats != nil && !userHasRole {
-			if msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
+			if r.RequiredWatchTime > 0 && msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
 				userHasRole = true
 			}
 
-			if msg.DbUser.Stats.Messages >= r.RequiredMessages {
+			if r.RequiredMessages > 0 && msg.DbUser.Stats.Messages >= r.RequiredMessages {
 				userHasRole = true
 			}
 
-			if msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
+			if r.RequiredUsedChannelPoints > 0 && msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
 				userHasRole = true
 			}
 		}
