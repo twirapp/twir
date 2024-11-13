@@ -42,19 +42,21 @@ var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 	model.ModerationSettingsTypeLanguage:    (*MessageHandler).moderationLanguageParser,
 }
 
+var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
+
 func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage) error {
 	badges := createUserBadges(msg.Badges)
 
-	if lo.Some(badges, []string{"broadcaster", "moderator"}) {
-		return nil
+	for _, b := range badges {
+		if slices.Contains(excludedModerationBadges, b) {
+			return nil
+		}
 	}
 
 	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
-
-	fmt.Println(settings)
 
 	for _, entity := range settings {
 		function, ok := moderationFunctionsMapping[entity.Type]
