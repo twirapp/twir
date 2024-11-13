@@ -66,8 +66,6 @@ func NewManager(opts Opts) (*Manager, error) {
 					}
 				}
 
-				go manager.populateChannels()
-
 				go func() {
 					if opts.Config.AppEnv != "production" {
 						twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
@@ -142,14 +140,13 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
-	// TODO: uncomment
-	// if err := c.unsubscribeChannel(ctx, broadcasterId); err != nil {
-	// 	c.logger.Error(
-	// 		"failed to unsubscribe from topics",
-	// 		slog.Any("err", err),
-	// 		slog.String("channel_id", broadcasterId),
-	// 	)
-	// }
+	if err := c.unsubscribeChannel(ctx, broadcasterId); err != nil {
+		c.logger.Error(
+			"failed to unsubscribe from topics",
+			slog.Any("err", err),
+			slog.String("channel_id", broadcasterId),
+		)
+	}
 
 	for _, topic := range topics {
 		wg.Add(1)

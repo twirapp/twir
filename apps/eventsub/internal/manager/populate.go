@@ -28,7 +28,7 @@ func (c *Manager) populateChannels() error {
 
 	channelsWg := sync.WaitGroup{}
 
-	for i, channel := range channels {
+	for _, channel := range channels {
 		channelsWg.Add(1)
 
 		channel := channel
@@ -47,13 +47,6 @@ func (c *Manager) populateChannels() error {
 					slog.Any("err", err),
 				)
 			}
-
-			c.logger.Info(
-				"Channel subscribed",
-				slog.Int("index", i+1),
-				slog.Int("total", len(channels)),
-				slog.String("channel_id", channel.ID),
-			)
 		}()
 	}
 
