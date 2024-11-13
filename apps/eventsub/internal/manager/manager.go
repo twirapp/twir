@@ -67,6 +67,8 @@ func NewManager(opts Opts) (*Manager, error) {
 				}
 
 				go func() {
+					manager.populateChannels()
+
 					if opts.Config.AppEnv != "production" {
 						twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
 						if err != nil {
@@ -106,7 +108,6 @@ func NewManager(opts Opts) (*Manager, error) {
 						}
 
 						unsubWg.Wait()
-						manager.populateChannels()
 					}
 
 					manager.SubscribeWithLimits(
