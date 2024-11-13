@@ -60,6 +60,12 @@ func (c *Moderation) convertGrpcToDb(i *moderation.Item) model.ChannelModeration
 	}
 }
 
+func (c *Moderation) clearCache(ctx context.Context, channelId string) {
+	cacheKey := fmt.Sprintf("channels:%s:moderation_settings", channelId)
+
+	c.Redis.Del(ctx, cacheKey)
+}
+
 func (c *Moderation) ModerationGetAll(
 	ctx context.Context,
 	_ *emptypb.Empty,
@@ -115,7 +121,7 @@ func (c *Moderation) ModerationCreate(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
+	c.clearCache(ctx, dashboardId)
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
@@ -137,7 +143,7 @@ func (c *Moderation) ModerationDelete(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
+	c.clearCache(ctx, dashboardId)
 
 	return &emptypb.Empty{}, nil
 }
@@ -159,7 +165,7 @@ func (c *Moderation) ModerationUpdate(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
+	c.clearCache(ctx, dashboardId)
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,
@@ -193,7 +199,7 @@ func (c *Moderation) ModerationEnableOrDisable(
 		return nil, err
 	}
 
-	c.Redis.Del(ctx, fmt.Sprintf("channels:%s:moderation_settings", dashboardId))
+	c.clearCache(ctx, dashboardId)
 
 	return &moderation.ItemWithId{
 		Id:   entity.ID,

@@ -54,6 +54,8 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 		return err
 	}
 
+	fmt.Println(settings)
+
 	for _, entity := range settings {
 		function, ok := moderationFunctionsMapping[entity.Type]
 		if !ok {
@@ -172,7 +174,14 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 		return nil, err
 	}
 
-	c.redis.Set(ctx, cacheKey, settings, 24*time.Hour)
+	settingsBytes, err := json.Marshal(settings)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.redis.Set(ctx, cacheKey, settingsBytes, 24*time.Hour).Err(); err != nil {
+		return nil, err
+	}
 
 	return settings, nil
 }
