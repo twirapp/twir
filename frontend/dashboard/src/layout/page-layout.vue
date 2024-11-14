@@ -26,7 +26,7 @@ export interface PageLayoutProps {
 export interface PageLayoutTab {
 	name: string
 	title: string
-	component: Component
+	component: Component | (() => Component)
 	disabled?: boolean
 }
 
@@ -97,7 +97,7 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 		<div class="container py-8">
 			<template v-if="activeTab">
 				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
-					<component :is="tab.component" />
+					<component :is="typeof tab.component === 'function' ? tab.component() : tab.component" />
 				</TabsContent>
 			</template>
 

@@ -59,7 +59,8 @@
     "userNotFound": "No users found",
 		"settings": "Settings",
     "create": "Create",
-    "edit": "Edit"
+    "edit": "Edit",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -131,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Enable command only in certain categories (leave empty for disable)"

@@ -142,7 +142,7 @@ const responsesHasError = computed(() => {
 									<div class="relative flex items-center">
 										<FormControl>
 											<div class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle">
-												<GripVertical class="my-auto size-6 drag-handle" />
+												<GripVertical class="my-auto size-6" />
 											</div>
 											<VariableInput
 												input-type="textarea"

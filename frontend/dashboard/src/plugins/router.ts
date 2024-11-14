@@ -47,7 +47,12 @@ export function newRouter() {
 				{
 					path: '/dashboard/commands/:system',
 					component: () => import('../features/commands/commands.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands, noPadding: true },
+				},
+				{
+					path: '/dashboard/commands/:system/:id',
+					component: () => import('../features/commands/commands-edit.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageCommands, noPadding: true },
 				},
 				{
 					path: '/dashboard/timers',

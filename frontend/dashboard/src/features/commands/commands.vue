@@ -11,7 +11,9 @@ import List from './ui/list.vue'
 import { useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import ManageGroups from '@/components/commands/manageGroups.vue'
+import { Button } from '@/components/ui/button'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -43,9 +45,38 @@ const commands = computed(() => {
 })
 
 const showManageGroupsModal = ref(false)
+
+const isCreateDisabled = computed(() => {
+	return commands.value.length >= 50 || !userCanManageCommands.value
+})
+
+const title = computed(() => {
+	if (route.params.system.toLowerCase() === 'custom') {
+		return t('sidebar.commands.custom')
+	}
+
+	return t('sidebar.commands.builtin')
+})
 </script>
 
 <template>
+	<PageLayout>
+		<template #title>
+			{{ title }} {{ t('sidebar.commands.label').toLocaleLowerCase() }}
+		</template>
+
+		<template #action>
+			<div class="flex gap-2 flex-wrap">
+				<Button variant="secondary" :disabled="isCreateDisabled">
+					{{ t('commands.groups.manageButton') }}
+				</Button>
+				<Button :disabled="isCreateDisabled">
+					{{ t('sharedButtons.create') }} ({{ commands.length }}/50)
+				</Button>
+			</div>
+		</template>
+	</PageLayout>
+
 	<div class="flex flex-col gap-4">
 		<div class="flex justify-between items-center flex-wrap gap-2">
 			<div>

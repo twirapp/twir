@@ -28,7 +28,7 @@ export const useTimersTable = createGlobalState(() => {
 			},
 			{
 				accessorKey: 'responses',
-				size: 75,
+				size: 65,
 				header: () => h('div', {}, t('sharedTexts.responses')),
 				cell: ({ row }) => h(
 					'div',
@@ -38,13 +38,13 @@ export const useTimersTable = createGlobalState(() => {
 			},
 			{
 				accessorKey: 'timeInterval',
-				size: 5,
+				size: 10,
 				header: () => h('div', {}, t('timers.table.columns.intervalInMinutes')),
 				cell: ({ row }) => h('span', row.original.timeInterval),
 			},
 			{
 				accessorKey: 'messageInterval',
-				size: 5,
+				size: 10,
 				header: () => h('div', {}, t('timers.table.columns.intervalInMessages')),
 				cell: ({ row }) => h('span', row.original.messageInterval),
 			},
