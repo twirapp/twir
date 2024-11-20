@@ -162,7 +162,9 @@
         "name": "Roles",
         "placeholder": "Select roles to grant permissions to use commands",
         "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "allowedUsers": "Users, who can bypass roles restriction for that command.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Restrictions by stats",

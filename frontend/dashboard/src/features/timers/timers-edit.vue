@@ -141,43 +141,45 @@ const responsesHasError = computed(() => {
 								<FormItem>
 									<div class="relative flex items-center">
 										<FormControl>
-											<div class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle">
-												<GripVertical class="my-auto size-6" />
-											</div>
-											<VariableInput
-												input-type="textarea"
-												class="pl-6 !pr-14"
-												:model-value="componentField.modelValue"
-												:min-rows="1"
-												:rows="1"
-												popoverAlign="end"
-												popoverSide="bottom"
-												@update:model-value="componentField.onChange"
-											>
-												<template #additional-buttons>
-													<DropdownMenu>
-														<DropdownMenuTrigger as-child>
-															<button class="hover:bg-accent p-1 rounded-md">
-																<Ellipsis class="size-4 opacity-50" />
-															</button>
-														</DropdownMenuTrigger>
+											<div class="w-full">
+												<div class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle">
+													<GripVertical class="my-auto size-6" />
+												</div>
+												<VariableInput
+													input-type="textarea"
+													class="pl-6 !pr-14"
+													:model-value="componentField.modelValue"
+													:min-rows="1"
+													:rows="1"
+													popoverAlign="end"
+													popoverSide="bottom"
+													@update:model-value="componentField.onChange"
+												>
+													<template #additional-buttons>
+														<DropdownMenu>
+															<DropdownMenuTrigger as-child>
+																<button class="hover:bg-accent p-1 rounded-md">
+																	<Ellipsis class="size-4 opacity-50" />
+																</button>
+															</DropdownMenuTrigger>
 
-														<DropdownMenuContent :hideWhenDetached="false">
-															<DropdownMenuCheckboxItem
-																v-model:checked="(field.value as any).isAnnounce"
-															>
-																Send as announcement
-															</DropdownMenuCheckboxItem>
-															<DropdownMenuItem @click="remove">
-																<div class="flex items-center gap-2">
-																	<Trash class="size-4" />
-																	Remove
-																</div>
-															</DropdownMenuItem>
-														</DropdownMenuContent>
-													</DropdownMenu>
-												</template>
-											</VariableInput>
+															<DropdownMenuContent :hideWhenDetached="false">
+																<DropdownMenuCheckboxItem
+																	v-model:checked="(field.value as any).isAnnounce"
+																>
+																	Send as announcement
+																</DropdownMenuCheckboxItem>
+																<DropdownMenuItem @click="remove">
+																	<div class="flex items-center gap-2">
+																		<Trash class="size-4" />
+																		Remove
+																	</div>
+																</DropdownMenuItem>
+															</DropdownMenuContent>
+														</DropdownMenu>
+													</template>
+												</VariableInput>
+											</div>
 										</FormControl>
 									</div>
 									<FormMessage />

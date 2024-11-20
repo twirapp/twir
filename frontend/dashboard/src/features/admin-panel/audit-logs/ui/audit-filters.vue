@@ -8,7 +8,7 @@ import { useAuditTable } from '../composables/use-audit-table'
 
 import type { AuditFilterType } from '../composables/use-audit-filters'
 
-import TwitchUsersSearch from '@/components/twitchUsers/twitch-users-select.vue'
+import TwitchUserSearch from '@/components/twitchUsers/twitch-user-select.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -51,7 +51,7 @@ const usersSearchPlaceholder = computed(() => {
 
 <template>
 	<div class="flex gap-2">
-		<TwitchUsersSearch
+		<TwitchUserSearch
 			v-model="searchUserId"
 			:placeholder="usersSearchPlaceholder"
 		/>

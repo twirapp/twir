@@ -8,7 +8,6 @@ import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from '@zero-dependency/
 import { ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
 import { computed, h } from 'vue'
 
-import EditModal from './edit-modal.vue'
 import ColumnActions from './list-actions.vue'
 import { type Group, createGroups, isCommand } from './list-groups.js'
 
@@ -124,6 +123,5 @@ const table = useVueTable({
 </script>
 
 <template>
-	<EditModal />
 	<Table :table="table" :is-loading="false" />
 </template>

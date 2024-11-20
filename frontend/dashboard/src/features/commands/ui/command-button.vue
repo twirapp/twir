@@ -4,10 +4,7 @@ import { NButton } from 'naive-ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import EditModal from './edit-modal.vue'
-
 import { useCommandsApi } from '@/api/commands/commands.js'
-import { useCommandEdit } from '@/features/commands/composables/use-command-edit.js'
 
 const props = defineProps<{
 	name: string
@@ -15,7 +12,6 @@ const props = defineProps<{
 }>()
 
 const commandsManager = useCommandsApi()
-const commandEdit = useCommandEdit()
 
 const { data: commands } = commandsManager.useQueryCommands()
 
@@ -28,14 +24,14 @@ const { t } = useI18n()
 	<div class="flex flex-col">
 		<span>{{ props.title ?? t('games.command') }}</span>
 		<div v-if="command" class="flex gap-1">
-			<NButton secondary type="success" @click="() => commandEdit.editCommand(command!.id)">
-				<div class="flex items-center min-w-20 justify-between">
-					<span>!{{ command.name }}</span>
-					<IconPencil />
-				</div>
-			</NButton>
+			<RouterLink v-slot="{ href, navigate }" custom :to="`/dashboard/commands/${command.module.toLowerCase()}/${command.id}`">
+				<NButton tag="a" :href="href" secondary type="success" @click="navigate">
+					<div class="flex items-center min-w-20 justify-between">
+						<span>!{{ command.name }}</span>
+						<IconPencil />
+					</div>
+				</NButton>
+			</RouterLink>
 		</div>
 	</div>
-
-	<EditModal />
 </template>

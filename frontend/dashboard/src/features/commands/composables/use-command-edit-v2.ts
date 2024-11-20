@@ -1,25 +1,26 @@
 import { createGlobalState } from '@vueuse/core'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { array, boolean, nativeEnum, number, object, string } from 'zod'
 
 import type { TypeOf } from 'zod'
 
-import { useCommandsApi } from '@/api/commands/commands'
+import { type Command, useCommandsApi } from '@/api/commands/commands'
 import { useRoles } from '@/api/roles'
 import { useToast } from '@/components/ui/toast'
 import { CommandExpiresType } from '@/gql/graphql'
 
 export const formSchema = object({
+	id: string().optional(),
 	name: string().min(1).max(50),
 	aliases: array(string().max(50)).max(50),
+	enabled: boolean(),
 	responses: array(
 		object({
 			text: string().min(1).max(500),
-			order: number(),
 			twitchCategoriesIds: array(string()).max(100),
 		}),
-	).min(1),
-	enabled: boolean().default(true),
+	).max(3).default([]),
 	description: string().max(500),
 	rolesIds: array(string()).max(100),
 	deniedUsersIds: array(string()).max(100),
@@ -28,13 +29,13 @@ export const formSchema = object({
 	requiredUsedChannelPoints: number().int().min(0).max(999999999999),
 	requiredWatchTime: number().int().min(0).max(999999999999),
 	cooldown: number().int().min(0).max(84600),
-	cooldownType: string().optional(),
+	cooldownType: string(),
 	cooldownRolesIds: array(string()).max(100),
-	isReply: boolean().default(true),
-	visible: boolean().default(true),
-	keepResponsesOrder: boolean().default(true),
-	onlineOnly: boolean().default(false),
-	groupId: string().optional(),
+	isReply: boolean(),
+	visible: boolean(),
+	keepResponsesOrder: boolean(),
+	onlineOnly: boolean(),
+	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),
 	expiresAt: number().nullable().optional(),
@@ -55,15 +56,22 @@ export const useCommandEditV2 = createGlobalState(() => {
 	const rolesManager = useRoles()
 	const { data: roles } = rolesManager.useRolesQuery()
 
+	const command = ref<Command | null>(null)
+
 	async function findCommand(id: string) {
+		command.value = null
 		if (id === 'create') return
 
 		const fetchedData = await commands.then((c) => c)
-		const command = fetchedData.data?.value?.commands.find((command) => command.id === id)
+		const foundCmd = fetchedData.data?.value?.commands.find((command) => command.id === id)
 
-		if (!command) throw new Error('Command not found')
+		if (!foundCmd) {
+			throw new Error('Command not found')
+		}
 
-		return command
+		command.value = foundCmd
+
+		return foundCmd
 	}
 
 	async function submit(data: FormSchema) {
@@ -72,7 +80,10 @@ export const useCommandEditV2 = createGlobalState(() => {
 				id: data.id,
 				opts: {
 					...data,
+					// eslint-disable-next-line ts/ban-ts-comment
+					// @ts-expect-error
 					id: undefined,
+					module: undefined,
 				},
 			})
 		} else {
@@ -82,8 +93,9 @@ export const useCommandEditV2 = createGlobalState(() => {
 		}
 
 		toast({
-			title: t('common.saved'),
-			status: 'success',
+			title: t('sharedTexts.saved'),
+			duration: 2500,
+			variant: 'success',
 		})
 	}
 
@@ -91,5 +103,6 @@ export const useCommandEditV2 = createGlobalState(() => {
 		findCommand,
 		submit,
 		channelRoles: roles,
+		command,
 	}
 })

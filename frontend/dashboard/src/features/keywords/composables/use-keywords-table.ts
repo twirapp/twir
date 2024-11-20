@@ -20,19 +20,25 @@ export const useKeywordsTable = createGlobalState(() => {
 	const tableColumns = computed<ColumnDef<KeywordResponse>[]>(() => [
 		{
 			accessorKey: 'text',
-			size: 30,
+			size: 20,
 			header: () => h('div', {}, t('keywords.triggerText')),
 			cell: ({ row }) => h('span', row.original.text),
 		},
 		{
 			accessorKey: 'response',
-			size: 30,
+			size: 20,
 			header: () => h('div', {}, t('sharedTexts.response')),
 			cell: ({ row }) => h('span', row.original.response ?? ''),
 		},
 		{
+			accessorKey: 'variables',
+			size: 45,
+			header: () => h('div', {}, 'Variable for command'),
+			cell: ({ row }) => h('span', { class: 'cursor-pointer text-xs' }, { default: () => `$(keywords.counter|${row.original.id})` }),
+		},
+		{
 			accessorKey: 'usages',
-			size: 30,
+			size: 5,
 			header: () => h('div', {}, t('keywords.usages')),
 			cell: ({ row }) => h('span', row.original.usageCount),
 		},

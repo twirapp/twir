@@ -33,6 +33,7 @@ type Command {
 	requiredWatchTime: Int!
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
+	groupId: String
 	group: CommandGroup
 	expiresAt: Int
 	expiresType: CommandExpiresType
@@ -42,7 +43,6 @@ type CommandResponse {
 	id: ID!
 	commandId: ID!
 	text: String!
-	order: Int!
 	twitchCategoriesIds: [String!]!
 	twitchCategories: [TwitchCategory!]! @goField(forceResolver: true)
 }
@@ -67,7 +67,7 @@ input CommandsCreateOpts {
 	name: String! @validate(constraint: "max=50")
 	description: String! @validate(constraint: "max=500")
 	aliases: [String!]! @validate(constraint: "dive,max=50,min=1")
-	responses: [CreateOrUpdateCommandResponseInput!]!
+	responses: [CreateOrUpdateCommandResponseInput!]! @validate(constraint: "max=3")
 	cooldown: Int! @validate(constraint: "max=90000")
 	cooldownType: String!
 	enabled: Boolean!
@@ -92,7 +92,7 @@ input CommandsUpdateOpts {
 	name: String @validate(constraint: "max=50")
 	description: String @validate(constraint: "max=500")
 	aliases: [String!] @validate(constraint: "dive,max=50,min=1")
-	responses: [CreateOrUpdateCommandResponseInput!]
+	responses: [CreateOrUpdateCommandResponseInput!] @validate(constraint: "max=3")
 	cooldown: Int
 	cooldownType: String
 	enabled: Boolean
@@ -115,7 +115,6 @@ input CommandsUpdateOpts {
 
 input CreateOrUpdateCommandResponseInput {
 	text: String! @validate(constraint: "max=500")
-	order: Int! @validate(constraint: "max=500")
 	twitchCategoriesIds: [String!]! @validate(constraint: "max=500")
 }
 

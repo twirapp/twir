@@ -1,15 +1,15 @@
 .dp__theme_dark {
 	--dp-background-color: hsl(var(--background));
-	--dp-text-color: theme(colors.stone.50);
+	--dp-text-color: theme(colors.white);
 	--dp-hover-color: hsl(var(--accent));
 	--dp-hover-text-color: theme(colors.white);
-	--dp-primary-color: theme(colors.white);
+	--dp-primary-color: hsl(var(--accent));
 	--dp-primary-text-color: #ffffff;
 	--dp-secondary-color: theme(colors.stone.300);
 	--dp-border-color: hsl(var(--border));
 	--dp-menu-border-color: hsl(var(--border));
 	--dp-border-color-hover: hsl(var(--border));
-	--dp-disabled-color: theme(colors.stone.900);
+	--dp-disabled-color: hsl(var(--background) / 0.5);
 	--dp-scroll-bar-background: #212121;
 	--dp-scroll-bar-color: #484848;
 	--dp-success-color: #00701a;
@@ -17,4 +17,8 @@
 	--dp-danger-color: #e53935;
 	--dp-highlight-color: rgba(0, 92, 178, 0.2);
 	--dp-border-color-focus: hsl(var(--border));
+}
+
+.dp__disabled {
+	cursor: not-allowed;
 }
