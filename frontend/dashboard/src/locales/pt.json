@@ -59,7 +59,8 @@
     "userNotFound": "Nenhum usuário encontrado",
     "settings": "Configurações",
     "create": "Criar",
-    "edit": "Editar"
+    "edit": "Editar",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Painel de Controle",
@@ -131,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Pseudônimos"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Ativar comando apenas em certas categorias (deixe em branco para desativar)"
@@ -161,7 +162,9 @@
         "name": "Funções",
         "placeholder": "Selecione funções para conceder permissões para usar comandos",
         "deniedUsers": "Usuários, que não podem usar esse comando.",
-        "allowedUsers": "Usuários, que podem ignorar as restrições de funções para esse comando."
+        "allowedUsers": "Usuários, que podem ignorar as restrições de funções para esse comando.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Restrições por estatísticas",
