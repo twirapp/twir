@@ -59,7 +59,8 @@
     "userNotFound": "Keine Benutzer gefunden",
     "settings": "Einstellungen",
     "create": "Create",
-    "edit": "Edit"
+    "edit": "Edit",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -131,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Aliase"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
@@ -161,7 +162,9 @@
         "name": "Rollen",
         "placeholder": "Wählen Sie Rollen aus, um Berechtigungen zur Verwendung von Befehlen zu gewähren",
         "deniedUsers": "Benutzer, die diesen Befehl nicht verwenden können.",
-        "allowedUsers": "Benutzer, die die Rollenbeschränkung für diesen Befehl umgehen können."
+        "allowedUsers": "Benutzer, die die Rollenbeschränkung für diesen Befehl umgehen können.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Einschränkungen nach Statistiken",
