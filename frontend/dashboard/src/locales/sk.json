@@ -59,7 +59,8 @@
     "userNotFound": "Nenašli sa žiadni používatelia",
     "settings": "Nastavenia",
     "create": "Create",
-    "edit": "Edit"
+    "edit": "Edit",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -131,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Aliasy"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Povoliť príkaz len v určitých kategóriách (pre zakázanie nechajte prázdne)"
@@ -161,7 +162,9 @@
         "name": "Roly",
         "placeholder": "Výber rolí na udelenie oprávnení na používanie príkazov",
         "deniedUsers": "Používatelia, ktorí tento príkaz nemôžu použiť.",
-        "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz."
+        "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Obmedzenia podľa štatistík",
