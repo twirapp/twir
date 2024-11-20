@@ -48,8 +48,12 @@ const isCreateDisabled = computed(() => {
 	return commands.value.length >= 50 || !userCanManageCommands.value
 })
 
+const isCustom = computed(() => {
+	return typeof route.params.system === 'string' && route.params.system.toLowerCase() === 'custom'
+})
+
 const title = computed(() => {
-	if (typeof route.params.system === 'string' && route.params.system.toLowerCase() === 'custom') {
+	if (isCustom.value) {
 		return t('sidebar.commands.custom')
 	}
 
@@ -67,7 +71,7 @@ const title = computed(() => {
 			<Input v-model="commandsFilter" placeholder="Search..." size="" />
 		</template>
 
-		<template #action>
+		<template v-if="isCustom" #action>
 			<div class="flex gap-2 flex-wrap">
 				<Button variant="secondary" @click="showManageGroupsModal = true">
 					{{ t('commands.groups.manageButton') }}

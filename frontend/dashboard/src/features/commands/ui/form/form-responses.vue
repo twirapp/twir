@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { BadgePlus, Ellipsis, GripVertical, Settings, Trash } from 'lucide-vue-next'
 import { FieldArray, useField } from 'vee-validate'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useI18n } from 'vue-i18n'
 
@@ -44,6 +44,8 @@ function handlePush() {
 const responseDialogOpened = ref(false)
 
 const { command } = useCommandEditV2()
+
+const editable = computed(() => !command.value?.default)
 </script>
 
 <template>
@@ -53,7 +55,7 @@ const { command } = useCommandEditV2()
 				{{ t('sharedTexts.responses') }}
 			</CardTitle>
 		</CardHeader>
-		<CardContent v-if="command?.module === 'CUSTOM'" class="flex flex-col gap-2">
+		<CardContent v-if="editable" class="flex flex-col gap-2">
 			<FieldArray v-slot="{ fields, remove }" name="responses">
 				<VueDraggable
 					v-model="value"
