@@ -1,0 +1,110 @@
+<script setup lang="ts">
+import { refDebounced } from '@vueuse/core'
+import { computed, ref } from 'vue'
+
+import type { TwitchSearchChannelsRequest } from '@twir/api/messages/twitch/twitch'
+import type { SelectEvent } from 'radix-vue/dist/Listbox/ListboxItem'
+import type { AcceptableValue } from 'radix-vue/dist/shared/types'
+
+import { useTwitchGetUsers,useTwitchSearchChannels } from '@/api'
+import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { TagsInput, TagsInputItem, TagsInputItemDelete } from '@/components/ui/tags-input'
+import { resolveUserName } from '@/helpers'
+
+interface Props {
+	twirOnly?: boolean
+	placeholder?: string
+}
+const props = withDefaults(defineProps<Props>(), {
+	twirOnly: false,
+	initial: null,
+})
+
+const userId = defineModel<string[]>({ required: true, default: [] })
+
+const selectedIds = computed(() => {
+	return (Array.isArray(userId.value) ? userId.value : [userId.value]).filter(i => !!i) as string[]
+})
+
+const selectedUsersQuery = useTwitchGetUsers({ ids: selectedIds })
+const selectedUsers = computed(() => {
+	const users: Record<string, { label: string , value: string , profileImageUrl: string }> = {}
+
+	selectedUsersQuery.data.value?.users?.forEach((user) => {
+		users[user.id] = {
+			label: resolveUserName(user.login, user.displayName),
+			value: user.id,
+			profileImageUrl: user.profileImageUrl,
+		}
+	})
+
+	return users
+})
+
+const search = ref('')
+const searchDebounced = refDebounced(search, 500)
+
+const searchParams = computed<TwitchSearchChannelsRequest>(() => ({
+	query: searchDebounced.value,
+	twirOnly: props.twirOnly,
+}))
+const twitchSearch = useTwitchSearchChannels(searchParams)
+const selectOptions = computed(() => {
+	return twitchSearch.data?.value?.channels.map((channel) => ({
+		label: resolveUserName(channel.login, channel.displayName),
+		value: channel.id,
+		profileImageUrl: channel.profileImageUrl,
+	})) ?? []
+})
+
+function handleSelect(event: SelectEvent<AcceptableValue>) {
+	if (typeof event.detail.value !== 'string') return
+	if (userId.value?.includes(event.detail.value)) {
+		userId.value = userId.value?.filter((id) => id !== event.detail.value)
+	} else {
+		userId.value = [...userId.value ?? [], event.detail.value]
+	}
+
+	search.value = ''
+}
+</script>
+
+<template>
+	<Popover :open="!!selectOptions.length">
+		<PopoverTrigger as-child>
+			<TagsInput v-model="userId">
+				<TagsInputItem v-for="item in selectedUsers" :key="item.value" :value="item.value" class="rounded-full">
+					<div class="flex gap-1 items-center py-1 px-2 text-sm rounded bg-transparent">
+						<img :src="item.profileImageUrl" class="size-4 rounded-full" />
+						<span>{{ item.label }}</span>
+					</div>
+					<TagsInputItemDelete />
+				</TagsInputItem>
+
+				<input v-model="search" type="text" placeholder="Search..." class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1" />
+			</TagsInput>
+		</PopoverTrigger>
+		<PopoverContent class="p-0">
+			<Command>
+				<CommandList>
+					<CommandGroup>
+						<CommandItem
+							v-for="option in selectOptions"
+							:key="option.value"
+							:value="option.value"
+							@select="handleSelect"
+						>
+							<div class="flex gap-2 items-center">
+								<img :src="option.profileImageUrl" class="size-5 rounded-full" />
+								<span>
+									{{ option.label }}
+								</span>
+							</div>
+						</CommandItem>
+					</CommandGroup>
+				</CommandList>
+			</Command>
+		</PopoverContent>
+	</Popover>
+</template>
