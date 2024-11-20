@@ -16,7 +16,6 @@ const defaultFormValue: EditableCommand = {
 	responses: [
 		{
 			text: '',
-			order: 0,
 			twitchCategoriesIds: [],
 		},
 	],

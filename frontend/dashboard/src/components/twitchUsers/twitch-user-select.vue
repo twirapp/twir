@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { refDebounced } from '@vueuse/core'
+import { XIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 import type { TwitchSearchChannelsRequest } from '@twir/api/messages/twitch/twitch'
@@ -9,7 +10,6 @@ import type { AcceptableValue } from 'radix-vue/dist/shared/types'
 import { useTwitchGetUsers,useTwitchSearchChannels } from '@/api'
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { TagsInput, TagsInputItem, TagsInputItemDelete } from '@/components/ui/tags-input'
 import { resolveUserName } from '@/helpers'
 
 interface Props {
@@ -21,25 +21,19 @@ const props = withDefaults(defineProps<Props>(), {
 	initial: null,
 })
 
-const userId = defineModel<string[]>({ required: true, default: [] })
+const userId = defineModel<string | null>({ required: true })
 
-const selectedIds = computed(() => {
-	return (Array.isArray(userId.value) ? userId.value : [userId.value]).filter(i => !!i) as string[]
-})
+const selectedUsersQuery = useTwitchGetUsers({ ids: userId })
+const selectedUser = computed(() => {
+	const user = selectedUsersQuery.data.value?.users?.[0]
 
-const selectedUsersQuery = useTwitchGetUsers({ ids: selectedIds })
-const selectedUsers = computed(() => {
-	const users: Record<string, { label: string , value: string , profileImageUrl: string }> = {}
-
-	selectedUsersQuery.data.value?.users?.forEach((user) => {
-		users[user.id] = {
+	return user
+		? {
 			label: resolveUserName(user.login, user.displayName),
 			value: user.id,
 			profileImageUrl: user.profileImageUrl,
 		}
-	})
-
-	return users
+		: null
 })
 
 const search = ref('')
@@ -60,11 +54,7 @@ const selectOptions = computed(() => {
 
 function handleSelect(event: SelectEvent<AcceptableValue>) {
 	if (typeof event.detail.value !== 'string') return
-	if (userId.value?.includes(event.detail.value)) {
-		userId.value = userId.value?.filter((id) => id !== event.detail.value)
-	} else {
-		userId.value = [...userId.value ?? [], event.detail.value]
-	}
+	userId.value = event.detail.value
 
 	search.value = ''
 }
@@ -73,17 +63,14 @@ function handleSelect(event: SelectEvent<AcceptableValue>) {
 <template>
 	<Popover :open="!!selectOptions.length">
 		<PopoverTrigger as-child>
-			<TagsInput v-model="userId">
-				<TagsInputItem v-for="item in selectedUsers" :key="item.value" :value="item.value" class="rounded-full">
-					<div class="flex gap-1 items-center py-1 px-2 text-sm rounded bg-transparent">
-						<img :src="item.profileImageUrl" class="size-4 rounded-full" />
-						<span>{{ item.label }}</span>
-					</div>
-					<TagsInputItemDelete />
-				</TagsInputItem>
-
-				<input v-model="search" type="text" :placeholder="placeholder ?? 'Search...'" class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1" />
-			</TagsInput>
+			<div class="flex flex-wrap gap-2 items-center rounded-md border border-input bg-background px-3 py-2 text-sm w-full">
+				<div v-if="selectedUser" class="flex h-6 items-center bg-secondary gap-1 py-1 px-2 text-sm rounded-full">
+					<img :src="selectedUser.profileImageUrl" class="size-4 rounded-full" />
+					<span>{{ selectedUser.label }}</span>
+					<XIcon class="size-4 cursor-pointer" @click="userId = null" />
+				</div>
+				<input v-if="!selectedUser" v-model="search" type="text" :placeholder="placeholder ?? 'Search...'" class="text-sm min-h-6 focus:outline-none flex-1 bg-transparent px-1" />
+			</div>
 		</PopoverTrigger>
 		<PopoverContent class="p-0">
 			<Command>

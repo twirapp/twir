@@ -66,9 +66,12 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 				:class="[activeTab ? 'pt-9' : 'py-9']"
 			>
 				<div class="flex justify-between gap-2 flex-wrap">
-					<h1 class="text-4xl">
-						<slot name="title" />
-					</h1>
+					<div class="flex flex-col gap-2">
+						<h1 class="text-4xl">
+							<slot name="title" />
+						</h1>
+						<slot name="title-footer" />
+					</div>
 
 					<slot name="action" />
 				</div>

@@ -59,7 +59,8 @@
     "userNotFound": "No users found",
 		"settings": "Settings",
     "create": "Create",
-    "edit": "Edit"
+    "edit": "Edit",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -131,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Enable command only in certain categories (leave empty for disable)"
@@ -161,7 +162,9 @@
         "name": "Roles",
         "placeholder": "Select roles to grant permissions to use commands",
         "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "allowedUsers": "Users, who can bypass roles restriction for that command.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Restrictions by stats",

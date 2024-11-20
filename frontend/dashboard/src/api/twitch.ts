@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { isRef } from 'vue'
+import { isRef, unref } from 'vue'
 
 import type { GetResponse as RewardsResponse } from '@twir/api/messages/rewards/rewards'
 import type { TwitchGetUsersResponse, TwitchSearchChannelsRequest, TwitchSearchChannelsResponse } from '@twir/api/messages/twitch/twitch'
@@ -7,7 +7,7 @@ import type { ComputedRef, MaybeRef, Ref } from 'vue'
 
 import { protectedApiClient, unprotectedApiClient } from '@/api/twirp.js'
 
-type TwitchIn = Ref<string[]> | Ref<string> | ComputedRef<string> | ComputedRef<string[]> | string[]
+type TwitchIn = MaybeRef<string | string[] | null>
 export function useTwitchGetUsers(opts: {
 	ids?: TwitchIn
 	names?: TwitchIn
@@ -15,12 +15,11 @@ export function useTwitchGetUsers(opts: {
 	return useQuery({
 		queryKey: ['twitch', 'search', 'users', opts.ids, opts.names],
 		queryFn: async (): Promise<TwitchGetUsersResponse> => {
-			let ids = isRef(opts?.ids)
-				? Array.isArray(opts.ids.value) ? opts.ids.value : [opts.ids.value]
-				: opts?.ids ?? ['']
-			let names = isRef(opts?.names)
-				? Array.isArray(opts.names.value) ? opts.names.value : [opts.names.value]
-				: opts?.names ?? ['']
+			const rawIds = unref(opts.ids) ?? []
+			const rawNames = unref(opts.names) ?? []
+
+			let ids: string[] = Array.isArray(rawIds) ? rawIds : [rawIds]
+			let names: string[] = Array.isArray(rawNames) ? rawNames : [rawNames]
 
 			names = names.filter(n => n !== '')
 			ids = ids.filter(n => n !== '')
@@ -80,7 +79,7 @@ export function useTwitchSearchCategories(query: string | Ref<string>) {
 	})
 }
 
-export function useTwitchGetCategories(ids: MaybeRef<string[]> | ComputedRef<string[]>) {
+export function useTwitchGetCategories(ids: MaybeRef<string[]> | ComputedRef<string[]>, options?: { keepPreviousData?: boolean }) {
 	return useQuery({
 		queryKey: ['twitchGetCategories', ids || ''],
 		queryFn: async () => {
@@ -90,6 +89,7 @@ export function useTwitchGetCategories(ids: MaybeRef<string[]> | ComputedRef<str
 			const call = await protectedApiClient.twitchGetCategories({ ids: input })
 			return call.response
 		},
+		keepPreviousData: options?.keepPreviousData,
 	})
 }
 
