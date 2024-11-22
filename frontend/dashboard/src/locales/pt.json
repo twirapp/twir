@@ -140,6 +140,7 @@
       "expiration": {
         "label": "Expiração",
         "actionsLabel": "Ação ao expirar",
+        "defaultWarning": "Expiration cannot be set for default command",
         "actions": {
           "delete": "Comando será excluído",
           "disable": "Comando será desativado"
