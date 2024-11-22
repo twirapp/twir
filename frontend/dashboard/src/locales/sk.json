@@ -140,6 +140,7 @@
       "expiration": {
         "label": "Vypršanie platnosti",
         "actionsLabel": "Akcia pri expirovaní platnosti",
+        "defaultWarning": "Expiration cannot be set for default command",
         "actions": {
           "delete": "Príkaz bude vymazaný",
           "disable": "Príkaz bude deaktivovaný"
