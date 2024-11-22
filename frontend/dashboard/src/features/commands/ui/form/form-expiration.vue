@@ -51,7 +51,7 @@ function reset() {
 					<FormLabel>{{ t('commands.modal.expiration.actionsLabel') }}</FormLabel>
 					<div class="flex flex-row gap-2">
 						<FormControl>
-							<Select v-bind="componentField" :disabled="command?.default">
+							<Select v-bind="componentField">
 								<SelectTrigger>
 									<SelectValue placeholder="No expiration" />
 								</SelectTrigger>
@@ -65,7 +65,6 @@ function reset() {
 						<Button
 							variant="outline"
 							type="button"
-							:disabled="command?.default"
 							@click="reset"
 						>
 							<XIcon class="size-4" />
@@ -80,7 +79,6 @@ function reset() {
 					<FormLabel>Expires at</FormLabel>
 					<FormControl>
 						<DatePicker
-							:disabled="command?.default"
 							:uid="field.name"
 							auto-apply
 							model-type="timestamp"

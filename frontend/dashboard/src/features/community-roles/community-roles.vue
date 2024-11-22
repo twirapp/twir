@@ -34,8 +34,6 @@ function openModal(role: ChannelRolesQuery['roles'][number] | null) {
 const userCanManageRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageRoles)
 
 const { t } = useI18n()
-
-const showDelete = ref(false)
 </script>
 
 <template>

@@ -111,7 +111,7 @@ function computeSelectedGroupColor(id: string) {
 
 					<div v-if="isCustom" class="flex flex-row gap-2">
 						<FormControl>
-							<Select v-bind="componentField" :disabled="command?.default">
+							<Select v-bind="componentField">
 								<SelectTrigger>
 									<SelectValue
 										:style="{ color: computeSelectedGroupColor(componentField.modelValue) }"
@@ -136,7 +136,6 @@ function computeSelectedGroupColor(id: string) {
 							v-if="componentField['onUpdate:modelValue']"
 							variant="outline"
 							type="button"
-							:disabled="command?.default"
 							@click="componentField['onUpdate:modelValue'](null)"
 						>
 							<XIcon class="size-4" />

@@ -96,7 +96,7 @@ func (r *commandResponseResolver) TwitchCategories(
 	return categories, nil
 }
 
-// CommandsCreate is the resolver for the commandsCreate field.
+// CommandsCreate is the resolver for the commandsCreate field
 func (r *mutationResolver) CommandsCreate(
 	ctx context.Context,
 	opts gqlmodel.CommandsCreateOpts,

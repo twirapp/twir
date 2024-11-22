@@ -23,7 +23,7 @@ const { findCommand, submit } = useCommandEditV2()
 
 const loading = ref(true)
 
-const { handleSubmit, setValues, errors } = useForm({
+const { handleSubmit, setValues } = useForm({
 	validationSchema: toTypedSchema(formSchema),
 	initialValues: {
 		enabled: true,
