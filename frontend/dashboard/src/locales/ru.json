@@ -140,6 +140,7 @@
       "expiration": {
         "label": "Срок действия",
         "actionsLabel": "Действие по истечению",
+        "defaultWarning": "Expiration cannot be set for default command",
         "actions": {
           "delete": "Команда будет удалена",
           "disable": "Команда будет отключена"
