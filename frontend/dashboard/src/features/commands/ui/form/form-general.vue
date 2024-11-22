@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
@@ -30,7 +31,7 @@ const { t } = useI18n()
 
 const groupsApi = useCommandsGroupsApi()
 const { data: groups } = groupsApi.useQueryGroups()
-const { command } = useCommandEditV2()
+const { isCustom } = useCommandEditV2()
 
 function computeSelectedGroupColor(id: string) {
 	if (!groups?.value?.commandsGroups) {
@@ -108,7 +109,7 @@ function computeSelectedGroupColor(id: string) {
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.settings.other.commandGroup') }}</FormLabel>
 
-					<div class="flex flex-row gap-2">
+					<div v-if="isCustom" class="flex flex-row gap-2">
 						<FormControl>
 							<Select v-bind="componentField" :disabled="command?.default">
 								<SelectTrigger>
@@ -141,6 +142,11 @@ function computeSelectedGroupColor(id: string) {
 							<XIcon class="size-4" />
 						</Button>
 					</div>
+					<Alert v-else class="py-2">
+						<AlertDescription>
+							Group cannot be set for default command
+						</AlertDescription>
+					</Alert>
 					<FormMessage />
 				</FormItem>
 			</FormField>

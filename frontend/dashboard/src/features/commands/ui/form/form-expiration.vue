@@ -4,6 +4,7 @@ import { useField } from 'vee-validate'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { DatePicker } from '@/components/ui/date-picker'
@@ -20,7 +21,7 @@ import { useCommandEditV2 } from '@/features/commands/composables/use-command-ed
 import { CommandExpiresType } from '@/gql/graphql'
 
 const { t } = useI18n()
-const { command } = useCommandEditV2()
+const { isCustom } = useCommandEditV2()
 
 const expiresTypeOptions = computed(() => {
 	return [
@@ -29,12 +30,12 @@ const expiresTypeOptions = computed(() => {
 	]
 })
 
-const { setValue: setExpiresValue } = useField('expiresAt')
-const { setValue: setTypeValue } = useField('expiresType')
+const { resetField: resetAt } = useField('expiresAt')
+const { resetField: resetType } = useField('expiresType')
 
 function reset() {
-	setExpiresValue(null)
-	setTypeValue(null)
+	resetAt()
+	resetType()
 }
 </script>
 
@@ -44,7 +45,7 @@ function reset() {
 			<CardTitle>{{ t('commands.modal.expiration.label') }}</CardTitle>
 		</CardHeader>
 
-		<CardContent class="flex flex-col gap-4">
+		<CardContent v-if="isCustom" class="flex flex-col gap-4">
 			<FormField v-slot="{ componentField }" name="expiresType">
 				<FormItem>
 					<FormLabel>{{ t('commands.modal.expiration.actionsLabel') }}</FormLabel>
@@ -94,6 +95,14 @@ function reset() {
 					<FormMessage />
 				</FormItem>
 			</FormField>
+		</CardContent>
+
+		<CardContent v-else>
+			<Alert>
+				<AlertDescription>
+					{{ t('commands.modal.expiration.defaultWarning') }}
+				</AlertDescription>
+			</Alert>
 		</CardContent>
 	</Card>
 </template>

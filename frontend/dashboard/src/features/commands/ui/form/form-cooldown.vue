@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EditIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -13,6 +14,7 @@ import {
 	SelectValue,
 } from '@/components/ui/select'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
+import CommunityRolesModal from '@/features/community-roles/community-roles-modal.vue'
 
 const { t } = useI18n()
 </script>
@@ -26,7 +28,9 @@ const { t } = useI18n()
 			<div class="flex flex-col gap-4">
 				<FormField v-slot="{ componentField }" name="cooldown">
 					<FormItem>
-						<FormLabel>{{ t('commands.modal.cooldown.value') }}</FormLabel>
+						<FormLabel class="flex gap-2">
+							{{ t('commands.modal.cooldown.value') }}
+						</FormLabel>
 						<FormControl>
 							<Input type="number" v-bind="componentField" />
 						</FormControl>
@@ -61,7 +65,17 @@ const { t } = useI18n()
 				</FormField>
 
 				<div class="flex flex-col gap-2">
-					<span>Affected roles</span>
+					<span class="inline-flex gap-1">
+						Affected roles
+						<CommunityRolesModal>
+							<template #trigger>
+								<span class="flex flex-row gap-1 items-center cursor-pointer underline">
+									{{ t('sidebar.roles') }}
+									<EditIcon class="size-4" />
+								</span>
+							</template>
+						</CommunityRolesModal>
+					</span>
 					<FormRolesSelector field-name="cooldownRolesIds" />
 				</div>
 			</div>

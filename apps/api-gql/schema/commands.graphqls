@@ -4,7 +4,7 @@ extend type Query {
 }
 
 extend type Mutation {
-	commandsCreate(opts: CommandsCreateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
+	commandsCreate(opts: CommandsCreateOpts!): CommandCreatePayload! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 	commandsUpdate(id: ID!, opts: CommandsUpdateOpts!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 	commandsRemove(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_COMMANDS)
 }
@@ -121,4 +121,8 @@ input CreateOrUpdateCommandResponseInput {
 enum CommandExpiresType {
 	DISABLE
 	DELETE
+}
+
+type CommandCreatePayload {
+	id: String!
 }

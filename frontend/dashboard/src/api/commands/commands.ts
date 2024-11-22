@@ -77,7 +77,9 @@ export const useCommandsApi = createGlobalState(() => {
 	const useMutationCreateCommand = () => useMutation(
 		graphql(`
 			mutation CreateCommand($opts: CommandsCreateOpts!) {
-				commandsCreate(opts: $opts)
+				commandsCreate(opts: $opts) {
+					id
+				}
 			}
 		`),
 		[invalidationKey],

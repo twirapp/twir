@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ExternalLink } from 'lucide-vue-next'
+import { EditIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
@@ -8,17 +8,9 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/comp
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import FormRolesSelector from '@/features/commands/ui/form-roles-selector.vue'
+import CommunityRolesModal from '@/features/community-roles/community-roles-modal.vue'
 
 const { t } = useI18n()
-
-function confirmLeaving(e: Event, onLeave: () => any) {
-	e.preventDefault()
-
-	// eslint-disable-next-line no-alert
-	if (confirm('You are leaving the page. Are you sure?')) {
-		return onLeave()
-	}
-}
 </script>
 
 <template>
@@ -28,21 +20,16 @@ function confirmLeaving(e: Event, onLeave: () => any) {
 		</CardHeader>
 		<CardContent class="flex flex-col gap-4">
 			<div class="flex flex-col gap-2">
-				<Label>
+				<Label class="flex gap-1">
 					<span>Role restriction</span>
-					<RouterLink
-						v-slot="{ href, navigate }"
-						custom
-						to="/dashboard/community?tab=permissions"
-					>
-						<a
-							:href="href"
-							class="ml-1 inline-flex text-xs underline"
-							@click="(e) => confirmLeaving(e, navigate)"
-						>
-							manage roles <ExternalLink class="size-4" />
-						</a>
-					</RouterLink>
+					<CommunityRolesModal>
+						<template #trigger>
+							<span class="flex flex-row gap-1 items-center cursor-pointer underline">
+								{{ t('sidebar.roles') }}
+								<EditIcon class="size-4" />
+							</span>
+						</template>
+					</CommunityRolesModal>
 				</Label>
 
 				<FormRolesSelector field-name="rolesIds" />

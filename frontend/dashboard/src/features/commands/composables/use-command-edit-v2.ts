@@ -1,6 +1,7 @@
 import { createGlobalState } from '@vueuse/core'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { array, boolean, nativeEnum, number, object, string } from 'zod'
 
 import type { TypeOf } from 'zod'
@@ -38,15 +39,31 @@ export const formSchema = object({
 	groupId: string().nullable().optional().default(null),
 	enabledCategories: array(string()).max(100),
 	module: string().optional(),
-	expiresAt: number().nullable().optional(),
-	expiresType: nativeEnum(CommandExpiresType).nullable().optional(),
 })
+	.and(object({
+		expiresAt: number().nullable().optional(),
+		expiresType: nativeEnum(CommandExpiresType).nullable().optional(),
+	}).refine((data) => {
+		if (data.expiresAt && !data.expiresType) {
+			return false
+		}
+
+		if (!data.expiresAt && data.expiresType) {
+			return false
+		}
+
+		return true
+	}, {
+		message: 'ExpiresAt and ExpiresType must be both set or both not set',
+		path: ['expiresAt', 'expiresType'],
+	}))
 
 type FormSchema = TypeOf<typeof formSchema>
 
 export const useCommandEditV2 = createGlobalState(() => {
 	const { toast } = useToast()
 	const { t } = useI18n()
+	const router = useRouter()
 
 	const commandsApi = useCommandsApi()
 	const commands = commandsApi.useQueryCommands()
@@ -57,6 +74,9 @@ export const useCommandEditV2 = createGlobalState(() => {
 	const { data: roles } = rolesManager.useRolesQuery()
 
 	const command = ref<Command | null>(null)
+	const isCustom = computed(() => {
+		return !command.value?.default
+	})
 
 	async function findCommand(id: string) {
 		command.value = null
@@ -87,9 +107,20 @@ export const useCommandEditV2 = createGlobalState(() => {
 				},
 			})
 		} else {
-			await create.executeMutation({
+			const result = await create.executeMutation({
 				opts: data,
 			})
+
+			if (result.error) {
+				toast({
+					title: result.error.graphQLErrors?.map(e => e.message).join(', ') ?? 'error',
+					duration: 5000,
+					variant: 'destructive',
+				})
+				return
+			}
+
+			await router.push(`/dashboard/commands/custom/${result.data?.commandsCreate.id}`)
 		}
 
 		toast({
@@ -104,5 +135,6 @@ export const useCommandEditV2 = createGlobalState(() => {
 		submit,
 		channelRoles: roles,
 		command,
+		isCustom,
 	}
 })

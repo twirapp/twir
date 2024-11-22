@@ -3,7 +3,6 @@ import { IconPlus } from '@tabler/icons-vue'
 import {
 	NButton,
 	NCard,
-	NModal,
 	NPopconfirm,
 	NSpace,
 	NText,
@@ -17,6 +16,8 @@ import type { ChannelRolesQuery } from '@/gql/graphql'
 
 import { useUserAccessFlagChecker } from '@/api/index.js'
 import { useRoles } from '@/api/roles'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { Dialog, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { ChannelRolePermissionEnum, RoleTypeEnum } from '@/gql/graphql'
 
 const rolesManager = useRoles()
@@ -29,11 +30,12 @@ function openModal(role: ChannelRolesQuery['roles'][number] | null) {
 	editableRole.value = role
 	showModal.value = true
 }
-const closeModal = () => showModal.value = false
 
 const userCanManageRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageRoles)
 
 const { t } = useI18n()
+
+const showDelete = ref(false)
 </script>
 
 <template>
@@ -87,17 +89,16 @@ const { t } = useI18n()
 				</NSpace>
 			</NSpace>
 		</NCard>
-
-		<NModal
-			v-model:show="showModal"
-			:mask-closable="false"
-			:segmented="true"
-			preset="card"
-			:title="editableRole?.name || 'Create role'"
-			:style="{ width: '600px', top: '50px' }"
-			:on-close="closeModal"
-		>
-			<RoleModal :role="editableRole" @close="closeModal" />
-		</NModal>
 	</div>
+	<Dialog v-model:open="showModal">
+		<DialogOrSheet>
+			<DialogHeader>
+				<DialogTitle>
+					{{ editableRole?.name || 'Create role' }}
+				</DialogTitle>
+			</DialogHeader>
+
+			<RoleModal :role="editableRole" />
+		</DialogOrSheet>
+	</Dialog>
 </template>
