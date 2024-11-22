@@ -140,6 +140,7 @@
       "expiration": {
         "label": "Ablauf",
         "actionsLabel": "Aktion nach Ablauf",
+        "defaultWarning": "Expiration cannot be set for default command",
         "actions": {
           "delete": "Befehl wird gelöscht",
           "disable": "Befehl wird deaktiviert"
