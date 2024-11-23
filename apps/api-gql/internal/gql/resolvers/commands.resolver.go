@@ -27,7 +27,10 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -64,7 +67,10 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 }
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(
+	ctx context.Context,
+	obj *gqlmodel.CommandResponse,
+) ([]gqlmodel.TwitchCategory, error) {
 	var categories []gqlmodel.TwitchCategory
 
 	for _, id := range obj.TwitchCategoriesIds {
@@ -91,7 +97,10 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 }
 
 // CommandsCreate is the resolver for the commandsCreate field
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -100,6 +109,20 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	var createdCommands int64
+	if err := r.gorm.
+		WithContext(ctx).
+		Model(&model.ChannelsCommands{}).
+		Where(`"channelId" = ? AND "default" = ?`, dashboardId, false).
+		Count(&createdCommands).
+		Error; err != nil {
+		return nil, fmt.Errorf("failed to count commands: %w", err)
+	}
+
+	if createdCommands >= 50 {
+		return nil, fmt.Errorf("you can't create more than 50 custom commands")
 	}
 
 	if err := r.checkIsCommandWithNameOrAliaseExists(ctx, nil, opts.Name, opts.Aliases); err != nil {
@@ -196,7 +219,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -528,7 +555,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}

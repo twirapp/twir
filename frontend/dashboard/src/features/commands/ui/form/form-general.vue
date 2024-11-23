@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { XIcon } from 'lucide-vue-next'
+import { EditIcon, XIcon } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 
 import { useCommandEditV2 } from '../../composables/use-command-edit-v2'
 
 import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
+import ManageGroups from '@/components/commands/manageGroups.vue'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import {
@@ -107,7 +110,22 @@ function computeSelectedGroupColor(id: string) {
 
 			<FormField v-slot="{ componentField }" name="groupId">
 				<FormItem>
-					<FormLabel>{{ t('commands.modal.settings.other.commandGroup') }}</FormLabel>
+					<FormLabel class="flex gap-2">
+						<span>{{ t('commands.modal.settings.other.commandGroup') }}</span>
+						<Dialog>
+							<DialogTrigger as-child>
+								<span class="flex flex-row gap-1 items-center cursor-pointer underline">
+									{{ t('commands.groups.manageButton') }}
+									<EditIcon class="size-4" />
+								</span>
+
+								<DialogOrSheet>
+									<DialogTitle>{{ t('commands.groups.manageButton') }}</DialogTitle>
+									<ManageGroups />
+								</DialogOrSheet>
+							</DialogTrigger>
+						</Dialog>
+					</FormLabel>
 
 					<div v-if="isCustom" class="flex flex-row gap-2">
 						<FormControl>
@@ -119,7 +137,10 @@ function computeSelectedGroupColor(id: string) {
 									/>
 								</SelectTrigger>
 								<SelectContent>
-									<SelectGroup>
+									<div v-if="!groups?.commandsGroups.length" class="p-2">
+										No groups created
+									</div>
+									<SelectGroup v-else>
 										<SelectItem
 											v-for="(group) in groups?.commandsGroups"
 											:key="group.id"

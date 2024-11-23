@@ -58,7 +58,7 @@ export const formSchema = object({
 		path: ['expiresAt', 'expiresType'],
 	}))
 
-type FormSchema = TypeOf<typeof formSchema>
+export type FormSchema = TypeOf<typeof formSchema>
 
 export const useCommandEditV2 = createGlobalState(() => {
 	const { toast } = useToast()

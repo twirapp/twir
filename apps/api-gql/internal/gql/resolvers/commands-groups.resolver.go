@@ -19,7 +19,10 @@ import (
 )
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
-func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
+func (r *mutationResolver) CommandsGroupsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsGroupsCreateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -28,6 +31,20 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
+	}
+
+	var createdCount int64
+	if err := r.gorm.
+		WithContext(ctx).
+		Model(&model.ChannelCommandGroup{}).
+		Where(`"channelId" = ?`, dashboardId).
+		Count(&createdCount).
+		Error; err != nil {
+		return false, err
+	}
+
+	if createdCount >= 10 {
+		return false, fmt.Errorf("you can have only 10 command groups")
 	}
 
 	entity := model.ChannelCommandGroup{
@@ -57,7 +74,11 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 }
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
-func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsGroupsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsGroupsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
