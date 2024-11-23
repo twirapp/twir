@@ -7,8 +7,6 @@ import { useRoute } from 'vue-router'
 
 import { formSchema, useCommandEditV2 } from './composables/use-command-edit-v2'
 
-import type { FormSchema } from './composables/use-command-edit-v2'
-
 import { Button } from '@/components/ui/button'
 import FormConditions from '@/features/commands/ui/form/form-conditions.vue'
 import FormCooldown from '@/features/commands/ui/form/form-cooldown.vue'
@@ -53,7 +51,7 @@ const { handleSubmit, setValues } = useForm({
 		enabledCategories: [],
 		expiresType: null,
 		expiresAt: null,
-	} as FormSchema,
+	},
 	keepValuesOnUnmount: true,
 })
 

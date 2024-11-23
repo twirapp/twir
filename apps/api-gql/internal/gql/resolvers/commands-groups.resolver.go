@@ -18,7 +18,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
 )
 
-// CommandsGroupsCreate is the resolver for the commandsGroupsCreate field.
+// CommandsGroupsCreate is the resolver for the commandsGroupsCreate field
 func (r *mutationResolver) CommandsGroupsCreate(
 	ctx context.Context,
 	opts gqlmodel.CommandsGroupsCreateOpts,
