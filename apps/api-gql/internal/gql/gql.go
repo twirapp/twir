@@ -6,10 +6,12 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
+	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
 	"github.com/ravilushqa/otelgqlgen"
 	config "github.com/satont/twir/libs/config"
+	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/gql/apq-cache"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
@@ -26,6 +28,7 @@ type Opts struct {
 	Resolver   *resolvers.Resolver
 	Directives *directives.Directives
 	Config     config.Config
+	ApqCache   *apq_cache.APQCache
 }
 
 func New(opts Opts) *Gql {
@@ -55,6 +58,14 @@ func New(opts Opts) *Gql {
 			},
 		},
 	)
+
+	srv.SetQueryCache(lru.New(1000))
+	srv.Use(
+		extension.AutomaticPersistedQuery{
+			Cache: opts.ApqCache,
+		},
+	)
+
 	srv.Use(otelgqlgen.Middleware())
 
 	if opts.Config.AppEnv != "production" {
