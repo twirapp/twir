@@ -73,7 +73,7 @@ const onSubmit = handleSubmit(submit)
 		:class="{ 'blur-sm': loading }"
 		@submit="onSubmit"
 	>
-		<PageLayout>
+		<PageLayout stickyHeader>
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
 				<span v-else>Edit "{{ title }}"</span>
