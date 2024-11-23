@@ -239,9 +239,6 @@ importers:
       '@types/lodash.chunk':
         specifier: 4.2.9
         version: 4.2.9
-      '@urql/exchange-persisted':
-        specifier: 4.3.0
-        version: 4.3.0(@urql/core@5.0.6(graphql@16.8.1))
       '@urql/vue':
         specifier: 1.1.3
         version: 1.1.3(graphql@16.8.1)(vue@3.5.12(typescript@5.6.3))
@@ -3239,11 +3236,6 @@ packages:
 
   '@urql/core@5.0.6':
     resolution: {integrity: sha512-38rgSDqVNihFDauw1Pm9V7XLWIKuK8V9CKgrUF7/xEKinze8ENKP1ZeBhkG+dxWzJan7CHK+SLl46kAdvZwIlA==}
-
-  '@urql/exchange-persisted@4.3.0':
-    resolution: {integrity: sha512-gI3i5uA9K/f0z5VLqKL5SGJpTrPjsN+BOMvAGJj13Bg4JUmJCaqYYHKetay27q4K2GDZIMGDoeytR7XkpP5ftg==}
-    peerDependencies:
-      '@urql/core': ^5.0.0
 
   '@urql/vue@1.1.3':
     resolution: {integrity: sha512-LpFHHM1a3jBB4eVUF/yIwXurmE1q1kSbJ2Ldw0o8++4TQ+usFKmsehrveAfH3YyKGlWB6QR4gW61YadKJHbzpg==}
@@ -8722,7 +8714,7 @@ snapshots:
       '@babel/traverse': 7.25.9
       '@babel/types': 7.26.0
       convert-source-map: 2.0.0
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -9077,7 +9069,7 @@ snapshots:
       '@babel/parser': 7.26.2
       '@babel/template': 7.25.9
       '@babel/types': 7.26.0
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -9873,12 +9865,12 @@ snapshots:
       '@types/js-yaml': 4.0.9
       '@whatwg-node/fetch': 0.9.23
       chalk: 4.1.2
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       dotenv: 16.4.5
       graphql: 16.8.1
       graphql-request: 6.1.0(graphql@16.8.1)
       http-proxy-agent: 7.0.2
-      https-proxy-agent: 7.0.5(supports-color@9.4.0)
+      https-proxy-agent: 7.0.5
       jose: 5.9.3
       js-yaml: 4.1.0
       lodash: 4.17.21
@@ -10055,7 +10047,7 @@ snapshots:
       '@intlify/shared': 9.14.1
       '@rollup/pluginutils': 5.1.3(rollup@4.24.4)
       '@vue/compiler-sfc': 3.5.12
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       fast-glob: 3.3.2
       js-yaml: 4.1.0
       json5: 2.2.3
@@ -11639,11 +11631,6 @@ snapshots:
     transitivePeerDependencies:
       - graphql
 
-  '@urql/exchange-persisted@4.3.0(@urql/core@5.0.6(graphql@16.8.1))':
-    dependencies:
-      '@urql/core': 5.0.6(graphql@16.8.1)
-      wonka: 6.3.4
-
   '@urql/vue@1.1.3(graphql@16.8.1)(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@urql/core': 5.0.6(graphql@16.8.1)
@@ -12124,6 +12111,12 @@ snapshots:
   agent-base@6.0.2:
     dependencies:
       debug: 4.3.7(supports-color@9.4.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  agent-base@7.1.1:
+    dependencies:
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
 
@@ -13041,6 +13034,10 @@ snapshots:
   debug@4.3.4:
     dependencies:
       ms: 2.1.2
+
+  debug@4.3.7:
+    dependencies:
+      ms: 2.1.3
 
   debug@4.3.7(supports-color@9.4.0):
     dependencies:
@@ -14145,8 +14142,8 @@ snapshots:
 
   http-proxy-agent@7.0.2:
     dependencies:
-      agent-base: 7.1.1(supports-color@9.4.0)
-      debug: 4.3.7(supports-color@9.4.0)
+      agent-base: 7.1.1
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
 
@@ -14156,6 +14153,13 @@ snapshots:
     dependencies:
       agent-base: 6.0.2
       debug: 4.3.7(supports-color@9.4.0)
+    transitivePeerDependencies:
+      - supports-color
+
+  https-proxy-agent@7.0.5:
+    dependencies:
+      agent-base: 7.1.1
+      debug: 4.3.7
     transitivePeerDependencies:
       - supports-color
 
@@ -14195,7 +14199,7 @@ snapshots:
 
   import-from-esm@1.3.4:
     dependencies:
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       import-meta-resolve: 4.1.0
     transitivePeerDependencies:
       - supports-color
@@ -16518,7 +16522,7 @@ snapshots:
       detype: detypes@0.8.0
       diff: 5.2.0
       fs-extra: 11.2.0
-      https-proxy-agent: 7.0.5(supports-color@9.4.0)
+      https-proxy-agent: 7.0.5
       lodash-es: 4.17.21
       magic-string: 0.30.12
       nypm: 0.3.12
@@ -16867,7 +16871,7 @@ snapshots:
   stylus@0.57.0:
     dependencies:
       css: 3.0.0
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       glob: 7.2.3
       safer-buffer: 2.1.2
       sax: 1.2.4
@@ -17536,7 +17540,7 @@ snapshots:
   vite-node@2.1.4(@types/node@22.9.0)(sass@1.75.0)(stylus@0.57.0)(terser@5.36.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       pathe: 1.1.2
       vite: 5.4.10(@types/node@22.9.0)(sass@1.75.0)(stylus@0.57.0)(terser@5.36.0)
     transitivePeerDependencies:
@@ -17735,7 +17739,7 @@ snapshots:
       '@vitest/spy': 2.1.4
       '@vitest/utils': 2.1.4
       chai: 5.1.2
-      debug: 4.3.7(supports-color@9.4.0)
+      debug: 4.3.7
       expect-type: 1.1.0
       magic-string: 0.30.12
       pathe: 1.1.2

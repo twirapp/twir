@@ -1,4 +1,3 @@
-import { persistedExchange } from '@urql/exchange-persisted'
 import { Client, cacheExchange, fetchExchange, mapExchange, subscriptionExchange } from '@urql/vue'
 import { type SubscribePayload, createClient as createWS } from 'graphql-ws'
 import { ref } from 'vue'
@@ -36,10 +35,6 @@ function createClient() {
 				},
 			}),
 			cacheExchange,
-			persistedExchange({
-				preferGetForPersistedQueries: true,
-				enableForMutation: true,
-			}),
 			fetchExchange,
 			subscriptionExchange({
 				enableAllOperations: true,
