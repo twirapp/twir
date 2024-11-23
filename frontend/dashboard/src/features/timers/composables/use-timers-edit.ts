@@ -1,5 +1,6 @@
 import { createGlobalState } from '@vueuse/core'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { type TypeOf, array, boolean, number, object, string } from 'zod'
 
 import { useTimersApi } from '@/api/timers'
@@ -24,6 +25,7 @@ type FormSchema = TypeOf<typeof formSchema>
 export const useTimersEdit = createGlobalState(() => {
 	const { toast } = useToast()
 	const { t } = useI18n()
+	const router = useRouter()
 
 	const timersApi = useTimersApi()
 	const timers = timersApi.useQueryTimers()
@@ -54,9 +56,20 @@ export const useTimersEdit = createGlobalState(() => {
 				},
 			})
 		} else {
-			await createMutation.executeMutation({
+			const result = await createMutation.executeMutation({
 				opts: data,
 			})
+
+			if (result.error) {
+				toast({
+					title: result.error.graphQLErrors?.map(e => e.message).join(', ') ?? 'error',
+					duration: 5000,
+					variant: 'destructive',
+				})
+				return
+			}
+
+			await router.push(`/dashboard/timers/${result.data?.timersCreate.id}`)
 		}
 
 		toast({
