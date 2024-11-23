@@ -4,6 +4,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql"
+	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/gql/apq-cache"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
@@ -50,6 +51,7 @@ func main() {
 			resolvers.New,
 			directives.New,
 			httpserver.New,
+			apq_cache.New,
 			gql.New,
 		),
 		fx.Invoke(
