@@ -6,7 +6,7 @@ import type { GetAllGreetingsQuery } from '@/gql/graphql.js'
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql/gql.js'
 
-export type Greetings = GetAllGreetingsQuery['greetings'][0]
+export type Greetings = Omit<GetAllGreetingsQuery['greetings'][0], '__typename'>
 
 const invalidationKey = 'GreetingsInvalidateKey'
 

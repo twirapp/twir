@@ -5,7 +5,10 @@ import { onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { formSchema, useCommandEditV2 } from './composables/use-command-edit-v2'
+import {
+	formSchema,
+	useCommandEditV2,
+} from './composables/use-command-edit-v2'
 
 import { Button } from '@/components/ui/button'
 import FormConditions from '@/features/commands/ui/form/form-conditions.vue'
@@ -75,10 +78,7 @@ const onSubmit = handleSubmit(submit)
 </script>
 
 <template>
-	<form
-		:class="{ 'blur-sm': loading }"
-		@submit="onSubmit"
-	>
+	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
 		<PageLayout stickyHeader>
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
@@ -86,11 +86,8 @@ const onSubmit = handleSubmit(submit)
 			</template>
 
 			<template #action>
-				<Button
-					type="submit"
-					:loading="loading"
-				>
-					{{ t('sharedButtons.save') }}
+				<Button type="submit" :loading="loading">
+					{{ t("sharedButtons.save") }}
 				</Button>
 			</template>
 

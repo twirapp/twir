@@ -1,8 +1,8 @@
 import { persistedExchange } from '@urql/exchange-persisted'
-import { Client, cacheExchange, fetchExchange, mapExchange, subscriptionExchange } from '@urql/vue'
-import { type SubscribePayload, createClient as createWS } from 'graphql-ws'
-import { ref } from 'vue'
+import { cacheExchange, Client, fetchExchange, mapExchange, subscriptionExchange } from '@urql/vue'
+import { createClient as createWS, type SubscribePayload } from 'graphql-ws'
 
+import { ref } from 'vue'
 import { useToast } from '@/components/ui/toast'
 
 const wsUrl = `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/query`
@@ -39,6 +39,11 @@ function createClient() {
 			persistedExchange({
 				preferGetForPersistedQueries: true,
 				enableForMutation: true,
+				generateHash: (_, document) => {
+					// eslint-disable-next-line ts/ban-ts-comment
+					// @ts-expect-error
+					return document.__meta__.hash
+				},
 			}),
 			fetchExchange,
 			subscriptionExchange({

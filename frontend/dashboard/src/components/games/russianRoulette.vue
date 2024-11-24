@@ -27,7 +27,9 @@ const gamesManager = useGamesApi()
 const { data: settings } = gamesManager.useGamesQuery()
 const updater = gamesManager.useRussianRouletteMutation()
 
-const initialSettings: GamesQuery['gamesRussianRoulette'] = {
+type Duel = Omit<GamesQuery['gamesRussianRoulette'], '__typename'>
+
+const initialSettings: Duel = {
 	enabled: false,
 	canBeUsedByModerator: false,
 	timeoutSeconds: 60,
@@ -39,7 +41,7 @@ const initialSettings: GamesQuery['gamesRussianRoulette'] = {
 	tumberSize: 6,
 }
 
-const formValue = ref<GamesQuery['gamesRussianRoulette']>({ ...initialSettings })
+const formValue = ref<Duel>({ ...initialSettings })
 
 watch(settings, (v) => {
 	if (!v) return

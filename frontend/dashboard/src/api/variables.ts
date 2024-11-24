@@ -12,7 +12,7 @@ import { VariableType } from '@/gql/graphql.js'
 const invalidationKey = 'VariablesInvalidateKey'
 
 export type CustomVariable = GetCustomAndBuiltInVariablesQuery['variables'][number]
-export type EditableCustomVariable = SetOptional<CustomVariable, 'id'>
+export type EditableCustomVariable = Omit<SetOptional<CustomVariable, 'id'>, '__typename'>
 
 export const useVariablesApi = createGlobalState(() => {
 	const variablesQuery = useQuery({
