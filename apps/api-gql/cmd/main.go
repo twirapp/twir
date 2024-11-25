@@ -34,7 +34,7 @@ func main() {
 		),
 		fx.Provide(
 			fx.Annotate(
-				dashboard_widget_events.NewGorm,
+				dashboard_widget_events.New,
 				fx.As(new(dashboard_widget_events.DashboardWidgetEventsService)),
 			),
 		),

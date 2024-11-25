@@ -16,7 +16,7 @@ type DashboardWidgetsEventsOpts struct {
 	Db *gorm.DB
 }
 
-func NewGorm(opts DashboardWidgetsEventsOpts) *DashboardWidgetsEvents {
+func New(opts DashboardWidgetsEventsOpts) *DashboardWidgetsEvents {
 	return &DashboardWidgetsEvents{
 		db: opts.Db,
 	}

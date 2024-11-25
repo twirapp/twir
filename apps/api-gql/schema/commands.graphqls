@@ -14,7 +14,7 @@ type Command {
 	name: String!
 	description: String!
 	aliases: [String!]!
-	responses: [CommandResponse!]! @goField(forceResolver: true)
+	responses: [CommandResponse!]!
 	cooldown: Int!
 	cooldownType: String!
 	enabled: Boolean!
