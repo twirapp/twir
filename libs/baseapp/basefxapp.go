@@ -25,8 +25,9 @@ func CreateBaseApp(opts Opts) fx.Option {
 		fx.Provide(
 			config.NewFx,
 			twirsentry.NewFx(twirsentry.NewFxOpts{Service: opts.AppName}),
+			uptrace.NewFx(opts.AppName),
 			newRedis,
-			newGorm(),
+			newGorm,
 			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
 				auditlogs.NewBusPubSubFx,
@@ -48,8 +49,8 @@ func CreateBaseApp(opts Opts) fx.Option {
 					Level:   slog.LevelInfo,
 				},
 			),
-			uptrace.NewFx(opts.AppName),
 		),
+		fx.Invoke(uptrace.NewFx(opts.AppName)),
 	)
 }
 

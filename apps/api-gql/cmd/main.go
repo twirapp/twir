@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -62,6 +63,7 @@ func main() {
 			gql.New,
 		),
 		fx.Invoke(
+			uptrace.NewFx("api-gql"),
 			pubclicroutes.New,
 			webhooks.New,
 			authroutes.New,

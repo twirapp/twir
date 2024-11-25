@@ -15,6 +15,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gincontext"
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/cache/twitch"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
@@ -49,6 +52,8 @@ func New(opts Opts) *Server {
 	r.ForwardedByClientIP = true
 	r.RemoteIPHeaders = append(r.RemoteIPHeaders, "Cf-Connecting-IP")
 
+	r.Use(otelgin.Middleware("api-gql"))
+
 	r.Use(opts.Sessions.Middleware())
 
 	r.Use(
@@ -67,8 +72,13 @@ func New(opts Opts) *Server {
 
 	r.Use(
 		func(c *gin.Context) {
+			span := trace.SpanFromContext(c.Request.Context())
+
 			user, userErr := opts.Sessions.GetAuthenticatedUser(c.Request.Context())
 			if userErr == nil {
+				span.SetAttributes(
+					attribute.String("user.id", user.ID),
+				)
 				sloggin.AddCustomAttributes(c, slog.String("userId", user.ID))
 				c.Request = c.Request.WithContext(
 					context.WithValue(c.Request.Context(), baseapp.RequesterUserIdContextKey, user.ID),
@@ -84,6 +94,10 @@ func New(opts Opts) *Server {
 			}
 
 			if dashboardIdForSet != "" {
+				span.SetAttributes(
+					attribute.String("user.selectedDashboard", dashboardIdForSet),
+				)
+
 				c.Request = c.Request.WithContext(
 					context.WithValue(
 						c.Request.Context(),

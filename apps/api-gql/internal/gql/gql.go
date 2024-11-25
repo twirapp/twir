@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
@@ -29,6 +30,7 @@ type Opts struct {
 	Directives *directives.Directives
 	Config     config.Config
 	ApqCache   *apq_cache.APQCache
+	Tracer     trace.Tracer
 }
 
 func New(opts Opts) *Gql {
@@ -65,8 +67,6 @@ func New(opts Opts) *Gql {
 	if opts.Config.AppEnv != "production" {
 		srv.Use(extension.Introspection{})
 	}
-
-	// srv.Use(extension.FixedComplexityLimit(5))
 
 	return &Gql{srv}
 }

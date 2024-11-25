@@ -13,6 +13,9 @@ func New(config cfg.Config, service string) trace.Tracer {
 	uptrace.ConfigureOpentelemetry(
 		uptrace.WithDSN(config.UptraceDsn),
 		uptrace.WithServiceName(service),
+		uptrace.WithTracingEnabled(true),
+		uptrace.WithLoggingEnabled(true),
+		uptrace.WithMetricsEnabled(true),
 	)
 
 	return otel.Tracer(service)
