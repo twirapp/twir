@@ -36,7 +36,6 @@
     "@twir/frontend-now-playing": "workspace:*",
     "@twir/types": "workspace:*",
     "@types/lodash.chunk": "4.2.9",
-    "@urql/exchange-persisted": "4.3.0",
     "@urql/vue": "1.1.3",
     "@vee-validate/zod": "4.12.6",
     "@vuepic/vue-datepicker": "10.0.0",
