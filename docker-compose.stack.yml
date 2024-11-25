@@ -105,6 +105,34 @@ services:
         constraints:
           - node.role == manager
 
+  pgbouncer:
+    image: bitnami/pgbouncer:1.23.1
+    secrets:
+      - twir_postgres_user
+      - twir_postgres_password
+      - twir_postgres_db
+    environment:
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_USERNAME_FILE=/run/secrets/twir_postgres_user
+      - POSTGRESQL_PASSWORD_FILE=/run/secrets/twir_postgres_password
+      - POSTGRESQL_DATABASE_FILE=/run/secrets/twir_postgres_db
+
+      - PGBOUNCER_AUTH_USER=twir
+      - PGBOUNCER_DATABASE=twir
+      - PGBOUNCER_MIN_POOL_SIZE=20
+      - PGBOUNCER_POOL_MODE=transaction
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
   temporal:
     depends_on:
       - postgres
