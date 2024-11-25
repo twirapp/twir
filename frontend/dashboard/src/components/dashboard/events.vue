@@ -1,9 +1,6 @@
 <script lang="ts" setup>
 import { IconExternalLink, IconSettings } from '@tabler/icons-vue'
-import { EventType } from '@twir/api/messages/dashboard/dashboard'
-import { useIntervalFn, useLocalStorage } from '@vueuse/core'
 import { NButton, NPopselect, NScrollbar, NText, NTooltip } from 'naive-ui'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import Card from './card.vue'
@@ -18,73 +15,18 @@ import ReSubscribe from './events/resubscribe.vue'
 import SubGift from './events/subgift.vue'
 import Subscribe from './events/subscribe.vue'
 
-import { useDashboardEvents, useProfile } from '@/api/index.js'
+import { useProfile } from '@/api/index.js'
 import UnbanRequestCreated from '@/components/dashboard/events/unban-request-created.vue'
 import UnbanRequestResolved from '@/components/dashboard/events/unban-request-resolved.vue'
+import { useEvents } from '@/features/dashboard/widgets/composables/events'
+import { DashboardEventType } from '@/gql/graphql'
 
 const props = defineProps<{
 	popup?: boolean
 }>()
 
 const { t } = useI18n()
-const { data: events, isLoading, refetch } = useDashboardEvents()
-useIntervalFn(refetch, 1000)
-
-const enabledEvents = useLocalStorage<number[]>('twirEventsWidgetFilterv2', Object.values(EventType).filter(t => typeof t === 'number') as number[])
-const filteredEvents = computed(() => events.value?.events.filter(e => {
-	return enabledEvents.value.includes(e.type)
-}) ?? [])
-
-const enabledEventsOptions = [
-	{
-		label: 'Donations',
-		value: 0,
-	},
-	{
-		label: 'Follows',
-		value: 1,
-	},
-	{
-		label: 'Raids',
-		value: 2,
-	},
-	{
-		label: 'Subscriptions',
-		value: 3,
-	},
-	{
-		label: 'Resubscriptions',
-		value: 4,
-	},
-	{
-		label: 'Sub gifts',
-		value: 5,
-	},
-	{
-		label: 'First user messages',
-		value: 6,
-	},
-	{
-		label: 'Chat clear',
-		value: 7,
-	},
-	{
-		label: 'Reward activated',
-		value: 8,
-	},
-	{
-		label: 'Ban/timeout',
-		value: 9,
-	},
-	{
-		label: 'Unban request created',
-		value: 10,
-	},
-	{
-		label: 'Unban request resolved',
-		value: 11,
-	},
-]
+const { events, fetching, enabledEvents, enabledEventsOptions } = useEvents()
 
 const { data } = useProfile()
 
@@ -105,7 +47,7 @@ function openPopup() {
 </script>
 
 <template>
-	<Card :content-style="{ padding: isLoading ? '10px' : '0px', height: '80%' }" :popup="props.popup">
+	<Card :content-style="{ padding: fetching ? '10px' : '0px', height: '80%' }" :popup="props.popup">
 		<template #header-extra>
 			<NTooltip trigger="hover" placement="bottom">
 				<template #trigger>
@@ -126,100 +68,100 @@ function openPopup() {
 				</NButton>
 			</NPopselect>
 		</template>
-		<NScrollbar v-if="filteredEvents.length" trigger="none">
+		<NScrollbar v-if="events.length" trigger="none">
 			<TransitionGroup name="list">
-				<template v-for="(event) of filteredEvents" :key="event.createdAt">
+				<template v-for="(event) of events" :key="event.createdAt">
 					<Follow
-						v-if="event.type === EventType.FOLLOW"
+						v-if="event.type === DashboardEventType.Follow"
 						:created-at="event.createdAt"
-						:user-name="event.data!.followUserName"
-						:user-display-name="event.data!.followUserDisplayName"
+						:user-name="event.data.followUserName"
+						:user-display-name="event.data.followUserDisplayName"
 					/>
 					<Raid
-						v-if="event.type === EventType.RAIDED"
+						v-if="event.type === DashboardEventType.Raided"
 						:created-at="event.createdAt"
-						:user-name="event.data!.raidedFromUserName"
-						:user-display-name="event.data!.raidedFromDisplayName"
-						:viewers="event.data!.raidedViewersCount"
+						:user-name="event.data.raidedFromUserName"
+						:user-display-name="event.data.raidedFromDisplayName"
+						:viewers="event.data.raidedViewersCount"
 					/>
 					<Donate
-						v-if="event.type === EventType.DONATION"
+						v-if="event.type === DashboardEventType.Donation"
 						:created-at="event.createdAt"
-						:user-name="event.data!.donationUsername"
-						:amount="event.data!.donationAmount"
-						:message="event.data!.donationMessage"
-						:currency="event.data!.donationCurrency"
+						:user-name="event.data.donationUserName"
+						:amount="event.data.donationAmount"
+						:message="event.data.donationMessage"
+						:currency="event.data.donationCurrency"
 					/>
 					<Subscribe
-						v-if="event.type === EventType.SUBSCRIBE"
+						v-if="event.type === DashboardEventType.Subscribe"
 						:created-at="event.createdAt"
-						:user-name="event.data!.subUserName"
-						:user-display-name="event.data!.subUserDisplayName"
-						:level="event.data!.subLevel"
+						:user-name="event.data.subUserName"
+						:user-display-name="event.data.subUserDisplayName"
+						:level="event.data.subLevel"
 					/>
 					<ReSubscribe
-						v-if="event.type === EventType.RESUBSCRIBE"
+						v-if="event.type === DashboardEventType.Resubscribe"
 						:created-at="event.createdAt"
-						:user-name="event.data!.reSubUserName"
-						:user-display-name="event.data!.reSubUserDisplayName"
-						:level="event.data!.reSubLevel"
-						:months="event.data!.reSubMonths"
-						:streak="event.data!.reSubStreak"
+						:user-name="event.data.reSubUserName"
+						:user-display-name="event.data.reSubUserDisplayName"
+						:level="event.data.reSubLevel"
+						:months="event.data.reSubMonths"
+						:streak="event.data.reSubStreak"
 					/>
 					<SubGift
-						v-if="event.type === EventType.SUBGIFT"
+						v-if="event.type === DashboardEventType.Subgift"
 						:created-at="event.createdAt"
-						:user-name="event.data!.subGiftTargetUserName"
-						:user-display-name="event.data!.subGiftUserDisplayName"
-						:level="event.data!.subGiftLevel"
-						:target-user-name="event.data!.subGiftTargetUserName"
-						:target-user-display-name="event.data!.subGiftTargetUserDisplayName"
+						:user-name="event.data.subGiftTargetUserName"
+						:user-display-name="event.data.subGiftUserDisplayName"
+						:level="event.data.subGiftLevel"
+						:target-user-name="event.data.subGiftTargetUserName"
+						:target-user-display-name="event.data.subGiftTargetUserDisplayName"
 					/>
 					<FirstUserMessage
-						v-if="event.type === EventType.FIRST_USER_MESSAGE"
+						v-if="event.type === DashboardEventType.FirstUserMessage"
 						:created-at="event.createdAt"
-						:user-name="event.data!.firstUserMessageUserName"
-						:user-display-name="event.data!.firstUserMessageUserDisplayName"
-						:message="event.data!.firstUserMessageMessage"
+						:user-name="event.data.firstUserMessageUserName"
+						:user-display-name="event.data.firstUserMessageUserDisplayName"
+						:message="event.data.firstUserMessageMessage"
 					/>
 					<ChatClear
-						v-if="event.type === EventType.CHAT_CLEAR"
+						v-if="event.type === DashboardEventType.ChatClear"
 						:created-at="event.createdAt"
 					/>
 					<RedemptionCreated
-						v-if="event.type === EventType.REDEMPTION_CREATED"
+						v-if="event.type === DashboardEventType.RedemptionCreated"
 						:created-at="event.createdAt"
-						:title="event.data!.redemptionTitle"
-						:input="event.data!.redemptionInput"
-						:user-name="event.data!.redemptionUserName"
-						:user-display-name="event.data!.redemptionUserDisplayName"
-						:cost="event.data!.redemptionCost"
+						:title="event.data.redemptionTitle"
+						:input="event.data.redemptionInput"
+						:user-name="event.data.redemptionUserName"
+						:user-display-name="event.data.redemptionUserDisplayName"
+						:cost="event.data.redemptionCost"
 					/>
 					<Ban
-						v-if="event.type === EventType.CHANNEL_BAN"
+						v-if="event.type === DashboardEventType.ChannelBan"
 						:created-at="event.createdAt"
-						:ends-in="event.data!.banEndsInMinutes"
-						:moderator-user-login="event.data!.moderatorName"
-						:moderator-user-name="event.data!.moderatorDisplayName"
-						:reason="event.data!.banReason"
-						:user-login="event.data!.bannedUserLogin"
-						:user-name="event.data!.bannedUserName"
+						:ends-in="event.data.banEndsInMinutes"
+						:moderator-user-login="event.data.moderatorName"
+						:moderator-user-name="event.data.moderatorDisplayName"
+						:reason="event.data.banReason"
+						:user-login="event.data.bannedUserLogin"
+						:user-name="event.data.bannedUserName"
 					/>
 					<UnbanRequestCreated
-						v-if="event.type === EventType.CHANNEL_UNBAN_REQUEST_CREATE"
+						v-if="event.type === DashboardEventType.ChannelUnbanRequestCreate"
 						:created-at="event.createdAt"
-						:message="event.data!.message"
-						:user-login="event.data!.userLogin"
-						:user-name="event.data!.userName"
+						:message="event.data.message"
+						:user-login="event.data.userLogin"
+						:user-name="event.data.userName"
 					/>
 					<UnbanRequestResolved
-						v-if="event.type === EventType.CHANNEL_UNBAN_REQUEST_RESOLVE"
+						v-if="event.type === DashboardEventType.ChannelUnbanRequestResolve"
 						:created-at="event.createdAt"
-						:message="event.data!.message"
-						:user-login="event.data!.userLogin"
-						:user-name="event.data!.userName"
-						:moderator-user-login="event.data!.moderatorName"
-						:moderator-user-name="event.data!.moderatorDisplayName"
+						:message="event.data.message"
+						:user-login="event.data.userLogin"
+						:user-name="event.data.userName"
+						:moderator-user-login="event.data.moderatorName"
+						:moderator-user-name="event.data.moderatorDisplayName"
 					/>
 				</template>
 			</TransitionGroup>

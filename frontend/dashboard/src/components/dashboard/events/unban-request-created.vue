@@ -5,15 +5,16 @@ import Base from './base.vue'
 import UserLink from './user-link.vue'
 
 defineProps<{
-	userName: string
-	userLogin: string
+	userName?: string | null
+	userLogin?: string | null
+	message?: string | null
 	createdAt: string
-	message: string
 }>()
 </script>
 
 <template>
 	<Base
+		v-if="userLogin && userName && message"
 		:icon="IconUserQuestion"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"

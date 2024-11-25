@@ -51,6 +51,10 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 			return nil, err
 		}
 
+		if channelInformation == nil {
+			return nil, fmt.Errorf("channel information is nil")
+		}
+
 		result.CategoryName = channelInformation.GameName
 		result.Title = channelInformation.Title
 		result.CategoryID = channelInformation.GameID

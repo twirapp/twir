@@ -4,11 +4,11 @@ import { IconCurrencyDollar } from '@tabler/icons-vue'
 import Base from './base.vue'
 
 defineProps<{
-	userName: string
+	userName?: string | null
 	createdAt: string
-	amount: string
-	currency: string
-	message: string
+	amount?: string | null
+	currency?: string | null
+	message?: string | null
 }>()
 </script>
 

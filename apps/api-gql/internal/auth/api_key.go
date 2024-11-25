@@ -9,12 +9,20 @@ import (
 )
 
 func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, error) {
-	ginCtx, err := gincontext.GetGinContext(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to get gin context: %w", err)
+	var apiKey string
+
+	wsApiKey, _ := s.getWsAuthenticatedApiKey(ctx)
+	if wsApiKey != "" {
+		apiKey = wsApiKey
+	} else {
+		ginCtx, err := gincontext.GetGinContext(ctx)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get gin context: %w", err)
+		}
+
+		apiKey = ginCtx.GetHeader("api-key")
 	}
 
-	apiKey := ginCtx.GetHeader("api-key")
 	if apiKey == "" {
 		return nil, fmt.Errorf("api key is required")
 	}

@@ -5,17 +5,18 @@ import Base from './base.vue'
 import UserLink from './user-link.vue'
 
 defineProps<{
-	userName: string
-	userDisplayName: string
-	targetUserName: string
-	targetUserDisplayName: string
+	userName?: string | null
+	userDisplayName?: string | null
+	targetUserName?: string | null
+	targetUserDisplayName?: string | null
+	level?: string | null
 	createdAt: string
-	level: string
 }>()
 </script>
 
 <template>
 	<Base
+		v-if="userName && userDisplayName && targetUserName && targetUserDisplayName"
 		:icon="IconGift"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"

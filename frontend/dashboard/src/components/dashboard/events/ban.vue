@@ -6,13 +6,13 @@ import Base from './base.vue'
 import UserLink from './user-link.vue'
 
 const props = defineProps<{
-	userName: string
-	userLogin: string
+	userName?: string | null
+	userLogin?: string | null
+	reason?: string | null
+	moderatorUserName?: string | null
+	moderatorUserLogin?: string | null
+	endsIn?: string | null
 	createdAt: string
-	reason: string
-	moderatorUserName: string
-	moderatorUserLogin: string
-	endsIn: string
 }>()
 
 const iconBan = computed(() => {
@@ -23,6 +23,7 @@ const iconBan = computed(() => {
 
 <template>
 	<Base
+		v-if="moderatorUserLogin && moderatorUserName && userLogin && userName"
 		:icon="iconBan"
 		:icon-color="['#ff4f4d', '#ffaaa8']"
 		:created-at="createdAt"

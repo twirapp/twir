@@ -5,15 +5,16 @@ import Base from './base.vue'
 import UserLink from './user-link.vue'
 
 defineProps<{
+	userName?: string | null
+	userDisplayName?: string | null
+	message?: string | null
 	createdAt: string
-	userName: string
-	userDisplayName: string
-	message: string
 }>()
 </script>
 
 <template>
 	<Base
+		v-if="userName && userDisplayName && message"
 		:icon="IconMoodPlus"
 		:icon-color="['#772ce8', '#9147ff']"
 		:created-at="createdAt"

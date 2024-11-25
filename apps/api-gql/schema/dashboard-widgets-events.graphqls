@@ -1,0 +1,71 @@
+extend type Subscription {
+	dashboardWidgetsEvents: DashboardEventListPayload! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+type DashboardEventListPayload {
+	events: [DashboardEventPayload!]!
+}
+
+type DashboardEventPayload {
+	userId: String!
+	type: DashboardEventType!
+	createdAt: Time!
+	data: DashboardEventData!
+}
+
+enum DashboardEventType {
+	DONATION
+	FOLLOW
+	RAIDED
+	SUBSCRIBE
+	RESUBSCRIBE
+	SUBGIFT
+	FIRST_USER_MESSAGE
+	CHAT_CLEAR
+	REDEMPTION_CREATED
+	CHANNEL_BAN
+	CHANNEL_UNBAN_REQUEST_CREATE
+	CHANNEL_UNBAN_REQUEST_RESOLVE
+}
+
+type DashboardEventData {
+	donationAmount: String
+  donationCurrency: String
+  donationMessage: String
+  donationUserName: String
+  raidedViewersCount: String
+  raidedFromUserName: String
+  raidedFromDisplayName: String
+  followUserName: String
+  followUserDisplayName: String
+  redemptionTitle: String
+  redemptionInput: String
+  redemptionUserName: String
+  redemptionUserDisplayName: String
+  redemptionCost: String
+  subLevel: String
+  subUserName: String
+  subUserDisplayName: String
+  reSubLevel: String
+  reSubUserName: String
+  reSubUserDisplayName: String
+  reSubMonths: String
+  reSubStreak: String
+  subGiftLevel: String
+  subGiftUserName: String
+  subGiftUserDisplayName: String
+  subGiftTargetUserName: String
+  subGiftTargetUserDisplayName: String
+  firstUserMessageUserName: String
+  firstUserMessageUserDisplayName: String
+  firstUserMessageMessage: String
+  banReason: String
+  banEndsInMinutes: String
+  bannedUserName: String
+  bannedUserLogin: String
+  moderatorName: String
+  moderatorDisplayName: String
+  message: String
+  userLogin: String
+  userName: String
+}

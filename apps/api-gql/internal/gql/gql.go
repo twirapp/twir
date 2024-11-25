@@ -6,11 +6,11 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/handler/extension"
-	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/gorilla/websocket"
 	"github.com/ravilushqa/otelgqlgen"
 	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/gql/apq-cache"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
@@ -56,13 +56,7 @@ func New(opts Opts) *Gql {
 					return true
 				},
 			},
-		},
-	)
-
-	srv.SetQueryCache(lru.New(1000))
-	srv.Use(
-		extension.AutomaticPersistedQuery{
-			Cache: opts.ApqCache,
+			InitFunc: auth.WsGqlInitFunc,
 		},
 	)
 

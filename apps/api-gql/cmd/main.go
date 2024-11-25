@@ -13,6 +13,7 @@ import (
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/auth"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
+	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -30,6 +31,12 @@ func main() {
 			baseapp.Opts{
 				AppName: "api-gql",
 			},
+		),
+		fx.Provide(
+			fx.Annotate(
+				dashboard_widget_events.NewGorm,
+				fx.As(new(dashboard_widget_events.DashboardWidgetEventsService)),
+			),
 		),
 		fx.Provide(
 			auth.NewSessions,

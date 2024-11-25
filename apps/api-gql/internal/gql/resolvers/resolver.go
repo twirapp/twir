@@ -14,6 +14,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
+	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -43,6 +44,8 @@ type Resolver struct {
 	wsRouter             wsrouter.WsRouter
 	auditLogsPubSub      auditlogs.PubSub
 	twirStats            *twir_stats.TwirStats
+
+	dashboardWidgetEventsService dashboard_widget_events.DashboardWidgetEventsService
 }
 
 type Opts struct {
@@ -62,6 +65,8 @@ type Opts struct {
 	WsRouter             wsrouter.WsRouter
 	AuditLogsPubSub      auditlogs.PubSub
 	TwirStats            *twir_stats.TwirStats
+
+	DashboardWidgetEventsService dashboard_widget_events.DashboardWidgetEventsService
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -71,21 +76,22 @@ func New(opts Opts) (*Resolver, error) {
 	}
 
 	return &Resolver{
-		config:               opts.Config,
-		sessions:             opts.Sessions,
-		gorm:                 opts.Gorm,
-		twitchClient:         twitchClient,
-		cachedTwitchClient:   opts.CachedTwitchClient,
-		minioClient:          opts.Minio,
-		twirBus:              opts.TwirBus,
-		logger:               opts.Logger,
-		redis:                opts.Redis,
-		cachedCommandsClient: opts.CachedCommandsClient,
-		keywordsCacher:       opts.KeywordsCacher,
-		tokensClient:         opts.TokensGrpc,
-		wsRouter:             opts.WsRouter,
-		auditLogsPubSub:      opts.AuditLogsPubSub,
-		twirStats:            opts.TwirStats,
+		config:                       opts.Config,
+		sessions:                     opts.Sessions,
+		gorm:                         opts.Gorm,
+		twitchClient:                 twitchClient,
+		cachedTwitchClient:           opts.CachedTwitchClient,
+		minioClient:                  opts.Minio,
+		twirBus:                      opts.TwirBus,
+		logger:                       opts.Logger,
+		redis:                        opts.Redis,
+		cachedCommandsClient:         opts.CachedCommandsClient,
+		keywordsCacher:               opts.KeywordsCacher,
+		tokensClient:                 opts.TokensGrpc,
+		wsRouter:                     opts.WsRouter,
+		auditLogsPubSub:              opts.AuditLogsPubSub,
+		twirStats:                    opts.TwirStats,
+		dashboardWidgetEventsService: opts.DashboardWidgetEventsService,
 	}, nil
 }
 

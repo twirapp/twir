@@ -5,17 +5,18 @@ import Base from './base.vue'
 import UserLink from './user-link.vue'
 
 defineProps<{
-	userName: string
-	userDisplayName: string
+	userName?: string | null
+	userDisplayName?: string | null
+	level?: string | null
+	months?: string | null
+	streak?: string | null
 	createdAt: string
-	level: string
-	months: string
-	streak: string
 }>()
 </script>
 
 <template>
 	<Base
+		v-if="userName && userDisplayName"
 		:icon="IconCalendarStar"
 		:icon-color="['#1756d3', '#1f69ff']"
 		:created-at="createdAt"
