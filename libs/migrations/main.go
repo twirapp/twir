@@ -11,7 +11,6 @@ import (
 	"github.com/satont/twir/libs/migrations/seeds"
 )
 
-//
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
 
