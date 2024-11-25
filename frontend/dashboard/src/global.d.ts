@@ -13,5 +13,6 @@ declare module 'vue-router' {
 		noPadding?: boolean
 		fullScreen?: boolean
 		adminOnly?: boolean
+		transition?: string
 	}
 }

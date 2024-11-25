@@ -12,6 +12,8 @@ import { RouterView, useRouter } from 'vue-router'
 
 import SidebarFloatingButton from './sidebar/sidebar-floating-button.vue'
 
+import type { RouteLocationNormalized } from 'vue-router'
+
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { Toaster } from '@/components/ui/toast'
 import { useTheme } from '@/composables/use-theme.js'
@@ -24,6 +26,19 @@ const isRouterReady = ref(false)
 const router = useRouter()
 
 router.isReady().finally(() => isRouterReady.value = true)
+
+interface HistoryState {
+	noTransition?: boolean
+}
+
+function getTransition(route: RouteLocationNormalized) {
+	const state = window.history.state as HistoryState
+	if (state.noTransition) {
+		return undefined
+	}
+
+	return route.meta.transition || 'router'
+}
 </script>
 
 <template>
@@ -38,7 +53,7 @@ router.isReady().finally(() => isRouterReady.value = true)
 					<Sidebar>
 						<SidebarFloatingButton />
 						<RouterView v-slot="{ Component, route }">
-							<transition :name="route.meta.transition as string || 'router'" mode="out-in">
+							<transition :name="getTransition(route)" mode="out-in">
 								<div
 									:key="route.path"
 									:style="{

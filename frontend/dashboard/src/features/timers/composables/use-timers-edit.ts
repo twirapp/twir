@@ -69,7 +69,12 @@ export const useTimersEdit = createGlobalState(() => {
 				return
 			}
 
-			await router.push(`/dashboard/timers/${result.data?.timersCreate.id}`)
+			await router.push({
+				path: `/dashboard/timers/${result.data?.timersCreate.id}`,
+				state: {
+					noTransition: true,
+				},
+			})
 		}
 
 		toast({

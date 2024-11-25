@@ -120,7 +120,12 @@ export const useCommandEditV2 = createGlobalState(() => {
 				return
 			}
 
-			await router.push(`/dashboard/commands/custom/${result.data?.commandsCreate.id}`)
+			await router.push({
+				path: `/dashboard/commands/custom/${result.data?.commandsCreate.id}`,
+				state: {
+					noTransition: true,
+				},
+			})
 		}
 
 		toast({
