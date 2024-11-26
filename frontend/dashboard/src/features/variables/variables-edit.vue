@@ -168,14 +168,12 @@ async function executeScript() {
 					</FormField>
 
 					<div v-show="values.type === VariableType.Script" class="flex flex-col gap-2">
+						<span>Execution result</span>
 						<div class="flex flex-row gap-2">
-							<div class="flex flex-col gap-2 w-full">
-								<span>Execution result</span>
-								<div class="bg-secondary rounded-md p-2">
-									{{ executionResult || 'Run a script for test your code' }}
-								</div>
+							<div class="bg-secondary rounded-md h-auto p-2 w-full">
+								{{ executionResult || 'Run a script for test your code' }}
 							</div>
-							<Button type="button" class="place-self-end" @click="executeScript">
+							<Button type="button" class="place-self-start" @click="executeScript">
 								<TerminalIcon class="size-4 mr-2" />
 								Run
 							</Button>
