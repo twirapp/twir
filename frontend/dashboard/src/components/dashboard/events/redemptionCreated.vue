@@ -1,28 +1,33 @@
 <script lang="ts" setup>
-import { IconAward } from '@tabler/icons-vue';
+import { IconAward } from '@tabler/icons-vue'
 
-import Base from './base.vue';
-
-import { resolveUserName } from '@/helpers/index.js';
+import Base from './base.vue'
+import UserLink from './user-link.vue'
 
 defineProps<{
-	createdAt: string,
-	userName: string,
-	userDisplayName: string,
-	title: string,
-	input: string,
-	cost: string
-}>();
+	userName?: string | null
+	userDisplayName?: string | null
+	title?: string | null
+	input?: string | null
+	cost?: string | null
+	createdAt: string
+}>()
 </script>
 
 <template>
-	<Base :icon="IconAward" :created-at="createdAt">
+	<Base
+		v-if="userName && userDisplayName && title && cost"
+		:icon="IconAward"
+		:icon-color="['#c28100', '#ffd37a']"
+		:created-at="createdAt"
+	>
 		<template #leftContent>
 			<div class="flex flex-col">
-				<span class="break-all">{{ resolveUserName(userName, userDisplayName) }}
-					<b class="text-xs">activated</b> {{ title }}({{ cost }})
+				<span class="break-all">
+					<UserLink :name="userName" :display-name="userDisplayName" />{{ '' }}
+					<span class="font-bold">activated</span> {{ title }} ({{ cost }})
 				</span>
-				<span v-if="input.length" class="text-xs">{{ input }}</span>
+				<span v-if="input?.length" class="text-xs">{{ input }}</span>
 			</div>
 		</template>
 	</Base>

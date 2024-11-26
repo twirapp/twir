@@ -7,32 +7,45 @@ import Paragraph from '@editorjs/paragraph'
 import Quote from '@editorjs/quote'
 import SimpleImage from '@editorjs/simple-image'
 import Underline from '@editorjs/underline'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import './notifications-form.css'
 
-const modelValue = defineModel()
+const props = defineProps(['modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+let updatingModel = false
 
 const editor = ref(null)
 const editorHtmlElement = ref(null)
+
+// model -> view
+function modelToView() {
+	if (!props.modelValue) {
+		editor.value.blocks.clear()
+		return
+	}
+
+	editor.value.blocks.render(JSON.parse(props.modelValue))
+}
+// view -> model
+function viewToModel(api, event) {
+	updatingModel = true
+	editor.value.save().then((outputData) => {
+		emit('update:modelValue', JSON.stringify(outputData))
+	}).catch((error) => {
+		console.log(event, 'Saving failed: ', error)
+	}).finally(() => {
+		updatingModel = false
+	})
+}
 
 onMounted(() => {
 	if (!editorHtmlElement.value) return
 
 	editor.value = new EditorJS({
 		holder: editorHtmlElement.value,
-		onChange() {
-			editor.value?.save().then((outputData) => {
-				modelValue.value = JSON.stringify(outputData)
-			})
-		},
-		onReady() {
-			if (!modelValue.value) {
-				return
-			}
-
-			const data = JSON.parse(modelValue.value)
-			editor.value?.blocks.render(data)
-		},
+		onReady: modelToView,
+		onChange: viewToModel,
 		placeholder: 'Type here...',
 		tools: {
 			header: Header,
@@ -58,7 +71,14 @@ onMounted(() => {
 			quote: Quote,
 			underline: Underline,
 		},
+		data: props.modelValue,
 	})
+})
+
+watch(() => props.modelValue, () => {
+	if (!updatingModel) {
+		modelToView()
+	}
 })
 
 onUnmounted(() => {

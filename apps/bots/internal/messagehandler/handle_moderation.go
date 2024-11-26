@@ -21,9 +21,9 @@ import (
 )
 
 type moderationHandleResult struct {
-	IsDelete bool
-	Time     int
-	Message  string
+	IsWarn  bool
+	Time    int
+	Message string
 }
 
 var messagesTimeouterStore = utils.NewTtlSyncMap[struct{}](10 * time.Second)
@@ -42,11 +42,15 @@ var moderationFunctionsMapping = map[model.ModerationSettingsType]func(
 	model.ModerationSettingsTypeLanguage:    (*MessageHandler).moderationLanguageParser,
 }
 
+var excludedModerationBadges = []string{"BROADCASTER", "MODERATOR"}
+
 func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage) error {
 	badges := createUserBadges(msg.Badges)
 
-	if lo.Some(badges, []string{"broadcaster", "moderator"}) {
-		return nil
+	for _, b := range badges {
+		if slices.Contains(excludedModerationBadges, b) {
+			return nil
+		}
 	}
 
 	settings, err := c.getChannelModerationSettings(ctx, msg.BroadcasterUserId)
@@ -65,22 +69,7 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			continue
 		}
 
-		if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
-			opts := twitchactions.SendMessageOpts{
-				Message:       entity.BanMessage,
-				SenderID:      msg.DbChannel.BotID,
-				BroadcasterID: msg.BroadcasterUserId,
-			}
-			if res.IsDelete {
-				opts.Message = entity.WarningMessage
-			}
-			if opts.Message != "" {
-				c.twitchActions.SendMessage(ctx, opts)
-			}
-			messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
-		}
-
-		if res.IsDelete {
+		if res.IsWarn {
 			err := c.twitchActions.DeleteMessage(
 				ctx,
 				twitchactions.DeleteMessageOpts{
@@ -92,6 +81,23 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 			if err != nil {
 				c.logger.Error(
 					"cannot delete message",
+					slog.String("userId", msg.ChatterUserId),
+					slog.String("channelId", msg.BroadcasterUserId),
+					slog.Any("err", err),
+				)
+			}
+
+			err = c.twitchActions.WarnUser(
+				ctx, twitchactions.WarnUserOpts{
+					BroadcasterID: msg.BroadcasterUserId,
+					ModeratorID:   msg.DbChannel.BotID,
+					UserID:        msg.ChatterUserId,
+					Reason:        entity.WarningMessage,
+				},
+			)
+			if err != nil {
+				c.logger.Error(
+					"cannot warn user",
 					slog.String("userId", msg.ChatterUserId),
 					slog.String("channelId", msg.BroadcasterUserId),
 					slog.Any("err", err),
@@ -117,6 +123,21 @@ func (c *MessageHandler) handleModeration(ctx context.Context, msg handleMessage
 				)
 			}
 		}
+
+		// maybe back it if user asked for chat message
+		// if _, exists := messagesTimeouterStore.Get(msg.BroadcasterUserId); !exists {
+		// 	opts := twitchactions.SendMessageOpts{
+		// 		Message:       entity.BanMessage,
+		// 		SenderID:      msg.DbChannel.BotID,
+		// 		BroadcasterID: msg.BroadcasterUserId,
+		// 	}
+		//
+		// 	if opts.Message != "" {
+		// 		c.twitchActions.SendMessage(ctx, opts)
+		// 	}
+		//
+		// 	messagesTimeouterStore.Add(msg.BroadcasterUserId, struct{}{})
+		// }
 
 		return nil
 	}
@@ -155,7 +176,14 @@ func (c *MessageHandler) getChannelModerationSettings(ctx context.Context, chann
 		return nil, err
 	}
 
-	c.redis.Set(ctx, cacheKey, settings, 24*time.Hour)
+	settingsBytes, err := json.Marshal(settings)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.redis.Set(ctx, cacheKey, settingsBytes, 24*time.Hour).Err(); err != nil {
+		return nil, err
+	}
 
 	return settings, nil
 }
@@ -194,15 +222,15 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 
 		if msg.DbUser.Stats != nil && !userHasRole {
-			if msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
+			if r.RequiredWatchTime > 0 && msg.DbUser.Stats.Watched >= r.RequiredWatchTime {
 				userHasRole = true
 			}
 
-			if msg.DbUser.Stats.Messages >= r.RequiredMessages {
+			if r.RequiredMessages > 0 && msg.DbUser.Stats.Messages >= r.RequiredMessages {
 				userHasRole = true
 			}
 
-			if msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
+			if r.RequiredUsedChannelPoints > 0 && msg.DbUser.Stats.UsedChannelPoints >= r.RequiredUsedChannelPoints {
 				userHasRole = true
 			}
 		}
@@ -237,8 +265,8 @@ func (c *MessageHandler) moderationHandleResult(
 		)
 
 		return &moderationHandleResult{
-			IsDelete: true,
-			Message:  settings.WarningMessage,
+			IsWarn:  true,
+			Message: settings.WarningMessage,
 		}
 	} else {
 		duration := time.Duration(settings.BanTime) * time.Second
@@ -248,9 +276,9 @@ func (c *MessageHandler) moderationHandleResult(
 		}
 
 		return &moderationHandleResult{
-			IsDelete: false,
-			Time:     int(duration.Seconds()),
-			Message:  settings.BanMessage,
+			IsWarn:  false,
+			Time:    int(duration.Seconds()),
+			Message: settings.BanMessage,
 		}
 	}
 }

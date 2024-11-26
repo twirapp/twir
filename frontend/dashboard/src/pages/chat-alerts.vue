@@ -3,6 +3,7 @@ import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import BanSettings from '@/features/chat-alerts/ui/ban-settings.vue'
+import ChatAlertsRewardsSettings from '@/features/chat-alerts/ui/chat-alerts-rewards-settings.vue'
 import Settings from '@/features/chat-alerts/ui/settings.vue'
 import PageLayout, { type PageLayoutTab } from '@/layout/page-layout.vue'
 
@@ -86,6 +87,8 @@ const pageTabs = computed<PageLayoutTab[]>(() => [
 			${t('chatAlerts.randomedMessage')}
 			${t('chatAlerts.replacedInfo', { vars: '{user}, {reward}' })}
 		`,
+		}, {
+			additionalSettings: () => h(ChatAlertsRewardsSettings),
 		}),
 	},
 	{

@@ -1,19 +1,21 @@
 <script lang="ts" setup>
-import { IconEraser } from '@tabler/icons-vue';
+import { IconEraser } from '@tabler/icons-vue'
 
-import Base from './base.vue';
+import Base from './base.vue'
 
 defineProps<{
-	createdAt: string,
-}>();
+	createdAt: string
+}>()
 </script>
 
 <template>
-	<Base :icon="IconEraser" :created-at="createdAt">
+	<Base
+		:icon="IconEraser"
+		:icon-color="['#ff4f4d', '#ffaaa8']"
+		:created-at="createdAt"
+	>
 		<template #leftContent>
-			<div class="flex flex-col">
-				<span>Chat Cleared</span>
-			</div>
+			Chat cleared
 		</template>
 	</Base>
 </template>

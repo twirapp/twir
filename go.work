@@ -1,4 +1,4 @@
-go 1.23.0
+go 1.23.2
 
 use (
 	./apps/api
@@ -24,7 +24,6 @@ use (
 	./libs/crypto
 	./libs/gomodels
 	./libs/grpc
-	./libs/helix
 	./libs/integrations
 	./libs/logger
 	./libs/migrations

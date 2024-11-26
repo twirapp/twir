@@ -190,7 +190,13 @@ func (c *Variables) ParseVariablesInText(
 
 			if err == nil {
 				mu.Lock()
-				input = strings.ReplaceAll(input, str, res.Result)
+
+				if variable.NotCachable {
+					input = strings.Replace(input, str, res.Result, 1)
+				} else {
+					input = strings.ReplaceAll(input, str, res.Result)
+				}
+
 				mu.Unlock()
 			}
 		}()

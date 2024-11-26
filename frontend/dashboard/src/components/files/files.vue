@@ -23,8 +23,8 @@ import { useFileUpload, useFiles, userFileDelete } from '@/api/index.js'
 import { convertBytesToSize } from '@/helpers/convertBytesToSize.js'
 
 const props = withDefaults(defineProps<{
-	tab: string
-	mode: 'list' | 'picker'
+	tab?: string
+	mode?: 'list' | 'picker'
 }>(), {
 	tab: 'Audios',
 	mode: 'list',

@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { SearchIcon } from 'lucide-vue-next'
-import { NButton, NIcon, NInput, NModal } from 'naive-ui'
+import { PlusIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { useCommandEdit } from './composables/use-command-edit'
 import List from './ui/list.vue'
 
 import { useUserAccessFlagChecker } from '@/api'
 import { useCommandsApi } from '@/api/commands/commands.js'
 import ManageGroups from '@/components/commands/manageGroups.vue'
+import DialogOrSheet from '@/components/dialog-or-sheet.vue'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
+import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
 const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageCommands)
-const editCommand = useCommandEdit()
 
 const commandsManager = useCommandsApi()
 const { data: commandsResponse } = commandsManager.useQueryCommands()
@@ -43,61 +45,61 @@ const commands = computed(() => {
 })
 
 const showManageGroupsModal = ref(false)
+
+const isCreateDisabled = computed(() => {
+	return commands.value.length >= 50 || !userCanManageCommands.value
+})
+
+const isCustom = computed(() => {
+	return typeof route.params.system === 'string' && route.params.system.toLowerCase() === 'custom'
+})
+
+const title = computed(() => {
+	if (isCustom.value) {
+		return t('sidebar.commands.custom')
+	}
+
+	return t('sidebar.commands.builtin')
+})
 </script>
 
 <template>
-	<div class="flex flex-col gap-4">
-		<div class="flex justify-between items-center flex-wrap gap-2">
-			<div>
-				<NInput
-					v-model:value="commandsFilter"
-					:placeholder="t('commands.searchPlaceholder')"
-				>
-					<template #prefix>
-						<NIcon><SearchIcon /></NIcon>
-					</template>
-				</NInput>
+	<PageLayout>
+		<template #title>
+			{{ title }} {{ t('sidebar.commands.label').toLocaleLowerCase() }}
+		</template>
+
+		<template v-if="isCustom" #action>
+			<div class="flex gap-2 flex-wrap">
+				<Dialog>
+					<DialogTrigger as-child>
+						<Button variant="secondary" @click="showManageGroupsModal = true">
+							{{ t('commands.groups.manageButton') }}
+						</Button>
+					</DialogTrigger>
+					<DialogOrSheet>
+						<DialogTitle>{{ t('commands.groups.manageButton') }}</DialogTitle>
+						<ManageGroups />
+					</DialogOrSheet>
+				</Dialog>
+				<RouterLink v-slot="{ href, navigate }" custom to="/dashboard/commands/custom/create">
+					<Button as="a" :href="href" :disabled="isCreateDisabled" @click="navigate">
+						<PlusIcon class="size-4 mr-2" />
+						{{ t('sharedButtons.create') }} ({{ commands.length }}/50)
+					</Button>
+				</RouterLink>
 			</div>
-			<div>
-				<div class="flex gap-2">
-					<NButton
-						:disabled="!userCanManageCommands" secondary type="info"
-						@click="showManageGroupsModal = true"
-					>
-						{{ t('commands.groups.manageButton') }}
-					</NButton>
+		</template>
 
-					<NButton
-						secondary
-						type="success"
-						:disabled="!userCanManageCommands"
-						@click="editCommand.createCommand"
-					>
-						{{ t('sharedButtons.create') }}
-					</NButton>
-				</div>
+		<template #content>
+			<div class="flex flex-col gap-2">
+				<Input v-model="commandsFilter" placeholder="Search..." class="w-full lg:w-[40%]" />
+				<List
+					:commands="commands"
+					show-background
+					enable-groups
+				/>
 			</div>
-		</div>
-
-		<List
-			:commands="commands"
-			show-background
-			enable-groups
-		/>
-	</div>
-
-	<NModal
-		v-model:show="showManageGroupsModal"
-		:mask-closable="false"
-		:segmented="true"
-		preset="card"
-		:title="t('commands.groups.manageButton')"
-		class="modal"
-		:style="{
-			width: '600px',
-		}"
-		:on-close="() => showManageGroupsModal = false"
-	>
-		<ManageGroups />
-	</NModal>
+		</template>
+	</PageLayout>
 </template>

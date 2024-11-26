@@ -6,8 +6,8 @@ import type { GetAllKeywordsQuery } from '@/gql/graphql.js'
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql/gql.js'
 
-export type KeywordResponse = GetAllKeywordsQuery['keywords'][0]
-export type Keyword = Omit<KeywordResponse, 'id' | 'response'> & {
+export type KeywordResponse = Omit<GetAllKeywordsQuery['keywords'][0], '__typename'>
+export type Keyword = Omit<KeywordResponse, 'id' | 'response' | '__typename'> & {
 	id?: string
 	response: string
 }

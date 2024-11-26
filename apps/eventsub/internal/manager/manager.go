@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log/slog"
 	"sync"
 
@@ -141,6 +140,14 @@ func (c *Manager) SubscribeToNeededEvents(
 	var wg sync.WaitGroup
 	newSubsCount := atomic.NewInt64(0)
 
+	if err := c.unsubscribeChannel(ctx, broadcasterId); err != nil {
+		c.logger.Error(
+			"failed to unsubscribe from topics",
+			slog.Any("err", err),
+			slog.String("channel_id", broadcasterId),
+		)
+	}
+
 	for _, topic := range topics {
 		wg.Add(1)
 
@@ -225,7 +232,6 @@ func (c *Manager) SubscribeToEvent(
 
 	condition := GetTypeCondition(convertedCondition, topic, channel.ID, channel.BotID)
 
-	fmt.Println(conditionType, topic, version, channelId)
 	if condition == nil {
 		return errors.New("condition not found")
 	}

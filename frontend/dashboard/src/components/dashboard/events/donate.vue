@@ -1,22 +1,26 @@
 <script lang="ts" setup>
-import { IconCurrencyDollar } from '@tabler/icons-vue';
+import { IconCurrencyDollar } from '@tabler/icons-vue'
 
-import Base from './base.vue';
+import Base from './base.vue'
 
 defineProps<{
-	userName: string,
-	createdAt: string,
-	amount: string,
-	currency: string,
-	message: string
-}>();
+	userName?: string | null
+	createdAt: string
+	amount?: string | null
+	currency?: string | null
+	message?: string | null
+}>()
 </script>
 
 <template>
-	<Base :icon="IconCurrencyDollar" :created-at="createdAt">
+	<Base
+		:icon="IconCurrencyDollar"
+		:icon-color="['#00a865', '#5cffbe']"
+		:created-at="createdAt"
+	>
 		<template #leftContent>
 			<div class="flex flex-col">
-				<span>{{ userName }} <b class="text-xs">donated</b> {{ amount }}{{ currency }}</span>
+				<span>{{ userName }} <span class="font-bold">donated</span> {{ amount }}{{ currency }}</span>
 				<span class="text-xs">{{ message }}</span>
 			</div>
 		</template>

@@ -1,15 +1,20 @@
 <script setup lang="ts">
 import { GridItem, GridLayout } from 'grid-layout-plus'
 import { SquarePen } from 'lucide-vue-next'
-import { NButton, NDropdown } from 'naive-ui'
+import { NDropdown } from 'naive-ui'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
+import AuditLogs from '@/components/dashboard/audit-logs.vue'
 import BotStatus from '@/components/dashboard/bot-status.vue'
 import Chat from '@/components/dashboard/chat.vue'
 import Events from '@/components/dashboard/events.vue'
 import Stream from '@/components/dashboard/stream.vue'
 import { useWidgets } from '@/components/dashboard/widgets.js'
+import { Button } from '@/components/ui/button'
+import { useIsMobile } from '@/composables/use-is-mobile'
+import Stats from '@/layout/stats/stats.vue'
 
+const { isMobile } = useIsMobile()
 const widgets = useWidgets()
 const visibleWidgets = computed(() => widgets.value.filter((v) => v.visible))
 const dropdownOptions = computed(() => {
@@ -53,11 +58,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+	<Stats />
 	<BotStatus />
 	<div class="w-full h-full pl-1">
 		<GridLayout
 			v-model:layout="widgets"
 			:row-height="30"
+			:use-css-transforms="false"
 		>
 			<GridItem
 				v-for="item in visibleWidgets"
@@ -75,14 +82,24 @@ onBeforeUnmount(() => {
 				<Chat v-if="item.i === 'chat'" :item="item" class="h-full" />
 				<Stream v-if="item.i === 'stream'" :item="item" class="h-full" />
 				<Events v-if="item.i === 'events'" :item="item" class="h-full" />
+				<AuditLogs v-if="item.i === 'audit-logs'" :item="item" class="h-full" />
 			</GridItem>
 		</GridLayout>
 
-		<div v-if="dropdownOptions.length" class="fixed bottom-2.5 right-2">
-			<NDropdown size="huge" trigger="click" :options="dropdownOptions" @select="addWidget">
-				<NButton block circle type="success" style="width: 100%; height: 100%; padding: 8px;">
+		<div
+			v-if="dropdownOptions.length"
+			class="fixed right-[2rem] bottom-[2rem] z-50"
+			:class="[{ '!right-[6rem]': isMobile }]"
+		>
+			<NDropdown
+				size="huge"
+				trigger="click"
+				:options="dropdownOptions"
+				@select="addWidget"
+			>
+				<Button variant="secondary" class="h-14 w-14" size="icon">
 					<SquarePen class="size-8" />
-				</NButton>
+				</Button>
 			</NDropdown>
 		</div>
 	</div>

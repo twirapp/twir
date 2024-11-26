@@ -32,7 +32,7 @@ defineSlots<{
 	additionalSettings: VNode
 }>()
 
-const { formValue, formRef } = useForm()
+const { formValue, formRef, save } = useForm()
 const hasAccessToManageAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ManageAlerts)
 
 watch(formValue, (v) => {
@@ -48,6 +48,8 @@ function createMessage() {
 
 	if (props.count) {
 		const latest = formValue?.value?.[props.formKey]?.messages.at(-1)
+		// eslint-disable-next-line ts/ban-ts-comment
+		// @ts-expect-error
 		const countForSet = latest && 'count' in latest ? latest.count + 1 : 1
 
 		formValue?.value?.[props.formKey]?.messages.push({
@@ -63,8 +65,6 @@ function removeMessage(index: number) {
 	if (!hasAccessToManageAlerts) return
 	if (!formValue?.value?.[props.formKey]?.messages) return
 
-	// eslint-disable-next-line ts/ban-ts-comment
-	// @ts-expect-error
 	formValue.value[props.formKey]!.messages = formValue.value[props.formKey]!.messages.filter((_, i) => i !== index)
 }
 
@@ -142,14 +142,23 @@ const { t } = useI18n()
 				bordered
 			>
 				<template #header-extra>
-					<Button
-						:disabled="(formValue[formKey]!.messages?.length === maxMessages) || !hasAccessToManageAlerts"
-						variant="default"
-						@click="createMessage"
-					>
-						<span v-if="formValue[formKey]!.messages?.length">{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} / {{ maxMessages }})</span>
-						<span v-else>{{ t('sharedButtons.create') }}</span>
-					</Button>
+					<div class="flex gap-2">
+						<Button
+							:disabled="(formValue[formKey]!.messages?.length === maxMessages) || !hasAccessToManageAlerts"
+							variant="secondary"
+							@click="createMessage"
+						>
+							<span v-if="formValue[formKey]!.messages?.length">{{ t('sharedButtons.create') }} ({{ formValue[formKey]!.messages.length }} / {{ maxMessages }})</span>
+							<span v-else>{{ t('sharedButtons.create') }}</span>
+						</Button>
+						<Button
+							:disabled="!hasAccessToManageAlerts"
+							variant="default"
+							@click="save"
+						>
+							<span>{{ t('sharedButtons.save') }}</span>
+						</Button>
+					</div>
 				</template>
 
 				<p class="leading-7 [&:not(:first-child)]:mt-6" v-html="alertMessage" />

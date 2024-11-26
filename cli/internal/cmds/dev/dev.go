@@ -71,6 +71,15 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
+			if c.Bool("proxy") {
+				go func() {
+					if err := proxy.Cmd.Run(c); err != nil {
+						pterm.Error.Println(err)
+						return
+					}
+				}()
+			}
+
 			skipDeps := c.Bool("skip-deps")
 			isDebugEnabled := c.Bool("debug")
 
@@ -126,15 +135,6 @@ func CreateDevCommand() *cli.Command {
 			if err := nodejsApps.Start(); err != nil {
 				pterm.Error.Println(err)
 				return err
-			}
-
-			if c.Bool("proxy") {
-				go func() {
-					if err := proxy.Cmd.Run(c); err != nil {
-						pterm.Error.Println(err)
-						return
-					}
-				}()
 			}
 
 			exitSignal := make(chan os.Signal, 1)

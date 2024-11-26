@@ -10,9 +10,12 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/ravilushqa/otelgqlgen"
 	config "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/auth"
+	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/gql/apq-cache"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 )
 
@@ -26,6 +29,8 @@ type Opts struct {
 	Resolver   *resolvers.Resolver
 	Directives *directives.Directives
 	Config     config.Config
+	ApqCache   *apq_cache.APQCache
+	Tracer     trace.Tracer
 }
 
 func New(opts Opts) *Gql {
@@ -53,15 +58,15 @@ func New(opts Opts) *Gql {
 					return true
 				},
 			},
+			InitFunc: auth.WsGqlInitFunc,
 		},
 	)
+
 	srv.Use(otelgqlgen.Middleware())
 
 	if opts.Config.AppEnv != "production" {
 		srv.Use(extension.Introspection{})
 	}
-
-	// srv.Use(extension.FixedComplexityLimit(5))
 
 	return &Gql{srv}
 }

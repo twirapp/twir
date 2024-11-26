@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useWindowScroll } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
 import { useThemeVars } from 'naive-ui'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
-import { type Component, onBeforeMount, ref } from 'vue'
-import { watch } from 'vue'
+import { type Component, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { StringOrNumber } from 'radix-vue/dist/shared/types'
@@ -13,6 +13,7 @@ import { useTheme } from '@/composables/use-theme.js'
 const props = withDefaults(defineProps<PageLayoutProps>(), {
 	activeTab: '',
 	tabs: () => [],
+	stickyHeader: false,
 })
 const router = useRouter()
 const themeVars = useThemeVars()
@@ -21,6 +22,7 @@ const { theme } = useTheme()
 export interface PageLayoutProps {
 	activeTab?: string
 	tabs?: PageLayoutTab[]
+	stickyHeader?: boolean
 }
 
 export interface PageLayoutTab {
@@ -52,23 +54,48 @@ function setTab(): void {
 function onChangeTab(tab: StringOrNumber, replace = false): void {
 	router.push({ query: { tab }, replace })
 }
+
+const { y } = useWindowScroll()
+
+const shrink = ref(false)
+
+watch(y, (value) => {
+	if (value > 20) {
+		shrink.value = true
+	} else {
+		shrink.value = false
+	}
+})
 </script>
 
 <template>
 	<TabsRoot v-model="activeTab" @update:model-value="onChangeTab">
 		<div
 			class="after:inset-0 after:bottom-0 after:block after:h-px after:w-full after:content-['']"
-			:class="[theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]']"
+			:class="[
+				theme === 'dark' ? 'after:bg-white/[.15]' : 'after:bg-zinc-600/[.15]',
+				{
+					'sticky top-0 z-50': props.stickyHeader,
+				},
+			]"
 			:style="{ 'background-color': themeVars.cardColor }"
 		>
 			<div
 				class="container flex flex-col gap-2"
-				:class="[activeTab ? 'pt-9' : 'py-9']"
+				:class="[
+					activeTab ? 'pt-9' : 'py-9',
+					{
+						'h-20 !py-4': shrink && props.stickyHeader,
+					},
+				]"
 			>
 				<div class="flex justify-between gap-2 flex-wrap">
-					<h1 class="text-4xl">
-						<slot name="title" />
-					</h1>
+					<div class="flex flex-col gap-2">
+						<h1 class="text-4xl">
+							<slot name="title" />
+						</h1>
+						<slot name="title-footer" />
+					</div>
 
 					<slot name="action" />
 				</div>

@@ -1,13 +1,14 @@
 package hydrator
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"regexp"
 	"strings"
 
 	"github.com/goccy/go-json"
-	model "github.com/satont/twir/libs/gomodels"
+	bus_core "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/valyala/fasttemplate"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -16,24 +17,23 @@ import (
 type Opts struct {
 	fx.In
 
-	Db *gorm.DB
+	Db      *gorm.DB
+	TwirBus *bus_core.Bus
 }
 
-func New(opts Opts) *Hydrador {
-	return &Hydrador{
-		db: opts.Db,
+func New(opts Opts) *Hydrator {
+	return &Hydrator{
+		db:      opts.Db,
+		twirBus: opts.TwirBus,
 	}
 }
 
-type Hydrador struct {
-	db *gorm.DB
+type Hydrator struct {
+	db      *gorm.DB
+	twirBus *bus_core.Bus
 }
 
-var variablesRegular = regexp.MustCompile(
-	`(?m)\$\((?P<all>(?P<main>[^.)|]+)(?:\.[^)|]+)?)(?:\|(?P<params>[^)]+))?\)`,
-)
-
-func (c *Hydrador) HydrateStringWithData(channelId string, str string, data any) (string, error) {
+func (c *Hydrator) HydrateStringWithData(channelId string, str string, data any) (string, error) {
 	template := fasttemplate.New(str, "{", "}")
 
 	bytes, err := json.Marshal(data)
@@ -79,31 +79,32 @@ func (c *Hydrador) HydrateStringWithData(channelId string, str string, data any)
 		},
 	)
 
-	for _, match := range variablesRegular.FindAllString(s, len(s)) {
-		variable := variablesRegular.FindStringSubmatch(match)
-		if len(variable) < 4 {
-			continue
-		}
-		t := variable[len(variable)-2]
-		variableName := variable[len(variable)-1]
+	var userId, userLogin, userName string
+	if m["userId"] != nil {
+		userId = m["userId"].(string)
+	}
 
-		if t != "customvar" {
-			continue
-		}
+	if m["userName"] != nil {
+		userName = m["userName"].(string)
+	}
 
-		dbVariable := &model.ChannelsCustomvars{}
-		err := c.db.
-			Where(`"channelId" = ? AND "name" = ?`, channelId, variableName).
-			Find(dbVariable).Error
-		if err != nil {
-			continue
-		}
+	if m["userDisplayName"] != nil {
+		userLogin = m["userDisplayName"].(string)
+	}
 
-		if dbVariable.Type == model.CustomVarScript {
-			continue
-		}
+	resp, _ := c.twirBus.Parser.ParseVariablesInText.Request(
+		context.Background(), parser.ParseVariablesInTextRequest{
+			ChannelID:   channelId,
+			ChannelName: "",
+			Text:        s,
+			UserID:      userId,
+			UserLogin:   userName,
+			UserName:    userLogin,
+		},
+	)
 
-		s = strings.ReplaceAll(s, match, dbVariable.Response)
+	if resp.Data.Text != "" {
+		s = resp.Data.Text
 	}
 
 	return s, nil

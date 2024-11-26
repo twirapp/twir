@@ -6,7 +6,6 @@ import { useI18n } from 'vue-i18n'
 import type { FunctionalComponent } from 'vue'
 
 import { useVariablesApi } from '@/api/variables'
-import { Button } from '@/components/ui/button'
 import {
 	Command,
 	CommandEmpty,
@@ -23,12 +22,14 @@ withDefaults(defineProps<{
 	inputType?: 'text' | 'textarea'
 	minRows?: number
 	maxRows?: number
+	popoverAlign?: 'start' | 'center' | 'end'
+	popoverSide?: 'top' | 'right' | 'bottom' | 'left'
 }>(), {
 	inputType: 'text',
 })
 
 defineSlots<{
-	underSelect: FunctionalComponent
+	'additional-buttons': FunctionalComponent
 }>()
 
 const text = defineModel<string | undefined | null>({ default: '' })
@@ -53,15 +54,24 @@ function handleSelect(value: string) {
 
 <template>
 	<Popover v-model:open="open">
-		<component :is="inputType === 'textarea' ? Textarea : Input" v-model="text" :maxlength="500" />
-		<PopoverTrigger as-child>
-			<Button class="ml-2" variant="ghost" size="icon">
-				<Variable class="size-auto opacity-50" />
-			</Button>
-		</PopoverTrigger>
+		<div class="flex flex-col w-full group">
+			<component v-bind="$attrs" :is="inputType === 'textarea' ? Textarea : Input" v-model="text" class="input pr-10 w-full" :maxlength="500" />
+			<div class="flex gap-0.5 absolute right-1 top-1" :class="{ '!opacity-100': open }">
+				<!--				sm:flex md:hidden gap-0.5 absolute right-1 top-1 group-hover:flex group-has-[.input:focus]:block -->
+				<PopoverTrigger as-child>
+					<button
+						class="hover:bg-secondary/80 p-1 rounded-md"
+					>
+						<Variable class="size-4 opacity-50" />
+					</button>
+				</PopoverTrigger>
+				<slot name="additional-buttons" />
+			</div>
+		</div>
 		<PopoverContent
-			align="start"
 			class="p-0 z-[9999] max-w-[400px]"
+			:align="popoverAlign"
+			:side="popoverSide"
 		>
 			<Command
 				:reset-search-term-on-blur="false"

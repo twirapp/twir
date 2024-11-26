@@ -10,21 +10,38 @@ services:
       - ADMINER_DEFAULT_SERVER=postgres:5432
       - ADMINER_PLUGINS=enum-types enum-option json-column
     networks:
-      - tsuwari-dev
+      - twir-dev
 
   postgres:
-    image: postgres:14-alpine
+    image: postgres:17-alpine
     restart: unless-stopped
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
       - '54321:5432'
     environment:
-      POSTGRES_USER: tsuwari
-      POSTGRES_PASSWORD: tsuwari
-      POSTGRES_DB: tsuwari
+      POSTGRES_USER: twir
+      POSTGRES_PASSWORD: twir
+      POSTGRES_DB: twir
     networks:
-      - tsuwari-dev
+      - twir-dev
+
+  pgbouncer:
+    image: bitnami/pgbouncer:1.23.1
+    restart: unless-stopped
+    environment:
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_USERNAME=twir
+      - POSTGRESQL_PASSWORD=twir
+      - POSTGRESQL_DATABASE=twir
+
+      - PGBOUNCER_AUTH_USER=twir
+      - PGBOUNCER_DATABASE=twir
+      - PGBOUNCER_MIN_POOL_SIZE=20
+    networks:
+      - twir-dev
+    ports:
+      -  '6432:6432'
 
   redis:
     image: redis/redis-stack:latest
@@ -35,7 +52,7 @@ services:
     volumes:
       - redis-data:/data
     networks:
-      - tsuwari-dev
+      - twir-dev
 
   language-detector:
     image: ghcr.io/twirapp/language-detector:latest
@@ -51,7 +68,7 @@ services:
     ports:
       - '7001:8080'
     networks:
-      - tsuwari-dev
+      - twir-dev
 
   minio:
     image: quay.io/minio/minio
@@ -77,14 +94,14 @@ services:
       # this is db addr
       - POSTGRES_SEEDS=postgres
       - POSTGRES_PORT=5432
-      - POSTGRES_USER=tsuwari
-      - POSTGRES_PWD=tsuwari
+      - POSTGRES_USER=twir
+      - POSTGRES_PWD=twir
       - POSTGRES_DB=temporal
       - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/development-sql.yaml
     volumes:
       - ./configs/temporal:/etc/temporal/config/dynamicconfig
     networks:
-      - tsuwari-dev
+      - twir-dev
     ports:
       - '7233:7233'
     labels:
@@ -99,7 +116,7 @@ services:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CLI_ADDRESS=temporal:7233
     networks:
-      - tsuwari-dev
+      - twir-dev
     stdin_open: true
     tty: true
 
@@ -112,7 +129,7 @@ services:
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_CORS_ORIGINS=http://localhost:3000
     networks:
-      - tsuwari-dev
+      - twir-dev
     ports:
       - '7234:8080'
 
@@ -124,7 +141,7 @@ services:
       - '4222:4222'
       - '8222:8222'
     networks:
-      - tsuwari-dev
+      - twir-dev
 
 volumes:
   redis-data:
@@ -132,5 +149,5 @@ volumes:
   minio-data:
 
 networks:
-  tsuwari-dev:
+  twir-dev:
     driver: bridge

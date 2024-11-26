@@ -20,6 +20,12 @@ const config: CodegenConfig = {
 			config: {
 				useTypeImports: true,
 			},
+			// presetConfig: {
+			// 	onExecutableDocumentNode: generatePersistHash,
+			// },
+			// documentTransforms: [
+			// 	addTypenameSelectionDocumentTransform,
+			// ],
 		},
 	},
 }

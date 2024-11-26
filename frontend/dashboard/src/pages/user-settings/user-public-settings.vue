@@ -19,8 +19,10 @@ import type { OmitDeep } from 'type-fest'
 import { useUserSettings } from '@/api'
 import { useToast } from '@/components/ui/toast'
 
+type Link = Omit<UserPublicSettingsQuery['userPublicSettings']['socialLinks'][number], '__typename'>
+
 type FormParams = OmitDeep<UserPublicSettingsQuery['userPublicSettings'], '__typename' | 'socialLinks'> & {
-	socialLinks: Array<UserPublicSettingsQuery['userPublicSettings']['socialLinks'][number] & { isEditing?: boolean }>
+	socialLinks: Array<Link & { isEditing?: boolean }>
 }
 
 const { t } = useI18n()

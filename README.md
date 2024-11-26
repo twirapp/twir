@@ -69,20 +69,15 @@ pnpm cli migrations run
 
 ## Https on localhost (optional)
 
-We'll use `dev.twir.app` domain, but you can use any other domain.
+We'll use `twir.localhost` domain, which is enables ability to grant ssl out of the box, but you can use any other domain and deal with ssl yourself.
 
-* Add `https://dev.twir.app/login` to your twitch application redirect url's
+* Add `https://twir.localhost/login` to your twitch application redirect url's
 
 * Edit `.env` entries:
 ```ini
-TWITCH_CALLBACKURL=https://dev.twir.app/login
-SITE_BASE_URL=dev.twir.app
+TWITCH_CALLBACKURL=https://twir.localhost/login
+SITE_BASE_URL=twir.localhost
 USE_WSS=true
-```
-
-* Add to your `/etc/hosts` or `C:/Windows/System32/drivers/etc/hosts` file new entry:
-```bash
-127.0.0.1 dev.twir.app
 ```
 
 * Start caddy:
@@ -90,4 +85,4 @@ USE_WSS=true
 pnpm cli proxy
 ```
 
-* Open https://dev.twir.app
+* Open https://twir.localhost

@@ -1,10 +1,14 @@
 import { useQuery } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 
+import type { GetAllCommandsQuery } from '@/gql/graphql'
+
 import { useMutation } from '@/composables/use-mutation.js'
 import { graphql } from '@/gql/gql.js'
 
 export const invalidationKey = 'CommandsInvalidateKey'
+
+export type Command = GetAllCommandsQuery['commands'][0]
 
 export const useCommandsApi = createGlobalState(() => {
 	const useQueryCommands = () => useQuery({
@@ -19,7 +23,6 @@ export const useCommandsApi = createGlobalState(() => {
 						id
 						commandId
 						text
-						order
 						twitchCategoriesIds
 						twitchCategories {
 							id
@@ -50,6 +53,9 @@ export const useCommandsApi = createGlobalState(() => {
 						name
 						color
 					}
+					groupId
+					expiresAt
+					expiresType
 				}
 			}
 		`),
@@ -71,7 +77,9 @@ export const useCommandsApi = createGlobalState(() => {
 	const useMutationCreateCommand = () => useMutation(
 		graphql(`
 			mutation CreateCommand($opts: CommandsCreateOpts!) {
-				commandsCreate(opts: $opts)
+				commandsCreate(opts: $opts) {
+					id
+				}
 			}
 		`),
 		[invalidationKey],

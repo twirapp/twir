@@ -1,19 +1,31 @@
-import { createGlobalState, useDebounceFn, watchIgnorable } from '@vueuse/core'
-import { useNotification } from 'naive-ui'
+import { createGlobalState } from '@vueuse/core'
 import { ref, toRaw, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ChatAlerts } from '@/api/chat-alerts.js'
-import type { ChatAlertsSettings } from '@/gql/graphql'
+import type { ChatAlerts } from '@/gql/graphql'
 import type { KeysOfUnion, RequiredDeep, SetNonNullable } from 'type-fest'
 
 import { useChatAlertsApi } from '@/api/chat-alerts.js'
+import { useToast } from '@/components/ui/toast'
 
 export type FormKey = Exclude<KeysOfUnion<RequiredDeep<SetNonNullable<ChatAlerts>>>, '__typename'>
-type Form = Record<FormKey, ChatAlertsSettings>
+
+type OmitDeep<T, K extends string> = T extends object
+	? T extends Array<infer U>
+		? OmitDeep<U, K>[]
+		: {
+			[P in keyof T as P extends K ? never : P]: OmitDeep<T[P], K>
+		}
+	: T
+
+type NonNullableFields<T> = {
+	[P in keyof T]-?: NonNullable<T[P]>;
+}
+
+type Form = OmitDeep<NonNullableFields<ChatAlerts>, '__typename'>
 
 export const useForm = createGlobalState(() => {
-	const message = useNotification()
+	const { toast } = useToast()
 	const { t } = useI18n()
 	const formRef = ref<HTMLFormElement>()
 
@@ -56,6 +68,7 @@ export const useForm = createGlobalState(() => {
 			enabled: false,
 			messages: [],
 			cooldown: 0,
+			ignoredRewardsIds: [],
 		},
 		streamOffline: {
 			enabled: false,
@@ -101,42 +114,34 @@ export const useForm = createGlobalState(() => {
 
 		try {
 			await updateChatAlerts.executeMutation({ input })
+			toast({
+				title: t('sharedTexts.saved'),
+				duration: 2500,
+			})
 		} catch (error) {
-			message.error({
+			toast({
 				title: t('sharedTexts.errorOnSave'),
+				variant: 'destructive',
 				duration: 2500,
 			})
 		}
 	}
 
-	const debouncedSave = useDebounceFn(save, 1000)
-
-	const { ignoreUpdates } = watchIgnorable(
-		formValue,
-		() => {
-			if (!formRef.value) return
-			if (!formRef.value?.reportValidity()) return
-
-			debouncedSave()
-		},
-		{ deep: true, immediate: true },
-	)
-
 	watch(data, (v) => {
-		ignoreUpdates(() => {
-			if (!v?.chatAlerts) return
-			for (const key of Object.keys(formValue.value) as FormKey[]) {
-				if (!v.chatAlerts[key]) continue
-				// eslint-disable-next-line ts/ban-ts-comment
-				// @ts-expect-error
-				formValue.value[key] = v.chatAlerts[key]
-			}
-		})
+		if (!v?.chatAlerts) return
+		for (const key of Object.keys(formValue.value)) {
+			// eslint-disable-next-line ts/ban-ts-comment
+			// @ts-expect-error
+			if (!v.chatAlerts[key]) continue
+			// eslint-disable-next-line ts/ban-ts-comment
+			// @ts-expect-error
+			formValue.value[key] = v.chatAlerts[key]
+		}
 	}, { immediate: true })
 
 	return {
 		formValue,
-		save: debouncedSave,
+		save,
 		formRef,
 	}
 })

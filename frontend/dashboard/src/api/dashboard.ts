@@ -1,30 +1,95 @@
-import { useQuery } from '@tanstack/vue-query';
-import { useSubscription } from '@urql/vue';
-import { computed } from 'vue';
+import { useQuery } from '@tanstack/vue-query'
+import { useSubscription } from '@urql/vue'
+import { createGlobalState } from '@vueuse/core'
+import { computed } from 'vue'
 
-import { protectedApiClient } from './twirp';
+import { protectedApiClient } from './twirp'
 
-import { graphql } from '@/gql';
+import type { DashboardEventsSubscription } from '@/gql/graphql'
 
-export const useDashboardStats = () => useQuery({
-	queryKey: ['dashboardStats'],
-	queryFn: async () => {
-		const call = await protectedApiClient.getDashboardStats({});
+import { graphql } from '@/gql'
 
-		return call.response;
-	},
-});
+export function useDashboardStats() {
+	return useQuery({
+		queryKey: ['dashboardStats'],
+		queryFn: async () => {
+			const call = await protectedApiClient.getDashboardStats({})
 
-export const useDashboardEvents = () => useQuery({
-	queryKey: ['dashboardEvents'],
-	queryFn: async () => {
-		const call = await protectedApiClient.getDashboardEventsList({});
-		return call.response;
-	},
-});
+			return call.response
+		},
+	})
+}
 
+export type DashboardWidgetEvent = DashboardEventsSubscription['dashboardWidgetsEvents']['events'][number]
 
-export const useRealtimeDashboardStats = () => {
+export const useDashboardEvents = createGlobalState(() => {
+	const { data, isPaused, fetching } = useSubscription({
+		query: graphql(`
+			subscription DashboardEvents {
+				dashboardWidgetsEvents {
+					events {
+						userId
+						data {
+							donationAmount
+							donationCurrency
+							donationMessage
+							donationUserName
+							raidedViewersCount
+							raidedFromUserName
+							raidedFromDisplayName
+							followUserName
+							followUserDisplayName
+							redemptionTitle
+							redemptionInput
+							redemptionUserName
+							redemptionUserDisplayName
+							redemptionCost
+							subLevel
+							subUserName
+							subUserDisplayName
+							reSubLevel
+							reSubUserName
+							reSubUserDisplayName
+							reSubMonths
+							reSubStreak
+							subGiftLevel
+							subGiftUserName
+							subGiftUserDisplayName
+							subGiftTargetUserName
+							subGiftTargetUserDisplayName
+							firstUserMessageUserName
+							firstUserMessageUserDisplayName
+							firstUserMessageMessage
+							banReason
+							banEndsInMinutes
+							bannedUserName
+							bannedUserLogin
+							moderatorName
+							moderatorDisplayName
+							message
+							userLogin
+							userName
+						}
+						createdAt
+						type
+					}
+				}
+			}
+		`),
+	})
+
+	const events = computed(() => {
+		return data.value?.dashboardWidgetsEvents.events
+	})
+
+	return {
+		events,
+		isPaused,
+		fetching,
+	}
+})
+
+export function useRealtimeDashboardStats() {
 	const { data, isPaused, fetching } = useSubscription({
 		query: graphql(`
 			subscription dashboardStats {
@@ -42,11 +107,11 @@ export const useRealtimeDashboardStats = () => {
 				}
 			}
 		`),
-	});
+	})
 
 	const stats = computed(() => {
-		return data.value?.dashboardStats;
-	});
+		return data.value?.dashboardStats
+	})
 
-	return { stats, isPaused, fetching };
-};
+	return { stats, isPaused, fetching }
+}

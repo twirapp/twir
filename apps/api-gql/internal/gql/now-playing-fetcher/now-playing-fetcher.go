@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
@@ -20,12 +22,14 @@ type Opts struct {
 	Gorm      *gorm.DB
 	ChannelID string
 	Redis     *redis.Client
+	Logger    logger.Logger
 }
 
 type NowPlayingFetcher struct {
 	channelId string
 	gorm      *gorm.DB
 	redis     *redis.Client
+	logger    logger.Logger
 
 	lastfmService  *lastfm.Lastfm
 	spotifyService *spotify.Spotify
@@ -100,22 +104,8 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		lastfmService:  lfmService,
 		spotifyService: spotifyService,
 		vkService:      vkService,
+		logger:         opts.Logger,
 	}, nil
-}
-
-type Track struct {
-	Artist    string `json:"artist"`
-	Title     string `json:"title"`
-	ImageUrl  string `json:"image_url,omitempty"`
-	fromCache bool   `json:"from_cache,omitempty"`
-}
-
-func (i Track) MarshalBinary() ([]byte, error) {
-	return json.Marshal(i)
-}
-
-func (i *Track) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, i)
 }
 
 func (c *NowPlayingFetcher) Fetch(ctx context.Context) (*Track, error) {
@@ -147,7 +137,15 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	}
 
 	if c.spotifyService != nil {
-		spotifyTrack := c.spotifyService.GetTrack()
+		spotifyTrack, err := c.spotifyService.GetTrack()
+		if err != nil {
+			c.logger.Error(
+				"cannot fetch spotify track",
+				slog.Any("err", err),
+				slog.String("channel_id", c.channelId),
+			)
+		}
+
 		if spotifyTrack != nil && spotifyTrack.IsPlaying {
 			return &Track{
 				Artist:   spotifyTrack.Artist,
@@ -159,9 +157,12 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 
 	if c.lastfmService != nil {
 		lastfmTrack, err := c.lastfmService.GetTrack()
-		if err != nil {
-			return nil, err
-		}
+		c.logger.Error(
+			"cannot fetch lastfm track",
+			slog.Any("err", err),
+			slog.String("channel_id", c.channelId),
+		)
+
 		if lastfmTrack != nil {
 			return &Track{
 				Artist:   lastfmTrack.Artist,
@@ -174,8 +175,13 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	if c.vkService != nil {
 		vkTrack, err := c.vkService.GetTrack(ctx)
 		if err != nil {
-			return nil, err
+			c.logger.Error(
+				"cannot fetch vk track",
+				slog.Any("err", err),
+				slog.String("channel_id", c.channelId),
+			)
 		}
+
 		if vkTrack != nil {
 			return &Track{
 				Artist:   vkTrack.Artist,
@@ -186,4 +192,19 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	}
 
 	return nil, nil
+}
+
+type Track struct {
+	Artist    string `json:"artist"`
+	Title     string `json:"title"`
+	ImageUrl  string `json:"image_url,omitempty"`
+	fromCache bool   `json:"from_cache,omitempty"`
+}
+
+func (i Track) MarshalBinary() ([]byte, error) {
+	return json.Marshal(i)
+}
+
+func (i *Track) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, i)
 }

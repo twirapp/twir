@@ -14,6 +14,22 @@ export function newRouter() {
 			component: () => import('../pages/IntegrationsCallback.vue'),
 		},
 		{
+			path: '/dashboard/popup',
+			component: () => import('../popup-layout/popup-layout.vue'),
+			children: [
+				{
+					path: '/dashboard/popup/widgets/eventslist',
+					component: () => import('../components/dashboard/events.vue'),
+					props: { popup: true },
+				},
+				{
+					path: '/dashboard/popup/widgets/audit-log',
+					component: () => import('../components/dashboard/audit-logs.vue'),
+					props: { popup: true },
+				},
+			],
+		},
+		{
 			path: '/dashboard',
 			component: () => import('../layout/layout.vue'),
 			children: [
@@ -31,12 +47,22 @@ export function newRouter() {
 				{
 					path: '/dashboard/commands/:system',
 					component: () => import('../features/commands/commands.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands },
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewCommands, noPadding: true },
+				},
+				{
+					path: '/dashboard/commands/:system/:id',
+					component: () => import('../features/commands/commands-edit.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageCommands, noPadding: true },
 				},
 				{
 					path: '/dashboard/timers',
-					component: () => import('../pages/Timers.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewTimers },
+					component: () => import('../features/timers/timers.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewTimers, noPadding: true },
+				},
+				{
+					path: '/dashboard/timers/:id',
+					component: () => import('../features/timers/timers-edit.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageTimers, noPadding: true },
 				},
 				{
 					path: '/dashboard/keywords',
@@ -175,6 +201,12 @@ export function newRouter() {
 					component: () => import('../pages/Import.vue'),
 				},
 				{
+					name: 'Notifications',
+					path: '/dashboard/notifications',
+					component: () => import('../pages/notifications.vue'),
+					meta: { noPadding: true },
+				},
+				{
 					name: 'Forbidden',
 					path: '/dashboard/forbidden',
 					component: () => import('../pages/NoAccess.vue'),
@@ -196,6 +228,8 @@ export function newRouter() {
 	})
 
 	router.beforeEach(async (to, _, next) => {
+		if (to.path.startsWith('/dashboard/popup')) return next()
+
 		try {
 			const profileRequest = await urqlClient.value.executeQuery(profileQuery)
 			if (!profileRequest.data) {

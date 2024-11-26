@@ -3,8 +3,6 @@ import { IconPencil, IconTrash } from '@tabler/icons-vue'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useCommandEdit } from '../composables/use-command-edit'
-
 import type { Command } from '@/gql/graphql'
 
 import { useUserAccessFlagChecker } from '@/api'
@@ -31,14 +29,14 @@ async function switchEnabled(newValue: boolean) {
 	await patcher?.executeMutation({
 		id: props.row.id,
 		opts: {
-			enabled: newValue
-		}
+			enabled: newValue,
+		},
 	})
 
 	toast({
 		title: t('sharedTexts.saved'),
 		variant: 'success',
-		duration: 1500
+		duration: 1500,
 	})
 }
 
@@ -48,11 +46,9 @@ async function deleteCommand() {
 	toast({
 		title: t('sharedTexts.deleted'),
 		variant: 'success',
-		duration: 1500
+		duration: 1500,
 	})
 }
-
-const commandEdit = useCommandEdit()
 </script>
 
 <template>
@@ -62,23 +58,27 @@ const commandEdit = useCommandEdit()
 			:checked="row.enabled"
 			@update:checked="switchEnabled"
 		/>
-		<div class="flex gap-0.5">
+		<div class="flex gap-2">
+			<RouterLink v-slot="{ href, navigate }" custom :to="`/dashboard/commands/custom/${row.id}`">
+				<Button
+					as="a"
+					:href="href"
+					:disabled="!userCanManageCommands"
+					variant="secondary"
+					size="icon"
+					@click="navigate"
+				>
+					<IconPencil class="h-5 w-5" />
+				</Button>
+			</RouterLink>
 			<Button
 				v-if="row.module === 'CUSTOM'"
 				:disabled="!userCanManageCommands"
-				variant="ghost"
-				size="sm"
+				variant="destructive"
+				size="icon"
 				@click="showDelete = true"
 			>
 				<IconTrash class="h-5 w-5" />
-			</Button>
-			<Button
-				:disabled="!userCanManageCommands"
-				size="sm"
-				variant="ghost"
-				@click="commandEdit.editCommand(row.id)"
-			>
-				<IconPencil class="h-5 w-5" />
 			</Button>
 		</div>
 	</div>

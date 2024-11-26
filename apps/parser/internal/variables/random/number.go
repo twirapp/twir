@@ -16,6 +16,7 @@ var Number = &types.Variable{
 	Description:         lo.ToPtr("Random number from N to N"),
 	Example:             lo.ToPtr("random|1-100"),
 	CanBeUsedInRegistry: true,
+	NotCachable:         true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

@@ -20,7 +20,8 @@
     "send": "Send",
     "next": "Next",
     "previous": "Previous",
-    "reset": "Reset"
+    "reset": "Reset",
+    "popout": "Popout in new window"
   },
   "sharedTexts": {
     "saved": "Saved",
@@ -56,7 +57,10 @@
     "userSelected": "{count} users selected",
     "userSelectPlaceholder": "Select user|Select users",
     "userNotFound": "No users found",
-		"settings": "Settings"
+		"settings": "Settings",
+    "create": "Create",
+    "edit": "Edit",
+    "noData": "No data"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -80,13 +84,15 @@
     "games": "Games",
     "users": "Users",
     "moderation": "Moderation",
+    "publicPage": "Public Page",
     "import": "Import",
-    "community": "Community"
-  },
-  "navbar": {
+    "community": "Community",
     "logout": "Logout",
-    "publicPage": "Public page",
-    "seeAll": "See all"
+    "loggedAs": "Logged as",
+    "lang": "Language",
+    "darkTheme": "Dark Theme",
+    "lightTheme": "Light Theme",
+    "notifications": "Notifications"
   },
   "deleteConfirmation": {
     "text": "Are you sure about deleting this thing?",
@@ -126,10 +132,19 @@
         }
       },
       "aliases": {
-        "label": "Aliases"
+        "label": "Additional names"
       },
       "gameCategories": {
         "label": "Enable command only in certain categories (leave empty for disable)"
+      },
+      "expiration": {
+        "label": "Expiration",
+        "actionsLabel": "Action on expire",
+        "defaultWarning": "Expiration cannot be set for default command",
+        "actions": {
+          "delete": "Command will be deleted",
+          "disable": "Command will be disabled"
+        }
       },
       "description": {
         "label": "Command Description"
@@ -148,7 +163,9 @@
         "name": "Roles",
         "placeholder": "Select roles to grant permissions to use commands",
         "deniedUsers": "Users, who cannot use that command.",
-        "allowedUsers": "Users, who can bypass roles restriction for that command."
+        "allowedUsers": "Users, who can bypass roles restriction for that command.",
+        "exceptions": "Exceptions",
+        "blocked": "Blocked users"
       },
       "restrictions": {
         "name": "Restrictions by stats",
@@ -230,6 +247,45 @@
       },
       "bot": {
         "title": "Bot Management"
+      },
+      "audit-logs": {
+        "title": "Audit logs",
+        "search-label": "Search by",
+        "search": {
+          "channel": "Channel",
+          "actor": "Actor"
+        },
+        "operation-type-label": "Operation type",
+        "operation-type": {
+          "create": "Created",
+          "delete": "Deleted",
+          "update": "Edited"
+        },
+        "systems-label": "Systems",
+        "systems": {
+          "badge": "Badge",
+          "badge-user": "Badge User",
+          "channel-command": "Command",
+          "channel-command-group": "Command Group",
+          "channel-variable": "Variable",
+          "channel-games-eight-ball": "8ball",
+          "channel-games-duel": "Duel",
+          "channel-games-russian-roulette": "Russian Roulette",
+          "channel-games-seppuku": "Seppuku",
+          "channel-games-voteban": "Voteban",
+          "channel-greeting": "Greeting",
+          "channel-keyword": "Keyword",
+          "channel-moderation-setting": "Moderation Setting",
+          "channel-overlay-chat": "Chat Overlay",
+          "channel-overlay-dudes": "Dudes Overlay",
+          "channel-overlay-now-playing": "Now Playing Overlay",
+          "channel-roles": "Role",
+          "channel-timers": "Timer",
+          "channel-song-requests": "Song Requests",
+          "channel-integrations": "Integration",
+          "channel-alerts": "Alert",
+          "channel-chat-alerts": "Chat alerts"
+        }
       }
     }
   },
@@ -622,8 +678,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval (in minutes)",
-        "intervalInMessages": "Interval (in chat messages, set 0 to disable)"
+        "intervalInMinutes": "Interval in minutes",
+        "intervalInMessages": "Chat lines interval"
       }
     },
     "modal": {
@@ -817,7 +873,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes statistics",
+      "title": "Emotes Statistics",
       "searchPlaceholder": "Search emotes...",
       "table": {
         "emote": "Emote",
@@ -1045,6 +1101,9 @@
         "revokeAllSessionsDescription": "All user sessions will be revoked",
         "revokeAllSessionsConfirm": "Are you sure you want to revoke all sessions?"
       }
+    },
+    "auditLogs": {
+      "title": "Audit logs"
     }
   }
 }

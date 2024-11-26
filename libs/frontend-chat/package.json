@@ -12,14 +12,10 @@
   "dependencies": {
     "@twir/api": "workspace:*",
     "@twir/fontsource": "workspace:*",
-    "@vueuse/core": "10.9.0",
-    "vue": "3.4.21"
+    "@vueuse/core": "catalog:",
+    "vue": "catalog:"
   },
   "devDependencies": {
-    "vue-tsc": "2.0.13"
-  },
-  "peerDependencies": {
-    "@vueuse/core": "10.7.0",
-    "vue": "3.3.12"
+    "vue-tsc": "catalog:"
   }
 }

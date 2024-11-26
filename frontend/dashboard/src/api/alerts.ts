@@ -8,7 +8,7 @@ import { graphql } from '@/gql/gql.js'
 
 const invalidateKey = 'AlertsInvalidateKey'
 
-export type Alert = AlertsGetAllQuery['channelAlerts'][number]
+export type Alert = Omit<AlertsGetAllQuery['channelAlerts'][number], '__typename'>
 
 export const useAlertsApi = createGlobalState(() => {
 	const useAlertsQuery = () => useQuery({

@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 
 import AdminActions from '@/features/admin-panel/actions/admin-actions.vue'
+import AdminAuditLogs from '@/features/admin-panel/audit-logs/audit-logs.vue'
 import AdminManageBadges from '@/features/admin-panel/manage-badges/manage-badges.vue'
 import AdminManageNotifications
 	from '@/features/admin-panel/manage-notifications/manage-notifications.vue'
@@ -30,6 +31,11 @@ const pageTabs: PageLayoutTab[] = [
 		name: 'actions',
 		title: t('adminPanel.adminActions.title'),
 		component: AdminActions,
+	},
+	{
+		name: 'audit-logs',
+		title: t('adminPanel.auditLogs.title'),
+		component: AdminAuditLogs,
 	},
 ]
 </script>

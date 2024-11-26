@@ -11,6 +11,17 @@ const gqlWs = createWS({
 	url: wsUrl,
 	lazy: true,
 	shouldRetry: () => true,
+	connectionParams() {
+		const apiKey = getApiKeyFromUrlQuery()
+
+		if (apiKey) {
+			return {
+				'api-key': apiKey,
+			}
+		}
+
+		return {}
+	},
 })
 
 const toast = useToast()
@@ -35,6 +46,15 @@ function createClient() {
 				},
 			}),
 			cacheExchange,
+			// persistedExchange({
+			// 	preferGetForPersistedQueries: true,
+			// 	enableForMutation: true,
+			// 	generateHash: (_, document) => {
+			// 		// eslint-disable-next-line ts/ban-ts-comment
+			// 		// @ts-expect-error
+			// 		return document.__meta__.hash
+			// 	},
+			// }),
 			fetchExchange,
 			subscriptionExchange({
 				enableAllOperations: true,
@@ -46,8 +66,21 @@ function createClient() {
 			}),
 		],
 		// requestPolicy: 'cache-first',
-		fetchOptions: {
-			credentials: 'include',
+		fetchOptions: () => {
+			const apiKey = getApiKeyFromUrlQuery()
+
+			const options: RequestInit = {
+				credentials: 'include',
+			}
+
+			if (apiKey) {
+				options.headers = {
+					...options.headers,
+					'Api-Key': apiKey,
+				}
+			}
+
+			return options
 		},
 	})
 }
@@ -63,4 +96,11 @@ export function useUrqlClient() {
 		urqlClient,
 		reInitClient,
 	}
+}
+
+function getApiKeyFromUrlQuery() {
+	const locationQuery = new URLSearchParams(window.location.search)
+	const apiKey = locationQuery.get('apiKey')
+
+	return apiKey
 }

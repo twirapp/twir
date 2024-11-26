@@ -19,9 +19,11 @@ import (
 	seventv "github.com/satont/twir/apps/parser/internal/commands/7tv"
 	channel_game "github.com/satont/twir/apps/parser/internal/commands/channel/game"
 	channel_title "github.com/satont/twir/apps/parser/internal/commands/channel/title"
+	"github.com/satont/twir/apps/parser/internal/commands/clip"
 	"github.com/satont/twir/apps/parser/internal/commands/dudes"
 	"github.com/satont/twir/apps/parser/internal/commands/games"
 	"github.com/satont/twir/apps/parser/internal/commands/manage"
+	"github.com/satont/twir/apps/parser/internal/commands/marker"
 	"github.com/satont/twir/apps/parser/internal/commands/nuke"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/brb"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
@@ -117,6 +119,8 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteRename,
 			seventv.EmoteDelete,
 			seventv.EmoteAdd,
+			clip.MakeClip,
+			marker.Marker,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -436,6 +440,45 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 
 	cmd := c.FindChannelCommandInInput(data.Message.Text[1:], cmds)
 	if cmd.Cmd == nil {
+		return nil, nil
+	}
+
+	if cmd.Cmd.ExpiresAt.Valid && cmd.Cmd.ExpiresType != nil && cmd.Cmd.ExpiresAt.Time.Before(time.Now().UTC()) {
+		if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDisable && cmd.Cmd.Enabled {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Model(&model.ChannelsCommands{}).
+				Updates(
+					map[string]interface{}{
+						"enabled": false,
+					},
+				).Error
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+		} else if *cmd.Cmd.ExpiresType == model.ChannelCommandExpiresTypeDelete && !cmd.Cmd.Default {
+			err = c.services.Gorm.
+				WithContext(ctx).
+				Where(`"id" = ?`, cmd.Cmd.ID).
+				Delete(&model.ChannelsCommands{}).Error
+			if err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+
+			if err := c.services.CommandsCache.Invalidate(ctx, data.BroadcasterUserId); err != nil {
+				c.services.Logger.Sugar().Error(err)
+				return nil, err
+			}
+		}
+
 		return nil, nil
 	}
 

@@ -1,108 +1,100 @@
 <script setup lang="ts">
-import { IconPlus, IconTrash, IconDeviceFloppy } from '@tabler/icons-vue';
-import {
-	NDynamicInput,
-	NInput,
-	NColorPicker,
-	NFormItem,
-	NGrid,
-	NGridItem,
-	NButton,
-} from 'naive-ui';
-import { toRaw, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { BadgePlus, SaveIcon, TrashIcon } from 'lucide-vue-next'
+import { NColorPicker } from 'naive-ui'
+import { ref, toRaw, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useCommandsGroupsApi } from '@/api/commands/commands-groups';
-import type { CommandGroup } from '@/gql/graphql';
+import type { CommandGroup } from '@/gql/graphql'
 
-const { t } = useI18n();
+import { useCommandsGroupsApi } from '@/api/commands/commands-groups'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
-const groupsManager = useCommandsGroupsApi();
-const { data } = groupsManager.useQueryGroups();
-const groupsCreator = groupsManager.useMutationCreateGroup();
-const groupsDeleter = groupsManager.useMutationDeleteGroup();
-const groupsUpdater = groupsManager.useMutationUpdateGroup();
+const { t } = useI18n()
+
+const groupsManager = useCommandsGroupsApi()
+const { data } = groupsManager.useQueryGroups()
+const groupsCreator = groupsManager.useMutationCreateGroup()
+const groupsDeleter = groupsManager.useMutationDeleteGroup()
+const groupsUpdater = groupsManager.useMutationUpdateGroup()
 
 type FormGroup = Omit<CommandGroup, 'id'> & { id?: string }
 
-const groups = ref<FormGroup[]>([]);
+const groups = ref<FormGroup[]>([])
 
 watch(data, (data) => {
-	groups.value = data?.commandsGroups ? toRaw(data?.commandsGroups) : [];
-}, { immediate: true });
+	groups.value = data?.commandsGroups ? toRaw(data?.commandsGroups) : []
+}, { immediate: true })
 
 async function create(name: string, color: string) {
-	await groupsCreator.executeMutation({ opts: { color, name } });
+	await groupsCreator.executeMutation({ opts: { color, name } })
 }
 
 async function deleteGroup(index: number) {
-	const group = groups.value[index];
-	if (!group?.id) return;
-	await groupsDeleter.executeMutation({ id: group.id });
+	const group = groups.value[index]
+	if (!group?.id) return
+	await groupsDeleter.executeMutation({ id: group.id })
 }
 
 async function update(index: number) {
-	const group = groups.value[index];
-	if (!group?.id) return;
-	await groupsUpdater.executeMutation({ id: group.id, opts: { name: group.name, color: group.color } });
+	const group = groups.value[index]
+	if (!group?.id) return
+	await groupsUpdater.executeMutation({ id: group.id, opts: { name: group.name, color: group.color } })
 }
 
 const swatches = [
-	'rgba(116, 242, 202, 1)',
-	'rgba(208, 48, 80, 1)',
-];
+	'rgb(116, 242, 202)',
+	'rgb(208, 48, 80)',
+]
 </script>
 
 <template>
-	<n-dynamic-input
-		v-model:value="groups"
-		:on-remove="(a) => deleteGroup(a)"
-		class="groups w-full"
-		:create-button-props="{ class: 'create-button' } as any"
-	>
-		<template #default="{ value }: { value: FormGroup }">
-			<n-grid cols="1 s:2 m:2 l:2" responsive="screen" :x-gap="5">
-				<n-grid-item :span="1">
-					<n-form-item :label="t('commands.groups.name')">
-						<n-input v-model:value="value.name" type="text" />
-					</n-form-item>
-				</n-grid-item>
-				<n-grid-item :span="1">
-					<n-form-item :label="t('commands.groups.color')">
-						<n-color-picker
-							v-model:value="value.color"
-							:show-alpha="true"
-							:swatches="swatches"
-							:modes="['rgb']"
-						/>
-					</n-form-item>
-				</n-grid-item>
-			</n-grid>
-		</template>
-
-		<template #action="{ index, remove }">
-			<div class="group-actions">
-				<n-button size="small" type="success" quaternary @click="() => update(index)">
-					<IconDeviceFloppy />
-				</n-button>
-				<n-button size="small" type="error" quaternary @click="() => remove(index)">
-					<IconTrash />
-				</n-button>
+	<div class="flex flex-col gap-2">
+		<Alert v-if="!groups.length">
+			<AlertDescription>
+				No groups created yet
+			</AlertDescription>
+		</Alert>
+		<div
+			v-for="(group, index) of groups"
+			v-else
+			:key="group.id"
+			class="flex flex-wrap flex-col md:flex-row gap-2 border border-border py-2 px-4 rounded-md"
+		>
+			<div class="flex flex-col gap-1 w-full md:w-[40%]">
+				<span>Name</span>
+				<Input v-model:model-value="group.name" />
 			</div>
-		</template>
-	</n-dynamic-input>
-	<n-button dashed block @click="() => create(`New Group #${groups.length + 1}`, swatches[0])">
-		<IconPlus />
-		{{ t('sharedButtons.create') }}
-	</n-button>
+			<div class="flex flex-col gap-1 w-full md:w-[40%]">
+				<span>Color</span>
+				<NColorPicker
+					v-model:value="group.color"
+					:show-alpha="true"
+					:swatches="swatches"
+					:modes="['rgb']"
+					style="height: 100%"
+				/>
+			</div>
+
+			<div class="flex gap-2 items-end justify-end">
+				<Button size="icon" @click="update(index)">
+					<SaveIcon />
+				</Button>
+				<Button size="icon" variant="destructive" @click="deleteGroup(index)">
+					<TrashIcon />
+				</Button>
+			</div>
+		</div>
+	</div>
+
+	<Button
+		variant="outline"
+		class="mt-2 w-full flex gap-2 items-center"
+		:disabled="groups.length >= 10"
+		@click="() => create(`New Group #${groups.length + 1}`, swatches[0])"
+	>
+		<BadgePlus class="size-4" />
+		<span>{{ t('sharedButtons.create') }} ({{ groups.length }}/10)</span>
+	</Button>
 </template>
-
-<style scoped>
-.groups :deep(.create-button) {
-	@apply hidden;
-}
-
-.group-actions {
-	@apply flex gap-x-1 items-center;
-}
-</style>

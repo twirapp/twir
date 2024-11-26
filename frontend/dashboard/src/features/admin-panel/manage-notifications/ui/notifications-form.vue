@@ -3,7 +3,7 @@ import { useI18n } from 'vue-i18n'
 
 import { useNotificationsForm } from '../composables/use-notifications-form.js'
 
-import TwitchUsersSelect from '@/components/twitchUsers/twitch-users-select.vue'
+import TwitchUserSelect from '@/components/twitchUsers/twitch-user-select.vue'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import BlocksRender from '@/components/ui/editorjs/blocks-render.vue'
@@ -27,8 +27,8 @@ const notificationsForm = useNotificationsForm()
 					<Label for="userId">
 						{{ t('adminPanel.notifications.userLabel') }}
 					</Label>
-					<TwitchUsersSelect
-						v-model="notificationsForm.userIdField.fieldModel.value"
+					<TwitchUserSelect
+						v-model="notificationsForm.userIdField.fieldModel.value as string"
 						twir-only
 					/>
 				</div>
@@ -38,7 +38,10 @@ const notificationsForm = useNotificationsForm()
 						{{ t('adminPanel.notifications.messageLabel') }}
 					</Label>
 
-					<EditorJS v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value" />
+					<EditorJS
+						v-model:model-value="notificationsForm.editorJsJsonField.fieldModel.value"
+						@update:model-value="(v: string) => notificationsForm.editorJsJsonField.fieldModel.value = v"
+					/>
 				</div>
 
 				<template v-if="notificationsForm.editorJsJsonField.fieldModel.value">

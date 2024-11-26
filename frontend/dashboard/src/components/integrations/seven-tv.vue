@@ -31,7 +31,7 @@ import { useSevenTv } from '@/components/integrations/use-seven-tv'
 import WithSettings from '@/components/integrations/variants/withSettings.vue'
 import RewardsSelector from '@/components/rewardsSelector.vue'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
-import CommandsList from '@/features/commands/ui/list.vue'
+import CommandsList from '@/features/commands/commands.vue'
 
 const { t } = useI18n()
 

@@ -26,7 +26,9 @@ const gamesApi = useGamesApi()
 const { data: settings } = gamesApi.useGamesQuery()
 const updater = gamesApi.useDuelMutation()
 
-const initialSettings: GamesQuery['gamesDuel'] = {
+type Duel = Omit<GamesQuery['gamesDuel'], '__typename'>
+
+const initialSettings: Duel = {
 	enabled: false,
 	startMessage: '@{target}, @{initiator} challenges you to a fight. Use {duelAcceptCommandName} for next {acceptSeconds} seconds to accept the challenge.',
 	resultMessage: `Sadly, @{loser} couldn't find a way to dodge the bullet and falls apart into eternal slumber.`,
@@ -40,7 +42,7 @@ const initialSettings: GamesQuery['gamesDuel'] = {
 	bothDiePercent: 0,
 }
 
-const formValue = ref<GamesQuery['gamesDuel']>({ ...initialSettings })
+const formValue = ref<Duel>({ ...initialSettings })
 
 watch(settings, (v) => {
 	if (!v) return

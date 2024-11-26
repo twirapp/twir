@@ -9,8 +9,7 @@ import { useProfile, useTwitchGetUsers } from '@/api/index.js'
 import { useTheme } from '@/composables/use-theme.js'
 
 const { data: profile } = useProfile()
-
-const { theme: chatTheme, toggleTheme } = useTheme('twirTwitchChatTheme')
+const { theme: chatTheme, toggleTheme } = useTheme()
 
 const openFrankerFaceZ = ref(false)
 const selectedTwitchId = computed(() => profile.value?.selectedDashboardId ?? '')

@@ -27,7 +27,7 @@ type EventsWorkflowOpts struct {
 	EventsActivity *eventsActivity.Activity
 	Gorm           *gorm.DB
 	Redis          *redis.Client
-	Hydrator       *hydrator.Hydrador
+	Hydrator       *hydrator.Hydrator
 	Logger         logger.Logger
 }
 
@@ -58,7 +58,7 @@ type EventWorkflow struct {
 	eventsActivity *eventsActivity.Activity
 	db             *gorm.DB
 	redis          *redis.Client
-	hydrator       *hydrator.Hydrador
+	hydrator       *hydrator.Hydrator
 }
 
 func (c *EventWorkflow) Execute(

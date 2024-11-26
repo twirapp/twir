@@ -1,25 +1,28 @@
 <script lang="ts" setup>
-import { IconPick } from '@tabler/icons-vue';
+import { IconPick } from '@tabler/icons-vue'
 
-import Base from './base.vue';
-
-import { resolveUserName } from '@/helpers/index.js';
+import Base from './base.vue'
+import UserLink from './user-link.vue'
 
 defineProps<{
-	userName: string,
-	userDisplayName: string,
-	createdAt: string,
-	viewers: string,
-}>();
-
+	userName?: string | null
+	userDisplayName?: string | null
+	createdAt: string
+	viewers?: string | null
+}>()
 </script>
 
 <template>
-	<Base :icon="IconPick" :created-at="createdAt">
+	<Base
+		v-if="userName && userDisplayName && viewers"
+		:icon="IconPick"
+		:icon-color="['#949400', '#ebeb00']"
+		:created-at="createdAt"
+	>
 		<template #leftContent>
 			<span>
-
-				{{ resolveUserName(userName, userDisplayName) }} <b class="text-xs">raided with</b> {{ viewers }} viewers
+				<UserLink :name="userName" :display-name="userDisplayName" />{{ '' }}
+				<span class="font-bold">raided with</span> {{ viewers }} viewers
 			</span>
 		</template>
 	</Base>

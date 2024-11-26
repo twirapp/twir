@@ -55,19 +55,71 @@ services:
         - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
+#  postgres:
+#    image: postgres:14-alpine
+#    volumes:
+#      - postgres-data:/var/lib/postgresql/data
+#      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
+#    environment:
+#      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
+#      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
+#      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
+#    secrets:
+#      - twir_postgres_user
+#      - twir_postgres_password
+#      - twir_postgres_db
+#    networks:
+#      - twir
+#    deploy:
+#      restart_policy:
+#        condition: any
+#        delay: 30s
+#        max_attempts: 30
+#      endpoint_mode: dnsrr
+#      placement:
+#        constraints:
+#          - node.role == manager
+
   postgres:
-    image: postgres:14-alpine
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
+    image: 'bitnami/postgresql:17'
     environment:
       POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
       POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
+      POSTGRESQL_MAX_CONNECTIONS: 1000
     secrets:
       - twir_postgres_user
       - twir_postgres_password
       - twir_postgres_db
+    volumes:
+      - twir-postgres-data:/bitnami/postgresql
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+  pgbouncer:
+    image: bitnami/pgbouncer:1.23.1
+    secrets:
+      - twir_postgres_user
+      - twir_postgres_password
+      - twir_postgres_db
+    environment:
+      - POSTGRESQL_HOST=postgres
+      - POSTGRESQL_USERNAME_FILE=/run/secrets/twir_postgres_user
+      - POSTGRESQL_PASSWORD_FILE=/run/secrets/twir_postgres_password
+      - POSTGRESQL_DATABASE_FILE=/run/secrets/twir_postgres_db
+
+      - PGBOUNCER_AUTH_USER=twir
+      - PGBOUNCER_DATABASE=twir
+      - PGBOUNCER_MIN_POOL_SIZE=20
     networks:
       - twir
     deploy:
@@ -121,7 +173,7 @@ services:
           - node.role == manager
 
   migrations:
-    image: twirapp/migrations:latest
+    image: registry.twir.app/twirapp/migrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -151,7 +203,7 @@ services:
           - node.role == manager
 
   api:
-    image: twirapp/api:latest
+    image: registry.twir.app/twirapp/api:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -176,7 +228,7 @@ services:
       replicas: 1
 
   api-gql:
-    image: twirapp/api-gql:latest
+    image: registry.twir.app/twirapp/api-gql:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -201,7 +253,7 @@ services:
       replicas: 1
 
   bots:
-    image: twirapp/bots:latest
+    image: registry.twir.app/twirapp/bots:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -217,7 +269,7 @@ services:
           - node.role == manager
 
   parser:
-    image: twirapp/parser:latest
+    image: registry.twir.app/twirapp/parser:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -234,7 +286,7 @@ services:
       - twir
 
   chat-messages-store:
-    image: twirapp/chat-messages-store:latest
+    image: registry.twir.app/twirapp/chat-messages-store:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -251,7 +303,7 @@ services:
       - twir
 
   timers:
-    image: twirapp/timers:latest
+    image: registry.twir.app/twirapp/timers:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -268,7 +320,7 @@ services:
       endpoint_mode: dnsrr
 
   scheduler:
-    image: twirapp/scheduler:latest
+    image: registry.twir.app/twirapp/scheduler:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -281,7 +333,7 @@ services:
       endpoint_mode: dnsrr
 
   eventsub:
-    image: twirapp/eventsub:latest
+    image: registry.twir.app/twirapp/eventsub:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -304,7 +356,7 @@ services:
         - traefik.docker.network=traefik-public
 
   eval:
-    image: twirapp/eval:latest
+    image: registry.twir.app/twirapp/eval:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -325,7 +377,7 @@ services:
       - twir
 
   integrations:
-    image: twirapp/integrations:latest
+    image: registry.twir.app/twirapp/integrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -337,8 +389,32 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-  landing:
-    image: twirapp/landing:latest
+#  landing:
+#    image: registry.twir.app/twirapp/landing:latest
+#    secrets:
+#      - twir_doppler_token
+#    networks:
+#      - twir
+#      - traefik-public
+#    deploy:
+#      update_config:
+#        parallelism: 2
+#      restart_policy:
+#        condition: any
+#        delay: 30s
+#        max_attempts: 30
+#      mode: replicated
+#      replicas: 4
+#      endpoint_mode: dnsrr
+#      labels:
+#        - traefik.enable=true
+#        - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
+#        - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
+#        - traefik.http.services.twir-landing.loadbalancer.server.port=3000
+#        - traefik.docker.network=traefik-public
+
+  web:
+    image: registry.twir.app/twirapp/web:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -356,13 +432,13 @@ services:
       endpoint_mode: dnsrr
       labels:
         - traefik.enable=true
-        - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
-        - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
-        - traefik.http.services.twir-landing.loadbalancer.server.port=3000
+        - traefik.http.routers.twir-web.rule=Host(`twir.app`)
+        - traefik.http.routers.twir-web.middlewares=cloudflarewarp
+        - traefik.http.services.twir-web.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
 
   dashboard:
-    image: twirapp/dashboard:latest
+    image: registry.twir.app/twirapp/dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
     secrets:
       - twir_doppler_token
@@ -384,7 +460,7 @@ services:
         - traefik.docker.network=traefik-public
 
   public-page:
-    image: twirapp/public-page:latest
+    image: registry.twir.app/twirapp/public-page:latest
     command: --gzip --brotli --threshold 500
     secrets:
       - twir_doppler_token
@@ -406,7 +482,7 @@ services:
         - traefik.docker.network=traefik-public
 
   overlays:
-    image: twirapp/overlays:latest
+    image: registry.twir.app/twirapp/overlays:latest
     command: --gzip --brotli --threshold 500
     networks:
       - twir
@@ -426,7 +502,7 @@ services:
         - traefik.docker.network=traefik-public
 
   websockets:
-    image: twirapp/websockets:latest
+    image: registry.twir.app/twirapp/websockets:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -447,7 +523,7 @@ services:
         - traefik.docker.network=traefik-public
 
   tokens:
-    image: twirapp/tokens:latest
+    image: registry.twir.app/twirapp/tokens:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -464,7 +540,7 @@ services:
       endpoint_mode: dnsrr
 
   emotes-cacher:
-    image: twirapp/emotes-cacher:latest
+    image: registry.twir.app/twirapp/emotes-cacher:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -481,7 +557,7 @@ services:
       replicas: 4
 
   events:
-    image: twirapp/events:latest
+    image: registry.twir.app/twirapp/events:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -498,7 +574,7 @@ services:
       replicas: 6
 
   ytsr:
-    image: twirapp/ytsr:latest
+    image: registry.twir.app/twirapp/ytsr:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -530,7 +606,7 @@ services:
       replicas: 4
 
   discord:
-    image: twirapp/discord:latest
+    image: registry.twir.app/twirapp/discord:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -543,7 +619,7 @@ services:
       endpoint_mode: dnsrr
 
   language-detector:
-    image: ghcr.io/twirapp/language-detector:latest
+    image: ghcr.io/registry.twir.app/twirapp/language-detector:latest
     secrets:
       - twir_doppler_token
     environment:
@@ -562,6 +638,8 @@ services:
       - twir
 
 volumes:
+  twir-postgres-data:
+    external: true
   postgres-data:
   redis-data:
   redis-stack-data:

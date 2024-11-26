@@ -1,60 +1,65 @@
 <script lang="ts" setup>
-import { IconGripVertical, IconEyeOff } from '@tabler/icons-vue';
-import { NCard, NButton } from 'naive-ui';
-import { type CSSProperties, useAttrs } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { IconEyeOff, IconGripVertical } from '@tabler/icons-vue'
+import { NButton, NCard } from 'naive-ui'
+import { useAttrs } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import { useWidgets, type WidgetItem } from './widgets.js';
+import { type WidgetItem, useWidgets } from './widgets.js'
 
-defineSlots<{
-	default: any,
-	action?: any
-	'header-extra'?: any
-}>();
+import type { CSSProperties } from 'vue'
 
 withDefaults(defineProps<{
 	contentStyle?: CSSProperties
+	popup?: boolean
 }>(), {
 	contentStyle: () => ({ padding: '0px' }),
-});
+})
 
-const widgets = useWidgets();
+defineSlots<{
+	'default': any
+	'action'?: any
+	'header-extra'?: any
+}>()
 
-const attrs = useAttrs() as { item: WidgetItem, [x: string]: unknown };
+const widgets = useWidgets()
 
-const hideItem = () => {
-	const item = widgets.value.find(item => item.i === attrs.item.i);
-	if (!item) return;
-	item.visible = false;
-};
+const attrs = useAttrs() as { item: WidgetItem, [x: string]: unknown } | undefined
 
-const { t } = useI18n();
+function hideItem() {
+	if (!attrs) return
+
+	const item = widgets.value.find(item => item.i === attrs.item.i)
+	if (!item) return
+	item.visible = false
+}
+
+const { t } = useI18n()
 </script>
 
 <template>
-	<n-card
+	<NCard
 		:segmented="{
 			content: true,
-			footer: 'soft'
+			footer: 'soft',
 		}"
 		header-style="padding: 5px;"
 		:content-style="contentStyle"
 		style="width: 100%; height: 100%"
 		v-bind="$attrs"
 	>
-		<template #header>
+		<template v-if="!popup" #header>
 			<div class="widgets-draggable-handle flex items-center">
 				<IconGripVertical class="w-5 h-5" />
-				{{ t(`dashboard.widgets.${attrs.item.i}.title`) }}
+				{{ t(`dashboard.widgets.${attrs?.item.i}.title`) }}
 			</div>
 		</template>
 
-		<template #header-extra>
+		<template v-if="!popup" #header-extra>
 			<div class="flex gap-1">
 				<slot name="header-extra" />
-				<n-button text size="small" @click="hideItem">
+				<NButton text size="small" @click="hideItem">
 					<IconEyeOff />
-				</n-button>
+				</NButton>
 			</div>
 		</template>
 
@@ -63,5 +68,5 @@ const { t } = useI18n();
 		<template #action>
 			<slot name="action" />
 		</template>
-	</n-card>
+	</NCard>
 </template>

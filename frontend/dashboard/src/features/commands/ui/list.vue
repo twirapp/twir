@@ -1,30 +1,20 @@
 <script setup lang="ts">
 import {
-	FlexRender,
 	getCoreRowModel,
 	getExpandedRowModel,
-	useVueTable
+	useVueTable,
 } from '@tanstack/vue-table'
 import { type Rgb, colorBrightness, hexToRgb, rgbToHex } from '@zero-dependency/utils'
 import { ChevronDownIcon, ChevronRightIcon } from 'lucide-vue-next'
-import { useThemeVars } from 'naive-ui'
 import { computed, h } from 'vue'
 
-import EditModal from './edit-modal.vue'
 import ColumnActions from './list-actions.vue'
 import { type Group, createGroups, isCommand } from './list-groups.js'
 
 import type { Command } from '@/gql/graphql'
 import type { ColumnDef } from '@tanstack/vue-table'
 
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow
-} from '@/components/ui/table'
+import Table from '@/components/table.vue'
 
 const props = withDefaults(defineProps<{
 	commands: Command[]
@@ -32,10 +22,8 @@ const props = withDefaults(defineProps<{
 	showBackground?: boolean
 }>(), {
 	showHeader: false,
-	enableGroups: false
+	enableGroups: false,
 })
-
-const themeVars = useThemeVars()
 
 const columns: ColumnDef<Command | Group>[] = [
 	{
@@ -49,7 +37,7 @@ const columns: ColumnDef<Command | Group>[] = [
 				return h(
 					'div',
 					{ class: 'flex gap-2 items-center select-none' },
-					[chevron, `!${row.getValue('name')}` as string]
+					[chevron, `!${row.getValue('name')}` as string],
 				)
 			}
 
@@ -71,13 +59,13 @@ const columns: ColumnDef<Command | Group>[] = [
 						'span',
 						{
 							class: 'p-1 rounded',
-							style: `background-color: ${row.original.color}; color: ${color}`
+							style: `background-color: ${row.original.color}; color: ${color}`,
 						},
-						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1)
-					)
-				]
+						row.original.name.charAt(0).toLocaleUpperCase() + row.original.name.slice(1),
+					),
+				],
 			)
-		}
+		},
 	},
 	{
 		accessorKey: 'responses',
@@ -93,9 +81,9 @@ const columns: ColumnDef<Command | Group>[] = [
 				return row.original.description
 			}
 
-			const mappedResponses = responses.map((r) => h('span', {}, r.text))
+			const mappedResponses = responses.map((r) => h('span', { class: 'truncate md:whitespace-normal' }, r.text))
 			return h('div', { class: 'flex flex-col' }, mappedResponses)
-		}
+		},
 	},
 	{
 		id: 'actions',
@@ -108,11 +96,11 @@ const columns: ColumnDef<Command | Group>[] = [
 			return h(
 				ColumnActions,
 				{
-					row: row.original
-				}
+					row: row.original,
+				},
 			)
-		}
-	}
+		},
+	},
 ]
 
 const tableValue = computed(() => props.enableGroups ? createGroups(props.commands) : props.commands)
@@ -130,72 +118,10 @@ const table = useVueTable({
 		if ('commands' in original) {
 			return original.commands
 		}
-	}
+	},
 })
 </script>
 
 <template>
-	<EditModal />
-
-	<div
-		class="border rounded-md"
-		:style="{
-			backgroundColor: props.showBackground ? themeVars.cardColor : 'inherit',
-			color: themeVars.textColor2,
-		}"
-	>
-		<Table>
-			<TableHeader>
-				<TableRow
-					v-for="headerGroup in table.getHeaderGroups()"
-					:key="headerGroup.id"
-					class="border-b"
-				>
-					<TableHead
-						v-for="header in headerGroup.headers"
-						:key="header.id"
-						:style="{ width: `${header.getSize()}%` }"
-					>
-						<FlexRender
-							v-if="!header.isPlaceholder"
-							:render="header.column.columnDef.header"
-							:props="header.getContext()"
-						/>
-					</TableHead>
-				</TableRow>
-			</TableHeader>
-			<TableBody>
-				<template v-if="table.getRowModel().rows?.length">
-					<TableRow
-						v-for="row in table.getRowModel().rows" :key="row.id"
-						:data-state="row.getIsSelected() ? 'selected' : undefined"
-						class="border-b"
-						:class="{ 'cursor-pointer': !isCommand(row.original) }"
-					>
-						<TableCell
-							v-for="cell in row.getVisibleCells()"
-							:key="cell.id"
-							@click="() => {
-								if (row.getCanExpand()) {
-									row.getToggleExpandedHandler()()
-								}
-							}"
-						>
-							<FlexRender
-								:render="cell.column.columnDef.cell"
-								:props="cell.getContext()"
-							/>
-						</TableCell>
-					</TableRow>
-				</template>
-				<template v-else>
-					<TableRow>
-						<TableCell :colSpan="columns.length" class="h-24 text-center">
-							No commands
-						</TableCell>
-					</TableRow>
-				</template>
-			</TableBody>
-		</Table>
-	</div>
+	<Table :table="table" :is-loading="false" />
 </template>

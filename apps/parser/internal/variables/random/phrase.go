@@ -13,6 +13,7 @@ var Phrase = &types.Variable{
 	Description:         lo.ToPtr("Random phrase from list"),
 	Example:             lo.ToPtr("random.phrase|Hi there|Kappa|Another Phrase"),
 	CanBeUsedInRegistry: true,
+	NotCachable:         true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,
 	) (*types.VariableHandlerResult, error) {

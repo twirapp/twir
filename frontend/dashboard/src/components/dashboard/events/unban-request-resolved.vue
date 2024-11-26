@@ -1,28 +1,32 @@
 <script lang="ts" setup>
+import { IconUserCancel } from '@tabler/icons-vue'
 
-import { IconUserCancel } from '@tabler/icons-vue';
-
-import Base from './base.vue';
-
-import { resolveUserName } from '@/helpers';
+import Base from './base.vue'
+import UserLink from './user-link.vue'
 
 defineProps<{
-	createdAt: string,
-	userName: string,
-	userLogin: string
-	message: string
-	moderatorUserName: string
-	moderatorUserLogin: string
-}>();
+	userName?: string | null
+	userLogin?: string | null
+	message?: string | null
+	moderatorUserName?: string | null
+	moderatorUserLogin?: string | null
+	createdAt: string
+}>()
 </script>
 
 <template>
-	<Base :icon="IconUserCancel" :created-at="createdAt">
+	<Base
+		v-if="userLogin && userName && message && moderatorUserLogin && moderatorUserName"
+		:icon="IconUserCancel"
+		:icon-color="['#ff4f4d', '#ffaaa8']"
+		:created-at="createdAt"
+	>
 		<template #leftContent>
 			<div class="flex flex-col">
 				<span>
-					{{ resolveUserName(moderatorUserLogin, moderatorUserName) }}
-					<b class="text-xs">resolved unban request from</b> {{ resolveUserName(userLogin, userName) }}
+					<UserLink :name="moderatorUserLogin" :display-name="moderatorUserName" />{{ '' }}
+					<span class="font-bold">resolved unban request from</span>{{ '' }}
+					<UserLink :name="userLogin" :display-name="userName" />
 				</span>
 				<span class="text-xs">{{ message }}</span>
 			</div>

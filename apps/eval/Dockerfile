@@ -1,6 +1,6 @@
 FROM node:20-alpine as builder
 WORKDIR /app
-RUN npm i -g pnpm@8
+RUN npm i -g pnpm@9
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/eval /app/apps/eval
@@ -9,7 +9,7 @@ COPY libs/grpc /app/libs/grpc
 COPY libs/pubsub /app/libs/pubsub
 COPY libs/bus-core /app/libs/bus-core
 
-RUN pnpm prune --prod
+RUN pnpm i
 
 FROM node:20-alpine as node_prod_base
 WORKDIR /app
@@ -20,7 +20,7 @@ RUN apk add wget && \
     rm -rf /var/cache/apk/*
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
-RUN npm i -g pnpm@8
+RUN npm i -g pnpm@9
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM node_prod_base

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { NAvatar, NSelect, NSpace, NText, type SelectOption } from 'naive-ui'
+import { NAvatar, NSelect, NSpace, NTag, NText, type SelectOption } from 'naive-ui'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -12,6 +12,7 @@ const props = defineProps<{
 	multiple?: boolean
 	clearable?: boolean
 	onlyWithInput?: boolean
+	placeholder?: string
 }>()
 
 const modelValue = defineModel<string | string[] | undefined | null>()
@@ -48,7 +49,7 @@ const rewardsSelectOptions = computed(() => {
 	return rewards
 })
 
-function renderRewardTag(option: RewardSelectOptions): VNodeChild {
+function renderRewardLabel(option: RewardSelectOptions): VNodeChild {
 	return h(NSpace, { align: 'center' }, {
 		default: () => [
 			h(NAvatar, {
@@ -66,17 +67,30 @@ function renderRewardTag(option: RewardSelectOptions): VNodeChild {
 		],
 	})
 }
+
+function renderRewardTag(props: { option: SelectOption, handleClose: () => void }): VNodeChild {
+	return h(NTag, {
+		bordered: false,
+		closable: true,
+		onClose: props.handleClose,
+	},	{
+		icon: () => h('img', { src: props.option.image || RewardFallbackImg, class: 'w-4 h-4 mr-1' }),
+		default: () => props.option.label,
+	})
+}
 </script>
 
 <template>
 	<NSelect
 		v-model:value="modelValue"
+		class="bg-background"
 		:multiple="multiple"
 		size="large"
 		:options="rewardsSelectOptions"
-		:placeholder="t('events.targetTwitchReward')"
+		:placeholder="placeholder ?? t('events.targetTwitchReward')"
 		:loading="isRewardsLoading"
-		:render-label="renderRewardTag"
+		:render-label="renderRewardLabel"
+		:render-tag="renderRewardTag"
 		:disabled="isRewardsError"
 		:clearable="clearable"
 		:virtual-scroll="false"

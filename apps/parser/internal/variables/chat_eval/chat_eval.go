@@ -13,6 +13,7 @@ var ChatEval = &types.Variable{
 	Name:         "chatEval",
 	Description:  lo.ToPtr("Evaluate custom script from chat"),
 	Example:      lo.ToPtr("chatEval"),
+	NotCachable:  true,
 	CommandsOnly: true,
 	Handler: func(
 		ctx context.Context, parseCtx *types.VariableParseContext, variableData *types.VariableData,

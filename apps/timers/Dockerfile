@@ -10,5 +10,5 @@ RUN chmod +x /app/docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM go_prod_base
-COPY apps/timers/.out/twir-timers /bin/twir_application
-CMD ["/bin/twir_application"]
+COPY apps/timers/.out/twir-timers /bin/twir-timers
+CMD ["/bin/twir-timers"]
