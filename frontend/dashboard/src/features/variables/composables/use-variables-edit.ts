@@ -14,7 +14,7 @@ import { VariableType } from '@/gql/graphql.js'
 export const formSchema = object({
 	id: string().optional(),
 	name: string().min(1).max(50),
-	description: string().min(1).max(500).optional(),
+	description: string().max(500).nullable().optional(),
 	type: nativeEnum(VariableType),
 }).and(object({
 	response: string().max(500),
@@ -68,11 +68,15 @@ export const useVariablesEdit = createGlobalState(() => {
 					// eslint-disable-next-line ts/ban-ts-comment
 					// @ts-expect-error
 					id: undefined,
+					description: '',
 				},
 			})
 		} else {
 			const result = await create.executeMutation({
-				opts: data,
+				opts: {
+					...data,
+					description: '',
+				},
 			})
 
 			if (result.error) {

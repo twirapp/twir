@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWindowScroll } from '@vueuse/core'
 import { useRouteQuery } from '@vueuse/router'
+import { ChevronLeft } from 'lucide-vue-next'
 import { useThemeVars } from 'naive-ui'
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
@@ -8,12 +9,14 @@ import { useRouter } from 'vue-router'
 
 import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 
+import { Button } from '@/components/ui/button'
 import { useTheme } from '@/composables/use-theme.js'
 
 const props = withDefaults(defineProps<PageLayoutProps>(), {
 	activeTab: '',
 	tabs: () => [],
 	stickyHeader: false,
+	showBack: false,
 })
 const router = useRouter()
 const themeVars = useThemeVars()
@@ -23,6 +26,7 @@ export interface PageLayoutProps {
 	activeTab?: string
 	tabs?: PageLayoutTab[]
 	stickyHeader?: boolean
+	showBack?: boolean
 }
 
 export interface PageLayoutTab {
@@ -53,6 +57,10 @@ function setTab(): void {
 
 function onChangeTab(tab: StringOrNumber, replace = false): void {
 	router.push({ query: { tab }, replace })
+}
+
+function back() {
+	router.back()
 }
 
 const { y } = useWindowScroll()
@@ -91,9 +99,14 @@ watch(y, (value) => {
 			>
 				<div class="flex justify-between gap-2 flex-wrap">
 					<div class="flex flex-col gap-2">
-						<h1 class="text-4xl">
-							<slot name="title" />
-						</h1>
+						<div class="flex flex-row flex-wrap gap-2 items-center">
+							<Button v-if="showBack" type="button" variant="outline" size="icon" @click="back">
+								<ChevronLeft />
+							</Button>
+							<h1 class="text-4xl">
+								<slot name="title" />
+							</h1>
+						</div>
 						<slot name="title-footer" />
 					</div>
 

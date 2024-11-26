@@ -3,6 +3,8 @@ import TwirLogo from '@/components/twir-logo.vue'
 import { SidebarHeader, SidebarSeparator, SidebarTrigger, useSidebar } from '@/components/ui/sidebar'
 
 const { isMobile } = useSidebar()
+
+const isDev = import.meta.env.DEV
 </script>
 
 <template>
@@ -11,7 +13,7 @@ const { isMobile } = useSidebar()
 			<a href="/" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
 				<TwirLogo class="size-8" />
 				<h1 class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground">
-					Twir
+					Twir {{ isDev ? 'dev' : '' }}
 				</h1>
 			</a>
 			<SidebarTrigger />

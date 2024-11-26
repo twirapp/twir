@@ -52,26 +52,6 @@ export const AVAILABLE_LOCALES = [
 		code: 'en',
 		name: 'English',
 	},
-	{
-		code: 'ru',
-		name: 'Russian',
-	},
-	{
-		code: 'uk',
-		name: 'Українська',
-	},
-	{
-		code: 'de',
-		name: 'Deutsch',
-	},
-	{
-		code: 'ja',
-		name: '日本語',
-	},
-	{
-		code: 'sk',
-		name: 'Slovenčina',
-	},
 ]
 
 function setupI18n(): I18n {
@@ -79,7 +59,6 @@ function setupI18n(): I18n {
 		locale: locale.value,
 		availableLocales: AVAILABLE_LOCALES.map((locale) => locale.code),
 		fallbackLocale: 'en',
-
 	}) as I18n
 
 	setLocale(i18n, locale.value)

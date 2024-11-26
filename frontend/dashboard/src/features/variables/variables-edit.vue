@@ -1,0 +1,193 @@
+<script lang="ts" setup>
+import { useMonaco } from '@guolao/vue-monaco-editor'
+import { toTypedSchema } from '@vee-validate/zod'
+import { TerminalIcon } from 'lucide-vue-next'
+import { useForm } from 'vee-validate'
+import { nextTick, onMounted, onUnmounted, ref, toRaw, watchEffect } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
+
+import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
+
+import Button from '@/components/ui/button/Button.vue'
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import {
+	Select,
+	SelectContent,
+	SelectGroup,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select'
+import { VariableType } from '@/gql/graphql'
+import PageLayout from '@/layout/page-layout.vue'
+
+const route = useRoute()
+const { t } = useI18n()
+const { findVariable, submit } = useVariablesEdit()
+
+const loading = ref(true)
+const title = ref('')
+
+const { handleSubmit, setValues, values } = useForm({
+	validationSchema: toTypedSchema(formSchema),
+	initialValues: {
+		description: null,
+		type: VariableType.Text,
+		response: '',
+		evalValue: `// semicolons (;) matters, do not forget put them on end of statements.
+const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
+const response = await request.json();
+// you should return value from your script
+return response.title;`,
+	},
+	keepValuesOnUnmount: true,
+})
+
+onMounted(async () => {
+	if (typeof route.params.id !== 'string') {
+		return
+	}
+
+	const variable = await findVariable(route.params.id)
+	if (variable) {
+		setValues(toRaw(variable))
+		title.value = variable.name
+	}
+
+	loading.value = false
+})
+
+const onSubmit = handleSubmit(submit)
+
+const monacoContainerRef = ref()
+const { monacoRef, unload } = useMonaco()
+
+const stop = watchEffect(async () => {
+	if (values.type !== VariableType.Script || !monacoRef.value) {
+		return
+	}
+
+	await nextTick()
+	nextTick(() => stop())
+
+	const instance = monacoRef.value.editor.create(monacoContainerRef.value, {
+		theme: 'vs-dark',
+		language: 'javascript',
+		value: values.evalValue,
+	})
+
+	instance.onDidChangeModelContent(() => {
+		setValues({ evalValue: instance.getValue() })
+	})
+})
+
+onUnmounted(() => !monacoRef.value && unload())
+
+const executionResult = ref('')
+
+async function executeScript() {
+	if (!values.evalValue) {
+		return
+	}
+
+	executionResult.value = 'Executing...'
+
+	try {
+		// eslint-disable-next-line no-eval
+		executionResult.value = await eval(`
+			(async function () { ${values.evalValue} })()
+		`)
+	} catch (error: any) {
+		if ('message' in error as any) {
+			executionResult.value = error.message
+		}
+	}
+}
+</script>
+
+<template>
+	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
+		<PageLayout stickyHeader show-back>
+			<template #title>
+				<span v-if="route.params.id === 'create'">Create</span>
+				<span v-else>Edit "{{ title }}"</span>
+			</template>
+
+			<template #action>
+				<Button type="submit" :loading="loading">
+					{{ t("sharedButtons.save") }}
+				</Button>
+			</template>
+
+			<template #content>
+				<div class="flex flex-col gap-4 h-full">
+					<FormField v-slot="{ componentField }" name="name">
+						<FormItem>
+							<FormLabel>{{ t('sharedTexts.name') }}</FormLabel>
+							<FormControl>
+								<Input
+									v-bind="componentField"
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<FormField v-slot="{ componentField }" name="type">
+						<FormItem>
+							<FormLabel>{{ t('variables.type') }}</FormLabel>
+
+							<Select v-bind="componentField">
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select a verified email to display" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectGroup>
+										<SelectItem v-for="variable of VariableType" :key="variable" :value="variable">
+											{{ variable }}
+										</SelectItem>
+									</SelectGroup>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<FormField v-if="values.type !== VariableType.Script" v-slot="{ componentField }" name="response">
+						<FormItem>
+							<FormLabel>{{ t('sharedTexts.response') }}</FormLabel>
+							<FormControl>
+								<Input type="text" v-bind="componentField" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					</FormField>
+
+					<div v-show="values.type === VariableType.Script" class="flex flex-col gap-2">
+						<div class="flex flex-row gap-2">
+							<div class="flex flex-col gap-2 w-full">
+								<span>Execution result</span>
+								<div class="bg-secondary rounded-md p-2">
+									{{ executionResult || 'Run a script for test your code' }}
+								</div>
+							</div>
+							<Button type="button" class="place-self-end" @click="executeScript">
+								<TerminalIcon class="size-4 mr-2" />
+								Run
+							</Button>
+						</div>
+
+						<div
+							ref="monacoContainerRef"
+							class="min-h-[500px] h-full"
+						></div>
+					</div>
+				</div>
+			</template>
+		</PageLayout>
+	</form>
+</template>

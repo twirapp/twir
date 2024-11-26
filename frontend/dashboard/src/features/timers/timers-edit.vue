@@ -70,7 +70,7 @@ const responsesHasError = computed(() => {
 	<form
 		@submit="onSubmit"
 	>
-		<PageLayout sticky-header>
+		<PageLayout sticky-header show-back>
 			<template #title>
 				{{ route.params.id === 'create' ? t('sharedTexts.create') : t('sharedTexts.edit') }}
 			</template>

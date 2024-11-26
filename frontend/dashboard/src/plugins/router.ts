@@ -71,8 +71,8 @@ export function newRouter() {
 				},
 				{
 					path: '/dashboard/variables',
-					component: () => import('../pages/Variables.vue'),
-					meta: { neededPermission: ChannelRolePermissionEnum.ViewVariables },
+					component: () => import('../features/variables/variables.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ViewVariables, noPadding: true },
 				},
 				{
 					path: '/dashboard/variables/:id',
