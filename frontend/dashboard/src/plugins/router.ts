@@ -75,6 +75,11 @@ export function newRouter() {
 					meta: { neededPermission: ChannelRolePermissionEnum.ViewVariables },
 				},
 				{
+					path: '/dashboard/variables/:id',
+					component: () => import('../features/variables/variables-edit.vue'),
+					meta: { neededPermission: ChannelRolePermissionEnum.ManageVariables, noPadding: true },
+				},
+				{
 					path: '/dashboard/greetings',
 					component: () => import('../pages/greetings.vue'),
 					meta: {
