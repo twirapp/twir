@@ -29,7 +29,7 @@ input VariableCreateInput {
 	description: String	@validate(constraint: "max=500")
 	type: VariableType!
 	evalValue: String! @validate(constraint: "max=10000")
-	response: String! @validate(constraint: "max=5000")
+	response: String! @validate(constraint: "max=500")
 }
 
 input VariableUpdateInput {
@@ -37,7 +37,7 @@ input VariableUpdateInput {
 	description: String @validate(constraint: "max=500")
 	type: VariableType
 	evalValue: String @validate(constraint: "max=10000")
-	response: String @validate(constraint: "max=5000")
+	response: String @validate(constraint: "max=500")
 }
 
 type BuiltInVariable {

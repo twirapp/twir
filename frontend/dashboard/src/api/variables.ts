@@ -103,6 +103,7 @@ export const useVariablesApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	return {
+		variablesQuery,
 		customVariables,
 		builtInVariables,
 		allVariables,

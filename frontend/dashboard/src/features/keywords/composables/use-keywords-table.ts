@@ -33,7 +33,7 @@ export const useKeywordsTable = createGlobalState(() => {
 		{
 			accessorKey: 'variables',
 			size: 45,
-			header: () => h('div', {}, 'Variable for command'),
+			header: () => h('div', {}, 'Counter variable'),
 			cell: ({ row }) => h('span', { class: 'cursor-pointer text-xs' }, { default: () => `$(keywords.counter|${row.original.id})` }),
 		},
 		{

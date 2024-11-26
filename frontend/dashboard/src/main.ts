@@ -38,8 +38,13 @@ document.head.appendChild(meta)
 
 app
 	.use(i18n)
+	.use(VueMonacoEditorPlugin, {
+		paths: {
+			// The recommended CDN config
+			vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.52.0/min/vs',
+		},
+	})
 	.use(newRouter())
-	.use(VueMonacoEditorPlugin)
 	.mount('#app')
 
 if (import.meta.env.DEV) {
