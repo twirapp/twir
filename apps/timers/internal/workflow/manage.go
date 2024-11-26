@@ -60,13 +60,6 @@ func (c *Workflow) AddTimer(ctx context.Context, timerId string) error {
 }
 
 func (c *Workflow) RemoveTimer(ctx context.Context, timerId string) error {
-	timer, err := c.timersRepository.GetById(timerId)
-	if err != nil {
-		return err
-	}
-
-	scheduleID := timer.ID
-
-	handle := c.cl.ScheduleClient().GetHandle(ctx, scheduleID)
+	handle := c.cl.ScheduleClient().GetHandle(ctx, timerId)
 	return handle.Delete(ctx)
 }
