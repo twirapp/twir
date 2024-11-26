@@ -1,8 +1,6 @@
 package workflow
 
 import (
-	"context"
-	"fmt"
 	"time"
 
 	"github.com/satont/twir/apps/timers/internal/activity"
@@ -57,39 +55,6 @@ func New(opts Opts) (*Workflow, error) {
 		parserGrpc:         opts.ParserGrpc,
 		activity:           opts.Activity,
 	}
-
-	go func() {
-		ctx := context.TODO()
-		list, err := cl.ScheduleClient().List(ctx, client.ScheduleListOptions{})
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for list.HasNext() {
-			item, err := list.Next()
-			if err != nil {
-				fmt.Println(err)
-				continue
-			}
-
-			handle := cl.ScheduleClient().GetHandle(ctx, item.ID)
-			if err := handle.Delete(ctx); err != nil {
-				fmt.Println(err)
-				continue
-			}
-		}
-
-		timers, err := opts.TimersRepository.GetAll()
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-
-		for _, timer := range timers {
-			w.AddTimer(ctx, timer.ID)
-		}
-	}()
 
 	return w, nil
 }
