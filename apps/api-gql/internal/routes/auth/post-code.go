@@ -197,6 +197,7 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 		},
 	); err != nil {
 		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot subscribe to eventsub: %s", err)})
+		return
 	}
 
 	c.JSON(
