@@ -225,7 +225,6 @@ func (r *mutationResolver) gamesUpdateDuel(
 
 		if len(entity.BothDieMessage) > 500 {
 			return nil, fmt.Errorf("max both die message length is 500")
-
 		}
 	}
 

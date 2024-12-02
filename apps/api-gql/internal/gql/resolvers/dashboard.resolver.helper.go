@@ -72,21 +72,25 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	}
 
 	var usedEmotes int64
-	if err := r.gorm.
-		WithContext(ctx).
-		Model(&model.ChannelEmoteUsage{}).
-		Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
-		Count(&usedEmotes).Error; err != nil {
-		return nil, fmt.Errorf("failed to get used emotes: %w", err)
+	if stream.ID != "" {
+		if err := r.gorm.
+			WithContext(ctx).
+			Model(&model.ChannelEmoteUsage{}).
+			Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
+			Count(&usedEmotes).Error; err != nil {
+			return nil, fmt.Errorf("failed to get used emotes: %w", err)
+		}
 	}
 
 	var requestedSongs int64
-	if err := r.gorm.
-		WithContext(ctx).
-		Model(&model.RequestedSong{}).
-		Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
-		Count(&requestedSongs).Error; err != nil {
-		return nil, fmt.Errorf("failed to get requested songs: %w", err)
+	if stream.ID != "" {
+		if err := r.gorm.
+			WithContext(ctx).
+			Model(&model.RequestedSong{}).
+			Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
+			Count(&requestedSongs).Error; err != nil {
+			return nil, fmt.Errorf("failed to get requested songs: %w", err)
+		}
 	}
 
 	result.UsedEmotes = int(usedEmotes)
