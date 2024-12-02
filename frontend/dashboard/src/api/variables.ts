@@ -102,6 +102,12 @@ export const useVariablesApi = createGlobalState(() => {
 		}
 	`), [invalidationKey])
 
+	const useMutationExecuteScript = () => useMutation(graphql(`
+		mutation ExecuteScript($expression: String!) {
+			executeScript(script: $expression)
+		}
+	`))
+
 	return {
 		variablesQuery,
 		customVariables,
@@ -111,5 +117,6 @@ export const useVariablesApi = createGlobalState(() => {
 		useMutationCreateVariable,
 		useMutationUpdateVariable,
 		useMutationRemoveVariable,
+		useMutationExecuteScript,
 	}
 })

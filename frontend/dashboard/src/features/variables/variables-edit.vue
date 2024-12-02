@@ -25,7 +25,7 @@ import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
-const { findVariable, submit } = useVariablesEdit()
+const { findVariable, submit, runScript } = useVariablesEdit()
 
 const loading = ref(true)
 const title = ref('')
@@ -95,10 +95,10 @@ async function executeScript() {
 	executionResult.value = 'Executing...'
 
 	try {
-		// eslint-disable-next-line no-eval
-		executionResult.value = await eval(`
-			(async function () { ${values.evalValue} })()
-		`)
+		const result = await runScript(values.evalValue)
+		if (result) {
+			executionResult.value = result
+		}
 	} catch (error: any) {
 		if ('message' in error as any) {
 			executionResult.value = error.message

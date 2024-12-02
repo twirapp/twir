@@ -1,10 +1,11 @@
 import { createGlobalState } from '@vueuse/core'
-import { ref } from 'vue'
+import { ref, unref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { nativeEnum, object, string } from 'zod'
 
 import type { CustomVariable } from '@/api/variables.js'
+import type { MaybeRef } from 'vue'
 import type { TypeOf } from 'zod'
 
 import { useVariablesApi } from '@/api/variables.js'
@@ -40,6 +41,7 @@ export const useVariablesEdit = createGlobalState(() => {
 	const variablesApi = useVariablesApi()
 	const update = variablesApi.useMutationUpdateVariable()
 	const create = variablesApi.useMutationCreateVariable()
+	const scriptExecutor = variablesApi.useMutationExecuteScript()
 
 	const variable = ref<CustomVariable | null>(null)
 
@@ -103,8 +105,17 @@ export const useVariablesEdit = createGlobalState(() => {
 		})
 	}
 
+	async function runScript(expression: MaybeRef<string>) {
+		const result = await scriptExecutor.executeMutation({
+			expression: unref(expression),
+		})
+
+		return result.data?.executeScript
+	}
+
 	return {
 		findVariable,
 		submit,
+		runScript,
 	}
 })
