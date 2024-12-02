@@ -2,7 +2,6 @@ package twir_stats
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"sync"
 	"time"
@@ -12,40 +11,42 @@ import (
 	config "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
+	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
-	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
 	fx.In
 
-	Gorm             *gorm.DB
-	Logger           logger.Logger
-	Config           config.Config
-	GrpcTokensClient tokens.TokensClient
+	Gorm               *gorm.DB
+	Logger             logger.Logger
+	Config             config.Config
+	GrpcTokensClient   tokens.TokensClient
+	CachedTwitchClient *twitchcache.CachedTwitchClient
 }
 
 type TwirStats struct {
 	gorm *gorm.DB
 
-	cachedResponse    *gqlmodel.TwirStats
-	logger            logger.Logger
-	config            config.Config
-	grpcTokensClients tokens.TokensClient
+	cachedResponse     *gqlmodel.TwirStats
+	logger             logger.Logger
+	config             config.Config
+	grpcTokensClients  tokens.TokensClient
+	cachedTwitchClient *twitchcache.CachedTwitchClient
 }
 
 func New(opts Opts) *TwirStats {
 	s := &TwirStats{
-		gorm:              opts.Gorm,
-		cachedResponse:    &gqlmodel.TwirStats{},
-		logger:            opts.Logger,
-		config:            opts.Config,
-		grpcTokensClients: opts.GrpcTokensClient,
+		gorm:               opts.Gorm,
+		cachedResponse:     &gqlmodel.TwirStats{},
+		logger:             opts.Logger,
+		config:             opts.Config,
+		grpcTokensClients:  opts.GrpcTokensClient,
+		cachedTwitchClient: opts.CachedTwitchClient,
 	}
 
 	go s.cacheCounts()
@@ -151,126 +152,51 @@ func (c *TwirStats) cacheStreamers() {
 		},
 	)
 
-	helixUsersMu := sync.Mutex{}
 	helixUsers := make([]helix.User, 0, len(streamers))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
 
-	usersWgGrp, usersWgCtx := errgroup.WithContext(ctx)
-	chunks := lo.Chunk(streamers, 100)
-
-	twitchClient, err := twitch.NewAppClientWithContext(usersWgCtx, c.config, c.grpcTokensClients)
-	if err != nil {
-		c.logger.Error("cannot create twitch client", slog.Any("err", err))
-		return
+	usersIds := make([]string, 0, len(streamers))
+	for _, streamer := range streamers {
+		usersIds = append(usersIds, streamer.ID)
 	}
 
-	for _, chunk := range chunks {
-		chunk := chunk
-		usersWgGrp.Go(
-			func() error {
-				usersIds := lo.Map(
-					chunk, func(item model.Channels, _ int) string {
-						return item.ID
-					},
-				)
-
-				usersReq, usersErr := twitchClient.GetUsers(
-					&helix.UsersParams{
-						IDs: usersIds,
-					},
-				)
-				if usersErr != nil {
-					return usersErr
-				}
-				if usersReq.ErrorMessage != "" {
-					return errors.New(usersReq.ErrorMessage)
-				}
-
-				helixUsersMu.Lock()
-				helixUsers = append(helixUsers, usersReq.Data.Users...)
-				helixUsersMu.Unlock()
-
-				return nil
-			},
-		)
-	}
-
-	if err := usersWgGrp.Wait(); err != nil {
-		c.logger.Error("cannot get users", slog.Any("err", err))
+	usersReq, usersErr := c.cachedTwitchClient.GetUsersByIds(ctx, usersIds)
+	if usersErr != nil {
+		c.logger.Error("cannot get users", slog.Any("err", usersErr))
 		return
+	}
+	for _, user := range usersReq {
+		if user.NotFound {
+			continue
+		}
+
+		helixUsers = append(helixUsers, user.User)
 	}
 
 	streamersFollowers := make(map[string]int)
 	streamersFollowersMu := sync.Mutex{}
 	streamersFollowersWg := utils.NewGoroutinesGroup()
 
+	// fetch channel followers
 	for _, user := range helixUsers {
 		user := user
 		streamersFollowersWg.Go(
 			func() {
-				userTwitchClientCtx, userTwitchClientCtxCancel := context.WithTimeout(
-					context.Background(),
-					1*time.Second,
-				)
-				defer userTwitchClientCtxCancel()
-
-				userTwitchClient, err := twitch.NewUserClientWithContext(
-					userTwitchClientCtx,
-					user.ID,
-					c.config,
-					c.grpcTokensClients,
-				)
+				followers, err := c.cachedTwitchClient.GetChannelFollowersCountByChannelId(ctx, user.ID)
 				if err != nil {
 					c.logger.Error(
-						"cannot create twitch client",
+						"cannot get followers",
 						slog.Any("err", err),
-						slog.Group(
-							"user",
-							slog.String("id", user.ID),
-							slog.String("login", user.Login),
-						),
-					)
-					return
-				}
-
-				followersReq, followersErr := userTwitchClient.GetChannelFollows(
-					&helix.GetChannelFollowsParams{
-						BroadcasterID: user.ID,
-					},
-				)
-				if followersErr != nil {
-					c.logger.Error(
-						"cannot get followers",
-						slog.Any("err", followersErr),
-						slog.Group(
-							"user",
-							slog.String("id", user.ID),
-							slog.String("login", user.Login),
-						),
-					)
-					return
-				}
-				if followersReq.ErrorMessage != "" {
-					c.logger.Error(
-						"cannot get followers",
-						slog.Any("err", followersReq.ErrorMessage),
-						slog.Group(
-							"user",
-							slog.String("id", user.ID),
-							slog.String("login", user.Login),
-						),
-						slog.Int("status", followersReq.StatusCode),
+						slog.String("userId", user.ID),
 					)
 					return
 				}
 
 				streamersFollowersMu.Lock()
-				streamersFollowers[user.ID] = followersReq.Data.Total
+				streamersFollowers[user.ID] = followers
 				streamersFollowersMu.Unlock()
-
-				return
 			},
 		)
 	}

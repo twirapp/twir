@@ -103,7 +103,7 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 		attribute.StringSlice("ids", ids),
 	)
 
-	var resultedUsers []TwitchUser
+	resultedUsers := make([]TwitchUser, 0, len(ids))
 	var resultedUsersMutex sync.Mutex
 
 	var neededIdsForRequest []string
@@ -214,7 +214,7 @@ func (c *CachedTwitchClient) GetUsersByNames(ctx context.Context, names []string
 		names[i] = strings.ToLower(name)
 	}
 
-	var resultedUsers []TwitchUser
+	resultedUsers := make([]TwitchUser, 0, len(names))
 	var resultedUsersMutex sync.Mutex
 
 	var neededNamesForRequest []string
