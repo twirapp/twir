@@ -16,6 +16,7 @@
     "vue": "catalog:"
   },
   "devDependencies": {
-    "vue-tsc": "catalog:"
+    "vue-tsc": "catalog:",
+    "typescript": "catalog:"
   }
 }

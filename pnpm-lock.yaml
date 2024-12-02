@@ -654,14 +654,17 @@ importers:
         version: link:../fontsource
       '@vueuse/core':
         specifier: 'catalog:'
-        version: 11.2.0(vue@3.5.12(typescript@5.7.2))
+        version: 11.2.0(vue@3.5.12(typescript@5.6.2))
       vue:
         specifier: 'catalog:'
-        version: 3.5.12(typescript@5.7.2)
+        version: 3.5.12(typescript@5.6.2)
     devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.6.2
       vue-tsc:
         specifier: 'catalog:'
-        version: 2.1.10(typescript@5.7.2)
+        version: 2.1.10(typescript@5.6.2)
 
   libs/frontend-faceit-stats:
     dependencies:
@@ -692,14 +695,17 @@ importers:
         version: link:../types
       '@vueuse/core':
         specifier: 10.9.0
-        version: 10.9.0(vue@3.5.12(typescript@5.7.2))
+        version: 10.9.0(vue@3.5.12(typescript@5.6.2))
       vue:
         specifier: 'catalog:'
-        version: 3.5.12(typescript@5.7.2)
+        version: 3.5.12(typescript@5.6.2)
     devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.6.2
       vue-tsc:
         specifier: 'catalog:'
-        version: 2.1.10(typescript@5.7.2)
+        version: 2.1.10(typescript@5.6.2)
 
   libs/grpc:
     dependencies:
@@ -12227,6 +12233,7 @@ snapshots:
       path-browserify: 1.0.1
     optionalDependencies:
       typescript: 5.7.2
+    optional: true
 
   '@vue/reactivity@3.5.12':
     dependencies:
@@ -12304,22 +12311,22 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
+  '@vueuse/core@10.9.0(vue@3.5.12(typescript@5.6.2))':
+    dependencies:
+      '@types/web-bluetooth': 0.0.20
+      '@vueuse/metadata': 10.9.0
+      '@vueuse/shared': 10.9.0(vue@3.5.12(typescript@5.6.2))
+      vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.2))
+    transitivePeerDependencies:
+      - '@vue/composition-api'
+      - vue
+
   '@vueuse/core@10.9.0(vue@3.5.12(typescript@5.6.3))':
     dependencies:
       '@types/web-bluetooth': 0.0.20
       '@vueuse/metadata': 10.9.0
       '@vueuse/shared': 10.9.0(vue@3.5.12(typescript@5.6.3))
       vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.3))
-    transitivePeerDependencies:
-      - '@vue/composition-api'
-      - vue
-
-  '@vueuse/core@10.9.0(vue@3.5.12(typescript@5.7.2))':
-    dependencies:
-      '@types/web-bluetooth': 0.0.20
-      '@vueuse/metadata': 10.9.0
-      '@vueuse/shared': 10.9.0(vue@3.5.12(typescript@5.7.2))
-      vue-demi: 0.14.10(vue@3.5.12(typescript@5.7.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -12411,16 +12418,16 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/shared@10.9.0(vue@3.5.12(typescript@5.6.3))':
+  '@vueuse/shared@10.9.0(vue@3.5.12(typescript@5.6.2))':
     dependencies:
-      vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.3))
+      vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.2))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/shared@10.9.0(vue@3.5.12(typescript@5.7.2))':
+  '@vueuse/shared@10.9.0(vue@3.5.12(typescript@5.6.3))':
     dependencies:
-      vue-demi: 0.14.10(vue@3.5.12(typescript@5.7.2))
+      vue-demi: 0.14.10(vue@3.5.12(typescript@5.6.3))
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
@@ -18373,6 +18380,7 @@ snapshots:
       '@vue/language-core': 2.1.10(typescript@5.7.2)
       semver: 7.6.3
       typescript: 5.7.2
+    optional: true
 
   vue3-moveable@0.28.0:
     dependencies:
