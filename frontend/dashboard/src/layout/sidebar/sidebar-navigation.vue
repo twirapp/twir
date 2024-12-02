@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { IconCalendarCog } from '@tabler/icons-vue'
+import { useLocalStorage } from '@vueuse/core'
 import {
 	AudioLines,
 	Bell,
@@ -57,6 +58,11 @@ const canViewAlerts = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewAle
 const canViewGames = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewGames)
 const canViewModeration = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewModeration)
 
+const twirSidebarOpenedStates = useLocalStorage<Record<string, boolean>>('twir-sidebar-opened-states', {
+	commands: false,
+	community: false,
+})
+
 const links = computed(() => {
 	return [
 		{
@@ -112,6 +118,7 @@ const links = computed(() => {
 			icon: Package,
 			disabled: !canViewCommands.value,
 			path: '/dashboard/commands',
+			openStateKey: 'commands',
 			child: [
 				{
 					name: t('sidebar.commands.custom'),
@@ -135,6 +142,7 @@ const links = computed(() => {
 			name: t('sidebar.community'),
 			icon: Users,
 			path: '/dashboard/community',
+			openStateKey: 'community',
 			child: [
 				{
 					name: t('community.users.title'),
@@ -212,9 +220,9 @@ function goToRoute() {
 					</RouterLink>
 				</SidebarMenuButton>
 				<Collapsible
-					v-else
+					v-else-if="item.openStateKey"
+					v-model:open="twirSidebarOpenedStates[item.openStateKey]"
 					as-child
-					:default-open="false"
 					class="group/collapsible"
 				>
 					<SidebarMenuItem>
