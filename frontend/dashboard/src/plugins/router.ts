@@ -147,6 +147,14 @@ export function newRouter() {
 					},
 				},
 				{
+					name: 'FaceitStatuOverlay',
+					path: '/dashboard/overlays/faceit-stats',
+					component: () => import('../features/overlays/faceit-stats/builder.vue'),
+					meta: {
+						noPadding: true,
+					},
+				},
+				{
 					path: '/dashboard/events/chat-alerts',
 					component: () => import('../pages/chat-alerts.vue'),
 					meta: {

@@ -15,6 +15,7 @@
     "@twir/fontsource": "workspace:*",
     "@twir/frontend-chat": "workspace:*",
     "@twir/frontend-now-playing": "workspace:*",
+    "@twir/frontend-faceit-stats": "workspace:*",
     "@twir/grpc": "workspace:*",
     "@twirapp/dudes-vue": "0.1.0",
     "@twirapp/kappagen": "1.0.1",

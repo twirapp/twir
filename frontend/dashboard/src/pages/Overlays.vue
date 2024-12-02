@@ -26,6 +26,7 @@ import NowPlaying from '@/components/overlays/now-playing.vue'
 import OBS from '@/components/overlays/obs.vue'
 import TTS from '@/components/overlays/tts.vue'
 import { convertOverlayLayerTypeToText } from '@/components/registry/overlays/helpers.js'
+import FaceitStats from '@/features/overlays/faceit-stats/ui/card.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
 import { copyToClipBoard } from '@/helpers/index.js'
 
@@ -61,6 +62,9 @@ function editCustomOverlay(id?: string) {
 <template>
 	<div class="flex items-center justify-center max-w-[60vw] mx-auto my-0">
 		<NGrid :cols="responsiveCols" :x-gap="16" :y-gap="16" responsive="screen">
+			<NGridItem :span="1">
+				<FaceitStats />
+			</NGridItem>
 			<NGridItem :span="1">
 				<NowPlaying />
 			</NGridItem>

@@ -39,5 +39,9 @@ export const router = createRouter({
 			path: '/:apiKey/now-playing',
 			component: () => import('@/pages/overlays/now-playing.vue'),
 		},
+		{
+			path: '/faceit-stats',
+			component: () => import('@/pages/overlays/faceit-stats.vue'),
+		}
 	],
 })

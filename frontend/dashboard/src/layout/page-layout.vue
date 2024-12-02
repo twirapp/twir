@@ -17,6 +17,7 @@ const props = withDefaults(defineProps<PageLayoutProps>(), {
 	tabs: () => [],
 	stickyHeader: false,
 	showBack: false,
+	noContainer: false,
 })
 const router = useRouter()
 const themeVars = useThemeVars()
@@ -27,6 +28,7 @@ export interface PageLayoutProps {
 	tabs?: PageLayoutTab[]
 	stickyHeader?: boolean
 	showBack?: boolean
+	cleanBody?: boolean
 }
 
 export interface PageLayoutTab {
@@ -77,7 +79,7 @@ watch(y, (value) => {
 </script>
 
 <template>
-	<TabsRoot v-model="activeTab" @update:model-value="onChangeTab">
+	<TabsRoot v-model="activeTab" class="h-full" @update:model-value="onChangeTab">
 		<div
 			class="after:inset-0 after:bottom-0 after:block after:h-px after:w-full after:content-['']"
 			:class="[
@@ -134,7 +136,7 @@ watch(y, (value) => {
 			</div>
 		</div>
 
-		<div class="container py-8">
+		<div :class="{ 'container': !cleanBody, 'py-8': !cleanBody }">
 			<template v-if="activeTab">
 				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
 					<component :is="tab.component" />

@@ -9,10 +9,10 @@ import (
 )
 
 type CachedTwitchClient struct {
-	client       *helix.Client
-	redis        *redis.Client
 	config       cfg.Config
 	tokensClient tokens.TokensClient
+	redis        *redis.Client
+	client       *helix.Client
 }
 
 func New(
