@@ -8,6 +8,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const rewardsCacheKey = "cache:twir:twitch:rewards:"
@@ -27,6 +29,13 @@ func (c *CachedTwitchClient) GetChannelRewards(
 	if channelID == "" {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("channelID", channelID),
+	)
 
 	if bytes, _ := c.redis.Get(ctx, BuildRewardsCacheKeyForId(channelID)).Bytes(); len(bytes) > 0 {
 		var rewards []helix.ChannelCustomReward

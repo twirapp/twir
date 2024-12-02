@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/nicklaw5/helix/v2"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const channelsSearchKey = "cache:twir:twitch:channels:search:"
@@ -26,6 +28,13 @@ func (c *CachedTwitchClient) SearchChannels(
 	if searchString == "" {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("searchString", searchString),
+	)
 
 	if bytes, _ := c.redis.Get(
 		ctx,

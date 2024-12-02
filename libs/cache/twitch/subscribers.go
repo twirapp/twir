@@ -7,6 +7,8 @@ import (
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const channelSubscribersCountCacheKey = "cache:twir:twitch:subscribersCount:"
@@ -26,6 +28,13 @@ func (c *CachedTwitchClient) GetChannelSubscribersCountByChannelId(
 	if channelId == "" {
 		return 0, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("channelId", channelId),
+	)
 
 	if subscribers, err := c.redis.Get(
 		ctx,

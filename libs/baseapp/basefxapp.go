@@ -3,6 +3,7 @@ package baseapp
 import (
 	"log/slog"
 
+	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
@@ -60,5 +61,14 @@ func newRedis(cfg config.Config) (*redis.Client, error) {
 		return nil, err
 	}
 	redisClient := redis.NewClient(redisOpts)
+
+	if err := redisotel.InstrumentTracing(redisClient); err != nil {
+		return nil, err
+	}
+
+	if err := redisotel.InstrumentMetrics(redisClient); err != nil {
+		return nil, err
+	}
+
 	return redisClient, nil
 }

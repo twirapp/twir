@@ -7,6 +7,8 @@ import (
 
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 )
 
 const gamesGetKey = "cache:twir:twitch:games:by-id:"
@@ -28,6 +30,13 @@ func (c *CachedTwitchClient) GetGame(
 	if gameID == "" {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("gameID", gameID),
+	)
 
 	if bytes, _ := c.redis.Get(
 		ctx,

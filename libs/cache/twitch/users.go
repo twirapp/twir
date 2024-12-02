@@ -10,6 +10,8 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -35,6 +37,13 @@ func (c *CachedTwitchClient) GetUserById(ctx context.Context, id string) (*Twitc
 	if id == "" {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("id", id),
+	)
 
 	if bytes, _ := c.redis.Get(ctx, buildUserCacheKeyForId(id)).Bytes(); len(bytes) > 0 {
 		var helixUser TwitchUser
@@ -86,6 +95,13 @@ func (c *CachedTwitchClient) GetUsersByIds(ctx context.Context, ids []string) (
 	if len(ids) == 0 {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.StringSlice("ids", ids),
+	)
 
 	var resultedUsers []TwitchUser
 	var resultedUsersMutex sync.Mutex
@@ -186,6 +202,13 @@ func (c *CachedTwitchClient) GetUsersByNames(ctx context.Context, names []string
 	if len(names) == 0 {
 		return nil, nil
 	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.StringSlice("id", names),
+	)
 
 	for i, name := range names {
 		names[i] = strings.ToLower(name)
