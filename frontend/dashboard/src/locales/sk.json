@@ -58,9 +58,9 @@
     "userSelectPlaceholder": "Vybrať používateľa|Vybrať používateľov",
     "userNotFound": "Nenašli sa žiadni používatelia",
     "settings": "Nastavenia",
-    "create": "Create",
-    "edit": "Edit",
-    "noData": "No data"
+    "create": "Vytvoriť",
+    "edit": "Upraviť",
+    "noData": "Žiadne údaje"
   },
   "sidebar": {
     "dashboard": "Prehľad",
@@ -84,15 +84,15 @@
     "games": "Hry",
     "users": "Užívatelia",
     "moderation": "Moderovanie",
-    "publicPage": "Public Page",
+    "publicPage": "Verejná stránka",
     "import": "Importovať",
     "community": "Komunita",
-    "logout": "Logout",
-    "loggedAs": "Logged as",
-    "lang": "Language",
-    "darkTheme": "Dark Theme",
-    "lightTheme": "Light Theme",
-    "notifications": "Notifications"
+    "logout": "Odhlásiť sa",
+    "loggedAs": "Príhlásený ako",
+    "lang": "Jazyk",
+    "darkTheme": "Tmavá téma",
+    "lightTheme": "Svetlá téma",
+    "notifications": "Notifikácie"
   },
   "deleteConfirmation": {
     "text": "Ste si istí, že to chcete odstrániť?",
@@ -132,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Additional names"
+        "label": "Dodatočné názvy"
       },
       "gameCategories": {
         "label": "Povoliť príkaz len v určitých kategóriách (pre zakázanie nechajte prázdne)"
@@ -140,7 +140,7 @@
       "expiration": {
         "label": "Vypršanie platnosti",
         "actionsLabel": "Akcia pri expirovaní platnosti",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Expiráciu nie je možné nastaviť pre predvolený príkaz",
         "actions": {
           "delete": "Príkaz bude vymazaný",
           "disable": "Príkaz bude deaktivovaný"
@@ -164,8 +164,8 @@
         "placeholder": "Výber rolí na udelenie oprávnení na používanie príkazov",
         "deniedUsers": "Používatelia, ktorí tento príkaz nemôžu použiť.",
         "allowedUsers": "Používatelia, ktorí môžu obísť obmedzenie rolí pre tento príkaz.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Výnimky",
+        "blocked": "Blokovaní užívatelia"
       },
       "restrictions": {
         "name": "Obmedzenia podľa štatistík",
