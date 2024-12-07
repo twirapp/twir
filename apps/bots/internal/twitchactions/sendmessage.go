@@ -22,10 +22,10 @@ type SendMessageOpts struct {
 }
 
 func validateResponseSlashes(response string) string {
-	if strings.HasPrefix(response, "/me") || strings.HasPrefix(response, "/announce") {
+	if strings.HasPrefix(response, "/me") || strings.HasPrefix(response, "/announce") || strings.HasPrefix(response, "/shoutout") {
 		return response
 	} else if strings.HasPrefix(response, "/") {
-		return "Slash commands except /me and /announce is disallowed. This response wont be ever sended."
+		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."
 	} else if strings.HasPrefix(response, ".") {
 		return `Message cannot start with "." symbol.`
 	} else {
