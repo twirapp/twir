@@ -60,7 +60,7 @@
     "settings": "Настройки",
     "create": "Создать",
     "edit": "Редактировать",
-    "noData": "No data"
+    "noData": "Нет данных"
   },
   "sidebar": {
     "dashboard": "Панель управления",
@@ -140,7 +140,7 @@
       "expiration": {
         "label": "Срок действия",
         "actionsLabel": "Действие по истечению",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Срок действия не может быть установлен для команды по умолчанию",
         "actions": {
           "delete": "Команда будет удалена",
           "disable": "Команда будет отключена"
@@ -164,8 +164,8 @@
         "placeholder": "Выберите роли, которым будут предоставлены права на использование команд.",
         "deniedUsers": "Пользователи, которые не смогут использовать эту команду.",
         "allowedUsers": "Пользователи, которые смогут пользоваться этой командой, несмотря на роль.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Исключения",
+        "blocked": "Заблокированные пользователи"
       },
       "restrictions": {
         "name": "Ограничения по статистике",
