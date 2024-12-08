@@ -33,7 +33,7 @@ export const urqlClientOptions: ClientOptions = {
 		const route = useRoute()
 		const apiKey = route.params.apiKey
 		if (typeof apiKey === 'string') {
-			headers['X-Api-Key'] = apiKey
+			headers['Api-Key'] = apiKey
 		}
 
 		return {
