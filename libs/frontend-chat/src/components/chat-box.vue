@@ -33,7 +33,7 @@ watch(() => [
 		props.settings.fontWeight,
 		props.settings.fontStyle,
 	)
-})
+}, { immediate: true })
 
 watch(() => props.settings.channelBadges, (channelBadges) => {
 	setChannelBadges(channelBadges)

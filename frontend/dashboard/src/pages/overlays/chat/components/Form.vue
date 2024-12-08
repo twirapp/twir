@@ -54,7 +54,7 @@ const fontData = ref<Font | null>(null)
 watch(() => fontData.value, (font) => {
 	if (!font) return
 	formValue.value.fontFamily = font.id
-})
+}, { immediate: true })
 
 const fontWeightOptions = computed(() => {
 	if (!fontData.value) return []
