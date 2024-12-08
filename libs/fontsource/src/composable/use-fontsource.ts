@@ -41,8 +41,6 @@ export function useFontSource(preloadFonts = true) {
 	): Promise<Font | undefined> {
 		const fontKey = generateFontKey(fontId, fontWeight, fontStyle)
 
-		console.log(firefoxWorkaroundIterFonts(document.fonts))
-
 		for (const fontFace of firefoxWorkaroundIterFonts(document.fonts)) {
 			if (fontFace.family === fontKey) return getFont(fontId)
 		}
