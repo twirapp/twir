@@ -69,15 +69,16 @@ func (c *CommandsBus) Subscribe() error {
 			parsed := c.variablesService.ParseVariablesInText(
 				ctx,
 				&types.ParseContext{
-					MessageId: "",
-					Channel:   channel,
-					Sender:    sender,
-					Emotes:    nil,
-					Mentions:  nil,
-					Text:      &data.Text,
-					RawText:   data.Text,
-					IsCommand: false,
-					Services:  c.services,
+					MessageId:     "",
+					Channel:       channel,
+					Sender:        sender,
+					Emotes:        nil,
+					Mentions:      nil,
+					Text:          &data.Text,
+					RawText:       data.Text,
+					IsCommand:     data.IsCommand,
+					IsInCustomVar: data.IsInCustomVar,
+					Services:      c.services,
 					Cacher: cacher.NewCacher(
 						&cacher.CacherOpts{
 							Services:        c.services,

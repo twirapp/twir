@@ -44,6 +44,7 @@ export const useVariablesEdit = createGlobalState(() => {
 	const scriptExecutor = variablesApi.useMutationExecuteScript()
 
 	const variable = ref<CustomVariable | null>(null)
+	const testFromUserName = ref('')
 
 	async function findVariable(id: string) {
 		variable.value = null
@@ -108,6 +109,7 @@ export const useVariablesEdit = createGlobalState(() => {
 	async function runScript(expression: MaybeRef<string>) {
 		const result = await scriptExecutor.executeMutation({
 			expression: unref(expression),
+			testFromUserName: unref(testFromUserName),
 		})
 
 		return result.data?.executeScript
@@ -117,5 +119,6 @@ export const useVariablesEdit = createGlobalState(() => {
 		findVariable,
 		submit,
 		runScript,
+		testFromUserName,
 	}
 })

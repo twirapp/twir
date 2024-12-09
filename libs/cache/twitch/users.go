@@ -305,3 +305,58 @@ func (c *CachedTwitchClient) GetUsersByNames(ctx context.Context, names []string
 
 	return resultedUsers, nil
 }
+
+func (c *CachedTwitchClient) GetUserByName(ctx context.Context, name string) (*TwitchUser, error) {
+	if name == "" {
+		return nil, nil
+	}
+
+	span := trace.SpanFromContext(ctx)
+	defer span.End()
+
+	span.SetAttributes(
+		attribute.String("name", name),
+	)
+
+	if bytes, _ := c.redis.Get(ctx, buildUserCacheKeyForName(name)).Bytes(); len(bytes) > 0 {
+		var helixUser TwitchUser
+		if err := json.Unmarshal(bytes, &helixUser); err != nil {
+			return nil, err
+		}
+
+		return &helixUser, nil
+	}
+
+	twitchReq, err := c.client.GetUsers(&helix.UsersParams{Logins: []string{name}})
+	if err != nil {
+		return nil, err
+	}
+	if twitchReq.ErrorMessage != "" {
+		return nil, fmt.Errorf("cannot get twitch user: %s", twitchReq.ErrorMessage)
+	}
+
+	if len(twitchReq.Data.Users) == 0 {
+		return nil, fmt.Errorf("user not found")
+	}
+
+	user := TwitchUser{
+		User:     twitchReq.Data.Users[0],
+		NotFound: false,
+	}
+
+	userBytes, err := json.Marshal(&user)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := c.redis.Set(
+		ctx,
+		buildUserCacheKeyForName(name),
+		userBytes,
+		userCacheDuration,
+	).Err(); err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}

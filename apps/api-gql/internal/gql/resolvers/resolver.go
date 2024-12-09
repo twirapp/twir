@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
@@ -45,7 +46,8 @@ type Resolver struct {
 	auditLogsPubSub      auditlogs.PubSub
 	twirStats            *twir_stats.TwirStats
 
-	dashboardWidgetEventsService dashboard_widget_events.DashboardWidgetEventsService
+	dashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
+	variablesService             *variables.Service
 }
 
 type Opts struct {
@@ -66,7 +68,8 @@ type Opts struct {
 	AuditLogsPubSub      auditlogs.PubSub
 	TwirStats            *twir_stats.TwirStats
 
-	DashboardWidgetEventsService dashboard_widget_events.DashboardWidgetEventsService
+	DashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
+	VariablesService             *variables.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -92,6 +95,7 @@ func New(opts Opts) (*Resolver, error) {
 		auditLogsPubSub:              opts.AuditLogsPubSub,
 		twirStats:                    opts.TwirStats,
 		dashboardWidgetEventsService: opts.DashboardWidgetEventsService,
+		variablesService:             opts.VariablesService,
 	}, nil
 }
 

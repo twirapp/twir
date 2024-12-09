@@ -7,7 +7,7 @@ extend type Mutation {
 	variablesCreate(opts: VariableCreateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
 	variablesUpdate(id: ID!, opts: VariableUpdateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
 	variablesDelete(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
-	executeScript(script: String!): String! @isAuthenticated
+	executeScript(script: String!, testAsUserName: String): String! @isAuthenticated
 }
 
 enum VariableType {

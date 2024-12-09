@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useMonaco } from '@guolao/vue-monaco-editor'
 import { toTypedSchema } from '@vee-validate/zod'
-import { TerminalIcon } from 'lucide-vue-next'
+import { InfoIcon, TerminalIcon } from 'lucide-vue-next'
+import { Label } from 'radix-vue'
 import { useForm } from 'vee-validate'
 import { nextTick, onMounted, onUnmounted, ref, toRaw, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,6 +10,7 @@ import { useRoute } from 'vue-router'
 
 import { formSchema, useVariablesEdit } from './composables/use-variables-edit'
 
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import Button from '@/components/ui/button/Button.vue'
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -20,12 +22,13 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select'
+import VariablesList from '@/components/variables-list.vue'
 import { VariableType } from '@/gql/graphql'
 import PageLayout from '@/layout/page-layout.vue'
 
 const route = useRoute()
 const { t } = useI18n()
-const { findVariable, submit, runScript } = useVariablesEdit()
+const { findVariable, submit, runScript, testFromUserName } = useVariablesEdit()
 
 const loading = ref(true)
 const title = ref('')
@@ -37,6 +40,9 @@ const { handleSubmit, setValues, values } = useForm({
 		type: VariableType.Text,
 		response: '',
 		evalValue: `// semicolons (;) matters, do not forget put them on end of statements.
+// you can use commands variables:
+// const userFollowAge = '$(user.followage)'
+
 const request = await fetch('https://jsonplaceholder.typicode.com/todos/1');
 const response = await request.json();
 // you should return value from your script
@@ -178,6 +184,30 @@ async function executeScript() {
 								Run
 							</Button>
 						</div>
+						<div class="flex flex-col gap-2">
+							<Label for="testFromUserName">Test as specific viewer</Label>
+							<Input id="testFromUserName" v-model:model-value="testFromUserName" placeholder="Enter username from which perspective script will run" />
+						</div>
+
+						<Alert>
+							<InfoIcon class="size-4" />
+							<AlertTitle>Heads up!</AlertTitle>
+							<AlertDescription class="flex flex-col justify-start items-start gap-2">
+								<span>
+									You can use variables as you doing it in commands, like <code class="text-teal-200">$(user.followage)</code>.
+									They will be parsed and evaluated.
+									But you must enclose them in quotes for proper usage!
+								</span>
+
+								<VariablesList>
+									<template #trigger>
+										<Button type="button" size="sm">
+											Show variables list
+										</Button>
+									</template>
+								</VariablesList>
+							</AlertDescription>
+						</Alert>
 
 						<div
 							ref="monacoContainerRef"

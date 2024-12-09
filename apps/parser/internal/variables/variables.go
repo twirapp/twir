@@ -176,6 +176,14 @@ func (c *Variables) ParseVariablesInText(
 			continue
 		}
 
+		if variable.DisableInCustomVariables && parseCtx.IsInCustomVar {
+			mu.Lock()
+			input = strings.ReplaceAll(input, s, fmt.Sprintf("$(%s)", all))
+			mu.Unlock()
+			wg.Done()
+			continue
+		}
+
 		str := s
 		go func() {
 			defer wg.Done()

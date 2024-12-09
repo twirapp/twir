@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Variable } from 'lucide-vue-next'
+import { useClipboard } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { FunctionalComponent } from 'vue'
+import { useToast } from './ui/toast'
 
 import { useVariablesApi } from '@/api/variables'
 import {
@@ -14,59 +14,44 @@ import {
 	CommandItem,
 	CommandList,
 } from '@/components/ui/command'
-import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Textarea } from '@/components/ui/textarea'
 
-withDefaults(defineProps<{
-	inputType?: 'text' | 'textarea'
-	minRows?: number
-	maxRows?: number
+defineProps<{
 	popoverAlign?: 'start' | 'center' | 'end'
 	popoverSide?: 'top' | 'right' | 'bottom' | 'left'
-}>(), {
-	inputType: 'text',
-})
-
-defineSlots<{
-	'additional-buttons': FunctionalComponent
 }>()
 
-const text = defineModel<string | undefined | null>({ default: '' })
 const { t } = useI18n()
+const { toast } = useToast()
+const clipboard = useClipboard()
 
-const { allVariables } = useVariablesApi()
+const { builtInVariables } = useVariablesApi()
+
+const open = ref(false)
 
 const selectVariables = computed(() => {
-	return allVariables.value.map((variable) => ({
+	return builtInVariables.value.map((variable) => ({
 		label: `$(${variable.example})`,
 		value: `$(${variable.example})`,
 		description: variable.description,
 	}))
 })
 
-const open = ref(false)
-
 function handleSelect(value: string) {
-	text.value += ` ${value}`
+	clipboard.copy(value)
+	toast({
+		title: 'Copied',
+		duration: 2500,
+	})
+	open.value = false
 }
 </script>
 
 <template>
 	<Popover v-model:open="open">
-		<div class="flex flex-col w-full group">
-			<component v-bind="$attrs" :is="inputType === 'textarea' ? Textarea : Input" v-model="text" class="input pr-10 w-full" :maxlength="500" />
-			<div class="flex gap-0.5 absolute right-1 top-1" :class="{ '!opacity-100': open }">
-				<PopoverTrigger as-child>
-					<button
-						class="hover:bg-secondary/80 p-1 rounded-md"
-					>
-						<Variable class="size-4 opacity-50" />
-					</button>
-				</PopoverTrigger>
-				<slot name="additional-buttons" />
-			</div>
-		</div>
+		<PopoverTrigger>
+			<slot name="trigger" />
+		</PopoverTrigger>
 		<PopoverContent
 			class="p-0 z-[9999] max-w-[400px]"
 			:align="popoverAlign"

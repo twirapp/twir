@@ -39,9 +39,10 @@ type ParseContext struct {
 	Emotes    []*ParseContextEmote
 	Mentions  []twitch.ChatMessageMessageFragmentMention
 
-	Text      *string
-	RawText   string
-	IsCommand bool
+	Text          *string
+	RawText       string
+	IsCommand     bool
+	IsInCustomVar bool
 
 	Command *model.ChannelsCommands
 

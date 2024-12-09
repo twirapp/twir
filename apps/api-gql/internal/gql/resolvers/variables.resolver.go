@@ -16,7 +16,6 @@ import (
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/gql/mappers"
-	"github.com/twirapp/twir/libs/bus-core/eval"
 )
 
 // VariablesCreate is the resolver for the variablesCreate field.
@@ -185,18 +184,13 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id string) (bool
 }
 
 // ExecuteScript is the resolver for the executeScript field.
-func (r *mutationResolver) ExecuteScript(ctx context.Context, script string) (string, error) {
-	result, err := r.twirBus.Eval.Evaluate.Request(
-		ctx,
-		eval.EvalRequest{
-			Expression: script,
-		},
-	)
+func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, testAsUserName *string) (string, error) {
+	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
-		return "", fmt.Errorf("cannot evaluate script: %w", err)
+		return "", err
 	}
 
-	return result.Data.Result, nil
+	return r.variablesService.EvaluateScript(ctx, dashboardID, script, testAsUserName)
 }
 
 // Variables is the resolver for the variables field.

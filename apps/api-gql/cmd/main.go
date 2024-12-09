@@ -14,6 +14,7 @@ import (
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
@@ -34,10 +35,8 @@ func main() {
 			},
 		),
 		fx.Provide(
-			fx.Annotate(
-				dashboard_widget_events.New,
-				fx.As(new(dashboard_widget_events.DashboardWidgetEventsService)),
-			),
+			dashboard_widget_events.New,
+			variables.New,
 		),
 		fx.Provide(
 			auth.NewSessions,

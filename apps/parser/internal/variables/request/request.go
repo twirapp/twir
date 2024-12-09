@@ -13,9 +13,10 @@ import (
 var supportedContentType = "text/plain"
 
 var Request = &types.Variable{
-	Name:        "request",
-	Description: lo.ToPtr("Request third party api"),
-	Example:     lo.ToPtr("request|https://decapi.me/youtube/latest_video?id=UCjerlCIbLPQwSnYlClkjDXg"),
+	Name:                     "request",
+	Description:              lo.ToPtr("Request third party api"),
+	Example:                  lo.ToPtr("request|https://decapi.me/youtube/latest_video?id=UCjerlCIbLPQwSnYlClkjDXg"),
+	DisableInCustomVariables: true,
 	Handler: func(
 		ctx context.Context,
 		parseCtx *types.VariableParseContext,

@@ -7,15 +7,15 @@ const vm = new VM({
 	sandbox: {
 		fetch,
 		URLSearchParams,
-		_
+		_,
 	},
 	timeout: 1000,
 	wasm: false,
-	eval: false
+	eval: false,
 })
 
 const nc = await natsConnect({
-	servers: process.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222'
+	servers: process.env.NODE_ENV === 'production' ? 'nats://nats:4222' : 'nats://127.0.0.1:4222',
 })
 const bus = newBus(nc)
 
@@ -30,7 +30,7 @@ bus.Eval.Evaluate.subscribeGroup('eval.evaluate', async (request) => {
 	}
 
 	return {
-		result: String(resultOfExecution).slice(0, 5000)
+		result: String(resultOfExecution).slice(0, 5000),
 	}
 })
 

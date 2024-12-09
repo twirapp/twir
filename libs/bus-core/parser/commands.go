@@ -7,12 +7,14 @@ type CommandParseResponse struct {
 }
 
 type ParseVariablesInTextRequest struct {
-	ChannelID   string
-	ChannelName string
-	Text        string
-	UserID      string
-	UserLogin   string
-	UserName    string
+	ChannelID     string
+	ChannelName   string
+	Text          string
+	UserID        string
+	UserLogin     string
+	UserName      string
+	IsCommand     bool
+	IsInCustomVar bool
 }
 
 type ParseVariablesInTextResponse struct {
