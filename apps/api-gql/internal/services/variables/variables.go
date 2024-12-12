@@ -2,12 +2,11 @@ package variables
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	config "github.com/satont/twir/libs/config"
-	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
@@ -15,6 +14,8 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/repositories/variables"
+	"github.com/twirapp/twir/libs/repositories/variables/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -23,37 +24,42 @@ import (
 type Opts struct {
 	fx.In
 
-	TwirBus            *buscore.Bus
-	Config             config.Config
-	TokensGrpc         tokens.TokensClient
-	CachedTwitchClient *twitch.CachedTwitchClient
-	Gorm               *gorm.DB
-	Logger             logger.Logger
+	TwirBus             *buscore.Bus
+	Config              config.Config
+	TokensGrpc          tokens.TokensClient
+	CachedTwitchClient  *twitch.CachedTwitchClient
+	Gorm                *gorm.DB
+	Logger              logger.Logger
+	VariablesRepository variables.Repository
 }
 
 type Service struct {
-	twirbus            *buscore.Bus
-	config             config.Config
-	tokensGrpc         tokens.TokensClient
-	cachedTwitchClient *twitch.CachedTwitchClient
-	gorm               *gorm.DB
-	logger             logger.Logger
+	twirbus             *buscore.Bus
+	config              config.Config
+	tokensGrpc          tokens.TokensClient
+	cachedTwitchClient  *twitch.CachedTwitchClient
+	gorm                *gorm.DB
+	logger              logger.Logger
+	variablesRepository variables.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		twirbus:            opts.TwirBus,
-		config:             opts.Config,
-		tokensGrpc:         opts.TokensGrpc,
-		cachedTwitchClient: opts.CachedTwitchClient,
-		gorm:               opts.Gorm,
-		logger:             opts.Logger,
+		twirbus:             opts.TwirBus,
+		config:              opts.Config,
+		tokensGrpc:          opts.TokensGrpc,
+		cachedTwitchClient:  opts.CachedTwitchClient,
+		gorm:                opts.Gorm,
+		logger:              opts.Logger,
+		variablesRepository: opts.VariablesRepository,
 	}
 }
 
-func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) entity.CustomVariable {
+var ErrNotFound = errors.New("variable not found")
+
+func (c *Service) dbToModel(m model.CustomVariable) entity.CustomVariable {
 	return entity.CustomVariable{
-		ID:          uuid.MustParse(m.ID),
+		ID:          m.ID,
 		ChannelID:   m.ChannelID,
 		Name:        m.Name,
 		Description: m.Description.Ptr(),

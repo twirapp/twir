@@ -3,14 +3,14 @@ package variables
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
-	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
 
 type CreateInput struct {
@@ -25,20 +25,17 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
-	// TODO: write repository
-	e := dbmodels.ChannelsCustomvars{
-		ID:          uuid.NewString(),
-		Name:        data.Name,
-		Description: null.StringFromPtr(data.Description),
-		Type:        dbmodels.CustomVarType(data.Type),
-		EvalValue:   data.EvalValue,
-		Response:    data.Response,
-		ChannelID:   data.ChannelID,
-	}
-
-	if err := c.gorm.
-		WithContext(ctx).
-		Create(&e).Error; err != nil {
+	variable, err := c.variablesRepository.Create(
+		ctx, variablesrepository.CreateInput{
+			ChannelID:   data.ChannelID,
+			Name:        data.Name,
+			Description: null.StringFromPtr(data.Description),
+			Type:        model.CustomVarType(data.Type),
+			EvalValue:   data.EvalValue,
+			Response:    data.Response,
+		},
+	)
+	if err != nil {
 		return entity.CustomVarNil, err
 	}
 
@@ -46,14 +43,14 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVa
 		"Variable create",
 		audit.Fields{
 			OldValue:      nil,
-			NewValue:      e,
+			NewValue:      variable,
 			ActorID:       &data.ActorID,
 			ChannelID:     &data.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(e.ID),
+			ObjectID:      lo.ToPtr(variable.ID.String()),
 		},
 	)
 
-	return c.dbToModel(e), nil
+	return c.dbToModel(variable), nil
 }

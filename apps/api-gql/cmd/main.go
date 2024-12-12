@@ -28,6 +28,9 @@ import (
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 )
@@ -48,6 +51,10 @@ func main() {
 			fx.Annotate(
 				timersrepositorypgx.NewFx,
 				fx.As(new(timersrepository.Repository)),
+			),
+			fx.Annotate(
+				variablespgx.NewFx,
+				fx.As(new(variablesrepository.Repository)),
 			),
 		),
 		fx.Provide(

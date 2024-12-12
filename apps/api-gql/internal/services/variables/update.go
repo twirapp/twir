@@ -3,14 +3,14 @@ package variables
 import (
 	"context"
 
-	"github.com/guregu/null"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
-	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
 
 type UpdateInput struct {
@@ -26,57 +26,48 @@ type UpdateInput struct {
 }
 
 func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVariable, error) {
-	e := dbmodels.ChannelsCustomvars{}
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ? AND id = ?`, data.ChannelID, data.ID).
-		First(&e).Error; err != nil {
+	parsedID, err := uuid.Parse(data.ID)
+	if err != nil {
 		return entity.CustomVarNil, err
 	}
 
-	var entityCopy dbmodels.ChannelsCustomvars
-	if err := utils.DeepCopy(&e, &entityCopy); err != nil {
+	variable, err := c.variablesRepository.GetByID(ctx, parsedID)
+	if err != nil {
 		return entity.CustomVarNil, err
 	}
 
-	if data.Name != nil {
-		e.Name = *data.Name
+	if variable.ChannelID != data.ChannelID {
+		return entity.CustomVarNil, ErrNotFound
 	}
 
-	if data.Description != nil {
-		e.Description = null.StringFromPtr(data.Description)
+	input := variablesrepository.UpdateInput{
+		Name:        data.Name,
+		Description: data.Description,
+		EvalValue:   data.EvalValue,
+		Response:    data.Response,
 	}
 
 	if data.Type != nil {
-		e.Type = dbmodels.CustomVarType(*data.Type)
+		input.Type = lo.ToPtr(model.CustomVarType(*data.Type))
 	}
 
-	if data.EvalValue != nil {
-		e.EvalValue = *data.EvalValue
-	}
-
-	if data.Response != nil {
-		e.Response = *data.Response
-	}
-
-	if err := c.gorm.
-		WithContext(ctx).
-		Save(&e).Error; err != nil {
+	newVariable, err := c.variablesRepository.Update(ctx, parsedID, input)
+	if err != nil {
 		return entity.CustomVarNil, err
 	}
 
 	c.logger.Audit(
 		"Variable update",
 		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      e,
+			OldValue:      variable,
+			NewValue:      newVariable,
 			ActorID:       &data.ActorID,
 			ChannelID:     &data.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(e.ID),
+			ObjectID:      lo.ToPtr(variable.ID.String()),
 		},
 	)
 
-	return c.dbToModel(e), nil
+	return c.dbToModel(newVariable), nil
 }
