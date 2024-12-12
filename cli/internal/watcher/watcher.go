@@ -36,7 +36,7 @@ func (c *Watcher) Start(path string) (chan struct{}, error) {
 
 	go func() {
 		for event := range c.chann {
-			if strings.HasSuffix(event.Path(), "~") {
+			if strings.HasSuffix(event.Path(), "~") || strings.Contains(event.Path(), ".out") {
 				continue
 			}
 

@@ -21,14 +21,12 @@ func New(opts Opts) *Pgx {
 	}
 }
 
-func NewFx() func(pgxpool *pgxpool.Pool) *Pgx {
-	return func(pgxpool *pgxpool.Pool) *Pgx {
-		return New(
-			Opts{
-				Pgx: pgxpool,
-			},
-		)
-	}
+func NewFx(pgxpool *pgxpool.Pool) *Pgx {
+	return New(
+		Opts{
+			Pgx: pgxpool,
+		},
+	)
 }
 
 var _ timers.Repository = (*Pgx)(nil)

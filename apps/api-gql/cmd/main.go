@@ -46,7 +46,7 @@ func main() {
 		),
 		fx.Provide(
 			fx.Annotate(
-				timersrepositorypgx.NewFx(),
+				timersrepositorypgx.NewFx,
 				fx.As(new(timersrepository.Repository)),
 			),
 		),
