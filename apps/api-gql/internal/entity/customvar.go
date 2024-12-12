@@ -12,7 +12,7 @@ const (
 	CustomVarNumber CustomVarType = "NUMBER"
 )
 
-type Variable struct {
+type CustomVariable struct {
 	ID          uuid.UUID
 	ChannelID   string
 	Name        string
@@ -22,4 +22,4 @@ type Variable struct {
 	Response    string
 }
 
-var CustomVarNil = Variable{}
+var CustomVarNil = CustomVariable{}

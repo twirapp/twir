@@ -11,8 +11,8 @@ import (
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
 )
 
 // VariablesCreate is the resolver for the variablesCreate field.
@@ -34,7 +34,7 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 			ActorID:     user.ID,
 			Name:        opts.Name,
 			Description: opts.Description.Value(),
-			Type:        model.CustomVarType(opts.Type),
+			Type:        entity.CustomVarType(opts.Type),
 			EvalValue:   opts.EvalValue,
 			Response:    opts.Response,
 		},
@@ -69,7 +69,7 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts 
 		Response:    opts.Response.Value(),
 	}
 	if opts.Type.Value() != nil {
-		input.Type = lo.ToPtr(model.CustomVarType(*opts.Type.Value()))
+		input.Type = lo.ToPtr(entity.CustomVarType(*opts.Type.Value()))
 	}
 
 	updatedVariable, err := r.variablesService.Update(ctx, input)

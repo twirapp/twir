@@ -7,7 +7,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func (c *Service) GetByID(ctx context.Context, id string) (entity.Variable, error) {
+func (c *Service) GetByID(ctx context.Context, id string) (entity.CustomVariable, error) {
 	e := dbmodels.ChannelsCustomvars{}
 	if err := c.gorm.
 		WithContext(ctx).
@@ -19,7 +19,7 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.Variable, erro
 	return c.dbToModel(e), nil
 }
 
-func (c *Service) GetAll(ctx context.Context, channelID string) ([]entity.Variable, error) {
+func (c *Service) GetAll(ctx context.Context, channelID string) ([]entity.CustomVariable, error) {
 	var entities []dbmodels.ChannelsCustomvars
 	if err := c.gorm.
 		WithContext(ctx).
@@ -29,7 +29,7 @@ func (c *Service) GetAll(ctx context.Context, channelID string) ([]entity.Variab
 		return nil, err
 	}
 
-	converted := make([]entity.Variable, 0, len(entities))
+	converted := make([]entity.CustomVariable, 0, len(entities))
 	for _, entity := range entities {
 		converted = append(converted, c.dbToModel(entity))
 	}

@@ -24,7 +24,7 @@ type CreateInput struct {
 	Response    string
 }
 
-func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Variable, error) {
+func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
 	// TODO: write repository
 	e := dbmodels.ChannelsCustomvars{
 		ID:          uuid.NewString(),

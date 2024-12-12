@@ -51,8 +51,8 @@ func New(opts Opts) *Service {
 	}
 }
 
-func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) entity.Variable {
-	return entity.Variable{
+func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) entity.CustomVariable {
+	return entity.CustomVariable{
 		ID:          uuid.MustParse(m.ID),
 		ChannelID:   m.ChannelID,
 		Name:        m.Name,

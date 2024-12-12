@@ -25,7 +25,7 @@ type UpdateInput struct {
 	Response    *string
 }
 
-func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Variable, error) {
+func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVariable, error) {
 	e := dbmodels.ChannelsCustomvars{}
 	if err := c.gorm.
 		WithContext(ctx).
