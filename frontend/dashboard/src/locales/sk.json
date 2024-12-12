@@ -264,7 +264,7 @@
         "systems-label": "Systémy",
         "systems": {
           "badge": "Odznak",
-          "badge-user": "Badge User",
+          "badge-user": "Používateľské odznaky",
           "channel-command": "Príkaz",
           "channel-command-group": "Skupina príkazov",
           "channel-variable": "Premenná",
@@ -678,8 +678,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval in minutes",
-        "intervalInMessages": "Chat lines interval"
+        "intervalInMinutes": "Interval v minútach",
+        "intervalInMessages": "Interval v správach"
       }
     },
     "modal": {
@@ -873,7 +873,7 @@
       }
     },
     "emotesStatistic": {
-      "title": "Emotes Statistics",
+      "title": "Štatistiky emotov",
       "searchPlaceholder": "Vyhľadať emoty...",
       "table": {
         "emote": "Emot",
