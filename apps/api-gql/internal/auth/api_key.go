@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/internal/gql/gincontext"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/gincontext"
 )
 
 func (s *Auth) GetAuthenticatedUserByApiKey(ctx context.Context) (*model.Users, error) {

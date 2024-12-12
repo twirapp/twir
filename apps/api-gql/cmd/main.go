@@ -3,16 +3,17 @@ package main
 import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
-	"github.com/twirapp/twir/apps/api-gql/internal/gql"
-	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/gql/apq-cache"
-	"github.com/twirapp/twir/apps/api-gql/internal/gql/directives"
-	"github.com/twirapp/twir/apps/api-gql/internal/gql/resolvers"
-	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/gql/twir-stats"
-	"github.com/twirapp/twir/apps/api-gql/internal/httpserver"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
+	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/apq-cache"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
+	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/auth"
+	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/public"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
-	authroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/auth"
-	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/routes/public"
-	"github.com/twirapp/twir/apps/api-gql/internal/routes/webhooks"
+	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -57,11 +58,12 @@ func main() {
 			twir_stats.New,
 			resolvers.New,
 			directives.New,
-			httpserver.New,
+			middlewares.New,
+			server.New,
 			apq_cache.New,
-			gql.New,
 		),
 		fx.Invoke(
+			gql.New,
 			uptrace.NewFx("api-gql"),
 			pubclicroutes.New,
 			webhooks.New,

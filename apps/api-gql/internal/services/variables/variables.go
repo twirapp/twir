@@ -4,8 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	config "github.com/satont/twir/libs/config"
+	dbmodels "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -13,6 +17,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -22,6 +27,8 @@ type Opts struct {
 	Config             config.Config
 	TokensGrpc         tokens.TokensClient
 	CachedTwitchClient *twitch.CachedTwitchClient
+	Gorm               *gorm.DB
+	Logger             logger.Logger
 }
 
 type Service struct {
@@ -29,6 +36,8 @@ type Service struct {
 	config             config.Config
 	tokensGrpc         tokens.TokensClient
 	cachedTwitchClient *twitch.CachedTwitchClient
+	gorm               *gorm.DB
+	logger             logger.Logger
 }
 
 func New(opts Opts) *Service {
@@ -37,6 +46,20 @@ func New(opts Opts) *Service {
 		config:             opts.Config,
 		tokensGrpc:         opts.TokensGrpc,
 		cachedTwitchClient: opts.CachedTwitchClient,
+		gorm:               opts.Gorm,
+		logger:             opts.Logger,
+	}
+}
+
+func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) model.Variable {
+	return model.Variable{
+		ID:          uuid.MustParse(m.ID),
+		ChannelID:   m.ChannelID,
+		Name:        m.Name,
+		Description: m.Description.Ptr(),
+		Type:        model.CustomVarType(m.Type),
+		EvalValue:   m.EvalValue,
+		Response:    m.Response,
 	}
 }
 
@@ -46,8 +69,7 @@ func (c *Service) EvaluateScript(
 	testAsUserName *string,
 ) (string, error) {
 	if testAsUserName != nil && *testAsUserName != "" {
-		var channelUser helix.User
-		var user helix.User
+		var channelUser, user helix.User
 		var wg errgroup.Group
 
 		wg.Go(
