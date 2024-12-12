@@ -1,40 +1,40 @@
-package model
+package entity
 
 import (
 	"time"
 )
 
-type Event struct {
+type DashboardWidgetEvent struct {
 	ID        string
 	ChannelID string
 	UserID    string
-	Type      EventType
-	Data      Data
+	Type      DashboardWidgetEventType
+	Data      DashboardWidgetEventData
 	CreatedAt time.Time
 }
 
-type EventType string
+type DashboardWidgetEventType string
 
-func (e EventType) String() string {
+func (e DashboardWidgetEventType) String() string {
 	return string(e)
 }
 
 const (
-	TypeDonation                   EventType = "DONATION"
-	TypeFollow                     EventType = "FOLLOW"
-	TypeRaided                     EventType = "RAIDED"
-	TypeSubscribe                  EventType = "SUBSCRIBE"
-	TypeReSubscribe                EventType = "RESUBSCRIBE"
-	TypeSubGift                    EventType = "SUBGIFT"
-	TypeFirstUserMessage           EventType = "FIRST_USER_MESSAGE"
-	TypeChatClear                  EventType = "CHAT_CLEAR"
-	TypeRedemptionCreated          EventType = "REDEMPTION_CREATED"
-	TypeChannelBan                 EventType = "CHANNEL_BAN"
-	TypeChannelUnbanRequestCreate  EventType = "CHANNEL_UNBAN_REQUEST_CREATE"
-	TypeChannelUnbanRequestResolve EventType = "CHANNEL_UNBAN_REQUEST_RESOLVE"
+	TypeDonation                   DashboardWidgetEventType = "DONATION"
+	TypeFollow                     DashboardWidgetEventType = "FOLLOW"
+	TypeRaided                     DashboardWidgetEventType = "RAIDED"
+	TypeSubscribe                  DashboardWidgetEventType = "SUBSCRIBE"
+	TypeReSubscribe                DashboardWidgetEventType = "RESUBSCRIBE"
+	TypeSubGift                    DashboardWidgetEventType = "SUBGIFT"
+	TypeFirstUserMessage           DashboardWidgetEventType = "FIRST_USER_MESSAGE"
+	TypeChatClear                  DashboardWidgetEventType = "CHAT_CLEAR"
+	TypeRedemptionCreated          DashboardWidgetEventType = "REDEMPTION_CREATED"
+	TypeChannelBan                 DashboardWidgetEventType = "CHANNEL_BAN"
+	TypeChannelUnbanRequestCreate  DashboardWidgetEventType = "CHANNEL_UNBAN_REQUEST_CREATE"
+	TypeChannelUnbanRequestResolve DashboardWidgetEventType = "CHANNEL_UNBAN_REQUEST_RESOLVE"
 )
 
-type Data struct {
+type DashboardWidgetEventData struct {
 	//
 	DonationAmount   string
 	DonationCurrency string

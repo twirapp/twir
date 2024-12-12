@@ -6,12 +6,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
+	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
-
-	dbmodels "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
 type CreateInput struct {
@@ -20,14 +19,14 @@ type CreateInput struct {
 
 	Name        string
 	Description *string
-	Type        model.CustomVarType
+	Type        entity.CustomVarType
 	EvalValue   string
 	Response    string
 }
 
-func (c *Service) Create(ctx context.Context, data CreateInput) (model.Variable, error) {
+func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Variable, error) {
 	// TODO: write repository
-	entity := dbmodels.ChannelsCustomvars{
+	e := dbmodels.ChannelsCustomvars{
 		ID:          uuid.NewString(),
 		Name:        data.Name,
 		Description: null.StringFromPtr(data.Description),
@@ -39,22 +38,22 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (model.Variable,
 
 	if err := c.gorm.
 		WithContext(ctx).
-		Create(&entity).Error; err != nil {
-		return model.Nil, err
+		Create(&e).Error; err != nil {
+		return entity.CustomVarNil, err
 	}
 
 	c.logger.Audit(
 		"Variable create",
 		audit.Fields{
 			OldValue:      nil,
-			NewValue:      entity,
+			NewValue:      e,
 			ActorID:       &data.ActorID,
 			ChannelID:     &data.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(entity.ID),
+			ObjectID:      lo.ToPtr(e.ID),
 		},
 	)
 
-	return c.dbToModel(entity), nil
+	return c.dbToModel(e), nil
 }

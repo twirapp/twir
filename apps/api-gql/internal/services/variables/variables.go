@@ -9,7 +9,7 @@ import (
 	config "github.com/satont/twir/libs/config"
 	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
@@ -51,13 +51,13 @@ func New(opts Opts) *Service {
 	}
 }
 
-func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) model.Variable {
-	return model.Variable{
+func (c *Service) dbToModel(m dbmodels.ChannelsCustomvars) entity.Variable {
+	return entity.Variable{
 		ID:          uuid.MustParse(m.ID),
 		ChannelID:   m.ChannelID,
 		Name:        m.Name,
 		Description: m.Description.Ptr(),
-		Type:        model.CustomVarType(m.Type),
+		Type:        entity.CustomVarType(m.Type),
 		EvalValue:   m.EvalValue,
 		Response:    m.Response,
 	}

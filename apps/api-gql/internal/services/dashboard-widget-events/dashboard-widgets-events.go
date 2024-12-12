@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	dbmodel "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -30,7 +30,7 @@ func (d *DashboardWidgetsEvents) GetDashboardWidgetsEvents(
 	ctx context.Context,
 	channelID string,
 	limit int,
-) ([]model.Event, error) {
+) ([]entity.DashboardWidgetEvent, error) {
 
 	var entities []dbmodel.ChannelsEventsListItem
 	if err := d.db.
@@ -42,59 +42,59 @@ func (d *DashboardWidgetsEvents) GetDashboardWidgetsEvents(
 		return nil, fmt.Errorf("cannot get events: %w", err)
 	}
 
-	events := make([]model.Event, 0, limit)
+	events := make([]entity.DashboardWidgetEvent, 0, limit)
 
-	for _, entity := range entities {
-		t := model.EventType(entity.Type)
+	for _, e := range entities {
+		t := entity.DashboardWidgetEventType(e.Type)
 
 		events = append(
-			events, model.Event{
-				ID:        entity.ID,
-				UserID:    entity.UserID,
+			events, entity.DashboardWidgetEvent{
+				ID:        e.ID,
+				UserID:    e.UserID,
 				ChannelID: channelID,
 				Type:      t,
-				Data: model.Data{
-					DonationAmount:                  entity.Data.DonationAmount,
-					DonationCurrency:                entity.Data.DonationCurrency,
-					DonationMessage:                 entity.Data.DonationMessage,
-					DonationUsername:                entity.Data.DonationUsername,
-					RaidedViewersCount:              entity.Data.RaidedViewersCount,
-					RaidedFromUserName:              entity.Data.RaidedFromUserName,
-					RaidedFromDisplayName:           entity.Data.RaidedFromDisplayName,
-					FollowUserName:                  entity.Data.FollowUserName,
-					FollowUserDisplayName:           entity.Data.FollowUserDisplayName,
-					RedemptionTitle:                 entity.Data.RedemptionTitle,
-					RedemptionInput:                 entity.Data.RedemptionInput,
-					RedemptionUserName:              entity.Data.RedemptionUserName,
-					RedemptionUserDisplayName:       entity.Data.RedemptionUserDisplayName,
-					RedemptionCost:                  entity.Data.RedemptionCost,
-					SubLevel:                        entity.Data.SubLevel,
-					SubUserName:                     entity.Data.SubUserName,
-					SubUserDisplayName:              entity.Data.SubUserDisplayName,
-					ReSubLevel:                      entity.Data.ReSubLevel,
-					ReSubUserName:                   entity.Data.ReSubUserName,
-					ReSubUserDisplayName:            entity.Data.ReSubUserDisplayName,
-					ReSubMonths:                     entity.Data.ReSubMonths,
-					ReSubStreak:                     entity.Data.ReSubStreak,
-					SubGiftLevel:                    entity.Data.SubGiftLevel,
-					SubGiftUserName:                 entity.Data.SubGiftUserName,
-					SubGiftUserDisplayName:          entity.Data.SubGiftUserDisplayName,
-					SubGiftTargetUserName:           entity.Data.SubGiftTargetUserName,
-					SubGiftTargetUserDisplayName:    entity.Data.SubGiftTargetUserDisplayName,
-					FirstUserMessageUserName:        entity.Data.FirstUserMessageUserName,
-					FirstUserMessageUserDisplayName: entity.Data.FirstUserMessageUserDisplayName,
-					FirstUserMessageMessage:         entity.Data.FirstUserMessageMessage,
-					BanReason:                       entity.Data.BanReason,
-					BanEndsInMinutes:                entity.Data.BanEndsInMinutes,
-					BannedUserName:                  entity.Data.BannedUserName,
-					BannedUserLogin:                 entity.Data.BannedUserLogin,
-					ModeratorName:                   entity.Data.ModeratorName,
-					ModeratorDisplayName:            entity.Data.ModeratorDisplayName,
-					Message:                         entity.Data.Message,
-					UserLogin:                       entity.Data.UserLogin,
-					UserDisplayName:                 entity.Data.UserDisplayName,
+				Data: entity.DashboardWidgetEventData{
+					DonationAmount:                  e.Data.DonationAmount,
+					DonationCurrency:                e.Data.DonationCurrency,
+					DonationMessage:                 e.Data.DonationMessage,
+					DonationUsername:                e.Data.DonationUsername,
+					RaidedViewersCount:              e.Data.RaidedViewersCount,
+					RaidedFromUserName:              e.Data.RaidedFromUserName,
+					RaidedFromDisplayName:           e.Data.RaidedFromDisplayName,
+					FollowUserName:                  e.Data.FollowUserName,
+					FollowUserDisplayName:           e.Data.FollowUserDisplayName,
+					RedemptionTitle:                 e.Data.RedemptionTitle,
+					RedemptionInput:                 e.Data.RedemptionInput,
+					RedemptionUserName:              e.Data.RedemptionUserName,
+					RedemptionUserDisplayName:       e.Data.RedemptionUserDisplayName,
+					RedemptionCost:                  e.Data.RedemptionCost,
+					SubLevel:                        e.Data.SubLevel,
+					SubUserName:                     e.Data.SubUserName,
+					SubUserDisplayName:              e.Data.SubUserDisplayName,
+					ReSubLevel:                      e.Data.ReSubLevel,
+					ReSubUserName:                   e.Data.ReSubUserName,
+					ReSubUserDisplayName:            e.Data.ReSubUserDisplayName,
+					ReSubMonths:                     e.Data.ReSubMonths,
+					ReSubStreak:                     e.Data.ReSubStreak,
+					SubGiftLevel:                    e.Data.SubGiftLevel,
+					SubGiftUserName:                 e.Data.SubGiftUserName,
+					SubGiftUserDisplayName:          e.Data.SubGiftUserDisplayName,
+					SubGiftTargetUserName:           e.Data.SubGiftTargetUserName,
+					SubGiftTargetUserDisplayName:    e.Data.SubGiftTargetUserDisplayName,
+					FirstUserMessageUserName:        e.Data.FirstUserMessageUserName,
+					FirstUserMessageUserDisplayName: e.Data.FirstUserMessageUserDisplayName,
+					FirstUserMessageMessage:         e.Data.FirstUserMessageMessage,
+					BanReason:                       e.Data.BanReason,
+					BanEndsInMinutes:                e.Data.BanEndsInMinutes,
+					BannedUserName:                  e.Data.BannedUserName,
+					BannedUserLogin:                 e.Data.BannedUserLogin,
+					ModeratorName:                   e.Data.ModeratorName,
+					ModeratorDisplayName:            e.Data.ModeratorDisplayName,
+					Message:                         e.Data.Message,
+					UserLogin:                       e.Data.UserLogin,
+					UserDisplayName:                 e.Data.UserDisplayName,
 				},
-				CreatedAt: entity.CreatedAt,
+				CreatedAt: e.CreatedAt,
 			},
 		)
 	}

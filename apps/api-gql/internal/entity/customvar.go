@@ -1,4 +1,4 @@
-package model
+package entity
 
 import (
 	"github.com/google/uuid"
@@ -22,4 +22,4 @@ type Variable struct {
 	Response    string
 }
 
-var Nil = Variable{}
+var CustomVarNil = Variable{}

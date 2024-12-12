@@ -4,22 +4,22 @@ import (
 	"context"
 
 	dbmodels "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func (c *Service) GetByID(ctx context.Context, id string) (model.Variable, error) {
-	entity := dbmodels.ChannelsCustomvars{}
+func (c *Service) GetByID(ctx context.Context, id string) (entity.Variable, error) {
+	e := dbmodels.ChannelsCustomvars{}
 	if err := c.gorm.
 		WithContext(ctx).
 		Where("id = ?", id).
-		First(&entity).Error; err != nil {
-		return model.Nil, err
+		First(&e).Error; err != nil {
+		return entity.CustomVarNil, err
 	}
 
-	return c.dbToModel(entity), nil
+	return c.dbToModel(e), nil
 }
 
-func (c *Service) GetAll(ctx context.Context, channelID string) ([]model.Variable, error) {
+func (c *Service) GetAll(ctx context.Context, channelID string) ([]entity.Variable, error) {
 	var entities []dbmodels.ChannelsCustomvars
 	if err := c.gorm.
 		WithContext(ctx).
@@ -29,7 +29,7 @@ func (c *Service) GetAll(ctx context.Context, channelID string) ([]model.Variabl
 		return nil, err
 	}
 
-	converted := make([]model.Variable, 0, len(entities))
+	converted := make([]entity.Variable, 0, len(entities))
 	for _, entity := range entities {
 		converted = append(converted, c.dbToModel(entity))
 	}

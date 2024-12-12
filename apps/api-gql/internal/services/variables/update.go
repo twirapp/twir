@@ -10,7 +10,7 @@ import (
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
 type UpdateInput struct {
@@ -20,63 +20,63 @@ type UpdateInput struct {
 
 	Name        *string
 	Description *string
-	Type        *model.CustomVarType
+	Type        *entity.CustomVarType
 	EvalValue   *string
 	Response    *string
 }
 
-func (c *Service) Update(ctx context.Context, data UpdateInput) (model.Variable, error) {
-	entity := dbmodels.ChannelsCustomvars{}
+func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Variable, error) {
+	e := dbmodels.ChannelsCustomvars{}
 	if err := c.gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND id = ?`, data.ChannelID, data.ID).
-		First(&entity).Error; err != nil {
-		return model.Nil, err
+		First(&e).Error; err != nil {
+		return entity.CustomVarNil, err
 	}
 
 	var entityCopy dbmodels.ChannelsCustomvars
-	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
-		return model.Nil, err
+	if err := utils.DeepCopy(&e, &entityCopy); err != nil {
+		return entity.CustomVarNil, err
 	}
 
 	if data.Name != nil {
-		entity.Name = *data.Name
+		e.Name = *data.Name
 	}
 
 	if data.Description != nil {
-		entity.Description = null.StringFromPtr(data.Description)
+		e.Description = null.StringFromPtr(data.Description)
 	}
 
 	if data.Type != nil {
-		entity.Type = dbmodels.CustomVarType(*data.Type)
+		e.Type = dbmodels.CustomVarType(*data.Type)
 	}
 
 	if data.EvalValue != nil {
-		entity.EvalValue = *data.EvalValue
+		e.EvalValue = *data.EvalValue
 	}
 
 	if data.Response != nil {
-		entity.Response = *data.Response
+		e.Response = *data.Response
 	}
 
 	if err := c.gorm.
 		WithContext(ctx).
-		Save(&entity).Error; err != nil {
-		return model.Nil, err
+		Save(&e).Error; err != nil {
+		return entity.CustomVarNil, err
 	}
 
 	c.logger.Audit(
 		"Variable update",
 		audit.Fields{
 			OldValue:      entityCopy,
-			NewValue:      entity,
+			NewValue:      e,
 			ActorID:       &data.ActorID,
 			ChannelID:     &data.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationUpdate,
-			ObjectID:      lo.ToPtr(entity.ID),
+			ObjectID:      lo.ToPtr(e.ID),
 		},
 	)
 
-	return c.dbToModel(entity), nil
+	return c.dbToModel(e), nil
 }
