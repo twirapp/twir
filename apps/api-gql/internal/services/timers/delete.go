@@ -20,6 +20,10 @@ func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) err
 		return ErrTimerNotFound
 	}
 
+	if err := c.timersrepository.Delete(ctx, id); err != nil {
+		return err
+	}
+
 	c.logger.Audit(
 		"Timers remove",
 		audit.Fields{
@@ -37,5 +41,5 @@ func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) err
 		timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()},
 	)
 
-	return c.timersrepository.Delete(ctx, id)
+	return nil
 }
