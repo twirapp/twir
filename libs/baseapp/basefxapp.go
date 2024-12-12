@@ -1,8 +1,12 @@
 package baseapp
 
 import (
+	"context"
 	"log/slog"
+	"time"
 
+	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
@@ -29,6 +33,7 @@ func CreateBaseApp(opts Opts) fx.Option {
 			uptrace.NewFx(opts.AppName),
 			newRedis,
 			newGorm,
+			newPgxPool,
 			buscore.NewNatsBusFx(opts.AppName),
 			fx.Annotate(
 				auditlogs.NewBusPubSubFx,
@@ -71,4 +76,28 @@ func newRedis(cfg config.Config) (*redis.Client, error) {
 	}
 
 	return redisClient, nil
+}
+
+func newPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
+	connConfig, err := pgxpool.ParseConfig(cfg.DatabaseUrl)
+	if err != nil {
+		return nil, err
+	}
+
+	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
+	connConfig.MaxConnLifetime = time.Hour
+	connConfig.MaxConnIdleTime = 5 * time.Minute
+	connConfig.MaxConns = 100
+	connConfig.MinConns = 1
+	connConfig.HealthCheckPeriod = time.Minute
+
+	pool, err := pgxpool.NewWithConfig(
+		context.Background(),
+		connConfig,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return pool, nil
 }

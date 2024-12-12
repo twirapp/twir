@@ -27,6 +27,9 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 )
 
 func main() {
@@ -40,6 +43,12 @@ func main() {
 			dashboard_widget_events.New,
 			variables.New,
 			timers.New,
+		),
+		fx.Provide(
+			fx.Annotate(
+				timersrepositorypgx.NewFx(),
+				fx.As(new(timersrepository.Repository)),
+			),
 		),
 		fx.Provide(
 			auth.NewSessions,

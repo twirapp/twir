@@ -1,4 +1,4 @@
-package model
+package entity
 
 import (
 	"github.com/google/uuid"
@@ -21,4 +21,4 @@ type Response struct {
 	IsAnnounce bool
 }
 
-var Nil = Timer{}
+var TimerNil = Timer{}

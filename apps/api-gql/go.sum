@@ -130,8 +130,10 @@ github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 h1:iCEnooe7Ulw
 github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761/go.mod h1:5TJZWKEWniPve33vlWYSoGYefn3gLQRzjfDlhSJ9ZKM=
 github.com/jackc/pgx/v5 v5.6.0 h1:SWJzexBzPL5jb0GEsrPMLIsi/3jOo7RHlzTjcAeDrPY=
 github.com/jackc/pgx/v5 v5.6.0/go.mod h1:DNZ/vlrUnhWCoFGxHAG8U2ljioxukquj7utPDgtQdTw=
+github.com/jackc/pgx/v5 v5.7.1/go.mod h1:e7O26IywZZ+naJtWWos6i6fvWK+29etgITqrqHLfoZA=
 github.com/jackc/puddle/v2 v2.2.1 h1:RhxXJtFG022u4ibrCSMSiu5aOq1i77R3OHKNJj77OAk=
 github.com/jackc/puddle/v2 v2.2.1/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
+github.com/jackc/puddle/v2 v2.2.2/go.mod h1:vriiEXHvEE654aYKXXjOvZM39qJ0q+azkZFrfEOc3H4=
 github.com/jinzhu/inflection v1.0.0 h1:K317FqzuhWc8YvSVlFMCCUb36O/S9MCKRDI7QkRKD/E=
 github.com/jinzhu/inflection v1.0.0/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=
 github.com/jinzhu/now v1.1.5 h1:/o9tlHleP7gOFmsnYNz3RGnqzefHA47wQpKrrdTIwXQ=
@@ -213,6 +215,7 @@ github.com/ravilushqa/otelgqlgen v0.15.0/go.mod h1:o+1Eju0VySmgq2BP8Vupz2YrN21Bj
 github.com/redis/go-redis/v9 v9.0.2/go.mod h1:/xDTe9EF1LM61hek62Poq2nzQSGj0xSrEtEHbBQevps=
 github.com/redis/go-redis/v9 v9.6.1 h1:HHDteefn6ZkTtY5fGUE8tj8uy85AHk6zP7CpzIAM0y4=
 github.com/redis/go-redis/v9 v9.6.1/go.mod h1:0C0c6ycQsdpVNQpxb1njEQIqkx5UcsM8FJCQLgE9+RA=
+github.com/redis/go-redis/v9 v9.7.0/go.mod h1:f6zhXITC7JUJIlPEiBOTXxJgPLdZcA93GewI7inzyWw=
 github.com/refraction-networking/utls v1.6.7 h1:zVJ7sP1dJx/WtVuITug3qYUq034cDq9B2MR1K67ULZM=
 github.com/refraction-networking/utls v1.6.7/go.mod h1:BC3O4vQzye5hqpmDTWUqi4P5DDhzJfkV1tdqtawQIH0=
 github.com/rogpeppe/go-internal v1.12.0 h1:exVL4IDcn6na9z1rAb56Vxr+CgyK3nn3O+epU5NdKM8=
@@ -239,6 +242,7 @@ github.com/satont/twir/libs/crypto v0.0.0-20240923063656-34c54be7623e h1:ja5Ec1i
 github.com/satont/twir/libs/crypto v0.0.0-20240923063656-34c54be7623e/go.mod h1:GUpXtJMsX1IQi46QEJ7WFS1qaFrYgOChZvh5iM6zF0s=
 github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe h1:zkruvnxrCBoAGqfC2Y5TmvZlJP+23CCm3BnhReMIK1I=
 github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe/go.mod h1:xWRkd2l6yagy5+uskUgmIo3t8LCfGFAI2WIX2HElkfk=
+github.com/satont/twir/libs/types v0.0.0-20241201233432-6c61559e1688/go.mod h1:xWRkd2l6yagy5+uskUgmIo3t8LCfGFAI2WIX2HElkfk=
 github.com/satont/twir/libs/utils v0.0.0-20241026093228-a5284254dcfe h1:jwA1t/xhy/lgN+H4zqClLJSzqnme9McQQLtpqxyr/pM=
 github.com/satont/twir/libs/utils v0.0.0-20241026093228-a5284254dcfe/go.mod h1:1U67b7lgzoqjMgHKuclhvk3grAqurAKnIJjPXfe9/K4=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=

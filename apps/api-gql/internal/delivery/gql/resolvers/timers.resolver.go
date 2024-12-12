@@ -6,21 +6,13 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/google/uuid"
-	"github.com/samber/lo"
-	dbmodels "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
-	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
-	"gorm.io/gorm"
 )
 
-// TimersCreate is the resolver for the timersCreate field.
+// TimersCreate is the resolver for the timersCreate field
 func (r *mutationResolver) TimersCreate(
 	ctx context.Context,
 	opts gqlmodel.TimerCreateInput,
@@ -57,7 +49,7 @@ func (r *mutationResolver) TimersCreate(
 		},
 	)
 
-	converted := mappers.TimersModelToGql(timer)
+	converted := mappers.TimerEntityToGql(timer)
 	return &converted, nil
 }
 
@@ -77,109 +69,36 @@ func (r *mutationResolver) TimersUpdate(
 		return nil, err
 	}
 
-	entity := dbmodels.ChannelsTimers{}
-	if err := r.gorm.WithContext(ctx).
-		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
-		First(&entity).Error; err != nil {
-		return nil, fmt.Errorf("timer not found: %w", err)
-	}
-
-	var entityCopy dbmodels.ChannelsTimers
-	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
-		return nil, err
-	}
-
-	if opts.Name.IsSet() {
-		entity.Name = *opts.Name.Value()
-	}
-
-	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
-	}
-
-	if opts.TimeInterval.IsSet() {
-		entity.TimeInterval = int32(*opts.TimeInterval.Value())
-	}
-
-	if opts.MessageInterval.IsSet() {
-		entity.MessageInterval = int32(*opts.MessageInterval.Value())
-	}
-
-	txErr := r.gorm.WithContext(ctx).Transaction(
-		func(tx *gorm.DB) error {
-			if opts.Responses.IsSet() {
-				if err := tx.
-					Where(`"timerId" = ?`, entity.ID).
-					Delete(&dbmodels.ChannelsTimersResponses{}).
-					Error; err != nil {
-					return err
-				}
-
-				entity.Responses = lo.Map(
-					opts.Responses.Value(),
-					func(r gqlmodel.TimerResponseUpdateInput, _ int) *dbmodels.ChannelsTimersResponses {
-						return &dbmodels.ChannelsTimersResponses{
-							ID:         uuid.NewString(),
-							Text:       r.Text,
-							IsAnnounce: r.IsAnnounce,
-							TimerID:    entity.ID,
-						}
-					},
-				)
-			}
-
-			if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
-				return err
-			}
-
-			return nil
-		},
-	)
-
-	if txErr != nil {
-		return nil, fmt.Errorf("cannot update timer: %w", txErr)
-	}
-
-	responses := make([]gqlmodel.TimerResponse, 0, len(entity.Responses))
-	for _, response := range entity.Responses {
+	responses := make([]timers.CreateResponse, 0, len(opts.Responses.Value()))
+	for _, response := range opts.Responses.Value() {
 		responses = append(
 			responses,
-			gqlmodel.TimerResponse{
-				ID:         response.ID,
+			timers.CreateResponse{
 				Text:       response.Text,
 				IsAnnounce: response.IsAnnounce,
 			},
 		)
 	}
 
-	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
-	if entity.Enabled {
-		r.twirBus.Timers.AddTimer.Publish(timersReq)
-	} else {
-		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
-	}
-
-	r.logger.Audit(
-		"Timers update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
+	timer, err := r.timersService.Update(
+		ctx,
+		timers.UpdateInput{
+			ChannelID:       dashboardId,
+			ActorID:         user.ID,
+			ID:              id,
+			Name:            opts.Name.Value(),
+			Enabled:         opts.Enabled.Value(),
+			TimeInterval:    opts.TimeInterval.Value(),
+			MessageInterval: opts.MessageInterval.Value(),
+			Responses:       responses,
 		},
 	)
+	if err != nil {
+		return nil, err
+	}
 
-	return &gqlmodel.Timer{
-		ID:              entity.ID,
-		Name:            entity.Name,
-		Enabled:         entity.Enabled,
-		TimeInterval:    int(entity.TimeInterval),
-		MessageInterval: int(entity.MessageInterval),
-		Responses:       responses,
-	}, nil
+	converted := mappers.TimerEntityToGql(timer)
+	return &converted, nil
 }
 
 // TimersRemove is the resolver for the timersRemove field.
@@ -194,33 +113,10 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 		return false, err
 	}
 
-	entity := dbmodels.ChannelsTimers{}
-	if err := r.gorm.WithContext(ctx).
-		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
-		First(&entity).Error; err != nil {
-		return false, fmt.Errorf("timer not found: %w", err)
-	}
-
-	r.twirBus.Timers.RemoveTimer.Request(
-		ctx,
-		timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID},
-	)
-
-	if err := r.gorm.WithContext(ctx).Delete(&entity).Error; err != nil {
+	err = r.timersService.Delete(ctx, id, dashboardId, user.ID)
+	if err != nil {
 		return false, err
 	}
-
-	r.logger.Audit(
-		"Timers remove",
-		audit.Fields{
-			OldValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationDelete,
-			ObjectID:      &entity.ID,
-		},
-	)
 
 	return true, nil
 }
@@ -232,41 +128,15 @@ func (r *queryResolver) Timers(ctx context.Context) ([]gqlmodel.Timer, error) {
 		return nil, err
 	}
 
-	var entities []dbmodels.ChannelsTimers
-	if err := r.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
-		Order(`"name" DESC`).
-		Preload("Responses").
-		Find(&entities).Error; err != nil {
+	channelTimers, err := r.timersService.GetAllByChannelID(ctx, dashboardId)
+	if err != nil {
 		return nil, err
 	}
 
-	timers := make([]gqlmodel.Timer, 0, len(entities))
-	for _, entity := range entities {
-		responses := make([]gqlmodel.TimerResponse, 0, len(entity.Responses))
-		for _, response := range entity.Responses {
-			responses = append(
-				responses,
-				gqlmodel.TimerResponse{
-					ID:         response.ID,
-					Text:       response.Text,
-					IsAnnounce: response.IsAnnounce,
-				},
-			)
-		}
-
-		timers = append(
-			timers,
-			gqlmodel.Timer{
-				ID:              entity.ID,
-				Name:            entity.Name,
-				Enabled:         entity.Enabled,
-				TimeInterval:    int(entity.TimeInterval),
-				MessageInterval: int(entity.MessageInterval),
-				Responses:       responses,
-			},
-		)
+	converted := make([]gqlmodel.Timer, 0, len(channelTimers))
+	for _, timer := range channelTimers {
+		converted = append(converted, mappers.TimerEntityToGql(timer))
 	}
 
-	return timers, nil
+	return converted, nil
 }

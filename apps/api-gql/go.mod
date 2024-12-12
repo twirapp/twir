@@ -1,8 +1,8 @@
 module github.com/twirapp/twir/apps/api-gql
 
-go 1.23.0
+go 1.23.2
 
-toolchain go1.23.1
+toolchain go1.23.3
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -16,6 +16,7 @@ replace (
 	github.com/twirapp/twir/libs/cache => ../../libs/cache
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
 	github.com/twirapp/twir/libs/redis_keys => ../../libs/redis_keys
+	github.com/twirapp/twir/libs/repositories => ../../libs/repositories
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
@@ -39,7 +40,7 @@ require (
 	github.com/nicklaw5/helix/v2 v2.30.0
 	github.com/raitonoberu/ytsearch v0.2.0
 	github.com/ravilushqa/otelgqlgen v0.15.0
-	github.com/redis/go-redis/v9 v9.6.1
+	github.com/redis/go-redis/v9 v9.7.0
 	github.com/samber/lo v1.47.0
 	github.com/samber/slog-gin v1.11.0
 	github.com/satont/twir/libs/config v0.0.0-20241105005614-f68dbf11ade1
@@ -48,7 +49,7 @@ require (
 	github.com/satont/twir/libs/logger v0.0.0-00010101000000-000000000000
 	github.com/satont/twir/libs/pubsub v0.0.0-20240923063656-34c54be7623e
 	github.com/satont/twir/libs/twitch v0.0.0-00010101000000-000000000000
-	github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe
+	github.com/satont/twir/libs/types v0.0.0-20241201233432-6c61559e1688
 	github.com/satont/twir/libs/utils v0.0.0-20241026093228-a5284254dcfe
 	github.com/twirapp/twir/libs/baseapp v0.0.0-00010101000000-000000000000
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea
@@ -98,8 +99,8 @@ require (
 	github.com/imroc/req/v3 v3.48.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
-	github.com/jackc/pgx/v5 v5.6.0 // indirect
-	github.com/jackc/puddle/v2 v2.2.1 // indirect
+	github.com/jackc/pgx/v5 v5.7.1 // indirect
+	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
@@ -135,6 +136,7 @@ require (
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/shkh/lastfm-go v0.0.0-20191215035245-89a801c244e0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
+	github.com/twirapp/twir/libs/repositories v0.0.0-00010101000000-000000000000 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.3.2 // indirect

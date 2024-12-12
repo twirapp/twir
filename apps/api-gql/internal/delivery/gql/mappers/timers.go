@@ -2,10 +2,10 @@ package mappers
 
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/timers/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func TimersModelToGql(m model.Timer) gqlmodel.Timer {
+func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 	responses := make([]gqlmodel.TimerResponse, 0, len(m.Responses))
 	for _, r := range m.Responses {
 		responses = append(

@@ -2,7 +2,6 @@ package timers
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
@@ -13,30 +12,26 @@ import (
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 )
 
-type CreateInput struct {
+type UpdateInput struct {
 	ChannelID string
 	ActorID   string
 
-	Name            string
-	Enabled         bool
-	TimeInterval    int
-	MessageInterval int
+	ID              string
+	Name            *string
+	Enabled         *bool
+	TimeInterval    *int
+	MessageInterval *int
 	Responses       []CreateResponse
 }
 
-type CreateResponse struct {
-	Text       string
-	IsAnnounce bool
-}
-
-func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, error) {
-	createdCount, err := c.timersrepository.CountByChannelID(ctx, data.ChannelID)
+func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, error) {
+	timer, err := c.timersrepository.GetByID(ctx, data.ID)
 	if err != nil {
 		return entity.TimerNil, err
 	}
 
-	if createdCount >= MaxTimersPerChannel {
-		return entity.TimerNil, fmt.Errorf("you can have only %v timers", MaxTimersPerChannel)
+	if timer.ChannelID != data.ChannelID {
+		return entity.TimerNil, ErrTimerNotFound
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))
@@ -50,10 +45,10 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		)
 	}
 
-	timer, err := c.timersrepository.Create(
+	newTimer, err := c.timersrepository.UpdateByID(
 		ctx,
-		timersrepository.CreateInput{
-			ChannelID:       data.ChannelID,
+		data.ID,
+		timersrepository.UpdateInput{
 			Name:            data.Name,
 			Enabled:         data.Enabled,
 			TimeInterval:    data.TimeInterval,
@@ -61,27 +56,31 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 			Responses:       responses,
 		},
 	)
+	if err != nil {
+		return entity.TimerNil, err
+	}
+
+	c.logger.Audit(
+		"Timers update",
+		audit.Fields{
+			OldValue:      timer,
+			NewValue:      newTimer,
+			ActorID:       &data.ActorID,
+			ChannelID:     &data.ChannelID,
+			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
+			OperationType: audit.OperationUpdate,
+			ObjectID:      lo.ToPtr(newTimer.ID.String()),
+		},
+	)
 
 	go func() {
-		timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: timer.ID.String()}
-		if timer.Enabled {
+		timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: newTimer.ID.String()}
+		if newTimer.Enabled {
 			c.twirbus.Timers.AddTimer.Publish(timersReq)
 		} else {
 			c.twirbus.Timers.RemoveTimer.Publish(timersReq)
 		}
 	}()
 
-	c.logger.Audit(
-		"Timers create",
-		audit.Fields{
-			NewValue:      timer,
-			ActorID:       &data.ActorID,
-			ChannelID:     &data.ChannelID,
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(timer.ID.String()),
-		},
-	)
-
-	return c.dbToModel(timer), nil
+	return c.dbToModel(newTimer), nil
 }
