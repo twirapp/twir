@@ -10,17 +10,21 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
+	dbmodels "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 	"gorm.io/gorm"
 )
 
 // TimersCreate is the resolver for the timersCreate field.
-func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersCreate(
+	ctx context.Context,
+	opts gqlmodel.TimerCreateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -31,88 +35,38 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 		return nil, err
 	}
 
-	var createdCount int64
-	if err := r.gorm.
-		WithContext(ctx).
-		Model(&model.ChannelsTimers{}).
-		Where(`"channelId" = ?`, dashboardId).
-		Count(&createdCount).
-		Error; err != nil {
-		return nil, err
-	}
-
-	if createdCount >= 10 {
-		return nil, fmt.Errorf("you can have only 10 timers")
-	}
-
-	timerId := uuid.NewString()
-	entity := model.ChannelsTimers{
-		ID:              timerId,
-		ChannelID:       dashboardId,
-		Name:            opts.Name,
-		Enabled:         opts.Enabled,
-		TimeInterval:    int32(opts.TimeInterval),
-		MessageInterval: int32(opts.MessageInterval),
-		Responses: lo.Map(
-			opts.Responses,
-			func(r gqlmodel.TimerResponseCreateInput, _ int) *model.ChannelsTimersResponses {
-				return &model.ChannelsTimersResponses{
-					ID:         uuid.NewString(),
-					Text:       r.Text,
-					IsAnnounce: r.IsAnnounce,
-					TimerID:    timerId,
-				}
-			},
-		),
-	}
-
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
-		return nil, err
-	}
-
-	responses := make([]gqlmodel.TimerResponse, 0, len(entity.Responses))
-	for _, response := range entity.Responses {
+	responses := make([]timers.CreateResponse, 0, len(opts.Responses))
+	for _, response := range opts.Responses {
 		responses = append(
 			responses,
-			gqlmodel.TimerResponse{
-				ID:         response.ID,
+			timers.CreateResponse{
 				Text:       response.Text,
 				IsAnnounce: response.IsAnnounce,
 			},
 		)
 	}
-
-	timersReq := timersbusservice.AddOrRemoveTimerRequest{TimerID: entity.ID}
-	if entity.Enabled {
-		r.twirBus.Timers.AddTimer.Publish(timersReq)
-	} else {
-		r.twirBus.Timers.RemoveTimer.Publish(timersReq)
-	}
-
-	r.logger.Audit(
-		"Timers create",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelTimers),
-			OperationType: audit.OperationCreate,
-			ObjectID:      &entity.ID,
+	timer, err := r.timersService.Create(
+		ctx, timers.CreateInput{
+			ChannelID:       dashboardId,
+			ActorID:         user.ID,
+			Name:            opts.Name,
+			Enabled:         opts.Enabled,
+			TimeInterval:    opts.TimeInterval,
+			MessageInterval: opts.MessageInterval,
+			Responses:       responses,
 		},
 	)
 
-	return &gqlmodel.Timer{
-		ID:              entity.ID,
-		Name:            entity.Name,
-		Enabled:         entity.Enabled,
-		TimeInterval:    int(entity.TimeInterval),
-		MessageInterval: int(entity.MessageInterval),
-		Responses:       responses,
-	}, nil
+	converted := mappers.TimersModelToGql(timer)
+	return &converted, nil
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.TimerUpdateInput,
+) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -123,14 +77,14 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 		return nil, err
 	}
 
-	entity := model.ChannelsTimers{}
+	entity := dbmodels.ChannelsTimers{}
 	if err := r.gorm.WithContext(ctx).
 		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("timer not found: %w", err)
 	}
 
-	var entityCopy model.ChannelsTimers
+	var entityCopy dbmodels.ChannelsTimers
 	if err := utils.DeepCopy(&entity, &entityCopy); err != nil {
 		return nil, err
 	}
@@ -156,15 +110,15 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 			if opts.Responses.IsSet() {
 				if err := tx.
 					Where(`"timerId" = ?`, entity.ID).
-					Delete(&model.ChannelsTimersResponses{}).
+					Delete(&dbmodels.ChannelsTimersResponses{}).
 					Error; err != nil {
 					return err
 				}
 
 				entity.Responses = lo.Map(
 					opts.Responses.Value(),
-					func(r gqlmodel.TimerResponseUpdateInput, _ int) *model.ChannelsTimersResponses {
-						return &model.ChannelsTimersResponses{
+					func(r gqlmodel.TimerResponseUpdateInput, _ int) *dbmodels.ChannelsTimersResponses {
+						return &dbmodels.ChannelsTimersResponses{
 							ID:         uuid.NewString(),
 							Text:       r.Text,
 							IsAnnounce: r.IsAnnounce,
@@ -240,7 +194,7 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, e
 		return false, err
 	}
 
-	entity := model.ChannelsTimers{}
+	entity := dbmodels.ChannelsTimers{}
 	if err := r.gorm.WithContext(ctx).
 		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).Error; err != nil {
@@ -278,7 +232,7 @@ func (r *queryResolver) Timers(ctx context.Context) ([]gqlmodel.Timer, error) {
 		return nil, err
 	}
 
-	var entities []model.ChannelsTimers
+	var entities []dbmodels.ChannelsTimers
 	if err := r.gorm.WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
 		Order(`"name" DESC`).

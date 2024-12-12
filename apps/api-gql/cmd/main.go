@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -38,6 +39,7 @@ func main() {
 		fx.Provide(
 			dashboard_widget_events.New,
 			variables.New,
+			timers.New,
 		),
 		fx.Provide(
 			auth.NewSessions,
