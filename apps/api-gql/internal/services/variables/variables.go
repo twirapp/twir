@@ -55,6 +55,8 @@ func New(opts Opts) *Service {
 	}
 }
 
+const MaxPerChannel = 10
+
 var ErrNotFound = errors.New("variable not found")
 
 func (c *Service) dbToModel(m model.CustomVariable) entity.CustomVariable {

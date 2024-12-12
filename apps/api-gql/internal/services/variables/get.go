@@ -28,8 +28,8 @@ func (c *Service) GetAll(ctx context.Context, channelID string) ([]entity.Custom
 	}
 
 	converted := make([]entity.CustomVariable, 0, len(variables))
-	for _, entity := range variables {
-		converted = append(converted, c.dbToModel(entity))
+	for _, variable := range variables {
+		converted = append(converted, c.dbToModel(variable))
 	}
 
 	return converted, nil

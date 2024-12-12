@@ -37,7 +37,7 @@ type Service struct {
 	timersrepository timersrepository.Repository
 }
 
-const MaxTimersPerChannel = 10
+const MaxPerChannel = 10
 
 var ErrTimerNotFound = errors.New("timer not found")
 

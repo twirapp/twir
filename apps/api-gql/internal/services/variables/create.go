@@ -2,6 +2,7 @@ package variables
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/guregu/null"
 	"github.com/samber/lo"
@@ -25,6 +26,15 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
+	createdCount, err := c.variablesRepository.CountByChannelID(ctx, data.ChannelID)
+	if err != nil {
+		return entity.CustomVarNil, err
+	}
+
+	if createdCount >= MaxPerChannel {
+		return entity.CustomVarNil, fmt.Errorf("you can have only %v variables", MaxPerChannel)
+	}
+
 	variable, err := c.variablesRepository.Create(
 		ctx, variablesrepository.CreateInput{
 			ChannelID:   data.ChannelID,

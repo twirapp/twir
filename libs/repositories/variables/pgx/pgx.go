@@ -23,11 +23,12 @@ func NewFx(pgxpool *pgxpool.Pool) *Pgx {
 	return New(Opts{Pgx: pgxpool})
 }
 
+var _ variables.Repository = (*Pgx)(nil)
+var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
+
 type Pgx struct {
 	pool *pgxpool.Pool
 }
-
-var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) (
 	[]model.CustomVariable,
@@ -50,6 +51,22 @@ WHERE "channelId" = $1
 	}
 
 	return vars, nil
+}
+
+func (c *Pgx) CountByChannelID(ctx context.Context, channelID string) (int, error) {
+	query := `
+SELECT COUNT(*)
+FROM channels_customvars
+WHERE "channelId" = $1
+`
+
+	var count int
+	err := c.pool.QueryRow(ctx, query, channelID).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
 }
 
 func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.CustomVariable, error) {
@@ -164,5 +181,3 @@ WHERE id = $1
 
 	return nil
 }
-
-var _ variables.Repository = (*Pgx)(nil)

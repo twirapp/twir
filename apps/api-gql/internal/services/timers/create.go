@@ -35,8 +35,8 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		return entity.TimerNil, err
 	}
 
-	if createdCount >= MaxTimersPerChannel {
-		return entity.TimerNil, fmt.Errorf("you can have only %v timers", MaxTimersPerChannel)
+	if createdCount >= MaxPerChannel {
+		return entity.TimerNil, fmt.Errorf("you can have only %v timers", MaxPerChannel)
 	}
 
 	responses := make([]timersrepository.CreateResponse, 0, len(data.Responses))

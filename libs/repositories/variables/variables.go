@@ -13,6 +13,7 @@ var ErrNotFound = errors.New("variable not found")
 
 type Repository interface {
 	GetAllByChannelID(ctx context.Context, channelID string) ([]model.CustomVariable, error)
+	CountByChannelID(ctx context.Context, channelID string) (int, error)
 	GetByID(ctx context.Context, id uuid.UUID) (model.CustomVariable, error)
 	Create(ctx context.Context, input CreateInput) (model.CustomVariable, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.CustomVariable, error)
