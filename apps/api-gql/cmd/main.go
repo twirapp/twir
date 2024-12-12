@@ -42,11 +42,13 @@ func main() {
 				AppName: "api-gql",
 			},
 		),
+		// services
 		fx.Provide(
 			dashboard_widget_events.New,
 			variables.New,
 			timers.New,
 		),
+		// repositories
 		fx.Provide(
 			fx.Annotate(
 				timersrepositorypgx.NewFx,
@@ -57,14 +59,18 @@ func main() {
 				fx.As(new(variablesrepository.Repository)),
 			),
 		),
+		// grpc clients
 		fx.Provide(
-			auth.NewSessions,
 			func(config cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(config.AppEnv)
 			},
 			func(config cfg.Config) events.EventsClient {
 				return clients.NewEvents(config.AppEnv)
 			},
+		),
+		// app itself
+		fx.Provide(
+			auth.NewSessions,
 			minio.New,
 			twitchcache.New,
 			commandscache.New,
