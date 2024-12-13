@@ -27,7 +27,10 @@ import (
 )
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(
+	ctx context.Context,
+	obj *gqlmodel.CommandResponse,
+) ([]gqlmodel.TwitchCategory, error) {
 	var categories []gqlmodel.TwitchCategory
 
 	for _, id := range obj.TwitchCategoriesIds {
@@ -54,7 +57,10 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 }
 
 // CommandsCreate is the resolver for the commandsCreate field
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -83,10 +89,9 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		return nil, err
 	}
 
-	aliases := []string{}
+	aliases := make([]string, 0, len(opts.Aliases))
 	for _, alias := range opts.Aliases {
 		a := strings.TrimSuffix(strings.ToLower(alias), "!")
-		a = strings.ReplaceAll(a, " ", "")
 		if a != "" {
 			aliases = append(aliases, a)
 		}
@@ -173,7 +178,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -194,8 +203,6 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 			return false, err
 		}
 	}
-
-	aliases := []string{}
 
 	if opts.Aliases.IsSet() {
 		if err := r.checkIsCommandWithNameOrAliaseExists(
@@ -246,9 +253,9 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 	}
 
 	if opts.Aliases.IsSet() {
+		aliases := make([]string, 0, len(opts.Aliases.Value()))
 		for _, alias := range opts.Aliases.Value() {
 			a := strings.TrimSuffix(strings.ToLower(alias), "!")
-			a = strings.ReplaceAll(a, " ", "")
 			if a != "" {
 				aliases = append(aliases, a)
 			}
@@ -528,7 +535,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}
