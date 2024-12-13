@@ -11,10 +11,11 @@ import (
 	"github.com/lib/pq"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
 
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
@@ -30,7 +31,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 	message := msg.Message.Text
 	var messagesForSend []string
 
-	matchedKeywords := make([]model.ChannelsKeywords, 0, len(keywords))
+	matchedKeywords := make([]model.Keyword, 0, len(keywords))
 
 	timesInMessage := map[string]int{}
 
@@ -52,19 +53,22 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 			if !regx.MatchString(message) {
 				continue
 			} else {
-				timesInMessage[k.ID] = len(regx.FindAllStringSubmatch(message, -1))
+				timesInMessage[k.ID.String()] = len(regx.FindAllStringSubmatch(message, -1))
 			}
 		} else {
 			if !strings.Contains(strings.ToLower(message), strings.ToLower(k.Text)) {
 				continue
 			} else {
-				timesInMessage[k.ID] = strings.Count(strings.ToLower(message), strings.ToLower(k.Text))
+				timesInMessage[k.ID.String()] = strings.Count(
+					strings.ToLower(message),
+					strings.ToLower(k.Text),
+				)
 			}
 		}
 
 		isOnCooldown := false
-		if k.Cooldown != 0 && k.CooldownExpireAt.Valid {
-			isOnCooldown = k.CooldownExpireAt.Time.After(time.Now().UTC())
+		if k.Cooldown != 0 && k.CooldownExpireAt != nil {
+			isOnCooldown = k.CooldownExpireAt.After(time.Now().UTC())
 		}
 
 		if isOnCooldown {
@@ -86,7 +90,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 				ReplyParentMessageID: lo.If(k.IsReply, msg.MessageId).Else(""),
 			},
 		)
-		c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID])
+		c.keywordsIncrementStats(ctx, k, timesInMessage[k.ID.String()])
 		c.keywordsTriggerAlert(ctx, k)
 	}
 
@@ -95,7 +99,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 
 func (c *MessageHandler) keywordsIncrementStats(
 	ctx context.Context,
-	keyword model.ChannelsKeywords,
+	keyword model.Keyword,
 	count int,
 ) {
 	query := make(map[string]any)
@@ -124,14 +128,16 @@ func (c *MessageHandler) keywordsIncrementStats(
 }
 
 func (c *MessageHandler) keywordsTriggerEvent(
-	ctx context.Context, msg handleMessage,
-	keyword model.ChannelsKeywords, response string,
+	ctx context.Context,
+	msg handleMessage,
+	keyword model.Keyword,
+	response string,
 ) {
 	_, err := c.eventsGrpc.KeywordMatched(
 		ctx,
 		&events.KeywordMatchedMessage{
 			BaseInfo:        &events.BaseInfo{ChannelId: msg.BroadcasterUserId},
-			KeywordId:       keyword.ID,
+			KeywordId:       keyword.ID.String(),
 			KeywordName:     keyword.Text,
 			KeywordResponse: response,
 			UserId:          msg.ChatterUserId,
@@ -152,7 +158,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
 	msg handleMessage,
-	keyword model.ChannelsKeywords,
+	keyword model.Keyword,
 ) string {
 	if keyword.Response == "" {
 		return ""
@@ -181,13 +187,13 @@ func (c *MessageHandler) keywordsParseResponse(
 
 func (c *MessageHandler) keywordsTriggerAlert(
 	ctx context.Context,
-	keyword model.ChannelsKeywords,
+	keyword model.Keyword,
 ) {
-	alert := model.ChannelAlert{}
+	alert := deprecatedgormmodel.ChannelAlert{}
 	if err := c.gorm.WithContext(ctx).Where(
 		"channel_id = ? AND keywords_ids && ?",
 		keyword.ChannelID,
-		pq.StringArray{keyword.ID},
+		pq.StringArray{keyword.ID.String()},
 	).Find(&alert).Error; err != nil {
 		c.logger.Error(
 			"cannot get alert",
