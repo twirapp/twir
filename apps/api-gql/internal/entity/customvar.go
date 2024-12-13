@@ -1,4 +1,4 @@
-package model
+package entity
 
 import (
 	"github.com/google/uuid"
@@ -12,7 +12,7 @@ const (
 	CustomVarNumber CustomVarType = "NUMBER"
 )
 
-type Variable struct {
+type CustomVariable struct {
 	ID          uuid.UUID
 	ChannelID   string
 	Name        string
@@ -22,4 +22,4 @@ type Variable struct {
 	Response    string
 }
 
-var Nil = Variable{}
+var CustomVarNil = CustomVariable{}

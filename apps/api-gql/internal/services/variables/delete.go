@@ -3,36 +3,42 @@ package variables
 import (
 	"context"
 
-	dbmodels "github.com/satont/twir/libs/gomodels"
+	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) error {
-	entity := dbmodels.ChannelsCustomvars{}
-	if err := c.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ? AND id = ?`, channelID, id).
-		First(&entity).Error; err != nil {
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
 		return err
 	}
 
-	if err := c.gorm.
-		WithContext(ctx).
-		Delete(&entity).Error; err != nil {
+	variable, err := c.variablesRepository.GetByID(ctx, parsedID)
+	if err != nil {
+		return err
+	}
+
+	if variable.ChannelID != channelID {
+		return ErrNotFound
+	}
+
+	err = c.variablesRepository.Delete(ctx, parsedID)
+	if err != nil {
 		return err
 	}
 
 	c.logger.Audit(
 		"Variable delete",
 		audit.Fields{
-			OldValue:      entity,
+			OldValue:      variable,
 			ActorID:       &actorID,
 			ChannelID:     &channelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationDelete,
-			ObjectID:      &entity.ID,
+			ObjectID:      lo.ToPtr(variable.ID.String()),
 		},
 	)
 

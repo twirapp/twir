@@ -2,10 +2,10 @@ package mappers
 
 import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func VariableModelToGql(variable model.Variable) gqlmodel.Variable {
+func VariableModelToGql(variable entity.CustomVariable) gqlmodel.Variable {
 	return gqlmodel.Variable{
 		ID:          variable.ID.String(),
 		Name:        variable.Name,

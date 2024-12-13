@@ -2,16 +2,16 @@ package variables
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/variables/model"
-
-	dbmodels "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
 
 type CreateInput struct {
@@ -20,41 +20,47 @@ type CreateInput struct {
 
 	Name        string
 	Description *string
-	Type        model.CustomVarType
+	Type        entity.CustomVarType
 	EvalValue   string
 	Response    string
 }
 
-func (c *Service) Create(ctx context.Context, data CreateInput) (model.Variable, error) {
-	// TODO: write repository
-	entity := dbmodels.ChannelsCustomvars{
-		ID:          uuid.NewString(),
-		Name:        data.Name,
-		Description: null.StringFromPtr(data.Description),
-		Type:        dbmodels.CustomVarType(data.Type),
-		EvalValue:   data.EvalValue,
-		Response:    data.Response,
-		ChannelID:   data.ChannelID,
+func (c *Service) Create(ctx context.Context, data CreateInput) (entity.CustomVariable, error) {
+	createdCount, err := c.variablesRepository.CountByChannelID(ctx, data.ChannelID)
+	if err != nil {
+		return entity.CustomVarNil, err
 	}
 
-	if err := c.gorm.
-		WithContext(ctx).
-		Create(&entity).Error; err != nil {
-		return model.Nil, err
+	if createdCount >= MaxPerChannel {
+		return entity.CustomVarNil, fmt.Errorf("you can have only %v variables", MaxPerChannel)
+	}
+
+	variable, err := c.variablesRepository.Create(
+		ctx, variablesrepository.CreateInput{
+			ChannelID:   data.ChannelID,
+			Name:        data.Name,
+			Description: null.StringFromPtr(data.Description),
+			Type:        model.CustomVarType(data.Type),
+			EvalValue:   data.EvalValue,
+			Response:    data.Response,
+		},
+	)
+	if err != nil {
+		return entity.CustomVarNil, err
 	}
 
 	c.logger.Audit(
 		"Variable create",
 		audit.Fields{
 			OldValue:      nil,
-			NewValue:      entity,
+			NewValue:      variable,
 			ActorID:       &data.ActorID,
 			ChannelID:     &data.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelVariable),
 			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(entity.ID),
+			ObjectID:      lo.ToPtr(variable.ID.String()),
 		},
 	)
 
-	return c.dbToModel(entity), nil
+	return c.dbToModel(variable), nil
 }

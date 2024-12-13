@@ -5,10 +5,7 @@ import { onMounted, ref, toRaw } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import {
-	formSchema,
-	useCommandEditV2,
-} from './composables/use-command-edit-v2'
+import { formSchema, useCommandEditV2 } from './composables/use-command-edit-v2'
 
 import { Button } from '@/components/ui/button'
 import FormConditions from '@/features/commands/ui/form/form-conditions.vue'
@@ -79,7 +76,7 @@ const onSubmit = handleSubmit(submit)
 
 <template>
 	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
-		<PageLayout stickyHeader show-back>
+		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/commands/custom">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
 				<span v-else>Edit "{{ title }}"</span>
@@ -87,7 +84,7 @@ const onSubmit = handleSubmit(submit)
 
 			<template #action>
 				<Button type="submit" :loading="loading">
-					{{ t("sharedButtons.save") }}
+					{{ t('sharedButtons.save') }}
 				</Button>
 			</template>
 

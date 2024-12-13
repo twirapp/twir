@@ -5,25 +5,25 @@ import (
 
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	dashboardmodel "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-var dashboardEventsTypeMap = map[dashboardmodel.EventType]gqlmodel.DashboardEventType{
-	dashboardmodel.TypeDonation:                   gqlmodel.DashboardEventTypeDonation,
-	dashboardmodel.TypeFollow:                     gqlmodel.DashboardEventTypeFollow,
-	dashboardmodel.TypeRaided:                     gqlmodel.DashboardEventTypeRaided,
-	dashboardmodel.TypeSubscribe:                  gqlmodel.DashboardEventTypeSubscribe,
-	dashboardmodel.TypeReSubscribe:                gqlmodel.DashboardEventTypeResubscribe,
-	dashboardmodel.TypeSubGift:                    gqlmodel.DashboardEventTypeSubgift,
-	dashboardmodel.TypeFirstUserMessage:           gqlmodel.DashboardEventTypeFirstUserMessage,
-	dashboardmodel.TypeChatClear:                  gqlmodel.DashboardEventTypeChatClear,
-	dashboardmodel.TypeRedemptionCreated:          gqlmodel.DashboardEventTypeRedemptionCreated,
-	dashboardmodel.TypeChannelBan:                 gqlmodel.DashboardEventTypeChannelBan,
-	dashboardmodel.TypeChannelUnbanRequestCreate:  gqlmodel.DashboardEventTypeChannelUnbanRequestCreate,
-	dashboardmodel.TypeChannelUnbanRequestResolve: gqlmodel.DashboardEventTypeChannelUnbanRequestResolve,
+var dashboardEventsTypeMap = map[entity.DashboardWidgetEventType]gqlmodel.DashboardEventType{
+	entity.TypeDonation:                   gqlmodel.DashboardEventTypeDonation,
+	entity.TypeFollow:                     gqlmodel.DashboardEventTypeFollow,
+	entity.TypeRaided:                     gqlmodel.DashboardEventTypeRaided,
+	entity.TypeSubscribe:                  gqlmodel.DashboardEventTypeSubscribe,
+	entity.TypeReSubscribe:                gqlmodel.DashboardEventTypeResubscribe,
+	entity.TypeSubGift:                    gqlmodel.DashboardEventTypeSubgift,
+	entity.TypeFirstUserMessage:           gqlmodel.DashboardEventTypeFirstUserMessage,
+	entity.TypeChatClear:                  gqlmodel.DashboardEventTypeChatClear,
+	entity.TypeRedemptionCreated:          gqlmodel.DashboardEventTypeRedemptionCreated,
+	entity.TypeChannelBan:                 gqlmodel.DashboardEventTypeChannelBan,
+	entity.TypeChannelUnbanRequestCreate:  gqlmodel.DashboardEventTypeChannelUnbanRequestCreate,
+	entity.TypeChannelUnbanRequestResolve: gqlmodel.DashboardEventTypeChannelUnbanRequestResolve,
 }
 
-func DashboardEventsTypeToGql(t dashboardmodel.EventType) (
+func DashboardEventsTypeToGql(t entity.DashboardWidgetEventType) (
 	gqlmodel.DashboardEventType,
 	error,
 ) {
@@ -35,7 +35,7 @@ func DashboardEventsTypeToGql(t dashboardmodel.EventType) (
 }
 
 func DashboardEventsTypeToDb(t gqlmodel.DashboardEventType) (
-	dashboardmodel.EventType,
+	entity.DashboardWidgetEventType,
 	error,
 ) {
 	for k, v := range dashboardEventsTypeMap {
@@ -47,7 +47,7 @@ func DashboardEventsTypeToDb(t gqlmodel.DashboardEventType) (
 	return "", fmt.Errorf("unknown dashboard event type: %v", t)
 }
 
-func DashboardEventsDbToGql(e dashboardmodel.Event) (gqlmodel.DashboardEventPayload, error) {
+func DashboardEventsDbToGql(e entity.DashboardWidgetEvent) (gqlmodel.DashboardEventPayload, error) {
 	t, err := DashboardEventsTypeToGql(e.Type)
 	if err != nil {
 		return gqlmodel.DashboardEventPayload{}, err

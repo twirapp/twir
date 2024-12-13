@@ -34,4 +34,5 @@ use (
 	./libs/types
 	./libs/uptrace
 	./libs/utils
+	./libs/repositories
 )

@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -26,6 +27,12 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
+	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
 )
 
 func main() {
@@ -35,18 +42,35 @@ func main() {
 				AppName: "api-gql",
 			},
 		),
+		// services
 		fx.Provide(
 			dashboard_widget_events.New,
 			variables.New,
+			timers.New,
 		),
+		// repositories
 		fx.Provide(
-			auth.NewSessions,
+			fx.Annotate(
+				timersrepositorypgx.NewFx,
+				fx.As(new(timersrepository.Repository)),
+			),
+			fx.Annotate(
+				variablespgx.NewFx,
+				fx.As(new(variablesrepository.Repository)),
+			),
+		),
+		// grpc clients
+		fx.Provide(
 			func(config cfg.Config) tokens.TokensClient {
 				return clients.NewTokens(config.AppEnv)
 			},
 			func(config cfg.Config) events.EventsClient {
 				return clients.NewEvents(config.AppEnv)
 			},
+		),
+		// app itself
+		fx.Provide(
+			auth.NewSessions,
 			minio.New,
 			twitchcache.New,
 			commandscache.New,
