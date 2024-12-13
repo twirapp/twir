@@ -12,7 +12,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 )
 
-// TimersCreate is the resolver for the timersCreate field
+// TimersCreate is the resolver for the timersCreate field.
 func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {

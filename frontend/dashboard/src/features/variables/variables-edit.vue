@@ -115,7 +115,7 @@ async function executeScript() {
 
 <template>
 	<form :class="{ 'blur-sm': loading }" @submit="onSubmit">
-		<PageLayout stickyHeader show-back>
+		<PageLayout stickyHeader show-back back-redirect-to="/dashboard/variables">
 			<template #title>
 				<span v-if="route.params.id === 'create'">Create</span>
 				<span v-else>Edit "{{ title }}"</span>
@@ -123,7 +123,7 @@ async function executeScript() {
 
 			<template #action>
 				<Button type="submit" :loading="loading">
-					{{ t("sharedButtons.save") }}
+					{{ t('sharedButtons.save') }}
 				</Button>
 			</template>
 
@@ -163,7 +163,10 @@ async function executeScript() {
 						</FormItem>
 					</FormField>
 
-					<FormField v-if="values.type !== VariableType.Script" v-slot="{ componentField }" name="response">
+					<FormField
+						v-if="values.type !== VariableType.Script" v-slot="{ componentField }"
+						name="response"
+					>
 						<FormItem>
 							<FormLabel>{{ t('sharedTexts.response') }}</FormLabel>
 							<FormControl>
@@ -186,7 +189,10 @@ async function executeScript() {
 						</div>
 						<div class="flex flex-col gap-2">
 							<Label for="testFromUserName">Test as specific viewer</Label>
-							<Input id="testFromUserName" v-model:model-value="testFromUserName" placeholder="Enter username from which perspective script will run" />
+							<Input
+								id="testFromUserName" v-model:model-value="testFromUserName"
+								placeholder="Enter username from which perspective script will run"
+							/>
 						</div>
 
 						<Alert>
@@ -194,7 +200,9 @@ async function executeScript() {
 							<AlertTitle>Heads up!</AlertTitle>
 							<AlertDescription class="flex flex-col justify-start items-start gap-2">
 								<span>
-									You can use variables as you doing it in commands, like <code class="text-teal-200">$(user.followage)</code>.
+									You can use variables as you doing it in commands, like <code
+										class="text-teal-200"
+									>$(user.followage)</code>.
 									They will be parsed and evaluated.
 									But you must enclose them in quotes for proper usage!
 								</span>

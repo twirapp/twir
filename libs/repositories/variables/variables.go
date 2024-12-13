@@ -2,14 +2,11 @@ package variables
 
 import (
 	"context"
-	"errors"
 
 	"github.com/google/uuid"
 	"github.com/guregu/null"
 	"github.com/twirapp/twir/libs/repositories/variables/model"
 )
-
-var ErrNotFound = errors.New("variable not found")
 
 type Repository interface {
 	GetAllByChannelID(ctx context.Context, channelID string) ([]model.CustomVariable, error)

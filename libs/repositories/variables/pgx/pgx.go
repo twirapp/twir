@@ -16,11 +16,17 @@ type Opts struct {
 }
 
 func New(opts Opts) *Pgx {
-	return &Pgx{}
+	return &Pgx{
+		pool: opts.Pgx,
+	}
 }
 
 func NewFx(pgxpool *pgxpool.Pool) *Pgx {
-	return New(Opts{Pgx: pgxpool})
+	return New(
+		Opts{
+			Pgx: pgxpool,
+		},
+	)
 }
 
 var _ variables.Repository = (*Pgx)(nil)
@@ -134,7 +140,7 @@ func (c *Pgx) Update(
 	}
 
 	if input.EvalValue != nil {
-		updateBuilder = updateBuilder.Set("evalValue", *input.EvalValue)
+		updateBuilder = updateBuilder.Set(`"evalValue"`, *input.EvalValue)
 	}
 
 	if input.Name != nil {
@@ -175,7 +181,7 @@ WHERE id = $1
 		return err
 	}
 
-	if rows.RowsAffected() == 0 {
+	if rows.RowsAffected() != 1 {
 		return variables.ErrNotFound
 	}
 

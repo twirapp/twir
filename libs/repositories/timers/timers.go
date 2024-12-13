@@ -2,12 +2,9 @@ package timers
 
 import (
 	"context"
-	"errors"
 
 	"github.com/twirapp/twir/libs/repositories/timers/model"
 )
-
-var ErrTimerNotFound = errors.New("timer not found")
 
 type Repository interface {
 	GetByID(ctx context.Context, id string) (model.Timer, error)

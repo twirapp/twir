@@ -70,7 +70,7 @@ const responsesHasError = computed(() => {
 	<form
 		@submit="onSubmit"
 	>
-		<PageLayout sticky-header show-back>
+		<PageLayout sticky-header show-back backRedirectTo="/dashboard/timers">
 			<template #title>
 				{{ route.params.id === 'create' ? t('sharedTexts.create') : t('sharedTexts.edit') }}
 			</template>
@@ -146,7 +146,9 @@ const responsesHasError = computed(() => {
 										<div class="relative flex items-center">
 											<FormControl>
 												<div class="w-full">
-													<div class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle">
+													<div
+														class="absolute flex left-0 rounded-l-md h-full bg-accent w-4 cursor-move drag-handle"
+													>
 														<GripVertical class="my-auto size-6" />
 													</div>
 													<VariableInput

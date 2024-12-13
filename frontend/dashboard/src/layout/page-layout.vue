@@ -29,6 +29,7 @@ export interface PageLayoutProps {
 	stickyHeader?: boolean
 	showBack?: boolean
 	cleanBody?: boolean
+	backRedirectTo?: string
 }
 
 export interface PageLayoutTab {
@@ -62,6 +63,11 @@ function onChangeTab(tab: StringOrNumber, replace = false): void {
 }
 
 function back() {
+	if (props.backRedirectTo) {
+		router.push(props.backRedirectTo)
+		return
+	}
+
 	router.back()
 }
 
@@ -138,7 +144,10 @@ watch(y, (value) => {
 
 		<div :class="{ 'container': !cleanBody, 'py-8': !cleanBody }">
 			<template v-if="activeTab">
-				<TabsContent v-for="tab of props.tabs" :key="tab.name" :value="tab.name" class="outline-none">
+				<TabsContent
+					v-for="tab of props.tabs" :key="tab.name" :value="tab.name"
+					class="outline-none"
+				>
 					<component :is="tab.component" />
 				</TabsContent>
 			</template>

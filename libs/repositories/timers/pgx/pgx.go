@@ -1,11 +1,12 @@
 package pgx
 
 import (
+	"cmp"
 	"context"
+	"slices"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/timers"
 	"github.com/twirapp/twir/libs/repositories/timers/model"
@@ -38,24 +39,42 @@ type Pgx struct {
 
 func (c *Pgx) GetByID(ctx context.Context, id string) (model.Timer, error) {
 	query := `
-SELECT
-    t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-    (select array_agg(row(id, text, "isAnnounce") order by r.id) from channels_timers_responses r where r."timerId" = t.id) responses
-FROM
-    "channels_timers" t
+SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id
+FROM "channels_timers" t
+LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
 WHERE
-   "channelId" = $1
-ORDER BY "id";
+   t."id" = $1
+ORDER BY t.id;
 `
 	rows, err := c.pool.Query(ctx, query, id)
 	if err != nil {
 		return model.Nil, err
 	}
 
-	timer, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[model.Timer])
-	if err != nil {
-		return model.Nil, err
+	defer rows.Close()
+
+	var timer model.Timer
+	for rows.Next() {
+		var response model.Response
+		if err := rows.Scan(
+			&timer.ID,
+			&timer.ChannelID,
+			&timer.Name,
+			&timer.Enabled,
+			&timer.TimeInterval,
+			&timer.MessageInterval,
+			&timer.LastTriggerMessageNumber,
+			&response.ID,
+			&response.Text,
+			&response.IsAnnounce,
+			&response.TimerID,
+		); err != nil {
+			return model.Nil, err
+		}
+		timer.Responses = append(timer.Responses, response)
 	}
+
 	return timer, nil
 }
 
@@ -140,81 +159,58 @@ RETURNING "id", "text", "isAnnounce", "timerId"
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Timer, error) {
 	query := `
-SELECT
-    t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-    (select array_agg(row(id, text, "isAnnounce") order by r.id) from channels_timers_responses r where r."timerId" = t.id) responses
-FROM
-    "channels_timers" t
-WHERE
-   "channelId" = $1
-ORDER BY "id";
+SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
+			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id
+FROM "channels_timers" t
+LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
+WHERE t."channelId" = $1
+ORDER BY t."id";
 `
+
 	rows, err := c.pool.Query(ctx, query, channelID)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	models, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.Timer])
-	if err != nil {
-		return nil, err
+	var timersMap = make(map[uuid.UUID]*model.Timer)
+	for rows.Next() {
+		var timer model.Timer
+		var response model.Response
+		if err := rows.Scan(
+			&timer.ID,
+			&timer.ChannelID,
+			&timer.Name,
+			&timer.Enabled,
+			&timer.TimeInterval,
+			&timer.MessageInterval,
+			&timer.LastTriggerMessageNumber,
+			&response.ID,
+			&response.Text,
+			&response.IsAnnounce,
+			&response.TimerID,
+		); err != nil {
+			return nil, err
+		}
+		if _, ok := timersMap[timer.ID]; !ok {
+			timersMap[timer.ID] = &timer
+		}
+		timersMap[timer.ID].Responses = append(timersMap[timer.ID].Responses, response)
 	}
-	return models, nil
-}
 
-// func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Timer, error) {
-// 	query := `
-// SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
-// 			 r."id", r."text", r."isAnnounce", r."timerId"
-// FROM "channels_timers" t
-// LEFT JOIN "channels_timers_responses" r ON t."id" = r."timerId"
-// WHERE t."channelId" = $1
-// ORDER BY t."id";
-// `
-//
-// 	rows, err := c.pool.Query(ctx, query, channelID)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-//
-// 	var timersMap = make(map[uuid.UUID]*model.Timer)
-// 	for rows.Next() {
-// 		var timer model.Timer
-// 		var response model.Response
-// 		if err := rows.Scan(
-// 			&timer.ID,
-// 			&timer.ChannelID,
-// 			&timer.Name,
-// 			&timer.Enabled,
-// 			&timer.TimeInterval,
-// 			&timer.MessageInterval,
-// 			&timer.LastTriggerMessageNumber,
-// 			&response.ID,
-// 			&response.Text,
-// 			&response.IsAnnounce,
-// 			&response.TimerID,
-// 		); err != nil {
-// 			return nil, err
-// 		}
-// 		if _, ok := timersMap[timer.ID]; !ok {
-// 			timersMap[timer.ID] = &timer
-// 		}
-// 		timersMap[timer.ID].Responses = append(timersMap[timer.ID].Responses, response)
-// 	}
-//
-// 	var timers []model.Timer
-// 	for _, timer := range timersMap {
-// 		timers = append(timers, *timer)
-// 	}
-//
-// 	slices.SortFunc(
-// 		timers, func(i, j model.Timer) int {
-// 			return cmp.Compare(i.ID.String(), j.ID.String())
-// 		},
-// 	)
-//
-// 	return timers, nil
-// }
+	result := make([]model.Timer, 0, len(timersMap))
+	for _, timer := range timersMap {
+		result = append(result, *timer)
+	}
+
+	slices.SortFunc(
+		result, func(i, j model.Timer) int {
+			return cmp.Compare(i.ID.String(), j.ID.String())
+		},
+	)
+
+	return result, nil
+}
 
 func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput) (
 	model.Timer,
@@ -231,11 +227,11 @@ func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput
 	}
 
 	if data.TimeInterval != nil {
-		updateBuilder = updateBuilder.Set("timeInterval", *data.TimeInterval)
+		updateBuilder = updateBuilder.Set(`"timeInterval"`, *data.TimeInterval)
 	}
 
 	if data.MessageInterval != nil {
-		updateBuilder = updateBuilder.Set("messageInterval", *data.MessageInterval)
+		updateBuilder = updateBuilder.Set(`"messageInterval"`, *data.MessageInterval)
 	}
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
@@ -293,7 +289,7 @@ func (c *Pgx) Delete(ctx context.Context, id string) error {
 		return err
 	}
 
-	if rows.RowsAffected() == 0 {
+	if rows.RowsAffected() != 1 {
 		return timers.ErrTimerNotFound
 	}
 

@@ -15,7 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 )
 
-// VariablesCreate is the resolver for the variablesCreate field.
+// VariablesCreate is the resolver for the variablesCreate field
 func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
