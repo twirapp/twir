@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -33,6 +34,9 @@ import (
 
 	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
 	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
+
+	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
+	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 )
 
 func main() {
@@ -47,6 +51,7 @@ func main() {
 			dashboard_widget_events.New,
 			variables.New,
 			timers.New,
+			keywords.New,
 		),
 		// repositories
 		fx.Provide(
@@ -57,6 +62,10 @@ func main() {
 			fx.Annotate(
 				variablespgx.NewFx,
 				fx.As(new(variablesrepository.Repository)),
+			),
+			fx.Annotate(
+				keywordsrepositorypgx.NewFx,
+				fx.As(new(keywordsrepository.Repository)),
 			),
 		),
 		// grpc clients

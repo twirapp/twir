@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -50,6 +51,7 @@ type Resolver struct {
 	dashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
 	variablesService             *variables.Service
 	timersService                *timers.Service
+	keywordsService              *keywords.Service
 }
 
 type Opts struct {
@@ -73,6 +75,7 @@ type Opts struct {
 	DashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
 	VariablesService             *variables.Service
 	TimersService                *timers.Service
+	KeywordService               *keywords.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -100,6 +103,7 @@ func New(opts Opts) (*Resolver, error) {
 		dashboardWidgetEventsService: opts.DashboardWidgetEventsService,
 		variablesService:             opts.VariablesService,
 		timersService:                opts.TimersService,
+		keywordsService:              opts.KeywordService,
 	}, nil
 }
 

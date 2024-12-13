@@ -8,14 +8,13 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/google/uuid"
-	"github.com/guregu/null"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 )
 
 // KeywordCreate is the resolver for the keywordCreate field.
@@ -30,73 +29,43 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		return nil, err
 	}
 
-	entity := model.ChannelsKeywords{
-		ID:               uuid.NewString(),
-		ChannelID:        dashboardId,
-		Text:             opts.Text,
-		Response:         "",
-		Enabled:          true,
-		Cooldown:         0,
-		CooldownExpireAt: null.Time{},
-		IsReply:          true,
-		IsRegular:        false,
-		Usages:           0,
+	input := keywords.CreateInput{
+		ChannelID: dashboardId,
+		ActorID:   user.ID,
+		Text:      opts.Text,
 	}
 
 	if opts.Response.IsSet() && opts.Response.Value() != nil {
-		entity.Response = *opts.Response.Value()
+		input.Response = *opts.Response.Value()
 	}
 
 	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
+		input.Enabled = *opts.Enabled.Value()
 	}
 
 	if opts.Cooldown.IsSet() {
-		entity.Cooldown = *opts.Cooldown.Value()
+		input.Cooldown = *opts.Cooldown.Value()
 	}
 
 	if opts.IsReply.IsSet() {
-		entity.IsReply = *opts.IsReply.Value()
+		input.IsReply = *opts.IsReply.Value()
 	}
 
 	if opts.IsRegularExpression.IsSet() {
-		entity.IsRegular = *opts.IsRegularExpression.Value()
+		input.IsRegular = *opts.IsRegularExpression.Value()
 	}
 
 	if opts.UsageCount.IsSet() {
-		entity.Usages = *opts.UsageCount.Value()
+		input.Usages = *opts.UsageCount.Value()
 	}
 
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+	k, err := r.keywordsService.Create(ctx, input)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate keywords cache", err)
-	}
-
-	r.logger.Audit(
-		"Keywords create",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationCreate,
-			ObjectID:      &entity.ID,
-		},
-	)
-
-	return &gqlmodel.Keyword{
-		ID:                  entity.ID,
-		Text:                entity.Text,
-		Response:            &entity.Response,
-		Enabled:             entity.Enabled,
-		Cooldown:            entity.Cooldown,
-		IsReply:             entity.IsReply,
-		IsRegularExpression: entity.IsRegular,
-		UsageCount:          entity.Usages,
-	}, nil
+	converted := mappers.KeywordsFrom(k)
+	return &converted, nil
 }
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
@@ -234,30 +203,15 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 		return nil, err
 	}
 
-	var entities []model.ChannelsKeywords
-	if err := r.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
-		Order("id ASC").
-		Find(&entities).Error; err != nil {
+	keywords, err := r.keywordsService.GetAllByChannelID(ctx, dashboardId)
+	if err != nil {
 		return nil, err
 	}
 
-	var keywords []gqlmodel.Keyword
-	for _, entity := range entities {
-		keywords = append(
-			keywords,
-			gqlmodel.Keyword{
-				ID:                  entity.ID,
-				Text:                entity.Text,
-				Response:            &entity.Response,
-				Enabled:             entity.Enabled,
-				Cooldown:            entity.Cooldown,
-				IsReply:             entity.IsReply,
-				IsRegularExpression: entity.IsRegular,
-				UsageCount:          entity.Usages,
-			},
-		)
+	converted := make([]gqlmodel.Keyword, 0, len(keywords))
+	for _, k := range keywords {
+		converted = append(converted, mappers.KeywordsFrom(k))
 	}
 
-	return keywords, nil
+	return converted, nil
 }
