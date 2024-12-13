@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/exaring/otelpgx"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/extra/redisotel/v9"
 	"github.com/redis/go-redis/v9"
@@ -90,6 +91,7 @@ func newPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
 	connConfig.MaxConns = 100
 	connConfig.MinConns = 1
 	connConfig.HealthCheckPeriod = time.Minute
+	connConfig.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
 	pool, err := pgxpool.NewWithConfig(
 		context.Background(),
