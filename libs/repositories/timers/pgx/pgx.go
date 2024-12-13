@@ -255,22 +255,23 @@ func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput
 		return model.Nil, timers.ErrTimerNotFound
 	}
 
-	_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
-	if err != nil {
-		return model.Nil, err
-	}
-
-	for _, r := range data.Responses {
-		_, err := tx.Exec(
-			ctx,
-			`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId") VALUES ($1, $2, $3, $4)`,
-			uuid.New(),
-			r.Text,
-			r.IsAnnounce,
-			id,
-		)
+	if len(data.Responses) > 0 {
+		_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
 		if err != nil {
 			return model.Nil, err
+		}
+		for _, r := range data.Responses {
+			_, err := tx.Exec(
+				ctx,
+				`INSERT INTO "channels_timers_responses" ("id", "text", "isAnnounce", "timerId") VALUES ($1, $2, $3, $4)`,
+				uuid.New(),
+				r.Text,
+				r.IsAnnounce,
+				id,
+			)
+			if err != nil {
+				return model.Nil, err
+			}
 		}
 	}
 
