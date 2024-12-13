@@ -35,6 +35,10 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 	timesInMessage := map[string]int{}
 
 	for _, k := range keywords {
+		if !k.Enabled {
+			continue
+		}
+
 		if k.IsRegular {
 			regx, err := regexp.Compile(k.Text)
 			if err != nil {

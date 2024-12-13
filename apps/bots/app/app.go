@@ -20,6 +20,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
+	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -29,6 +31,10 @@ var App = fx.Module(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
 	fx.Provide(
 		tlds.New,
+		fx.Annotate(
+			keywordsrepositorypgx.NewFx,
+			fx.As(new(keywordsrepository.Repository)),
+		),
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
 		},
