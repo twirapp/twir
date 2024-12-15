@@ -13,6 +13,7 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -51,6 +52,7 @@ type Resolver struct {
 	timersService                *timers.Service
 	keywordsService              *keywords.Service
 	auditLogService              *audit_logs.Service
+	adminActionsService          *admin_actions.Service
 }
 
 type Opts struct {
@@ -74,6 +76,7 @@ type Opts struct {
 	TimersService                *timers.Service
 	KeywordService               *keywords.Service
 	UserAuditLogService          *audit_logs.Service
+	AdminActionsService          *admin_actions.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -101,6 +104,7 @@ func New(opts Opts) (*Resolver, error) {
 		timersService:                opts.TimersService,
 		keywordsService:              opts.KeywordService,
 		auditLogService:              opts.UserAuditLogService,
+		adminActionsService:          opts.AdminActionsService,
 	}, nil
 }
 

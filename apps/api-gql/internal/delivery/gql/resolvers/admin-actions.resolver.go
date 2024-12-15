@@ -8,57 +8,40 @@ import (
 	"context"
 	"fmt"
 
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 )
 
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
 func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error) {
-	keys, err := r.redis.Keys(ctx, "scs:*").Result()
-	if err != nil {
-		return false, fmt.Errorf("failed to get session keys: %w", err)
-	}
-
-	if len(keys) == 0 {
-		return true, nil
-	}
-
-	err = r.redis.Del(ctx, keys...).Err()
-	if err != nil {
-		return false, fmt.Errorf("failed to delete sessions: %w", err)
+	if err := r.adminActionsService.DropAllAuthSessions(ctx); err != nil {
+		return false, err
 	}
 
 	return true, nil
 }
 
 // EventsubSubscribe is the resolver for the eventsubSubscribe field.
-func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
-	var channels []model.Channels
-	if err := r.gorm.
-		WithContext(ctx).
-		Select("id", `"isEnabled"`).
-		Where(`"isEnabled" = ?`, true).
-		Find(&channels).Error; err != nil {
-		return false, fmt.Errorf("failed to get channels: %w", err)
+func (r *mutationResolver) EventsubSubscribe(
+	ctx context.Context,
+	opts gqlmodel.EventsubSubscribeInput,
+) (bool, error) {
+	condition := mappers.ConditionTypeGqlToEntity(opts.Condition)
+	if condition == "" {
+		return false, fmt.Errorf("unknown condition type")
 	}
 
-	condition, err := r.eventSubGqlToCondition(opts.Condition)
+	err := r.adminActionsService.EventSubSubscribe(
+		ctx,
+		admin_actions.EventSubSubscribeInput{
+			Type:      opts.Type,
+			Version:   opts.Version,
+			Condition: condition,
+		},
+	)
 	if err != nil {
-		return false, fmt.Errorf("failed to convert condition: %w", err)
-	}
-
-	for _, channel := range channels {
-		go func() {
-			r.twirBus.EventSub.Subscribe.Publish(
-				eventsub.EventsubSubscribeRequest{
-					ChannelID:     channel.ID,
-					Topic:         opts.Type,
-					ConditionType: condition.String(),
-					Version:       opts.Version,
-				},
-			)
-		}()
+		return false, err
 	}
 
 	return true, nil

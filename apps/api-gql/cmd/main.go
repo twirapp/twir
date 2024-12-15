@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
+	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -38,6 +39,9 @@ import (
 
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 )
 
 func main() {
@@ -54,6 +58,7 @@ func main() {
 			timers.New,
 			keywords.New,
 			audit_logs.New,
+			admin_actions.New,
 		),
 		// repositories
 		fx.Provide(
@@ -68,6 +73,10 @@ func main() {
 			fx.Annotate(
 				keywordsrepositorypgx.NewFx,
 				fx.As(new(keywordsrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsrepositorypgx.NewFx,
+				fx.As(new(channelsrepository.Repository)),
 			),
 		),
 		// grpc clients
