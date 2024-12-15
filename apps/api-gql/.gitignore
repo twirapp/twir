@@ -1,2 +1,2 @@
-internal/gql/graph
-internal/gql/gqlmodel
+internal/delivery/gql/graph
+internal/delivery/gql/gqlmodel
