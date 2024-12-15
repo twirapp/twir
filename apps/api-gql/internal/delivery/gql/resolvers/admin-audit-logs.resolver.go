@@ -6,18 +6,19 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
-	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 )
 
 // User is the resolver for the user field.
-func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -26,7 +27,10 @@ func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAud
 }
 
 // Channel is the resolver for the channel field.
-func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) Channel(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.ChannelID == nil {
 		return nil, nil
 	}
@@ -35,7 +39,10 @@ func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.Admin
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
-func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.AdminAuditLogsInput) (*gqlmodel.AdminAuditLogResponse, error) {
+func (r *queryResolver) AdminAuditLogs(
+	ctx context.Context,
+	input gqlmodel.AdminAuditLogsInput,
+) (*gqlmodel.AdminAuditLogResponse, error) {
 	var page int
 	perPage := 20
 
@@ -47,58 +54,34 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		perPage = *input.PerPage.Value()
 	}
 
-	query := r.gorm.
-		Debug().
-		WithContext(ctx)
+	logsInput := audit_logs.GetManyInput{
+		Limit: perPage,
+		Page:  page,
+	}
 
 	if input.UserID.IsSet() {
-		query = query.Where("user_id = ?", *input.UserID.Value())
+		logsInput.ActorID = input.UserID.Value()
 	}
 
 	if input.ChannelID.IsSet() {
-		query = query.Where("channel_id = ?", *input.ChannelID.Value())
+		logsInput.ChannelID = input.ChannelID.Value()
 	}
 
 	if input.ObjectID.IsSet() {
-		query = query.Where("object_id = ?", *input.ObjectID.Value())
+		logsInput.ObjectID = input.ObjectID.Value()
 	}
 
 	if input.System.IsSet() {
-		mappedSystems := lo.Map(
-			input.System.Value(),
-			func(item gqlmodel.AuditLogSystem, _ int) string {
-				return mappers.AuditSystemToTableName(item)
-			},
-		)
-
-		if len(mappedSystems) != 0 {
-			query = query.Where("table_name IN ?", mappedSystems)
+		systems := make([]string, 0, len(input.System.Value()))
+		for _, s := range input.System.Value() {
+			systems = append(systems, s.String())
 		}
+
+		logsInput.Systems = systems
 	}
 
-	if input.OperationType.IsSet() && len(input.OperationType.Value()) > 0 {
-		mappedOperations := lo.Map(
-			input.OperationType.Value(),
-			func(item gqlmodel.AuditOperationType, _ int) string {
-				return string(mappers.AuditTypeGqlToModel(item))
-			},
-		)
-
-		if len(mappedOperations) != 0 {
-			query = query.Where(
-				"operation_type IN (?)",
-				mappedOperations,
-			)
-		}
-	}
-
-	var logs []model.AuditLog
-	if err := query.
-		Limit(perPage).
-		Offset(page * perPage).
-		Order("created_at DESC").
-		Find(&logs).Error; err != nil {
-		r.logger.Error("error in fetching audit logs", slog.Any("err", err))
+	logs, err := r.auditLogService.GetMany(ctx, logsInput)
+	if err != nil {
 		return nil, err
 	}
 
@@ -108,27 +91,26 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 			gqllogs,
 			gqlmodel.AdminAuditLog{
 				ID:            l.ID,
-				System:        mappers.AuditTableNameToGqlSystem(l.Table),
+				System:        mappers.AuditTableNameToGqlSystem(l.TableName),
 				OperationType: mappers.AuditTypeModelToGql(l.OperationType),
-				OldValue:      l.OldValue.Ptr(),
-				NewValue:      l.NewValue.Ptr(),
-				ObjectID:      l.ObjectID.Ptr(),
-				UserID:        l.UserID.Ptr(),
-				ChannelID:     l.ChannelID.Ptr(),
+				OldValue:      l.OldValue,
+				NewValue:      l.NewValue,
+				ObjectID:      l.ObjectID,
+				UserID:        l.UserID,
+				ChannelID:     l.ChannelID,
 				CreatedAt:     l.CreatedAt,
 			},
 		)
 	}
 
-	var total int64
-	if err := query.Model(&model.AuditLog{}).Count(&total).Error; err != nil {
-		r.logger.Error("error in fetching audit logs count", slog.Any("err", err))
+	total, err := r.auditLogService.Count(ctx, audit_logs.GetCountInput{})
+	if err != nil {
 		return nil, err
 	}
 
 	return &gqlmodel.AdminAuditLogResponse{
 		Logs:  gqllogs,
-		Total: int(total),
+		Total: total,
 	}, nil
 }
 

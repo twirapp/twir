@@ -1,59 +1,44 @@
 package mappers
 
 import (
-	model "github.com/satont/twir/libs/gomodels"
-	pubsubauditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
-	buscoreauditlogs "github.com/twirapp/twir/libs/bus-core/audit-logs"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 )
 
-func AuditLogToGql(auditLog pubsubauditlogs.AuditLog) *gqlmodel.AuditLog {
-	return &gqlmodel.AuditLog{
+func AuditLogToGql(auditLog entity.AuditLog) gqlmodel.AuditLog {
+	return gqlmodel.AuditLog{
 		ID:            auditLog.ID,
-		System:        AuditTableNameToGqlSystem(auditLog.Table),
-		OperationType: AuditLogOperationTypeToGql(auditLog.OperationType),
-		OldValue:      auditLog.OldValue.Ptr(),
-		NewValue:      auditLog.NewValue.Ptr(),
-		ObjectID:      auditLog.ObjectID.Ptr(),
-		UserID:        auditLog.UserID.Ptr(),
+		System:        AuditTableNameToGqlSystem(auditLog.TableName),
+		OperationType: AuditTypeModelToGql(auditLog.OperationType),
+		OldValue:      auditLog.OldValue,
+		NewValue:      auditLog.NewValue,
+		ObjectID:      auditLog.ObjectID,
+		UserID:        auditLog.UserID,
 		CreatedAt:     auditLog.CreatedAt,
 	}
 }
 
-func AuditLogOperationTypeToGql(t buscoreauditlogs.AuditOperationType) gqlmodel.AuditOperationType {
+func AuditTypeModelToGql(t entity.AuditOperationType) gqlmodel.AuditOperationType {
 	switch t {
-	case buscoreauditlogs.AuditOperationTypeUpdate:
+	case entity.AuditOperationUpdate:
 		return gqlmodel.AuditOperationTypeUpdate
-	case buscoreauditlogs.AuditOperationTypeCreate:
+	case entity.AuditOperationCreate:
 		return gqlmodel.AuditOperationTypeCreate
-	case buscoreauditlogs.AuditOperationTypeDelete:
+	case entity.AuditOperationDelete:
 		return gqlmodel.AuditOperationTypeDelete
 	default:
 		return ""
 	}
 }
 
-func AuditTypeModelToGql(t model.AuditOperationType) gqlmodel.AuditOperationType {
-	switch t {
-	case model.AuditOperationUpdate:
-		return gqlmodel.AuditOperationTypeUpdate
-	case model.AuditOperationCreate:
-		return gqlmodel.AuditOperationTypeCreate
-	case model.AuditOperationDelete:
-		return gqlmodel.AuditOperationTypeDelete
-	default:
-		return ""
-	}
-}
-
-func AuditTypeGqlToModel(t gqlmodel.AuditOperationType) model.AuditOperationType {
+func AuditTypeGqlToModel(t gqlmodel.AuditOperationType) entity.AuditOperationType {
 	switch t {
 	case gqlmodel.AuditOperationTypeUpdate:
-		return model.AuditOperationUpdate
+		return entity.AuditOperationUpdate
 	case gqlmodel.AuditOperationTypeCreate:
-		return model.AuditOperationCreate
+		return entity.AuditOperationCreate
 	case gqlmodel.AuditOperationTypeDelete:
-		return model.AuditOperationDelete
+		return entity.AuditOperationDelete
 	default:
 		return ""
 	}

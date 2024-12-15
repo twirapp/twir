@@ -10,10 +10,10 @@ import (
 	config "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -44,13 +44,13 @@ type Resolver struct {
 	redis                *redis.Client
 	tokensClient         tokens.TokensClient
 	wsRouter             wsrouter.WsRouter
-	auditLogsPubSub      auditlogs.PubSub
 	twirStats            *twir_stats.TwirStats
 
 	dashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
 	variablesService             *variables.Service
 	timersService                *timers.Service
 	keywordsService              *keywords.Service
+	auditLogService              *audit_logs.Service
 }
 
 type Opts struct {
@@ -67,13 +67,13 @@ type Opts struct {
 	Logger               logger.Logger
 	Redis                *redis.Client
 	WsRouter             wsrouter.WsRouter
-	AuditLogsPubSub      auditlogs.PubSub
 	TwirStats            *twir_stats.TwirStats
 
 	DashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
 	VariablesService             *variables.Service
 	TimersService                *timers.Service
 	KeywordService               *keywords.Service
+	UserAuditLogService          *audit_logs.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -95,12 +95,12 @@ func New(opts Opts) (*Resolver, error) {
 		cachedCommandsClient:         opts.CachedCommandsClient,
 		tokensClient:                 opts.TokensGrpc,
 		wsRouter:                     opts.WsRouter,
-		auditLogsPubSub:              opts.AuditLogsPubSub,
 		twirStats:                    opts.TwirStats,
 		dashboardWidgetEventsService: opts.DashboardWidgetEventsService,
 		variablesService:             opts.VariablesService,
 		timersService:                opts.TimersService,
 		keywordsService:              opts.KeywordService,
+		auditLogService:              opts.UserAuditLogService,
 	}, nil
 }
 

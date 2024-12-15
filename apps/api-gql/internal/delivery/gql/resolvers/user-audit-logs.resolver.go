@@ -6,13 +6,12 @@ package resolvers
 
 import (
 	"context"
-	"log/slog"
 
-	model "github.com/satont/twir/libs/gomodels"
 	dataloader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 )
 
 // User is the resolver for the user field.
@@ -21,18 +20,7 @@ func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*g
 		return nil, nil
 	}
 
-	user, err := dataloader.GetHelixUserById(ctx, *obj.UserID)
-	if err != nil {
-		r.logger.Error(
-			"failed to get helix user for audit log",
-			slog.String("user_id", *obj.UserID),
-			slog.String("audit_log_id", obj.ID.String()),
-		)
-
-		return nil, err
-	}
-
-	return user, nil
+	return dataloader.GetHelixUserById(ctx, *obj.UserID)
 }
 
 // AuditLog is the resolver for the auditLog field.
@@ -42,35 +30,23 @@ func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, erro
 		return nil, err
 	}
 
-	var logs []model.AuditLog
-	if err := r.gorm.
-		WithContext(ctx).
-		Limit(100).
-		Order("created_at DESC").
-		Where("channel_id = ?", dashboardID).
-		Find(&logs).Error; err != nil {
-		r.logger.Error("error in fetching audit logs", slog.Any("err", err))
+	logs, err := r.auditLogService.GetMany(
+		ctx, audit_logs.GetManyInput{
+			ChannelID: &dashboardID,
+			Page:      0,
+			Limit:     100,
+		},
+	)
+	if err != nil {
 		return nil, err
 	}
 
-	gqllogs := make([]gqlmodel.AuditLog, 0, len(logs))
+	result := make([]gqlmodel.AuditLog, 0, len(logs))
 	for _, l := range logs {
-		gqllogs = append(
-			gqllogs,
-			gqlmodel.AuditLog{
-				ID:            l.ID,
-				System:        mappers.AuditTableNameToGqlSystem(l.Table),
-				OperationType: mappers.AuditTypeModelToGql(l.OperationType),
-				OldValue:      l.OldValue.Ptr(),
-				NewValue:      l.NewValue.Ptr(),
-				ObjectID:      l.ObjectID.Ptr(),
-				UserID:        l.UserID.Ptr(),
-				CreatedAt:     l.CreatedAt,
-			},
-		)
+		result = append(result, mappers.AuditLogToGql(l))
 	}
 
-	return gqllogs, nil
+	return result, nil
 }
 
 // AuditLog is the resolver for the auditLog field.
@@ -80,7 +56,7 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 		return nil, err
 	}
 
-	auditLogs, err := r.auditLogsPubSub.Subscribe(ctx, dashboardID)
+	logsChannel, err := r.auditLogService.Subscribe(ctx, dashboardID)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +65,6 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 
 	go func() {
 		defer func() {
-			_ = auditLogs.Close()
 			close(channel)
 		}()
 
@@ -97,8 +72,9 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 			select {
 			case <-ctx.Done():
 				return
-			case auditLog := <-auditLogs.Channel():
-				channel <- mappers.AuditLogToGql(auditLog)
+			case auditLog := <-logsChannel:
+				val := mappers.AuditLogToGql(auditLog)
+				channel <- &val
 			}
 		}
 	}()
