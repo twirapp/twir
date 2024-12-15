@@ -14,7 +14,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
@@ -22,6 +22,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/keywords"
+	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -31,17 +33,18 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger            logger.Logger
-	Gorm              *gorm.DB
-	Redis             *redis.Client
-	TwitchActions     *twitchactions.TwitchActions
-	ParserGrpc        parser.ParserClient
-	WebsocketsGrpc    websockets.WebsocketClient
-	EventsGrpc        events.EventsClient
-	ModerationHelpers *moderationhelpers.ModerationHelpers
-	Config            cfg.Config
-	Bus               *buscore.Bus
-	KeywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	Logger             logger.Logger
+	Gorm               *gorm.DB
+	Redis              *redis.Client
+	TwitchActions      *twitchactions.TwitchActions
+	ParserGrpc         parser.ParserClient
+	WebsocketsGrpc     websockets.WebsocketClient
+	EventsGrpc         events.EventsClient
+	ModerationHelpers  *moderationhelpers.ModerationHelpers
+	Config             cfg.Config
+	Bus                *buscore.Bus
+	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
+	KeywordsRepository keywords.Repository
 }
 
 type MessageHandler struct {
@@ -55,26 +58,29 @@ type MessageHandler struct {
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
 	bus               *buscore.Bus
-	keywordsCacher    *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
+	keywordsCacher    *generic_cacher.GenericCacher[[]model.Keyword]
 	votebanMutex      *redsync.Mutex
+
+	keywordsRepository keywords.Repository
 }
 
 func New(opts Opts) *MessageHandler {
 	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
 
 	handler := &MessageHandler{
-		logger:            opts.Logger,
-		gorm:              opts.Gorm,
-		redis:             opts.Redis,
-		twitchActions:     opts.TwitchActions,
-		parserGrpc:        opts.ParserGrpc,
-		websocketsGrpc:    opts.WebsocketsGrpc,
-		eventsGrpc:        opts.EventsGrpc,
-		moderationHelpers: opts.ModerationHelpers,
-		config:            opts.Config,
-		bus:               opts.Bus,
-		keywordsCacher:    opts.KeywordsCacher,
-		votebanMutex:      votebanLock.NewMutex("bots:voteban_handle_message"),
+		logger:             opts.Logger,
+		gorm:               opts.Gorm,
+		redis:              opts.Redis,
+		twitchActions:      opts.TwitchActions,
+		parserGrpc:         opts.ParserGrpc,
+		websocketsGrpc:     opts.WebsocketsGrpc,
+		eventsGrpc:         opts.EventsGrpc,
+		moderationHelpers:  opts.ModerationHelpers,
+		config:             opts.Config,
+		bus:                opts.Bus,
+		keywordsCacher:     opts.KeywordsCacher,
+		votebanMutex:       votebanLock.NewMutex("bots:voteban_handle_message"),
+		keywordsRepository: opts.KeywordsRepository,
 	}
 
 	return handler
@@ -82,9 +88,9 @@ func New(opts Opts) *MessageHandler {
 
 type handleMessage struct {
 	twitch.TwitchChatMessage
-	DbChannel *model.Channels
-	DbStream  *model.ChannelsStreams
-	DbUser    *model.Users
+	DbChannel *deprecatedgormmodel.Channels
+	DbStream  *deprecatedgormmodel.ChannelsStreams
+	DbUser    *deprecatedgormmodel.Users
 }
 
 var handlersForExecute = []func(
@@ -112,7 +118,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 
 	errwg.Go(
 		func() error {
-			stream := &model.ChannelsStreams{}
+			stream := &deprecatedgormmodel.ChannelsStreams{}
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				`"userId" = ?`,
 				req.BroadcasterUserId,
@@ -130,7 +136,7 @@ func (c *MessageHandler) Handle(ctx context.Context, req twitch.TwitchChatMessag
 
 	errwg.Go(
 		func() error {
-			dbChannel := &model.Channels{}
+			dbChannel := &deprecatedgormmodel.Channels{}
 			if err := c.gorm.WithContext(errWgCtx).Where(
 				"id = ?",
 				req.BroadcasterUserId,
