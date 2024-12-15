@@ -8,7 +8,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/satont/twir/libs/twitch"
@@ -37,12 +37,11 @@ type Resolver struct {
 	gorm                 *gorm.DB
 	twitchClient         *helix.Client
 	cachedTwitchClient   *twitchcahe.CachedTwitchClient
-	cachedCommandsClient *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	cachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
 	minioClient          *minio.Client
 	twirBus              *bus_core.Bus
 	logger               logger.Logger
 	redis                *redis.Client
-	keywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	tokensClient         tokens.TokensClient
 	wsRouter             wsrouter.WsRouter
 	auditLogsPubSub      auditlogs.PubSub
@@ -62,12 +61,11 @@ type Opts struct {
 	Config               config.Config
 	TokensGrpc           tokens.TokensClient
 	CachedTwitchClient   *twitchcahe.CachedTwitchClient
-	CachedCommandsClient *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
 	Minio                *minio.Client
 	TwirBus              *bus_core.Bus
 	Logger               logger.Logger
 	Redis                *redis.Client
-	KeywordsCacher       *generic_cacher.GenericCacher[[]model.ChannelsKeywords]
 	WsRouter             wsrouter.WsRouter
 	AuditLogsPubSub      auditlogs.PubSub
 	TwirStats            *twir_stats.TwirStats
@@ -95,7 +93,6 @@ func New(opts Opts) (*Resolver, error) {
 		logger:                       opts.Logger,
 		redis:                        opts.Redis,
 		cachedCommandsClient:         opts.CachedCommandsClient,
-		keywordsCacher:               opts.KeywordsCacher,
 		tokensClient:                 opts.TokensGrpc,
 		wsRouter:                     opts.WsRouter,
 		auditLogsPubSub:              opts.AuditLogsPubSub,

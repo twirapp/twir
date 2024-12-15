@@ -6,12 +6,7 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/utils"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -80,77 +75,55 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 		return nil, err
 	}
 
-	entity := model.ChannelsKeywords{}
-	if err := r.gorm.WithContext(ctx).
-		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
-		First(&entity).Error; err != nil {
-		return nil, err
-	}
-
-	var entityCopy model.ChannelsKeywords
-	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
-		return nil, err
+	input := keywords.UpdateInput{
+		ChannelID:        dashboardId,
+		ActorID:          user.ID,
+		ID:               id,
+		Text:             nil,
+		Response:         nil,
+		Enabled:          nil,
+		Cooldown:         nil,
+		CooldownExpireAt: nil,
+		IsReply:          nil,
+		IsRegular:        nil,
+		Usages:           nil,
 	}
 
 	if opts.Text.IsSet() {
-		entity.Text = *opts.Text.Value()
+		input.Text = opts.Text.Value()
 	}
 
 	if opts.Response.IsSet() {
-		entity.Response = *opts.Response.Value()
+		input.Response = opts.Response.Value()
 	}
 
 	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
+		input.Enabled = opts.Enabled.Value()
 	}
 
 	if opts.Cooldown.IsSet() {
-		entity.Cooldown = *opts.Cooldown.Value()
+		input.Cooldown = opts.Cooldown.Value()
 	}
 
 	if opts.IsReply.IsSet() {
-		entity.IsReply = *opts.IsReply.Value()
+		input.IsReply = opts.IsReply.Value()
 	}
 
 	if opts.IsRegularExpression.IsSet() {
-		entity.IsRegular = *opts.IsRegularExpression.Value()
+		input.IsRegular = opts.IsRegularExpression.Value()
 	}
 
 	if opts.UsageCount.IsSet() {
-		entity.Usages = *opts.UsageCount.Value()
+		input.Usages = opts.UsageCount.Value()
 	}
 
-	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+	keyword, err := r.keywordsService.Update(ctx, input)
+	if err != nil {
 		return nil, err
 	}
 
-	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate keywords cache", err)
-	}
-
-	r.logger.Audit(
-		"Keywords update",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
-		},
-	)
-
-	return &gqlmodel.Keyword{
-		ID:                  entity.ID,
-		Text:                entity.Text,
-		Response:            &entity.Response,
-		Enabled:             entity.Enabled,
-		Cooldown:            entity.Cooldown,
-		IsReply:             entity.IsReply,
-		IsRegularExpression: entity.IsRegular,
-		UsageCount:          entity.Usages,
-	}, nil
+	converted := mappers.KeywordsFrom(keyword)
+	return &converted, nil
 }
 
 // KeywordRemove is the resolver for the keywordRemove field.
@@ -165,33 +138,9 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, 
 		return false, err
 	}
 
-	keyword := model.ChannelsKeywords{}
-	if err := r.gorm.WithContext(ctx).
-		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
-		First(&keyword).Error; err != nil {
-		return false, fmt.Errorf("keyword not found: %w", err)
-	}
-
-	if err := r.gorm.WithContext(ctx).
-		Delete(&keyword).Error; err != nil {
+	if err := r.keywordsService.Delete(ctx, dashboardId, user.ID, id); err != nil {
 		return false, err
 	}
-
-	if err := r.keywordsCacher.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate keywords cache", err)
-	}
-
-	r.logger.Audit(
-		"Keywords remove",
-		audit.Fields{
-			OldValue:      keyword,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelKeyword),
-			OperationType: audit.OperationDelete,
-			ObjectID:      &keyword.ID,
-		},
-	)
 
 	return true, nil
 }
@@ -203,13 +152,13 @@ func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error
 		return nil, err
 	}
 
-	keywords, err := r.keywordsService.GetAllByChannelID(ctx, dashboardId)
+	channelKeywords, err := r.keywordsService.GetAllByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
 
-	converted := make([]gqlmodel.Keyword, 0, len(keywords))
-	for _, k := range keywords {
+	converted := make([]gqlmodel.Keyword, 0, len(channelKeywords))
+	for _, k := range channelKeywords {
 		converted = append(converted, mappers.KeywordsFrom(k))
 	}
 

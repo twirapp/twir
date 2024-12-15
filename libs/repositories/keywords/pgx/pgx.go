@@ -3,6 +3,7 @@ package pgx
 import (
 	"context"
 
+	"github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,7 +17,7 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pgxpool: opts.PgxPool,
+		pool: opts.PgxPool,
 	}
 }
 
@@ -25,9 +26,10 @@ func NewFx(pgxpool *pgxpool.Pool) *Pgx {
 }
 
 var _ keywords.Repository = (*Pgx)(nil)
+var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
-	pgxpool *pgxpool.Pool
+	pool *pgxpool.Pool
 }
 
 func (c *Pgx) GetAllByChannelID(ctx context.Context, channelID string) ([]model.Keyword, error) {
@@ -37,7 +39,7 @@ FROM channels_keywords
 WHERE "channelId" = $1
 `
 
-	rows, err := c.pgxpool.Query(ctx, query, channelID)
+	rows, err := c.pool.Query(ctx, query, channelID)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +61,7 @@ WHERE "channelId" = $1
 `
 
 	var count int
-	err := c.pgxpool.QueryRow(ctx, query, channelID).Scan(&count)
+	err := c.pool.QueryRow(ctx, query, channelID).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -75,7 +77,7 @@ WHERE id = $1
 LIMIT 1;
 `
 
-	rows, err := c.pgxpool.Query(ctx, query, id)
+	rows, err := c.pool.Query(ctx, query, id)
 	if err != nil {
 		return model.Nil, err
 	}
@@ -96,7 +98,7 @@ VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 RETURNING id, "channelId", text, response, enabled, cooldown, "cooldownExpireAt", "isReply", "isRegular", usages
 `
 
-	rows, err := c.pgxpool.Query(
+	rows, err := c.pool.Query(
 		ctx,
 		query,
 		input.ChannelID,
@@ -127,8 +129,53 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 	model.Keyword,
 	error,
 ) {
-	// TODO implement me
-	panic("implement me")
+	updateBuilder := sq.Update("channels_keywords")
+
+	if input.Text != nil {
+		updateBuilder = updateBuilder.Set("text", *input.Text)
+	}
+
+	if input.Response != nil {
+		updateBuilder = updateBuilder.Set("response", *input.Response)
+	}
+
+	if input.Enabled != nil {
+		updateBuilder = updateBuilder.Set("enabled", *input.Enabled)
+	}
+
+	if input.Cooldown != nil {
+		updateBuilder = updateBuilder.Set("cooldown", *input.Cooldown)
+	}
+
+	if input.CooldownExpireAt != nil {
+		updateBuilder = updateBuilder.Set(`"cooldownExpireAt"`, *input.CooldownExpireAt)
+	}
+
+	if input.IsReply != nil {
+		updateBuilder = updateBuilder.Set(`"isReply"`, *input.IsReply)
+	}
+
+	if input.IsRegular != nil {
+		updateBuilder = updateBuilder.Set(`"isRegular"`, *input.IsRegular)
+	}
+
+	if input.Usages != nil {
+		updateBuilder = updateBuilder.Set("usages", *input.Usages)
+	}
+
+	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.Nil, err
+	}
+
+	_, err = c.pool.Query(ctx, query, args...)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return c.GetByID(ctx, id)
 }
 
 func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
@@ -137,7 +184,7 @@ DELETE FROM channels_keywords
 WHERE id = $1
 `
 
-	rows, err := c.pgxpool.Exec(ctx, query, id)
+	rows, err := c.pool.Exec(ctx, query, id)
 	if err != nil {
 		return err
 	}

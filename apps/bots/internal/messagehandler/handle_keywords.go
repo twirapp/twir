@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
 
@@ -102,22 +103,19 @@ func (c *MessageHandler) keywordsIncrementStats(
 	keyword model.Keyword,
 	count int,
 ) {
-	query := make(map[string]any)
-	query["cooldownExpireAt"] = time.Now().
-		Add(time.Duration(keyword.Cooldown) * time.Second).
-		UTC()
+	input := keywords.UpdateInput{}
 
-	query["usages"] = keyword.Usages + count
+	usages := keyword.Usages + count
+	input.Usages = &usages
+
 	if keyword.Cooldown != 0 {
-		query["cooldownExpireAt"] = time.Now().
+		expires := time.Now().
 			Add(time.Duration(keyword.Cooldown) * time.Second).
 			UTC()
+		input.CooldownExpireAt = &expires
 	}
-	err := c.gorm.WithContext(ctx).Model(&keyword).Where(
-		"id = ?",
-		keyword.ID,
-	).Select("*").Updates(query).
-		Error
+
+	_, err := c.keywordsRepository.Update(ctx, keyword.ID, input)
 	if err != nil {
 		c.logger.Error(
 			"cannot update keyword usages",

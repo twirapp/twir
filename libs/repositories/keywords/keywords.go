@@ -30,7 +30,6 @@ type CreateInput struct {
 }
 
 type UpdateInput struct {
-	ChannelID        *string
 	Text             *string
 	Response         *string
 	Enabled          *bool

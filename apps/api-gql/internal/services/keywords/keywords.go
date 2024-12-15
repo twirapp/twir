@@ -7,8 +7,6 @@ import (
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"go.uber.org/fx"
-
-	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 )
 
 type Opts struct {
@@ -16,7 +14,7 @@ type Opts struct {
 
 	KeywordsRepository keywords.Repository
 	Logger             logger.Logger
-	KeywordsCacher     *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsKeywords]
+	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
 }
 
 func New(opts Opts) *Service {
@@ -32,7 +30,7 @@ const MaxPerChannel = 25
 type Service struct {
 	keywordsRepository keywords.Repository
 	logger             logger.Logger
-	keywordsCacher     *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsKeywords]
+	keywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
 }
 
 func (c *Service) dbToModel(m model.Keyword) entity.Keyword {
