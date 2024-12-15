@@ -9,7 +9,7 @@ import (
 
 type AuditLog struct {
 	ID            uuid.UUID
-	Table         string
+	TableName     string
 	OperationType AuditOperationType
 	OldValue      null.String
 	NewValue      null.String

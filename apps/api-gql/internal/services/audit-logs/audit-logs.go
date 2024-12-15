@@ -1,4 +1,4 @@
-package user_audit_log
+package audit_logs
 
 import (
 	"context"
@@ -32,7 +32,7 @@ type Service struct {
 func modelToEntity(m model.AuditLog) entity.AuditLog {
 	return entity.AuditLog{
 		ID:            m.ID,
-		Table:         m.Table,
+		TableName:     m.TableName,
 		OperationType: entity.AuditOperationType(m.OperationType),
 		OldValue:      m.OldValue.Ptr(),
 		NewValue:      m.NewValue.Ptr(),
@@ -43,11 +43,30 @@ func modelToEntity(m model.AuditLog) entity.AuditLog {
 	}
 }
 
-func (c *Service) GetMany(ctx context.Context, channelID string, limit int) (
+type GetManyInput struct {
+	ChannelID *string
+	ActorID   *string
+	ObjectID  *string
+	Limit     int
+	Page      int
+	Systems   []string
+}
+
+func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 	[]entity.AuditLog,
 	error,
 ) {
-	logs, err := c.auditLogsRepository.GetByChannelID(ctx, channelID, limit)
+	logs, err := c.auditLogsRepository.GetMany(
+		ctx,
+		auditlogsrepository.GetManyInput{
+			ChannelID: input.ChannelID,
+			ActorID:   input.ActorID,
+			ObjectID:  input.ObjectID,
+			Limit:     input.Limit,
+			Page:      input.Page,
+			Systems:   input.Systems,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -81,7 +100,7 @@ func (c *Service) Subscribe(ctx context.Context, channelID string) (chan entity.
 			case auditLog := <-auditLogs.Channel():
 				channel <- entity.AuditLog{
 					ID:            auditLog.ID,
-					Table:         auditLog.Table,
+					TableName:     auditLog.Table,
 					OperationType: entity.AuditOperationType(auditLog.OperationType),
 					OldValue:      auditLog.OldValue.Ptr(),
 					NewValue:      auditLog.NewValue.Ptr(),
@@ -95,4 +114,17 @@ func (c *Service) Subscribe(ctx context.Context, channelID string) (chan entity.
 	}()
 
 	return channel, nil
+}
+
+type GetCountInput struct {
+	ChannelID *string
+}
+
+func (c *Service) Count(ctx context.Context, input GetCountInput) (int, error) {
+	return c.auditLogsRepository.Count(
+		ctx,
+		auditlogsrepository.GetCountInput{
+			ChannelID: input.ChannelID,
+		},
+	)
 }

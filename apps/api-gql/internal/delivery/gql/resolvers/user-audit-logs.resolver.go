@@ -11,13 +11,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(
-	ctx context.Context,
-	obj *gqlmodel.AuditLog,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -32,7 +30,13 @@ func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, erro
 		return nil, err
 	}
 
-	logs, err := r.userAuditLogService.GetMany(ctx, dashboardID, 100)
+	logs, err := r.auditLogService.GetMany(
+		ctx, audit_logs.GetManyInput{
+			ChannelID: &dashboardID,
+			Page:      0,
+			Limit:     100,
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +56,7 @@ func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.A
 		return nil, err
 	}
 
-	logsChannel, err := r.userAuditLogService.Subscribe(ctx, dashboardID)
+	logsChannel, err := r.auditLogService.Subscribe(ctx, dashboardID)
 	if err != nil {
 		return nil, err
 	}

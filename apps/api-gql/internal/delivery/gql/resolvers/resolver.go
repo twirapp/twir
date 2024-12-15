@@ -13,10 +13,10 @@ import (
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
-	user_audit_log "github.com/twirapp/twir/apps/api-gql/internal/services/user-audit-log"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
@@ -50,7 +50,7 @@ type Resolver struct {
 	variablesService             *variables.Service
 	timersService                *timers.Service
 	keywordsService              *keywords.Service
-	userAuditLogService          *user_audit_log.Service
+	auditLogService              *audit_logs.Service
 }
 
 type Opts struct {
@@ -73,7 +73,7 @@ type Opts struct {
 	VariablesService             *variables.Service
 	TimersService                *timers.Service
 	KeywordService               *keywords.Service
-	UserAuditLogService          *user_audit_log.Service
+	UserAuditLogService          *audit_logs.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -100,7 +100,7 @@ func New(opts Opts) (*Resolver, error) {
 		variablesService:             opts.VariablesService,
 		timersService:                opts.TimersService,
 		keywordsService:              opts.KeywordService,
-		userAuditLogService:          opts.UserAuditLogService,
+		auditLogService:              opts.UserAuditLogService,
 	}, nil
 }
 

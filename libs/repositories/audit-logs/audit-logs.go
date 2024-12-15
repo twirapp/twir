@@ -7,5 +7,22 @@ import (
 )
 
 type Repository interface {
-	GetByChannelID(ctx context.Context, channelID string, limit int) ([]model.AuditLog, error)
+	GetMany(ctx context.Context, input GetManyInput) (
+		[]model.AuditLog,
+		error,
+	)
+	Count(ctx context.Context, input GetCountInput) (int, error)
+}
+
+type GetManyInput struct {
+	ChannelID *string
+	ActorID   *string
+	ObjectID  *string
+	Limit     int
+	Page      int
+	Systems   []string
+}
+
+type GetCountInput struct {
+	ChannelID *string
 }

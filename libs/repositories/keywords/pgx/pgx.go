@@ -189,8 +189,8 @@ WHERE id = $1
 		return err
 	}
 
-	if rows.RowsAffected() != 0 {
-		return pgx.ErrNoRows
+	if rows.RowsAffected() != 1 {
+		return keywords.ErrKeywordNotFound
 	}
 
 	return nil
