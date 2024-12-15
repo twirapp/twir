@@ -7,6 +7,7 @@ replace (
 	github.com/satont/twir/libs/gomodels => ../gomodels
 	github.com/satont/twir/libs/pubsub => ../pubsub
 	github.com/twirapp/twir/libs/bus-core => ../bus-core
+	github.com/twirapp/twir/libs/repositories => ../repositories
 )
 
 require (

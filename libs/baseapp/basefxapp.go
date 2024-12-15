@@ -16,6 +16,8 @@ import (
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit-logs"
+	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit-logs/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -41,7 +43,11 @@ func CreateBaseApp(opts Opts) fx.Option {
 				fx.As(new(auditlogs.PubSub)),
 			),
 			fx.Annotate(
-				audit.NewGormFx(),
+				auditlogsrepositorypgx.NewFx,
+				fx.As(new(auditlogsrepository.Repository)),
+			),
+			fx.Annotate(
+				audit.NewDatabaseFx,
 				fx.As(new(slog.Handler)),
 				fx.ResultTags(`group:"slog-handlers"`),
 			),

@@ -27,3 +27,5 @@ const (
 	AuditOperationDelete      AuditOperationType = "DELETE"
 	AuditOperationTypeUnknown AuditOperationType = "UNKNOWN"
 )
+
+var Nil = AuditLog{}

@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	audit_logs "github.com/twirapp/twir/libs/repositories/audit-logs"
@@ -29,6 +30,11 @@ var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
 	pool *pgxpool.Pool
+}
+
+func (p *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.AuditLog, error) {
+	// TODO implement me
+	panic("implement me")
 }
 
 func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
@@ -130,4 +136,33 @@ func (p *Pgx) Count(ctx context.Context, input audit_logs.GetCountInput) (int, e
 	}
 
 	return count, nil
+}
+
+func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) (model.AuditLog, error) {
+	insertBuilder := sq.Insert("audit_logs").
+		SetMap(
+			map[string]any{
+				"table_name":     input.Table,
+				"operation_type": string(input.OperationType),
+				"old_value":      input.OldValue,
+				"new_value":      input.NewValue,
+				"object_id":      input.ObjectID,
+				"channel_id":     input.ChannelID,
+				"user_id":        input.UserID,
+			},
+		).
+		Prefix("RETURNING id")
+
+	query, args, err := insertBuilder.ToSql()
+	if err != nil {
+		return model.Nil, err
+	}
+
+	var id uuid.UUID
+	err = p.pool.QueryRow(ctx, query, args...).Scan(&id)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return p.GetByID(ctx, id)
 }

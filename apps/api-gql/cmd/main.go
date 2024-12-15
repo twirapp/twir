@@ -38,9 +38,6 @@ import (
 
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
-
-	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit-logs"
-	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit-logs/pgx"
 )
 
 func main() {
@@ -71,10 +68,6 @@ func main() {
 			fx.Annotate(
 				keywordsrepositorypgx.NewFx,
 				fx.As(new(keywordsrepository.Repository)),
-			),
-			fx.Annotate(
-				auditlogsrepositorypgx.NewFx,
-				fx.As(new(auditlogsrepository.Repository)),
 			),
 		),
 		// grpc clients
