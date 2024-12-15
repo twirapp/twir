@@ -6,7 +6,6 @@ import (
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/lib/pq"
 	audit_logs "github.com/twirapp/twir/libs/repositories/audit-logs"
 	"github.com/twirapp/twir/libs/repositories/audit-logs/model"
 )
@@ -71,10 +70,24 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 		selectBuilder = selectBuilder.Where("object_id = ?", input.ObjectID)
 	}
 
+	if len(input.OperationTypes) > 0 {
+		operations := make([]string, 0, len(input.OperationTypes))
+		for _, operation := range input.OperationTypes {
+			operations = append(operations, string(operation))
+		}
+
+		selectBuilder = selectBuilder.Where(
+			squirrel.Eq{
+				"operation_type": operations,
+			},
+		)
+	}
+
 	if len(input.Systems) > 0 {
 		selectBuilder = selectBuilder.Where(
-			"table_name IN ?",
-			append(pq.StringArray{}, input.Systems...),
+			squirrel.Eq{
+				"system": input.Systems,
+			},
 		)
 	}
 
@@ -87,7 +100,6 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
 	logs, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.AuditLog])
 	if err != nil {

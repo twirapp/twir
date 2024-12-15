@@ -44,27 +44,34 @@ func modelToEntity(m model.AuditLog) entity.AuditLog {
 }
 
 type GetManyInput struct {
-	ChannelID *string
-	ActorID   *string
-	ObjectID  *string
-	Limit     int
-	Page      int
-	Systems   []string
+	ChannelID      *string
+	ActorID        *string
+	ObjectID       *string
+	Limit          int
+	Page           int
+	Systems        []string
+	OperationTypes []entity.AuditOperationType
 }
 
 func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 	[]entity.AuditLog,
 	error,
 ) {
+	operationTypes := make([]model.AuditOperationType, 0, len(input.OperationTypes))
+	for _, t := range input.OperationTypes {
+		operationTypes = append(operationTypes, model.AuditOperationType(t))
+	}
+
 	logs, err := c.auditLogsRepository.GetMany(
 		ctx,
 		auditlogsrepository.GetManyInput{
-			ChannelID: input.ChannelID,
-			ActorID:   input.ActorID,
-			ObjectID:  input.ObjectID,
-			Limit:     input.Limit,
-			Page:      input.Page,
-			Systems:   input.Systems,
+			ChannelID:      input.ChannelID,
+			ActorID:        input.ActorID,
+			ObjectID:       input.ObjectID,
+			Limit:          input.Limit,
+			Page:           input.Page,
+			Systems:        input.Systems,
+			OperationTypes: operationTypes,
 		},
 	)
 	if err != nil {

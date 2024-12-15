@@ -15,12 +15,13 @@ type Repository interface {
 }
 
 type GetManyInput struct {
-	ChannelID *string
-	ActorID   *string
-	ObjectID  *string
-	Limit     int
-	Page      int
-	Systems   []string
+	ChannelID      *string
+	ActorID        *string
+	ObjectID       *string
+	Limit          int
+	Page           int
+	Systems        []string
+	OperationTypes []model.AuditOperationType
 }
 
 type GetCountInput struct {

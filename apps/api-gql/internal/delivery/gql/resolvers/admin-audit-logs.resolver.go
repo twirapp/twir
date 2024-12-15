@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 )
 
@@ -78,6 +79,15 @@ func (r *queryResolver) AdminAuditLogs(
 		}
 
 		logsInput.Systems = systems
+	}
+
+	if input.OperationType.IsSet() {
+		operationTypes := make([]entity.AuditOperationType, 0, len(input.OperationType.Value()))
+		for _, t := range input.OperationType.Value() {
+			operationTypes = append(operationTypes, mappers.AuditTypeGqlToModel(t))
+		}
+
+		logsInput.OperationTypes = operationTypes
 	}
 
 	logs, err := r.auditLogService.GetMany(ctx, logsInput)
