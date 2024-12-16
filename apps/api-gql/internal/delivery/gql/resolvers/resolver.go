@@ -20,6 +20,7 @@ import (
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -59,6 +60,7 @@ type Resolver struct {
 	badgesService                *badges.Service
 	badgesUsersService           *badges_users.Service
 	usersService                 *users.Service
+	twirUsersService             *twir_users.Service
 }
 
 type Opts struct {
@@ -86,6 +88,7 @@ type Opts struct {
 	BadgesService                *badges.Service
 	BadgesUsersService           *badges_users.Service
 	UsersService                 *users.Service
+	TwirUsersService             *twir_users.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -117,6 +120,7 @@ func New(opts Opts) (*Resolver, error) {
 		badgesService:                opts.BadgesService,
 		badgesUsersService:           opts.BadgesUsersService,
 		usersService:                 opts.UsersService,
+		twirUsersService:             opts.TwirUsersService,
 	}, nil
 }
 

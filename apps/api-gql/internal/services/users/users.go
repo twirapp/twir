@@ -72,3 +72,34 @@ func (c *Service) GetByID(ctx context.Context, id string) (entity.User, error) {
 
 	return c.modelToEntity(user), nil
 }
+
+type GetManyInput struct {
+	Page       int
+	PerPage    int
+	IDs        []string
+	IsBotAdmin *bool
+	IsBanned   *bool
+}
+
+func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.User, error) {
+	dbUsers, err := c.usersRepository.GetManyByIDS(
+		ctx,
+		users.GetManyInput{
+			Page:       input.Page,
+			PerPage:    input.PerPage,
+			IDs:        input.IDs,
+			IsBotAdmin: input.IsBotAdmin,
+			IsBanned:   input.IsBanned,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	entities := make([]entity.User, 0, len(dbUsers))
+	for _, user := range dbUsers {
+		entities = append(entities, c.modelToEntity(user))
+	}
+
+	return entities, nil
+}

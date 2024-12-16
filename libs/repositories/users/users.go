@@ -13,7 +13,7 @@ type Repository interface {
 }
 
 type GetManyInput struct {
-	Limit      int
+	Page       int
 	PerPage    int
 	IDs        []string
 	IsBotAdmin *bool

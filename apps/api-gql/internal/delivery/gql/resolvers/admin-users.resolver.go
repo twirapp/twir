@@ -8,11 +8,11 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/nicklaw5/helix/v2"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 )
 
@@ -80,87 +80,34 @@ func (r *queryResolver) TwirUsers(
 		perPage = *opts.PerPage.Value()
 	}
 
-	var foundTwitchChannels []helix.Channel
+	manyInput := twir_users.GetManyInput{
+		SearchQuery:       "",
+		Page:              page,
+		PerPage:           perPage,
+		ChannelIsEnabled:  opts.IsBotEnabled.Value(),
+		ChannelIsBotAdmin: opts.IsBotAdmin.Value(),
+		ChannelIsBanned:   opts.IsBanned.Value(),
+		HasBadges:         opts.Badges.Value(),
+	}
+
 	if opts.Search.IsSet() {
-		channels, err := r.cachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
-		if err != nil {
-			return nil, err
-		}
-
-		foundTwitchChannels = channels
+		manyInput.SearchQuery = *opts.Search.Value()
 	}
 
-	query := r.gorm.
-		WithContext(ctx).
-		Order("id DESC").
-		Joins("Channel")
-
-	if len(foundTwitchChannels) > 0 {
-		var ids []string
-		for _, user := range foundTwitchChannels {
-			ids = append(ids, user.ID)
-		}
-
-		query = query.Where(`"users"."id" IN ?`, ids)
-	}
-
-	if opts.IsBotEnabled.IsSet() {
-		query = query.Where(`"Channel"."isEnabled" = ?`, *opts.IsBotEnabled.Value())
-	}
-
-	if opts.IsBotAdmin.IsSet() {
-		query = query.Where(`"users"."isBotAdmin" = ?`, *opts.IsBotAdmin.Value())
-	}
-
-	if opts.IsBanned.IsSet() {
-		query = query.Where(`"users"."is_banned" = ?`, *opts.IsBanned.Value())
-	}
-
-	if len(opts.Badges.Value()) != 0 {
-		query = query.
-			Joins("LEFT JOIN badges_users ON badges_users.user_id = users.id").
-			Where(`badges_users.badge_id IN (?)`, opts.Badges.Value())
-	}
-
-	var total int64
-	if err := query.Model(&model.Users{}).Count(&total).Error; err != nil {
+	dbUsers, err := r.twirUsersService.GetMany(ctx, manyInput)
+	if err != nil {
+		r.logger.Error("failed to get many users", slog.Any("err", err))
 		return nil, err
 	}
 
-	var dbUsers []model.Users
-	if err := query.
-		Limit(perPage).
-		Offset(page * perPage).
-		Find(&dbUsers).Error; err != nil {
-		return nil, err
-	}
-
-	mappedUsers := make([]gqlmodel.TwirAdminUser, 0, len(dbUsers))
-
-	dbUsersIds := make([]string, 0, len(dbUsers))
-	for _, user := range dbUsers {
-		dbUsersIds = append(dbUsersIds, user.ID)
-	}
-
-	for _, user := range dbUsers {
-		u := gqlmodel.TwirAdminUser{
-			ID:            user.ID,
-			IsBotAdmin:    user.IsBotAdmin,
-			IsBanned:      user.IsBanned,
-			TwitchProfile: &gqlmodel.TwirUserTwitchInfo{},
-			APIKey:        user.ApiKey,
-		}
-
-		if user.Channel != nil {
-			u.IsBotEnabled = user.Channel.IsEnabled
-		}
-
-		mappedUsers = append(mappedUsers, u)
+	mappedUsers := make([]gqlmodel.TwirAdminUser, 0, len(dbUsers.Users))
+	for _, e := range dbUsers.Users {
+		mappedUsers = append(mappedUsers, mappers.UserWithChannelToAdminUser(e))
 	}
 
 	return &gqlmodel.TwirUsersResponse{
 		Users: mappedUsers,
-		Total: int(total),
+		Total: dbUsers.Total,
 	}, nil
 }
 

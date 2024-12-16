@@ -63,19 +63,18 @@ func (c *Pgx) GetManyByIDS(ctx context.Context, input users.GetManyInput) ([]mod
 		"hide_on_landing_page",
 	).From("users")
 
-	limit := 100
-	if input.Limit > 0 {
-		limit = input.Limit
+	var page int
+	if input.Page > 0 {
+		page = input.Page
 	}
-
-	selectBuilder = selectBuilder.Limit(uint64(limit))
 
 	perPage := 100
 	if input.PerPage > 0 {
 		perPage = input.PerPage
 	}
 
-	selectBuilder = selectBuilder.Offset(uint64(perPage))
+	selectBuilder = selectBuilder.Limit(uint64(perPage))
+	selectBuilder = selectBuilder.Offset(uint64(page * perPage))
 
 	if len(input.IDs) > 0 {
 		selectBuilder = selectBuilder.Where(squirrel.Eq{"id": input.IDs})

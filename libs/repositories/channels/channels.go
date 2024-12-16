@@ -12,6 +12,6 @@ type Repository interface {
 
 type GetManyInput struct {
 	Enabled *bool
-	Limit   int
+	PerPage int
 	Page    int
 }
