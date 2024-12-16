@@ -3,6 +3,7 @@ package public
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 )
 
@@ -27,7 +28,7 @@ type badgeWithUsers struct {
 func (p *Public) HandleBadgesGet(c *gin.Context) {
 	entities, err := p.badgesWithUsersService.GetMany(
 		c.Request.Context(),
-		badges_with_users.GetManyInput{Enabled: true},
+		badges_with_users.GetManyInput{Enabled: lo.ToPtr(true)},
 	)
 	if err != nil {
 		c.JSON(500, gin.H{"error": err.Error()})

@@ -38,7 +38,7 @@ type Service struct {
 }
 
 type GetManyInput struct {
-	Enabled bool
+	Enabled *bool
 }
 
 func (c *Service) modelToEntity(b model.Badge) entity.Badge {

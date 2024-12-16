@@ -156,7 +156,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error) {
 	entities, err := r.badgesService.GetMany(
 		ctx,
-		badges.GetManyInput{Enabled: true},
+		badges.GetManyInput{},
 	)
 	if err != nil {
 		return nil, err

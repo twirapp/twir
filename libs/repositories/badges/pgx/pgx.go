@@ -54,13 +54,19 @@ LIMIT 1
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input badges.GetManyInput) ([]model.Badge, error) {
-	query := `
-SELECT id, name, enabled, created_at, file_name, ffz_slot
-FROM badges
-WHERE enabled = $1
-`
+	selectQuery := sq.Select("id", "name", "enabled", "created_at", "file_name", "ffz_slot").
+		From("badges")
 
-	rows, err := c.pool.Query(ctx, query, input.Enabled)
+	if input.Enabled != nil {
+		selectQuery = selectQuery.Where("enabled = ?", *input.Enabled)
+	}
+
+	query, args, err := selectQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := c.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

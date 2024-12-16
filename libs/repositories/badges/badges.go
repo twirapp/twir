@@ -16,7 +16,7 @@ type Repository interface {
 }
 
 type GetManyInput struct {
-	Enabled bool
+	Enabled *bool
 }
 
 type CreateInput struct {

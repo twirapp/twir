@@ -33,7 +33,7 @@ type Service struct {
 }
 
 type GetManyInput struct {
-	Enabled bool
+	Enabled *bool
 }
 
 func (s *Service) GetMany(ctx context.Context, input GetManyInput) (
