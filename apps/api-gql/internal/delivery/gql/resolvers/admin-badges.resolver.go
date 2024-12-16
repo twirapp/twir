@@ -141,9 +141,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 }
 
 // TwirBadges is the resolver for the twirBadges field.
-func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error) {
-	return nil, fmt.Errorf("test!")
-
+func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error)
 	entities, err := r.badgesService.GetMany(
 		ctx,
 		badges.GetManyInput{Enabled: true},
