@@ -20,5 +20,5 @@ type GetManyInput struct {
 
 	ChannelEnabled    *bool
 	ChannelIsBotAdmin *bool
-	ChannelIsBanned   *bool
+	IsBanned          *bool
 }

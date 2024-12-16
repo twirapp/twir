@@ -86,7 +86,7 @@ func (r *queryResolver) TwirUsers(
 		PerPage:           perPage,
 		ChannelIsEnabled:  opts.IsBotEnabled.Value(),
 		ChannelIsBotAdmin: opts.IsBotAdmin.Value(),
-		ChannelIsBanned:   opts.IsBanned.Value(),
+		UserIsBanned:      opts.IsBanned.Value(),
 		HasBadges:         opts.Badges.Value(),
 	}
 

@@ -61,7 +61,7 @@ type GetManyInput struct {
 	PerPage           int
 	ChannelIsEnabled  *bool
 	ChannelIsBotAdmin *bool
-	ChannelIsBanned   *bool
+	UserIsBanned      *bool
 	HasBadges         []string
 }
 
@@ -96,7 +96,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 		IDs:               nil,
 		ChannelEnabled:    input.ChannelIsEnabled,
 		ChannelIsBotAdmin: input.ChannelIsBotAdmin,
-		ChannelIsBanned:   input.ChannelIsBanned,
+		IsBanned:          input.UserIsBanned,
 		HasBadgesIDS:      input.HasBadges,
 	}
 

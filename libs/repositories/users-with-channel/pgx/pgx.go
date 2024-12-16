@@ -152,8 +152,8 @@ func (c *Pgx) GetManyByIDS(
 		selectQuery = selectQuery.Where(squirrel.Eq{`u."isBotAdmin"`: input.ChannelIsBotAdmin})
 	}
 
-	if input.ChannelIsBanned != nil {
-		selectQuery = selectQuery.Where(squirrel.Eq{`u.is_banned`: input.ChannelIsBanned})
+	if input.IsBanned != nil {
+		selectQuery = selectQuery.Where(squirrel.Eq{`u.is_banned`: input.IsBanned})
 	}
 
 	query, args, err := selectQuery.ToSql()
@@ -184,13 +184,15 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 	error,
 ) {
 	selectQuery := sq.
-		Select("COUNT(DISTINCT u.id)").
-		From("users u").
-		LeftJoin("channels uc ON u.id = uc.id").
-		LeftJoin("badges_users bu ON u.id = bu.user_id")
+		Select("COUNT(*)").
+		From("users u")
 
 	if len(input.IDs) > 0 {
 		selectQuery = selectQuery.Where(squirrel.Eq{"u.id": input.IDs})
+	}
+
+	if input.ChannelIsBotAdmin != nil || input.ChannelEnabled != nil {
+		selectQuery = selectQuery.LeftJoin("channels uc ON u.id = uc.id")
 	}
 
 	if input.ChannelEnabled != nil {
@@ -201,12 +203,14 @@ func (c *Pgx) GetManyCount(ctx context.Context, input users_with_channel.GetMany
 		selectQuery = selectQuery.Where(squirrel.Eq{`u."isBotAdmin"`: input.ChannelIsBotAdmin})
 	}
 
-	if input.ChannelIsBanned != nil {
-		selectQuery = selectQuery.Where(squirrel.Eq{`u.is_banned`: input.ChannelIsBanned})
+	if input.IsBanned != nil {
+		selectQuery = selectQuery.Where(squirrel.Eq{`u.is_banned`: input.IsBanned})
 	}
 
 	if len(input.HasBadgesIDS) > 0 {
-		selectQuery = selectQuery.Where(squirrel.Eq{"bu.badge_id": input.HasBadgesIDS})
+		selectQuery = selectQuery.
+			LeftJoin("channels uc ON u.id = uc.id").
+			Where(squirrel.Eq{"bu.badge_id": input.HasBadgesIDS})
 	}
 
 	query, args, err := selectQuery.ToSql()
