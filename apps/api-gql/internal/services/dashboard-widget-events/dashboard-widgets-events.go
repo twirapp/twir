@@ -16,17 +16,17 @@ type DashboardWidgetsEventsOpts struct {
 	Db *gorm.DB
 }
 
-func New(opts DashboardWidgetsEventsOpts) *DashboardWidgetsEvents {
-	return &DashboardWidgetsEvents{
+func New(opts DashboardWidgetsEventsOpts) *Service {
+	return &Service{
 		db: opts.Db,
 	}
 }
 
-type DashboardWidgetsEvents struct {
+type Service struct {
 	db *gorm.DB
 }
 
-func (d *DashboardWidgetsEvents) GetDashboardWidgetsEvents(
+func (d *Service) GetDashboardWidgetsEvents(
 	ctx context.Context,
 	channelID string,
 	limit int,

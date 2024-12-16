@@ -10,10 +10,39 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	minio "github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
+	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 )
+
+// Users is the resolver for the users field.
+func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]string, error) {
+	parsedUuid, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	users, err := r.badgesUsersService.GetMany(
+		ctx,
+		badges_users.GetManyInput{
+			BadgeID: parsedUuid,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	userIds := make([]string, 0, len(users))
+	for _, user := range users {
+		userIds = append(userIds, user.UserID)
+	}
+
+	return userIds, nil
+}
 
 // BadgesDelete is the resolver for the badgesDelete field.
 func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, error) {
@@ -46,7 +75,11 @@ func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, e
 }
 
 // BadgesUpdate is the resolver for the badgesUpdate field.
-func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gqlmodel.TwirBadgeUpdateOpts) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.TwirBadgeUpdateOpts,
+) (*gqlmodel.Badge, error) {
 	entity := model.Badge{}
 	if err := r.gorm.
 		WithContext(ctx).
@@ -127,7 +160,10 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id string, opts gql
 }
 
 // BadgesCreate is the resolver for the badgesCreate field.
-func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirBadgeCreateOpts) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesCreate(
+	ctx context.Context,
+	opts gqlmodel.TwirBadgeCreateOpts,
+) (*gqlmodel.Badge, error) {
 	fileId := uuid.New()
 	fileName, err := r.computeBadgeFileName(opts.File, fileId)
 	if err != nil {
@@ -177,7 +213,10 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirB
 }
 
 // BadgesAddUser is the resolver for the badgesAddUser field.
-func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID string) (bool, error) {
+func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID string) (
+	bool,
+	error,
+) {
 	entity := model.BadgeUser{
 		ID:        uuid.New(),
 		BadgeID:   uuid.MustParse(id),
@@ -192,7 +231,10 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID 
 }
 
 // BadgesRemoveUser is the resolver for the badgesRemoveUser field.
-func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, userID string) (bool, error) {
+func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, userID string) (
+	bool,
+	error,
+) {
 	entity := model.BadgeUser{}
 	if err := r.gorm.WithContext(ctx).
 		Where("badge_id = ? AND user_id = ?", id, userID).
@@ -210,41 +252,23 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, user
 
 // TwirBadges is the resolver for the twirBadges field.
 func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error) {
-	var entities []model.Badge
-	if err := r.gorm.
-		WithContext(ctx).
-		Preload("Users").
-		Order("ffz_slot ASC").
-		Find(&entities).
-		Error; err != nil {
-		return nil, fmt.Errorf("cannot get badges: %w", err)
+	entities, err := r.badgesService.GetMany(
+		ctx,
+		badges.GetManyInput{Enabled: true},
+	)
+	if err != nil {
+		return nil, err
 	}
 
-	respBadges := make([]gqlmodel.Badge, 0, len(entities))
-
-	if len(entities) == 0 {
-		return []gqlmodel.Badge{}, nil
+	result := make([]gqlmodel.Badge, 0, len(entities))
+	for _, b := range entities {
+		result = append(result, mappers.BadgeEntityToGql(b))
 	}
 
-	for _, entity := range entities {
-		badgeUsers := make([]string, 0, len(entity.Users))
-		for _, user := range entity.Users {
-			badgeUsers = append(badgeUsers, user.UserID)
-		}
-
-		respBadges = append(
-			respBadges,
-			gqlmodel.Badge{
-				ID:        entity.ID.String(),
-				Name:      entity.Name,
-				CreatedAt: entity.CreatedAt.String(),
-				FileURL:   r.computeBadgeUrl(entity.FileName),
-				Enabled:   entity.Enabled,
-				Users:     badgeUsers,
-				FfzSlot:   entity.FFZSlot,
-			},
-		)
-	}
-
-	return respBadges, nil
+	return result, nil
 }
+
+// Badge returns graph.BadgeResolver implementation.
+func (r *Resolver) Badge() graph.BadgeResolver { return &badgeResolver{r} }
+
+type badgeResolver struct{ *Resolver }

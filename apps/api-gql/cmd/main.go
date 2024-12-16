@@ -16,6 +16,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
+	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -42,6 +45,12 @@ import (
 
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+
+	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
+	badgesrepositorypgx "github.com/twirapp/twir/libs/repositories/badges/pgx"
+
+	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges-users"
+	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges-users/pgx"
 )
 
 func main() {
@@ -59,6 +68,9 @@ func main() {
 			keywords.New,
 			audit_logs.New,
 			admin_actions.New,
+			badges.New,
+			badges_users.New,
+			badges_with_users.New,
 		),
 		// repositories
 		fx.Provide(
@@ -77,6 +89,14 @@ func main() {
 			fx.Annotate(
 				channelsrepositorypgx.NewFx,
 				fx.As(new(channelsrepository.Repository)),
+			),
+			fx.Annotate(
+				badgesrepositorypgx.NewFx,
+				fx.As(new(badgesrepository.Repository)),
+			),
+			fx.Annotate(
+				badgesusersrepositorypgx.NewFx,
+				fx.As(new(badgesusersrepository.Repository)),
 			),
 		),
 		// grpc clients
