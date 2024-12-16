@@ -46,14 +46,16 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 		selectBuilder = selectBuilder.Where(`"isEnabled" = ?`, *input.Enabled)
 	}
 
-	if input.Limit > 0 {
-		selectBuilder = selectBuilder.Limit(uint64(input.Limit))
+	// not need to use defaults because i wanna select all channels
+	if input.PerPage > 0 {
+		selectBuilder = selectBuilder.Limit(uint64(input.PerPage))
 	}
 
+	// not need to use defaults because i wanna select all channels
 	if input.Page > 0 {
-		selectBuilder = selectBuilder.Offset(uint64(input.Page))
+		selectBuilder = selectBuilder.Offset(uint64(input.Page * input.PerPage))
 	}
-	
+
 	query, args, err := selectBuilder.ToSql()
 	if err != nil {
 		return nil, err

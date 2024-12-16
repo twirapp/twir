@@ -3,6 +3,7 @@ package custom_var
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -41,8 +42,11 @@ var CustomVar = &types.Variable{
 		}
 
 		if v.Type == model.CustomVarScript {
+			requestCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+			defer cancel()
+
 			filledWithVariablesValue, err := parseCtx.Services.Bus.Parser.ParseVariablesInText.Request(
-				ctx,
+				requestCtx,
 				parser.ParseVariablesInTextRequest{
 					ChannelID:     parseCtx.Channel.ID,
 					ChannelName:   parseCtx.Channel.Name,
@@ -59,7 +63,7 @@ var CustomVar = &types.Variable{
 			}
 
 			res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
-				ctx,
+				requestCtx,
 				eval.EvalRequest{
 					Expression: filledWithVariablesValue.Data.Text,
 				},

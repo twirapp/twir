@@ -22,6 +22,9 @@ import (
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
+	twitch_channels "github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -51,6 +54,12 @@ import (
 
 	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges-users"
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges-users/pgx"
+
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+
+	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users-with-channel"
+	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users-with-channel/pgx"
 )
 
 func main() {
@@ -59,6 +68,9 @@ func main() {
 			baseapp.Opts{
 				AppName: "api-gql",
 			},
+		),
+		fx.Provide(
+			twitchcache.New,
 		),
 		// services
 		fx.Provide(
@@ -71,6 +83,9 @@ func main() {
 			badges.New,
 			badges_users.New,
 			badges_with_users.New,
+			users.New,
+			twitch_channels.New,
+			twir_users.New,
 		),
 		// repositories
 		fx.Provide(
@@ -98,6 +113,14 @@ func main() {
 				badgesusersrepositorypgx.NewFx,
 				fx.As(new(badgesusersrepository.Repository)),
 			),
+			fx.Annotate(
+				usersrepositorypgx.NewFx,
+				fx.As(new(usersrepository.Repository)),
+			),
+			fx.Annotate(
+				userswithchannelrepositorypgx.NewFx,
+				fx.As(new(userswithchannelrepository.Repository)),
+			),
 		),
 		// grpc clients
 		fx.Provide(
@@ -112,7 +135,6 @@ func main() {
 		fx.Provide(
 			auth.NewSessions,
 			minio.New,
-			twitchcache.New,
 			commandscache.New,
 			keywordscacher.New,
 			fx.Annotate(
