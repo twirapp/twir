@@ -6,23 +6,34 @@ package resolvers
 
 import (
 	"context"
+	"log/slog"
 
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 )
 
 // SwitchUserBan is the resolver for the switchUserBan field.
 func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bool, error) {
-	user := model.Users{}
-	if err := r.gorm.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+	user, err := r.usersService.GetByID(ctx, userID)
+	if err != nil {
+		r.logger.Error("failed to get user by id", slog.Any("err", err))
 		return false, err
 	}
 
-	user.IsBanned = !user.IsBanned
-	if err := r.gorm.WithContext(ctx).Save(&user).Error; err != nil {
+	isBanned := !user.IsBanned
+
+	_, err = r.usersService.Update(
+		ctx,
+		userID, users.UpdateInput{
+			IsBanned: &isBanned,
+		},
+	)
+	if err != nil {
+		r.logger.Error("failed to update user", slog.Any("err", err))
 		return false, err
 	}
 
@@ -31,13 +42,22 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 
 // SwitchUserAdmin is the resolver for the switchUserAdmin field.
 func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (bool, error) {
-	user := model.Users{}
-	if err := r.gorm.WithContext(ctx).Where("id = ?", userID).First(&user).Error; err != nil {
+	user, err := r.usersService.GetByID(ctx, userID)
+	if err != nil {
+		r.logger.Error("failed to get user by id", slog.Any("err", err))
 		return false, err
 	}
 
-	user.IsBotAdmin = !user.IsBotAdmin
-	if err := r.gorm.WithContext(ctx).Save(&user).Error; err != nil {
+	isBotAdmin := !user.IsBotAdmin
+
+	_, err = r.usersService.Update(
+		ctx,
+		userID, users.UpdateInput{
+			IsBotAdmin: &isBotAdmin,
+		},
+	)
+	if err != nil {
+		r.logger.Error("failed to update user", slog.Any("err", err))
 		return false, err
 	}
 
@@ -45,7 +65,10 @@ func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (
 }
 
 // TwirUsers is the resolver for the twirUsers field.
-func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSearchParams) (*gqlmodel.TwirUsersResponse, error) {
+func (r *queryResolver) TwirUsers(
+	ctx context.Context,
+	opts gqlmodel.TwirUsersSearchParams,
+) (*gqlmodel.TwirUsersResponse, error) {
 	var page int
 	perPage := 20
 
@@ -142,7 +165,10 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *twirAdminUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TwirAdminUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *twirAdminUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.TwirAdminUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 

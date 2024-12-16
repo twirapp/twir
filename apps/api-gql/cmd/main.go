@@ -22,6 +22,7 @@ import (
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
@@ -51,6 +52,9 @@ import (
 
 	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges-users"
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges-users/pgx"
+
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 )
 
 func main() {
@@ -71,6 +75,7 @@ func main() {
 			badges.New,
 			badges_users.New,
 			badges_with_users.New,
+			users.New,
 		),
 		// repositories
 		fx.Provide(
@@ -97,6 +102,10 @@ func main() {
 			fx.Annotate(
 				badgesusersrepositorypgx.NewFx,
 				fx.As(new(badgesusersrepository.Repository)),
+			),
+			fx.Annotate(
+				usersrepositorypgx.NewFx,
+				fx.As(new(usersrepository.Repository)),
 			),
 		),
 		// grpc clients
