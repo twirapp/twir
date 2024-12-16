@@ -86,6 +86,7 @@ services:
       POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
       POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
       POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
+      POSTGRESQL_POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
       POSTGRESQL_MAX_CONNECTIONS: 1000
     secrets:
       - twir_postgres_user
