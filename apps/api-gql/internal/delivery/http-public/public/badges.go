@@ -22,6 +22,8 @@ type badgeWithUsers struct {
 	Users   []string  `json:"users"`
 }
 
+// TODO: use some gin middleware for cache response
+
 func (p *Public) HandleBadgesGet(c *gin.Context) {
 	entities, err := p.badgesWithUsersService.GetMany(
 		c.Request.Context(),
