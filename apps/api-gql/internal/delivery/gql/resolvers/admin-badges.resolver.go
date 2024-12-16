@@ -6,6 +6,7 @@ package resolvers
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 
 	"github.com/google/uuid"
@@ -49,11 +50,7 @@ func (r *mutationResolver) BadgesDelete(ctx context.Context, id uuid.UUID) (bool
 }
 
 // BadgesUpdate is the resolver for the badgesUpdate field.
-func (r *mutationResolver) BadgesUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	opts gqlmodel.TwirBadgeUpdateOpts,
-) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.TwirBadgeUpdateOpts) (*gqlmodel.Badge, error) {
 	input := badges.UpdateInput{
 		Name:    opts.Name.Value(),
 		Enabled: opts.Enabled.Value(),
@@ -82,10 +79,7 @@ func (r *mutationResolver) BadgesUpdate(
 }
 
 // BadgesCreate is the resolver for the badgesCreate field.
-func (r *mutationResolver) BadgesCreate(
-	ctx context.Context,
-	opts gqlmodel.TwirBadgeCreateOpts,
-) (*gqlmodel.Badge, error) {
+func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirBadgeCreateOpts) (*gqlmodel.Badge, error) {
 	input := badges.CreateInput{
 		Name:    opts.Name,
 		Enabled: true,
@@ -113,10 +107,7 @@ func (r *mutationResolver) BadgesCreate(
 }
 
 // BadgesAddUser is the resolver for the badgesAddUser field.
-func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, userID string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, userID string) (bool, error) {
 	_, err := r.badgesUsersService.Create(
 		ctx,
 		badges_users.CreateInput{
@@ -133,10 +124,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, user
 }
 
 // BadgesRemoveUser is the resolver for the badgesRemoveUser field.
-func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, userID string) (
-	bool,
-	error,
-) {
+func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, userID string) (bool, error) {
 	err := r.badgesUsersService.Delete(
 		ctx,
 		badges_users.DeleteInput{
@@ -154,6 +142,8 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 
 // TwirBadges is the resolver for the twirBadges field.
 func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error) {
+	return nil, fmt.Errorf("test!")
+
 	entities, err := r.badgesService.GetMany(
 		ctx,
 		badges.GetManyInput{Enabled: true},

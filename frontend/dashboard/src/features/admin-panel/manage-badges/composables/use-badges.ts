@@ -12,7 +12,19 @@ export const useBadges = createGlobalState(() => {
 	const badgesRemoveUser = badgesApi.useMutationsRemoveUserBadge()
 
 	const { data } = useQueryBadges()
-	const badges = computed(() => data.value?.twirBadges ?? [])
+	const badges = computed(() => {
+		if (!data.value?.twirBadges) return []
+
+		return data.value.twirBadges.map((b) => {
+			const badgeUrl = new URL(b.fileUrl)
+			badgeUrl.searchParams.append('v', Date.now().toString())
+
+			return {
+				...b,
+				fileUrl: badgeUrl.toString(),
+			}
+		})
+	})
 
 	return {
 		badges,
