@@ -39,9 +39,9 @@ const badgesForm = useBadgesForm()
 						{{ t('adminPanel.manageBadges.slot') }}
 					</Label>
 					<Input
-						v-model="badgesForm.slotField.fieldModel.value"
+						v-model.number="badgesForm.slotField.fieldModel.value"
+						type="number"
 						name="slot"
-						type="text"
 						inputmode="numeric"
 						pattern="[0-9]*"
 						placeholder=""
@@ -53,7 +53,7 @@ const badgesForm = useBadgesForm()
 					<Label for="file">
 						{{ t('adminPanel.manageBadges.image') }}
 					</Label>
-					<div className="grid w-full items-center gap-1.5">
+					<div class="grid w-full items-center gap-1.5">
 						<Input
 							:required="!badgesForm.editableBadgeId"
 							accept="image/*"

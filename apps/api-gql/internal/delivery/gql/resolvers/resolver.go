@@ -15,6 +15,8 @@ import (
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
+	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -47,12 +49,14 @@ type Resolver struct {
 	wsRouter             wsrouter.WsRouter
 	twirStats            *twir_stats.TwirStats
 
-	dashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
+	dashboardWidgetEventsService *dashboard_widget_events.Service
 	variablesService             *variables.Service
 	timersService                *timers.Service
 	keywordsService              *keywords.Service
 	auditLogService              *audit_logs.Service
 	adminActionsService          *admin_actions.Service
+	badgesService                *badges.Service
+	badgesUsersService           *badges_users.Service
 }
 
 type Opts struct {
@@ -71,12 +75,14 @@ type Opts struct {
 	WsRouter             wsrouter.WsRouter
 	TwirStats            *twir_stats.TwirStats
 
-	DashboardWidgetEventsService *dashboard_widget_events.DashboardWidgetsEvents
+	DashboardWidgetEventsService *dashboard_widget_events.Service
 	VariablesService             *variables.Service
 	TimersService                *timers.Service
 	KeywordService               *keywords.Service
 	UserAuditLogService          *audit_logs.Service
 	AdminActionsService          *admin_actions.Service
+	BadgesService                *badges.Service
+	BadgesUsersService           *badges_users.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -105,6 +111,8 @@ func New(opts Opts) (*Resolver, error) {
 		keywordsService:              opts.KeywordService,
 		auditLogService:              opts.UserAuditLogService,
 		adminActionsService:          opts.AdminActionsService,
+		badgesService:                opts.BadgesService,
+		badgesUsersService:           opts.BadgesUsersService,
 	}, nil
 }
 
