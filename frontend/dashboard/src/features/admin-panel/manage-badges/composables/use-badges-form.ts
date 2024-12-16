@@ -45,7 +45,7 @@ export const useBadgesForm = createGlobalState(() => {
 			slot: slotField.fieldModel.value,
 		}
 	})
-	const isFormDirty = computed(() => Boolean(formValues.value.name || formValues.value.image))
+	const isFormDirty = computed(() => Boolean(formValues.value.name || formValues.value.image || formValues.value.slot))
 	const isImageFile = computed(() => formValues.value.image instanceof File)
 
 	async function onSubmit(event: Event) {
@@ -84,6 +84,7 @@ export const useBadgesForm = createGlobalState(() => {
 	function onReset(): void {
 		nameField.reset()
 		fileField.reset()
+		slotField.reset()
 		editableBadgeId.value = null
 	}
 

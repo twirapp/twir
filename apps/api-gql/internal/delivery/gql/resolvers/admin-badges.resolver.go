@@ -14,7 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
-	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 )
 
 // Users is the resolver for the users field.
