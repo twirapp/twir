@@ -255,7 +255,7 @@ func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput
 		return model.Nil, timers.ErrTimerNotFound
 	}
 
-	if len(data.Responses) > 0 {
+	if data.Responses != nil {
 		_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
 		if err != nil {
 			return model.Nil, err

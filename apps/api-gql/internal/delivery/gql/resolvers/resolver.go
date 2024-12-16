@@ -14,6 +14,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
@@ -61,6 +62,7 @@ type Resolver struct {
 	badgesUsersService           *badges_users.Service
 	usersService                 *users.Service
 	twirUsersService             *twir_users.Service
+	alertsService                *alerts.Service
 }
 
 type Opts struct {
@@ -89,6 +91,7 @@ type Opts struct {
 	BadgesUsersService           *badges_users.Service
 	UsersService                 *users.Service
 	TwirUsersService             *twir_users.Service
+	AlertsService                *alerts.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -121,6 +124,7 @@ func New(opts Opts) (*Resolver, error) {
 		badgesUsersService:           opts.BadgesUsersService,
 		usersService:                 opts.UsersService,
 		twirUsersService:             opts.TwirUsersService,
+		alertsService:                opts.AlertsService,
 	}, nil
 }
 

@@ -61,7 +61,7 @@ export const useAlertsApi = createGlobalState(() => {
 	`), [invalidateKey])
 
 	const useAlertsUpdateMutation = () => useMutation(graphql(`
-		mutation UpdateAlert($id: ID!, $opts: ChannelAlertUpdateInput!) {
+		mutation UpdateAlert($id: UUID!, $opts: ChannelAlertUpdateInput!) {
 			channelAlertsUpdate(id: $id, input: $opts) {
 				id
 			}
@@ -69,7 +69,7 @@ export const useAlertsApi = createGlobalState(() => {
 	`), [invalidateKey])
 
 	const useAlertsDeleteMutation = () => useMutation(graphql(`
-		mutation DeleteAlert($id: ID!) {
+		mutation DeleteAlert($id: UUID!) {
 			channelAlertsDelete(id: $id)
 		}
 	`), [invalidateKey])

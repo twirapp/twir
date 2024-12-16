@@ -4,12 +4,12 @@ extend type Query {
 
 extend type Mutation {
 	channelAlertsCreate(input: ChannelAlertCreateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
-	channelAlertsUpdate(id: ID!, input: ChannelAlertUpdateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
-	channelAlertsDelete(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsUpdate(id: UUID!, input: ChannelAlertUpdateInput!): ChannelAlert! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
+	channelAlertsDelete(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_ALERTS)
 }
 
 type ChannelAlert {
-	id: ID!
+	id: UUID!
 	name: String!
 	audioId: ID
 	audioVolume: Int
