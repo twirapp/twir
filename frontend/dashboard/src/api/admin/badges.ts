@@ -15,13 +15,13 @@ export function useAdminBadges() {
 	`), [invalidationKey])
 
 	const useMutationDeleteBadge = () => useMutation(graphql(`
-		mutation DeleteBadge($id: ID!) {
+		mutation DeleteBadge($id: UUID!) {
 			badgesDelete(id: $id)
 		}
 	`), [invalidationKey])
 
 	const useMutationUpdateBadge = () => useMutation(graphql(`
-		mutation UpdateBadge($id: ID!, $opts: TwirBadgeUpdateOpts!) {
+		mutation UpdateBadge($id: UUID!, $opts: TwirBadgeUpdateOpts!) {
 			badgesUpdate(id: $id, opts: $opts) {
 				id
 			}
@@ -29,13 +29,13 @@ export function useAdminBadges() {
 	`), [invalidationKey])
 
 	const useMutationsAddUserBadge = () => useMutation(graphql(`
-		mutation AddUserBadge($id: ID!, $userId: String!) {
+		mutation AddUserBadge($id: UUID!, $userId: String!) {
 			badgesAddUser(id: $id, userId: $userId)
 		}
 	`), [invalidationKey])
 
 	const useMutationsRemoveUserBadge = () => useMutation(graphql(`
-		mutation RemoveUserBadge($id: ID!, $userId: String!) {
+		mutation RemoveUserBadge($id: UUID!, $userId: String!) {
 			badgesRemoveUser(id: $id, userId: $userId)
 		}
 	`), [invalidationKey])
@@ -45,14 +45,14 @@ export function useAdminBadges() {
 		useMutationDeleteBadge,
 		useMutationUpdateBadge,
 		useMutationsAddUserBadge,
-		useMutationsRemoveUserBadge
+		useMutationsRemoveUserBadge,
 	}
 }
 
 export function useQueryBadges() {
 	return useQuery({
 		context: {
-			additionalTypenames: [invalidationKey]
+			additionalTypenames: [invalidationKey],
 		},
 		variables: {},
 		query: graphql(`
@@ -67,6 +67,6 @@ export function useQueryBadges() {
 					users
 				}
 			}
-		`)
+		`),
 	})
 }

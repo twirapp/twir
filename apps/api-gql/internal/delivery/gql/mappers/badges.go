@@ -7,7 +7,7 @@ import (
 
 func BadgeEntityToGql(m entity.Badge) gqlmodel.Badge {
 	return gqlmodel.Badge{
-		ID:        m.ID.String(),
+		ID:        m.ID,
 		Name:      m.Name,
 		CreatedAt: m.CreatedAt.String(),
 		FileURL:   m.FileURL,

@@ -27,3 +27,6 @@ type BadgeWithUsers struct {
 	Badge
 	Users []string
 }
+
+var BadgeNil = Badge{}
+var BadgeUserNil = BadgeUser{}

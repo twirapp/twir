@@ -9,8 +9,20 @@ import (
 
 type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.BadgeUser, error)
+	Create(ctx context.Context, input CreateInput) (model.BadgeUser, error)
+	Delete(ctx context.Context, input DeleteInput) error
 }
 
 type GetManyInput struct {
 	BadgeID uuid.UUID
+}
+
+type CreateInput struct {
+	BadgeID uuid.UUID
+	UserID  string
+}
+
+type DeleteInput struct {
+	BadgeID uuid.UUID
+	UserID  string
 }

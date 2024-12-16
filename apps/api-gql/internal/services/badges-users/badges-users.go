@@ -57,3 +57,38 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.Bad
 
 	return result, nil
 }
+
+type CreateInput struct {
+	BadgeID uuid.UUID
+	UserID  string
+}
+
+func (c *Service) Create(ctx context.Context, input CreateInput) (entity.BadgeUser, error) {
+	badgeUser, err := c.badgesUsersRepository.Create(
+		ctx,
+		badges_users.CreateInput{
+			BadgeID: input.BadgeID,
+			UserID:  input.UserID,
+		},
+	)
+	if err != nil {
+		return entity.BadgeUserNil, err
+	}
+
+	return modelToEntity(badgeUser), nil
+}
+
+type DeleteInput struct {
+	BadgeID uuid.UUID
+	UserID  string
+}
+
+func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
+	return c.badgesUsersRepository.Delete(
+		ctx,
+		badges_users.DeleteInput{
+			BadgeID: input.BadgeID,
+			UserID:  input.UserID,
+		},
+	)
+}

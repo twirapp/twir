@@ -6,15 +6,15 @@ extend type Query {
 }
 
 extend type Mutation {
-	badgesDelete(id: ID!): Boolean! @isAuthenticated @isAdmin
-	badgesUpdate(id: ID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
+	badgesDelete(id: UUID!): Boolean! @isAuthenticated @isAdmin
+	badgesUpdate(id: UUID!, opts: TwirBadgeUpdateOpts!): Badge! @isAuthenticated @isAdmin
 	badgesCreate(opts: TwirBadgeCreateOpts!): Badge! @isAuthenticated @isAdmin
-	badgesAddUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
-	badgesRemoveUser(id: ID!, userId: String!): Boolean! @isAuthenticated @isAdmin
+	badgesAddUser(id: UUID!, userId: String!): Boolean! @isAuthenticated @isAdmin
+	badgesRemoveUser(id: UUID!, userId: String!): Boolean! @isAuthenticated @isAdmin
 }
 
 type Badge {
-	id: ID!
+	id: UUID!
 	name: String!
 	createdAt: String!
 	fileUrl: String!

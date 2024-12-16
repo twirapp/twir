@@ -6,33 +6,27 @@ package resolvers
 
 import (
 	"context"
-	"fmt"
-	"time"
+	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/minio/minio-go/v7"
-	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 )
 
 // Users is the resolver for the users field.
 func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]string, error) {
-	parsedUuid, err := uuid.Parse(obj.ID)
-	if err != nil {
-		return nil, err
-	}
-
 	users, err := r.badgesUsersService.GetMany(
 		ctx,
 		badges_users.GetManyInput{
-			BadgeID: parsedUuid,
+			BadgeID: obj.ID,
 		},
 	)
 	if err != nil {
+		r.logger.Error("cannot get badge users", slog.Any("err", err))
 		return nil, err
 	}
 
@@ -45,30 +39,10 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 }
 
 // BadgesDelete is the resolver for the badgesDelete field.
-func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, error) {
-	badge := model.Badge{}
-	if err := r.gorm.
-		WithContext(ctx).
-		Where("id = ?", id).
-		First(&badge).
-		Error; err != nil {
-		return false, fmt.Errorf("cannot find badge: %w", err)
-	}
-
-	if err := r.gorm.
-		WithContext(ctx).
-		Delete(&badge).
-		Error; err != nil {
-		return false, fmt.Errorf("cannot delete badge: %w", err)
-	}
-
-	if err := r.minioClient.RemoveObject(
-		ctx,
-		r.config.S3Bucket,
-		fmt.Sprintf("badges/%s", badge.FileName),
-		minio.RemoveObjectOptions{},
-	); err != nil {
-		fmt.Println("cannot delete file")
+func (r *mutationResolver) BadgesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
+	if err := r.badgesService.Delete(ctx, id); err != nil {
+		r.logger.Error("cannot delete badge", slog.Any("err", err))
+		return false, err
 	}
 
 	return true, nil
@@ -77,86 +51,34 @@ func (r *mutationResolver) BadgesDelete(ctx context.Context, id string) (bool, e
 // BadgesUpdate is the resolver for the badgesUpdate field.
 func (r *mutationResolver) BadgesUpdate(
 	ctx context.Context,
-	id string,
+	id uuid.UUID,
 	opts gqlmodel.TwirBadgeUpdateOpts,
 ) (*gqlmodel.Badge, error) {
-	entity := model.Badge{}
-	if err := r.gorm.
-		WithContext(ctx).
-		Preload("Users").
-		Where(
-			"badges.id = ?",
-			id,
-		).
-		First(&entity).Error; err != nil {
-		return nil, fmt.Errorf("cannot find badge: %w", err)
+	input := badges.UpdateInput{
+		Name:    opts.Name.Value(),
+		Enabled: opts.Enabled.Value(),
+		FfzSlot: opts.FfzSlot.Value(),
 	}
 
 	if opts.File.IsSet() {
-		file := *opts.File.Value()
-		fileName, err := r.computeBadgeFileName(file, entity.ID)
-		if err != nil {
-			return nil, fmt.Errorf("cannot compute badge file name: %w", err)
+		f := opts.File.Value()
+
+		input.File = &entity.Upload{
+			File:        f.File,
+			Filename:    f.Filename,
+			Size:        f.Size,
+			ContentType: f.ContentType,
 		}
-
-		if entity.FileName != fileName {
-			if err := r.minioClient.RemoveObject(
-				ctx,
-				r.config.S3Bucket,
-				fmt.Sprintf("badges/%s", entity.FileName),
-				minio.RemoveObjectOptions{},
-			); err != nil {
-				return nil, fmt.Errorf("cannot delete old badge file: %w", err)
-			}
-		}
-
-		_, err = r.minioClient.PutObject(
-			ctx,
-			r.config.S3Bucket,
-			fmt.Sprintf("badges/%s", fileName),
-			file.File,
-			file.Size,
-			minio.PutObjectOptions{
-				ContentType: file.ContentType,
-			},
-		)
-		if err != nil {
-			return nil, fmt.Errorf("cannot upload badge file: %w", err)
-		}
-
-		entity.FileName = fileName
 	}
 
-	if opts.Name.IsSet() {
-		entity.Name = *opts.Name.Value()
-	}
-
-	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
-	}
-
-	if opts.FfzSlot.IsSet() {
-		entity.FFZSlot = *opts.FfzSlot.Value()
-	}
-
-	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+	newBadge, err := r.badgesService.Update(ctx, id, input)
+	if err != nil {
+		r.logger.Error("cannot update badge", slog.Any("err", err))
 		return nil, err
 	}
 
-	usersIds := make([]string, 0, len(entity.Users))
-	for _, user := range entity.Users {
-		usersIds = append(usersIds, user.UserID)
-	}
-
-	return &gqlmodel.Badge{
-		ID:        entity.ID.String(),
-		Name:      entity.Name,
-		CreatedAt: entity.CreatedAt.String(),
-		FileURL:   r.computeBadgeUrl(entity.FileName),
-		Enabled:   entity.Enabled,
-		Users:     usersIds,
-		FfzSlot:   entity.FFZSlot,
-	}, nil
+	converted := mappers.BadgeEntityToGql(newBadge)
+	return &converted, nil
 }
 
 // BadgesCreate is the resolver for the badgesCreate field.
@@ -164,66 +86,46 @@ func (r *mutationResolver) BadgesCreate(
 	ctx context.Context,
 	opts gqlmodel.TwirBadgeCreateOpts,
 ) (*gqlmodel.Badge, error) {
-	fileId := uuid.New()
-	fileName, err := r.computeBadgeFileName(opts.File, fileId)
-	if err != nil {
-		return nil, fmt.Errorf("cannot compute badge file name: %w", err)
-	}
-
-	entity := model.Badge{
-		ID:        fileId,
-		Name:      opts.Name,
-		Enabled:   true,
-		CreatedAt: time.Now().UTC(),
-		FileName:  fileName,
-		FFZSlot:   opts.FfzSlot,
+	input := badges.CreateInput{
+		Name:    opts.Name,
+		Enabled: true,
+		FfzSlot: opts.FfzSlot,
+		File: entity.Upload{
+			File:        opts.File.File,
+			Filename:    opts.File.Filename,
+			Size:        opts.File.Size,
+			ContentType: opts.File.ContentType,
+		},
 	}
 
 	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
+		input.Enabled = *opts.Enabled.Value()
 	}
 
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+	newBadge, err := r.badgesService.Create(ctx, input)
+	if err != nil {
+		r.logger.Error("cannot create badge", slog.Any("err", err))
 		return nil, err
 	}
 
-	_, err = r.minioClient.PutObject(
-		ctx,
-		r.config.S3Bucket,
-		fmt.Sprintf("badges/%s", fileName),
-		opts.File.File,
-		opts.File.Size,
-		minio.PutObjectOptions{
-			ContentType: opts.File.ContentType,
-		},
-	)
-	if err != nil {
-		return nil, fmt.Errorf("cannot upload badge file: %w", err)
-	}
-
-	return &gqlmodel.Badge{
-		ID:        entity.ID.String(),
-		Name:      entity.Name,
-		CreatedAt: entity.CreatedAt.String(),
-		FileURL:   r.computeBadgeUrl(entity.FileName),
-		Enabled:   entity.Enabled,
-		Users:     []string{},
-		FfzSlot:   entity.FFZSlot,
-	}, nil
+	converted := mappers.BadgeEntityToGql(newBadge)
+	return &converted, nil
 }
 
 // BadgesAddUser is the resolver for the badgesAddUser field.
-func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID string) (
+func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, userID string) (
 	bool,
 	error,
 ) {
-	entity := model.BadgeUser{
-		ID:        uuid.New(),
-		BadgeID:   uuid.MustParse(id),
-		UserID:    userID,
-		CreatedAt: time.Now().UTC(),
-	}
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+	_, err := r.badgesUsersService.Create(
+		ctx,
+		badges_users.CreateInput{
+			BadgeID: id,
+			UserID:  userID,
+		},
+	)
+	if err != nil {
+		r.logger.Error("cannot add user to badge", slog.Any("err", err))
 		return false, err
 	}
 
@@ -231,19 +133,19 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id string, userID 
 }
 
 // BadgesRemoveUser is the resolver for the badgesRemoveUser field.
-func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id string, userID string) (
+func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, userID string) (
 	bool,
 	error,
 ) {
-	entity := model.BadgeUser{}
-	if err := r.gorm.WithContext(ctx).
-		Where("badge_id = ? AND user_id = ?", id, userID).
-		First(&entity).
-		Error; err != nil {
-		return false, err
-	}
-
-	if err := r.gorm.WithContext(ctx).Delete(&entity, "id = ?", entity.ID).Error; err != nil {
+	err := r.badgesUsersService.Delete(
+		ctx,
+		badges_users.DeleteInput{
+			BadgeID: id,
+			UserID:  userID,
+		},
+	)
+	if err != nil {
+		r.logger.Error("cannot remove user from badge", slog.Any("err", err))
 		return false, err
 	}
 

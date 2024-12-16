@@ -12,3 +12,5 @@ type BadgeUser struct {
 	UserID    string
 	CreatedAt time.Time
 }
+
+var Nil = BadgeUser{}
