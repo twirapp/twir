@@ -18,7 +18,7 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
-	commands_with_groups_and_responses "github.com/twirapp/twir/apps/api-gql/internal/services/commands-with-groups-and-responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"

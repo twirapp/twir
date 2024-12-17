@@ -20,7 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/commands-with-groups-and-responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
