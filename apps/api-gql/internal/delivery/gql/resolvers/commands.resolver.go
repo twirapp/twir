@@ -18,12 +18,34 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"gorm.io/gorm"
 )
+
+// Group is the resolver for the group field.
+func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
+	*gqlmodel.CommandGroup,
+	error,
+) {
+	if obj.GroupID == nil {
+		return nil, nil
+	}
+
+	parsedUuid, err := uuid.Parse(*obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	group, err := data_loader.GetCommandGroupById(ctx, parsedUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
 
 // TwitchCategories is the resolver for the twitchCategories field.
 func (r *commandResponseResolver) TwitchCategories(
@@ -444,10 +466,6 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 	converted := make([]gqlmodel.Command, 0, len(commands))
 	for _, c := range commands {
 		command := mappers.CommandEntityTo(c.Command)
-		if command.Group != nil {
-			g := mappers.CommandGroupTo(*c.Group)
-			command.Group = &g
-		}
 
 		responses := make([]gqlmodel.CommandResponse, 0, len(c.Responses))
 		for _, response := range c.Responses {
@@ -527,9 +545,13 @@ func (r *queryResolver) CommandsPublic(
 	return convertedCommands, nil
 }
 
+// Command returns graph.CommandResolver implementation.
+func (r *Resolver) Command() graph.CommandResolver { return &commandResolver{r} }
+
 // CommandResponse returns graph.CommandResponseResolver implementation.
 func (r *Resolver) CommandResponse() graph.CommandResponseResolver {
 	return &commandResponseResolver{r}
 }
 
+type commandResolver struct{ *Resolver }
 type commandResponseResolver struct{ *Resolver }

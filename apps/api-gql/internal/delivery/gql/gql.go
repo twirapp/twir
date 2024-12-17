@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -32,13 +33,14 @@ type Gql struct {
 type Opts struct {
 	fx.In
 
-	Resolver           *resolvers.Resolver
-	Directives         *directives.Directives
-	Config             config.Config
-	ApqCache           *apq_cache.APQCache
-	Tracer             trace.Tracer
-	CachedTwitchClient *twitch.CachedTwitchClient
-	Server             *server.Server
+	Resolver              *resolvers.Resolver
+	Directives            *directives.Directives
+	Config                config.Config
+	ApqCache              *apq_cache.APQCache
+	Tracer                trace.Tracer
+	CachedTwitchClient    *twitch.CachedTwitchClient
+	Server                *server.Server
+	CommandsGroupsService *commands_groups.Service
 }
 
 func New(opts Opts) *Gql {
@@ -88,7 +90,8 @@ func New(opts Opts) *Gql {
 		func(c *gin.Context) {
 			loader := data_loader.New(
 				data_loader.Opts{
-					CachedTwitchClient: opts.CachedTwitchClient,
+					CachedTwitchClient:    opts.CachedTwitchClient,
+					CommandsGroupsService: opts.CommandsGroupsService,
 				},
 			)
 

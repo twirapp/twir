@@ -14,10 +14,7 @@ import (
 )
 
 // ChannelAlertsCreate is the resolver for the channelAlertsCreate field.
-func (r *mutationResolver) ChannelAlertsCreate(
-	ctx context.Context,
-	input gqlmodel.ChannelAlertCreateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -53,11 +50,7 @@ func (r *mutationResolver) ChannelAlertsCreate(
 }
 
 // ChannelAlertsUpdate is the resolver for the channelAlertsUpdate field.
-func (r *mutationResolver) ChannelAlertsUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	input gqlmodel.ChannelAlertUpdateInput,
-) (*gqlmodel.ChannelAlert, error) {
+func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err

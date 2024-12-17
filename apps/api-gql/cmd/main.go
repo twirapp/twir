@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -68,6 +69,9 @@ import (
 
 	commandswithgroupsandreponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	commandswithgroupsandreponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+
+	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
+	commandsgroupsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_group/pgx"
 )
 
 func main() {
@@ -96,6 +100,7 @@ func main() {
 			twir_users.New,
 			alerts.New,
 			commands_with_groups_and_responses.New,
+			commands_groups.New,
 		),
 		// repositories
 		fx.Provide(
@@ -138,6 +143,10 @@ func main() {
 			fx.Annotate(
 				commandswithgroupsandreponsesrepositorypgx.NewFx,
 				fx.As(new(commandswithgroupsandreponsesrepository.Repository)),
+			),
+			fx.Annotate(
+				commandsgroupsrepositorypgx.NewFx,
+				fx.As(new(commandsgroupsrepository.Repository)),
 			),
 		),
 		// grpc clients

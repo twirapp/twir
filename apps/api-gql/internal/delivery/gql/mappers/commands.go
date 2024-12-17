@@ -11,10 +11,6 @@ var commandsExpiresAtMap = map[model.ChannelCommandExpiresType]gqlmodel.CommandE
 	model.ChannelCommandExpiresTypeDisable: gqlmodel.CommandExpiresTypeDisable,
 }
 
-func CommandsExpiresAtDbToGql(in model.ChannelCommandExpiresType) gqlmodel.CommandExpiresType {
-	return commandsExpiresAtMap[in]
-}
-
 func CommandsExpiresAtGqlToDb(in gqlmodel.CommandExpiresType) model.ChannelCommandExpiresType {
 	for k, v := range commandsExpiresAtMap {
 		if v == in {
