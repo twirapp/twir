@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
 	groupmodel "github.com/twirapp/twir/libs/repositories/commands_group/model"
-	responsemodel "github.com/twirapp/twir/libs/repositories/commands_responses/model"
+	responsemodel "github.com/twirapp/twir/libs/repositories/commands_response/model"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )

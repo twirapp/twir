@@ -72,6 +72,9 @@ import (
 
 	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
 	commandsgroupsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_group/pgx"
+
+	commandsresponserepository "github.com/twirapp/twir/libs/repositories/commands_response"
+	commandsresponserepositorypgx "github.com/twirapp/twir/libs/repositories/commands_response/pgx"
 )
 
 func main() {
@@ -147,6 +150,10 @@ func main() {
 			fx.Annotate(
 				commandsgroupsrepositorypgx.NewFx,
 				fx.As(new(commandsgroupsrepository.Repository)),
+			),
+			fx.Annotate(
+				commandsresponserepositorypgx.NewFx,
+				fx.As(new(commandsresponserepository.Repository)),
 			),
 		),
 		// grpc clients
