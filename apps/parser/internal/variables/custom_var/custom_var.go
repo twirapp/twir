@@ -3,6 +3,8 @@ package custom_var
 import (
 	"context"
 	"errors"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/samber/lo"
@@ -11,6 +13,9 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/eval"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 )
+
+var reFirst = regexp.MustCompile(`^return '`)
+var reLast = regexp.MustCompile(`';\s*$`)
 
 var CustomVar = &types.Variable{
 	Name:                     "customvar",
@@ -62,10 +67,19 @@ var CustomVar = &types.Variable{
 				return nil, err
 			}
 
+			// TODO: THATS IS NOT HOW IT SHOULD BE DONE, TEMPORAR SOLUTION
+			expression := reFirst.ReplaceAllString(filledWithVariablesValue.Data.Text, "")
+			expression = reLast.ReplaceAllString(expression, "")
+			var text string
+			if parseCtx.Text != nil {
+				text = *parseCtx.Text
+			}
+			expression = strings.ReplaceAll(expression, "$(command.param)", text)
+
 			res, err := parseCtx.Services.Bus.Eval.Evaluate.Request(
 				requestCtx,
 				eval.EvalRequest{
-					Expression: filledWithVariablesValue.Data.Text,
+					Expression: expression,
 				},
 			)
 
