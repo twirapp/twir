@@ -47,7 +47,7 @@ func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
 	*gqlmodel.CommandGroup,
 	error,
 ) {
-	if obj.GroupID == nil {
+	if obj == nil || obj.GroupID == nil {
 		return nil, nil
 	}
 
