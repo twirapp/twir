@@ -6,11 +6,14 @@ import (
 
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
+	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
+	"github.com/twirapp/twir/libs/bus-core/timers"
 	"github.com/twirapp/twir/libs/repositories/channels"
 	"go.uber.org/fx"
+	"gorm.io/gorm"
 )
 
 type Opts struct {
@@ -19,6 +22,7 @@ type Opts struct {
 	Redis              *redis.Client
 	ChannelsRepository channels.Repository
 	TwirBus            *buscore.Bus
+	Gorm               *gorm.DB
 }
 
 func New(opts Opts) *Service {
@@ -26,6 +30,7 @@ func New(opts Opts) *Service {
 		redis:              opts.Redis,
 		channelsRepository: opts.ChannelsRepository,
 		twirbus:            opts.TwirBus,
+		gorm:               opts.Gorm,
 	}
 }
 
@@ -33,6 +38,7 @@ type Service struct {
 	redis              *redis.Client
 	channelsRepository channels.Repository
 	twirbus            *buscore.Bus
+	gorm               *gorm.DB
 }
 
 func (c *Service) DropAllAuthSessions(ctx context.Context) error {
@@ -82,6 +88,29 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 				},
 			)
 		}()
+	}
+
+	return nil
+}
+
+func (c *Service) RescheduleTimers(ctx context.Context) error {
+	var entities []model.ChannelsTimers
+	if err := c.gorm.Find(&entities).Error; err != nil {
+		return fmt.Errorf("failed to get timers: %w", err)
+	}
+
+	for _, timer := range entities {
+		c.twirbus.Timers.RemoveTimer.Publish(
+			timers.AddOrRemoveTimerRequest{
+				TimerID: timer.ID,
+			},
+		)
+
+		c.twirbus.Timers.AddTimer.Publish(
+			timers.AddOrRemoveTimerRequest{
+				TimerID: timer.ID,
+			},
+		)
 	}
 
 	return nil

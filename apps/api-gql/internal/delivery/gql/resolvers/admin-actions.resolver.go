@@ -23,7 +23,10 @@ func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error
 }
 
 // EventsubSubscribe is the resolver for the eventsubSubscribe field.
-func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.EventsubSubscribeInput) (bool, error) {
+func (r *mutationResolver) EventsubSubscribe(
+	ctx context.Context,
+	opts gqlmodel.EventsubSubscribeInput,
+) (bool, error) {
 	condition := mappers.ConditionTypeGqlToEntity(opts.Condition)
 	if condition == "" {
 		return false, fmt.Errorf("unknown condition type")
@@ -38,6 +41,15 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 		},
 	)
 	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// RescheduleTimers is the resolver for the rescheduleTimers field.
+func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
+	if err := r.adminActionsService.RescheduleTimers(ctx); err != nil {
 		return false, err
 	}
 

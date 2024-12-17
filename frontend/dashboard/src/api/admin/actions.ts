@@ -17,3 +17,11 @@ export function useMutationEventSubSubscribe() {
 		}
 	`))
 }
+
+export function useMutationRescheduleTimers() {
+	return useMutation(graphql(`
+		mutation RescheduleTimers {
+			rescheduleTimers
+		}
+	`))
+}

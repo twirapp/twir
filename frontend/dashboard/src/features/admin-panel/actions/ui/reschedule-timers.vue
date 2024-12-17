@@ -2,16 +2,16 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { useMutationDropAllAuthSessions } from '@/api/admin/actions'
+import { useMutationRescheduleTimers } from '@/api/admin/actions'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
 const { t } = useI18n()
-const dropAllAuthSessions = useMutationDropAllAuthSessions()
+const mutation = useMutationRescheduleTimers()
 
-async function onDropSessions() {
-	await dropAllAuthSessions.executeMutation({})
+async function onReschedule() {
+	await mutation.executeMutation({})
 }
 
 const confirmOpened = ref(false)
@@ -22,14 +22,14 @@ const confirmOpened = ref(false)
 		<div class="flex items-center">
 			<div class="flex-auto">
 				<small class="text-sm font-medium leading-none">
-					{{ t('adminPanel.adminActions.dangerZone.revokeSessions') }}
+					Reschedule timers
 				</small>
 				<p class="text-sm text-muted-foreground">
-					{{ t('adminPanel.adminActions.dangerZone.revokeAllSessionsDescription') }}
+					Will drop all timers from queue and create them again
 				</p>
 			</div>
 			<Button variant="destructive" @click="confirmOpened = true">
-				{{ t('adminPanel.adminActions.dangerZone.revoke') }}
+				Reschedule
 			</Button>
 		</div>
 	</Card>
@@ -38,6 +38,6 @@ const confirmOpened = ref(false)
 	<ActionConfirm
 		v-model:open="confirmOpened"
 		:confirm-text="t('adminPanel.adminActions.dangerZone.revokeAllSessionsConfirm')"
-		@confirm="onDropSessions"
+		@confirm="onReschedule"
 	/>
 </template>
