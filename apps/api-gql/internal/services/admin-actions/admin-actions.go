@@ -95,7 +95,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 
 func (c *Service) RescheduleTimers(ctx context.Context) error {
 	var entities []model.ChannelsTimers
-	if err := c.gorm.Find(&entities).Error; err != nil {
+	if err := c.gorm.Select("id", "enabled").Find(&entities).Error; err != nil {
 		return fmt.Errorf("failed to get timers: %w", err)
 	}
 
@@ -106,11 +106,14 @@ func (c *Service) RescheduleTimers(ctx context.Context) error {
 			},
 		)
 
-		c.twirbus.Timers.AddTimer.Publish(
-			timers.AddOrRemoveTimerRequest{
-				TimerID: timer.ID,
-			},
-		)
+		if timer.Enabled {
+			c.twirbus.Timers.AddTimer.Publish(
+				timers.AddOrRemoveTimerRequest{
+					TimerID: timer.ID,
+				},
+			)
+		}
+
 	}
 
 	return nil
