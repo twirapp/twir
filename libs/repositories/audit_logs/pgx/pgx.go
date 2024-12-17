@@ -7,8 +7,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	audit_logs "github.com/twirapp/twir/libs/repositories/audit-logs"
-	"github.com/twirapp/twir/libs/repositories/audit-logs/model"
+	"github.com/twirapp/twir/libs/repositories/audit_logs"
+	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )
 
 type Opts struct {

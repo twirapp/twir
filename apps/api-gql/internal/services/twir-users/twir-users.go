@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	twitch_channels "github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
-	users_with_channel "github.com/twirapp/twir/libs/repositories/users-with-channel"
-	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users-with-channel/model"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
+	"github.com/twirapp/twir/libs/repositories/users_with_channel"
+	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 	"go.uber.org/fx"
 )
 

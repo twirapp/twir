@@ -3,7 +3,7 @@ package users_with_channel
 import (
 	"context"
 
-	"github.com/twirapp/twir/libs/repositories/users-with-channel/model"
+	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
 
 type Repository interface {

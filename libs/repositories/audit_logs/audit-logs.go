@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/repositories/audit-logs/model"
+	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )
 
 type Repository interface {

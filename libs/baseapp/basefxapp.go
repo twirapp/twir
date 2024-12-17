@@ -16,8 +16,8 @@ import (
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit-logs"
-	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit-logs/pgx"
+	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
+	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit_logs/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )

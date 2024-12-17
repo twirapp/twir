@@ -30,9 +30,7 @@ type Command struct {
 	RequiredWatchTime         int
 	RequiredMessages          int
 	RequiredUsedChannelPoints int
-	Responses                 []Response
 	GroupID                   *uuid.UUID
-	Group                     *Group
 	ExpiresAt                 *time.Time
 	ExpiresType               *ExpireType
 }
@@ -45,18 +43,3 @@ const (
 	ExpireTypeDisable ExpireType = "DISABLE"
 	ExpireTypeDelete  ExpireType = "DELETE"
 )
-
-type Response struct {
-	ID                uuid.UUID
-	Text              *string
-	CommandID         uuid.UUID
-	Order             int
-	TwitchCategoryIDs []string
-}
-
-type Group struct {
-	ID        uuid.UUID
-	ChannelID string
-	Name      string
-	Color     string
-}

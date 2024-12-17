@@ -5,8 +5,8 @@ import (
 
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit-logs"
-	"github.com/twirapp/twir/libs/repositories/audit-logs/model"
+	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
+	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 	"go.uber.org/fx"
 )
 

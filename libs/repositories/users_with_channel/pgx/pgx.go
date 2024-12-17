@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	channelmodel "github.com/twirapp/twir/libs/repositories/channels/model"
-	users_with_channel "github.com/twirapp/twir/libs/repositories/users-with-channel"
-	"github.com/twirapp/twir/libs/repositories/users-with-channel/model"
+	"github.com/twirapp/twir/libs/repositories/users_with_channel"
+	"github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 )
 
 type Opts struct {

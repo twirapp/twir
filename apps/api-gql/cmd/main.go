@@ -4,28 +4,28 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
-	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/apq-cache"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/apq-cache"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
-	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/auth"
 	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/public"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/webhooks"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
-	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/alerts"
-	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
-	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
-	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
-	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands-with-groups-and-responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
-	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
-	twitch_channels "github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -54,20 +54,20 @@ import (
 	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
 	badgesrepositorypgx "github.com/twirapp/twir/libs/repositories/badges/pgx"
 
-	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges-users"
-	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges-users/pgx"
+	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges_users"
+	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 
 	usersrepository "github.com/twirapp/twir/libs/repositories/users"
 	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
 
-	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users-with-channel"
-	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users-with-channel/pgx"
+	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users_with_channel"
+	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 
-	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
-	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
+	commandswithgroupsandreponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandreponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 )
 
 func main() {
@@ -95,7 +95,7 @@ func main() {
 			twitch_channels.New,
 			twir_users.New,
 			alerts.New,
-			commands.New,
+			commands_with_groups_and_responses.New,
 		),
 		// repositories
 		fx.Provide(
@@ -136,8 +136,8 @@ func main() {
 				fx.As(new(alertsrepository.Repository)),
 			),
 			fx.Annotate(
-				commandsrepositorypgx.NewFx,
-				fx.As(new(commandsrepository.Repository)),
+				commandswithgroupsandreponsesrepositorypgx.NewFx,
+				fx.As(new(commandswithgroupsandreponsesrepository.Repository)),
 			),
 		),
 		// grpc clients

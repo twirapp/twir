@@ -11,8 +11,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/twirapp/twir/libs/repositories/commands"
-	"github.com/twirapp/twir/libs/repositories/commands/model"
+	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
+	groupmodel "github.com/twirapp/twir/libs/repositories/commands_group/model"
+	responsemodel "github.com/twirapp/twir/libs/repositories/commands_responses/model"
+	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 )
 
 type Opts struct {
@@ -29,7 +32,7 @@ func NewFx(pool *pgxpool.Pool) *Pgx {
 	return New(Opts{PgxPool: pool})
 }
 
-var _ commands.Repository = (*Pgx)(nil)
+var _ commands_with_groups_and_responses.Repository = (*Pgx)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
@@ -74,12 +77,15 @@ var selectColumns = []string{
 	"r.twitch_category_id response_twitch_category_id",
 }
 
-func (c *Pgx) scanRow(rows pgx.Rows) (model.Command, error) {
-	var command model.Command
+func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error) {
+	var command commandmodel.Command
+	var response responsemodel.Response
+	var group groupmodel.Group
+
 	var commandDefaultName, commandDescription, commandGroupID sql.Null[string]
 	var commandCooldown sql.Null[int]
 	var commandExpiresAt sql.Null[time.Time]
-	var commandExpiresType sql.Null[model.ExpireType]
+	var commandExpiresType sql.Null[commandmodel.ExpireType]
 
 	var responseID, responseCommandID sql.Null[uuid.UUID]
 	var responseText sql.Null[string]
@@ -150,21 +156,18 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.Command, error) {
 	}
 
 	if responseID.Valid {
-		command.Responses = append(
-			command.Responses,
-			model.Response{
-				ID:                responseID.V,
-				Text:              &responseText.V,
-				CommandID:         responseCommandID.V,
-				Order:             responseOrder.V,
-				TwitchCategoryIDs: responseTwitchCategoryID,
-			},
-		)
+		response = responsemodel.Response{
+			ID:                responseID.V,
+			Text:              &responseText.V,
+			CommandID:         responseCommandID.V,
+			Order:             responseOrder.V,
+			TwitchCategoryIDs: responseTwitchCategoryID,
+		}
 	}
 
 	if groupId.Valid {
 		command.GroupID = &groupId.V
-		command.Group = &model.Group{
+		group = groupmodel.Group{
 			ID:        groupId.V,
 			ChannelID: groupChannelID.V,
 			Name:      groupName.V,
@@ -172,10 +175,17 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.Command, error) {
 		}
 	}
 
-	return command, nil
+	return model.CommandWithGroupAndResponses{
+		Command:   command,
+		Group:     &group,
+		Responses: []responsemodel.Response{response},
+	}, nil
 }
 
-func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Command, error) {
+func (c *Pgx) GetManyByChannelID(
+	ctx context.Context,
+	channelID string,
+) ([]model.CommandWithGroupAndResponses, error) {
 	selectBuilder := sq.Select(selectColumns...).
 		From("channels_commands c").
 		LeftJoin(`channels_commands_groups g ON c."groupId" = g.id`).
@@ -194,39 +204,39 @@ func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model
 
 	defer rows.Close()
 
-	commandsMap := make(map[uuid.UUID]*model.Command)
+	commandsMap := make(map[uuid.UUID]*model.CommandWithGroupAndResponses)
 	for rows.Next() {
 		command, err := c.scanRow(rows)
 		if err != nil {
 			return nil, err
 		}
 
-		if _, ok := commandsMap[command.ID]; !ok {
-			commandsMap[command.ID] = &command
+		if _, ok := commandsMap[command.Command.ID]; !ok {
+			commandsMap[command.Command.ID] = &command
 		}
 
 		for _, r := range command.Responses {
-			for _, responses := range commandsMap[command.ID].Responses {
-				if responses.ID == r.ID {
+			for _, response := range commandsMap[command.Command.ID].Responses {
+				if response.ID == r.ID {
 					continue
 				}
 
-				commandsMap[command.ID].Responses = append(
-					commandsMap[command.ID].Responses,
+				commandsMap[command.Command.ID].Responses = append(
+					commandsMap[command.Command.ID].Responses,
 					r,
 				)
 			}
 		}
 	}
 
-	result := make([]model.Command, 0, len(commandsMap))
+	result := make([]model.CommandWithGroupAndResponses, 0, len(commandsMap))
 	for _, cmd := range commandsMap {
 		result = append(result, *cmd)
 	}
 
 	slices.SortFunc(
-		result, func(i, j model.Command) int {
-			return cmp.Compare(i.ID.String(), j.ID.String())
+		result, func(i, j model.CommandWithGroupAndResponses) int {
+			return cmp.Compare(i.Command.ID.String(), j.Command.ID.String())
 		},
 	)
 
