@@ -9,5 +9,5 @@ import (
 
 type Repository interface {
 	// GetManyByIDs GetManyByChannelID returns groups in same order as requested
-	GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) ([]*model.Response, error)
+	GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) ([]model.Response, error)
 }

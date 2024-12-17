@@ -33,7 +33,7 @@ type Pgx struct {
 }
 
 func (c *Pgx) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
-	[]*model.Response,
+	[]model.Response,
 	error,
 ) {
 	if len(commandsIDs) == 0 {
@@ -61,11 +61,11 @@ WHERE "commandId" IN ($1)
 		return nil, err
 	}
 
-	result := make([]*model.Response, len(commandsIDs))
+	result := make([]model.Response, len(commandsIDs))
 	for i, id := range commandsIDs {
 		for _, r := range responses {
 			if r.CommandID == id {
-				result[i] = &r
+				result[i] = r
 				break
 			}
 		}

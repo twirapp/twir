@@ -18,12 +18,29 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"gorm.io/gorm"
 )
+
+// Responses is the resolver for the responses field.
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
+	if obj == nil || obj.Default {
+		return []gqlmodel.CommandResponse{}, nil
+	}
+
+	parsedUuid, err := uuid.Parse(obj.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return data_loader.GetCommandResponsesById(ctx, parsedUuid)
+}
 
 // Group is the resolver for the group field.
 func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
@@ -466,14 +483,6 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 	converted := make([]gqlmodel.Command, 0, len(commands))
 	for _, c := range commands {
 		command := mappers.CommandEntityTo(c.Command)
-
-		responses := make([]gqlmodel.CommandResponse, 0, len(c.Responses))
-		for _, response := range c.Responses {
-			responses = append(responses, mappers.CommandResponseTo(response))
-		}
-
-		command.Responses = responses
-
 		converted = append(converted, command)
 	}
 

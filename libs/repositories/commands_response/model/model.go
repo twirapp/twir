@@ -9,7 +9,7 @@ type Response struct {
 	Text              *string
 	CommandID         uuid.UUID
 	Order             int
-	TwitchCategoryIDs []string
+	TwitchCategoryIDs []string `db:"twitch_category_id"`
 }
 
 var Nil = Response{}

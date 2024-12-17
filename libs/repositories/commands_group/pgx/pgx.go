@@ -32,7 +32,7 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (c *Pgx) GetManyByIDs(ctx context.Context, ids []uuid.UUID) ([]*model.Group, error) {
+func (c *Pgx) GetManyByIDs(ctx context.Context, ids []uuid.UUID) ([]model.Group, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
@@ -58,15 +58,5 @@ WHERE id IN ($1)
 		return nil, err
 	}
 
-	result := make([]*model.Group, len(ids))
-	for i, id := range ids {
-		for _, group := range groups {
-			if group.ID == id {
-				result[i] = &group
-				break
-			}
-		}
-	}
-
-	return result, nil
+	return groups, nil
 }
