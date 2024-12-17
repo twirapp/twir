@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -64,6 +65,9 @@ import (
 
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+
+	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
+	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 )
 
 func main() {
@@ -91,6 +95,7 @@ func main() {
 			twitch_channels.New,
 			twir_users.New,
 			alerts.New,
+			commands.New,
 		),
 		// repositories
 		fx.Provide(
@@ -129,6 +134,10 @@ func main() {
 			fx.Annotate(
 				alertsrepositorypgx.NewFx,
 				fx.As(new(alertsrepository.Repository)),
+			),
+			fx.Annotate(
+				commandsrepositorypgx.NewFx,
+				fx.As(new(commandsrepository.Repository)),
 			),
 		),
 		// grpc clients

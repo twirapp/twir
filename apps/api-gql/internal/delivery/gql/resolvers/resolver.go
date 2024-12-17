@@ -18,6 +18,7 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -63,6 +64,7 @@ type Resolver struct {
 	usersService                 *users.Service
 	twirUsersService             *twir_users.Service
 	alertsService                *alerts.Service
+	commandsService              *commands.Service
 }
 
 type Opts struct {
@@ -92,6 +94,7 @@ type Opts struct {
 	UsersService                 *users.Service
 	TwirUsersService             *twir_users.Service
 	AlertsService                *alerts.Service
+	CommandService               *commands.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -125,6 +128,7 @@ func New(opts Opts) (*Resolver, error) {
 		usersService:                 opts.UsersService,
 		twirUsersService:             opts.TwirUsersService,
 		alertsService:                opts.AlertsService,
+		commandsService:              opts.CommandService,
 	}, nil
 }
 

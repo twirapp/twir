@@ -20,6 +20,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/satont/twir/libs/utils"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -27,34 +28,28 @@ import (
 )
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
-	var categories []gqlmodel.TwitchCategory
-
-	for _, id := range obj.TwitchCategoriesIds {
-		category, err := r.cachedTwitchClient.GetGame(ctx, id)
-		if err != nil {
-			r.logger.Error("failed to fetch twitch category", slog.Any("err", err))
-			continue
-		}
-		if category == nil {
-			continue
-		}
-
-		categories = append(
-			categories,
-			gqlmodel.TwitchCategory{
-				ID:        id,
-				Name:      category.Name,
-				BoxArtURL: category.BoxArtURL,
-			},
-		)
+func (r *commandResponseResolver) TwitchCategories(
+	ctx context.Context,
+	obj *gqlmodel.CommandResponse,
+) ([]gqlmodel.TwitchCategory, error) {
+	categories, err := data_loader.GetTwitchCategoriesByIDs(ctx, obj.TwitchCategoriesIds)
+	if err != nil {
+		return nil, err
 	}
 
-	return categories, nil
+	resultedCategories := make([]gqlmodel.TwitchCategory, 0, len(categories))
+	for _, category := range categories {
+		resultedCategories = append(resultedCategories, *category)
+	}
+
+	return resultedCategories, nil
 }
 
 // CommandsCreate is the resolver for the commandsCreate field
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -172,7 +167,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -439,6 +438,11 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 		return nil, err
 	}
 
+	_, err = r.commandsService.GetManyByChannelID(ctx, dashboardId)
+	if err != nil {
+		return nil, err
+	}
+
 	var entities []model.ChannelsCommands
 	if err := r.gorm.
 		WithContext(ctx).
@@ -525,7 +529,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}

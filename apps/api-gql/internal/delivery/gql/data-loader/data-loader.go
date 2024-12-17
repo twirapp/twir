@@ -16,9 +16,10 @@ const (
 )
 
 type DataLoader struct {
-	cachedTwitchClient    *twitch.CachedTwitchClient
-	helixUserByIdLoader   *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
-	helixUserByNameLoader *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
+	cachedTwitchClient         *twitch.CachedTwitchClient
+	helixUserByIdLoader        *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
+	helixUserByNameLoader      *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
+	twitchCategoriesByIdLoader *dataloadgen.Loader[string, *gqlmodel.TwitchCategory]
 }
 
 type Opts struct {
@@ -35,8 +36,8 @@ func New(opts Opts) *DataLoader {
 		dataloadgen.WithWait(time.Millisecond),
 	)
 
-	loader.helixUserByNameLoader = dataloadgen.NewLoader(
-		loader.getHelixUsersByNames,
+	loader.twitchCategoriesByIdLoader = dataloadgen.NewLoader(
+		loader.getTwitchCategoriesByIDs,
 		dataloadgen.WithWait(time.Millisecond),
 	)
 
