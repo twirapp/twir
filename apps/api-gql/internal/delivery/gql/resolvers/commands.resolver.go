@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"gorm.io/gorm"
 )
 
@@ -97,110 +98,63 @@ func (r *mutationResolver) CommandsCreate(
 		return nil, err
 	}
 
-	var createdCommands int64
-	if err := r.gorm.
-		WithContext(ctx).
-		Model(&model.ChannelsCommands{}).
-		Where(`"channelId" = ? AND "default" = ?`, dashboardId, false).
-		Count(&createdCommands).
-		Error; err != nil {
-		return nil, fmt.Errorf("failed to count commands: %w", err)
+	var groupId *uuid.UUID
+	if opts.GroupID.IsSet() && opts.GroupID.Value() != nil {
+		parsedGroupId, err := uuid.Parse(*opts.GroupID.Value())
+		if err != nil {
+			return nil, err
+		}
+
+		groupId = &parsedGroupId
 	}
 
-	if createdCommands >= 50 {
-		return nil, fmt.Errorf("you can't create more than 50 custom commands")
+	var expiresType *string
+	if opts.ExpiresType.IsSet() && opts.ExpiresType.Value() != nil {
+		expiresType = lo.ToPtr(opts.ExpiresType.Value().String())
 	}
 
-	if err := r.checkIsCommandWithNameOrAliaseExists(ctx, nil, opts.Name, opts.Aliases); err != nil {
-		return nil, err
-	}
-
-	aliases := make([]string, 0, len(opts.Aliases))
-	for _, alias := range opts.Aliases {
-		a := strings.TrimSuffix(strings.ToLower(alias), "!")
-		if a != "" {
-			aliases = append(aliases, a)
+	responses := make([]commands.CreateInputResponse, len(opts.Responses))
+	for idx, res := range opts.Responses {
+		responses[idx] = commands.CreateInputResponse{
+			Text:              &res.Text,
+			Order:             idx,
+			TwitchCategoryIDs: res.TwitchCategoriesIds,
 		}
 	}
 
-	command := &model.ChannelsCommands{
-		ID:                        uuid.New().String(),
-		Name:                      strings.ToLower(opts.Name),
-		Cooldown:                  null.IntFrom(int64(opts.Cooldown)),
+	createInput := commands.CreateInput{
+		ChannelID:                 dashboardId,
+		ActorID:                   user.ID,
+		Name:                      opts.Name,
+		Cooldown:                  opts.Cooldown,
 		CooldownType:              opts.CooldownType,
 		Enabled:                   opts.Enabled,
-		Aliases:                   aliases,
-		Description:               null.StringFrom(opts.Description),
+		Aliases:                   opts.Aliases,
+		Description:               opts.Description,
 		Visible:                   opts.Visible,
-		ChannelID:                 dashboardId,
-		Default:                   false,
-		DefaultName:               null.String{},
-		Module:                    "CUSTOM",
 		IsReply:                   opts.IsReply,
 		KeepResponsesOrder:        opts.KeepResponsesOrder,
 		DeniedUsersIDS:            opts.DeniedUsersIds,
 		AllowedUsersIDS:           opts.AllowedUsersIds,
 		RolesIDS:                  opts.RolesIds,
 		OnlineOnly:                opts.OnlineOnly,
+		CooldownRolesIDs:          opts.CooldownRolesIds,
+		EnabledCategories:         opts.EnabledCategories,
 		RequiredWatchTime:         opts.RequiredWatchTime,
 		RequiredMessages:          opts.RequiredMessages,
 		RequiredUsedChannelPoints: opts.RequiredUsedChannelPoints,
-		Responses: make(
-			[]*model.ChannelsCommandsResponses,
-			0,
-			len(opts.Responses),
-		),
-		GroupID:           null.StringFromPtr(opts.GroupID.Value()),
-		CooldownRolesIDs:  opts.CooldownRolesIds,
-		EnabledCategories: opts.EnabledCategories,
+		GroupID:                   groupId,
+		ExpiresAt:                 opts.ExpiresAt.Value(),
+		ExpiresType:               expiresType,
+		Responses:                 responses,
 	}
 
-	if opts.ExpiresAt.IsSet() && opts.ExpiresAt.Value() != nil {
-		command.ExpiresAt = null.TimeFrom(time.UnixMilli(int64(*opts.ExpiresAt.Value())))
-	}
-
-	if opts.ExpiresType.IsSet() && opts.ExpiresType.Value() != nil {
-		command.ExpiresType = lo.ToPtr(mappers.CommandsExpiresAtGqlToDb(*opts.ExpiresType.Value()))
-	}
-
-	for idx, res := range opts.Responses {
-		if res.Text == "" {
-			continue
-		}
-
-		command.Responses = append(
-			command.Responses,
-			&model.ChannelsCommandsResponses{
-				ID:                uuid.New().String(),
-				Text:              null.StringFrom(res.Text),
-				Order:             idx,
-				TwitchCategoryIDs: append(pq.StringArray{}, res.TwitchCategoriesIds...),
-			},
-		)
-	}
-
-	err = r.gorm.WithContext(ctx).Create(command).Error
+	newCmd, err := r.commandsService.Create(ctx, createInput)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create command: %w", err)
+		return nil, err
 	}
 
-	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
-	}
-
-	r.logger.Audit(
-		"New command created",
-		audit.Fields{
-			NewValue:      command,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
-			OperationType: audit.OperationCreate,
-			ObjectID:      &command.ID,
-		},
-	)
-
-	return &gqlmodel.CommandCreatePayload{ID: command.ID}, nil
+	return &gqlmodel.CommandCreatePayload{ID: newCmd.ID.String()}, nil
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
@@ -475,7 +429,7 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 		return nil, err
 	}
 
-	commands, err := r.commandsService.GetManyByChannelID(ctx, dashboardId)
+	commands, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}

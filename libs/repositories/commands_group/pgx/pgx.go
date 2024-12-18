@@ -40,7 +40,7 @@ func (c *Pgx) GetManyByIDs(ctx context.Context, ids []uuid.UUID) ([]model.Group,
 	query := `
 SELECT id, "channelId", name, color
 FROM channels_commands_groups
-WHERE id IN ($1)
+WHERE id = ANY($1)
 `
 
 	idsStrings := make([]string, len(ids))

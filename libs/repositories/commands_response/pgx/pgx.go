@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Masterminds/squirrel"
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,7 +18,8 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool: opts.PgxPool,
+		pool:   opts.PgxPool,
+		getter: trmpgx.DefaultCtxGetter,
 	}
 }
 
@@ -29,7 +31,39 @@ var _ commands_response.Repository = (*Pgx)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
-	pool *pgxpool.Pool
+	pool   *pgxpool.Pool
+	getter *trmpgx.CtxGetter
+}
+
+func (c *Pgx) Create(ctx context.Context, input commands_response.CreateInput) (
+	model.Response,
+	error,
+) {
+	query := `
+INSERT INTO channels_commands_responses("commandId", "order", text, twitch_category_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, "commandId", "order", text, twitch_category_id;
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(
+		ctx,
+		query,
+		input.CommandID,
+		input.Order,
+		input.Text,
+		append([]string{}, input.TwitchCategoryIDs...),
+	)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	response, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Response])
+	if err != nil {
+		return model.Nil, err
+	}
+
+	return response, nil
 }
 
 func (c *Pgx) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
@@ -43,7 +77,7 @@ func (c *Pgx) GetManyByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
 	query := `
 SELECT id, "commandId", "order", text, twitch_category_id
 FROM channels_commands_responses
-WHERE "commandId" IN ($1)
+WHERE "commandId" = any($1);
 `
 
 	commandsIDsStrings := make([]string, len(commandsIDs))
@@ -51,7 +85,8 @@ WHERE "commandId" IN ($1)
 		commandsIDsStrings[i] = id.String()
 	}
 
-	rows, err := c.pool.Query(ctx, query, commandsIDsStrings)
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, commandsIDsStrings)
 	if err != nil {
 		return nil, err
 	}
@@ -61,15 +96,5 @@ WHERE "commandId" IN ($1)
 		return nil, err
 	}
 
-	result := make([]model.Response, len(commandsIDs))
-	for i, id := range commandsIDs {
-		for _, r := range responses {
-			if r.CommandID == id {
-				result[i] = r
-				break
-			}
-		}
-	}
-
-	return result, nil
+	return responses, nil
 }

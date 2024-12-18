@@ -4,6 +4,7 @@ import (
 	"cmp"
 	"context"
 	"database/sql"
+	"fmt"
 	"slices"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	commandmodel "github.com/twirapp/twir/libs/repositories/commands/model"
+	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
 	groupmodel "github.com/twirapp/twir/libs/repositories/commands_group/model"
 	responsemodel "github.com/twirapp/twir/libs/repositories/commands_response/model"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
@@ -39,42 +41,28 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-var selectColumns = []string{
-	"c.id",
-	"c.name",
-	"c.cooldown",
-	`c."cooldownType"`,
-	"c.enabled",
-	"c.aliases",
-	"c.description",
-	"c.visible",
-	`c."channelId"`,
-	`c."default"`,
-	`c."defaultName"`,
-	`c."module"`,
-	`c.is_reply`,
-	`c."keepResponsesOrder"`,
-	`c."deniedUsersIds"`,
-	`c."allowedUsersIds"`,
-	`c."rolesIds"`,
-	`c.online_only`,
-	`c.cooldown_roles_ids`,
-	`c.enabled_categories`,
-	`c."requiredWatchTime"`,
-	`c."requiredMessages"`,
-	`c."requiredUsedChannelPoints"`,
-	`c."groupId"`,
-	`c.expires_at`,
-	`c.expires_type`,
-	`g.id group_id`,
-	`g."channelId" group_channel_id`,
-	`g."name" group_name`,
-	`g.color group_color`,
-	"r.id response_id",
-	"r.text response_text",
-	`r."commandId" response_command_id`,
-	"r.order response_order",
-	"r.twitch_category_id response_twitch_category_id",
+var selectColumns []string
+
+func init() {
+	var columns []string
+	for _, column := range commandsrepositorypgx.SelectColumns {
+		columns = append(columns, "c."+column)
+	}
+
+	columns = append(
+		columns,
+		`g.id group_id`,
+		`g."channelId" group_channel_id`,
+		`g."name" group_name`,
+		`g.color group_color`,
+		"r.id response_id",
+		"r.text response_text",
+		`r."commandId" response_command_id`,
+		"r.order response_order",
+		"r.twitch_category_id response_twitch_category_id",
+	)
+
+	selectColumns = append(selectColumns, columns...)
 }
 
 func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error) {
@@ -132,7 +120,7 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error)
 		&responseOrder,
 		&responseTwitchCategoryID,
 	); err != nil {
-		return model.Nil, err
+		return model.Nil, fmt.Errorf("responses failed to scan row: %w", err)
 	}
 
 	if commandDefaultName.Valid {
@@ -199,7 +187,7 @@ func (c *Pgx) GetManyByChannelID(
 
 	rows, err := c.pool.Query(ctx, query, args...)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("responses GetManyByChannelID: failed to execute select query: %w", err)
 	}
 
 	defer rows.Close()

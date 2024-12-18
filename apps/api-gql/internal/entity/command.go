@@ -35,6 +35,8 @@ type Command struct {
 	ExpiresType               *CommandExpireType
 }
 
+var CommandNil = Command{}
+
 type CommandExpireType string
 
 const (
@@ -49,6 +51,8 @@ type CommandGroup struct {
 	Color     string
 }
 
+var CommandGroupNil = CommandGroup{}
+
 type CommandResponse struct {
 	ID                uuid.UUID
 	Text              *string
@@ -56,6 +60,8 @@ type CommandResponse struct {
 	Order             int
 	TwitchCategoryIDs []string
 }
+
+var CommandResponseNil = CommandResponse{}
 
 type CommandWithGroupAndResponses struct {
 	Command   Command
