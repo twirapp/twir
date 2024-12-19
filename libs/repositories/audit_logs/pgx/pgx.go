@@ -53,7 +53,8 @@ func (p *Pgx) GetMany(ctx context.Context, input audit_logs.GetManyInput) (
 			"user_id",
 			"created_at",
 		).
-		From("audit_logs")
+		From("audit_logs").
+		OrderBy("created_at DESC")
 
 	perPage := input.Limit
 	if perPage == 0 {
@@ -151,7 +152,7 @@ func (p *Pgx) Create(ctx context.Context, input audit_logs.CreateInput) (model.A
 				"user_id":        input.UserID,
 			},
 		).
-		Prefix("RETURNING id")
+		Suffix("RETURNING id")
 
 	query, args, err := insertBuilder.ToSql()
 	if err != nil {
