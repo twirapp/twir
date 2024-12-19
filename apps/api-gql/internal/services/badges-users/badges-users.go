@@ -5,8 +5,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	badges_users "github.com/twirapp/twir/libs/repositories/badges-users"
-	"github.com/twirapp/twir/libs/repositories/badges-users/model"
+	"github.com/twirapp/twir/libs/repositories/badges_users"
+	"github.com/twirapp/twir/libs/repositories/badges_users/model"
 	"go.uber.org/fx"
 )
 

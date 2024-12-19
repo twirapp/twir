@@ -7,8 +7,8 @@ import (
 	"github.com/goccy/go-json"
 	slogcommon "github.com/samber/slog-common"
 	"github.com/satont/twir/libs/logger/levels"
-	audit_logs "github.com/twirapp/twir/libs/repositories/audit-logs"
-	"github.com/twirapp/twir/libs/repositories/audit-logs/model"
+	"github.com/twirapp/twir/libs/repositories/audit_logs"
+	"github.com/twirapp/twir/libs/repositories/audit_logs/model"
 )
 
 func NewDatabase(repository audit_logs.Repository) *AuditDatabase {

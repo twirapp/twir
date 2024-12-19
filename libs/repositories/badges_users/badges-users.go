@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/twirapp/twir/libs/repositories/badges-users/model"
+	"github.com/twirapp/twir/libs/repositories/badges_users/model"
 )
 
 type Repository interface {

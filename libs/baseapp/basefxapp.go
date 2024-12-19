@@ -5,6 +5,9 @@ import (
 	"log/slog"
 	"time"
 
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/exaring/otelpgx"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,8 +19,8 @@ import (
 	auditlogs "github.com/satont/twir/libs/pubsub/audit-logs"
 	twirsentry "github.com/satont/twir/libs/sentry"
 	buscore "github.com/twirapp/twir/libs/bus-core"
-	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit-logs"
-	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit-logs/pgx"
+	auditlogsrepository "github.com/twirapp/twir/libs/repositories/audit_logs"
+	auditlogsrepositorypgx "github.com/twirapp/twir/libs/repositories/audit_logs/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -85,10 +88,17 @@ func newRedis(cfg config.Config) (*redis.Client, error) {
 	return redisClient, nil
 }
 
-func newPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
+type PgxResult struct {
+	fx.Out
+
+	PgxPool   *pgxpool.Pool
+	TrManager trm.Manager
+}
+
+func newPgxPool(cfg config.Config) (PgxResult, error) {
 	connConfig, err := pgxpool.ParseConfig(cfg.DatabaseUrl)
 	if err != nil {
-		return nil, err
+		return PgxResult{}, err
 	}
 
 	connConfig.ConnConfig.Tracer = otelpgx.NewTracer()
@@ -104,8 +114,16 @@ func newPgxPool(cfg config.Config) (*pgxpool.Pool, error) {
 		connConfig,
 	)
 	if err != nil {
-		return nil, err
+		return PgxResult{}, err
 	}
 
-	return pool, nil
+	trManager, err := manager.New(trmpgx.NewDefaultFactory(pool))
+	if err != nil {
+		return PgxResult{}, err
+	}
+
+	return PgxResult{
+		PgxPool:   pool,
+		TrManager: trManager,
+	}, nil
 }

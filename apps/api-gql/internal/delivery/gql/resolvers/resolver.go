@@ -18,8 +18,12 @@ import (
 	audit_logs "github.com/twirapp/twir/apps/api-gql/internal/services/audit-logs"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	badges_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -52,17 +56,21 @@ type Resolver struct {
 	wsRouter             wsrouter.WsRouter
 	twirStats            *twir_stats.TwirStats
 
-	dashboardWidgetEventsService *dashboard_widget_events.Service
-	variablesService             *variables.Service
-	timersService                *timers.Service
-	keywordsService              *keywords.Service
-	auditLogService              *audit_logs.Service
-	adminActionsService          *admin_actions.Service
-	badgesService                *badges.Service
-	badgesUsersService           *badges_users.Service
-	usersService                 *users.Service
-	twirUsersService             *twir_users.Service
-	alertsService                *alerts.Service
+	dashboardWidgetEventsService          *dashboard_widget_events.Service
+	variablesService                      *variables.Service
+	timersService                         *timers.Service
+	keywordsService                       *keywords.Service
+	auditLogService                       *audit_logs.Service
+	adminActionsService                   *admin_actions.Service
+	badgesService                         *badges.Service
+	badgesUsersService                    *badges_users.Service
+	usersService                          *users.Service
+	twirUsersService                      *twir_users.Service
+	alertsService                         *alerts.Service
+	commandsService                       *commands.Service
+	commandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
+	commandsResponsesService              *commands_responses.Service
+	rolesService                          *roles.Service
 }
 
 type Opts struct {
@@ -81,17 +89,21 @@ type Opts struct {
 	WsRouter             wsrouter.WsRouter
 	TwirStats            *twir_stats.TwirStats
 
-	DashboardWidgetEventsService *dashboard_widget_events.Service
-	VariablesService             *variables.Service
-	TimersService                *timers.Service
-	KeywordService               *keywords.Service
-	UserAuditLogService          *audit_logs.Service
-	AdminActionsService          *admin_actions.Service
-	BadgesService                *badges.Service
-	BadgesUsersService           *badges_users.Service
-	UsersService                 *users.Service
-	TwirUsersService             *twir_users.Service
-	AlertsService                *alerts.Service
+	DashboardWidgetEventsService          *dashboard_widget_events.Service
+	VariablesService                      *variables.Service
+	TimersService                         *timers.Service
+	KeywordService                        *keywords.Service
+	UserAuditLogService                   *audit_logs.Service
+	AdminActionsService                   *admin_actions.Service
+	BadgesService                         *badges.Service
+	BadgesUsersService                    *badges_users.Service
+	UsersService                          *users.Service
+	TwirUsersService                      *twir_users.Service
+	AlertsService                         *alerts.Service
+	CommandsService                       *commands.Service
+	CommandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
+	CommandsResponsesService              *commands_responses.Service
+	RolesService                          *roles.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -101,30 +113,34 @@ func New(opts Opts) (*Resolver, error) {
 	}
 
 	return &Resolver{
-		config:                       opts.Config,
-		sessions:                     opts.Sessions,
-		gorm:                         opts.Gorm,
-		twitchClient:                 twitchClient,
-		cachedTwitchClient:           opts.CachedTwitchClient,
-		minioClient:                  opts.Minio,
-		twirBus:                      opts.TwirBus,
-		logger:                       opts.Logger,
-		redis:                        opts.Redis,
-		cachedCommandsClient:         opts.CachedCommandsClient,
-		tokensClient:                 opts.TokensGrpc,
-		wsRouter:                     opts.WsRouter,
-		twirStats:                    opts.TwirStats,
-		dashboardWidgetEventsService: opts.DashboardWidgetEventsService,
-		variablesService:             opts.VariablesService,
-		timersService:                opts.TimersService,
-		keywordsService:              opts.KeywordService,
-		auditLogService:              opts.UserAuditLogService,
-		adminActionsService:          opts.AdminActionsService,
-		badgesService:                opts.BadgesService,
-		badgesUsersService:           opts.BadgesUsersService,
-		usersService:                 opts.UsersService,
-		twirUsersService:             opts.TwirUsersService,
-		alertsService:                opts.AlertsService,
+		config:                                opts.Config,
+		sessions:                              opts.Sessions,
+		gorm:                                  opts.Gorm,
+		twitchClient:                          twitchClient,
+		cachedTwitchClient:                    opts.CachedTwitchClient,
+		minioClient:                           opts.Minio,
+		twirBus:                               opts.TwirBus,
+		logger:                                opts.Logger,
+		redis:                                 opts.Redis,
+		cachedCommandsClient:                  opts.CachedCommandsClient,
+		tokensClient:                          opts.TokensGrpc,
+		wsRouter:                              opts.WsRouter,
+		twirStats:                             opts.TwirStats,
+		dashboardWidgetEventsService:          opts.DashboardWidgetEventsService,
+		variablesService:                      opts.VariablesService,
+		timersService:                         opts.TimersService,
+		keywordsService:                       opts.KeywordService,
+		auditLogService:                       opts.UserAuditLogService,
+		adminActionsService:                   opts.AdminActionsService,
+		badgesService:                         opts.BadgesService,
+		badgesUsersService:                    opts.BadgesUsersService,
+		usersService:                          opts.UsersService,
+		twirUsersService:                      opts.TwirUsersService,
+		alertsService:                         opts.AlertsService,
+		commandsService:                       opts.CommandsService,
+		commandsWithGroupsAndResponsesService: opts.CommandsWithGroupsAndResponsesService,
+		commandsResponsesService:              opts.CommandsResponsesService,
+		rolesService:                          opts.RolesService,
 	}, nil
 }
 

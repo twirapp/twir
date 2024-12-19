@@ -14,7 +14,7 @@ type Command {
 	name: String!
 	description: String!
 	aliases: [String!]!
-	responses: [CommandResponse!]!
+	responses: [CommandResponse!]! @goField(forceResolver: true)
 	cooldown: Int!
 	cooldownType: String!
 	enabled: Boolean!
@@ -34,7 +34,7 @@ type Command {
 	requiredMessages: Int!
 	requiredUsedChannelPoints: Int!
 	groupId: String
-	group: CommandGroup
+	group: CommandGroup @goField(forceResolver: true)
 	expiresAt: Int
 	expiresType: CommandExpiresType
 }
