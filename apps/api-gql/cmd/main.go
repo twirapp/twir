@@ -8,9 +8,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
-	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/auth"
-	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/public"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public/webhooks"
+	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -226,7 +226,7 @@ func main() {
 			gql.New,
 			uptrace.NewFx("api-gql"),
 			pubclicroutes.New,
-			webhooks.New,
+			http_webhooks.New,
 			authroutes.New,
 		),
 	).Run()

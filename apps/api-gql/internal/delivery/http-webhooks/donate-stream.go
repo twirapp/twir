@@ -1,4 +1,4 @@
-package webhooks
+package http_webhooks
 
 import (
 	"log/slog"

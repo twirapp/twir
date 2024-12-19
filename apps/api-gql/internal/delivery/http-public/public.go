@@ -1,4 +1,4 @@
-package public
+package http_public
 
 import (
 	config "github.com/satont/twir/libs/config"
