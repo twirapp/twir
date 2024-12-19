@@ -15,6 +15,8 @@ type ChannelRole struct {
 	RequiredUsedChannelPoints int64
 }
 
+var ChannelRoleNil = ChannelRole{}
+
 type ChannelRoleEnum string
 
 func (c ChannelRoleEnum) String() string {
@@ -28,3 +30,11 @@ const (
 	ChannelRoleTypeVip         ChannelRoleEnum = "VIP"
 	ChannelRoleTypeCustom      ChannelRoleEnum = "CUSTOM"
 )
+
+type ChannelRoleUser struct {
+	ID     uuid.UUID
+	UserID string
+	RoleID uuid.UUID
+}
+
+var ChannelRoleUserNil = ChannelRoleUser{}

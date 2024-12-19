@@ -18,11 +18,17 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"gorm.io/gorm"
 )
 
 // RolesCreate is the resolver for the rolesCreate field.
-func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
+func (r *mutationResolver) RolesCreate(
+	ctx context.Context,
+	opts gqlmodel.RolesCreateOrUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -32,6 +38,34 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 	if err != nil {
 		return false, err
 	}
+
+	permissions := make([]string, len(opts.Permissions))
+	for i, permission := range opts.Permissions {
+		permissions[i] = permission.String()
+	}
+
+	users := make([]roles_with_roles_users.CreateInputUser, len(opts.Users))
+	for idx, userId := range opts.Users {
+		users[idx] = roles_with_roles_users.CreateInputUser{
+			UserID: userId,
+		}
+	}
+
+	r.rolesWithUsersService.Create(
+		ctx, roles_with_roles_users.CreateInput{
+			Role: roles.CreateInput{
+				ChannelID:                 dashboardId,
+				ActorID:                   user.ID,
+				Name:                      opts.Name,
+				Type:                      entity.ChannelRoleTypeCustom,
+				Permissions:               permissions,
+				RequiredWatchTime:         int64(opts.Settings.RequiredWatchTime),
+				RequiredMessages:          int32(opts.Settings.RequiredMessages),
+				RequiredUsedChannelPoints: int64(opts.Settings.RequiredUserChannelPoints),
+			},
+			Users: users,
+		},
+	)
 
 	permissions := make([]string, 0, len(opts.Permissions))
 	for _, permission := range opts.Permissions {
@@ -81,7 +115,11 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 }
 
 // RolesUpdate is the resolver for the rolesUpdate field.
-func (r *mutationResolver) RolesUpdate(ctx context.Context, id string, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
+func (r *mutationResolver) RolesUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.RolesCreateOrUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -277,7 +315,10 @@ func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
 }
 
 // Users is the resolver for the users field.
-func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmodel.TwirUserTwitchInfo, error) {
+func (r *roleResolver) Users(
+	ctx context.Context,
+	obj *gqlmodel.Role,
+) ([]gqlmodel.TwirUserTwitchInfo, error) {
 	var users []model.ChannelRoleUser
 	if err := r.gorm.
 		WithContext(ctx).

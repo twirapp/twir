@@ -28,6 +28,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
@@ -71,8 +73,8 @@ import (
 	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
 	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
 
-	commandswithgroupsandreponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
-	commandswithgroupsandreponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
 
 	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
 	commandsgroupsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_group/pgx"
@@ -85,6 +87,9 @@ import (
 
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
+
+	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
+	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
 
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
@@ -119,8 +124,10 @@ func main() {
 			commands_groups.New,
 			commands_responses.New,
 			commands.New,
-			roles.New,
 			greetings.New,
+			roles.New,
+			roles_users.New,
+			roles_with_roles_users.New,
 		),
 		// repositories
 		fx.Provide(
@@ -161,8 +168,8 @@ func main() {
 				fx.As(new(alertsrepository.Repository)),
 			),
 			fx.Annotate(
-				commandswithgroupsandreponsesrepositorypgx.NewFx,
-				fx.As(new(commandswithgroupsandreponsesrepository.Repository)),
+				commandswithgroupsandresponsesrepositorypgx.NewFx,
+				fx.As(new(commandswithgroupsandresponsesrepository.Repository)),
 			),
 			fx.Annotate(
 				commandsgroupsrepositorypgx.NewFx,
@@ -179,6 +186,10 @@ func main() {
 			fx.Annotate(
 				rolesrepositorypgx.NewFx,
 				fx.As(new(rolesrepository.Repository)),
+			),
+			fx.Annotate(
+				rolesusersrepositorypgx.NewFx,
+				fx.As(new(rolesusersrepository.Repository)),
 			),
 			fx.Annotate(
 				greetingsrepositorypgx.NewFx,
