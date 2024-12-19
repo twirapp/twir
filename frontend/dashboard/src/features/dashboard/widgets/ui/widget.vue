@@ -53,7 +53,7 @@ function openPopup() {
 				</span>
 			</div>
 			<div class="flex">
-				<slot name="extra-buttons" />
+				<slot name="settings" />
 				<button
 					v-if="popupHref"
 					type="button"

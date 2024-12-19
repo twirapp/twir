@@ -134,10 +134,10 @@ const popupHref = computed(() => {
 <template>
 	<Widget :popupHref>
 		<template #title>
-			{{ $attrs?.item?.i }}
+			{{ $attrs?.item?.i as string }}
 		</template>
 
-		<template #extra-buttons>
+		<template #settings>
 			<DropdownMenu>
 				<DropdownMenuTrigger as-child>
 					<button
