@@ -61,7 +61,10 @@ onBeforeUnmount(() => {
 	pauseUptimeInterval()
 })
 
-const settings = useLocalStorage<{ name: string, visible: string }>('twirWidgetsStream', {
+const settings = useLocalStorage<{
+	showPreview: boolean
+	visibility: Record<string, boolean>
+}>('twirWidgetsStream', {
 	showPreview: true,
 	visibility: {
 		messages: true,
@@ -81,7 +84,7 @@ const statsItems = computed<{
 	{
 		key: 'messages',
 		name: t(`dashboard.statsWidgets.messages`),
-		count: stats.value.messages ?? 0,
+		count: stats.value.chatMessages ?? 0,
 		icon: MessageCircleIcon,
 	},
 	{
