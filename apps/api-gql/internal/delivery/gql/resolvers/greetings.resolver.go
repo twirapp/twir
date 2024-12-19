@@ -10,13 +10,11 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/utils"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
@@ -36,43 +34,28 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 		return nil, err
 	}
 
-	entity := &model.ChannelsGreetings{
-		ID:        uuid.NewString(),
-		ChannelID: dashboardId,
-		UserID:    opts.UserID,
-		Enabled:   opts.Enabled,
-		Text:      opts.Text,
-		IsReply:   opts.IsReply,
-		Processed: false,
-	}
-
-	if err := r.gorm.WithContext(ctx).Create(entity).Error; err != nil {
+	newGreeting, err := r.greetingsService.Create(
+		ctx,
+		greetings.CreateInput{
+			ChannelID: dashboardId,
+			ActorID:   user.ID,
+			UserID:    opts.UserID,
+			Enabled:   opts.Enabled,
+			Text:      opts.Text,
+			IsReply:   opts.IsReply,
+			Processed: false,
+		},
+	)
+	if err != nil {
 		return nil, fmt.Errorf("cannot create greeting: %w", err)
 	}
 
-	r.logger.Audit(
-		"New greeting",
-		audit.Fields{
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationCreate,
-			ObjectID:      &entity.ID,
-		},
-	)
-
-	return &gqlmodel.Greeting{
-		ID:      entity.ID,
-		UserID:  entity.UserID,
-		Enabled: entity.Enabled,
-		IsReply: entity.IsReply,
-		Text:    entity.Text,
-	}, nil
+	converted := mappers.GreetingEntityTo(newGreeting)
+	return &converted, nil
 }
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
-func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -83,64 +66,29 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id string, opts 
 		return nil, err
 	}
 
-	entity := &model.ChannelsGreetings{}
-	if err := r.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND id = ?`,
-		dashboardId,
+	newGreeting, err := r.greetingsService.Update(
+		ctx,
 		id,
-	).First(entity).Error; err != nil {
-		return nil, fmt.Errorf("cannot find greeting: %w", err)
-	}
-
-	var entityCopy model.ChannelsGreetings
-	if err := utils.DeepCopy(entity, &entityCopy); err != nil {
-		return nil, fmt.Errorf("cannot copy greeting: %w", err)
-	}
-
-	if opts.IsReply.IsSet() {
-		entity.IsReply = *opts.IsReply.Value()
-	}
-
-	if opts.Enabled.IsSet() {
-		entity.Enabled = *opts.Enabled.Value()
-	}
-
-	if opts.Text.IsSet() {
-		entity.Text = *opts.Text.Value()
-	}
-
-	if opts.UserID.IsSet() {
-		entity.UserID = *opts.UserID.Value()
-	}
-
-	if err := r.gorm.WithContext(ctx).Save(entity).Error; err != nil {
+		greetings.UpdateInput{
+			ChannelID: dashboardId,
+			ActorID:   user.ID,
+			UserID:    opts.UserID.Value(),
+			Enabled:   opts.Enabled.Value(),
+			Text:      opts.Text.Value(),
+			IsReply:   opts.IsReply.Value(),
+			Processed: lo.ToPtr(false),
+		},
+	)
+	if err != nil {
 		return nil, fmt.Errorf("cannot update greeting: %w", err)
 	}
 
-	r.logger.Audit(
-		"Update greeting",
-		audit.Fields{
-			OldValue:      entityCopy,
-			NewValue:      entity,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &entity.ID,
-		},
-	)
-
-	return &gqlmodel.Greeting{
-		ID:      entity.ID,
-		UserID:  entity.UserID,
-		Enabled: entity.Enabled,
-		IsReply: entity.IsReply,
-		Text:    entity.Text,
-	}, nil
+	converted := mappers.GreetingEntityTo(newGreeting)
+	return &converted, nil
 }
 
 // GreetingsRemove is the resolver for the greetingsRemove field.
-func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) GreetingsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -151,31 +99,16 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool
 		return false, err
 	}
 
-	greeting := &model.ChannelsGreetings{}
-	if err := r.gorm.WithContext(ctx).Where(
-		`"channelId" = ? AND id = ?`,
-		dashboardId,
-		id,
-	).
-		First(greeting).Error; err != nil {
-		return false, fmt.Errorf("cannot find greeting: %w", err)
-	}
-
-	if err := r.gorm.WithContext(ctx).Delete(greeting).Error; err != nil {
-		return false, fmt.Errorf("cannot remove greeting: %w", err)
-	}
-
-	r.logger.Audit(
-		"Remove greeting",
-		audit.Fields{
-			OldValue:      greeting,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
-			OperationType: audit.OperationDelete,
-			ObjectID:      &greeting.ID,
+	err = r.greetingsService.Delete(
+		ctx, greetings.DeleteInput{
+			ChannelID: dashboardId,
+			ActorID:   user.ID,
+			ID:        id,
 		},
 	)
+	if err != nil {
+		return false, fmt.Errorf("cannot delete greeting: %w", err)
+	}
 
 	return true, nil
 }
@@ -187,31 +120,17 @@ func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, err
 		return nil, err
 	}
 
-	var entities []model.ChannelsGreetings
-	if err := r.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ?`, dashboardId).
-		Order(`"userId" ASC`).
-		Find(&entities).
-		Error; err != nil {
-		return nil, fmt.Errorf("cannot find greetings: %w", err)
+	entities, err := r.greetingsService.GetManyByChannelID(ctx, dashboardId)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get greetings: %w", err)
 	}
 
-	var greetings []gqlmodel.Greeting
-	for _, entity := range entities {
-		greetings = append(
-			greetings,
-			gqlmodel.Greeting{
-				ID:      entity.ID,
-				UserID:  entity.UserID,
-				Enabled: entity.Enabled,
-				IsReply: entity.IsReply,
-				Text:    entity.Text,
-			},
-		)
+	result := make([]gqlmodel.Greeting, len(entities))
+	for i, greeting := range entities {
+		result[i] = mappers.GreetingEntityTo(greeting)
 	}
 
-	return greetings, nil
+	return result, nil
 }
 
 // Greeting returns graph.GreetingResolver implementation.

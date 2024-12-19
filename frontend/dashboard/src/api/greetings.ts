@@ -41,15 +41,15 @@ export const useGreetingsApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationUpdateGreetings = () => useMutation(graphql(`
-		mutation UpdateGreetings($id: String!, $opts: GreetingsUpdateInput!) {
-			greetingsUpdate(id: $id, opts: $opts) {
+		mutation UpdateGreetings($id: UUID!, $opts: GreetingsUpdateInput!) {
+			greetingsUpdate(id: UUID, opts: $opts) {
 				id
 			}
 		}
 	`), [invalidationKey])
 
 	const useMutationRemoveGreetings = () => useMutation(graphql(`
-		mutation RemoveGreetings($id: String!) {
+		mutation RemoveGreetings($id: UUID!) {
 			greetingsRemove(id: $id)
 		}
 	`), [invalidationKey])

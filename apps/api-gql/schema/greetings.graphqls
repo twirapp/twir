@@ -4,12 +4,12 @@ extend type Query {
 
 extend type Mutation {
 	greetingsCreate(opts: GreetingsCreateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
-	greetingsUpdate(id: String!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
-	greetingsRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsUpdate(id: UUID!, opts: GreetingsUpdateInput!): Greeting! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
+	greetingsRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_GREETINGS)
 }
 
 type Greeting {
-	id: ID!
+	id: UUID!
 	userId: String!
 	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
 	enabled: Boolean!

@@ -25,6 +25,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -84,6 +85,9 @@ import (
 
 	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
 	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
+
+	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 )
 
 func main() {
@@ -116,6 +120,7 @@ func main() {
 			commands_responses.New,
 			commands.New,
 			roles.New,
+			greetings.New,
 		),
 		// repositories
 		fx.Provide(
@@ -174,6 +179,10 @@ func main() {
 			fx.Annotate(
 				rolesrepositorypgx.NewFx,
 				fx.As(new(rolesrepository.Repository)),
+			),
+			fx.Annotate(
+				greetingsrepositorypgx.NewFx,
+				fx.As(new(greetingsrepository.Repository)),
 			),
 		),
 		// grpc clients
