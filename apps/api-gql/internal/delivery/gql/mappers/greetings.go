@@ -7,7 +7,7 @@ import (
 
 func GreetingEntityTo(e entity.Greeting) gqlmodel.Greeting {
 	return gqlmodel.Greeting{
-		ID:      e.ID.String(),
+		ID:      e.ID,
 		UserID:  e.UserID,
 		Enabled: e.Enabled,
 		IsReply: e.IsReply,

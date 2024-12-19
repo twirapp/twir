@@ -18,18 +18,12 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *greetingResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.Greeting,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Greeting) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
-func (r *mutationResolver) GreetingsCreate(
-	ctx context.Context,
-	opts gqlmodel.GreetingsCreateInput,
-) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -61,11 +55,7 @@ func (r *mutationResolver) GreetingsCreate(
 }
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
-func (r *mutationResolver) GreetingsUpdate(
-	ctx context.Context,
-	id string,
-	opts gqlmodel.GreetingsUpdateInput,
-) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -76,14 +66,9 @@ func (r *mutationResolver) GreetingsUpdate(
 		return nil, err
 	}
 
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return nil, fmt.Errorf("cannot parse greeting id: %w", err)
-	}
-
 	newGreeting, err := r.greetingsService.Update(
 		ctx,
-		parsedID,
+		id,
 		greetings.UpdateInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
@@ -103,7 +88,7 @@ func (r *mutationResolver) GreetingsUpdate(
 }
 
 // GreetingsRemove is the resolver for the greetingsRemove field.
-func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) GreetingsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -114,16 +99,11 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id string) (bool
 		return false, err
 	}
 
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return false, fmt.Errorf("cannot parse greeting id: %w", err)
-	}
-
 	err = r.greetingsService.Delete(
 		ctx, greetings.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
-			ID:        parsedID,
+			ID:        id,
 		},
 	)
 	if err != nil {
@@ -140,13 +120,13 @@ func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, err
 		return nil, err
 	}
 
-	greetings, err := r.greetingsService.GetManyByChannelID(ctx, dashboardId)
+	entities, err := r.greetingsService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get greetings: %w", err)
 	}
 
-	result := make([]gqlmodel.Greeting, len(greetings))
-	for i, greeting := range greetings {
+	result := make([]gqlmodel.Greeting, len(entities))
+	for i, greeting := range entities {
 		result[i] = mappers.GreetingEntityTo(greeting)
 	}
 
