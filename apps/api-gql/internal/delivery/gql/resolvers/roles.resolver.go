@@ -71,7 +71,7 @@ func (r *mutationResolver) RolesCreate(
 // RolesUpdate is the resolver for the rolesUpdate field.
 func (r *mutationResolver) RolesUpdate(
 	ctx context.Context,
-	id string,
+	id uuid.UUID,
 	opts gqlmodel.RolesCreateOrUpdateOpts,
 ) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
@@ -82,11 +82,6 @@ func (r *mutationResolver) RolesUpdate(
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
-	}
-
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse role id: %w", err)
 	}
 
 	permissions := make([]string, len(opts.Permissions))
@@ -103,7 +98,7 @@ func (r *mutationResolver) RolesUpdate(
 
 	if err := r.rolesWithUsersService.Update(
 		ctx, roles_with_roles_users.UpdateInput{
-			ID:        parsedID,
+			ID:        id,
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
 			Role: roles.UpdateInput{
@@ -125,7 +120,7 @@ func (r *mutationResolver) RolesUpdate(
 }
 
 // RolesRemove is the resolver for the rolesRemove field.
-func (r *mutationResolver) RolesRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -136,17 +131,12 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id string) (bool, er
 		return false, err
 	}
 
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return false, fmt.Errorf("failed to parse role id: %w", err)
-	}
-
 	if err := r.rolesService.Delete(
 		ctx,
 		roles.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
-			ID:        parsedID,
+			ID:        id,
 		},
 	); err != nil {
 		return false, err
@@ -184,12 +174,7 @@ func (r *roleResolver) Users(
 		return nil, nil
 	}
 
-	parsedID, err := uuid.Parse(obj.ID)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse role id: %w", err)
-	}
-
-	users, err := r.rolesUsersService.GetManyByRoleID(ctx, parsedID)
+	users, err := r.rolesUsersService.GetManyByRoleID(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -37,7 +37,7 @@ export const useRoles = createGlobalState(() => {
 
 	const useRolesDeleteMutation = () => useMutation(
 		graphql(`
-			mutation DeleteRole($id: ID!) {
+			mutation DeleteRole($id: UUID!) {
 				rolesRemove(id: $id)
 			}
 		`),
@@ -55,7 +55,7 @@ export const useRoles = createGlobalState(() => {
 
 	const useRolesUpdateMutation = () => useMutation(
 		graphql(`
-			mutation RolesUpdate($id: ID!, $opts: RolesCreateOrUpdateOpts!) {
+			mutation RolesUpdate($id: UUID!, $opts: RolesCreateOrUpdateOpts!) {
 				rolesUpdate(id: $id, opts: $opts)
 			}
 		`),

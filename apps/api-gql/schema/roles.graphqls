@@ -4,12 +4,12 @@ extend type Query {
 
 extend type Mutation  {
 	rolesCreate(opts: RolesCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
-	rolesUpdate(id: ID!, opts: RolesCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
-	rolesRemove(id: ID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
+	rolesUpdate(id: UUID!, opts: RolesCreateOrUpdateOpts!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
+	rolesRemove(id: UUID!): Boolean! @isAuthenticated @hasChannelRolesDashboardPermission(permission: MANAGE_ROLES)
 }
 
 type Role {
-	id: ID!
+	id: UUID!
 	channelId: String!
 	name: String!
 	type: RoleTypeEnum!

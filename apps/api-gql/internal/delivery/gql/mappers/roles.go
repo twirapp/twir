@@ -12,7 +12,7 @@ func RolesToGql(m entity.ChannelRole) gqlmodel.Role {
 	}
 
 	return gqlmodel.Role{
-		ID:          m.ID.String(),
+		ID:          m.ID,
 		ChannelID:   m.ChannelID,
 		Name:        m.Name,
 		Type:        gqlmodel.RoleTypeEnum(m.Type.String()),
