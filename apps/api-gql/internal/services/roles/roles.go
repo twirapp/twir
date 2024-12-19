@@ -3,6 +3,7 @@ package roles
 import (
 	"context"
 	"fmt"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
@@ -82,14 +83,14 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 		entities = append(entities, c.modelToEntity(dbRole))
 	}
 
-	// slices.SortFunc(
-	// 	entities,
-	// 	func(a, b entity.ChannelRole) int {
-	// 		typeIdx := lo.IndexOf(gqlmodel.AllRoleTypeEnum, a.Type)
-	//
-	// 		return typeIdx - lo.IndexOf(gqlmodel.AllRoleTypeEnum, b.Type)
-	// 	},
-	// )
+	slices.SortFunc(
+		entities,
+		func(a, b entity.ChannelRole) int {
+			typeIdx := lo.IndexOf(entity.AllChannelRoleTypeEnum, a.Type)
+
+			return typeIdx - lo.IndexOf(entity.AllChannelRoleTypeEnum, b.Type)
+		},
+	)
 
 	return entities, nil
 }

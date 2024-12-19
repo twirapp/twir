@@ -31,6 +31,14 @@ const (
 	ChannelRoleTypeCustom      ChannelRoleEnum = "CUSTOM"
 )
 
+var AllChannelRoleTypeEnum = []ChannelRoleEnum{
+	ChannelRoleTypeBroadcaster,
+	ChannelRoleTypeModerator,
+	ChannelRoleTypeSubscriber,
+	ChannelRoleTypeVip,
+	ChannelRoleTypeCustom,
+}
+
 type ChannelRoleUser struct {
 	ID     uuid.UUID
 	UserID string
