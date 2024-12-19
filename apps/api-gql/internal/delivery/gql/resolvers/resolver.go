@@ -25,6 +25,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -71,8 +73,10 @@ type Resolver struct {
 	commandsService                       *commands.Service
 	commandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
 	commandsResponsesService              *commands_responses.Service
-	rolesService                          *roles.Service
 	greetingsService                      *greetings.Service
+	rolesService                          *roles.Service
+	rolesUsersService                     *roles_users.Service
+	rolesWithUsersService                 *roles_with_roles_users.Service
 }
 
 type Opts struct {
@@ -105,8 +109,10 @@ type Opts struct {
 	CommandsService                       *commands.Service
 	CommandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
 	CommandsResponsesService              *commands_responses.Service
-	RolesService                          *roles.Service
 	GreetingsService                      *greetings.Service
+	RolesService                          *roles.Service
+	RolesUsersService                     *roles_users.Service
+	RolesWithUsersService                 *roles_with_roles_users.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -121,11 +127,11 @@ func New(opts Opts) (*Resolver, error) {
 		gorm:                                  opts.Gorm,
 		twitchClient:                          twitchClient,
 		cachedTwitchClient:                    opts.CachedTwitchClient,
+		cachedCommandsClient:                  opts.CachedCommandsClient,
 		minioClient:                           opts.Minio,
 		twirBus:                               opts.TwirBus,
 		logger:                                opts.Logger,
 		redis:                                 opts.Redis,
-		cachedCommandsClient:                  opts.CachedCommandsClient,
 		tokensClient:                          opts.TokensGrpc,
 		wsRouter:                              opts.WsRouter,
 		twirStats:                             opts.TwirStats,
@@ -143,8 +149,10 @@ func New(opts Opts) (*Resolver, error) {
 		commandsService:                       opts.CommandsService,
 		commandsWithGroupsAndResponsesService: opts.CommandsWithGroupsAndResponsesService,
 		commandsResponsesService:              opts.CommandsResponsesService,
-		rolesService:                          opts.RolesService,
 		greetingsService:                      opts.GreetingsService,
+		rolesService:                          opts.RolesService,
+		rolesUsersService:                     opts.RolesUsersService,
+		rolesWithUsersService:                 opts.RolesWithUsersService,
 	}, nil
 }
 

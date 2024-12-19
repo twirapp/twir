@@ -15,6 +15,8 @@ type Role struct {
 	RequiredUsedChannelPoints int64
 }
 
+var RoleNil = Role{}
+
 type ChannelRoleEnum string
 
 func (c ChannelRoleEnum) String() string {
