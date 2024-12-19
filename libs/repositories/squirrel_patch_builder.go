@@ -21,7 +21,15 @@ func SquirrelApplyPatch(
 
 // isNil checks if an interface value is nil or contains a nil dynamic value
 func isNil(value interface{}) bool {
-	// Use reflection to detect nil dynamic value
+	// Use reflection to detect nil dynamic value or nil slice
 	v := reflect.ValueOf(value)
-	return !v.IsValid() || (v.Kind() == reflect.Ptr && v.IsNil())
+	if !v.IsValid() {
+		return true
+	}
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface, reflect.Slice, reflect.Map, reflect.Chan, reflect.Func:
+		return v.IsNil()
+	default:
+		return false
+	}
 }

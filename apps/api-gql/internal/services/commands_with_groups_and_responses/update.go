@@ -144,29 +144,31 @@ func (c *Service) Update(
 
 			newCmd.Command = newDbCmd
 
-			for _, r := range cmd.Responses {
-				err := c.responsesRepository.Delete(trCtx, r.ID)
-				if err != nil {
-					return err
-				}
-			}
-
-			newCmd.Responses = make([]responsemodel.Response, 0, len(cmd.Responses))
-			for _, r := range input.Responses {
-				newResponse, err := c.responsesRepository.Create(
-					trCtx,
-					commands_response.CreateInput{
-						CommandID:         newDbCmd.ID,
-						Text:              r.Text,
-						Order:             r.Order,
-						TwitchCategoryIDs: r.TwitchCategoryIDs,
-					},
-				)
-				if err != nil {
-					return err
+			if input.Responses != nil {
+				for _, r := range cmd.Responses {
+					err := c.responsesRepository.Delete(trCtx, r.ID)
+					if err != nil {
+						return err
+					}
 				}
 
-				newCmd.Responses = append(newCmd.Responses, newResponse)
+				newCmd.Responses = make([]responsemodel.Response, 0, len(cmd.Responses))
+				for _, r := range input.Responses {
+					newResponse, err := c.responsesRepository.Create(
+						trCtx,
+						commands_response.CreateInput{
+							CommandID:         newDbCmd.ID,
+							Text:              r.Text,
+							Order:             r.Order,
+							TwitchCategoryIDs: r.TwitchCategoryIDs,
+						},
+					)
+					if err != nil {
+						return err
+					}
+
+					newCmd.Responses = append(newCmd.Responses, newResponse)
+				}
 			}
 
 			return nil
