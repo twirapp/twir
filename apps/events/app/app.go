@@ -13,6 +13,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -21,6 +23,10 @@ var App = fx.Module(
 	"events",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "events"}),
 	fx.Provide(
+		fx.Annotate(
+			greetingsrepositorypgx.NewFx,
+			fx.As(new(greetingsrepository.Repository)),
+		),
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
 		},

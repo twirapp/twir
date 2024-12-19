@@ -4,8 +4,10 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	"github.com/twirapp/twir/libs/repositories/greetings"
 )
 
 func (c *PubSubHandlers) streamsOnline(
@@ -25,9 +27,13 @@ func (c *PubSubHandlers) streamsOnline(
 		return struct{}{}
 	}
 
-	err := c.db.Model(&model.ChannelsGreetings{}).
-		Where(`"channelId" = ?`, channel.ID).
-		Update("processed", false).Error
+	err := c.greetingsRepository.UpdateManyByChannelID(
+		ctx, greetings.UpdateManyInput{
+			ChannelID: channel.ID,
+			Processed: lo.ToPtr(false),
+		},
+	)
+
 	if err != nil {
 		c.logger.Error(
 			"cannot update channel greetings",

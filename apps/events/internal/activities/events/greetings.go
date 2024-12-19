@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/satont/twir/apps/events/internal/shared"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/twirapp/twir/libs/repositories/greetings"
 	"go.temporal.io/sdk/activity"
 )
 
@@ -36,15 +36,16 @@ func (c *Activity) CreateGreeting(
 		return userErr
 	}
 
-	newGreeting := model.ChannelsGreetings{
-		ID:        uuid.NewString(),
-		ChannelID: data.ChannelID,
-		UserID:    user.ID,
-		Enabled:   true,
-		Text:      *data.RewardInput,
-		IsReply:   true,
-		Processed: false,
-	}
+	_, err := c.greetingsRepository.Create(
+		ctx, greetings.CreateInput{
+			ChannelID: data.ChannelID,
+			UserID:    user.ID,
+			Enabled:   true,
+			Text:      *data.RewardInput,
+			IsReply:   true,
+			Processed: false,
+		},
+	)
 
-	return c.db.Create(&newGreeting).Error
+	return err
 }

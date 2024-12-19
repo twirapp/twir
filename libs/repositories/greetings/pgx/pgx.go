@@ -38,6 +38,37 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
+func (c *Pgx) UpdateManyByChannelID(ctx context.Context, input greetings.UpdateManyInput) error {
+	updateBuilder := sq.
+		Update("channels_greetings").
+		Where(squirrel.Eq{`"channelId"`: input.ChannelID}).
+		Suffix(`RETURNING id, "channelId", "userId", enabled, text, "isReply", processed`)
+	updateBuilder = repositories.SquirrelApplyPatch(
+		updateBuilder,
+		map[string]any{
+			"processed": input.Processed,
+		},
+	)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return err
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return err
+	}
+
+	_, err = pgx.CollectRows(rows, pgx.RowToStructByName[model.Greeting])
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (c *Pgx) GetOneByChannelAndUserID(
 	ctx context.Context,
 	input greetings.GetOneInput,

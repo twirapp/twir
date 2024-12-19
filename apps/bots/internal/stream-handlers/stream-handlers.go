@@ -5,14 +5,16 @@ import (
 
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/repositories/greetings"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 type PubSubHandlers struct {
-	db     *gorm.DB
-	logger logger.Logger
-	bus    *bus_core.Bus
+	db                  *gorm.DB
+	logger              logger.Logger
+	bus                 *bus_core.Bus
+	greetingsRepository greetings.Repository
 }
 
 type Opts struct {
@@ -20,16 +22,18 @@ type Opts struct {
 
 	LC fx.Lifecycle
 
-	DB     *gorm.DB
-	Bus    *bus_core.Bus
-	Logger logger.Logger
+	DB                  *gorm.DB
+	Bus                 *bus_core.Bus
+	Logger              logger.Logger
+	GreetingsRepository greetings.Repository
 }
 
 func New(opts Opts) {
 	service := &PubSubHandlers{
-		db:     opts.DB,
-		logger: opts.Logger,
-		bus:    opts.Bus,
+		db:                  opts.DB,
+		logger:              opts.Logger,
+		bus:                 opts.Bus,
+		greetingsRepository: opts.GreetingsRepository,
 	}
 
 	opts.LC.Append(
