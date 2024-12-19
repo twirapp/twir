@@ -2,6 +2,8 @@ package commands_with_groups_and_responses
 
 import (
 	"context"
+	"slices"
+	"strings"
 
 	"github.com/avito-tech/go-transaction-manager/trm/v2"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
@@ -127,6 +129,12 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	for _, cmd := range cmds {
 		entities = append(entities, c.mapToEntity(cmd))
 	}
+
+	slices.SortFunc(
+		entities, func(a, b entity.CommandWithGroupAndResponses) int {
+			return strings.Compare(a.Command.Name, b.Command.Name)
+		},
+	)
 
 	return entities, nil
 }
