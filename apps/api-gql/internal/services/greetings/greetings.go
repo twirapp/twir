@@ -51,7 +51,11 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	[]entity.Greeting,
 	error,
 ) {
-	dbGreetings, err := c.greetingsRepository.GetManyByChannelID(ctx, channelID)
+	dbGreetings, err := c.greetingsRepository.GetManyByChannelID(
+		ctx,
+		channelID,
+		greetings.GetManyInput{},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -118,11 +122,10 @@ type UpdateInput struct {
 	ActorID   string
 	ChannelID string
 
-	UserID    *string
-	Enabled   *bool
-	Text      *string
-	IsReply   *bool
-	Processed *bool
+	UserID  *string
+	Enabled *bool
+	Text    *string
+	IsReply *bool
 }
 
 func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
@@ -148,7 +151,7 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			Enabled:   input.Enabled,
 			Text:      input.Text,
 			IsReply:   input.IsReply,
-			Processed: input.Processed,
+			Processed: lo.ToPtr(false),
 		},
 	)
 	if err != nil {

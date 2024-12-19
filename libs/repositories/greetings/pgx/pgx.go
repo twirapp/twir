@@ -2,6 +2,7 @@ package pgx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -37,15 +38,71 @@ type Pgx struct {
 	getter *trmpgx.CtxGetter
 }
 
-func (c *Pgx) GetManyByChannelID(ctx context.Context, channelID string) ([]model.Greeting, error) {
-	query := `
-SELECT id, "channelId", "userId", enabled, text, "isReply", processed
-FROM channels_greetings
-WHERE "channelId" = $1
-`
+func (c *Pgx) GetOneByChannelAndUserID(
+	ctx context.Context,
+	input greetings.GetOneInput,
+) (model.Greeting, error) {
+	selectBuilder := sq.
+		Select("id", `"channelId"`, `"userId"`, "enabled", "text", `"isReply"`, "processed").
+		From("channels_greetings").
+		Where(squirrel.Eq{`"channelId"`: input.ChannelID, `"userId"`: input.UserID})
+
+	if input.Enabled != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})
+	}
+
+	if input.Processed != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"processed": *input.Processed})
+	}
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return model.GreetingNil, err
+	}
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Query(ctx, query, channelID)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.GreetingNil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Greeting])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.GreetingNil, greetings.ErrNotFound
+		}
+
+		return model.GreetingNil, err
+	}
+
+	return result, nil
+}
+
+func (c *Pgx) GetManyByChannelID(
+	ctx context.Context,
+	channelID string,
+	input greetings.GetManyInput,
+) ([]model.Greeting, error) {
+	selectBuilder := sq.
+		Select("id", `"channelId"`, `"userId"`, "enabled", "text", `"isReply"`, "processed").
+		From("channels_greetings").
+		Where(squirrel.Eq{`"channelId"`: channelID})
+
+	if input.Enabled != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"enabled": *input.Enabled})
+	}
+
+	if input.Processed != nil {
+		selectBuilder = selectBuilder.Where(squirrel.Eq{"processed": *input.Processed})
+	}
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

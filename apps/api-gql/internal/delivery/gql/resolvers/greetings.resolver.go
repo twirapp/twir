@@ -9,7 +9,6 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/samber/lo"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
@@ -18,12 +17,18 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Greeting) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *greetingResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.Greeting,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
-func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsCreate(
+	ctx context.Context,
+	opts gqlmodel.GreetingsCreateInput,
+) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -55,7 +60,11 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 }
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
-func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
+func (r *mutationResolver) GreetingsUpdate(
+	ctx context.Context,
+	id uuid.UUID,
+	opts gqlmodel.GreetingsUpdateInput,
+) (*gqlmodel.Greeting, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -76,7 +85,6 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, op
 			Enabled:   opts.Enabled.Value(),
 			Text:      opts.Text.Value(),
 			IsReply:   opts.IsReply.Value(),
-			Processed: lo.ToPtr(false),
 		},
 	)
 	if err != nil {

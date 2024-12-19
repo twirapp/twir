@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"go.uber.org/fx"
@@ -33,18 +34,19 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger             logger.Logger
-	Gorm               *gorm.DB
-	Redis              *redis.Client
-	TwitchActions      *twitchactions.TwitchActions
-	ParserGrpc         parser.ParserClient
-	WebsocketsGrpc     websockets.WebsocketClient
-	EventsGrpc         events.EventsClient
-	ModerationHelpers  *moderationhelpers.ModerationHelpers
-	Config             cfg.Config
-	Bus                *buscore.Bus
-	KeywordsCacher     *generic_cacher.GenericCacher[[]model.Keyword]
-	KeywordsRepository keywords.Repository
+	Logger              logger.Logger
+	Gorm                *gorm.DB
+	Redis               *redis.Client
+	TwitchActions       *twitchactions.TwitchActions
+	ParserGrpc          parser.ParserClient
+	WebsocketsGrpc      websockets.WebsocketClient
+	EventsGrpc          events.EventsClient
+	ModerationHelpers   *moderationhelpers.ModerationHelpers
+	Config              cfg.Config
+	Bus                 *buscore.Bus
+	KeywordsCacher      *generic_cacher.GenericCacher[[]model.Keyword]
+	KeywordsRepository  keywords.Repository
+	GreetingsRepository greetings.Repository
 }
 
 type MessageHandler struct {
@@ -61,26 +63,28 @@ type MessageHandler struct {
 	keywordsCacher    *generic_cacher.GenericCacher[[]model.Keyword]
 	votebanMutex      *redsync.Mutex
 
-	keywordsRepository keywords.Repository
+	keywordsRepository  keywords.Repository
+	greetingsRepository greetings.Repository
 }
 
 func New(opts Opts) *MessageHandler {
 	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
 
 	handler := &MessageHandler{
-		logger:             opts.Logger,
-		gorm:               opts.Gorm,
-		redis:              opts.Redis,
-		twitchActions:      opts.TwitchActions,
-		parserGrpc:         opts.ParserGrpc,
-		websocketsGrpc:     opts.WebsocketsGrpc,
-		eventsGrpc:         opts.EventsGrpc,
-		moderationHelpers:  opts.ModerationHelpers,
-		config:             opts.Config,
-		bus:                opts.Bus,
-		keywordsCacher:     opts.KeywordsCacher,
-		votebanMutex:       votebanLock.NewMutex("bots:voteban_handle_message"),
-		keywordsRepository: opts.KeywordsRepository,
+		logger:              opts.Logger,
+		gorm:                opts.Gorm,
+		redis:               opts.Redis,
+		twitchActions:       opts.TwitchActions,
+		parserGrpc:          opts.ParserGrpc,
+		websocketsGrpc:      opts.WebsocketsGrpc,
+		eventsGrpc:          opts.EventsGrpc,
+		moderationHelpers:   opts.ModerationHelpers,
+		config:              opts.Config,
+		bus:                 opts.Bus,
+		keywordsCacher:      opts.KeywordsCacher,
+		votebanMutex:        votebanLock.NewMutex("bots:voteban_handle_message"),
+		keywordsRepository:  opts.KeywordsRepository,
+		greetingsRepository: opts.GreetingsRepository,
 	}
 
 	return handler

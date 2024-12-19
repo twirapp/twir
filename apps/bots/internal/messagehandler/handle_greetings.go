@@ -12,7 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"gorm.io/gorm"
+	"github.com/twirapp/twir/libs/repositories/greetings"
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
@@ -20,20 +20,16 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return nil
 	}
 
-	entity := model.ChannelsGreetings{}
-	err := c.gorm.
-		WithContext(ctx).
-		Where(
-			`"channelId" = ? AND "userId" = ? AND "processed" = ? AND "enabled" = ?`,
-			msg.BroadcasterUserId,
-			msg.ChatterUserId,
-			false,
-			true,
-		).
-		First(&entity).
-		Error
+	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
+		ctx, greetings.GetOneInput{
+			ChannelID: msg.BroadcasterUserId,
+			UserID:    msg.ChatterUserId,
+			Enabled:   lo.ToPtr(true),
+			Processed: lo.ToPtr(false),
+		},
+	)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, greetings.ErrNotFound) {
 			return nil
 		}
 		return err
@@ -46,7 +42,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			Where(
 				"channel_id = ? AND greetings_ids && ?",
 				msg.BroadcasterUserId,
-				pq.StringArray{entity.ID},
+				pq.StringArray{greeting.ID.String()},
 			).Find(&alert).Error; err != nil {
 			c.logger.Error("cannot find channel alert", slog.Any("err", err))
 			return
@@ -65,11 +61,13 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		)
 	}()
 
-	if err = c.gorm.WithContext(ctx).Model(&entity).Where("id = ?", entity.ID).Select("*").Updates(
-		map[string]any{
-			"processed": true,
+	if _, err := c.greetingsRepository.Update(
+		ctx,
+		greeting.ID,
+		greetings.UpdateInput{
+			Processed: lo.ToPtr(true),
 		},
-	).Error; err != nil {
+	); err != nil {
 		return err
 	}
 
@@ -77,7 +75,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		ctx, parser.ParseVariablesInTextRequest{
 			ChannelID:   msg.BroadcasterUserId,
 			ChannelName: msg.BroadcasterUserLogin,
-			Text:        entity.Text,
+			Text:        greeting.Text,
 			UserID:      msg.ChatterUserId,
 			UserLogin:   msg.ChatterUserLogin,
 			UserName:    msg.ChatterUserName,
@@ -92,7 +90,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			BroadcasterID:        msg.BroadcasterUserId,
 			SenderID:             msg.DbChannel.BotID,
 			Message:              res.Data.Text,
-			ReplyParentMessageID: lo.If(entity.IsReply, msg.MessageId).Else(""),
+			ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
 		},
 	)
 
@@ -103,7 +101,7 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			UserId:          msg.ChatterUserId,
 			UserName:        msg.ChatterUserLogin,
 			UserDisplayName: msg.ChatterUserName,
-			GreetingText:    entity.Text,
+			GreetingText:    greeting.Text,
 		},
 	)
 	if err != nil {

@@ -8,11 +8,20 @@ import (
 )
 
 type Repository interface {
-	GetManyByChannelID(ctx context.Context, channelID string) ([]model.Greeting, error)
+	GetManyByChannelID(ctx context.Context, channelID string, filters GetManyInput) (
+		[]model.Greeting,
+		error,
+	)
 	GetByID(ctx context.Context, id uuid.UUID) (model.Greeting, error)
 	Create(ctx context.Context, input CreateInput) (model.Greeting, error)
 	Update(ctx context.Context, id uuid.UUID, input UpdateInput) (model.Greeting, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	GetOneByChannelAndUserID(ctx context.Context, input GetOneInput) (model.Greeting, error)
+}
+
+type GetManyInput struct {
+	Enabled   *bool
+	Processed *bool
 }
 
 type CreateInput struct {
@@ -29,5 +38,13 @@ type UpdateInput struct {
 	Enabled   *bool
 	Text      *string
 	IsReply   *bool
+	Processed *bool
+}
+
+type GetOneInput struct {
+	ChannelID string
+	UserID    string
+
+	Enabled   *bool
 	Processed *bool
 }
