@@ -39,6 +39,8 @@ type Service struct {
 	logger               logger.Logger
 }
 
+var maxRoles = 20
+
 func (c *Service) modelToEntity(m model.Role) entity.ChannelRole {
 	return entity.ChannelRole{
 		ID:                        m.ID,
@@ -80,6 +82,15 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 		entities = append(entities, c.modelToEntity(dbRole))
 	}
 
+	// slices.SortFunc(
+	// 	entities,
+	// 	func(a, b entity.ChannelRole) int {
+	// 		typeIdx := lo.IndexOf(gqlmodel.AllRoleTypeEnum, a.Type)
+	//
+	// 		return typeIdx - lo.IndexOf(gqlmodel.AllRoleTypeEnum, b.Type)
+	// 	},
+	// )
+
 	return entities, nil
 }
 
@@ -96,6 +107,15 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.ChannelRole, error) {
+	dbRoles, err := c.rolesRepository.GetManyByChannelID(ctx, input.ChannelID)
+	if err != nil {
+		return entity.ChannelRoleNil, err
+	}
+
+	if len(dbRoles) >= maxRoles {
+		return entity.ChannelRoleNil, fmt.Errorf("maximum number of roles reached")
+	}
+
 	dbRole, err := c.rolesRepository.Create(
 		ctx, roles.CreateInput{
 			ChannelID:                 input.ChannelID,
@@ -131,7 +151,6 @@ type UpdateInput struct {
 	ActorID   string
 
 	Name                      *string
-	Type                      *entity.ChannelRoleEnum
 	Permissions               []string
 	RequiredWatchTime         *int64
 	RequiredMessages          *int32
@@ -153,16 +172,10 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 
 	updateInput := roles.UpdateInput{
 		Name:                      input.Name,
-		Type:                      nil,
 		Permissions:               input.Permissions,
 		RequiredWatchTime:         input.RequiredWatchTime,
 		RequiredMessages:          input.RequiredMessages,
 		RequiredUsedChannelPoints: input.RequiredUsedChannelPoints,
-	}
-
-	if input.Type != nil {
-		newType := model.ChannelRoleEnum(input.Type.String())
-		updateInput.Type = &newType
 	}
 
 	newRole, err := c.rolesRepository.Update(ctx, id, updateInput)
@@ -223,4 +236,13 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	)
 
 	return nil
+}
+
+func (c *Service) GetByID(ctx context.Context, id uuid.UUID) (entity.ChannelRole, error) {
+	dbRole, err := c.rolesRepository.GetByID(ctx, id)
+	if err != nil {
+		return entity.ChannelRoleNil, err
+	}
+
+	return c.modelToEntity(dbRole), nil
 }

@@ -143,7 +143,6 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input roles.UpdateInput)
 		updateBuilder,
 		map[string]any{
 			"name":                         input.Name,
-			"type":                         input.Type,
 			"permissions":                  input.Permissions,
 			"required_messages":            input.RequiredMessages,
 			"required_used_channel_points": input.RequiredUsedChannelPoints,

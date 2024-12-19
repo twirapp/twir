@@ -28,7 +28,6 @@ type CreateInput struct {
 
 type UpdateInput struct {
 	Name                      *string
-	Type                      *model.ChannelRoleEnum
 	Permissions               []string
 	RequiredWatchTime         *int64
 	RequiredMessages          *int32

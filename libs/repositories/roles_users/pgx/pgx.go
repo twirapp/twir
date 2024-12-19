@@ -104,13 +104,9 @@ WHERE "roleId" = $1
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	rows, err := conn.Exec(ctx, query, roleID)
+	_, err := conn.Exec(ctx, query, roleID)
 	if err != nil {
 		return fmt.Errorf("failed to execute delete query: %w", err)
-	}
-
-	if rows.RowsAffected() == 0 {
-		return fmt.Errorf("role not found")
 	}
 
 	return nil

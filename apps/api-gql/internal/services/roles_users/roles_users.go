@@ -58,6 +58,10 @@ func (c *Service) CreateMany(ctx context.Context, inputs []CreateInput) (
 	[]entity.ChannelRoleUser,
 	error,
 ) {
+	if len(inputs) == 0 {
+		return nil, nil
+	}
+
 	convertedInputs := make([]roles_users.CreateInput, len(inputs))
 	for i, input := range inputs {
 		convertedInputs[i] = roles_users.CreateInput{
@@ -69,6 +73,31 @@ func (c *Service) CreateMany(ctx context.Context, inputs []CreateInput) (
 	users, err := c.rolesUsersRepository.CreateMany(ctx, convertedInputs)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create role users: %w", err)
+	}
+
+	result := make([]entity.ChannelRoleUser, len(users))
+	for i, u := range users {
+		result[i] = c.mapToEntity(u)
+	}
+
+	return result, nil
+}
+
+func (c *Service) DeleteManyByRoleID(ctx context.Context, roleID uuid.UUID) error {
+	if err := c.rolesUsersRepository.DeleteManyByRoleID(ctx, roleID); err != nil {
+		return fmt.Errorf("cannot delete role users by role ID: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Service) GetManyByRoleID(ctx context.Context, roleID uuid.UUID) (
+	[]entity.ChannelRoleUser,
+	error,
+) {
+	users, err := c.rolesUsersRepository.GetManyByRoleID(ctx, roleID)
+	if err != nil {
+		return nil, fmt.Errorf("cannot get role users by role ID: %w", err)
 	}
 
 	result := make([]entity.ChannelRoleUser, len(users))
