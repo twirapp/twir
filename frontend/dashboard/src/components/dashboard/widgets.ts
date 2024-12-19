@@ -2,7 +2,7 @@ import { createGlobalState, useLocalStorage } from '@vueuse/core'
 
 import type { LayoutItem } from 'grid-layout-plus'
 
-const version = '9'
+const version = '10'
 
 export type WidgetItem = LayoutItem & { visible: boolean }
 
