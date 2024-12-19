@@ -68,10 +68,11 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Command
 		return entity.CommandNil, fmt.Errorf("maximum commands limit reached")
 	}
 
-	isNameConflict, err := c.isNameConflicting(
+	isNameConflict, err := c.IsNameConflicting(
 		cmds,
 		input.Name,
 		input.Aliases,
+		nil,
 	)
 	if err != nil {
 		return entity.CommandNil, err

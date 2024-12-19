@@ -7,23 +7,18 @@ package resolvers
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"strings"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/guregu/null"
-	"github.com/lib/pq"
 	"github.com/samber/lo"
-	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/logger/audit"
-	"github.com/satont/twir/libs/utils"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
+	"github.com/twirapp/twir/apps/api-gql/internal/entity"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
-	"gorm.io/gorm"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 )
 
 // Responses is the resolver for the responses field.
@@ -173,202 +168,90 @@ func (r *mutationResolver) CommandsUpdate(
 		return false, err
 	}
 
-	if opts.Name.IsSet() {
-		if err := r.checkIsCommandWithNameOrAliaseExists(
-			ctx,
-			&id,
-			*opts.Name.Value(),
-			nil,
-		); err != nil {
-			return false, err
-		}
-	}
-
-	if opts.Aliases.IsSet() {
-		if err := r.checkIsCommandWithNameOrAliaseExists(
-			ctx,
-			&id,
-			"",
-			opts.Aliases.Value(),
-		); err != nil {
-			return false, err
-		}
-	}
-
-	cmd := &model.ChannelsCommands{}
-	if err := r.gorm.
-		WithContext(ctx).
-		Where(
-			`"id" = ? AND "channelId" = ?`, id, dashboardId,
-		).
-		First(cmd).
-		Error; err != nil {
-		return false, fmt.Errorf("command not found: %w", err)
-	}
-
-	if opts.ExpiresType.Value() != nil && *opts.ExpiresType.Value() == gqlmodel.CommandExpiresTypeDelete && cmd.Default {
-		return false, fmt.Errorf("cannot delete at expire for default command")
-	}
-
-	var cmdCopy model.ChannelsCommands
-	err = utils.DeepCopy(cmd, &cmdCopy)
+	parsedID, err := uuid.Parse(id)
 	if err != nil {
-		return false, fmt.Errorf("cannot create copy of command: %w", err)
+		return false, fmt.Errorf("wrong command id: %w", err)
 	}
 
-	if opts.Name.IsSet() {
-		cmd.Name = strings.ToLower(*opts.Name.Value())
-	}
-
-	if opts.Cooldown.IsSet() {
-		cmd.Cooldown = null.IntFrom(int64(*opts.Cooldown.Value()))
-	}
-
-	if opts.CooldownType.IsSet() {
-		cmd.CooldownType = *opts.CooldownType.Value()
-	}
-
-	if opts.Enabled.IsSet() {
-		cmd.Enabled = *opts.Enabled.Value()
-	}
-
-	if opts.Aliases.IsSet() {
-		aliases := make([]string, 0, len(opts.Aliases.Value()))
-		for _, alias := range opts.Aliases.Value() {
-			a := strings.TrimSuffix(strings.ToLower(alias), "!")
-			if a != "" {
-				aliases = append(aliases, a)
-			}
-		}
-
-		cmd.Aliases = aliases
-	}
-
-	if opts.Description.IsSet() {
-		cmd.Description = null.StringFromPtr(opts.Description.Value())
-	}
-
-	if opts.Visible.IsSet() {
-		cmd.Visible = *opts.Visible.Value()
-	}
-
-	if opts.IsReply.IsSet() {
-		cmd.IsReply = *opts.IsReply.Value()
-	}
-
-	if opts.KeepResponsesOrder.IsSet() {
-		cmd.KeepResponsesOrder = *opts.KeepResponsesOrder.Value()
-	}
-
-	if opts.AllowedUsersIds.IsSet() {
-		cmd.AllowedUsersIDS = opts.AllowedUsersIds.Value()
-	}
-
-	if opts.DeniedUsersIds.IsSet() {
-		cmd.DeniedUsersIDS = opts.DeniedUsersIds.Value()
-	}
-
-	if opts.RolesIds.IsSet() {
-		cmd.RolesIDS = opts.RolesIds.Value()
-	}
-
-	if opts.OnlineOnly.IsSet() {
-		cmd.OnlineOnly = *opts.OnlineOnly.Value()
-	}
-
-	if opts.RequiredWatchTime.IsSet() {
-		cmd.RequiredWatchTime = *opts.RequiredWatchTime.Value()
-	}
-
-	if opts.RequiredMessages.IsSet() {
-		cmd.RequiredMessages = *opts.RequiredMessages.Value()
-	}
-
-	if opts.RequiredUsedChannelPoints.IsSet() {
-		cmd.RequiredUsedChannelPoints = *opts.RequiredUsedChannelPoints.Value()
+	updateInput := commands_with_groups_and_responses.UpdateInput{
+		ActorID:                   user.ID,
+		ChannelID:                 dashboardId,
+		Name:                      opts.Name.Value(),
+		Cooldown:                  opts.Cooldown.Value(),
+		CooldownType:              opts.CooldownType.Value(),
+		Enabled:                   opts.Enabled.Value(),
+		Aliases:                   opts.Aliases.Value(),
+		Description:               opts.Description.Value(),
+		Visible:                   opts.Visible.Value(),
+		IsReply:                   opts.IsReply.Value(),
+		KeepResponsesOrder:        opts.KeepResponsesOrder.Value(),
+		DeniedUsersIDS:            opts.DeniedUsersIds.Value(),
+		AllowedUsersIDS:           opts.AllowedUsersIds.Value(),
+		RolesIDS:                  opts.RolesIds.Value(),
+		OnlineOnly:                opts.OnlineOnly.Value(),
+		CooldownRolesIDs:          opts.CooldownRolesIds.Value(),
+		EnabledCategories:         opts.EnabledCategories.Value(),
+		RequiredWatchTime:         opts.RequiredWatchTime.Value(),
+		RequiredMessages:          opts.RequiredMessages.Value(),
+		RequiredUsedChannelPoints: opts.RequiredUsedChannelPoints.Value(),
+		GroupID:                   nil,
+		ExpiresAt:                 nil,
+		ExpiresType:               nil,
+		Responses: make(
+			[]commands_with_groups_and_responses.UpdateInputResponse,
+			0,
+			len(opts.Responses.Value()),
+		),
 	}
 
 	if opts.GroupID.IsSet() {
-		cmd.GroupID = null.StringFromPtr(opts.GroupID.Value())
-	}
-
-	if opts.CooldownRolesIds.IsSet() {
-		cmd.CooldownRolesIDs = opts.CooldownRolesIds.Value()
-	}
-
-	if opts.EnabledCategories.IsSet() {
-		cmd.EnabledCategories = opts.EnabledCategories.Value()
-	}
-
-	if opts.Responses.IsSet() {
-		cmd.Responses = make([]*model.ChannelsCommandsResponses, 0, len(opts.Responses.Value()))
-		for idx, res := range opts.Responses.Value() {
-			if res.Text == "" {
-				continue
-			}
-
-			response := &model.ChannelsCommandsResponses{
-				Text:              null.StringFrom(res.Text),
-				Order:             idx,
-				CommandID:         cmd.ID,
-				TwitchCategoryIDs: append(pq.StringArray{}, res.TwitchCategoriesIds...),
-			}
-
-			cmd.Responses = append(cmd.Responses, response)
-		}
-	}
-
-	if opts.ExpiresType.IsSet() && opts.ExpiresAt.IsSet() {
-		if opts.ExpiresType.Value() == nil {
-			cmd.ExpiresType = nil
+		if opts.GroupID.Value() == nil {
+			updateInput.GroupID = nil
 		} else {
-			cmd.ExpiresType = lo.ToPtr(mappers.CommandsExpiresAtGqlToDb(*opts.ExpiresType.Value()))
-		}
+			parsedGroupId, err := uuid.Parse(*opts.GroupID.Value())
+			if err != nil {
+				return false, err
+			}
 
+			updateInput.GroupID = &parsedGroupId
+		}
+	}
+
+	if opts.ExpiresAt.IsSet() {
 		if opts.ExpiresAt.Value() == nil {
-			cmd.ExpiresAt = null.Time{}
+			updateInput.ExpiresAt = nil
 		} else {
-			cmd.ExpiresAt = null.TimeFrom(time.UnixMilli(int64(*opts.ExpiresAt.Value())))
+			updateInput.ExpiresAt = lo.ToPtr(time.UnixMilli(int64(*opts.ExpiresAt.Value())))
+
 		}
 	}
 
-	txErr := r.gorm.
-		WithContext(ctx).
-		Transaction(
-			func(tx *gorm.DB) error {
-				if opts.Responses.IsSet() {
-					if err = tx.Delete(
-						&model.ChannelsCommandsResponses{},
-						`"commandId" = ?`,
-						cmd.ID,
-					).Error; err != nil {
-						return err
-					}
-				}
+	if opts.ExpiresType.IsSet() {
+		if opts.ExpiresType.Value() == nil {
+			updateInput.ExpiresType = nil
+		} else {
+			updateInput.ExpiresType = lo.ToPtr(opts.ExpiresType.Value().String())
+		}
+	}
 
-				return tx.Save(cmd).Error
+	for idx, res := range opts.Responses.Value() {
+		updateInput.Responses = append(
+			updateInput.Responses,
+			commands_with_groups_and_responses.UpdateInputResponse{
+				Text:              &res.Text,
+				Order:             idx,
+				TwitchCategoryIDs: res.TwitchCategoriesIds,
 			},
 		)
-	if txErr != nil {
-		return false, fmt.Errorf("failed to update command: %w", txErr)
 	}
 
-	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	if _, err := r.commandsWithGroupsAndResponsesService.Update(
+		ctx,
+		parsedID,
+		updateInput,
+	); err != nil {
+		return false, fmt.Errorf("cannot update command: %w", err)
 	}
-
-	r.logger.Audit(
-		"Command edited",
-		audit.Fields{
-			OldValue:      cmdCopy,
-			NewValue:      cmd,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
-			OperationType: audit.OperationUpdate,
-			ObjectID:      &cmd.ID,
-		},
-	)
 
 	return true, nil
 }
@@ -385,39 +268,21 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool,
 		return false, err
 	}
 
-	cmd := &model.ChannelsCommands{}
-
-	if err := r.gorm.
-		WithContext(ctx).
-		Where(`"id" = ? AND "channelId" = ?`, id, dashboardId).
-		First(cmd).
-		Error; err != nil {
-		return false, err
+	parsedID, err := uuid.Parse(id)
+	if err != nil {
+		return false, fmt.Errorf("wrong uuid: %w", err)
 	}
 
-	if cmd.Default {
-		return false, fmt.Errorf("cannot remove default command")
-	}
-
-	if err := r.gorm.WithContext(ctx).Delete(&cmd).Error; err != nil {
-		return false, err
-	}
-
-	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
-	}
-
-	r.logger.Audit(
-		"Command removed",
-		audit.Fields{
-			OldValue:      cmd,
-			ActorID:       lo.ToPtr(user.ID),
-			ChannelID:     lo.ToPtr(dashboardId),
-			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelCommand),
-			OperationType: audit.OperationDelete,
-			ObjectID:      &cmd.ID,
+	err = r.commandsService.Delete(
+		ctx, commands.DeleteInput{
+			ChannelID: dashboardId,
+			ActorID:   user.ID,
+			ID:        parsedID,
 		},
 	)
+	if err != nil {
+		return false, fmt.Errorf("cannot delete command: %w", err)
+	}
 
 	return true, nil
 }
@@ -429,13 +294,13 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 		return nil, err
 	}
 
-	commands, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
+	cmds, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
 
-	converted := make([]gqlmodel.Command, 0, len(commands))
-	for _, c := range commands {
+	converted := make([]gqlmodel.Command, 0, len(cmds))
+	for _, c := range cmds {
 		command := mappers.CommandEntityTo(c.Command)
 		converted = append(converted, command)
 	}
@@ -452,53 +317,66 @@ func (r *queryResolver) CommandsPublic(
 		return nil, fmt.Errorf("channelID is required")
 	}
 
-	var entities []model.ChannelsCommands
-	if err := r.gorm.
-		WithContext(ctx).
-		Where(`"channelId" = ? AND "visible" = true AND "enabled" = true`, channelID).
-		Preload("Group").
-		Preload("Responses").
-		Order("name ASC").
-		Find(&entities).Error; err != nil {
-		return nil, fmt.Errorf("failed to fetch commands: %w", err)
+	entities, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+	channelRoles, err := r.rolesService.GetManyByChannelID(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	filteredCommands := make([]entity.CommandWithGroupAndResponses, 0, len(entities))
+	for _, cmd := range entities {
+		if cmd.Command.Visible && cmd.Command.Enabled {
+			filteredCommands = append(filteredCommands, cmd)
+		}
 	}
 
 	convertedCommands := make([]gqlmodel.PublicCommand, 0, len(entities))
-	for _, entity := range entities {
+	for _, cmd := range entities {
+		var description string
+		if cmd.Command.Description != nil {
+			description = *cmd.Command.Description
+		}
+
+		var cooldown int
+		if cmd.Command.Cooldown != nil {
+			cooldown = *cmd.Command.Cooldown
+		}
+
 		converted := gqlmodel.PublicCommand{
-			Name:         entity.Name,
-			Description:  entity.Description.String,
-			Aliases:      entity.Aliases,
-			Responses:    make([]string, 0, len(entity.Responses)),
-			Cooldown:     int(entity.Cooldown.Int64),
-			CooldownType: entity.CooldownType,
-			Module:       entity.Module,
+			Name:         cmd.Command.Name,
+			Description:  description,
+			Aliases:      cmd.Command.Aliases,
+			Responses:    make([]string, 0, len(cmd.Responses)),
+			Cooldown:     cooldown,
+			CooldownType: cmd.Command.CooldownType,
+			Module:       cmd.Command.Module,
 			Permissions:  make([]gqlmodel.PublicCommandPermission, 0),
 		}
 
-		for _, response := range entity.Responses {
-			converted.Responses = append(converted.Responses, response.Text.String)
+		for _, response := range cmd.Responses {
+			var text string
+			if response.Text != nil {
+				text = *response.Text
+			}
+			converted.Responses = append(converted.Responses, text)
 		}
 
-		var roles []*model.ChannelRole
-		if len(entity.RolesIDS) > 0 {
-			ids := lo.Map(entity.RolesIDS, func(id string, _ int) string { return id })
-			err := r.gorm.WithContext(ctx).
-				Where(`"channelId" = ? AND "id" IN ?`, channelID, ids).
-				Find(&roles).Error
-
-			if err != nil {
-				r.logger.Error("cannot get roles", slog.Any("err", err))
-			} else {
-				for _, role := range roles {
-					converted.Permissions = append(
-						converted.Permissions,
-						gqlmodel.PublicCommandPermission{
-							Name: role.Name,
-							Type: role.Type.String(),
-						},
-					)
+		if len(cmd.Command.RolesIDS) > 0 {
+			for _, role := range channelRoles {
+				if slices.Contains(cmd.Command.RolesIDS, role.ID) {
+					continue
 				}
+
+				converted.Permissions = append(
+					converted.Permissions,
+					gqlmodel.PublicCommandPermission{
+						Name: role.Name,
+						Type: role.Type.String(),
+					},
+				)
 			}
 		}
 

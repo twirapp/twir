@@ -23,7 +23,7 @@ type Command struct {
 	KeepResponsesOrder        bool
 	DeniedUsersIDS            []string
 	AllowedUsersIDS           []string
-	RolesIDS                  []string
+	RolesIDS                  []uuid.UUID
 	OnlineOnly                bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string
@@ -68,3 +68,5 @@ type CommandWithGroupAndResponses struct {
 	Group     *CommandGroup
 	Responses []CommandResponse
 }
+
+var CommandWithGroupAndResponsesNil = CommandWithGroupAndResponses{}

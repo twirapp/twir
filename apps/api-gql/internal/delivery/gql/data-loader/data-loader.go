@@ -48,6 +48,11 @@ func New(opts Opts) *DataLoader {
 		dataloadgen.WithWait(time.Millisecond),
 	)
 
+	loader.helixUserByNameLoader = dataloadgen.NewLoader(
+		loader.getHelixUsersByNames,
+		dataloadgen.WithWait(time.Millisecond),
+	)
+
 	loader.twitchCategoriesByIdLoader = dataloadgen.NewLoader(
 		loader.getTwitchCategoriesByIDs,
 		dataloadgen.WithWait(time.Millisecond),

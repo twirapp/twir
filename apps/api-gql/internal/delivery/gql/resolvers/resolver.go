@@ -23,6 +23,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
@@ -69,6 +70,7 @@ type Resolver struct {
 	commandsService                       *commands.Service
 	commandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
 	commandsResponsesService              *commands_responses.Service
+	rolesService                          *roles.Service
 }
 
 type Opts struct {
@@ -101,6 +103,7 @@ type Opts struct {
 	CommandsService                       *commands.Service
 	CommandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
 	CommandsResponsesService              *commands_responses.Service
+	RolesService                          *roles.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -137,6 +140,7 @@ func New(opts Opts) (*Resolver, error) {
 		commandsService:                       opts.CommandsService,
 		commandsWithGroupsAndResponsesService: opts.CommandsWithGroupsAndResponsesService,
 		commandsResponsesService:              opts.CommandsResponsesService,
+		rolesService:                          opts.RolesService,
 	}, nil
 }
 

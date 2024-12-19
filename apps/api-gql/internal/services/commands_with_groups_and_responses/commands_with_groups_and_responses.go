@@ -3,7 +3,14 @@ package commands_with_groups_and_responses
 import (
 	"context"
 
+	"github.com/avito-tech/go-transaction-manager/trm/v2"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	commandsservice "github.com/twirapp/twir/apps/api-gql/internal/services/commands"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
+	"github.com/twirapp/twir/libs/repositories/commands"
+	"github.com/twirapp/twir/libs/repositories/commands_response"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
 	"github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/model"
 	"go.uber.org/fx"
@@ -12,17 +19,36 @@ import (
 type Opts struct {
 	fx.In
 
-	CommandsRepository commands_with_groups_and_responses.Repository
+	TrmManager                               trm.Manager
+	CommandsRepository                       commands.Repository
+	CommandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
+	ResponsesRepository                      commands_response.Repository
+	CommandsService                          *commandsservice.Service
+	Logger                                   logger.Logger
+	CachedCommandsClient                     *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		commandsRepository: opts.CommandsRepository,
+		trmManager:                               opts.TrmManager,
+		commandsWithGroupsAndResponsesRepository: opts.CommandsWithGroupsAndResponsesRepository,
+		responsesRepository:                      opts.ResponsesRepository,
+		commandsRepository:                       opts.CommandsRepository,
+		logger:                                   opts.Logger,
+		commandsService:                          opts.CommandsService,
+		cachedCommandsClient:                     opts.CachedCommandsClient,
 	}
 }
 
 type Service struct {
-	commandsRepository commands_with_groups_and_responses.Repository
+	trmManager                               trm.Manager
+	commandsRepository                       commands.Repository
+	commandsWithGroupsAndResponsesRepository commands_with_groups_and_responses.Repository
+	responsesRepository                      commands_response.Repository
+
+	commandsService      *commandsservice.Service
+	logger               logger.Logger
+	cachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
 }
 
 func (c *Service) mapToEntity(m model.CommandWithGroupAndResponses) entity.CommandWithGroupAndResponses {
@@ -92,13 +118,13 @@ func (c *Service) GetManyByChannelID(ctx context.Context, channelID string) (
 	[]entity.CommandWithGroupAndResponses,
 	error,
 ) {
-	commands, err := c.commandsRepository.GetManyByChannelID(ctx, channelID)
+	cmds, err := c.commandsWithGroupsAndResponsesRepository.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
 
-	entities := make([]entity.CommandWithGroupAndResponses, 0, len(commands))
-	for _, cmd := range commands {
+	entities := make([]entity.CommandWithGroupAndResponses, 0, len(cmds))
+	for _, cmd := range cmds {
 		entities = append(entities, c.mapToEntity(cmd))
 	}
 

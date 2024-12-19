@@ -23,7 +23,7 @@ type Command struct {
 	KeepResponsesOrder        bool
 	DeniedUsersIDS            []string
 	AllowedUsersIDS           []string
-	RolesIDS                  []string
+	RolesIDS                  []uuid.UUID
 	OnlineOnly                bool
 	CooldownRolesIDs          []string
 	EnabledCategories         []string

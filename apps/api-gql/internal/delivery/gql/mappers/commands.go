@@ -27,6 +27,11 @@ var commandsEntityExpiresAtMap = map[entity.CommandExpireType]gqlmodel.CommandEx
 }
 
 func CommandEntityTo(e entity.Command) gqlmodel.Command {
+	rolesIds := make([]string, len(e.RolesIDS))
+	for i, v := range e.RolesIDS {
+		rolesIds[i] = v.String()
+	}
+
 	m := gqlmodel.Command{
 		ID:                        e.ID.String(),
 		Name:                      e.Name,
@@ -44,7 +49,7 @@ func CommandEntityTo(e entity.Command) gqlmodel.Command {
 		KeepResponsesOrder:        e.KeepResponsesOrder,
 		DeniedUsersIds:            e.DeniedUsersIDS,
 		AllowedUsersIds:           e.AllowedUsersIDS,
-		RolesIds:                  e.RolesIDS,
+		RolesIds:                  rolesIds,
 		OnlineOnly:                e.OnlineOnly,
 		CooldownRolesIds:          e.CooldownRolesIDs,
 		EnabledCategories:         e.EnabledCategories,

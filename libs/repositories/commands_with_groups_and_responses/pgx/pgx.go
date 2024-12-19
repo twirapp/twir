@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/Masterminds/squirrel"
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,7 +27,8 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool: opts.PgxPool,
+		pool:   opts.PgxPool,
+		getter: trmpgx.DefaultCtxGetter,
 	}
 }
 
@@ -38,7 +40,8 @@ var _ commands_with_groups_and_responses.Repository = (*Pgx)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
-	pool *pgxpool.Pool
+	pool   *pgxpool.Pool
+	getter *trmpgx.CtxGetter
 }
 
 var selectColumns []string
@@ -65,9 +68,14 @@ func init() {
 	selectColumns = append(selectColumns, columns...)
 }
 
-func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error) {
+type scanModel struct {
+	Command  commandmodel.Command
+	Group    *groupmodel.Group
+	Response *responsemodel.Response
+}
+
+func (c *Pgx) scanRow(rows pgx.Rows) (scanModel, error) {
 	var command commandmodel.Command
-	var response responsemodel.Response
 	var group groupmodel.Group
 
 	var commandDefaultName, commandDescription, commandGroupID sql.Null[string]
@@ -120,7 +128,7 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error)
 		&responseOrder,
 		&responseTwitchCategoryID,
 	); err != nil {
-		return model.Nil, fmt.Errorf("responses failed to scan row: %w", err)
+		return scanModel{}, fmt.Errorf("responses failed to scan row: %w", err)
 	}
 
 	if commandDefaultName.Valid {
@@ -143,8 +151,9 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error)
 		command.ExpiresType = &commandExpiresType.V
 	}
 
+	var response *responsemodel.Response
 	if responseID.Valid {
-		response = responsemodel.Response{
+		response = &responsemodel.Response{
 			ID:                responseID.V,
 			Text:              &responseText.V,
 			CommandID:         responseCommandID.V,
@@ -163,10 +172,10 @@ func (c *Pgx) scanRow(rows pgx.Rows) (model.CommandWithGroupAndResponses, error)
 		}
 	}
 
-	return model.CommandWithGroupAndResponses{
-		Command:   command,
-		Group:     &group,
-		Responses: []responsemodel.Response{response},
+	return scanModel{
+		Command:  command,
+		Group:    &group,
+		Response: response,
 	}, nil
 }
 
@@ -190,8 +199,6 @@ func (c *Pgx) GetManyByChannelID(
 		return nil, fmt.Errorf("responses GetManyByChannelID: failed to execute select query: %w", err)
 	}
 
-	defer rows.Close()
-
 	commandsMap := make(map[uuid.UUID]*model.CommandWithGroupAndResponses)
 	for rows.Next() {
 		command, err := c.scanRow(rows)
@@ -200,20 +207,18 @@ func (c *Pgx) GetManyByChannelID(
 		}
 
 		if _, ok := commandsMap[command.Command.ID]; !ok {
-			commandsMap[command.Command.ID] = &command
+			commandsMap[command.Command.ID] = &model.CommandWithGroupAndResponses{
+				Command:   command.Command,
+				Group:     command.Group,
+				Responses: []responsemodel.Response{},
+			}
 		}
 
-		for _, r := range command.Responses {
-			for _, response := range commandsMap[command.Command.ID].Responses {
-				if response.ID == r.ID {
-					continue
-				}
-
-				commandsMap[command.Command.ID].Responses = append(
-					commandsMap[command.Command.ID].Responses,
-					r,
-				)
-			}
+		if command.Response != nil {
+			commandsMap[command.Command.ID].Responses = append(
+				commandsMap[command.Command.ID].Responses,
+				*command.Response,
+			)
 		}
 	}
 
@@ -229,4 +234,47 @@ func (c *Pgx) GetManyByChannelID(
 	)
 
 	return result, nil
+}
+
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (
+	model.CommandWithGroupAndResponses,
+	error,
+) {
+	selectBuilder := sq.Select(selectColumns...).
+		From("channels_commands c").
+		LeftJoin(`channels_commands_groups g ON c."groupId" = g.id`).
+		LeftJoin(`channels_commands_responses r ON c.id = r."commandId"`).
+		Where(`c.id = ?`, id)
+
+	query, args, err := selectBuilder.ToSql()
+	if err != nil {
+		return model.Nil, err
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
+	if err != nil {
+		return model.Nil, fmt.Errorf("responses GetByID: failed to execute select query: %w", err)
+	}
+
+	defer rows.Close()
+
+	var command model.CommandWithGroupAndResponses
+	for rows.Next() {
+		cmd, err := c.scanRow(rows)
+		if err != nil {
+			return model.Nil, err
+		}
+
+		if command.Command.ID == uuid.Nil {
+			command.Command = cmd.Command
+			command.Group = cmd.Group
+		}
+
+		if cmd.Response != nil {
+			command.Responses = append(command.Responses, *cmd.Response)
+		}
+	}
+
+	return command, nil
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/commands"
 	"github.com/twirapp/twir/libs/repositories/commands/model"
 )
@@ -154,6 +155,77 @@ func (c *Pgx) Create(ctx context.Context, input commands.CreateInput) (model.Com
 	var id uuid.UUID
 	if err := rows.Scan(&id); err != nil {
 		return model.Nil, fmt.Errorf("insert: failed to scan id: %w", err)
+	}
+
+	return c.GetByID(ctx, id)
+}
+
+func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
+	query := `
+DELETE FROM "channels_commands"
+WHERE id = $1
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+
+	rows, err := conn.Exec(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("delete: failed to execute delete query: %w", err)
+	}
+
+	if rows.RowsAffected() != 1 {
+		return fmt.Errorf("delete: command not found")
+	}
+
+	return nil
+}
+
+func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input commands.UpdateInput) (
+	model.Command,
+	error,
+) {
+	updateBuilder := sq.Update("channels_commands").
+		Where(squirrel.Eq{"id": id})
+	updateBuilder = repositories.SquirrelApplyPatch(
+		updateBuilder,
+		map[string]interface{}{
+			"name":                        input.Name,
+			"cooldown":                    input.Cooldown,
+			`"cooldownType"`:              input.CooldownType,
+			"enabled":                     input.Enabled,
+			"aliases":                     input.Aliases,
+			"description":                 input.Description,
+			"visible":                     input.Visible,
+			"is_reply":                    input.IsReply,
+			`"keepResponsesOrder"`:        input.KeepResponsesOrder,
+			`"deniedUsersIds"`:            input.DeniedUsersIDS,
+			`"allowedUsersIds"`:           input.AllowedUsersIDS,
+			`"rolesIds"`:                  input.RolesIDS,
+			"online_only":                 input.OnlineOnly,
+			`"cooldown_roles_ids"`:        input.CooldownRolesIDs,
+			`"enabled_categories"`:        input.EnabledCategories,
+			`"requiredWatchTime"`:         input.RequiredWatchTime,
+			`"requiredMessages"`:          input.RequiredMessages,
+			`"requiredUsedChannelPoints"`: input.RequiredUsedChannelPoints,
+			`"groupId"`:                   input.GroupID,
+			`"expires_at"`:                input.ExpiresAt,
+			`"expires_type"`:              input.ExpiresType,
+		},
+	)
+
+	query, args, err := updateBuilder.ToSql()
+	if err != nil {
+		return model.Nil, fmt.Errorf("update: failed to build query: %w", err)
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Exec(ctx, query, args...)
+	if err != nil {
+		return model.Nil, fmt.Errorf("update: failed to execute query: %w", err)
+	}
+
+	if rows.RowsAffected() != 1 {
+		return model.Nil, fmt.Errorf("update: command not found")
 	}
 
 	return c.GetByID(ctx, id)
