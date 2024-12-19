@@ -118,11 +118,12 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input greetings.UpdateIn
 		Where(squirrel.Eq{"id": id}).
 		Suffix(`RETURNING id, "channelId", "userId", enabled, text, "isReply", processed`)
 	updateBuilder = repositories.SquirrelApplyPatch(
-		updateBuilder, map[string]any{
-			"userId":    input.UserID,
+		updateBuilder,
+		map[string]any{
+			`"userId"`:  input.UserID,
 			"enabled":   input.Enabled,
 			"text":      input.Text,
-			"isReply":   input.IsReply,
+			`"isReply"`: input.IsReply,
 			"processed": input.Processed,
 		},
 	)
