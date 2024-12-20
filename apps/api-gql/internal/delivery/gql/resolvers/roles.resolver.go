@@ -10,7 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"

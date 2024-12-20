@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/samber/lo"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -22,7 +22,10 @@ import (
 )
 
 // Responses is the resolver for the responses field.
-func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) ([]gqlmodel.CommandResponse, error) {
+func (r *commandResolver) Responses(
+	ctx context.Context,
+	obj *gqlmodel.Command,
+) ([]gqlmodel.CommandResponse, error) {
 	if obj == nil || obj.Default {
 		return []gqlmodel.CommandResponse{}, nil
 	}
@@ -36,7 +39,10 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 }
 
 // Group is the resolver for the group field.
-func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (*gqlmodel.CommandGroup, error) {
+func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (
+	*gqlmodel.CommandGroup,
+	error,
+) {
 	if obj == nil || obj.GroupID == nil {
 		return nil, nil
 	}
@@ -55,7 +61,10 @@ func (r *commandResolver) Group(ctx context.Context, obj *gqlmodel.Command) (*gq
 }
 
 // TwitchCategories is the resolver for the twitchCategories field.
-func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gqlmodel.CommandResponse) ([]gqlmodel.TwitchCategory, error) {
+func (r *commandResponseResolver) TwitchCategories(
+	ctx context.Context,
+	obj *gqlmodel.CommandResponse,
+) ([]gqlmodel.TwitchCategory, error) {
 	categories, err := data_loader.GetTwitchCategoriesByIDs(ctx, obj.TwitchCategoriesIds)
 	if err != nil {
 		return nil, err
@@ -70,7 +79,10 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 }
 
 // CommandsCreate is the resolver for the commandsCreate field
-func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
+func (r *mutationResolver) CommandsCreate(
+	ctx context.Context,
+	opts gqlmodel.CommandsCreateOpts,
+) (*gqlmodel.CommandCreatePayload, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -141,7 +153,11 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(
+	ctx context.Context,
+	id string,
+	opts gqlmodel.CommandsUpdateOpts,
+) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -289,7 +305,10 @@ func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error
 }
 
 // CommandsPublic is the resolver for the commandsPublic field.
-func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([]gqlmodel.PublicCommand, error) {
+func (r *queryResolver) CommandsPublic(
+	ctx context.Context,
+	channelID string,
+) ([]gqlmodel.PublicCommand, error) {
 	if channelID == "" {
 		return nil, fmt.Errorf("channelID is required")
 	}

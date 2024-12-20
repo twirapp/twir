@@ -1,4 +1,4 @@
-package data_loader
+package dataloader
 
 import (
 	"context"
@@ -6,13 +6,13 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
-func (c *DataLoader) getTwitchCategoriesByIDs(ctx context.Context, ids []string) (
+func (c *dataLoader) getTwitchCategoriesByIDs(ctx context.Context, ids []string) (
 	[]*gqlmodel.TwitchCategory,
 	[]error,
 ) {
 	result := make([]*gqlmodel.TwitchCategory, len(ids))
 
-	games, err := c.cachedTwitchClient.GetGames(ctx, ids)
+	games, err := c.deps.CachedTwitchClient.GetGames(ctx, ids)
 	if err != nil {
 		return nil, []error{err}
 	}

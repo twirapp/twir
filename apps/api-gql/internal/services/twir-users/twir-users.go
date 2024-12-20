@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/repositories/users_with_channel"
 	userswithchannelmodel "github.com/twirapp/twir/libs/repositories/users_with_channel/model"
 	"go.uber.org/fx"
@@ -13,19 +13,19 @@ import (
 type Opts struct {
 	fx.In
 
-	TwitchChannelsService       *twitch_channels.Service
+	TwitchService               *twitch.Service
 	UsersWithChannelsRepository users_with_channel.Repository
 }
 
 func New(opts Opts) *Service {
 	return &Service{
-		twitchChannelsService:       opts.TwitchChannelsService,
+		twitchService:               opts.TwitchService,
 		usersWithChannelsRepository: opts.UsersWithChannelsRepository,
 	}
 }
 
 type Service struct {
-	twitchChannelsService       *twitch_channels.Service
+	twitchService               *twitch.Service
 	usersWithChannelsRepository users_with_channel.Repository
 }
 
@@ -74,7 +74,7 @@ func (c *Service) GetMany(ctx context.Context, input GetManyInput) (
 	GetManyOutput,
 	error,
 ) {
-	twitchUsers, err := c.twitchChannelsService.SearchByName(ctx, input.SearchQuery)
+	twitchUsers, err := c.twitchService.SearchByName(ctx, input.SearchQuery)
 	if err != nil {
 		return GetManyOutput{}, err
 	}

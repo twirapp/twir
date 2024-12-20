@@ -9,23 +9,32 @@ import (
 	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *emoteStatisticTopUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.EmoteStatisticTopUser) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *emoteStatisticTopUserResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.EmoteStatisticTopUser,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *emoteStatisticUserUsageResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.EmoteStatisticUserUsage) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *emoteStatisticUserUsageResolver) TwitchProfile(
+	ctx context.Context,
+	obj *gqlmodel.EmoteStatisticUserUsage,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.UserID)
 }
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
-func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
+func (r *queryResolver) EmotesStatistics(
+	ctx context.Context,
+	opts gqlmodel.EmotesStatisticsOpts,
+) (*gqlmodel.EmotesStatisticResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -128,7 +137,10 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 }
 
 // EmotesStatisticEmoteDetailedInformation is the resolver for the emotesStatisticEmoteDetailedInformation field.
-func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Context, opts gqlmodel.EmotesStatisticEmoteDetailedOpts) (*gqlmodel.EmotesStatisticEmoteDetailedResponse, error) {
+func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(
+	ctx context.Context,
+	opts gqlmodel.EmotesStatisticEmoteDetailedOpts,
+) (*gqlmodel.EmotesStatisticEmoteDetailedResponse, error) {
 	if opts.EmoteName == "" {
 		return nil, nil
 	}

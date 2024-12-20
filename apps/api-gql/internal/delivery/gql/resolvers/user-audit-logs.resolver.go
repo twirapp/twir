@@ -7,7 +7,7 @@ package resolvers
 import (
 	"context"
 
-	dataloader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -15,7 +15,10 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *auditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}

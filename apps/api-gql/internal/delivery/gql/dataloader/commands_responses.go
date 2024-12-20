@@ -1,4 +1,4 @@
-package data_loader
+package dataloader
 
 import (
 	"context"
@@ -7,11 +7,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 )
 
-func (c *DataLoader) getCommandsResponsesByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
+func (c *dataLoader) getCommandsResponsesByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
 	[][]gqlmodel.CommandResponse,
 	[]error,
 ) {
-	responses, err := c.commandsResponsesService.GetManyByIDs(ctx, commandsIDs)
+	responses, err := c.deps.CommandsResponsesService.GetManyByIDs(ctx, commandsIDs)
 	if err != nil {
 		return nil, []error{err}
 	}

@@ -29,6 +29,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	twir_users "github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
+	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -77,6 +78,7 @@ type Resolver struct {
 	rolesService                          *roles.Service
 	rolesUsersService                     *roles_users.Service
 	rolesWithUsersService                 *roles_with_roles_users.Service
+	twitchService                         *twitchservice.Service
 }
 
 type Opts struct {
@@ -113,6 +115,7 @@ type Opts struct {
 	RolesService                          *roles.Service
 	RolesUsersService                     *roles_users.Service
 	RolesWithUsersService                 *roles_with_roles_users.Service
+	TwitchService                         *twitchservice.Service
 }
 
 func New(opts Opts) (*Resolver, error) {
@@ -153,6 +156,7 @@ func New(opts Opts) (*Resolver, error) {
 		rolesService:                          opts.RolesService,
 		rolesUsersService:                     opts.RolesUsersService,
 		rolesWithUsersService:                 opts.RolesWithUsersService,
+		twitchService:                         opts.TwitchService,
 	}, nil
 }
 

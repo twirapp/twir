@@ -4,7 +4,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
-	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/apq-cache"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
@@ -32,7 +32,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
-	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch-channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
@@ -117,7 +117,6 @@ func main() {
 			badges_users.New,
 			badges_with_users.New,
 			users.New,
-			twitch_channels.New,
 			twir_users.New,
 			alerts.New,
 			commands_with_groups_and_responses.New,
@@ -128,6 +127,7 @@ func main() {
 			roles.New,
 			roles_users.New,
 			roles_with_roles_users.New,
+			twitch.New,
 		),
 		// repositories
 		fx.Provide(
@@ -207,6 +207,7 @@ func main() {
 		),
 		// app itself
 		fx.Provide(
+			dataloader.New,
 			auth.NewSessions,
 			minio.New,
 			commandscache.New,
@@ -220,7 +221,6 @@ func main() {
 			directives.New,
 			middlewares.New,
 			server.New,
-			apq_cache.New,
 		),
 		fx.Invoke(
 			gql.New,

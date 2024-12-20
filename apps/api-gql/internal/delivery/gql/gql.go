@@ -1,7 +1,6 @@
 package gql
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -14,14 +13,14 @@ import (
 	"github.com/ravilushqa/otelgqlgen"
 	config "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
-	apq_cache "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/apq-cache"
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
@@ -37,12 +36,13 @@ type Opts struct {
 	Resolver                *resolvers.Resolver
 	Directives              *directives.Directives
 	Config                  config.Config
-	ApqCache                *apq_cache.APQCache
 	Tracer                  trace.Tracer
 	CachedTwitchClient      *twitch.CachedTwitchClient
 	Server                  *server.Server
 	CommandsGroupsService   *commands_groups.Service
 	CommandsResponseService *commands_responses.Service
+	TwitchService           *twitchservice.Service
+	DataLoaderFactory       *data_loader.LoaderFactory
 }
 
 func New(opts Opts) *Gql {
@@ -89,21 +89,7 @@ func New(opts Opts) *Gql {
 
 	opts.Server.Any(
 		"/query",
-		func(c *gin.Context) {
-			loader := data_loader.New(
-				data_loader.Opts{
-					CachedTwitchClient:       opts.CachedTwitchClient,
-					CommandsGroupsService:    opts.CommandsGroupsService,
-					CommandsResponsesService: opts.CommandsResponseService,
-				},
-			)
-
-			c.Request = c.Request.WithContext(
-				context.WithValue(c.Request.Context(), data_loader.LoadersKey, loader),
-			)
-
-			c.Next()
-		},
+		opts.DataLoaderFactory.LoadMiddleware,
 		func(c *gin.Context) {
 			srv.ServeHTTP(c.Writer, c.Request)
 		},

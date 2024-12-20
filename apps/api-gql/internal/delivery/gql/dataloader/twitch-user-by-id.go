@@ -1,4 +1,4 @@
-package data_loader
+package dataloader
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/twirapp/twir/libs/cache/twitch"
 )
 
-func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
+func (c *dataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 	[]*gqlmodel.TwirUserTwitchInfo,
 	[]error,
 ) {
@@ -18,7 +18,7 @@ func (c *DataLoader) getHelixUsersByIds(ctx context.Context, ids []string) (
 		},
 	)
 
-	users, err := c.cachedTwitchClient.GetUsersByIds(ctx, nonEmptyIds)
+	users, err := c.deps.CachedTwitchClient.GetUsersByIds(ctx, nonEmptyIds)
 	if err != nil {
 		return nil, []error{err}
 	}

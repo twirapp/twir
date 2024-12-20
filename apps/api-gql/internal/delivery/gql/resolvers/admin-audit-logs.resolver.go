@@ -7,7 +7,7 @@ package resolvers
 import (
 	"context"
 
-	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/data-loader"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -16,7 +16,10 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}
@@ -25,7 +28,10 @@ func (r *adminAuditLogResolver) User(ctx context.Context, obj *gqlmodel.AdminAud
 }
 
 // Channel is the resolver for the channel field.
-func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.AdminAuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *adminAuditLogResolver) Channel(
+	ctx context.Context,
+	obj *gqlmodel.AdminAuditLog,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.ChannelID == nil {
 		return nil, nil
 	}
@@ -34,7 +40,10 @@ func (r *adminAuditLogResolver) Channel(ctx context.Context, obj *gqlmodel.Admin
 }
 
 // AdminAuditLogs is the resolver for the adminAuditLogs field.
-func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.AdminAuditLogsInput) (*gqlmodel.AdminAuditLogResponse, error) {
+func (r *queryResolver) AdminAuditLogs(
+	ctx context.Context,
+	input gqlmodel.AdminAuditLogsInput,
+) (*gqlmodel.AdminAuditLogResponse, error) {
 	var page int
 	perPage := 20
 

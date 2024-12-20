@@ -1,15 +1,18 @@
-package data_loader
+package dataloader
 
 import (
 	"context"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
+	twitchservice "github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
 	"github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/vikstrous/dataloadgen"
+	"go.uber.org/fx"
 )
 
 type ctxKey string
@@ -18,10 +21,17 @@ const (
 	LoadersKey = ctxKey("dataloaders")
 )
 
-type DataLoader struct {
-	cachedTwitchClient       *twitch.CachedTwitchClient
-	commandsGroupsService    *commands_groups.Service
-	commandsResponsesService *commands_responses.Service
+type Opts struct {
+	fx.In
+
+	CachedTwitchClient       *twitch.CachedTwitchClient
+	CommandsGroupsService    *commands_groups.Service
+	CommandsResponsesService *commands_responses.Service
+	TwitchService            *twitchservice.Service
+}
+
+type dataLoader struct {
+	deps Opts
 
 	helixUserByIdLoader         *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
 	helixUserByNameLoader       *dataloadgen.Loader[string, *gqlmodel.TwirUserTwitchInfo]
@@ -30,17 +40,19 @@ type DataLoader struct {
 	commandsResponsesByIDLoader *dataloadgen.Loader[uuid.UUID, []gqlmodel.CommandResponse]
 }
 
-type Opts struct {
-	CachedTwitchClient       *twitch.CachedTwitchClient
-	CommandsGroupsService    *commands_groups.Service
-	CommandsResponsesService *commands_responses.Service
+type LoaderFactory struct {
+	deps Opts
 }
 
-func New(opts Opts) *DataLoader {
-	loader := &DataLoader{
-		cachedTwitchClient:       opts.CachedTwitchClient,
-		commandsGroupsService:    opts.CommandsGroupsService,
-		commandsResponsesService: opts.CommandsResponsesService,
+func New(opts Opts) *LoaderFactory {
+	return &LoaderFactory{
+		deps: opts,
+	}
+}
+
+func (c *LoaderFactory) load() *dataLoader {
+	loader := &dataLoader{
+		deps: c.deps,
 	}
 
 	loader.helixUserByIdLoader = dataloadgen.NewLoader(
@@ -71,7 +83,17 @@ func New(opts Opts) *DataLoader {
 	return loader
 }
 
+func (c *LoaderFactory) LoadMiddleware(g *gin.Context) {
+	loaderForRequest := c.load()
+
+	g.Request = g.Request.WithContext(
+		context.WithValue(g.Request.Context(), LoadersKey, loaderForRequest),
+	)
+
+	g.Next()
+}
+
 // GetLoaderForRequest returns the dataloader for a given context
-func GetLoaderForRequest(ctx context.Context) *DataLoader {
-	return ctx.Value(LoadersKey).(*DataLoader)
+func GetLoaderForRequest(ctx context.Context) *dataLoader {
+	return ctx.Value(LoadersKey).(*dataLoader)
 }
