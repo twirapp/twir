@@ -28,7 +28,7 @@ function computeValueHint(oldValue: string | null | undefined, newValue: string 
 	const value = newJson || oldJson
 	if (!value) return null
 
-	return value.name ?? value.text ?? null
+	return value.name ?? value.text ?? value.Name ?? null
 }
 
 function computeOperationBadgeVariant(operation: AuditOperationType): BadgeVariants['variant'] {
