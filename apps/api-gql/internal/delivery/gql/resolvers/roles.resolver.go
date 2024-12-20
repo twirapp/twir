@@ -20,10 +20,7 @@ import (
 )
 
 // RolesCreate is the resolver for the rolesCreate field.
-func (r *mutationResolver) RolesCreate(
-	ctx context.Context,
-	opts gqlmodel.RolesCreateOrUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -69,11 +66,7 @@ func (r *mutationResolver) RolesCreate(
 }
 
 // RolesUpdate is the resolver for the rolesUpdate field.
-func (r *mutationResolver) RolesUpdate(
-	ctx context.Context,
-	id uuid.UUID,
-	opts gqlmodel.RolesCreateOrUpdateOpts,
-) (bool, error) {
+func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -166,10 +159,7 @@ func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
 }
 
 // Users is the resolver for the users field.
-func (r *roleResolver) Users(
-	ctx context.Context,
-	obj *gqlmodel.Role,
-) ([]gqlmodel.TwirUserTwitchInfo, error) {
+func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmodel.TwirUserTwitchInfo, error) {
 	if obj == nil {
 		return nil, nil
 	}

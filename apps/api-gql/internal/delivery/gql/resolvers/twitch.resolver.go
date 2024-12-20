@@ -14,10 +14,7 @@ import (
 )
 
 // TwitchGetUserByID is the resolver for the twitchGetUserById field.
-func (r *queryResolver) TwitchGetUserByID(
-	ctx context.Context,
-	id string,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *queryResolver) TwitchGetUserByID(ctx context.Context, id string) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if id == "" {
 		return nil, fmt.Errorf("id is required")
 	}
@@ -26,10 +23,7 @@ func (r *queryResolver) TwitchGetUserByID(
 }
 
 // TwitchGetUserByName is the resolver for the twitchGetUserByName field.
-func (r *queryResolver) TwitchGetUserByName(
-	ctx context.Context,
-	name string,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if name == "" {
 		return nil, fmt.Errorf("name is required")
 	}
@@ -38,10 +32,7 @@ func (r *queryResolver) TwitchGetUserByName(
 }
 
 // TwitchGetChannelRewards is the resolver for the twitchGetChannelRewards field.
-func (r *queryResolver) TwitchGetChannelRewards(
-	ctx context.Context,
-	channelID *string,
-) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
+func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *string) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
 	var channelId string
 	if channelID == nil {
 		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
@@ -74,10 +65,7 @@ func (r *queryResolver) TwitchGetChannelRewards(
 }
 
 // TwitchGetChannelBadges is the resolver for the twitchGetChannelBadges field.
-func (r *queryResolver) TwitchGetChannelBadges(
-	ctx context.Context,
-	channelID *string,
-) (*gqlmodel.TwirTwitchChannelBadgeResponse, error) {
+func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *string) (*gqlmodel.TwirTwitchChannelBadgeResponse, error) {
 	var userId string
 	if channelID != nil {
 		userId = *channelID
@@ -109,10 +97,7 @@ func (r *queryResolver) TwitchGetChannelBadges(
 }
 
 // TwitchGetGlobalBadges is the resolver for the twitchGetGlobalBadges field.
-func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (
-	*gqlmodel.TwirTwitchGlobalBadgeResponse,
-	error,
-) {
+func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (*gqlmodel.TwirTwitchGlobalBadgeResponse, error) {
 	badges, err := r.twitchService.GetGlobalChatBadges(ctx)
 	if err != nil {
 		return nil, err

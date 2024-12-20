@@ -15,10 +15,7 @@ import (
 )
 
 // User is the resolver for the user field.
-func (r *auditLogResolver) User(
-	ctx context.Context,
-	obj *gqlmodel.AuditLog,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*gqlmodel.TwirUserTwitchInfo, error) {
 	if obj.UserID == nil {
 		return nil, nil
 	}

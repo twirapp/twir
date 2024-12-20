@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/nicklaw5/helix/v2"
+	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
@@ -20,18 +20,12 @@ import (
 )
 
 // TwitchProfile is the resolver for the twitchProfile field.
-func (r *communityUserResolver) TwitchProfile(
-	ctx context.Context,
-	obj *gqlmodel.CommunityUser,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *communityUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.CommunityUser) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.ID)
 }
 
 // CommunityResetStats is the resolver for the communityResetStats field.
-func (r *mutationResolver) CommunityResetStats(
-	ctx context.Context,
-	typeArg gqlmodel.CommunityUsersResetType,
-) (bool, error) {
+func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlmodel.CommunityUsersResetType) (bool, error) {
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
@@ -84,10 +78,7 @@ func (r *mutationResolver) CommunityResetStats(
 }
 
 // CommunityUsers is the resolver for the communityUsers field.
-func (r *queryResolver) CommunityUsers(
-	ctx context.Context,
-	opts gqlmodel.CommunityUsersOpts,
-) (*gqlmodel.CommunityUsersResponse, error) {
+func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.CommunityUsersOpts) (*gqlmodel.CommunityUsersResponse, error) {
 	var page int
 	perPage := 20
 

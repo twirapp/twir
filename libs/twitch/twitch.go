@@ -13,9 +13,7 @@ import (
 	"github.com/nicklaw5/helix/v2"
 )
 
-type helixClient struct {
-	*helix.Client
-}
+type userIDCtxKey struct{}
 
 func rateLimitCallback(lastResponse *helix.Response) error {
 	if lastResponse.GetRateLimitRemaining() > 0 {
@@ -64,6 +62,7 @@ func NewAppClientWithContext(
 			RedirectURI:    config.TwitchCallbackUrl,
 			RateLimitFunc:  rateLimitCallback,
 			AppAccessToken: appToken.AccessToken,
+			HTTPClient:     createHttpClient(),
 		},
 	)
 	if err != nil {
@@ -86,6 +85,8 @@ func NewUserClientWithContext(
 	config cfg.Config,
 	tokensGrpc tokens.TokensClient,
 ) (*helix.Client, error) {
+	ctx = context.WithValue(ctx, userIDCtxKey{}, userID)
+
 	userToken, err := tokensGrpc.RequestUserToken(
 		ctx,
 		&tokens.GetUserTokenRequest{UserId: userID},
@@ -103,6 +104,7 @@ func NewUserClientWithContext(
 			RedirectURI:     config.TwitchCallbackUrl,
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: userToken.AccessToken,
+			HTTPClient:      createHttpClient(),
 		},
 	)
 	if err != nil {
@@ -122,6 +124,8 @@ func NewBotClient(botID string, config cfg.Config, tokensGrpc tokens.TokensClien
 func NewBotClientWithContext(
 	ctx context.Context, botID string, config cfg.Config, tokensGrpc tokens.TokensClient,
 ) (*helix.Client, error) {
+	ctx = context.WithValue(ctx, userIDCtxKey{}, botID)
+
 	botToken, err := tokensGrpc.RequestBotToken(
 		ctx,
 		&tokens.GetBotTokenRequest{BotId: botID},
@@ -138,6 +142,7 @@ func NewBotClientWithContext(
 			RedirectURI:     config.TwitchCallbackUrl,
 			RateLimitFunc:   rateLimitCallback,
 			UserAccessToken: botToken.AccessToken,
+			HTTPClient:      createHttpClient(),
 		},
 	)
 	if err != nil {
