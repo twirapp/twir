@@ -5,8 +5,8 @@ extend type Query {
 
 extend type Mutation {
 	variablesCreate(opts: VariableCreateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
-	variablesUpdate(id: ID!, opts: VariableUpdateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
-	variablesDelete(id: ID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
+	variablesUpdate(id: UUID!, opts: VariableUpdateInput!): Variable! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
+	variablesDelete(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_VARIABLES)
 	executeScript(script: String!, testAsUserName: String): String! @isAuthenticated
 }
 
@@ -17,7 +17,7 @@ enum VariableType {
 }
 
 type Variable {
-	id: ID!
+	id: UUID!
 	name: String!
 	description: String
 	type: VariableType!

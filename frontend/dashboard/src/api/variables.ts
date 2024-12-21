@@ -89,7 +89,7 @@ export const useVariablesApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationUpdateVariable = () => useMutation(graphql(`
-		mutation UpdateVariable($id: ID!, $opts: VariableUpdateInput!) {
+		mutation UpdateVariable($id: UUID!, $opts: VariableUpdateInput!) {
 			variablesUpdate(id: $id, opts: $opts) {
 				id
 			}
@@ -97,7 +97,7 @@ export const useVariablesApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationRemoveVariable = () => useMutation(graphql(`
-		mutation RemoveVariable($id: ID!) {
+		mutation RemoveVariable($id: UUID!) {
 			variablesDelete(id: $id)
 		}
 	`), [invalidationKey])

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
@@ -48,7 +49,7 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 }
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
-func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
+func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -82,7 +83,7 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id string, opts 
 }
 
 // VariablesDelete is the resolver for the variablesDelete field.
-func (r *mutationResolver) VariablesDelete(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err

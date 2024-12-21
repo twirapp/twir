@@ -10,13 +10,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
-func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) error {
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-
-	variable, err := c.variablesRepository.GetByID(ctx, parsedID)
+func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
+	variable, err := c.variablesRepository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -25,7 +20,7 @@ func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) err
 		return ErrNotFound
 	}
 
-	err = c.variablesRepository.Delete(ctx, parsedID)
+	err = c.variablesRepository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

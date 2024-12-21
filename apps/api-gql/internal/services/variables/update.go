@@ -14,7 +14,7 @@ import (
 )
 
 type UpdateInput struct {
-	ID        string
+	ID        uuid.UUID
 	ChannelID string
 	ActorID   string
 
@@ -26,12 +26,7 @@ type UpdateInput struct {
 }
 
 func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVariable, error) {
-	parsedID, err := uuid.Parse(data.ID)
-	if err != nil {
-		return entity.CustomVarNil, err
-	}
-
-	variable, err := c.variablesRepository.GetByID(ctx, parsedID)
+	variable, err := c.variablesRepository.GetByID(ctx, data.ID)
 	if err != nil {
 		return entity.CustomVarNil, err
 	}
@@ -51,7 +46,7 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.CustomVa
 		input.Type = lo.ToPtr(model.CustomVarType(*data.Type))
 	}
 
-	newVariable, err := c.variablesRepository.Update(ctx, parsedID, input)
+	newVariable, err := c.variablesRepository.Update(ctx, data.ID, input)
 	if err != nil {
 		return entity.CustomVarNil, err
 	}
