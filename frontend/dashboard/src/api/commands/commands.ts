@@ -67,7 +67,7 @@ export const useCommandsApi = createGlobalState(() => {
 
 	const useMutationDeleteCommand = () => useMutation(
 		graphql(`
-			mutation DeleteCommand($id: ID!) {
+			mutation DeleteCommand($id: UUID!) {
 				commandsRemove(id: $id)
 			}
 		`),
@@ -87,7 +87,7 @@ export const useCommandsApi = createGlobalState(() => {
 
 	const useMutationUpdateCommand = () => useMutation(
 		graphql(`
-			mutation UpdateCommand($id: ID!, $opts: CommandsUpdateOpts!) {
+			mutation UpdateCommand($id: UUID!, $opts: CommandsUpdateOpts!) {
 				commandsUpdate(id: $id, opts: $opts)
 			}
 		`),

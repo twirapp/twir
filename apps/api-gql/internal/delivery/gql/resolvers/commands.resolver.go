@@ -27,12 +27,7 @@ func (r *commandResolver) Responses(ctx context.Context, obj *gqlmodel.Command) 
 		return []gqlmodel.CommandResponse{}, nil
 	}
 
-	parsedUuid, err := uuid.Parse(obj.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return data_loader.GetCommandResponsesById(ctx, parsedUuid)
+	return data_loader.GetCommandResponsesById(ctx, obj.ID)
 }
 
 // Group is the resolver for the group field.
@@ -141,7 +136,7 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 }
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
-func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
+func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -150,11 +145,6 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 	user, err := r.sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
-	}
-
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return false, fmt.Errorf("wrong command id: %w", err)
 	}
 
 	updateInput := commands_with_groups_and_responses.UpdateInput{
@@ -227,7 +217,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 
 	if _, err := r.commandsWithGroupsAndResponsesService.Update(
 		ctx,
-		parsedID,
+		id,
 		updateInput,
 	); err != nil {
 		return false, fmt.Errorf("cannot update command: %w", err)
@@ -237,7 +227,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id string, opts g
 }
 
 // CommandsRemove is the resolver for the commandsRemove field.
-func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
@@ -248,16 +238,11 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id string) (bool,
 		return false, err
 	}
 
-	parsedID, err := uuid.Parse(id)
-	if err != nil {
-		return false, fmt.Errorf("wrong uuid: %w", err)
-	}
-
 	err = r.commandsService.Delete(
 		ctx, commands.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
-			ID:        parsedID,
+			ID:        id,
 		},
 	)
 	if err != nil {

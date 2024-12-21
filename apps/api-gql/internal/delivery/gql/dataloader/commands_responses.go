@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 func (c *dataLoader) getCommandsResponsesByIDs(ctx context.Context, commandsIDs []uuid.UUID) (
@@ -20,18 +21,7 @@ func (c *dataLoader) getCommandsResponsesByIDs(ctx context.Context, commandsIDs 
 	for i, commandResponses := range responses {
 		mappedCommandResponses := make([]gqlmodel.CommandResponse, 0, len(commandResponses))
 		for _, r := range commandResponses {
-			model := gqlmodel.CommandResponse{
-				ID:                  r.ID.String(),
-				CommandID:           r.CommandID.String(),
-				Text:                "",
-				TwitchCategoriesIds: r.TwitchCategoryIDs,
-			}
-
-			if r.Text != nil {
-				model.Text = *r.Text
-			}
-
-			mappedCommandResponses = append(mappedCommandResponses, model)
+			mappedCommandResponses = append(mappedCommandResponses, mappers.CommandResponseTo(r))
 		}
 
 		mappedResponses[i] = mappedCommandResponses

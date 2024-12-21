@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 func (c *dataLoader) getCommandsGroupsByIDs(ctx context.Context, ids []uuid.UUID) (
@@ -18,13 +19,11 @@ func (c *dataLoader) getCommandsGroupsByIDs(ctx context.Context, ids []uuid.UUID
 
 	mappedGroups := make([]*gqlmodel.CommandGroup, 0, len(groups))
 	for _, g := range groups {
+		group := mappers.CommandGroupTo(*g)
+
 		mappedGroups = append(
 			mappedGroups,
-			&gqlmodel.CommandGroup{
-				ID:    g.ID.String(),
-				Name:  g.Name,
-				Color: g.Color,
-			},
+			&group,
 		)
 	}
 

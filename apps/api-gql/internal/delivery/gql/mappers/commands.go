@@ -33,7 +33,7 @@ func CommandEntityTo(e entity.Command) gqlmodel.Command {
 	}
 
 	m := gqlmodel.Command{
-		ID:                        e.ID.String(),
+		ID:                        e.ID,
 		Name:                      e.Name,
 		Description:               "", // will be set later
 		Aliases:                   e.Aliases,
@@ -98,7 +98,7 @@ func CommandGroupTo(e entity.CommandGroup) gqlmodel.CommandGroup {
 
 func CommandResponseTo(e entity.CommandResponse) gqlmodel.CommandResponse {
 	m := gqlmodel.CommandResponse{
-		ID:                  e.ID.String(),
+		ID:                  e.ID,
 		CommandID:           e.CommandID.String(),
 		Text:                "", // will be set later
 		TwitchCategoriesIds: e.TwitchCategoryIDs,
