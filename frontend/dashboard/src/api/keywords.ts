@@ -43,7 +43,7 @@ export const useKeywordsApi = createGlobalState(() => {
 	`), [invalidateKey])
 
 	const useMutationUpdateKeyword = () => useMutation(graphql(`
-		mutation UpdateKeyword($id: String!, $opts: KeywordUpdateInput!) {
+		mutation UpdateKeyword($id: UUID!, $opts: KeywordUpdateInput!) {
 			keywordUpdate(id: $id, opts: $opts) {
 				id
 			}
@@ -51,7 +51,7 @@ export const useKeywordsApi = createGlobalState(() => {
 	`), [invalidateKey])
 
 	const useMutationRemoveKeyword = () => useMutation(graphql(`
-		mutation RemoveKeyword($id: String!) {
+		mutation RemoveKeyword($id: UUID!) {
 			keywordRemove(id: $id)
 		}
 	`), [invalidateKey])

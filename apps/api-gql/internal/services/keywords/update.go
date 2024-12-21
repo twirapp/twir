@@ -17,7 +17,7 @@ type UpdateInput struct {
 	ChannelID string
 	ActorID   string
 
-	ID               string
+	ID               uuid.UUID
 	Text             *string
 	Response         *string
 	Enabled          *bool
@@ -29,12 +29,7 @@ type UpdateInput struct {
 }
 
 func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword, error) {
-	parsedID, err := uuid.Parse(input.ID)
-	if err != nil {
-		return entity.KeywordNil, err
-	}
-
-	keyword, err := c.keywordsRepository.GetByID(ctx, parsedID)
+	keyword, err := c.keywordsRepository.GetByID(ctx, input.ID)
 	if err != nil {
 		return entity.KeywordNil, err
 	}
@@ -45,7 +40,7 @@ func (c *Service) Update(ctx context.Context, input UpdateInput) (entity.Keyword
 
 	newKeyword, err := c.keywordsRepository.Update(
 		ctx,
-		parsedID,
+		input.ID,
 		keywordsrepository.UpdateInput{
 			Text:             input.Text,
 			Response:         input.Response,

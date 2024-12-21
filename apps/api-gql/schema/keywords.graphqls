@@ -4,12 +4,12 @@ extend type Query {
 
 extend type Mutation {
 	keywordCreate(opts: KeywordCreateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
-	keywordUpdate(id: String!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
-	keywordRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordUpdate(id: UUID!, opts: KeywordUpdateInput!): Keyword! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
+	keywordRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_KEYWORDS)
 }
 
 type Keyword {
-	id: ID!
+	id: UUID!
 	text: String!
 	response: String
 	enabled: Boolean!

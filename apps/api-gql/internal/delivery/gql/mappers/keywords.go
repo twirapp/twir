@@ -7,7 +7,7 @@ import (
 
 func KeywordsFrom(k entity.Keyword) gqlmodel.Keyword {
 	return gqlmodel.Keyword{
-		ID:                  k.ID.String(),
+		ID:                  k.ID,
 		Text:                k.Text,
 		Response:            &k.Response,
 		Enabled:             k.Enabled,

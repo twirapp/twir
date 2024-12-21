@@ -11,13 +11,8 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
-func (c *Service) Delete(ctx context.Context, channelID, actorID, id string) error {
-	parsedUuid, err := uuid.Parse(id)
-	if err != nil {
-		return err
-	}
-
-	keyword, err := c.keywordsRepository.GetByID(ctx, parsedUuid)
+func (c *Service) Delete(ctx context.Context, channelID, actorID string, id uuid.UUID) error {
+	keyword, err := c.keywordsRepository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -26,7 +21,7 @@ func (c *Service) Delete(ctx context.Context, channelID, actorID, id string) err
 		return fmt.Errorf("keyword not found")
 	}
 
-	if err := c.keywordsRepository.Delete(ctx, parsedUuid); err != nil {
+	if err := c.keywordsRepository.Delete(ctx, id); err != nil {
 		return err
 	}
 

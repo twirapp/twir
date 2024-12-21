@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -64,7 +65,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 }
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
-func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error) {
+func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -127,7 +128,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id string, opts gq
 }
 
 // KeywordRemove is the resolver for the keywordRemove field.
-func (r *mutationResolver) KeywordRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) KeywordRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
