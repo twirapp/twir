@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -16,7 +17,7 @@ type UpdateInput struct {
 	ChannelID string
 	ActorID   string
 
-	ID              string
+	ID              uuid.UUID
 	Name            *string
 	Enabled         *bool
 	TimeInterval    *int
@@ -25,7 +26,7 @@ type UpdateInput struct {
 }
 
 func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, error) {
-	timer, err := c.timersrepository.GetByID(ctx, data.ID)
+	timer, err := c.timersRepository.GetByID(ctx, data.ID)
 	if err != nil {
 		return entity.TimerNil, err
 	}
@@ -45,7 +46,7 @@ func (c *Service) Update(ctx context.Context, data UpdateInput) (entity.Timer, e
 		)
 	}
 
-	newTimer, err := c.timersrepository.UpdateByID(
+	newTimer, err := c.timersRepository.UpdateByID(
 		ctx,
 		data.ID,
 		timersrepository.UpdateInput{

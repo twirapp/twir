@@ -3,6 +3,7 @@ package timers
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"github.com/satont/twir/libs/logger/audit"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
@@ -10,8 +11,8 @@ import (
 	timersbusservice "github.com/twirapp/twir/libs/bus-core/timers"
 )
 
-func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) error {
-	timer, err := c.timersrepository.GetByID(ctx, id)
+func (c *Service) Delete(ctx context.Context, id uuid.UUID, channelID, actorID string) error {
+	timer, err := c.timersRepository.GetByID(ctx, id)
 	if err != nil {
 		return err
 	}
@@ -20,7 +21,7 @@ func (c *Service) Delete(ctx context.Context, id, channelID, actorID string) err
 		return ErrTimerNotFound
 	}
 
-	if err := c.timersrepository.Delete(ctx, id); err != nil {
+	if err := c.timersRepository.Delete(ctx, id); err != nil {
 		return err
 	}
 

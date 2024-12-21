@@ -41,7 +41,7 @@ export const useTimersApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationUpdateTimer = () => useMutation(graphql(`
-		mutation UpdateTimer($id: String!, $opts: TimerUpdateInput!) {
+		mutation UpdateTimer($id: UUID!, $opts: TimerUpdateInput!) {
 			timersUpdate(id: $id, opts: $opts) {
 				id
 			}
@@ -49,7 +49,7 @@ export const useTimersApi = createGlobalState(() => {
 	`), [invalidationKey])
 
 	const useMutationRemoveTimer = () => useMutation(graphql(`
-		mutation RemoveTimer($id: String!) {
+		mutation RemoveTimer($id: UUID!) {
 			timersRemove(id: $id)
 		}
 	`), [invalidationKey])

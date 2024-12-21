@@ -7,7 +7,7 @@ import (
 
 func VariableModelToGql(variable entity.CustomVariable) gqlmodel.Variable {
 	return gqlmodel.Variable{
-		ID:          variable.ID.String(),
+		ID:          variable.ID,
 		Name:        variable.Name,
 		Description: variable.Description,
 		Type:        gqlmodel.VariableType(variable.Type),

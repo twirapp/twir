@@ -37,7 +37,7 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
-func (c *Pgx) GetByID(ctx context.Context, id string) (model.Timer, error) {
+func (c *Pgx) GetByID(ctx context.Context, id uuid.UUID) (model.Timer, error) {
 	query := `
 SELECT t."id", t."channelId", t."name", t."enabled", t."timeInterval", t."messageInterval", t."lastTriggerMessageNumber",
 			 r."id" response_id, r."text" response_text, r."isAnnounce" response_is_announce, r."timerId" response_timer_id
@@ -212,7 +212,7 @@ ORDER BY t."id";
 	return result, nil
 }
 
-func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput) (
+func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateInput) (
 	model.Timer,
 	error,
 ) {
@@ -282,7 +282,7 @@ func (c *Pgx) UpdateByID(ctx context.Context, id string, data timers.UpdateInput
 	return c.GetByID(ctx, id)
 }
 
-func (c *Pgx) Delete(ctx context.Context, id string) error {
+func (c *Pgx) Delete(ctx context.Context, id uuid.UUID) error {
 	query := `DELETE FROM "channels_timers" WHERE "id" = $1`
 
 	rows, err := c.pool.Exec(ctx, query, id)

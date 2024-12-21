@@ -7,6 +7,7 @@ package resolvers
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
@@ -51,7 +52,7 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 }
 
 // TimersUpdate is the resolver for the timersUpdate field.
-func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
+func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -95,7 +96,7 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id string, opts gql
 }
 
 // TimersRemove is the resolver for the timersRemove field.
-func (r *mutationResolver) TimersRemove(ctx context.Context, id string) (bool, error) {
+func (r *mutationResolver) TimersRemove(ctx context.Context, id uuid.UUID) (bool, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err

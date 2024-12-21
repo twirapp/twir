@@ -26,7 +26,7 @@ func New(opts Opts) *Service {
 		gorm:             opts.Gorm,
 		logger:           opts.Logger,
 		twirbus:          opts.TwirBus,
-		timersrepository: opts.TimersRepository,
+		timersRepository: opts.TimersRepository,
 	}
 }
 
@@ -34,7 +34,7 @@ type Service struct {
 	gorm             *gorm.DB
 	logger           logger.Logger
 	twirbus          *buscore.Bus
-	timersrepository timersrepository.Repository
+	timersRepository timersrepository.Repository
 }
 
 const MaxPerChannel = 10

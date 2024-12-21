@@ -4,12 +4,12 @@ extend type Query {
 
 extend type Mutation {
 	timersCreate(opts: TimerCreateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
-	timersUpdate(id: String!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
-	timersRemove(id: String!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersUpdate(id: UUID!, opts: TimerUpdateInput!): Timer! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
+	timersRemove(id: UUID!): Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_TIMERS)
 }
 
 type Timer {
-	id: ID!
+	id: UUID!
 	name: String!
 	enabled: Boolean!
 	timeInterval: Int!
@@ -18,7 +18,7 @@ type Timer {
 }
 
 type TimerResponse {
-	id: ID!
+	id: UUID!
 	text: String!
 	isAnnounce: Boolean!
 }

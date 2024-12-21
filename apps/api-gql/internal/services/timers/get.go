@@ -7,7 +7,7 @@ import (
 )
 
 func (c *Service) GetAllByChannelID(ctx context.Context, channelID string) ([]entity.Timer, error) {
-	timers, err := c.timersrepository.GetAllByChannelID(ctx, channelID)
+	timers, err := c.timersRepository.GetAllByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}

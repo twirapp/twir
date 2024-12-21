@@ -30,7 +30,7 @@ type CreateResponse struct {
 }
 
 func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, error) {
-	createdCount, err := c.timersrepository.CountByChannelID(ctx, data.ChannelID)
+	createdCount, err := c.timersRepository.CountByChannelID(ctx, data.ChannelID)
 	if err != nil {
 		return entity.TimerNil, err
 	}
@@ -50,7 +50,7 @@ func (c *Service) Create(ctx context.Context, data CreateInput) (entity.Timer, e
 		)
 	}
 
-	timer, err := c.timersrepository.Create(
+	timer, err := c.timersRepository.Create(
 		ctx,
 		timersrepository.CreateInput{
 			ChannelID:       data.ChannelID,

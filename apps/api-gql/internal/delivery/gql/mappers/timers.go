@@ -11,7 +11,7 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 		responses = append(
 			responses,
 			gqlmodel.TimerResponse{
-				ID:         r.ID.String(),
+				ID:         r.ID,
 				Text:       r.Text,
 				IsAnnounce: r.IsAnnounce,
 			},
@@ -19,7 +19,7 @@ func TimerEntityToGql(m entity.Timer) gqlmodel.Timer {
 	}
 
 	return gqlmodel.Timer{
-		ID:              m.ID.String(),
+		ID:              m.ID,
 		Name:            m.Name,
 		Enabled:         m.Enabled,
 		TimeInterval:    m.TimeInterval,
