@@ -10,7 +10,20 @@ import (
 	"gorm.io/gorm"
 )
 
+type commandDto struct {
+	Name        string               `json:"name"`
+	Description *string              `json:"description"`
+	Module      string               `json:"module"`
+	Group       *string              `json:"group"`
+	Responses   []commandDtoResponse `json:"responses"`
+}
+
+type commandDtoResponse struct {
+	Text string `json:"text"`
+}
+
 func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
+	// TODO: refactor to service
 	channel := model.Channels{}
 	if err := p.gorm.
 		WithContext(c.Request.Context()).
@@ -31,6 +44,7 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		return
 	}
 
+	// TODO: it must use generic cacher with repository instead of gorm cacher
 	commands, err := p.cachedCommands.Get(c.Request.Context(), c.Param("channelId"))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -43,33 +57,31 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		},
 	)
 
-	mappedCommands := make([]map[string]any, 0, len(commands))
+	mappedCommands := make([]commandDto, 0, len(commands))
 
 	for _, command := range commands {
-		cmd := map[string]any{
-			"name":        command.Name,
-			"description": command.Description,
-			"module":      command.Module,
+		mappedCmd := commandDto{
+			Name:        command.Name,
+			Description: command.Description.Ptr(),
+			Module:      command.Module,
+			Group:       nil,
+			Responses:   make([]commandDtoResponse, 0, len(command.Responses)),
 		}
 
 		if command.Group != nil {
-			cmd["group"] = command.Group.Name
+			mappedCmd.Group = &command.Group.Name
 		}
 
-		responses := make([]map[string]any, 0, len(command.Responses))
-		if len(command.Responses) > 0 {
-			for _, response := range command.Responses {
-				responses = append(
-					responses, map[string]any{
-						"text": response.Text.String,
-					},
-				)
-			}
-
-			cmd["responses"] = responses
+		for _, response := range command.Responses {
+			mappedCmd.Responses = append(
+				mappedCmd.Responses,
+				commandDtoResponse{
+					Text: response.Text.String,
+				},
+			)
 		}
 
-		mappedCommands = append(mappedCommands, cmd)
+		mappedCommands = append(mappedCommands, mappedCmd)
 	}
 
 	c.JSON(http.StatusOK, mappedCommands)
