@@ -12,19 +12,17 @@ import (
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
+	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
-	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
-	"github.com/twirapp/twir/libs/repositories/keywords"
-	"github.com/twirapp/twir/libs/repositories/keywords/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -44,8 +42,7 @@ type Opts struct {
 	ModerationHelpers   *moderationhelpers.ModerationHelpers
 	Config              cfg.Config
 	Bus                 *buscore.Bus
-	KeywordsCacher      *generic_cacher.GenericCacher[[]model.Keyword]
-	KeywordsRepository  keywords.Repository
+	KeywordsService     *keywords.Service
 	GreetingsRepository greetings.Repository
 }
 
@@ -60,10 +57,9 @@ type MessageHandler struct {
 	moderationHelpers *moderationhelpers.ModerationHelpers
 	config            cfg.Config
 	bus               *buscore.Bus
-	keywordsCacher    *generic_cacher.GenericCacher[[]model.Keyword]
 	votebanMutex      *redsync.Mutex
 
-	keywordsRepository  keywords.Repository
+	keywordsService     *keywords.Service
 	greetingsRepository greetings.Repository
 }
 
@@ -81,9 +77,8 @@ func New(opts Opts) *MessageHandler {
 		moderationHelpers:   opts.ModerationHelpers,
 		config:              opts.Config,
 		bus:                 opts.Bus,
-		keywordsCacher:      opts.KeywordsCacher,
 		votebanMutex:        votebanLock.NewMutex("bots:voteban_handle_message"),
-		keywordsRepository:  opts.KeywordsRepository,
+		keywordsService:     opts.KeywordsService,
 		greetingsRepository: opts.GreetingsRepository,
 	}
 

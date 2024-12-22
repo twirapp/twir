@@ -8,6 +8,7 @@ import (
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
+	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
@@ -63,6 +64,7 @@ var App = fx.Module(
 		twitchactions.New,
 		moderationhelpers.New,
 		messagehandler.New,
+		keywords.New,
 	),
 	fx.Invoke(
 		uptrace.NewFx("bots"),
