@@ -23,7 +23,6 @@ type commandDtoResponse struct {
 }
 
 func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
-	// TODO: refactor to service
 	channel, err := p.channelsService.GetByID(c.Request.Context(), c.Param("channelId"))
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {

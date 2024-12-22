@@ -7,14 +7,6 @@ import (
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 )
 
-func (p *Public) computeBadgeUrl(fileName string) string {
-	if p.config.AppEnv == "development" {
-		return p.config.S3PublicUrl + "/" + p.config.S3Bucket + "/badges/" + fileName
-	}
-
-	return p.config.S3PublicUrl + "/badges/" + fileName
-}
-
 type badgeWithUsers struct {
 	ID      uuid.UUID `json:"id"`
 	Name    string    `json:"name"`
