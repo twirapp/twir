@@ -55,7 +55,7 @@ func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverla
 
 // ChatOverlaysByID is the resolver for the chatOverlaysById field.
 func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmodel.ChatOverlay, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *queryResolver) NowPlayingOverlays(ctx context.Context) ([]gqlmodel.NowP
 
 // NowPlayingOverlaysByID is the resolver for the nowPlayingOverlaysById field.
 func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (*gqlmodel.NowPlayingOverlay, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -81,14 +81,14 @@ func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (
 // ChatOverlaySettings is the resolver for the chatOverlaySettings field.
 func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.ChatOverlay, error) {
 	user := model.Users{}
-	if err := r.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	channel := make(chan *gqlmodel.ChatOverlay)
 
 	go func() {
-		sub, err := r.wsRouter.Subscribe(
+		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
 				chatOverlaySubscriptionKeyCreate(id, user.ID),
 			},

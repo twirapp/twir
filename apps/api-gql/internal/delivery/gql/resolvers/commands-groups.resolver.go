@@ -20,18 +20,18 @@ import (
 
 // CommandsGroupsCreate is the resolver for the commandsGroupsCreate field
 func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmodel.CommandsGroupsCreateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	var createdCount int64
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Model(&model.ChannelCommandGroup{}).
 		Where(`"channelId" = ?`, dashboardId).
@@ -51,11 +51,11 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 		Color:     opts.Color,
 	}
 
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
 		return false, err
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"New command group",
 		audit.Fields{
 			NewValue:      entity,
@@ -72,18 +72,18 @@ func (r *mutationResolver) CommandsGroupsCreate(ctx context.Context, opts gqlmod
 
 // CommandsGroupsUpdate is the resolver for the commandsGroupsUpdate field.
 func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, opts gqlmodel.CommandsGroupsUpdateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	entity := model.ChannelCommandGroup{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).
@@ -104,15 +104,15 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 		entity.Color = *opts.Color.Value()
 	}
 
-	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Save(&entity).Error; err != nil {
 		return false, err
 	}
 
-	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.deps.Logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Command group update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -130,18 +130,18 @@ func (r *mutationResolver) CommandsGroupsUpdate(ctx context.Context, id string, 
 
 // CommandsGroupsRemove is the resolver for the commandsGroupsRemove field.
 func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	entity := model.ChannelCommandGroup{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`id = ? AND "channelId" = ?`, id, dashboardId).
 		First(&entity).
@@ -149,18 +149,18 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 		return false, fmt.Errorf("group not found: %w", err)
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Delete(&entity).
 		Error; err != nil {
 		return false, err
 	}
 
-	if err := r.cachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
-		r.logger.Error("failed to invalidate commands cache", slog.Any("err", err))
+	if err := r.deps.CachedCommandsClient.Invalidate(ctx, dashboardId); err != nil {
+		r.deps.Logger.Error("failed to invalidate commands cache", slog.Any("err", err))
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Command group remove",
 		audit.Fields{
 			OldValue:      entity,
@@ -178,13 +178,13 @@ func (r *mutationResolver) CommandsGroupsRemove(ctx context.Context, id string) 
 
 // CommandsGroups is the resolver for the commandsGroups field.
 func (r *queryResolver) CommandsGroups(ctx context.Context) ([]gqlmodel.CommandGroup, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var entities []model.ChannelCommandGroup
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
 		Find(&entities).

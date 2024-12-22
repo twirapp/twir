@@ -14,7 +14,7 @@ import (
 
 // DashboardWidgetsEvents is the resolver for the dashboardWidgetsEvents field.
 func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-chan *gqlmodel.DashboardEventListPayload, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -29,13 +29,13 @@ func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-ch
 			case <-ctx.Done():
 				return
 			default:
-				events, err := r.dashboardWidgetEventsService.GetDashboardWidgetsEvents(
+				events, err := r.deps.DashboardWidgetEventsService.GetDashboardWidgetsEvents(
 					ctx,
 					dashboardID,
 					100,
 				)
 				if err != nil {
-					r.logger.Error("cannot get dashboard events", err)
+					r.deps.Logger.Error("cannot get dashboard events", err)
 					time.Sleep(5 * time.Second)
 					continue
 				}
@@ -45,7 +45,7 @@ func (r *subscriptionResolver) DashboardWidgetsEvents(ctx context.Context) (<-ch
 				for _, event := range events {
 					mappedEvent, err := mappers.DashboardEventsDbToGql(event)
 					if err != nil {
-						r.logger.Error("cannot map dashboard event", err)
+						r.deps.Logger.Error("cannot map dashboard event", err)
 						continue
 					}
 

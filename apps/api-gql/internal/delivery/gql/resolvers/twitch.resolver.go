@@ -35,7 +35,7 @@ func (r *queryResolver) TwitchGetUserByName(ctx context.Context, name string) (*
 func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *string) (*gqlmodel.TwirTwitchChannelRewardResponse, error) {
 	var channelId string
 	if channelID == nil {
-		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+		dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -48,7 +48,7 @@ func (r *queryResolver) TwitchGetChannelRewards(ctx context.Context, channelID *
 		return nil, fmt.Errorf("channelID is required")
 	}
 
-	rewards, err := r.twitchService.GetRewardsByChannelID(ctx, channelId)
+	rewards, err := r.deps.TwitchService.GetRewardsByChannelID(ctx, channelId)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 	if channelID != nil {
 		userId = *channelID
 	} else {
-		dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+		dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 		if err != nil {
 			return nil, err
 		}
@@ -81,7 +81,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 		return nil, fmt.Errorf("channelID is required")
 	}
 
-	badges, err := r.twitchService.GetChannelChatBadges(ctx, userId)
+	badges, err := r.deps.TwitchService.GetChannelChatBadges(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (r *queryResolver) TwitchGetChannelBadges(ctx context.Context, channelID *s
 
 // TwitchGetGlobalBadges is the resolver for the twitchGetGlobalBadges field.
 func (r *queryResolver) TwitchGetGlobalBadges(ctx context.Context) (*gqlmodel.TwirTwitchGlobalBadgeResponse, error) {
-	badges, err := r.twitchService.GetGlobalChatBadges(ctx)
+	badges, err := r.deps.TwitchService.GetGlobalChatBadges(ctx)
 	if err != nil {
 		return nil, err
 	}

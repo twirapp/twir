@@ -25,12 +25,12 @@ func (r *auditLogResolver) User(ctx context.Context, obj *gqlmodel.AuditLog) (*g
 
 // AuditLog is the resolver for the auditLog field.
 func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	logs, err := r.auditLogService.GetMany(
+	logs, err := r.deps.AuditLogsService.GetMany(
 		ctx, audit_logs.GetManyInput{
 			ChannelID: &dashboardID,
 			Page:      0,
@@ -51,12 +51,12 @@ func (r *queryResolver) AuditLog(ctx context.Context) ([]gqlmodel.AuditLog, erro
 
 // AuditLog is the resolver for the auditLog field.
 func (r *subscriptionResolver) AuditLog(ctx context.Context) (<-chan *gqlmodel.AuditLog, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	logsChannel, err := r.auditLogService.Subscribe(ctx, dashboardID)
+	logsChannel, err := r.deps.AuditLogsService.Subscribe(ctx, dashboardID)
 	if err != nil {
 		return nil, err
 	}

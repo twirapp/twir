@@ -5,12 +5,10 @@ import (
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/minio/minio-go/v7"
-	"github.com/nicklaw5/helix/v2"
 	"github.com/redis/go-redis/v9"
 	config "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	twir_stats "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
 	admin_actions "github.com/twirapp/twir/apps/api-gql/internal/services/admin-actions"
@@ -45,43 +43,7 @@ import (
 //
 // It serves as dependency injection for your app, add any dependencies you require here.
 
-type Resolver struct {
-	config               config.Config
-	sessions             *auth.Auth
-	gorm                 *gorm.DB
-	twitchClient         *helix.Client
-	cachedTwitchClient   *twitchcahe.CachedTwitchClient
-	cachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
-	minioClient          *minio.Client
-	twirBus              *bus_core.Bus
-	logger               logger.Logger
-	redis                *redis.Client
-	tokensClient         tokens.TokensClient
-	wsRouter             wsrouter.WsRouter
-	twirStats            *twir_stats.TwirStats
-
-	dashboardWidgetEventsService          *dashboard_widget_events.Service
-	variablesService                      *variables.Service
-	timersService                         *timers.Service
-	keywordsService                       *keywords.Service
-	auditLogService                       *audit_logs.Service
-	adminActionsService                   *admin_actions.Service
-	badgesService                         *badges.Service
-	badgesUsersService                    *badges_users.Service
-	usersService                          *users.Service
-	twirUsersService                      *twir_users.Service
-	alertsService                         *alerts.Service
-	commandsService                       *commands.Service
-	commandsWithGroupsAndResponsesService *commands_with_groups_and_responses.Service
-	commandsResponsesService              *commands_responses.Service
-	greetingsService                      *greetings.Service
-	rolesService                          *roles.Service
-	rolesUsersService                     *roles_users.Service
-	rolesWithUsersService                 *roles_with_roles_users.Service
-	twitchService                         *twitchservice.Service
-}
-
-type Opts struct {
+type Deps struct {
 	fx.In
 
 	Sessions             *auth.Auth
@@ -100,8 +62,8 @@ type Opts struct {
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
 	VariablesService                      *variables.Service
 	TimersService                         *timers.Service
-	KeywordService                        *keywords.Service
-	UserAuditLogService                   *audit_logs.Service
+	KeywordsService                       *keywords.Service
+	AuditLogsService                      *audit_logs.Service
 	AdminActionsService                   *admin_actions.Service
 	BadgesService                         *badges.Service
 	BadgesUsersService                    *badges_users.Service
@@ -118,45 +80,13 @@ type Opts struct {
 	TwitchService                         *twitchservice.Service
 }
 
-func New(opts Opts) (*Resolver, error) {
-	twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
-	if err != nil {
-		return nil, err
-	}
+type Resolver struct {
+	deps Deps
+}
 
+func New(deps Deps) (*Resolver, error) {
 	return &Resolver{
-		config:                                opts.Config,
-		sessions:                              opts.Sessions,
-		gorm:                                  opts.Gorm,
-		twitchClient:                          twitchClient,
-		cachedTwitchClient:                    opts.CachedTwitchClient,
-		cachedCommandsClient:                  opts.CachedCommandsClient,
-		minioClient:                           opts.Minio,
-		twirBus:                               opts.TwirBus,
-		logger:                                opts.Logger,
-		redis:                                 opts.Redis,
-		tokensClient:                          opts.TokensGrpc,
-		wsRouter:                              opts.WsRouter,
-		twirStats:                             opts.TwirStats,
-		dashboardWidgetEventsService:          opts.DashboardWidgetEventsService,
-		variablesService:                      opts.VariablesService,
-		timersService:                         opts.TimersService,
-		keywordsService:                       opts.KeywordService,
-		auditLogService:                       opts.UserAuditLogService,
-		adminActionsService:                   opts.AdminActionsService,
-		badgesService:                         opts.BadgesService,
-		badgesUsersService:                    opts.BadgesUsersService,
-		usersService:                          opts.UsersService,
-		twirUsersService:                      opts.TwirUsersService,
-		alertsService:                         opts.AlertsService,
-		commandsService:                       opts.CommandsService,
-		commandsWithGroupsAndResponsesService: opts.CommandsWithGroupsAndResponsesService,
-		commandsResponsesService:              opts.CommandsResponsesService,
-		greetingsService:                      opts.GreetingsService,
-		rolesService:                          opts.RolesService,
-		rolesUsersService:                     opts.RolesUsersService,
-		rolesWithUsersService:                 opts.RolesWithUsersService,
-		twitchService:                         opts.TwitchService,
+		deps: deps,
 	}, nil
 }
 

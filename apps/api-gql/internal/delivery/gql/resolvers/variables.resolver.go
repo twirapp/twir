@@ -18,17 +18,17 @@ import (
 
 // VariablesCreate is the resolver for the variablesCreate field
 func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.VariableCreateInput) (*gqlmodel.Variable, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	variable, err := r.variablesService.Create(
+	variable, err := r.deps.VariablesService.Create(
 		ctx,
 		variables.CreateInput{
 			ChannelID:   dashboardId,
@@ -50,12 +50,12 @@ func (r *mutationResolver) VariablesCreate(ctx context.Context, opts gqlmodel.Va
 
 // VariablesUpdate is the resolver for the variablesUpdate field.
 func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.VariableUpdateInput) (*gqlmodel.Variable, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, op
 		input.Type = lo.ToPtr(entity.CustomVarType(*opts.Type.Value()))
 	}
 
-	updatedVariable, err := r.variablesService.Update(ctx, input)
+	updatedVariable, err := r.deps.VariablesService.Update(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -84,17 +84,17 @@ func (r *mutationResolver) VariablesUpdate(ctx context.Context, id uuid.UUID, op
 
 // VariablesDelete is the resolver for the variablesDelete field.
 func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	if err := r.variablesService.Delete(ctx, id, dashboardId, user.ID); err != nil {
+	if err := r.deps.VariablesService.Delete(ctx, id, dashboardId, user.ID); err != nil {
 		return false, err
 	}
 
@@ -103,22 +103,22 @@ func (r *mutationResolver) VariablesDelete(ctx context.Context, id uuid.UUID) (b
 
 // ExecuteScript is the resolver for the executeScript field.
 func (r *mutationResolver) ExecuteScript(ctx context.Context, script string, testAsUserName *string) (string, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return "", err
 	}
 
-	return r.variablesService.EvaluateScript(ctx, dashboardID, script, testAsUserName)
+	return r.deps.VariablesService.EvaluateScript(ctx, dashboardID, script, testAsUserName)
 }
 
 // Variables is the resolver for the variables field.
 func (r *queryResolver) Variables(ctx context.Context) ([]gqlmodel.Variable, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	vars, err := r.variablesService.GetAll(ctx, dashboardId)
+	vars, err := r.deps.VariablesService.GetAll(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (r *queryResolver) Variables(ctx context.Context) ([]gqlmodel.Variable, err
 
 // VariablesBuiltIn is the resolver for the variablesBuiltIn field.
 func (r *queryResolver) VariablesBuiltIn(ctx context.Context) ([]gqlmodel.BuiltInVariable, error) {
-	vars, err := r.twirBus.Parser.GetBuiltInVariables.Request(ctx, struct{}{})
+	vars, err := r.deps.TwirBus.Parser.GetBuiltInVariables.Request(ctx, struct{}{})
 	if err != nil {
 		return nil, fmt.Errorf("cannot get built-in variables: %w", err)
 	}

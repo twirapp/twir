@@ -18,22 +18,22 @@ import (
 
 // SwitchUserBan is the resolver for the switchUserBan field.
 func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bool, error) {
-	user, err := r.usersService.GetByID(ctx, userID)
+	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
-		r.logger.Error("failed to get user by id", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get user by id", slog.Any("err", err))
 		return false, err
 	}
 
 	isBanned := !user.IsBanned
 
-	_, err = r.usersService.Update(
+	_, err = r.deps.UsersService.Update(
 		ctx,
 		userID, users.UpdateInput{
 			IsBanned: &isBanned,
 		},
 	)
 	if err != nil {
-		r.logger.Error("failed to update user", slog.Any("err", err))
+		r.deps.Logger.Error("failed to update user", slog.Any("err", err))
 		return false, err
 	}
 
@@ -42,22 +42,22 @@ func (r *mutationResolver) SwitchUserBan(ctx context.Context, userID string) (bo
 
 // SwitchUserAdmin is the resolver for the switchUserAdmin field.
 func (r *mutationResolver) SwitchUserAdmin(ctx context.Context, userID string) (bool, error) {
-	user, err := r.usersService.GetByID(ctx, userID)
+	user, err := r.deps.UsersService.GetByID(ctx, userID)
 	if err != nil {
-		r.logger.Error("failed to get user by id", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get user by id", slog.Any("err", err))
 		return false, err
 	}
 
 	isBotAdmin := !user.IsBotAdmin
 
-	_, err = r.usersService.Update(
+	_, err = r.deps.UsersService.Update(
 		ctx,
 		userID, users.UpdateInput{
 			IsBotAdmin: &isBotAdmin,
 		},
 	)
 	if err != nil {
-		r.logger.Error("failed to update user", slog.Any("err", err))
+		r.deps.Logger.Error("failed to update user", slog.Any("err", err))
 		return false, err
 	}
 
@@ -91,9 +91,9 @@ func (r *queryResolver) TwirUsers(ctx context.Context, opts gqlmodel.TwirUsersSe
 		manyInput.SearchQuery = *opts.Search.Value()
 	}
 
-	dbUsers, err := r.twirUsersService.GetMany(ctx, manyInput)
+	dbUsers, err := r.deps.TwirUsersService.GetMany(ctx, manyInput)
 	if err != nil {
-		r.logger.Error("failed to get many users", slog.Any("err", err))
+		r.deps.Logger.Error("failed to get many users", slog.Any("err", err))
 		return nil, err
 	}
 

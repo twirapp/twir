@@ -22,18 +22,18 @@ import (
 
 // UpdateChatAlerts is the resolver for the updateChatAlerts field.
 func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.ChatAlertsInput) (*gqlmodel.ChatAlerts, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelModulesSettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(
 			`"channelId" = ? AND "userId" IS NULL AND type = 'chat_alerts'`,
@@ -70,13 +70,13 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 		return nil, err
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).Error; err != nil {
 		return nil, err
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Chat alerts updated",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -94,13 +94,13 @@ func (r *mutationResolver) UpdateChatAlerts(ctx context.Context, input gqlmodel.
 
 // ChatAlerts is the resolver for the chatAlerts field.
 func (r *queryResolver) ChatAlerts(ctx context.Context) (*gqlmodel.ChatAlerts, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelModulesSettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(
 			`"channelId" = ? AND "userId" IS NULL AND type = 'chat_alerts'`,

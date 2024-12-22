@@ -23,17 +23,17 @@ func (r *greetingResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Gree
 
 // GreetingsCreate is the resolver for the greetingsCreate field.
 func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.GreetingsCreateInput) (*gqlmodel.Greeting, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	newGreeting, err := r.greetingsService.Create(
+	newGreeting, err := r.deps.GreetingsService.Create(
 		ctx,
 		greetings.CreateInput{
 			ChannelID: dashboardId,
@@ -55,17 +55,17 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 
 // GreetingsUpdate is the resolver for the greetingsUpdate field.
 func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.GreetingsUpdateInput) (*gqlmodel.Greeting, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	newGreeting, err := r.greetingsService.Update(
+	newGreeting, err := r.deps.GreetingsService.Update(
 		ctx,
 		id,
 		greetings.UpdateInput{
@@ -87,17 +87,17 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, op
 
 // GreetingsRemove is the resolver for the greetingsRemove field.
 func (r *mutationResolver) GreetingsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	err = r.greetingsService.Delete(
+	err = r.deps.GreetingsService.Delete(
 		ctx, greetings.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
@@ -113,12 +113,12 @@ func (r *mutationResolver) GreetingsRemove(ctx context.Context, id uuid.UUID) (b
 
 // Greetings is the resolver for the greetings field.
 func (r *queryResolver) Greetings(ctx context.Context) ([]gqlmodel.Greeting, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	entities, err := r.greetingsService.GetManyByChannelID(ctx, dashboardId)
+	entities, err := r.deps.GreetingsService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, fmt.Errorf("cannot get greetings: %w", err)
 	}

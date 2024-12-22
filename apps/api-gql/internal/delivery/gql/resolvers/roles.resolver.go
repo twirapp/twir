@@ -21,12 +21,12 @@ import (
 
 // RolesCreate is the resolver for the rolesCreate field.
 func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -43,7 +43,7 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 		}
 	}
 
-	err = r.rolesWithUsersService.Create(
+	err = r.deps.RolesWithUsersService.Create(
 		ctx, roles_with_roles_users.CreateInput{
 			Role: roles.CreateInput{
 				ChannelID:                 dashboardId,
@@ -67,12 +67,12 @@ func (r *mutationResolver) RolesCreate(ctx context.Context, opts gqlmodel.RolesC
 
 // RolesUpdate is the resolver for the rolesUpdate field.
 func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.RolesCreateOrUpdateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -89,7 +89,7 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 		}
 	}
 
-	if err := r.rolesWithUsersService.Update(
+	if err := r.deps.RolesWithUsersService.Update(
 		ctx, roles_with_roles_users.UpdateInput{
 			ID:        id,
 			ChannelID: dashboardId,
@@ -114,17 +114,17 @@ func (r *mutationResolver) RolesUpdate(ctx context.Context, id uuid.UUID, opts g
 
 // RolesRemove is the resolver for the rolesRemove field.
 func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	if err := r.rolesService.Delete(
+	if err := r.deps.RolesService.Delete(
 		ctx,
 		roles.DeleteInput{
 			ChannelID: dashboardId,
@@ -140,12 +140,12 @@ func (r *mutationResolver) RolesRemove(ctx context.Context, id uuid.UUID) (bool,
 
 // Roles is the resolver for the roles field.
 func (r *queryResolver) Roles(ctx context.Context) ([]gqlmodel.Role, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	entities, err := r.rolesService.GetManyByChannelID(ctx, dashboardId)
+	entities, err := r.deps.RolesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -164,7 +164,7 @@ func (r *roleResolver) Users(ctx context.Context, obj *gqlmodel.Role) ([]gqlmode
 		return nil, nil
 	}
 
-	users, err := r.rolesUsersService.GetManyByRoleID(ctx, obj.ID)
+	users, err := r.deps.RolesUsersService.GetManyByRoleID(ctx, obj.ID)
 	if err != nil {
 		return nil, err
 	}

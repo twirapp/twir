@@ -45,13 +45,13 @@ func chatOverlayDbToGql(entity *model.ChatOverlaySettings) *gqlmodel.ChatOverlay
 func (r *queryResolver) chatOverlays(
 	ctx context.Context,
 ) ([]gqlmodel.ChatOverlay, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var entities []model.ChatOverlaySettings
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channel_id = ?", dashboardId).
 		Find(&entities).Error; err != nil {
@@ -75,7 +75,7 @@ func (r *Resolver) getChatOverlaySettings(
 		ID:        uuid.MustParse(id),
 		ChannelID: channelId,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to get chat overlay settings: %w", err)
@@ -89,18 +89,18 @@ func (r *mutationResolver) updateChatOverlay(
 	id string,
 	opts gqlmodel.ChatOverlayMutateOpts,
 ) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	entity := model.ChatOverlaySettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channel_id = ? AND id = ?", dashboardId, id).
 		First(&entity).Error; err != nil {
@@ -180,22 +180,22 @@ func (r *mutationResolver) updateChatOverlay(
 		entity.Animation = model.ChatOverlaySettingsAnimationType(*opts.Animation.Value())
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to save chat overlay settings: %w", err)
 	}
 
 	go func() {
-		if err := r.wsRouter.Publish(
+		if err := r.deps.WsRouter.Publish(
 			chatOverlaySubscriptionKeyCreate(entity.ID.String(), entity.ChannelID),
 			chatOverlayDbToGql(&entity),
 		); err != nil {
-			r.logger.Error("failed to publish settings", slog.Any("err", err))
+			r.deps.Logger.Error("failed to publish settings", slog.Any("err", err))
 		}
 	}()
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Chat overlay update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -214,12 +214,12 @@ func (r *mutationResolver) chatOverlayCreate(
 	ctx context.Context,
 	opts gqlmodel.ChatOverlayMutateOpts,
 ) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -297,13 +297,13 @@ func (r *mutationResolver) chatOverlayCreate(
 		entity.Animation = model.ChatOverlaySettingsAnimationType(*opts.Animation.Value())
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Create(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to create chat overlay settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Chat overlay create",
 		audit.Fields{
 			NewValue:      entity,
@@ -318,25 +318,25 @@ func (r *mutationResolver) chatOverlayCreate(
 }
 
 func (r *mutationResolver) chatOverlayDelete(ctx context.Context, id string) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	entity := model.ChatOverlaySettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channel_id = ? AND id = ?", dashboardId, id).
 		Delete(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to delete chat overlay settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Chat overlay delete",
 		audit.Fields{
 			OldValue:      entity,
@@ -355,13 +355,13 @@ func (r *queryResolver) nowPlayingOverlays(ctx context.Context) (
 	[]gqlmodel.NowPlayingOverlay,
 	error,
 ) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var entities []model.ChannelOverlayNowPlaying
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channel_id = ?", dashboardId).
 		Find(&entities).Error; err != nil {
@@ -401,7 +401,7 @@ func (r *Resolver) getNowPlayingOverlaySettings(ctx context.Context, id, dashboa
 		ID:        uuid.MustParse(id),
 		ChannelID: dashboardID,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		First(&entity).Error; err != nil {
 		return nil, fmt.Errorf("failed to get now playing overlay settings: %w", err)
@@ -425,12 +425,12 @@ func (r *Resolver) getNowPlayingOverlaySettings(ctx context.Context, id, dashboa
 }
 
 func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id string) (bool, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -439,13 +439,13 @@ func (r *mutationResolver) deleteNowPlayingOverlay(ctx context.Context, id strin
 		ID:        uuid.MustParse(id),
 		ChannelID: dashboardID,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Delete(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to delete now playing overlay settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Now playing overlay delete",
 		audit.Fields{
 			OldValue:      entity,
@@ -465,12 +465,12 @@ func (r *mutationResolver) createNowPlayingOverlay(
 	ctx context.Context,
 	opts gqlmodel.NowPlayingOverlayMutateOpts,
 ) (bool, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -508,13 +508,13 @@ func (r *mutationResolver) createNowPlayingOverlay(
 		}
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Create(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to create now playing overlay settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Now playing overlay create",
 		audit.Fields{
 			NewValue:      entity,
@@ -533,12 +533,12 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 	id string,
 	opts gqlmodel.NowPlayingOverlayMutateOpts,
 ) (bool, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -547,7 +547,7 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		ID:        uuid.MustParse(id),
 		ChannelID: dashboardID,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		First(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to get now playing overlay settings: %w", err)
@@ -586,14 +586,14 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 		}
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).Error; err != nil {
 		return false, fmt.Errorf("failed to save now playing overlay settings: %w", err)
 	}
 
 	go func() {
-		if err := r.wsRouter.Publish(
+		if err := r.deps.WsRouter.Publish(
 			nowPlayingOverlaySubscriptionKeyCreate(entity.ID.String(), entity.ChannelID),
 			&gqlmodel.NowPlayingOverlay{
 				ID:              entity.ID.String(),
@@ -606,11 +606,11 @@ func (r *mutationResolver) updateNowPlayingOverlay(
 				HideTimeout:     lo.ToPtr(int(entity.HideTimeout.Int64)),
 			},
 		); err != nil {
-			r.logger.Error("failed to publish settings", slog.Any("err", err))
+			r.deps.Logger.Error("failed to publish settings", slog.Any("err", err))
 		}
 	}()
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Now playing overlay update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -632,7 +632,7 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlay, error) {
 	user := model.Users{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"apiKey" = ?`, apiKey).
 		First(&user).
@@ -643,7 +643,7 @@ func (r *subscriptionResolver) nowPlayingOverlaySettingsSubscription(
 	channel := make(chan *gqlmodel.NowPlayingOverlay)
 
 	go func() {
-		sub, err := r.wsRouter.Subscribe(
+		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
 				nowPlayingOverlaySubscriptionKeyCreate(id, user.ID),
 			},
@@ -684,7 +684,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 	apiKey string,
 ) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
 	user := model.Users{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"apiKey" = ?`, apiKey).
 		First(&user).
@@ -694,10 +694,10 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{
-			Gorm:      r.gorm,
+			Gorm:      r.deps.Gorm,
 			ChannelID: user.ID,
-			Redis:     r.redis,
-			Logger:    r.logger,
+			Redis:     r.deps.Redis,
+			Logger:    r.deps.Logger,
 		},
 	)
 	if err != nil {
@@ -714,7 +714,7 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 			default:
 				track, err := npService.Fetch(ctx)
 				if err != nil {
-					r.logger.Error("failed to get now playing track", slog.Any("err", err))
+					r.deps.Logger.Error("failed to get now playing track", slog.Any("err", err))
 					time.Sleep(5 * time.Second)
 					continue
 				}

@@ -66,12 +66,12 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 
 // CommandsCreate is the resolver for the commandsCreate field
 func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		Responses:                 responses,
 	}
 
-	newCmd, err := r.commandsService.Create(ctx, createInput)
+	newCmd, err := r.deps.CommandsService.Create(ctx, createInput)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +137,12 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
 func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -215,7 +215,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		)
 	}
 
-	if _, err := r.commandsWithGroupsAndResponsesService.Update(
+	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
 		ctx,
 		id,
 		updateInput,
@@ -228,17 +228,17 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 
 // CommandsRemove is the resolver for the commandsRemove field.
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	err = r.commandsService.Delete(
+	err = r.deps.CommandsService.Delete(
 		ctx, commands.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
@@ -254,12 +254,12 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 
 // Commands is the resolver for the commands field.
 func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	cmds, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
+	cmds, err := r.deps.CommandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -279,11 +279,11 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 		return nil, fmt.Errorf("channelID is required")
 	}
 
-	entities, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, channelID)
+	entities, err := r.deps.CommandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
-	channelRoles, err := r.rolesService.GetManyByChannelID(ctx, channelID)
+	channelRoles, err := r.deps.RolesService.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}

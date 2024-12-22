@@ -18,7 +18,7 @@ import (
 
 // RewardsRedemptionsHistory is the resolver for the rewardsRedemptionsHistory field.
 func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlmodel.TwitchRedemptionsOpts) (*gqlmodel.TwitchRedemptionResponse, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -41,13 +41,13 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 		return nil, fmt.Errorf("perPage must be less than or equal to 500")
 	}
 
-	query := r.gorm.
+	query := r.deps.Gorm.
 		WithContext(ctx).
 		Order("redeemed_at DESC")
 
 	var foundTwitchChannels []helix.Channel
 	if opts.UserSearch.IsSet() {
-		channels, err := r.cachedTwitchClient.SearchChannels(ctx, *opts.UserSearch.Value())
+		channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, *opts.UserSearch.Value())
 		if err != nil {
 			return nil, err
 		}
