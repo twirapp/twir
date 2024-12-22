@@ -40,7 +40,8 @@ type Pgx struct {
 
 func (c *Pgx) GetByID(ctx context.Context, userID string) (model.UserWithToken, error) {
 	query := `
-SELECT u.id, u."isTester", u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned, t.id token_id, t."accessToken" token_access_token, t."refreshToken" token_refresh_token, t."obtainmentTimestamp" token_obtainment_timestamp, t.scopes token_scopes, t."expiresIn" token_expires_in
+SELECT u.id, u."isTester", u."isBotAdmin", u."tokenId", u."apiKey", u.hide_on_landing_page, u.is_banned,
+       t.id token_id, t."accessToken" token_access_token, t."refreshToken" token_refresh_token, t."obtainmentTimestamp" token_obtainment_timestamp, t.scopes token_scopes, t."expiresIn" token_expires_in
 FROM users u
 LEFT JOIN tokens t ON u."tokenId" = t.id
 WHERE u.id = $1
@@ -48,11 +49,11 @@ WHERE u.id = $1
 
 	var user model.UserWithToken
 	var (
-		tokenID                             uuid.UUID
-		tokenAccessToken, tokenRefreshToken string
-		tokenObtainmentTimestamp            time.Time
+		tokenID                             *uuid.UUID
+		tokenAccessToken, tokenRefreshToken *string
+		tokenObtainmentTimestamp            *time.Time
 		tokenScopes                         []string
-		tokenExpiresIn                      int
+		tokenExpiresIn                      *int
 	)
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
@@ -78,14 +79,14 @@ WHERE u.id = $1
 		return user, err
 	}
 
-	if tokenID != uuid.Nil {
+	if tokenID != nil {
 		user.Token = &tokenmodel.Token{
-			ID:                  tokenID,
-			AccessToken:         tokenAccessToken,
-			RefreshToken:        tokenRefreshToken,
-			ObtainmentTimestamp: tokenObtainmentTimestamp,
+			ID:                  *tokenID,
+			AccessToken:         *tokenAccessToken,
+			RefreshToken:        *tokenRefreshToken,
+			ObtainmentTimestamp: *tokenObtainmentTimestamp,
 			Scopes:              tokenScopes,
-			ExpiresIn:           tokenExpiresIn,
+			ExpiresIn:           *tokenExpiresIn,
 		}
 	}
 
