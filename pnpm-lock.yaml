@@ -360,6 +360,9 @@ importers:
       '@protobuf-ts/runtime-rpc':
         specifier: 2.9.4
         version: 2.9.4
+      '@tailwindcss/container-queries':
+        specifier: 0.1.1
+        version: 0.1.1(tailwindcss@3.4.3)
       '@twirapp/vite-plugin-svg-spritemap':
         specifier: 0.0.0
         version: 0.0.0(vite@5.4.6(@types/node@22.9.2)(sass@1.75.0)(stylus@0.57.0)(terser@5.36.0))(vue@3.5.12(typescript@5.6.3))
@@ -2982,6 +2985,11 @@ packages:
 
   '@tabler/icons@2.47.0':
     resolution: {integrity: sha512-4w5evLh+7FUUiA1GucvGj2ReX2TvOjEr4ejXdwL/bsjoSkof6r1gQmzqI+VHrE2CpJpB3al7bCTulOkFa/RcyA==}
+
+  '@tailwindcss/container-queries@0.1.1':
+    resolution: {integrity: sha512-p18dswChx6WnTSaJCSGx6lTmrGzNNvm2FtXmiO6AuA1V4U5REyoqwmT6kgAsIMdjo07QdAfYXHJ4hnMtfHzWgA==}
+    peerDependencies:
+      tailwindcss: '>=3.2.0'
 
   '@tailwindcss/forms@0.5.9':
     resolution: {integrity: sha512-tM4XVr2+UVTxXJzey9Twx48c1gcxFStqn1pQz0tRsX8o3DvxhN5oY5pvyAbUx7VTaZxpej4Zzvc6h+1RJBzpIg==}
@@ -11494,6 +11502,10 @@ snapshots:
   '@tabler/icons@2.46.0': {}
 
   '@tabler/icons@2.47.0': {}
+
+  '@tailwindcss/container-queries@0.1.1(tailwindcss@3.4.3)':
+    dependencies:
+      tailwindcss: 3.4.3
 
   '@tailwindcss/forms@0.5.9(tailwindcss@3.4.13)':
     dependencies:
