@@ -25,6 +25,8 @@ import { valueUpdater } from '@/helpers/value-updater'
 export const useCommunityRewardsTable = createGlobalState(() => {
 	const communityRewardsApi = useCommunityRewardsApi()
 	const { data: profile } = useProfile()
+	// пример откуда взять реварды. Но ты же наверняка будешь получение выносить в сам компонент(композабл?) селекта
+	// const { data: rewards } = useTwitchRewardsNew()
 
 	const { pagination, setPagination } = usePagination()
 	const params = computed<TwitchRedemptionsOpts>(() => {
@@ -33,7 +35,7 @@ export const useCommunityRewardsTable = createGlobalState(() => {
 			userSearch: undefined,
 			page: pagination.value.pageIndex,
 			perPage: pagination.value.pageSize,
-			rewardsIds: [],
+			rewardsIds: [], // можно взять айдиники для селекта с rewards
 		}
 	})
 	const historyResult = communityRewardsApi.useHistory(params)
