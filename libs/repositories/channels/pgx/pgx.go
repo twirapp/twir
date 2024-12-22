@@ -2,6 +2,7 @@ package pgx
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -31,6 +32,28 @@ type Pgx struct {
 	pool *pgxpool.Pool
 }
 
+func (c *Pgx) GetByID(ctx context.Context, channelID string) (model.Channel, error) {
+	query := `
+SELECT "id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
+FROM channels
+WHERE "id" = $1
+`
+
+	rows, err := c.pool.Query(ctx, query, channelID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+	}
+
+	return result, nil
+}
+
 func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
 	selectBuilder := sq.
 		Select(
@@ -38,7 +61,7 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			`"isEnabled"`,
 			`"isTwitchBanned"`,
 			`"isBotMod"`,
-			`"botID"`,
+			`"botId"`,
 		).
 		From("channels")
 

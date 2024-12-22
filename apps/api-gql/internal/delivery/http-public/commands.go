@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
-	"gorm.io/gorm"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 )
 
 type commandDto struct {
@@ -24,18 +24,14 @@ type commandDtoResponse struct {
 
 func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 	// TODO: refactor to service
-	channel := model.Channels{}
-	if err := p.gorm.
-		WithContext(c.Request.Context()).
-		Where(`"id" = ?`, c.Param("channelId")).
-		First(&channel).
-		Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	channel, err := p.channelsService.GetByID(c.Request.Context(), c.Param("channelId"))
+	if err != nil {
+		if errors.Is(err, channels.ErrNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "channel not found"})
 			return
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "channel not found"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 

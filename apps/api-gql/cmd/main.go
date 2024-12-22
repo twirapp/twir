@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
@@ -128,6 +129,7 @@ func main() {
 			roles_users.New,
 			roles_with_roles_users.New,
 			twitch.New,
+			channels.New,
 		),
 		// repositories
 		fx.Provide(
