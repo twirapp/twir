@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	helix "github.com/nicklaw5/helix/v2"
+	"github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
@@ -17,7 +17,10 @@ import (
 )
 
 // RewardsRedemptionsHistory is the resolver for the rewardsRedemptionsHistory field.
-func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlmodel.TwitchRedemptionsOpts) (*gqlmodel.TwitchRedemptionResponse, error) {
+func (r *queryResolver) RewardsRedemptionsHistory(
+	ctx context.Context,
+	opts gqlmodel.TwitchRedemptionsOpts,
+) (*gqlmodel.TwitchRedemptionResponse, error) {
 	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -67,6 +70,11 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 
 	if opts.RewardsIds.IsSet() && len(opts.RewardsIds.Value()) > 0 {
 		query = query.Where(`"channel_redemptions_history"."reward_id" IN ?`, opts.RewardsIds.Value())
+	}
+
+	var total int64
+	if err := query.Model(&model.ChannelRedemption{}).Count(&total).Error; err != nil {
+		return nil, fmt.Errorf("failed to count total redemptions: %w", err)
 	}
 
 	var entities []model.ChannelRedemption
@@ -124,12 +132,15 @@ func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlm
 
 	return &gqlmodel.TwitchRedemptionResponse{
 		Redemptions: res,
-		Total:       0,
+		Total:       int(total),
 	}, nil
 }
 
 // User is the resolver for the user field.
-func (r *twitchRedemptionResolver) User(ctx context.Context, obj *gqlmodel.TwitchRedemption) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *twitchRedemptionResolver) User(
+	ctx context.Context,
+	obj *gqlmodel.TwitchRedemption,
+) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.User.ID)
 }
 
