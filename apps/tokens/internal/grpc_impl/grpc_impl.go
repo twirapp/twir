@@ -16,6 +16,7 @@ import (
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/repositories/userswithtoken"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -35,10 +36,11 @@ type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config  cfg.Config
-	Gorm    *gorm.DB
-	Redsync *redsync.Redsync
-	Logger  logger.Logger
+	Config                   cfg.Config
+	Gorm                     *gorm.DB
+	Redsync                  *redsync.Redsync
+	Logger                   logger.Logger
+	UsersWithTokenRepository userswithtoken.Repository
 }
 
 type tokensGrpcImpl struct {
@@ -47,10 +49,11 @@ type tokensGrpcImpl struct {
 	globalClient   *helix.Client
 	appAccessToken *appToken
 
-	db      *gorm.DB
-	config  cfg.Config
-	log     logger.Logger
-	redSync *redsync.Redsync
+	db                       *gorm.DB
+	config                   cfg.Config
+	log                      logger.Logger
+	redSync                  *redsync.Redsync
+	usersWithTokenRepository userswithtoken.Repository
 }
 
 func rateLimitFunc(lastResponse *helix.Response) error {
@@ -98,10 +101,11 @@ func NewTokens(opts Opts) error {
 			ExpiresIn:      appAccessToken.Data.ExpiresIn,
 		},
 
-		db:      opts.Gorm,
-		config:  opts.Config,
-		log:     opts.Logger,
-		redSync: opts.Redsync,
+		db:                       opts.Gorm,
+		config:                   opts.Config,
+		log:                      opts.Logger,
+		redSync:                  opts.Redsync,
+		usersWithTokenRepository: opts.UsersWithTokenRepository,
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.TOKENS_SERVER_PORT))
@@ -163,16 +167,15 @@ func (c *tokensGrpcImpl) RequestUserToken(
 	mu.Lock()
 	defer mu.Unlock()
 
-	user := model.Users{}
-	err := c.db.WithContext(ctx).Where("id = ?", data.UserId).Preload("Token").Find(&user).Error
+	user, err := c.usersWithTokenRepository.GetByID(ctx, data.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
-	if user.ID == "" || user.Token == nil || user.Token.ID == "" {
+	if user.Token == nil {
 		return nil, fmt.Errorf(
 			"cannot find user token in db, userId: %s, token: %v",
-			user.ID,
+			data.GetUserId(),
 			user.Token,
 		)
 	}
@@ -186,7 +189,7 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		return nil, errors.New("refresh token is empty")
 	}
 
-	if isTokenExpired(int(user.Token.ExpiresIn), user.Token.ObtainmentTimestamp) {
+	if isTokenExpired(user.Token.ExpiresIn, user.Token.ObtainmentTimestamp) {
 		newToken, err := c.globalClient.RefreshUserAccessToken(decryptedRefreshToken)
 		if err != nil {
 			return nil, err
@@ -203,25 +206,29 @@ func (c *tokensGrpcImpl) RequestUserToken(
 		if err != nil {
 			return nil, err
 		}
-		user.Token.RefreshToken = newRefreshToken
 
 		newAccessToken, err := crypto.Encrypt(newToken.Data.AccessToken, c.config.TokensCipherKey)
 		if err != nil {
 			return nil, err
 		}
-		user.Token.AccessToken = newAccessToken
 
-		user.Token.ExpiresIn = int32(newToken.Data.ExpiresIn)
-		user.Token.Scopes = newToken.Data.Scopes
-		user.Token.ObtainmentTimestamp = time.Now().UTC()
-		if err := c.db.WithContext(ctx).Save(&user.Token).Error; err != nil {
+		gormToken := model.Tokens{
+			ID:                  user.Token.ID.String(),
+			AccessToken:         newAccessToken,
+			RefreshToken:        newRefreshToken,
+			ExpiresIn:           int32(newToken.Data.ExpiresIn),
+			ObtainmentTimestamp: time.Now().UTC(),
+			Scopes:              newToken.Data.Scopes,
+		}
+
+		if err := c.db.WithContext(ctx).Save(&gormToken).Error; err != nil {
 			return nil, err
 		}
 
 		c.log.Info(
 			"user token refreshed",
-			slog.String("user_id", user.ID),
-			slog.Int("expires_in", int(user.Token.ExpiresIn)),
+			slog.String("user_id", user.User.ID),
+			slog.Int("expires_in", int(gormToken.ExpiresIn)),
 			slog.String("access_token", newAccessToken),
 			slog.String("refresh_token", newRefreshToken),
 		)

@@ -1,6 +1,8 @@
 module github.com/satont/twir/apps/tokens
 
-go 1.23.0
+go 1.23.2
+
+toolchain go1.23.4
 
 replace (
 	github.com/satont/twir/libs/config => ../../libs/config
@@ -10,6 +12,7 @@ replace (
 	github.com/satont/twir/libs/pubsub => ../../libs/pubsub
 	github.com/satont/twir/libs/sentry => ../../libs/sentry
 	github.com/twirapp/twir/libs/grpc => ../../libs/grpc
+	github.com/twirapp/twir/libs/repositories => ../../libs/repositories
 	github.com/twirapp/twir/libs/uptrace => ../../libs/uptrace
 )
 
@@ -30,6 +33,7 @@ require (
 )
 
 require (
+	github.com/Masterminds/squirrel v1.5.4 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/getsentry/sentry-go v0.28.1 // indirect
@@ -47,6 +51,8 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0 // indirect
 	github.com/klauspost/compress v1.17.9 // indirect
+	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
+	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -64,15 +70,16 @@ require (
 	github.com/satont/twir/libs/types v0.0.0-20241026093228-a5284254dcfe // indirect
 	github.com/satori/go.uuid v1.2.0 // indirect
 	github.com/twirapp/twir/libs/bus-core v0.0.0-20240225024146-742838c78cea // indirect
+	github.com/twirapp/twir/libs/repositories v0.0.0-20241222083329-f97cb7ed9046 // indirect
 	go.opentelemetry.io/otel v1.28.0 // indirect
 	go.opentelemetry.io/otel/metric v1.28.0 // indirect
 	go.opentelemetry.io/otel/trace v1.28.0 // indirect
 	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
-	golang.org/x/crypto v0.26.0 // indirect
+	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/net v0.28.0 // indirect
-	golang.org/x/sys v0.24.0 // indirect
-	golang.org/x/text v0.17.0 // indirect
+	golang.org/x/sys v0.25.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240812133136-8ffd90a71988 // indirect
 )

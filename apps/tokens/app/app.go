@@ -7,12 +7,19 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
+
+	userswithtokensrepository "github.com/twirapp/twir/libs/repositories/userswithtoken"
+	userswithtokensrepositorypgx "github.com/twirapp/twir/libs/repositories/userswithtoken/pgx"
 )
 
 var App = fx.Module(
 	"tokens",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "tokens"}),
 	fx.Provide(
+		fx.Annotate(
+			userswithtokensrepositorypgx.NewFx,
+			fx.As(new(userswithtokensrepository.Repository)),
+		),
 		redis.NewRedisLock,
 	),
 	fx.Invoke(
