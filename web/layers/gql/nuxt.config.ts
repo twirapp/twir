@@ -18,5 +18,11 @@ export default defineNuxtConfig({
 			? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
 			: 'http://api-gql:3009/query',
 		client: path.join(currentDir, 'urql.ts'),
+		ssr: {
+			endpoint: process.env.NODE_ENV !== 'production'
+				? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
+				: 'http://api-gql:3009/query',
+			key: 'urql-ssr'
+		},
 	},
 })
