@@ -30,7 +30,7 @@
     "tailwind-variants": "0.2.1"
   },
   "devDependencies": {
-    "@bicou/nuxt-urql": "1.8.2",
+    "@bicou/nuxt-urql": "1.9.1",
     "@graphql-codegen/cli": "5.0.2",
     "@graphql-codegen/client-preset": "4.2.5",
     "@graphql-typed-document-node/core": "3.2.0",

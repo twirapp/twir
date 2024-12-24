@@ -1,4 +1,5 @@
 FROM node:22-alpine AS base
+ENV NODE_ENV production
 WORKDIR /app
 
 FROM base AS builder
@@ -41,9 +42,5 @@ RUN chmod +x docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM base AS prod-base
-
 COPY --from=installer /app/out/full .
-
-ENV NODE_ENV production
-
 CMD ["node", "web/.output/server/index.mjs"]
