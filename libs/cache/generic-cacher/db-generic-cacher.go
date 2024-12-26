@@ -84,3 +84,50 @@ func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
 
 	return nil
 }
+
+func (c *GenericCacher[T]) SetValue(ctx context.Context, key string, newValue T) error {
+	cacheBytes, err := json.Marshal(newValue)
+	if err != nil {
+		return fmt.Errorf("failed to marshal commands: %w", err)
+	}
+
+	if err := c.redis.Set(
+		ctx,
+		c.keyPrefix+key,
+		cacheBytes,
+		c.ttl,
+	).Err(); err != nil {
+		return fmt.Errorf("failed to set commands to cache: %w", err)
+	}
+
+	return nil
+}
+
+func (c *GenericCacher[T]) SetValueFiltered(
+	ctx context.Context,
+	key string,
+	filterFn func(data T) T,
+) error {
+	data, err := c.Get(ctx, key)
+	if err != nil {
+		return err
+	}
+
+	newData := filterFn(data)
+
+	cacheBytes, err := json.Marshal(newData)
+	if err != nil {
+		return fmt.Errorf("failed to marshal commands: %w", err)
+	}
+
+	if err := c.redis.Set(
+		ctx,
+		c.keyPrefix+key,
+		cacheBytes,
+		c.ttl,
+	).Err(); err != nil {
+		return fmt.Errorf("failed to set commands to cache: %w", err)
+	}
+
+	return nil
+}

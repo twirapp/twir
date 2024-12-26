@@ -94,7 +94,21 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, channelID string, in
 		return entity.Keyword{}, err
 	}
 
-	if err := c.keywordsCacher.Invalidate(ctx, channelID); err != nil {
+	err = c.keywordsCacher.SetValueFiltered(
+		ctx,
+		channelID,
+		func(data []model.Keyword) []model.Keyword {
+			for i, v := range data {
+				if v.ID == id {
+					data[i] = m
+					break
+				}
+			}
+
+			return data
+		},
+	)
+	if err != nil {
 		return entity.Keyword{}, err
 	}
 
