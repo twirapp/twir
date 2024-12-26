@@ -80,6 +80,23 @@ services:
 #        constraints:
 #          - node.role == manager
 
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    volumes:
+      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
   postgres:
     image: 'bitnami/postgresql:17'
     environment:

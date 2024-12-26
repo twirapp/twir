@@ -1,0 +1,43 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+  redis:
+    endpoint: localhost:6385
+    collection_interval: 10s
+  postgresql:
+    endpoint: localhost:54321
+    transport: tcp
+    username: twir
+    password: twir
+    databases:
+      - twir
+    collection_interval: 10s
+    tls:
+      insecure: true
+
+exporters:
+  otlp:
+    endpoint: http://uptrace.satont.ru:14317
+    tls:
+      insecure: true
+    headers: { 'uptrace-dsn': 'http://<token>@uptrace.satont.ru:14318?grpc=14317' }
+
+processors:
+  resourcedetection:
+    detectors: [env, system]
+  cumulativetodelta:
+  batch:
+    timeout: 10s
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp, redis, postgresql]
+      processors: [cumulativetodelta, batch, resourcedetection]
+      exporters: [otlp]
