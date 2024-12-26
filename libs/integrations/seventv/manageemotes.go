@@ -22,7 +22,7 @@ var ErrCannotModify = errors.New("cannot modify channel emote set")
 var ErrBadEmoteUrl = errors.New("bad emote url")
 var ErrCannotAdd = errors.New("cannot add emote")
 
-var emoteRegex = regexp.MustCompile(`((cdn.)?7tv.app/emotes/)(?P<id>.{24})`)
+var emoteRegex = regexp.MustCompile(`((cdn.)?7tv.app/emotes/)(?P<id>.{26})`)
 
 func FindEmoteIdInInput(input string) string {
 	var result string
