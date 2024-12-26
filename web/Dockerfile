@@ -1,5 +1,4 @@
 FROM node:22-alpine AS base
-ENV NODE_ENV production
 WORKDIR /app
 
 FROM base AS builder
@@ -27,11 +26,12 @@ COPY apps/api-gql/schema ./apps/api-gql/schema
 COPY tsconfig.json tsconfig.json
 COPY turbo.json turbo.json
 
-RUN turbo run build --filter=@twir/web
+RUN NODE_ENV=production turbo run build --filter=@twir/web
 RUN turbo prune --scope=@twir/web --docker
 RUN pnpm prune --prod
 
 FROM base as prod-base
+ENV NODE_ENV production
 RUN apk add wget && \
     wget -q -t3 'https://packages.doppler.com/public/cli/rsa.8004D9FF50437357.key' -O /etc/apk/keys/cli@doppler-8004D9FF50437357.rsa.pub && \
     echo 'https://packages.doppler.com/public/cli/alpine/any-version/main' | tee -a /etc/apk/repositories && \
