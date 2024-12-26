@@ -23,7 +23,7 @@ const userCanManageCommands = useUserAccessFlagChecker(ChannelRolePermissionEnum
 const commandsManager = useCommandsApi()
 const { data: commandsResponse } = commandsManager.useQueryCommands()
 
-const excludedModules = ['7tv']
+const excludedModules = []
 
 const commandsFilter = ref('')
 const commands = computed(() => {
