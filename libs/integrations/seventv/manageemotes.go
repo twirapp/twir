@@ -9,49 +9,20 @@ import (
 	"github.com/imroc/req/v3"
 )
 
-const addMutation = `
-mutation AddEmoteToSet($setId: Id!, $emote: EmoteSetEmoteId!) {
-	emoteSets {
-		emoteSet(id: $setId) {
-			addEmote(id: $emote) {
-				id
-				__typename
-			}
-		__typename
+const query = `mutation ChangeEmoteInSet($id: ObjectID!, $action: ListItemAction!, $emote_id: ObjectID!, $name: String) {
+	emoteSet(id: $id) {
+		emotes(id: $emote_id, action: $action, name: $name) {
+			id
+			name
 		}
-	__typename
 	}
 }`
-const removeMutation = `
-mutation RemoveEmoteFromSet($setId: Id!, $emote: EmoteSetEmoteId!) {
-	emoteSets {
-		emoteSet(id: $setId) {
-			removeEmote(id: $emote) {
-				id
-				__typename
-			}
-		__typename
-	}
-		__typename
-	}
-}
-`
-
-type requestBody struct {
-	OperationName string               `json:"operationName"`
-	Query         string               `json:"query"`
-	Variables     requestBodyVariables `json:"variables"`
-}
-type requestBodyVariables struct {
-	Emote map[string]any `json:"emote"`
-	SetId string         `json:"setId"`
-}
 
 var ErrCannotModify = errors.New("cannot modify channel emote set")
 var ErrBadEmoteUrl = errors.New("bad emote url")
 var ErrCannotAdd = errors.New("cannot add emote")
 
-var emoteRegex = regexp.MustCompile(`((cdn.)?7tv.app/emotes/)(?P<id>.{26})`)
+var emoteRegex = regexp.MustCompile(`((cdn.)?7tv.app/emotes/)(?P<id>.{24})`)
 
 func FindEmoteIdInInput(input string) string {
 	var result string
@@ -84,37 +55,14 @@ func emoteAction(ctx context.Context, action, sevenTvToken, input, setID string)
 		return ErrBadEmoteUrl
 	}
 
-	var operationName string
-	if action == "ADD" {
-		operationName = "AddEmoteToSet"
-	} else {
-		operationName = "RemoveEmoteFromSet"
-	}
-
-	var query string
-	if action == "ADD" {
-		query = addMutation
-	} else {
-		query = removeMutation
-	}
-
-	body := requestBody{
-		OperationName: operationName,
-		Query:         query,
-		Variables: requestBodyVariables{
-			Emote: nil,
-			SetId: setID,
+	body := map[string]any{
+		"operationName": "ChangeEmoteInSet",
+		"variables": map[string]string{
+			"action":   action,
+			"id":       setID,
+			"emote_id": emoteId,
 		},
-	}
-
-	if action == "ADD" {
-		body.Variables.Emote = map[string]any{
-			"emoteId": emoteId,
-		}
-	} else {
-		body.Variables.Emote = map[string]any{
-			"emoteId": emoteId,
-		}
+		"query": query,
 	}
 
 	var result sevenTvResponse
@@ -123,7 +71,7 @@ func emoteAction(ctx context.Context, action, sevenTvToken, input, setID string)
 		SetBody(body).
 		SetBearerAuthToken(sevenTvToken).
 		SetSuccessResult(&result).
-		Post("https://7tv.io/v4/gql")
+		Post("https://7tv.io/v3/gql")
 	if err != nil {
 		return nil
 	}
@@ -152,60 +100,58 @@ func RemoveEmote(ctx context.Context, sevenTvToken, input, setID string) error {
 }
 
 func RenameEmote(ctx context.Context, sevenTvToken, setID, emoteID, newName string) error {
-	// body := map[string]any{
-	// 	"operationName": "ChangeEmoteInSet",
-	// 	"variables": map[string]string{
-	// 		"action":   "UPDATE",
-	// 		"id":       setID,
-	// 		"emote_id": emoteID,
-	// 		"name":     newName,
-	// 	},
-	// 	"query": query,
-	// }
-	//
-	// var result sevenTvResponse
-	// resp, err := req.
-	// 	SetContext(ctx).
-	// 	SetBody(body).
-	// 	SetBearerAuthToken(sevenTvToken).
-	// 	SetSuccessResult(&result).
-	// 	Post("https://7tv.io/v3/gql")
-	// if err != nil {
-	// 	return nil
-	// }
-	// if !resp.IsSuccessState() || len(result.Errors) > 0 {
-	// 	return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
-	// }
-	//
-	// return nil
+	body := map[string]any{
+		"operationName": "ChangeEmoteInSet",
+		"variables": map[string]string{
+			"action":   "UPDATE",
+			"id":       setID,
+			"emote_id": emoteID,
+			"name":     newName,
+		},
+		"query": query,
+	}
+
+	var result sevenTvResponse
+	resp, err := req.
+		SetContext(ctx).
+		SetBody(body).
+		SetBearerAuthToken(sevenTvToken).
+		SetSuccessResult(&result).
+		Post("https://7tv.io/v3/gql")
+	if err != nil {
+		return nil
+	}
+	if !resp.IsSuccessState() || len(result.Errors) > 0 {
+		return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
+	}
+
 	return nil
 }
 
 func RemoveEmoteByID(ctx context.Context, sevenTvToken, setID, emoteID string) error {
-	// body := map[string]any{
-	// 	"operationName": "ChangeEmoteInSet",
-	// 	"variables": map[string]string{
-	// 		"action":   "REMOVE",
-	// 		"id":       setID,
-	// 		"emote_id": emoteID,
-	// 	},
-	// 	"query": query,
-	// }
-	//
-	// var result sevenTvResponse
-	// resp, err := req.
-	// 	SetContext(ctx).
-	// 	SetBody(body).
-	// 	SetBearerAuthToken(sevenTvToken).
-	// 	SetSuccessResult(&result).
-	// 	Post("https://7tv.io/v3/gql")
-	// if err != nil {
-	// 	return nil
-	// }
-	// if !resp.IsSuccessState() || len(result.Errors) > 0 {
-	// 	return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
-	// }
-	//
-	// return nil
+	body := map[string]any{
+		"operationName": "ChangeEmoteInSet",
+		"variables": map[string]string{
+			"action":   "REMOVE",
+			"id":       setID,
+			"emote_id": emoteID,
+		},
+		"query": query,
+	}
+
+	var result sevenTvResponse
+	resp, err := req.
+		SetContext(ctx).
+		SetBody(body).
+		SetBearerAuthToken(sevenTvToken).
+		SetSuccessResult(&result).
+		Post("https://7tv.io/v3/gql")
+	if err != nil {
+		return nil
+	}
+	if !resp.IsSuccessState() || len(result.Errors) > 0 {
+		return fmt.Errorf("%w: %s", ErrCannotModify, resp.String())
+	}
+
 	return nil
 }
