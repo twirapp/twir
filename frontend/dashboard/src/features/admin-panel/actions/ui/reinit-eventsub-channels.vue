@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { useMutationRescheduleTimers } from '@/api/admin/actions'
+import { useMutationEventSubInitChannels } from '@/api/admin/actions'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
-const mutation = useMutationRescheduleTimers()
+const mutation = useMutationEventSubInitChannels()
 
-async function onReschedule() {
+async function onResubscribe() {
 	await mutation.executeMutation({})
 }
 
@@ -20,14 +20,14 @@ const confirmOpened = ref(false)
 		<div class="flex items-center">
 			<div class="flex-auto">
 				<small class="text-sm font-medium leading-none">
-					Reschedule timers
+					Reinit eventsub subscriptions
 				</small>
 				<p class="text-sm text-muted-foreground">
-					Will drop all timers from queue and create them again
+					Will recreate eventsub subscriptions
 				</p>
 			</div>
 			<Button variant="destructive" @click="confirmOpened = true">
-				Reschedule
+				Resubscribe
 			</Button>
 		</div>
 	</Card>
@@ -35,7 +35,7 @@ const confirmOpened = ref(false)
 	<!-- TODO: reusable action confirm -->
 	<ActionConfirm
 		v-model:open="confirmOpened"
-		confirm-text="Are you sure you want to reschedule all timers?"
-		@confirm="onReschedule"
+		confirm-text="Are you sure you want to resubscribe all channels?"
+		@confirm="onResubscribe"
 	/>
 </template>

@@ -2,6 +2,7 @@ extend type Mutation {
 	dropAllAuthSessions: Boolean! @isAuthenticated @isAdmin
 	eventsubSubscribe(opts: EventsubSubscribeInput!): Boolean! @isAuthenticated @isAdmin
 	rescheduleTimers: Boolean! @isAuthenticated @isAdmin
+	eventsubInitChannels: Boolean! @isAuthenticated @isAdmin
 }
 
 input EventsubSubscribeInput {

@@ -56,57 +56,11 @@ func NewManager(opts Opts) (*Manager, error) {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if opts.Config.AppEnv != "production" {
-					if err := manager.
-						gorm.
-						Session(&gorm.Session{AllowGlobalUpdate: true}).
-						Delete(&model.EventsubSubscription{}).
-						Error; err != nil {
-						return err
-					}
-				}
-
 				go func() {
 					if opts.Config.AppEnv != "production" {
-						twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
-						if err != nil {
+						if err := manager.InitChannels(); err != nil {
 							panic(err)
 						}
-
-						var subscriptions []helix.EventSubSubscription
-						cursor := ""
-						for {
-							subs, err := twitchClient.GetEventSubSubscriptions(
-								&helix.EventSubSubscriptionsParams{
-									After: cursor,
-								},
-							)
-							if err != nil {
-								panic(err)
-							}
-
-							subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
-
-							if subs.Data.Pagination.Cursor == "" {
-								break
-							}
-
-							cursor = subs.Data.Pagination.Cursor
-						}
-
-						var unsubWg sync.WaitGroup
-
-						for _, sub := range subscriptions {
-							sub := sub
-							unsubWg.Add(1)
-							go func() {
-								defer unsubWg.Done()
-								manager.Unsubscribe(ctx, sub.ID)
-							}()
-						}
-
-						unsubWg.Wait()
-						manager.populateChannels()
 					}
 
 					manager.SubscribeWithLimits(
@@ -129,6 +83,58 @@ func NewManager(opts Opts) (*Manager, error) {
 	)
 
 	return manager, nil
+}
+
+func (c *Manager) InitChannels() error {
+	if err := c.
+		gorm.
+		Session(&gorm.Session{AllowGlobalUpdate: true}).
+		Delete(&model.EventsubSubscription{}).
+		Error; err != nil {
+		return err
+	}
+
+	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
+	if err != nil {
+		return err
+	}
+
+	var subscriptions []helix.EventSubSubscription
+	cursor := ""
+	for {
+		subs, err := twitchClient.GetEventSubSubscriptions(
+			&helix.EventSubSubscriptionsParams{
+				After: cursor,
+			},
+		)
+		if err != nil {
+			return err
+		}
+
+		subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
+
+		if subs.Data.Pagination.Cursor == "" {
+			break
+		}
+
+		cursor = subs.Data.Pagination.Cursor
+	}
+
+	var unsubWg sync.WaitGroup
+
+	ctx := context.Background()
+
+	for _, sub := range subscriptions {
+		sub := sub
+		unsubWg.Add(1)
+		go func() {
+			defer unsubWg.Done()
+			c.Unsubscribe(ctx, sub.ID)
+		}()
+	}
+
+	unsubWg.Wait()
+	return c.populateChannels()
 }
 
 func (c *Manager) SubscribeToNeededEvents(

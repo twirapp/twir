@@ -185,6 +185,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			InitChannels: NewNatsQueue[struct{}, struct{}](
+				nc,
+				eventsub.EventsubInitChannelsSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 
 		Scheduler: &schedulerBus{

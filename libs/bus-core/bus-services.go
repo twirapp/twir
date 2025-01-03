@@ -59,6 +59,8 @@ type evalBus struct {
 type eventSubBus struct {
 	SubscribeToAllEvents Queue[eventsub.EventsubSubscribeToAllEventsRequest, struct{}]
 	Subscribe            Queue[eventsub.EventsubSubscribeRequest, struct{}]
+	// Init channels is dangerous, only use it if you know what you're doing
+	InitChannels Queue[struct{}, struct{}]
 }
 
 type schedulerBus struct {

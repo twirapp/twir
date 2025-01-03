@@ -3,6 +3,7 @@ package eventsub
 const (
 	EventsubSubscribeAllSubject = "eventsub.subscribeAll"
 	EventsubSubscribeSubject    = "eventsub.subscribe"
+	EventsubInitChannelsSubject = "eventsub.initChannels"
 )
 
 type EventsubSubscribeToAllEventsRequest struct {

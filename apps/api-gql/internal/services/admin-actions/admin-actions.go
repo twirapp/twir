@@ -93,7 +93,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 	return nil
 }
 
-func (c *Service) RescheduleTimers(ctx context.Context) error {
+func (c *Service) RescheduleTimers() error {
 	var entities []model.ChannelsTimers
 	if err := c.gorm.Select("id", "enabled").Find(&entities).Error; err != nil {
 		return fmt.Errorf("failed to get timers: %w", err)
@@ -115,6 +115,12 @@ func (c *Service) RescheduleTimers(ctx context.Context) error {
 		}
 
 	}
+
+	return nil
+}
+
+func (c *Service) EventsubReinitChannels() error {
+	c.twirbus.EventSub.InitChannels.Publish(struct{}{})
 
 	return nil
 }

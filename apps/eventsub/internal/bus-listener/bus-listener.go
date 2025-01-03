@@ -54,11 +54,19 @@ func New(opts Opts) (*BusListener, error) {
 					return err
 				}
 
+				if err := impl.bus.EventSub.InitChannels.SubscribeGroup(
+					"eventsub",
+					impl.reinitChannels,
+				); err != nil {
+					return err
+				}
+
 				return nil
 			},
 			OnStop: func(ctx context.Context) error {
 				impl.bus.EventSub.SubscribeToAllEvents.Unsubscribe()
 				impl.bus.EventSub.Subscribe.Unsubscribe()
+				impl.bus.EventSub.InitChannels.Unsubscribe()
 				return nil
 			},
 		},
@@ -113,6 +121,17 @@ func (c *BusListener) subscribe(
 		msg.ChannelID,
 	); err != nil {
 		c.logger.Error("error subscribing to event", err)
+	}
+
+	return struct{}{}
+}
+
+func (c *BusListener) reinitChannels(
+	ctx context.Context,
+	_ struct{},
+) struct{} {
+	if err := c.eventSubClient.InitChannels(); err != nil {
+		c.logger.Error("error reinit channels", err)
 	}
 
 	return struct{}{}
