@@ -29,6 +29,9 @@ import (
 
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
+
+	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
+	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 )
 
 var App = fx.Module(
@@ -43,6 +46,10 @@ var App = fx.Module(
 		fx.Annotate(
 			greetingsrepositorypgx.NewFx,
 			fx.As(new(greetingsrepository.Repository)),
+		),
+		fx.Annotate(
+			sentmessagesrepositorypgx.NewFx,
+			fx.As(new(sentmessagesrepository.Repository)),
 		),
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)

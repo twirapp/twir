@@ -8,9 +8,11 @@ import (
 	"unicode/utf8"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/repositories/sentmessages"
 )
 
 type SendMessageOpts struct {
@@ -22,7 +24,10 @@ type SendMessageOpts struct {
 }
 
 func validateResponseSlashes(response string) string {
-	if strings.HasPrefix(response, "/me") || strings.HasPrefix(response, "/announce") || strings.HasPrefix(response, "/shoutout") {
+	if strings.HasPrefix(response, "/me") || strings.HasPrefix(
+		response,
+		"/announce",
+	) || strings.HasPrefix(response, "/shoutout") {
 		return response
 	} else if strings.HasPrefix(response, "/") {
 		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."
@@ -106,6 +111,20 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			)
 			msgErr = err
 
+			for _, m := range resp.Data.Messages {
+				err := c.sentMessagesRepository.Create(
+					ctx, sentmessages.CreateInput{
+						MessageTwitchID: m.MessageID,
+						Content:         part,
+						ChannelID:       opts.BroadcasterID,
+						SenderID:        opts.SenderID,
+					},
+				)
+				if err != nil {
+					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
+				}
+			}
+
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
 			}
@@ -118,8 +137,23 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
+
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
+			}
+
+			if resp.ErrorMessage != "" && err == nil {
+				err := c.sentMessagesRepository.Create(
+					ctx, sentmessages.CreateInput{
+						MessageTwitchID: uuid.NewString(),
+						Content:         part,
+						ChannelID:       opts.BroadcasterID,
+						SenderID:        opts.SenderID,
+					},
+				)
+				if err != nil {
+					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
+				}
 			}
 		}
 
