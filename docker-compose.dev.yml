@@ -38,6 +38,7 @@ services:
       - PGBOUNCER_AUTH_USER=twir
       - PGBOUNCER_DATABASE=twir
       - PGBOUNCER_MIN_POOL_SIZE=20
+      - PGBOUNCER_MAX_CLIENT_CONN=4000
     networks:
       - twir-dev
     ports:

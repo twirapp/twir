@@ -6,12 +6,10 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.uber.org/atomic"
@@ -94,46 +92,6 @@ func (c *Manager) InitChannels() error {
 		return err
 	}
 
-	twitchClient, err := twitch.NewAppClient(c.config, c.tokensGrpc)
-	if err != nil {
-		return err
-	}
-
-	var subscriptions []helix.EventSubSubscription
-	cursor := ""
-	for {
-		subs, err := twitchClient.GetEventSubSubscriptions(
-			&helix.EventSubSubscriptionsParams{
-				After: cursor,
-			},
-		)
-		if err != nil {
-			return err
-		}
-
-		subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
-
-		if subs.Data.Pagination.Cursor == "" {
-			break
-		}
-
-		cursor = subs.Data.Pagination.Cursor
-	}
-
-	var unsubWg sync.WaitGroup
-
-	ctx := context.Background()
-
-	for _, sub := range subscriptions {
-		sub := sub
-		unsubWg.Add(1)
-		go func() {
-			defer unsubWg.Done()
-			c.Unsubscribe(ctx, sub.ID)
-		}()
-	}
-
-	unsubWg.Wait()
 	return c.populateChannels()
 }
 

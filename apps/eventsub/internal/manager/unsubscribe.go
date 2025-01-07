@@ -2,7 +2,7 @@ package manager
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/twitch"
@@ -24,10 +24,10 @@ func (c *Manager) unsubscribeChannel(ctx context.Context, channelID string) erro
 		for _, sub := range existedSubsRes.Data.EventSubSubscriptions {
 			res, err := twitchClient.RemoveEventSubSubscription(sub.ID)
 			if err != nil {
-				return fmt.Errorf("failed to remove subscription: %w", err)
+				c.logger.Warn("failed to remove subscription", slog.Any("err", err))
 			}
 			if res.ErrorMessage != "" {
-				return fmt.Errorf("failed to remove subscription: %s", res.ErrorMessage)
+				c.logger.Warn("failed to remove subscription", slog.String("error", res.ErrorMessage))
 			}
 		}
 	}
