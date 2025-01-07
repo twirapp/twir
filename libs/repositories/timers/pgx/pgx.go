@@ -3,6 +3,7 @@ package pgx
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"slices"
 
 	"github.com/Masterminds/squirrel"
@@ -169,7 +170,7 @@ ORDER BY t."id";
 
 	rows, err := c.pool.Query(ctx, query, channelID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
@@ -190,7 +191,7 @@ ORDER BY t."id";
 			&response.IsAnnounce,
 			&response.TimerID,
 		); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan row: %v, %w", timer.ID, err)
 		}
 		if _, ok := timersMap[timer.ID]; !ok {
 			timersMap[timer.ID] = &timer
