@@ -5,8 +5,8 @@ definePageMeta({
 </script>
 
 <template>
-	<div class="text-white container">
-		<h1 class="text-4xl">
+	<div class="text-white container mb-4 flex flex-col gap-4">
+		<h1 class="text-4xl mt-4">
 			Terms of Service
 		</h1>
 
@@ -35,11 +35,11 @@ definePageMeta({
 		<p>Our Service allows you to post, link, store, share, and otherwise make available certain information, text, graphics, videos, or other material ("Content"). You are responsible for the Content that you post on or through the Service, including its legality, reliability, and appropriateness.</p>
 		<p>
 			By posting Content on or through the Service, you represent and warrant that:
-			<ul>
-				<li>The Content is yours (you own it) and/or you have the right to use it and grant us the rights and license as provided in these Terms.</li>
-				<li>The posting of your Content on or through the Service does not violate the privacy rights, publicity rights, copyrights, contract rights, or any other rights of any person or entity.</li>
-			</ul>
 		</p>
+		<ul>
+			<li>The Content is yours (you own it) and/or you have the right to use it and grant us the rights and license as provided in these Terms.</li>
+			<li>The posting of your Content on or through the Service does not violate the privacy rights, publicity rights, copyrights, contract rights, or any other rights of any person or entity.</li>
+		</ul>
 		<p>We reserve the right to terminate the account of anyone found to be infringing on a copyright.</p>
 		<p>You retain any and all rights to any Content you submit, post, or display on or through the Service. However, by posting Content using the Service, you grant us the right and license to use, modify, publicly perform, publicly display, reproduce, and distribute such Content on and through the Service.</p>
 
@@ -59,15 +59,15 @@ definePageMeta({
 		<h3>DMCA Notice and Procedure for Copyright Infringement Claims</h3>
 		<p>
 			You may submit a notification pursuant to the Digital Millennium Copyright Act (DMCA) by providing our Copyright Agent with the following information in writing:
-			<ul>
-				<li>An electronic or physical signature of the person authorized to act on behalf of the owner of the copyright's interest.</li>
-				<li>A description of the copyrighted work that you claim has been infringed.</li>
-				<li>Identification of the URL or specific location on the Service where the material that you claim is infringing is located.</li>
-				<li>Your address, telephone number, and email address.</li>
-				<li>A statement by you that you have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.</li>
-				<li>A statement by you, made under penalty of perjury, that the above information in your notice is accurate and that you are the copyright owner or authorized to act on the copyright owner's behalf.</li>
-			</ul>
 		</p>
+		<ul>
+			<li>An electronic or physical signature of the person authorized to act on behalf of the owner of the copyright's interest.</li>
+			<li>A description of the copyrighted work that you claim has been infringed.</li>
+			<li>Identification of the URL or specific location on the Service where the material that you claim is infringing is located.</li>
+			<li>Your address, telephone number, and email address.</li>
+			<li>A statement by you that you have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.</li>
+			<li>A statement by you, made under penalty of perjury, that the above information in your notice is accurate and that you are the copyright owner or authorized to act on the copyright owner's behalf.</li>
+		</ul>
 
 		<h2 class="text-2xl">
 			Intellectual Property
