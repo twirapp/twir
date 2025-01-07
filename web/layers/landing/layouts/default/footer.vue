@@ -28,9 +28,16 @@ import { anchorLinks } from '~/layers/landing/layouts/default/anchor-links'
 						</li>
 					</ul>
 				</nav>
+				<nav class="flex justify-center items-center" aria-label="Footer Navigation">
+					<ul class="list-none p-0 m-0 flex flex-wrap gap-4">
+						<NuxtLink to="/terms" class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors">
+							Terms of service
+						</NuxtLink>
+					</ul>
+				</nav>
 			</div>
 			<div class="flex justify-between p-8 text-stone-400 mt-12 border-t border-stone-600 gap-4 max-[720px]:flex-col max-[720px]:items-center">
-				<span>&copy; {{ new Date().getFullYear() }} Twir. All rights reserved.</span>
+				<span>&copy; 2023 - {{ new Date().getFullYear() }} TwirApp. All rights reserved.</span>
 				<div class="flex gap-[14px]">
 					<a
 						:href="GITHUB_REPOSITORY_URL"
