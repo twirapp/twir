@@ -8,6 +8,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	"github.com/twirapp/twir/libs/repositories/channels"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -23,6 +24,7 @@ type Opts struct {
 	Redis                  *goredis.Client
 	ModTaskDistributor     mod_task_queue.TaskDistributor
 	SentMessagesRepository sentmessages.Repository
+	ChannelsRepository     channels.Repository
 }
 
 func New(opts Opts) *TwitchActions {
@@ -34,6 +36,7 @@ func New(opts Opts) *TwitchActions {
 		rateLimiter:            redis.NewSlidingWindow(adapter.NewAdapter(opts.Redis)),
 		modTaskDistributor:     opts.ModTaskDistributor,
 		sentMessagesRepository: opts.SentMessagesRepository,
+		channelsRepository:     opts.ChannelsRepository,
 	}
 
 	return actions
@@ -47,4 +50,5 @@ type TwitchActions struct {
 	rateLimiter            redis.SlidingWindow
 	modTaskDistributor     mod_task_queue.TaskDistributor
 	sentMessagesRepository sentmessages.Repository
+	channelsRepository     channels.Repository
 }

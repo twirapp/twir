@@ -40,6 +40,7 @@ type botsBus struct {
 	SendMessage   Queue[botsservice.SendMessageRequest, struct{}]
 	DeleteMessage Queue[botsservice.DeleteMessageRequest, struct{}]
 	BanUser       Queue[botsservice.BanRequest, struct{}]
+	ShoutOut      Queue[botsservice.SentShoutOutRequest, struct{}]
 }
 
 type emotesCacherBus struct {

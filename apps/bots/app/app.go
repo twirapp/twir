@@ -21,24 +21,23 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/uptrace"
-	"go.uber.org/fx"
-
-	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
-	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
-
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
-
+	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
+	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
+	"github.com/twirapp/twir/libs/uptrace"
+	"go.uber.org/fx"
 )
 
 var App = fx.Module(
 	"bots",
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "bots"}),
+	// repositories
 	fx.Provide(
-		tlds.New,
 		fx.Annotate(
 			keywordsrepositorypgx.NewFx,
 			fx.As(new(keywordsrepository.Repository)),
@@ -51,6 +50,13 @@ var App = fx.Module(
 			sentmessagesrepositorypgx.NewFx,
 			fx.As(new(sentmessagesrepository.Repository)),
 		),
+		fx.Annotate(
+			channelsrepositorypgx.NewFx,
+			fx.As(new(channelsrepository.Repository)),
+		),
+	),
+	fx.Provide(
+		tlds.New,
 		func(config cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(config.AppEnv)
 		},

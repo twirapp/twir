@@ -22,6 +22,7 @@ export const useGreetingsApi = createGlobalState(() => {
 					text
 					enabled
 					isReply
+					withShoutOut
 					twitchProfile {
 						login
 						displayName

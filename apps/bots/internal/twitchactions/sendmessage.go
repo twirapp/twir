@@ -23,11 +23,13 @@ type SendMessageOpts struct {
 	IsAnnounce           bool
 }
 
+const shoutOutPrefix = "/shoutout"
+
 func validateResponseSlashes(response string) string {
 	if strings.HasPrefix(response, "/me") || strings.HasPrefix(
 		response,
 		"/announce",
-	) || strings.HasPrefix(response, "/shoutout") {
+	) || strings.HasPrefix(response, shoutOutPrefix) {
 		return response
 	} else if strings.HasPrefix(response, "/") {
 		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."

@@ -4,6 +4,7 @@ const (
 	SendMessageSubject   = "bots.send_message"
 	DeleteMessageSubject = "bots.delete_message"
 	BanSubject           = "bots.ban"
+	ShoutOutSubject      = "bots.shoutout"
 )
 
 type SendMessageRequest struct {
@@ -29,4 +30,9 @@ type BanRequest struct {
 	Reason         string
 	IsModerator    bool
 	AddModAfterBan bool
+}
+
+type SentShoutOutRequest struct {
+	ChannelID string
+	TargetID  string
 }

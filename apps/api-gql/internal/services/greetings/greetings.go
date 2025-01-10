@@ -37,13 +37,14 @@ type Service struct {
 
 func (c *Service) mapToEntity(m model.Greeting) entity.Greeting {
 	return entity.Greeting{
-		ID:        m.ID,
-		ChannelID: m.ChannelID,
-		UserID:    m.UserID,
-		Enabled:   m.Enabled,
-		Text:      m.Text,
-		IsReply:   m.IsReply,
-		Processed: m.Processed,
+		ID:           m.ID,
+		ChannelID:    m.ChannelID,
+		UserID:       m.UserID,
+		Enabled:      m.Enabled,
+		Text:         m.Text,
+		IsReply:      m.IsReply,
+		Processed:    m.Processed,
+		WithShoutOut: m.WithShoutOut,
 	}
 }
 
@@ -81,22 +82,24 @@ type CreateInput struct {
 	ChannelID string
 	ActorID   string
 
-	UserID    string
-	Enabled   bool
-	Text      string
-	IsReply   bool
-	Processed bool
+	UserID       string
+	Enabled      bool
+	Text         string
+	IsReply      bool
+	Processed    bool
+	WithShoutOut bool
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
 	dbGreeting, err := c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
-			ChannelID: input.ChannelID,
-			UserID:    input.UserID,
-			Enabled:   input.Enabled,
-			Text:      input.Text,
-			IsReply:   input.IsReply,
-			Processed: input.Processed,
+			ChannelID:    input.ChannelID,
+			UserID:       input.UserID,
+			Enabled:      input.Enabled,
+			Text:         input.Text,
+			IsReply:      input.IsReply,
+			Processed:    input.Processed,
+			WithShoutOut: input.WithShoutOut,
 		},
 	)
 	if err != nil {
@@ -122,10 +125,11 @@ type UpdateInput struct {
 	ActorID   string
 	ChannelID string
 
-	UserID  *string
-	Enabled *bool
-	Text    *string
-	IsReply *bool
+	UserID       *string
+	Enabled      *bool
+	Text         *string
+	IsReply      *bool
+	WithShoutOut *bool
 }
 
 func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
@@ -147,11 +151,12 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 
 	newGreeting, err := c.greetingsRepository.Update(
 		ctx, id, greetings.UpdateInput{
-			UserID:    input.UserID,
-			Enabled:   input.Enabled,
-			Text:      input.Text,
-			IsReply:   input.IsReply,
-			Processed: lo.ToPtr(false),
+			UserID:       input.UserID,
+			Enabled:      input.Enabled,
+			Text:         input.Text,
+			IsReply:      input.IsReply,
+			Processed:    lo.ToPtr(false),
+			WithShoutOut: input.WithShoutOut,
 		},
 	)
 	if err != nil {

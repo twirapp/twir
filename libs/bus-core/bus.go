@@ -93,6 +93,12 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 				1*time.Minute,
 				nats.GOB_ENCODER,
 			),
+			ShoutOut: NewNatsQueue[botsservice.SentShoutOutRequest, struct{}](
+				nc,
+				botsservice.ShoutOutSubject,
+				1*time.Minute,
+				nats.GOB_ENCODER,
+			),
 		},
 
 		Websocket: &websocketBus{

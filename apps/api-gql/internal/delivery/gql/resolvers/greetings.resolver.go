@@ -36,13 +36,14 @@ func (r *mutationResolver) GreetingsCreate(ctx context.Context, opts gqlmodel.Gr
 	newGreeting, err := r.deps.GreetingsService.Create(
 		ctx,
 		greetings.CreateInput{
-			ChannelID: dashboardId,
-			ActorID:   user.ID,
-			UserID:    opts.UserID,
-			Enabled:   opts.Enabled,
-			Text:      opts.Text,
-			IsReply:   opts.IsReply,
-			Processed: false,
+			ChannelID:    dashboardId,
+			ActorID:      user.ID,
+			UserID:       opts.UserID,
+			Enabled:      opts.Enabled,
+			Text:         opts.Text,
+			IsReply:      opts.IsReply,
+			Processed:    false,
+			WithShoutOut: opts.WithShoutOut,
 		},
 	)
 	if err != nil {
@@ -69,12 +70,13 @@ func (r *mutationResolver) GreetingsUpdate(ctx context.Context, id uuid.UUID, op
 		ctx,
 		id,
 		greetings.UpdateInput{
-			ChannelID: dashboardId,
-			ActorID:   user.ID,
-			UserID:    opts.UserID.Value(),
-			Enabled:   opts.Enabled.Value(),
-			Text:      opts.Text.Value(),
-			IsReply:   opts.IsReply.Value(),
+			ChannelID:    dashboardId,
+			ActorID:      user.ID,
+			UserID:       opts.UserID.Value(),
+			Enabled:      opts.Enabled.Value(),
+			Text:         opts.Text.Value(),
+			IsReply:      opts.IsReply.Value(),
+			WithShoutOut: opts.WithShoutOut.Value(),
 		},
 	)
 	if err != nil {

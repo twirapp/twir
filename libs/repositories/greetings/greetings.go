@@ -26,20 +26,22 @@ type GetManyInput struct {
 }
 
 type CreateInput struct {
-	ChannelID string
-	UserID    string
-	Enabled   bool
-	Text      string
-	IsReply   bool
-	Processed bool
+	ChannelID    string
+	UserID       string
+	Enabled      bool
+	Text         string
+	IsReply      bool
+	Processed    bool
+	WithShoutOut bool
 }
 
 type UpdateInput struct {
-	UserID    *string
-	Enabled   *bool
-	Text      *string
-	IsReply   *bool
-	Processed *bool
+	UserID       *string
+	Enabled      *bool
+	Text         *string
+	IsReply      *bool
+	Processed    *bool
+	WithShoutOut *bool
 }
 
 type GetOneInput struct {

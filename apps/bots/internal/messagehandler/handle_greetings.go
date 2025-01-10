@@ -85,14 +85,26 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	c.twitchActions.SendMessage(
-		ctx, twitchactions.SendMessageOpts{
-			BroadcasterID:        msg.BroadcasterUserId,
-			SenderID:             msg.DbChannel.BotID,
-			Message:              res.Data.Text,
-			ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
-		},
-	)
+	if res.Data.Text != "" {
+		c.twitchActions.SendMessage(
+			ctx, twitchactions.SendMessageOpts{
+				BroadcasterID:        msg.BroadcasterUserId,
+				SenderID:             msg.DbChannel.BotID,
+				Message:              res.Data.Text,
+				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
+			},
+		)
+	}
+
+	if greeting.WithShoutOut {
+		c.twitchActions.ShoutOut(
+			ctx,
+			twitchactions.ShoutOutInput{
+				BroadcasterID: msg.BroadcasterUserId,
+				TargetID:      greeting.UserID,
+			},
+		)
+	}
 
 	_, err = c.eventsGrpc.GreetingSended(
 		context.Background(),
