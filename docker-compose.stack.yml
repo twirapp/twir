@@ -176,10 +176,7 @@ services:
           - node.role == manager
 
   postgres-backup:
-    build:
-      context: .
-      dockerfile: ./tools/pg-backup/Dockerfile
-    image: twirapp/postgres-backup:latest
+    image: registry.twir.app/twirapp/postgres-backup:latest
     secrets:
       - twir_doppler_token
     networks:
