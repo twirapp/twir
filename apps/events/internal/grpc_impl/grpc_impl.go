@@ -277,6 +277,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 				model.EventTypeRedemptionCreated,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
+					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					RewardCost:      msg.RewardCost,
 					RewardInput:     msg.Input,
