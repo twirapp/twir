@@ -5,6 +5,7 @@ import (
 	"github.com/satont/twir/apps/events/internal/chat_alerts"
 	"github.com/satont/twir/apps/events/internal/grpc_impl"
 	"github.com/satont/twir/apps/events/internal/hydrator"
+	"github.com/satont/twir/apps/events/internal/song_request"
 	"github.com/satont/twir/apps/events/internal/workers"
 	"github.com/satont/twir/apps/events/internal/workflows"
 	cfg "github.com/satont/twir/libs/config"
@@ -13,6 +14,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/grpc/ytsr"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
@@ -33,6 +35,10 @@ var App = fx.Module(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
+		func(config cfg.Config) ytsr.YtsrClient {
+			return clients.NewYtsr(config.AppEnv)
+		},
+		song_request.New,
 		hydrator.New,
 		eventsActivity.New,
 		workflows.NewEventsWorkflow,
