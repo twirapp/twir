@@ -287,7 +287,7 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 		return model.Nil, timers.ErrTimerNotFound
 	}
 
-	if data.Responses != nil {
+	if len(data.Responses) > 0 {
 		_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
 		if err != nil {
 			return model.Nil, err
