@@ -58,9 +58,9 @@
     "userSelectPlaceholder": "Wähle einen Benutzer|Wähle mehrere Benutzer",
     "userNotFound": "Keine Benutzer gefunden",
     "settings": "Einstellungen",
-    "create": "Create",
-    "edit": "Edit",
-    "noData": "No data"
+    "create": "Erstelle",
+    "edit": "Bearbeite",
+    "noData": "Keine Daten verfügbar"
   },
   "sidebar": {
     "dashboard": "Übersicht",
@@ -132,7 +132,7 @@
         }
       },
       "aliases": {
-        "label": "Additional names"
+        "label": "Zusatznamen"
       },
       "gameCategories": {
         "label": "Aktiviere Befehl nur in bestimmten Kategorien (leer lassen für Deaktivierung)"
@@ -140,7 +140,7 @@
       "expiration": {
         "label": "Ablauf",
         "actionsLabel": "Aktion nach Ablauf",
-        "defaultWarning": "Expiration cannot be set for default command",
+        "defaultWarning": "Ablaufdatum kann nicht für Standardbefehle gesetzt werden",
         "actions": {
           "delete": "Befehl wird gelöscht",
           "disable": "Befehl wird deaktiviert"
@@ -164,8 +164,8 @@
         "placeholder": "Wählen Sie Rollen aus, um Berechtigungen zur Verwendung von Befehlen zu gewähren",
         "deniedUsers": "Benutzer, die diesen Befehl nicht verwenden können.",
         "allowedUsers": "Benutzer, die die Rollenbeschränkung für diesen Befehl umgehen können.",
-        "exceptions": "Exceptions",
-        "blocked": "Blocked users"
+        "exceptions": "Ausnahmen",
+        "blocked": "Blockierte Nutzer"
       },
       "restrictions": {
         "name": "Einschränkungen nach Statistiken",
@@ -678,8 +678,8 @@
   "timers": {
     "table": {
       "columns": {
-        "intervalInMinutes": "Interval in minutes",
-        "intervalInMessages": "Chat lines interval"
+        "intervalInMinutes": "Intervall in Minuten",
+        "intervalInMessages": "Chatzeilen-Intervall"
       }
     },
     "modal": {
