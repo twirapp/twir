@@ -144,7 +144,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				errorMessage = resp.ErrorMessage
 			}
 
-			if resp.ErrorMessage != "" && err == nil {
+			if resp != nil && resp.ErrorMessage != "" && err == nil {
 				err := c.sentMessagesRepository.Create(
 					ctx, sentmessages.CreateInput{
 						MessageTwitchID: uuid.NewString(),
