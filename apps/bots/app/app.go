@@ -9,6 +9,7 @@ import (
 	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
+	toxicity_check "github.com/satont/twir/apps/bots/internal/services/toxicity-check"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
@@ -29,6 +30,8 @@ import (
 	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
 	sentmessagesrepository "github.com/twirapp/twir/libs/repositories/sentmessages"
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
+	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
+	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -54,6 +57,10 @@ var App = fx.Module(
 			channelsrepositorypgx.NewFx,
 			fx.As(new(channelsrepository.Repository)),
 		),
+		fx.Annotate(
+			toxicmessagesrepositorypgx.NewFx,
+			fx.As(new(toxicmessagesrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -73,6 +80,7 @@ var App = fx.Module(
 			mod_task_queue.NewRedisModTaskDistributor,
 			fx.As(new(mod_task_queue.TaskDistributor)),
 		),
+		toxicity_check.New,
 		keywordscache.New,
 		twitchactions.New,
 		moderationhelpers.New,

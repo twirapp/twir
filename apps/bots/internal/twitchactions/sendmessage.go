@@ -13,6 +13,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/repositories/sentmessages"
+	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 )
 
 type SendMessageOpts struct {
@@ -94,7 +95,13 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	text := strings.ReplaceAll(opts.Message, "\n", " ")
 	textParts := splitTextByLength(text)
 
+	toxicity, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
+	if err != nil {
+		return fmt.Errorf("cannot send message: %w", err)
+	}
+
 	for i, part := range textParts {
+		// Do not send message if it was splitted more than 3 parts
 		if i > 2 {
 			return nil
 		}
@@ -102,12 +109,28 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		var msgErr error
 		var errorMessage string
 
+		message := part
+		isToxic := toxicity[i]
+		if isToxic {
+			if err := c.toxicMessagesRepository.Create(
+				ctx, toxic_messages.CreateInput{
+					ChannelID:     opts.BroadcasterID,
+					ReplyToUserID: nil,
+					Text:          part,
+				},
+			); err != nil {
+				c.logger.Warn("Cannot save toxic message to db", slog.Any("err", err))
+			}
+
+			message = "[TwirApp] Redacted due toxicity validation. Contact support if you sure there is no toxicity."
+		}
+
 		if !opts.IsAnnounce {
 			resp, err := twitchClient.SendChatMessage(
 				&helix.SendChatMessageParams{
 					BroadcasterID:        opts.BroadcasterID,
 					SenderID:             opts.SenderID,
-					Message:              validateResponseSlashes(part),
+					Message:              validateResponseSlashes(message),
 					ReplyParentMessageID: opts.ReplyParentMessageID,
 				},
 			)
@@ -117,7 +140,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				err := c.sentMessagesRepository.Create(
 					ctx, sentmessages.CreateInput{
 						MessageTwitchID: m.MessageID,
-						Content:         part,
+						Content:         message,
 						ChannelID:       opts.BroadcasterID,
 						SenderID:        opts.SenderID,
 					},
@@ -135,7 +158,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				&helix.SendChatAnnouncementParams{
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
-					Message:       validateResponseSlashes(part),
+					Message:       validateResponseSlashes(message),
 				},
 			)
 			msgErr = err
