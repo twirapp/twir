@@ -26,6 +26,7 @@ var Command = &types.DefaultCommand{
 		RolesIDS: pq.StringArray{model.ChannelRoleTypeModerator.String()},
 		Module:   "MODERATION",
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.VariadicString{
 			Name: nukePhraseArgName,

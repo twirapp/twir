@@ -120,11 +120,12 @@ func (c *CommandsBus) Subscribe() error {
 			for _, r := range res.Responses {
 				c.bus.Bots.SendMessage.Publish(
 					bots.SendMessageRequest{
-						ChannelId:      data.BroadcasterUserId,
-						ChannelName:    &data.BroadcasterUserLogin,
-						Message:        r,
-						SkipRateLimits: false,
-						ReplyTo:        replyTo,
+						ChannelId:         data.BroadcasterUserId,
+						ChannelName:       &data.BroadcasterUserLogin,
+						Message:           r,
+						SkipRateLimits:    false,
+						ReplyTo:           replyTo,
+						SkipToxicityCheck: res.SkipToxicityCheck,
 					},
 				)
 			}

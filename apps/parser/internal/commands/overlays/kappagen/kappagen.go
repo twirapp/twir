@@ -14,12 +14,13 @@ import (
 var Kappagen = &types.DefaultCommand{
 	ChannelsCommands: &model.ChannelsCommands{
 		Name:        "kappagen",
-		Description: null.StringFrom("Magic ball will answer to all your questions!"),
+		Description: null.StringFrom("Send smiles to kappagen overlay."),
 		Module:      "OVERLAYS",
 		IsReply:     true,
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

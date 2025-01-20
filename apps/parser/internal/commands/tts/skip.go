@@ -17,6 +17,7 @@ var SkipCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

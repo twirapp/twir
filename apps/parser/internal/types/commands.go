@@ -23,6 +23,10 @@ type CommandsHandlerResult struct {
 type DefaultCommand struct {
 	*model.ChannelsCommands
 
-	Handler func(ctx context.Context, parseCtx *ParseContext) (*CommandsHandlerResult, error)
-	Args    []command_arguments.Arg
+	Handler func(ctx context.Context, parseCtx *ParseContext) (
+		*CommandsHandlerResult,
+		error,
+	)
+	Args              []command_arguments.Arg
+	SkipToxicityCheck bool
 }

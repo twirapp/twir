@@ -8,12 +8,13 @@ const (
 )
 
 type SendMessageRequest struct {
-	ChannelId      string
-	ChannelName    *string
-	Message        string
-	IsAnnounce     bool
-	SkipRateLimits bool
-	ReplyTo        string
+	ChannelId         string
+	ChannelName       *string
+	Message           string
+	IsAnnounce        bool
+	SkipRateLimits    bool
+	ReplyTo           string
+	SkipToxicityCheck bool
 }
 
 type DeleteMessageRequest struct {

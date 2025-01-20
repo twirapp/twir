@@ -27,6 +27,7 @@ var EmoteDelete = &types.DefaultCommand{
 		Aliases:     []string{"7tv remove"},
 		Enabled:     false,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForDeleteArgName,

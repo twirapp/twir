@@ -23,6 +23,7 @@ var RateCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name:     ttsRateArgName,

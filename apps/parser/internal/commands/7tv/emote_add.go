@@ -26,6 +26,7 @@ var EmoteAdd = &types.DefaultCommand{
 		Aliases:     []string{},
 		Enabled:     false,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: emoteForAddArgLink,

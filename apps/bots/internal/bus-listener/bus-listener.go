@@ -151,6 +151,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 			Message:              req.Message,
 			ReplyParentMessageID: req.ReplyTo,
 			IsAnnounce:           req.IsAnnounce,
+			SkipToxicityCheck:    req.SkipToxicityCheck,
 		},
 	)
 	if err != nil {

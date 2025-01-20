@@ -28,6 +28,7 @@ var Color = &types.DefaultCommand{
 		Visible:     true,
 		RolesIDS:    pq.StringArray{},
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: colorArgName,

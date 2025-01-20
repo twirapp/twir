@@ -24,6 +24,7 @@ var VolumeCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name:     ttsVolumeArgName,

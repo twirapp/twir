@@ -23,6 +23,7 @@ var UserAge = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     pq.StringArray{"accountage"},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

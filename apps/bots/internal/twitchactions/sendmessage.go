@@ -22,6 +22,7 @@ type SendMessageOpts struct {
 	Message              string
 	ReplyParentMessageID string
 	IsAnnounce           bool
+	SkipToxicityCheck    bool
 }
 
 const shoutOutPrefix = "/shoutout"
@@ -95,9 +96,13 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	text := strings.ReplaceAll(opts.Message, "\n", " ")
 	textParts := splitTextByLength(text)
 
-	toxicity, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
-	if err != nil {
-		return fmt.Errorf("cannot send message: %w", err)
+	toxicity := make([]bool, len(textParts))
+	if !opts.SkipToxicityCheck {
+		t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
+		if err != nil {
+			return fmt.Errorf("cannot send message: %w", err)
+		}
+		toxicity = t
 	}
 
 	for i, part := range textParts {
@@ -110,7 +115,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		var errorMessage string
 
 		message := part
-		isToxic := toxicity[i]
+		isToxic := !opts.SkipToxicityCheck && toxicity[i]
 		if isToxic {
 			if err := c.toxicMessagesRepository.Create(
 				ctx, toxic_messages.CreateInput{

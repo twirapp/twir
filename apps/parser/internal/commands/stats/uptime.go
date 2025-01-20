@@ -23,6 +23,7 @@ var Uptime = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     pq.StringArray{},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

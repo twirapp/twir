@@ -230,6 +230,8 @@ func (c *Commands) ParseCommandResponses(
 		if ok {
 			defaultCommand = cmd
 		}
+
+		result.SkipToxicityCheck = cmd.SkipToxicityCheck
 	}
 
 	go c.services.Gorm.

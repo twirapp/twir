@@ -19,6 +19,7 @@ var EnableCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
