@@ -40,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -93,9 +94,6 @@ func main() {
 			baseapp.Opts{
 				AppName: "api-gql",
 			},
-		),
-		fx.Provide(
-			twitchcache.New,
 		),
 		// repositories
 		fx.Provide(
@@ -213,6 +211,8 @@ func main() {
 			dataloader.New,
 			auth.NewSessions,
 			minio.New,
+			twitchcache.New,
+			channelscommandsprefixcache.New,
 			commandscache.New,
 			keywordscacher.New,
 			fx.Annotate(
