@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
@@ -39,6 +40,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
@@ -79,6 +81,9 @@ import (
 	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -89,9 +94,6 @@ func main() {
 			baseapp.Opts{
 				AppName: "api-gql",
 			},
-		),
-		fx.Provide(
-			twitchcache.New,
 		),
 		// repositories
 		fx.Provide(
@@ -163,6 +165,10 @@ func main() {
 				chatmessagesrepositorypgx.NewFx,
 				fx.As(new(chatmessagesrepository.Repository)),
 			),
+			fx.Annotate(
+				channelscommandsprefixpgx.NewFx,
+				fx.As(new(channelscommandsprefixrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -189,6 +195,7 @@ func main() {
 			twitch.New,
 			channels.New,
 			chat_messages.New,
+			channels_commands_prefix.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -204,6 +211,8 @@ func main() {
 			dataloader.New,
 			auth.NewSessions,
 			minio.New,
+			twitchcache.New,
+			channelscommandsprefixcache.New,
 			commandscache.New,
 			keywordscacher.New,
 			fx.Annotate(

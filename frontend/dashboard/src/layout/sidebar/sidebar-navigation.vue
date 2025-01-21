@@ -16,6 +16,7 @@ import {
 	PackageCheck,
 	PackagePlus,
 	ScrollTextIcon,
+	SettingsIcon,
 	Shield,
 	Smile,
 	Timer,
@@ -72,6 +73,12 @@ const links = computed(() => {
 			icon: LayoutDashboard,
 			disabled: false,
 			path: '/dashboard',
+		},
+		{
+			name: 'Bot settings',
+			icon: SettingsIcon,
+			path: '/dashboard/bot-settings',
+			isNew: true,
 		},
 		{
 			name: t('sidebar.integrations'),
