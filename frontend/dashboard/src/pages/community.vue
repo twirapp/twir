@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import type { PageLayoutTab } from '@/layout/page-layout.vue'
 
 import { useUserAccessFlagChecker } from '@/api'
+import CommunityChatMessages from '@/features/community-chat-messages/community-chat-messages.vue'
 import CommunityEmotesStatistic
 	from '@/features/community-emotes-statistic/community-emotes-statistic.vue'
 import CommunityRoles from '@/features/community-roles/community-roles.vue'
@@ -18,21 +19,26 @@ const canViewRoles = useUserAccessFlagChecker(ChannelRolePermissionEnum.ViewRole
 
 const tabs = computed<PageLayoutTab[]>(() => ([
 	{
+		title: 'Chat logs',
+		component: CommunityChatMessages,
+		name: 'chat-logs',
+	},
+	{
 		title: t('community.users.title'),
 		component: CommunityUsers,
-		name: 'users'
+		name: 'users',
 	},
 	{
 		title: t('sidebar.roles'),
 		component: CommunityRoles,
 		name: 'permissions',
-		disabled: !canViewRoles.value
+		disabled: !canViewRoles.value,
 	},
 	{
 		title: t('community.emotesStatistic.title'),
 		component: CommunityEmotesStatistic,
-		name: 'emotes-stats'
-	}
+		name: 'emotes-stats',
+	},
 ]))
 </script>
 

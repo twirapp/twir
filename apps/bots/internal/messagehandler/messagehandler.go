@@ -22,6 +22,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
@@ -32,18 +33,19 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Logger              logger.Logger
-	Gorm                *gorm.DB
-	Redis               *redis.Client
-	TwitchActions       *twitchactions.TwitchActions
-	ParserGrpc          parser.ParserClient
-	WebsocketsGrpc      websockets.WebsocketClient
-	EventsGrpc          events.EventsClient
-	ModerationHelpers   *moderationhelpers.ModerationHelpers
-	Config              cfg.Config
-	Bus                 *buscore.Bus
-	KeywordsService     *keywords.Service
-	GreetingsRepository greetings.Repository
+	Logger                 logger.Logger
+	Gorm                   *gorm.DB
+	Redis                  *redis.Client
+	TwitchActions          *twitchactions.TwitchActions
+	ParserGrpc             parser.ParserClient
+	WebsocketsGrpc         websockets.WebsocketClient
+	EventsGrpc             events.EventsClient
+	ModerationHelpers      *moderationhelpers.ModerationHelpers
+	Config                 cfg.Config
+	Bus                    *buscore.Bus
+	KeywordsService        *keywords.Service
+	GreetingsRepository    greetings.Repository
+	ChatMessagesRepository chat_messages.Repository
 }
 
 type MessageHandler struct {
@@ -59,27 +61,29 @@ type MessageHandler struct {
 	bus               *buscore.Bus
 	votebanMutex      *redsync.Mutex
 
-	keywordsService     *keywords.Service
-	greetingsRepository greetings.Repository
+	keywordsService        *keywords.Service
+	greetingsRepository    greetings.Repository
+	chatMessagesRepository chat_messages.Repository
 }
 
 func New(opts Opts) *MessageHandler {
 	votebanLock := redsync.New(goredis.NewPool(opts.Redis))
 
 	handler := &MessageHandler{
-		logger:              opts.Logger,
-		gorm:                opts.Gorm,
-		redis:               opts.Redis,
-		twitchActions:       opts.TwitchActions,
-		parserGrpc:          opts.ParserGrpc,
-		websocketsGrpc:      opts.WebsocketsGrpc,
-		eventsGrpc:          opts.EventsGrpc,
-		moderationHelpers:   opts.ModerationHelpers,
-		config:              opts.Config,
-		bus:                 opts.Bus,
-		votebanMutex:        votebanLock.NewMutex("bots:voteban_handle_message"),
-		keywordsService:     opts.KeywordsService,
-		greetingsRepository: opts.GreetingsRepository,
+		logger:                 opts.Logger,
+		gorm:                   opts.Gorm,
+		redis:                  opts.Redis,
+		twitchActions:          opts.TwitchActions,
+		parserGrpc:             opts.ParserGrpc,
+		websocketsGrpc:         opts.WebsocketsGrpc,
+		eventsGrpc:             opts.EventsGrpc,
+		moderationHelpers:      opts.ModerationHelpers,
+		config:                 opts.Config,
+		bus:                    opts.Bus,
+		votebanMutex:           votebanLock.NewMutex("bots:voteban_handle_message"),
+		keywordsService:        opts.KeywordsService,
+		greetingsRepository:    opts.GreetingsRepository,
+		chatMessagesRepository: opts.ChatMessagesRepository,
 	}
 
 	return handler
@@ -97,6 +101,7 @@ var handlersForExecute = []func(
 	ctx context.Context,
 	msg handleMessage,
 ) error{
+	(*MessageHandler).handleSaveMessage,
 	(*MessageHandler).handleIncrementStreamMessages,
 	(*MessageHandler).handleGreetings,
 	(*MessageHandler).handleKeywords,

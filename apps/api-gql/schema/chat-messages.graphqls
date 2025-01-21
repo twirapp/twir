@@ -1,0 +1,22 @@
+extend type Query {
+	chatMessages(input: ChatMessageInput!): [ChatMessage!]! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
+input ChatMessageInput {
+	userNameLike: String @validate(constraint: "max=40")
+	textLike: String @validate(constraint: "max=500")
+	page: Int @validate(constraint: "gte=0")
+	perPage: Int @validate(constraint: "lte=1000")
+}
+
+type ChatMessage {
+	id: UUID!
+	channelId: String!
+	userID: String!
+	userName: String!
+	userDisplayName: String!
+	userColor: String!
+	text: String!
+	createdAt: Time!
+	updatedAt: Time!
+}

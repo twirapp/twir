@@ -15,6 +15,7 @@ import {
 	Package,
 	PackageCheck,
 	PackagePlus,
+	ScrollTextIcon,
 	Shield,
 	Smile,
 	Timer,
@@ -28,6 +29,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import { useUserAccessFlagChecker } from '@/api'
+import Badge from '@/components/ui/badge/Badge.vue'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import {
 	SidebarGroup,
@@ -143,7 +145,14 @@ const links = computed(() => {
 			icon: Users,
 			path: '/dashboard/community',
 			openStateKey: 'community',
+			isNew: true,
 			child: [
+				{
+					name: 'Chat logs',
+					icon: ScrollTextIcon,
+					path: '/dashboard/community?tab=chat-logs',
+					isNew: true,
+				},
 				{
 					name: t('community.users.title'),
 					icon: Users,
@@ -217,6 +226,9 @@ function goToRoute() {
 					<RouterLink :to="item.path!">
 						<component :is="item.icon" />
 						<span>{{ item.name }}</span>
+						<Badge v-if="item.isNew" class="uppercase text-[10px] px-1 py-0.5 rounded-md">
+							New
+						</Badge>
 					</RouterLink>
 				</SidebarMenuButton>
 				<Collapsible
@@ -230,6 +242,9 @@ function goToRoute() {
 							<SidebarMenuButton :tooltip="item.name" :variant="currentRoute.path.startsWith(item.path) ? 'active' : 'default'">
 								<component :is="item.icon" />
 								<span>{{ item.name }}</span>
+								<Badge v-if="item.isNew" class="uppercase text-[10px] px-1 py-0.5 rounded-md">
+									New
+								</Badge>
 								<ChevronRight class="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
 							</SidebarMenuButton>
 						</CollapsibleTrigger>
@@ -243,6 +258,9 @@ function goToRoute() {
 										<RouterLink :to="child.path!">
 											<component :is="child.icon" />
 											<span>{{ child.name }}</span>
+											<Badge v-if="'isNew' in child && child.isNew" class="uppercase text-[10px] px-1 py-0.5 rounded-md">
+												New
+											</Badge>
 										</RouterLink>
 									</SidebarMenuButton>
 								</SidebarMenuSubItem>

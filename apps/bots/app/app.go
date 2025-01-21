@@ -24,6 +24,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
+	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
 	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
 	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
@@ -60,6 +62,10 @@ var App = fx.Module(
 		fx.Annotate(
 			toxicmessagesrepositorypgx.NewFx,
 			fx.As(new(toxicmessagesrepository.Repository)),
+		),
+		fx.Annotate(
+			chatmessagesrepositorypgx.NewFx,
+			fx.As(new(chatmessagesrepository.Repository)),
 		),
 	),
 	fx.Provide(
