@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
@@ -79,6 +80,9 @@ import (
 	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
+
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -163,6 +167,10 @@ func main() {
 				chatmessagesrepositorypgx.NewFx,
 				fx.As(new(chatmessagesrepository.Repository)),
 			),
+			fx.Annotate(
+				channelscommandsprefixpgx.NewFx,
+				fx.As(new(channelscommandsprefixrepository.Repository)),
+			),
 		),
 		// services
 		fx.Provide(
@@ -189,6 +197,7 @@ func main() {
 			twitch.New,
 			channels.New,
 			chat_messages.New,
+			channels_commands_prefix.New,
 		),
 		// grpc clients
 		fx.Provide(
