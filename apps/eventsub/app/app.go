@@ -7,11 +7,14 @@ import (
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
@@ -31,6 +34,11 @@ var App = fx.Options(
 		func(config cfg.Config) websockets.WebsocketClient {
 			return clients.NewWebsocket(config.AppEnv)
 		},
+		fx.Annotate(
+			channelscommandsprefixpgx.NewFx,
+			fx.As(new(channelscommandsprefixrepository.Repository)),
+		),
+		channelscommandsprefixcache.New,
 		tunnel.New,
 		manager.NewCreds,
 		manager.NewManager,

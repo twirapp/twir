@@ -39,6 +39,14 @@ export function newRouter() {
 					meta: { noPadding: true },
 				},
 				{
+					path: '/dashboard/bot-settings',
+					component: () => import('@/features/bot-settings/bot-settings.vue'),
+					meta: {
+						neededPermission: ChannelRolePermissionEnum.ViewBotSettings,
+						noPadding: true,
+					},
+				},
+				{
 					name: 'Integrations',
 					path: '/dashboard/integrations',
 					component: () => import('../pages/Integrations.vue'),
