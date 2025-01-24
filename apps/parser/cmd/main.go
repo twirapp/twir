@@ -178,13 +178,14 @@ func main() {
 			Events:     clients.NewEvents(config.AppEnv),
 			Ytsr:       clients.NewYtsr(config.AppEnv),
 		},
-		TaskDistributor:         taskQueueDistributor,
-		Bus:                     bus,
-		CommandsCache:           commandscache.New(db, redisClient),
-		SevenTvCache:            seventv.New(redisClient),
-		SevenTvCacheBySevenTvID: seventv.NewBySeventvID(redisClient),
-		RedSync:                 redSync,
-		CommandsPrefixCache:     commandsPrefixRepoCache,
+		TaskDistributor:          taskQueueDistributor,
+		Bus:                      bus,
+		CommandsCache:            commandscache.New(db, redisClient),
+		SevenTvCache:             seventv.New(redisClient),
+		SevenTvCacheBySevenTvID:  seventv.NewBySeventvID(redisClient),
+		RedSync:                  redSync,
+		CommandsPrefixCache:      commandsPrefixRepoCache,
+		CommandsPrefixRepository: commandsPrefixRepo,
 	}
 
 	variablesService := variables.New(

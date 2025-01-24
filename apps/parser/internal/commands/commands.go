@@ -28,6 +28,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/brb"
 	"github.com/satont/twir/apps/parser/internal/commands/overlays/kappagen"
 	"github.com/satont/twir/apps/parser/internal/commands/permit"
+	"github.com/satont/twir/apps/parser/internal/commands/prefix"
 	"github.com/satont/twir/apps/parser/internal/commands/shoutout"
 	"github.com/satont/twir/apps/parser/internal/commands/song"
 	sr_youtube "github.com/satont/twir/apps/parser/internal/commands/songrequest/youtube"
@@ -123,6 +124,7 @@ func New(opts *Opts) *Commands {
 			seventv.EmoteAdd,
 			clip.MakeClip,
 			marker.Marker,
+			prefix.SetPrefix,
 		}, func(v *types.DefaultCommand) (string, *types.DefaultCommand) {
 			return v.Name, v
 		},
@@ -206,18 +208,40 @@ func (c *Commands) FindChannelCommandInInput(
 	return &res
 }
 
+func (c *Commands) getCommandsPrefix(ctx context.Context, channelId string) (string, error) {
+	var commandsPrefix string
+	fetchedCommandsPrefix, err := c.services.CommandsPrefixCache.Get(ctx, channelId)
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		return "", err
+	}
+
+	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
+		commandsPrefix = "!"
+	} else {
+		commandsPrefix = fetchedCommandsPrefix.Prefix
+	}
+
+	return commandsPrefix, nil
+}
+
 func (c *Commands) ParseCommandResponses(
 	ctx context.Context,
 	command *FindByMessageResult,
 	requestData twitch.TwitchChatMessage,
 ) *busparser.CommandParseResponse {
+	commandsPrefix, err := c.getCommandsPrefix(ctx, requestData.BroadcasterUserId)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
+		return nil
+	}
+
 	result := &busparser.CommandParseResponse{
 		KeepOrder: command.Cmd.KeepResponsesOrder,
 		IsReply:   command.Cmd.IsReply,
 	}
 
 	var cmdParams *string
-	params := strings.TrimSpace(requestData.Message.Text[1:][len(command.FoundBy):])
+	params := strings.TrimSpace(requestData.Message.Text[len(commandsPrefix):][len(command.FoundBy):])
 	// this shit comes from 7tv for bypass message duplicate
 	params = strings.ReplaceAll(params, "\U000e0000", "")
 	params = strings.TrimSpace(params)
@@ -302,7 +326,7 @@ func (c *Commands) ParseCommandResponses(
 		Channel:   parseCtxChannel,
 		Sender:    parseCtxSender,
 		Text:      cmdParams,
-		RawText:   requestData.Message.Text[1:],
+		RawText:   requestData.Message.Text[len(commandsPrefix):],
 		IsCommand: true,
 		Services:  c.services,
 		Cacher: cacher.NewCacher(
@@ -433,16 +457,10 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	*busparser.CommandParseResponse,
 	error,
 ) {
-	var commandsPrefix string
-	fetchedCommandsPrefix, err := c.services.CommandsPrefixCache.Get(ctx, data.BroadcasterUserId)
-	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+	commandsPrefix, err := c.getCommandsPrefix(ctx, data.BroadcasterUserId)
+	if err != nil {
+		c.services.Logger.Sugar().Error(err)
 		return nil, err
-	}
-
-	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
-		commandsPrefix = "!"
-	} else {
-		commandsPrefix = fetchedCommandsPrefix.Prefix
 	}
 
 	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
