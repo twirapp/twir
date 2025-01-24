@@ -42,6 +42,8 @@ import (
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -431,7 +433,19 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 	*busparser.CommandParseResponse,
 	error,
 ) {
-	if data.Message.Text[0] != '!' {
+	var commandsPrefix string
+	fetchedCommandsPrefix, err := c.services.CommandsPrefixCache.Get(ctx, data.BroadcasterUserId)
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		return nil, err
+	}
+
+	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
+		commandsPrefix = "!"
+	} else {
+		commandsPrefix = fetchedCommandsPrefix.Prefix
+	}
+
+	if !strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		return nil, nil
 	}
 
@@ -440,7 +454,7 @@ func (c *Commands) ProcessChatMessage(ctx context.Context, data twitch.TwitchCha
 		return nil, err
 	}
 
-	cmd := c.FindChannelCommandInInput(data.Message.Text[1:], cmds)
+	cmd := c.FindChannelCommandInInput(data.Message.Text[len(commandsPrefix):], cmds)
 	if cmd.Cmd == nil {
 		return nil, nil
 	}

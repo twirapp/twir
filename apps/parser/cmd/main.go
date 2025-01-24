@@ -14,6 +14,7 @@ import (
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v9"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	commands_bus "github.com/satont/twir/apps/parser/internal/commands-bus"
@@ -23,10 +24,12 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
@@ -111,6 +114,11 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	pgxconn, err := pgxpool.New(context.Background(), config.DatabaseUrl)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	// redis
 	url, err := redis.ParseURL(config.RedisUrl)
 
@@ -154,6 +162,9 @@ func main() {
 
 	redSync := redsync.New(goredis.NewPool(redisClient))
 
+	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
+	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
+
 	s := &services.Services{
 		Config: config,
 		Logger: logger,
@@ -173,6 +184,7 @@ func main() {
 		SevenTvCache:            seventv.New(redisClient),
 		SevenTvCacheBySevenTvID: seventv.NewBySeventvID(redisClient),
 		RedSync:                 redSync,
+		CommandsPrefixCache:     commandsPrefixRepoCache,
 	}
 
 	variablesService := variables.New(

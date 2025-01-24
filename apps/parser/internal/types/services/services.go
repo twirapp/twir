@@ -15,6 +15,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/grpc/ytsr"
 	"github.com/twirapp/twir/libs/integrations/seventv"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -37,6 +38,7 @@ type Services struct {
 	TaskDistributor         task_queue.TaskDistributor
 	Bus                     *buscore.Bus
 	CommandsCache           *generic_cacher.GenericCacher[[]model.ChannelsCommands]
+	CommandsPrefixCache     *generic_cacher.GenericCacher[channelscommandsprefixmodel.ChannelsCommandsPrefix]
 	SevenTvCache            *generic_cacher.GenericCacher[*seventv.ProfileResponse]
 	SevenTvCacheBySevenTvID *generic_cacher.GenericCacher[*seventv.ProfileResponse]
 	RedSync                 *redsync.Redsync

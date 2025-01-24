@@ -20,6 +20,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	seventvintegration "github.com/twirapp/twir/libs/integrations/seventv"
+	"github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -42,6 +43,7 @@ type Handler struct {
 	tracer         trace.Tracer
 	bus            *bus_core.Bus
 	seventvCache   *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse]
+	prefixCache    *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 }
 
 type Opts struct {
@@ -60,6 +62,7 @@ type Opts struct {
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
 	Bus            *bus_core.Bus
+	PrefixCache    *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 
 	Tracer trace.Tracer
 }
@@ -81,6 +84,7 @@ func New(opts Opts) *Handler {
 		tracer:         opts.Tracer,
 		bus:            opts.Bus,
 		seventvCache:   seventv.New(opts.Redis),
+		prefixCache:    opts.PrefixCache,
 	}
 
 	handler.OnNotification = myHandler.onNotification

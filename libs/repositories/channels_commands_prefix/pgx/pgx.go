@@ -2,6 +2,7 @@ package pgx
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
@@ -53,6 +54,10 @@ WHERE channel_id = $1
 
 	data, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[model.ChannelsCommandsPrefix])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels_commands_prefix.ErrNotFound
+		}
+		
 		return model.Nil, fmt.Errorf(
 			"failed to collect channels_commands_prefix by channel_id: %w",
 			err,
