@@ -90,6 +90,8 @@ var SetPrefix = &types.DefaultCommand{
 			}
 		}
 
+		parseCtx.Services.CommandsPrefixCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return &types.CommandsHandlerResult{Result: []string{"Prefix updated"}}, nil
 	},
 }
