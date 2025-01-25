@@ -53,9 +53,9 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 		model.ChannelRoleTypeSubscriber: userStat.IsSubscriber,
 	}
 
-	for _, role := range channelRoles {
+	for i, role := range channelRoles {
 		if roleToStats[role.Type] {
-			role.Users = append(
+			channelRoles[i].Users = append(
 				role.Users,
 				&model.ChannelRoleUser{
 					ID:     "", // not needed
