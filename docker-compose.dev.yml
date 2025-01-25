@@ -15,6 +15,7 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    command: postgres -c max_connections=500
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
