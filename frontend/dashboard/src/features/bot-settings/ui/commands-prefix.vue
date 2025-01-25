@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { toTypedSchema } from '@vee-validate/zod'
 import { useForm } from 'vee-validate'
-import { watch } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { z } from 'zod'
 
@@ -38,6 +38,12 @@ watch(currentPrefix, (v) => {
 	if (!v?.channelsCommandsPrefix) return
 
 	form.setFieldValue('prefix', v.channelsCommandsPrefix)
+})
+
+onMounted(() => {
+	if (!currentPrefix.value?.channelsCommandsPrefix) return
+
+	form.setFieldValue('prefix', currentPrefix.value?.channelsCommandsPrefix)
 })
 
 const onSubmit = form.handleSubmit(async (values) => {
