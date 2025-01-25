@@ -38,6 +38,34 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 		return nil, fmt.Errorf("cannot get channel roles: %w", err)
 	}
 
+	var userStat model.UsersStats
+	if err := c.gorm.
+		WithContext(ctx).
+		Where(`"userId" = ? AND "channelId" = ?`, user.ID, dashboardId).
+		First(&userStat).
+		Error; err != nil {
+		return nil, fmt.Errorf("cannot get user stats: %w", err)
+	}
+
+	roleToStats := map[model.ChannelRoleEnum]bool{
+		model.ChannelRoleTypeModerator:  userStat.IsMod,
+		model.ChannelRoleTypeVip:        userStat.IsVip,
+		model.ChannelRoleTypeSubscriber: userStat.IsSubscriber,
+	}
+
+	for _, role := range channelRoles {
+		if roleToStats[role.Type] {
+			role.Users = append(
+				role.Users,
+				&model.ChannelRoleUser{
+					ID:     "", // not needed
+					UserID: user.ID,
+					RoleID: role.ID,
+				},
+			)
+		}
+	}
+
 	for _, role := range channelRoles {
 		// we do not check does role.Users contains request author user
 		// because we are doing preload by user id
