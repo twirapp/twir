@@ -73,7 +73,7 @@ func (c *Directives) HasAccessToSelectedDashboard(
 		}
 
 		for _, roleUser := range role.Users {
-			if roleUser.UserID == roleUser.ID {
+			if roleUser.UserID == user.ID {
 				return next(ctx)
 			}
 		}
