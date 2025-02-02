@@ -75,7 +75,7 @@ const links = computed(() => {
 			path: '/dashboard',
 		},
 		{
-			name: 'Bot settings',
+			name: 'Bot Settings',
 			icon: SettingsIcon,
 			path: '/dashboard/bot-settings',
 			isNew: true,

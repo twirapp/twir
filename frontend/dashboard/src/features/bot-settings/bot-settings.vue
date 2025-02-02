@@ -7,7 +7,7 @@ import PageLayout from '@/layout/page-layout.vue'
 <template>
 	<PageLayout>
 		<template #title>
-			Bot settings
+			Bot Settings
 		</template>
 
 		<template #content>
