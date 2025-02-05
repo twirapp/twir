@@ -116,26 +116,28 @@ VALUES ($1, $2, $3, $4, $5, $6);
 }
 
 func (c *Pgx) CreateMany(ctx context.Context, inputs []chat_messages.CreateInput) error {
-	query := `
-INSERT INTO chat_messages (channel_id, user_id, text, user_name, user_display_name, user_color)
-VALUES ($1, $2, $3, $4, $5, $6);
-`
-
-	batch := &pgx.Batch{}
-
-	for _, input := range inputs {
-		batch.Queue(
-			query,
-			input.ChannelID,
-			input.UserID,
-			input.Text,
-			input.UserName,
-			input.UserDisplayName,
-			input.UserColor,
-		)
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.CopyFrom(
+		context.Background(),
+		pgx.Identifier{"chat_messages"},
+		[]string{"channel_id", "user_id", "text", "user_name", "user_display_name", "user_color"},
+		pgx.CopyFromSlice(
+			len(inputs),
+			func(i int) ([]any, error) {
+				return []any{
+					inputs[i].ChannelID,
+					inputs[i].UserID,
+					inputs[i].Text,
+					inputs[i].UserName,
+					inputs[i].UserDisplayName,
+					inputs[i].UserColor,
+				}, nil
+			},
+		),
+	)
+	if err != nil {
+		return fmt.Errorf("failed to copy from: %w", err)
 	}
 
-	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
-	_, err := conn.SendBatch(ctx, batch).Exec()
-	return err
+	return nil
 }
