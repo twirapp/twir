@@ -2,9 +2,13 @@ package messagehandler
 
 import (
 	"context"
+	"sync"
 
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 )
+
+var handleSaveMessagesQueue []handleMessage
+var handleSaveMessagesQueueLock sync.Mutex
 
 func (c *MessageHandler) handleSaveMessage(
 	ctx context.Context,
@@ -14,17 +18,38 @@ func (c *MessageHandler) handleSaveMessage(
 		return nil
 	}
 
-	err := c.chatMessagesRepository.Create(
-		ctx,
-		chat_messages.CreateInput{
-			ChannelID:       msg.BroadcasterUserId,
-			UserID:          msg.ChatterUserId,
-			Text:            msg.Message.Text,
-			UserName:        msg.ChatterUserLogin,
-			UserDisplayName: msg.ChatterUserName,
-			UserColor:       msg.Color,
-		},
-	)
+	handleSaveMessagesQueueLock.Lock()
+	defer handleSaveMessagesQueueLock.Unlock()
 
-	return err
+	handleSaveMessagesQueue = append(handleSaveMessagesQueue, msg)
+
+	if len(handleSaveMessagesQueue) < 5 {
+		return nil
+	}
+
+	inputs := make([]chat_messages.CreateInput, 0, len(handleSaveMessagesQueue))
+	for _, m := range handleSaveMessagesQueue {
+		inputs = append(
+			inputs,
+			chat_messages.CreateInput{
+				ChannelID:       m.BroadcasterUserId,
+				UserID:          m.ChatterUserId,
+				Text:            m.Message.Text,
+				UserName:        m.ChatterUserLogin,
+				UserDisplayName: m.ChatterUserName,
+				UserColor:       m.Color,
+			},
+		)
+	}
+
+	err := c.chatMessagesRepository.CreateMany(
+		ctx,
+		inputs,
+	)
+	if err != nil {
+		return err
+	}
+
+	handleSaveMessagesQueue = nil
+	return nil
 }

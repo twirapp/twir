@@ -114,3 +114,28 @@ VALUES ($1, $2, $3, $4, $5, $6)
 	)
 	return err
 }
+
+func (c *Pgx) CreateMany(ctx context.Context, inputs []chat_messages.CreateInput) error {
+	query := `
+INSERT INTO chat_messages (channel_id, user_id, text, user_name, user_display_name, user_color)
+VALUES ($1, $2, $3, $4, $5, $6)
+`
+
+	batch := &pgx.Batch{}
+
+	for _, input := range inputs {
+		batch.Queue(
+			query,
+			input.ChannelID,
+			input.UserID,
+			input.Text,
+			input.UserName,
+			input.UserDisplayName,
+			input.UserColor,
+		)
+	}
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	_, err := conn.SendBatch(ctx, batch).Exec()
+	return err
+}

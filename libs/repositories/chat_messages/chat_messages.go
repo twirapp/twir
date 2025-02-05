@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, input CreateInput) error
+	CreateMany(ctx context.Context, input []CreateInput) error
 	GetMany(ctx context.Context, input GetManyInput) ([]model.ChatMessage, error)
 }
 
