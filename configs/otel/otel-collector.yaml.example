@@ -16,6 +16,14 @@ receivers:
     collection_interval: 10s
     tls:
       insecure: true
+   docker_stats:
+		 endpoint: unix:///var/run/docker.sock
+		 collection_interval: 15s
+		 metrics:
+			 container.cpu.usage.percpu:
+				 enabled: true
+			 container.network.io.usage.tx_dropped:
+				 enabled: false
 
 exporters:
   otlp:
@@ -38,6 +46,6 @@ service:
       processors: [batch]
       exporters: [otlp]
     metrics:
-      receivers: [otlp, redis, postgresql]
+      receivers: [otlp, redis, postgresql, docker_stats]
       processors: [cumulativetodelta, batch, resourcedetection]
       exporters: [otlp]
