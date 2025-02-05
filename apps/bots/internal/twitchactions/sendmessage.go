@@ -148,6 +148,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 
 		sendStart := time.Now()
 		if !opts.IsAnnounce {
+			sendChatMessageStart := time.Now()
 			resp, err := twitchClient.SendChatMessage(
 				&helix.SendChatMessageParams{
 					BroadcasterID:        opts.BroadcasterID,
@@ -157,7 +158,12 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
+			c.logger.Info(
+				"Send chat message",
+				slog.Duration("duration", time.Since(sendChatMessageStart)),
+			)
 
+			saveMessageStart := time.Now()
 			for _, m := range resp.Data.Messages {
 				err := c.sentMessagesRepository.Create(
 					ctx, sentmessages.CreateInput{
@@ -171,6 +177,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
 				}
 			}
+			c.logger.Info("Save message", slog.Duration("duration", time.Since(saveMessageStart)))
 
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
