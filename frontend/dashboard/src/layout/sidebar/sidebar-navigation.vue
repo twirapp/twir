@@ -155,7 +155,7 @@ const links = computed(() => {
 			isNew: true,
 			child: [
 				{
-					name: 'Chat logs',
+					name: 'Chat Logs',
 					icon: ScrollTextIcon,
 					path: '/dashboard/community?tab=chat-logs',
 					isNew: true,
