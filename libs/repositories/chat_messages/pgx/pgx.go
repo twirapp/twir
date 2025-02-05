@@ -118,7 +118,7 @@ VALUES ($1, $2, $3, $4, $5, $6);
 func (c *Pgx) CreateMany(ctx context.Context, inputs []chat_messages.CreateInput) error {
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
 	_, err := conn.CopyFrom(
-		context.Background(),
+		ctx,
 		pgx.Identifier{"chat_messages"},
 		[]string{"channel_id", "user_id", "text", "user_name", "user_display_name", "user_color"},
 		pgx.CopyFromSlice(
