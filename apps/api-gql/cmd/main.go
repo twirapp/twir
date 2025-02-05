@@ -42,6 +42,7 @@ import (
 	"github.com/twirapp/twir/libs/baseapp"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
@@ -213,6 +214,7 @@ func main() {
 			minio.New,
 			twitchcache.New,
 			channelscommandsprefixcache.New,
+			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
 			fx.Annotate(

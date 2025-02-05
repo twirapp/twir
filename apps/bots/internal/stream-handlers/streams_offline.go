@@ -23,5 +23,13 @@ func (c *PubSubHandlers) streamsOffline(
 		return struct{}{}
 	}
 
+	if err := c.greetingsCacher.Invalidate(ctx, channel.ID); err != nil {
+		c.logger.Error(
+			"cannot invalidate greetings cache",
+			slog.String("channelId", data.ChannelID),
+			slog.Any("err", err),
+		)
+	}
+
 	return struct{}{}
 }

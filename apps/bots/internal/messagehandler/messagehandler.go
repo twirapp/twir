@@ -21,11 +21,13 @@ import (
 	"github.com/satont/twir/libs/logger"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
 	"golang.org/x/sync/errgroup"
 	"gorm.io/gorm"
@@ -48,6 +50,7 @@ type Opts struct {
 	KeywordsService        *keywords.Service
 	GreetingsRepository    greetings.Repository
 	ChatMessagesRepository chat_messages.Repository
+	GreetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 }
 
 type MessageHandler struct {
@@ -62,6 +65,7 @@ type MessageHandler struct {
 	config            cfg.Config
 	bus               *buscore.Bus
 	votebanMutex      *redsync.Mutex
+	greetingsCache    *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 
 	keywordsService        *keywords.Service
 	greetingsRepository    greetings.Repository
@@ -86,6 +90,7 @@ func New(opts Opts) *MessageHandler {
 		keywordsService:        opts.KeywordsService,
 		greetingsRepository:    opts.GreetingsRepository,
 		chatMessagesRepository: opts.ChatMessagesRepository,
+		greetingsCache:         opts.GreetingsCache,
 	}
 
 	return handler

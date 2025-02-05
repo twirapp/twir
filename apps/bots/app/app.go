@@ -16,6 +16,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -88,6 +89,7 @@ var App = fx.Module(
 		),
 		toxicity_check.New,
 		keywordscache.New,
+		greetingscache.New,
 		twitchactions.New,
 		moderationhelpers.New,
 		messagehandler.New,

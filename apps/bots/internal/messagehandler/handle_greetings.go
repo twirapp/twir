@@ -2,7 +2,6 @@ package messagehandler
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/lib/pq"
@@ -13,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
@@ -20,19 +20,21 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return nil
 	}
 
-	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
-		ctx, greetings.GetOneInput{
-			ChannelID: msg.BroadcasterUserId,
-			UserID:    msg.ChatterUserId,
-			Enabled:   lo.ToPtr(true),
-			Processed: lo.ToPtr(false),
-		},
-	)
+	allGreetings, err := c.greetingsCache.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		if errors.Is(err, greetings.ErrNotFound) {
-			return nil
-		}
 		return err
+	}
+
+	var greeting *greetingsmodel.Greeting
+	for _, g := range allGreetings {
+		if g.UserID == msg.ChatterUserId && g.Enabled && !g.Processed {
+			greeting = &g
+			break
+		}
+	}
+
+	if greeting == nil {
+		return nil
 	}
 
 	go func() {
@@ -68,6 +70,10 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 			Processed: lo.ToPtr(true),
 		},
 	); err != nil {
+		return err
+	}
+
+	if err = c.greetingsCache.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
 		return err
 	}
 

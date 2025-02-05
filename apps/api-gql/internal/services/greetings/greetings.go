@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
@@ -21,18 +22,21 @@ type Opts struct {
 
 	GreetingsRepository greetings.Repository
 	Logger              logger.Logger
+	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		greetingsRepository: opts.GreetingsRepository,
 		logger:              opts.Logger,
+		greetingsCache:      opts.GreetingsCache,
 	}
 }
 
 type Service struct {
 	greetingsRepository greetings.Repository
 	logger              logger.Logger
+	greetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
 func (c *Service) mapToEntity(m model.Greeting) entity.Greeting {
@@ -118,6 +122,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		},
 	)
 
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return c.mapToEntity(dbGreeting), nil
 }
 
@@ -175,6 +183,10 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 		},
 	)
 
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return c.mapToEntity(newGreeting), nil
 }
 
@@ -213,6 +225,10 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 			ObjectID:      lo.ToPtr(dbGreeting.ID.String()),
 		},
 	)
+
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return fmt.Errorf("failed to invalidate cache: %w", err)
+	}
 
 	return nil
 }
