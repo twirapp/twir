@@ -61,9 +61,9 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 		}
 		return value, nil
 	}
-
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	//
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
 
 	value, err = c.loadFn(ctx, key)
 	if err != nil {
@@ -88,8 +88,8 @@ func (c *GenericCacher[T]) Get(ctx context.Context, key string) (T, error) {
 }
 
 func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
 
 	err := c.redis.Del(ctx, c.keyPrefix+key).Err()
 	if err != nil {
@@ -100,8 +100,8 @@ func (c *GenericCacher[T]) Invalidate(ctx context.Context, key string) error {
 }
 
 func (c *GenericCacher[T]) SetValue(ctx context.Context, key string, newValue T) error {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
 
 	cacheBytes, err := json.Marshal(newValue)
 	if err != nil {
@@ -130,8 +130,8 @@ func (c *GenericCacher[T]) SetValueFiltered(
 		return err
 	}
 
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	// c.mu.Lock()
+	// defer c.mu.Unlock()
 
 	newData := filterFn(data)
 
