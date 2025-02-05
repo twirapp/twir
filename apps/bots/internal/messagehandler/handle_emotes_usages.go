@@ -12,9 +12,9 @@ import (
 )
 
 func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessage) error {
-	if msg.DbStream == nil {
-		return nil
-	}
+	// if msg.DbStream == nil {
+	// 	return nil
+	// }
 
 	emotes := make(map[string]int)
 
@@ -25,16 +25,28 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		emotes[f.Text] += 1
 	}
 
-	channelEmotes, err := c.redis.Keys(
+	channelEmotesIter := c.redis.Scan(
 		ctx,
+		0,
 		fmt.Sprintf("emotes:channel:%s:*", msg.BroadcasterUserId),
-	).Result()
-	if err != nil {
+		0,
+	).Iterator()
+	var channelEmotes []string
+	for channelEmotesIter.Next(ctx) {
+		channelEmotes = append(channelEmotes, channelEmotesIter.Val())
+	}
+
+	if err := channelEmotesIter.Err(); err != nil {
 		return err
 	}
 
-	globalEmotes, err := c.redis.Keys(ctx, "emotes:global:*").Result()
-	if err != nil {
+	globalEmotesIter := c.redis.Scan(ctx, 0, "emotes:global:*", 0).Iterator()
+	var globalEmotes []string
+	for globalEmotesIter.Next(ctx) {
+		globalEmotes = append(globalEmotes, globalEmotesIter.Val())
+	}
+
+	if err := globalEmotesIter.Err(); err != nil {
 		return err
 	}
 
@@ -64,7 +76,7 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		}
 	}
 
-	err = c.gorm.WithContext(ctx).CreateInBatches(
+	err := c.gorm.WithContext(ctx).CreateInBatches(
 		emotesForCreate,
 		100,
 	).Error

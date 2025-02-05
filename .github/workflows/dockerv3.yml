@@ -27,7 +27,6 @@ jobs:
           - apps/tokens
           - apps/websockets
           - apps/ytsr
-          - apps/chat-messages-store
           - frontend/dashboard
           - frontend/overlays
           - frontend/public-page

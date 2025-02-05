@@ -32,11 +32,11 @@ defineProps<{
 				>
 					<div class="relative flex-none">
 						<img
-							:src="streamer.twitchProfile.profileImageUrl" class="rounded-full w-10 h-10" draggable="false"
-							:alt="`streamers-list-${streamer.twitchProfile.login}`"
+							:src="streamer?.twitchProfile.profileImageUrl" class="rounded-full w-10 h-10" draggable="false"
+							:alt="`streamers-list-${streamer?.twitchProfile.login}`"
 						/>
 						<span
-							v-if="streamer.isLive"
+							v-if="streamer?.isLive"
 							class="absolute inline-block bg-red-600 text-white text-xs font-semibold uppercase px-1 rounded-sm -bottom-[8px] left-[3px]"
 						>
 							LIVE
@@ -45,12 +45,12 @@ defineProps<{
 					<a
 						draggable="false"
 						class="streamer-link flex flex-col gap-1"
-						:href="`https://twitch.tv/${streamer.twitchProfile.login}`" target="_blank"
+						:href="`https://twitch.tv/${streamer?.twitchProfile.login}`" target="_blank"
 					>
 						<div class="flex items-center">
-							<span>{{ streamer.twitchProfile.displayName }}</span>
+							<span>{{ streamer?.twitchProfile.displayName }}</span>
 							<svg
-								v-if="streamer.isPartner" class="fill-[#a970ff] ml-1" width="16" height="16"
+								v-if="streamer?.isPartner" class="fill-[#a970ff] ml-1" width="16" height="16"
 								viewBox="0 0 16 16" aria-label="Verified Partner"
 							>
 								<path
@@ -60,7 +60,7 @@ defineProps<{
 								></path>
 							</svg>
 						</div>
-						<span class="text-xs uppercase">{{ streamer.followersCount }} followers</span>
+						<span class="text-xs uppercase">{{ streamer?.followersCount }} followers</span>
 					</a>
 				</div>
 			</div>

@@ -99,8 +99,10 @@ func (c *BusListener) cacheChannelEmotes(
 
 	wg.Wait()
 
+	// TODO: lock and unlock redis here, so we handle each channel in queue
 	c.redis.Pipelined(
-		context.Background(), func(pipe redis.Pipeliner) error {
+		context.Background(),
+		func(pipe redis.Pipeliner) error {
 			for _, emote := range resultEmotes {
 				if emote == "" {
 					continue

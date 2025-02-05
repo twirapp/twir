@@ -244,8 +244,13 @@ func (c *MessageHandler) moderationHandleResult(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
 		msg.ChatterUserId, settings.Type,
 	)
-	warningsKeys, err := c.redis.Keys(ctx, warningRedisKey).Result()
-	if err != nil {
+
+	var warningsKeys []string
+	iter := c.redis.Scan(ctx, 0, warningRedisKey, 0).Iterator()
+	for iter.Next(ctx) {
+		warningsKeys = append(warningsKeys, iter.Val())
+	}
+	if err := iter.Err(); err != nil {
 		c.logger.Error("cannot get warnings", slog.Any("err", err))
 		return nil
 	}
@@ -416,14 +421,21 @@ func (c *MessageHandler) moderationEmotesParser(
 		return nil
 	}
 
-	channelEmotesKeys, err := c.redis.Keys(
+	var channelEmotesKeys []string
+	channelEmotesIter := c.redis.Scan(
 		ctx,
+		0,
 		fmt.Sprintf("emotes:channel:%s:*", settings.ChannelID),
-	).Result()
-	if err != nil {
+		0,
+	).Iterator()
+	for channelEmotesIter.Next(ctx) {
+		channelEmotesKeys = append(channelEmotesKeys, channelEmotesIter.Val())
+	}
+	if err := channelEmotesIter.Err(); err != nil {
 		c.logger.Error("cannot get channel emotes", slog.Any("err", err))
 		return nil
 	}
+
 	for _, key := range channelEmotesKeys {
 		key = strings.Replace(key, fmt.Sprintf("emotes:channel:%s:", settings.ChannelID), "", 1)
 	}
@@ -436,14 +448,21 @@ func (c *MessageHandler) moderationEmotesParser(
 		}
 	}
 
-	globalEmotesKeys, err := c.redis.Keys(
+	var globalEmotesKeys []string
+	globalEmotesIter := c.redis.Scan(
 		ctx,
-		fmt.Sprintf("emotes:global:*"),
-	).Result()
-	if err != nil {
+		0,
+		fmt.Sprintf("emotes:channel:%s:*", settings.ChannelID),
+		0,
+	).Iterator()
+	for globalEmotesIter.Next(ctx) {
+		globalEmotesKeys = append(globalEmotesKeys, globalEmotesIter.Val())
+	}
+	if err := globalEmotesIter.Err(); err != nil {
 		c.logger.Error("cannot get global emotes", slog.Any("err", err))
 		return nil
 	}
+
 	for _, key := range globalEmotesKeys {
 		key = strings.Replace(key, fmt.Sprintf("emotes:global:"), "", 1)
 	}

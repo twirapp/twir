@@ -127,20 +127,29 @@ var SayCommand = &types.DefaultCommand{
 			for _, emote := range parseCtx.Emotes {
 				resultedText = strings.Replace(resultedText, emote.Name, "", -1)
 			}
-			channelKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
-			channelEmotes := parseCtx.Services.Redis.Keys(
-				ctx,
-				fmt.Sprintf("%s*", channelKey),
-			).Val()
 
-			globalKey := "emotes:global:"
-			globalEmotes := parseCtx.Services.Redis.Keys(
-				ctx,
-				fmt.Sprintf("%s*", globalKey),
-			).Val()
+			channelEmotesRedisKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
+			var channelEmotes []string
+			channelEmotesIter := parseCtx.Services.Redis.Scan(ctx, 0, channelEmotesRedisKey, 0).Iterator()
+			for channelEmotesIter.Next(ctx) {
+				channelEmotes = append(channelEmotes, channelEmotesIter.Val())
+			}
+			if err := channelEmotesIter.Err(); err != nil {
+				parseCtx.Services.Logger.Sugar().Error("error while getting channel emotes", err)
+			}
+
+			globalEmotesRedisKey := "emotes:global:"
+			var globalEmotes []string
+			iter := parseCtx.Services.Redis.Scan(ctx, 0, globalEmotesRedisKey, 0).Iterator()
+			for iter.Next(ctx) {
+				globalEmotes = append(globalEmotes, iter.Val())
+			}
+			if err := iter.Err(); err != nil {
+				parseCtx.Services.Logger.Sugar().Error("error while getting global emotes", err)
+			}
 
 			for _, emotePattern := range channelEmotes {
-				emote := strings.Split(emotePattern, channelKey)[1]
+				emote := strings.Split(emotePattern, channelEmotesRedisKey)[1]
 
 				if slices.Contains(strings.Fields(resultedText), emote) {
 					resultedText = strings.ReplaceAll(resultedText, emote, "")
@@ -148,7 +157,7 @@ var SayCommand = &types.DefaultCommand{
 			}
 
 			for _, emotePattern := range globalEmotes {
-				emote := strings.Split(emotePattern, globalKey)[1]
+				emote := strings.Split(emotePattern, globalEmotesRedisKey)[1]
 
 				if slices.Contains(strings.Fields(resultedText), emote) {
 					resultedText = strings.ReplaceAll(resultedText, emote, "")
