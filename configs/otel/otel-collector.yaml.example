@@ -4,10 +4,10 @@ receivers:
       grpc:
       http:
   redis:
-    endpoint: localhost:6385
+    endpoint: localhost:6379
     collection_interval: 10s
   postgresql:
-    endpoint: localhost:54321
+    endpoint: localhost:5432
     transport: tcp
     username: twir
     password: twir
@@ -22,8 +22,24 @@ receivers:
 		 metrics:
 			 container.cpu.usage.percpu:
 				 enabled: true
+			 container.network.io.usage.rx_bytes:
+				 enabled: true
+			 container.network.io.usage.tx_bytes:
+				 enabled: true
 			 container.network.io.usage.tx_dropped:
 				 enabled: false
+			 container.memory.usage.total:
+				 enabled: true
+			 container.memory.usage.max:
+				 enabled: true
+			 container.memory.percent:
+				 enabled: true
+			 container.memory.cache:
+				 enabled: true
+			 container.network.io.usage.rx_packets:
+				 enabled: true
+			 container.network.io.usage.tx_packets:
+				 enabled: true
 
 exporters:
   otlp:
