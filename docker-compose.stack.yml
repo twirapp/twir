@@ -206,9 +206,10 @@ services:
       test: exit 0
 
   redis:
-    image: redis/redis-stack-server:7.2.0-v11
+    image: ghcr.io/dragonflydb/dragonfly:v1.26.2
+    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *"
     volumes:
-      - redis-stack-data:/data
+      - dragonfly-data:/data
     networks:
       - twir
     deploy:
@@ -289,23 +290,6 @@ services:
 
   parser:
     image: registry.twir.app/twirapp/parser:latest
-    secrets:
-      - twir_doppler_token
-    deploy:
-      update_config:
-        parallelism: 2
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      mode: replicated
-      replicas: 6
-      endpoint_mode: dnsrr
-    networks:
-      - twir
-
-  chat-messages-store:
-    image: registry.twir.app/twirapp/chat-messages-store:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -662,6 +646,7 @@ volumes:
   postgres-data:
   redis-data:
   redis-stack-data:
+  dragonfly-data:
   minio-data:
 
 networks:
