@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
@@ -44,7 +43,6 @@ func validateResponseSlashes(response string) string {
 }
 
 func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) error {
-	rateLimiterStart := time.Now()
 	resp, err := c.rateLimiter.Use(
 		ctx,
 		&redis.SlidingWindowOptions{
@@ -53,7 +51,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			Window:          30,
 		},
 	)
-	c.logger.Info("Rate limiter", slog.Duration("duration", time.Since(rateLimiterStart)))
+
 	if err != nil {
 		return err
 	}
@@ -62,7 +60,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	}
 
 	channel := &model.Channels{}
-	channelsStart := time.Now()
 	if err = c.gorm.
 		WithContext(ctx).
 		Where("channels.id = ?", opts.BroadcasterID).
@@ -70,7 +67,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		First(channel).Error; err != nil {
 		return err
 	}
-	c.logger.Info("Get channel", slog.Duration("duration", time.Since(channelsStart)))
 	if !channel.IsEnabled || !channel.IsBotMod || channel.IsTwitchBanned || channel.User.IsBanned {
 		return nil
 	}
@@ -84,7 +80,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 
 	var twitchClient *helix.Client
 	var twitchClientErr error
-	twitchClientStart := time.Now()
 	if !opts.IsAnnounce {
 		twitchClient, twitchClientErr = twitch.NewAppClientWithContext(ctx, c.config, c.tokensGrpc)
 	} else {
@@ -95,7 +90,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			c.tokensGrpc,
 		)
 	}
-	c.logger.Info("Twitch client", slog.Duration("duration", time.Since(twitchClientStart)))
+
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -105,9 +100,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 
 	toxicity := make([]bool, len(textParts))
 	if !opts.SkipToxicityCheck {
-		start := time.Now()
 		t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
-		c.logger.Info("Toxicity check", slog.Duration("duration", time.Since(start)))
 		if err != nil {
 			return fmt.Errorf("cannot send message: %w", err)
 		}
@@ -126,7 +119,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		message := part
 		isToxic := !opts.SkipToxicityCheck && toxicity[i]
 		if isToxic {
-			toxicMessageStart := time.Now()
 			if err := c.toxicMessagesRepository.Create(
 				ctx,
 				toxic_messages.CreateInput{
@@ -136,19 +128,12 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			); err != nil {
 				c.logger.Warn("Cannot save toxic message to db", slog.Any("err", err))
-			} else {
-				c.logger.Info(
-					"Save toxic message",
-					slog.Duration("duration", time.Since(toxicMessageStart)),
-				)
 			}
 
 			message = "[TwirApp] Redacted due toxicity validation. Contact support if you sure there is no toxicity."
 		}
 
-		sendStart := time.Now()
 		if !opts.IsAnnounce {
-			sendChatMessageStart := time.Now()
 			resp, err := twitchClient.SendChatMessage(
 				&helix.SendChatMessageParams{
 					BroadcasterID:        opts.BroadcasterID,
@@ -158,12 +143,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
-			c.logger.Info(
-				"Send chat message",
-				slog.Duration("duration", time.Since(sendChatMessageStart)),
-			)
 
-			saveMessageStart := time.Now()
 			for _, m := range resp.Data.Messages {
 				err := c.sentMessagesRepository.Create(
 					ctx, sentmessages.CreateInput{
@@ -177,7 +157,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
 				}
 			}
-			c.logger.Info("Save message", slog.Duration("duration", time.Since(saveMessageStart)))
 
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
@@ -218,8 +197,6 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		if errorMessage != "" {
 			return fmt.Errorf("cannot send message: %s", errorMessage)
 		}
-
-		c.logger.Info("Message sent", slog.Duration("duration", time.Since(sendStart)))
 	}
 
 	return nil
