@@ -1,9 +1,13 @@
+import type { StreamerPublicSettingsQuery } from '~/gql/graphql.js'
+
 import { graphql } from '~/gql'
 
-export function useStreamerProfile() {
+export const useStreamerProfile = defineStore('streamer-profile', () => {
 	const router = useRouter()
+	const currentChannelId = useCurrentChannelId()
+	const urqlClient = useUrqlClient()
 
-	return useQuery({
+	const { data, executeQuery: executeFetchStreamer } = useQuery({
 		query: graphql(`
 			query StreamerTwitchProfile($userName: String!) {
 				twitchGetUserByName(name: $userName) {
@@ -21,26 +25,40 @@ export function useStreamerProfile() {
 				return unref(router.currentRoute.value.params.channelName as string ?? '')
 			},
 		},
+		pause: true,
 	})
-}
 
-export function useStreamerPublicSettings(streamerId: MaybeRef<string>) {
-	return useQuery({
-		query: graphql(`
-			query StreamerPublicSettings($streamerId: String!) {
-				userPublicSettings(userId: $streamerId) {
-					socialLinks {
-						title
-						href
-					}
-					description
+	const publicProfile = ref<StreamerPublicSettingsQuery>()
+
+	const fetchPublicSettings = (streamerId: string) => urqlClient.query(graphql(`
+		query StreamerPublicSettings($streamerId: String!) {
+			userPublicSettings(userId: $streamerId) {
+				socialLinks {
+					title
+					href
 				}
+				description
 			}
-		`),
-		get variables() {
-			return {
-				streamerId: unref(streamerId),
-			}
-		},
-	})
+		}
+	`), { streamerId })
+
+	async function fetchProfile() {
+		const { data } = await executeFetchStreamer()
+		if (!data.value?.twitchGetUserByName?.id) return
+
+		currentChannelId.value = data.value?.twitchGetUserByName?.id
+
+		const { data: publicData } = await fetchPublicSettings(currentChannelId.value)
+		publicProfile.value = publicData
+	}
+
+	return {
+		profile: data,
+		publicProfile,
+		fetchProfile,
+	}
+})
+
+if (import.meta.hot) {
+	import.meta.hot.accept(acceptHMRUpdate(useStreamerProfile, import.meta.hot))
 }

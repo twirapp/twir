@@ -22,6 +22,7 @@ export default defineNuxtConfig({
 	},
 
 	modules: [
+		'@pinia/nuxt',
 		'@bicou/nuxt-urql',
 		'@nuxtjs/tailwindcss',
 		'radix-vue/nuxt',

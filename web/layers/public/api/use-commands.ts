@@ -1,9 +1,7 @@
-import { useStreamerProfile } from './use-streamer-profile'
-
 import { graphql } from '~/gql'
 
 export function useCommands() {
-	const { data: profile } = useStreamerProfile()
+	const currentStreamerId = useCurrentChannelId()
 
 	return useQuery({
 		query: graphql(`
@@ -31,7 +29,7 @@ export function useCommands() {
 		`),
 		get variables() {
 			return {
-				channelId: profile.value?.twitchGetUserByName?.id ?? '',
+				channelId: currentStreamerId.value ?? '',
 			}
 		},
 	})

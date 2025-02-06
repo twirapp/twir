@@ -1,12 +1,10 @@
 <script lang="ts" setup>
 import PublicNavigation from './public/public-navigation.vue'
 
-import { useStreamerProfile, useStreamerPublicSettings } from '~/layers/public/api/use-streamer-profile'
+import { useStreamerProfile } from '~/layers/public/api/use-streamer-profile'
 
-const { data } = await useStreamerProfile()
-const profileId = computed(() => data.value?.twitchGetUserByName?.id ?? '')
-
-const { data: publicSettings } = await useStreamerPublicSettings(profileId)
+const streamerProfile = useStreamerProfile()
+await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 </script>
 
 <template>
@@ -35,23 +33,25 @@ const { data: publicSettings } = await useStreamerPublicSettings(profileId)
 		<UiSidebarInset class="p-4 container">
 			<UiCard style="background-color: rgb(24, 24, 28)">
 				<UiCardContent class="p-6">
-					<div class="flex flex-row flex-wrap justify-between w-full">
-						<div class="flex gap-4 flex-row">
-							<img :src="data?.twitchGetUserByName?.profileImageUrl" class="size-16 rounded-full" />
+					<div class="flex flex-row flex-wrap justify-between w-full gap-4">
+						<div class="flex gap-4 flex-row flex-1">
+							<img :src="streamerProfile.profile?.twitchGetUserByName?.profileImageUrl" class="size-16 rounded-full" />
 							<div class="flex flex-col gap-2">
-								<span class="text-4xl">{{ data?.twitchGetUserByName?.displayName }}</span>
-								<span class="text-sm text-muted-foreground"> {{ publicSettings?.userPublicSettings.description || data?.twitchGetUserByName?.description }}</span>
+								<span class="text-4xl">{{ streamerProfile.profile?.twitchGetUserByName?.displayName }}</span>
+								<span class="text-sm text-muted-foreground break-all">
+									{{ streamerProfile.publicProfile?.userPublicSettings.description || streamerProfile.profile?.twitchGetUserByName?.description }}
+								</span>
 							</div>
 						</div>
-						<div class="flex flex-col gap-2">
+						<div class="flex flex-col gap-2 flex-none">
 							<a
 								class="underline"
-								:href="`https://twitch.tv/${data?.twitchGetUserByName?.login}`"
+								:href="`https://twitch.tv/${streamerProfile.profile?.twitchGetUserByName?.login}`"
 							>
 								Twitch
 							</a>
 							<a
-								v-for="link of publicSettings?.userPublicSettings.socialLinks"
+								v-for="link of streamerProfile.publicProfile?.userPublicSettings.socialLinks"
 								:key="link"
 								class="underline"
 								:href="link"

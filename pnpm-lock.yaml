@@ -756,6 +756,9 @@ importers:
       '@nuxt/image':
         specifier: 1.8.1
         version: 1.8.1(ioredis@5.4.1)(magicast@0.3.5)(rollup@4.27.3)
+      '@pinia/nuxt':
+        specifier: 0.9.0
+        version: 0.9.0(magicast@0.3.5)(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))(rollup@4.27.3)
       '@tanstack/vue-table':
         specifier: 8.16.0
         version: 8.16.0(vue@3.5.13(typescript@5.7.3))
@@ -792,6 +795,9 @@ importers:
       nuxt-typed-router:
         specifier: 3.7.0
         version: 3.7.0(magicast@0.3.5)(prettier@3.3.3)(rollup@4.27.3)
+      pinia:
+        specifier: 2.3.1
+        version: 2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
       radix-vue:
         specifier: 1.9.7
         version: 1.9.7(vue@3.5.13(typescript@5.7.3))
@@ -2552,6 +2558,11 @@ packages:
   '@peculiar/webcrypto@1.5.0':
     resolution: {integrity: sha512-BRs5XUAwiyCDQMsVA9IDvDa7UBR9gAvPHgugOeGng3YN6vJ9JYonyDc0lNczErgtCWtucjR5N7VtaonboD/ezg==}
     engines: {node: '>=10.12.0'}
+
+  '@pinia/nuxt@0.9.0':
+    resolution: {integrity: sha512-2yeRo7LeyCF68AbNeL3xu2h6uw0617RkcsYxmA8DJM0R0PMdz5wQHnc44KeENQxR/Mrq8T910XVT6buosqsjBQ==}
+    peerDependencies:
+      pinia: ^2.3.0
 
   '@pixi/accessibility@7.4.0':
     resolution: {integrity: sha512-muosfpn333YNz2s7mtoVlKvcXswFOJ4r+5rePn3r/95KQIpuB+xX6pETuzGq0p8uOpKxtkNokGj5s2dyM0blHA==}
@@ -6991,6 +7002,15 @@ packages:
   pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
     engines: {node: '>=0.10.0'}
+
+  pinia@2.3.1:
+    resolution: {integrity: sha512-khUlZSwt9xXCaTbbxFYBKDc/bWAGWJjOgvxETwkTN7KRm66EeT1ZdZj6i2ceh9sP2Pzqsbc704r2yngBrxBVug==}
+    peerDependencies:
+      typescript: '>=4.4.4'
+      vue: ^2.7.0 || ^3.5.11
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   pirates@4.0.6:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
@@ -11536,6 +11556,15 @@ snapshots:
       pvtsutils: 1.3.5
       tslib: 2.6.2
       webcrypto-core: 1.8.1
+
+  '@pinia/nuxt@0.9.0(magicast@0.3.5)(pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)))(rollup@4.27.3)':
+    dependencies:
+      '@nuxt/kit': 3.15.1(magicast@0.3.5)(rollup@4.27.3)
+      pinia: 2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))
+    transitivePeerDependencies:
+      - magicast
+      - rollup
+      - supports-color
 
   '@pixi/accessibility@7.4.0(@pixi/core@7.4.0)(@pixi/display@7.4.0(@pixi/core@7.4.0))(@pixi/events@7.4.0(@pixi/core@7.4.0)(@pixi/display@7.4.0(@pixi/core@7.4.0)))':
     dependencies:
@@ -16918,6 +16947,16 @@ snapshots:
   picomatch@4.0.2: {}
 
   pify@2.3.0: {}
+
+  pinia@2.3.1(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3)):
+    dependencies:
+      '@vue/devtools-api': 6.6.4
+      vue: 3.5.13(typescript@5.7.3)
+      vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
+    optionalDependencies:
+      typescript: 5.7.3
+    transitivePeerDependencies:
+      - '@vue/composition-api'
 
   pirates@4.0.6: {}
 
