@@ -19,6 +19,11 @@ func (c *dataLoader) getCommandsGroupsByIDs(ctx context.Context, ids []uuid.UUID
 
 	mappedGroups := make([]*gqlmodel.CommandGroup, 0, len(groups))
 	for _, g := range groups {
+		if g == nil {
+			mappedGroups = append(mappedGroups, nil)
+			continue
+		}
+
 		group := mappers.CommandGroupTo(*g)
 
 		mappedGroups = append(

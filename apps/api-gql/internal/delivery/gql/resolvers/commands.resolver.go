@@ -252,6 +252,25 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 	return true, nil
 }
 
+// Group is the resolver for the group field.
+func (r *publicCommandResolver) Group(ctx context.Context, obj *gqlmodel.PublicCommand) (*gqlmodel.CommandGroup, error) {
+	if obj == nil || obj.GroupID == nil {
+		return nil, nil
+	}
+
+	parsedUuid, err := uuid.Parse(*obj.GroupID)
+	if err != nil {
+		return nil, err
+	}
+
+	group, err := data_loader.GetCommandGroupById(ctx, parsedUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
+
 // Commands is the resolver for the commands field.
 func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
@@ -318,6 +337,11 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 			Permissions:  make([]gqlmodel.PublicCommandPermission, 0),
 		}
 
+		if cmd.Group != nil {
+			id := cmd.Group.ID.String()
+			converted.GroupID = &id
+		}
+
 		for _, response := range cmd.Responses {
 			var text string
 			if response.Text != nil {
@@ -356,5 +380,9 @@ func (r *Resolver) CommandResponse() graph.CommandResponseResolver {
 	return &commandResponseResolver{r}
 }
 
+// PublicCommand returns graph.PublicCommandResolver implementation.
+func (r *Resolver) PublicCommand() graph.PublicCommandResolver { return &publicCommandResolver{r} }
+
 type commandResolver struct{ *Resolver }
 type commandResponseResolver struct{ *Resolver }
+type publicCommandResolver struct{ *Resolver }

@@ -2,11 +2,10 @@ packages:
   - 'apps/*'
   - 'libs/*'
   - 'frontend/*'
-  - 'web'
-
+  - web
 
 catalog:
-  typescript: 5.6.2
+  typescript: 5.7.3
   vue: 3.5.12
   vite: 5.4.6
   vue-tsc: 2.1.10

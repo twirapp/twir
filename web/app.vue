@@ -3,6 +3,7 @@ const description = 'Powerful and useful Twitch bot that helps manage chat on bi
 const siteName = 'Twir'
 const keywords = 'twitch, bot, chat, moderation, moderation bot, twitch bot, twitch chat, twitch moderation, twitch moderation bot'
 
+useColorMode()
 useHead({
 	title: siteName,
 	titleTemplate: (title) => title === siteName ? title : `${title} - ${siteName}`,
@@ -47,3 +48,10 @@ useSeoMeta({
 		<NuxtPage />
 	</NuxtLayout>
 </template>
+
+<style>
+html,
+body {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+</style>
