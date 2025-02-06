@@ -49,6 +49,8 @@ export default defineNuxtConfig({
 		typedPages: true,
 	},
 
+	css: ['~/assets/css/global.css'],
+
 	vite: {
 		plugins: [
 			watch({

@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import PublicNavigation from './public/public-navigation.vue'
+import PublicUserProfile from './public/public-user-profile.vue'
 
 import { useStreamerProfile } from '~/layers/public/api/use-streamer-profile'
 
 const streamerProfile = useStreamerProfile()
-await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
+await useAsyncData('streamerProfile', async () => streamerProfile.fetchProfile().then(() => true))
 </script>
 
 <template>
@@ -28,6 +29,10 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 			</UiSidebarContent>
 
 			<UiSidebarSeparator />
+
+			<UiSidebarFooter>
+				<PublicUserProfile />
+			</UiSidebarFooter>
 		</UiSidebar>
 
 		<UiSidebarInset class="p-4 container">
@@ -54,7 +59,7 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 								v-for="link of streamerProfile.publicProfile?.userPublicSettings.socialLinks"
 								:key="link"
 								class="underline"
-								:href="link"
+								:href="link.href"
 							>
 								{{ link.title }}
 							</a>

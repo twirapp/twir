@@ -14,7 +14,9 @@ const config: CodegenConfig = {
 		},
 	},
 	schema: schemaDir,
-	documents: ['./layers/**/*.{ts,vue}'],
+	documents: [
+		'./{layers,components,composables,lib,features}/**/*.{ts,vue}',
+	],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {
 		'./gql/': {

@@ -48,10 +48,3 @@ useSeoMeta({
 		<NuxtPage />
 	</NuxtLayout>
 </template>
-
-<style>
-html,
-body {
-	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-}
-</style>

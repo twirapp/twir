@@ -11,23 +11,24 @@ defineOptions({
 	inheritAttrs: false,
 })
 
-const props = defineProps<{
+defineProps<{
 	columnType?: CommunityUsersResetType
 	column: Column<any, any>
 	title: string
+	hideReset?: boolean
 }>()
 
 // const communityUsersApi = useCommunityUsersApi()
 // const communityResetMutation = communityUsersApi.useMutationCommunityReset()
 
 const showConfirm = ref(false)
-async function resetColumn() {
-	if (!props.columnType) return
+// async function resetColumn() {
+// 	if (!props.columnType) return
 
-	await communityResetMutation.executeMutation({
-		type: props.columnType,
-	})
-}
+// 	await communityResetMutation.executeMutation({
+// 		type: props.columnType,
+// 	})
+// }
 </script>
 
 <template>
@@ -47,20 +48,20 @@ async function resetColumn() {
 			</UiDropdownMenuTrigger>
 			<UiDropdownMenuContent align="start">
 				<UiDropdownMenuItem @click="column.toggleSorting(false)">
-					<ArrowUp class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:arrow-up" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					TASC
 				</UiDropdownMenuItem>
 				<UiDropdownMenuItem @click="column.toggleSorting(true)">
-					<ArrowDown class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:arrow-up-down" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					TDESC
 				</UiDropdownMenuItem>
 				<DropdownMenuSeparator />
 				<UiDropdownMenuItem @click="column.toggleVisibility(false)">
-					<EyeOff class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+					<Icon name="lucide:eye-off" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					THIDE
 				</UiDropdownMenuItem>
-				<UiDropdownMenuItem v-if="columnType" @click="showConfirm = true">
-					<Trash class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
+				<UiDropdownMenuItem v-if="columnType && !hideReset" @click="showConfirm = true">
+					<Icon name="lucide:trash" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
 					Reset
 				</UiDropdownMenuItem>
 			</UiDropdownMenuContent>

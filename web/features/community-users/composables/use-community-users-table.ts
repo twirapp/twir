@@ -47,11 +47,6 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 	})
 
 	const communityUsers = useQuery({
-		get variables() {
-			return {
-				opts: communityUsersOpts.value,
-			}
-		},
 		query: graphql(`
 			query GetAllCommunityUsers($opts: CommunityUsersOpts!) {
 				communityUsers(opts: $opts) {
@@ -59,6 +54,9 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					users {
 						id
 						twitchProfile {
+							description
+							id
+							notFound
 							login
 							displayName
 							profileImageUrl
@@ -71,6 +69,11 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 				}
 			}
 		`),
+		get variables() {
+			return {
+				opts: communityUsersOpts.value,
+			}
+		},
 	})
 
 	const totalUsers = computed(() => communityUsers.data.value?.communityUsers.total ?? 0)
@@ -105,6 +108,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					column,
 					columnType: CommunityUsersResetType.Messages,
 					title: 'Messages',
+					hideReset: true,
 				})
 			},
 			cell: ({ row }) => {
@@ -119,6 +123,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					column,
 					columnType: CommunityUsersResetType.UsedChannelsPoints,
 					title: 'Used channel points',
+					hideReset: true,
 				})
 			},
 			cell: ({ row }) => {
@@ -133,6 +138,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					column,
 					columnType: CommunityUsersResetType.UsedEmotes,
 					title: 'Used emotes',
+					hideReset: true,
 				})
 			},
 			cell: ({ row }) => {
@@ -148,6 +154,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 					column,
 					columnType: CommunityUsersResetType.Watched,
 					title: 'Watched time',
+					hideReset: true,
 				})
 			},
 			cell: ({ row }) => {
@@ -156,7 +163,7 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 		},
 	])
 
-	const table = useVueTable({
+	const table = useVueTable<CommunityUser>({
 		get pageCount() {
 			return pageCount.value
 		},

@@ -1,0 +1,17 @@
+html {
+	scrollbar-gutter: stable;
+}
+
+html,
+body {
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+body {
+	-moz-osx-font-smoothing: grayscale;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	-ms-text-size-adjust: none;
+	-webkit-text-size-adjust: none;
+	overflow-x: hidden;
+}

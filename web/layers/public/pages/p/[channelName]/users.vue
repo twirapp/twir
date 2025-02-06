@@ -8,7 +8,7 @@ definePageMeta({
 })
 
 const store = useCommunityUsersTable()
-await useAsyncData('communityUsers', () => store.fetchUsers().then(() => true))
+await useAsyncData('communityUsers', async () => store.fetchUsers().then(() => true))
 </script>
 
 <template>
