@@ -9,7 +9,6 @@ var appsForStart = []twirApp{
 	{name: "dashboard"},
 	{name: "web"},
 	{name: "overlays"},
-	{name: "public-page"},
 }
 
 type FrontendApps struct {

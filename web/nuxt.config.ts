@@ -57,7 +57,7 @@ export default defineNuxtConfig({
 		plugins: [
 			watch({
 				onInit: false,
-				pattern: '~/layers/**/*.ts',
+				pattern: '~/**/*.{ts,vue}',
 				command: 'graphql-codegen',
 			}),
 		],

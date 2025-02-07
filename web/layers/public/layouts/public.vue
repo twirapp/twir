@@ -31,16 +31,17 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 			<UiSidebarSeparator />
 
 			<UiSidebarFooter>
-				<div class="min-h-12">
-					<ClientOnly>
-						<template #fallback>
-							<div class="h-full w-full flex items-center justify-center">
-								Loading...
-							</div>
-						</template>
-						<PublicUserProfile />
-					</ClientOnly>
-				</div>
+				<PublicUserProfile />
+				<!--				<div class="min-h-12"> -->
+				<!--					<ClientOnly> -->
+				<!--						<template #fallback> -->
+				<!--							<div class="h-full w-full flex items-center justify-center"> -->
+				<!--								Loading... -->
+				<!--							</div> -->
+				<!--						</template> -->
+				<!--						<PublicUserProfile /> -->
+				<!--					</ClientOnly> -->
+				<!--				</div> -->
 			</UiSidebarFooter>
 		</UiSidebar>
 

@@ -45,7 +45,6 @@ export const useAuth = defineStore('auth-store', () => {
 			key: authedUserQuery.key,
 		},
 		variables: {},
-		pause: true,
 	})
 
 	const router = useRouter()
@@ -63,7 +62,6 @@ export const useAuth = defineStore('auth-store', () => {
 		if (withRedirect) {
 			await router.push('/')
 		}
-		console.log('here')
 		await fetchUser({ requestPolicy: 'network-only' })
 	}
 
@@ -76,7 +74,6 @@ export const useAuth = defineStore('auth-store', () => {
 		get variables() {
 			return { redirectTo: router.currentRoute.value.fullPath }
 		},
-		pause: true,
 	})
 
 	const authLink = computed(() => authLinkData.value?.authLink ?? null)
@@ -84,8 +81,7 @@ export const useAuth = defineStore('auth-store', () => {
 	return {
 		user,
 		authLink,
-		isLoading: readonly(fetching),
-		error: readonly(error),
+		isLoading: fetching,
 
 		refetch: fetchUser,
 		fetchAuthLink,
