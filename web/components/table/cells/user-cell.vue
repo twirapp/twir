@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { resolveUserName } from '@/lib/users'
-
 const props = defineProps<{
 	name: string
 	displayName: string

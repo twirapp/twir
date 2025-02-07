@@ -47,6 +47,8 @@ export default defineNuxtConfig({
 	experimental: {
 		inlineRouteRules: true,
 		typedPages: true,
+		renderJsonPayloads: true,
+		// asyncContext: true,
 	},
 
 	css: ['~/assets/css/global.css'],

@@ -6,7 +6,7 @@ packages:
 
 catalog:
   typescript: 5.7.3
-  vue: 3.5.12
+  vue: 3.5.13
   vite: 5.4.6
   vue-tsc: 2.1.10
   '@vueuse/core': 11.2.0

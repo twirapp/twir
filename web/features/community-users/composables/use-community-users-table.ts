@@ -207,7 +207,10 @@ export const useCommunityUsersTable = defineStore('community-users', () => {
 
 	return {
 		table,
+		setPagination,
 		fetchUsers: communityUsers.executeQuery,
+		totalUsers,
+		pagination,
 	}
 })
 

@@ -5,7 +5,7 @@ import PublicUserProfile from './public/public-user-profile.vue'
 import { useStreamerProfile } from '~/layers/public/api/use-streamer-profile'
 
 const streamerProfile = useStreamerProfile()
-await useAsyncData('streamerProfile', async () => streamerProfile.fetchProfile().then(() => true))
+await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
 </script>
 
 <template>
@@ -31,7 +31,16 @@ await useAsyncData('streamerProfile', async () => streamerProfile.fetchProfile()
 			<UiSidebarSeparator />
 
 			<UiSidebarFooter>
-				<PublicUserProfile />
+				<div class="min-h-12">
+					<ClientOnly>
+						<template #fallback>
+							<div class="h-full w-full flex items-center justify-center">
+								Loading...
+							</div>
+						</template>
+						<PublicUserProfile />
+					</ClientOnly>
+				</div>
 			</UiSidebarFooter>
 		</UiSidebar>
 
@@ -56,8 +65,8 @@ await useAsyncData('streamerProfile', async () => streamerProfile.fetchProfile()
 								Twitch
 							</a>
 							<a
-								v-for="link of streamerProfile.publicProfile?.userPublicSettings.socialLinks"
-								:key="link"
+								v-for="(link, idx) of streamerProfile.publicProfile?.userPublicSettings.socialLinks"
+								:key="idx"
 								class="underline"
 								:href="link.href"
 							>
@@ -68,9 +77,16 @@ await useAsyncData('streamerProfile', async () => streamerProfile.fetchProfile()
 				</UiCardContent>
 			</UiCard>
 
-			<div class="mt-2">
+			<div class="mt-4">
 				<slot />
 			</div>
 		</UiSidebarInset>
 	</UiSidebarProvider>
 </template>
+
+<style>
+html,
+body {
+	@apply bg-background-main text-foreground;
+}
+</style>

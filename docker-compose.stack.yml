@@ -463,28 +463,6 @@ services:
         - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
-  public-page:
-    image: registry.twir.app/twirapp/public-page:latest
-    command: --gzip --brotli --threshold 500
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-      - traefik-public
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-public.rule=Host(`twir.app`) && PathPrefix(`/p`)
-        - traefik.http.routers.twir-public.middlewares=public-stripprefix
-        - traefik.http.middlewares.public-stripprefix.stripprefix.prefixes=/p
-        - traefik.http.services.twir-public.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
-
   overlays:
     image: registry.twir.app/twirapp/overlays:latest
     command: --gzip --brotli --threshold 500

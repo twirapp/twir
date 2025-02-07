@@ -17,6 +17,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "2.14.0",
     "@types/node": "20.12.7",
+    "@vue/language-server": "2.2.0",
     "eslint-plugin-astro": "0.34.0",
     "rimraf": "5.0.5",
     "turbo": "1.13.2",

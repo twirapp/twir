@@ -15,7 +15,7 @@ const config: CodegenConfig = {
 	},
 	schema: schemaDir,
 	documents: [
-		'./{layers,components,composables,lib,features}/**/*.{ts,vue}',
+		'./{layers,components,composables,lib,features,stores}/**/*.{ts,vue}',
 	],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {

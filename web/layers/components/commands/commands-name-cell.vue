@@ -10,12 +10,12 @@ const mappedAliases = props.aliases.join(', ')
 <template>
 	<UiTooltip v-if="aliases.length">
 		<UiTooltipTrigger>
-			<span>!{{ name }}</span>
+			<span>{{ name }}</span>
 		</UITooltipTrigger>
 		<UiTooltipContent>
 			{{ mappedAliases }}
 		</UiTooltipContent>
 	</UiTooltip>
 
-	<span v-else>!{{ name }}</span>
+	<span v-else>{{ name }}</span>
 </template>

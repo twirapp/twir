@@ -29,7 +29,6 @@ jobs:
           - apps/ytsr
           - frontend/dashboard
           - frontend/overlays
-          - frontend/public-page
     steps:
       - uses: actions/checkout@v4
 

@@ -7,7 +7,7 @@ import CommandsPermissionsCell from '../../../../components/commands/commands-pe
 import CommandsResponsesCell from '../../../../components/commands/commands-responses-cell.vue'
 
 import { useCommands } from '~/layers/public/api/use-commands'
-import { type Command, type Group, createGroups, isCommand } from '~/lib/commands'
+import { type Command, type Group, createGroups, isCommand } from '~/layers/public/lib/commands'
 
 definePageMeta({
 	layout: 'public',
