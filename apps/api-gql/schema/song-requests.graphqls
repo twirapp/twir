@@ -1,6 +1,7 @@
 extend type Query {
 	songRequests: SongRequestsSettings @isAuthenticated @hasChannelRolesDashboardPermission(permission: VIEW_SONG_REQUESTS)
 	songRequestsSearchChannelOrVideo(opts: SongRequestsSearchChannelOrVideoOpts!): SongRequestsSearchChannelOrVideoResponse! @isAuthenticated
+	songRequestsPublicQueue(channelId: String!): [SongRequestPublic!]!
 }
 
 extend type Mutation {
@@ -171,4 +172,13 @@ type SongRequestsSearchChannelOrVideoItem {
 	id: String!
 	title: String!
 	thumbnail: String!
+}
+
+type SongRequestPublic {
+	title: String!
+	userId: String!
+	twitchProfile: TwirUserTwitchInfo! @goField(forceResolver: true)
+	createdAt: Time!
+	songLink: String!
+	durationSeconds: Int!
 }

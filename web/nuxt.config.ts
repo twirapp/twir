@@ -9,6 +9,7 @@ readEnv(path.join(process.cwd(), '..', '.env'))
 const https = config.TWITCH_CALLBACKURL.startsWith('https')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2024-04-03',
@@ -21,13 +22,23 @@ export default defineNuxtConfig({
 	},
 
 	modules: [
+		'@pinia/nuxt',
+		'@bicou/nuxt-urql',
 		'@nuxtjs/tailwindcss',
+		'radix-vue/nuxt',
+		'@nuxtjs/color-mode',
+		'shadcn-nuxt',
 		'@nuxt/image',
+		'@nuxt/icon',
 		'@nuxt/fonts',
 		'nuxt-svgo',
 		'@vueuse/nuxt',
 		'@nuxt-alt/proxy',
 	],
+
+	icon: {
+		localApiEndpoint: '/_nuxt_icon',
+	},
 
 	devServer: {
 		port: 3005,
@@ -36,21 +47,20 @@ export default defineNuxtConfig({
 	experimental: {
 		inlineRouteRules: true,
 		typedPages: true,
+		renderJsonPayloads: true,
+		// asyncContext: true,
 	},
+
+	css: ['~/assets/css/global.css'],
 
 	vite: {
 		plugins: [
 			watch({
-				onInit: true,
-				pattern: '~/layers/**/*.ts',
+				onInit: false,
+				pattern: '~/**/*.{ts,vue}',
 				command: 'graphql-codegen',
 			}),
 		],
-		resolve: {
-			alias: {
-				'@': path.resolve(__dirname, 'app'),
-			},
-		},
 		server: {
 			hmr: {
 				protocol: https ? 'wss' : 'ws',
@@ -73,11 +83,6 @@ export default defineNuxtConfig({
 					changeOrigin: true,
 					ws: true,
 					rewrite: (path) => path.replace(/^\/socket/, ''),
-				},
-				'/p': {
-					target: 'http://127.0.0.1:3007',
-					changeOrigin: true,
-					ws: true,
 				},
 				'/overlays': {
 					target: 'http://127.0.0.1:3008',
@@ -116,6 +121,42 @@ export default defineNuxtConfig({
 				changeOrigin: true,
 				ws: true,
 			},
+		},
+	},
+
+	shadcn: {
+		/**
+		 * Prefix for all the imported component
+		 */
+		prefix: 'Ui',
+		/**
+		 * Directory that the component lives in.
+		 * @default "./components/ui"
+		 */
+		componentDir: './components/ui',
+	},
+
+	imports: {
+		imports: [
+			{
+				from: 'tailwind-variants',
+				name: 'tv',
+			},
+			{
+				from: 'tailwind-variants',
+				name: 'VariantProps',
+				type: true,
+			},
+		],
+	},
+
+	urql: {
+		endpoint: `/api/query`,
+		client: path.join(process.cwd(), 'urql.ts'),
+		ssr: {
+			endpoint: process.env.NODE_ENV !== 'production'
+				? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
+				: 'http://api-gql:3009/query',
 		},
 	},
 })

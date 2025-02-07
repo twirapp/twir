@@ -18,7 +18,9 @@ import (
 	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"gorm.io/gorm"
 )
@@ -265,6 +267,33 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 
 	return response, nil
 }
+
+// SongRequestsPublicQueue is the resolver for the songRequestsPublicQueue field.
+func (r *queryResolver) SongRequestsPublicQueue(ctx context.Context, channelID string) ([]gqlmodel.SongRequestPublic, error) {
+	queue, err := r.deps.SongRequestsService.GetPublicQueue(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	mapped := make([]gqlmodel.SongRequestPublic, 0, len(queue))
+	for _, song := range queue {
+		mapped = append(mapped, mappers.SongRequestPublicTo(song))
+	}
+
+	return mapped, nil
+}
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// SongRequestPublic returns graph.SongRequestPublicResolver implementation.
+func (r *Resolver) SongRequestPublic() graph.SongRequestPublicResolver {
+	return &songRequestPublicResolver{r}
+}
+
+type songRequestPublicResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have
