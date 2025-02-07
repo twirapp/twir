@@ -49,16 +49,16 @@ const showConfirm = ref(false)
 			<UiDropdownMenuContent align="start">
 				<UiDropdownMenuItem @click="column.toggleSorting(false)">
 					<Icon name="lucide:arrow-up" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-					TASC
+					Asc
 				</UiDropdownMenuItem>
 				<UiDropdownMenuItem @click="column.toggleSorting(true)">
 					<Icon name="lucide:arrow-up-down" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-					TDESC
+					Desc
 				</UiDropdownMenuItem>
 				<DropdownMenuSeparator />
 				<UiDropdownMenuItem @click="column.toggleVisibility(false)">
 					<Icon name="lucide:eye-off" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
-					THIDE
+					Hide
 				</UiDropdownMenuItem>
 				<UiDropdownMenuItem v-if="columnType && !hideReset" @click="showConfirm = true">
 					<Icon name="lucide:trash" class="mr-2 h-3.5 w-3.5 text-muted-foreground/70" />
