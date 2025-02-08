@@ -2,6 +2,7 @@ package app
 
 import (
 	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	bus_listener "github.com/satont/twir/apps/bots/internal/bus-listener"
