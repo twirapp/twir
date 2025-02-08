@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"slices"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -45,6 +44,7 @@ var SayCommand = &types.DefaultCommand{
 		result := &types.CommandsHandlerResult{}
 
 		resultedText := parseCtx.ArgsParser.Get(ttsSayArgName).String()
+		splittedResult := strings.Fields(resultedText)
 
 		channelSettings, _ := getSettings(ctx, parseCtx.Services.Gorm, parseCtx.Channel.ID, "")
 		if channelSettings == nil || !*channelSettings.Enabled {
@@ -128,39 +128,21 @@ var SayCommand = &types.DefaultCommand{
 				resultedText = strings.Replace(resultedText, emote.Name, "", -1)
 			}
 
-			channelEmotesRedisKey := fmt.Sprintf("emotes:channel:%s:", parseCtx.Channel.ID)
-			var channelEmotes []string
-			channelEmotesIter := parseCtx.Services.Redis.Scan(ctx, 0, channelEmotesRedisKey, 0).Iterator()
-			for channelEmotesIter.Next(ctx) {
-				channelEmotes = append(channelEmotes, channelEmotesIter.Val())
-			}
-			if err := channelEmotesIter.Err(); err != nil {
-				parseCtx.Services.Logger.Sugar().Error("error while getting channel emotes", err)
-			}
-
-			globalEmotesRedisKey := "emotes:global:"
-			var globalEmotes []string
-			iter := parseCtx.Services.Redis.Scan(ctx, 0, globalEmotesRedisKey, 0).Iterator()
-			for iter.Next(ctx) {
-				globalEmotes = append(globalEmotes, iter.Val())
-			}
-			if err := iter.Err(); err != nil {
-				parseCtx.Services.Logger.Sugar().Error("error while getting global emotes", err)
-			}
-
-			for _, emotePattern := range channelEmotes {
-				emote := strings.Split(emotePattern, channelEmotesRedisKey)[1]
-
-				if slices.Contains(strings.Fields(resultedText), emote) {
-					resultedText = strings.ReplaceAll(resultedText, emote, "")
+			for _, part := range splittedResult {
+				if exists, _ := parseCtx.Services.Redis.Exists(
+					ctx,
+					fmt.Sprintf("emotes:channel:%s:%s", parseCtx.Channel.ID, part),
+				).Result(); exists == 1 {
+					resultedText = strings.Replace(resultedText, part, "", -1)
+					continue
 				}
-			}
 
-			for _, emotePattern := range globalEmotes {
-				emote := strings.Split(emotePattern, globalEmotesRedisKey)[1]
-
-				if slices.Contains(strings.Fields(resultedText), emote) {
-					resultedText = strings.ReplaceAll(resultedText, emote, "")
+				if exists, _ := parseCtx.Services.Redis.Exists(
+					ctx,
+					fmt.Sprintf("emotes:global:%s", part),
+				).Result(); exists == 1 {
+					resultedText = strings.Replace(resultedText, part, "", -1)
+					continue
 				}
 			}
 		}

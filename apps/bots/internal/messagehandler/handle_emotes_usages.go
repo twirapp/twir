@@ -25,47 +25,38 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		emotes[f.Text] += 1
 	}
 
-	channelEmotesIter := c.redis.Scan(
-		ctx,
-		0,
-		fmt.Sprintf("emotes:channel:%s:*", msg.BroadcasterUserId),
-		0,
-	).Iterator()
-	var channelEmotes []string
-	for channelEmotesIter.Next(ctx) {
-		channelEmotes = append(channelEmotes, channelEmotesIter.Val())
+	splittedMsg := strings.Fields(msg.Message.Text)
+
+	for _, part := range splittedMsg {
+		// do not make redis requests if emote already present in map
+		if emote, ok := emotes[part]; ok {
+			emotes[part] = emote + 1
+			continue
+		}
+
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
+
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:global:%s", part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
 	}
 
-	if err := channelEmotesIter.Err(); err != nil {
-		return err
-	}
-
-	globalEmotesIter := c.redis.Scan(ctx, 0, "emotes:global:*", 0).Iterator()
-	var globalEmotes []string
-	for globalEmotesIter.Next(ctx) {
-		globalEmotes = append(globalEmotes, globalEmotesIter.Val())
-	}
-
-	if err := globalEmotesIter.Err(); err != nil {
-		return err
-	}
-
-	splittedMsg := strings.Split(msg.Message.Text, " ")
-
-	countEmotes(
-		emotes,
-		channelEmotes,
-		splittedMsg,
-		fmt.Sprintf("emotes:channel:%s:", msg.BroadcasterUserId),
-	)
-	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
-
-	var emotesForCreate []*model.ChannelEmoteUsage
+	var emotesForCreate []model.ChannelEmoteUsage
 
 	for key, count := range emotes {
 		for i := 0; i < count; i++ {
 			emotesForCreate = append(
-				emotesForCreate, &model.ChannelEmoteUsage{
+				emotesForCreate, model.ChannelEmoteUsage{
 					ID:        uuid.NewString(),
 					ChannelID: msg.BroadcasterUserId,
 					UserID:    msg.ChatterUserId,
@@ -82,17 +73,4 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 	).Error
 
 	return err
-}
-
-func countEmotes(emotes map[string]int, emotesList []string, splittedMsg []string, key string) {
-	for _, e := range emotesList {
-		emoteSlice := strings.Split(e, key)
-		emote := emoteSlice[1]
-
-		for _, word := range splittedMsg {
-			if strings.EqualFold(word, emote) {
-				emotes[emote]++
-			}
-		}
-	}
 }
