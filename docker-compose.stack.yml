@@ -208,7 +208,7 @@ services:
 
   redis:
     image: ghcr.io/dragonflydb/dragonfly:v1.26.2
-    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *"
+    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *" --logtostderr --proactor_threads 4
     volumes:
       - dragonfly-data:/data
     networks:
