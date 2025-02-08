@@ -28,8 +28,16 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 	splittedMsg := strings.Fields(msg.Message.Text)
 
 	for _, part := range splittedMsg {
-		// do not make redis requests if emote already present in map
-		if emote, ok := emotes[part]; ok {
+		// do not make redis requests if part already present in map
+		var isTwitchEmote bool
+		for _, fragment := range msg.Message.Fragments {
+			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+		}
+
+		if emote, ok := emotes[part]; !isTwitchEmote && ok {
 			emotes[part] = emote + 1
 			continue
 		}

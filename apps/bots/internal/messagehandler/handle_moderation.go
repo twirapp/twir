@@ -420,7 +420,15 @@ func (c *MessageHandler) moderationEmotesParser(
 
 	for _, part := range splittedMsg {
 		// do not make redis requests if emote already present in map
-		if emote, ok := emotes[part]; ok {
+		var isTwitchEmote bool
+		for _, fragment := range msg.Message.Fragments {
+			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+		}
+
+		if emote, ok := emotes[part]; !isTwitchEmote && ok {
 			emotes[part] = emote + 1
 			continue
 		}
