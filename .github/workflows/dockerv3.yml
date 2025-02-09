@@ -46,36 +46,22 @@ jobs:
             ${{ env.folder }}/${{ env.app }}/**
             libs/**
 
-      - name: Install Node.js
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
+          bun-version-file: ".bun-version"
 
-      - uses: pnpm/action-setup@v3
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@v4
         with:
-          version: 9
-          run_install: false
-
-      - name: Get pnpm store directory
-        if: steps.changed-files.outputs.any_changed == 'true'
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v3
-        if: steps.changed-files.outputs.any_changed == 'true'
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-node_modules-
 
-      - name: Install Node.js dependencies
+      - name: Install JavaScript dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm install --frozen-lockfile
+        run: bun install
 
       - name: Setup Golang dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
@@ -85,19 +71,19 @@ jobs:
 
       - name: Install binaries dependencies
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli deps -skip-node -skip-go
+        run: bun cli deps -skip-node -skip-go
 
       - name: Build libraries
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build libs
+        run: bun cli build libs
 
       - name: Build libraries
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build gql
+        run: bun cli build gql
 
       - name: Build application
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build app ${{ env.app }}
+        run: bun cli build app ${{ env.app }}
 
       - name: Set up Docker Buildx
         if: steps.changed-files.outputs.any_changed == 'true'
@@ -124,7 +110,7 @@ jobs:
         with:
           context: .
           file: ./${{ env.folder }}/${{ env.app }}/Dockerfile
-          push: true
+          push: false
           tags: |
             twirapp/${{ env.app }}:latest
             registry.twir.app/twirapp/${{ env.app }}:latest

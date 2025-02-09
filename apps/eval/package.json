@@ -4,7 +4,7 @@
   "scripts": {
     "start": "bun --bun src/index.js",
     "dev": "bun --bun --watch --no-clear-screen src/index.js",
-    "build": "tsc --noEmit"
+    "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-eval"
   },
   "dependencies": {
     "@twir/bus-core": "workspace:*",
