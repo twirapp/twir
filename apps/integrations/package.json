@@ -3,8 +3,9 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "node --watch --watch-preserve-output src/index.js",
-		"start": "node src/index.js"
+		"dev": "bun run --watch --no-clear-screen src/index.js",
+		"start": "bun --bun src/index.js",
+    "build": "bun build --compile --minify --sourcemap -e=better-sqlite3 -e=mysql -e=oracledb -e=sqlite3 -e=pg-query-stream -e=mysql2 -e=tedious src/index.js --outfile=.out/twir-integrations"
 	},
 	"dependencies": {
 		"@twir/config": "workspace:*",

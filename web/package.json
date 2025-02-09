@@ -37,7 +37,7 @@
     "shadcn-nuxt": "0.11.3",
     "tailwind-merge": "3.0.1",
     "tailwind-variants": "0.2.1",
-    "vue": "catalog:"
+    "vue": "3.5.13"
   },
   "devDependencies": {
     "@bicou/nuxt-urql": "1.9.1",
@@ -49,11 +49,11 @@
     "@nuxtjs/color-mode": "3.5.1",
     "@nuxtjs/tailwindcss": "6.13.1",
     "@tailwindcss/forms": "0.5.9",
-    "@vueuse/core": "catalog:",
+    "@vueuse/core": "11.2.0",
     "@vueuse/nuxt": "11.1.0",
     "tailwindcss": "3.4.13",
     "tailwindcss-animate": "1.0.7",
-    "typescript": "catalog:",
+    "typescript": "5.7.3",
     "vite-plugin-watch": "0.3.1"
   }
 }

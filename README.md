@@ -2,8 +2,7 @@
 
 ## Requirements
 
-* [Node.js (20+)](https://nodejs.org/en)
-* [Pnpm](https://pnpm.io/)
+* [Bun (1.2.2+)](https://bin.sh)
 * [Go (1.21+)](https://go.dev/)
 
 * [Docker](https://docs.docker.com/engine/)
@@ -11,7 +10,7 @@
 ## Cli
 
 > [!NOTE]
-> For MOST of project management tasks we use own written cli. You can use `pnpm cli help` for print cli usage
+> For MOST of project management tasks we use own written cli. You can use `bun cli help` for print cli usage
 
 * Run needed services (Postgres, Adminer, Redis, Minio)
 ```bash
@@ -20,12 +19,12 @@ docker compose -f docker-compose.dev.yml up -d
 
 * Install dependencies
 ```bash
-pnpm cli deps
+bun cli deps
 ```
 
 * Build libs
-```
-pnpm cli build libs
+```bash
+bun run build libs
 ```
 
 ### Configure project for development
@@ -42,7 +41,7 @@ Well, now we are almost ready for developing project, just few steps.
 
 * Start dev mode
 ```bash
-pnpm cli dev
+bun dev
 ```
 * Visit https://localhost:3005
 
@@ -50,7 +49,7 @@ pnpm cli dev
 
 * Use command for create new migration
 ```bash
-pnpm cli migrations create
+bun cli migrations create
 ```
 * Navigate to folder and edit new migration file
 ```bash
@@ -59,7 +58,7 @@ cd libs/migrations/migrations
 
 * Run new created migrations (optional, because it's running when you execute `pnpm dev`)
 ```bash
-pnpm cli migrations run
+bun cli migrations run
 ```
 ##### Write `go` models
 
@@ -82,7 +81,7 @@ USE_WSS=true
 
 * Start caddy:
 ```bash
-pnpm cli proxy
+bun cli proxy
 ```
 
 * Open https://twir.localhost

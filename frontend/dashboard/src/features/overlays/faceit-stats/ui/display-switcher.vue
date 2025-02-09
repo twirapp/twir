@@ -2,9 +2,6 @@
 import { CheckIcon, ChevronDownIcon } from 'lucide-vue-next'
 import { ref } from 'vue'
 
-import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
-import type { AcceptableValue } from 'radix-vue/dist/Combobox/ComboboxRoot'
-
 import { Button } from '@/components/ui/button'
 import { Command, CommandItem, CommandList } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -19,7 +16,10 @@ const model = defineModel<boolean>({ required: true })
 
 const show = ref(false)
 
-function handleSelect(event: SelectEvent<AcceptableValue>) {
+function handleSelect(event: CustomEvent<{
+	originalEvent: PointerEvent
+	value?: string | number | boolean | Record<string, any>
+}>) {
 	if (typeof event.detail.value !== 'boolean') {
 		return
 	}

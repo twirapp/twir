@@ -7,7 +7,7 @@ plugins:
     out: ./
     opt: paths=source_relative
   - name: ts_proto
-    out: dist
+    out: .
     strategy: all
     opt:
       - esModuleInterop=true

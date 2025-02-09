@@ -6,17 +6,17 @@
   },
   "types": "./src/index.ts",
   "scripts": {
-    "build": "pnpm type-check",
+    "build": "bun run type-check",
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
     "@twir/fontsource": "workspace:*",
     "@twir/types": "workspace:*",
     "@vueuse/core": "10.9.0",
-    "vue": "catalog:"
+    "vue": "3.5.13"
   },
   "devDependencies": {
-    "vue-tsc": "catalog:",
-    "typescript": "catalog:"
+    "vue-tsc": "2.1.10",
+    "typescript": "5.7.3"
   }
 }

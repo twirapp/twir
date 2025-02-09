@@ -5,11 +5,18 @@
   "author": "Satont <satontworldwide@gmail.com>",
   "engines": {
     "node": ">=20",
-    "pnpm": ">=9.12"
+    "pnpm": ">=9.12",
+    "bun": ">=1.2.2"
   },
+  "workspaces": [
+    "libs/*",
+    "apps/*",
+    "frontend/*",
+    "web"
+  ],
   "scripts": {
-    "dev": "pnpm cli dev",
-    "build": "pnpm cli build",
+    "dev": "bun run cli dev",
+    "build": "bun run cli build",
     "cli": "go run ./cli/main.go",
     "lint": "eslint ./frontend",
     "lint:fix": "eslint . --fix"
@@ -20,8 +27,14 @@
     "@vue/language-server": "2.2.0",
     "eslint-plugin-astro": "0.34.0",
     "rimraf": "5.0.5",
-    "turbo": "1.13.2",
-    "typescript": "catalog:"
+    "typescript": "5.7.3",
+    "@types/bun": "1.2.2"
   },
-  "packageManager": "pnpm@9.12.3"
+  "packageManager": "pnpm@8.15.4+sha1.c85a4305534f76d461407b59277b954bac97b5c4",
+  "trustedDependencies": [
+    "@parcel/watcher",
+    "@twir/web",
+    "core-js",
+    "protobufjs"
+  ]
 }
