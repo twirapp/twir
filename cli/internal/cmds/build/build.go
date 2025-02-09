@@ -29,7 +29,7 @@ var Cmd = &cli.Command{
 			return err
 		}
 
-		return build(`bun --filter='./apps/*' run build`, true)
+		return build(`bun --filter='./apps/*' --filter='./frontend/*' --filter=./web run build`, true)
 	},
 	Subcommands: []*cli.Command{
 		GqlCmd,

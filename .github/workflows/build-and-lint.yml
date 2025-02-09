@@ -33,10 +33,10 @@ jobs:
         run: bun install
 
       - name: Install go dependencies
-        run: bun run cli deps --skip-node
+        run: bun cli deps --skip-node
 
       - name: Build
-        run: bun run cli build
+        run: bun cli build
 
       # - name: Lint javascript
       #   run: pnpm run lint
