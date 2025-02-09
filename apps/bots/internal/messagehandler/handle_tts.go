@@ -4,38 +4,25 @@ import (
 	"context"
 	"strings"
 
-	"github.com/goccy/go-json"
 	model "github.com/satont/twir/libs/gomodels"
-	"github.com/satont/twir/libs/types/types/api/modules"
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
-	if strings.HasPrefix(msg.Message.Text, "!") {
+	commandsPrefix, err := c.commandsService.GetCommandsPrefix(ctx, msg.BroadcasterUserId)
+	if err != nil {
 		return nil
 	}
 
-	settings := &model.ChannelModulesSettings{}
-	query := c.gorm.WithContext(ctx).
-		Where(`"channelId" = ?`, msg.BroadcasterUserId).
-		Where(`"userId" IS NULL`).
-		Where(`"type" = ?`, "tts")
+	if strings.HasPrefix(msg.Message.Text, commandsPrefix) {
+		return nil
+	}
 
-	err := query.Find(&settings).Error
+	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
 
-	if settings.ID == "" {
-		return nil
-	}
-
-	data := modules.TTSSettings{}
-	err = json.Unmarshal(settings.Settings, &data)
-	if err != nil {
-		return err
-	}
-
-	if !data.ReadChatMessages || data.Enabled == nil || !*data.Enabled {
+	if !settings.ReadChatMessages || settings.Enabled == nil || !*settings.Enabled {
 		return nil
 	}
 
@@ -59,9 +46,9 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	}
 
 	var msgText strings.Builder
-	msgText.WriteString("!" + ttsCommand.Name)
+	msgText.WriteString(commandsPrefix + ttsCommand.Name)
 
-	if data.ReadChatMessagesNicknames {
+	if settings.ReadChatMessagesNicknames {
 		msgText.WriteString(" " + msg.ChatterUserLogin)
 	}
 

@@ -9,16 +9,20 @@ import (
 	"github.com/satont/twir/apps/bots/internal/messagehandler"
 	mod_task_queue "github.com/satont/twir/apps/bots/internal/mod-task-queue"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
+	"github.com/satont/twir/apps/bots/internal/services/commands"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	toxicity_check "github.com/satont/twir/apps/bots/internal/services/toxicity-check"
+	"github.com/satont/twir/apps/bots/internal/services/tts"
 	stream_handlers "github.com/satont/twir/apps/bots/internal/stream-handlers"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	"github.com/satont/twir/apps/bots/pkg/tlds"
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscache "github.com/twirapp/twir/libs/cache/keywords"
+	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -26,6 +30,8 @@ import (
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
@@ -69,6 +75,10 @@ var App = fx.Module(
 			chatmessagesrepositorypgx.NewFx,
 			fx.As(new(chatmessagesrepository.Repository)),
 		),
+		fx.Annotate(
+			channelscommandsprefixpgx.NewFx,
+			fx.As(new(channelscommandsprefixrepository.Repository)),
+		),
 	),
 	fx.Provide(
 		tlds.New,
@@ -89,12 +99,16 @@ var App = fx.Module(
 			fx.As(new(mod_task_queue.TaskDistributor)),
 		),
 		toxicity_check.New,
+		channelscommandsprefixcache.New,
+		ttscache.NewTTSSettings,
 		keywordscache.New,
 		greetingscache.New,
 		twitchactions.New,
 		moderationhelpers.New,
 		messagehandler.New,
 		keywords.New,
+		commands.New,
+		tts.New,
 	),
 	fx.Invoke(
 		uptrace.NewFx("bots"),

@@ -116,6 +116,12 @@ export default defineNuxtConfig({
 				rewrite: (path) => path.replace(/^\/api/, ''),
 				ws: true,
 			},
+			'/socket': {
+				target: 'http://127.0.0.1:3004',
+				changeHost: false,
+				rewrite: (path) => path.replace(/^\/socket/, ''),
+				ws: true,
+			},
 		},
 	},
 
@@ -123,6 +129,11 @@ export default defineNuxtConfig({
 		devProxy: {
 			'/api': {
 				target: 'http://127.0.0.1:3009',
+				changeOrigin: true,
+				ws: true,
+			},
+			'/socket': {
+				target: 'http://127.0.0.1:3004',
 				changeOrigin: true,
 				ws: true,
 			},

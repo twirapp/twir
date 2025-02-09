@@ -21,6 +21,7 @@ import (
 	cfg "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
 	"github.com/twirapp/twir/libs/baseapp"
+	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	"github.com/twirapp/twir/libs/grpc/events"
@@ -60,6 +61,7 @@ var App = fx.Options(
 		impl_protected.New,
 		impl_unprotected.New,
 		impl_admin.New,
+		ttscache.NewTTSSettings,
 		handlers.AsHandler(twirp_handlers.NewProtected),
 		handlers.AsHandler(twirp_handlers.NewUnProtected),
 		handlers.AsHandler(twirp_handlers.NewAdmin),

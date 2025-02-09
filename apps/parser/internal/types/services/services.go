@@ -7,6 +7,7 @@ import (
 	"github.com/satont/twir/apps/parser/internal/task-queue"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
+	"github.com/satont/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/dota"
@@ -45,4 +46,5 @@ type Services struct {
 	RedSync                  *redsync.Redsync
 	CommandsLock             *redsync.Mutex
 	CommandsPrefixRepository channelscommandsprefixrepository.Repository
+	TTSCache                 *generic_cacher.GenericCacher[modules.TTSSettings]
 }

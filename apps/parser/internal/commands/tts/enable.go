@@ -35,6 +35,8 @@ var EnableCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, "TTS enabled")
 
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return result, nil
 	},
 }

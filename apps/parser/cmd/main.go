@@ -26,6 +26,7 @@ import (
 	seventv "github.com/twirapp/twir/libs/cache/7tv"
 	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	ttscache "github.com/twirapp/twir/libs/cache/tts"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/constants"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -164,6 +165,7 @@ func main() {
 
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
+	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
 
 	s := &services.Services{
 		Config: config,
@@ -186,6 +188,7 @@ func main() {
 		RedSync:                  redSync,
 		CommandsPrefixCache:      commandsPrefixRepoCache,
 		CommandsPrefixRepository: commandsPrefixRepo,
+		TTSCache:                 ttsSettingsCacher,
 	}
 
 	variablesService := variables.New(

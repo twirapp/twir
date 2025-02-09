@@ -34,6 +34,8 @@ var DisableCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, "TTS disabled")
 
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return result, nil
 	},
 }

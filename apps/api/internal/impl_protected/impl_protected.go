@@ -20,7 +20,9 @@ import (
 	"github.com/satont/twir/apps/api/internal/impl_protected/users"
 	config "github.com/satont/twir/libs/config"
 	"github.com/satont/twir/libs/logger"
+	apimodules "github.com/satont/twir/libs/types/types/api/modules"
 	buscore "github.com/twirapp/twir/libs/bus-core"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/grpc/discord"
 	integrationsGrpc "github.com/twirapp/twir/libs/grpc/integrations"
 	"github.com/twirapp/twir/libs/grpc/parser"
@@ -55,13 +57,14 @@ type Opts struct {
 	Config         config.Config
 	SessionManager *scs.SessionManager
 
-	TokensGrpc       tokens.TokensClient
-	IntegrationsGrpc integrationsGrpc.IntegrationsClient
-	ParserGrpc       parser.ParserClient
-	WebsocketsGrpc   websockets.WebsocketClient
-	DiscordGrpc      discord.DiscordClient
-	Logger           logger.Logger
-	Bus              *buscore.Bus
+	TokensGrpc        tokens.TokensClient
+	IntegrationsGrpc  integrationsGrpc.IntegrationsClient
+	ParserGrpc        parser.ParserClient
+	WebsocketsGrpc    websockets.WebsocketClient
+	DiscordGrpc       discord.DiscordClient
+	Logger            logger.Logger
+	Bus               *buscore.Bus
+	TTSSettingsCacher *generic_cacher.GenericCacher[apimodules.TTSSettings]
 }
 
 func New(opts Opts) *Protected {
@@ -77,8 +80,9 @@ func New(opts Opts) *Protected {
 			Websockets:   opts.WebsocketsGrpc,
 			Discord:      opts.DiscordGrpc,
 		},
-		Logger: opts.Logger,
-		Bus:    opts.Bus,
+		Logger:            opts.Logger,
+		Bus:               opts.Bus,
+		TTSSettingsCacher: opts.TTSSettingsCacher,
 	}
 
 	return &Protected{

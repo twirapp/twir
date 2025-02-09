@@ -14,7 +14,9 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/redis/go-redis/v9"
 	"github.com/satont/twir/apps/bots/internal/moderationhelpers"
+	"github.com/satont/twir/apps/bots/internal/services/commands"
 	"github.com/satont/twir/apps/bots/internal/services/keywords"
+	"github.com/satont/twir/apps/bots/internal/services/tts"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	cfg "github.com/satont/twir/libs/config"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
@@ -51,6 +53,8 @@ type Opts struct {
 	GreetingsRepository    greetings.Repository
 	ChatMessagesRepository chat_messages.Repository
 	GreetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+	CommandService         *commands.Service
+	TTSService             *tts.Service
 }
 
 type MessageHandler struct {
@@ -70,6 +74,8 @@ type MessageHandler struct {
 	keywordsService        *keywords.Service
 	greetingsRepository    greetings.Repository
 	chatMessagesRepository chat_messages.Repository
+	commandsService        *commands.Service
+	ttsService             *tts.Service
 }
 
 func New(opts Opts) *MessageHandler {
@@ -91,6 +97,8 @@ func New(opts Opts) *MessageHandler {
 		greetingsRepository:    opts.GreetingsRepository,
 		chatMessagesRepository: opts.ChatMessagesRepository,
 		greetingsCache:         opts.GreetingsCache,
+		commandsService:        opts.CommandService,
+		ttsService:             opts.TTSService,
 	}
 
 	return handler

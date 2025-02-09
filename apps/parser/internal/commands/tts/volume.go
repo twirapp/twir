@@ -72,6 +72,8 @@ var VolumeCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, fmt.Sprintf("Volume changed to %v", volume))
 
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return result, nil
 	},
 }

@@ -146,6 +146,8 @@ var VoiceCommand = &types.DefaultCommand{
 
 		result.Result = append(result.Result, fmt.Sprintf("Voice changed to %s", wantedVoice.Name))
 
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
+
 		return result, nil
 	},
 }
