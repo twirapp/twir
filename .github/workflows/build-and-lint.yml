@@ -16,6 +16,11 @@ jobs:
           go-version-file: go.work
           cache-dependency-path: '**/*.sum'
 
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".bun-version"
+
       - name: Cache node_modules
         id: cache-node_modules
         uses: actions/cache@v4
@@ -27,10 +32,6 @@ jobs:
       - name: Install dependencies
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: bun install
-
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: ".bun-version"
 
       - name: Install dependencies
         run: |
