@@ -126,6 +126,7 @@ export default defineNuxtConfig({
 	},
 
 	nitro: {
+		preset: 'bun',
 		devProxy: {
 			'/api': {
 				target: 'http://127.0.0.1:3009',
