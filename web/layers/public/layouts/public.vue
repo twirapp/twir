@@ -13,12 +13,12 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 		<UiSidebar collapsible="icon">
 			<UiSidebarHeader>
 				<div class="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
-					<a href="/layouts/public" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
+					<NuxtLink to="/" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
 						<TwirLogo class="size-8" />
 						<h1 class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground">
 							Twir
 						</h1>
-					</a>
+					</NuxtLink>
 				</div>
 			</UiSidebarHeader>
 
