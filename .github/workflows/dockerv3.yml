@@ -87,10 +87,6 @@ jobs:
         if: steps.changed-files.outputs.any_changed == 'true'
         run: pnpm cli deps -skip-node -skip-go
 
-      - name: Setup turborepo cache
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
-
       - name: Build libraries
         if: steps.changed-files.outputs.any_changed == 'true'
         run: pnpm cli build libs

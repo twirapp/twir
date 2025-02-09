@@ -3,8 +3,9 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "noImplicitAny": true,
+    "allowImportingTsExtensions": true,
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
@@ -18,8 +19,7 @@
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "strictPropertyInitialization": false,
-		"checkJs": true
+    "strictPropertyInitialization": false
   },
   "exclude": [
     "node_modules",

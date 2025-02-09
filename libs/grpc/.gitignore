@@ -2,3 +2,4 @@
 *.ts
 *.js
 !clients/*.go
+!build.ts

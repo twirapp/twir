@@ -1,2 +1,5 @@
 *.go
 dist
+*.ts
+*.js
+!build.ts

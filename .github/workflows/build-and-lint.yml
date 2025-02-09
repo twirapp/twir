@@ -4,54 +4,41 @@ on:
   push:
     branches-ignore:
       - main
+  workflow_dispatch:
 
 jobs:
   build-lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 9
-          run_install: false
       - uses: actions/setup-go@v4
         with:
           go-version-file: go.work
           cache-dependency-path: '**/*.sum'
 
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: pnpm/action-setup@v3
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@v4
         with:
-          version: 9
-          run_install: false
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-      - uses: actions/cache@v3
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-      - name: Setup turborepo cache
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+            ${{ runner.os }}-node_modules-
+      - name: Install dependencies
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: bun install
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: ".bun-version"
 
       - name: Install dependencies
         run: |
-          pnpm cli deps --skip-node --skip-go
-          pnpm install
+          bun run cli deps --skip-node --skip-go
+          bun install
 
       - name: Build
-        run: pnpm cli build
+        run: bun run cli build
 
       # - name: Lint javascript
       #   run: pnpm run lint

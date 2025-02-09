@@ -16,9 +16,11 @@ import (
 
 var Cmd = &cli.Command{
 	Name:    "build",
-	Usage:   "build application",
+	Usage:   "build applications",
 	Aliases: []string{"b"},
 	Action: func(c *cli.Context) error {
+		pterm.Info.Println("Building apps...")
+
 		if err := LibsCmd.Run(c); err != nil {
 			return err
 		}
@@ -27,10 +29,9 @@ var Cmd = &cli.Command{
 			return err
 		}
 
-		return build(`turbo run build --filter=!./apps/dota`, true)
+		return build(`bun --filter='./apps/*' run build`, true)
 	},
 	Subcommands: []*cli.Command{
-		LibsCmd,
 		GqlCmd,
 		AppBuildCmd,
 	},
@@ -39,7 +40,9 @@ var Cmd = &cli.Command{
 var LibsCmd = &cli.Command{
 	Name: "libs",
 	Action: func(context *cli.Context) error {
-		if err := build(`turbo run build --filter=./libs/*`, false); err != nil {
+		pterm.Info.Println("Building libs...")
+
+		if err := build(`bun --filter='./libs/*' run build`, false); err != nil {
 			return err
 		}
 
@@ -54,6 +57,8 @@ var AppBuildCmd = &cli.Command{
 	Args:      true,
 	ArgsUsage: "api",
 	Action: func(context *cli.Context) error {
+		pterm.Info.Println("Building app...")
+
 		argument := context.Args().First()
 
 		var golangApp *goapp.TwirGoApp
@@ -78,13 +83,15 @@ var AppBuildCmd = &cli.Command{
 			return nil
 		}
 
-		return build(fmt.Sprintf(`turbo run build --filter=@twir/%s`, argument), false)
+		return build(fmt.Sprintf(`bun --filter=@twir/%s run build`, argument), false)
 	},
 }
 
 var GqlCmd = &cli.Command{
 	Name: "gql",
 	Action: func(context *cli.Context) error {
+		pterm.Info.Println("Building gql...")
+
 		cwd, err := os.Getwd()
 		if err != nil {
 			return err
@@ -111,8 +118,6 @@ func build(cmd string, withGoApps bool) error {
 	if err != nil {
 		return err
 	}
-
-	pterm.Info.Println("Building twir")
 
 	startTime := time.Now()
 

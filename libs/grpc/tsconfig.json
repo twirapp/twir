@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "target": "ESNext",
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": true,
     "declarationMap": true,
     "preserveSymlinks": true,

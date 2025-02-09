@@ -4,8 +4,6 @@ import { XIcon } from 'lucide-vue-next'
 import { computed, ref } from 'vue'
 
 import type { TwitchSearchChannelsRequest } from '@twir/api/messages/twitch/twitch'
-import type { SelectEvent } from 'radix-vue/dist/Listbox/ListboxItem'
-import type { AcceptableValue } from 'radix-vue/dist/shared/types'
 
 import { useTwitchGetUsers,useTwitchSearchChannels } from '@/api'
 import { Command, CommandGroup, CommandItem, CommandList } from '@/components/ui/command'
@@ -52,7 +50,10 @@ const selectOptions = computed(() => {
 	})) ?? []
 })
 
-function handleSelect(event: SelectEvent<AcceptableValue>) {
+function handleSelect(event: CustomEvent<{
+	originalEvent: PointerEvent
+	value?: string | number | boolean | Record<string, any>
+}>) {
 	if (typeof event.detail.value !== 'string') return
 	userId.value = event.detail.value
 

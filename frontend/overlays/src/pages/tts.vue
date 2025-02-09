@@ -78,7 +78,7 @@ async function sayMessage(data: TTSMessage) {
 	const source = audioContext.createBufferSource();
 	currentAudioBuffer.value = source;
 
-	source.buffer = await audioContext.decodeAudioData(response.file.buffer);
+	source.buffer = await audioContext.decodeAudioData(response.file.buffer as ArrayBuffer);
 
 	gainNode.gain.value = parseInt(data.volume) / 100;
 	source.connect(gainNode);

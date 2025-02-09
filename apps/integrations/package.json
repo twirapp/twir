@@ -3,8 +3,8 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "node --watch --watch-preserve-output src/index.js",
-		"start": "node src/index.js"
+		"dev": "bun run --watch --no-clear-screen src/index.js",
+		"start": "bun --bun src/index.js"
 	},
 	"dependencies": {
 		"@twir/config": "workspace:*",

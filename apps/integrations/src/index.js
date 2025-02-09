@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 import { PORTS } from '@twir/grpc/constants/constants'
 import * as Integrations from '@twir/grpc/integrations/integrations'
 import { createServer } from 'nice-grpc'

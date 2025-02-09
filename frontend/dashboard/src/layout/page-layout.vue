@@ -7,6 +7,7 @@ import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'radix-vue'
 import { type Component, onBeforeMount, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
+// @ts-expect-error
 import type { StringOrNumber } from 'radix-vue/dist/shared/types'
 
 import { Button } from '@/components/ui/button'
