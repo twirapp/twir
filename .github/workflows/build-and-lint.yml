@@ -16,7 +16,6 @@ jobs:
           go-version-file: go.work
           cache-dependency-path: '**/*.sum'
 
-
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version-file: ".bun-version"
@@ -29,14 +28,12 @@ jobs:
           key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-node_modules-
-      - name: Install dependencies
+      - name: Install js
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: bun install
 
-      - name: Install dependencies
-        run: |
-          bun run cli deps --skip-node --skip-go
-          bun install
+      - name: Install go dependencies
+        run: bun run cli deps --skip-node
 
       - name: Build
         run: bun run cli build
