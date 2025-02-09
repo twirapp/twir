@@ -34,6 +34,7 @@ var Cmd = &cli.Command{
 	Subcommands: []*cli.Command{
 		GqlCmd,
 		AppBuildCmd,
+		LibsCmd,
 	},
 }
 
