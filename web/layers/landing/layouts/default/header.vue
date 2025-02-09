@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import Nav from './header-nav.vue'
 import HeaderProfile from './header-profile.vue'
-import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
+
+import TwirLogo from '~/components/twir-logo.vue'
 
 onMounted(() => {
 	if (import.meta.server) return
@@ -28,7 +29,7 @@ onMounted(() => {
 				class="flex justify-between items-center border-b border-[#9DA2BA]/30 py-4"
 			>
 				<div class="flex items-center gap-[4px] divide-x-2">
-					<NuxtLink to="/web/layers/public" class="flex items-center gap-[12px] cursor-pointer">
+					<NuxtLink to="/" class="flex items-center gap-[12px] cursor-pointer">
 						<TwirLogo :src="TwirLogo" alt="Twir" class="w-9 h-9" />
 						<span class="text-2xl font-semibold text-white">Twir</span>
 					</NuxtLink>
