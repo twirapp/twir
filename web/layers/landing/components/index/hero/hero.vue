@@ -3,8 +3,8 @@ import { DISCORD_INVITE_URL } from '@twir/brand'
 
 import HeroChat from './hero-chat.vue'
 
-import { useAuthLink, useProfile } from '~/layers/landing/api/user'
-import UiButton from '~/layers/landing/components/landing-ui-button.vue'
+import { useAuthLink, useProfile } from '~~/layers/landing/api/user'
+import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
 const pageUrl = useRequestURL()
 

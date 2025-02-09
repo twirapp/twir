@@ -1,13 +1,12 @@
 <script lang="ts" setup>
 import { type Cell, type ColumnDef, FlexRender, getCoreRowModel, getExpandedRowModel, useVueTable } from '@tanstack/vue-table'
 
-import CommandsCooldownCell from '../../../../components/commands/commands-cooldown-cell.vue'
-import CommandsNameCell from '../../../../components/commands/commands-name-cell.vue'
-import CommandsPermissionsCell from '../../../../components/commands/commands-permissions-cell.vue'
-import CommandsResponsesCell from '../../../../components/commands/commands-responses-cell.vue'
-
-import { useCommands } from '~/layers/public/api/use-commands'
-import { type Command, type Group, createGroups, isCommand } from '~/layers/public/lib/commands'
+import { useCommands } from '~~/layers/public/api/use-commands'
+import CommandsCooldownCell from '~~/layers/public/components/commands/commands-cooldown-cell.vue'
+import CommandsNameCell from '~~/layers/public/components/commands/commands-name-cell.vue'
+import CommandsPermissionsCell from '~~/layers/public/components/commands/commands-permissions-cell.vue'
+import CommandsResponsesCell from '~~/layers/public/components/commands/commands-responses-cell.vue'
+import { type Command, type Group, createGroups, isCommand } from '~~/layers/public/lib/commands'
 
 definePageMeta({
 	layout: 'public',

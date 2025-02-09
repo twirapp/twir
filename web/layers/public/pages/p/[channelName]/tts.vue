@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import UserCell from '~/components/table/cells/user-cell.vue'
-import { useTtsPublicSettings } from '~/layers/public/api/use-tts-settings'
+import { useTtsPublicSettings } from '~~/layers/public/api/use-tts-settings'
 
 definePageMeta({
 	layout: 'public',

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { CommunityUsersResetType } from '@/gql/graphql.js'
 import type { Column } from '@tanstack/vue-table'
+import type { CommunityUsersResetType } from '~/gql/graphql.js'
 
 import {
 	DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import { cn } from '@/lib/utils.js'
+} from '~/components/ui/dropdown-menu'
+import { cn } from '~/lib/utils.js'
 
 defineOptions({
 	inheritAttrs: false,

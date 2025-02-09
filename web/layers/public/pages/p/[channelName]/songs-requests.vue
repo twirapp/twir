@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import UserCell from '~/components/table/cells/user-cell.vue'
-import { useSongRequests } from '~/layers/public/api/use-song-requests'
 import { convertMillisToTime } from '~/utils/time-utils'
+import { useSongRequests } from '~~/layers/public/api/use-song-requests'
 
 definePageMeta({
 	layout: 'public',

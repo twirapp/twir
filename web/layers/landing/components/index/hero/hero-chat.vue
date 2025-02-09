@@ -1,10 +1,9 @@
 <script setup lang="ts">
+import ChatMessageTail from 'assets/icons/chat-message-tail.svg'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 import ChatAvatar from './hero-chat-avatar.vue'
 import { useChat } from './use-chat.js'
-
-import ChatMessageTail from '~/assets/icons/chat-message-tail.svg'
 
 const isEnabled = ref(false)
 const { messages, startTimeout, stopTimeout } = useChat(isEnabled)

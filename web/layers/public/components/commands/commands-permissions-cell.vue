@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import type { Command } from '~/layers/public/lib/commands'
+import type { Command } from '~~/layers/public/lib/commands'
 
 import { Icon } from '#components'
 

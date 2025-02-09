@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthLink, useProfile } from '~/layers/landing/api/user'
+import { useAuthLink, useProfile } from '~~/layers/landing/api/user'
 
 const pageUrl = useRequestURL()
 

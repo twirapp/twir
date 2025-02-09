@@ -69,10 +69,10 @@ defineProps<{
 </template>
 
 <style lang="scss">
-@import url("@egjs/vue3-flicking/dist/flicking.css");
-@import url("@egjs/flicking-plugins/dist/flicking-plugins.css");
-@import url("@egjs/flicking-plugins/dist/arrow.css");
-@import url("@egjs/flicking-plugins/dist/pagination.css");
+@import url("../../../../../node_modules/@egjs/vue3-flicking/dist/flicking.css");
+@import url("../../../../../node_modules/@egjs/flicking-plugins/dist/flicking-plugins.css");
+@import url("../../../../../node_modules/@egjs/flicking-plugins/dist/arrow.css");
+@import url("../../../../../node_modules/@egjs/flicking-plugins/dist/pagination.css");
 
 .wrapper {
 	display: flex;

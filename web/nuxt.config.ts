@@ -13,7 +13,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
 	compatibilityDate: '2024-04-03',
-
+	future: {
+		compatibilityVersion: 4,
+	},
 	devtools: {
 		enabled: true,
 		timeline: {
@@ -57,7 +59,10 @@ export default defineNuxtConfig({
 		plugins: [
 			watch({
 				onInit: false,
-				pattern: '~/**/*.{ts,vue}',
+				pattern: [
+					'~/**/*.{ts,vue}',
+					'~~/layers/**/*.{ts,vue}',
+				],
 				command: 'graphql-codegen',
 			}),
 		],
@@ -133,7 +138,7 @@ export default defineNuxtConfig({
 		 * Directory that the component lives in.
 		 * @default "./components/ui"
 		 */
-		componentDir: './components/ui',
+		componentDir: './app/components/ui',
 	},
 
 	imports: {

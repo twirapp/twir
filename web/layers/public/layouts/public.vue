@@ -2,7 +2,7 @@
 import PublicNavigation from './public/public-navigation.vue'
 import PublicUserProfile from './public/public-user-profile.vue'
 
-import { useStreamerProfile } from '~/layers/public/api/use-streamer-profile'
+import { useStreamerProfile } from '~~/layers/public/api/use-streamer-profile'
 
 const streamerProfile = useStreamerProfile()
 await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(() => true))
@@ -13,7 +13,7 @@ await useAsyncData('streamerProfile', () => streamerProfile.fetchProfile().then(
 		<UiSidebar collapsible="icon">
 			<UiSidebarHeader>
 				<div class="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
-					<a href="/" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
+					<a href="/layouts/public" class="flex flex-row gap-2 items-center justify-center group-data-[collapsible=icon]:hidden ml-2">
 						<TwirLogo class="size-8" />
 						<h1 class="text-2xl font-semibold group-data-[collapsible=icon]:hidden text-accent-foreground">
 							Twir
