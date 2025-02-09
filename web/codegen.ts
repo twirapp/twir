@@ -15,12 +15,12 @@ const config: CodegenConfig = {
 	},
 	schema: schemaDir,
 	documents: [
-		'./src/**/*.{ts,vue}',
+		'./app/**/*.{ts,vue}',
 		'./layers/**/*.{ts,vue}',
 	],
 	ignoreNoDocuments: true, // for better experience with the watcher
 	generates: {
-		'./src/gql/': {
+		'./app/gql/': {
 			preset: 'client',
 			config: {
 				useTypeImports: true,
