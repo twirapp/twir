@@ -39,48 +39,6 @@ services:
         - traefik.http.services.twir-nats.loadbalancer.server.port=8222
         - traefik.docker.network=traefik-public
 
-  temporal-ui:
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
-    image: temporalio/ui:2.21.0
-    networks:
-      - twir
-      - traefik-public
-    deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
-        - traefik.http.routers.twir-temporal.middlewares=admin-auth
-        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
-
-#  postgres:
-#    image: postgres:14-alpine
-#    volumes:
-#      - postgres-data:/var/lib/postgresql/data
-#      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
-#    environment:
-#      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
-#      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-#      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
-#    secrets:
-#      - twir_postgres_user
-#      - twir_postgres_password
-#      - twir_postgres_db
-#    networks:
-#      - twir
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
-
-
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.116.1
     volumes:
@@ -124,6 +82,22 @@ services:
         constraints:
           - node.role == manager
 
+  postgres-backup:
+    image: registry.twir.app/twirapp/postgres-backup:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
   pgbouncer:
     image: bitnami/pgbouncer:1.23.1
     secrets:
@@ -143,6 +117,28 @@ services:
       - PGBOUNCER_RESERVE_POOL_SIZE=20
       - PGBOUNCER_RESERVE_POOL_TIMEOUT=5
       - PGBOUNCER_MAX_CLIENT_CONN=4000
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
+
+
+  temporal-postgres:
+    image: 'bitnami/postgresql:17'
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+      POSTGRESQL_POSTGRES_PASSWORD: temporal
+    volumes:
+      - temporal-postgres-data:/bitnami/postgresql
     networks:
       - twir
     deploy:
@@ -176,21 +172,21 @@ services:
         constraints:
           - node.role == manager
 
-  postgres-backup:
-    image: registry.twir.app/twirapp/postgres-backup:latest
-    secrets:
-      - twir_doppler_token
+  temporal-ui:
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:2.21.0
     networks:
       - twir
+      - traefik-public
     deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      placement:
-        constraints:
-          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
+        - traefik.http.routers.twir-temporal.middlewares=admin-auth
+        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
+        - traefik.docker.network=traefik-public
 
   migrations:
     image: registry.twir.app/twirapp/migrations:latest
@@ -208,7 +204,7 @@ services:
 
   redis:
     image: ghcr.io/dragonflydb/dragonfly:v1.26.2
-    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *" --logtostderr --proactor_threads 4
+    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *" --logtostderr
     volumes:
       - dragonfly-data:/data
     networks:
@@ -634,6 +630,7 @@ volumes:
   redis-stack-data:
   dragonfly-data:
   minio-data:
+  temporal-postgres-data:
 
 networks:
   twir:
