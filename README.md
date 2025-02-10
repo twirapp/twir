@@ -2,7 +2,7 @@
 
 ## Requirements
 
-* [Bun (1.2.2+)](https://bin.sh)
+* [Bun (1.2.2+)](https://bun.sh)
 * [Go (1.21+)](https://go.dev/)
 
 * [Docker](https://docs.docker.com/engine/)
