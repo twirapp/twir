@@ -67,11 +67,19 @@ export async function updateIntegration(id: string, data: {
 		return
 	}
 
-	await sql.unsafe(`
-	UPDATE channels_integrations
-	${Object.entries(data).map(([key, value]) => `SET "${key}" = ${value}`).join(',')}
-	WHERE id = '${id}'
-`)
+	await sql.begin(async tx => {
+		if (data.enabled !== undefined) {
+			await tx`UPDATE channels_integrations SET "enabled" = ${data.enabled} WHERE id = ${id}`
+		}
+
+		if (data.accessToken !== undefined) {
+			await tx`UPDATE channels_integrations SET "accessToken" = ${data.accessToken} WHERE id = ${id}`
+		}
+
+		if (data.refreshToken !== undefined) {
+			await tx`UPDATE channels_integrations SET "refreshToken" = ${data.refreshToken} WHERE id = ${id}`
+		}
+	})
 }
 
 export async function insertDonation(data: Donate) {
