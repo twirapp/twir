@@ -4,42 +4,42 @@ import { PORTS } from '@twir/grpc/constants/constants'
 import * as Integrations from '@twir/grpc/integrations/integrations'
 import { createServer } from 'nice-grpc'
 
-import { Services, getIntegrations } from './libs/db.js'
+import { Service, getIntegrations } from './libs/db'
 import {
 	addIntegration as addDonatePayIntegration,
 	removeIntegration as removeDonatePayIntegration,
-} from './store/donatePay.js'
+} from './store/donatePay'
 import {
 	addIntegration as addDonationAlertsIntegration,
 	removeIntegration as removeDonationAlertsIntegration,
-} from './store/donationAlerts.js'
+} from './store/donationAlerts'
 import {
 	addIntegration as addStreamlabsIntegration,
 	removeIntegration as removeStreamlabsIntegration,
-} from './store/streamlabs.js'
+} from './store/streamlabs'
 
-import './pubsub.js'
+import type { Integration } from './libs/db'
+import type { IntegrationsServiceImplementation } from '@twir/grpc/integrations/integrations'
+
+import './pubsub'
 
 const integrations = await getIntegrations()
 
 for (const integration of integrations) {
-	if (integration.integration.service === Services.DONATIONALERTS) {
+	if (integration.integration.service === Service.DONATIONALERTS) {
 		await addDonationAlertsIntegration(integration)
 	}
 
-	if (integration.integration.service === Services.STREAMLABS) {
+	if (integration.integration.service === Service.STREAMLABS) {
 		await addStreamlabsIntegration(integration)
 	}
 
-	if (integration.integration.service === Services.DONATEPAY) {
+	if (integration.integration.service === Service.DONATEPAY) {
 		await addDonatePayIntegration(integration)
 	}
 }
 
-/**
- * @type {import('@twir/grpc/integrations/integrations').IntegrationsServiceImplementation}
- */
-const integrationsServer = {
+const integrationsServer: IntegrationsServiceImplementation = {
 	async addIntegration(data) {
 		const integration = await getIntegrations(data.id)
 
@@ -49,14 +49,14 @@ const integrationsServer = {
 
 		console.info(`Adding ${integration.id} connection`)
 
-		if (integration.integration.service === Services.DONATIONALERTS) {
-			addDonationAlertsIntegration(integration)
+		if (integration.integration.service === Service.DONATIONALERTS) {
+			await addDonationAlertsIntegration(integration)
 		}
-		if (integration.integration.service === Services.STREAMLABS) {
-			addStreamlabsIntegration(integration)
+		if (integration.integration.service === Service.STREAMLABS) {
+			await addStreamlabsIntegration(integration)
 		}
-		if (integration.integration.service === Services.DONATEPAY) {
-			addDonatePayIntegration(integration)
+		if (integration.integration.service === Service.DONATEPAY) {
+			await addDonatePayIntegration(integration)
 		}
 
 		return {}
@@ -84,20 +84,17 @@ server.add(Integrations.IntegrationsDefinition, integrationsServer)
 await server.listen(`0.0.0.0:${PORTS.INTEGRATIONS_SERVER_PORT}`)
 console.info('Integrations started')
 
-/**
- * @param {Integration} integration  Options object for each OS, and global options.
- */
-export async function removeIntegration(integration) {
-	if (integration.integration.service === Services.STREAMLABS) {
-		removeStreamlabsIntegration(integration.channelId)
+export async function removeIntegration(integration: Integration) {
+	if (integration.integration.service === Service.STREAMLABS) {
+		await removeStreamlabsIntegration(integration.channelId)
 	}
 
-	if (integration.integration.service === Services.DONATIONALERTS) {
-		removeDonationAlertsIntegration(integration.channelId)
+	if (integration.integration.service === Service.DONATIONALERTS) {
+		await removeDonationAlertsIntegration(integration.channelId)
 	}
 
-	if (integration.integration.service === Services.DONATEPAY) {
-		removeDonatePayIntegration(integration.channelId)
+	if (integration.integration.service === Service.DONATEPAY) {
+		await removeDonatePayIntegration(integration.channelId)
 	}
 }
 

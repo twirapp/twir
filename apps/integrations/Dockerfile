@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y apt-transport-https ca-certificates cur
     apt-get -y install doppler
 COPY docker-entrypoint.sh ./
 RUN chmod +x docker-entrypoint.sh
-#ENTRYPOINT ["/app/docker-entrypoint.sh"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM prod_base
 COPY apps/integrations/.out/twir-integrations /app/twir-integrations

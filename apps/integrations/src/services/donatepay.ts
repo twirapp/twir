@@ -1,41 +1,22 @@
 import Centrifuge from 'centrifuge'
 import ws from 'ws'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// eslint-disable-next-line ts/ban-ts-comment
 // @ts-expect-error
 import { XMLHttpRequest } from 'xmlhttprequest'
 
 import { onDonation } from '../utils/onDonation.js'
 
+import type { Subscription } from 'centrifuge'
+
+// eslint-disable-next-line no-restricted-globals
 global.XMLHttpRequest = XMLHttpRequest
 
 export class DonatePay {
-	/**
-	 * @type {Centrifuge}
-	 */
-	#centrifuge
-	/**
-	 *
-	 * @type {Centrifuge.Subscription}
-	 */
-	#subscription
-	/**
-	 *
-	 * @type {NodeJS.Timeout}
-	 */
-	#timeout
+	#centrifuge: Centrifuge
+	#subscription: Subscription
+	#timeout: Timer
 
-	#twitchUserId
-	apiKey
-
-	/**
-	 *
-	 * @param {string} twitchUserId
-	 * @param {string} apiKey
-	 */
-	constructor(twitchUserId, apiKey) {
-		this.#twitchUserId = twitchUserId
-		this.apiKey = apiKey
-	}
+	constructor(private readonly twitchUserId: string, private readonly apiKey: string) {}
 
 	async connect() {
 		if (this.#centrifuge || this.#subscription) {
@@ -59,30 +40,26 @@ export class DonatePay {
 
 		this.#subscription = this.#centrifuge.subscribe(`$public:${userData.id}`, this.#eventCallback)
 
-		const logDisconnect = (args) => console.info(`DonatePay(${this.#twitchUserId}): disconnected`, ...args)
+		const logDisconnect = (args: any[]) => console.info(`DonatePay(${this.twitchUserId}): disconnected`, ...args)
 
 		this.#centrifuge.on('disconnect', logDisconnect)
 		this.#subscription.on('disconnect', logDisconnect)
 
 		this.#centrifuge.on('connect', () => {
-			console.info(`DonatePay: connected to channel ${this.#twitchUserId}`)
+			console.info(`DonatePay: connected to channel ${this.twitchUserId}`)
 		})
 
 		this.#centrifuge.connect()
 		this.#timeout = setTimeout(() => this.connect(), 10 * 60 * 1000)
 	}
 
-	/**
-	 *
-	 * @param {DonatePayEvent} message
-	 */
-	async #eventCallback(message) {
+	async #eventCallback(message: DonatePayEvent) {
 		if (message.data.notification.type !== 'donation') return
 
 		const { vars } = message.data.notification
 
 		await onDonation({
-			twitchUserId: this.#twitchUserId,
+			twitchUserId: this.twitchUserId,
 			amount: vars.sum,
 			currency: vars.currency,
 			message: vars.comment,
@@ -92,9 +69,9 @@ export class DonatePay {
 
 	async disconnect() {
 		clearTimeout(this.#timeout)
-		await this.#subscription?.unsubscribe()
+		this.#subscription?.unsubscribe()
 		this.#centrifuge?.disconnect()
-		console.info(`DonatePay: disconnected from channel ${this.#twitchUserId}`)
+		console.info(`DonatePay: disconnected from channel ${this.twitchUserId}`)
 	}
 
 	async #getUserId() {
@@ -120,7 +97,7 @@ export class DonatePay {
 		const userId = await this.#getUserId().catch(() => null)
 
 		if (!userId) {
-			console.error(`DonatePay: something wen't wrong when getting token of ${this.#twitchUserId}`)
+			console.error(`DonatePay: something went wrong when getting token of ${this.twitchUserId}`)
 		}
 
 		const req = await fetch('https://donatepay.ru/api/v2/socket/token', {
@@ -137,6 +114,20 @@ export class DonatePay {
 		return {
 			token: data.token,
 			id: userId,
+		}
+	}
+}
+
+interface DonatePayEvent {
+	data: {
+		notification: {
+			type: 'donation'
+			vars: {
+				name: string
+				comment: string
+				sum: number
+				currency: 'string'
+			}
 		}
 	}
 }

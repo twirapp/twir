@@ -1,25 +1,20 @@
-import { setTimeout as sleep } from 'node:timers/promises'
+import { sleep } from 'bun'
 
-import { db } from '../libs/db.js'
-import { DonationAlerts, globalRequestLimiter } from '../services/donationAlerts.js'
+import { updateIntegration } from '../libs/db.ts'
+import { DonationAlerts, globalRequestLimiter } from '../services/donationAlerts.ts'
 
-/**
- *
- * @type {Map<string, DonationAlerts>}
- */
-export const donationAlertsStore = new Map()
+import type { Integration } from '../libs/db.ts'
 
-/**
- *
- * @param {Integration} integration
- */
-export async function addIntegration(integration) {
+export const donationAlertsStore = new Map<string, DonationAlerts>()
+
+export async function addIntegration(integration: Integration) {
 	if (
 		!integration.accessToken
 		|| !integration.refreshToken
 		|| !integration.integration
 		|| !integration.integration.clientId
 		|| !integration.integration.clientSecret
+		|| !integration.enabled
 	) {
 		return
 	}
@@ -67,13 +62,11 @@ export async function addIntegration(integration) {
 	}
 
 	if (!accessToken || !refreshToken) {
+		await updateIntegration(integration.id, { enabled: false })
 		return
 	}
 
-	await db('channels_integrations').where('id', integration.id).update({
-		accessToken,
-		refreshToken,
-	})
+	await updateIntegration(integration.id, { accessToken, refreshToken })
 
 	let profileData
 
@@ -122,11 +115,7 @@ export async function addIntegration(integration) {
 	return instance
 }
 
-/**
- *
- * @param channelId
- */
-export async function removeIntegration(channelId) {
+export async function removeIntegration(channelId: string) {
 	const existed = donationAlertsStore.get(channelId)
 	if (!existed) return
 

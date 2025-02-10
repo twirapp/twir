@@ -5,6 +5,7 @@
     "target": "ESNext",
     "moduleResolution": "bundler",
     "noImplicitAny": true,
+    "allowImportingTsExtensions": true,
     "sourceMap": true,
     "inlineSources": true,
     "strict": true,
@@ -19,11 +20,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
-		"checkJs": true
-	},
-	"exclude": [
+    "noEmit": true,
+  },
+  "exclude": [
     "node_modules",
-    "dist"
+    "dist",
   ],
   "include": [
     "src"
