@@ -1,3 +1,5 @@
+import process from 'node:process'
+
 import { z } from 'zod'
 
 const envSchema = z.object({
@@ -26,4 +28,4 @@ const envSchema = z.object({
 	USE_WSS: z.enum(['true', 'false']).transform((value) => value === 'true'),
 })
 
-export const config = envSchema.parse(Bun.env)
+export const config = envSchema.parse(process.env)

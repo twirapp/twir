@@ -4,8 +4,6 @@ import process from 'node:process'
 import { config } from '@twir/config'
 import { watch } from 'vite-plugin-watch'
 
-console.log(config)
-
 const https = config.TWITCH_CALLBACKURL.startsWith('https')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
