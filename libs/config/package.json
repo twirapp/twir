@@ -7,6 +7,6 @@
   "types": "./src/index.ts",
   "dependencies": {
     "dotenv": "16.4.5",
-    "envalid": "8.0.0"
+    "zod": "3.24.1"
   }
 }

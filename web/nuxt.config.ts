@@ -1,10 +1,10 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import { config, readEnv } from '@twir/config'
+import { config } from '@twir/config'
 import { watch } from 'vite-plugin-watch'
 
-readEnv(path.join(process.cwd(), '..', '.env'))
+console.log(config)
 
 const https = config.TWITCH_CALLBACKURL.startsWith('https')
 
