@@ -1,10 +1,7 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import { config } from '@twir/config'
 import { watch } from 'vite-plugin-watch'
-
-const https = config.TWITCH_CALLBACKURL.startsWith('https')
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -66,7 +63,7 @@ export default defineNuxtConfig({
 		],
 		server: {
 			hmr: {
-				protocol: https ? 'wss' : 'ws',
+				// protocol: false ? 'wss' : 'ws',
 			},
 			proxy: {
 				'/api-old': {
@@ -170,7 +167,8 @@ export default defineNuxtConfig({
 		client: path.join(process.cwd(), 'urql.ts'),
 		ssr: {
 			endpoint: process.env.NODE_ENV !== 'production'
-				? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
+				// ? `${https ? 'https' : 'http'}://${config.SITE_BASE_URL}/api/query`
+				? 'http://localhost:3009/query'
 				: 'http://api-gql:3009/query',
 		},
 	},
