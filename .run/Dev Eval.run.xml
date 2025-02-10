@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Dev Eval" type="NodeJSConfigurationType" path-to-js-file="$PROJECT_DIR$/apps/eval/src/index.ts" working-dir="$PROJECT_DIR$/apps/eval">
-    <method v="2" />
-  </configuration>
-</component>

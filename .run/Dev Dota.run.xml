@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Dev Dota" type="NodeJSConfigurationType" node-parameters="--import tsx" path-to-js-file="src/index.ts" working-dir="$PROJECT_DIR$/apps/dota">
-    <method v="2" />
-  </configuration>
-</component>

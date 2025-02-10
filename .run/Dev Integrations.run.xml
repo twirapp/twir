@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Dev Integrations" type="NodeJSConfigurationType" path-to-js-file="$PROJECT_DIR$/apps/integrations/src/index.js" working-dir="$PROJECT_DIR$/apps/integrations">
-    <method v="2" />
-  </configuration>
-</component>
