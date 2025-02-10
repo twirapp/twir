@@ -23,7 +23,6 @@ bus.Eval.Evaluate.subscribeGroup('eval.evaluate', async (request) => {
 			fetch,
 			URLSearchParams,
 			_,
-			result: undefined,
 		}
 
 		resultOfExecution = await script.runInContext(vm.createContext(context))
@@ -33,7 +32,7 @@ bus.Eval.Evaluate.subscribeGroup('eval.evaluate', async (request) => {
 	}
 
 	return {
-		result: String(resultOfExecution).slice(0, 5000),
+		result: String(resultOfExecution).slice(0, 500),
 	}
 })
 
