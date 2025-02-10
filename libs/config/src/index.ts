@@ -25,7 +25,7 @@ const envSchema = z.object({
 	ODESLI_API_KEY: z.string().optional(),
 	DISCORD_FEEDBACK_URL: z.string(),
 	NATS_URL: z.string().default('127.0.0.1:4222'),
-	USE_WSS: z.enum(['true', 'false']).transform((value) => value === 'true'),
+	USE_WSS: z.enum(['true', 'false']).transform((value) => value === 'true').optional().default('false'),
 })
 
 export const config = envSchema.parse(process.env)
