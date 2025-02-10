@@ -4,6 +4,7 @@
   "scripts": {
     "start": "bun --bun src/index.js",
     "dev": "bun --bun --env-file=../../.env --watch --no-clear-screen src/index.js",
+    "prebuild": "tsc",
     "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-eval"
   },
   "dependencies": {
