@@ -3,6 +3,8 @@ import process from 'node:process'
 
 import { watch } from 'vite-plugin-watch'
 
+import gqlcodegen from './modules/gql-codegen'
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -31,6 +33,7 @@ export default defineNuxtConfig({
 		'nuxt-svgo',
 		'@vueuse/nuxt',
 		'@nuxt-alt/proxy',
+		gqlcodegen,
 	],
 
 	icon: {
