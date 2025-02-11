@@ -30,6 +30,5 @@ RUN chmod +x docker-entrypoint.sh
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 
 FROM prod-base
-COPY --from=builder /app/node_modules node_modules
 COPY --from=builder /app/web/.output ./
 CMD ["bun", "run", "server/index.mjs"]
