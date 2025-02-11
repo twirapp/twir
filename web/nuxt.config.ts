@@ -1,8 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
 
-import { watch } from 'vite-plugin-watch'
-
 import gqlcodegen from './modules/gql-codegen'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
@@ -54,16 +52,6 @@ export default defineNuxtConfig({
 	css: ['~/assets/css/global.css'],
 
 	vite: {
-		plugins: [
-			watch({
-				onInit: false,
-				pattern: [
-					'~/**/*.{ts,vue}',
-					'~~/layers/**/*.{ts,vue}',
-				],
-				command: 'graphql-codegen',
-			}),
-		],
 		server: {
 			hmr: {
 				// protocol: false ? 'wss' : 'ws',
