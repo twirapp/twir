@@ -209,7 +209,7 @@ services:
       test: exit 0
 
   redis:
-    image: registry.twir.app/twirapp/dragofly:v1.26.2
+    image: twirapp/dragonfly:v1.26.2
     command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *" --logtostderr
     volumes:
       - dragonfly-data:/data
