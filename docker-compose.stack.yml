@@ -83,7 +83,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.labels.databases-1
+          - node.labels.databases-1 == true
 
   postgres-backup:
     image: registry.twir.app/twirapp/postgres-backup:latest
@@ -152,7 +152,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - 'node.labels.databases-1'
+          - node.labels.databases-1 == true
 
   temporal:
     depends_on:
