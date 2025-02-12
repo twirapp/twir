@@ -15,7 +15,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
-        - traefik.http.routers.twir-adminer.middlewares=admin-auth
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
@@ -38,7 +37,6 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)
-        - traefik.http.routers.twir-nats.middlewares=admin-auth
         - traefik.http.services.twir-nats.loadbalancer.server.port=8222
         - traefik.docker.network=traefik-public
 
