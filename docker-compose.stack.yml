@@ -443,7 +443,7 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-web.rule=Host(`twir.app`)
-        - traefik.http.routers.twir-web.middlewares=cloudflarewarp
+
         - traefik.http.services.twir-web.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
       placement:
