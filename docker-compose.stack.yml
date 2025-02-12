@@ -11,7 +11,7 @@ services:
     deploy:
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
@@ -34,7 +34,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)
@@ -57,7 +57,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   postgres:
     image: 'bitnami/postgresql:17'
@@ -99,7 +99,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - 'node.labels.databases'
+          - node.labels.databases == true
 
   pgbouncer:
     image: bitnami/pgbouncer:1.23.1
@@ -130,7 +130,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - 'node.labels.databases'
+          - node.labels.databases == true
 
 
   temporal-postgres:
@@ -173,7 +173,7 @@ services:
         kompose.volume.type: configMap
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   temporal-ui:
     environment:
@@ -192,7 +192,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   migrations:
     image: registry.twir.app/twirapp/migrations:latest
@@ -223,7 +223,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - 'node.labels.databases'
+          - node.labels.databases == true
 
   api:
     image: registry.twir.app/twirapp/api:latest
@@ -251,7 +251,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   api-gql:
     image: registry.twir.app/twirapp/api-gql:latest
@@ -279,7 +279,7 @@ services:
       replicas: 1
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   bots:
     image: registry.twir.app/twirapp/bots:latest
@@ -302,7 +302,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   parser:
     image: registry.twir.app/twirapp/parser:latest
@@ -320,7 +320,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
     networks:
       - twir
 
@@ -342,7 +342,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   scheduler:
     image: registry.twir.app/twirapp/scheduler:latest
@@ -358,7 +358,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   eventsub:
     image: registry.twir.app/twirapp/eventsub:latest
@@ -384,7 +384,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   eval:
     image: registry.twir.app/twirapp/eval:latest
@@ -406,7 +406,7 @@ services:
           memory: 256M
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
     networks:
       - twir
 
@@ -448,7 +448,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   dashboard:
     image: registry.twir.app/twirapp/dashboard:latest
@@ -473,7 +473,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   overlays:
     image: registry.twir.app/twirapp/overlays:latest
@@ -496,7 +496,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   websockets:
     image: registry.twir.app/twirapp/websockets:latest
@@ -520,7 +520,7 @@ services:
         - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   tokens:
     image: registry.twir.app/twirapp/tokens:latest
@@ -540,7 +540,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   emotes-cacher:
     image: registry.twir.app/twirapp/emotes-cacher:latest
@@ -560,7 +560,7 @@ services:
       replicas: 4
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   events:
     image: registry.twir.app/twirapp/events:latest
@@ -580,7 +580,7 @@ services:
       replicas: 6
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   ytsr:
     image: registry.twir.app/twirapp/ytsr:latest
@@ -600,7 +600,7 @@ services:
       replicas: 6
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   tts:
     image: aculeasis/rhvoice-rest:latest
@@ -618,7 +618,7 @@ services:
       replicas: 4
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   discord:
     image: registry.twir.app/twirapp/discord:latest
@@ -634,7 +634,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
 
   language-detector:
     image: ghcr.io/registry.twir.app/twirapp/language-detector:latest
@@ -654,7 +654,7 @@ services:
         max_attempts: 30
       placement:
         constraints:
-          - '!node.labels.databases'
+          - node.labels.databases != true
     networks:
       - twir
 
