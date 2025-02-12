@@ -55,7 +55,7 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.labels.databases != true
+          - node.manager == true
 
   postgres:
     image: 'bitnami/postgresql:17'
