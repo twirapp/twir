@@ -658,6 +658,8 @@ services:
 
   toxicity-detector:
     image: twirapp/toxicity-detector:latest
+    environment:
+      TOXICITY_THRESHOLD: -3.5
     deploy:
       update_config:
         parallelism: 2
