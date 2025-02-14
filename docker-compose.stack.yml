@@ -84,7 +84,7 @@ services:
           - node.labels.databases-1 == true
 
   postgres-backup:
-    image: twirapp/postgres-backup:latest
+    image: registry.twir.app/twirapp/postgres-backup:latest
     secrets:
       - twir_doppler_token
     networks:
