@@ -171,7 +171,11 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 	if !shardReq.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %v, %s",
+			shardReq.StatusCode,
+			shardReq.String(),
+		)
 	}
 
 	henrikResponse := ValorantHenrikResponse{}
@@ -188,7 +192,11 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 	if !henrikReq.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %d %s",
+			henrikReq.StatusCode,
+			henrikReq.String(),
+		)
 	}
 
 	userName := fmt.Sprintf(
