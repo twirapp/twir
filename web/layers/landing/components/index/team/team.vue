@@ -15,7 +15,12 @@ import { developers, socialLinkLabels } from './team-data.js'
 
 		<div class="pt-16 flex items-center justify-items-center flex-wrap gap-8 px-4">
 			<div v-for="developer of developers" :key="developer.username" class="flex gap-6">
-				<NuxtImg :src="developer.avatarUrl" class="w-20 h-20 rounded-full" :alt="`Avatar of ${developer.username} from GitHub`" />
+				<img
+					:src="developer.avatarUrl"
+					class="size-20 rounded-full"
+					:alt="`Avatar of ${developer.username} from GitHub`"
+					loading="lazy"
+				/>
 				<div class="flex flex-col">
 					<span class="font-semibold text-white text-lg">{{ developer.username }}</span>
 					<span class="font-normal mt-1 text-[#ADB0B8] text-base">{{ developer.description }}</span>
