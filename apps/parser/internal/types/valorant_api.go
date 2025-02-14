@@ -136,19 +136,19 @@ type ValorantProfile struct {
 }
 
 type ValorantMatchPlayer struct {
-	Puuid              string `json:"puuid"`
-	Name               string `json:"name"`
-	Tag                string `json:"tag"`
-	Team               string `json:"team"`
-	Level              int    `json:"level"`
-	Character          string `json:"character"`
-	CurrentTier        int    `json:"currenttier"`
-	CurrentTierPatched string `json:"currenttier_patched"`
+	Puuid              string  `json:"puuid"`
+	Name               string  `json:"name"`
+	Tag                string  `json:"tag"`
+	Team               string  `json:"team"`
+	Level              float64 `json:"level"`
+	Character          string  `json:"character"`
+	CurrentTier        float64 `json:"currenttier"`
+	CurrentTierPatched string  `json:"currenttier_patched"`
 	Behavior           struct {
 		AfkRounds    float64 `json:"afk_rounds"`
 		FriendlyFire struct {
-			Incoming int `json:"incoming"`
-			Outgoing int `json:"outgoing"`
+			Incoming float64 `json:"incoming"`
+			Outgoing float64 `json:"outgoing"`
 		} `json:"friendly_fire"`
 		RoundsInSpawn float64 `json:"rounds_in_spawn"`
 	} `json:"behavior"`
@@ -163,16 +163,16 @@ type ValorantMatchPlayer struct {
 	} `json:"stats"`
 	Economy struct {
 		Spent struct {
-			Overall int `json:"overall"`
-			Average int `json:"average"`
+			Overall float64 `json:"overall"`
+			Average float64 `json:"average"`
 		} `json:"spent"`
 		LoadoutValue struct {
-			Overall int `json:"overall"`
-			Average int `json:"average"`
+			Overall float64 `json:"overall"`
+			Average float64 `json:"average"`
 		} `json:"loadout_value"`
 	} `json:"economy"`
-	DamageMade     int `json:"damage_made"`
-	DamageReceived int `json:"damage_received"`
+	DamageMade     float64 `json:"damage_made"`
+	DamageReceived float64 `json:"damage_received"`
 }
 
 type ValorantMatchPlayers struct {
@@ -185,19 +185,19 @@ type ValorantMatchesResponse struct {
 
 type ValorantMatch struct {
 	MetaData struct {
-		Map              string `json:"map"`
-		GameVersion      string `json:"game_version"`
-		GameLength       int    `json:"game_length"`
-		GameStart        int    `json:"game_start"`
-		GameStartPatched string `json:"game_start_patched"`
-		RoundsPlayed     int    `json:"rounds_played"`
-		Mode             string `json:"mode"`
-		Queue            string `json:"queue"`
-		SeasonID         string `json:"season_id"`
-		Platform         string `json:"platform"`
-		MatchID          string `json:"match_id"`
-		Region           string `json:"region"`
-		Cluster          string `json:"cluster"`
+		Map              string  `json:"map"`
+		GameVersion      string  `json:"game_version"`
+		GameLength       float64 `json:"game_length"`
+		GameStart        float64 `json:"game_start"`
+		GameStartPatched string  `json:"game_start_patched"`
+		RoundsPlayed     float64 `json:"rounds_played"`
+		Mode             string  `json:"mode"`
+		Queue            string  `json:"queue"`
+		SeasonID         string  `json:"season_id"`
+		Platform         string  `json:"platform"`
+		MatchID          string  `json:"match_id"`
+		Region           string  `json:"region"`
+		Cluster          string  `json:"cluster"`
 	}
 	Players ValorantMatchPlayers `json:"players"`
 	Teams   map[string]struct {
@@ -208,8 +208,8 @@ type ValorantMatch struct {
 }
 
 type ValorantMmrHistoryMatch struct {
-	Currenttier        int    `json:"currenttier"`
-	CurrenttierPatched string `json:"currenttier_patched"`
+	Currenttier        float64 `json:"currenttier"`
+	CurrenttierPatched string  `json:"currenttier_patched"`
 	Images             struct {
 		Small        string `json:"small"`
 		Large        string `json:"large"`
@@ -221,12 +221,12 @@ type ValorantMmrHistoryMatch struct {
 		Name string `json:"name"`
 		Id   string `json:"id"`
 	} `json:"map"`
-	SeasonId            string `json:"season_id"`
-	RankingInTier       int    `json:"ranking_in_tier"`
-	MmrChangeToLastGame int    `json:"mmr_change_to_last_game"`
-	Elo                 int    `json:"elo"`
-	Date                string `json:"date"`
-	DateRaw             int    `json:"date_raw"`
+	SeasonId            string  `json:"season_id"`
+	RankingInTier       float64 `json:"ranking_in_tier"`
+	MmrChangeToLastGame float64 `json:"mmr_change_to_last_game"`
+	Elo                 float64 `json:"elo"`
+	Date                string  `json:"date"`
+	DateRaw             float64 `json:"date_raw"`
 }
 
 type ValorantMmrHistoryResponse struct {
