@@ -9,13 +9,13 @@ type TwirStats {
 	messages: Int!
 	usedEmotes: Int!
 	usedCommands: Int!
-	streamers: [TwirStatsStreamer!]!
+#	streamers: [TwirStatsStreamer!]!
 }
 
-type TwirStatsStreamer {
-	id: String!
-	twitchProfile: TwirUserTwitchInfo!
-	isLive: Boolean!
-	isPartner: Boolean!
-	followersCount: Int!
-}
+#type TwirStatsStreamer {
+#	id: String!
+#	twitchProfile: TwirUserTwitchInfo!
+#	isLive: Boolean!
+#	isPartner: Boolean!
+#	followersCount: Int!
+#}
