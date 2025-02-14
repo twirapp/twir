@@ -181,6 +181,7 @@ func (c *Integrations) IntegrationsValorantPostCode(
 	henrikResponse := ValorantHenrikResponse{}
 	henrikReq, err := req.
 		SetSuccessResult(&henrikResponse).
+		SetHeader("Authorization", c.Config.ValorantHenrikApiKey).
 		Get(
 			fmt.Sprintf(
 				"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
