@@ -207,10 +207,10 @@ services:
       test: exit 0
 
   redis:
-    image: twirapp/dragonfly:v1.26.2
-    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *" --logtostderr
+    image: redis:7.4.2
+    command: redis-server --save 60 1 --loglevel warning
     volumes:
-      - dragonfly-data:/data
+      - redis-data:/data
     networks:
       - twir
     deploy:
@@ -681,8 +681,6 @@ volumes:
     external: true
   postgres-data:
   redis-data:
-  redis-stack-data:
-  dragonfly-data:
   minio-data:
   temporal-postgres-data:
 
