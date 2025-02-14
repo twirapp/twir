@@ -196,7 +196,7 @@ func (c *Variables) ParseVariablesInText(
 				},
 			)
 
-			if err == nil {
+			if res != nil && err == nil {
 				mu.Lock()
 
 				if variable.NotCachable {
