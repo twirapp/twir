@@ -21,7 +21,7 @@ export default defineUrqlClient((ssrExchange) => {
 })
 
 function setupServer(ssrExchange: SSRExchange) {
-	return [ssrExchange, fetchExchange]
+	return [cacheExchange, ssrExchange, fetchExchange]
 }
 
 function setupClient(ssrExchange: SSRExchange) {

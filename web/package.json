@@ -5,10 +5,10 @@
   "scripts": {
     "build": "bun --bun run nuxt build",
     "dev": "bun --bun --env-file=../.env nuxt dev",
-    "start": "node .output/server/index.mjs",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
+    "start": "bun --bun run .output/server/index.mjs",
+    "generate": "bun --bun nuxt generate",
+    "preview": "bun --bun nuxt preview",
+    "postinstall": "bun --bun nuxt prepare",
     "graphql-codegen": "graphql-codegen"
   },
   "dependencies": {
