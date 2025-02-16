@@ -182,8 +182,7 @@ func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (
 				redemption := &gqlmodel.TwitchRedemption{
 					ID:        data.ID,
 					ChannelID: data.BroadcasterUserID,
-					// we have resolver,
-					User: nil,
+					User:      &gqlmodel.TwirUserTwitchInfo{ID: data.UserID},
 					Reward: &gqlmodel.TwitchReward{
 						ID:              data.Reward.ID,
 						Title:           reward.Title,
@@ -196,6 +195,7 @@ func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (
 					RedeemedAt: data.RedeemedAt,
 					Prompt:     &data.UserInput,
 				}
+
 				ch <- redemption
 			}
 		}
