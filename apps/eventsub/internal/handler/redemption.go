@@ -119,6 +119,29 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 		}
 	}()
 
+	go func() {
+		c.bus.RedemptionAdd.Publish(
+			twitch.ActivatedRedemption{
+				ID:                   event.ID,
+				BroadcasterUserID:    event.BroadcasterUserID,
+				BroadcasterUserLogin: event.BroadcasterUserLogin,
+				BroadcasterUserName:  event.BroadcasterUserName,
+				UserID:               event.UserID,
+				UserLogin:            event.UserLogin,
+				UserName:             event.UserName,
+				UserInput:            event.UserInput,
+				Status:               event.Status,
+				RedeemedAt:           time.Now(),
+				Reward: twitch.ActivatedRedemptionReward{
+					ID:     event.Reward.ID,
+					Title:  event.Reward.Title,
+					Prompt: event.Reward.Prompt,
+					Cost:   event.Reward.Cost,
+				},
+			},
+		)
+	}()
+
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(

@@ -18,17 +18,18 @@ import (
 )
 
 type Bus struct {
-	AuditLogs    *auditLogsBus
-	Parser       *parserBus
-	Websocket    *websocketBus
-	Channel      *channelBus
-	Bots         *botsBus
-	EmotesCacher *emotesCacherBus
-	Timers       *timersBus
-	Eval         *evalBus
-	EventSub     *eventSubBus
-	Scheduler    *schedulerBus
-	ChatMessages Queue[twitch.TwitchChatMessage, struct{}]
+	AuditLogs     *auditLogsBus
+	Parser        *parserBus
+	Websocket     *websocketBus
+	Channel       *channelBus
+	Bots          *botsBus
+	EmotesCacher  *emotesCacherBus
+	Timers        *timersBus
+	Eval          *evalBus
+	EventSub      *eventSubBus
+	Scheduler     *schedulerBus
+	ChatMessages  Queue[twitch.TwitchChatMessage, struct{}]
+	RedemptionAdd Queue[twitch.ActivatedRedemption, struct{}]
 }
 
 func NewNatsBus(nc *nats.Conn) *Bus {
@@ -217,6 +218,13 @@ func NewNatsBus(nc *nats.Conn) *Bus {
 			CHAT_MESSAGES_SUBJECT,
 			30*time.Minute,
 			nats.JSON_ENCODER,
+		),
+
+		RedemptionAdd: NewNatsQueue[twitch.ActivatedRedemption, struct{}](
+			nc,
+			twitch.RedemptionAddSubject,
+			30*time.Minute,
+			nats.GOB_ENCODER,
 		),
 	}
 }

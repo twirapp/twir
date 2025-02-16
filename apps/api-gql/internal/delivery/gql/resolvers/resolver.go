@@ -21,6 +21,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	dashboard_widget_events "github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -50,17 +51,17 @@ import (
 type Deps struct {
 	fx.In
 
+	TokensGrpc tokens.TokensClient
+	Logger     logger.Logger
+	WsRouter   wsrouter.WsRouter
+
 	Sessions             *auth.Auth
 	Gorm                 *gorm.DB
-	Config               config.Config
-	TokensGrpc           tokens.TokensClient
 	CachedTwitchClient   *twitchcahe.CachedTwitchClient
 	CachedCommandsClient *generic_cacher.GenericCacher[[]deprecatedgormmodel.ChannelsCommands]
 	Minio                *minio.Client
 	TwirBus              *bus_core.Bus
-	Logger               logger.Logger
 	Redis                *redis.Client
-	WsRouter             wsrouter.WsRouter
 	TwirStats            *twir_stats.TwirStats
 
 	DashboardWidgetEventsService          *dashboard_widget_events.Service
@@ -86,6 +87,8 @@ type Deps struct {
 	ChannelsCommandsPrefix                *channels_commands_prefix.Service
 	TTSService                            *tts.Service
 	SongRequestsService                   *song_requests.Service
+	CommunityRedemptionsService           *community_redemptions.Service
+	Config                                config.Config
 }
 
 type Resolver struct {

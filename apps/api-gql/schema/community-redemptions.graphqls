@@ -2,6 +2,10 @@ extend type Query {
 	rewardsRedemptionsHistory(opts: TwitchRedemptionsOpts!): TwitchRedemptionResponse! @isAuthenticated
 }
 
+extend type Subscription {
+	rewardsActivation: TwitchRedemption! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
 type TwitchRedemptionResponse {
 	redemptions: [TwitchRedemption!]!
 	total: Int!

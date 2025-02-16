@@ -23,9 +23,9 @@ type Queue[Req, Res any] interface {
 
 type NatsQueue[Req, Res any] struct {
 	nc           *nats.EncodedConn
+	subscription *nats.Subscription
 	subject      string
 	timeout      time.Duration
-	subscription *nats.Subscription
 }
 
 func NewNatsQueue[Req, Res any](

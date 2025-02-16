@@ -27,6 +27,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_with_groups_and_responses"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/community_redemptions"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
@@ -201,6 +202,7 @@ func main() {
 			channels_commands_prefix.New,
 			tts.New,
 			song_requests.New,
+			community_redemptions.New,
 		),
 		// grpc clients
 		fx.Provide(

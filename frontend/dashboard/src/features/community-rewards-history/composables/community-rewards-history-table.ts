@@ -8,9 +8,10 @@ import {
 	getSortedRowModel,
 	useVueTable,
 } from '@tanstack/vue-table'
+import { useSubscription } from '@urql/vue'
 import { createGlobalState } from '@vueuse/core'
 import { formatDistance } from 'date-fns'
-import { computed, h } from 'vue'
+import { computed, h, ref, watch } from 'vue'
 
 import CommunityRewardsTableRewardCell from '../ui/cells/community-rewards-history-table-reward-cell.vue'
 
@@ -21,6 +22,7 @@ import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-tab
 import {
 	useCommunityRewardsHistoryQuery,
 } from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
+import { graphql } from '@/gql/gql.js'
 import { valueUpdater } from '@/helpers/value-updater'
 
 export const useCommunityRewardsTable = createGlobalState(() => {
@@ -29,9 +31,43 @@ export const useCommunityRewardsTable = createGlobalState(() => {
 	const { query, pagination } = useCommunityRewardsHistoryQuery()
 	const historyResult = communityRewardsApi.useHistory(query)
 
-	const history = computed<Redemption[]>(() => {
-		return historyResult.data.value?.rewardsRedemptionsHistory.redemptions ?? []
+	const subscription = useSubscription({
+		query: graphql(`
+			subscription RewardsRedemptionSubscription {
+				rewardsActivation {
+					id
+					channelId
+					user {
+						id
+						displayName
+						login
+						profileImageUrl
+					}
+					reward {
+						id
+						cost
+						imageUrls
+						title
+						usedTimes
+					}
+					redeemedAt
+					prompt
+				}
+			}
+		`),
+		variables: {},
 	})
+
+	const history = ref<Redemption[]>([])
+	watch(historyResult.data, (v) => {
+		history.value = v?.rewardsRedemptionsHistory.redemptions ?? []
+	}, { immediate: true })
+	watch(subscription.data, (v) => {
+		if (!v) return
+
+		history.value = [v.rewardsActivation, ...history.value]
+	})
+
 	const total = computed(() => {
 		return historyResult.data.value?.rewardsRedemptionsHistory.total ?? 0
 	})

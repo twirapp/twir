@@ -95,7 +95,7 @@ type emoteEntityModelWithCount struct {
 }
 
 type emoteStatisticUsageModel struct {
+	Time  time.Time `gorm:"column:time"`
 	Emote string    `gorm:"column:emote"`
 	Count int       `gorm:"column:count"`
-	Time  time.Time `gorm:"column:time"`
 }

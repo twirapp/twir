@@ -29,42 +29,45 @@ import (
 )
 
 type Handler struct {
-	manager *manager.Manager
-
-	logger      logger.Logger
-	config      cfg.Config
-	gorm        *gorm.DB
-	redisClient *redis.Client
+	logger logger.Logger
 
 	eventsGrpc     events.EventsClient
 	parserGrpc     parser.ParserClient
 	websocketsGrpc websockets.WebsocketClient
 	tokensGrpc     tokens.TokensClient
 	tracer         trace.Tracer
-	bus            *bus_core.Bus
-	seventvCache   *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse]
-	prefixCache    *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	manager        *manager.Manager
+
+	gorm        *gorm.DB
+	redisClient *redis.Client
+
+	bus          *bus_core.Bus
+	seventvCache *generic_cacher.GenericCacher[*seventvintegration.ProfileResponse]
+	prefixCache  *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+	config       cfg.Config
 }
 
 type Opts struct {
 	fx.In
 	Lc fx.Lifecycle
 
-	Config  cfg.Config
-	Tunn    *tunnel.AppTunnel
-	Manager *manager.Manager
-	Logger  logger.Logger
-	Gorm    *gorm.DB
-	Redis   *redis.Client
+	Logger logger.Logger
 
 	EventsGrpc     events.EventsClient
 	ParserGrpc     parser.ParserClient
 	WebsocketsGrpc websockets.WebsocketClient
 	TokensGrpc     tokens.TokensClient
-	Bus            *bus_core.Bus
-	PrefixCache    *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
 
-	Tracer trace.Tracer
+	Tracer  trace.Tracer
+	Tunn    *tunnel.AppTunnel
+	Manager *manager.Manager
+	Gorm    *gorm.DB
+	Redis   *redis.Client
+
+	Bus         *bus_core.Bus
+	PrefixCache *generic_cacher.GenericCacher[model.ChannelsCommandsPrefix]
+
+	Config cfg.Config
 }
 
 func New(opts Opts) *Handler {

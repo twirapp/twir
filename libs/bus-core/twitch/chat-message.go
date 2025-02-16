@@ -1,6 +1,9 @@
 package twitch
 
 type TwitchChatMessage struct {
+	Message                     *ChatMessageMessage `json:"message,omitempty"`
+	Cheer                       *ChatMessageCheer   `json:"cheer,omitempty"`
+	Reply                       *ChatMessageReply   `json:"reply,omitempty"`
 	ID                          string              `json:"id"`
 	BroadcasterUserId           string              `json:"broadcaster_user_id"`
 	BroadcasterUserName         string              `json:"broadcaster_user_name"`
@@ -9,13 +12,10 @@ type TwitchChatMessage struct {
 	ChatterUserName             string              `json:"chatter_user_name"`
 	ChatterUserLogin            string              `json:"chatter_user_login"`
 	MessageId                   string              `json:"message_id"`
-	Message                     *ChatMessageMessage `json:"message,omitempty"`
 	Color                       string              `json:"color"`
-	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
 	MessageType                 string              `json:"message_type"`
-	Cheer                       *ChatMessageCheer   `json:"cheer,omitempty"`
-	Reply                       *ChatMessageReply   `json:"reply,omitempty"`
 	ChannelPointsCustomRewardId string              `json:"channel_points_custom_reward_id"`
+	Badges                      []ChatMessageBadge  `json:"badges,omitempty"`
 }
 
 type FragmentType int32
@@ -52,12 +52,12 @@ type ChatMessageMessageFragmentCheermote struct {
 }
 
 type ChatMessageMessageFragment struct {
-	Type      FragmentType                         `json:"type"`
-	Text      string                               `json:"text"`
 	Cheermote *ChatMessageMessageFragmentCheermote `json:"cheermote,omitempty"`
 	Emote     *ChatMessageMessageFragmentEmote     `json:"emote,omitempty"`
 	Mention   *ChatMessageMessageFragmentMention   `json:"mention,omitempty"`
+	Text      string                               `json:"text"`
 	Position  ChatMessageMessageFragmentPosition   `json:"position,omitempty"`
+	Type      FragmentType                         `json:"type"`
 }
 
 type ChatMessageMessage struct {
