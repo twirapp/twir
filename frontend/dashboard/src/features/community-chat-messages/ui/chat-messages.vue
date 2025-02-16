@@ -27,7 +27,7 @@ const subscription = useChatMessagesSubscription()
 
 watch(subscription.data, (v) => {
 	if (v?.chatMessages) {
-		messages.value.push(v.chatMessages)
+		messages.value.unshift(v.chatMessages)
 	}
 })
 </script>
