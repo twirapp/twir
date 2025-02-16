@@ -8,6 +8,7 @@ import { useUserAccessFlagChecker } from '@/api'
 import CommunityChatMessages from '@/features/community-chat-messages/community-chat-messages.vue'
 import CommunityEmotesStatistic
 	from '@/features/community-emotes-statistic/community-emotes-statistic.vue'
+import CommunityRewardsHistory from '@/features/community-rewards-history/community-rewards-history.vue'
 import CommunityRoles from '@/features/community-roles/community-roles.vue'
 import CommunityUsers from '@/features/community-users/community-users.vue'
 import { ChannelRolePermissionEnum } from '@/gql/graphql'
@@ -26,18 +27,23 @@ const tabs = computed<PageLayoutTab[]>(() => ([
 	{
 		title: t('community.users.title'),
 		component: CommunityUsers,
-		name: 'users',
+		name: 'users'
 	},
 	{
 		title: t('sidebar.roles'),
 		component: CommunityRoles,
 		name: 'permissions',
-		disabled: !canViewRoles.value,
+		disabled: !canViewRoles.value
 	},
 	{
 		title: t('community.emotesStatistic.title'),
 		component: CommunityEmotesStatistic,
 		name: 'emotes-stats',
+	},
+	{
+		title: 'Rewards history',
+		component: CommunityRewardsHistory,
+		name: 'rewards-history',
 	},
 ]))
 </script>
