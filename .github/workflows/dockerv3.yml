@@ -83,7 +83,11 @@ jobs:
 
       - name: Build gql
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: bun cli build gql
+        run: |
+        # check if app is apps/api-gql
+          if [ "${{ env.app }}" = "api-gql" ]; then
+              bun cli build gql
+          fi
 
       - name: Build application
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
