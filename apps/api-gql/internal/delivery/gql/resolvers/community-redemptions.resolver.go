@@ -92,7 +92,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(
 		}, nil
 	}
 
-	rewards, err := r.TwitchRewards(ctx, &channelIdForRequest)
+	rewards, err := r.Query().TwitchRewards(ctx, &channelIdForRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (
 		for {
 			select {
 			case data := <-subscription:
-				rewards, err := r.TwitchRewards(ctx, &dashboardID)
+				rewards, err := r.Query().TwitchRewards(ctx, &dashboardID)
 				if err != nil {
 					r.deps.Logger.Error("failed to get rewards", "error", err)
 					continue
