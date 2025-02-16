@@ -8,10 +8,6 @@ export const anchorLinks = [
 		label: 'Integrations',
 	},
 	{
-		href: '#streamers',
-		label: 'Streamers',
-	},
-	{
 		href: '#team',
 		label: 'Team',
 	},
