@@ -676,6 +676,27 @@ services:
     networks:
       - twir
 
+# This is https://github.com/twirapp/music-recognizer repository, which is doing "Shazam for twitch stream".
+  music-recognizer:
+    image: registry.twir.app/twirapp/music-recognizer:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
 volumes:
   twir-postgres-data:
     external: true
