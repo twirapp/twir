@@ -66,10 +66,19 @@ func (r *subscriptionResolver) ChatMessages(ctx context.Context) (
 	gqlCh := make(chan *gqlmodel.ChatMessage)
 
 	go func() {
-		defer close(gqlCh)
-		for m := range ch {
-			converted := mappers.ChatMessageToGQL(m)
-			gqlCh <- &converted
+		defer func() {
+			r.deps.ChatMessagesService.UnsubscribeFromNewMessages(dashboardID)
+			close(gqlCh)
+		}()
+
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case data := <-ch:
+				converted := mappers.ChatMessageToGQL(data)
+				gqlCh <- &converted
+			}
 		}
 	}()
 
