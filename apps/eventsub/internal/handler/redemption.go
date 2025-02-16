@@ -120,7 +120,7 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 	}()
 
 	go func() {
-		c.bus.RedemptionAdd.Publish(
+		if redemptionAddErr := c.bus.RedemptionAdd.Publish(
 			twitch.ActivatedRedemption{
 				ID:                   event.ID,
 				BroadcasterUserID:    event.BroadcasterUserID,
@@ -139,9 +139,10 @@ func (c *Handler) handleChannelPointsRewardRedemptionAdd(
 					Cost:   event.Reward.Cost,
 				},
 			},
-		)
+		); redemptionAddErr != nil {
+			c.logger.Error(redemptionAddErr.Error(), slog.Any("err", redemptionAddErr))
+		}
 	}()
-
 }
 
 func (c *Handler) handleChannelPointsRewardRedemptionUpdate(

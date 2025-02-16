@@ -42,7 +42,7 @@ type Service struct {
 	subs map[string]chan twitch.ActivatedRedemption
 }
 
-func (s *Service) handleBusEvent(ctx context.Context, data twitch.ActivatedRedemption) struct{} {
+func (s *Service) handleBusEvent(_ context.Context, data twitch.ActivatedRedemption) struct{} {
 	if ch, ok := s.subs[data.BroadcasterUserID]; ok {
 		ch <- data
 	}
