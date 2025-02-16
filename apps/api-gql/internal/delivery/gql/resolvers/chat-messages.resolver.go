@@ -14,7 +14,10 @@ import (
 )
 
 // ChatMessages is the resolver for the chatMessages field.
-func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMessageInput) ([]gqlmodel.ChatMessage, error) {
+func (r *queryResolver) ChatMessages(
+	ctx context.Context,
+	input gqlmodel.ChatMessageInput,
+) ([]gqlmodel.ChatMessage, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
@@ -47,4 +50,28 @@ func (r *queryResolver) ChatMessages(ctx context.Context, input gqlmodel.ChatMes
 	}
 
 	return gqlModels, nil
+}
+
+// ChatMessages is the resolver for the chatMessages field.
+func (r *subscriptionResolver) ChatMessages(ctx context.Context) (
+	<-chan *gqlmodel.ChatMessage,
+	error,
+) {
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get selected dashboard: %w", err)
+	}
+
+	ch := r.deps.ChatMessagesService.SubscribeToNewMessages(dashboardID)
+	gqlCh := make(chan *gqlmodel.ChatMessage)
+
+	go func() {
+		defer close(gqlCh)
+		for m := range ch {
+			converted := mappers.ChatMessageToGQL(m)
+			gqlCh <- &converted
+		}
+	}()
+
+	return gqlCh, nil
 }

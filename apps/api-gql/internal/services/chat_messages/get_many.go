@@ -9,12 +9,11 @@ import (
 )
 
 type GetManyInput struct {
-	Page    int
-	PerPage int
-
 	ChannelID    *string
 	UserNameLike *string
 	TextLike     *string
+	Page         int
+	PerPage      int
 }
 
 func (c *Service) GetMany(ctx context.Context, input GetManyInput) ([]entity.ChatMessage, error) {

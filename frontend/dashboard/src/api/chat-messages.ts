@@ -1,10 +1,12 @@
-import { useQuery } from '@urql/vue'
+import { useQuery, useSubscription } from '@urql/vue'
 import { unref } from 'vue'
 
-import type { ChatMessageInput } from '@/gql/graphql'
+import type { ChatMessageInput, ChatMessageQuery } from '@/gql/graphql'
 import type { MaybeRef } from 'vue'
 
 import { graphql } from '@/gql/gql'
+
+export type ChatMessage = ChatMessageQuery['chatMessages'][number]
 
 export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 	return useQuery({
@@ -27,6 +29,29 @@ export function useChatMessages(input: MaybeRef<ChatMessageInput>) {
 			return {
 				input: unref(input),
 			}
+		},
+	})
+}
+
+export function useChatMessagesSubscription() {
+	return useSubscription({
+		query: graphql(`
+			subscription ChatMessageSubscription {
+				chatMessages {
+					id
+					channelId
+					userID
+					userName
+					userDisplayName
+					userColor
+					text
+					createdAt
+					updatedAt
+				}
+			}
+		`),
+		get variables() {
+			return {}
 		},
 	})
 }

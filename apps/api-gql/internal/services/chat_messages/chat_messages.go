@@ -1,7 +1,14 @@
 package chat_messages
 
 import (
+	"context"
+	"strings"
+	"time"
+
+	"github.com/google/uuid"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	buscore "github.com/twirapp/twir/libs/bus-core"
+	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/repositories/chat_messages"
 	"github.com/twirapp/twir/libs/repositories/chat_messages/model"
 	"go.uber.org/fx"
@@ -9,18 +16,37 @@ import (
 
 type Opts struct {
 	fx.In
+	LC fx.Lifecycle
 
 	ChatMessagesRepository chat_messages.Repository
+	TwirBus                *buscore.Bus
 }
 
 func New(opts Opts) *Service {
-	return &Service{
+	s := &Service{
 		chatMessagesRepository: opts.ChatMessagesRepository,
+		subs:                   make(map[string]chan entity.ChatMessage),
 	}
+
+	opts.LC.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				return opts.TwirBus.ChatMessages.Subscribe(s.handleBusEvent)
+			},
+			OnStop: func(ctx context.Context) error {
+				opts.TwirBus.ChatMessages.Unsubscribe()
+				return nil
+			},
+		},
+	)
+
+	return s
 }
 
 type Service struct {
 	chatMessagesRepository chat_messages.Repository
+
+	subs map[string]chan entity.ChatMessage
 }
 
 func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
@@ -34,5 +60,43 @@ func (c *Service) modelToGql(m model.ChatMessage) entity.ChatMessage {
 		Text:            m.Text,
 		CreatedAt:       m.CreatedAt,
 		UpdatedAt:       m.UpdatedAt,
+	}
+}
+
+func (c *Service) handleBusEvent(_ context.Context, data twitch.TwitchChatMessage) struct{} {
+	if ch, ok := c.subs[data.BroadcasterUserId]; ok {
+		textBuilder := strings.Builder{}
+		for _, fragment := range data.Message.Fragments {
+			textBuilder.WriteString(fragment.Text)
+		}
+
+		ch <- entity.ChatMessage{
+			ID:              uuid.MustParse(data.ID),
+			ChannelID:       data.BroadcasterUserId,
+			UserID:          data.ChatterUserId,
+			UserName:        data.ChatterUserLogin,
+			UserDisplayName: data.ChatterUserName,
+			UserColor:       data.Color,
+			Text:            textBuilder.String(),
+			CreatedAt:       time.Now(),
+			UpdatedAt:       time.Now(),
+		}
+	}
+
+	return struct{}{}
+}
+
+func (c *Service) SubscribeToNewMessages(channelID string) <-chan entity.ChatMessage {
+	if _, ok := c.subs[channelID]; !ok {
+		c.subs[channelID] = make(chan entity.ChatMessage)
+	}
+
+	return c.subs[channelID]
+}
+
+func (c *Service) UnsubscribeFromNewMessages(channelID string) {
+	if ch, ok := c.subs[channelID]; ok {
+		close(ch)
+		delete(c.subs, channelID)
 	}
 }

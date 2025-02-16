@@ -2,6 +2,10 @@ extend type Query {
 	chatMessages(input: ChatMessageInput!): [ChatMessage!]! @isAuthenticated @hasAccessToSelectedDashboard
 }
 
+extend type Subscription {
+	chatMessages: ChatMessage! @isAuthenticated @hasAccessToSelectedDashboard
+}
+
 input ChatMessageInput {
 	userNameLike: String @validate(constraint: "max=40")
 	textLike: String @validate(constraint: "max=500")

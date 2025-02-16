@@ -1,21 +1,35 @@
 <script setup lang="ts">
-import { useIntervalFn } from '@vueuse/core'
+import { ref, watch } from 'vue'
 
 import ChatMessage from './message.vue'
 import { useChatMessagesFilters } from '../composables/use-filters'
 
-import { useChatMessages } from '@/api/chat-messages'
+import {
+	type ChatMessage as ChatMessageType,
+	useChatMessages,
+	useChatMessagesSubscription,
+} from '@/api/chat-messages'
 import { Card, CardContent } from '@/components/ui/card'
 
 const filters = useChatMessagesFilters()
 
-const { data, executeQuery } = useChatMessages(filters.computedFilters)
+const { data } = useChatMessages(filters.computedFilters)
 
-useIntervalFn(() => {
-	executeQuery({
-		requestPolicy: 'network-only',
-	})
-}, 1000)
+const messages = ref<ChatMessageType[]>([])
+
+watch(data, (v) => {
+	messages.value = v?.chatMessages ?? []
+}, {
+	immediate: true,
+})
+
+const subscription = useChatMessagesSubscription()
+
+watch(subscription.data, (v) => {
+	if (v?.chatMessages) {
+		messages.value.push(v.chatMessages)
+	}
+})
 </script>
 
 <template>
