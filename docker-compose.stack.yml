@@ -683,6 +683,7 @@ services:
       - twir_doppler_token
     networks:
       - twir
+      - traefik-public
     deploy:
       labels: # for testing purposes, not needed in production because requests done via internal docker network
         - traefik.enable=true
