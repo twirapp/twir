@@ -55,9 +55,14 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 	msgText.WriteString(" " + msg.Message.Text)
 
 	text := msgText.String()
-	msg.Message.Text = text
 
-	_, err = c.bus.Parser.ProcessMessageAsCommand.Request(ctx, msg.TwitchChatMessage)
+	// copy message to avoid changing original message
+	newMessage := msg.TwitchChatMessage
+	originalCopy := *msg.TwitchChatMessage.Message
+	originalCopy.Text = text
+	newMessage.Message = &originalCopy
+
+	_, err = c.bus.Parser.ProcessMessageAsCommand.Request(ctx, newMessage)
 	if err != nil {
 		return err
 	}

@@ -21,9 +21,9 @@ import (
 )
 
 type moderationHandleResult struct {
-	IsWarn  bool
-	Time    int
 	Message string
+	Time    int
+	IsWarn  bool
 }
 
 var messagesTimeouterStore = utils.NewTtlSyncMap[struct{}](10 * time.Second)
@@ -463,9 +463,9 @@ func (c *MessageHandler) moderationEmotesParser(
 }
 
 type langDetectLang struct {
+	Name    string `json:"name"`
 	Code    int    `json:"code"`
 	Iso6933 int    `json:"iso_693_3"`
-	Name    string `json:"name"`
 }
 
 func (c *MessageHandler) moderationDetectLanguage(text string) ([]langDetectLang, error) {

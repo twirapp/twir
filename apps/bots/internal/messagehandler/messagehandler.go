@@ -40,42 +40,42 @@ type Opts struct {
 	LC fx.Lifecycle
 
 	Logger                 logger.Logger
-	Gorm                   *gorm.DB
-	Redis                  *redis.Client
-	TwitchActions          *twitchactions.TwitchActions
 	ParserGrpc             parser.ParserClient
 	WebsocketsGrpc         websockets.WebsocketClient
 	EventsGrpc             events.EventsClient
-	ModerationHelpers      *moderationhelpers.ModerationHelpers
-	Config                 cfg.Config
-	Bus                    *buscore.Bus
-	KeywordsService        *keywords.Service
 	GreetingsRepository    greetings.Repository
 	ChatMessagesRepository chat_messages.Repository
+	Gorm                   *gorm.DB
+	Redis                  *redis.Client
+	TwitchActions          *twitchactions.TwitchActions
+	ModerationHelpers      *moderationhelpers.ModerationHelpers
+	Bus                    *buscore.Bus
+	KeywordsService        *keywords.Service
 	GreetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 	CommandService         *commands.Service
 	TTSService             *tts.Service
+	Config                 cfg.Config
 }
 
 type MessageHandler struct {
-	logger            logger.Logger
-	gorm              *gorm.DB
-	redis             *redis.Client
-	twitchActions     *twitchactions.TwitchActions
-	parserGrpc        parser.ParserClient
-	websocketsGrpc    websockets.WebsocketClient
-	eventsGrpc        events.EventsClient
-	moderationHelpers *moderationhelpers.ModerationHelpers
-	config            cfg.Config
-	bus               *buscore.Bus
-	votebanMutex      *redsync.Mutex
-	greetingsCache    *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
-
-	keywordsService        *keywords.Service
+	logger                 logger.Logger
+	parserGrpc             parser.ParserClient
+	websocketsGrpc         websockets.WebsocketClient
+	eventsGrpc             events.EventsClient
 	greetingsRepository    greetings.Repository
 	chatMessagesRepository chat_messages.Repository
-	commandsService        *commands.Service
-	ttsService             *tts.Service
+	gorm                   *gorm.DB
+	redis                  *redis.Client
+	twitchActions          *twitchactions.TwitchActions
+	moderationHelpers      *moderationhelpers.ModerationHelpers
+	bus                    *buscore.Bus
+	votebanMutex           *redsync.Mutex
+	greetingsCache         *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
+
+	keywordsService *keywords.Service
+	commandsService *commands.Service
+	ttsService      *tts.Service
+	config          cfg.Config
 }
 
 func New(opts Opts) *MessageHandler {
@@ -105,10 +105,10 @@ func New(opts Opts) *MessageHandler {
 }
 
 type handleMessage struct {
-	twitch.TwitchChatMessage
 	DbChannel *deprecatedgormmodel.Channels
 	DbStream  *deprecatedgormmodel.ChannelsStreams
 	DbUser    *deprecatedgormmodel.Users
+	twitch.TwitchChatMessage
 }
 
 var handlersForExecute = []func(

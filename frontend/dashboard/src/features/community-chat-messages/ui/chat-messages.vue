@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import ChatMessage from './message.vue'
 import { useChatMessagesFilters } from '../composables/use-filters'
@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card'
 
 const filters = useChatMessagesFilters()
 
-const { data } = useChatMessages(filters.computedFilters)
+const { data, executeQuery } = useChatMessages(filters.computedFilters)
 
 const messages = ref<ChatMessageType[]>([])
 
@@ -29,6 +29,10 @@ watch(subscription.data, (v) => {
 	if (v?.chatMessages) {
 		messages.value.unshift(v.chatMessages)
 	}
+})
+
+onMounted(() => {
+	executeQuery({ requestPolicy: 'cache-and-network' })
 })
 </script>
 
