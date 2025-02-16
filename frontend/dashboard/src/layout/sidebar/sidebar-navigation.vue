@@ -79,7 +79,6 @@ const links = computed(() => {
 			name: 'Bot Settings',
 			icon: SettingsIcon,
 			path: '/dashboard/bot-settings',
-			isNew: true,
 		},
 		{
 			name: t('sidebar.integrations'),
@@ -159,7 +158,6 @@ const links = computed(() => {
 					name: 'Chat Logs',
 					icon: ScrollTextIcon,
 					path: '/dashboard/community?tab=chat-logs',
-					isNew: true,
 				},
 				{
 					name: t('community.users.title'),
@@ -180,6 +178,7 @@ const links = computed(() => {
 					name: 'Rewards history',
 					icon: SparklesIcon,
 					path: '/dashboard/community?tab=rewards-history',
+					isNew: true,
 				},
 			],
 		},

@@ -27,13 +27,13 @@ const tabs = computed<PageLayoutTab[]>(() => ([
 	{
 		title: t('community.users.title'),
 		component: CommunityUsers,
-		name: 'users'
+		name: 'users',
 	},
 	{
 		title: t('sidebar.roles'),
 		component: CommunityRoles,
 		name: 'permissions',
-		disabled: !canViewRoles.value
+		disabled: !canViewRoles.value,
 	},
 	{
 		title: t('community.emotesStatistic.title'),
