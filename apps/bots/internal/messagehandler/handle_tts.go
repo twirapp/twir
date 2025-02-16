@@ -2,9 +2,11 @@ package messagehandler
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	model "github.com/satont/twir/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error {
@@ -19,6 +21,9 @@ func (c *MessageHandler) handleTts(ctx context.Context, msg handleMessage) error
 
 	settings, err := c.ttsService.GetChannelTTSSettings(ctx, msg.BroadcasterUserId)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
 		return err
 	}
 
