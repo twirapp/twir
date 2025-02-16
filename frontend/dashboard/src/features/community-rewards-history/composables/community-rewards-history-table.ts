@@ -14,31 +14,19 @@ import { computed, h } from 'vue'
 import CommunityRewardsTableRewardCell from '../ui/cells/community-rewards-history-table-reward-cell.vue'
 
 import type { Redemption } from '@/api/community-rewards'
-import type { TwitchRedemptionsOpts } from '@/gql/graphql'
 
-import { useProfile } from '@/api/auth.js'
 import { useCommunityRewardsApi } from '@/api/community-rewards'
-import { usePagination } from '@/composables/use-pagination'
 import UsersTableCellUser from '@/features/admin-panel/manage-users/ui/users-table-cell-user.vue'
+import {
+	useCommunityRewardsHistoryQuery,
+} from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
 import { valueUpdater } from '@/helpers/value-updater'
 
 export const useCommunityRewardsTable = createGlobalState(() => {
 	const communityRewardsApi = useCommunityRewardsApi()
-	const { data: profile } = useProfile()
-	// пример откуда взять реварды. Но ты же наверняка будешь получение выносить в сам компонент(композабл?) селекта
-	// const { data: rewards } = useTwitchRewardsNew()
 
-	const { pagination, setPagination } = usePagination()
-	const params = computed<TwitchRedemptionsOpts>(() => {
-		return {
-			byChannelId: profile.value?.selectedDashboardId,
-			userSearch: undefined,
-			page: pagination.value.pageIndex,
-			perPage: pagination.value.pageSize,
-			rewardsIds: [], // можно взять айдиники для селекта с rewards
-		}
-	})
-	const historyResult = communityRewardsApi.useHistory(params)
+	const { query, pagination } = useCommunityRewardsHistoryQuery()
+	const historyResult = communityRewardsApi.useHistory(query)
 
 	const history = computed<Redemption[]>(() => {
 		return historyResult.data.value?.rewardsRedemptionsHistory.redemptions ?? []
@@ -117,12 +105,15 @@ export const useCommunityRewardsTable = createGlobalState(() => {
 		getFacetedUniqueValues: getFacetedUniqueValues(),
 	})
 
+	function refresh() {
+		historyResult.executeQuery({ requestPolicy: 'cache-and-network' })
+	}
+
 	return {
 		table,
 		total,
 		pageCount,
-		pagination,
-		setPagination,
 		isLoading: historyResult.fetching,
+		refresh,
 	}
 })

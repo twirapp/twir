@@ -3,8 +3,12 @@ import { useCommunityRewardsTable } from './composables/community-rewards-histor
 import CommunityRewardsPage from './ui/community-rewards-history-page.vue'
 
 import Pagination from '@/components/pagination.vue'
+import {
+	useCommunityRewardsHistoryQuery,
+} from '@/features/community-rewards-history/composables/community-rewards-history-query.ts'
 
 const rewardsTable = useCommunityRewardsTable()
+const query = useCommunityRewardsHistoryQuery()
 </script>
 
 <template>
@@ -13,9 +17,9 @@ const rewardsTable = useCommunityRewardsTable()
 			<Pagination
 				:total="rewardsTable.total.value"
 				:table="rewardsTable.table"
-				:pagination="rewardsTable.pagination.value"
-				@update:page="(page) => rewardsTable.pagination.value.pageIndex = page"
-				@update:page-size="(pageSize) => rewardsTable.pagination.value.pageSize = pageSize"
+				:pagination="query.pagination.value"
+				@update:page="(page) => query.pagination.value.pageIndex = page"
+				@update:page-size="(pageSize) => query.pagination.value.pageSize = pageSize"
 			/>
 		</template>
 	</CommunityRewardsPage>
