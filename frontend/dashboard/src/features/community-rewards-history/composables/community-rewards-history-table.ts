@@ -9,6 +9,7 @@ import {
 	useVueTable,
 } from '@tanstack/vue-table'
 import { createGlobalState } from '@vueuse/core'
+import { formatDistance } from 'date-fns'
 import { computed, h } from 'vue'
 
 import CommunityRewardsTableRewardCell from '../ui/cells/community-rewards-history-table-reward-cell.vue'
@@ -74,9 +75,19 @@ export const useCommunityRewardsTable = createGlobalState(() => {
 		},
 		{
 			accessorKey: 'input',
-			size: 65,
+			size: 25,
 			header: () => 'User input',
 			cell: ({ row }) => row.original.prompt,
+		},
+		{
+			accessorKey: 'redeemedAt',
+			size: 25,
+			header: () => 'Redemed at',
+			cell: ({ row }) => {
+				return formatDistance(new Date(row.original.redeemedAt), new Date(), {
+					addSuffix: true,
+				})
+			},
 		},
 	])
 
