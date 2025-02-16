@@ -2,9 +2,10 @@
   "name": "@twir/eval",
   "type": "module",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "start": "node src/index.js",
-    "dev": "node --watch --watch-preserve-output src/index.js"
+    "start": "bun --bun src/index.js",
+    "dev": "bun --bun --env-file=../../.env --watch --no-clear-screen src/index.js",
+    "prebuild": "tsc",
+    "build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-eval"
   },
   "dependencies": {
     "@twir/bus-core": "workspace:*",
@@ -14,6 +15,7 @@
     "vm2": "3.9.19"
   },
   "devDependencies": {
-    "@types/lodash": "4.17.0"
+    "@types/lodash": "4.17.0",
+    "typescript": "5.7.3"
   }
 }

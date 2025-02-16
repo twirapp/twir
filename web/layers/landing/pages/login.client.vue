@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import UiButton from '~/layers/landing/components/ui-button.vue'
+import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
 definePageMeta({
 	title: 'Login',
@@ -58,7 +58,7 @@ onMounted(async () => {
 			<span class="font-medium text-red-400 text-center">{{ error }}</span>
 			<NuxtLink
 				v-slot="{ navigate, href }"
-				to="/"
+				to="/web/layers/public"
 				custom
 			>
 				<UiButton :href="href" variant="primary" role="link" @click="navigate">

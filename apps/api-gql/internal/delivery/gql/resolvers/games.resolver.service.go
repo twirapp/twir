@@ -14,7 +14,7 @@ import (
 )
 
 func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightBallGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func (r *queryResolver) gamesGetEightBall(ctx context.Context) (*gqlmodel.EightB
 		Enabled:   false,
 		Answers:   pq.StringArray{},
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		FirstOrCreate(&entity).
@@ -42,18 +42,18 @@ func (r *mutationResolver) gamesUpdateEightBall(
 	ctx context.Context,
 	opts gqlmodel.EightBallGameOpts,
 ) (*gqlmodel.EightBallGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelGames8Ball{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		First(&entity).
@@ -84,14 +84,14 @@ func (r *mutationResolver) gamesUpdateEightBall(
 		entity.Enabled = *opts.Enabled.Value()
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"8ball update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -108,7 +108,7 @@ func (r *mutationResolver) gamesUpdateEightBall(
 }
 
 func (r *queryResolver) gamesGetDuel(ctx context.Context) (*gqlmodel.DuelGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ func (r *queryResolver) gamesGetDuel(ctx context.Context) (*gqlmodel.DuelGame, e
 		SecondsToAccept: 60,
 		TimeoutSeconds:  600,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		FirstOrCreate(&entity).
@@ -148,18 +148,18 @@ func (r *mutationResolver) gamesUpdateDuel(
 	ctx context.Context,
 	opts gqlmodel.DuelGameOpts,
 ) (*gqlmodel.DuelGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelGamesDuel{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		First(&entity).
@@ -228,14 +228,14 @@ func (r *mutationResolver) gamesUpdateDuel(
 		}
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Duel update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -255,7 +255,7 @@ func (r *queryResolver) gamesGetRussianRoulette(ctx context.Context) (
 	*gqlmodel.
 		RussianRouletteGame, error,
 ) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (r *queryResolver) gamesGetRussianRoulette(ctx context.Context) (
 		ChargedBullets:        1,
 		CanBeUsedByModerators: false,
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		FirstOrCreate(&entity).
@@ -296,18 +296,18 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 	ctx context.Context,
 	opts gqlmodel.RussianRouletteGameOpts,
 ) (*gqlmodel.RussianRouletteGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelGamesRussianRoulette{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		First(&entity).
@@ -368,14 +368,14 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 		}
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Russian roulette update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -392,7 +392,7 @@ func (r *mutationResolver) gamesUpdateRussianRoulette(
 }
 
 func (r *queryResolver) gamesSeppuku(ctx context.Context) (*gqlmodel.SeppukuGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -405,7 +405,7 @@ func (r *queryResolver) gamesSeppuku(ctx context.Context) (*gqlmodel.SeppukuGame
 		Message:           "{sender} said: my honor tarnished, I reclaim it through death. May my spirit find peace. Farewell.",
 		MessageModerators: "{sender} drew his sword and ripped open his belly for the sad emperor.",
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		FirstOrCreate(&entity).
@@ -426,18 +426,18 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 	ctx context.Context,
 	opts gqlmodel.SeppukuGameOpts,
 ) (*gqlmodel.SeppukuGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelGamesSeppuku{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		First(&entity).
@@ -470,14 +470,14 @@ func (r *mutationResolver) gamesUpdateSeppuku(
 		entity.MessageModerators = *opts.MessageModerators.Value()
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Seppuku update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -519,18 +519,18 @@ func (r *mutationResolver) gamesUpdateVoteban(
 	ctx context.Context,
 	opts gqlmodel.VotebanGameOpts,
 ) (*gqlmodel.VotebanGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelGamesVoteBan{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).
 		First(&entity).
@@ -595,14 +595,14 @@ func (r *mutationResolver) gamesUpdateVoteban(
 		entity.ChatVotesWordsNegative = append(pq.StringArray{}, opts.ChatVotesWordsNegative.Value()...)
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(&entity).
 		Error; err != nil {
 		return nil, fmt.Errorf("failed to save settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Voteban update",
 		audit.Fields{
 			OldValue:      entityCopy,
@@ -619,7 +619,7 @@ func (r *mutationResolver) gamesUpdateVoteban(
 }
 
 func (r *queryResolver) gamesVoteban(ctx context.Context) (*gqlmodel.VotebanGame, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -642,7 +642,7 @@ func (r *queryResolver) gamesVoteban(ctx context.Context) (*gqlmodel.VotebanGame
 		ChatVotesWordsPositive:   pq.StringArray{"Yay"},
 		ChatVotesWordsNegative:   pq.StringArray{"Nay"},
 	}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		Debug().
 		WithContext(ctx).
 		Where(`"channel_id" = ?`, dashboardId).

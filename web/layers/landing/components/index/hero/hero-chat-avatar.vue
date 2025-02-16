@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import TwirLogo from '@twir/brand/src/logo.svg?url'
 import { computed } from 'vue'
+
+import TwirLogo from '../../../../../../libs/brand/src/logo.svg?url'
 
 export type ColorVariant =
   | 'blue'

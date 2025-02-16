@@ -15,7 +15,7 @@ import (
 
 // DropAllAuthSessions is the resolver for the dropAllAuthSessions field.
 func (r *mutationResolver) DropAllAuthSessions(ctx context.Context) (bool, error) {
-	if err := r.adminActionsService.DropAllAuthSessions(ctx); err != nil {
+	if err := r.deps.AdminActionsService.DropAllAuthSessions(ctx); err != nil {
 		return false, err
 	}
 
@@ -29,7 +29,7 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 		return false, fmt.Errorf("unknown condition type")
 	}
 
-	err := r.adminActionsService.EventSubSubscribe(
+	err := r.deps.AdminActionsService.EventSubSubscribe(
 		ctx,
 		admin_actions.EventSubSubscribeInput{
 			Type:      opts.Type,
@@ -46,7 +46,16 @@ func (r *mutationResolver) EventsubSubscribe(ctx context.Context, opts gqlmodel.
 
 // RescheduleTimers is the resolver for the rescheduleTimers field.
 func (r *mutationResolver) RescheduleTimers(ctx context.Context) (bool, error) {
-	if err := r.adminActionsService.RescheduleTimers(ctx); err != nil {
+	if err := r.deps.AdminActionsService.RescheduleTimers(); err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+
+// EventsubInitChannels is the resolver for the eventsubInitChannels field.
+func (r *mutationResolver) EventsubInitChannels(ctx context.Context) (bool, error) {
+	if err := r.deps.AdminActionsService.EventsubReinitChannels(); err != nil {
 		return false, err
 	}
 

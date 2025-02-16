@@ -11,6 +11,7 @@ import (
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/events/internal/chat_alerts"
 	"github.com/satont/twir/apps/events/internal/shared"
+	"github.com/satont/twir/apps/events/internal/song_request"
 	"github.com/satont/twir/apps/events/internal/workflows"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
@@ -42,6 +43,7 @@ type Opts struct {
 
 	ChatAlerts     *chat_alerts.ChatAlerts
 	EventsWorkflow *workflows.EventWorkflow
+	SongRequest    *song_request.SongRequest
 }
 
 func New(opts Opts) error {
@@ -54,6 +56,7 @@ func New(opts Opts) error {
 		websocketsGrpc: opts.WebsocketsGrpc,
 		chatAlerts:     opts.ChatAlerts,
 		eventsWorkflow: opts.EventsWorkflow,
+		songsRequest:   opts.SongRequest,
 	}
 
 	lis, err := net.Listen("tcp", fmt.Sprintf("0.0.0.0:%d", constants.EVENTS_SERVER_PORT))
@@ -93,6 +96,7 @@ type EventsGrpcImplementation struct {
 
 	chatAlerts     *chat_alerts.ChatAlerts
 	eventsWorkflow *workflows.EventWorkflow
+	songsRequest   *song_request.SongRequest
 }
 
 func (c *EventsGrpcImplementation) Follow(
@@ -277,6 +281,7 @@ func (c *EventsGrpcImplementation) RedemptionCreated(
 				model.EventTypeRedemptionCreated,
 				shared.EventData{
 					ChannelID:       msg.BaseInfo.ChannelId,
+					UserName:        msg.UserName,
 					UserDisplayName: msg.UserDisplayName,
 					RewardCost:      msg.RewardCost,
 					RewardInput:     msg.Input,
@@ -776,6 +781,21 @@ func (c *EventsGrpcImplementation) Donate(
 			)
 			if err != nil {
 				c.logger.Error("Error trigger kappagen by event", slog.Any("err", err))
+			}
+		},
+	)
+
+	wg.Go(
+		func() {
+			err := c.songsRequest.ProcessFromDonation(
+				ctx, song_request.ProcessFromDonationInput{
+					Text:      msg.Message,
+					ChannelID: msg.BaseInfo.ChannelId,
+				},
+			)
+
+			if err != nil {
+				c.logger.Error("Error processing donation", slog.Any("err", err))
 			}
 		},
 	)

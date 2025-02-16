@@ -30,6 +30,7 @@ var Command = &types.DefaultCommand{
 		Module:      "MODERATION",
 		IsReply:     true,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name: userArgName,

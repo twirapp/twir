@@ -15,12 +15,12 @@ import (
 
 // TimersCreate is the resolver for the timersCreate field.
 func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.TimerCreateInput) (*gqlmodel.Timer, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +35,7 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 			},
 		)
 	}
-	timer, err := r.timersService.Create(
+	timer, err := r.deps.TimersService.Create(
 		ctx, timers.CreateInput{
 			ChannelID:       dashboardId,
 			ActorID:         user.ID,
@@ -53,12 +53,12 @@ func (r *mutationResolver) TimersCreate(ctx context.Context, opts gqlmodel.Timer
 
 // TimersUpdate is the resolver for the timersUpdate field.
 func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.TimerUpdateInput) (*gqlmodel.Timer, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +74,7 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 		)
 	}
 
-	timer, err := r.timersService.Update(
+	timer, err := r.deps.TimersService.Update(
 		ctx,
 		timers.UpdateInput{
 			ChannelID:       dashboardId,
@@ -97,17 +97,17 @@ func (r *mutationResolver) TimersUpdate(ctx context.Context, id uuid.UUID, opts 
 
 // TimersRemove is the resolver for the timersRemove field.
 func (r *mutationResolver) TimersRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	err = r.timersService.Delete(ctx, id, dashboardId, user.ID)
+	err = r.deps.TimersService.Delete(ctx, id, dashboardId, user.ID)
 	if err != nil {
 		return false, err
 	}
@@ -117,12 +117,12 @@ func (r *mutationResolver) TimersRemove(ctx context.Context, id uuid.UUID) (bool
 
 // Timers is the resolver for the timers field.
 func (r *queryResolver) Timers(ctx context.Context) ([]gqlmodel.Timer, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	channelTimers, err := r.timersService.GetAllByChannelID(ctx, dashboardId)
+	channelTimers, err := r.deps.TimersService.GetAllByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}

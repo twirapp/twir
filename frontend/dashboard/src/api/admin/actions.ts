@@ -25,3 +25,11 @@ export function useMutationRescheduleTimers() {
 		}
 	`))
 }
+
+export function useMutationEventSubInitChannels() {
+	return useMutation(graphql(`
+		mutation EventsubInitChannels {
+			eventsubInitChannels
+		}
+	`))
+}

@@ -5,6 +5,7 @@ import (
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
@@ -18,6 +19,7 @@ type Opts struct {
 	Config                 config.Config
 	CachedCommands         *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	BadgesWithUsersService *badges_with_users.Service
+	ChannelsService        *channels.Service
 }
 
 type Public struct {
@@ -25,6 +27,7 @@ type Public struct {
 	config                 config.Config
 	cachedCommands         *generic_cacher.GenericCacher[[]model.ChannelsCommands]
 	badgesWithUsersService *badges_with_users.Service
+	channelsService        *channels.Service
 }
 
 func New(opts Opts) *Public {
@@ -33,6 +36,7 @@ func New(opts Opts) *Public {
 		config:                 opts.Config,
 		cachedCommands:         opts.CachedCommands,
 		badgesWithUsersService: opts.BadgesWithUsersService,
+		channelsService:        opts.ChannelsService,
 	}
 
 	opts.Server.GET("/v1/public/badges", p.HandleBadgesGet)

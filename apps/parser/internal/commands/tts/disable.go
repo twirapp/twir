@@ -18,6 +18,7 @@ var DisableCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,
@@ -32,6 +33,8 @@ var DisableCommand = &types.DefaultCommand{
 		}
 
 		result.Result = append(result.Result, "TTS disabled")
+
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 
 		return result, nil
 	},

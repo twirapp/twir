@@ -24,6 +24,7 @@ var VoiceCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name:     ttsVoiceArgName,
@@ -144,6 +145,8 @@ var VoiceCommand = &types.DefaultCommand{
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Voice changed to %s", wantedVoice.Name))
+
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 
 		return result, nil
 	},

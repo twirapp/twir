@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useI18n } from 'vue-i18n'
 
 import { useMutationRescheduleTimers } from '@/api/admin/actions'
 import ActionConfirm from '@/components/ui/action-confirm.vue'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
-const { t } = useI18n()
 const mutation = useMutationRescheduleTimers()
 
 async function onReschedule() {
@@ -37,7 +35,7 @@ const confirmOpened = ref(false)
 	<!-- TODO: reusable action confirm -->
 	<ActionConfirm
 		v-model:open="confirmOpened"
-		:confirm-text="t('adminPanel.adminActions.dangerZone.revokeAllSessionsConfirm')"
+		confirm-text="Are you sure you want to reschedule all timers?"
 		@confirm="onReschedule"
 	/>
 </template>

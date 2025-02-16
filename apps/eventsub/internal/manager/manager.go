@@ -6,12 +6,10 @@ import (
 	"log/slog"
 	"sync"
 
-	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/apps/eventsub/internal/tunnel"
 	cfg "github.com/satont/twir/libs/config"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger"
-	"github.com/satont/twir/libs/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	eventsub_framework "github.com/twirapp/twitch-eventsub-framework"
 	"go.uber.org/atomic"
@@ -56,57 +54,11 @@ func NewManager(opts Opts) (*Manager, error) {
 	opts.Lc.Append(
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
-				if opts.Config.AppEnv != "production" {
-					if err := manager.
-						gorm.
-						Session(&gorm.Session{AllowGlobalUpdate: true}).
-						Delete(&model.EventsubSubscription{}).
-						Error; err != nil {
-						return err
-					}
-				}
-
 				go func() {
 					if opts.Config.AppEnv != "production" {
-						twitchClient, err := twitch.NewAppClient(opts.Config, opts.TokensGrpc)
-						if err != nil {
+						if err := manager.InitChannels(); err != nil {
 							panic(err)
 						}
-
-						var subscriptions []helix.EventSubSubscription
-						cursor := ""
-						for {
-							subs, err := twitchClient.GetEventSubSubscriptions(
-								&helix.EventSubSubscriptionsParams{
-									After: cursor,
-								},
-							)
-							if err != nil {
-								panic(err)
-							}
-
-							subscriptions = append(subscriptions, subs.Data.EventSubSubscriptions...)
-
-							if subs.Data.Pagination.Cursor == "" {
-								break
-							}
-
-							cursor = subs.Data.Pagination.Cursor
-						}
-
-						var unsubWg sync.WaitGroup
-
-						for _, sub := range subscriptions {
-							sub := sub
-							unsubWg.Add(1)
-							go func() {
-								defer unsubWg.Done()
-								manager.Unsubscribe(ctx, sub.ID)
-							}()
-						}
-
-						unsubWg.Wait()
-						manager.populateChannels()
 					}
 
 					manager.SubscribeWithLimits(
@@ -129,6 +81,18 @@ func NewManager(opts Opts) (*Manager, error) {
 	)
 
 	return manager, nil
+}
+
+func (c *Manager) InitChannels() error {
+	if err := c.
+		gorm.
+		Session(&gorm.Session{AllowGlobalUpdate: true}).
+		Delete(&model.EventsubSubscription{}).
+		Error; err != nil {
+		return err
+	}
+
+	return c.populateChannels()
 }
 
 func (c *Manager) SubscribeToNeededEvents(

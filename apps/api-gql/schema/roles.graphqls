@@ -80,6 +80,9 @@ enum ChannelRolePermissionEnum {
 
 	VIEW_GAMES
 	MANAGE_GAMES
+
+	VIEW_BOT_SETTINGS
+	MANAGE_BOT_SETTINGS
 }
 
 directive @hasChannelRolesDashboardPermission(permission: ChannelRolePermissionEnum) on FIELD_DEFINITION

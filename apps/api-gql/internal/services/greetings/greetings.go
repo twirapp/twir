@@ -11,6 +11,7 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"github.com/twirapp/twir/apps/api-gql/internal/entity"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
 	"github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
@@ -21,29 +22,33 @@ type Opts struct {
 
 	GreetingsRepository greetings.Repository
 	Logger              logger.Logger
+	GreetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
 func New(opts Opts) *Service {
 	return &Service{
 		greetingsRepository: opts.GreetingsRepository,
 		logger:              opts.Logger,
+		greetingsCache:      opts.GreetingsCache,
 	}
 }
 
 type Service struct {
 	greetingsRepository greetings.Repository
 	logger              logger.Logger
+	greetingsCache      *generic_cacher.GenericCacher[[]model.Greeting]
 }
 
 func (c *Service) mapToEntity(m model.Greeting) entity.Greeting {
 	return entity.Greeting{
-		ID:        m.ID,
-		ChannelID: m.ChannelID,
-		UserID:    m.UserID,
-		Enabled:   m.Enabled,
-		Text:      m.Text,
-		IsReply:   m.IsReply,
-		Processed: m.Processed,
+		ID:           m.ID,
+		ChannelID:    m.ChannelID,
+		UserID:       m.UserID,
+		Enabled:      m.Enabled,
+		Text:         m.Text,
+		IsReply:      m.IsReply,
+		Processed:    m.Processed,
+		WithShoutOut: m.WithShoutOut,
 	}
 }
 
@@ -81,22 +86,24 @@ type CreateInput struct {
 	ChannelID string
 	ActorID   string
 
-	UserID    string
-	Enabled   bool
-	Text      string
-	IsReply   bool
-	Processed bool
+	UserID       string
+	Enabled      bool
+	Text         string
+	IsReply      bool
+	Processed    bool
+	WithShoutOut bool
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
 	dbGreeting, err := c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
-			ChannelID: input.ChannelID,
-			UserID:    input.UserID,
-			Enabled:   input.Enabled,
-			Text:      input.Text,
-			IsReply:   input.IsReply,
-			Processed: input.Processed,
+			ChannelID:    input.ChannelID,
+			UserID:       input.UserID,
+			Enabled:      input.Enabled,
+			Text:         input.Text,
+			IsReply:      input.IsReply,
+			Processed:    input.Processed,
+			WithShoutOut: input.WithShoutOut,
 		},
 	)
 	if err != nil {
@@ -115,6 +122,10 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		},
 	)
 
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
+
 	return c.mapToEntity(dbGreeting), nil
 }
 
@@ -122,10 +133,11 @@ type UpdateInput struct {
 	ActorID   string
 	ChannelID string
 
-	UserID  *string
-	Enabled *bool
-	Text    *string
-	IsReply *bool
+	UserID       *string
+	Enabled      *bool
+	Text         *string
+	IsReply      *bool
+	WithShoutOut *bool
 }
 
 func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
@@ -147,11 +159,12 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 
 	newGreeting, err := c.greetingsRepository.Update(
 		ctx, id, greetings.UpdateInput{
-			UserID:    input.UserID,
-			Enabled:   input.Enabled,
-			Text:      input.Text,
-			IsReply:   input.IsReply,
-			Processed: lo.ToPtr(false),
+			UserID:       input.UserID,
+			Enabled:      input.Enabled,
+			Text:         input.Text,
+			IsReply:      input.IsReply,
+			Processed:    lo.ToPtr(false),
+			WithShoutOut: input.WithShoutOut,
 		},
 	)
 	if err != nil {
@@ -169,6 +182,10 @@ func (c *Service) Update(ctx context.Context, id uuid.UUID, input UpdateInput) (
 			OperationType: audit.OperationUpdate,
 		},
 	)
+
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
+	}
 
 	return c.mapToEntity(newGreeting), nil
 }
@@ -208,6 +225,10 @@ func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 			ObjectID:      lo.ToPtr(dbGreeting.ID.String()),
 		},
 	)
+
+	if err = c.greetingsCache.Invalidate(ctx, input.ChannelID); err != nil {
+		return fmt.Errorf("failed to invalidate cache: %w", err)
+	}
 
 	return nil
 }

@@ -5,6 +5,8 @@ import DropSessions from './ui/drop-sessions.vue'
 import EventsubSubscribe from './ui/eventsub-subscribe.vue'
 import RescheduleTimers from './ui/reschedule-timers.vue'
 
+import ReinitEventsubChannels from '@/features/admin-panel/actions/ui/reinit-eventsub-channels.vue'
+
 const { t } = useI18n()
 </script>
 
@@ -18,5 +20,6 @@ const { t } = useI18n()
 
 		<DropSessions />
 		<RescheduleTimers />
+		<ReinitEventsubChannels />
 	</div>
 </template>

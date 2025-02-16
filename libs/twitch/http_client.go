@@ -21,13 +21,28 @@ func (t *spanRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 	span := trace.SpanFromContext(r.Context())
 	defer span.End()
 	span.SetAttributes(
-		attribute.String("twitch.rate-limit.limit", resp.Header.Get("Ratelimit-Limit")),
-		attribute.String(
-			"twitch.rate-limit.remaining",
-			resp.Header.Get("Ratelimit-Remaining"),
-		),
 		attribute.String("twitch.rate-limit.reset", resp.Header.Get("Ratelimit-Reset")),
 	)
+
+	parsedLimit, _ := strconv.Atoi(resp.Header.Get("Ratelimit-Limit"))
+	if parsedLimit != 0 {
+		span.SetAttributes(
+			attribute.Int(
+				"twitch.rate-limit.limit",
+				parsedLimit,
+			),
+		)
+	}
+
+	parsedRemaining, _ := strconv.Atoi(resp.Header.Get("Ratelimit-Remaining"))
+	if parsedRemaining != 0 {
+		span.SetAttributes(
+			attribute.Int(
+				"twitch.rate-limit.remaining",
+				parsedRemaining,
+			),
+		)
+	}
 
 	parsedReset, _ := strconv.Atoi(resp.Header.Get("Ratelimit-Reset"))
 	if parsedReset != 0 {

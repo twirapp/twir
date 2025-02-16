@@ -43,7 +43,7 @@ func (c *twirApp) stop() error {
 func (c *twirApp) createAppCommand() (*exec.Cmd, error) {
 	cmd, err := shell.CreateCommand(
 		shell.ExecCommandOpts{
-			Command: "pnpm dev",
+			Command: "bun run dev",
 			Pwd:     c.path,
 			Stdout:  os.Stdout,
 			Stderr:  os.Stderr,

@@ -81,7 +81,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		logsInput.OperationTypes = operationTypes
 	}
 
-	logs, err := r.auditLogService.GetMany(ctx, logsInput)
+	logs, err := r.deps.AuditLogsService.GetMany(ctx, logsInput)
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +104,7 @@ func (r *queryResolver) AdminAuditLogs(ctx context.Context, input gqlmodel.Admin
 		)
 	}
 
-	total, err := r.auditLogService.Count(ctx, audit_logs.GetCountInput{})
+	total, err := r.deps.AuditLogsService.Count(ctx, audit_logs.GetCountInput{})
 	if err != nil {
 		return nil, err
 	}

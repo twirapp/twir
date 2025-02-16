@@ -61,7 +61,7 @@ function openPopup() {
 </script>
 
 <template>
-	<Card :content-style="{ padding: '0px', height: '80%' }" :popup="props.popup">
+	<Card :content-style="{ padding: '0px', height: '80%' }" :popup="props.popup" class="@container">
 		<template #header-extra>
 			<NTooltip trigger="hover" placement="bottom">
 				<template #trigger>
@@ -76,8 +76,8 @@ function openPopup() {
 
 		<NScrollbar trigger="none">
 			<TransitionGroup name="list">
-				<div v-for="log of logs" :key="log.id" class="flex flex-col md:flex-row md:justify-between p-2 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid">
-					<div class="flex h-full flex-col sm:flex-col md:flex-row min-h-[40px] gap-2.5 px-2.5 md:items-center">
+				<div v-for="log of logs" :key="log.id" class="flex flex-col @lg:flex-row @lg:justify-between p-1 pr-4 border-b-[color:var(--n-border-color)] border-b border-solid @lg:items-center">
+					<div class="flex h-full flex-col @sm:flex-col @lg:flex-row min-h-[40px] gap-2.5 px-2.5 @lg:items-center">
 						<div v-if="log.user" class="flex gap-2 items-center">
 							<img class="size-4 rounded-full" :src="log.user.profileImageUrl" />
 							<span>{{ log.user.displayName }}</span>
@@ -93,7 +93,7 @@ function openPopup() {
 						</Badge>
 					</div>
 
-					<Badge variant="outline" class="mt-2 md:mt-0 flex w-fit">
+					<Badge variant="outline" class="mt-2 @lg:mt-0 flex w-fit p-1 h-fit px-2 bg-zinc-800">
 						<UseTimeAgo v-slot="{ timeAgo }" :time="new Date(log.createdAt)" show-second>
 							{{ timeAgo }}
 						</UseTimeAgo>

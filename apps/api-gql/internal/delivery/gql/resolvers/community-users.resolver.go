@@ -26,12 +26,12 @@ func (r *communityUserResolver) TwitchProfile(ctx context.Context, obj *gqlmodel
 
 // CommunityResetStats is the resolver for the communityResetStats field.
 func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlmodel.CommunityUsersResetType) (bool, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -41,7 +41,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 	}
 
 	if typeArg == gqlmodel.CommunityUsersResetTypeUsedEmotes {
-		err := r.gorm.WithContext(ctx).
+		err := r.deps.Gorm.WithContext(ctx).
 			Where(`"channelId" = ?`, user.ID).
 			Delete(&model.ChannelEmoteUsage{}).Error
 		if err != nil {
@@ -66,7 +66,7 @@ func (r *mutationResolver) CommunityResetStats(ctx context.Context, typeArg gqlm
 		return false, fmt.Errorf("unknown reset typeArg: %s", typeArg)
 	}
 
-	err = r.gorm.WithContext(ctx).
+	err = r.deps.Gorm.WithContext(ctx).
 		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, dashboardId).
 		Update(field, 0).Error
@@ -91,7 +91,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 
 	channel := &model.Channels{}
-	err := r.gorm.
+	err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("channels.id = ?", opts.ChannelID).
 		Joins("User").
@@ -118,7 +118,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 
 	var foundTwitchChannels []helix.Channel
 	if opts.Search.IsSet() {
-		channels, err := r.cachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
+		channels, err := r.deps.CachedTwitchClient.SearchChannels(ctx, *opts.Search.Value())
 		if err != nil {
 			return nil, err
 		}
@@ -183,9 +183,9 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 		return nil, fmt.Errorf("invalid query on backend: %w", err)
 	}
 
-	rows, err := r.gorm.WithContext(ctx).Raw(query, args...).Rows()
+	rows, err := r.deps.Gorm.WithContext(ctx).Raw(query, args...).Rows()
 	if err != nil {
-		r.logger.Error(
+		r.deps.Logger.Error(
 			"cannot get community users",
 			slog.Any("err", err),
 			slog.String("query", query),
@@ -219,7 +219,7 @@ func (r *queryResolver) CommunityUsers(ctx context.Context, opts gqlmodel.Commun
 	}
 
 	var totalStats int64
-	err = r.gorm.WithContext(ctx).
+	err = r.deps.Gorm.WithContext(ctx).
 		Model(&model.UsersStats{}).
 		Where(`"channelId" = ?`, opts.ChannelID).
 		Count(&totalStats).Error

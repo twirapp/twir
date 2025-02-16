@@ -9,10 +9,12 @@ services:
       - twir
       - traefik-public
     deploy:
+      placement:
+        constraints:
+          - node.labels.databases != true
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-adminer.rule=Host(`adminer.twir.app`)
-        - traefik.http.routers.twir-adminer.middlewares=admin-auth
         - traefik.http.services.twir-adminer.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
 
@@ -31,54 +33,29 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases != true
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-nats.rule=Host(`nats.twir.app`)
-        - traefik.http.routers.twir-nats.middlewares=admin-auth
         - traefik.http.services.twir-nats.loadbalancer.server.port=8222
         - traefik.docker.network=traefik-public
 
-  temporal-ui:
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
-    image: temporalio/ui:2.21.0
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    volumes:
+      - ./configs/otel/otel-collector.yaml:/etc/otelcol-contrib/config.yaml
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - twir
-      - traefik-public
     deploy:
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
-        - traefik.http.routers.twir-temporal.middlewares=admin-auth
-        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
-
-#  postgres:
-#    image: postgres:14-alpine
-#    volumes:
-#      - postgres-data:/var/lib/postgresql/data
-#      - ./configs/postgres.conf:/etc/postgresql/postgresql.conf
-#    environment:
-#      POSTGRES_USER_FILE: /run/secrets/twir_postgres_user
-#      POSTGRES_PASSWORD_FILE: /run/secrets/twir_postgres_password
-#      POSTGRES_DB_FILE: /run/secrets/twir_postgres_db
-#    secrets:
-#      - twir_postgres_user
-#      - twir_postgres_password
-#      - twir_postgres_db
-#    networks:
-#      - twir
-#    deploy:
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      endpoint_mode: dnsrr
-#      placement:
-#        constraints:
-#          - node.role == manager
+      restart_policy:
+        condition: any
+        delay: 3s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.role == manager
 
   postgres:
     image: 'bitnami/postgresql:17'
@@ -104,7 +81,23 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases-1 == true
+
+  postgres-backup:
+    image: registry.twir.app/twirapp/postgres-backup:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases == true
 
   pgbouncer:
     image: bitnami/pgbouncer:1.23.1
@@ -135,7 +128,29 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases == true
+
+
+  temporal-postgres:
+    image: 'bitnami/postgresql:17'
+    environment:
+      POSTGRES_USER: temporal
+      POSTGRES_PASSWORD: temporal
+      POSTGRES_DB: temporal
+      POSTGRESQL_POSTGRES_PASSWORD: temporal
+    volumes:
+      - temporal-postgres-data:/bitnami/postgresql
+    networks:
+      - twir
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases-1 == true
 
   temporal:
     depends_on:
@@ -156,29 +171,29 @@ services:
         kompose.volume.type: configMap
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases != true
 
-  postgres-backup:
-    build:
-      context: .
-      dockerfile: ./tools/pg-backup/Dockerfile
-    image: twirapp/postgres-backup:latest
-    secrets:
-      - twir_doppler_token
+  temporal-ui:
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+    image: temporalio/ui:2.21.0
     networks:
       - twir
+      - traefik-public
     deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-temporal.rule=Host(`temporal.twir.app`)
+
+        - traefik.http.services.twir-temporal.loadbalancer.server.port=8080
+        - traefik.docker.network=traefik-public
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases != true
 
   migrations:
-    image: registry.twir.app/twirapp/migrations:latest
+    image: twirapp/migrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -192,9 +207,10 @@ services:
       test: exit 0
 
   redis:
-    image: redis/redis-stack-server:7.2.0-v11
+    image: redis:7.4.2
+    command: redis-server --save 60 1 --loglevel warning
     volumes:
-      - redis-stack-data:/data
+      - redis-data:/data
     networks:
       - twir
     deploy:
@@ -205,10 +221,10 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.role == manager
+          - node.labels.databases == true
 
   api:
-    image: registry.twir.app/twirapp/api:latest
+    image: twirapp/api:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -231,9 +247,12 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   api-gql:
-    image: registry.twir.app/twirapp/api-gql:latest
+    image: twirapp/api-gql:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -256,9 +275,75 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 1
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   bots:
-    image: registry.twir.app/twirapp/bots:latest
+    image: twirapp/bots:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - traefik-public
+      - twir
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.twir-bots.rule=Host(`services-bots.twir.app`)
+
+        - traefik.http.services.twir-bots.loadbalancer.server.port=3000
+        - traefik.docker.network=traefik-public
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
+  parser:
+    image: twirapp/parser:latest
+    secrets:
+      - twir_doppler_token
+    deploy:
+      update_config:
+        parallelism: 2
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 6
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+    networks:
+      - twir
+
+  timers:
+    image: twirapp/timers:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+    deploy:
+      update_config:
+        parallelism: 2
+      mode: replicated
+      replicas: 6
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
+
+  scheduler:
+    image: twirapp/scheduler:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -271,74 +356,10 @@ services:
       endpoint_mode: dnsrr
       placement:
         constraints:
-          - node.role == manager
-
-  parser:
-    image: registry.twir.app/twirapp/parser:latest
-    secrets:
-      - twir_doppler_token
-    deploy:
-      update_config:
-        parallelism: 2
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      mode: replicated
-      replicas: 6
-      endpoint_mode: dnsrr
-    networks:
-      - twir
-
-  chat-messages-store:
-    image: registry.twir.app/twirapp/chat-messages-store:latest
-    secrets:
-      - twir_doppler_token
-    deploy:
-      update_config:
-        parallelism: 2
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      mode: replicated
-      replicas: 6
-      endpoint_mode: dnsrr
-    networks:
-      - twir
-
-  timers:
-    image: registry.twir.app/twirapp/timers:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      update_config:
-        parallelism: 2
-      mode: replicated
-      replicas: 6
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-
-  scheduler:
-    image: registry.twir.app/twirapp/scheduler:latest
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
+          - node.labels.databases != true
 
   eventsub:
-    image: registry.twir.app/twirapp/eventsub:latest
+    image: twirapp/eventsub:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -359,9 +380,12 @@ services:
         - traefik.http.routers.twir-eventsub.rule=Host(`eventsub.twir.app`)
         - traefik.http.services.twir-eventsub.loadbalancer.server.port=3003
         - traefik.docker.network=traefik-public
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   eval:
-    image: registry.twir.app/twirapp/eval:latest
+    image: twirapp/eval:latest
     secrets:
       - twir_doppler_token
     deploy:
@@ -378,11 +402,14 @@ services:
         limits:
           cpus: '0.3'
           memory: 256M
+      placement:
+        constraints:
+          - node.labels.databases != true
     networks:
       - twir
 
   integrations:
-    image: registry.twir.app/twirapp/integrations:latest
+    image: twirapp/integrations:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -394,32 +421,8 @@ services:
         max_attempts: 30
       endpoint_mode: dnsrr
 
-#  landing:
-#    image: registry.twir.app/twirapp/landing:latest
-#    secrets:
-#      - twir_doppler_token
-#    networks:
-#      - twir
-#      - traefik-public
-#    deploy:
-#      update_config:
-#        parallelism: 2
-#      restart_policy:
-#        condition: any
-#        delay: 30s
-#        max_attempts: 30
-#      mode: replicated
-#      replicas: 4
-#      endpoint_mode: dnsrr
-#      labels:
-#        - traefik.enable=true
-#        - traefik.http.routers.twir-landing.rule=Host(`twir.app`)
-#        - traefik.http.routers.twir-landing.middlewares=cloudflarewarp
-#        - traefik.http.services.twir-landing.loadbalancer.server.port=3000
-#        - traefik.docker.network=traefik-public
-
   web:
-    image: registry.twir.app/twirapp/web:latest
+    image: twirapp/web:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -438,12 +441,15 @@ services:
       labels:
         - traefik.enable=true
         - traefik.http.routers.twir-web.rule=Host(`twir.app`)
-        - traefik.http.routers.twir-web.middlewares=cloudflarewarp
+
         - traefik.http.services.twir-web.loadbalancer.server.port=3000
         - traefik.docker.network=traefik-public
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   dashboard:
-    image: registry.twir.app/twirapp/dashboard:latest
+    image: twirapp/dashboard:latest
     command: --gzip --brotli --threshold 500 --ignore-cache-control-paths "/sw.js,/index.html,/manifest.webmanifest,/pluginWebUpdateNotice/web_version_by_plugin.json"
     secrets:
       - twir_doppler_token
@@ -463,31 +469,12 @@ services:
         - traefik.http.middlewares.dashboard-stripprefix.stripprefix.prefixes=/dashboard
         - traefik.http.services.twir-dashboard.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
-
-  public-page:
-    image: registry.twir.app/twirapp/public-page:latest
-    command: --gzip --brotli --threshold 500
-    secrets:
-      - twir_doppler_token
-    networks:
-      - twir
-      - traefik-public
-    deploy:
-      restart_policy:
-        condition: any
-        delay: 30s
-        max_attempts: 30
-      endpoint_mode: dnsrr
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.twir-public.rule=Host(`twir.app`) && PathPrefix(`/p`)
-        - traefik.http.routers.twir-public.middlewares=public-stripprefix
-        - traefik.http.middlewares.public-stripprefix.stripprefix.prefixes=/p
-        - traefik.http.services.twir-public.loadbalancer.server.port=8080
-        - traefik.docker.network=traefik-public
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   overlays:
-    image: registry.twir.app/twirapp/overlays:latest
+    image: twirapp/overlays:latest
     command: --gzip --brotli --threshold 500
     networks:
       - twir
@@ -505,9 +492,12 @@ services:
         - traefik.http.middlewares.overlays-stripprefix.stripprefix.prefixes=/overlays
         - traefik.http.services.twir-overlays.loadbalancer.server.port=8080
         - traefik.docker.network=traefik-public
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   websockets:
-    image: registry.twir.app/twirapp/websockets:latest
+    image: twirapp/websockets:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -526,9 +516,12 @@ services:
         - traefik.http.middlewares.sockets-stripprefix.stripprefix.prefixes=/socket
         - traefik.http.services.twir-websockets.loadbalancer.server.port=3004
         - traefik.docker.network=traefik-public
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   tokens:
-    image: registry.twir.app/twirapp/tokens:latest
+    image: twirapp/tokens:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -543,9 +536,12 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   emotes-cacher:
-    image: registry.twir.app/twirapp/emotes-cacher:latest
+    image: twirapp/emotes-cacher:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -560,9 +556,12 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 4
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   events:
-    image: registry.twir.app/twirapp/events:latest
+    image: twirapp/events:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -577,9 +576,12 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 6
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   ytsr:
-    image: registry.twir.app/twirapp/ytsr:latest
+    image: twirapp/ytsr:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -594,6 +596,9 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 6
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   tts:
     image: aculeasis/rhvoice-rest:latest
@@ -609,9 +614,12 @@ services:
       endpoint_mode: dnsrr
       mode: replicated
       replicas: 4
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   discord:
-    image: registry.twir.app/twirapp/discord:latest
+    image: twirapp/discord:latest
     secrets:
       - twir_doppler_token
     networks:
@@ -622,9 +630,12 @@ services:
         delay: 30s
         max_attempts: 30
       endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
 
   language-detector:
-    image: ghcr.io/registry.twir.app/twirapp/language-detector:latest
+    image: twirapp/language-detector:latest
     secrets:
       - twir_doppler_token
     environment:
@@ -639,16 +650,66 @@ services:
         condition: any
         delay: 30s
         max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
     networks:
       - twir
+
+  toxicity-detector:
+    image: twirapp/toxicity-detector:latest
+    environment:
+      TOXICITY_THRESHOLD: -4
+    deploy:
+      update_config:
+        parallelism: 2
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      placement:
+        constraints:
+          - node.labels.databases != true
+    networks:
+      - twir
+
+# This is https://github.com/twirapp/music-recognizer repository, which is doing "Shazam for twitch stream".
+  music-recognizer:
+    image: registry.twir.app/twirapp/music-recognizer:latest
+    secrets:
+      - twir_doppler_token
+    networks:
+      - twir
+      - traefik-public
+    deploy:
+      labels: # for testing purposes, not needed in production because requests done via internal docker network
+        - traefik.enable=true
+        - traefik.http.routers.music-recognizer.rule=Host(`music-recognizer.twir.app`)
+        - traefik.http.services.music-recognizer.loadbalancer.server.port=3000
+        - traefik.docker.network=traefik-public
+      update_config:
+        parallelism: 1
+      restart_policy:
+        condition: any
+        delay: 30s
+        max_attempts: 30
+      mode: replicated
+      replicas: 4
+      endpoint_mode: dnsrr
+      placement:
+        constraints:
+          - node.labels.databases != true
 
 volumes:
   twir-postgres-data:
     external: true
   postgres-data:
   redis-data:
-  redis-stack-data:
   minio-data:
+  temporal-postgres-data:
 
 networks:
   twir:

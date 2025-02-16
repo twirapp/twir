@@ -19,14 +19,14 @@ import (
 
 // Users is the resolver for the users field.
 func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]string, error) {
-	users, err := r.badgesUsersService.GetMany(
+	users, err := r.deps.BadgesUsersService.GetMany(
 		ctx,
 		badges_users.GetManyInput{
 			BadgeID: obj.ID,
 		},
 	)
 	if err != nil {
-		r.logger.Error("cannot get badge users", slog.Any("err", err))
+		r.deps.Logger.Error("cannot get badge users", slog.Any("err", err))
 		return nil, err
 	}
 
@@ -40,8 +40,8 @@ func (r *badgeResolver) Users(ctx context.Context, obj *gqlmodel.Badge) ([]strin
 
 // BadgesDelete is the resolver for the badgesDelete field.
 func (r *mutationResolver) BadgesDelete(ctx context.Context, id uuid.UUID) (bool, error) {
-	if err := r.badgesService.Delete(ctx, id); err != nil {
-		r.logger.Error("cannot delete badge", slog.Any("err", err))
+	if err := r.deps.BadgesService.Delete(ctx, id); err != nil {
+		r.deps.Logger.Error("cannot delete badge", slog.Any("err", err))
 		return false, err
 	}
 
@@ -67,9 +67,9 @@ func (r *mutationResolver) BadgesUpdate(ctx context.Context, id uuid.UUID, opts 
 		}
 	}
 
-	newBadge, err := r.badgesService.Update(ctx, id, input)
+	newBadge, err := r.deps.BadgesService.Update(ctx, id, input)
 	if err != nil {
-		r.logger.Error("cannot update badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot update badge", slog.Any("err", err))
 		return nil, err
 	}
 
@@ -95,9 +95,9 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirB
 		input.Enabled = *opts.Enabled.Value()
 	}
 
-	newBadge, err := r.badgesService.Create(ctx, input)
+	newBadge, err := r.deps.BadgesService.Create(ctx, input)
 	if err != nil {
-		r.logger.Error("cannot create badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot create badge", slog.Any("err", err))
 		return nil, err
 	}
 
@@ -107,7 +107,7 @@ func (r *mutationResolver) BadgesCreate(ctx context.Context, opts gqlmodel.TwirB
 
 // BadgesAddUser is the resolver for the badgesAddUser field.
 func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, userID string) (bool, error) {
-	_, err := r.badgesUsersService.Create(
+	_, err := r.deps.BadgesUsersService.Create(
 		ctx,
 		badges_users.CreateInput{
 			BadgeID: id,
@@ -115,7 +115,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, user
 		},
 	)
 	if err != nil {
-		r.logger.Error("cannot add user to badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot add user to badge", slog.Any("err", err))
 		return false, err
 	}
 
@@ -124,7 +124,7 @@ func (r *mutationResolver) BadgesAddUser(ctx context.Context, id uuid.UUID, user
 
 // BadgesRemoveUser is the resolver for the badgesRemoveUser field.
 func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, userID string) (bool, error) {
-	err := r.badgesUsersService.Delete(
+	err := r.deps.BadgesUsersService.Delete(
 		ctx,
 		badges_users.DeleteInput{
 			BadgeID: id,
@@ -132,7 +132,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 		},
 	)
 	if err != nil {
-		r.logger.Error("cannot remove user from badge", slog.Any("err", err))
+		r.deps.Logger.Error("cannot remove user from badge", slog.Any("err", err))
 		return false, err
 	}
 
@@ -141,7 +141,7 @@ func (r *mutationResolver) BadgesRemoveUser(ctx context.Context, id uuid.UUID, u
 
 // TwirBadges is the resolver for the twirBadges field.
 func (r *queryResolver) TwirBadges(ctx context.Context) ([]gqlmodel.Badge, error) {
-	entities, err := r.badgesService.GetMany(
+	entities, err := r.deps.BadgesService.GetMany(
 		ctx,
 		badges.GetManyInput{},
 	)

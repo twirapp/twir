@@ -40,7 +40,8 @@ func newGorm(
 	db, err := gorm.Open(
 		postgres.Open(cfg.DatabaseUrl),
 		&gorm.Config{
-			Logger: newLogger,
+			Logger:                 newLogger,
+			SkipDefaultTransaction: true,
 		},
 	)
 	if err != nil {

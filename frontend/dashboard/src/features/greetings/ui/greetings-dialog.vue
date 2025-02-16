@@ -42,6 +42,7 @@ const defaultFormValue: Omit<Greetings, 'twitchProfile'> = {
 	userId: '',
 	enabled: true,
 	isReply: true,
+	withShoutOut: false,
 }
 
 const formValue = ref(structuredClone(defaultFormValue))
@@ -68,6 +69,7 @@ async function save() {
 		isReply: data.isReply,
 		text: data.text,
 		userId: data.userId,
+		withShoutOut: data.withShoutOut,
 	}
 
 	try {
@@ -99,16 +101,6 @@ const rules: FormRules = {
 			return true
 		},
 	},
-	text: {
-		trigger: ['input', 'blur'],
-		validator: (_: FormItemRule, value: string) => {
-			if (!value || !value.length) {
-				return new Error(t('greetings.validations.textRequired'))
-			}
-
-			return true
-		},
-	},
 }
 </script>
 
@@ -134,8 +126,12 @@ const rules: FormRules = {
 						<NFormItem :label="t('sharedTexts.userName')" path="userId" show-require-mark>
 							<TwitchUserSelect v-model="formValue.userId" twir-only />
 						</NFormItem>
-						<NFormItem :label="t('sharedTexts.response')" path="text" show-require-mark>
+						<NFormItem :label="t('sharedTexts.response')" path="text">
 							<VariableInput v-model="formValue.text" input-type="textarea" />
+						</NFormItem>
+
+						<NFormItem label="Send shoutout with greeting" path="text">
+							<NSwitch v-model:value="formValue.withShoutOut" />
 						</NFormItem>
 
 						<NFormItem :label="t('sharedTexts.reply.text')" path="text">

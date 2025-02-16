@@ -15,6 +15,7 @@ services:
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
+    command: postgres -c max_connections=500
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
@@ -38,17 +39,18 @@ services:
       - PGBOUNCER_AUTH_USER=twir
       - PGBOUNCER_DATABASE=twir
       - PGBOUNCER_MIN_POOL_SIZE=20
+      - PGBOUNCER_MAX_CLIENT_CONN=4000
     networks:
       - twir-dev
     ports:
       -  '6432:6432'
 
   redis:
-    image: redis/redis-stack:latest
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    command: dragonfly --dir /data/snapshots --dbfilename twir-redis-snapshot-{timestamp} --snapshot_cron "0 0 * * *"
     restart: always
     ports:
       - '6385:6379'
-      - '8001:8001'
     volumes:
       - redis-data:/data
     networks:

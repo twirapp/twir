@@ -13,9 +13,6 @@ import TagsInput from './ui/tags-input/TagsInput.vue'
 import TagsInputItem from './ui/tags-input/TagsInputItem.vue'
 import TagsInputItemDelete from './ui/tags-input/TagsInputItemDelete.vue'
 
-import type { SelectEvent } from 'radix-vue/dist/Combobox/ComboboxItem'
-import type { AcceptableValue } from 'radix-vue/dist/shared/types'
-
 import { useTwitchGetCategories, useTwitchSearchCategories } from '@/api'
 
 defineProps<{ id?: string }>()
@@ -53,7 +50,10 @@ const selectedCategoriesValues = computed<Record<string, SelectedCategoryValue>>
 	}, {} as Record<string, SelectedCategoryValue>)
 })
 
-function handleSelect(event: SelectEvent<AcceptableValue>) {
+function handleSelect(event: CustomEvent<{
+	originalEvent: PointerEvent
+	value?: string | number | boolean | Record<string, any>
+}>) {
 	if (typeof event.detail.value !== 'string') return
 	if (categories.value.includes(event.detail.value)) {
 		return

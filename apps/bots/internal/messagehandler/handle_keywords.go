@@ -10,33 +10,33 @@ import (
 
 	"github.com/lib/pq"
 	"github.com/samber/lo"
+	"github.com/satont/twir/apps/bots/internal/entity"
+	"github.com/satont/twir/apps/bots/internal/services/keywords"
 	"github.com/satont/twir/apps/bots/internal/twitchactions"
 	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/parser"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
-	"github.com/twirapp/twir/libs/repositories/keywords"
-	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
 
 func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) error {
-	keywords, err := c.keywordsCacher.Get(ctx, msg.BroadcasterUserId)
+	entities, err := c.keywordsService.GetManyByChannelID(ctx, msg.BroadcasterUserId)
 	if err != nil {
 		return err
 	}
 
-	if len(keywords) == 0 {
+	if len(entities) == 0 {
 		return nil
 	}
 
 	message := msg.Message.Text
 	var messagesForSend []string
 
-	matchedKeywords := make([]model.Keyword, 0, len(keywords))
+	matchedKeywords := make([]entity.Keyword, 0, len(entities))
 
 	timesInMessage := map[string]int{}
 
-	for _, k := range keywords {
+	for _, k := range entities {
 		if !k.Enabled {
 			continue
 		}
@@ -100,7 +100,7 @@ func (c *MessageHandler) handleKeywords(ctx context.Context, msg handleMessage) 
 
 func (c *MessageHandler) keywordsIncrementStats(
 	ctx context.Context,
-	keyword model.Keyword,
+	keyword entity.Keyword,
 	count int,
 ) {
 	input := keywords.UpdateInput{}
@@ -115,7 +115,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 		input.CooldownExpireAt = &expires
 	}
 
-	_, err := c.keywordsRepository.Update(ctx, keyword.ID, input)
+	_, err := c.keywordsService.Update(ctx, keyword.ID, keyword.ChannelID, input)
 	if err != nil {
 		c.logger.Error(
 			"cannot update keyword usages",
@@ -128,7 +128,7 @@ func (c *MessageHandler) keywordsIncrementStats(
 func (c *MessageHandler) keywordsTriggerEvent(
 	ctx context.Context,
 	msg handleMessage,
-	keyword model.Keyword,
+	keyword entity.Keyword,
 	response string,
 ) {
 	_, err := c.eventsGrpc.KeywordMatched(
@@ -156,7 +156,7 @@ func (c *MessageHandler) keywordsTriggerEvent(
 func (c *MessageHandler) keywordsParseResponse(
 	ctx context.Context,
 	msg handleMessage,
-	keyword model.Keyword,
+	keyword entity.Keyword,
 ) string {
 	if keyword.Response == "" {
 		return ""
@@ -185,7 +185,7 @@ func (c *MessageHandler) keywordsParseResponse(
 
 func (c *MessageHandler) keywordsTriggerAlert(
 	ctx context.Context,
-	keyword model.Keyword,
+	keyword entity.Keyword,
 ) {
 	alert := deprecatedgormmodel.ChannelAlert{}
 	if err := c.gorm.WithContext(ctx).Where(

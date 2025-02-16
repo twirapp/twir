@@ -22,6 +22,7 @@ var TopTime = &types.DefaultCommand{
 		IsReply:     true,
 		Aliases:     []string{"top watched"},
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

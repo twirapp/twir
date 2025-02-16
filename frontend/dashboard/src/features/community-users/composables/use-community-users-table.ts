@@ -50,7 +50,6 @@ export const useCommunityUsersTable = createGlobalState(() => {
 
 	const { pagination, setPagination } = usePagination()
 	const params = computed<CommunityUsersOpts>((prevParams) => {
-		// reset pagination on search change
 		if (prevParams?.search !== debouncedSearchInput.value) {
 			pagination.value.pageIndex = 0
 		}
@@ -82,12 +81,6 @@ export const useCommunityUsersTable = createGlobalState(() => {
 			accessorKey: TABLE_ACCESSOR_KEYS.user,
 			size: 20,
 			header: () => h('div', {}, t('community.users.table.user')),
-			// header: ({ column }) => {
-			// 	return h(CommunityUsersTableColumn, {
-			// 		column,
-			// 		title: t('community.users.table.user'),
-			// 	});
-			// },
 			cell: ({ row }) => {
 				return h('a', {
 					class: 'flex flex-col',

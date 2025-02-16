@@ -5,7 +5,9 @@ import (
 
 	"github.com/satont/twir/libs/logger"
 	bus_core "github.com/twirapp/twir/libs/bus-core"
+	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -15,6 +17,7 @@ type PubSubHandlers struct {
 	logger              logger.Logger
 	bus                 *bus_core.Bus
 	greetingsRepository greetings.Repository
+	greetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 }
 
 type Opts struct {
@@ -26,6 +29,7 @@ type Opts struct {
 	Bus                 *bus_core.Bus
 	Logger              logger.Logger
 	GreetingsRepository greetings.Repository
+	GreetingsCacher     *generic_cacher.GenericCacher[[]greetingsmodel.Greeting]
 }
 
 func New(opts Opts) {
@@ -34,6 +38,7 @@ func New(opts Opts) {
 		logger:              opts.Logger,
 		bus:                 opts.Bus,
 		greetingsRepository: opts.GreetingsRepository,
+		greetingsCacher:     opts.GreetingsCacher,
 	}
 
 	opts.LC.Append(

@@ -10,7 +10,10 @@ import (
 	"fmt"
 
 	model "github.com/satont/twir/libs/gomodels"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 )
 
 // ChatOverlayUpdate is the resolver for the chatOverlayUpdate field.
@@ -55,7 +58,7 @@ func (r *queryResolver) ChatOverlays(ctx context.Context) ([]gqlmodel.ChatOverla
 
 // ChatOverlaysByID is the resolver for the chatOverlaysById field.
 func (r *queryResolver) ChatOverlaysByID(ctx context.Context, id string) (*gqlmodel.ChatOverlay, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +73,7 @@ func (r *queryResolver) NowPlayingOverlays(ctx context.Context) ([]gqlmodel.NowP
 
 // NowPlayingOverlaysByID is the resolver for the nowPlayingOverlaysById field.
 func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (*gqlmodel.NowPlayingOverlay, error) {
-	dashboardID, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -78,17 +81,32 @@ func (r *queryResolver) NowPlayingOverlaysByID(ctx context.Context, id string) (
 	return r.getNowPlayingOverlaySettings(ctx, id, dashboardID)
 }
 
+// TtsPublicUsersSettings is the resolver for the ttsPublicUsersSettings field.
+func (r *queryResolver) TtsPublicUsersSettings(ctx context.Context, channelID string) ([]gqlmodel.TTSUserSettings, error) {
+	settings, err := r.deps.TTSService.GetTTSUsersSettings(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	mappedSettings := make([]gqlmodel.TTSUserSettings, 0, len(settings))
+	for _, s := range settings {
+		mappedSettings = append(mappedSettings, mappers.TTSUserSettingTo(s))
+	}
+
+	return mappedSettings, nil
+}
+
 // ChatOverlaySettings is the resolver for the chatOverlaySettings field.
 func (r *subscriptionResolver) ChatOverlaySettings(ctx context.Context, id string, apiKey string) (<-chan *gqlmodel.ChatOverlay, error) {
 	user := model.Users{}
-	if err := r.gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
+	if err := r.deps.Gorm.Where(`"apiKey" = ?`, apiKey).First(&user).Error; err != nil {
 		return nil, fmt.Errorf("failed to get user: %w", err)
 	}
 
 	channel := make(chan *gqlmodel.ChatOverlay)
 
 	go func() {
-		sub, err := r.wsRouter.Subscribe(
+		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
 				chatOverlaySubscriptionKeyCreate(id, user.ID),
 			},
@@ -133,3 +151,15 @@ func (r *subscriptionResolver) NowPlayingOverlaySettings(ctx context.Context, id
 func (r *subscriptionResolver) NowPlayingCurrentTrack(ctx context.Context, apiKey string) (<-chan *gqlmodel.NowPlayingOverlayTrack, error) {
 	return r.nowPlayingCurrentTrackSubscription(ctx, apiKey)
 }
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *tTSUserSettingsResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.TTSUserSettings) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// TTSUserSettings returns graph.TTSUserSettingsResolver implementation.
+func (r *Resolver) TTSUserSettings() graph.TTSUserSettingsResolver {
+	return &tTSUserSettingsResolver{r}
+}
+
+type tTSUserSettingsResolver struct{ *Resolver }

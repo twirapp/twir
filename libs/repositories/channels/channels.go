@@ -8,6 +8,7 @@ import (
 
 type Repository interface {
 	GetMany(ctx context.Context, input GetManyInput) ([]model.Channel, error)
+	GetByID(ctx context.Context, channelID string) (model.Channel, error)
 }
 
 type GetManyInput struct {

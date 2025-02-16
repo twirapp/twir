@@ -1,0 +1,67 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+  redis:
+    endpoint: localhost:6379
+    collection_interval: 10s
+  postgresql:
+    endpoint: localhost:5432
+    transport: tcp
+    username: twir
+    password: twir
+    databases:
+      - twir
+    collection_interval: 10s
+    tls:
+      insecure: true
+   docker_stats:
+		 endpoint: unix:///var/run/docker.sock
+		 collection_interval: 15s
+		 metrics:
+			 container.cpu.usage.percpu:
+				 enabled: true
+			 container.network.io.usage.rx_bytes:
+				 enabled: true
+			 container.network.io.usage.tx_bytes:
+				 enabled: true
+			 container.network.io.usage.tx_dropped:
+				 enabled: false
+			 container.memory.usage.total:
+				 enabled: true
+			 container.memory.usage.max:
+				 enabled: true
+			 container.memory.percent:
+				 enabled: true
+			 container.memory.cache:
+				 enabled: true
+			 container.network.io.usage.rx_packets:
+				 enabled: true
+			 container.network.io.usage.tx_packets:
+				 enabled: true
+
+exporters:
+  otlp:
+    endpoint: http://uptrace.satont.ru:14317
+    tls:
+      insecure: true
+    headers: { 'uptrace-dsn': 'http://<token>@uptrace.satont.ru:14318?grpc=14317' }
+
+processors:
+  resourcedetection:
+    detectors: [env, system]
+  cumulativetodelta:
+  batch:
+    timeout: 10s
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp]
+    metrics:
+      receivers: [otlp, redis, postgresql, docker_stats]
+      processors: [cumulativetodelta, batch, resourcedetection]
+      exporters: [otlp]

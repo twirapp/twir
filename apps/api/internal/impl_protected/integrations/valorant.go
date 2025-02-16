@@ -171,12 +171,17 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 	if !shardReq.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %v, %s",
+			shardReq.StatusCode,
+			shardReq.String(),
+		)
 	}
 
 	henrikResponse := ValorantHenrikResponse{}
 	henrikReq, err := req.
 		SetSuccessResult(&henrikResponse).
+		SetHeader("Authorization", c.Config.ValorantHenrikApiKey).
 		Get(
 			fmt.Sprintf(
 				"https://api.henrikdev.xyz/valorant/v1/account/%s/%s",
@@ -188,7 +193,11 @@ func (c *Integrations) IntegrationsValorantPostCode(
 		return nil, err
 	}
 	if !henrikReq.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get valorant shard info: %s", shardReq.String())
+		return nil, fmt.Errorf(
+			"cannot get valorant shard info: %d %s",
+			henrikReq.StatusCode,
+			henrikReq.String(),
+		)
 	}
 
 	userName := fmt.Sprintf(

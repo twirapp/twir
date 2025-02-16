@@ -22,6 +22,7 @@ var Profile = &types.DefaultCommand{
 		Aliases:     []string{},
 		Enabled:     false,
 	},
+	SkipToxicityCheck: true,
 	Handler: func(ctx context.Context, parseCtx *types.ParseContext) (
 		*types.CommandsHandlerResult,
 		error,

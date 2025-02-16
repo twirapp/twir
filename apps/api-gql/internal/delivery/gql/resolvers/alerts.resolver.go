@@ -15,12 +15,12 @@ import (
 
 // ChannelAlertsCreate is the resolver for the channelAlertsCreate field.
 func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmodel.ChannelAlertCreateInput) (*gqlmodel.ChannelAlert, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 		volume = *input.AudioVolume.Value()
 	}
 
-	alert, err := r.alertsService.Create(
+	alert, err := r.deps.AlertsService.Create(
 		ctx,
 		alerts.CreateInput{
 			ChannelID:    dashboardId,
@@ -51,17 +51,17 @@ func (r *mutationResolver) ChannelAlertsCreate(ctx context.Context, input gqlmod
 
 // ChannelAlertsUpdate is the resolver for the channelAlertsUpdate field.
 func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID, input gqlmodel.ChannelAlertUpdateInput) (*gqlmodel.ChannelAlert, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	alert, err := r.alertsService.Update(
+	alert, err := r.deps.AlertsService.Update(
 		ctx,
 		id,
 		alerts.UpdateInput{
@@ -83,17 +83,17 @@ func (r *mutationResolver) ChannelAlertsUpdate(ctx context.Context, id uuid.UUID
 
 // ChannelAlertsDelete is the resolver for the channelAlertsDelete field.
 func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	err = r.alertsService.Delete(ctx, id, dashboardId, user.ID)
+	err = r.deps.AlertsService.Delete(ctx, id, dashboardId, user.ID)
 	if err != nil {
 		return false, err
 	}
@@ -103,12 +103,12 @@ func (r *mutationResolver) ChannelAlertsDelete(ctx context.Context, id uuid.UUID
 
 // ChannelAlerts is the resolver for the channelAlerts  field.
 func (r *queryResolver) ChannelAlerts(ctx context.Context) ([]gqlmodel.ChannelAlert, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	dbAlerts, err := r.alertsService.GetManyByChannelID(ctx, dashboardId)
+	dbAlerts, err := r.deps.AlertsService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}

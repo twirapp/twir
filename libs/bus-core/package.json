@@ -1,9 +1,12 @@
 {
   "name": "@twir/bus-core",
-  "main": "src/index.js",
-  "types": "src/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "build": "tsc"
+  },
   "dependencies": {
     "nats": "2.22.0"
   }

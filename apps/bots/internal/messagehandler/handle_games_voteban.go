@@ -138,11 +138,24 @@ func (c *MessageHandler) handleGamesVoteban(ctx context.Context, msg handleMessa
 			return err
 		}
 
-		votesKeys := c.redis.Keys(ctx, fmt.Sprintf("%s:votes:*", redisKey)).Val()
-		if len(votesKeys) > 0 {
-			if err := c.redis.Del(ctx, votesKeys...).Err(); err != nil {
-				return err
-			}
+		_, err := c.redis.Pipelined(
+			ctx, func(pipe redis.Pipeliner) error {
+				votesIter := pipe.Scan(ctx, 0, fmt.Sprintf("%s:votes:*", redisKey), 0).Iterator()
+
+				for votesIter.Next(ctx) {
+					pipe.Del(ctx, votesIter.Val()).Err()
+				}
+
+				if err := votesIter.Err(); err != nil {
+					return err
+				}
+
+				return nil
+			},
+		)
+
+		if err != nil {
+			return err
 		}
 	} else {
 		if err := c.redis.HSet(

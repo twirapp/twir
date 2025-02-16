@@ -25,6 +25,7 @@ var Marker = &types.DefaultCommand{
 		Aliases:     []string{},
 		Enabled:     true,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.String{
 			Name:     "markerDescription",

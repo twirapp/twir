@@ -8,9 +8,12 @@ import (
 	"unicode/utf8"
 
 	"github.com/aidenwallis/go-ratelimiting/redis"
+	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	"github.com/twirapp/twir/libs/repositories/sentmessages"
+	"github.com/twirapp/twir/libs/repositories/toxic_messages"
 )
 
 type SendMessageOpts struct {
@@ -19,10 +22,16 @@ type SendMessageOpts struct {
 	Message              string
 	ReplyParentMessageID string
 	IsAnnounce           bool
+	SkipToxicityCheck    bool
 }
 
+const shoutOutPrefix = "/shoutout"
+
 func validateResponseSlashes(response string) string {
-	if strings.HasPrefix(response, "/me") || strings.HasPrefix(response, "/announce") || strings.HasPrefix(response, "/shoutout") {
+	if strings.HasPrefix(response, "/me") || strings.HasPrefix(
+		response,
+		"/announce",
+	) || strings.HasPrefix(response, shoutOutPrefix) {
 		return response
 	} else if strings.HasPrefix(response, "/") {
 		return "Slash commands except /me, /announce and /shoutout is disallowed. This response wont be ever sended."
@@ -42,6 +51,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			Window:          30,
 		},
 	)
+
 	if err != nil {
 		return err
 	}
@@ -80,6 +90,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			c.tokensGrpc,
 		)
 	}
+
 	if twitchClientErr != nil {
 		return twitchClientErr
 	}
@@ -87,7 +98,17 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 	text := strings.ReplaceAll(opts.Message, "\n", " ")
 	textParts := splitTextByLength(text)
 
+	toxicity := make([]bool, len(textParts))
+	if !opts.SkipToxicityCheck {
+		t, err := c.toxicityCheck.CheckTextsToxicity(ctx, textParts)
+		if err != nil {
+			return fmt.Errorf("cannot send message: %w", err)
+		}
+		toxicity = t
+	}
+
 	for i, part := range textParts {
+		// Do not send message if it was splitted more than 3 parts
 		if i > 2 {
 			return nil
 		}
@@ -95,16 +116,47 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		var msgErr error
 		var errorMessage string
 
+		message := part
+		isToxic := !opts.SkipToxicityCheck && toxicity[i]
+		if isToxic {
+			if err := c.toxicMessagesRepository.Create(
+				ctx,
+				toxic_messages.CreateInput{
+					ChannelID:     opts.BroadcasterID,
+					ReplyToUserID: nil,
+					Text:          part,
+				},
+			); err != nil {
+				c.logger.Warn("Cannot save toxic message to db", slog.Any("err", err))
+			}
+
+			message = "[TwirApp] Redacted due toxicity validation. Contact support if you sure there is no toxicity."
+		}
+
 		if !opts.IsAnnounce {
 			resp, err := twitchClient.SendChatMessage(
 				&helix.SendChatMessageParams{
 					BroadcasterID:        opts.BroadcasterID,
 					SenderID:             opts.SenderID,
-					Message:              validateResponseSlashes(part),
+					Message:              validateResponseSlashes(message),
 					ReplyParentMessageID: opts.ReplyParentMessageID,
 				},
 			)
 			msgErr = err
+
+			for _, m := range resp.Data.Messages {
+				err := c.sentMessagesRepository.Create(
+					ctx, sentmessages.CreateInput{
+						MessageTwitchID: m.MessageID,
+						Content:         message,
+						ChannelID:       opts.BroadcasterID,
+						SenderID:        opts.SenderID,
+					},
+				)
+				if err != nil {
+					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
+				}
+			}
 
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
@@ -114,12 +166,27 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				&helix.SendChatAnnouncementParams{
 					BroadcasterID: opts.BroadcasterID,
 					ModeratorID:   opts.SenderID,
-					Message:       validateResponseSlashes(part),
+					Message:       validateResponseSlashes(message),
 				},
 			)
 			msgErr = err
+
 			if resp != nil {
 				errorMessage = resp.ErrorMessage
+			}
+
+			if resp != nil && resp.ErrorMessage != "" && err == nil {
+				err := c.sentMessagesRepository.Create(
+					ctx, sentmessages.CreateInput{
+						MessageTwitchID: uuid.NewString(),
+						Content:         part,
+						ChannelID:       opts.BroadcasterID,
+						SenderID:        opts.SenderID,
+					},
+				)
+				if err != nil {
+					c.logger.Warn("Cannot save message to db", slog.Any("err", err))
+				}
 			}
 		}
 
@@ -128,7 +195,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		}
 
 		if errorMessage != "" {
-			return fmt.Errorf("cannot send message: %w", errorMessage)
+			return fmt.Errorf("cannot send message: %s", errorMessage)
 		}
 	}
 

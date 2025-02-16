@@ -10,4 +10,4 @@ plugins:
       - generate_dependencies
       - eslint_disable
       - server_none
-    out: dist
+    out: .

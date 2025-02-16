@@ -24,6 +24,7 @@ var PitchCommand = &types.DefaultCommand{
 		Module:      "TTS",
 		IsReply:     true,
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name:     ttsPitchArgName,
@@ -113,6 +114,8 @@ var PitchCommand = &types.DefaultCommand{
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Pitch changed to %v", pitch))
+
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 
 		return result, nil
 	},

@@ -3,17 +3,17 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"dev": "node --watch --watch-preserve-output src/index.js",
-		"start": "node src/index.js"
+		"dev": "bun run --watch --no-clear-screen src/index.ts",
+		"start": "bun --env-file=../../.env --bun src/index.ts",
+		"prebuild": "tsc --noEmit",
+		"build": "bun build --compile --minify --sourcemap src/index.ts --outfile=.out/twir-integrations"
 	},
 	"dependencies": {
 		"@twir/config": "workspace:*",
 		"@twir/grpc": "workspace:*",
 		"@twir/pubsub": "workspace:*",
 		"centrifuge": "2.8.5",
-		"knex": "3.1.0",
 		"nice-grpc": "2.1.8",
-		"pg": "8.11.5",
 		"protobufjs": "7.2.6",
 		"rate-limiter-algorithms": "2.1.0",
 		"redis": "4.6.13",
@@ -22,6 +22,7 @@
 		"xmlhttprequest": "1.8.0"
 	},
 	"devDependencies": {
+		"@types/bun": "1.2.2",
 		"@types/node": "20.12.7",
 		"@types/socket.io-client": "1.4.36",
 		"@types/ws": "8.5.10"

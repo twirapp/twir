@@ -37,7 +37,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 		EditorJsJson: null.StringFromPtr(editorJsJSON),
 	}
 
-	if err := r.gorm.WithContext(ctx).Create(&entity).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Create(&entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -55,8 +55,8 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 			subKey += "." + *userID
 		}
 
-		if err := r.wsRouter.Publish(subKey, &userNotification); err != nil {
-			r.logger.Error("failed to publish notification", slog.Any("err", err))
+		if err := r.deps.WsRouter.Publish(subKey, &userNotification); err != nil {
+			r.deps.Logger.Error("failed to publish notification", slog.Any("err", err))
 		}
 	}()
 
@@ -69,7 +69,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 	}
 
 	if adminNotification.UserID != nil {
-		twitchUser, err := r.cachedTwitchClient.GetUserById(ctx, *adminNotification.UserID)
+		twitchUser, err := r.deps.CachedTwitchClient.GetUserById(ctx, *adminNotification.UserID)
 		if err != nil {
 			return nil, err
 		}
@@ -88,7 +88,7 @@ func (r *mutationResolver) NotificationsCreate(ctx context.Context, text *string
 // NotificationsUpdate is the resolver for the notificationsUpdate field.
 func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, opts gqlmodel.NotificationUpdateOpts) (*gqlmodel.AdminNotification, error) {
 	entity := model.Notifications{}
-	if err := r.gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Where("id = ?", id).First(&entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -100,7 +100,7 @@ func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, o
 		entity.EditorJsJson = null.StringFromPtr(opts.EditorJsJSON.Value())
 	}
 
-	if err := r.gorm.WithContext(ctx).Save(&entity).Error; err != nil {
+	if err := r.deps.Gorm.WithContext(ctx).Save(&entity).Error; err != nil {
 		return nil, err
 	}
 
@@ -117,7 +117,7 @@ func (r *mutationResolver) NotificationsUpdate(ctx context.Context, id string, o
 
 // NotificationsDelete is the resolver for the notificationsDelete field.
 func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (bool, error) {
-	if err := r.gorm.WithContext(ctx).Where(
+	if err := r.deps.Gorm.WithContext(ctx).Where(
 		"id = ?",
 		id,
 	).Delete(&model.Notifications{}).Error; err != nil {
@@ -129,13 +129,13 @@ func (r *mutationResolver) NotificationsDelete(ctx context.Context, id string) (
 
 // NotificationsByUser is the resolver for the notificationsByUser field.
 func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.UserNotification, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var entities []model.Notifications
-	if err := r.gorm.WithContext(ctx).Where(
+	if err := r.deps.Gorm.WithContext(ctx).Where(
 		`"userId" = ? OR "userId" IS NULL`,
 		user.ID,
 	).Order(`"createdAt" DESC`).Find(&entities).Error; err != nil {
@@ -158,7 +158,7 @@ func (r *queryResolver) NotificationsByUser(ctx context.Context) ([]gqlmodel.Use
 
 // NotificationsByAdmin is the resolver for the notificationsByAdmin field.
 func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.AdminNotificationsParams) (*gqlmodel.AdminNotificationsResponse, error) {
-	query := r.gorm.WithContext(ctx)
+	query := r.deps.Gorm.WithContext(ctx)
 
 	if opts.Type.IsSet() {
 		switch *opts.Type.Value() {
@@ -215,7 +215,7 @@ func (r *queryResolver) NotificationsByAdmin(ctx context.Context, opts gqlmodel.
 
 // NewNotification is the resolver for the newNotification field.
 func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gqlmodel.UserNotification, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -223,7 +223,7 @@ func (r *subscriptionResolver) NewNotification(ctx context.Context) (<-chan *gql
 	channel := make(chan *gqlmodel.UserNotification, 1)
 
 	go func() {
-		sub, err := r.wsRouter.Subscribe(
+		sub, err := r.deps.WsRouter.Subscribe(
 			[]string{
 				notificationsSubscriptionKey + "." + user.ID,
 				notificationsSubscriptionKey,

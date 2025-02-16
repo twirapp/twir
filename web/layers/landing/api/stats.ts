@@ -11,19 +11,9 @@ export function useLandingStats() {
 					usedCommands
 					usedEmotes
 					viewers
-					streamers {
-						id
-						followersCount
-						isLive
-						isPartner
-						twitchProfile {
-							login
-							displayName
-							profileImageUrl
-						}
-					}
 				}
 			}
 		`),
+		variables: {},
 	})
 }

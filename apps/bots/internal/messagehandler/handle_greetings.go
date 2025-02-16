@@ -2,7 +2,6 @@ package messagehandler
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/lib/pq"
@@ -13,6 +12,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/websockets"
 	"github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsmodel "github.com/twirapp/twir/libs/repositories/greetings/model"
 )
 
 func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage) error {
@@ -20,19 +20,21 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return nil
 	}
 
-	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
-		ctx, greetings.GetOneInput{
-			ChannelID: msg.BroadcasterUserId,
-			UserID:    msg.ChatterUserId,
-			Enabled:   lo.ToPtr(true),
-			Processed: lo.ToPtr(false),
-		},
-	)
+	allGreetings, err := c.greetingsCache.Get(ctx, msg.BroadcasterUserId)
 	if err != nil {
-		if errors.Is(err, greetings.ErrNotFound) {
-			return nil
-		}
 		return err
+	}
+
+	var greeting *greetingsmodel.Greeting
+	for _, g := range allGreetings {
+		if g.UserID == msg.ChatterUserId && g.Enabled && !g.Processed {
+			greeting = &g
+			break
+		}
+	}
+
+	if greeting == nil {
+		return nil
 	}
 
 	go func() {
@@ -71,6 +73,10 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
+	if err = c.greetingsCache.Invalidate(ctx, msg.BroadcasterUserId); err != nil {
+		return err
+	}
+
 	res, err := c.bus.Parser.ParseVariablesInText.Request(
 		ctx, parser.ParseVariablesInTextRequest{
 			ChannelID:   msg.BroadcasterUserId,
@@ -85,14 +91,26 @@ func (c *MessageHandler) handleGreetings(ctx context.Context, msg handleMessage)
 		return err
 	}
 
-	c.twitchActions.SendMessage(
-		ctx, twitchactions.SendMessageOpts{
-			BroadcasterID:        msg.BroadcasterUserId,
-			SenderID:             msg.DbChannel.BotID,
-			Message:              res.Data.Text,
-			ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
-		},
-	)
+	if res.Data.Text != "" {
+		c.twitchActions.SendMessage(
+			ctx, twitchactions.SendMessageOpts{
+				BroadcasterID:        msg.BroadcasterUserId,
+				SenderID:             msg.DbChannel.BotID,
+				Message:              res.Data.Text,
+				ReplyParentMessageID: lo.If(greeting.IsReply, msg.MessageId).Else(""),
+			},
+		)
+	}
+
+	if greeting.WithShoutOut {
+		c.twitchActions.ShoutOut(
+			ctx,
+			twitchactions.ShoutOutInput{
+				BroadcasterID: msg.BroadcasterUserId,
+				TargetID:      greeting.UserID,
+			},
+		)
+	}
 
 	_, err = c.eventsGrpc.GreetingSended(
 		context.Background(),

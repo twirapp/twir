@@ -24,6 +24,7 @@ var VolumeCommand = &types.DefaultCommand{
 		IsReply:     true,
 		RolesIDS:    pq.StringArray{model.ChannelRoleTypeBroadcaster.String()},
 	},
+	SkipToxicityCheck: true,
 	Args: []command_arguments.Arg{
 		command_arguments.Int{
 			Name:     ttsVolumeArgName,
@@ -70,6 +71,8 @@ var VolumeCommand = &types.DefaultCommand{
 		}
 
 		result.Result = append(result.Result, fmt.Sprintf("Volume changed to %v", volume))
+
+		parseCtx.Services.TTSCache.Invalidate(ctx, parseCtx.Channel.ID)
 
 		return result, nil
 	},

@@ -42,7 +42,7 @@ func (r *dashboardResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.Das
 
 // AuthenticatedUserSelectDashboard is the resolver for the authenticatedUserSelectDashboard field.
 func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context, dashboardID string) (bool, error) {
-	if err := r.sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
+	if err := r.deps.Sessions.SetSessionSelectedDashboard(ctx, dashboardID); err != nil {
 		return false, err
 	}
 
@@ -51,13 +51,13 @@ func (r *mutationResolver) AuthenticatedUserSelectDashboard(ctx context.Context,
 
 // AuthenticatedUserUpdateSettings is the resolver for the authenticatedUserUpdateSettings field.
 func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, opts gqlmodel.UserUpdateSettingsInput) (bool, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	entity := &model.Users{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("id = ?", user.ID).
 		First(entity).Error; err != nil {
@@ -68,7 +68,7 @@ func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, 
 		entity.HideOnLandingPage = *opts.HideOnLandingPage.Value()
 	}
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(entity).Error; err != nil {
 		return false, fmt.Errorf("failed to save user: %w", err)
@@ -79,13 +79,13 @@ func (r *mutationResolver) AuthenticatedUserUpdateSettings(ctx context.Context, 
 
 // AuthenticatedUserRegenerateAPIKey is the resolver for the authenticatedUserRegenerateApiKey field.
 func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context) (string, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return "", err
 	}
 
 	entity := &model.Users{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("id = ?", user.ID).
 		First(entity).Error; err != nil {
@@ -94,7 +94,7 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 
 	entity.ApiKey = uuid.NewString()
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Save(entity).Error; err != nil {
 		return "", fmt.Errorf("failed to save user: %w", err)
@@ -105,13 +105,13 @@ func (r *mutationResolver) AuthenticatedUserRegenerateAPIKey(ctx context.Context
 
 // AuthenticatedUserUpdatePublicPage is the resolver for the authenticatedUserUpdatePublicPage field.
 func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context, opts gqlmodel.UserUpdatePublicSettingsInput) (bool, error) {
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
 	currentSettings := &model.ChannelPublicSettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(
 			"channel_id = ?",
@@ -129,7 +129,7 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 		return false, fmt.Errorf("failed to get public settings: %w", err)
 	}
 
-	txErr := r.gorm.WithContext(ctx).Transaction(
+	txErr := r.deps.Gorm.WithContext(ctx).Transaction(
 		func(tx *gorm.DB) error {
 			if opts.Description.IsSet() {
 				currentSettings.Description = null.StringFromPtr(opts.Description.Value())
@@ -172,7 +172,7 @@ func (r *mutationResolver) AuthenticatedUserUpdatePublicPage(ctx context.Context
 
 // Logout is the resolver for the logout field.
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
-	if err := r.sessions.SessionLogout(ctx); err != nil {
+	if err := r.deps.Sessions.SessionLogout(ctx); err != nil {
 		return false, err
 	}
 
@@ -181,18 +181,18 @@ func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 
 // AuthenticatedUser is the resolver for the authenticatedUser field.
 func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.AuthenticatedUser, error) {
-	sessionUser, err := r.sessions.GetAuthenticatedUser(ctx)
+	sessionUser, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("not authenticated: %w", err)
 	}
 
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	user := model.Users{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where("id = ?", sessionUser.ID).
 		Preload("Channel").
@@ -219,7 +219,7 @@ func (r *queryResolver) AuthenticatedUser(ctx context.Context) (*gqlmodel.Authen
 
 // UserPublicSettings is the resolver for the userPublicSettings field.
 func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) (*gqlmodel.PublicSettings, error) {
-	dashboardId, _ := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, _ := r.deps.Sessions.GetSelectedDashboard(ctx)
 
 	var idForFetch string
 	if userID != nil {
@@ -233,7 +233,7 @@ func (r *queryResolver) UserPublicSettings(ctx context.Context, userID *string) 
 	}
 
 	entity := &model.ChannelPublicSettings{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(
 			"channel_id = ?",
@@ -268,8 +268,8 @@ func (r *queryResolver) AuthLink(ctx context.Context, redirectTo string) (string
 
 	twitchClient, err := helix.NewClientWithContext(
 		ctx, &helix.Options{
-			ClientID:    r.config.TwitchClientId,
-			RedirectURI: r.config.TwitchCallbackUrl,
+			ClientID:    r.deps.Config.TwitchClientId,
+			RedirectURI: r.deps.Config.TwitchCallbackUrl,
 		},
 	)
 	if err != nil {

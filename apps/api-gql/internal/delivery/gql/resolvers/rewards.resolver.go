@@ -15,7 +15,7 @@ import (
 
 // TwitchRewards is the resolver for the twitchRewards field.
 func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([]gqlmodel.TwitchReward, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -25,7 +25,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		channelIdForRequest = *channelID
 	}
 
-	rewards, err := r.cachedTwitchClient.GetChannelRewards(ctx, channelIdForRequest)
+	rewards, err := r.deps.CachedTwitchClient.GetChannelRewards(ctx, channelIdForRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -40,7 +40,7 @@ func (r *queryResolver) TwitchRewards(ctx context.Context, channelID *string) ([
 		)
 
 		var usedTimes int64
-		if err := r.gorm.
+		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where("channel_id = ? AND reward_id = ?", channelIdForRequest, reward.ID).
 			Model(&model.ChannelRedemption{}).

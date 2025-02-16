@@ -5,6 +5,10 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      skip-change-detect:
+        type: boolean
+        description: Skip detection of change (force build)
 
 jobs:
   build-matrix:
@@ -27,10 +31,8 @@ jobs:
           - apps/tokens
           - apps/websockets
           - apps/ytsr
-          - apps/chat-messages-store
           - frontend/dashboard
           - frontend/overlays
-          - frontend/public-page
     steps:
       - uses: actions/checkout@v4
 
@@ -48,76 +50,58 @@ jobs:
             ${{ env.folder }}/${{ env.app }}/**
             libs/**
 
-      - name: Install Node.js
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: actions/setup-node@v3
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
+          bun-version-file: ".bun-version"
 
-      - uses: pnpm/action-setup@v3
-        if: steps.changed-files.outputs.any_changed == 'true'
+      - name: Cache node_modules
+        id: cache-node_modules
+        uses: actions/cache@v4
         with:
-          version: 9
-          run_install: false
-
-      - name: Get pnpm store directory
-        if: steps.changed-files.outputs.any_changed == 'true'
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - uses: actions/cache@v3
-        if: steps.changed-files.outputs.any_changed == 'true'
-        name: Setup pnpm cache
-        with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          path: node_modules
+          key: ${{ runner.os }}-node_modules-${{ hashFiles('**/bun.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-node_modules-
 
-      - name: Install Node.js dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm install --frozen-lockfile
+      - name: Install JavaScript dependencies
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        run: bun install
 
       - name: Setup Golang dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: magnetikonline/action-golang-cache@v5
         with:
           go-version-file: go.work
 
       - name: Install binaries dependencies
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli deps -skip-node -skip-go
-
-      - name: Setup turborepo cache
-        if: steps.changed-files.outputs.any_changed == 'true'
-        uses: dtinth/setup-github-actions-caching-for-turbo@v1
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        run: bun cli deps -skip-node -skip-go
 
       - name: Build libraries
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build libs
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        run: bun cli build libs
 
-      - name: Build libraries
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build gql
+      - name: Build gql
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        run: bun cli build gql
 
       - name: Build application
-        if: steps.changed-files.outputs.any_changed == 'true'
-        run: pnpm cli build app ${{ env.app }}
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
+        run: bun cli build app ${{ env.app }}
 
       - name: Set up Docker Buildx
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
 
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
@@ -125,7 +109,7 @@ jobs:
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
 
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -148,23 +132,23 @@ jobs:
           files: |
             libs/migrations/**
       - name: Set up Docker Buildx
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -188,23 +172,23 @@ jobs:
             web/**
             libs/**
       - name: Set up Docker Buildx
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_REGISTRY_LOGIN }}
           password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
       - name: Login to Twir registry
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/login-action@v3
         with:
           registry: registry.twir.app
           username: ${{ secrets.DOCKER_TWIR_LOGIN }}
           password: ${{ secrets.DOCKER_TWIR_PASSWORD }}
       - name: Build docker image
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
         uses: docker/build-push-action@v5
         with:
           context: .

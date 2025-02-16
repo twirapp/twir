@@ -15,6 +15,7 @@ type Greeting {
 	enabled: Boolean!
 	isReply: Boolean!
 	text: String!
+	withShoutOut: Boolean!
 }
 
 input GreetingsCreateInput {
@@ -22,6 +23,7 @@ input GreetingsCreateInput {
 	isReply: Boolean!
 	userId: String!
 	text: String! @validate(constraint: "max=500")
+	withShoutOut: Boolean!
 }
 
 input GreetingsUpdateInput {
@@ -29,4 +31,5 @@ input GreetingsUpdateInput {
 	isReply: Boolean
 	userId: String
 	text: String @validate(constraint: "max=500")
+	withShoutOut: Boolean
 }

@@ -18,19 +18,21 @@ import (
 	loParallel "github.com/samber/lo/parallel"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/logger/audit"
+	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/graph"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/mappers"
 	"gorm.io/gorm"
 )
 
 // SongRequestsUpdate is the resolver for the songRequestsUpdate field.
 func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel.SongRequestsSettingsOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -38,7 +40,10 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 	entity := model.ChannelSongRequestsSettings{
 		ChannelID: dashboardId,
 	}
-	err = r.gorm.WithContext(ctx).Where(`"channel_id" = ?`, dashboardId).FirstOrCreate(&entity).Error
+	err = r.deps.Gorm.WithContext(ctx).Where(
+		`"channel_id" = ?`,
+		dashboardId,
+	).FirstOrCreate(&entity).Error
 	if err != nil {
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
 	}
@@ -91,12 +96,12 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 		TranslationsChannelDenied:            opts.Translations.Channel.Denied,
 	}
 
-	err = r.gorm.WithContext(ctx).Save(&entity).Error
+	err = r.deps.Gorm.WithContext(ctx).Save(&entity).Error
 	if err != nil {
 		return false, fmt.Errorf("failed to update song requests settings: %w", err)
 	}
 
-	r.logger.Audit(
+	r.deps.Logger.Audit(
 		"Song requests updated",
 		audit.Fields{
 			NewValue:      entity,
@@ -113,13 +118,13 @@ func (r *mutationResolver) SongRequestsUpdate(ctx context.Context, opts gqlmodel
 
 // SongRequests is the resolver for the songRequests field.
 func (r *queryResolver) SongRequests(ctx context.Context) (*gqlmodel.SongRequestsSettings, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	entity := model.ChannelSongRequestsSettings{}
-	err = r.gorm.WithContext(ctx).Where(`"channel_id" = ?`, dashboardId).First(&entity).Error
+	err = r.deps.Gorm.WithContext(ctx).Where(`"channel_id" = ?`, dashboardId).First(&entity).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
@@ -214,7 +219,7 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 
 			res, err := search.Next()
 			if err != nil {
-				r.logger.Error(
+				r.deps.Logger.Error(
 					"cannot find",
 					slog.String("query", query),
 				)
@@ -262,6 +267,33 @@ func (r *queryResolver) SongRequestsSearchChannelOrVideo(ctx context.Context, op
 
 	return response, nil
 }
+
+// SongRequestsPublicQueue is the resolver for the songRequestsPublicQueue field.
+func (r *queryResolver) SongRequestsPublicQueue(ctx context.Context, channelID string) ([]gqlmodel.SongRequestPublic, error) {
+	queue, err := r.deps.SongRequestsService.GetPublicQueue(ctx, channelID)
+	if err != nil {
+		return nil, err
+	}
+
+	mapped := make([]gqlmodel.SongRequestPublic, 0, len(queue))
+	for _, song := range queue {
+		mapped = append(mapped, mappers.SongRequestPublicTo(song))
+	}
+
+	return mapped, nil
+}
+
+// TwitchProfile is the resolver for the twitchProfile field.
+func (r *songRequestPublicResolver) TwitchProfile(ctx context.Context, obj *gqlmodel.SongRequestPublic) (*gqlmodel.TwirUserTwitchInfo, error) {
+	return data_loader.GetHelixUserById(ctx, obj.UserID)
+}
+
+// SongRequestPublic returns graph.SongRequestPublicResolver implementation.
+func (r *Resolver) SongRequestPublic() graph.SongRequestPublicResolver {
+	return &songRequestPublicResolver{r}
+}
+
+type songRequestPublicResolver struct{ *Resolver }
 
 // !!! WARNING !!!
 // The code below was going to be deleted when updating resolvers. It has been copied here so you have

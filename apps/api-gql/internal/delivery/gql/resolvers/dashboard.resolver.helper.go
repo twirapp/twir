@@ -13,13 +13,13 @@ import (
 func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardStats, error) {
 	preloads := GetPreloads(ctx)
 
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var stream model.ChannelsStreams
-	if err := r.gorm.WithContext(ctx).Where(
+	if err := r.deps.Gorm.WithContext(ctx).Where(
 		`"userId" = ?`,
 		dashboardId,
 	).Find(&stream).Error; err != nil {
@@ -34,7 +34,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	}
 
 	if slices.Contains(preloads, "followers") {
-		result.Followers, err = r.cachedTwitchClient.GetChannelFollowersCountByChannelId(
+		result.Followers, err = r.deps.CachedTwitchClient.GetChannelFollowersCountByChannelId(
 			ctx,
 			dashboardId,
 		)
@@ -46,7 +46,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	if slices.Contains(preloads, "title") ||
 		slices.Contains(preloads, "categoryName") ||
 		slices.Contains(preloads, "categoryId") && stream.ID == "" {
-		channelInformation, err := r.cachedTwitchClient.GetChannelInformationById(ctx, dashboardId)
+		channelInformation, err := r.deps.CachedTwitchClient.GetChannelInformationById(ctx, dashboardId)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +60,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 		result.CategoryID = channelInformation.GameID
 	}
 	if stream.ID != "" {
-		parsedMessages, _ := r.redis.Get(
+		parsedMessages, _ := r.deps.Redis.Get(
 			ctx,
 			redis_keys.StreamParsedMessages(
 				stream.ID,
@@ -73,7 +73,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 
 	var usedEmotes int64
 	if stream.ID != "" {
-		if err := r.gorm.
+		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Model(&model.ChannelEmoteUsage{}).
 			Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
@@ -84,7 +84,7 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 
 	var requestedSongs int64
 	if stream.ID != "" {
-		if err := r.gorm.
+		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Model(&model.RequestedSong{}).
 			Where(`"channelId" = ? AND "createdAt" >= ?`, dashboardId, stream.StartedAt).
@@ -97,7 +97,10 @@ func (r *Resolver) getDashboardStats(ctx context.Context) (*gqlmodel.DashboardSt
 	result.RequestedSongs = int(requestedSongs)
 
 	if slices.Contains(preloads, "subs") {
-		result.Subs, err = r.cachedTwitchClient.GetChannelSubscribersCountByChannelId(ctx, dashboardId)
+		result.Subs, err = r.deps.CachedTwitchClient.GetChannelSubscribersCountByChannelId(
+			ctx,
+			dashboardId,
+		)
 		if err != nil {
 			return nil, err
 		}

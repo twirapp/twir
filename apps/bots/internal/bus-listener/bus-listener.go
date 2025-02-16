@@ -57,6 +57,7 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.Bots.DeleteMessage.SubscribeGroup("bots", listener.deleteMessage)
 				listener.bus.ChatMessages.SubscribeGroup("bots", listener.handleChatMessage)
 				listener.bus.Bots.BanUser.SubscribeGroup("bots", listener.banUser)
+				listener.bus.Bots.ShoutOut.SubscribeGroup("bots", listener.handleShoutOut)
 
 				return nil
 			},
@@ -65,6 +66,7 @@ func New(opts Opts) (*BusListener, error) {
 				listener.bus.ChatMessages.Unsubscribe()
 				listener.bus.Bots.DeleteMessage.Unsubscribe()
 				listener.bus.Bots.BanUser.Unsubscribe()
+				listener.bus.Bots.ShoutOut.Unsubscribe()
 
 				return nil
 			},
@@ -149,6 +151,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 			Message:              req.Message,
 			ReplyParentMessageID: req.ReplyTo,
 			IsAnnounce:           req.IsAnnounce,
+			SkipToxicityCheck:    req.SkipToxicityCheck,
 		},
 	)
 	if err != nil {
@@ -179,5 +182,19 @@ func (c *BusListener) handleChatMessage(
 		)
 	}
 
+	return struct{}{}
+}
+
+func (c *BusListener) handleShoutOut(ctx context.Context, req bots.SentShoutOutRequest) struct{} {
+	err := c.twitchActions.ShoutOut(
+		ctx,
+		twitchactions.ShoutOutInput{
+			BroadcasterID: req.ChannelID,
+			TargetID:      req.TargetID,
+		},
+	)
+	if err != nil {
+		c.logger.Error("cannot send shoutout", slog.Any("err", err))
+	}
 	return struct{}{}
 }

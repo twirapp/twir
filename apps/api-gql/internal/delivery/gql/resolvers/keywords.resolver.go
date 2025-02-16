@@ -15,12 +15,12 @@ import (
 
 // KeywordCreate is the resolver for the keywordCreate field.
 func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.KeywordCreateInput) (*gqlmodel.Keyword, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 		input.Usages = *opts.UsageCount.Value()
 	}
 
-	k, err := r.keywordsService.Create(ctx, input)
+	k, err := r.deps.KeywordsService.Create(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -66,12 +66,12 @@ func (r *mutationResolver) KeywordCreate(ctx context.Context, opts gqlmodel.Keyw
 
 // KeywordUpdate is the resolver for the keywordUpdate field.
 func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.KeywordUpdateInput) (*gqlmodel.Keyword, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 		input.Usages = opts.UsageCount.Value()
 	}
 
-	keyword, err := r.keywordsService.Update(ctx, input)
+	keyword, err := r.deps.KeywordsService.Update(ctx, input)
 	if err != nil {
 		return nil, err
 	}
@@ -129,17 +129,17 @@ func (r *mutationResolver) KeywordUpdate(ctx context.Context, id uuid.UUID, opts
 
 // KeywordRemove is the resolver for the keywordRemove field.
 func (r *mutationResolver) KeywordRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	if err := r.keywordsService.Delete(ctx, dashboardId, user.ID, id); err != nil {
+	if err := r.deps.KeywordsService.Delete(ctx, dashboardId, user.ID, id); err != nil {
 		return false, err
 	}
 
@@ -148,12 +148,12 @@ func (r *mutationResolver) KeywordRemove(ctx context.Context, id uuid.UUID) (boo
 
 // Keywords is the resolver for the keywords field.
 func (r *queryResolver) Keywords(ctx context.Context) ([]gqlmodel.Keyword, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	channelKeywords, err := r.keywordsService.GetAllByChannelID(ctx, dashboardId)
+	channelKeywords, err := r.deps.KeywordsService.GetAllByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}

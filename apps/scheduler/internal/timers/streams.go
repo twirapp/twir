@@ -271,13 +271,3 @@ func (c *streams) processStreams(ctx context.Context) error {
 
 	return nil
 }
-
-// { streamId: stream.id, channelId: channel }
-type streamOnlineMessage struct {
-	StreamID  string `json:"streamId"`
-	ChannelID string `json:"channelId"`
-}
-
-type streamOfflineMessage struct {
-	ChannelID string `json:"channelId"`
-}

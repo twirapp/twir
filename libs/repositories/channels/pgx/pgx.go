@@ -2,8 +2,10 @@ package pgx
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Masterminds/squirrel"
+	trmpgx "github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/twirapp/twir/libs/repositories/channels"
@@ -16,7 +18,8 @@ type Opts struct {
 
 func New(opts Opts) *Pgx {
 	return &Pgx{
-		pool: opts.PgxPool,
+		pool:   opts.PgxPool,
+		getter: trmpgx.DefaultCtxGetter,
 	}
 }
 
@@ -28,7 +31,31 @@ var _ channels.Repository = (*Pgx)(nil)
 var sq = squirrel.StatementBuilder.PlaceholderFormat(squirrel.Dollar)
 
 type Pgx struct {
-	pool *pgxpool.Pool
+	pool   *pgxpool.Pool
+	getter *trmpgx.CtxGetter
+}
+
+func (c *Pgx) GetByID(ctx context.Context, channelID string) (model.Channel, error) {
+	query := `
+SELECT "id", "isEnabled", "isTwitchBanned", "isBotMod", "botId"
+FROM channels
+WHERE "id" = $1
+`
+
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, channelID)
+	if err != nil {
+		return model.Nil, err
+	}
+
+	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Channel])
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.Nil, channels.ErrNotFound
+		}
+	}
+
+	return result, nil
 }
 
 func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model.Channel, error) {
@@ -38,7 +65,7 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 			`"isEnabled"`,
 			`"isTwitchBanned"`,
 			`"isBotMod"`,
-			`"botID"`,
+			`"botId"`,
 		).
 		From("channels")
 
@@ -61,7 +88,8 @@ func (c *Pgx) GetMany(ctx context.Context, input channels.GetManyInput) ([]model
 		return nil, err
 	}
 
-	rows, err := c.pool.Query(ctx, query, args...)
+	conn := c.getter.DefaultTrOrDB(ctx, c.pool)
+	rows, err := conn.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}

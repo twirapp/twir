@@ -99,6 +99,8 @@ func (c *Modules) ModulesTTSUpdate(
 		return nil, err
 	}
 
+	c.Deps.TTSSettingsCacher.Invalidate(ctx, dashboardId)
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -113,6 +115,8 @@ func (c *Modules) ModulesTTSUsersDelete(
 		Delete(&model.ChannelModulesSettings{}).Error; err != nil {
 		return nil, fmt.Errorf("cannot delete users: %w", err)
 	}
+
+	c.Deps.TTSSettingsCacher.Invalidate(ctx, dashboardId)
 
 	return &emptypb.Empty{}, nil
 }

@@ -25,35 +25,46 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		emotes[f.Text] += 1
 	}
 
-	channelEmotes, err := c.redis.Keys(
-		ctx,
-		fmt.Sprintf("emotes:channel:%s:*", msg.BroadcasterUserId),
-	).Result()
-	if err != nil {
-		return err
+	splittedMsg := strings.Fields(msg.Message.Text)
+
+	for _, part := range splittedMsg {
+		// do not make redis requests if part already present in map
+		var isTwitchEmote bool
+		for _, fragment := range msg.Message.Fragments {
+			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+		}
+
+		if emote, ok := emotes[part]; !isTwitchEmote && ok {
+			emotes[part] = emote + 1
+			continue
+		}
+
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
+
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:global:%s", part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
 	}
 
-	globalEmotes, err := c.redis.Keys(ctx, "emotes:global:*").Result()
-	if err != nil {
-		return err
-	}
-
-	splittedMsg := strings.Split(msg.Message.Text, " ")
-
-	countEmotes(
-		emotes,
-		channelEmotes,
-		splittedMsg,
-		fmt.Sprintf("emotes:channel:%s:", msg.BroadcasterUserId),
-	)
-	countEmotes(emotes, globalEmotes, splittedMsg, "emotes:global:")
-
-	var emotesForCreate []*model.ChannelEmoteUsage
+	var emotesForCreate []model.ChannelEmoteUsage
 
 	for key, count := range emotes {
 		for i := 0; i < count; i++ {
 			emotesForCreate = append(
-				emotesForCreate, &model.ChannelEmoteUsage{
+				emotesForCreate, model.ChannelEmoteUsage{
 					ID:        uuid.NewString(),
 					ChannelID: msg.BroadcasterUserId,
 					UserID:    msg.ChatterUserId,
@@ -64,23 +75,10 @@ func (c *MessageHandler) handleEmotesUsages(ctx context.Context, msg handleMessa
 		}
 	}
 
-	err = c.gorm.WithContext(ctx).CreateInBatches(
+	err := c.gorm.WithContext(ctx).CreateInBatches(
 		emotesForCreate,
 		100,
 	).Error
 
 	return err
-}
-
-func countEmotes(emotes map[string]int, emotesList []string, splittedMsg []string, key string) {
-	for _, e := range emotesList {
-		emoteSlice := strings.Split(e, key)
-		emote := emoteSlice[1]
-
-		for _, word := range splittedMsg {
-			if strings.EqualFold(word, emote) {
-				emotes[emote]++
-			}
-		}
-	}
 }

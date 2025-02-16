@@ -42,18 +42,26 @@ type Service struct {
 }
 
 func (c *Service) DropAllAuthSessions(ctx context.Context) error {
-	keys, err := c.redis.Keys(ctx, "scs:*").Result()
-	if err != nil {
-		return fmt.Errorf("failed to get session keys: %w", err)
-	}
+	iter := c.redis.Scan(ctx, 0, "scs:*", 0).Iterator()
 
-	if len(keys) == 0 {
-		return nil
-	}
+	_, err := c.redis.Pipelined(
+		ctx, func(pipe redis.Pipeliner) error {
+			for iter.Next(ctx) {
+				if err := pipe.Del(ctx, iter.Val()).Err(); err != nil {
+					return err
+				}
+			}
 
-	err = c.redis.Del(ctx, keys...).Err()
+			if err := iter.Err(); err != nil {
+				return fmt.Errorf("scan err: %w", err)
+			}
+
+			return nil
+		},
+	)
+
 	if err != nil {
-		return fmt.Errorf("failed to delete sessions: %w", err)
+		return fmt.Errorf("scan err: %w", err)
 	}
 
 	return nil
@@ -93,7 +101,7 @@ func (c *Service) EventSubSubscribe(ctx context.Context, input EventSubSubscribe
 	return nil
 }
 
-func (c *Service) RescheduleTimers(ctx context.Context) error {
+func (c *Service) RescheduleTimers() error {
 	var entities []model.ChannelsTimers
 	if err := c.gorm.Select("id", "enabled").Find(&entities).Error; err != nil {
 		return fmt.Errorf("failed to get timers: %w", err)
@@ -115,6 +123,12 @@ func (c *Service) RescheduleTimers(ctx context.Context) error {
 		}
 
 	}
+
+	return nil
+}
+
+func (c *Service) EventsubReinitChannels() error {
+	c.twirbus.EventSub.InitChannels.Publish(struct{}{})
 
 	return nil
 }

@@ -15,7 +15,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	dashboardsEntities := make(map[string]gqlmodel.Dashboard)
 	if obj.IsBotAdmin {
 		var channels []model.Channels
-		if err := r.gorm.WithContext(ctx).Find(&channels).Error; err != nil {
+		if err := r.deps.Gorm.WithContext(ctx).Find(&channels).Error; err != nil {
 			return nil, err
 		}
 
@@ -34,7 +34,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 		}
 
 		var roles []model.ChannelRoleUser
-		if err := r.gorm.
+		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where(
 				`"userId" = ?`,
@@ -65,7 +65,7 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 	}
 
 	var usersStats []model.UsersStats
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"userId" = ?`, obj.ID).
 		Find(&usersStats).Error; err != nil {
@@ -74,7 +74,10 @@ func (r *authenticatedUserResolver) getAvailableDashboards(
 
 	for _, stat := range usersStats {
 		var channelRoles []model.ChannelRole
-		if err := r.gorm.WithContext(ctx).Where(`"channelId" = ?`, stat.ChannelID).Find(&channelRoles).
+		if err := r.deps.Gorm.WithContext(ctx).Where(
+			`"channelId" = ?`,
+			stat.ChannelID,
+		).Find(&channelRoles).
 			Error; err != nil {
 			return nil, err
 		}

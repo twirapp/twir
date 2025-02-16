@@ -1,9 +1,10 @@
 package parser
 
 type CommandParseResponse struct {
-	Responses []string
-	IsReply   bool
-	KeepOrder bool
+	Responses         []string
+	IsReply           bool
+	KeepOrder         bool
+	SkipToxicityCheck bool
 }
 
 type ParseVariablesInTextRequest struct {

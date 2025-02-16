@@ -244,8 +244,13 @@ func (c *MessageHandler) moderationHandleResult(
 		"channels:%s:moderation_warns:%s:%s:*", settings.ChannelID,
 		msg.ChatterUserId, settings.Type,
 	)
-	warningsKeys, err := c.redis.Keys(ctx, warningRedisKey).Result()
-	if err != nil {
+
+	var warningsKeys []string
+	iter := c.redis.Scan(ctx, 0, warningRedisKey, 0).Iterator()
+	for iter.Next(ctx) {
+		warningsKeys = append(warningsKeys, iter.Val())
+	}
+	if err := iter.Err(); err != nil {
 		c.logger.Error("cannot get warnings", slog.Any("err", err))
 		return nil
 	}
@@ -402,56 +407,56 @@ func (c *MessageHandler) moderationEmotesParser(
 		return nil
 	}
 
-	length := 0
+	emotes := make(map[string]int)
+	splittedMsg := strings.Fields(msg.Message.Text)
 
 	for _, f := range msg.Message.Fragments {
 		if f.Type != twitch.FragmentType_EMOTE {
 			continue
 		}
 
-		length += 1
+		emotes[f.Text] += 1
 	}
 
-	if length < settings.TriggerLength+1 {
-		return nil
-	}
+	for _, part := range splittedMsg {
+		// do not make redis requests if emote already present in map
+		var isTwitchEmote bool
+		for _, fragment := range msg.Message.Fragments {
+			if fragment.Emote != nil && strings.TrimSpace(fragment.Text) == part {
+				isTwitchEmote = true
+				break
+			}
+		}
 
-	channelEmotesKeys, err := c.redis.Keys(
-		ctx,
-		fmt.Sprintf("emotes:channel:%s:*", settings.ChannelID),
-	).Result()
-	if err != nil {
-		c.logger.Error("cannot get channel emotes", slog.Any("err", err))
-		return nil
-	}
-	for _, key := range channelEmotesKeys {
-		key = strings.Replace(key, fmt.Sprintf("emotes:channel:%s:", settings.ChannelID), "", 1)
-	}
+		if emote, ok := emotes[part]; !isTwitchEmote && ok {
+			emotes[part] = emote + 1
+			continue
+		}
 
-	splittedMsg := strings.Split(msg.Message.Text, " ")
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:channel:%s:%s", msg.BroadcasterUserId, part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
+		}
 
-	for _, word := range splittedMsg {
-		if slices.Contains(channelEmotesKeys, word) {
-			length++
+		if exists, _ := c.redis.Exists(
+			ctx,
+			fmt.Sprintf("emotes:global:%s", part),
+		).Result(); exists == 1 {
+			emotes[part] += 1
+			continue
 		}
 	}
 
-	globalEmotesKeys, err := c.redis.Keys(
-		ctx,
-		fmt.Sprintf("emotes:global:*"),
-	).Result()
-	if err != nil {
-		c.logger.Error("cannot get global emotes", slog.Any("err", err))
-		return nil
-	}
-	for _, key := range globalEmotesKeys {
-		key = strings.Replace(key, fmt.Sprintf("emotes:global:"), "", 1)
+	var totalEmotesInMessage int
+	for _, count := range emotes {
+		totalEmotesInMessage += count
 	}
 
-	for _, word := range splittedMsg {
-		if slices.Contains(globalEmotesKeys, word) {
-			length++
-		}
+	if totalEmotesInMessage < settings.TriggerLength+1 {
+		return nil
 	}
 
 	return c.moderationHandleResult(ctx, msg, settings)

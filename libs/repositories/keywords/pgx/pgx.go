@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/twirapp/twir/libs/repositories"
 	"github.com/twirapp/twir/libs/repositories/keywords"
 	"github.com/twirapp/twir/libs/repositories/keywords/model"
 )
@@ -130,38 +131,18 @@ func (c *Pgx) Update(ctx context.Context, id uuid.UUID, input keywords.UpdateInp
 	error,
 ) {
 	updateBuilder := sq.Update("channels_keywords")
-
-	if input.Text != nil {
-		updateBuilder = updateBuilder.Set("text", *input.Text)
-	}
-
-	if input.Response != nil {
-		updateBuilder = updateBuilder.Set("response", *input.Response)
-	}
-
-	if input.Enabled != nil {
-		updateBuilder = updateBuilder.Set("enabled", *input.Enabled)
-	}
-
-	if input.Cooldown != nil {
-		updateBuilder = updateBuilder.Set("cooldown", *input.Cooldown)
-	}
-
-	if input.CooldownExpireAt != nil {
-		updateBuilder = updateBuilder.Set(`"cooldownExpireAt"`, *input.CooldownExpireAt)
-	}
-
-	if input.IsReply != nil {
-		updateBuilder = updateBuilder.Set(`"isReply"`, *input.IsReply)
-	}
-
-	if input.IsRegular != nil {
-		updateBuilder = updateBuilder.Set(`"isRegular"`, *input.IsRegular)
-	}
-
-	if input.Usages != nil {
-		updateBuilder = updateBuilder.Set("usages", *input.Usages)
-	}
+	updateBuilder = repositories.SquirrelApplyPatch(
+		updateBuilder, map[string]any{
+			"text":               input.Text,
+			"response":           input.Response,
+			"enabled":            input.Enabled,
+			"cooldown":           input.Cooldown,
+			`"cooldownExpireAt"`: input.CooldownExpireAt,
+			`"isReply"`:          input.IsReply,
+			`"isRegular"`:        input.IsRegular,
+			"usages":             input.Usages,
+		},
+	)
 
 	updateBuilder = updateBuilder.Where(squirrel.Eq{"id": id})
 

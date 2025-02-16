@@ -213,6 +213,10 @@ export const PERMISSIONS_FLAGS: Flag[] = [
 	'delimiter',
 	{ perm: ChannelRolePermissionEnum.ViewGames, description: 'Can view games' },
 	{ perm: ChannelRolePermissionEnum.ManageGames, description: 'Can manage games' },
+
+	'delimiter',
+	{ perm: ChannelRolePermissionEnum.ViewBotSettings, description: 'View bot settings' },
+	{ perm: ChannelRolePermissionEnum.ManageBotSettings, description: 'Manage bot settings' },
 ]
 
 export function useUserAccessFlagChecker(flag: ChannelRolePermissionEnum) {

@@ -66,12 +66,12 @@ func (r *commandResponseResolver) TwitchCategories(ctx context.Context, obj *gql
 
 // CommandsCreate is the resolver for the commandsCreate field
 func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.CommandsCreateOpts) (*gqlmodel.CommandCreatePayload, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 		Responses:                 responses,
 	}
 
-	newCmd, err := r.commandsService.Create(ctx, createInput)
+	newCmd, err := r.deps.CommandsService.Create(ctx, createInput)
 	if err != nil {
 		return nil, err
 	}
@@ -137,12 +137,12 @@ func (r *mutationResolver) CommandsCreate(ctx context.Context, opts gqlmodel.Com
 
 // CommandsUpdate is the resolver for the commandsUpdate field.
 func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opts gqlmodel.CommandsUpdateOpts) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
@@ -215,7 +215,7 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 		)
 	}
 
-	if _, err := r.commandsWithGroupsAndResponsesService.Update(
+	if _, err := r.deps.CommandsWithGroupsAndResponsesService.Update(
 		ctx,
 		id,
 		updateInput,
@@ -228,17 +228,17 @@ func (r *mutationResolver) CommandsUpdate(ctx context.Context, id uuid.UUID, opt
 
 // CommandsRemove is the resolver for the commandsRemove field.
 func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bool, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	user, err := r.sessions.GetAuthenticatedUser(ctx)
+	user, err := r.deps.Sessions.GetAuthenticatedUser(ctx)
 	if err != nil {
 		return false, err
 	}
 
-	err = r.commandsService.Delete(
+	err = r.deps.CommandsService.Delete(
 		ctx, commands.DeleteInput{
 			ChannelID: dashboardId,
 			ActorID:   user.ID,
@@ -252,14 +252,33 @@ func (r *mutationResolver) CommandsRemove(ctx context.Context, id uuid.UUID) (bo
 	return true, nil
 }
 
-// Commands is the resolver for the commands field.
-func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+// Group is the resolver for the group field.
+func (r *publicCommandResolver) Group(ctx context.Context, obj *gqlmodel.PublicCommand) (*gqlmodel.CommandGroup, error) {
+	if obj == nil || obj.GroupID == nil {
+		return nil, nil
+	}
+
+	parsedUuid, err := uuid.Parse(*obj.GroupID)
 	if err != nil {
 		return nil, err
 	}
 
-	cmds, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
+	group, err := data_loader.GetCommandGroupById(ctx, parsedUuid)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
+}
+
+// Commands is the resolver for the commands field.
+func (r *queryResolver) Commands(ctx context.Context) ([]gqlmodel.Command, error) {
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	cmds, err := r.deps.CommandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
@@ -279,11 +298,11 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 		return nil, fmt.Errorf("channelID is required")
 	}
 
-	entities, err := r.commandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, channelID)
+	entities, err := r.deps.CommandsWithGroupsAndResponsesService.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
-	channelRoles, err := r.rolesService.GetManyByChannelID(ctx, channelID)
+	channelRoles, err := r.deps.RolesService.GetManyByChannelID(ctx, channelID)
 	if err != nil {
 		return nil, err
 	}
@@ -316,6 +335,11 @@ func (r *queryResolver) CommandsPublic(ctx context.Context, channelID string) ([
 			CooldownType: cmd.Command.CooldownType,
 			Module:       cmd.Command.Module,
 			Permissions:  make([]gqlmodel.PublicCommandPermission, 0),
+		}
+
+		if cmd.Group != nil {
+			id := cmd.Group.ID.String()
+			converted.GroupID = &id
 		}
 
 		for _, response := range cmd.Responses {
@@ -356,5 +380,9 @@ func (r *Resolver) CommandResponse() graph.CommandResponseResolver {
 	return &commandResponseResolver{r}
 }
 
+// PublicCommand returns graph.PublicCommandResolver implementation.
+func (r *Resolver) PublicCommand() graph.PublicCommandResolver { return &publicCommandResolver{r} }
+
 type commandResolver struct{ *Resolver }
 type commandResponseResolver struct{ *Resolver }
+type publicCommandResolver struct{ *Resolver }

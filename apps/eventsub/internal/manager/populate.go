@@ -3,7 +3,6 @@ package manager
 import (
 	"context"
 	"log/slog"
-	"sync"
 
 	model "github.com/satont/twir/libs/gomodels"
 )
@@ -26,31 +25,20 @@ func (c *Manager) populateChannels() error {
 		return err
 	}
 
-	channelsWg := sync.WaitGroup{}
-
 	for _, channel := range channels {
-		channelsWg.Add(1)
-
-		channel := channel
-
-		go func() {
-			defer channelsWg.Done()
-			err := c.SubscribeToNeededEvents(
-				requestContext,
-				topics,
-				channel.ID,
-				channel.BotID,
+		err := c.SubscribeToNeededEvents(
+			requestContext,
+			topics,
+			channel.ID,
+			channel.BotID,
+		)
+		if err != nil {
+			c.logger.Error(
+				"failed to subscribe to needed events",
+				slog.Any("err", err),
 			)
-			if err != nil {
-				c.logger.Error(
-					"failed to subscribe to needed events",
-					slog.Any("err", err),
-				)
-			}
-		}()
+		}
 	}
-
-	channelsWg.Wait()
 
 	return nil
 }

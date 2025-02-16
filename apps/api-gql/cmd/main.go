@@ -20,6 +20,9 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/channels_commands_prefix"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/chat_messages"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_groups"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/commands_responses"
@@ -27,9 +30,11 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/dashboard-widget-events"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/greetings"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/keywords"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/overlays/tts"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/roles_with_roles_users"
+	"github.com/twirapp/twir/apps/api-gql/internal/services/song_requests"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/timers"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twir-users"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/twitch"
@@ -37,62 +42,53 @@ import (
 	"github.com/twirapp/twir/apps/api-gql/internal/services/variables"
 	"github.com/twirapp/twir/apps/api-gql/internal/wsrouter"
 	"github.com/twirapp/twir/libs/baseapp"
+	channelscommandsprefixcache "github.com/twirapp/twir/libs/cache/channels_commands_prefix"
 	commandscache "github.com/twirapp/twir/libs/cache/commands"
+	greetingscache "github.com/twirapp/twir/libs/cache/greetings"
 	keywordscacher "github.com/twirapp/twir/libs/cache/keywords"
 	twitchcache "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/clients"
 	"github.com/twirapp/twir/libs/grpc/events"
 	"github.com/twirapp/twir/libs/grpc/tokens"
-	"github.com/twirapp/twir/libs/uptrace"
-	"go.uber.org/fx"
-
+	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
+	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
+	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
+	badgesrepositorypgx "github.com/twirapp/twir/libs/repositories/badges/pgx"
+	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges_users"
+	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
+	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
+	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
+	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
+	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
+	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
+	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
+	commandsgroupsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_group/pgx"
+	commandsresponserepository "github.com/twirapp/twir/libs/repositories/commands_response"
+	commandsresponserepositorypgx "github.com/twirapp/twir/libs/repositories/commands_response/pgx"
+	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
+	commandswithgroupsandresponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
+	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
+	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
+	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
+	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
+	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
+	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
+	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
+	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
+	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
+	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
+	usersrepository "github.com/twirapp/twir/libs/repositories/users"
+	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
+	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users_with_channel"
+	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
 	variablesrepository "github.com/twirapp/twir/libs/repositories/variables"
 	variablespgx "github.com/twirapp/twir/libs/repositories/variables/pgx"
 
-	timersrepository "github.com/twirapp/twir/libs/repositories/timers"
-	timersrepositorypgx "github.com/twirapp/twir/libs/repositories/timers/pgx"
-
-	keywordsrepository "github.com/twirapp/twir/libs/repositories/keywords"
-	keywordsrepositorypgx "github.com/twirapp/twir/libs/repositories/keywords/pgx"
-
-	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
-	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
-
-	badgesrepository "github.com/twirapp/twir/libs/repositories/badges"
-	badgesrepositorypgx "github.com/twirapp/twir/libs/repositories/badges/pgx"
-
-	badgesusersrepository "github.com/twirapp/twir/libs/repositories/badges_users"
-	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
-
-	usersrepository "github.com/twirapp/twir/libs/repositories/users"
-	usersrepositorypgx "github.com/twirapp/twir/libs/repositories/users/pgx"
-
-	userswithchannelrepository "github.com/twirapp/twir/libs/repositories/users_with_channel"
-	userswithchannelrepositorypgx "github.com/twirapp/twir/libs/repositories/users_with_channel/pgx"
-
-	alertsrepository "github.com/twirapp/twir/libs/repositories/alerts"
-	alertsrepositorypgx "github.com/twirapp/twir/libs/repositories/alerts/pgx"
-
-	commandswithgroupsandresponsesrepository "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses"
-	commandswithgroupsandresponsesrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_with_groups_and_responses/pgx"
-
-	commandsgroupsrepository "github.com/twirapp/twir/libs/repositories/commands_group"
-	commandsgroupsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands_group/pgx"
-
-	commandsresponserepository "github.com/twirapp/twir/libs/repositories/commands_response"
-	commandsresponserepositorypgx "github.com/twirapp/twir/libs/repositories/commands_response/pgx"
-
-	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
-	commandsrepositorypgx "github.com/twirapp/twir/libs/repositories/commands/pgx"
-
-	rolesrepository "github.com/twirapp/twir/libs/repositories/roles"
-	rolesrepositorypgx "github.com/twirapp/twir/libs/repositories/roles/pgx"
-
-	rolesusersrepository "github.com/twirapp/twir/libs/repositories/roles_users"
-	rolesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/roles_users/pgx"
-
-	greetingsrepository "github.com/twirapp/twir/libs/repositories/greetings"
-	greetingsrepositorypgx "github.com/twirapp/twir/libs/repositories/greetings/pgx"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixpgx "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/pgx"
+	"github.com/twirapp/twir/libs/uptrace"
+	"go.uber.org/fx"
 )
 
 func main() {
@@ -101,33 +97,6 @@ func main() {
 			baseapp.Opts{
 				AppName: "api-gql",
 			},
-		),
-		fx.Provide(
-			twitchcache.New,
-		),
-		// services
-		fx.Provide(
-			dashboard_widget_events.New,
-			variables.New,
-			timers.New,
-			keywords.New,
-			audit_logs.New,
-			admin_actions.New,
-			badges.New,
-			badges_users.New,
-			badges_with_users.New,
-			users.New,
-			twir_users.New,
-			alerts.New,
-			commands_with_groups_and_responses.New,
-			commands_groups.New,
-			commands_responses.New,
-			commands.New,
-			greetings.New,
-			roles.New,
-			roles_users.New,
-			roles_with_roles_users.New,
-			twitch.New,
 		),
 		// repositories
 		fx.Provide(
@@ -195,6 +164,43 @@ func main() {
 				greetingsrepositorypgx.NewFx,
 				fx.As(new(greetingsrepository.Repository)),
 			),
+			fx.Annotate(
+				chatmessagesrepositorypgx.NewFx,
+				fx.As(new(chatmessagesrepository.Repository)),
+			),
+			fx.Annotate(
+				channelscommandsprefixpgx.NewFx,
+				fx.As(new(channelscommandsprefixrepository.Repository)),
+			),
+		),
+		// services
+		fx.Provide(
+			dashboard_widget_events.New,
+			variables.New,
+			timers.New,
+			keywords.New,
+			audit_logs.New,
+			admin_actions.New,
+			badges.New,
+			badges_users.New,
+			badges_with_users.New,
+			users.New,
+			twir_users.New,
+			alerts.New,
+			commands_with_groups_and_responses.New,
+			commands_groups.New,
+			commands_responses.New,
+			commands.New,
+			greetings.New,
+			roles.New,
+			roles_users.New,
+			roles_with_roles_users.New,
+			twitch.New,
+			channels.New,
+			chat_messages.New,
+			channels_commands_prefix.New,
+			tts.New,
+			song_requests.New,
 		),
 		// grpc clients
 		fx.Provide(
@@ -210,6 +216,9 @@ func main() {
 			dataloader.New,
 			auth.NewSessions,
 			minio.New,
+			twitchcache.New,
+			channelscommandsprefixcache.New,
+			greetingscache.New,
 			commandscache.New,
 			keywordscacher.New,
 			fx.Annotate(

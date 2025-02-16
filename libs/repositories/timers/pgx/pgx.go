@@ -3,6 +3,8 @@ package pgx
 import (
 	"cmp"
 	"context"
+	"database/sql"
+	"fmt"
 	"slices"
 
 	"github.com/Masterminds/squirrel"
@@ -56,7 +58,12 @@ ORDER BY t.id;
 
 	var timer model.Timer
 	for rows.Next() {
-		var response model.Response
+		var (
+			responseID, responseTimerID sql.Null[uuid.UUID]
+			responseText                sql.Null[string]
+			responseIsAnnounce          sql.Null[bool]
+		)
+
 		if err := rows.Scan(
 			&timer.ID,
 			&timer.ChannelID,
@@ -65,14 +72,24 @@ ORDER BY t.id;
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
-			&response.ID,
-			&response.Text,
-			&response.IsAnnounce,
-			&response.TimerID,
+			&responseID,
+			&responseText,
+			&responseIsAnnounce,
+			&responseTimerID,
 		); err != nil {
 			return model.Nil, err
 		}
-		timer.Responses = append(timer.Responses, response)
+
+		if responseID.Valid {
+			timer.Responses = append(
+				timer.Responses, model.Response{
+					ID:         responseID.V,
+					Text:       responseText.V,
+					IsAnnounce: responseIsAnnounce.V,
+					TimerID:    responseTimerID.V,
+				},
+			)
+		}
 	}
 
 	return timer, nil
@@ -169,14 +186,19 @@ ORDER BY t."id";
 
 	rows, err := c.pool.Query(ctx, query, channelID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to query: %w", err)
 	}
 	defer rows.Close()
 
 	var timersMap = make(map[uuid.UUID]*model.Timer)
 	for rows.Next() {
 		var timer model.Timer
-		var response model.Response
+		var (
+			responseID, responseTimerID sql.Null[uuid.UUID]
+			responseText                sql.Null[string]
+			responseIsAnnounce          sql.Null[bool]
+		)
+
 		if err := rows.Scan(
 			&timer.ID,
 			&timer.ChannelID,
@@ -185,17 +207,27 @@ ORDER BY t."id";
 			&timer.TimeInterval,
 			&timer.MessageInterval,
 			&timer.LastTriggerMessageNumber,
-			&response.ID,
-			&response.Text,
-			&response.IsAnnounce,
-			&response.TimerID,
+			&responseID,
+			&responseText,
+			&responseIsAnnounce,
+			&responseTimerID,
 		); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("failed to scan row: %v, %w", timer.ID, err)
 		}
 		if _, ok := timersMap[timer.ID]; !ok {
 			timersMap[timer.ID] = &timer
 		}
-		timersMap[timer.ID].Responses = append(timersMap[timer.ID].Responses, response)
+
+		if responseID.Valid {
+			timersMap[timer.ID].Responses = append(
+				timersMap[timer.ID].Responses, model.Response{
+					ID:         responseID.V,
+					Text:       responseText.V,
+					IsAnnounce: responseIsAnnounce.V,
+					TimerID:    responseTimerID.V,
+				},
+			)
+		}
 	}
 
 	result := make([]model.Timer, 0, len(timersMap))
@@ -255,7 +287,7 @@ func (c *Pgx) UpdateByID(ctx context.Context, id uuid.UUID, data timers.UpdateIn
 		return model.Nil, timers.ErrTimerNotFound
 	}
 
-	if data.Responses != nil {
+	if len(data.Responses) > 0 {
 		_, err = tx.Exec(ctx, `DELETE FROM channels_timers_responses WHERE "timerId" = $1`, id)
 		if err != nil {
 			return model.Nil, err

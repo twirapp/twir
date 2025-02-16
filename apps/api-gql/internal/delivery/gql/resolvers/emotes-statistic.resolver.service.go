@@ -15,7 +15,7 @@ func (r *queryResolver) getEmoteStatisticUsagesForRange(
 	emoteName string,
 	timeRange gqlmodel.EmoteStatisticRange,
 ) ([]gqlmodel.EmoteStatisticUsage, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -62,7 +62,7 @@ ORDER BY
 	`, interval, truncateBy,
 	)
 
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Raw(
 			query,

@@ -1,0 +1,12 @@
+extend type Query {
+	channelsCommandsPrefix: String! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: VIEW_BOT_SETTINGS)
+}
+
+extend type Mutation {
+	commandsPrefixUpdate(input: CommandsPrefixUpdateInput!) : Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
+	commandsPrefixReset: Boolean! @isAuthenticated @hasAccessToSelectedDashboard @hasChannelRolesDashboardPermission(permission: MANAGE_BOT_SETTINGS)
+}
+
+input CommandsPrefixUpdateInput {
+	newPrefix: String! @validate(constraint: "max=10")
+}

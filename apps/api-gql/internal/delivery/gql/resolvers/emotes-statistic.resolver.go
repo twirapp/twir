@@ -26,7 +26,7 @@ func (r *emoteStatisticUserUsageResolver) TwitchProfile(ctx context.Context, obj
 
 // EmotesStatistics is the resolver for the emotesStatistics field.
 func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.EmotesStatisticsOpts) (*gqlmodel.EmotesStatisticResponse, error) {
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +42,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 		perPage = *opts.PerPage.Value()
 	}
 
-	query := r.gorm.WithContext(ctx).
+	query := r.deps.Gorm.WithContext(ctx).
 		Where(`"channelId" = ?`, dashboardId).
 		Limit(perPage).
 		Offset(page * perPage)
@@ -70,7 +70,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 	}
 
 	var totalCount int64
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Raw(
 			`
@@ -87,7 +87,7 @@ func (r *queryResolver) EmotesStatistics(ctx context.Context, opts gqlmodel.Emot
 	models := make([]gqlmodel.EmotesStatistic, 0, len(entities))
 	for _, entity := range entities {
 		lastUsedEntity := &model.ChannelEmoteUsage{}
-		if err := r.gorm.
+		if err := r.deps.Gorm.
 			WithContext(ctx).
 			Where(`"channelId" = ? AND "emote" = ?`, dashboardId, entity.Emote).
 			Order(`"createdAt" DESC`).
@@ -133,7 +133,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 		return nil, nil
 	}
 
-	dashboardId, err := r.sessions.GetSelectedDashboard(ctx)
+	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -144,7 +144,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	}
 
 	lastUsedEntity := &model.ChannelEmoteUsage{}
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
 		Order(`"createdAt" DESC`).
@@ -153,7 +153,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	}
 
 	var usages int64
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Model(&model.ChannelEmoteUsage{}).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
@@ -171,7 +171,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	}
 
 	var usagesHistoryEntities []model.ChannelEmoteUsage
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
 		Order(`"createdAt" DESC`).
@@ -181,7 +181,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 		return nil, err
 	}
 	var usagesByUsersTotalCount int64
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Model(&model.ChannelEmoteUsage{}).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
@@ -199,7 +199,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	}
 
 	var topUsersEntities []emoteEntityModelWithCount
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).
 		Select(`"userId", COUNT("userId") as count`).
@@ -212,7 +212,7 @@ func (r *queryResolver) EmotesStatisticEmoteDetailedInformation(ctx context.Cont
 	}
 
 	var topUsersTotalCount int64
-	if err := r.gorm.
+	if err := r.deps.Gorm.
 		WithContext(ctx).
 		Model(&model.ChannelEmoteUsage{}).
 		Where(`"channelId" = ? AND "emote" = ?`, dashboardId, opts.EmoteName).

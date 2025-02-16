@@ -2,12 +2,16 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"strings"
 	"unicode/utf8"
 
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/bus-core/twitch"
 	"github.com/twirapp/twir/libs/grpc/events"
+	channelscommandsprefixrepository "github.com/twirapp/twir/libs/repositories/channels_commands_prefix"
+	channelscommandsprefixmodel "github.com/twirapp/twir/libs/repositories/channels_commands_prefix/model"
 	eventsub_bindings "github.com/twirapp/twitch-eventsub-framework/esb"
 	"go.opentelemetry.io/otel/attribute"
 )
@@ -163,7 +167,20 @@ func (c *Handler) handleChannelChatMessage(
 		return
 	}
 
-	if data.Message.Text[0] == '!' {
+	var commandsPrefix string
+	fetchedCommandsPrefix, err := c.prefixCache.Get(ctx, data.BroadcasterUserId)
+	if err != nil && !errors.Is(err, channelscommandsprefixrepository.ErrNotFound) {
+		c.logger.Error("cannot get prefix", slog.Any("err", err))
+		return
+	}
+
+	if fetchedCommandsPrefix == channelscommandsprefixmodel.Nil {
+		commandsPrefix = "!"
+	} else {
+		commandsPrefix = fetchedCommandsPrefix.Prefix
+	}
+
+	if strings.HasPrefix(data.Message.Text, commandsPrefix) {
 		if err := c.bus.Parser.ProcessMessageAsCommand.Publish(data); err != nil {
 			c.logger.Error("cannot process command", slog.Any("err", err))
 		}
