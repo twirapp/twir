@@ -365,6 +365,7 @@ services:
     networks:
       - twir
       - traefik-public
+      - cloudflared
     deploy:
       mode: replicated
       replicas: 3
@@ -716,6 +717,8 @@ networks:
     name: twir
     external: true
   traefik-public:
+    external: true
+  cloudflared:
     external: true
 
 secrets:
