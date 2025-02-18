@@ -21,7 +21,7 @@ enum EmotesStatisticsOptsOrder {
 }
 
 input EmotesStatisticsOpts {
-	search: String
+	search: String @validate(constraint: "max=500")
 	page: Int
 	perPage: Int @validate(constraint: "lte=100")
 	graphicRange: EmoteStatisticRange

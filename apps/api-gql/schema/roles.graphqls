@@ -94,7 +94,7 @@ input RolesCreateOrUpdateOpts {
 	"""
 	This is a list of user ids
 	"""
-	users: [String!]!
+	users: [String!]! @validate(constraint: "max=100,dive,max=30")
 }
 
 input CreateOrUpdateRoleSettingsInput {

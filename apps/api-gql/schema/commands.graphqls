@@ -71,7 +71,7 @@ input CommandsCreateOpts {
 	aliases: [String!]! @validate(constraint: "dive,max=50,min=1")
 	responses: [CreateOrUpdateCommandResponseInput!]! @validate(constraint: "max=3")
 	cooldown: Int! @validate(constraint: "max=90000")
-	cooldownType: String!
+	cooldownType: String!  @validate(constraint: "max=500")
 	enabled: Boolean!
 	visible: Boolean!
 	isReply: Boolean!
@@ -82,36 +82,36 @@ input CommandsCreateOpts {
 	onlineOnly: Boolean!
 	cooldownRolesIds: [String!]! @validate(constraint: "dive,max=500")
 	enabledCategories: [String!]! @validate(constraint: "dive,max=500")
-	requiredWatchTime: Int!
-	requiredMessages: Int!
-	requiredUsedChannelPoints: Int!
+	requiredWatchTime: Int! @validate(constraint: "lte=900000000000")
+	requiredMessages: Int! @validate(constraint: "lte=900000000000")
+	requiredUsedChannelPoints: Int! @validate(constraint: "lte=900000000000")
 	groupId: String @validate(constraint: "max=500,omitempty")
-	expiresAt: Int
+	expiresAt: Int @validate(constraint: "lte=90000000000000,omitempty")
 	expiresType: CommandExpiresType
 }
 
 input CommandsUpdateOpts {
-	name: String @validate(constraint: "max=50")
-	description: String @validate(constraint: "max=500")
-	aliases: [String!] @validate(constraint: "dive,max=50,min=1")
-	responses: [CreateOrUpdateCommandResponseInput!] @validate(constraint: "max=3")
-	cooldown: Int
-	cooldownType: String
+	name: String @validate(constraint: "max=50,omitempty")
+	description: String @validate(constraint: "max=500,omitempty")
+	aliases: [String!] @validate(constraint: "dive,max=50,min=1,omitempty")
+	responses: [CreateOrUpdateCommandResponseInput!] @validate(constraint: "max=3,omitempty")
+	cooldown: Int @validate(constraint: "lte=90000,omitempty")
+	cooldownType: String @validate(constraint: "lte=500,omitempty")
 	enabled: Boolean
 	visible: Boolean
 	isReply: Boolean
 	keepResponsesOrder: Boolean
-	deniedUsersIds: [String!] @validate(constraint: "dive,max=500")
-	allowedUsersIds: [String!] @validate(constraint: "dive,max=500")
-	rolesIds: [String!]
+	deniedUsersIds: [String!] @validate(constraint: "dive,max=500,omitempty")
+	allowedUsersIds: [String!] @validate(constraint: "dive,max=500,omitempty")
+	rolesIds: [String!] @validate(constraint: "dive,max=500,omitempty")
 	onlineOnly: Boolean
-	cooldownRolesIds: [String!] @validate(constraint: "dive,max=500")
-	enabledCategories: [String!] @validate(constraint: "dive,max=500")
-	requiredWatchTime: Int
-	requiredMessages: Int
-	requiredUsedChannelPoints: Int
+	cooldownRolesIds: [String!] @validate(constraint: "dive,max=500,omitempty")
+	enabledCategories: [String!] @validate(constraint: "dive,max=500,omitempty")
+	requiredWatchTime: Int @validate(constraint: "lte=900000000000,omitempty")
+	requiredMessages: Int @validate(constraint: "lte=900000000000,omitempty")
+	requiredUsedChannelPoints: Int @validate(constraint: "lte=900000000000,omitempty")
 	groupId: String @validate(constraint: "max=500,omitempty")
-	expiresAt: Int
+	expiresAt: Int @validate(constraint: "lte=90000000000000,omitempty")
 	expiresType: CommandExpiresType
 }
 

@@ -26,12 +26,12 @@ enum CommunityUsersOrder {
 }
 
 input CommunityUsersOpts {
-	channelId: ID!
+	channelId: ID! @validate(constraint: "max=90")
 	page: Int
 	perPage: Int @validate(constraint: "lte=100")
 	sortBy: CommunityUsersSortBy
 	order: CommunityUsersOrder
-	search: String
+	search: String @validate(constraint: "max=50")
 }
 
 type CommunityUsersResponse {

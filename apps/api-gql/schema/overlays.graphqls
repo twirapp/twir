@@ -54,20 +54,20 @@ type ChatOverlay {
 input ChatOverlayMutateOpts {
 	messageHideTimeout: Int
 	messageShowDelay: Int
-	preset: String
-	fontSize: Int
+	preset: String @validate(constraint: "max=90,omitempty")
+	fontSize: Int @validate(constraint: "lte=1000,omitempty")
 	hideCommands: Boolean
 	hideBots: Boolean
-	fontFamily: String
+	fontFamily: String @validate(constraint: "max=90,omitempty")
 	showBadges: Boolean
 	showAnnounceBadge: Boolean
-	textShadowColor: String
-	textShadowSize: Int
-	chatBackgroundColor: String
-	direction: String
-	fontWeight: Int
-	fontStyle: String
-	paddingContainer: Int
+	textShadowColor: String @validate(constraint: "max=90,omitempty")
+	textShadowSize: Int @validate(constraint: "lte=1000,omitempty")
+	chatBackgroundColor: String @validate(constraint: "max=1000,omitempty")
+	direction: String @validate(constraint: "max=100,omitempty")
+	fontWeight: Int @validate(constraint: "lte=5000,omitempty")
+	fontStyle: String @validate(constraint: "max=5000,omitempty")
+	paddingContainer: Int @validate(constraint: "lte=1000,omitempty")
 	animation: ChatOverlayAnimation
 }
 
@@ -89,12 +89,12 @@ type NowPlayingOverlay {
 }
 
 input NowPlayingOverlayMutateOpts {
-	preset: NowPlayingOverlayPreset
-	fontFamily: String
-	fontWeight: Int
-	backgroundColor: String
+	preset: NowPlayingOverlayPreset @validate(constraint: "max=90,omitempty")
+	fontFamily: String @validate(constraint: "max=90,omitempty")
+	fontWeight: Int @validate(constraint: "lte=1000,omitempty")
+	backgroundColor: String @validate(constraint: "max=1000,omitempty")
 	showImage: Boolean
-	hideTimeout: Int
+	hideTimeout: Int @validate(constraint: "lte=10000,omitempty")
 }
 
 type NowPlayingOverlayTrack {

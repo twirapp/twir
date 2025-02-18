@@ -218,12 +218,12 @@ input ChatAlertsUnbanRequestResolveInput {
 }
 
 input ChatAlertsMessageInput {
-	text: String @validate(constraint: "max=500")
+	text: String @validate(constraint: "max=500,omitempty")
 }
 
 input ChatAlertsCountedMessageInput {
 	count: Int
-	text: String @validate(constraint: "max=500")
+	text: String @validate(constraint: "max=500,omitempty")
 }
 
 input ChatAlertsMessageDeleteInput {
