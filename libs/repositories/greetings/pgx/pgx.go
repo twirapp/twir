@@ -188,7 +188,7 @@ WHERE id = $1
 func (c *Pgx) Create(ctx context.Context, input greetings.CreateInput) (model.Greeting, error) {
 	query := `
 INSERT INTO channels_greetings ("channelId", "userId", enabled, text, "isReply", processed, with_shoutout)
-VALUES ($1, $2, $3, $4, $5, $6, &7)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id, "channelId", "userId", enabled, text, "isReply", processed
 `
 
