@@ -8,7 +8,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/nicklaw5/helix/v2"
+	helix "github.com/nicklaw5/helix/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	data_loader "github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
@@ -17,10 +17,7 @@ import (
 )
 
 // RewardsRedemptionsHistory is the resolver for the rewardsRedemptionsHistory field.
-func (r *queryResolver) RewardsRedemptionsHistory(
-	ctx context.Context,
-	opts gqlmodel.TwitchRedemptionsOpts,
-) (*gqlmodel.TwitchRedemptionResponse, error) {
+func (r *queryResolver) RewardsRedemptionsHistory(ctx context.Context, opts gqlmodel.TwitchRedemptionsOpts) (*gqlmodel.TwitchRedemptionResponse, error) {
 	dashboardId, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -137,10 +134,7 @@ func (r *queryResolver) RewardsRedemptionsHistory(
 }
 
 // RewardsActivation is the resolver for the rewardsActivation field.
-func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (
-	<-chan *gqlmodel.TwitchRedemption,
-	error,
-) {
+func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (<-chan *gqlmodel.TwitchRedemption, error) {
 	dashboardID, err := r.deps.Sessions.GetSelectedDashboard(ctx)
 	if err != nil {
 		return nil, err
@@ -205,10 +199,7 @@ func (r *subscriptionResolver) RewardsActivation(ctx context.Context) (
 }
 
 // User is the resolver for the user field.
-func (r *twitchRedemptionResolver) User(
-	ctx context.Context,
-	obj *gqlmodel.TwitchRedemption,
-) (*gqlmodel.TwirUserTwitchInfo, error) {
+func (r *twitchRedemptionResolver) User(ctx context.Context, obj *gqlmodel.TwitchRedemption) (*gqlmodel.TwirUserTwitchInfo, error) {
 	return data_loader.GetHelixUserById(ctx, obj.User.ID)
 }
 

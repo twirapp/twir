@@ -24,6 +24,6 @@ input TwitchRedemptionsOpts {
 	byChannelId: ID
 	userSearch: String
 	page: Int
-	perPage: Int
+	perPage: Int @validate(constraint: "lte=100")
 	rewardsIds: [ID!]
 }

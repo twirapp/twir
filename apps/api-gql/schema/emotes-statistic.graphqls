@@ -23,7 +23,7 @@ enum EmotesStatisticsOptsOrder {
 input EmotesStatisticsOpts {
 	search: String
 	page: Int
-	perPage: Int
+	perPage: Int @validate(constraint: "lte=100")
 	graphicRange: EmoteStatisticRange
 	order: EmotesStatisticsOptsOrder
 }
@@ -39,10 +39,10 @@ enum EmoteStatisticRange {
 input EmotesStatisticEmoteDetailedOpts {
 	emoteName: String!
 	range: EmoteStatisticRange!
-	usagesByUsersPage: Int
-	usagesByUsersPerPage: Int
+	usagesByUsersPage: Int @validate(constraint: "lte=100")
+	usagesByUsersPerPage: Int @validate(constraint: "lte=100")
 	topUsersPage: Int
-	topUsersPerPage: Int
+	topUsersPerPage: Int @validate(constraint: "lte=100")
 }
 
 type EmotesStatisticEmoteDetailedResponse {

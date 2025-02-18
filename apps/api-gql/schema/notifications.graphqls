@@ -53,7 +53,7 @@ enum NotificationType {
 input AdminNotificationsParams {
 	search: String
 	page: Int
-	perPage: Int
+	perPage: Int @validate(constraint: "lte=100")
 	type: NotificationType
 }
 

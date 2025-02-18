@@ -28,7 +28,7 @@ enum CommunityUsersOrder {
 input CommunityUsersOpts {
 	channelId: ID!
 	page: Int
-	perPage: Int
+	perPage: Int @validate(constraint: "lte=100")
 	sortBy: CommunityUsersSortBy
 	order: CommunityUsersOrder
 	search: String

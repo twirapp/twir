@@ -11,7 +11,7 @@ input AdminAuditLogsInput {
   channelId: String
   operationType: [AuditOperationType!]
   page: Int
-  perPage: Int
+  perPage: Int @validate(constraint: "lte=100")
 }
 
 type AdminAuditLogResponse {

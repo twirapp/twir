@@ -23,7 +23,7 @@ type TwirAdminUser implements TwirUser {
 input TwirUsersSearchParams {
 	search: String
 	page: Int
-	perPage: Int
+	perPage: Int @validate(constraint: "lte=100")
 	isBotAdmin: Boolean
 	isBanned: Boolean
 	isBotEnabled: Boolean
