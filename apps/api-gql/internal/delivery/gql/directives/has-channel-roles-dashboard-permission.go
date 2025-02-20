@@ -2,11 +2,13 @@ package directives
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/gqlmodel"
+	"gorm.io/gorm"
 )
 
 func (c *Directives) HasChannelRolesDashboardPermission(
@@ -43,7 +45,7 @@ func (c *Directives) HasChannelRolesDashboardPermission(
 		WithContext(ctx).
 		Where(`"userId" = ? AND "channelId" = ?`, user.ID, dashboardId).
 		First(&userStat).
-		Error; err != nil {
+		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("cannot get user stats: %w", err)
 	}
 

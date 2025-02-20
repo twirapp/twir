@@ -2,10 +2,12 @@ package directives
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/99designs/gqlgen/graphql"
 	model "github.com/satont/twir/libs/gomodels"
+	"gorm.io/gorm"
 )
 
 func (c *Directives) HasAccessToSelectedDashboard(
@@ -42,7 +44,7 @@ func (c *Directives) HasAccessToSelectedDashboard(
 		WithContext(ctx).
 		Where(`"userId" = ? AND "channelId" = ?`, user.ID, dashboardId).
 		First(&userStat).
-		Error; err != nil {
+		Error; err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, fmt.Errorf("cannot get user stats: %w", err)
 	}
 
