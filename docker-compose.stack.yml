@@ -654,6 +654,7 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
+          - node.role != manager
     networks:
       - twir
 
@@ -674,6 +675,7 @@ services:
       placement:
         constraints:
           - node.labels.databases != true
+          - node.role != manager
     networks:
       - twir
 
