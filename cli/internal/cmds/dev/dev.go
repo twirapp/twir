@@ -45,11 +45,6 @@ func CreateDevCommand() *cli.Command {
 				Value: false,
 				Usage: "run backend in debug mode",
 			},
-			&cli.BoolFlag{
-				Name:  "proxy",
-				Value: false,
-				Usage: "start with proxy",
-			},
 		},
 		Before: func(context *cli.Context) error {
 			wd, err := os.Getwd()
@@ -71,14 +66,12 @@ func CreateDevCommand() *cli.Command {
 			return nil
 		},
 		Action: func(c *cli.Context) error {
-			if c.Bool("proxy") {
-				go func() {
-					if err := proxy.Cmd.Run(c); err != nil {
-						pterm.Error.Println(err)
-						return
-					}
-				}()
-			}
+			go func() {
+				if err := proxy.Cmd.Run(c); err != nil {
+					pterm.Fatal.Println(err)
+					return
+				}
+			}()
 
 			skipDeps := c.Bool("skip-deps")
 			isDebugEnabled := c.Bool("debug")

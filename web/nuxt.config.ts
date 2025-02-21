@@ -2,6 +2,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 import gqlcodegen from './modules/gql-codegen'
+import wsproxy from './modules/ws-proxy'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -32,6 +33,7 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 		'@nuxt-alt/proxy',
 		gqlcodegen,
+		wsproxy,
 	],
 
 	icon: {
@@ -39,7 +41,7 @@ export default defineNuxtConfig({
 	},
 
 	devServer: {
-		port: 3005,
+		port: 3010,
 	},
 
 	experimental: {
@@ -50,45 +52,6 @@ export default defineNuxtConfig({
 	},
 
 	css: ['~/assets/css/global.css'],
-
-	vite: {
-		server: {
-			hmr: {
-				// protocol: false ? 'wss' : 'ws',
-			},
-			proxy: {
-				'/api-old': {
-					target: 'http://127.0.0.1:3002',
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api-old/, ''),
-					ws: true,
-				},
-				'/api': {
-					target: 'http://127.0.0.1:3009',
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/api/, ''),
-					ws: true,
-				},
-				'/socket': {
-					target: 'http://127.0.0.1:3004',
-					changeOrigin: true,
-					ws: true,
-					rewrite: (path) => path.replace(/^\/socket/, ''),
-				},
-				'/overlays': {
-					target: 'http://127.0.0.1:3008',
-					changeOrigin: true,
-					ws: true,
-				},
-				'/dashboard': {
-					target: 'http://127.0.0.1:3006/dashboard',
-					changeOrigin: true,
-					rewrite: (path) => path.replace(/^\/dashboard/, ''),
-					ws: true,
-				},
-			},
-		},
-	},
 
 	proxy: {
 		debug: true,
@@ -113,18 +76,6 @@ export default defineNuxtConfig({
 
 	nitro: {
 		preset: 'bun',
-		devProxy: {
-			'/api': {
-				target: 'http://127.0.0.1:3009',
-				changeOrigin: true,
-				ws: true,
-			},
-			'/socket': {
-				target: 'http://127.0.0.1:3004',
-				changeOrigin: true,
-				ws: true,
-			},
-		},
 	},
 
 	shadcn: {

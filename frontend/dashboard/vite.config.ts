@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
 		},
 		server: {
 			port: 3006,
-			host: true,
+			host: '0.0.0.0',
 			hmr: {
 				protocol: env.USE_WSS === 'true' ? 'wss' : 'ws',
 			},

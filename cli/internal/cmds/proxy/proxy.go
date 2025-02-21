@@ -28,7 +28,7 @@ var Cmd = &cli.Command{
 		return shell.ExecCommand(
 			shell.ExecCommandOpts{
 				Command: fmt.Sprintf(
-					"%s reverse-proxy --from twir.localhost --to 127.0.0.1:3005",
+					"%s run --watch --config Caddyfile.dev",
 					caddyPath,
 				),
 				Stdout: os.Stdout,

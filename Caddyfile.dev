@@ -1,0 +1,30 @@
+http://localhost:3005 {
+    reverse_proxy http://localhost:3010
+
+    handle_path /api/* {
+        reverse_proxy 127.0.0.1:3009
+    }
+
+    # Socket proxy
+    handle_path /socket/* {
+    		# rewrite * /socket{path}
+        reverse_proxy http://127.0.0.1:3004
+    }
+
+    # Old API proxy
+    handle_path /api-old/* {
+        reverse_proxy http://127.0.0.1:3002
+    }
+
+    # Overlays proxy
+    handle_path /overlays/* {
+    		rewrite * /overlays{path}
+        reverse_proxy http://127.0.0.1:3008
+    }
+
+    # Dashboard proxy
+    handle_path /dashboard* {
+    		rewrite * /dashboard{path}
+        reverse_proxy http://127.0.0.1:3006
+    }
+}
