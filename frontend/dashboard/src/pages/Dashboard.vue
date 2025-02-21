@@ -5,7 +5,6 @@ import { NDropdown } from 'naive-ui'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import AuditLogs from '@/components/dashboard/audit-logs.vue'
-import BotStatus from '@/components/dashboard/bot-status.vue'
 import Chat from '@/components/dashboard/chat.vue'
 import Events from '@/components/dashboard/events.vue'
 import Stream from '@/components/dashboard/stream.vue'
@@ -59,7 +58,6 @@ onBeforeUnmount(() => {
 
 <template>
 	<Stats />
-	<BotStatus />
 	<div class="w-full h-full pl-1">
 		<GridLayout
 			v-model:layout="widgets"

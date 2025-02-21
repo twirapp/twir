@@ -157,5 +157,52 @@ func (c *Bot) BotJoinPart(ctx context.Context, request *bots.BotJoinPartRequest)
 		)
 	}
 
+	broadcasterClient, err := twitch.NewUserClientWithContext(
+		ctx,
+		dashboardId,
+		c.Config,
+		c.Grpc.Tokens,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if request.Action == bots.BotJoinPartRequest_JOIN {
+		unbanResp, err := broadcasterClient.UnbanUser(
+			&helix.UnbanUserParams{
+				BroadcasterID: dashboardId,
+				ModeratorID:   dashboardId,
+				UserID:        dbChannel.BotID,
+			},
+		)
+		if err != nil {
+			c.Logger.Error("cannot unban user", slog.Any("err", err))
+		}
+		if unbanResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
+			c.Logger.Error(
+				"cannot unban user",
+				slog.Any("err", unbanResp.ErrorMessage),
+				slog.Int("status", unbanResp.StatusCode),
+			)
+		}
+
+		addModResp, err := broadcasterClient.AddChannelModerator(
+			&helix.AddChannelModeratorParams{
+				BroadcasterID: dashboardId,
+				UserID:        dbChannel.BotID,
+			},
+		)
+		if err != nil {
+			c.Logger.Error("cannot add channel moderator", slog.Any("err", err))
+		}
+		if addModResp.ErrorMessage != "" && unbanResp.StatusCode != 400 {
+			c.Logger.Error(
+				"cannot add channel moderator",
+				slog.Any("err", addModResp.ErrorMessage),
+				slog.Int("status", addModResp.StatusCode),
+			)
+		}
+	}
+
 	return &emptypb.Empty{}, nil
 }

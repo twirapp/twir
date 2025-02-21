@@ -48,5 +48,15 @@ export function useWidgets() {
 			minH: 8,
 			visible: true,
 		},
+		{
+			x: 3,
+			y: 9,
+			w: 3,
+			h: 8,
+			i: 'bot-status',
+			minW: 3,
+			minH: 8,
+			visible: true,
+		},
 	])
 }

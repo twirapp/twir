@@ -2,18 +2,27 @@
 import { IconEdit } from '@tabler/icons-vue'
 import { useIntervalFn } from '@vueuse/core'
 import { intervalToDuration } from 'date-fns'
-import { NSkeleton, NText } from 'naive-ui'
-import { computed, h, onBeforeUnmount, ref } from 'vue'
+import { ChevronDownIcon } from 'lucide-vue-next'
+import { NText } from 'naive-ui'
+import { computed, h, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import StreamInfoEditor from '../stream-info-editor.vue'
 
-import { useRealtimeDashboardStats } from '@/api'
-import { Separator } from '@/components/ui/separator'
+import { useBotInfo, useBotJoinPart, useRealtimeDashboardStats } from '@/api'
+import { Button } from '@/components/ui/button'
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { useNaiveDiscrete } from '@/composables/use-naive-discrete'
 import { padTo2Digits } from '@/helpers/convertMillisToTime'
 
 const { stats } = useRealtimeDashboardStats()
+const stateMutation = useBotJoinPart()
+const { data: botInfo, refetch: refetchBotStatus } = useBotInfo()
 
 const currentTime = ref(new Date())
 const { pause: pauseUptimeInterval } = useIntervalFn(() => {
@@ -41,6 +50,10 @@ onBeforeUnmount(() => {
 	pauseUptimeInterval()
 })
 
+onMounted(async () => {
+	refetchBotStatus()
+})
+
 const { t } = useI18n()
 
 const discrete = useNaiveDiscrete()
@@ -55,17 +68,19 @@ function openInfoEditor() {
 		}),
 	})
 }
+
+async function changeChatState() {
+	const action = botInfo.value?.enabled ? 'part' : 'join'
+
+	await stateMutation.mutateAsync(action)
+}
 </script>
 
 <template>
-	<Transition appear mode="out-in">
-		<div v-if="!stats" class="w-full p-2">
-			<NSkeleton width="100%" height="45px" :sharp="false" style="border-radius: 10px" />
-		</div>
-
-		<div v-else class="flex bg-card gap-3 py-2 px-2 flex-wrap w-full border-b border-b-border justify-center">
-			<div class="item flex items-center cursor-pointer" @click="openInfoEditor">
-				<div class="stats-item pr-2.5">
+	<div class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border">
+		<div v-if="stats" class="flex flex-wrap gap-4 py-2">
+			<div class="flex items-center cursor-pointer" @click="openInfoEditor">
+				<div class="flex flex-col pr-2.5">
 					<NText>
 						{{ stats?.title ?? 'No title' }}
 					</NText>
@@ -76,8 +91,6 @@ function openInfoEditor() {
 				<IconEdit class="h-5 w-5 cursor-pointer" />
 			</div>
 
-			<Separator orientation="vertical" class="mx-2" />
-
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.uptime`) }}
@@ -87,8 +100,6 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<Separator orientation="vertical" class="mx-2" />
-
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.viewers`) }}
@@ -97,8 +108,6 @@ function openInfoEditor() {
 					{{ stats?.viewers ?? 0 }}
 				</NText>
 			</div>
-
-			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -110,8 +119,6 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<Separator orientation="vertical" class="mx-2" />
-
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.messages`) }}
@@ -120,8 +127,6 @@ function openInfoEditor() {
 					{{ stats?.chatMessages }}
 				</NText>
 			</div>
-
-			<Separator orientation="vertical" class="mx-2" />
 
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
@@ -132,8 +137,6 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<Separator orientation="vertical" class="mx-2" />
-
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.usedEmotes`) }}
@@ -143,8 +146,6 @@ function openInfoEditor() {
 				</NText>
 			</div>
 
-			<Separator orientation="vertical" class="mx-2" />
-
 			<div class="item stats-item">
 				<NText :depth="3" class="stats-type">
 					{{ t(`dashboard.statsWidgets.requestedSongs`) }}
@@ -153,28 +154,33 @@ function openInfoEditor() {
 					{{ stats?.requestedSongs }}
 				</NText>
 			</div>
-
-			<Separator orientation="vertical" class="mx-2" />
 		</div>
-	</Transition>
+
+		<div class="flex justify-end items-center">
+			<Button v-if="!botInfo?.enabled" size="sm" @click="changeChatState">
+				Join channel
+			</Button>
+			<DropdownMenu v-else>
+				<DropdownMenuTrigger as-child>
+					<Button variant="secondary" size="sm">
+						<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="me-0.5 text-green-400 ping"><circle cx="12" cy="12" r="5" fill="currentColor"></circle><circle cx="12" cy="12" r="6" fill="currentColor" style="animation: 1s cubic-bezier(0, 0, 0.2, 1) 0s infinite normal none running ping; transform-origin: center center;"></circle></svg>
+						{{ botInfo.botName }} online
+						<ChevronDownIcon class="ml-2 size-4" />
+					</Button>
+				</DropdownMenuTrigger>
+				<DropdownMenuContent>
+					<DropdownMenuItem class="text-red-700" @click="changeChatState">
+						Leave channel
+					</DropdownMenuItem>
+				</DropdownMenuContent>
+			</DropdownMenu>
+		</div>
+	</div>
 </template>
 
 <style scoped>
-.v-enter-active,
-.v-leave-active {
-	transition: opacity 0.5s ease;
-}
-
-.v-enter-from,
-.v-leave-to {
-	opacity: 0;
-}
-.divider {
-	@apply my-2 border-l-[color:var(--n-border-color)] border-l border-solid;
-}
-
 .stats-item {
-	@apply flex flex-col justify-between;
+	@apply flex flex-col justify-between min-w-8 rounded-md;
 }
 
 .stats-type {
@@ -184,4 +190,6 @@ function openInfoEditor() {
 .stats-display {
 	@apply text-base tabular-nums;
 }
+
+@keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
 </style>
