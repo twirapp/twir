@@ -2,7 +2,6 @@ import path from 'node:path'
 import process from 'node:process'
 
 import gqlcodegen from './modules/gql-codegen'
-import wsproxy from './modules/ws-proxy'
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 
@@ -33,7 +32,6 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt',
 		'@nuxt-alt/proxy',
 		gqlcodegen,
-		wsproxy,
 	],
 
 	icon: {

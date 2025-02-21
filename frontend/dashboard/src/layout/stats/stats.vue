@@ -77,8 +77,8 @@ async function changeChatState() {
 </script>
 
 <template>
-	<div class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border">
-		<div v-if="stats" class="flex flex-wrap gap-4 py-2">
+	<div class="flex flex-wrap justify-between bg-card w-full h-auto px-2 gap-2 border-b border-b-border min-h-12">
+		<div class="flex flex-wrap gap-4 py-2">
 			<div class="flex items-center cursor-pointer" @click="openInfoEditor">
 				<div class="flex flex-col pr-2.5">
 					<NText>
@@ -156,7 +156,7 @@ async function changeChatState() {
 			</div>
 		</div>
 
-		<div class="flex justify-end items-center">
+		<div class="flex justify-end flex-end items-center">
 			<Button v-if="!botInfo?.enabled" size="sm" @click="changeChatState">
 				Join channel
 			</Button>
