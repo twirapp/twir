@@ -48,7 +48,8 @@ type Config struct {
 	NatsUrl              string `required:"false" default:"localhost:4222" envconfig:"NATS_URL"`
 	ValorantHenrikApiKey string `required:"false" envconfig:"VALORANT_HENRIK_API_KEY"`
 
-	ToxicityAddr string `required:"false" envconfig:"TOXICITY_ADDR"`
+	ToxicityAddr        string `required:"false" envconfig:"TOXICITY_ADDR"`
+	MusicRecognizerAddr string `required:"false" envconfig:"MUSIC_RECOGNIZER_ADDR"`
 }
 
 func NewWithEnvPath(envPath string) (*Config, error) {
