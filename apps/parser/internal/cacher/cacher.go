@@ -39,14 +39,15 @@ type cache struct {
 	cachedTwitchUsersById   map[string]*helix.User
 	cachedTwitchUsersByName map[string]*helix.User
 
-	channelIntegrations []*model.ChannelsIntegrations
-
 	faceitData *types.FaceitResult
 
 	valorantProfile *types.ValorantProfile
-	valorantMatches []types.ValorantMatch
 
 	currentSong *types.CurrentSong
+
+	channelIntegrations []*model.ChannelsIntegrations
+
+	valorantMatches []types.ValorantMatch
 }
 
 type cacher struct {

@@ -3,7 +3,9 @@ package cacher
 import (
 	"context"
 	"fmt"
+	"net/url"
 
+	"github.com/imroc/req/v3"
 	"github.com/redis/go-redis/v9"
 	"github.com/samber/lo"
 	"github.com/satont/twir/apps/parser/internal/types"
@@ -81,7 +83,11 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		},
 	)
 
-	integrationsForFetch = append(integrationsForFetch, model.IntegrationService("YOUTUBE_SR"))
+	integrationsForFetch = append(
+		integrationsForFetch,
+		"YOUTUBE_SR",
+		"MUSIC_RECOGNIZER",
+	)
 
 checkServices:
 	for _, integration := range integrationsForFetch {
@@ -157,6 +163,41 @@ checkServices:
 					song.OrderedByName,
 				),
 			}
+			break checkServices
+		case "MUSIC_RECOGNIZER":
+			if c.services.Config.MusicRecognizerAddr == "" {
+				continue
+			}
+
+			u, _ := url.Parse(c.services.Config.MusicRecognizerAddr)
+
+			query := u.Query()
+			query.Set("channel", c.parseCtxChannel.Name)
+			u.RawQuery = query.Encode()
+
+			var successResult struct {
+				Track struct {
+					Title  string `json:"title"`
+					Artist string `json:"artist"`
+				} `json:"track"`
+				Service string `json:"service"`
+			}
+
+			resp, err := req.R().
+				SetSuccessResult(&successResult).
+				Get(u.String())
+			if err != nil {
+				c.services.Logger.Error("failed to recognize track", zap.Error(err))
+				continue
+			}
+			if !resp.IsSuccessState() {
+				continue
+			}
+
+			c.cache.currentSong = &types.CurrentSong{
+				Name: fmt.Sprintf("%s — %s", successResult.Track.Artist, successResult.Track.Title),
+			}
+
 			break checkServices
 		}
 	}
