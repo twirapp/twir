@@ -123,7 +123,6 @@ func (c *CommandsBus) Subscribe() error {
 					ChannelId:         data.BroadcasterUserId,
 					Message:           r,
 					ReplyTo:           replyTo,
-					IsAnnounce:        res.IsReply,
 					SkipRateLimits:    false,
 					SkipToxicityCheck: res.SkipToxicityCheck,
 				}
