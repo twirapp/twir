@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bunx --bun vite",
-    "build": "bun run codegen && bunx vue-tsc && bunx --bun vite build",
-    "preview": "bunx --bun vite preview",
-    "analyze": "bunx --bun vite-bundle-visualizer",
-    "generate-pwa-assets": "bunx --bun pwa-assets-generator",
-    "codegen": "bunx --bun graphql-codegen",
-    "shadcn": "bunx --bun shadcn-vue"
+    "dev": "bun --bun vite",
+    "build": "bun run codegen && bun vue-tsc && bun --bun vite build",
+    "preview": "bun --bun vite preview",
+    "analyze": "bun --bun vite-bundle-visualizer",
+    "generate-pwa-assets": "bun --bun pwa-assets-generator",
+    "codegen": "bun --bun graphql-codegen",
+    "shadcn": "bun --bun shadcn-vue"
   },
   "dependencies": {
     "@crashmax/json-format-highlight": "1.1.0",

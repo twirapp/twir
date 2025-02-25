@@ -9,7 +9,7 @@
     "generate": "bun --bun nuxt generate",
     "preview": "bun --bun nuxt preview",
     "postinstall": "bun --bun nuxt prepare",
-    "graphql-codegen": "graphql-codegen"
+    "graphql-codegen": "bun --bun graphql-codegen"
   },
   "dependencies": {
     "@nuxt-alt/proxy": "2.5.8",

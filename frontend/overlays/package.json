@@ -3,10 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "bun run codegen && vue-tsc && vite build",
-    "preview": "vite preview",
-    "codegen": "graphql-codegen"
+    "dev": "bun --bun vite",
+    "build": "bun run codegen && vue-tsc && bun --bun vite build",
+    "preview": "bun --bun vite preview",
+    "codegen": "bun --bun graphql-codegen"
   },
   "dependencies": {
     "@plugin-web-update-notification/vite": "1.7.1",
