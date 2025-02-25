@@ -65,7 +65,7 @@ jobs:
 
       - name: Install JavaScript dependencies
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Setup Golang dependencies
         if: steps.changed-files.outputs.any_changed == 'true' || github.event.inputs.skip-change-detect == 'true'
