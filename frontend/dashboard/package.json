@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite",
-    "build": "bun run codegen && bun vue-tsc && bunx --bun vite build",
+    "build": "bun run codegen && vue-tsc && bunx --bun vite build",
     "preview": "bunx --bun vite preview",
     "analyze": "bunx --bun vite-bundle-visualizer",
     "generate-pwa-assets": "bunx --bun pwa-assets-generator",
