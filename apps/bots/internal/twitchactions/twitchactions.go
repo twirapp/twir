@@ -20,15 +20,15 @@ type Opts struct {
 	fx.In
 
 	Logger                  logger.Logger
-	Config                  cfg.Config
 	TokensGrpc              tokens.TokensClient
-	Gorm                    *gorm.DB
-	Redis                   *goredis.Client
 	ModTaskDistributor      mod_task_queue.TaskDistributor
 	SentMessagesRepository  sentmessages.Repository
 	ChannelsRepository      channels.Repository
-	ToxicityCheck           *toxicity_check.Service
 	ToxicMessagesRepository toxic_messages.Repository
+	Gorm                    *gorm.DB
+	Redis                   *goredis.Client
+	ToxicityCheck           *toxicity_check.Service
+	Config                  cfg.Config
 }
 
 func New(opts Opts) *TwitchActions {
@@ -50,13 +50,13 @@ func New(opts Opts) *TwitchActions {
 
 type TwitchActions struct {
 	logger                  logger.Logger
-	config                  cfg.Config
 	tokensGrpc              tokens.TokensClient
-	gorm                    *gorm.DB
 	rateLimiter             redis.SlidingWindow
 	modTaskDistributor      mod_task_queue.TaskDistributor
 	sentMessagesRepository  sentmessages.Repository
 	channelsRepository      channels.Repository
-	toxicityCheck           *toxicity_check.Service
 	toxicMessagesRepository toxic_messages.Repository
+	gorm                    *gorm.DB
+	toxicityCheck           *toxicity_check.Service
+	config                  cfg.Config
 }

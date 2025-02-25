@@ -14,11 +14,11 @@ import (
 )
 
 type BanOpts struct {
-	Duration       int
 	Reason         string
 	BroadcasterID  string
 	UserID         string
 	ModeratorID    string
+	Duration       int
 	IsModerator    bool
 	AddModAfterBan bool
 }

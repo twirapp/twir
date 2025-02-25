@@ -47,7 +47,7 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 		ctx,
 		&redis.SlidingWindowOptions{
 			Key:             fmt.Sprintf("bots:rate_limit:send_message:%s", opts.BroadcasterID),
-			MaximumCapacity: 20,
+			MaximumCapacity: 100,
 			Window:          30,
 		},
 	)
@@ -145,6 +145,15 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 			msgErr = err
 
 			for _, m := range resp.Data.Messages {
+				if m.DropReasons.Data.Message != "" {
+					c.logger.Warn(
+						"Message drop",
+						slog.String("drop_reason", m.DropReasons.Data.Message),
+						slog.String("code", m.DropReasons.Data.Code),
+					)
+					continue
+				}
+
 				err := c.sentMessagesRepository.Create(
 					ctx, sentmessages.CreateInput{
 						MessageTwitchID: m.MessageID,
