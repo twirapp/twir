@@ -42,7 +42,6 @@ import (
 	sentmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/sentmessages/pgx"
 	toxicmessagesrepository "github.com/twirapp/twir/libs/repositories/toxic_messages"
 	toxicmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/toxic_messages/pgx"
-	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
@@ -111,7 +110,6 @@ var App = fx.Module(
 		tts.New,
 	),
 	fx.Invoke(
-		uptrace.NewFx("bots"),
 		func(config cfg.Config) {
 			if config.AppEnv != "development" {
 				http.Handle("/metrics", promhttp.Handler())

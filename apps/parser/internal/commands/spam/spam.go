@@ -27,7 +27,7 @@ var Command = &types.DefaultCommand{
 		command_arguments.Int{
 			Name: spamCountArgName,
 			Min:  lo.ToPtr(1),
-			Max:  lo.ToPtr(10),
+			Max:  lo.ToPtr(20),
 		},
 		command_arguments.VariadicString{
 			Name: spamMessageArgName,

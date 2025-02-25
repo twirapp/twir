@@ -8,12 +8,12 @@ const (
 )
 
 type SendMessageRequest struct {
-	ChannelId         string
 	ChannelName       *string
+	ChannelId         string
 	Message           string
+	ReplyTo           string
 	IsAnnounce        bool
 	SkipRateLimits    bool
-	ReplyTo           string
 	SkipToxicityCheck bool
 }
 
@@ -26,9 +26,9 @@ type DeleteMessageRequest struct {
 type BanRequest struct {
 	ChannelID string
 	UserID    string
+	Reason    string
 	// BanTime set 0 to time permanent
 	BanTime        int
-	Reason         string
 	IsModerator    bool
 	AddModAfterBan bool
 }

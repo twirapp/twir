@@ -23,6 +23,7 @@ type SendMessageOpts struct {
 	ReplyParentMessageID string
 	IsAnnounce           bool
 	SkipToxicityCheck    bool
+	SkipRateLimits       bool
 }
 
 const shoutOutPrefix = "/shoutout"
@@ -143,6 +144,18 @@ func (c *TwitchActions) SendMessage(ctx context.Context, opts SendMessageOpts) e
 				},
 			)
 			msgErr = err
+
+			c.logger.Info(
+				"Message sent",
+				slog.String("channel_id", opts.BroadcasterID),
+				slog.String("sender_id", opts.SenderID),
+				slog.Group(
+					"rate_limit",
+					slog.Int("limit", resp.GetRateLimit()),
+					slog.Int("remaining", resp.GetRateLimitRemaining()),
+					slog.Int("reset", resp.GetRateLimitReset()),
+				),
+			)
 
 			for _, m := range resp.Data.Messages {
 				if m.DropReasons.Data.Message != "" {

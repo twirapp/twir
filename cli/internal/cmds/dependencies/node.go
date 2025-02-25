@@ -25,7 +25,7 @@ func installNodeDeps() error {
 
 	err = shell.ExecCommand(
 		shell.ExecCommandOpts{
-			Command: "bun install --frozen-lockfile",
+			Command: "bun install",
 			Pwd:     wd,
 			Stderr:  os.Stderr,
 			Stdout:  os.Stdout,
@@ -45,54 +45,6 @@ type packageJson struct {
 		Pnpm string `json:"pnpm"`
 		Bun  string `json:"bun"`
 	} `json:"engines"`
-}
-
-func checkPnpmVersion() error {
-	data, err := exec.Command("pnpm", "--version").Output()
-	if err != nil {
-		return err
-	}
-
-	installedVersion := string(data)
-	installedVersion = strings.Replace(installedVersion, "\n", "", -1)
-	installedVersion = strings.Replace(installedVersion, "\r", "", -1)
-
-	parsedInstalledVersion, err := semver.NewVersion(installedVersion)
-	if err != nil {
-		return fmt.Errorf("failed to parse installed pnpm version: %w", err)
-	}
-
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	rootPackageJsonPath := filepath.Join(wd, "package.json")
-	packageJsonBytes, err := os.ReadFile(rootPackageJsonPath)
-	if err != nil {
-		return fmt.Errorf("failed to read package.json: %w", err)
-	}
-
-	var packageJsonData packageJson
-	err = json.Unmarshal(packageJsonBytes, &packageJsonData)
-	if err != nil {
-		return fmt.Errorf("failed to parse package.json: %w", err)
-	}
-
-	contraint, err := semver.NewConstraint(packageJsonData.Engines.Pnpm)
-	if err != nil {
-		return fmt.Errorf("failed to parse pnpm constraint: %w", err)
-	}
-
-	if !contraint.Check(parsedInstalledVersion) {
-		return fmt.Errorf(
-			"installed pnpm version %s does not satisfy constraint %s",
-			installedVersion,
-			contraint,
-		)
-	}
-
-	return nil
 }
 
 func checkBunVersion() error {

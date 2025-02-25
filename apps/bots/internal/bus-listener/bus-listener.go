@@ -25,16 +25,17 @@ type Opts struct {
 	fx.In
 	LC fx.Lifecycle
 
-	Gorm   *gorm.DB
 	Logger logger.Logger
-	Cfg    cfg.Config
 
 	TokensGrpc         tokens.TokensClient
-	TwitchActions      *twitchactions.TwitchActions
-	MessageHandler     *messagehandler.MessageHandler
 	Tracer             trace.Tracer
-	Bus                *bus_core.Bus
 	ModTaskDistributor mod_task_queue.TaskDistributor
+
+	Gorm           *gorm.DB
+	TwitchActions  *twitchactions.TwitchActions
+	MessageHandler *messagehandler.MessageHandler
+	Bus            *bus_core.Bus
+	Cfg            cfg.Config
 }
 
 func New(opts Opts) (*BusListener, error) {
@@ -77,15 +78,15 @@ func New(opts Opts) (*BusListener, error) {
 }
 
 type BusListener struct {
-	gorm               *gorm.DB
 	logger             logger.Logger
-	config             cfg.Config
 	tokensGrpc         tokens.TokensClient
+	tracer             trace.Tracer
+	modTaskDistributor mod_task_queue.TaskDistributor
+	gorm               *gorm.DB
 	twitchActions      *twitchactions.TwitchActions
 	messageHandler     *messagehandler.MessageHandler
-	tracer             trace.Tracer
 	bus                *bus_core.Bus
-	modTaskDistributor mod_task_queue.TaskDistributor
+	config             cfg.Config
 }
 
 func (c *BusListener) deleteMessage(ctx context.Context, req bots.DeleteMessageRequest) struct{} {
@@ -152,6 +153,7 @@ func (c *BusListener) sendMessage(ctx context.Context, req bots.SendMessageReque
 			ReplyParentMessageID: req.ReplyTo,
 			IsAnnounce:           req.IsAnnounce,
 			SkipToxicityCheck:    req.SkipToxicityCheck,
+			SkipRateLimits:       req.SkipRateLimits,
 		},
 	)
 	if err != nil {

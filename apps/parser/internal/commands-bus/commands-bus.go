@@ -118,16 +118,21 @@ func (c *CommandsBus) Subscribe() error {
 			}
 
 			for _, r := range res.Responses {
-				c.bus.Bots.SendMessage.Publish(
-					bots.SendMessageRequest{
-						ChannelId:         data.BroadcasterUserId,
-						ChannelName:       &data.BroadcasterUserLogin,
-						Message:           r,
-						SkipRateLimits:    false,
-						ReplyTo:           replyTo,
-						SkipToxicityCheck: res.SkipToxicityCheck,
-					},
-				)
+				params := bots.SendMessageRequest{
+					ChannelName:       &data.BroadcasterUserLogin,
+					ChannelId:         data.BroadcasterUserId,
+					Message:           r,
+					ReplyTo:           replyTo,
+					IsAnnounce:        res.IsReply,
+					SkipRateLimits:    false,
+					SkipToxicityCheck: res.SkipToxicityCheck,
+				}
+
+				if res.KeepOrder {
+					c.bus.Bots.SendMessage.Publish(params)
+				} else {
+					go c.bus.Bots.SendMessage.Publish(params)
+				}
 			}
 
 			return struct{}{}
