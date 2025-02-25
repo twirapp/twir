@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "bun --bun run nuxt build",
-    "dev": "bun --bun --env-file=../.env nuxt dev",
+    "build": "bunx --bun nuxt build",
+    "dev": "bunx --bun --env-file=../.env nuxt dev",
     "start": "bun --bun run .output/server/index.mjs",
-    "generate": "bun --bun nuxt generate",
-    "preview": "bun --bun nuxt preview",
-    "postinstall": "bun --bun nuxt prepare",
-    "graphql-codegen": "bun --bun graphql-codegen"
+    "generate": "bunx --bun nuxt generate",
+    "preview": "bunx --bun nuxt preview",
+    "postinstall": "bunx --bun nuxt prepare",
+    "graphql-codegen": "bunx --bun graphql-codegen"
   },
   "dependencies": {
     "@nuxt-alt/proxy": "2.5.8",

@@ -16,12 +16,14 @@ const runBuild = debounce(async () => await $`bun run graphql-codegen`, 1000)
 
 export default defineNuxtModule((options, nuxt) => {
 	nuxt.hook('build:before', async () => {
-		await runBuild()
+		await $`bun run graphql-codegen`
 	})
 
-	nuxt.hook('builder:watch', async (event, path) => {
-		if (!globs.some((glob) => glob.match(path))) return
+	if (nuxt.options.dev) {
+		nuxt.hook('builder:watch', async (event, path) => {
+			if (!globs.some((glob) => glob.match(path))) return
 
-		await runBuild()
-	})
+			runBuild()
+		})
+	}
 })
