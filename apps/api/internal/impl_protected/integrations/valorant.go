@@ -17,12 +17,12 @@ import (
 
 type ValorantTokenResponse struct {
 	Scope        string `json:"scope"`
-	ExpiresIn    int    `json:"expires_in"`
 	TokenType    string `json:"token_type"`
 	RefreshToken string `json:"refresh_token"`
 	IdToken      string `json:"id_token"`
 	SubSid       string `json:"sub_sid"`
 	AccessToken  string `json:"access_token"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 type ValorantAccountResp struct {
@@ -38,14 +38,14 @@ type ValorantShardResponse struct {
 }
 
 type ValorantHenrikResponse struct {
-	Status int `json:"status"`
-	Data   struct {
+	Data struct {
 		Puuid        string `json:"puuid"`
 		Region       string `json:"region"`
-		AccountLevel int    `json:"account_level"`
 		Name         string `json:"name"`
 		Tag          string `json:"tag"`
+		AccountLevel int    `json:"account_level"`
 	} `json:"data"`
+	Status int `json:"status"`
 }
 
 const api_base = "https://europe.api.riotgames.com"

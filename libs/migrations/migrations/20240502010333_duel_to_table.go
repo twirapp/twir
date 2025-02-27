@@ -14,22 +14,22 @@ func init() {
 
 type DuelToColumns struct {
 	ID        string
-	Settings  []byte
 	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
+	Settings  []byte
 }
 
 type DuelToColumnsSettings struct {
-	Enabled         bool   `json:"enabled"`
+	StartMessage    string `json:"start_message"`
+	ResultMessage   string `json:"result_message"`
+	BothDieMessage  string `json:"both_die_message"`
 	UserCooldown    int32  `json:"user_cooldown"`
 	GlobalCooldown  int32  `json:"global_cooldown"`
 	TimeoutSeconds  int32  `json:"timeout_seconds"`
-	StartMessage    string `json:"start_message"`
-	ResultMessage   string `json:"result_message"`
 	SecondsToAccept int32  `json:"seconds_to_accept"`
 	PointsPerWin    int32  `json:"points_per_win"`
 	PointsPerLose   int32  `json:"points_per_lose"`
 	BothDiePercent  int32  `json:"both_die_percent"`
-	BothDieMessage  string `json:"both_die_message"`
+	Enabled         bool   `json:"enabled"`
 }
 
 func upDuelToTable(ctx context.Context, tx *sql.Tx) error {

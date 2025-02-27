@@ -44,20 +44,28 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 		},
 	)
 
-	var lfm *lastFm
+	var lastfmService *lastFm
 	if ok {
-		lfm = newLastfm(lastFmIntegration)
+		lastfmService = newLastfm(lastFmIntegration)
 	}
 
-	spotifyIntegration, ok := lo.Find(
-		integrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "SPOTIFY"
-		},
-	)
-	var spoti *spotify.Spotify
-	if ok {
-		spoti = spotify.New(spotifyIntegration, c.services.Gorm)
+	var spotifyService *spotify.Spotify
+	spotifyEntity, err := c.services.SpotifyRepo.GetByChannelID(ctx, c.parseCtxChannel.ID)
+	if err != nil {
+		c.services.Logger.Error("failed to get spotify entity", zap.Error(err))
+		return nil
+	}
+	if spotifyEntity.AccessToken != "" {
+		spotifyIntegration := model.Integrations{}
+		if err := c.services.Gorm.
+			Where("service = ?", "SPOTIFY").
+			First(&spotifyIntegration).
+			Error; err != nil {
+			c.services.Logger.Error("failed to get spotify integration", zap.Error(err))
+			return nil
+		}
+
+		spotifyService = spotify.New(spotifyIntegration, spotifyEntity, c.services.SpotifyRepo)
 	}
 
 	vkIntegration, ok := lo.Find(
@@ -85,6 +93,7 @@ func (c *cacher) GetCurrentSong(ctx context.Context) *types.CurrentSong {
 
 	integrationsForFetch = append(
 		integrationsForFetch,
+		model.IntegrationServiceSpotify,
 		"YOUTUBE_SR",
 		"MUSIC_RECOGNIZER",
 	)
@@ -93,10 +102,10 @@ checkServices:
 	for _, integration := range integrationsForFetch {
 		switch integration {
 		case model.IntegrationServiceSpotify:
-			if spoti == nil {
+			if spotifyService == nil {
 				continue
 			}
-			track, err := spoti.GetTrack()
+			track, err := spotifyService.GetTrack(ctx)
 			if err != nil {
 				c.services.Logger.Error("failed to get track", zap.Error(err))
 			}
@@ -105,14 +114,29 @@ checkServices:
 					Name:  track.Artist + " — " + track.Title,
 					Image: track.Image,
 				}
+
+				if track.Playlist != nil {
+					c.cache.currentSong.Playlist = &types.CurrentSongPlayList{
+						Href: track.Playlist.ExternalUrl,
+					}
+
+					if track.Playlist.Meta != nil {
+						c.cache.currentSong.Playlist.Name = &track.Playlist.Meta.Name
+						c.cache.currentSong.Playlist.Followers = &track.Playlist.Meta.Followers
+						if len(track.Playlist.Meta.Images) > 0 {
+							c.cache.currentSong.Playlist.Image = &track.Playlist.Meta.Images[0]
+						}
+					}
+				}
+
 				break checkServices
 			}
 		case model.IntegrationServiceLastfm:
-			if lfm == nil {
+			if lastfmService == nil {
 				continue
 			}
 
-			track := lfm.GetTrack()
+			track := lastfmService.GetTrack()
 
 			if track != nil {
 				c.cache.currentSong = &types.CurrentSong{

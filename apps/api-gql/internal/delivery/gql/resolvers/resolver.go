@@ -40,6 +40,7 @@ import (
 	generic_cacher "github.com/twirapp/twir/libs/cache/generic-cacher"
 	twitchcahe "github.com/twirapp/twir/libs/cache/twitch"
 	"github.com/twirapp/twir/libs/grpc/tokens"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -54,6 +55,8 @@ type Deps struct {
 	TokensGrpc tokens.TokensClient
 	Logger     logger.Logger
 	WsRouter   wsrouter.WsRouter
+
+	SpotifyRepository channelsintegrationsspotify.Repository
 
 	Sessions             *auth.Auth
 	Gorm                 *gorm.DB

@@ -130,43 +130,43 @@ type KappagenOverlaySettingsAnimationSettingsPrefs20231118120418old struct {
 	Center  *bool    `json:"center"`
 	Speed   *int32   `json:"speed"`
 	Faces   *bool    `json:"faces"`
-	Message []string `json:"message"`
 	Time    *int32   `json:"time"`
+	Message []string `json:"message"`
 }
 
 type KappagenOverlaySettingsAnimationSettings20231118120418 struct {
-	Style   string                                                          `json:"style"`
 	Prefs   *KappagenOverlaySettingsAnimationSettingsPrefs20231118120418old `json:"prefs"`
 	Count   *int32                                                          `json:"count"`
+	Style   string                                                          `json:"style"`
 	Enabled bool                                                            `json:"enabled"`
 }
 
 type KappagenOverlaySettings20231118120418old struct {
-	Emotes        KappagenOverlaySettingsEmotes20231118120418              `json:"emotes,omitempty"`
+	Animations    []KappagenOverlaySettingsAnimationSettings20231118120418 `json:"animations,omitempty"`
+	EnabledEvents []int32                                                  `json:"events,omitempty"`
 	Size          KappagenOverlaySettingsSize20231118120418                `json:"size,omitempty"`
+	Emotes        KappagenOverlaySettingsEmotes20231118120418              `json:"emotes,omitempty"`
 	Cube          KappagenOverlaySettingsCube20231118120418                `json:"cube,omitempty"`
 	Animation     KappagenOverlaySettingsAnimation20231118120418           `json:"animation,omitempty"`
-	Animations    []KappagenOverlaySettingsAnimationSettings20231118120418 `json:"animations,omitempty"`
 	EnableRave    bool                                                     `json:"enableRave,omitempty"`
-	EnabledEvents []int32                                                  `json:"events,omitempty"`
 	EnableSpawn   bool                                                     `json:"enableSpawn,omitempty"`
 }
 
 //
 
 type KappagenOverlaySettingsEnabledEvents20231118120418new struct {
-	Event          int32    `json:"event"`
 	DisabledStyles []string `json:"disabledStyles,omitempty"`
+	Event          int32    `json:"event"`
 	Enabled        bool     `json:"enabled"`
 }
 
 type KappagenOverlaySettings20231118120418new struct {
-	Emotes        KappagenOverlaySettingsEmotes20231118120418              `json:"emotes,omitempty"`
+	Animations    []KappagenOverlaySettingsAnimationSettings20231118120418 `json:"animations,omitempty"`
+	EnabledEvents []KappagenOverlaySettingsEnabledEvents20231118120418new  `json:"events,omitempty"`
 	Size          KappagenOverlaySettingsSize20231118120418                `json:"size,omitempty"`
+	Emotes        KappagenOverlaySettingsEmotes20231118120418              `json:"emotes,omitempty"`
 	Cube          KappagenOverlaySettingsCube20231118120418                `json:"cube,omitempty"`
 	Animation     KappagenOverlaySettingsAnimation20231118120418           `json:"animation,omitempty"`
-	Animations    []KappagenOverlaySettingsAnimationSettings20231118120418 `json:"animations,omitempty"`
 	EnableRave    bool                                                     `json:"enableRave,omitempty"`
-	EnabledEvents []KappagenOverlaySettingsEnabledEvents20231118120418new  `json:"events,omitempty"`
 	EnableSpawn   bool                                                     `json:"enableSpawn,omitempty"`
 }

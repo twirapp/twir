@@ -15,13 +15,13 @@ func init() {
 
 type EightBallToColumns struct {
 	ID        string
-	Settings  []byte
 	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
+	Settings  []byte
 }
 
 type EightBallToColumnsSettings struct {
-	Enabled bool     `json:"enabled"`
 	Answers []string `json:"answers"`
+	Enabled bool     `json:"enabled"`
 }
 
 func upEightBallToTable(ctx context.Context, tx *sql.Tx) error {

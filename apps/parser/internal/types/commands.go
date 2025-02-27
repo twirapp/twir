@@ -8,8 +8,8 @@ import (
 )
 
 type CommandHandlerError struct {
-	Message string
 	Err     error
+	Message string
 }
 
 func (c *CommandHandlerError) Error() string {

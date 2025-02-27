@@ -14,21 +14,21 @@ func init() {
 
 type RussianRouletteToTable struct {
 	ID        string
-	Settings  []byte
 	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
+	Settings  []byte
 }
 
 type RussianRouletteToTableSettings struct {
+	InitMessage     string `json:"initMessage"`
+	SurviveMessage  string `json:"surviveMessage"`
+	DeathMessage    string `json:"deathMessage"`
+	TimeoutSeconds  int    `json:"timeoutTime"`
+	DecisionSeconds int    `json:"decisionTime"`
+	TumberSize      int    `json:"tumberSize"`
+	ChargedBullets  int    `json:"chargedBullets"`
+
 	Enabled               bool `json:"enabled"`
 	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
-	TimeoutSeconds        int  `json:"timeoutTime"`
-	DecisionSeconds       int  `json:"decisionTime"`
-	TumberSize            int  `json:"tumberSize"`
-	ChargedBullets        int  `json:"chargedBullets"`
-
-	InitMessage    string `json:"initMessage"`
-	SurviveMessage string `json:"surviveMessage"`
-	DeathMessage   string `json:"deathMessage"`
 }
 
 func upRussianRouletteToTable(ctx context.Context, tx *sql.Tx) error {

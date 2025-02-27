@@ -1,21 +1,21 @@
 package types
 
 type FaceitMatch struct {
-	Team         string  `json:"i5"`
-	TeamScore    string  `json:"i18"`
-	Map          string  `json:"i1"`
-	Kd           string  `json:"c2"`
-	HsPercentage string  `json:"c4"`
-	HsNumber     string  `json:"i13"`
-	Kills        string  `json:"i6"`
-	Deaths       string  `json:"i8"`
-	CreatedAt    int64   `json:"created_at"`
-	UpdateAt     int64   `json:"updated_at"`
 	Elo          *string `json:"elo"`
 	EloDiff      *string
-	IsWin        bool
+	Team         string `json:"i5"`
+	TeamScore    string `json:"i18"`
+	Map          string `json:"i1"`
+	Kd           string `json:"c2"`
+	HsPercentage string `json:"c4"`
+	HsNumber     string `json:"i13"`
+	Kills        string `json:"i6"`
+	Deaths       string `json:"i8"`
 
-	RawIsWin string `json:"i10"`
+	RawIsWin  string `json:"i10"`
+	CreatedAt int64  `json:"created_at"`
+	UpdateAt  int64  `json:"updated_at"`
+	IsWin     bool
 }
 
 type FaceitEstimateGainLose struct {
@@ -37,11 +37,11 @@ type FaceitGame struct {
 }
 
 type FaceitUser struct {
-	FaceitGame
 	PlayerId string
+	FaceitGame
 }
 
 type FaceitUserResponse struct {
-	PlayerId string                 `json:"player_id"`
 	Games    map[string]*FaceitGame `json:"games"`
+	PlayerId string                 `json:"player_id"`
 }

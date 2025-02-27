@@ -694,10 +694,11 @@ func (r *subscriptionResolver) nowPlayingCurrentTrackSubscription(
 
 	npService, err := now_playing_fetcher.New(
 		now_playing_fetcher.Opts{
-			Gorm:      r.deps.Gorm,
-			ChannelID: user.ID,
-			Redis:     r.deps.Redis,
-			Logger:    r.deps.Logger,
+			Gorm:              r.deps.Gorm,
+			ChannelID:         user.ID,
+			Redis:             r.deps.Redis,
+			Logger:            r.deps.Logger,
+			SpotifyRepository: r.deps.SpotifyRepository,
 		},
 	)
 	if err != nil {

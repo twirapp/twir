@@ -28,21 +28,16 @@ type ParseContextEmotePosition struct {
 type ParseContextEmote struct {
 	Name      string
 	ID        string
-	Count     int64
 	Positions []*ParseContextEmotePosition
+	Count     int64
 }
 
 type ParseContext struct {
-	MessageId string
-	Channel   *ParseContextChannel
-	Sender    *ParseContextSender
-	Emotes    []*ParseContextEmote
-	Mentions  []twitch.ChatMessageMessageFragmentMention
+	Cacher  DataCacher
+	Channel *ParseContextChannel
+	Sender  *ParseContextSender
 
-	Text          *string
-	RawText       string
-	IsCommand     bool
-	IsInCustomVar bool
+	Text *string
 
 	Command *model.ChannelsCommands
 
@@ -50,5 +45,11 @@ type ParseContext struct {
 
 	ArgsParser *command_arguments.Parser
 
-	Cacher DataCacher
+	MessageId string
+	RawText   string
+	Emotes    []*ParseContextEmote
+	Mentions  []twitch.ChatMessageMessageFragmentMention
+
+	IsCommand     bool
+	IsInCustomVar bool
 }

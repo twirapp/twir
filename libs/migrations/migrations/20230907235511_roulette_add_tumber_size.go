@@ -13,28 +13,28 @@ func init() {
 }
 
 type rouletteAddTumberSize20230907235511Old struct {
+	InitMessage     string `json:"initMessage"`
+	SurviveMessage  string `json:"surviveMessage"`
+	DeathMessage    string `json:"deathMessage"`
+	TimeoutSeconds  int    `json:"timeoutTime"`
+	DecisionSeconds int    `json:"decisionTime"`
+	ChargedBullets  int    `json:"chargedBullets"`
+
 	Enabled               bool `json:"enabled"`
 	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
-	TimeoutSeconds        int  `json:"timeoutTime"`
-	DecisionSeconds       int  `json:"decisionTime"`
-	ChargedBullets        int  `json:"chargedBullets"`
-
-	InitMessage    string `json:"initMessage"`
-	SurviveMessage string `json:"surviveMessage"`
-	DeathMessage   string `json:"deathMessage"`
 }
 
 type rouletteAddTumberSize20230907235511New struct {
+	InitMessage     string `json:"initMessage"`
+	SurviveMessage  string `json:"surviveMessage"`
+	DeathMessage    string `json:"deathMessage"`
+	TimeoutSeconds  int    `json:"timeoutTime"`
+	DecisionSeconds int    `json:"decisionTime"`
+	TumberSize      int    `json:"tumberSize"`
+	ChargedBullets  int    `json:"chargedBullets"`
+
 	Enabled               bool `json:"enabled"`
 	CanBeUsedByModerators bool `json:"canBeUsedByModerator"`
-	TimeoutSeconds        int  `json:"timeoutTime"`
-	DecisionSeconds       int  `json:"decisionTime"`
-	TumberSize            int  `json:"tumberSize"`
-	ChargedBullets        int  `json:"chargedBullets"`
-
-	InitMessage    string `json:"initMessage"`
-	SurviveMessage string `json:"surviveMessage"`
-	DeathMessage   string `json:"deathMessage"`
 }
 
 func upRouletteAddTumberSize(ctx context.Context, tx *sql.Tx) error {

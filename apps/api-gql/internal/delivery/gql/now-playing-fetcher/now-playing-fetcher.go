@@ -15,28 +15,35 @@ import (
 	"github.com/twirapp/twir/libs/integrations/lastfm"
 	"github.com/twirapp/twir/libs/integrations/spotify"
 	"github.com/twirapp/twir/libs/integrations/vk"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"gorm.io/gorm"
 )
 
 type Opts struct {
-	Gorm      *gorm.DB
-	ChannelID string
-	Redis     *redis.Client
-	Logger    logger.Logger
+	Logger            logger.Logger
+	SpotifyRepository channelsintegrationsspotify.Repository
+	Gorm              *gorm.DB
+	Redis             *redis.Client
+	ChannelID         string
 }
 
 type NowPlayingFetcher struct {
-	channelId string
-	gorm      *gorm.DB
-	redis     *redis.Client
-	logger    logger.Logger
+	spotifyRepository channelsintegrationsspotify.Repository
+	logger            logger.Logger
+
+	gorm  *gorm.DB
+	redis *redis.Client
 
 	lastfmService  *lastfm.Lastfm
 	spotifyService *spotify.Spotify
 	vkService      *vk.VK
+	channelId      string
 }
 
 func New(opts Opts) (*NowPlayingFetcher, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
 	var channelIntegrations []*model.ChannelsIntegrations
 	if err := opts.Gorm.
 		Where(`"channelId" = ?`, opts.ChannelID).
@@ -50,12 +57,6 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		channelIntegrations,
 		func(integration *model.ChannelsIntegrations) bool {
 			return integration.Integration.Service == "LASTFM" && integration.Enabled
-		},
-	)
-	spotifyEntity, _ := lo.Find(
-		channelIntegrations,
-		func(integration *model.ChannelsIntegrations) bool {
-			return integration.Integration.Service == "SPOTIFY" && integration.Enabled
 		},
 	)
 	vkEntity, _ := lo.Find(
@@ -81,8 +82,20 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 		}
 	}
 
-	if spotifyEntity != nil {
-		spotifyService = spotify.New(spotifyEntity, opts.Gorm)
+	spotifyEntity, err := opts.SpotifyRepository.GetByChannelID(ctx, opts.ChannelID)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get spotify integration: %w", err)
+	}
+	if spotifyEntity.AccessToken != "" && spotifyEntity.RefreshToken != "" {
+		spotifyIntegration := model.Integrations{}
+		if err := opts.Gorm.
+			Where("service = ?", "SPOTIFY").
+			First(&spotifyIntegration).
+			Error; err != nil {
+			return nil, fmt.Errorf("failed to get spotify integration: %w", err)
+		}
+
+		spotifyService = spotify.New(spotifyIntegration, spotifyEntity, opts.SpotifyRepository)
 	}
 
 	if vkEntity != nil {
@@ -98,13 +111,14 @@ func New(opts Opts) (*NowPlayingFetcher, error) {
 	}
 
 	return &NowPlayingFetcher{
-		channelId:      opts.ChannelID,
-		gorm:           opts.Gorm,
-		redis:          opts.Redis,
-		lastfmService:  lfmService,
-		spotifyService: spotifyService,
-		vkService:      vkService,
-		logger:         opts.Logger,
+		spotifyRepository: opts.SpotifyRepository,
+		channelId:         opts.ChannelID,
+		gorm:              opts.Gorm,
+		redis:             opts.Redis,
+		lastfmService:     lfmService,
+		spotifyService:    spotifyService,
+		vkService:         vkService,
+		logger:            opts.Logger,
 	}, nil
 }
 
@@ -137,7 +151,7 @@ func (c *NowPlayingFetcher) fetchWrapper(ctx context.Context) (*Track, error) {
 	}
 
 	if c.spotifyService != nil {
-		spotifyTrack, err := c.spotifyService.GetTrack()
+		spotifyTrack, err := c.spotifyService.GetTrack(ctx)
 		if err != nil {
 			c.logger.Error(
 				"cannot fetch spotify track",

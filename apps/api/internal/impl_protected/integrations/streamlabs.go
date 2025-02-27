@@ -22,9 +22,9 @@ type streamlabsTokensResponse struct {
 
 type streamlabsProfileResponse struct {
 	StreamLabs struct {
-		ID          int    `json:"id"`
 		DisplayName string `json:"display_name"`
 		ThumbNail   string `json:"thumbnail"`
+		ID          int    `json:"id"`
 	} `json:"streamlabs"`
 }
 

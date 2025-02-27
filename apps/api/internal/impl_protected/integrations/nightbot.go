@@ -26,8 +26,8 @@ type nightbotTokensResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
-	ExpiresIn    int    `json:"expires_in"`
 	Scope        string `json:"scope"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 type nightbotChannelResponse struct {
@@ -39,19 +39,18 @@ type nightbotChannelResponse struct {
 
 type nightbotCustomCommandsResponse struct {
 	Commands []struct {
+		Alias     *string `json:"alias,omitempty"`
 		Name      string  `json:"name"`
 		Message   string  `json:"message"`
+		UserLevel string  `json:"userLevel"`
 		CoolDown  int     `json:"coolDown"`
 		Count     int     `json:"count"`
-		UserLevel string  `json:"userLevel"`
-		Alias     *string `json:"alias,omitempty"`
 	} `json:"commands"`
 	TotalCount int `json:"_total"`
 }
 
 type nightbotTimersResponse struct {
-	TotalCount int `json:"_total"`
-	Timers     []struct {
+	Timers []struct {
 		ID       string `json:"_id"`
 		Name     string `json:"name"`
 		Message  string `json:"message"`
@@ -59,14 +58,15 @@ type nightbotTimersResponse struct {
 		Lines    int    `json:"lines"`
 		Enabled  bool   `json:"enabled"`
 	}
+	TotalCount int `json:"_total"`
 }
 
 type nightbotRefreshResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 	TokenType    string `json:"token_type"`
-	ExpiresIn    int    `json:"expires_in"`
 	Scope        string `json:"scope"`
+	ExpiresIn    int    `json:"expires_in"`
 }
 
 func (c *Integrations) refreshNightbotTokens(

@@ -14,18 +14,18 @@ import (
 )
 
 type vkProfile struct {
-	ID           int    `json:"id"`
 	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	PhotoMaxOrig string `json:"photo_max_orig"`
+	ID           int    `json:"id"`
 }
 
 type vkProfileResponse struct {
-	Response []vkProfile `json:"response"`
-	Error    *struct {
-		Code int    `json:"error_code"`
+	Error *struct {
 		Msg  string `json:"error_msg"`
+		Code int    `json:"error_code"`
 	}
+	Response []vkProfile `json:"response"`
 }
 
 type vkTokensResponse struct {

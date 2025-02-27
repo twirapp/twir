@@ -64,6 +64,7 @@ func New(opts *Opts) *Commands {
 	commands := lo.SliceToMap(
 		[]*types.DefaultCommand{
 			song.CurrentSong,
+			song.Playlist,
 			channel_game.SetCommand,
 			channel_game.History,
 			channel_title.SetCommand,

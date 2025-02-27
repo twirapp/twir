@@ -28,6 +28,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -52,19 +53,21 @@ type Protected struct {
 type Opts struct {
 	fx.In
 
-	Redis          *redis.Client
-	DB             *gorm.DB
-	Config         config.Config
-	SessionManager *scs.SessionManager
-
 	TokensGrpc        tokens.TokensClient
 	IntegrationsGrpc  integrationsGrpc.IntegrationsClient
 	ParserGrpc        parser.ParserClient
 	WebsocketsGrpc    websockets.WebsocketClient
 	DiscordGrpc       discord.DiscordClient
 	Logger            logger.Logger
+	SpotifyRepository channelsintegrationsspotify.Repository
+
+	Redis          *redis.Client
+	DB             *gorm.DB
+	SessionManager *scs.SessionManager
+
 	Bus               *buscore.Bus
 	TTSSettingsCacher *generic_cacher.GenericCacher[apimodules.TTSSettings]
+	Config            config.Config
 }
 
 func New(opts Opts) *Protected {
@@ -83,6 +86,7 @@ func New(opts Opts) *Protected {
 		Logger:            opts.Logger,
 		Bus:               opts.Bus,
 		TTSSettingsCacher: opts.TTSSettingsCacher,
+		SpotifyRepo:       opts.SpotifyRepository,
 	}
 
 	return &Protected{

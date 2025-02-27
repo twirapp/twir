@@ -9,8 +9,8 @@ type VariableHandlerResult struct {
 }
 
 type VariableData struct {
-	Key    string
 	Params *string
+	Key    string
 }
 
 type VariableHandler func(
@@ -20,13 +20,13 @@ type VariableHandler func(
 ) (*VariableHandlerResult, error)
 
 type Variable struct {
-	Name                     string
 	Handler                  VariableHandler
 	Description              *string
 	Example                  *string
+	Visible                  *bool
+	Name                     string
 	CommandsOnly             bool
 	DisableInCustomVariables bool
-	Visible                  *bool
 	CanBeUsedInRegistry      bool
 	NotCachable              bool
 }

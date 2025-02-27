@@ -35,6 +35,8 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
 	"google.golang.org/grpc"
 
+	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
@@ -166,6 +168,7 @@ func main() {
 	commandsPrefixRepo := channelscommandsprefixpgx.New(channelscommandsprefixpgx.Opts{PgxPool: pgxconn})
 	commandsPrefixRepoCache := channelscommandsprefixcache.New(commandsPrefixRepo, redisClient)
 	ttsSettingsCacher := ttscache.NewTTSSettings(db, redisClient)
+	spotifyRepo := channelsintegrationsspotifypgx.New(channelsintegrationsspotifypgx.Opts{PgxPool: pgxconn})
 
 	s := &services.Services{
 		Config: config,
@@ -189,6 +192,7 @@ func main() {
 		CommandsPrefixCache:      commandsPrefixRepoCache,
 		CommandsPrefixRepository: commandsPrefixRepo,
 		TTSCache:                 ttsSettingsCacher,
+		SpotifyRepo:              spotifyRepo,
 	}
 
 	variablesService := variables.New(

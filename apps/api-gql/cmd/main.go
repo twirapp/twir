@@ -59,6 +59,8 @@ import (
 	badgesusersrepositorypgx "github.com/twirapp/twir/libs/repositories/badges_users/pgx"
 	channelsrepository "github.com/twirapp/twir/libs/repositories/channels"
 	channelsrepositorypgx "github.com/twirapp/twir/libs/repositories/channels/pgx"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	chatmessagesrepository "github.com/twirapp/twir/libs/repositories/chat_messages"
 	chatmessagesrepositorypgx "github.com/twirapp/twir/libs/repositories/chat_messages/pgx"
 	commandsrepository "github.com/twirapp/twir/libs/repositories/commands"
@@ -172,6 +174,10 @@ func main() {
 			fx.Annotate(
 				channelscommandsprefixpgx.NewFx,
 				fx.As(new(channelscommandsprefixrepository.Repository)),
+			),
+			fx.Annotate(
+				channelsintegrationsspotifypgx.NewFx,
+				fx.As(new(channelsintegrationsspotify.Repository)),
 			),
 		),
 		// services

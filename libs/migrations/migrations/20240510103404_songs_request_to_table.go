@@ -37,11 +37,11 @@ type YouTubeUserSettings struct {
 }
 
 type YouTubeSongSettings struct {
+	AcceptedCategories YoutubeNullableSlice `validate:"dive,max=300"       json:"acceptedCategories,omitempty"`
+	WordsDenyList      YoutubeNullableSlice `validate:"dive,max=300"       json:"wordsDenyList,omitempty"`
 	MinLength          int                  `validate:"gte=0,lte=86399" json:"minLength"`
 	MaxLength          int                  `validate:"lte=86400"          json:"maxLength"`
 	MinViews           int                  `validate:"lte=10000000000000" json:"minViews"`
-	AcceptedCategories YoutubeNullableSlice `validate:"dive,max=300"       json:"acceptedCategories,omitempty"`
-	WordsDenyList      YoutubeNullableSlice `validate:"dive,max=300"       json:"wordsDenyList,omitempty"`
 }
 
 type YouTubeDenySettingsSongs struct {
@@ -101,24 +101,24 @@ type YouTubeTranslations struct {
 }
 
 type YouTubeSettings struct {
+	Translations                YouTubeTranslations `validate:"required" json:"translations"`
+	ChannelPointsRewardId       string              `validate:"max=100"  json:"channelPointsRewardId"`
+	DenyList                    YouTubeDenyList     `validate:"required" json:"denyList"`
+	Song                        YouTubeSongSettings `validate:"required" json:"song"`
+	User                        YouTubeUserSettings `validate:"required" json:"user"`
+	MaxRequests                 int                 `validate:"lte=500"  json:"maxRequests"`
+	NeededVotesVorSkip          float64             `validate:"max=100,min=1" json:"neededVotesVorSkip"`
 	Enabled                     bool                `validate:"required" json:"enabled"`
 	AcceptOnlyWhenOnline        bool                `validate:"required" json:"acceptOnlyWhenOnline"`
 	PlayerNoCookieMode          bool                `validate:"required" json:"playerNoCookieMode"`
 	TakeSongFromDonationMessage bool                `json:"takeSongFromDonationMessage"`
-	MaxRequests                 int                 `validate:"lte=500"  json:"maxRequests"`
-	ChannelPointsRewardId       string              `validate:"max=100"  json:"channelPointsRewardId"`
 	AnnouncePlay                bool                `validate:"required" json:"announcePlay"`
-	NeededVotesVorSkip          float64             `validate:"max=100,min=1" json:"neededVotesVorSkip"`
-	User                        YouTubeUserSettings `validate:"required" json:"user"`
-	Song                        YouTubeSongSettings `validate:"required" json:"song"`
-	DenyList                    YouTubeDenyList     `validate:"required" json:"denyList"`
-	Translations                YouTubeTranslations `validate:"required" json:"translations"`
 }
 
 type SongRequestsToColumns struct {
 	ID        string
-	Settings  []byte
 	ChannelId string `gorm:"column:channelId;type:text" json:"channelId"`
+	Settings  []byte
 }
 
 func upSongsRequestToTable(ctx context.Context, tx *sql.Tx) error {

@@ -1,55 +1,61 @@
 package spotify
 
 import (
+	"context"
 	"fmt"
-	"strings"
 
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	"github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/model"
 
-	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 type Spotify struct {
-	integration *model.ChannelsIntegrations
-	isRetry     bool
-	db          *gorm.DB
+	repo               channelsintegrationsspotify.Repository
+	integration        deprecatedgormmodel.Integrations
+	channelIntegration model.ChannelIntegrationSpotify
+	isRetry            bool
 }
 
-func New(integration *model.ChannelsIntegrations, db *gorm.DB) *Spotify {
-	if integration == nil || !integration.AccessToken.Valid || !integration.RefreshToken.Valid {
+func New(
+	integration deprecatedgormmodel.Integrations,
+	channelIntegration model.ChannelIntegrationSpotify,
+	repo channelsintegrationsspotify.Repository,
+) *Spotify {
+	if channelIntegration.AccessToken == "" || channelIntegration.RefreshToken == "" {
 		return nil
 	}
 
 	service := Spotify{
-		integration: integration,
-		db:          db,
-		isRetry:     false,
+		integration:        integration,
+		channelIntegration: channelIntegration,
+		isRetry:            false,
+		repo:               repo,
 	}
 
 	return &service
 }
 
-type SpotifyRefreshResponse struct {
+type spotifyRefreshResponse struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
 
-func (c *Spotify) refreshToken() error {
-	data := SpotifyRefreshResponse{}
+func (c *Spotify) refreshToken(ctx context.Context) error {
+	data := spotifyRefreshResponse{}
 
 	body := make(map[string]string, 2)
 	body["grant_type"] = "refresh_token"
-	body["refresh_token"] = c.integration.RefreshToken.String
+	body["refresh_token"] = c.channelIntegration.RefreshToken
 
 	resp, err := req.R().
+		SetContext(ctx).
 		SetFormData(body).
 		SetSuccessResult(&data).
 		SetBasicAuth(
-			c.integration.Integration.ClientID.String,
-			c.integration.Integration.ClientSecret.String,
+			c.integration.ClientID.String,
+			c.integration.ClientSecret.String,
 		).
 		Post("https://accounts.spotify.com/api/token")
 
@@ -60,142 +66,16 @@ func (c *Spotify) refreshToken() error {
 		return fmt.Errorf("cannot refresh spotify token: %s", resp.String())
 	}
 
-	c.integration.AccessToken = null.StringFrom(data.AccessToken)
-	if len(data.RefreshToken) > 0 {
-		c.integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	input := channelsintegrationsspotify.UpdateInput{
+		AccessToken: &data.AccessToken,
 	}
-	if err := c.db.Save(&c.integration).Error; err != nil {
+
+	if data.RefreshToken != "" {
+		input.RefreshToken = &data.RefreshToken
+	}
+	if err := c.repo.Update(ctx, c.channelIntegration.ID, input); err != nil {
 		return fmt.Errorf("cannot save spotify token: %w", err)
 	}
 
 	return nil
-}
-
-type SpotifyArtist struct {
-	Name string `json:"name"`
-}
-
-type SpotifyImage struct {
-	URL string `json:"url"`
-}
-
-type SpotifyAlbum struct {
-	Images []SpotifyImage `json:"images"`
-}
-
-type SpotifyTrack struct {
-	Artists []SpotifyArtist `json:"artists"`
-	Name    string          `json:"name"`
-	Album   SpotifyAlbum    `json:"album"`
-}
-
-type SpotifyResponse struct {
-	Track     *SpotifyTrack `json:"item"`
-	IsPlaying bool          `json:"is_playing"`
-}
-
-type GetTrackResponse struct {
-	Title     string `json:"title"`
-	Artist    string `json:"artist"`
-	Image     string `json:"image"`
-	IsPlaying bool   `json:"isPlaying"`
-}
-
-func (c *Spotify) GetTrack() (*GetTrackResponse, error) {
-	data := SpotifyResponse{}
-	resp, err := req.R().
-		SetBearerAuthToken(c.integration.AccessToken.String).
-		SetSuccessResult(&data).
-		Get("https://api.spotify.com/v1/me/player/currently-playing")
-
-	if resp.StatusCode == 401 && !c.isRetry {
-		c.isRetry = true
-		defer func() {
-			c.isRetry = false
-		}()
-		if err := c.refreshToken(); err != nil {
-			return nil, err
-		}
-
-		return c.GetTrack()
-	}
-	if err != nil {
-		return nil, err
-	}
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get spotify track: %s", resp.String())
-	}
-
-	if data.Track == nil {
-		return nil, nil
-	}
-
-	artistsMap := lo.Map(
-		data.Track.Artists, func(artist SpotifyArtist, _ int) string {
-			return artist.Name
-		},
-	)
-
-	var imageUrl string
-	if len(data.Track.Album.Images) > 0 {
-		imageUrl = data.Track.Album.Images[0].URL
-	}
-
-	return &GetTrackResponse{
-		Artist:    strings.Join(artistsMap, ", "),
-		Title:     data.Track.Name,
-		Image:     imageUrl,
-		IsPlaying: data.IsPlaying,
-	}, nil
-}
-
-type SpotifyProfile struct {
-	Country         string `json:"country"`
-	DisplayName     string `json:"display_name"`
-	Email           string `json:"email"`
-	ExplicitContent struct {
-		FilterEnabled bool `json:"filter_enabled"`
-		FilterLocked  bool `json:"filter_locked"`
-	} `json:"explicit_content"`
-	ExternalUrls struct {
-		Spotify string `json:"spotify"`
-	} `json:"external_urls"`
-	Followers struct {
-		Href  string `json:"href"`
-		Total int    `json:"total"`
-	} `json:"followers"`
-	Href   string `json:"href"`
-	ID     string `json:"id"`
-	Images []struct {
-		URL    string `json:"url"`
-		Height int    `json:"height"`
-		Width  int    `json:"width"`
-	} `json:"images"`
-	Product string `json:"product"`
-	Type    string `json:"type"`
-	URI     string `json:"uri"`
-}
-
-func (c *Spotify) GetProfile() (*SpotifyProfile, error) {
-	data := SpotifyProfile{}
-	resp, err := req.R().
-		SetBearerAuthToken(c.integration.AccessToken.String).
-		SetSuccessResult(&data).
-		Get("https://api.spotify.com/v1/me")
-
-	if resp.StatusCode == 401 && !c.isRetry {
-		c.isRetry = true
-		c.refreshToken()
-		return c.GetProfile()
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	if !resp.IsSuccessState() {
-		return nil, fmt.Errorf("cannot get profile: %s", resp.String())
-	}
-
-	return &data, nil
 }

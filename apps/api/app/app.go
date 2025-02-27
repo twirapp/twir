@@ -29,12 +29,20 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	channelsintegrationsspotifypgx "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/pgx"
 	"github.com/twirapp/twir/libs/uptrace"
 	"go.uber.org/fx"
 )
 
 var App = fx.Options(
 	baseapp.CreateBaseApp(baseapp.Opts{AppName: "api"}),
+	fx.Provide(
+		fx.Annotate(
+			channelsintegrationsspotifypgx.NewFx,
+			fx.As(new(channelsintegrationsspotify.Repository)),
+		),
+	),
 	fx.Provide(
 		func(c cfg.Config) tokens.TokensClient {
 			return clients.NewTokens(c.AppEnv)

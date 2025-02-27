@@ -13,6 +13,7 @@ import (
 	"github.com/twirapp/twir/libs/grpc/parser"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"github.com/twirapp/twir/libs/grpc/websockets"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
 	"gorm.io/gorm"
 )
 
@@ -25,12 +26,13 @@ type Grpc struct {
 }
 
 type Deps struct {
-	Config            cfg.Config
+	Logger            logger.Logger
+	SpotifyRepo       channelsintegrationsspotify.Repository
 	Redis             *redis.Client
 	Db                *gorm.DB
 	Grpc              *Grpc
 	SessionManager    *scs.SessionManager
-	Logger            logger.Logger
 	Bus               *buscore.Bus
 	TTSSettingsCacher *generic_cacher.GenericCacher[modules.TTSSettings]
+	Config            cfg.Config
 }

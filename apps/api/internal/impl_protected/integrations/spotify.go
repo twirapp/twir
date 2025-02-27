@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"net/url"
 
-	"github.com/guregu/null"
 	"github.com/imroc/req/v3"
-	model "github.com/satont/twir/libs/gomodels"
+	deprecatedgormmodel "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/libs/api/messages/integrations_spotify"
 	"github.com/twirapp/twir/libs/integrations/spotify"
+	channelsintegrationsspotify "github.com/twirapp/twir/libs/repositories/channels_integrations_spotify"
+	"github.com/twirapp/twir/libs/repositories/channels_integrations_spotify/model"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
@@ -25,7 +26,7 @@ func (c *Integrations) IntegrationsSpotifyGetAuthLink(
 	ctx context.Context,
 	_ *emptypb.Empty,
 ) (*integrations_spotify.GetAuthLink, error) {
-	integration, err := c.getIntegrationByService(ctx, model.IntegrationServiceSpotify)
+	integration, err := c.getIntegrationByService(ctx, deprecatedgormmodel.IntegrationServiceSpotify)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +40,7 @@ func (c *Integrations) IntegrationsSpotifyGetAuthLink(
 	q := link.Query()
 	q.Add("response_type", "code")
 	q.Add("client_id", integration.ClientID.String)
-	q.Add("scope", "user-read-currently-playing")
+	q.Add("scope", "user-read-currently-playing user-read-playback-state")
 	q.Add("redirect_uri", integration.RedirectURL.String)
 	link.RawQuery = q.Encode()
 
@@ -53,18 +54,14 @@ func (c *Integrations) IntegrationsSpotifyGetData(
 	_ *emptypb.Empty,
 ) (*integrations_spotify.GetDataResponse, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(
-		ctx,
-		model.IntegrationServiceSpotify,
-		dashboardId,
-	)
+	integration, err := c.SpotifyRepo.GetByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &integrations_spotify.GetDataResponse{
-		UserName: integration.Data.UserName,
-		Avatar:   integration.Data.Avatar,
+		UserName: &integration.Username,
+		Avatar:   &integration.AvatarURI,
 	}, nil
 }
 
@@ -73,10 +70,9 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 	request *integrations_spotify.PostCodeRequest,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(
+	integration, err := c.getIntegrationByService(
 		ctx,
-		model.IntegrationServiceSpotify,
-		dashboardId,
+		deprecatedgormmodel.IntegrationServiceSpotify,
 	)
 	if err != nil {
 		return nil, err
@@ -88,13 +84,13 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 		SetFormData(
 			map[string]string{
 				"grant_type":   "authorization_code",
-				"redirect_uri": integration.Integration.RedirectURL.String,
+				"redirect_uri": integration.RedirectURL.String,
 				"code":         request.Code,
 			},
 		).
 		SetBasicAuth(
-			integration.Integration.ClientID.String,
-			integration.Integration.ClientSecret.String,
+			integration.ClientID.String,
+			integration.ClientSecret.String,
 		).
 		SetSuccessResult(&data).
 		SetContentType("application/x-www-form-urlencoded").
@@ -106,22 +102,29 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 		return nil, fmt.Errorf("failed to get spotify tokens: %s", resp.String())
 	}
 
-	integration.AccessToken = null.StringFrom(data.AccessToken)
-	integration.RefreshToken = null.StringFrom(data.RefreshToken)
+	createInput := channelsintegrationsspotify.CreateInput{
+		ChannelID:    dashboardId,
+		AccessToken:  data.AccessToken,
+		RefreshToken: data.RefreshToken,
+		Scopes:       []string{"user-read-currently-playing", "user-read-playback-state"},
+	}
 
-	userSpotify := spotify.New(integration, c.Db)
-	profile, err := userSpotify.GetProfile()
+	userSpotify := spotify.New(
+		*integration,
+		model.ChannelIntegrationSpotify{
+			AccessToken:  data.AccessToken,
+			RefreshToken: data.RefreshToken,
+		}, c.SpotifyRepo,
+	)
+	profile, err := userSpotify.GetProfile(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	integration.Data.UserName = &profile.DisplayName
-	if len(profile.Images) > 0 {
-		integration.Data.Avatar = &profile.Images[0].URL
-	}
-	integration.Enabled = true
+	createInput.AvatarURI = profile.Images[0].URL
+	createInput.Username = profile.DisplayName
 
-	if err = c.Db.WithContext(ctx).Save(integration).Error; err != nil {
+	if _, err := c.SpotifyRepo.Create(ctx, createInput); err != nil {
 		return nil, err
 	}
 
@@ -130,23 +133,18 @@ func (c *Integrations) IntegrationsSpotifyPostCode(
 
 func (c *Integrations) IntegrationsSpotifyLogout(
 	ctx context.Context,
-	empty *emptypb.Empty,
+	_ *emptypb.Empty,
 ) (*emptypb.Empty, error) {
 	dashboardId := ctx.Value("dashboardId").(string)
-	integration, err := c.getChannelIntegrationByService(
-		ctx, model.IntegrationServiceSpotify, dashboardId,
-	)
+	integration, err := c.SpotifyRepo.GetByChannelID(ctx, dashboardId)
 	if err != nil {
 		return nil, err
 	}
+	if integration.AccessToken == "" {
+		return nil, errors.New("not found")
+	}
 
-	integration.Data = &model.ChannelsIntegrationsData{}
-	integration.APIKey = null.String{}
-	integration.AccessToken = null.String{}
-	integration.RefreshToken = null.String{}
-	integration.Enabled = false
-
-	if err = c.Db.WithContext(ctx).Save(&integration).Error; err != nil {
+	if err = c.SpotifyRepo.Delete(ctx, integration.ID); err != nil {
 		return nil, err
 	}
 

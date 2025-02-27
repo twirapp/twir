@@ -55,8 +55,8 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'ch
 
 	var existedSettings []struct {
 		id            string
-		settingsBytes []byte
 		channelId     string
+		settingsBytes []byte
 	}
 
 	for rows.Next() {
@@ -70,8 +70,8 @@ SELECT id, settings, "channelId" FROM channels_modules_settings WHERE type = 'ch
 		existedSettings = append(
 			existedSettings, struct {
 				id            string
-				settingsBytes []byte
 				channelId     string
+				settingsBytes []byte
 			}{
 				id:            id,
 				settingsBytes: settingsBytes,
@@ -161,19 +161,19 @@ func downAddChatOverlaysPresets(ctx context.Context, tx *sql.Tx) error {
 }
 
 type AddChatOverlaysPresets20240104042728 struct {
-	MessageHideTimeout  uint32 `json:"messageHideTimeout"`
-	MessageShowDelay    uint32 `json:"messageShowDelay"`
 	Preset              string `json:"preset"`
 	FontFamily          string `json:"fontFamily"`
+	FontStyle           string `json:"fontStyle"`
+	TextShadowColor     string `json:"textShadowColor"`
+	ChatBackgroundColor string `json:"chatBackgroundColor"`
+	Direction           string `json:"direction"`
+	MessageHideTimeout  uint32 `json:"messageHideTimeout"`
+	MessageShowDelay    uint32 `json:"messageShowDelay"`
 	FontSize            uint32 `json:"fontSize"`
 	FontWeight          uint32 `json:"fontWeight"`
-	FontStyle           string `json:"fontStyle"`
+	TextShadowSize      uint32 `json:"textShadowSize"`
 	HideCommands        bool   `json:"hideCommands"`
 	HideBots            bool   `json:"hideBots"`
 	ShowBadges          bool   `json:"showBadges"`
 	ShowAnnounceBadge   bool   `json:"showAnnounceBadge"`
-	TextShadowColor     string `json:"textShadowColor"`
-	TextShadowSize      uint32 `json:"textShadowSize"`
-	ChatBackgroundColor string `json:"chatBackgroundColor"`
-	Direction           string `json:"direction"`
 }
