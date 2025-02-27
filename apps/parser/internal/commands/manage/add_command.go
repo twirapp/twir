@@ -94,11 +94,16 @@ var AddCommand = &types.DefaultCommand{
 			Module:       "CUSTOM",
 			Responses: []*model.ChannelsCommandsResponses{
 				{
-					ID:        uuid.NewV4().String(),
-					Text:      null.StringFrom(text),
-					CommandID: commandID,
+					ID:                uuid.NewV4().String(),
+					Text:              null.StringFrom(text),
+					CommandID:         commandID,
+					Order:             0,
+					TwitchCategoryIDs: pq.StringArray{},
 				},
 			},
+			IsReply:            true,
+			KeepResponsesOrder: true,
+			OnlineOnly:         false,
 		}
 		err = parseCtx.Services.Gorm.WithContext(ctx).Create(&command).Error
 
