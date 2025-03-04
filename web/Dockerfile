@@ -5,6 +5,7 @@ FROM base AS installer
 COPY package.json bun.lock bunfig.toml .npmrc ./
 COPY libs/brand/package.json ./libs/brand/package.json
 COPY libs/config/package.json ./libs/config/package.json
+COPY libs/api/package.json ./libs/api/package.json
 COPY web/package.json ./web/package.json
 RUN bun install --no-save
 
@@ -13,6 +14,7 @@ COPY --from=installer /app/node_modules node_modules
 COPY package.json bun.lock bunfig.toml .npmrc ./
 COPY libs/brand ./libs/brand
 COPY libs/config ./libs/config
+COPY libs/api ./libs/api
 COPY web ./web
 COPY apps/api-gql/schema ./apps/api-gql/schema
 
