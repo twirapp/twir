@@ -1,82 +1,69 @@
 package auth
 
 import (
+	"context"
 	"database/sql"
 	"encoding/base64"
 	"fmt"
 	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/nicklaw5/helix/v2"
 	"github.com/satont/twir/libs/crypto"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/satont/twir/libs/twitch"
+	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	"github.com/twirapp/twir/libs/bus-core/eventsub"
 	"github.com/twirapp/twir/libs/bus-core/scheduler"
 )
 
 type authBody struct {
-	Code  string `json:"code"`
-	State string `json:"state"`
+	Code  string `json:"code" minLength:"20" required:"true"`
+	State string `json:"state" required:"true"`
 }
 
-type authResponse struct {
+type authResponseDto struct {
 	RedirectTo string `json:"redirect_to"`
 }
 
-func (a *Auth) handleAuthPostCode(c *gin.Context) {
-	ctx := c.Request.Context()
-
-	body := authBody{}
-	if err := c.BindJSON(&body); err != nil {
-		c.JSON(400, gin.H{"error": "wrong body"})
-		return
-	}
-
-	if body.Code == "" {
-		c.JSON(400, gin.H{"error": "no code provided"})
-		return
-	}
-
-	if body.State == "" {
-		c.JSON(400, gin.H{"error": "no state provided"})
-		return
-	}
-
-	redirectTo, err := base64.StdEncoding.DecodeString(body.State)
+func (a *Auth) handleAuthPostCode(
+	ctx context.Context,
+	input authBody,
+) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+	redirectTo, err := base64.StdEncoding.DecodeString(input.State)
 	if err != nil {
-		c.JSON(400, gin.H{"error": fmt.Sprintf("cannot decode state: %s", err)})
-		return
+		return nil, huma.Error400BadRequest("Cannot decode state", err)
 	}
 
 	twitchClient, err := twitch.NewAppClientWithContext(ctx, a.config, a.tokensGrpc)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot create twitch client: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot create twitch client", err)
 	}
 
-	tokens, err := twitchClient.RequestUserAccessToken(body.Code)
+	tokens, err := twitchClient.RequestUserAccessToken(input.Code)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot user data from twitch: %s", err)})
-		return
+		return nil, err
 	}
 
 	if tokens.ErrorMessage != "" {
-		c.JSON(500, gin.H{"error": tokens.ErrorMessage})
-		return
+		return nil, huma.Error500InternalServerError(
+			"Cannot get user access token",
+			fmt.Errorf("error message: %s", tokens.ErrorMessage),
+		)
 	}
 
 	twitchClient.SetUserAccessToken(tokens.Data.AccessToken)
 
 	users, err := twitchClient.GetUsers(&helix.UsersParams{})
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Errorf("cannot get user data from twitch: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot get user data from twitch", err)
 	}
 	if len(users.Data.Users) == 0 {
-		c.JSON(500, gin.H{"error": "twitch user not found"})
-		return
+		return nil, huma.Error500InternalServerError(
+			"Cannot get user data from twitch",
+			fmt.Errorf("twitch user not found"),
+		)
 	}
 
 	twitchUser := users.Data.Users[0]
@@ -84,32 +71,30 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 	dbUser := &model.Users{}
 	err = a.gorm.WithContext(ctx).Where("id = ?", twitchUser.ID).Preload("Token").Find(dbUser).Error
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot find user: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot find user", err)
 	}
 
 	defaultBot := &model.Bots{}
 	err = a.gorm.WithContext(ctx).Where("type = ?", "DEFAULT").Find(defaultBot).Error
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot find default bot: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot find default bot", err)
 	}
 
 	if defaultBot.ID == "" {
-		c.JSON(500, gin.H{"error": "no default bot found"})
-		return
+		return nil, huma.Error500InternalServerError(
+			"Cannot find default bot",
+			fmt.Errorf("no default bot found"),
+		)
 	}
 
 	accessToken, err := crypto.Encrypt(tokens.Data.AccessToken, a.config.TokensCipherKey)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot encrypt user access token: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot encrypt user access token", err)
 	}
 
 	refreshToken, err := crypto.Encrypt(tokens.Data.RefreshToken, a.config.TokensCipherKey)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot encrypt user refresh token: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot encrypt user refresh token", err)
 	}
 
 	if dbUser.ID == "" {
@@ -125,8 +110,7 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 		}
 
 		if err := a.gorm.Create(newUser).Error; err != nil {
-			c.JSON(500, gin.H{"error": fmt.Sprintf("cannot create user: %s", err)})
-			return
+			return nil, huma.Error500InternalServerError("Cannot create user", err)
 		}
 
 		dbUser = newUser
@@ -145,13 +129,11 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 	}
 
 	if err := a.gorm.WithContext(ctx).Save(tokenData).Error; err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot update user token: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot update user token", err)
 	}
 
 	if err := a.gorm.WithContext(ctx).Debug().Save(&tokenData).Error; err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot update db user: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot update user token", err)
 	}
 
 	dbUser.TokenID = sql.NullString{
@@ -167,24 +149,21 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 	}
 
 	if err := a.gorm.WithContext(ctx).Debug().Save(dbUser).Error; err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot update db user: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot update user", err)
 	}
 
 	err = a.bus.Scheduler.CreateDefaultRoles.Publish(
 		scheduler.CreateDefaultRolesRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot create default roles: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot create default roles", err)
 	}
 
 	err = a.bus.Scheduler.CreateDefaultCommands.Publish(
 		scheduler.CreateDefaultCommandsRequest{ChannelsIDs: []string{twitchUser.ID}},
 	)
 	if err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot create default commands: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot create default commands", err)
 	}
 
 	a.sessions.Put(ctx, "dbUser", &dbUser)
@@ -196,14 +175,8 @@ func (a *Auth) handleAuthPostCode(c *gin.Context) {
 			ChannelID: dbUser.ID,
 		},
 	); err != nil {
-		c.JSON(500, gin.H{"error": fmt.Sprintf("cannot subscribe to eventsub: %s", err)})
-		return
+		return nil, huma.Error500InternalServerError("Cannot subscribe to eventsub", err)
 	}
 
-	c.JSON(
-		200,
-		&authResponse{
-			RedirectTo: string(redirectTo),
-		},
-	)
+	return httpdelivery.CreateBaseOutputJson(authResponseDto{RedirectTo: string(redirectTo)}), nil
 }

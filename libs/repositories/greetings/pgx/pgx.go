@@ -179,6 +179,10 @@ WHERE id = $1
 
 	result, err := pgx.CollectExactlyOneRow(rows, pgx.RowToStructByName[model.Greeting])
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.GreetingNil, greetings.ErrNotFound
+		}
+
 		return model.GreetingNil, err
 	}
 
@@ -189,7 +193,7 @@ func (c *Pgx) Create(ctx context.Context, input greetings.CreateInput) (model.Gr
 	query := `
 INSERT INTO channels_greetings ("channelId", "userId", enabled, text, "isReply", processed, with_shoutout)
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id, "channelId", "userId", enabled, text, "isReply", processed
+RETURNING id, "channelId", "userId", enabled, text, "isReply", processed, "with_shoutout"
 `
 
 	conn := c.getter.DefaultTrOrDB(ctx, c.pool)

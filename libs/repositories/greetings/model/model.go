@@ -12,7 +12,7 @@ type Greeting struct {
 	Text         string
 	IsReply      bool
 	Processed    bool
-	WithShoutOut bool
+	WithShoutOut bool `db:"with_shoutout"`
 }
 
 var GreetingNil = Greeting{}

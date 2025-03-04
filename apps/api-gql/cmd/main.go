@@ -2,15 +2,17 @@ package main
 
 import (
 	cfg "github.com/satont/twir/libs/config"
+	"github.com/twirapp/twir/apps/api-gql/internal/app"
 	"github.com/twirapp/twir/apps/api-gql/internal/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/dataloader"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/directives"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/resolvers"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/gql/twir-stats"
-	pubclicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
+	publicroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http-public"
 	"github.com/twirapp/twir/apps/api-gql/internal/delivery/http-webhooks"
-	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/auth"
+	httpmiddlewares "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/middlewares"
+	authroutes "github.com/twirapp/twir/apps/api-gql/internal/delivery/http/routes/auth"
 	"github.com/twirapp/twir/apps/api-gql/internal/minio"
 	"github.com/twirapp/twir/apps/api-gql/internal/server"
 	"github.com/twirapp/twir/apps/api-gql/internal/server/middlewares"
@@ -221,6 +223,8 @@ func main() {
 		),
 		// app itself
 		fx.Provide(
+			httpmiddlewares.New,
+			app.NewHuma,
 			dataloader.New,
 			auth.NewSessions,
 			minio.New,
@@ -242,7 +246,7 @@ func main() {
 		fx.Invoke(
 			gql.New,
 			uptrace.NewFx("api-gql"),
-			pubclicroutes.New,
+			publicroutes.New,
 			http_webhooks.New,
 			authroutes.New,
 		),

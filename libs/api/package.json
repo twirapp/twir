@@ -4,7 +4,8 @@
 	"scripts": {
 		"prebuild": "rimraf dist",
 		"build": "bun run build.ts",
-		"build:ts": "tsc"
+		"build:ts": "tsc",
+		"build:openapi": "bun --bun run codegen-api.ts"
 	},
 	"exports": {
 		"./*": {
@@ -24,5 +25,8 @@
 		"@protobuf-ts/plugin": "2.9.4",
 		"@protobuf-ts/runtime": "2.9.4",
 		"@protobuf-ts/runtime-rpc": "2.9.4"
+	},
+	"devDependencies": {
+		"swagger-typescript-api": "13.0.23"
 	}
 }

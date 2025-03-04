@@ -1,14 +1,18 @@
 package http_public
 
 import (
+	"context"
 	"errors"
-	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/samber/lo"
 	model "github.com/satont/twir/libs/gomodels"
 	"github.com/twirapp/twir/apps/api-gql/internal/services/channels"
 )
+
+type publicCommandsOutput struct {
+	Body []commandDto `json:"body"`
+}
 
 type commandDto struct {
 	Name        string               `json:"name"`
@@ -22,28 +26,27 @@ type commandDtoResponse struct {
 	Text string `json:"text"`
 }
 
-func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
-	channel, err := p.channelsService.GetByID(c.Request.Context(), c.Param("channelId"))
+func (p *Public) HandleChannelCommandsGet(
+	ctx context.Context,
+	channelId string,
+) (*publicCommandsOutput, error) {
+	channel, err := p.channelsService.GetByID(ctx, channelId)
 	if err != nil {
 		if errors.Is(err, channels.ErrNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "channel not found"})
-			return
+			return nil, huma.Error404NotFound("channel not found")
 		}
 
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, huma.Error500InternalServerError("internal server error")
 	}
 
 	if !channel.IsEnabled {
-		c.JSON(http.StatusNotFound, gin.H{"error": "channel is disabled"})
-		return
+		return nil, huma.Error404NotFound("channel not found")
 	}
 
 	// TODO: it must use generic cacher with repository instead of gorm cacher
-	commands, err := p.cachedCommands.Get(c.Request.Context(), c.Param("channelId"))
+	commands, err := p.cachedCommands.Get(ctx, channelId)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		return nil, huma.Error500InternalServerError("internal server error")
 	}
 
 	commands = lo.Filter(
@@ -79,5 +82,5 @@ func (p *Public) HandleChannelCommandsGet(c *gin.Context) {
 		mappedCommands = append(mappedCommands, mappedCmd)
 	}
 
-	c.JSON(http.StatusOK, mappedCommands)
+	return &publicCommandsOutput{Body: mappedCommands}, nil
 }

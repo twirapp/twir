@@ -12,6 +12,7 @@
     "graphql-codegen": "bunx --bun graphql-codegen"
   },
   "dependencies": {
+    "@twir/api": "workspace:*",
     "@nuxt-alt/proxy": "2.5.8",
     "@nuxt/fonts": "0.9.2",
     "@nuxt/image": "1.8.1",

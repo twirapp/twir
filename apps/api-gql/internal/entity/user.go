@@ -11,3 +11,12 @@ type User struct {
 }
 
 var UserNil = User{}
+
+type TwitchUser struct {
+	ID              string `json:"id"`
+	Login           string `json:"login"`
+	DisplayName     string `json:"displayName"`
+	ProfileImageURL string `json:"profileImageUrl"`
+	Description     string `json:"description"`
+	NotFound        bool   `json:"notFound"`
+}

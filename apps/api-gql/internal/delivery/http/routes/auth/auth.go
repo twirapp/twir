@@ -1,9 +1,13 @@
 package auth
 
 import (
+	"context"
+	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
 	config "github.com/satont/twir/libs/config"
 	sessions "github.com/twirapp/twir/apps/api-gql/internal/auth"
-	"github.com/twirapp/twir/apps/api-gql/internal/server"
+	httpdelivery "github.com/twirapp/twir/apps/api-gql/internal/delivery/http"
 	buscore "github.com/twirapp/twir/libs/bus-core"
 	"github.com/twirapp/twir/libs/grpc/tokens"
 	"go.uber.org/fx"
@@ -13,7 +17,7 @@ import (
 type Opts struct {
 	fx.In
 
-	Server     *server.Server
+	Huma       huma.API
 	Gorm       *gorm.DB
 	Config     config.Config
 	TokensGrpc tokens.TokensClient
@@ -38,7 +42,23 @@ func New(opts Opts) *Auth {
 		sessions:   opts.Sessions,
 	}
 
-	opts.Server.POST("/auth", p.handleAuthPostCode)
+	huma.Register(
+		opts.Huma,
+		huma.Operation{
+			OperationID: "auth-post-code",
+			Method:      http.MethodPost,
+			Path:        "/auth",
+			Tags:        []string{"Auth"},
+			Summary:     "Auth post code",
+		},
+		func(
+			ctx context.Context, i *struct {
+				Body authBody
+			},
+		) (*httpdelivery.BaseOutputJson[authResponseDto], error) {
+			return p.handleAuthPostCode(ctx, i.Body)
+		},
+	)
 
 	return p
 }

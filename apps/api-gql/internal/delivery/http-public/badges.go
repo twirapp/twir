@@ -1,30 +1,35 @@
 package http_public
 
 import (
-	"github.com/gin-gonic/gin"
+	"context"
+
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/google/uuid"
 	"github.com/samber/lo"
 	badges_with_users "github.com/twirapp/twir/apps/api-gql/internal/services/badges-with-users"
 )
 
+type badgesOutput struct {
+	Body []badgeWithUsers `json:"body"`
+}
+
 type badgeWithUsers struct {
-	ID      uuid.UUID `json:"id"`
 	Name    string    `json:"name"`
-	FFZSlot int       `json:"ffzSlot"`
 	URL     string    `json:"url"`
 	Users   []string  `json:"users"`
+	FFZSlot int       `json:"ffzSlot"`
+	ID      uuid.UUID `json:"id"`
 }
 
 // TODO: use some gin middleware for cache response
 
-func (p *Public) HandleBadgesGet(c *gin.Context) {
+func (p *Public) HandleBadgesGet(ctx context.Context) (*badgesOutput, error) {
 	entities, err := p.badgesWithUsersService.GetMany(
-		c.Request.Context(),
+		ctx,
 		badges_with_users.GetManyInput{Enabled: lo.ToPtr(true)},
 	)
 	if err != nil {
-		c.JSON(500, gin.H{"error": err.Error()})
-		return
+		return nil, huma.Error500InternalServerError("internal server error")
 	}
 
 	result := make([]badgeWithUsers, 0, len(entities))
@@ -41,5 +46,5 @@ func (p *Public) HandleBadgesGet(c *gin.Context) {
 		)
 	}
 
-	c.JSON(200, result)
+	return &badgesOutput{Body: result}, nil
 }

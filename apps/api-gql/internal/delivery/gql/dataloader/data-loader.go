@@ -50,7 +50,7 @@ func New(opts Opts) *LoaderFactory {
 	}
 }
 
-func (c *LoaderFactory) load() *dataLoader {
+func (c *LoaderFactory) Load() *dataLoader {
 	loader := &dataLoader{
 		deps: c.deps,
 	}
@@ -84,7 +84,7 @@ func (c *LoaderFactory) load() *dataLoader {
 }
 
 func (c *LoaderFactory) LoadMiddleware(g *gin.Context) {
-	loaderForRequest := c.load()
+	loaderForRequest := c.Load()
 
 	g.Request = g.Request.WithContext(
 		context.WithValue(g.Request.Context(), LoadersKey, loaderForRequest),

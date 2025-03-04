@@ -1,11 +1,14 @@
 package goapp
 
 import (
+	"fmt"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"syscall"
 
+	"github.com/pterm/pterm"
 	"github.com/twirapp/twir/cli/internal/shell"
 	"github.com/twirapp/twir/cli/internal/watcher"
 )
@@ -16,9 +19,14 @@ type TwirGoApp struct {
 	Path         string
 	Watcher      *watcher.Watcher
 	debugEnabled bool
+	Port         *int
+	OnPortReady  func()
 }
 
-func NewApplication(name string, enableDebug bool) (*TwirGoApp, error) {
+func NewApplication(name string, enableDebug bool, port *int, onPortReady func()) (
+	*TwirGoApp,
+	error,
+) {
 	wd, err := os.Getwd()
 	if err != nil {
 		return nil, err
@@ -30,6 +38,8 @@ func NewApplication(name string, enableDebug bool) (*TwirGoApp, error) {
 		Path:         filepath.Join(wd, "apps", name),
 		Watcher:      watcher.New(),
 		debugEnabled: enableDebug,
+		Port:         port,
+		OnPortReady:  onPortReady,
 	}
 
 	cmd, err := app.CreateAppCommand()
@@ -66,6 +76,11 @@ func (c *TwirGoApp) Start() error {
 	}
 
 	c.Cmd = newCmd
+
+	go func() {
+		c.waitPortReady()
+	}()
+
 	return c.Cmd.Start()
 }
 
@@ -110,4 +125,21 @@ func (c *TwirGoApp) CreateAppCommand() (*exec.Cmd, error) {
 	}
 
 	return cmd, nil
+}
+
+func (c *TwirGoApp) waitPortReady() {
+	if c.Port == nil || c.OnPortReady == nil {
+		return
+	}
+
+	for {
+		_, err := net.Dial("tcp", fmt.Sprintf("127.0.0.1:%d", *c.Port))
+		if err != nil {
+			continue
+		}
+
+		pterm.Info.Println("Port " + c.Name + " is ready, running hook")
+		c.OnPortReady()
+		break
+	}
 }

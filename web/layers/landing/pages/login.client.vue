@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { Api, HttpClient } from '@twir/api/openapi'
+
 import UiButton from '~~/layers/landing/components/landing-ui-button.vue'
 
 definePageMeta({
@@ -11,6 +13,13 @@ const code = url.searchParams.get('code')
 const state = url.searchParams.get('state')
 const error = ref(url.searchParams.get('error'))
 const loading = ref(true)
+
+const api = new Api(new HttpClient({
+	baseUrl: `${window.location.origin}/api`,
+	baseApiParams: {
+		credentials: 'include',
+	},
+}))
 
 onMounted(async () => {
 	if (import.meta.server) return
@@ -25,21 +34,17 @@ onMounted(async () => {
 	}
 
 	try {
-		const req = await fetch(`/api/auth`, {
-			method: 'POST',
-			body: JSON.stringify({
-				code,
-				state,
-			}),
+		const req = await api.auth.authPostCode({
+			code,
+			state,
 		})
+
 		if (!req.ok) {
-			const { error } = await req.json()
-			throw new Error(error)
+			error.value = 'Internal error happened, please contact devs in discord'
+			return
 		}
 
-		const data = await req.json()
-
-		window.location.replace(data.redirect_to)
+		window.location.replace(req.data.data.redirect_to)
 	} catch (requestError) {
 		console.error(requestError)
 		error.value = 'Internal error happened, please contact devs in discord'

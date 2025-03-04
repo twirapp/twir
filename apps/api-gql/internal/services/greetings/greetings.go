@@ -2,6 +2,7 @@ package greetings
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
@@ -95,7 +96,22 @@ type CreateInput struct {
 }
 
 func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greeting, error) {
-	dbGreeting, err := c.greetingsRepository.Create(
+	greeting, err := c.greetingsRepository.GetOneByChannelAndUserID(
+		ctx,
+		greetings.GetOneInput{
+			ChannelID: input.ChannelID,
+			UserID:    input.UserID,
+		},
+	)
+	if err != nil && !errors.Is(err, greetings.ErrNotFound) {
+		return entity.GreetingNil, err
+	}
+
+	if greeting != model.GreetingNil {
+		return entity.GreetingNil, fmt.Errorf("greeting for user %s already exists", input.UserID)
+	}
+
+	newGreeting, err := c.greetingsRepository.Create(
 		ctx, greetings.CreateInput{
 			ChannelID:    input.ChannelID,
 			UserID:       input.UserID,
@@ -113,12 +129,12 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 	c.logger.Audit(
 		"New greeting",
 		audit.Fields{
-			NewValue:      dbGreeting,
+			NewValue:      newGreeting,
 			ActorID:       &input.ActorID,
 			ChannelID:     &input.ChannelID,
 			System:        mappers.AuditSystemToTableName(gqlmodel.AuditLogSystemChannelGreeting),
 			OperationType: audit.OperationCreate,
-			ObjectID:      lo.ToPtr(dbGreeting.ID.String()),
+			ObjectID:      lo.ToPtr(newGreeting.ID.String()),
 		},
 	)
 
@@ -126,7 +142,7 @@ func (c *Service) Create(ctx context.Context, input CreateInput) (entity.Greetin
 		return entity.GreetingNil, fmt.Errorf("failed to invalidate cache: %w", err)
 	}
 
-	return c.mapToEntity(dbGreeting), nil
+	return c.mapToEntity(newGreeting), nil
 }
 
 type UpdateInput struct {
@@ -196,9 +212,14 @@ type DeleteInput struct {
 	ID        uuid.UUID
 }
 
+var ErrGreetingNotFound = errors.New("greeting not found")
+
 func (c *Service) Delete(ctx context.Context, input DeleteInput) error {
 	dbGreeting, err := c.greetingsRepository.GetByID(ctx, input.ID)
 	if err != nil {
+		if errors.Is(err, greetings.ErrNotFound) {
+			return ErrGreetingNotFound
+		}
 		return err
 	}
 
