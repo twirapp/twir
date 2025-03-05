@@ -71,7 +71,7 @@ async function save() {
 					<span>{{ t('sharedTexts.enabled') }}</span>
 					<Switch
 						:model-value="formValue.enabled"
-						@update:model-value="() => formValue.enabled = !formValue.enabled"
+						@update:checked="() => formValue.enabled = !formValue.enabled"
 					/>
 				</div>
 
