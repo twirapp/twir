@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { DISCORD_INVITE_URL, GITHUB_REPOSITORY_URL } from '@twir/brand'
+import { useRoute } from 'vue-router'
 
 import TwirLogo from '../../../../../libs/brand/src/logo.svg?component'
 
 import { anchorLinks } from '~~/layers/landing/layouts/default/anchor-links'
+
+const route = useRoute()
+const isHomePage = computed(() => route.path === '/')
+const isTermsPage = computed(() => route.path === '/terms')
 </script>
 
 <template>
@@ -16,20 +21,22 @@ import { anchorLinks } from '~~/layers/landing/layouts/default/anchor-links'
 				</div>
 				<nav class="flex justify-center items-center" aria-label="Footer Navigation">
 					<ul class="list-none p-0 m-0 flex flex-wrap gap-4">
-						<li
-							v-for="anchor of anchorLinks"
-							:key="anchor.href"
-						>
-							<a
-								:href="anchor.href"
-								class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors"
+						<template v-if="isHomePage">
+							<li
+								v-for="anchor of anchorLinks"
+								:key="anchor.href"
 							>
-								{{ anchor.label }}
-							</a>
-						</li>
+								<a
+									:href="anchor.href"
+									class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors"
+								>
+									{{ anchor.label }}
+								</a>
+							</li>
+						</template>
 					</ul>
 				</nav>
-				<nav class="flex justify-center items-center" aria-label="Footer Navigation">
+				<nav v-if="!isTermsPage" class="flex justify-center items-center" aria-label="Footer Navigation">
 					<ul class="list-none p-0 m-0 flex flex-wrap gap-4">
 						<NuxtLink to="/terms" class="text-[#ADB0B8] font-medium px-3 py-2 leading-6 hover:text-[#D5D8DF] transition-colors">
 							Terms of service

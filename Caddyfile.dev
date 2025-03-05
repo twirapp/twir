@@ -1,5 +1,5 @@
 http://localhost:3005 {
-    reverse_proxy http://localhost:3010
+    reverse_proxy http://127.0.0.1:3010
 
     handle_path /api/* {
         reverse_proxy 127.0.0.1:3009
