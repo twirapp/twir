@@ -29,7 +29,7 @@ export const featuresData: Feature[] = [
 	{
 		title: 'Commands',
 		description:
-			'A powerful command system with aliases, counters, and all sorts of variables for all occasions',
+			'A powerful command system with multiple responses per command, category-based activation, expiration settings, aliases, counters, and variables. Commands can be bound to specific game categories and include timed auto-deletion or disabling.',
 		icon: CommandsSvg,
 	},
 	{

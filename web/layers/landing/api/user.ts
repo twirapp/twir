@@ -65,3 +65,19 @@ export function useAuthLink(redirectTo: MaybeRef<string>) {
 		},
 	})
 }
+
+export function useLogout() {
+	const { executeMutation } = useMutation(graphql(`
+		mutation userLogout {
+			logout
+		}
+	`))
+
+	async function execute() {
+		const result = await executeMutation({}, { additionalTypenames: [userInvalidateQueryKey] })
+		// if (result.error) throw new Error(result.error.toString())
+		// window.location.replace('/')
+	}
+
+	return execute
+}

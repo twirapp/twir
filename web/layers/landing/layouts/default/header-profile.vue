@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useAuthLink, useProfile } from '~~/layers/landing/api/user'
+import type { DropdownMenuContentProps } from 'radix-vue'
+
+import { useAuthLink, useLogout, useProfile } from '~~/layers/landing/api/user'
 
 const pageUrl = useRequestURL()
 
@@ -14,6 +16,17 @@ const [
 	useProfile(),
 	useAuthLink(redirectUrl),
 ])
+
+const dropdownProps = computed((): DropdownMenuContentProps & { class?: string } => {
+	return {
+		class: 'w-[200px]',
+		side: 'bottom',
+		align: 'end',
+		sideOffset: 4,
+	}
+})
+
+const logout = useLogout()
 </script>
 
 <template>
@@ -25,14 +38,42 @@ const [
 		Login
 		<SvgoSocialTwitch :fontControlled="false" class="w-5 h-5 fill-white" />
 	</a>
-	<a v-else href="/dashboard" class="text-white/75 inline-flex gap-x-3 items-center">
-		<span class="max-[600px]:hidden">
-			{{ profile.authenticatedUser.twitchProfile.login }}
-		</span>
-		<NuxtImg
-			:src="profile.authenticatedUser.twitchProfile.profileImageUrl"
-			alt="avatarImage"
-			class="rounded-full w-9 h-9 object-cover"
-		/>
-	</a>
+
+	<UiDropdownMenu v-else>
+		<UiDropdownMenuTrigger class="inline-flex items-center gap-3 text-white/75 hover:text-white transition-colors" as="button">
+			<div class="flex items-center gap-3 min-w-0">
+				<img
+					:src="profile.authenticatedUser.twitchProfile.profileImageUrl"
+					:alt="profile.authenticatedUser.twitchProfile.displayName"
+					class="w-8 h-8 rounded-full flex-shrink-0"
+				/>
+				<span class="max-[600px]:hidden truncate">
+					{{ profile.authenticatedUser.twitchProfile.login }}
+				</span>
+				<Icon name="lucide:chevron-down" class="w-4 h-4 flex-shrink-0" />
+			</div>
+		</UiDropdownMenuTrigger>
+
+		<UiDropdownMenuContent v-bind="dropdownProps">
+			<UiDropdownMenuItem as-child>
+				<a href="/dashboard" class="flex w-full items-center">
+					<Icon name="lucide:layout-dashboard" class="mr-2 h-4 w-4" />
+					Dashboard
+				</a>
+			</UiDropdownMenuItem>
+
+			<UiDropdownMenuSeparator />
+
+			<UiDropdownMenuItem as="button" class="flex w-full items-center text-destructive" @click="logout">
+				<Icon name="lucide:log-out" class="mr-2 h-4 w-4" />
+				Logout
+			</UiDropdownMenuItem>
+		</UiDropdownMenuContent>
+	</UiDropdownMenu>
 </template>
+
+<style scoped>
+.text-destructive {
+	color: rgb(239 68 68);
+}
+</style>
