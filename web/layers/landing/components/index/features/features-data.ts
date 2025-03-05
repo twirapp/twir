@@ -6,6 +6,7 @@ import GamesSvg from 'assets/icons/features/games.svg?component'
 import GreetingsSvg from 'assets/icons/features/greetings.svg?component'
 import KeywordsSvg from 'assets/icons/features/keywords.svg?component'
 import ModerationSvg from 'assets/icons/features/moderation.svg?component'
+import MusicRecognizeSvg from 'assets/icons/features/music-recognize.svg?component'
 import OverlaysSvg from 'assets/icons/features/overlays.svg?component'
 import SongRequestsSvg from 'assets/icons/features/song-requests.svg?component'
 import StatsSvg from 'assets/icons/features/stats.svg?component'
@@ -15,9 +16,16 @@ interface Feature {
 	title: string
 	description: string
 	icon: any
+	fullWidth?: boolean
 }
 
 export const featuresData: Feature[] = [
+	{
+		title: 'Music Recognition',
+		description: 'Shazam for your twitch stream! Free, without the need to connect any music services.',
+		icon: MusicRecognizeSvg,
+		fullWidth: true,
+	},
 	{
 		title: 'Commands',
 		description:
