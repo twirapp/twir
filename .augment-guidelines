@@ -1,0 +1,16 @@
+Icons:
+Always use lucide-vue-next icons when possible
+Only use other icon libraries/local files when a specific icon is not available in lucide
+
+Vue imports:
+Always include .vue extension when importing Vue components
+Example: import MyComponent from './MyComponent.vue'
+
+Vue development:
+Use Composition API with TypeScript
+Use <script setup lang="ts"> for component definitions
+Use  defineProps,  defineEmits, and  defineSlots with proper TypeScript types
+
+Styling:
+Use Tailwind CSS for styling
+Follow the project's existing Tailwind configuration and color schemes
